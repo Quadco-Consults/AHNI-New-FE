@@ -1,0 +1,15 @@
+export const RouteEnum = {
+  DASHBOARD: "/",
+  OVERVIEW: "/precurement-management/overview",
+  EOI: "/precurement-management/eoi",
+  EOI_VENDOR: "/precurement-management/eoi-vendor",
+  COMPETITIVE_ANALYSIS: "/precurement-management/compeditive-analysis",
+  PAYMENT_REQUEST: "/precurement-management/payment-request",
+  PURCHASE_REQUEST: "/precurement-management/purchase-request",
+  PRECUREMENT_PLAN: "/precurement-management/precurement-plan",
+  PRECUREMENT_PLAN_TRACKER: "/precurement-management/precurement-plan-tracker",
+  REPORT: "/precurement-management/report",
+  RFQ: "/precurement-management/rfq",
+  RFQ_VENDOR: "/precurement-management/rfq-vendor",
+  VENDOR_MANAGEMENT: "/precurement-management/vendor-management",
+};

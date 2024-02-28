@@ -1,0 +1,16 @@
+.Pagination {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 8px;
+  gap: 2px;
+  background-color: inherit;
+}
+
+.Pagination__info {
+  margin-right: 16px;
+}
+
+.Pagination__page {
+  padding: 8px;
+}

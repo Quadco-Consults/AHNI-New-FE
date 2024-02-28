@@ -1,0 +1,19 @@
+.GridTable {
+  overflow: auto;
+  max-width: 100%;
+  background: inherit;
+}
+
+.GridTable__table {
+  display: grid;
+  gap: 4px;
+  background: inherit;
+  width: 100%;
+}
+
+.GridTable__pagination {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
