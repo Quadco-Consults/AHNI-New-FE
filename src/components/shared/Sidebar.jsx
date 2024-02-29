@@ -11,9 +11,9 @@ const Sidebar = () => {
   const [selectedLinkSubIndex, setSelectedLinkSubIndex] = useState(null);
 
   return (
-    <aside className="space-y-6 bg-background h-screen">
+    <aside className="space-y-6 bg-background h-full">
       <div className="py-4 border-dashed border-b-2 border-black">
-        <img src={logoSvg} alt="logo" width={100} className="pl-5" />
+        <img src={logoSvg} alt="logo" width={140} className="pl-5" />
       </div>
 
       <div className="px-3">
@@ -23,7 +23,7 @@ const Sidebar = () => {
             className={({ isActive }) => {
               return isActive
                 ? "w-full bg-primary rounded-lg p-3 px gap-3 flex text-white justify-start hover:opacity-70"
-                : "w-full bg-inherit rounded-lg p-3 px gap-3 flex text-grey-light justify-start hover:bg-primary";
+                : "w-full bg-inherit rounded-lg p-3 px gap-3 flex text-grey-light justify-start hover:bg-primary hover:text-white";
             }}
           >
             <svg
@@ -143,21 +143,33 @@ const Sidebar = () => {
                         {showSubMenu && selectedLinkSubIndex === i && (
                           <ul>
                             {el?.sublinks?.map((sublink) => (
-                              <Link key={sublink.name} to={sublink.path}>
+                              <NavLink
+                                key={sublink.name}
+                                to={sublink.path}
+                                className={({ isActive }) => {
+                                  return isActive ? "text-primary" : "";
+                                }}
+                              >
                                 <li className="list-disc py-2 ml-3 hover:text-primary hover:cursor-pointer">
                                   {sublink.name}
                                 </li>
-                              </Link>
+                              </NavLink>
                             ))}
                           </ul>
                         )}
                       </>
                     ) : (
-                      <Link key={i} to={el.path}>
+                      <NavLink
+                        key={i}
+                        to={el.path}
+                        className={({ isActive }) => {
+                          return isActive ? "text-primary" : "";
+                        }}
+                      >
                         <li className="list-disc hover:text-primary hover:cursor-pointer">
                           <h6 className="py-2">{el.name}</h6>
                         </li>
-                      </Link>
+                      </NavLink>
                     )
                   )}
                 </ul>

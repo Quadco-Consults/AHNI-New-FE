@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "components/ui/dialog";
+import { Badge } from "components/ui/badge";
 
 const Dasboard = () => {
   return (
@@ -327,15 +328,9 @@ const Dasboard = () => {
                   </div>
 
                   <div>
-                    <h4
-                      className={cn(
-                        textColor,
-                        backgroundColor,
-                        "px-2 py-1 rounded-lg font-medium"
-                      )}
-                    >
+                    <Badge className={cn(textColor, backgroundColor)}>
                       {status}
-                    </h4>
+                    </Badge>
                   </div>
                 </div>
               )

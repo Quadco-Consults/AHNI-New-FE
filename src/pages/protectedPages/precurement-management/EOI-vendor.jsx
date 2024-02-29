@@ -1,18 +1,8 @@
 import { Checkbox } from "components/ui/checkbox";
 import Card from "components/shared/Card";
-import { Button } from "components/ui/button";
 import useTable from "hooks/useTable";
 import Table from "lib/react-table/Table";
-import { Plus } from "lucide-react";
 import React from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "components/ui/dialog";
 import { cn } from "lib/utils";
 import { Badge } from "components/ui/badge";
 
@@ -31,12 +21,12 @@ const EOIVendor = () => {
         <h4 className="text-lg font-bold">EOI Vendor Submissions</h4>
         <h6>
           Precurement -{" "}
-          <span className="text-black font-bold">EOI Vendor Submissions</span>
+          <span className="text-black font-medium">EOI Vendor Submissions</span>
         </h6>
       </div>
 
       <Card className="space-y-10">
-        <h4 className="text-lg font-bold">Vendor Submissions</h4>
+        <h4 className="text-base font-bold">Vendor Submissions</h4>
 
         <div className=" overflow-auto">
           <Table

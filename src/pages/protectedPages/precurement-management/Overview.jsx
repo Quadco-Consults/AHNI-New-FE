@@ -6,13 +6,24 @@ import iconSvg2 from "assets/svgs/I [ki-duotone](6).svg";
 import IconButton from "components/shared/IconButton";
 import { Progress } from "components/ui/progress";
 import Card from "components/shared/Card";
+import {
+  BarChart,
+  Bar,
+  Rectangle,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
 const Overview = () => {
   return (
     <div>
       <h4 className="text-lg font-bold">Overview</h4>
       <h6>
-        Procurement - <span className="text-black font-bold">Overview</span>
+        Procurement - <span className="text-black font-medium">Overview</span>
       </h6>
 
       <div className="space-y-10 mt-10">
@@ -21,7 +32,7 @@ const Overview = () => {
             <img src={logoPng} alt="logo" width={200} />
           </div>
           <div>
-            <h4 className="text-lg font-bold">Procurement Overview</h4>
+            <h4 className="text-base font-bold">Procurement Overview</h4>
             <div className="flex items-center gap-2">
               {[
                 {
@@ -76,6 +87,32 @@ const Overview = () => {
               <h4 className="font-bold text-lg">Procurement Trends</h4>
               <h4 className="text-xs">Monthly procurement insights</h4>
             </div>
+
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart width={500} data={data}>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  vertical={false}
+                  opacity={0.4}
+                />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} />
+                {/* <YAxis /> */}
+                <Tooltip />
+                <Bar
+                  dataKey="pv"
+                  fill="hsl(var(--primary))"
+                  barSize={10}
+                  // activeBar={<Rectangle fill="pink" stroke="blue" />}
+                />
+                <Bar
+                  dataKey="uv"
+                  fill="#99A1B7"
+                  barSize={10}
+                  className=" rounded-t-full"
+                  // activeBar={<Rectangle fill="gold" stroke="purple" />}
+                />
+              </BarChart>
+            </ResponsiveContainer>
           </Card>
 
           <Card className="p-3 space-y-5 md:p-10">
@@ -149,3 +186,48 @@ const Overview = () => {
 };
 
 export default Overview;
+
+const data = [
+  {
+    name: "Page A",
+    uv: 4000,
+    pv: 2400,
+    amt: 2400,
+  },
+  {
+    name: "Page B",
+    uv: 3000,
+    pv: 1398,
+    amt: 2210,
+  },
+  {
+    name: "Page C",
+    uv: 2000,
+    pv: 9800,
+    amt: 2290,
+  },
+  {
+    name: "Page D",
+    uv: 2780,
+    pv: 3908,
+    amt: 2000,
+  },
+  {
+    name: "Page E",
+    uv: 1890,
+    pv: 4800,
+    amt: 2181,
+  },
+  {
+    name: "Page F",
+    uv: 2390,
+    pv: 3800,
+    amt: 2500,
+  },
+  {
+    name: "Page G",
+    uv: 3490,
+    pv: 4300,
+    amt: 2100,
+  },
+];

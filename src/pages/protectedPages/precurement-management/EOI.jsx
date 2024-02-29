@@ -31,14 +31,16 @@ const EOI = () => {
         <h4 className="text-lg font-bold">EOI</h4>
         <h6>
           Precurement -{" "}
-          <span className="text-black font-bold">Expression of Interests</span>
+          <span className="text-black font-medium">
+            Expression of Interests
+          </span>
         </h6>
       </div>
 
       <Card className="space-y-10">
         <div className="flex justify-between items-center">
           <div>
-            <h4 className="text-lg font-bold">EOI</h4>
+            <h4 className="text-base font-bold">EOI</h4>
             <h6>Over 500 orders</h6>
           </div>
           <div>
@@ -158,7 +160,7 @@ const columns = [
             "p-1 rounded-lg",
             getValue() === "Completed"
               ? "bg-green-light text-green-dark"
-              : "bg-red-light text-red-dark"
+              : "bg-purple-light text-purple-dark"
           )}
         >
           {getValue()}
@@ -187,6 +189,13 @@ const columns = [
   {
     header: "Contract Amount (₦)",
     accessorKey: "amount",
+    cell: ({ getValue }) => {
+      return getValue() ? (
+        <p>{getValue()}</p>
+      ) : (
+        <p className="text-center">---</p>
+      );
+    },
   },
   {
     header: "Vendor Awarded",
