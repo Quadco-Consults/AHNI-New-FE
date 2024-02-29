@@ -1,6 +1,12 @@
-import { Icon, IconButton } from "@mui/material";
-import clsx from "clsx";
 import "./Pagination.css";
+import IconButton from "components/shared/IconButton";
+import {
+  ChevronFirst,
+  ChevronLast,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import { cn } from "lib/utils";
 
 /**
  *
@@ -10,8 +16,8 @@ function Pagination(props) {
   const { instance, className, classes, ...rest } = props;
 
   return (
-    <div className={clsx("Pagination", className, classes?.root)} {...rest}>
-      <span className={clsx("Pagination__info", classes?.info)}>
+    <div className={cn("Pagination", className, classes?.root)} {...rest}>
+      <span className={cn("Pagination__info", classes?.info)}>
         {instance.getState().pagination?.pageSize *
           instance.getState().pagination?.pageIndex +
           1}{" "}
@@ -32,7 +38,7 @@ function Pagination(props) {
         onClick={() => instance.setPageIndex(0)}
         disabled={!instance.getCanPreviousPage()}
       >
-        <Icon>first_page</Icon>
+        <ChevronFirst size={20} />
       </IconButton>
       <IconButton
         color="inherit"
@@ -40,10 +46,10 @@ function Pagination(props) {
         onClick={() => instance.previousPage()}
         disabled={!instance.getCanPreviousPage()}
       >
-        <Icon>navigate_before</Icon>
+        <ChevronLeft size={20} />
       </IconButton>
-      <div className={clsx("Pagination__page", classes?.page)}>
-        <h5 className={clsx("Pagination__pageText", classes?.pageText)}>
+      <div className={cn("Pagination__page", classes?.page)}>
+        <h5 className={cn("Pagination__pageText", classes?.pageText)}>
           {instance.getState()?.pagination?.pageIndex + 1}
         </h5>
       </div>
@@ -53,7 +59,7 @@ function Pagination(props) {
         onClick={() => instance.nextPage()}
         disabled={!instance.getCanNextPage()}
       >
-        <Icon>navigate_next</Icon>
+        <ChevronRight size={20} />
       </IconButton>
       <IconButton
         color="inherit"
@@ -61,7 +67,7 @@ function Pagination(props) {
         onClick={() => instance.setPageIndex(instance.getPageCount() - 1)}
         disabled={!instance.getCanNextPage()}
       >
-        <Icon>last_page</Icon>
+        <ChevronLast size={20} />
       </IconButton>
     </div>
   );

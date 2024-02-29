@@ -1,0 +1,3 @@
+.EmptyContent {
+  @apply flex flex-col items-center justify-center py-8 sticky left-0 right-0;
+}

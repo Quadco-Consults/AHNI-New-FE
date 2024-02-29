@@ -5,6 +5,7 @@ import iconSvg1 from "assets/svgs/I [ki-duotone](5).svg";
 import iconSvg2 from "assets/svgs/I [ki-duotone](6).svg";
 import IconButton from "components/shared/IconButton";
 import { Progress } from "components/ui/progress";
+import Card from "components/shared/Card";
 
 const Overview = () => {
   return (
@@ -15,7 +16,7 @@ const Overview = () => {
       </h6>
 
       <div className="space-y-10 mt-10">
-        <div className="p-5 bg-white shadow-sm rounded-2xl flex items-center gap-5">
+        <Card className="flex items-center gap-5">
           <div>
             <img src={logoPng} alt="logo" width={200} />
           </div>
@@ -67,17 +68,17 @@ const Overview = () => {
             </div>
             <Progress value={33} />
           </div>
-        </div>
+        </Card>
 
         <div className="grid gap-5 grid-cols-1 md:grid-cols-2">
-          <div className="p-3 space-y-5 bg-white shadow-sm rounded-2xl md:p-10">
+          <Card className="p-3 space-y-5 md:p-10">
             <div>
               <h4 className="font-bold text-lg">Procurement Trends</h4>
               <h4 className="text-xs">Monthly procurement insights</h4>
             </div>
-          </div>
+          </Card>
 
-          <div className="p-3 space-y-5 bg-white shadow-sm rounded-2xl md:p-10">
+          <Card className="p-3 space-y-5 md:p-10">
             <div className="flex justify-between">
               <div>
                 <h4 className="font-bold text-lg">Health Activities</h4>
@@ -133,14 +134,14 @@ const Overview = () => {
                   name: "Health seminar for community:Details",
                   time: "10:42",
                 },
-              ].map(({ name, time }) => (
-                <div key={name} className="flex items-center gap-5">
+              ].map(({ name, time }, index) => (
+                <div key={index} className="flex items-center gap-5">
                   <h4>{time}</h4> <span>-</span>
                   <h4>{name}</h4>
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </div>

@@ -23,11 +23,10 @@
   bottom: 0;
 }
 
-.StandardTable__table__header,
+/* .StandardTable__table__header,
 .StandardTable__table__footer {
   font-weight: 700;
-  @apply text-text-secondary bg-inherit;
-}
+} */
 
 .StandardTable__table__header,
 /* .StandardTable__table__footer, */
@@ -40,7 +39,7 @@
 .StandardTable__table__header__row,
 .StandardTable__table__body__row,
 .StandardTable__table__footer__row {
-  border-bottom: 1px solid lightgray;
+  border-bottom: 1px solid rgba(211, 211, 211, 0.18);
   /* background-color: inherit; */
 }
 
@@ -60,15 +59,16 @@
 }
 
 .StandardTable__table__header__row__cell {
-  font-weight: 700;
-  text-transform: uppercase;
+  font-weight: 600;
+  color: #99a1b7;
+  /* text-transform: uppercase; */
 }
 
 .StandardTable__table__header__row__cell,
 .StandardTable__table__body__row__cell,
 .StandardTable__table__footer__row__cell {
   position: relative;
-  padding: 8px;
+  padding: 20px 8px;
   /* height: 48px; */
   text-align: left;
 }

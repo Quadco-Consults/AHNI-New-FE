@@ -12,13 +12,13 @@ const ProtectedPage = () => {
   return (
     <>
       <div className="flex">
-        <div className="hidden sticky w-[23%] md:block">
+        <div className="hidden sticky w-[19%] md:block">
           <Sidebar />
         </div>
-        <div className="w-full">
+        <div className="w-full md:w-[81%]">
           <Header />
           <Suspense>
-            <main className="p-5">{routes}</main>
+            <main className="p-10">{routes}</main>
           </Suspense>
           <Footer />
         </div>

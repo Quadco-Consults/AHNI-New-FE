@@ -1,10 +1,10 @@
 import { flexRender } from "@tanstack/react-table";
-import clsx from "clsx";
-import EmptyContent from "common/EmptyContent";
-import ErrorContent from "common/ErrorContent";
-import LoadingIndicator from "common/LoadingIndicator";
+import EmptyContent from "./ErrorContent";
+import ErrorContent from "./ErrorContent";
+import LoadingIndicator from "./LoadingIndicator";
 import TablePagination from "./Pagination";
 import "./StandardTable.css";
+import { cn } from "lib/utils";
 
 /**
  *
@@ -68,7 +68,7 @@ function renderRoot(instance, props) {
     <Root
       {...{
         ...props.RootProps,
-        className: clsx(
+        className: cn(
           "StandardTable",
           props.RootProps?.className,
           classes?.root
@@ -113,7 +113,7 @@ function renderTable(instance, props) {
     <Table
       {...{
         ...TableProps,
-        className: clsx(
+        className: cn(
           "StandardTable__table",
           TableProps?.className,
           classes?.table
@@ -153,7 +153,7 @@ function renderHeader(instance, props) {
     <Header
       {...{
         ...HeaderProps,
-        className: clsx(
+        className: cn(
           "StandardTable__table__header",
           HeaderProps?.className,
           props.classes?.header
@@ -185,7 +185,7 @@ function renderHeaderRow(headerRow, instance, props) {
       {...{
         key: headerRow.id,
         ...HeaderRowProps,
-        className: clsx(
+        className: cn(
           "StandardTable__table__header__row",
           props.classes?.headerRow,
           HeaderRowProps?.className,
@@ -218,7 +218,7 @@ function renderHeaderCell(headerCell, instance, props) {
         key: headerCell.id,
         colSpan: headerCell.colSpan,
         ...HeaderCellProps,
-        className: clsx(
+        className: cn(
           "StandardTable__table__header__row__cell",
           props.classes?.headerCell,
           HeaderCellProps?.className,
@@ -280,7 +280,7 @@ function renderBody(instance, props) {
     <Body
       {...{
         ...BodyProps,
-        className: clsx(
+        className: cn(
           "StandardTable__table__body",
           BodyProps?.className,
           props.classes?.body
@@ -310,7 +310,7 @@ function renderBodyRow(bodyRow, instance, props) {
       {...{
         key: bodyRow.id,
         ...BodyRowProps,
-        className: clsx(
+        className: cn(
           "StandardTable__table__body__row w-full",
           BodyRowProps?.className,
           props.classes?.row,
@@ -347,7 +347,7 @@ function renderBodyCell(bodyCell, instance, props) {
           ...(isAbsolute ? { left: bodyCell.column.getStart() } : {}),
           ...BodyCellProps?.style,
         },
-        className: clsx(
+        className: cn(
           "StandardTable__table__body__row__cell",
           BodyCellProps?.className,
           props.classes?.cell,
@@ -376,7 +376,7 @@ function renderFooter(instance, props) {
     <Footer
       {...{
         ...FooterProps,
-        className: clsx(
+        className: cn(
           "StandardTable__table__footer",
           FooterProps?.className,
           props.classes?.footer
@@ -408,7 +408,7 @@ function renderFooterRow(footerRow, instance, props) {
       {...{
         key: footerRow.id,
         ...FooterRowProps,
-        className: clsx(
+        className: cn(
           "StandardTable__table__footer__row",
           FooterRowProps?.className,
           props.classes?.footerRow,
@@ -441,7 +441,7 @@ function renderFooterCell(footerCell, instance, props) {
         key: footerCell.id,
         colSpan: footerCell.colSpan,
         ...FooterCellProps,
-        className: clsx(
+        className: cn(
           "StandardTable__table__footer__row__cell",
           FooterCellProps?.className,
           props.classes?.footerCell,
@@ -480,7 +480,7 @@ function renderPagination(instance, props) {
     <Pagination
       {...{
         ...PaginationProps,
-        className: clsx(
+        className: cn(
           "StandardTable__pagination",
           PaginationProps?.className,
           props.classes?.pagination
@@ -503,7 +503,7 @@ function renderLoading(instance, props) {
     <Loading
       {...{
         ...LoadingProps,
-        className: clsx(
+        className: cn(
           "StandardTable__loading",
           LoadingProps?.className,
           props.classes?.loading
@@ -526,7 +526,7 @@ function renderError(instance, props) {
     <Error
       {...{
         ...ErrorProps,
-        className: clsx(
+        className: cn(
           "StandardTable__error",
           ErrorProps?.className,
           props.classes?.error
@@ -549,7 +549,7 @@ function renderEmpty(instance, props) {
     <Empty
       {...{
         ...EmptyProps,
-        className: clsx(
+        className: cn(
           "StandardTable__empty",
           EmptyProps?.className,
           props.classes?.empty
