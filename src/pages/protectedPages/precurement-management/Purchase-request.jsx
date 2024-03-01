@@ -62,14 +62,12 @@ const PurchaseRequest = () => {
           </div>
         </div>
 
-        <div className=" overflow-auto">
-          <Table
-            instance={tableInstance}
-            // loading={customersQueryResult.isFetching}
-            // error={customersQueryResult.isError}
-            // onReload={customersQueryResult.refetch}
-          />
-        </div>
+        <Table
+          instance={tableInstance}
+          // loading={customersQueryResult.isFetching}
+          // error={customersQueryResult.isError}
+          // onReload={customersQueryResult.refetch}
+        />
       </Card>
     </div>
   );
