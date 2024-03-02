@@ -15,6 +15,8 @@ import {
 } from "components/ui/dialog";
 import { cn } from "lib/utils";
 import { Badge } from "components/ui/badge";
+import IconButton from "components/shared/IconButton";
+import { Icon } from "@iconify/react";
 
 const EOI = () => {
   const tableInstance = useTable({
@@ -79,13 +81,28 @@ const EOI = () => {
 
 export default EOI;
 const columns = [
-  // {
-  //   header: "Merchant Name",
-  //   accessorFn: (data) => `${data?.first_name} ${data?.last_name}`,
-  // },
   {
-    header: "Select",
-    cell: ({ row }) => <CheckboxAction data={row.original} />,
+    id: "select",
+    header: ({ table }) => {
+      return (
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected()}
+          onCheckedChange={(value) => {
+            table.toggleAllPageRowsSelected(!!value);
+          }}
+        />
+      );
+    },
+    cell: ({ row }) => {
+      return (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => {
+            row.toggleSelected(!!value);
+          }}
+        />
+      );
+    },
   },
   {
     header: "Ref No",
@@ -203,9 +220,29 @@ const columns = [
   {
     header: "Actions",
     id: "actions",
-    // cell: ({ row }) => <CustomerListAction data={row.original} />,
+    cell: ({ row }) => <ActionListAction data={row.original} />,
   },
 ];
+
+const ActionListAction = ({ data }) => {
+  return (
+    <div className="flex gap-2">
+      <div>
+        <IconButton className="bg-[#F9F9F9] hover:text-primary">
+          <Icon icon="bi:toggles" fontSize={15} />
+        </IconButton>
+      </div>
+      <div className="flex gap-2 flex-col">
+        <IconButton className="bg-[#F9F9F9] hover:text-primary">
+          <Icon icon="solar:pen-bold-duotone" fontSize={15} />
+        </IconButton>
+        <IconButton className="bg-[#F9F9F9] hover:text-primary">
+          <Icon icon="ant-design:delete-twotone" fontSize={15} />
+        </IconButton>
+      </div>
+    </div>
+  );
+};
 
 const data = [
   {
@@ -251,7 +288,3 @@ const data = [
     vendor_awarded: "Infosoft Ltd",
   },
 ];
-
-const CheckboxAction = () => {
-  return <Checkbox className="" />;
-};

@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import logoSvg from "assets/imgs/logo.png";
-import { Link, NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 import { RouteEnum } from "constants/RouterConstants";
+import { Icon } from "@iconify/react";
+import { cn } from "lib/utils";
 
 const Sidebar = () => {
+  const location = useLocation();
+  console.log(location.pathname);
   const [showMenu, setShowMenu] = useState(false);
   const [selectedLinkIndex, setSelectedLinkIndex] = useState(null);
   const [showSubMenu, setShowSubMenu] = useState(false);
@@ -22,46 +26,11 @@ const Sidebar = () => {
             to={RouteEnum.DASHBOARD}
             className={({ isActive }) => {
               return isActive
-                ? "w-full bg-primary rounded-lg p-3 px gap-3 flex text-white justify-start hover:opacity-70"
-                : "w-full bg-inherit rounded-lg p-3 px gap-3 flex text-grey-light justify-start hover:bg-primary hover:text-white";
+                ? "w-full bg-primary rounded-lg p-3 px gap-3 flex text-white justify-start items-center hover:opacity-70"
+                : "w-full bg-inherit rounded-lg p-3 px gap-3 flex text-grey-light justify-start items-center hover:bg-primary hover:text-white";
             }}
           >
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 22 22"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M11 1.83301H1.83333V7.33301H11V1.83301Z"
-                fill="white"
-                stroke="white"
-                stroke-width="1.5"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M20.1667 1.83301H14.6667V10.9997H20.1667V1.83301Z"
-                fill="white"
-                stroke="white"
-                stroke-width="1.5"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M20.1667 14.666H14.6667V20.166H20.1667V14.666Z"
-                fill="white"
-                stroke="white"
-                stroke-width="1.5"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M11 11H1.83333V20.1667H11V11Z"
-                fill="white"
-                stroke="white"
-                stroke-width="1.5"
-                stroke-linejoin="round"
-              />
-            </svg>
+            <Icon icon="material-symbols:dashboard" fontSize={25} />
 
             <h4>Dashboard</h4>
           </NavLink>
@@ -73,51 +42,37 @@ const Sidebar = () => {
           </h4>
 
           {DEPARTMENTAL_LINKS.map((link, index) => (
-            <div key={index} className="w-full space-y-2 text-grey-light">
+            <div key={index} className="w-full space-y-1 text-grey-light">
               <div
                 onClick={() => {
                   setShowMenu(!showMenu);
                   setSelectedLinkIndex(index);
                 }}
-                className="flex w-full gap-3 p-2 justify-between  items-center hover:text-primary hover:cursor-pointer"
+                className={cn(
+                  "flex w-full gap-3 px-2 py-3 justify-between  items-center hover:text-primary hover:cursor-pointer",
+                  location.pathname.includes(link.path) && "text-primary "
+                )}
               >
                 <div className="flex items-center gap-4 ">
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M6.5 17.5L6.5 14.5M11.5 17.5L11.5 8.5M16.5 17.5V13.5"
-                      stroke="#667185"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                    />
-                    <path
-                      d="M21.5 5.5C21.5 7.15685 20.1569 8.5 18.5 8.5C16.8431 8.5 15.5 7.15685 15.5 5.5C15.5 3.84315 16.8431 2.5 18.5 2.5C20.1569 2.5 21.5 3.84315 21.5 5.5Z"
-                      stroke="#667185"
-                      stroke-width="1.5"
-                    />
-                    <path
-                      d="M21.4955 11C21.4955 11 21.5 11.3395 21.5 12C21.5 16.4784 21.5 18.7175 20.1088 20.1088C18.7175 21.5 16.4783 21.5 12 21.5C7.52166 21.5 5.28249 21.5 3.89124 20.1088C2.5 18.7175 2.5 16.4784 2.5 12C2.5 7.52169 2.5 5.28252 3.89124 3.89127C5.28249 2.50003 7.52166 2.50003 12 2.50003L13 2.5"
-                      stroke="#667185"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
+                  {link.icon}
                   <h4 className="font-medium">{link.name}</h4>
                 </div>
                 <ChevronDown
-                  className="h-3 w-3 transition duration-200 group-data-[state=open]:rotate-180"
+                  className={cn(
+                    "h-3 w-3 transition duration-200",
+                    showMenu && selectedLinkIndex === index && "rotate-180"
+                  )}
                   aria-hidden="true"
                 />
               </div>
 
               {showMenu && selectedLinkIndex === index && (
-                <ul className="pl-14 list-disc">
+                <ul
+                  className={cn(
+                    "pl-14 list-disc transition duration-200",
+                    showMenu ? "animate-out" : "animate-in"
+                  )}
+                >
                   {link?.link?.map((el, i) =>
                     el?.sublinks ? (
                       <>
@@ -233,6 +188,12 @@ export default Sidebar;
 const DEPARTMENTAL_LINKS = [
   {
     name: "Procurement Management",
+    path: "/precurement",
+    // icon: <Icon icon="majesticons:analytics" fontSize={25} />,
+    icon: (
+      <Icon icon="material-symbols-light:analytics-outline" fontSize={30} />
+    ),
+
     link: [
       { name: "Overview", path: RouteEnum.OVERVIEW },
       {
@@ -264,9 +225,21 @@ const DEPARTMENTAL_LINKS = [
       { name: "Report", path: RouteEnum.REPORT },
     ],
   },
-  { name: "Programs" },
-  { name: "Admin" },
-  { name: "HR" },
-  { name: "C&G" },
-  { name: "Finance" },
+  {
+    name: "Programs",
+    icon: <Icon icon="fluent:notepad-28-regular" fontSize={25} />,
+  },
+  {
+    name: "Admin",
+    icon: <Icon icon="solar:calculator-outline" fontSize={25} />,
+  },
+  {
+    name: "HR",
+    icon: <Icon icon="fluent:briefcase-28-regular" fontSize={25} />,
+  },
+  { name: "C&G", icon: <Icon icon="oui:timeline" fontSize={25} /> },
+  {
+    name: "Finance",
+    icon: <Icon icon="healthicons:money-bag-outline" fontSize={25} />,
+  },
 ];

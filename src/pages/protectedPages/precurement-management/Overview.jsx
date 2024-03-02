@@ -75,7 +75,7 @@ const Overview = () => {
           <div>
             <div className="flex items-center gap-10 justify-between">
               <h4>Processes Compleation</h4>
-              <h4>33%</h4>
+              <h4 className="font-bold">33%</h4>
             </div>
             <Progress value={33} />
           </div>
@@ -102,6 +102,7 @@ const Overview = () => {
                   dataKey="pv"
                   fill="hsl(var(--primary))"
                   barSize={10}
+                  radius={[8, 8, 0, 0]}
                   // activeBar={<Rectangle fill="pink" stroke="blue" />}
                 />
                 <Bar
@@ -109,6 +110,7 @@ const Overview = () => {
                   fill="#B5B5C3"
                   barSize={10}
                   className=" rounded-t-full"
+                  radius={[8, 8, 0, 0]}
                   // activeBar={<Rectangle fill="gold" stroke="purple" />}
                 />
               </BarChart>
@@ -172,8 +174,9 @@ const Overview = () => {
                   time: "10:42",
                 },
               ].map(({ name, time }, index) => (
-                <div key={index} className="flex items-center gap-5">
-                  <h4>{time}</h4> <span>-</span>
+                <div key={index} className="flex items-center">
+                  <h4 className="font-bold w-10">{time}</h4>{" "}
+                  <span className="w-10 text-center">-</span>
                   <h4>{name}</h4>
                 </div>
               ))}

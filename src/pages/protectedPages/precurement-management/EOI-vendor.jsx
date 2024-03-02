@@ -5,6 +5,9 @@ import Table from "lib/react-table/Table";
 import React from "react";
 import { cn } from "lib/utils";
 import { Badge } from "components/ui/badge";
+import { Home } from "lucide-react";
+import IconButton from "components/shared/IconButton";
+import { Icon } from "@iconify/react";
 
 const EOIVendor = () => {
   const tableInstance = useTable({
@@ -43,13 +46,28 @@ const EOIVendor = () => {
 
 export default EOIVendor;
 const columns = [
-  // {
-  //   header: "Merchant Name",
-  //   accessorFn: (data) => `${data?.first_name} ${data?.last_name}`,
-  // },
   {
-    header: "Select",
-    cell: ({ row }) => <CheckboxAction data={row.original} />,
+    id: "select",
+    header: ({ table }) => {
+      return (
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected()}
+          onCheckedChange={(value) => {
+            table.toggleAllPageRowsSelected(!!value);
+          }}
+        />
+      );
+    },
+    cell: ({ row }) => {
+      return (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => {
+            row.toggleSelected(!!value);
+          }}
+        />
+      );
+    },
   },
   {
     header: "Ref No",
@@ -88,7 +106,7 @@ const columns = [
   {
     header: "Actions",
     id: "actions",
-    // cell: ({ row }) => <CustomerListAction data={row.original} />,
+    cell: ({ row }) => <ActionListAction data={row.original} />,
   },
 ];
 
@@ -123,6 +141,15 @@ const data = [
   },
 ];
 
-const CheckboxAction = () => {
-  return <Checkbox className="" />;
+const ActionListAction = ({ data }) => {
+  return (
+    <div className="flex items-center gap-2">
+      <IconButton className="bg-[#F9F9F9] hover:text-primary">
+        <Icon icon="solar:pen-bold-duotone" fontSize={15} />
+      </IconButton>
+      <IconButton className="bg-[#F9F9F9] hover:text-primary">
+        <Icon icon="ant-design:delete-twotone" fontSize={15} />
+      </IconButton>
+    </div>
+  );
 };

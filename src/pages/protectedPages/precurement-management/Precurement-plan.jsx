@@ -13,6 +13,8 @@ import {
 import useTable from "hooks/useTable";
 import Table from "lib/react-table/Table";
 import { Checkbox } from "components/ui/checkbox";
+import IconButton from "components/shared/IconButton";
+import { Icon } from "@iconify/react";
 
 const PrecurementPlan = () => {
   const tableInstance = useTable({
@@ -160,8 +162,27 @@ export default PrecurementPlan;
 
 const columns = [
   {
-    header: "Select",
-    cell: ({ row }) => <CheckboxAction data={row.original} />,
+    id: "select",
+    header: ({ table }) => {
+      return (
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected()}
+          onCheckedChange={(value) => {
+            table.toggleAllPageRowsSelected(!!value);
+          }}
+        />
+      );
+    },
+    cell: ({ row }) => {
+      return (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => {
+            row.toggleSelected(!!value);
+          }}
+        />
+      );
+    },
   },
   {
     header: "Plan",
@@ -203,9 +224,22 @@ const columns = [
   {
     header: "Actions",
     id: "actions",
-    // cell: ({ row }) => <CustomerListAction data={row.original} />,
+    cell: ({ row }) => <ActionListAction data={row.original} />,
   },
 ];
+
+const ActionListAction = ({ data }) => {
+  return (
+    <div className="flex items-center gap-2">
+      <IconButton className="bg-[#F9F9F9] hover:text-primary">
+        <Icon icon="pepicons-print:chain" fontSize={15} />
+      </IconButton>
+      <IconButton className="bg-[#F9F9F9] hover:text-primary">
+        <Icon icon="ph:dots-three-duotone" fontSize={15} />
+      </IconButton>
+    </div>
+  );
+};
 
 const data = [
   {
@@ -234,7 +268,3 @@ const data = [
     upload_on: "",
   },
 ];
-
-const CheckboxAction = () => {
-  return <Checkbox className="" />;
-};
