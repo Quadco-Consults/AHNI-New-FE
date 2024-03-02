@@ -120,9 +120,10 @@ const columns = [
         <Badge
           className={cn(
             "p-1 rounded-lg",
-            getValue() === "Approved"
-              ? "bg-green-light text-green-dark"
-              : "bg-red-light text-red-dark"
+            getValue() === "Approved" && "bg-green-light text-green-dark",
+            getValue() === "Reject" && "bg-red-light text-red-dark",
+            getValue() === "Pending" && "bg-yellow-light text-yellow-dark",
+            getValue() === "On Hold" && "text-grey-light bg-grey-dark"
           )}
         >
           {getValue()}

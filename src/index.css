@@ -62,3 +62,7 @@
     line-height: 1.25rem /* 20px */;
   }
 }
+
+html {
+  scroll-behavior: smooth;
+}

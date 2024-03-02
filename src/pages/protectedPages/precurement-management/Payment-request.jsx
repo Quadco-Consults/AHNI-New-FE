@@ -130,9 +130,10 @@ const columns = [
         <Badge
           className={cn(
             "p-1 rounded-lg",
-            getValue() === "Approved"
-              ? "bg-green-light text-green-dark"
-              : "bg-red-light text-red-dark"
+            getValue() === "Approved" && "bg-green-light text-green-dark",
+            getValue() === "Reject" && "bg-red-light text-red-dark",
+            getValue() === "Pending" && "bg-yellow-light text-yellow-dark",
+            getValue() === "On Hold" && "text-grey-light bg-grey-dark"
           )}
         >
           {getValue()}
@@ -167,7 +168,7 @@ const data = [
     amount_words: "One Hundred Thousand Naira",
     reason: "Healthcare workshop facilitation fee",
     date: "2023-09-01",
-    status: "pending",
+    status: "Pending",
   },
   {
     pay_to: "Eze Health Supplies",
@@ -191,7 +192,7 @@ const data = [
     amount_words: "One Hundred Thousand Naira",
     reason: "Healthcare workshop facilitation fee",
     date: "2023-09-01",
-    status: "pending",
+    status: "Pending",
   },
   {
     pay_to: "Chukwuma Adebiyi",
@@ -199,6 +200,6 @@ const data = [
     amount_words: "One Hundred Thousand Naira",
     reason: "Healthcare workshop facilitation fee",
     date: "2023-09-01",
-    status: "pending",
+    status: "Rejected",
   },
 ];
