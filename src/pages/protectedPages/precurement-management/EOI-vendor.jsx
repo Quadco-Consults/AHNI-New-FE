@@ -117,7 +117,7 @@ const data = [
     requisition: "Office Supplies",
     vendor_responses: "ABC Supplies Ltd",
     date: "10/10/2023",
-    evaluation_status: "pending",
+    evaluation_status: "Pending",
   },
   {
     ref: "002",
