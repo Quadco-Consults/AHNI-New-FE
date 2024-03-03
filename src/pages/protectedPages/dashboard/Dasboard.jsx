@@ -10,9 +10,34 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "components/ui/select";
 import { Badge } from "components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import { Button } from "components/ui/button";
+import useTable from "hooks/useTable";
+import Table from "lib/react-table/Table";
+import { Icon } from "@iconify/react";
+import logoPng from "assets/imgs/logo.png";
+import { PieChart, Pie, Cell, Tooltip } from "recharts";
+import { Progress } from "components/ui/progress";
 
 const Dasboard = () => {
+  const tableInstance = useTable({
+    columns,
+    data,
+    //  state: { pagination },
+    //  pageCount: customersQueryResult?.data?.number_of_pages,
+    //  manualPagination: true,
+    //  onPaginationChange: setPagination,
+  });
   return (
     <div className="space-y-10">
       <h4 className="font-bold text-lg">Dasboard</h4>
@@ -338,8 +363,333 @@ const Dasboard = () => {
           </div>
         </Card>
       </div>
+
+      <div className="grid gap-5 grid-cols-1 md:grid-cols-2">
+        <Card className="space-y-4">
+          <div>
+            <h4 className="font-medium text-lg">
+              Funding Received by Projects
+            </h4>
+            <h6 className="text-xs">List of fundings for AHNI projects</h6>
+          </div>
+
+          <Table
+            instance={tableInstance}
+            // loading={customersQueryResult.isFetching}
+            // error={customersQueryResult.isError}
+            // onReload={customersQueryResult.refetch}
+          />
+        </Card>
+
+        <Card className="space-y-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h4 className="font-medium text-lg">Projects Expenditure</h4>
+              <h6 className="text-xs">
+                Total Funds Expended on Major Initiatives
+              </h6>
+            </div>
+
+            <div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="iconBtn">
+                    <svg
+                      width="21"
+                      height="20"
+                      viewBox="0 0 21 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <g opacity="0.3">
+                        <path
+                          d="M13.8107 1.8934H16.1723C16.8061 1.8934 17.3486 2.10979 17.8 2.54257C18.2496 2.97535 18.4744 3.50664 18.4744 4.13646V6.4191C18.4744 7.03836 18.2496 7.56701 17.8 8.00507C17.3486 8.44488 16.8061 8.66479 16.1723 8.66479H13.8107C13.1751 8.66479 12.6325 8.44488 12.1829 8.00507C11.7316 7.56701 11.5059 7.03836 11.5059 6.4191V4.13646C11.5059 3.50664 11.7316 2.97535 12.1829 2.54257C12.6325 2.10979 13.1751 1.8934 13.8107 1.8934Z"
+                          fill="#FD4A36"
+                        />
+                      </g>
+                      <g opacity="0.3">
+                        <path
+                          d="M4.51497 10.929H6.87664C7.5122 10.929 8.05477 11.1489 8.50435 11.5887C8.95574 12.0267 9.18143 12.5554 9.18143 13.1746V15.4573C9.18143 16.0871 8.95574 16.6184 8.50435 17.0512C8.05477 17.484 7.5122 17.7003 6.87664 17.7003H4.51497C3.88122 17.7003 3.33865 17.484 2.88727 17.0512C2.43768 16.6184 2.21289 16.0871 2.21289 15.4573V13.1746C2.21289 12.5554 2.43768 12.0267 2.88727 11.5887C3.33865 11.1489 3.88122 10.929 4.51497 10.929Z"
+                          fill="#FD4A36"
+                        />
+                      </g>
+                      <path
+                        d="M13.8107 10.9474H16.1723C16.8061 10.9474 17.3486 11.1673 17.8 11.6071C18.2496 12.0452 18.4744 12.5739 18.4744 13.1931V15.4942C18.4744 16.1117 18.2496 16.6404 17.8 17.0802C17.3486 17.5183 16.8061 17.7373 16.1723 17.7373H13.8107C13.1751 17.7373 12.6325 17.5183 12.1829 17.0802C11.7316 16.6404 11.5059 16.1117 11.5059 15.4942V13.1931C11.5059 12.5739 11.7316 12.0452 12.1829 11.6071C12.6325 11.1673 13.1751 10.9474 13.8107 10.9474Z"
+                        fill="#FD4A36"
+                      />
+                      <path
+                        d="M4.51497 1.85645H6.87664C7.5122 1.85645 8.05477 2.07547 8.50435 2.51353C8.95574 2.95334 9.18143 3.482 9.18143 4.0995V6.40061C9.18143 7.01987 8.95574 7.54853 8.50435 7.98658C8.05477 8.4264 7.5122 8.64631 6.87664 8.64631H4.51497C3.88122 8.64631 3.33865 8.4264 2.88727 7.98658C2.43768 7.54853 2.21289 7.01987 2.21289 6.40061V4.0995C2.21289 3.482 2.43768 2.95334 2.88727 2.51353C3.33865 2.07547 3.88122 1.85645 4.51497 1.85645Z"
+                        fill="#FD4A36"
+                      />
+                    </svg>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80">
+                  <h2>Are you absolutely sure?</h2>
+                  <h4>
+                    This action cannot be undone. This will permanently delete
+                    your account and remove your data from our servers.
+                  </h4>
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+
+          <div className="relative overflow-hidden">
+            <PieChart width={400} height={400}>
+              <Tooltip />
+              <Pie
+                data={pieData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={renderCustomizedLabel}
+                outerRadius={180}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {pieData.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
+                ))}
+              </Pie>
+            </PieChart>
+
+            <div className="absolute right-5 top-10">
+              {pieData.map(({ name, color }) => (
+                <div key={name} className="flex items-center gap-2">
+                  <div
+                    style={{ backgroundColor: color }}
+                    className="h-3 w-3 rounded-full"
+                  />
+                  <h4>{name}</h4>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      <div className="space-y-5">
+        <div className="flex justify-between items-center">
+          <h4 className="font-bold text-lg">
+            Projects <span className="text-sm text-grey-dark">by Status</span>
+          </h4>
+
+          <Select>
+            <SelectTrigger className="w-[100px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {/* <SelectLabel>Fruits</SelectLabel> */}
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="in_progress">In Progress</SelectItem>
+                <SelectItem value="todo">Todo</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+          {Array(3)
+            .fill({
+              status: "complete",
+              name: "Public Health Surveillance",
+              description: "A project to enhance disease",
+              date: "Dec 31, 2023",
+              amount: 10000000,
+            })
+            .map((data, index) => (
+              <Card
+                key={index}
+                className="border space-y-5 hover:border-primary"
+              >
+                <div className="flex justify-between items-center">
+                  <div>
+                    <img src={logoPng} alt="logo" width={50} />
+                  </div>
+                  <div className="bg-green-light text-green-dark px-2 py-1 rounded-lg">
+                    {data.status}
+                  </div>
+                </div>
+
+                <div className="">
+                  <h4 className="font-bold text-lg">{data.name}</h4>
+                  <h6>{data.description}</h6>
+                </div>
+
+                <div className="flex gap-5 items-center">
+                  <div className="p-3 border border-dashed rounded-lg">
+                    <h4 className="font-bold text-lg">{data.date}</h4>
+                    <h6>Due Date</h6>
+                  </div>
+                  <div className="p-3 border border-dashed rounded-lg">
+                    <h4 className="font-bold text-lg">{data.amount}</h4>
+                    <h6>Budget</h6>
+                  </div>
+                </div>
+
+                <Progress value={83} />
+
+                <div className="flex">
+                  <div className="p-3 font-bold rounded-full text-center bg-[#7239EA] text-white">
+                    PL
+                  </div>
+                  <div className="p-3 font-bold -ml-3 rounded-full text-center bg-[#7239EA] text-white">
+                    HA
+                  </div>
+                  <div className="p-3 font-bold -ml-3 rounded-full text-center bg-[#7239EA] text-white">
+                    DM
+                  </div>
+                </div>
+              </Card>
+            ))}
+        </div>
+      </div>
     </div>
   );
 };
 
 export default Dasboard;
+
+const columns = [
+  {
+    header: "Project",
+    accessorKey: "project",
+    cell: ({ row }) => <ProjectAction data={row.original} />,
+  },
+  {
+    header: "Amount",
+    accessorKey: "amount",
+    cell: ({ getValue }) => <h6>${getValue()}</h6>,
+  },
+  {
+    header: "Date Received",
+    accessorKey: "date",
+  },
+  {
+    header: "Status",
+    accessorKey: "status",
+    cell: ({ getValue }) => {
+      return (
+        <Badge
+          className={cn(
+            "p-1 rounded-lg",
+            getValue() === "Approved" && "bg-green-light text-green-dark",
+            getValue() === "Reject" && "bg-red-light text-red-dark",
+            getValue() === "Pending" && "bg-yellow-light text-yellow-dark",
+            getValue() === "In Progress" && "bg-purple-light text-purple-dark"
+          )}
+        >
+          {getValue()}
+        </Badge>
+      );
+    },
+  },
+  {
+    header: "Actions",
+    id: "actions",
+    cell: ({ row }) => <ActionListAction data={row.original} />,
+  },
+];
+
+const data = [
+  {
+    ref: { name: "AHNI Health Project", desc: "Targeting rural areas" },
+    amount: 25000,
+    date: "11th Oct 2023",
+    status: "Pending",
+  },
+  {
+    ref: {
+      name: "AHNI Education Initiative",
+      desc: "Promoting digital education",
+    },
+    amount: 48000,
+    date: "15th Oct 2023",
+    status: "Comfirmed",
+  },
+  {
+    ref: { name: "AHNI Health Project", desc: "Targeting rural areas" },
+    amount: 25000,
+    date: "11th Oct 2023",
+    status: "Delayed",
+  },
+  {
+    ref: {
+      name: "AHNI Education Initiative",
+      desc: "Promoting digital education",
+    },
+    amount: 48000,
+    date: "15th Oct 2023",
+    status: "In Progress",
+  },
+];
+
+const ActionListAction = ({ data }) => {
+  return (
+    <div className="flex items-center gap-2">
+      <IconButton className="bg-[#F9F9F9] hover:text-primary">
+        <Icon icon="solar:pen-bold-duotone" fontSize={15} />
+      </IconButton>
+      <IconButton className="bg-[#F9F9F9] hover:text-primary">
+        <Icon icon="ant-design:delete-twotone" fontSize={15} />
+      </IconButton>
+    </div>
+  );
+};
+
+const ProjectAction = ({ data }) => {
+  return (
+    <div className="flex gap-3 items-center">
+      <div>
+        <img src={logoPng} alt="logo" />
+      </div>
+      <div>
+        <h4 className="font-bold">{data.ref.name}</h4>
+        <h6>{data.ref.desc}</h6>
+      </div>
+    </div>
+  );
+};
+
+const pieData = [
+  { name: "Group A", value: 400, color: "#0088FE" },
+  { name: "Group B", value: 300, color: "#00C49F" },
+  { name: "Group C", value: 300, color: "#FFBB28" },
+  { name: "Group D", value: 200, color: "#FF8042" },
+  { name: "Group E", value: 100, color: "#775DD0" },
+];
+
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#775DD0"];
+
+const RADIAN = Math.PI / 180;
+const renderCustomizedLabel = ({
+  cx,
+  cy,
+  midAngle,
+  innerRadius,
+  outerRadius,
+  percent,
+  index,
+}) => {
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+  return (
+    <text
+      x={x}
+      y={y}
+      fill="white"
+      textAnchor={x > cx ? "start" : "end"}
+      dominantBaseline="central"
+    >
+      {`${(percent * 100).toFixed(0)}%`}
+    </text>
+  );
+};

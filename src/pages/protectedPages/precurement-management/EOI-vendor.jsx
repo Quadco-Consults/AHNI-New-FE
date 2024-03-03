@@ -5,7 +5,6 @@ import Table from "lib/react-table/Table";
 import React from "react";
 import { cn } from "lib/utils";
 import { Badge } from "components/ui/badge";
-import { Home } from "lucide-react";
 import IconButton from "components/shared/IconButton";
 import { Icon } from "@iconify/react";
 
@@ -31,14 +30,12 @@ const EOIVendor = () => {
       <Card className="space-y-10">
         <h4 className="text-base font-bold">Vendor Submissions</h4>
 
-        <div className=" overflow-auto">
-          <Table
-            instance={tableInstance}
-            // loading={customersQueryResult.isFetching}
-            // error={customersQueryResult.isError}
-            // onReload={customersQueryResult.refetch}
-          />
-        </div>
+        <Table
+          instance={tableInstance}
+          // loading={customersQueryResult.isFetching}
+          // error={customersQueryResult.isError}
+          // onReload={customersQueryResult.refetch}
+        />
       </Card>
     </div>
   );

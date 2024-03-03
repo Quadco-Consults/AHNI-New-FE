@@ -15,9 +15,9 @@ const Sidebar = () => {
   const [selectedLinkSubIndex, setSelectedLinkSubIndex] = useState(null);
 
   return (
-    <aside className="space-y-6 bg-background h-full">
+    <aside className="hidden fixed w-[19%] inset-0 max-h-screen z-[20] space-y-6 bg-background md:block">
       <div className="py-4 border-dashed border-b-2 border-black">
-        <img src={logoSvg} alt="logo" width={140} className="pl-5" />
+        <img src={logoSvg} alt="logo" width={125} className="pl-5" />
       </div>
 
       <div className="px-3">
@@ -27,7 +27,7 @@ const Sidebar = () => {
             className={({ isActive }) => {
               return isActive
                 ? "w-full bg-primary rounded-lg p-3 px gap-3 flex text-white justify-start items-center hover:opacity-70"
-                : "w-full bg-inherit rounded-lg p-3 px gap-3 flex text-grey-light justify-start items-center hover:bg-primary hover:text-white";
+                : "w-full bg-inherit rounded-lg p-3 px gap-3 flex justify-start items-center hover:bg-primary hover:text-white";
             }}
           >
             <Icon icon="material-symbols:dashboard" fontSize={25} />
@@ -42,7 +42,7 @@ const Sidebar = () => {
           </h4>
 
           {DEPARTMENTAL_LINKS.map((link, index) => (
-            <div key={index} className="w-full space-y-1 text-grey-light">
+            <div key={index} className="w-full space-y-1">
               <div
                 onClick={() => {
                   setShowMenu(!showMenu);
