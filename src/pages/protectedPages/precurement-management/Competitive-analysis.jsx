@@ -121,32 +121,124 @@ const columns = [
   {
     header: "NAIJA SUPPLIES LTD.",
     accessorKey: "supplies",
+    size: 200,
+    cell: ({ row }) => <SuppliesAction data={row.original} />,
   },
   {
     header: "HEALTHEQUIP ENTERPRISES",
     accessorKey: "enterprises",
+    size: 200,
+    cell: ({ row }) => <EnterpriseAction data={row.original} />,
   },
   {
     header: "LIFESAVERS INC.",
     accessorKey: "lifesavers",
+    size: 200,
+    cell: ({ row }) => <LifeAction data={row.original} />,
   },
   {
     header: "MEDISUPPLY HUB",
     accessorKey: "hub",
+    size: 200,
+    cell: ({ row }) => <HubAction data={row.original} />,
   },
   {
     header: "GLOBAL HEALTH DISTRIBUTORS",
     accessorKey: "global",
+    size: 200,
+    cell: ({ row }) => <GlobalAction data={row.original} />,
   },
 ];
 
 const data = [
   {
     vendor: "Total Items",
-    supplies: 3,
-    enterprises: 3,
-    lifesavers: 3,
-    hub: 3,
-    global: 3,
+    supplies: ["3"],
+    enterprises: ["3"],
+    lifesavers: ["3"],
+    hub: ["3"],
+    global: ["3"],
+  },
+  {
+    vendor: "Items",
+    supplies: [
+      "Malaria Test Kits - ₦1,000",
+      "Mosquito Nets - ₦1,500",
+      "Vaccines - ₦3,000",
+    ],
+    enterprises: [
+      "Malaria Test Kits - ₦1,000",
+      "Mosquito Nets - ₦1,500",
+      "Vaccines - ₦3,000",
+    ],
+    lifesavers: [
+      "Malaria Test Kits - ₦1,000",
+      "Mosquito Nets - ₦1,500",
+      "Vaccines - ₦3,000",
+    ],
+    hub: [
+      "Malaria Test Kits - ₦1,000",
+      "Mosquito Nets - ₦1,500",
+      "Vaccines - ₦3,000",
+    ],
+    global: [
+      "Malaria Test Kits - ₦1,000",
+      "Mosquito Nets - ₦1,500",
+      "Vaccines - ₦3,000",
+    ],
+  },
+  {
+    vendor: "Total",
+    supplies: ["₦6,000"],
+    enterprises: ["₦6,100"],
+    lifesavers: ["₦4,000"],
+    hub: ["₦5,000"],
+    global: ["₦2,000"],
   },
 ];
+
+const SuppliesAction = ({ data }) => {
+  return (
+    <div className=" text-end">
+      {data.supplies.map((el, index) => (
+        <h6 key={index}>{el}</h6>
+      ))}
+    </div>
+  );
+};
+const EnterpriseAction = ({ data }) => {
+  return (
+    <div className=" text-end">
+      {data.enterprises.map((el, index) => (
+        <h6 key={index}>{el}</h6>
+      ))}
+    </div>
+  );
+};
+const LifeAction = ({ data }) => {
+  return (
+    <div className=" text-end">
+      {data.lifesavers.map((el, index) => (
+        <h6 key={index}>{el}</h6>
+      ))}
+    </div>
+  );
+};
+const HubAction = ({ data }) => {
+  return (
+    <div className=" text-end">
+      {data.hub.map((el, index) => (
+        <h6 key={index}>{el}</h6>
+      ))}
+    </div>
+  );
+};
+const GlobalAction = ({ data }) => {
+  return (
+    <div className=" text-end">
+      {data.global.map((el, index) => (
+        <h6 key={index}>{el}</h6>
+      ))}
+    </div>
+  );
+};
