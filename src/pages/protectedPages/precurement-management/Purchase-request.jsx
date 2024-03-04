@@ -79,6 +79,7 @@ export default PurchaseRequest;
 const columns = [
   {
     id: "select",
+    size: 50,
     header: ({ table }) => {
       return (
         <Checkbox
@@ -103,10 +104,12 @@ const columns = [
   {
     header: "Requisition Name",
     accessorKey: "requisition",
+    size: 300,
   },
   {
     header: "Requested Project",
     accessorKey: "requested_project",
+    size: 300,
   },
   {
     header: "Unit",

@@ -9,13 +9,13 @@ function Table(props) {
   const { type, ...rest } = props;
   if (!props.instance) return null;
 
-  if (type === "grid") {
-    return <GridTable {...rest} />;
-  }
+  // if (type === "grid") {
+  //   return <GridTable {...rest} />;
+  // }
 
-  if (type === "tree") {
-    return <TreeTable {...rest} />;
-  }
+  // if (type === "tree") {
+  //   return <TreeTable {...rest} />;
+  // }
 
   return <StandardTable {...rest} />;
 }

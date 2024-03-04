@@ -81,6 +81,7 @@ export default PaymentRequest;
 const columns = [
   {
     id: "select",
+    size: 50,
     header: ({ table }) => {
       return (
         <Checkbox
@@ -105,6 +106,7 @@ const columns = [
   {
     header: "Pay To",
     accessorKey: "pay_to",
+    size: 200,
   },
   {
     header: "Amount in Figure (NGN)",
@@ -113,10 +115,12 @@ const columns = [
   {
     header: "Amount in Words",
     accessorKey: "amount_words",
+    size: 250,
   },
   {
     header: "Reason for Payment",
     accessorKey: "reason",
+    size: 250,
   },
   {
     header: "Date",

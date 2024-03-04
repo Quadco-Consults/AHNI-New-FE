@@ -28,6 +28,9 @@ import { Icon } from "@iconify/react";
 import logoPng from "assets/imgs/logo.png";
 import { PieChart, Pie, Cell, Tooltip } from "recharts";
 import { Progress } from "components/ui/progress";
+import { Checkbox } from "components/ui/checkbox";
+import { Switch } from "components/ui/switch";
+import { Label } from "components/ui/label";
 
 const Dasboard = () => {
   const tableInstance = useTable({
@@ -47,9 +50,9 @@ const Dasboard = () => {
           <div className="flex justify-between">
             <h4 className="font-medium text-lg">Notifications</h4>
             <div>
-              <Dialog>
-                <DialogTrigger>
-                  <IconButton>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button size="icon" variant="iconBtn">
                     <svg
                       width="21"
                       height="20"
@@ -78,18 +81,60 @@ const Dasboard = () => {
                         fill="#FD4A36"
                       />
                     </svg>
-                  </IconButton>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Are you absolutely sure?</DialogTitle>
-                    <DialogDescription>
-                      This action cannot be undone. This will permanently delete
-                      your account and remove your data from our servers.
-                    </DialogDescription>
-                  </DialogHeader>
-                </DialogContent>
-              </Dialog>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64">
+                  <h4 className="font-medium p-5 text-base">Filter Options</h4>
+                  <hr />
+
+                  <div className="p-5 space-y-5">
+                    <div className="space-y-1">
+                      <h4 className="font-medium">Status:</h4>
+                      <Select>
+                        <SelectTrigger className="w-[200px]">
+                          <SelectValue placeholder="Select Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {/* <SelectLabel>Fruits</SelectLabel> */}
+                            <SelectItem value="apple">Approved</SelectItem>
+                            <SelectItem value="banana">Pending</SelectItem>
+                            <SelectItem value="blueberry">
+                              In Progress
+                            </SelectItem>
+                            <SelectItem value="grapes">Rejected</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="font-medium">Member Type:</h4>
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1">
+                          <Checkbox />{" "}
+                          <h6 className="text-grey-light">Author</h6>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Checkbox checked />{" "}
+                          <h6 className="text-grey-light">Customer</h6>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="font-medium">Notifications:</h4>
+                      <div className="flex items-center space-x-2">
+                        <Switch id="notifications-mode" checked />
+                        <Label htmlFor="notifications-mode">Enabled</Label>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end gap-4">
+                      <Button variant="ghost">Reset</Button>
+                      <Button>Apply</Button>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
 
@@ -228,9 +273,9 @@ const Dasboard = () => {
           <div className="flex justify-between">
             <h4 className="font-medium text-lg">AHNi Tasks</h4>
             <div>
-              <Dialog>
-                <DialogTrigger>
-                  <IconButton>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button size="icon" variant="iconBtn">
                     <svg
                       width="21"
                       height="20"
@@ -259,18 +304,60 @@ const Dasboard = () => {
                         fill="#FD4A36"
                       />
                     </svg>
-                  </IconButton>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Are you absolutely sure?</DialogTitle>
-                    <DialogDescription>
-                      This action cannot be undone. This will permanently delete
-                      your account and remove your data from our servers.
-                    </DialogDescription>
-                  </DialogHeader>
-                </DialogContent>
-              </Dialog>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64">
+                  <h4 className="font-medium p-5 text-base">Filter Options</h4>
+                  <hr />
+
+                  <div className="p-5 space-y-5">
+                    <div className="space-y-1">
+                      <h4 className="font-medium">Status:</h4>
+                      <Select>
+                        <SelectTrigger className="w-[200px]">
+                          <SelectValue placeholder="Select Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {/* <SelectLabel>Fruits</SelectLabel> */}
+                            <SelectItem value="apple">Approved</SelectItem>
+                            <SelectItem value="banana">Pending</SelectItem>
+                            <SelectItem value="blueberry">
+                              In Progress
+                            </SelectItem>
+                            <SelectItem value="grapes">Rejected</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="font-medium">Member Type:</h4>
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1">
+                          <Checkbox />{" "}
+                          <h6 className="text-grey-light">Author</h6>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Checkbox checked />{" "}
+                          <h6 className="text-grey-light">Customer</h6>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="font-medium">Notifications:</h4>
+                      <div className="flex items-center space-x-2">
+                        <Switch id="notifications-mode" checked />
+                        <Label htmlFor="notifications-mode">Enabled</Label>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end gap-4">
+                      <Button variant="ghost">Reset</Button>
+                      <Button>Apply</Button>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
 
@@ -393,7 +480,7 @@ const Dasboard = () => {
             <div>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="iconBtn">
+                  <Button size="icon" variant="iconBtn">
                     <svg
                       width="21"
                       height="20"
@@ -424,12 +511,56 @@ const Dasboard = () => {
                     </svg>
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80">
-                  <h2>Are you absolutely sure?</h2>
-                  <h4>
-                    This action cannot be undone. This will permanently delete
-                    your account and remove your data from our servers.
-                  </h4>
+                <PopoverContent className="w-64">
+                  <h4 className="font-medium p-5 text-base">Filter Options</h4>
+                  <hr />
+
+                  <div className="p-5 space-y-5">
+                    <div className="space-y-1">
+                      <h4 className="font-medium">Status:</h4>
+                      <Select>
+                        <SelectTrigger className="w-[200px]">
+                          <SelectValue placeholder="Select Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {/* <SelectLabel>Fruits</SelectLabel> */}
+                            <SelectItem value="apple">Approved</SelectItem>
+                            <SelectItem value="banana">Pending</SelectItem>
+                            <SelectItem value="blueberry">
+                              In Progress
+                            </SelectItem>
+                            <SelectItem value="grapes">Rejected</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="font-medium">Member Type:</h4>
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1">
+                          <Checkbox />{" "}
+                          <h6 className="text-grey-light">Author</h6>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Checkbox checked />{" "}
+                          <h6 className="text-grey-light">Customer</h6>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="font-medium">Notifications:</h4>
+                      <div className="flex items-center space-x-2">
+                        <Switch id="notifications-mode" checked />
+                        <Label htmlFor="notifications-mode">Enabled</Label>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end gap-4">
+                      <Button variant="ghost">Reset</Button>
+                      <Button>Apply</Button>
+                    </div>
+                  </div>
                 </PopoverContent>
               </Popover>
             </div>
@@ -560,6 +691,7 @@ const columns = [
   {
     header: "Project",
     accessorKey: "project",
+    size: 250,
     cell: ({ row }) => <ProjectAction data={row.original} />,
   },
   {
@@ -647,7 +779,7 @@ const ProjectAction = ({ data }) => {
   return (
     <div className="flex gap-3 items-center">
       <div>
-        <img src={logoPng} alt="logo" />
+        <img src={logoPng} alt="logo" width={50} />
       </div>
       <div>
         <h4 className="font-bold">{data.ref.name}</h4>

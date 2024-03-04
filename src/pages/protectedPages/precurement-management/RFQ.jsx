@@ -76,6 +76,7 @@ export default RFQ;
 const columns = [
   {
     id: "select",
+    size: 50,
     header: ({ table }) => {
       return (
         <Checkbox
@@ -108,11 +109,14 @@ const columns = [
   {
     header: "Background",
     accessorKey: "background",
+    size: 700,
   },
   {
     header: "Submissions",
     accessorKey: "submission",
-    cell: ({ getValue }) => <p className=" text-red-dark">{getValue()}</p>,
+    cell: ({ getValue }) => (
+      <p className=" text-red-dark text-center">{getValue()}</p>
+    ),
   },
   {
     header: "Actions",

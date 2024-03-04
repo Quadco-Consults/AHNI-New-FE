@@ -83,6 +83,7 @@ export default EOI;
 const columns = [
   {
     id: "select",
+    size: 50,
     header: ({ table }) => {
       return (
         <Checkbox

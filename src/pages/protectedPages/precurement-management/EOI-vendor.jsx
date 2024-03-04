@@ -45,6 +45,7 @@ export default EOIVendor;
 const columns = [
   {
     id: "select",
+    size: 50,
     header: ({ table }) => {
       return (
         <Checkbox
@@ -73,10 +74,12 @@ const columns = [
   {
     header: "Requisition Name",
     accessorKey: "requisition",
+    size: 200,
   },
   {
     header: "Vendor",
     accessorKey: "vendor_responses",
+    size: 200,
   },
   {
     header: "Opening Date",

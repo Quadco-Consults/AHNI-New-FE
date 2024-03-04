@@ -57,6 +57,8 @@
   body {
     @apply bg-background text-foreground;
     font-family: "Plus Jakarta Sans", sans-serif;
+    border-collapse: collapse;
+    box-sizing: border-box;
     color: #4e4e4e;
     font-size: 0.875rem /* 14px */;
     line-height: 1.25rem /* 20px */;

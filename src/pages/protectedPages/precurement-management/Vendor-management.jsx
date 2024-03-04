@@ -7,7 +7,7 @@ import useTable from "hooks/useTable";
 import Table from "lib/react-table/Table";
 import { cn } from "lib/utils";
 import React from "react";
-import avatarPng from "assets/imgs/avatar.png";
+import avatarPng from "assets/imgs/avartar.png";
 import ReactStars from "react-rating-stars-component";
 
 const VendorManagement = () => {
@@ -59,6 +59,7 @@ export default VendorManagement;
 const columns = [
   {
     id: "select",
+    size: 50,
     header: ({ table }) => {
       return (
         <Checkbox
@@ -83,6 +84,7 @@ const columns = [
   {
     header: "Vendor",
     accessorKey: "vendor",
+    size: 250,
     cell: ({ row }) => <VendorAction data={row.original} />,
   },
   {
@@ -96,6 +98,7 @@ const columns = [
   {
     header: "Products/Services",
     accessorKey: "products",
+    size: 250,
   },
   {
     header: "Rating",
@@ -160,7 +163,7 @@ const RatingAction = ({ data }) => {
 };
 const VendorAction = ({ data }) => {
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="flex gap-3">
       <div>
         <img src={data.vendor.png} alt={data.vendor.name} />
       </div>

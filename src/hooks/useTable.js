@@ -19,6 +19,9 @@ function useTable(options) {
     ...options,
     data: options.data || data,
     defaultColumn: {
+      // size: 150,
+      // minSize: 100,
+      // maxSize: 600,
       // cell: (info) => createElement(Typography, {}, info.getValue()),
       ...options?.defaultColumn,
     },

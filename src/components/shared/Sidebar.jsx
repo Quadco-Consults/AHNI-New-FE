@@ -5,17 +5,17 @@ import { ChevronDown } from "lucide-react";
 import { RouteEnum } from "constants/RouterConstants";
 import { Icon } from "@iconify/react";
 import { cn } from "lib/utils";
+import { motion } from "framer-motion";
 
 const Sidebar = () => {
   const location = useLocation();
-  console.log(location.pathname);
   const [showMenu, setShowMenu] = useState(false);
   const [selectedLinkIndex, setSelectedLinkIndex] = useState(null);
   const [showSubMenu, setShowSubMenu] = useState(false);
   const [selectedLinkSubIndex, setSelectedLinkSubIndex] = useState(null);
 
   return (
-    <aside className="hidden fixed w-[19%] inset-0 max-h-screen z-[20] space-y-6 bg-background md:block">
+    <aside className="hidden fixed overflow-auto w-[19%] inset-0 max-h-screen z-[20] space-y-6 bg-background md:block">
       <div className="py-4 border-dashed border-b-2 border-black">
         <img src={logoSvg} alt="logo" width={125} className="pl-5" />
       </div>
@@ -49,7 +49,7 @@ const Sidebar = () => {
                   setSelectedLinkIndex(index);
                 }}
                 className={cn(
-                  "flex w-full gap-3 px-2 py-3 justify-between  items-center hover:text-primary hover:cursor-pointer",
+                  "flex w-full gap-3 px-2 py-3 justify-between items-center hover:text-primary hover:cursor-pointer",
                   location.pathname.includes(link.path) && "text-primary "
                 )}
               >
@@ -67,12 +67,7 @@ const Sidebar = () => {
               </div>
 
               {showMenu && selectedLinkIndex === index && (
-                <ul
-                  className={cn(
-                    "pl-14 list-disc transition duration-200",
-                    showMenu ? "animate-out" : "animate-in"
-                  )}
-                >
+                <ul className="pl-14 list-disc duration-200">
                   {link?.link?.map((el, i) =>
                     el?.sublinks ? (
                       <>

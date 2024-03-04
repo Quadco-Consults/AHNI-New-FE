@@ -163,6 +163,7 @@ export default PrecurementPlan;
 const columns = [
   {
     id: "select",
+    size: 50,
     header: ({ table }) => {
       return (
         <Checkbox
@@ -187,6 +188,7 @@ const columns = [
   {
     header: "Plan",
     accessorKey: "plan",
+    size: 200,
     cell: ({ getValue }) => {
       return (
         <div className="flex items-center gap-3">
@@ -216,10 +218,12 @@ const columns = [
   {
     header: "Size",
     accessorKey: "size",
+    size: 250,
   },
   {
     header: "Upload On",
     accessorKey: "upload_on",
+    size: 250,
   },
   {
     header: "Actions",

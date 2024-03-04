@@ -7,7 +7,7 @@
 }
 
 .StandardTable__table {
-  min-width: 100%;
+  width: 100%;
   background: inherit;
   /* text-indent: 0; */
   /* border-color: inherit; */
@@ -48,7 +48,7 @@
 .StandardTable__table__body__row--relative,
 .StandardTable__table__footer__row--relative {
   display: flex;
-  align-items: center;
+  /* align-items: center; */
   min-width: 100%;
 }
 
