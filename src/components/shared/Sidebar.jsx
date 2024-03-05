@@ -15,7 +15,7 @@ const Sidebar = () => {
   const [selectedLinkSubIndex, setSelectedLinkSubIndex] = useState(null);
 
   return (
-    <aside className="hidden fixed overflow-auto w-[19%] inset-0 max-h-screen z-[20] space-y-6 bg-background md:block">
+    <aside className="fixed overflow-auto w-[19%] inset-0 max-h-screen z-[20] space-y-6 bg-background">
       <div className="py-4 border-dashed border-b-2 border-black">
         <img src={logoSvg} alt="logo" width={125} className="pl-5" />
       </div>
@@ -37,11 +37,120 @@ const Sidebar = () => {
         </button>
 
         <div className="mt-5">
-          <h4 className="uppercase font-light py-3 text-grey-dark">
+          <h4 className="uppercase font-light py-3 px-2 text-xs text-grey-light">
             DEPARTMENTAL HUB
           </h4>
 
           {DEPARTMENTAL_LINKS.map((link, index) => (
+            <div key={index} className="w-full space-y-1">
+              <div
+                onClick={() => {
+                  setShowMenu(!showMenu);
+                  setSelectedLinkIndex(index);
+                }}
+                className={cn(
+                  "flex w-full gap-3 px-2 py-2 justify-between items-center hover:text-primary hover:cursor-pointer",
+                  location.pathname.includes(link.path) && "text-primary "
+                )}
+              >
+                <div className="flex items-center gap-2 ">
+                  {link.icon}
+                  <h4 className="font-medium">{link.name}</h4>
+                </div>
+                <ChevronDown
+                  className={cn(
+                    "h-3 w-3 transition duration-200",
+                    showMenu && selectedLinkIndex === index && "rotate-180"
+                  )}
+                  aria-hidden="true"
+                />
+              </div>
+
+              <motion.ul
+                animate={
+                  showMenu && selectedLinkIndex === index
+                    ? {
+                        height: "fit-content",
+                      }
+                    : {
+                        height: 0,
+                      }
+                }
+                className="pl-14 list-disc h-0 overflow-hidden"
+              >
+                {link?.link?.map((el, i) =>
+                  el?.sublinks ? (
+                    <>
+                      <li
+                        className="list-disc hover:text-primary hover:cursor-pointer"
+                        key={i}
+                      >
+                        <div
+                          onClick={() => {
+                            setShowSubMenu(!showSubMenu);
+                            setSelectedLinkSubIndex(i);
+                          }}
+                          className="flex items-center justify-between"
+                        >
+                          <h6 className="py-2">{el.name}</h6>
+                          <ChevronDown
+                            className={cn(
+                              "h-3 w-3 transition duration-200",
+                              showSubMenu &&
+                                selectedLinkSubIndex === i &&
+                                "rotate-180"
+                            )}
+                            aria-hidden="true"
+                          />
+                        </div>
+                      </li>
+
+                      <motion.ul
+                        animate={
+                          showSubMenu && selectedLinkSubIndex === i
+                            ? {
+                                height: "fit-content",
+                              }
+                            : {
+                                height: 0,
+                              }
+                        }
+                        className="h-0 overflow-hidden"
+                      >
+                        {el?.sublinks?.map((sublink) => (
+                          <NavLink
+                            key={sublink.name}
+                            to={sublink.path}
+                            className={({ isActive }) => {
+                              return isActive ? "text-primary" : "";
+                            }}
+                          >
+                            <li className="list-disc py-2 ml-5 hover:text-primary hover:cursor-pointer">
+                              {sublink.name}
+                            </li>
+                          </NavLink>
+                        ))}
+                      </motion.ul>
+                    </>
+                  ) : (
+                    <NavLink
+                      key={i}
+                      to={el.path}
+                      className={({ isActive }) => {
+                        return isActive ? "text-primary" : "";
+                      }}
+                    >
+                      <li className="list-disc hover:text-primary hover:cursor-pointer">
+                        <h6 className="py-2">{el.name}</h6>
+                      </li>
+                    </NavLink>
+                  )
+                )}
+              </motion.ul>
+            </div>
+          ))}
+
+          {/* {DEPARTMENTAL_LINKS.map((link, index) => (
             <div key={index} className="w-full space-y-1">
               <div
                 onClick={() => {
@@ -67,7 +176,7 @@ const Sidebar = () => {
               </div>
 
               {showMenu && selectedLinkIndex === index && (
-                <ul className="pl-14 list-disc duration-200">
+                <ul className="pl-14 list-disc">
                   {link?.link?.map((el, i) =>
                     el?.sublinks ? (
                       <>
@@ -84,14 +193,19 @@ const Sidebar = () => {
                           >
                             <h6 className="py-2">{el.name}</h6>
                             <ChevronDown
-                              className="h-3 w-3 transition duration-200 group-data-[state=open]:rotate-180"
+                              className={cn(
+                                "h-3 w-3 transition duration-200",
+                                showSubMenu &&
+                                  selectedLinkSubIndex === i &&
+                                  "rotate-180"
+                              )}
                               aria-hidden="true"
                             />
                           </div>
                         </li>
 
                         {showSubMenu && selectedLinkSubIndex === i && (
-                          <ul>
+                          <ul className=" duration-200">
                             {el?.sublinks?.map((sublink) => (
                               <NavLink
                                 key={sublink.name}
@@ -125,7 +239,7 @@ const Sidebar = () => {
                 </ul>
               )}
             </div>
-          ))}
+          ))} */}
           {/* {DEPARTMENTAL_LINKS.map((link) => (
           <NavigationMenu key={link.name}>
             <NavigationMenuList>

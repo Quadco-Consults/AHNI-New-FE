@@ -13,7 +13,7 @@ import { useTheme } from "configs/theme-provider";
 const Header = () => {
   const { setTheme } = useTheme();
   return (
-    <nav className="py-[17px] w-[81%] fixed z-20 px-10 bg-background flex justify-end shadow-sm">
+    <nav className="py-[17px] w-full fixed z-20 px-10 bg-background flex justify-end shadow-sm md:w-[81%]">
       <div className="flex items-center gap-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

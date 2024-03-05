@@ -93,7 +93,7 @@ const Overview = () => {
         </Card>
 
         <div className="grid gap-5 grid-cols-1 md:grid-cols-2">
-          <Card className="p-3 space-y-5 md:p-10">
+          <Card className="p-3 space-y-10 md:p-10">
             <div>
               <h4 className="font-bold text-lg">Procurement Trends</h4>
               <h4 className="text-xs">Monthly procurement insights</h4>
@@ -128,7 +128,7 @@ const Overview = () => {
             </ResponsiveContainer>
           </Card>
 
-          <Card className="p-3 space-y-5 md:p-10">
+          <Card className="p-3 space-y-10 md:p-10">
             <div className="flex justify-between">
               <div>
                 <h4 className="font-bold text-lg">Health Activities</h4>

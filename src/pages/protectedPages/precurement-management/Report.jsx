@@ -347,7 +347,7 @@ const Report = () => {
             </div>
           </div>
 
-          <div className="relative overflow-hidden">
+          <div className="flex gap-5 flex-col md:flex-row">
             <ResponsiveContainer width="100%" height={300}>
               <PieChart width={400} height={400}>
                 <Tooltip />
@@ -371,7 +371,7 @@ const Report = () => {
               </PieChart>
             </ResponsiveContainer>
 
-            <div className="absolute right-5 top-10">
+            <div>
               {pieData.map(({ name, color }) => (
                 <div key={name} className="flex items-center gap-2">
                   <div

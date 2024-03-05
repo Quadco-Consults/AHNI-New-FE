@@ -3,14 +3,6 @@ import IconButton from "components/shared/IconButton";
 import { cn } from "lib/utils";
 import React from "react";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "components/ui/dialog";
-import {
   Select,
   SelectContent,
   SelectGroup,
@@ -19,18 +11,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "components/ui/select";
-import { Badge } from "components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import { Checkbox } from "components/ui/checkbox";
+import { Switch } from "components/ui/switch";
+import { Label } from "components/ui/label";
+import { Badge } from "components/ui/badge";
 import { Button } from "components/ui/button";
 import useTable from "hooks/useTable";
 import Table from "lib/react-table/Table";
 import { Icon } from "@iconify/react";
 import logoPng from "assets/imgs/logo.png";
-import { PieChart, Pie, Cell, Tooltip } from "recharts";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { Progress } from "components/ui/progress";
-import { Checkbox } from "components/ui/checkbox";
-import { Switch } from "components/ui/switch";
-import { Label } from "components/ui/label";
 
 const Dasboard = () => {
   const tableInstance = useTable({
@@ -48,7 +40,7 @@ const Dasboard = () => {
       <div className="grid gap-5 grid-cols-1 md:grid-cols-2">
         <Card className="space-y-5">
           <div className="flex justify-between">
-            <h4 className="font-medium text-lg">Notifications</h4>
+            <h4 className="font-bold text-base">Notifications</h4>
             <div>
               <Popover>
                 <PopoverTrigger asChild>
@@ -271,7 +263,7 @@ const Dasboard = () => {
 
         <Card className="space-y-5">
           <div className="flex justify-between">
-            <h4 className="font-medium text-lg">AHNi Tasks</h4>
+            <h4 className="font-bold text-base">AHNi Tasks</h4>
             <div>
               <Popover>
                 <PopoverTrigger asChild>
@@ -454,9 +446,7 @@ const Dasboard = () => {
       <div className="grid gap-5 grid-cols-1 md:grid-cols-2">
         <Card className="space-y-4">
           <div>
-            <h4 className="font-medium text-lg">
-              Funding Received by Projects
-            </h4>
+            <h4 className="font-bold text-lg">Funding Received by Projects</h4>
             <h6 className="text-xs">List of fundings for AHNI projects</h6>
           </div>
 
@@ -471,7 +461,7 @@ const Dasboard = () => {
         <Card className="space-y-4">
           <div className="flex justify-between items-center">
             <div>
-              <h4 className="font-medium text-lg">Projects Expenditure</h4>
+              <h4 className="font-bold text-lg">Projects Expenditure</h4>
               <h6 className="text-xs">
                 Total Funds Expended on Major Initiatives
               </h6>
@@ -566,29 +556,31 @@ const Dasboard = () => {
             </div>
           </div>
 
-          <div className="relative overflow-hidden">
-            <PieChart width={400} height={400}>
-              <Tooltip />
-              <Pie
-                data={pieData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={renderCustomizedLabel}
-                outerRadius={180}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {pieData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
-                ))}
-              </Pie>
-            </PieChart>
+          <div className="flex gap-5 flex-col md:flex-row">
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart width={400} height={400}>
+                <Tooltip />
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={renderCustomizedLabel}
+                  outerRadius={120}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {pieData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
 
-            <div className="absolute right-5 top-10">
+            <div>
               {pieData.map(({ name, color }) => (
                 <div key={name} className="flex items-center gap-2">
                   <div
