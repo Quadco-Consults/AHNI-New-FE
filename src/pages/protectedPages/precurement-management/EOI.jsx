@@ -4,21 +4,39 @@ import { Button } from "components/ui/button";
 import useTable from "hooks/useTable";
 import Table from "lib/react-table/Table";
 import { Plus } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "components/ui/select";
 import { cn } from "lib/utils";
 import { Badge } from "components/ui/badge";
 import IconButton from "components/shared/IconButton";
 import { Icon } from "@iconify/react";
+import { MultiSelect } from "components/ui/multiselect";
+import { Input } from "components/ui/input";
+import { DialogClose } from "@radix-ui/react-dialog";
+import { Label } from "components/ui/label";
+import { Textarea } from "components/ui/textarea";
 
 const EOI = () => {
+  const [selected, setSelected] = useState([]);
+  console.log(selected);
+
   const tableInstance = useTable({
     columns,
     data,
@@ -46,7 +64,7 @@ const EOI = () => {
             <h6>Over 500 orders</h6>
           </div>
           <div>
-            <Dialog>
+            <Dialog size="small">
               <DialogTrigger>
                 <Button>
                   <span>
@@ -55,14 +73,86 @@ const EOI = () => {
                   New Expression of Interest
                 </Button>
               </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Are you absolutely sure?</DialogTitle>
-                  <DialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    your account and remove your data from our servers.
-                  </DialogDescription>
+              <DialogContent className="max-w-4xl h-96">
+                <DialogHeader className="py-3">
+                  <DialogTitle>Create New Expression of Interest</DialogTitle>
                 </DialogHeader>
+                <hr />
+
+                <div className="pb-5 space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    placeholder="Type your description here."
+                    id="description"
+                  />
+
+                  <h4>Vendor Category (Select multiple categories)</h4>
+                  <MultiSelect
+                    options={[
+                      {
+                        value: "Medical Laboratory Consumables",
+                        label: "Medical Laboratory Consumables",
+                      },
+                      {
+                        value: "Medical Laboratory Equipment",
+                        label: "Medical Laboratory Equipment",
+                      },
+                      {
+                        value: "Design and Printing",
+                        label: "Design and Printing",
+                      },
+                      {
+                        value: "Office Furniture",
+                        label: "Office Furniture",
+                      },
+                      {
+                        value: "IT Equipment and Consumables",
+                        label: "IT Equipment and Consumables",
+                      },
+                      {
+                        value: "IT Systems and Solutions",
+                        label: "IT Systems and Solutions",
+                      },
+                      {
+                        value: "IT Service Provider and Networking",
+                        label: "IT Service Provider and Networking",
+                      },
+                    ]}
+                    selected={selected}
+                    onChange={setSelected}
+                    className="w-[560px]"
+                  />
+                  <div className="flex justify-between gap-5">
+                    <div>
+                      <h4>Tender Type</h4>
+                      <Select>
+                        <SelectTrigger className="w-[400px]">
+                          <SelectValue placeholder="Select Type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="apple">Approved</SelectItem>
+                            <SelectItem value="banana">Pending</SelectItem>
+                            <SelectItem value="blueberry">
+                              In Progress
+                            </SelectItem>
+                            <SelectItem value="grapes">Rejected</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <h4>Upload Complete EOI Document</h4>
+                      <Input type="file" className="w-full" />
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-5">
+                    <DialogClose asChild>
+                      <Button variant="ghost">Close</Button>
+                    </DialogClose>
+                    <Button>Save Changes</Button>
+                  </div>
+                </div>
               </DialogContent>
             </Dialog>
           </div>

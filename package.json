@@ -26,6 +26,7 @@
     "axios": "^1.6.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "cmdk": "^0.2.1",
     "date-fns": "^3.3.1",
     "formik": "^2.4.5",
     "framer-motion": "^10.16.9",
