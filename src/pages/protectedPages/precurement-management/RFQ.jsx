@@ -7,14 +7,33 @@ import { Plus } from "lucide-react";
 import React from "react";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
-  DialogDescription,
-  DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "components/ui/select";
 import IconButton from "components/shared/IconButton";
 import { Icon } from "@iconify/react";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "components/ui/form";
+import { useForm } from "react-hook-form";
+import { RFQFormSchema } from "utils/Validator";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Textarea } from "components/ui/textarea";
 
 const RFQ = () => {
   const tableInstance = useTable({
@@ -25,6 +44,19 @@ const RFQ = () => {
     //  manualPagination: true,
     //  onPaginationChange: setPagination,
   });
+
+  const formHook = useForm({
+    resolver: zodResolver(RFQFormSchema),
+    defaultValues: {
+      background: "",
+      reference: "",
+    },
+  });
+
+  const onSubmit = (data) => {
+    console.log(data);
+  };
+
   return (
     <div className="space-y-10">
       <div>
@@ -48,14 +80,75 @@ const RFQ = () => {
                   New RFQ
                 </Button>
               </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Are you absolutely sure?</DialogTitle>
-                  <DialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    your account and remove your data from our servers.
-                  </DialogDescription>
-                </DialogHeader>
+              <DialogContent className="max-w-4xl max-h-[650px]">
+                <div className="pb-5 space-y-5">
+                  <DialogTitle className="py-5 ">New RFQ</DialogTitle>
+
+                  <hr />
+                  <Form {...formHook}>
+                    <form
+                      onSubmit={formHook.handleSubmit(onSubmit)}
+                      className="space-y-5"
+                    >
+                      <FormField
+                        control={formHook.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Background</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="Type your background here."
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={formHook.control}
+                        name="reference"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>EOI reference</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select EOI ID" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectGroup>
+                                  <SelectItem value="Single Source">
+                                    AHNI-T-001
+                                  </SelectItem>
+                                  <SelectItem value="Open Tender">
+                                    AHNI-T-002
+                                  </SelectItem>
+                                  <SelectItem value="National Open Tender">
+                                    AHNI-T-003
+                                  </SelectItem>
+                                </SelectGroup>
+                              </SelectContent>
+                            </Select>
+                          </FormItem>
+                        )}
+                      />
+
+                      <div className="flex justify-end gap-5">
+                        <DialogClose asChild>
+                          <Button variant="ghost">Close</Button>
+                        </DialogClose>
+                        <Button type="submit">Save Changes</Button>
+                      </div>
+                    </form>
+                  </Form>
+                </div>
               </DialogContent>
             </Dialog>
           </div>

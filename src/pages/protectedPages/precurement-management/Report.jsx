@@ -347,7 +347,7 @@ const Report = () => {
             </div>
           </div>
 
-          <div className="flex gap-5 flex-col md:flex-row">
+          <div className="flex relative gap-5 flex-col md:flex-row">
             <ResponsiveContainer width="100%" height={300}>
               <PieChart width={400} height={400}>
                 <Tooltip />
@@ -371,7 +371,18 @@ const Report = () => {
               </PieChart>
             </ResponsiveContainer>
 
-            <div>
+            <div className="block md:hidden">
+              {pieData.map(({ name, color }) => (
+                <div key={name} className="flex items-center gap-2">
+                  <div
+                    style={{ backgroundColor: color }}
+                    className="h-3 w-3 rounded-full"
+                  />
+                  <h4>{name}</h4>
+                </div>
+              ))}
+            </div>
+            <div className="absolute hidden top-5 right-5 md:block">
               {pieData.map(({ name, color }) => (
                 <div key={name} className="flex items-center gap-2">
                   <div

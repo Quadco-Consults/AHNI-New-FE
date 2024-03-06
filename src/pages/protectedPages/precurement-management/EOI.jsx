@@ -8,9 +8,6 @@ import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "components/ui/dialog";
@@ -19,7 +16,6 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "components/ui/select";
@@ -30,12 +26,21 @@ import { Icon } from "@iconify/react";
 import { MultiSelect } from "components/ui/multiselect";
 import { Input } from "components/ui/input";
 import { DialogClose } from "@radix-ui/react-dialog";
-import { Label } from "components/ui/label";
 import { Textarea } from "components/ui/textarea";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "components/ui/form";
+import { EOIFormSchema } from "utils/Validator";
 
 const EOI = () => {
   const [selected, setSelected] = useState([]);
-  console.log(selected);
 
   const tableInstance = useTable({
     columns,
@@ -45,6 +50,24 @@ const EOI = () => {
     //  manualPagination: true,
     //  onPaginationChange: setPagination,
   });
+
+  const formHook = useForm({
+    resolver: zodResolver(EOIFormSchema),
+    defaultValues: {
+      description: "",
+      vendor_category: [],
+      tender_type: "",
+      document: "",
+      vendor: "",
+    },
+  });
+
+  const tender_type_value = formHook.watch("tender_type");
+
+  const onSubmit = (data) => {
+    console.log(data);
+  };
+
   return (
     <div className="space-y-10">
       <div>
@@ -64,7 +87,7 @@ const EOI = () => {
             <h6>Over 500 orders</h6>
           </div>
           <div>
-            <Dialog size="small">
+            <Dialog>
               <DialogTrigger>
                 <Button>
                   <span>
@@ -73,85 +96,163 @@ const EOI = () => {
                   New Expression of Interest
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-4xl h-96">
-                <DialogHeader className="py-3">
-                  <DialogTitle>Create New Expression of Interest</DialogTitle>
-                </DialogHeader>
-                <hr />
+              <DialogContent className="max-w-4xl max-h-[650px]">
+                <div className="pb-5 space-y-5">
+                  <DialogTitle className="py-5 ">
+                    Create New Expression of Interest
+                  </DialogTitle>
 
-                <div className="pb-5 space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    placeholder="Type your description here."
-                    id="description"
-                  />
+                  <hr />
+                  <Form {...formHook}>
+                    <form
+                      onSubmit={formHook.handleSubmit(onSubmit)}
+                      className="space-y-5"
+                    >
+                      <FormField
+                        control={formHook.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Description</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="Type your description here."
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                  <h4>Vendor Category (Select multiple categories)</h4>
-                  <MultiSelect
-                    options={[
-                      {
-                        value: "Medical Laboratory Consumables",
-                        label: "Medical Laboratory Consumables",
-                      },
-                      {
-                        value: "Medical Laboratory Equipment",
-                        label: "Medical Laboratory Equipment",
-                      },
-                      {
-                        value: "Design and Printing",
-                        label: "Design and Printing",
-                      },
-                      {
-                        value: "Office Furniture",
-                        label: "Office Furniture",
-                      },
-                      {
-                        value: "IT Equipment and Consumables",
-                        label: "IT Equipment and Consumables",
-                      },
-                      {
-                        value: "IT Systems and Solutions",
-                        label: "IT Systems and Solutions",
-                      },
-                      {
-                        value: "IT Service Provider and Networking",
-                        label: "IT Service Provider and Networking",
-                      },
-                    ]}
-                    selected={selected}
-                    onChange={setSelected}
-                    className="w-[560px]"
-                  />
-                  <div className="flex justify-between gap-5">
-                    <div>
-                      <h4>Tender Type</h4>
-                      <Select>
-                        <SelectTrigger className="w-[400px]">
-                          <SelectValue placeholder="Select Type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectItem value="apple">Approved</SelectItem>
-                            <SelectItem value="banana">Pending</SelectItem>
-                            <SelectItem value="blueberry">
-                              In Progress
-                            </SelectItem>
-                            <SelectItem value="grapes">Rejected</SelectItem>
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <h4>Upload Complete EOI Document</h4>
-                      <Input type="file" className="w-full" />
-                    </div>
-                  </div>
-                  <div className="flex justify-end gap-5">
-                    <DialogClose asChild>
-                      <Button variant="ghost">Close</Button>
-                    </DialogClose>
-                    <Button>Save Changes</Button>
-                  </div>
+                      <div>
+                        <h4>Vendor Category (Select multiple categories)</h4>
+                        <MultiSelect
+                          options={[
+                            {
+                              value: "Medical Laboratory Consumables",
+                              label: "Medical Laboratory Consumables",
+                            },
+
+                            {
+                              value: "Medical Laboratory Equipment",
+                              label: "Medical Laboratory Equipment",
+                            },
+                            {
+                              value: "Design and Printing",
+                              label: "Design and Printing",
+                            },
+                            {
+                              value: "Office Furniture",
+                              label: "Office Furniture",
+                            },
+                            {
+                              value: "IT Equipment and Consumables",
+                              label: "IT Equipment and Consumables",
+                            },
+                            {
+                              value: "IT Systems and Solutions",
+                              label: "IT Systems and Solutions",
+                            },
+                            {
+                              value: "IT Service Provider and Networking",
+                              label: "IT Service Provider and Networking",
+                            },
+                          ]}
+                          selected={selected}
+                          onChange={setSelected}
+                          className="w-[560px]"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <FormField
+                          control={formHook.control}
+                          name="tender_type"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Tender Type</FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select Type" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectGroup>
+                                    <SelectItem value="Single Source">
+                                      Single Source
+                                    </SelectItem>
+                                    <SelectItem value="Open Tender">
+                                      Open Tender
+                                    </SelectItem>
+                                    <SelectItem value="National Open Tender">
+                                      National Open Tender
+                                    </SelectItem>
+                                  </SelectGroup>
+                                </SelectContent>
+                              </Select>
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={formHook.control}
+                          name="document"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>
+                                Upload Complete EOI Document
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="file"
+                                  className="w-full"
+                                  {...field}
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      {tender_type_value === "Single Source" && (
+                        <div>
+                          <h4>Select Vendor(s)</h4>
+                          <MultiSelect
+                            options={[
+                              {
+                                value: "Single Source",
+                                label: "Single Source",
+                              },
+
+                              {
+                                value: "Open Tender",
+                                label: "Open Tender",
+                              },
+                              {
+                                value: "National Open Tender",
+                                label: "National Open Tender",
+                              },
+                            ]}
+                            selected={selected}
+                            onChange={setSelected}
+                            className="w-[560px]"
+                          />
+                        </div>
+                      )}
+
+                      <div className="flex justify-end gap-5">
+                        <DialogClose asChild>
+                          <Button variant="ghost">Close</Button>
+                        </DialogClose>
+                        <Button type="submit">Save Changes</Button>
+                      </div>
+                    </form>
+                  </Form>
                 </div>
               </DialogContent>
             </Dialog>

@@ -8,15 +8,34 @@ import React from "react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from "components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "components/ui/select";
 import { cn } from "lib/utils";
 import { Badge } from "components/ui/badge";
 import IconButton from "components/shared/IconButton";
 import { Icon } from "@iconify/react";
+import { useForm } from "react-hook-form";
+import { RFQFormSchema } from "utils/Validator";
+import { Input } from "components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const PurchaseRequest = () => {
   const tableInstance = useTable({
@@ -27,6 +46,19 @@ const PurchaseRequest = () => {
     //  manualPagination: true,
     //  onPaginationChange: setPagination,
   });
+
+  const formHook = useForm({
+    resolver: zodResolver(RFQFormSchema),
+    defaultValues: {
+      background: "",
+      reference: "",
+    },
+  });
+
+  const onSubmit = (data) => {
+    console.log(data);
+  };
+
   return (
     <div className="space-y-10">
       <div>
@@ -48,17 +80,195 @@ const PurchaseRequest = () => {
                   <span>
                     <Plus size={20} />
                   </span>
-                  New PR
+                  New RFQ
                 </Button>
               </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Are you absolutely sure?</DialogTitle>
-                  <DialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    your account and remove your data from our servers.
-                  </DialogDescription>
-                </DialogHeader>
+              <DialogContent className="max-w-4xl max-h-[650px]">
+                <div className="pb-5 space-y-5">
+                  <DialogTitle className="py-5 ">
+                    New Purchase Requests
+                  </DialogTitle>
+
+                  <hr />
+                  <Form {...formHook}>
+                    <form
+                      onSubmit={formHook.handleSubmit(onSubmit)}
+                      className="space-y-5"
+                    >
+                      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <FormField
+                          control={formHook.control}
+                          name="description"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Requisition Name</FormLabel>
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={formHook.control}
+                          name="description"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Total</FormLabel>
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <FormField
+                          control={formHook.control}
+                          name="reference"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Requested Project</FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a Project" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectGroup>
+                                    <SelectItem value="Single Source">
+                                      Project A
+                                    </SelectItem>
+                                    <SelectItem value="Open Tender">
+                                      Project B
+                                    </SelectItem>
+                                    <SelectItem value="National Open Tender">
+                                      Project C
+                                    </SelectItem>
+                                  </SelectGroup>
+                                </SelectContent>
+                              </Select>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={formHook.control}
+                          name="reference"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Status</FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a Status" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectGroup>
+                                    <SelectItem value="Single Source">
+                                      Approved
+                                    </SelectItem>
+                                    <SelectItem value="Open Tender">
+                                      Rejected
+                                    </SelectItem>
+                                    <SelectItem value="National Open Tender">
+                                      Pending
+                                    </SelectItem>
+                                    <SelectItem value="National Open Tender">
+                                      On Hold
+                                    </SelectItem>
+                                  </SelectGroup>
+                                </SelectContent>
+                              </Select>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <FormField
+                          control={formHook.control}
+                          name="reference"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Unit</FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a Department" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectGroup>
+                                    <SelectItem value="Single Source">
+                                      Sales
+                                    </SelectItem>
+                                    <SelectItem value="Open Tender">
+                                      IT
+                                    </SelectItem>
+                                    <SelectItem value="HR">HR</SelectItem>
+                                    <SelectItem value="Finance">
+                                      Finance
+                                    </SelectItem>
+                                    <SelectItem value="National Open Tender">
+                                      Operations
+                                    </SelectItem>
+                                  </SelectGroup>
+                                </SelectContent>
+                              </Select>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={formHook.control}
+                          name="description"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Specifications</FormLabel>
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <FormField
+                        control={formHook.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Upload Specification</FormLabel>
+                            <FormControl>
+                              <Input {...field} type="file" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <div className="flex justify-end gap-5">
+                        <DialogClose asChild>
+                          <Button variant="ghost">Close</Button>
+                        </DialogClose>
+                        <Button type="submit">Save Changes</Button>
+                      </div>
+                    </form>
+                  </Form>
+                </div>
               </DialogContent>
             </Dialog>
           </div>

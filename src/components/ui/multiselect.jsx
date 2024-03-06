@@ -37,7 +37,7 @@ function MultiSelect({ options, selected, onChange, className, ...props }) {
               <Badge
                 variant="secondary"
                 key={item}
-                className="mr-1 mb-1 text-base"
+                className="mr-1 mb-1 text-sm"
                 onClick={() => handleUnselect(item)}
               >
                 {item}

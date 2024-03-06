@@ -26,7 +26,7 @@ const Sidebar = () => {
             to={RouteEnum.DASHBOARD}
             className={({ isActive }) => {
               return isActive
-                ? "w-full bg-primary rounded-lg p-3 px gap-3 flex text-white justify-start items-center hover:opacity-70"
+                ? "w-full bg-primary rounded-lg p-3 px gap-3 flex text-white justify-start items-center hover:opacity-70 dark:text-inherit"
                 : "w-full bg-inherit rounded-lg p-3 px gap-3 flex justify-start items-center hover:bg-primary hover:text-white";
             }}
           >
@@ -80,11 +80,8 @@ const Sidebar = () => {
               >
                 {link?.link?.map((el, i) =>
                   el?.sublinks ? (
-                    <>
-                      <li
-                        className="list-disc hover:text-primary hover:cursor-pointer"
-                        key={i}
-                      >
+                    <div key={i}>
+                      <li className="list-disc hover:text-primary hover:cursor-pointer">
                         <div
                           onClick={() => {
                             setShowSubMenu(!showSubMenu);
@@ -131,7 +128,7 @@ const Sidebar = () => {
                           </NavLink>
                         ))}
                       </motion.ul>
-                    </>
+                    </div>
                   ) : (
                     <NavLink
                       key={i}

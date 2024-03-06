@@ -5,16 +5,38 @@ import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from "components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "components/ui/form";
+import { Switch } from "components/ui/switch";
+import { Label } from "components/ui/label";
 import useTable from "hooks/useTable";
 import Table from "lib/react-table/Table";
 import { Checkbox } from "components/ui/checkbox";
 import IconButton from "components/shared/IconButton";
 import { Icon } from "@iconify/react";
+import { Input } from "components/ui/input";
+import { FormDescription } from "components/ui/form";
+import { RFQFormSchema } from "utils/Validator";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 
 const PrecurementPlan = () => {
   const tableInstance = useTable({
@@ -25,6 +47,19 @@ const PrecurementPlan = () => {
     //  manualPagination: true,
     //  onPaginationChange: setPagination,
   });
+
+  const formHook = useForm({
+    resolver: zodResolver(RFQFormSchema),
+    defaultValues: {
+      background: "",
+      reference: "",
+    },
+  });
+
+  const onSubmit = (data) => {
+    console.log(data);
+  };
+
   return (
     <div className="space-y-10">
       <div>
@@ -62,12 +97,53 @@ const PrecurementPlan = () => {
               Filter
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-80">
-            <h2>Are you absolutely sure?</h2>
-            <h4>
-              This action cannot be undone. This will permanently delete your
-              account and remove your data from our servers.
-            </h4>
+          <PopoverContent className="w-64">
+            <h4 className="font-medium p-5 text-base">Filter Options</h4>
+            <hr />
+
+            <div className="p-5 space-y-5">
+              <div className="space-y-1">
+                <h4 className="font-medium">Status:</h4>
+                <Select>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Select Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {/* <SelectLabel>Fruits</SelectLabel> */}
+                      <SelectItem value="apple">Approved</SelectItem>
+                      <SelectItem value="banana">Pending</SelectItem>
+                      <SelectItem value="blueberry">In Progress</SelectItem>
+                      <SelectItem value="grapes">Rejected</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <h4 className="font-medium">Member Type:</h4>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1">
+                    <Checkbox /> <h6 className="text-grey-light">Author</h6>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Checkbox checked />{" "}
+                    <h6 className="text-grey-light">Customer</h6>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <h4 className="font-medium">Notifications:</h4>
+                <div className="flex items-center space-x-2">
+                  <Switch id="notifications-mode" checked />
+                  <Label htmlFor="notifications-mode">Enabled</Label>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-4">
+                <Button variant="ghost">Reset</Button>
+                <Button>Apply</Button>
+              </div>
+            </div>
           </PopoverContent>
         </Popover>
 
@@ -136,13 +212,41 @@ const PrecurementPlan = () => {
               </Button>
             </DialogTrigger>
             <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Are you absolutely sure?</DialogTitle>
-                <DialogDescription>
-                  This action cannot be undone. This will permanently delete
-                  your account and remove your data from our servers.
-                </DialogDescription>
-              </DialogHeader>
+              <div className="pb-5 space-y-5">
+                <DialogTitle className="py-5 ">Upload files</DialogTitle>
+
+                <hr />
+                <Form {...formHook}>
+                  <form
+                    onSubmit={formHook.handleSubmit(onSubmit)}
+                    className="space-y-5"
+                  >
+                    <FormField
+                      control={formHook.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Background</FormLabel>
+                          <FormControl>
+                            <Input type="file" {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            Max file size is 1MB per file.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <div className="flex justify-end gap-5">
+                      <DialogClose asChild>
+                        <Button variant="ghost">Close</Button>
+                      </DialogClose>
+                      <Button type="submit">Save Changes</Button>
+                    </div>
+                  </form>
+                </Form>
+              </div>
             </DialogContent>
           </Dialog>
         </div>
