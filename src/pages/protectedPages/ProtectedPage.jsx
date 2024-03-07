@@ -3,21 +3,39 @@ import Header from "components/shared/Header";
 import Sidebar from "components/shared/Sidebar";
 import Suspense from "components/shared/Suspense";
 import { RouteEnum } from "constants/RouterConstants";
-import React, { lazy, useMemo } from "react";
+import { cn } from "lib/utils";
+import React, { lazy, useMemo, useState } from "react";
 import { Navigate, useRoutes } from "react-router-dom";
 import { configureRoutes } from "utils/RouterUtils";
 
 const ProtectedPage = () => {
   const routes = useRoutes(useMemo(() => getRoutes(), []));
+  const [sidebarWidth, setSidebarWidth] = useState(false);
   return (
     <>
       <div className="flex">
-        <div className="hidden w-[19%] md:block">
-          <Sidebar />
+        <div
+          className={cn(
+            "hidden md:block",
+            sidebarWidth === false ? "w-[19%]" : "w-[5%]"
+          )}
+        >
+          <Sidebar
+            setSidebarWidth={setSidebarWidth}
+            sidebarWidth={sidebarWidth}
+          />
         </div>
 
-        <div className="w-full md:w-[81%]">
-          <Header />
+        <div
+          className={cn(
+            "w-full",
+            sidebarWidth === false ? "md:w-[81%]" : "md:w-[95%]"
+          )}
+        >
+          <Header
+            setSidebarWidth={setSidebarWidth}
+            sidebarWidth={sidebarWidth}
+          />
           <Suspense>
             <main className="p-5 mt-20">{routes}</main>
           </Suspense>

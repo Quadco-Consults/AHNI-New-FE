@@ -6,8 +6,9 @@ import { RouteEnum } from "constants/RouterConstants";
 import { Icon } from "@iconify/react";
 import { cn } from "lib/utils";
 import { motion } from "framer-motion";
+import IconButton from "./IconButton";
 
-const Sidebar = () => {
+const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
   const location = useLocation();
   const [showMenu, setShowMenu] = useState(false);
   const [selectedLinkIndex, setSelectedLinkIndex] = useState(null);
@@ -15,9 +16,30 @@ const Sidebar = () => {
   const [selectedLinkSubIndex, setSelectedLinkSubIndex] = useState(null);
 
   return (
-    <aside className="fixed overflow-auto w-[19%] inset-0 max-h-screen z-[20] space-y-6 bg-background">
-      <div className="py-4 border-dashed border-b-2 border-black">
-        <img src={logoSvg} alt="logo" width={125} className="pl-5" />
+    <aside
+      className={cn(
+        "fixed overflow-auto inset-0 max-h-screen z-[20] space-y-6 bg-background duration-200",
+        sidebarWidth === false ? "w-[19%]" : "w-[5%]"
+      )}
+    >
+      <div className="h-20 relative">
+        <div
+          className={cn(
+            "fixed h-[75px] pt-4 border-dashed border-b-2 border-black z-20 bg-background duration-200",
+            sidebarWidth === false ? "w-[19%]" : "w-[5%]"
+          )}
+        >
+          <img src={logoSvg} alt="logo" width={125} className="pl-5" />
+          <IconButton
+            onClick={() => setSidebarWidth(!sidebarWidth)}
+            className={cn(
+              "absolute z-40 shadow-sm right-0 top-5 hover:text-primary",
+              sidebarWidth && "duration-200 rotate-180"
+            )}
+          >
+            <Icon icon="ph:arrow-left-duotone" fontSize={15} />
+          </IconButton>
+        </div>
       </div>
 
       <div className="px-3">
@@ -32,12 +54,24 @@ const Sidebar = () => {
           >
             <Icon icon="material-symbols:dashboard" fontSize={25} />
 
-            <h4>Dashboard</h4>
+            <h4
+              className={cn(
+                "duration-200",
+                sidebarWidth === false ? "block" : "hidden"
+              )}
+            >
+              Dashboard
+            </h4>
           </NavLink>
         </button>
 
         <div className="mt-5">
-          <h4 className="uppercase font-light py-3 px-2 text-xs text-grey-light">
+          <h4
+            className={cn(
+              "uppercase font-light py-3 px-2 text-xs text-grey-light duration-200",
+              sidebarWidth === false ? "block" : "hidden"
+            )}
+          >
             DEPARTMENTAL HUB
           </h4>
 
@@ -55,7 +89,14 @@ const Sidebar = () => {
               >
                 <div className="flex items-center gap-2 ">
                   {link.icon}
-                  <h4 className="font-medium">{link.name}</h4>
+                  <h4
+                    className={cn(
+                      "font-medium",
+                      sidebarWidth === false ? "block" : "hidden"
+                    )}
+                  >
+                    {link.name}
+                  </h4>
                 </div>
                 <ChevronDown
                   className={cn(

@@ -1,4 +1,5 @@
 import { Suspense as ReactSuspense } from "react";
+import logoPng from "assets/svgs/logo-bg.svg";
 // import LoadingIndicator from "./LoadingIndicator";
 
 /**
@@ -11,8 +12,16 @@ function Suspense(props) {
 
 Suspense.defaultProps = {
   fallback: (
-    <div className="flex justify-center items-center p-8">
-      <p>Loading...</p>
+    <div className="flex justify-center h-screen items-center p-8">
+      <div>
+        <img
+          src={logoPng}
+          alt="logo"
+          className="mx-auto animate-bounce"
+          // width={200}
+        />
+        <p>Loading...</p>
+      </div>
     </div>
   ),
 };

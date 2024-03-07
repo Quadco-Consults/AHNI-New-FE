@@ -9,11 +9,17 @@ import {
   DropdownMenuTrigger,
 } from "components/ui/dropdown-menu";
 import { useTheme } from "configs/theme-provider";
+import { cn } from "lib/utils";
 
-const Header = () => {
+const Header = ({ sidebarWidth }) => {
   const { setTheme } = useTheme();
   return (
-    <nav className="py-[17px] w-full fixed z-20 px-10 bg-background flex justify-end shadow-sm md:w-[81%]">
+    <nav
+      className={cn(
+        "py-[17px] w-full fixed z-20 px-10 bg-background flex justify-end shadow-sm",
+        sidebarWidth === false ? "md:w-[81%]" : "md:w-[95%]"
+      )}
+    >
       <div className="flex items-center gap-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
