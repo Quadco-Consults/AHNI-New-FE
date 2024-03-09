@@ -336,7 +336,6 @@ const DEPARTMENTAL_LINKS = [
   {
     name: "Procurement Management",
     path: "/precurement",
-    // icon: <Icon icon="majesticons:analytics" fontSize={25} />,
     icon: (
       <Icon icon="material-symbols-light:analytics-outline" fontSize={30} />
     ),

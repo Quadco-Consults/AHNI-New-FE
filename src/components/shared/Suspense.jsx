@@ -1,6 +1,5 @@
 import { Suspense as ReactSuspense } from "react";
 import logoPng from "assets/svgs/logo-bg.svg";
-// import LoadingIndicator from "./LoadingIndicator";
 
 /**
  *
