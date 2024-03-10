@@ -14,6 +14,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
   const [selectedLinkIndex, setSelectedLinkIndex] = useState(null);
   const [showSubMenu, setShowSubMenu] = useState(false);
   const [selectedLinkSubIndex, setSelectedLinkSubIndex] = useState(null);
+  console.log(selectedLinkSubIndex);
 
   return (
     <aside
@@ -84,7 +85,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
                 }}
                 className={cn(
                   "flex w-full gap-3 px-2 py-2 justify-between items-center hover:text-primary hover:cursor-pointer",
-                  location.pathname.includes(link.path) && "text-primary "
+                  location.pathname.startsWith(link.path) && "text-primary "
                 )}
               >
                 <div className="flex items-center gap-2 ">
@@ -335,11 +336,10 @@ export default Sidebar;
 const DEPARTMENTAL_LINKS = [
   {
     name: "Procurement Management",
-    path: "/precurement",
+    path: "/precurement-management",
     icon: (
       <Icon icon="material-symbols-light:analytics-outline" fontSize={30} />
     ),
-
     link: [
       { name: "Overview", path: RouteEnum.OVERVIEW },
       {
@@ -373,7 +373,18 @@ const DEPARTMENTAL_LINKS = [
   },
   {
     name: "Programs",
+    path: "/program",
     icon: <Icon icon="fluent:notepad-28-regular" fontSize={25} />,
+    link: [
+      { name: "Overview", path: RouteEnum.PROGRAM_OVERVIEW },
+      { name: "Work Plans", path: RouteEnum.WORK_PLAN },
+      { name: "Work Plan Audit/Tracker", path: RouteEnum.WORK_PLAN_AUDIT },
+      { name: "Donor Management", path: RouteEnum.DONOR_MANAGEMENT },
+      { name: "Projects", path: RouteEnum.PROJECTS },
+      { name: "Training and Procurement", path: RouteEnum.TRAINING },
+      { name: "Payment Request", path: RouteEnum.PROGRAM_PAYMENT_REQUEST },
+      { name: "Reports", path: RouteEnum.PROGRAM_REPORT },
+    ],
   },
   {
     name: "Admin",

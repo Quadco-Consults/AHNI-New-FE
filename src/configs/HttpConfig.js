@@ -1,8 +1,8 @@
 import axios from "axios";
 import { EnvVarEnum } from "constants/Global";
 
-export const CoreHttp = axios.create({
-  baseURL: EnvVarEnum.CORE_API_BASE_URL,
+export const AHNIHttp = axios.create({
+  baseURL: EnvVarEnum.AHNI_API_BASE_URL,
 });
 
-export default CoreHttp;
+export default AHNIHttp;

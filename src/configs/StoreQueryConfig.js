@@ -1,36 +1,39 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import axios from "axios";
-import { StoreQueryTagEnum } from "constants/StoreConstants";
-import CoreHttp from "./HttpConfig";
-import { EnvVarEnum } from "constants/Global";
-import { TenantConfig } from "./TenantConfig";
+import { createApi } from "@reduxjs/toolkit/query/react";
+import AHNIHttp from "./HttpConfig";
 
-export const CoreApi = createApi({
-  reducerPath: "esoE",
-  baseQuery: axiosBaseQuery(
-    { url: "/fineract-service/api/v1", method: "post" },
-    CoreHttp
-  ),
+export const AHNIApi = createApi({
+  reducerPath: "AHNI",
+  baseQuery: axiosBaseQuery({}, AHNIHttp),
   endpoints: (builder) => ({
-    getTenant: builder.query({
-      queryFn: (_, { getState }, ___, baseQuery) => {
-        return { data: { data: TenantConfig[EnvVarEnum.CORE_API_BASE_URL] } };
-      },
-    }),
+    // refetchErroredQueries: builder.mutation({
+    //   queryFn: () => ({ data: null }),
+    //   invalidatesTags: [StoreQueryTagEnum.ERROR],
+    // }),
   }),
 });
 
-export const DocumentServiceApi = createApi({
-  reducerPath: "document-service",
-  baseQuery: axiosBaseQuery({
-    url: EnvVarEnum.CORE_API_BASE_URL + "/document-service/api/v1",
-  }),
-  endpoints: () => ({}),
-});
+// export const CloudinaryApi = createApi({
+//   reducerPath: "cloudinary",
+//   baseQuery: axiosBaseQuery({}, CloudinaryHttp),
+//   endpoints: (builder) => ({
+//     upload: builder.mutation({
+//       query: ({ data, ...config }) => {
+//         const { cloud_name, resource_type, ..._data } = data;
+//         return {
+//           url: `${cloud_name}/${resource_type || "auto"}/upload`,
+//           method: "POST",
+//           data: objectToFormData(_data),
+//           ...config,
+//         };
+//       },
+//     }),
+//   }),
+// });
 
-[CoreApi].forEach((api) => {
-  api.enhanceEndpoints({ addTagTypes: Object.values(StoreQueryTagEnum) });
-});
+// [SoftwrkApi].forEach((api) => {
+//   api.enhanceEndpoints({ addTagTypes: Object.values(StoreQueryTagEnum) });
+// });
 
 /**
  *
@@ -47,20 +50,12 @@ export function axiosBaseQuery(baseConfig = {}, http = axios) {
     const url = config.url
       ? (baseConfig.url || "") + config.url
       : baseConfig.url;
-    const data = config.body || config.data || baseConfig.data;
     try {
-      const response = await http.request({
-        ...baseConfig,
-        ...config,
-        url,
-        data,
-      });
-
+      const response = await http.request({ ...baseConfig, ...config, url });
       return {
         ...response,
         data: response.data,
-        message: response.data?.defaultUserMessage || null,
-        defaultUserMessage: response.data?.defaultUserMessage || null,
+        message: response.data?.message || null,
         status: response.status || 200,
         meta: { request: response.request, response },
       };
@@ -68,23 +63,14 @@ export function axiosBaseQuery(baseConfig = {}, http = axios) {
       return {
         error: error.response
           ? {
-              defaultUserMessage:
-                error.response.data?.errors?.[0]?.defaultUserMessage ||
-                error.response.data?.defaultUserMessage,
-              message:
-                error.response.data?.errors?.[0]?.defaultUserMessage ||
-                error.response.data?.defaultUserMessage,
-              status: error.response.status,
+              message: "",
+              status: 200 || error.response.status,
               data: error.response.data,
             }
           : {
-              defaultUserMessage: "Something went wrong",
-              data: { defaultUserMessage: "Something went wrong" },
+              message: "Something went wrong",
+              data: { message: "Something went wrong" },
             },
-        meta: {
-          request: error.response.request,
-          response: error.response,
-        },
       };
     }
   }

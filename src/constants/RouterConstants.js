@@ -12,4 +12,15 @@ export const RouteEnum = {
   RFQ: "/precurement-management/rfq",
   RFQ_VENDOR: "/precurement-management/rfq-vendor",
   VENDOR_MANAGEMENT: "/precurement-management/vendor-management",
+  //program routes
+  PROGRAM_OVERVIEW: "/program/overview",
+  WORK_PLAN: "/program/work-plan",
+  WORK_PLAN_AUDIT: "/program/work-plan-audit",
+  DONOR_MANAGEMENT: "/program/donor-management",
+  PROJECTS: "/program/projects",
+  TRAINING: "/program/training-and-precurement",
+  PROGRAM_PAYMENT_REQUEST: "/program/payment-request",
+  PROGRAM_REPORT: "/program/report",
+  // PROGRAM_OVERVIEW: "/program/overview",
+  // PROGRAM_OVERVIEW: "/program/overview",
 };

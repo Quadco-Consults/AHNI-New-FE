@@ -7,6 +7,34 @@ import { cn } from "lib/utils";
 import { Badge } from "components/ui/badge";
 import IconButton from "components/shared/IconButton";
 import { Icon } from "@iconify/react";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "components/ui/dialog";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "components/ui/select";
+import { EOIFormSchema } from "utils/Validator";
+import { Button } from "components/ui/button";
+import { Input } from "components/ui/input";
 
 const EOIVendor = () => {
   const tableInstance = useTable({
@@ -17,6 +45,7 @@ const EOIVendor = () => {
     //  manualPagination: true,
     //  onPaginationChange: setPagination,
   });
+
   return (
     <div className="space-y-10">
       <div>
@@ -143,11 +172,150 @@ const data = [
 ];
 
 const ActionListAction = ({ data }) => {
+  const formHook = useForm({
+    resolver: zodResolver(EOIFormSchema),
+    defaultValues: {
+      description: "",
+      vendor_category: [],
+      tender_type: "",
+      document: "",
+      vendor: "",
+    },
+  });
+
+  const onSubmit = (data) => {
+    console.log(data);
+  };
   return (
     <div className="flex items-center gap-2">
-      <IconButton className="bg-[#F9F9F9] hover:text-primary">
-        <Icon icon="solar:pen-bold-duotone" fontSize={15} />
-      </IconButton>
+      <Dialog>
+        <DialogTrigger>
+          <IconButton className="bg-[#F9F9F9] hover:text-primary">
+            <Icon icon="solar:pen-bold-duotone" fontSize={15} />
+          </IconButton>
+        </DialogTrigger>
+        <DialogContent className="max-w-4xl max-h-[650px]">
+          <div className="pb-5 space-y-5">
+            <DialogTitle className="py-5 ">Submission Detail</DialogTitle>
+
+            <hr />
+            <Form {...formHook}>
+              <form
+                onSubmit={formHook.handleSubmit(onSubmit)}
+                className="space-y-5"
+              >
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                  <FormField
+                    control={formHook.control}
+                    name="ref"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Ref no</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="text"
+                            // placeholder="Type your description here."
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={formHook.control}
+                    name="date"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Opening Date</FormLabel>
+                        <FormControl>
+                          <Input type="date" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                  <FormField
+                    control={formHook.control}
+                    name="aquisition"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Requisition Name</FormLabel>
+                        <FormControl>
+                          <Input type="text" className="w-full" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={formHook.control}
+                    name="tender_type"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tender Type</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select Type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectItem value="Single Source">
+                                Single Source
+                              </SelectItem>
+                              <SelectItem value="Open Tender">
+                                Open Tender
+                              </SelectItem>
+                              <SelectItem value="National Open Tender">
+                                National Open Tender
+                              </SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                  <FormField
+                    control={formHook.control}
+                    name="vendor"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Vendor</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="text"
+                            // placeholder="Type your description here."
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="flex justify-end gap-5">
+                  <DialogClose asChild>
+                    <Button variant="ghost">Close</Button>
+                  </DialogClose>
+                  <Button type="submit">Save Changes</Button>
+                </div>
+              </form>
+            </Form>
+          </div>
+        </DialogContent>
+      </Dialog>
       <IconButton className="bg-[#F9F9F9] hover:text-primary">
         <Icon icon="ant-design:delete-twotone" fontSize={15} />
       </IconButton>
