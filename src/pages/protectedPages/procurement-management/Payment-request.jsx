@@ -65,7 +65,7 @@ const PaymentRequest = () => {
       <div>
         <h4 className="text-lg font-bold">Payment Request</h4>
         <h6>
-          Precurement -{" "}
+          procurement -{" "}
           <span className="text-black font-medium">Payment Request</span>
         </h6>
       </div>

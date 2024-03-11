@@ -24,7 +24,7 @@ import logoPng from "assets/imgs/logo.png";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { Progress } from "components/ui/progress";
 
-const Dasboard = () => {
+const Dashboard = () => {
   const tableInstance = useTable({
     columns,
     data,
@@ -688,7 +688,7 @@ const Dasboard = () => {
   );
 };
 
-export default Dasboard;
+export default Dashboard;
 
 const columns = [
   {

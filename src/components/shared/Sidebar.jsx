@@ -336,7 +336,7 @@ export default Sidebar;
 const DEPARTMENTAL_LINKS = [
   {
     name: "Procurement Management",
-    path: "/precurement-management",
+    path: "/procurement-management",
     icon: (
       <Icon icon="material-symbols-light:analytics-outline" fontSize={30} />
     ),
@@ -363,10 +363,10 @@ const DEPARTMENTAL_LINKS = [
       { name: "Purchase Requests", path: RouteEnum.PURCHASE_REQUEST },
       { name: "Vendor Management", path: RouteEnum.VENDOR_MANAGEMENT },
       { name: "Payment Request", path: RouteEnum.PAYMENT_REQUEST },
-      { name: "Procurement Plan", path: RouteEnum.PRECUREMENT_PLAN },
+      { name: "Procurement Plan", path: RouteEnum.PROCUREMENT_PLAN },
       {
         name: "Procurement Plan Tracker",
-        path: RouteEnum.PRECUREMENT_PLAN_TRACKER,
+        path: RouteEnum.PROCUREMENT_PLAN_TRACKER,
       },
       { name: "Report", path: RouteEnum.REPORT },
     ],

@@ -35,7 +35,7 @@ const Report = () => {
       <div>
         <h4 className="text-lg font-bold">Reporting and Analytics</h4>
         <h6>
-          Precurement -{" "}
+          procurement -{" "}
           <span className="text-black font-medium">
             Reporting and Analytics
           </span>
@@ -56,7 +56,7 @@ const Report = () => {
                 sign: "₦",
               },
               {
-                name: "Avg. Procurement Cycle",
+                name: "Avg. procurement Cycle",
                 amount: "45 Days",
                 sign: "",
               },

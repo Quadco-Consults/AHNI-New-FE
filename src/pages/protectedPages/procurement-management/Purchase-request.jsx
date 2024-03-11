@@ -4,7 +4,6 @@ import { Button } from "components/ui/button";
 import useTable from "hooks/useTable";
 import Table from "lib/react-table/Table";
 import { Plus } from "lucide-react";
-import React from "react";
 import {
   Dialog,
   DialogContent,
@@ -33,7 +32,7 @@ import { Badge } from "components/ui/badge";
 import IconButton from "components/shared/IconButton";
 import { Icon } from "@iconify/react";
 import { useForm } from "react-hook-form";
-import { RFQFormSchema } from "utils/Validator";
+import { EOIFormSchema, RFQFormSchema } from "utils/Validator";
 import { Input } from "components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -64,7 +63,7 @@ const PurchaseRequest = () => {
       <div>
         <h4 className="text-lg font-bold">Purchase Request</h4>
         <h6>
-          Precurement -{" "}
+          procurement -{" "}
           <span className="text-black font-medium">Purchase Request</span>
         </h6>
       </div>
@@ -390,12 +389,220 @@ const data = [
   },
 ];
 
-const ActionListAction = ({ data }) => {
+const ActionListAction = () => {
+  const formHook = useForm({
+    resolver: zodResolver(EOIFormSchema),
+    defaultValues: {
+      description: "",
+      vendor_category: [],
+      tender_type: "",
+      document: "",
+      vendor: "",
+    },
+  });
+
+  const onSubmit = (data) => {
+    console.log(data);
+  };
   return (
     <div className="flex items-center gap-2">
-      <IconButton className="bg-[#F9F9F9] hover:text-primary">
-        <Icon icon="solar:pen-bold-duotone" fontSize={15} />
-      </IconButton>
+      <Dialog>
+        <DialogTrigger>
+          <IconButton className="bg-[#F9F9F9] hover:text-primary">
+            <Icon icon="solar:pen-bold-duotone" fontSize={15} />
+          </IconButton>
+        </DialogTrigger>
+        <DialogContent className="max-w-4xl max-h-[650px]">
+          <div className="pb-5 space-y-5">
+            <DialogTitle className="py-5 ">New Purchase Requests</DialogTitle>
+
+            <hr />
+            <Form {...formHook}>
+              <form
+                onSubmit={formHook.handleSubmit(onSubmit)}
+                className="space-y-5"
+              >
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                  <FormField
+                    control={formHook.control}
+                    name="ref"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Requisition Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="text"
+                            // placeholder="Type your description here."
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={formHook.control}
+                    name="date"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Total</FormLabel>
+                        <FormControl>
+                          <Input type="number" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                  <FormField
+                    control={formHook.control}
+                    name="tender_type"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Requested Project</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select Project" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectItem value="Single Source">
+                                Project A
+                              </SelectItem>
+                              <SelectItem value="Open Tender">
+                                Project B
+                              </SelectItem>
+                              <SelectItem value="National Open Tender">
+                                Project C
+                              </SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={formHook.control}
+                    name="tender_type"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Status</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select Status" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectItem value="Single Source">
+                                Single Source
+                              </SelectItem>
+                              <SelectItem value="Open Tender">
+                                Open Tender
+                              </SelectItem>
+                              <SelectItem value="National Open Tender">
+                                National Open Tender
+                              </SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                  <FormField
+                    control={formHook.control}
+                    name="tender_type"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Unit</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select Unit" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectItem value="Single Source">
+                                Project A
+                              </SelectItem>
+                              <SelectItem value="Open Tender">
+                                Project B
+                              </SelectItem>
+                              <SelectItem value="National Open Tender">
+                                Project C
+                              </SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={formHook.control}
+                    name="ref"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Specifications</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="text"
+                            // placeholder="Type your description here."
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={formHook.control}
+                  name="vendor"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Upload Specification</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="file"
+                          // placeholder="Type your description here."
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex justify-end gap-5">
+                  <DialogClose asChild>
+                    <Button variant="ghost">Close</Button>
+                  </DialogClose>
+                  <Button type="submit">Save Changes</Button>
+                </div>
+              </form>
+            </Form>
+          </div>
+        </DialogContent>
+      </Dialog>
       <IconButton className="bg-[#F9F9F9] hover:text-primary">
         <Icon icon="ant-design:delete-twotone" fontSize={15} />
       </IconButton>

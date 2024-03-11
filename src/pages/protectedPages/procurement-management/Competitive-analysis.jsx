@@ -36,7 +36,7 @@ const CompetitiveAnalysis = () => {
       <div>
         <h4 className="text-lg font-bold">Competitive Bid Analysis</h4>
         <h6>
-          Precurement -{" "}
+          procurement -{" "}
           <span className="text-black font-medium">
             Competitive Bid Analysis
           </span>

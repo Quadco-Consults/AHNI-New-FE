@@ -62,7 +62,7 @@ const RFQ = () => {
       <div>
         <h4 className="text-lg font-bold">Request For Quotations</h4>
         <h6>
-          Precurement -{" "}
+          procurement -{" "}
           <span className="text-black font-medium">Request For Quotations</span>
         </h6>
       </div>

@@ -73,7 +73,7 @@ const EOI = () => {
       <div>
         <h4 className="text-lg font-bold">EOI</h4>
         <h6>
-          Precurement -{" "}
+          procurement -{" "}
           <span className="text-black font-medium">
             Expression of Interests
           </span>

@@ -36,7 +36,7 @@ import { EOIFormSchema } from "utils/Validator";
 import { Button } from "components/ui/button";
 import { Input } from "components/ui/input";
 
-const RFQVendor = () => {
+const EOIVendor = () => {
   const tableInstance = useTable({
     columns,
     data,
@@ -45,33 +45,32 @@ const RFQVendor = () => {
     //  manualPagination: true,
     //  onPaginationChange: setPagination,
   });
+
   return (
     <div className="space-y-10">
       <div>
-        <h4 className="text-lg font-bold">RFQ Vendor Submissions</h4>
+        <h4 className="text-lg font-bold">EOI Vendor Submissions</h4>
         <h6>
-          Precurement -{" "}
-          <span className="text-black font-medium">RFQ Vendor Submissions</span>
+          procurement -{" "}
+          <span className="text-black font-medium">EOI Vendor Submissions</span>
         </h6>
       </div>
 
       <Card className="space-y-10">
         <h4 className="text-base font-bold">Vendor Submissions</h4>
 
-        <div className=" overflow-auto">
-          <Table
-            instance={tableInstance}
-            // loading={customersQueryResult.isFetching}
-            // error={customersQueryResult.isError}
-            // onReload={customersQueryResult.refetch}
-          />
-        </div>
+        <Table
+          instance={tableInstance}
+          // loading={customersQueryResult.isFetching}
+          // error={customersQueryResult.isError}
+          // onReload={customersQueryResult.refetch}
+        />
       </Card>
     </div>
   );
 };
 
-export default RFQVendor;
+export default EOIVendor;
 const columns = [
   {
     id: "select",
@@ -112,20 +111,21 @@ const columns = [
     size: 200,
   },
   {
-    header: "Total Sum",
-    accessorKey: "amount",
+    header: "Opening Date",
+    accessorKey: "date",
   },
   {
-    header: "CBA Status",
+    header: "Evaluation Status",
     accessorKey: "evaluation_status",
     cell: ({ getValue }) => {
       return (
         <Badge
           className={cn(
             "p-1 rounded-lg",
-            getValue() === "Approved"
-              ? "bg-green-light text-green-dark"
-              : "bg-red-light text-red-dark"
+            getValue() === "Approved" && "bg-green-light text-green-dark",
+            getValue() === "Reject" && "bg-red-light text-red-dark",
+            getValue() === "Pending" && "bg-yellow-light text-yellow-dark",
+            getValue() === "In Progress" && "bg-purple-light text-purple-dark"
           )}
         >
           {getValue()}
@@ -139,6 +139,38 @@ const columns = [
     cell: ({ row }) => <ActionListAction data={row.original} />,
   },
 ];
+
+const data = [
+  {
+    ref: "001",
+    requisition: "Office Supplies",
+    vendor_responses: "ABC Supplies Ltd",
+    date: "10/10/2023",
+    evaluation_status: "Pending",
+  },
+  {
+    ref: "002",
+    requisition: "IT Equipment",
+    vendor_responses: "XYZ Tech Solutions",
+    date: "10/10/2023",
+    evaluation_status: "Approved",
+  },
+  {
+    ref: "003",
+    requisition: "Furniture",
+    vendor_responses: "Furniture World",
+    date: "10/10/2023",
+    evaluation_status: "Rejected",
+  },
+  {
+    ref: "004",
+    requisition: "Office Renovation",
+    vendor_responses: "Constructo Builders",
+    date: "10/10/2023",
+    evaluation_status: "In Progress",
+  },
+];
+
 const ActionListAction = ({ data }) => {
   const formHook = useForm({
     resolver: zodResolver(EOIFormSchema),
@@ -154,7 +186,6 @@ const ActionListAction = ({ data }) => {
   const onSubmit = (data) => {
     console.log(data);
   };
-
   return (
     <div className="flex items-center gap-2">
       <Dialog>
@@ -291,34 +322,3 @@ const ActionListAction = ({ data }) => {
     </div>
   );
 };
-
-const data = [
-  {
-    ref: "REF001",
-    requisition: "Office Supplies",
-    vendor_responses: "ABC Supplies Ltd",
-    amount: 9000,
-    evaluation_status: "Rejected",
-  },
-  {
-    ref: "REF002",
-    requisition: "IT Equipment",
-    vendor_responses: "XYZ Tech Solutions",
-    amount: 9000,
-    evaluation_status: "Approved",
-  },
-  {
-    ref: "REF003",
-    requisition: "Furniture",
-    vendor_responses: "Furniture World",
-    amount: 9000,
-    evaluation_status: "Rejected",
-  },
-  {
-    ref: "REF004",
-    requisition: "Office Renovation",
-    vendor_responses: "Constructo Builders",
-    amount: 9000,
-    evaluation_status: "Approved",
-  },
-];

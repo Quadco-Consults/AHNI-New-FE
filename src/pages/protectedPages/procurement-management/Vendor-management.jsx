@@ -24,7 +24,7 @@ const VendorManagement = () => {
       <div>
         <h4 className="text-lg font-bold">Vendor Management</h4>
         <h6>
-          Precurement -{" "}
+          procurement -{" "}
           <span className="text-black font-medium">Vendor Management</span>
         </h6>
       </div>

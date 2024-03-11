@@ -56,82 +56,82 @@ const getRoutes = function getRoutes() {
     },
     {
       path: RouteEnum.DASHBOARD,
-      element: lazy(() => import("pages/protectedPages/dashboard/Dasboard")),
+      element: lazy(() => import("pages/protectedPages/dashboard/Dashboard")),
     },
     {
       path: RouteEnum.OVERVIEW,
       element: lazy(() =>
-        import("pages/protectedPages/precurement-management/Overview")
+        import("pages/protectedPages/procurement-management/Overview")
       ),
     },
     {
       path: RouteEnum.COMPETITIVE_ANALYSIS,
       element: lazy(() =>
         import(
-          "pages/protectedPages/precurement-management/Competitive-analysis"
+          "pages/protectedPages/procurement-management/Competitive-analysis"
         )
       ),
     },
     {
       path: RouteEnum.EOI_VENDOR,
       element: lazy(() =>
-        import("pages/protectedPages/precurement-management/EOI-vendor")
+        import("pages/protectedPages/procurement-management/EOI-vendor")
       ),
     },
     {
       path: RouteEnum.EOI,
       element: lazy(() =>
-        import("pages/protectedPages/precurement-management/EOI")
+        import("pages/protectedPages/procurement-management/EOI")
       ),
     },
     {
       path: RouteEnum.PAYMENT_REQUEST,
       element: lazy(() =>
-        import("pages/protectedPages/precurement-management/Payment-request")
+        import("pages/protectedPages/procurement-management/Payment-request")
       ),
     },
     {
-      path: RouteEnum.PRECUREMENT_PLAN,
+      path: RouteEnum.PROCUREMENT_PLAN,
       element: lazy(() =>
-        import("pages/protectedPages/precurement-management/Precurement-plan")
+        import("pages/protectedPages/procurement-management/Procurement-plan")
       ),
     },
     {
-      path: RouteEnum.PRECUREMENT_PLAN_TRACKER,
+      path: RouteEnum.PROCUREMENT_PLAN_TRACKER,
       element: lazy(() =>
         import(
-          "pages/protectedPages/precurement-management/Precurement-plan-tracker"
+          "pages/protectedPages/procurement-management/Procurement-plan-tracker"
         )
       ),
     },
     {
       path: RouteEnum.PURCHASE_REQUEST,
       element: lazy(() =>
-        import("pages/protectedPages/precurement-management/Purchase-request")
+        import("pages/protectedPages/procurement-management/Purchase-request")
       ),
     },
     {
       path: RouteEnum.REPORT,
       element: lazy(() =>
-        import("pages/protectedPages/precurement-management/Report")
+        import("pages/protectedPages/procurement-management/Report")
       ),
     },
     {
       path: RouteEnum.RFQ_VENDOR,
       element: lazy(() =>
-        import("pages/protectedPages/precurement-management/RFQ-vendor")
+        import("pages/protectedPages/procurement-management/RFQ-vendor")
       ),
     },
     {
       path: RouteEnum.RFQ,
       element: lazy(() =>
-        import("pages/protectedPages/precurement-management/RFQ")
+        import("pages/protectedPages/procurement-management/RFQ")
       ),
     },
     {
       path: RouteEnum.VENDOR_MANAGEMENT,
       element: lazy(() =>
-        import("pages/protectedPages/precurement-management/Vendor-management")
+        import("pages/protectedPages/procurement-management/Vendor-management")
       ),
     },
   ]);
