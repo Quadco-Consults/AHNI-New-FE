@@ -1,13 +1,12 @@
+/* eslint-disable react/prop-types */
 import Card from "components/shared/Card";
 import IconButton from "components/shared/IconButton";
 import { cn } from "lib/utils";
-import React from "react";
 import {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "components/ui/select";
@@ -447,7 +446,9 @@ const Dashboard = () => {
         <Card className="space-y-4">
           <div>
             <h4 className="font-bold text-lg">Funding Received by Projects</h4>
-            <h6 className="text-xs">List of fundings for AHNI projects</h6>
+            <h6 className="text-xs">
+              List of funding&apos;s for AHNI projects
+            </h6>
           </div>
 
           <Table
@@ -765,7 +766,7 @@ const data = [
   },
 ];
 
-const ActionListAction = ({ data }) => {
+const ActionListAction = () => {
   return (
     <div className="flex items-center gap-2">
       <IconButton className="bg-[#F9F9F9] hover:text-primary">
@@ -810,7 +811,6 @@ const renderCustomizedLabel = ({
   innerRadius,
   outerRadius,
   percent,
-  index,
 }) => {
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);

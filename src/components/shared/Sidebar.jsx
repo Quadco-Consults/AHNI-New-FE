@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+/* eslint-disable react/prop-types */
+import { useState } from "react";
 import logoSvg from "assets/imgs/logo.png";
 import { NavLink, useLocation } from "react-router-dom";
 import { ChevronDown } from "lucide-react";

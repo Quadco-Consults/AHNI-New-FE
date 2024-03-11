@@ -1,5 +1,3 @@
-import React from "react";
-
 const ProcurementPlanTracker = () => {
   return (
     <div className="space-y-10">

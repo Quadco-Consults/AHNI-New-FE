@@ -4,7 +4,7 @@ import Sidebar from "components/shared/Sidebar";
 import Suspense from "components/shared/Suspense";
 import { RouteEnum } from "constants/RouterConstants";
 import { cn } from "lib/utils";
-import React, { lazy, useMemo, useState } from "react";
+import { lazy, useMemo, useState } from "react";
 import { Navigate, useRoutes } from "react-router-dom";
 import { configureRoutes } from "utils/RouterUtils";
 

@@ -1,5 +1,4 @@
 import { Button } from "components/ui/button";
-import React from "react";
 import Card from "components/shared/Card";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import {
@@ -336,7 +335,7 @@ const columns = [
   },
 ];
 
-const ActionListAction = ({ data }) => {
+const ActionListAction = () => {
   return (
     <div className="flex items-center gap-2">
       <IconButton className="bg-[#F9F9F9] hover:text-primary">
