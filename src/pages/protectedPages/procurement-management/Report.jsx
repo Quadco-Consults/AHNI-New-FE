@@ -1,4 +1,3 @@
-import React from "react";
 import logoPng from "assets/svgs/logo-bg.svg";
 import Card from "components/shared/Card";
 import {
@@ -13,13 +12,11 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
-import IconButton from "components/shared/IconButton";
 import {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "components/ui/select";
@@ -420,7 +417,6 @@ const renderCustomizedLabel = ({
   innerRadius,
   outerRadius,
   percent,
-  index,
 }) => {
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);

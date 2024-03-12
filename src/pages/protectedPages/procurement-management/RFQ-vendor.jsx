@@ -2,7 +2,6 @@ import { Checkbox } from "components/ui/checkbox";
 import Card from "components/shared/Card";
 import useTable from "hooks/useTable";
 import Table from "lib/react-table/Table";
-import React from "react";
 import { cn } from "lib/utils";
 import { Badge } from "components/ui/badge";
 import IconButton from "components/shared/IconButton";
@@ -140,7 +139,7 @@ const columns = [
   },
 ];
 
-const ActionListAction = ({ data }) => {
+const ActionListAction = () => {
   const formHook = useForm({
     resolver: zodResolver(EOIFormSchema),
     defaultValues: {
@@ -160,9 +159,9 @@ const ActionListAction = ({ data }) => {
     <div className="flex items-center gap-2">
       <Dialog>
         <DialogTrigger>
-          <IconButton className="bg-[#F9F9F9] hover:text-primary">
+          <div className="rounded-lg px-2 py-2 bg-[#F9F9F9] hover:text-primary hover:bg-red-light">
             <Icon icon="solar:pen-bold-duotone" fontSize={15} />
-          </IconButton>
+          </div>
         </DialogTrigger>
         <DialogContent className="max-w-4xl max-h-[650px]">
           <div className="pb-5 space-y-5">

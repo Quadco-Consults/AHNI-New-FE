@@ -1,4 +1,5 @@
-import React from "react";
+/* eslint-disable react/prop-types */
+
 import { Moon, Sun } from "lucide-react";
 import avatarPng from "assets/imgs/Image.png";
 import { Button } from "components/ui/button";
@@ -16,7 +17,7 @@ const Header = ({ sidebarWidth }) => {
   return (
     <nav
       className={cn(
-        "py-[17px] w-full fixed z-20 px-10 bg-background flex justify-end shadow-sm",
+        "py-[17px] w-full fixed z-20 px-10 bg-background flex justify-end border-b shadow-sm",
         sidebarWidth === false ? "md:w-[81%]" : "md:w-[95%]"
       )}
     >

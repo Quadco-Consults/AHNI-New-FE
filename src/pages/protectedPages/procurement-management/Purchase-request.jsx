@@ -75,12 +75,12 @@ const PurchaseRequest = () => {
           <div>
             <Dialog>
               <DialogTrigger>
-                <Button>
+                <div className="flex items-center bg-primary text-primary-foreground rounded-md text-sm font-medium h-11 px-4 py-3 hover:bg-primary/90">
                   <span>
                     <Plus size={20} />
                   </span>
                   New RFQ
-                </Button>
+                </div>
               </DialogTrigger>
               <DialogContent className="max-w-4xl max-h-[650px]">
                 <div className="pb-5 space-y-5">
@@ -408,9 +408,9 @@ const ActionListAction = () => {
     <div className="flex items-center gap-2">
       <Dialog>
         <DialogTrigger>
-          <IconButton className="bg-[#F9F9F9] hover:text-primary">
+          <div className="rounded-lg px-2 py-2 bg-[#F9F9F9] hover:text-primary hover:bg-red-light">
             <Icon icon="solar:pen-bold-duotone" fontSize={15} />
-          </IconButton>
+          </div>
         </DialogTrigger>
         <DialogContent className="max-w-4xl max-h-[650px]">
           <div className="pb-5 space-y-5">

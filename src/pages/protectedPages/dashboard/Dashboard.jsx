@@ -34,7 +34,7 @@ const Dashboard = () => {
   });
   return (
     <div className="space-y-10">
-      <h4 className="font-bold text-lg">Dasboard</h4>
+      <h4 className="font-bold text-lg">Dashboard</h4>
 
       <div className="grid gap-5 grid-cols-1 md:grid-cols-2">
         <Card className="space-y-5">
@@ -639,10 +639,7 @@ const Dashboard = () => {
               amount: 10000000,
             })
             .map((data, index) => (
-              <Card
-                key={index}
-                className="border space-y-5 hover:border-primary"
-              >
+              <Card key={index} className="space-y-5 hover:border-primary">
                 <div className="flex justify-between items-center">
                   <div>
                     <img src={logoPng} alt="logo" width={50} />

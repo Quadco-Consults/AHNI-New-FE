@@ -15,7 +15,6 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
   const [selectedLinkIndex, setSelectedLinkIndex] = useState(null);
   const [showSubMenu, setShowSubMenu] = useState(false);
   const [selectedLinkSubIndex, setSelectedLinkSubIndex] = useState(null);
-  console.log(selectedLinkSubIndex);
 
   return (
     <aside

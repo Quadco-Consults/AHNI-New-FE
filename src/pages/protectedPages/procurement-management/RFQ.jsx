@@ -4,7 +4,6 @@ import { Button } from "components/ui/button";
 import useTable from "hooks/useTable";
 import Table from "lib/react-table/Table";
 import { Plus } from "lucide-react";
-import React from "react";
 import {
   Dialog,
   DialogClose,
@@ -67,18 +66,18 @@ const RFQ = () => {
         </h6>
       </div>
 
-      <Card className="space-y-10">
+      <Card className="space-y-10 border">
         <div className="flex justify-between items-center">
           <h4 className="text-base font-bold">Active RFQs</h4>
           <div>
             <Dialog>
               <DialogTrigger>
-                <Button>
+                <div className="flex items-center bg-primary text-primary-foreground rounded-md text-sm font-medium h-11 px-4 py-3 hover:bg-primary/90">
                   <span>
                     <Plus size={20} />
                   </span>
                   New RFQ
-                </Button>
+                </div>
               </DialogTrigger>
               <DialogContent className="max-w-4xl max-h-[650px]">
                 <div className="pb-5 space-y-5">
@@ -218,7 +217,7 @@ const columns = [
   },
 ];
 
-const ActionListAction = ({ data }) => {
+const ActionListAction = () => {
   return (
     <div className="flex gap-2">
       <div>

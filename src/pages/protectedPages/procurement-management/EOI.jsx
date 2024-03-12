@@ -4,7 +4,7 @@ import { Button } from "components/ui/button";
 import useTable from "hooks/useTable";
 import Table from "lib/react-table/Table";
 import { Plus } from "lucide-react";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -89,12 +89,12 @@ const EOI = () => {
           <div>
             <Dialog>
               <DialogTrigger>
-                <Button>
+                <div className="flex items-center bg-primary text-primary-foreground rounded-md text-sm font-medium h-11 px-4 py-3 hover:bg-primary/90">
                   <span>
                     <Plus size={20} />
                   </span>
                   New Expression of Interest
-                </Button>
+                </div>
               </DialogTrigger>
               <DialogContent className="max-w-4xl max-h-[650px]">
                 <div className="pb-5 space-y-5">
@@ -418,7 +418,7 @@ const columns = [
   },
 ];
 
-const ActionListAction = ({ data }) => {
+const ActionListAction = () => {
   return (
     <div className="flex gap-2">
       <div>

@@ -1,5 +1,5 @@
+/* eslint-disable react/prop-types */
 import { cn } from "lib/utils";
-import React from "react";
 
 const IconButton = ({ children, className, onClick }) => {
   return (

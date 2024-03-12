@@ -1,11 +1,10 @@
+/* eslint-disable react/prop-types */
 import Card from "components/shared/Card";
-import React, { useState } from "react";
 import {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "components/ui/select";
@@ -18,9 +17,10 @@ import { cn } from "lib/utils";
 import { format } from "date-fns";
 import Table from "lib/react-table/Table";
 import useTable from "hooks/useTable";
+import { useState } from "react";
 
 const CompetitiveAnalysis = () => {
-  const [date, setDate] = useState();
+  const [date, setDate] = useState(null);
 
   const tableInstance = useTable({
     columns,

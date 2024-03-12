@@ -4,7 +4,6 @@ import { Button } from "components/ui/button";
 import useTable from "hooks/useTable";
 import Table from "lib/react-table/Table";
 import { Plus } from "lucide-react";
-import React from "react";
 import {
   Dialog,
   DialogContent,
@@ -20,14 +19,14 @@ import {
   FormLabel,
   FormMessage,
 } from "components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "components/ui/select";
+// import {
+//   Select,
+//   SelectContent,
+//   SelectGroup,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "components/ui/select";
 import { cn } from "lib/utils";
 import { Badge } from "components/ui/badge";
 import IconButton from "components/shared/IconButton";
@@ -77,12 +76,12 @@ const PaymentRequest = () => {
           <div>
             <Dialog>
               <DialogTrigger>
-                <Button>
+                <div className="flex items-center bg-primary text-primary-foreground rounded-md text-sm font-medium h-11 px-4 py-3 hover:bg-primary/90">
                   <span>
                     <Plus size={20} />
                   </span>
                   New Payment Request
-                </Button>
+                </div>
               </DialogTrigger>
               <DialogContent className="max-w-4xl max-h-[650px]">
                 <div className="pb-5 space-y-5">
@@ -389,7 +388,7 @@ const columns = [
   },
 ];
 
-const ActionListAction = ({ data }) => {
+const ActionListAction = () => {
   return (
     <div className="flex items-center gap-2">
       <IconButton className="bg-[#F9F9F9] hover:text-primary">

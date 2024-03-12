@@ -1,4 +1,3 @@
-import React from "react";
 import logoPng from "assets/svgs/logo-bg.svg";
 import iconSvg from "assets/svgs/svg.svg";
 import iconSvg1 from "assets/svgs/I [ki-duotone](5).svg";
@@ -84,7 +83,7 @@ const Overview = () => {
           </div>
           <div>
             <div className="flex items-center gap-10 justify-between">
-              <h4>Processes Compleation</h4>
+              <h4>Processes Completion</h4>
               <h4 className="font-bold">33%</h4>
             </div>
             <Progress value={33} />
