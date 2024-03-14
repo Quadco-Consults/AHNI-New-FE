@@ -2,11 +2,11 @@ const ProcurementPlanTracker = () => {
   return (
     <div className="space-y-10">
       <div>
-        <h4 className="text-lg font-bold">procurement Plan Tracker</h4>
+        <h4 className="text-lg font-bold">Procurement Plan Tracker</h4>
         <h6>
-          procurement -{" "}
+          Procurement -{" "}
           <span className="text-black font-medium">
-            procurement Plan Tracker
+            Procurement Plan Tracker
           </span>
         </h6>
       </div>

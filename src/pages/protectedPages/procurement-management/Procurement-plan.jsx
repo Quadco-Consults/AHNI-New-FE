@@ -62,10 +62,10 @@ const ProcurementPlan = () => {
   return (
     <div className="space-y-10">
       <div>
-        <h4 className="text-base font-bold">procurement Plan</h4>
+        <h4 className="text-base font-bold">Procurement Plan</h4>
         <h6>
-          procurement -{" "}
-          <span className="text-black font-medium">procurement Plan</span>
+          Procurement -{" "}
+          <span className="text-black font-medium">Procurement Plan</span>
         </h6>
       </div>
 
@@ -171,7 +171,7 @@ const ProcurementPlan = () => {
           </svg>
         </div>
         <div>
-          <h4 className="text-lg font-bold">procurement Plan</h4>
+          <h4 className="text-lg font-bold">Procurement Plan</h4>
           <div className="flex items-center gap-2 font-medium">
             <h6 className="text-primary">AHNI</h6>
             <h6>|</h6>

@@ -168,9 +168,27 @@ const ActionListAction = () => {
                   <div className="space-y-1">
                     <h2 className="text-lg font-bold">Max Smith</h2>
                     <div className="flex items-center gap-4">
-                      <h4>Developer</h4>
-                      <h4>SF, Bay Area</h4>
-                      <h4>max@kt.com</h4>
+                      <h4 className="flex items-center gap-1">
+                        <span>
+                          <Icon
+                            icon="icon-park-twotone:avatar"
+                            color="#4E4E4E"
+                          />
+                        </span>
+                        Developer
+                      </h4>
+                      <h4 className="flex items-center gap-1">
+                        <span>
+                          <Icon icon="ic:twotone-location-on" color="#4E4E4E" />
+                        </span>
+                        SF, Bay Area
+                      </h4>
+                      <h4 className="flex items-center gap-1">
+                        <span>
+                          <Icon icon="ic:twotone-mail" color="#4E4E4E" />
+                        </span>
+                        max@kt.com
+                      </h4>
                     </div>
                   </div>
 
@@ -276,6 +294,8 @@ const ActionListAction = () => {
                       </h4>
                       <h4 className="font-bold">Yes</h4>
                     </div>
+
+                    <div></div>
                   </div>
                 </div>
               </div>
