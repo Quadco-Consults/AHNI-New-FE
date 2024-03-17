@@ -35,8 +35,10 @@ const VendorManagement = () => {
       <div>
         <h4 className="text-lg font-bold">Vendor Management</h4>
         <h6>
-          procurement -{" "}
-          <span className="text-black font-medium">Vendor Management</span>
+          Procurement -{" "}
+          <span className="text-black font-medium dark:text-grey-dark">
+            Vendor Management
+          </span>
         </h6>
       </div>
 
@@ -147,7 +149,7 @@ const ActionListAction = () => {
       <div>
         <Dialog>
           <DialogTrigger>
-            <div className="rounded-lg px-2 py-2 bg-[#F9F9F9] hover:text-primary hover:bg-red-light">
+            <div className="rounded-lg px-2 py-2 bg-[#F9F9F9] hover:text-primary dark:text-black dark:hover:text-primary">
               <Icon icon="fluent:notepad-28-regular" fontSize={15} />
             </div>
           </DialogTrigger>

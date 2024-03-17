@@ -65,7 +65,9 @@ const ProcurementPlan = () => {
         <h4 className="text-base font-bold">Procurement Plan</h4>
         <h6>
           Procurement -{" "}
-          <span className="text-black font-medium">Procurement Plan</span>
+          <span className="text-black font-medium dark:text-grey-dark">
+            Procurement Plan
+          </span>
         </h6>
       </div>
 

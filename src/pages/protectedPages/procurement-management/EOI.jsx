@@ -73,8 +73,8 @@ const EOI = () => {
       <div>
         <h4 className="text-lg font-bold">EOI</h4>
         <h6>
-          procurement -{" "}
-          <span className="text-black font-medium">
+          Procurement -{" "}
+          <span className="text-black font-medium dark:text-grey-dark">
             Expression of Interests
           </span>
         </h6>

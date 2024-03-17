@@ -19,7 +19,7 @@ import { Button } from "components/ui/button";
 import useTable from "hooks/useTable";
 import Table from "lib/react-table/Table";
 import { Icon } from "@iconify/react";
-import logoPng from "assets/imgs/logo.png";
+import logoPng from "assets/svgs/logo-bg.svg";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { Progress } from "components/ui/progress";
 
@@ -129,7 +129,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="space-y-5">
+          <div className="space-y-5 dark:text-black">
             {[
               {
                 name: "ERP System Maintenance Scheduled",

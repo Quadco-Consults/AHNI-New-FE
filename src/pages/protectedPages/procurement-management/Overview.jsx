@@ -32,7 +32,10 @@ const Overview = () => {
     <div>
       <h4 className="text-lg font-bold">Overview</h4>
       <h6>
-        procurement - <span className="text-black font-medium">Overview</span>
+        Procurement -{" "}
+        <span className="text-black font-medium dark:text-grey-dark">
+          Overview
+        </span>
       </h6>
 
       <div className="space-y-10 mt-10">
@@ -41,7 +44,7 @@ const Overview = () => {
             <img src={logoPng} alt="logo" width={200} />
           </div>
           <div>
-            <h4 className="text-base font-bold">procurement Overview</h4>
+            <h4 className="text-base font-bold">Procurement Overview</h4>
             <div className="flex items-center gap-2">
               {[
                 {
@@ -93,7 +96,7 @@ const Overview = () => {
         <div className="grid gap-5 grid-cols-1 md:grid-cols-2">
           <Card className="p-3 space-y-10 md:p-10">
             <div>
-              <h4 className="font-bold text-lg">procurement Trends</h4>
+              <h4 className="font-bold text-lg">Procurement Trends</h4>
               <h4 className="text-xs">Monthly procurement insights</h4>
             </div>
 

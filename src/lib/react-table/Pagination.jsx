@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import "./Pagination.css";
 import IconButton from "components/shared/IconButton";
 import {

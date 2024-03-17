@@ -61,12 +61,14 @@ const RFQ = () => {
       <div>
         <h4 className="text-lg font-bold">Request For Quotations</h4>
         <h6>
-          procurement -{" "}
-          <span className="text-black font-medium">Request For Quotations</span>
+          Procurement -{" "}
+          <span className="text-black font-medium dark:text-grey-dark">
+            Request For Quotations
+          </span>
         </h6>
       </div>
 
-      <Card className="space-y-10 border">
+      <Card className="space-y-10">
         <div className="flex justify-between items-center">
           <h4 className="text-base font-bold">Active RFQs</h4>
           <div>

@@ -5,7 +5,7 @@ const ProcurementPlanTracker = () => {
         <h4 className="text-lg font-bold">Procurement Plan Tracker</h4>
         <h6>
           Procurement -{" "}
-          <span className="text-black font-medium">
+          <span className="text-black font-medium dark:text-grey-dark">
             Procurement Plan Tracker
           </span>
         </h6>

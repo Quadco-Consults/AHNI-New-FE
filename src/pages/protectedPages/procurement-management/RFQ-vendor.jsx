@@ -49,8 +49,10 @@ const RFQVendor = () => {
       <div>
         <h4 className="text-lg font-bold">RFQ Vendor Submissions</h4>
         <h6>
-          procurement -{" "}
-          <span className="text-black font-medium">RFQ Vendor Submissions</span>
+          Procurement -{" "}
+          <span className="text-black font-medium dark:text-grey-dark">
+            RFQ Vendor Submissions
+          </span>
         </h6>
       </div>
 
@@ -159,7 +161,7 @@ const ActionListAction = () => {
     <div className="flex items-center gap-2">
       <Dialog>
         <DialogTrigger>
-          <div className="rounded-lg px-2 py-2 bg-[#F9F9F9] hover:text-primary hover:bg-red-light">
+          <div className="rounded-lg px-2 py-2 bg-[#F9F9F9] hover:text-primary dark:text-black dark:hover:text-primary">
             <Icon icon="solar:pen-bold-duotone" fontSize={15} />
           </div>
         </DialogTrigger>

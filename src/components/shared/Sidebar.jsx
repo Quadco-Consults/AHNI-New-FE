@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
-import logoSvg from "assets/imgs/logo.png";
+import logoSvg from "assets/svgs/logo-bg.svg";
 import { NavLink, useLocation } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 import { RouteEnum } from "constants/RouterConstants";
@@ -26,11 +26,11 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
       <div className="h-20 relative">
         <div
           className={cn(
-            "fixed h-[75px] pt-4 border-dashed border-b-2 border-black z-20 bg-background duration-200",
+            "fixed h-[75px] pt-4 border-dashed border-b-2 border-black z-20 bg-background duration-200 dark:border-[hsl(12,6.5%,15.1%)]",
             sidebarWidth === false ? "w-[19%]" : "w-[5%]"
           )}
         >
-          <img src={logoSvg} alt="logo" width={125} className="pl-5" />
+          <img src={logoSvg} alt="logo" width={70} className="pl-5" />
           <IconButton
             onClick={() => setSidebarWidth(!sidebarWidth)}
             className={cn(
@@ -69,7 +69,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
         <div className="mt-5">
           <h4
             className={cn(
-              "uppercase font-light py-3 px-2 text-xs text-grey-light duration-200",
+              "uppercase mb-5 font-light py-3 px-2 text-xs text-grey-light duration-200",
               sidebarWidth === false ? "block" : "hidden"
             )}
           >
