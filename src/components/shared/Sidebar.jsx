@@ -69,7 +69,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
         <div className="mt-5">
           <h4
             className={cn(
-              "uppercase mb-5 font-light py-3 px-2 text-xs text-grey-light duration-200",
+              "uppercase font-light py-3 px-2 text-xs text-grey-light duration-200",
               sidebarWidth === false ? "block" : "hidden"
             )}
           >
@@ -77,7 +77,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
           </h4>
 
           {DEPARTMENTAL_LINKS.map((link, index) => (
-            <div key={index} className="w-full space-y-1">
+            <div key={index} className="w-full ">
               <div
                 onClick={() => {
                   setShowMenu(!showMenu);
@@ -188,97 +188,6 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
               </motion.ul>
             </div>
           ))}
-
-          {/* {DEPARTMENTAL_LINKS.map((link, index) => (
-            <div key={index} className="w-full space-y-1">
-              <div
-                onClick={() => {
-                  setShowMenu(!showMenu);
-                  setSelectedLinkIndex(index);
-                }}
-                className={cn(
-                  "flex w-full gap-3 px-2 py-3 justify-between items-center hover:text-primary hover:cursor-pointer",
-                  location.pathname.includes(link.path) && "text-primary "
-                )}
-              >
-                <div className="flex items-center gap-4 ">
-                  {link.icon}
-                  <h4 className="font-medium">{link.name}</h4>
-                </div>
-                <ChevronDown
-                  className={cn(
-                    "h-3 w-3 transition duration-200",
-                    showMenu && selectedLinkIndex === index && "rotate-180"
-                  )}
-                  aria-hidden="true"
-                />
-              </div>
-
-              {showMenu && selectedLinkIndex === index && (
-                <ul className="pl-14 list-disc">
-                  {link?.link?.map((el, i) =>
-                    el?.sublinks ? (
-                      <>
-                        <li
-                          className="list-disc hover:text-primary hover:cursor-pointer"
-                          key={i}
-                        >
-                          <div
-                            onClick={() => {
-                              setShowSubMenu(!showSubMenu);
-                              setSelectedLinkSubIndex(i);
-                            }}
-                            className="flex items-center justify-between"
-                          >
-                            <h6 className="py-2">{el.name}</h6>
-                            <ChevronDown
-                              className={cn(
-                                "h-3 w-3 transition duration-200",
-                                showSubMenu &&
-                                  selectedLinkSubIndex === i &&
-                                  "rotate-180"
-                              )}
-                              aria-hidden="true"
-                            />
-                          </div>
-                        </li>
-
-                        {showSubMenu && selectedLinkSubIndex === i && (
-                          <ul className=" duration-200">
-                            {el?.sublinks?.map((sublink) => (
-                              <NavLink
-                                key={sublink.name}
-                                to={sublink.path}
-                                className={({ isActive }) => {
-                                  return isActive ? "text-primary" : "";
-                                }}
-                              >
-                                <li className="list-disc py-2 ml-3 hover:text-primary hover:cursor-pointer">
-                                  {sublink.name}
-                                </li>
-                              </NavLink>
-                            ))}
-                          </ul>
-                        )}
-                      </>
-                    ) : (
-                      <NavLink
-                        key={i}
-                        to={el.path}
-                        className={({ isActive }) => {
-                          return isActive ? "text-primary" : "";
-                        }}
-                      >
-                        <li className="list-disc hover:text-primary hover:cursor-pointer">
-                          <h6 className="py-2">{el.name}</h6>
-                        </li>
-                      </NavLink>
-                    )
-                  )}
-                </ul>
-              )}
-            </div>
-          ))} */}
           {/* {DEPARTMENTAL_LINKS.map((link) => (
           <NavigationMenu key={link.name}>
             <NavigationMenuList>
@@ -335,6 +244,42 @@ export default Sidebar;
 
 const DEPARTMENTAL_LINKS = [
   {
+    name: "Projects",
+    path: "/project",
+    icon: <Icon icon="iconoir:notes" fontSize={25} />,
+    link: [
+      { name: "Ongoing", path: "/" },
+      { name: "Closed Out", path: "/" },
+    ],
+  },
+  {
+    name: "Programs",
+    path: "/program",
+    icon: <Icon icon="fluent:notepad-28-regular" fontSize={25} />,
+    link: [
+      { name: "Overview", path: "/" },
+      {
+        name: "Plans",
+        sublinks: [
+          { name: "Work Plan", path: "/" },
+          { name: "Activity Plan", path: "/" },
+          { name: "Risk Management Plan", path: "/" },
+          { name: "Value Management Plan", path: "/" },
+          { name: "Supportive Supervision Plan", path: "/" },
+        ],
+      },
+      { name: "Fund Request", path: "/" },
+      { name: "Reports", path: "/" },
+      {
+        name: "Stakeholder Management",
+        sublinks: [
+          { name: "Analysis/Mapping", path: "/" },
+          { name: "Engagement Plan", path: "/" },
+        ],
+      },
+    ],
+  },
+  {
     name: "Procurement Management",
     path: "/procurement-management",
     icon: (
@@ -343,60 +288,199 @@ const DEPARTMENTAL_LINKS = [
     link: [
       { name: "Overview", path: RouteEnum.OVERVIEW },
       {
-        name: "Expression of interest",
+        name: "Vendor Management",
         sublinks: [
-          { name: "EOI List", path: RouteEnum.EOI },
+          { name: "Prequalification", path: RouteEnum.VENDOR_MANAGEMENT },
+          { name: "EOI", path: RouteEnum.EOI },
+          { name: "Vendor Selection", path: RouteEnum.EOI_VENDOR },
+        ],
+      },
+      { name: "Supplier Database", path: "/" },
+      { name: "Price Intelligence", path: "/" },
+      { name: "Procurement Plan", path: RouteEnum.PROCUREMENT_PLAN },
+      { name: "Purchase Requests", path: RouteEnum.PURCHASE_REQUEST },
+      {
+        name: "Solicitation Management",
+        sublinks: [
+          { name: "RFQ", path: RouteEnum.RFQ },
+          { name: "National Open Tender", path: "/" },
+          { name: "Single-Sourcing", path: "/" },
+        ],
+      },
+      {
+        name: "Expression of Interest",
+        sublinks: [
+          { name: "EOI", path: RouteEnum.EOI },
           { name: "Vendor of Submission", path: RouteEnum.EOI_VENDOR },
         ],
       },
       {
         name: "RFQ Management",
         sublinks: [
-          { name: "RFQ List", path: RouteEnum.RFQ },
+          { name: "RFQ", path: RouteEnum.RFQ },
           { name: "Vendor of Submission", path: RouteEnum.RFQ_VENDOR },
         ],
       },
       {
-        name: "Competitive Bid Analysis",
-        path: RouteEnum.COMPETITIVE_ANALYSIS,
+        name: "Submission of Bids",
+        path: "/",
       },
-      { name: "Purchase Requests", path: RouteEnum.PURCHASE_REQUEST },
-      { name: "Vendor Management", path: RouteEnum.VENDOR_MANAGEMENT },
+      {
+        name: "Competitive Bid Analysis",
+        sublinks: [
+          { name: "CBA", path: RouteEnum.COMPETITIVE_ANALYSIS },
+          { name: "Selection", path: "/" },
+        ],
+      },
+      { name: "Purchase Order", path: "/" },
       { name: "Payment Request", path: RouteEnum.PAYMENT_REQUEST },
-      { name: "Procurement Plan", path: RouteEnum.PROCUREMENT_PLAN },
       {
         name: "Procurement Plan Tracker",
         path: RouteEnum.PROCUREMENT_PLAN_TRACKER,
       },
-      { name: "Report", path: RouteEnum.REPORT },
-    ],
-  },
-  {
-    name: "Programs",
-    path: "/program",
-    icon: <Icon icon="fluent:notepad-28-regular" fontSize={25} />,
-    link: [
-      { name: "Overview", path: RouteEnum.PROGRAM_OVERVIEW },
-      { name: "Work Plans", path: RouteEnum.WORK_PLAN },
-      { name: "Work Plan Audit/Tracker", path: RouteEnum.WORK_PLAN_AUDIT },
-      { name: "Donor Management", path: RouteEnum.DONOR_MANAGEMENT },
-      { name: "Projects", path: RouteEnum.PROJECTS },
-      { name: "Training and Procurement", path: RouteEnum.TRAINING },
-      { name: "Payment Request", path: RouteEnum.PROGRAM_PAYMENT_REQUEST },
-      { name: "Reports", path: RouteEnum.PROGRAM_REPORT },
+      { name: "Procurement Report", path: RouteEnum.REPORT },
     ],
   },
   {
     name: "Admin",
     icon: <Icon icon="solar:calculator-outline" fontSize={25} />,
+    link: [
+      { name: "Overview", path: "/" },
+      {
+        name: "Inventory Management",
+        sublinks: [
+          { name: "Consumable", path: "/" },
+          { name: "Assets", path: "/" },
+        ],
+      },
+      {
+        name: "Fleet Management",
+        sublinks: [
+          { name: "Vehicle request", path: "/" },
+          { name: "Vehicle maintenance ticket", path: "/" },
+          { name: "Fuel consumption record", path: "/" },
+        ],
+      },
+      { name: "Facility Management", path: "/" },
+      {
+        name: "Agreements",
+        sublinks: [
+          { name: "Lease", path: "/" },
+          { name: "SLA", path: "/" },
+          { name: "HMO", path: "/" },
+          { name: "Security", path: "/" },
+          { name: "Insurance", path: "/" },
+          { name: "Ticketing", path: "/" },
+        ],
+      },
+      {
+        name: "Competitive Analysis",
+        path: "/",
+      },
+      { name: "Payment Request", path: "/" },
+      { name: "Report", path: "/" },
+    ],
+  },
+  {
+    name: "C&G",
+    icon: <Icon icon="oui:timeline" fontSize={25} />,
+    link: [
+      { name: "Overview", path: "/" },
+      {
+        name: "Grant Management",
+        sublinks: [
+          { name: "Grants", path: "/" },
+          { name: "Subgrants", path: "/" },
+        ],
+      },
+      {
+        name: "Closeout",
+        sublinks: [{ name: "Closeout Plan", path: "/" }],
+      },
+      {
+        name: "Contract Management",
+        sublinks: [
+          { name: "Consultant management", path: "/" },
+          { name: "Consultancy report", path: "/" },
+          { name: "Payment request", path: "/" },
+          { name: "Facilitator management", path: "/" },
+          { name: "SLA", path: "/" },
+        ],
+      },
+      { name: "C&G Reports", path: "/" },
+    ],
   },
   {
     name: "HR",
     icon: <Icon icon="fluent:briefcase-28-regular" fontSize={25} />,
+    link: [
+      {
+        name: "Overview",
+        sublinks: [
+          {
+            name: "Workforce Need Analysis",
+            path: "/",
+          },
+          { name: "Workforce Database", path: "/" },
+        ],
+      },
+      {
+        name: "Recruitment",
+        sublinks: [
+          { name: "Advertisement", path: "/" },
+          { name: "Selection", path: "/" },
+          { name: "Onboarding", path: "/" },
+        ],
+      },
+      {
+        name: "Performance Management",
+        sublinks: [
+          { name: "Timesheet Management", path: "/" },
+          { name: "Performance Appraisal", path: "/" },
+        ],
+      },
+      { name: "Employee compensation & benefits", path: "/" },
+      {
+        name: "Separation Management",
+        sublinks: [
+          { name: "Voluntary Separation", path: "/" },
+          { name: "End of Project", path: "/" },
+          { name: "Dismissal", path: "/" },
+          { name: "Exit", path: "/" },
+          { name: "Evaluation", path: "/" },
+          { name: "Feedback", path: "/" },
+        ],
+      },
+      { name: "HR Reports", path: "/" },
+    ],
   },
-  { name: "C&G", icon: <Icon icon="oui:timeline" fontSize={25} /> },
   {
     name: "Finance",
     icon: <Icon icon="healthicons:money-bag-outline" fontSize={25} />,
+    link: [
+      {
+        name: "Overview",
+        sublinks: [
+          {
+            name: "Documents Submitted to be Reviewed",
+            path: "/",
+          },
+          { name: "Documents Awaiting Payment Vouchers", path: "/" },
+          { name: "Documents Awaiting Final Approval", path: "/" },
+        ],
+      },
+      { name: "Employee Compensation & Benefits", path: "/" },
+      { name: "Payment Requests", path: "/" },
+      { name: "Payment Voucher", path: "/" },
+      { name: "General Leger", path: "/" },
+      { name: "Employee Compensation & Benefits", path: "/" },
+      { name: "Time Sheet Management", path: "/" },
+      { name: "Trial Balance", path: "/" },
+      { name: "Audit", path: "/" },
+      { name: "Budget", path: "/" },
+      { name: "Petty Cash Request", path: "/" },
+      { name: "Bank Reconciliation", path: "/" },
+      { name: "Invoice", path: "/" },
+    ],
   },
 ];

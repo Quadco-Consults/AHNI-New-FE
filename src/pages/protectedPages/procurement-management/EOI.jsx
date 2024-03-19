@@ -99,7 +99,7 @@ const EOI = () => {
               <DialogContent className="max-w-4xl max-h-[650px]">
                 <div className="pb-5 space-y-5">
                   <DialogTitle className="py-5 ">
-                    Create New Expression of Interest
+                    Initiate New Expression of Interest
                   </DialogTitle>
 
                   <hr />
@@ -124,44 +124,80 @@ const EOI = () => {
                           </FormItem>
                         )}
                       />
+                      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <div className="space-y-2">
+                          <h4>Vendor Category (Select multiple categories)</h4>
+                          <MultiSelect
+                            options={[
+                              {
+                                value: "Medical Laboratory Consumables",
+                                label: "Medical Laboratory Consumables",
+                              },
 
-                      <div>
-                        <h4>Vendor Category (Select multiple categories)</h4>
-                        <MultiSelect
-                          options={[
-                            {
-                              value: "Medical Laboratory Consumables",
-                              label: "Medical Laboratory Consumables",
-                            },
+                              {
+                                value: "Medical Laboratory Equipment",
+                                label: "Medical Laboratory Equipment",
+                              },
+                              {
+                                value: "Design and Printing",
+                                label: "Design and Printing",
+                              },
+                              {
+                                value: "Office Furniture",
+                                label: "Office Furniture",
+                              },
+                              {
+                                value: "IT Equipment and Consumables",
+                                label: "IT Equipment and Consumables",
+                              },
+                              {
+                                value: "IT Systems and Solutions",
+                                label: "IT Systems and Solutions",
+                              },
+                              {
+                                value: "IT Service Provider and Networking",
+                                label: "IT Service Provider and Networking",
+                              },
+                            ]}
+                            selected={selected}
+                            onChange={setSelected}
+                            className="w-[560px]"
+                          />
+                        </div>
 
-                            {
-                              value: "Medical Laboratory Equipment",
-                              label: "Medical Laboratory Equipment",
-                            },
-                            {
-                              value: "Design and Printing",
-                              label: "Design and Printing",
-                            },
-                            {
-                              value: "Office Furniture",
-                              label: "Office Furniture",
-                            },
-                            {
-                              value: "IT Equipment and Consumables",
-                              label: "IT Equipment and Consumables",
-                            },
-                            {
-                              value: "IT Systems and Solutions",
-                              label: "IT Systems and Solutions",
-                            },
-                            {
-                              value: "IT Service Provider and Networking",
-                              label: "IT Service Provider and Networking",
-                            },
-                          ]}
-                          selected={selected}
-                          onChange={setSelected}
-                          className="w-[560px]"
+                        <FormField
+                          control={formHook.control}
+                          name="tender_type"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>
+                                Where are you submitting from?
+                              </FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select Location" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectGroup>
+                                    <SelectItem value="Single Source">
+                                      Single Source
+                                    </SelectItem>
+                                    <SelectItem value="Open Tender">
+                                      Open Tender
+                                    </SelectItem>
+                                    <SelectItem value="National Open Tender">
+                                      National Open Tender
+                                    </SelectItem>
+                                  </SelectGroup>
+                                </SelectContent>
+                              </Select>
+                            </FormItem>
+                          )}
                         />
                       </div>
 

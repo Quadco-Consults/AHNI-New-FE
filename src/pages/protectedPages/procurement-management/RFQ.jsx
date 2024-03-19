@@ -33,6 +33,7 @@ import { useForm } from "react-hook-form";
 import { RFQFormSchema } from "utils/Validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "components/ui/textarea";
+import { Input } from "components/ui/input";
 
 const RFQ = () => {
   const tableInstance = useTable({
@@ -110,33 +111,114 @@ const RFQ = () => {
 
                       <FormField
                         control={formHook.control}
-                        name="reference"
+                        name="tender_type"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>EOI reference</FormLabel>
+                            <FormLabel>Tender Type</FormLabel>
                             <Select
                               onValueChange={field.onChange}
                               defaultValue={field.value}
                             >
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Select EOI ID" />
+                                  <SelectValue placeholder="Select Type" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
                                 <SelectGroup>
                                   <SelectItem value="Single Source">
-                                    AHNI-T-001
+                                    Single Source
                                   </SelectItem>
                                   <SelectItem value="Open Tender">
-                                    AHNI-T-002
+                                    Open Tender
                                   </SelectItem>
                                   <SelectItem value="National Open Tender">
-                                    AHNI-T-003
+                                    National Open Tender
                                   </SelectItem>
                                 </SelectGroup>
                               </SelectContent>
                             </Select>
+                          </FormItem>
+                        )}
+                      />
+
+                      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <FormField
+                          control={formHook.control}
+                          name="tender_type"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Request type</FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select Type" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectGroup>
+                                    <SelectItem value="Single Source">
+                                      Single Source
+                                    </SelectItem>
+                                    <SelectItem value="Open Tender">
+                                      Open Tender
+                                    </SelectItem>
+                                    <SelectItem value="National Open Tender">
+                                      National Open Tender
+                                    </SelectItem>
+                                  </SelectGroup>
+                                </SelectContent>
+                              </Select>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={formHook.control}
+                          name="tender_type"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Procurement type</FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select Type" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectGroup>
+                                    <SelectItem value="Single Source">
+                                      Single Source
+                                    </SelectItem>
+                                    <SelectItem value="Open Tender">
+                                      Open Tender
+                                    </SelectItem>
+                                    <SelectItem value="National Open Tender">
+                                      National Open Tender
+                                    </SelectItem>
+                                  </SelectGroup>
+                                </SelectContent>
+                              </Select>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <FormField
+                        control={formHook.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>RFQ Title/ID</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="Enter FFQ ID" />
+                            </FormControl>
+                            <FormMessage />
                           </FormItem>
                         )}
                       />
