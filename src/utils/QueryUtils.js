@@ -7,7 +7,7 @@ import { StoreQueryTagEnum } from "constants/StoreConstants";
  * @param {{selectId: (arg: any) => string}} options
  * @returns
  */
-export function provideTag(tagType, resultsWithIds, error, options = {}) {
+export function provideTags(tagType, resultsWithIds, error, options = {}) {
   const { selectId = ({ id }) => id } = options;
   const listTag = { type: tagType };
   const result = error
@@ -27,7 +27,7 @@ export function provideTag(tagType, resultsWithIds, error, options = {}) {
   return result;
 }
 
-export function invalidateTag(tagType, ids, error) {
+export function invalidateTags(tagType, ids, error) {
   const result = error
     ? []
     : ids?.length

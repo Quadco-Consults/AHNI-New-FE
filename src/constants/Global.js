@@ -1,8 +1,8 @@
 export const EnvVarEnum = {
-  PROD: import.meta.env.PROD,
-  DEV: import.meta.env.DEV,
-  CORE_API_BASE_URL: import.meta.env.VITE_CORE_API_BASE_URL,
-  SESSION_TIMEOUT: import.meta.env.VITE_SESSION_TIMEOUT,
+  // PROD: import.meta.env.PROD,
+  // DEV: import.meta.env.DEV,
+  AHNI_API_BASE_URL: import.meta.env.VITE_AHNI_API_BASE_URL,
+  // SESSION_TIMEOUT: import.meta.env.VITE_SESSION_TIMEOUT,
 };
 
 export const PaginationParamsDefault = {

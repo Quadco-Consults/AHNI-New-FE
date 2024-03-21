@@ -38,9 +38,13 @@ import {
   FormMessage,
 } from "components/ui/form";
 import { EOIFormSchema } from "utils/Validator";
+import EoiApi from "apis/procurement/Eoi";
 
 const EOI = () => {
   const [selected, setSelected] = useState([]);
+
+  const { data: eoiData } = EoiApi.useGetEoisQuery();
+  console.log(eoiData);
 
   const tableInstance = useTable({
     columns,
