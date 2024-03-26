@@ -20,6 +20,9 @@ import iconSvg1 from "assets/svgs/I [ki-duotone](5).svg";
 import iconSvg2 from "assets/svgs/I [ki-duotone](6).svg";
 import { Progress } from "components/ui/progress";
 import { Button } from "components/ui/button";
+import { Plus } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import { Avatar, AvatarFallback, AvatarImage } from "components/ui/avatar";
 
 const VendorManagement = () => {
   const tableInstance = useTable({
@@ -33,19 +36,86 @@ const VendorManagement = () => {
   return (
     <div className="space-y-10">
       <div>
-        <h4 className="text-lg font-bold">Vendor Management</h4>
+        <h4 className="text-lg font-bold">Prequalification</h4>
         <h6>
           Procurement -{" "}
           <span className="text-black font-medium dark:text-grey-dark">
-            Vendor Management
+            Prequalification
           </span>
         </h6>
       </div>
 
       <Card className="space-y-10">
         <div>
-          <h4 className="text-lg font-bold">Vendor Management</h4>
-          <h6>
+          <h4 className="text-lg font-bold">Prequalification</h4>
+
+          <div className="flex justify-between items-center">
+            <Button>
+              <span>
+                <Plus size={20} />
+              </span>
+              Add New Vendor
+            </Button>
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="filter">
+                  <span>
+                    <svg
+                      width="19"
+                      height="16"
+                      viewBox="0 0 19 16"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M2.39409 5.77515L3.39282 6.81348L6.38513 2.13904H3.31121C2.95499 2.13904 2.65187 2.26413 2.40187 2.51432C2.15186 2.7645 2.02686 3.06783 2.02686 3.42432V4.87293C2.02686 4.87293 2.02686 4.87746 2.02686 4.88654C2.02686 5.06024 2.05859 5.22422 2.12207 5.37848C2.18554 5.53404 2.27621 5.66626 2.39409 5.77515Z"
+                        fill="#99A1B7"
+                      />
+                      <g opacity="0.3">
+                        <path
+                          d="M10.7432 2.13904H7.42255L4.02026 7.42987L4.60707 8.01709C4.80785 8.21802 4.96524 8.45265 5.07923 8.72098C5.19322 8.99061 5.25022 9.28033 5.25022 9.59015V12.639C5.25022 12.6481 5.25022 12.6572 5.25022 12.6663C5.25022 12.6753 5.25022 12.6844 5.25022 12.6935C5.25022 13.0124 5.36421 13.2859 5.5922 13.514C5.82018 13.7409 6.09804 13.8543 6.42577 13.8543C6.55271 13.8543 6.67772 13.8342 6.80078 13.794C6.92384 13.7526 7.03524 13.691 7.13498 13.6093V13.6229L7.92775 13.0357C8.07412 12.9346 8.19006 12.8043 8.27556 12.6449C8.36235 12.4854 8.40574 12.3098 8.40574 12.1179V9.67182C8.40574 9.66274 8.40574 9.65561 8.40574 9.65043C8.40574 9.64654 8.40574 9.64006 8.40574 9.63098C8.40574 9.30302 8.46986 8.99774 8.5981 8.71515C8.72505 8.43256 8.90251 8.18626 9.1305 7.97626L11.6021 5.77515C11.7303 5.65719 11.8333 5.51589 11.911 5.35126C11.9874 5.18663 12.0257 5.00904 12.0257 4.81848C12.0257 4.81848 12.0257 4.81395 12.0257 4.80487V3.42432C12.0257 3.06783 11.9006 2.7645 11.6506 2.51432C11.4006 2.26413 11.0982 2.13904 10.7432 2.13904Z"
+                          fill="#99A1B7"
+                        />
+                      </g>
+                    </svg>
+                  </span>
+                  Filter
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64">
+                <h4 className="font-medium p-5 text-base">Filter Options</h4>
+                <hr />
+
+                <div className="p-5 space-y-5">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-5">
+                      <Checkbox checked />
+                      <h6>Approved</h6>
+                    </div>
+                    <div className="flex items-center gap-5">
+                      <Checkbox />
+                      <h6>Pending</h6>
+                    </div>
+                    <div className="flex items-center gap-5">
+                      <Checkbox />
+                      <h6>In Progress</h6>
+                    </div>
+                    <div className="flex items-center gap-5">
+                      <Checkbox />
+                      <h6>Rejected</h6>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-4">
+                    <Button variant="ghost">Reset</Button>
+                    <Button>Apply</Button>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+          {/* <h6>
             NOTE: Vendors register on the platform by themselves on the url:
             <a
               href="https://ahni-frontend.vercel.app/vendor-registration"
@@ -53,7 +123,7 @@ const VendorManagement = () => {
             >
               https://ahni-frontend.vercel.app/vendor-registration
             </a>
-          </h6>
+          </h6> */}
         </div>
 
         <Table
@@ -162,7 +232,10 @@ const ActionListAction = () => {
               <Card className="flex gap-10 items-center">
                 <div className="flex gap-4">
                   <div className="relative">
-                    <img src={avatarPng} alt="img" width={200} />
+                    <Avatar className="w-20 h-20">
+                      <AvatarImage src={avatarPng} />
+                      <AvatarFallback>CN</AvatarFallback>
+                    </Avatar>
                     <div className="absolute -right-2 top-2/3 h-5 border-4 border-white rounded-full bg-green-400 w-5" />
                   </div>
                 </div>
@@ -332,7 +405,10 @@ const VendorAction = ({ data }) => {
   return (
     <div className="flex gap-3">
       <div>
-        <img src={data.vendor.png} alt={data.vendor.name} />
+        <Avatar>
+          <AvatarImage src={data.vendor.png} />
+          <AvatarFallback>{data.vendor.name}</AvatarFallback>
+        </Avatar>
       </div>
       <div>
         <h4 className="font-bold">{data.vendor.name}</h4>

@@ -11,6 +11,7 @@ import {
 } from "components/ui/dropdown-menu";
 import { useTheme } from "configs/theme-provider";
 import { cn } from "lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "components/ui/avatar";
 
 const Header = ({ sidebarWidth }) => {
   const { setTheme } = useTheme();
@@ -46,7 +47,10 @@ const Header = ({ sidebarWidth }) => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <img src={avatarPng} alt="avatar" />
+        <Avatar>
+          <AvatarImage src={avatarPng} />
+          <AvatarFallback>AD</AvatarFallback>
+        </Avatar>
       </div>
     </nav>
   );
