@@ -307,20 +307,20 @@ const DEPARTMENTAL_LINKS = [
           { name: "Single-Sourcing", path: "/" },
         ],
       },
-      {
-        name: "Expression of Interest",
-        sublinks: [
-          { name: "EOI", path: RouteEnum.EOI },
-          { name: "Vendor of Submission", path: RouteEnum.EOI_VENDOR },
-        ],
-      },
-      {
-        name: "RFQ Management",
-        sublinks: [
-          { name: "RFQ", path: RouteEnum.RFQ },
-          { name: "Vendor of Submission", path: RouteEnum.RFQ_VENDOR },
-        ],
-      },
+      // {
+      //   name: "Expression of Interest",
+      //   sublinks: [
+      //     { name: "EOI", path: RouteEnum.EOI },
+      //     { name: "Vendor of Submission", path: RouteEnum.EOI_VENDOR },
+      //   ],
+      // },
+      // {
+      //   name: "RFQ Management",
+      //   sublinks: [
+      //     { name: "RFQ", path: RouteEnum.RFQ },
+      //     { name: "Vendor of Submission", path: RouteEnum.RFQ_VENDOR },
+      //   ],
+      // },
       {
         name: "Submission of Bids",
         path: "/",

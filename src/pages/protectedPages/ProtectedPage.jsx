@@ -131,7 +131,9 @@ const getRoutes = function getRoutes() {
     {
       path: RouteEnum.VENDOR_MANAGEMENT,
       element: lazy(() =>
-        import("pages/protectedPages/procurement-management/Vendor-management")
+        import(
+          "pages/protectedPages/procurement-management/vendor-management/Prequalification"
+        )
       ),
     },
   ]);
