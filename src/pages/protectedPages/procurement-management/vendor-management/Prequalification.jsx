@@ -40,7 +40,7 @@ const VendorManagement = () => {
         <h6>
           Procurement -{" "}
           <span className="text-black font-medium dark:text-grey-dark">
-            Prequalification
+            Vendor Management
           </span>
         </h6>
       </div>
@@ -49,7 +49,7 @@ const VendorManagement = () => {
         <div>
           <h4 className="text-lg font-bold">Prequalification</h4>
 
-          <div className="flex justify-between items-center">
+          <div className="flex mt-1 justify-between items-center">
             <Button>
               <span>
                 <Plus size={20} />

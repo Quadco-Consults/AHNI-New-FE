@@ -68,20 +68,32 @@ const getRoutes = function getRoutes() {
       path: RouteEnum.COMPETITIVE_ANALYSIS,
       element: lazy(() =>
         import(
-          "pages/protectedPages/procurement-management/Competitive-analysis"
+          "pages/protectedPages/procurement-management/competitive-bid-analysis/Competitive-analysis"
+        )
+      ),
+    },
+    {
+      path: RouteEnum.COMPETITIVE_SELECTION,
+      element: lazy(() =>
+        import(
+          "pages/protectedPages/procurement-management/competitive-bid-analysis/Selection"
         )
       ),
     },
     {
       path: RouteEnum.EOI_VENDOR,
       element: lazy(() =>
-        import("pages/protectedPages/procurement-management/EOI-vendor")
+        import(
+          "pages/protectedPages/procurement-management/vendor-management/EOI-vendor"
+        )
       ),
     },
     {
       path: RouteEnum.EOI,
       element: lazy(() =>
-        import("pages/protectedPages/procurement-management/EOI")
+        import(
+          "pages/protectedPages/procurement-management/vendor-management/EOI"
+        )
       ),
     },
     {
@@ -125,7 +137,25 @@ const getRoutes = function getRoutes() {
     {
       path: RouteEnum.RFQ,
       element: lazy(() =>
-        import("pages/protectedPages/procurement-management/RFQ")
+        import(
+          "pages/protectedPages/procurement-management/solicitation-management/RFQ"
+        )
+      ),
+    },
+    {
+      path: RouteEnum.OPEN_TENDER,
+      element: lazy(() =>
+        import(
+          "pages/protectedPages/procurement-management/solicitation-management/National-tender"
+        )
+      ),
+    },
+    {
+      path: RouteEnum.SINGLE_SOURCING,
+      element: lazy(() =>
+        import(
+          "pages/protectedPages/procurement-management/solicitation-management/Single-sourcing"
+        )
       ),
     },
     {
@@ -134,6 +164,30 @@ const getRoutes = function getRoutes() {
         import(
           "pages/protectedPages/procurement-management/vendor-management/Prequalification"
         )
+      ),
+    },
+    {
+      path: RouteEnum.PRICE_INTELLIGENCE,
+      element: lazy(() =>
+        import("pages/protectedPages/procurement-management/Price-intelligence")
+      ),
+    },
+    {
+      path: RouteEnum.PURCHASE_ORDER,
+      element: lazy(() =>
+        import("pages/protectedPages/procurement-management/Purchase-order")
+      ),
+    },
+    {
+      path: RouteEnum.SUBMISSION_OF_BIDS,
+      element: lazy(() =>
+        import("pages/protectedPages/procurement-management/Submission-of-bids")
+      ),
+    },
+    {
+      path: RouteEnum.SUPPLIER_DATABASE,
+      element: lazy(() =>
+        import("pages/protectedPages/procurement-management/Supplier-database")
       ),
     },
   ]);

@@ -85,7 +85,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
                 }}
                 className={cn(
                   "flex w-full gap-3 px-2 py-2 justify-between items-center hover:text-primary hover:cursor-pointer",
-                  location.pathname.startsWith(link.path) && "text-primary "
+                  location.pathname === link.path && "text-primary "
                 )}
               >
                 <div className="flex items-center gap-2 ">
@@ -295,16 +295,16 @@ const DEPARTMENTAL_LINKS = [
           { name: "Vendor Selection", path: RouteEnum.EOI_VENDOR },
         ],
       },
-      { name: "Supplier Database", path: "/" },
-      { name: "Price Intelligence", path: "/" },
+      { name: "Supplier Database", path: RouteEnum.SUPPLIER_DATABASE },
+      { name: "Price Intelligence", path: RouteEnum.PRICE_INTELLIGENCE },
       { name: "Procurement Plan", path: RouteEnum.PROCUREMENT_PLAN },
       { name: "Purchase Requests", path: RouteEnum.PURCHASE_REQUEST },
       {
         name: "Solicitation Management",
         sublinks: [
           { name: "RFQ", path: RouteEnum.RFQ },
-          { name: "National Open Tender", path: "/" },
-          { name: "Single-Sourcing", path: "/" },
+          { name: "National Open Tender", path: RouteEnum.OPEN_TENDER },
+          { name: "Single-Sourcing", path: RouteEnum.SINGLE_SOURCING },
         ],
       },
       // {
@@ -323,16 +323,16 @@ const DEPARTMENTAL_LINKS = [
       // },
       {
         name: "Submission of Bids",
-        path: "/",
+        path: RouteEnum.SUBMISSION_OF_BIDS,
       },
       {
         name: "Competitive Bid Analysis",
         sublinks: [
           { name: "CBA", path: RouteEnum.COMPETITIVE_ANALYSIS },
-          { name: "Selection", path: "/" },
+          { name: "Selection", path: RouteEnum.COMPETITIVE_SELECTION },
         ],
       },
-      { name: "Purchase Order", path: "/" },
+      { name: "Purchase Order", path: RouteEnum.PURCHASE_ORDER },
       { name: "Payment Request", path: RouteEnum.PAYMENT_REQUEST },
       {
         name: "Procurement Plan Tracker",
