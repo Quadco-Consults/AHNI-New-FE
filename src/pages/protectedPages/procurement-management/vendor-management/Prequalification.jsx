@@ -16,6 +16,7 @@ import {
   DialogTrigger,
 } from "components/ui/dialog";
 import iconSvg from "assets/svgs/svg.svg";
+import verifySvg from "assets/svgs/Vector.svg";
 import iconSvg1 from "assets/svgs/I [ki-duotone](5).svg";
 import iconSvg2 from "assets/svgs/I [ki-duotone](6).svg";
 import { Progress } from "components/ui/progress";
@@ -23,6 +24,11 @@ import { Button } from "components/ui/button";
 import { Plus } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import Overview from "./Overview";
+import Settings from "./Settings";
+import Uploads from "./Uploads";
+import PrequalificationContent from "./PrequalificationContent";
 
 const VendorManagement = () => {
   const tableInstance = useTable({
@@ -223,7 +229,7 @@ const ActionListAction = () => {
               <Icon icon="fluent:notepad-28-regular" fontSize={15} />
             </div>
           </DialogTrigger>
-          <DialogContent className="max-w-6xl max-h-[700px]">
+          <DialogContent className="max-w-5xl max-h-[700px]">
             <div className="pb-5 space-y-5">
               <DialogTitle className="py-2 ">Vendor Profile</DialogTitle>
 
@@ -232,7 +238,7 @@ const ActionListAction = () => {
               <Card className="flex gap-10 items-center">
                 <div className="flex gap-4">
                   <div className="relative">
-                    <Avatar className="w-20 h-20">
+                    <Avatar className="w-36 h-36">
                       <AvatarImage src={avatarPng} />
                       <AvatarFallback>CN</AvatarFallback>
                     </Avatar>
@@ -241,7 +247,20 @@ const ActionListAction = () => {
                 </div>
                 <div className="space-y-5">
                   <div className="space-y-1">
-                    <h2 className="text-lg font-bold">Max Smith</h2>
+                    <div className="flex justify-between">
+                      <div className="flex items-center gap-2">
+                        <h2 className="text-lg font-bold">Max Smith</h2>
+                        <img src={verifySvg} alt="verify" width={20} />
+                        <Badge className="bg-green-dark">Upgrade to Pro</Badge>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button variant="filter">Follow</Button>
+                        <Button>Hire</Button>
+                        <Button variant="filter">
+                          <Icon icon="solar:pen-bold-duotone" fontSize={15} />
+                        </Button>
+                      </div>
+                    </div>
                     <div className="flex items-center gap-4">
                       <h4 className="flex items-center gap-1">
                         <span>
@@ -317,63 +336,28 @@ const ActionListAction = () => {
                 </div>
               </Card>
 
-              <div className="bg-white border shadow-sm rounded-2xl dark:bg-[hsl(15,13%,6%)]">
-                <div>
-                  <div className="p-5 flex justify-between items-center">
-                    <h4 className="font-bold text-lg">Profile Details</h4>
-                    <Button>Edit Profile</Button>
-                  </div>
-                  <hr />
-
-                  <div className="p-5 space-y-5">
-                    <div className="grid grid-cols-2 items-center">
-                      <h4 className=" text-grey-light font-medium">
-                        Full Name
-                      </h4>
-                      <h4 className="font-bold">Max Smith</h4>
-                    </div>
-                    <div className="grid grid-cols-2 items-center">
-                      <h4 className=" text-grey-light font-medium">Company</h4>
-                      <h4 className="font-bold">Keenthemes</h4>
-                    </div>
-                    <div className="grid grid-cols-2 items-center">
-                      <h4 className=" text-grey-light font-medium">
-                        Contact Phone
-                      </h4>
-                      <h4 className="font-bold">
-                        044 3276 454 935{" "}
-                        <Badge className="bg-green-dark">Verified</Badge>
-                      </h4>
-                    </div>
-                    <div className="grid grid-cols-2 items-center">
-                      <h4 className=" text-grey-light font-medium">
-                        Company Site
-                      </h4>
-                      <h4 className="font-bold">
-                        <a href="keenthemes.com">keenthemes.com</a>
-                      </h4>
-                    </div>
-                    <div className="grid grid-cols-2 items-center">
-                      <h4 className=" text-grey-light font-medium">Country</h4>
-                      <h4 className="font-bold">Germany</h4>
-                    </div>
-                    <div className="grid grid-cols-2 items-center">
-                      <h4 className=" text-grey-light font-medium">
-                        Communication
-                      </h4>
-                      <h4 className="font-bold">Email, Phone</h4>
-                    </div>
-                    <div className="grid grid-cols-2 items-center">
-                      <h4 className=" text-grey-light font-medium">
-                        Allow Changes
-                      </h4>
-                      <h4 className="font-bold">Yes</h4>
-                    </div>
-
-                    <div></div>
-                  </div>
-                </div>
-              </div>
+              <Tabs defaultValue="overview">
+                <TabsList>
+                  <TabsTrigger value="overview">Overview</TabsTrigger>
+                  <TabsTrigger value="uploads">Uploads</TabsTrigger>
+                  <TabsTrigger value="prequalification">
+                    Prequalification
+                  </TabsTrigger>
+                  <TabsTrigger value="settings">Settings</TabsTrigger>
+                </TabsList>
+                <TabsContent value="overview">
+                  <Overview />
+                </TabsContent>
+                <TabsContent value="uploads">
+                  <Uploads />
+                </TabsContent>
+                <TabsContent value="prequalification">
+                  <PrequalificationContent />
+                </TabsContent>
+                <TabsContent value="settings">
+                  <Settings />
+                </TabsContent>
+              </Tabs>
             </div>
           </DialogContent>
         </Dialog>
