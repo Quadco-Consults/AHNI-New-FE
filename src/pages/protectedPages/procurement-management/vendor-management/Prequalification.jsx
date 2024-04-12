@@ -7,28 +7,21 @@ import { Checkbox } from "components/ui/checkbox";
 import useTable from "hooks/useTable";
 import Table from "lib/react-table/Table";
 import { cn } from "lib/utils";
-import avatarPng from "assets/imgs/avartar.png";
-import ReactStars from "react-rating-stars-component";
 import {
   Dialog,
   DialogContent,
   DialogTitle,
   DialogTrigger,
 } from "components/ui/dialog";
-import iconSvg from "assets/svgs/svg.svg";
-import verifySvg from "assets/svgs/Vector.svg";
-import iconSvg1 from "assets/svgs/I [ki-duotone](5).svg";
-import iconSvg2 from "assets/svgs/I [ki-duotone](6).svg";
-import { Progress } from "components/ui/progress";
 import { Button } from "components/ui/button";
 import { Plus } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Avatar, AvatarFallback, AvatarImage } from "components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import Overview from "./Overview";
 import Settings from "./Settings";
 import Uploads from "./Uploads";
-import PrequalificationContent from "./PrequalificationContent";
+import { Input } from "components/ui/input";
+import Questionnaire from "./Questionnaire";
 
 const VendorManagement = () => {
   const tableInstance = useTable({
@@ -52,41 +45,48 @@ const VendorManagement = () => {
       </div>
 
       <Card className="space-y-10">
-        <div>
+        <div className="space-y-5">
           <h4 className="text-lg font-bold">Prequalification</h4>
 
-          <div className="flex mt-1 justify-between items-center">
+          <div className="flex justify-end">
             <Button>
               <span>
                 <Plus size={20} />
               </span>
-              Add New Vendor
+              Add Vendor
             </Button>
+          </div>
 
+          <div className="flex mt-1 justify-between items-center">
+            <div className="border w-1/3 py-2 px-2 flex items-center rounded-lg">
+              <Icon icon="iconamoon:search-light" fontSize={25} />
+              <Input
+                placeholder="Search Category"
+                type="search"
+                className="h-6 border-none bg-none"
+              />
+            </div>
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="filter">
-                  <span>
-                    <svg
-                      width="19"
-                      height="16"
-                      viewBox="0 0 19 16"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M2.39409 5.77515L3.39282 6.81348L6.38513 2.13904H3.31121C2.95499 2.13904 2.65187 2.26413 2.40187 2.51432C2.15186 2.7645 2.02686 3.06783 2.02686 3.42432V4.87293C2.02686 4.87293 2.02686 4.87746 2.02686 4.88654C2.02686 5.06024 2.05859 5.22422 2.12207 5.37848C2.18554 5.53404 2.27621 5.66626 2.39409 5.77515Z"
-                        fill="#99A1B7"
-                      />
-                      <g opacity="0.3">
-                        <path
-                          d="M10.7432 2.13904H7.42255L4.02026 7.42987L4.60707 8.01709C4.80785 8.21802 4.96524 8.45265 5.07923 8.72098C5.19322 8.99061 5.25022 9.28033 5.25022 9.59015V12.639C5.25022 12.6481 5.25022 12.6572 5.25022 12.6663C5.25022 12.6753 5.25022 12.6844 5.25022 12.6935C5.25022 13.0124 5.36421 13.2859 5.5922 13.514C5.82018 13.7409 6.09804 13.8543 6.42577 13.8543C6.55271 13.8543 6.67772 13.8342 6.80078 13.794C6.92384 13.7526 7.03524 13.691 7.13498 13.6093V13.6229L7.92775 13.0357C8.07412 12.9346 8.19006 12.8043 8.27556 12.6449C8.36235 12.4854 8.40574 12.3098 8.40574 12.1179V9.67182C8.40574 9.66274 8.40574 9.65561 8.40574 9.65043C8.40574 9.64654 8.40574 9.64006 8.40574 9.63098C8.40574 9.30302 8.46986 8.99774 8.5981 8.71515C8.72505 8.43256 8.90251 8.18626 9.1305 7.97626L11.6021 5.77515C11.7303 5.65719 11.8333 5.51589 11.911 5.35126C11.9874 5.18663 12.0257 5.00904 12.0257 4.81848C12.0257 4.81848 12.0257 4.81395 12.0257 4.80487V3.42432C12.0257 3.06783 11.9006 2.7645 11.6506 2.51432C11.4006 2.26413 11.0982 2.13904 10.7432 2.13904Z"
-                          fill="#99A1B7"
-                        />
-                      </g>
-                    </svg>
-                  </span>
-                  Filter
+                <Button variant="filter" className="bg-[#FFF2F2] text-primary">
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      opacity="0.4"
+                      d="M18.593 8.19486C19.0376 8.52237 19.1326 9.14837 18.8051 9.59306C18.5507 9.93847 18.2963 10.2668 18.0731 10.5528C17.6276 11.1236 17.0143 11.8882 16.3479 12.6556C15.6859 13.4181 14.9518 14.2064 14.2666 14.8119C13.9251 15.1136 13.5721 15.3911 13.2279 15.5986C12.9112 15.7895 12.476 16 11.9999 16C11.5238 16 11.0885 15.7895 10.7718 15.5986C10.4276 15.3911 10.0747 15.1136 9.7332 14.8119C9.04791 14.2064 8.31387 13.4181 7.65183 12.6556C6.98548 11.8882 6.37216 11.1236 5.92664 10.5528C5.70347 10.2668 5.44902 9.93847 5.19463 9.59307C4.86712 9.14837 4.96211 8.52237 5.4068 8.19486C5.58556 8.0632 5.79362 7.99983 5.99982 8L11.9999 8L17.9999 8C18.2061 7.99983 18.4142 8.0632 18.593 8.19486Z"
+                      fill="#FF0000"
+                    />
+                    <path
+                      d="M18.593 8.19486C19.0376 8.52237 19.1326 9.14837 18.8051 9.59306C18.5507 9.93847 18.2963 10.2668 18.0731 10.5528C17.6276 11.1236 17.0143 11.8882 16.3479 12.6556C15.6859 13.4181 14.9518 14.2064 14.2666 14.8119C13.9251 15.1136 13.5721 15.3911 13.2279 15.5986C12.9112 15.7895 12.476 16 11.9999 16C11.5238 16 11.0885 15.7895 10.7718 15.5986C10.4276 15.3911 10.0747 15.1136 9.7332 14.8119C9.15076 14.2973 8.53312 13.6506 7.95439 13L13 8L17.9999 8C18.2061 7.99983 18.4142 8.0632 18.593 8.19486Z"
+                      fill="#FF0000"
+                    />
+                  </svg>
+                  Actions
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-64">
@@ -171,40 +171,31 @@ const columns = [
     },
   },
   {
-    header: "Vendor",
-    accessorKey: "vendor",
+    header: "Vendor Name",
+    accessorKey: "name",
     size: 250,
-    cell: ({ row }) => <VendorAction data={row.original} />,
   },
   {
-    header: "Phone Number",
-    accessorKey: "number",
-  },
-  {
-    header: "Email",
+    header: "Type of Business",
     accessorKey: "email",
-  },
-  {
-    header: "Products/Services",
-    accessorKey: "products",
     size: 250,
   },
   {
-    header: "Rating",
-    accessorKey: "rating",
-    cell: ({ row }) => <RatingAction data={row.original} />,
+    header: "Company Reg No",
+    accessorKey: "number",
+    size: 200,
   },
   {
-    header: "Status",
+    header: "Evaluation Status",
     accessorKey: "status",
     cell: ({ getValue }) => {
       return (
         <Badge
           className={cn(
-            "p-1 rounded-lg",
-            getValue() === "Active" && "bg-green-light text-green-dark",
-            getValue() === "Inactive" && "bg-red-light text-red-dark",
-            getValue() === "Under Review" && "bg-yellow-light text-yellow-dark"
+            "px-3 py-2 rounded-lg",
+            getValue() === "Pass" && "bg-green-light text-green-dark",
+            getValue() === "Fail" && "bg-red-light text-red-dark",
+            getValue() === "Unreviewed" && "bg-yellow-light text-yellow-dark"
           )}
         >
           {getValue()}
@@ -222,227 +213,209 @@ const columns = [
 const ActionListAction = () => {
   return (
     <div className="flex gap-2">
-      <div>
-        <Dialog>
-          <DialogTrigger>
-            <div className="rounded-lg px-2 py-2 bg-[#F9F9F9] hover:text-primary dark:text-black dark:hover:text-primary">
-              <Icon icon="fluent:notepad-28-regular" fontSize={15} />
-            </div>
-          </DialogTrigger>
-          <DialogContent className="max-w-5xl max-h-[700px]">
-            <div className="pb-5 space-y-5">
-              <DialogTitle className="py-2 ">Vendor Profile</DialogTitle>
+      <Dialog>
+        <DialogTrigger>
+          <div className="rounded-lg px-2 py-2 bg-[#F9F9F9] hover:text-primary dark:text-black dark:hover:text-primary">
+            <Icon icon="ph:eye-duotone" fontSize={15} />
+          </div>
+        </DialogTrigger>
+        <DialogContent className="max-w-6xl max-h-[700px]">
+          <div className="pb-5 space-y-5">
+            <DialogTitle className="py-2 ">Vendor Profile</DialogTitle>
 
-              <hr />
+            <hr />
 
-              <Card className="flex gap-10 items-center">
-                <div className="flex gap-4">
-                  <div className="relative">
-                    <Avatar className="w-36 h-36">
-                      <AvatarImage src={avatarPng} />
-                      <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-                    <div className="absolute -right-2 top-2/3 h-5 border-4 border-white rounded-full bg-green-400 w-5" />
-                  </div>
+            {/* <Card className="flex gap-10 items-center">
+              <div className="flex gap-4">
+                <div className="relative">
+                  <Avatar className="w-36 h-36">
+                    <AvatarImage src={avatarPng} />
+                    <AvatarFallback>CN</AvatarFallback>
+                  </Avatar>
+                  <div className="absolute -right-2 top-2/3 h-5 border-4 border-white rounded-full bg-green-400 w-5" />
                 </div>
-                <div className="space-y-5">
-                  <div className="space-y-1">
-                    <div className="flex justify-between">
-                      <div className="flex items-center gap-2">
-                        <h2 className="text-lg font-bold">Max Smith</h2>
-                        <img src={verifySvg} alt="verify" width={20} />
-                        <Badge className="bg-green-dark">Upgrade to Pro</Badge>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button variant="filter">Follow</Button>
-                        <Button>Hire</Button>
-                        <Button variant="filter">
-                          <Icon icon="solar:pen-bold-duotone" fontSize={15} />
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <h4 className="flex items-center gap-1">
-                        <span>
-                          <Icon
-                            icon="icon-park-twotone:avatar"
-                            color="#4E4E4E"
-                          />
-                        </span>
-                        Developer
-                      </h4>
-                      <h4 className="flex items-center gap-1">
-                        <span>
-                          <Icon icon="ic:twotone-location-on" color="#4E4E4E" />
-                        </span>
-                        SF, Bay Area
-                      </h4>
-                      <h4 className="flex items-center gap-1">
-                        <span>
-                          <Icon icon="ic:twotone-mail" color="#4E4E4E" />
-                        </span>
-                        max@kt.com
-                      </h4>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between gap-10 items-center">
+              </div>
+              <div className="space-y-5">
+                <div className="space-y-1">
+                  <div className="flex justify-between">
                     <div className="flex items-center gap-2">
-                      {[
-                        {
-                          name: "Earnings",
-                          amount: "5M",
-                          sign: "$",
-                          icon: iconSvg1,
-                        },
-                        {
-                          name: "Projects",
-                          amount: "15",
-                          sign: "",
-                          icon: iconSvg2,
-                        },
-                        {
-                          name: "Success Rate",
-                          amount: "90",
-                          sign: "%",
-                          icon: iconSvg,
-                        },
-                      ].map(({ name, amount, sign, icon }) => (
-                        <div
-                          key={name}
-                          className="py-2 px-8 border-2 border-dashed rounded-2xl"
-                        >
-                          <div className="flex items-center">
-                            <div>
-                              <img src={icon} alt={name} />
-                            </div>
-                            <h4 className="text-lg font-bold">
-                              {amount}
-                              <span>{sign}</span>
-                            </h4>
-                          </div>
-                          <h4>{name}</h4>
-                        </div>
-                      ))}
+                      <h2 className="text-lg font-bold">Max Smith</h2>
+                      <img src={verifySvg} alt="verify" width={20} />
+                      <Badge className="bg-green-dark">Upgrade to Pro</Badge>
                     </div>
-                    <div>
-                      <div className="flex items-center gap-10 justify-between">
-                        <h4>Processes Completion</h4>
-                        <h4 className="font-bold">33%</h4>
-                      </div>
-                      <Progress value={33} />
+                    <div className="flex items-center gap-2">
+                      <Button variant="filter">Follow</Button>
+                      <Button>Hire</Button>
+                      <Button variant="filter">
+                        <Icon icon="solar:pen-bold-duotone" fontSize={15} />
+                      </Button>
                     </div>
                   </div>
+                  <div className="flex items-center gap-4">
+                    <h4 className="flex items-center gap-1">
+                      <span>
+                        <Icon icon="icon-park-twotone:avatar" color="#4E4E4E" />
+                      </span>
+                      Developer
+                    </h4>
+                    <h4 className="flex items-center gap-1">
+                      <span>
+                        <Icon icon="ic:twotone-location-on" color="#4E4E4E" />
+                      </span>
+                      SF, Bay Area
+                    </h4>
+                    <h4 className="flex items-center gap-1">
+                      <span>
+                        <Icon icon="ic:twotone-mail" color="#4E4E4E" />
+                      </span>
+                      max@kt.com
+                    </h4>
+                  </div>
                 </div>
-              </Card>
 
-              <Tabs defaultValue="overview">
-                <TabsList>
-                  <TabsTrigger value="overview">Overview</TabsTrigger>
-                  <TabsTrigger value="uploads">Uploads</TabsTrigger>
-                  <TabsTrigger value="prequalification">
-                    Prequalification
-                  </TabsTrigger>
-                  <TabsTrigger value="settings">Settings</TabsTrigger>
-                </TabsList>
-                <TabsContent value="overview">
-                  <Overview />
-                </TabsContent>
-                <TabsContent value="uploads">
-                  <Uploads />
-                </TabsContent>
-                <TabsContent value="prequalification">
-                  <PrequalificationContent />
-                </TabsContent>
-                <TabsContent value="settings">
-                  <Settings />
-                </TabsContent>
-              </Tabs>
+                <div className="flex justify-between gap-10 items-center">
+                  <div className="flex items-center gap-2">
+                    {[
+                      {
+                        name: "Earnings",
+                        amount: "5M",
+                        sign: "$",
+                        icon: iconSvg1,
+                      },
+                      {
+                        name: "Projects",
+                        amount: "15",
+                        sign: "",
+                        icon: iconSvg2,
+                      },
+                      {
+                        name: "Success Rate",
+                        amount: "90",
+                        sign: "%",
+                        icon: iconSvg,
+                      },
+                    ].map(({ name, amount, sign, icon }) => (
+                      <div
+                        key={name}
+                        className="py-2 px-8 border-2 border-dashed rounded-2xl"
+                      >
+                        <div className="flex items-center">
+                          <div>
+                            <img src={icon} alt={name} />
+                          </div>
+                          <h4 className="text-lg font-bold">
+                            {amount}
+                            <span>{sign}</span>
+                          </h4>
+                        </div>
+                        <h4>{name}</h4>
+                      </div>
+                    ))}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-10 justify-between">
+                      <h4>Processes Completion</h4>
+                      <h4 className="font-bold">33%</h4>
+                    </div>
+                    <Progress value={33} />
+                  </div>
+                </div>
+              </div>
+            </Card> */}
+
+            <div className="flex justify-end">
+              <Button>Start Prequalification</Button>
             </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-      <div className="flex gap-2 flex-col">
-        <IconButton className="bg-[#F9F9F9] hover:text-primary">
-          <Icon icon="solar:pen-bold-duotone" fontSize={15} />
-        </IconButton>
-        <IconButton className="bg-[#F9F9F9] hover:text-primary">
-          <Icon icon="ant-design:delete-twotone" fontSize={15} />
-        </IconButton>
-      </div>
+
+            <Tabs defaultValue="overview">
+              <TabsList>
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="uploads">Uploads</TabsTrigger>
+                <TabsTrigger value="questionnaire">Questionnaire</TabsTrigger>
+                <TabsTrigger value="settings">Settings</TabsTrigger>
+              </TabsList>
+              <TabsContent value="overview">
+                <Overview />
+              </TabsContent>
+              <TabsContent value="uploads">
+                <Uploads />
+              </TabsContent>
+              <TabsContent value="questionnaire">
+                <Questionnaire />
+              </TabsContent>
+              <TabsContent value="settings">
+                <Settings />
+              </TabsContent>
+            </Tabs>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <IconButton className="bg-[#F9F9F9] hover:text-primary">
+        <Icon icon="ant-design:delete-twotone" fontSize={15} />
+      </IconButton>
     </div>
   );
 };
 
-const RatingAction = () => {
-  return (
-    <ReactStars
-      count={5}
-      // onChange={ratingChanged}
-      size={15}
-      value={3}
-      activeColor="#ffd700"
-    />
-  );
-};
-const VendorAction = ({ data }) => {
-  return (
-    <div className="flex gap-3">
-      <div>
-        <Avatar>
-          <AvatarImage src={data.vendor.png} />
-          <AvatarFallback>{data.vendor.name}</AvatarFallback>
-        </Avatar>
-      </div>
-      <div>
-        <h4 className="font-bold">{data.vendor.name}</h4>
-        <h6>{data.vendor.desc}</h6>
-      </div>
-    </div>
-  );
-};
+// const VendorAction = ({ data }) => {
+//   return (
+//     <div className="flex gap-3">
+//       <div>
+//         <Avatar>
+//           <AvatarImage src={data.vendor.png} />
+//           <AvatarFallback>{data.vendor.name}</AvatarFallback>
+//         </Avatar>
+//       </div>
+//       <div>
+//         <h4 className="font-bold">{data.vendor.name}</h4>
+//         <h6>{data.vendor.desc}</h6>
+//       </div>
+//     </div>
+//   );
+// };
 
 const data = [
   {
-    vendor: { png: avatarPng, name: "Medical Supplies Ltd.", desc: "AHNI001" },
+    name: "Medical Supplies Ltd.",
     number: +2348071234567,
     email: "contact@medsupplies.com.ng",
     products: "MEDICAL EQUIPMENT, SURGICAL TOOLS",
-    status: "Active",
+    status: "Pass",
   },
   {
-    vendor: { png: avatarPng, name: "Naija Labs & Co.", desc: "AHNI002" },
+    name: "Naija Labs & Co.",
     number: +2348092345678,
     email: "info@naijalabs.com.ng",
     products: "Diagnostic kits, laboratory equipment",
-    status: "Under Review",
+    status: "Unreviewed",
   },
   {
-    vendor: { png: avatarPng, name: "HealthTech Nigeria", desc: "AHNI002" },
+    name: "HealthTech Nigeria",
     number: +2348063456789,
     email: "support@healthtechnigeria.com.ng",
     products: "Healthcare software, patient management systems",
-    status: "Inactive",
+    status: "Pass",
   },
   {
-    vendor: { png: avatarPng, name: "Medical Supplies Ltd.", desc: "AHNI001" },
+    name: "Medical Supplies Ltd.",
     number: +2348071234567,
     email: "contact@medsupplies.com.ng",
     products: "MEDICAL EQUIPMENT, SURGICAL TOOLS",
-    status: "Active",
+    status: "Fail",
   },
   {
-    vendor: { png: avatarPng, name: "Naija Labs & Co.", desc: "AHNI002" },
+    name: "Naija Labs & Co.",
     number: +2348092345678,
     email: "info@naijalabs.com.ng",
     products: "Diagnostic kits, laboratory equipment",
-    status: "Under Review",
+    status: "Unreviewed",
   },
   {
-    vendor: { png: avatarPng, name: "HealthTech Nigeria", desc: "AHNI002" },
+    name: "HealthTech Nigeria",
     number: +2348063456789,
     email: "support@healthtechnigeria.com.ng",
     products: "Healthcare software, patient management systems",
-    status: "Inactive",
+    status: "Pass",
   },
 ];

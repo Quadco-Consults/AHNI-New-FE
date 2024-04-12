@@ -53,7 +53,7 @@ module.exports = {
           foreground: "hsl(var(--card-foreground))",
         },
         purple: { dark: "#7239EA", light: "#F8F5FF" },
-        yellow: { dark: "#FFC700", light: "#FFF8DD" },
+        yellow: { dark: "#FFC700", darker: "#DEA004", light: "#FFF8DD" },
         green: { dark: "#50CD89", light: "#E8FFF3" },
         red: { dark: "#F1416C", light: "#FFF5F8" },
         grey: { dark: "#99A1B7", light: "#4E4E4E" },

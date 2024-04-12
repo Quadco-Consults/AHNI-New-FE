@@ -1,59 +1,47 @@
 import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import cautionSvg from "assets/svgs/Group 70.svg";
 
 const Overview = () => {
   return (
     <div className="bg-white border shadow-sm rounded-2xl dark:bg-[hsl(15,13%,6%)]">
       <div className="p-5 flex justify-between items-center">
         <h4 className="font-bold text-lg">Profile Details</h4>
-        <Button>Edit Profile</Button>
       </div>
       <hr />
 
-      <div className="p-5 space-y-5">
+      <div className="p-5 space-y-8">
         <div className="grid grid-cols-2 items-center">
-          <h4 className=" text-grey-light font-medium">Full Name</h4>
-          <h4 className="font-bold">Max Smith</h4>
+          <h4 className="font-bold">Vendor Name</h4>
+          <h4>ABC Supplies Ltd</h4>
         </div>
         <div className="grid grid-cols-2 items-center">
-          <h4 className=" text-grey-light font-medium">Company</h4>
-          <h4 className="font-bold">Keenthemes</h4>
+          <h4 className="font-bold">Type of Business</h4>
+          <h4>Limited Liability</h4>
         </div>
         <div className="grid grid-cols-2 items-center">
-          <h4 className=" text-grey-light font-medium">Contact Phone</h4>
-          <h4 className="font-bold">
-            044 3276 454 935 <Badge className="bg-green-dark">Verified</Badge>
-          </h4>
+          <h4 className="font-bold">Company Reg No</h4>
+          <h4>044 3276 454 935</h4>
         </div>
         <div className="grid grid-cols-2 items-center">
-          <h4 className=" text-grey-light font-medium">Company Site</h4>
-          <h4 className="font-bold">
-            <a href="keenthemes.com">keenthemes.com</a>
-          </h4>
-        </div>
-        <div className="grid grid-cols-2 items-center">
-          <h4 className=" text-grey-light font-medium">Country</h4>
-          <h4 className="font-bold">Germany</h4>
-        </div>
-        <div className="grid grid-cols-2 items-center">
-          <h4 className=" text-grey-light font-medium">Communication</h4>
-          <h4 className="font-bold">Email, Phone</h4>
-        </div>
-        <div className="grid grid-cols-2 items-center">
-          <h4 className=" text-grey-light font-medium">Allow Changes</h4>
-          <h4 className="font-bold">Yes</h4>
-        </div>
-
-        <div className="flex items-center bg-[#E6E4E4] border border-dashed border-yellow-dark rounded-lg gap-5 p-5">
-          <img src={cautionSvg} alt="verify" width={20} />
+          <h4 className="font-bold">Evaluation Status</h4>
           <div>
-            <h2 className="text-lg font-semibold">We need your attention!</h2>
-            <h4>
-              Your payment was declined, to start using tools, please{" "}
-              <span className="text-primary">Add Payment Method</span>
-            </h4>
+            <Badge className="bg-green-dark px-3 py-2">Pass</Badge>
           </div>
+        </div>
+        <div className="grid grid-cols-2 items-center">
+          <h4 className="font-bold">Company Address</h4>
+          <h4>61, Airport Road, Warri South, Warri, Delta State.</h4>
+        </div>
+        <div className="grid grid-cols-2 items-center">
+          <h4 className="font-bold">Company Email</h4>
+          <h4>contact@abcsupplies.com.ng</h4>
+        </div>
+        <div className="grid grid-cols-2 items-center">
+          <h4 className="font-bold">Company Website</h4>
+          <h4>www.abcsupplies.com.ng</h4>
+        </div>
+        <div className="grid grid-cols-2 items-center">
+          <h4 className="font-bold">Active Company Telephone Number</h4>
+          <h4>Company email</h4>
         </div>
       </div>
     </div>
