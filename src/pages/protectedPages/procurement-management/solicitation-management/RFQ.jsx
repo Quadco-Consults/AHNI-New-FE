@@ -1,26 +1,16 @@
-import { Checkbox } from "components/ui/checkbox";
-import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
-import useTable from "hooks/useTable";
-import Table from "lib/react-table/Table";
 import { Plus } from "lucide-react";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogTitle,
   DialogTrigger,
 } from "components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "components/ui/select";
-import IconButton from "components/shared/IconButton";
-import { Icon } from "@iconify/react";
+import { Input } from "components/ui/input";
+import { DialogClose } from "@radix-ui/react-dialog";
+import { Textarea } from "components/ui/textarea";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
@@ -29,27 +19,30 @@ import {
   FormLabel,
   FormMessage,
 } from "components/ui/form";
-import { useForm } from "react-hook-form";
-import { RFQFormSchema } from "utils/Validator";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Textarea } from "components/ui/textarea";
-import { Input } from "components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "components/ui/select";
+import { EOIFormSchema } from "utils/Validator";
+import eoiPng from "assets/imgs/rfq.png";
+import Card from "components/shared/Card";
+import { Icon } from "@iconify/react";
+import { Link, generatePath } from "react-router-dom";
+import { RouteEnum } from "constants/RouterConstants";
 
 const RFQ = () => {
-  const tableInstance = useTable({
-    columns,
-    data,
-    //  state: { pagination },
-    //  pageCount: customersQueryResult?.data?.number_of_pages,
-    //  manualPagination: true,
-    //  onPaginationChange: setPagination,
-  });
-
   const formHook = useForm({
-    resolver: zodResolver(RFQFormSchema),
+    resolver: zodResolver(EOIFormSchema),
     defaultValues: {
-      background: "",
-      reference: "",
+      description: "",
+      vendor_category: [],
+      tender_type: "",
+      document: "",
+      vendor: "",
     },
   });
 
@@ -69,22 +62,23 @@ const RFQ = () => {
         </h6>
       </div>
 
-      <Card className="space-y-10">
-        <div className="flex justify-between items-center">
-          <h4 className="text-base font-bold">Active RFQs</h4>
+      <div className="space-y-10 p-10 bg-white shadow-sm rounded-2xl dark:bg-[hsl(15,13%,6%)]">
+        <div className="flex justify-end items-center">
           <div>
             <Dialog>
               <DialogTrigger>
                 <div className="flex items-center bg-primary text-primary-foreground rounded-md text-sm font-medium h-11 px-4 py-3 hover:bg-primary/90">
                   <span>
-                    <Plus size={20} />
+                    <Plus size={15} />
                   </span>
-                  New RFQ
+                  Create New
                 </div>
               </DialogTrigger>
               <DialogContent className="max-w-4xl max-h-[650px]">
                 <div className="pb-5 space-y-5">
-                  <DialogTitle className="py-5 ">New RFQ</DialogTitle>
+                  <DialogTitle className="py-5 ">
+                    Initiate New Request for Quotation
+                  </DialogTitle>
 
                   <hr />
                   <Form {...formHook}>
@@ -94,7 +88,24 @@ const RFQ = () => {
                     >
                       <FormField
                         control={formHook.control}
-                        name="description"
+                        name="background"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>
+                              RFQ Title/ID
+                              <span className="text-primary">*</span>
+                            </FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={formHook.control}
+                        name="background"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Background</FormLabel>
@@ -114,7 +125,9 @@ const RFQ = () => {
                         name="tender_type"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Tender Type</FormLabel>
+                            <FormLabel>
+                              Tender Type<span className="text-primary">*</span>
+                            </FormLabel>
                             <Select
                               onValueChange={field.onChange}
                               defaultValue={field.value}
@@ -148,7 +161,10 @@ const RFQ = () => {
                           name="tender_type"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Request type</FormLabel>
+                              <FormLabel>
+                                Request Type
+                                <span className="text-primary">*</span>
+                              </FormLabel>
                               <Select
                                 onValueChange={field.onChange}
                                 defaultValue={field.value}
@@ -180,7 +196,10 @@ const RFQ = () => {
                           name="tender_type"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Procurement type</FormLabel>
+                              <FormLabel>
+                                Procurement Type
+                                <span className="text-primary">*</span>
+                              </FormLabel>
                               <Select
                                 onValueChange={field.onChange}
                                 defaultValue={field.value}
@@ -209,23 +228,92 @@ const RFQ = () => {
                         />
                       </div>
 
-                      <FormField
-                        control={formHook.control}
-                        name="description"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>RFQ Title/ID</FormLabel>
-                            <FormControl>
-                              <Input {...field} placeholder="Enter FFQ ID" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
+                      {/* <div className="space-y-2">
+                        <h4 className=" font-medium">Category</h4>
+                        {category.length > 0 ? (
+                          <Badge className="py-2 rounded-lg bg-[#EBE8E1] text-black">
+                            Medical Laboratory Consumables
+                          </Badge>
+                        ) : (
+                          <div>
+                            <Dialog>
+                              <DialogTrigger>
+                                <div className="rounded-lg px-2 py-2 text-yellow-darker border">
+                                  Click to select categories that applies
+                                </div>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-6xl max-h-[700px]">
+                                <DialogHeader className="text-center mt-10 space-y-5">
+                                  <img
+                                    src={logoPng}
+                                    alt="logo"
+                                    className="mx-auto"
+                                    width={150}
+                                  />
+                                  <DialogTitle className="text-2xl">
+                                    Select your Category
+                                  </DialogTitle>
+                                  <DialogDescription>
+                                    Select all categories that applies to you,
+                                    you can also check other tabs for more
+                                    categories
+                                  </DialogDescription>
+                                </DialogHeader>
+                                <div className="flex justify-center">
+                                  <div className="border w-1/2 py-2 px-4 flex items-center rounded-lg">
+                                    <Input
+                                      placeholder="Search Category"
+                                      type="search"
+                                      className="h-6 border-none bg-none"
+                                    />
+                                    <Icon
+                                      icon="iconamoon:search-light"
+                                      fontSize={25}
+                                    />
+                                  </div>
+                                </div>
+
+                                <Tabs defaultValue="all">
+                                  <TabsList>
+                                    <TabsTrigger value="all">All</TabsTrigger>
+                                    <TabsTrigger value="EOIAHNi10">
+                                      EOIAHNi01 - EOIAHNi10
+                                    </TabsTrigger>
+                                    <TabsTrigger value="EOIAHNi20">
+                                      EOIAHNi11 - EOIAHNi20
+                                    </TabsTrigger>
+                                    <TabsTrigger value="EOIAHNi30">
+                                      EOIAHNi21 - EOIAHNi30
+                                    </TabsTrigger>
+                                    <TabsTrigger value="EOIAHNi34">
+                                      EOIAHNi31 - EOIAHNi34
+                                    </TabsTrigger>
+                                  </TabsList>
+                                  <div className=" bg-[#dbdfe92f] p-2 my-5">
+                                    <TabsContent value="all">1</TabsContent>
+                                    <TabsContent value="EOIAHNi10">
+                                      2
+                                    </TabsContent>
+                                    <TabsContent value="EOIAHNi20">
+                                      3
+                                    </TabsContent>
+                                    <TabsContent value="EOIAHNi30">
+                                      3
+                                    </TabsContent>
+                                    <TabsContent value="EOIAHNi34">
+                                      3
+                                    </TabsContent>
+                                  </div>
+                                </Tabs>
+                              </DialogContent>
+                            </Dialog>
+                          </div>
                         )}
-                      />
+                      </div> */}
 
                       <div className="flex justify-end gap-5">
                         <DialogClose asChild>
-                          <Button variant="ghost">Close</Button>
+                          <Button variant="ghost">Cancel</Button>
                         </DialogClose>
                         <Button type="submit">Save Changes</Button>
                       </div>
@@ -237,110 +325,51 @@ const RFQ = () => {
           </div>
         </div>
 
-        <Table
-          instance={tableInstance}
-          // loading={customersQueryResult.isFetching}
-          // error={customersQueryResult.isError}
-          // onReload={customersQueryResult.refetch}
-        />
-      </Card>
+        <div className="grid grid-cols-2 gap-5">
+          {Array(6)
+            .fill({
+              title: "Call for expression of interest",
+              ref: "GF-RFQ-AHNi-10-2023",
+              description:
+                "Achieving Health Nigeria Initiative (AHNi) is an indigenous non-governmental organization that promotes socio-economic development by supporting a broad range of global health interventions, education, and economic initiatives in Nigeria.",
+              location: "Head Office, Abuja",
+              source: "Single Sourcing",
+            })
+            .map(({ title, description, ref, location, source }, index) => (
+              <Card key={index} className="space-y-4">
+                <img src={eoiPng} alt="eoi" />
+                <h2 className="text-lg font-bold">{title}</h2>
+
+                <div className="flex gap-3 items-center">
+                  <Icon icon="ooui:reference" fontSize={18} /> <h6>{ref}</h6>
+                </div>
+                <div className="flex gap-3 items-center">
+                  <Icon icon="iconamoon:location-pin-duotone" fontSize={18} />
+                  <h6>{location}</h6>
+                </div>
+                <div className="flex gap-3 items-center">
+                  <Icon
+                    icon="solar:case-minimalistic-bold-duotone"
+                    fontSize={18}
+                  />
+                  <h6>{source}</h6>
+                </div>
+
+                <h6 className="line-clamp-3">{description}</h6>
+
+                <div className="flex justify-center">
+                  <Link to={generatePath(RouteEnum.RFQ_DETAILS, { id: "1" })}>
+                    <Button variant="ghost" className="border text-primary">
+                      Tap to View
+                    </Button>
+                  </Link>
+                </div>
+              </Card>
+            ))}
+        </div>
+      </div>
     </div>
   );
 };
 
 export default RFQ;
-const columns = [
-  {
-    id: "select",
-    size: 50,
-    header: ({ table }) => {
-      return (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => {
-            table.toggleAllPageRowsSelected(!!value);
-          }}
-        />
-      );
-    },
-    cell: ({ row }) => {
-      return (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => {
-            row.toggleSelected(!!value);
-          }}
-        />
-      );
-    },
-  },
-  {
-    header: "EOI ID",
-    accessorKey: "ref",
-  },
-  {
-    header: "Requisition Name",
-    accessorKey: "requisition",
-  },
-  {
-    header: "Background",
-    accessorKey: "background",
-    size: 700,
-  },
-  {
-    header: "Submissions",
-    accessorKey: "submission",
-    cell: ({ getValue }) => (
-      <p className=" text-red-dark text-center">{getValue()}</p>
-    ),
-  },
-  {
-    header: "Actions",
-    id: "actions",
-    cell: ({ row }) => <ActionListAction data={row.original} />,
-  },
-];
-
-const ActionListAction = () => {
-  return (
-    <div className="flex gap-2">
-      <div>
-        <IconButton className="bg-[#F9F9F9] hover:text-primary">
-          <Icon icon="bi:toggles" fontSize={15} />
-        </IconButton>
-      </div>
-      <div className="flex gap-2 flex-col">
-        <IconButton className="bg-[#F9F9F9] hover:text-primary">
-          <Icon icon="solar:pen-bold-duotone" fontSize={15} />
-        </IconButton>
-        <IconButton className="bg-[#F9F9F9] hover:text-primary">
-          <Icon icon="ant-design:delete-twotone" fontSize={15} />
-        </IconButton>
-      </div>
-    </div>
-  );
-};
-
-const data = [
-  {
-    ref: "AHNI-T-001",
-    requisition: "Office Refurbishing",
-    background:
-      "As we embark on the enhancement of our office space, we are reaching out to eligible vendors like yourselves through this Request for Quotation (RFQ). Our goal is to find a capable partner who can collaborate with us to transform our workplace into a more functional, modern, and aesthetically pleasing environment. This RFQ serves as an invitation to submit competitive bids and detailed project proposals, taking into consideration our specific requirements, design preferences, budget constraints, and project timelines. We believe that your expertise in office refurbishing can contribute significantly to our objectives, and we look forward to reviewing your proposal as we embark on this exciting project to create an efficient and inspiring workspace that aligns perfectly with our business needs and vision.",
-    submission: 3,
-  },
-  {
-    ref: "AHNI-T-002",
-    requisition: "Mobile Clinic Units",
-    background:
-      "As we endeavor to extend our healthcare services to underserved communities, we are actively seeking proposals from eligible vendors like yourselves to provide Mobile Clinic Units. This Request for Quotation (RFQ) represents our commitment to delivering quality healthcare solutions to remote and marginalized populations. We invite you to submit competitive bids and comprehensive proposals outlining your Mobile Clinic Units, which should be equipped to meet our specific healthcare needs, including medical equipment, diagnostic facilities, and patient outreach capabilities. Your expertise in the provision of mobile healthcare units is crucial in ensuring that we can effectively address the healthcare disparities in these communities. We look forward to reviewing your proposal and partnering with you to make a meaningful difference in the lives of those we aim to serve.",
-    submission: 1,
-  },
-  {
-    ref: "AHNI-T-003",
-    requisition: "Data Management Systems",
-    background:
-      "In our pursuit of enhancing data management efficiency and effectiveness, we are reaching out to eligible vendors with expertise in Data Management Systems. This Request for Quotation (RFQ) marks our commitment to optimizing our data infrastructure to meet the growing demands of our organization. We invite you to submit proposals and competitive bids outlining your Data Management Systems solutions, which should encompass data collection, storage, security, analysis, and reporting capabilities tailored to our specific requirements and objectives. Your proficiency in providing robust data management solutions is integral to our goal of harnessing data-driven insights to drive organizational success. We eagerly anticipate reviewing your proposal and collaborating with you to achieve a more streamlined and data-savvy future.",
-    submission: 0,
-  },
-];

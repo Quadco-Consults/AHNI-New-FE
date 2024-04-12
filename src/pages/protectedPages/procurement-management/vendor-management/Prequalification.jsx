@@ -7,21 +7,12 @@ import { Checkbox } from "components/ui/checkbox";
 import useTable from "hooks/useTable";
 import Table from "lib/react-table/Table";
 import { cn } from "lib/utils";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogTrigger,
-} from "components/ui/dialog";
 import { Button } from "components/ui/button";
 import { Plus } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import Overview from "./Overview";
-import Settings from "./Settings";
-import Uploads from "./Uploads";
 import { Input } from "components/ui/input";
-import Questionnaire from "./Questionnaire";
+import { Link, generatePath } from "react-router-dom";
+import { RouteEnum } from "constants/RouterConstants";
 
 const VendorManagement = () => {
   const tableInstance = useTable({
@@ -213,144 +204,11 @@ const columns = [
 const ActionListAction = () => {
   return (
     <div className="flex gap-2">
-      <Dialog>
-        <DialogTrigger>
-          <div className="rounded-lg px-2 py-2 bg-[#F9F9F9] hover:text-primary dark:text-black dark:hover:text-primary">
-            <Icon icon="ph:eye-duotone" fontSize={15} />
-          </div>
-        </DialogTrigger>
-        <DialogContent className="max-w-6xl max-h-[700px]">
-          <div className="pb-5 space-y-5">
-            <DialogTitle className="py-2 ">Vendor Profile</DialogTitle>
-
-            <hr />
-
-            {/* <Card className="flex gap-10 items-center">
-              <div className="flex gap-4">
-                <div className="relative">
-                  <Avatar className="w-36 h-36">
-                    <AvatarImage src={avatarPng} />
-                    <AvatarFallback>CN</AvatarFallback>
-                  </Avatar>
-                  <div className="absolute -right-2 top-2/3 h-5 border-4 border-white rounded-full bg-green-400 w-5" />
-                </div>
-              </div>
-              <div className="space-y-5">
-                <div className="space-y-1">
-                  <div className="flex justify-between">
-                    <div className="flex items-center gap-2">
-                      <h2 className="text-lg font-bold">Max Smith</h2>
-                      <img src={verifySvg} alt="verify" width={20} />
-                      <Badge className="bg-green-dark">Upgrade to Pro</Badge>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button variant="filter">Follow</Button>
-                      <Button>Hire</Button>
-                      <Button variant="filter">
-                        <Icon icon="solar:pen-bold-duotone" fontSize={15} />
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <h4 className="flex items-center gap-1">
-                      <span>
-                        <Icon icon="icon-park-twotone:avatar" color="#4E4E4E" />
-                      </span>
-                      Developer
-                    </h4>
-                    <h4 className="flex items-center gap-1">
-                      <span>
-                        <Icon icon="ic:twotone-location-on" color="#4E4E4E" />
-                      </span>
-                      SF, Bay Area
-                    </h4>
-                    <h4 className="flex items-center gap-1">
-                      <span>
-                        <Icon icon="ic:twotone-mail" color="#4E4E4E" />
-                      </span>
-                      max@kt.com
-                    </h4>
-                  </div>
-                </div>
-
-                <div className="flex justify-between gap-10 items-center">
-                  <div className="flex items-center gap-2">
-                    {[
-                      {
-                        name: "Earnings",
-                        amount: "5M",
-                        sign: "$",
-                        icon: iconSvg1,
-                      },
-                      {
-                        name: "Projects",
-                        amount: "15",
-                        sign: "",
-                        icon: iconSvg2,
-                      },
-                      {
-                        name: "Success Rate",
-                        amount: "90",
-                        sign: "%",
-                        icon: iconSvg,
-                      },
-                    ].map(({ name, amount, sign, icon }) => (
-                      <div
-                        key={name}
-                        className="py-2 px-8 border-2 border-dashed rounded-2xl"
-                      >
-                        <div className="flex items-center">
-                          <div>
-                            <img src={icon} alt={name} />
-                          </div>
-                          <h4 className="text-lg font-bold">
-                            {amount}
-                            <span>{sign}</span>
-                          </h4>
-                        </div>
-                        <h4>{name}</h4>
-                      </div>
-                    ))}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-10 justify-between">
-                      <h4>Processes Completion</h4>
-                      <h4 className="font-bold">33%</h4>
-                    </div>
-                    <Progress value={33} />
-                  </div>
-                </div>
-              </div>
-            </Card> */}
-
-            <div className="flex justify-end">
-              <Button>Start Prequalification</Button>
-            </div>
-
-            <Tabs defaultValue="overview">
-              <TabsList>
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="uploads">Uploads</TabsTrigger>
-                <TabsTrigger value="questionnaire">Questionnaire</TabsTrigger>
-                <TabsTrigger value="settings">Settings</TabsTrigger>
-              </TabsList>
-              <TabsContent value="overview">
-                <Overview />
-              </TabsContent>
-              <TabsContent value="uploads">
-                <Uploads />
-              </TabsContent>
-              <TabsContent value="questionnaire">
-                <Questionnaire />
-              </TabsContent>
-              <TabsContent value="settings">
-                <Settings />
-              </TabsContent>
-            </Tabs>
-          </div>
-        </DialogContent>
-      </Dialog>
-
+      <Link to={generatePath(RouteEnum.VENDOR_MANAGEMENT_DETAILS, { id: "1" })}>
+        <IconButton className="bg-[#F9F9F9] hover:text-primary">
+          <Icon icon="ph:eye-duotone" fontSize={15} />
+        </IconButton>
+      </Link>
       <IconButton className="bg-[#F9F9F9] hover:text-primary">
         <Icon icon="ant-design:delete-twotone" fontSize={15} />
       </IconButton>

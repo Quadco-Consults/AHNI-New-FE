@@ -143,6 +143,14 @@ const getRoutes = function getRoutes() {
       ),
     },
     {
+      path: RouteEnum.RFQ_DETAILS,
+      element: lazy(() =>
+        import(
+          "pages/protectedPages/procurement-management/solicitation-management/RFQ-details"
+        )
+      ),
+    },
+    {
       path: RouteEnum.OPEN_TENDER,
       element: lazy(() =>
         import(
@@ -163,6 +171,22 @@ const getRoutes = function getRoutes() {
       element: lazy(() =>
         import(
           "pages/protectedPages/procurement-management/vendor-management/Prequalification"
+        )
+      ),
+    },
+    {
+      path: RouteEnum.VENDOR_MANAGEMENT_DETAILS,
+      element: lazy(() =>
+        import(
+          "pages/protectedPages/procurement-management/vendor-management/Prequalification-details"
+        )
+      ),
+    },
+    {
+      path: RouteEnum.VENDOR_MANAGEMENT_START_PREQUALIFICATION,
+      element: lazy(() =>
+        import(
+          "pages/protectedPages/procurement-management/vendor-management/Start-prequalification"
         )
       ),
     },

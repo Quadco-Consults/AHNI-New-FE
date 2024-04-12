@@ -241,11 +241,7 @@ const EOI = () => {
                 <img src={eoiPng} alt="eoi" />
                 <h2 className="text-lg font-bold">{title}</h2>
 
-                {description.length > 200 ? (
-                  <h6>{description.substring(0, 200)}...</h6>
-                ) : (
-                  <h6>{description}</h6>
-                )}
+                <h6 className="line-clamp-5">{description}</h6>
 
                 <div className="flex justify-center">
                   <Button variant="ghost" className="border text-primary">
