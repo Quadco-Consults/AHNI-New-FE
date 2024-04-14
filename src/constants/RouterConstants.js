@@ -2,8 +2,6 @@ export const RouteEnum = {
   // procurement routes
   DASHBOARD: "/",
   OVERVIEW: "/procurement-management/overview",
-  EOI: "/procurement-management/eoi",
-  EOI_VENDOR: "/procurement-management/eoi-vendor",
   COMPETITIVE_ANALYSIS: "/procurement-management/competitive-bid-analysis/CBA",
   COMPETITIVE_SELECTION:
     "/procurement-management/competitive-bid-analysis/selection",
@@ -14,13 +12,19 @@ export const RouteEnum = {
   REPORT: "/procurement-management/report",
   RFQ: "/procurement-management/solicitation/rfq",
   RFQ_DETAILS: "/procurement-management/solicitation/rfq/:id",
+  RFQ_DETAILS_BID_SUBMISSION:
+    "/procurement-management/solicitation/rfq/:id/manual-bid-submission",
   OPEN_TENDER: "/procurement-management/solicitation/national-open-tender",
   SINGLE_SOURCING: "/procurement-management/solicitation/single-sourcing",
   RFQ_VENDOR: "/procurement-management/rfq-vendor",
-  VENDOR_MANAGEMENT: "/procurement-management/prequalification",
-  VENDOR_MANAGEMENT_DETAILS: "/procurement-management/prequalification/:id",
+  EOI: "/procurement-management/vendor-management/eoi",
+  EOI_VENDOR: "/procurement-management/vendor-management/eoi-vendor",
+  VENDOR_MANAGEMENT:
+    "/procurement-management/vendor-management/prequalification",
+  VENDOR_MANAGEMENT_DETAILS:
+    "/procurement-management/vendor-management/prequalification/:id",
   VENDOR_MANAGEMENT_START_PREQUALIFICATION:
-    "/procurement-management/prequalification/:id/start-prequalification",
+    "/procurement-management/vendor-management/prequalification/:id/start-prequalification",
   PURCHASE_ORDER: "/procurement-management/purchase-order",
   SUBMISSION_OF_BIDS: "/procurement-management/submission-of-bids",
   PRICE_INTELLIGENCE: "/procurement-management/price-intelligence",

@@ -1,5 +1,7 @@
 import { Icon } from "@iconify/react";
 import Card from "components/shared/Card";
+import { Button } from "components/ui/button";
+import { ChevronRight } from "lucide-react";
 
 const DetailsContent = () => {
   return (
@@ -68,6 +70,15 @@ const DetailsContent = () => {
                   </div>
                 </Card>
               ))}
+          </div>
+
+          <div className="flex justify-end">
+            <Button type="submit" className="gap-2">
+              Generate purchase order
+              <span>
+                <ChevronRight size={18} />
+              </span>
+            </Button>
           </div>
         </div>
       </Card>

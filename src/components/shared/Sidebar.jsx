@@ -85,7 +85,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
                 }}
                 className={cn(
                   "flex w-full gap-3 px-2 py-2 justify-between items-center hover:text-primary hover:cursor-pointer",
-                  location.pathname === link.path && "text-primary "
+                  location.pathname.startsWith(link.path) && "text-primary "
                 )}
               >
                 <div className="flex items-center gap-2 ">
@@ -129,7 +129,11 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
                             setShowSubMenu(!showSubMenu);
                             setSelectedLinkSubIndex(i);
                           }}
-                          className="flex items-center justify-between"
+                          className={cn(
+                            "flex items-center justify-between",
+                            location.pathname.startsWith(el.path) &&
+                              "text-primary "
+                          )}
                         >
                           <h6 className="py-2">{el.name}</h6>
                           <ChevronDown
@@ -289,6 +293,7 @@ const DEPARTMENTAL_LINKS = [
       { name: "Overview", path: RouteEnum.OVERVIEW },
       {
         name: "Vendor Management",
+        path: "/procurement-management/vendor-management",
         sublinks: [
           { name: "Prequalification", path: RouteEnum.VENDOR_MANAGEMENT },
           { name: "EOI", path: RouteEnum.EOI },
@@ -301,6 +306,7 @@ const DEPARTMENTAL_LINKS = [
       { name: "Purchase Requests", path: RouteEnum.PURCHASE_REQUEST },
       {
         name: "Solicitation Management",
+        path: "/procurement-management/solicitation",
         sublinks: [
           { name: "RFQ", path: RouteEnum.RFQ },
           { name: "National Open Tender", path: RouteEnum.OPEN_TENDER },

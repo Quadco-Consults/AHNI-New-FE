@@ -2,7 +2,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { Link, generatePath } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
 import { Button } from "components/ui/button";
-import DetailsContent from "./Details-content";
+import DetailsContent from "./tab-contents/Details-content";
+import VendorSubmission from "./tab-contents/Vendor-submission";
 
 const RFQDetails = () => {
   return (
@@ -27,7 +28,9 @@ const RFQDetails = () => {
         <TabsContent value="rfq-details">
           <DetailsContent />
         </TabsContent>
-        <TabsContent value="vendor-submission">12</TabsContent>
+        <TabsContent value="vendor-submission">
+          <VendorSubmission />
+        </TabsContent>
       </Tabs>
     </div>
   );

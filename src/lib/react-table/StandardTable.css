@@ -40,7 +40,6 @@
 .StandardTable__table__body__row,
 .StandardTable__table__footer__row {
   border-bottom: 1px solid rgba(211, 211, 211, 0.18);
-  /* background-color: inherit; */
 }
 
 .StandardTable__table__header__row--relative,

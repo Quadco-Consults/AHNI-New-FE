@@ -138,7 +138,7 @@ const getRoutes = function getRoutes() {
       path: RouteEnum.RFQ,
       element: lazy(() =>
         import(
-          "pages/protectedPages/procurement-management/solicitation-management/RFQ"
+          "pages/protectedPages/procurement-management/solicitation-management/RFQ/RFQ"
         )
       ),
     },
@@ -146,7 +146,15 @@ const getRoutes = function getRoutes() {
       path: RouteEnum.RFQ_DETAILS,
       element: lazy(() =>
         import(
-          "pages/protectedPages/procurement-management/solicitation-management/RFQ-details"
+          "pages/protectedPages/procurement-management/solicitation-management/RFQ/RFQ-details"
+        )
+      ),
+    },
+    {
+      path: RouteEnum.RFQ_DETAILS_BID_SUBMISSION,
+      element: lazy(() =>
+        import(
+          "pages/protectedPages/procurement-management/solicitation-management/RFQ/Manual-bid-submission"
         )
       ),
     },

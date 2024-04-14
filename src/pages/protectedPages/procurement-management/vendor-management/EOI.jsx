@@ -1,5 +1,5 @@
 import { Button } from "components/ui/button";
-import { Plus } from "lucide-react";
+import { ChevronLeft, Plus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -31,6 +31,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import EOITabsContent from "./eoi-tabs-contents/Tabs-content";
 import EOIAllTabsContent from "./eoi-tabs-contents/All-content";
 import { Badge } from "components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "components/ui/alert-dialog";
+import { Link } from "react-router-dom";
+import { RouteEnum } from "constants/RouterConstants";
 
 const EOI = () => {
   const { data: eoiData } = EoiApi.useGetEoisQuery();
@@ -212,7 +225,31 @@ const EOI = () => {
                         <DialogClose asChild>
                           <Button variant="ghost">Cancel</Button>
                         </DialogClose>
-                        <Button type="submit">Create</Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger className="bg-primary h-10 px-4 py-2 text-white rounded-lg">
+                            Create
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Done!</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Your expression of interest have been created
+                                successfully
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              {/* <AlertDialogCancel>Cancel</AlertDialogCancel> */}
+                              <Link to={RouteEnum.EOI}>
+                                <AlertDialogAction className="gap-2">
+                                  <span>
+                                    <ChevronLeft size={18} />
+                                  </span>
+                                  Back to EOI
+                                </AlertDialogAction>
+                              </Link>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </form>
                   </Form>
