@@ -297,7 +297,7 @@ const DEPARTMENTAL_LINKS = [
         sublinks: [
           { name: "Prequalification", path: RouteEnum.VENDOR_MANAGEMENT },
           { name: "EOI", path: RouteEnum.EOI },
-          { name: "Vendor Selection", path: RouteEnum.EOI_VENDOR },
+          // { name: "Vendor Selection", path: RouteEnum.EOI_VENDOR },
         ],
       },
       { name: "Supplier Database", path: RouteEnum.SUPPLIER_DATABASE },
@@ -309,8 +309,8 @@ const DEPARTMENTAL_LINKS = [
         path: "/procurement-management/solicitation",
         sublinks: [
           { name: "RFQ", path: RouteEnum.RFQ },
-          { name: "National Open Tender", path: RouteEnum.OPEN_TENDER },
-          { name: "Single-Sourcing", path: RouteEnum.SINGLE_SOURCING },
+          // { name: "National Open Tender", path: RouteEnum.OPEN_TENDER },
+          // { name: "Single-Sourcing", path: RouteEnum.SINGLE_SOURCING },
         ],
       },
       // {
@@ -333,10 +333,11 @@ const DEPARTMENTAL_LINKS = [
       },
       {
         name: "Competitive Bid Analysis",
-        sublinks: [
-          { name: "CBA", path: RouteEnum.COMPETITIVE_ANALYSIS },
-          { name: "Selection", path: RouteEnum.COMPETITIVE_SELECTION },
-        ],
+        path: RouteEnum.COMPETITIVE_ANALYSIS,
+        // sublinks: [
+        //   { name: "CBA", path: RouteEnum.COMPETITIVE_ANALYSIS },
+        //   { name: "Selection", path: RouteEnum.COMPETITIVE_SELECTION },
+        // ],
       },
       { name: "Purchase Order", path: RouteEnum.PURCHASE_ORDER },
       { name: "Payment Request", path: RouteEnum.PAYMENT_REQUEST },

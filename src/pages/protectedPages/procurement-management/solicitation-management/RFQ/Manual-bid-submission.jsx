@@ -351,21 +351,33 @@ const columns = [
     size: 100,
   },
   {
-    header: "Brand",
-    accessorKey: "brand",
-    size: 200,
-  },
-  {
     header: "Unit Price",
     accessorKey: "price",
-    size: 100,
+    size: 200,
+    cell: ({ row }) => <Price data={row.original} />,
   },
   {
     header: "Total",
     accessorKey: "total",
-    size: 100,
+    size: 200,
+    cell: ({ row }) => <Total data={row.original} />,
   },
 ];
+
+const Price = ({ data }) => {
+  return (
+    <div>
+      <Input value={data.price} />
+    </div>
+  );
+};
+const Total = ({ data }) => {
+  return (
+    <div>
+      <Input value={data.price} />
+    </div>
+  );
+};
 
 const Description = ({ data }) => {
   return (
