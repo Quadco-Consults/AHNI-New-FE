@@ -7,7 +7,7 @@ import { ThemeProvider } from "configs/theme-provider.jsx";
 import { Provider as ReduxProvider } from "react-redux";
 import store from "configs/StoreConfig";
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
       <ReduxProvider store={store}>
