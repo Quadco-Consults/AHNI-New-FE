@@ -141,6 +141,24 @@ export const procurment = [
     ),
   },
   {
+    path: RouteEnum.VENDOR_REGISTRATION,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/vendor-management/vendor-registration/Registration"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.VENDOR_COMPANY,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/vendor-management/vendor-registration/Company"
+        )
+    ),
+  },
+  {
     path: RouteEnum.VENDOR_MANAGEMENT_DETAILS,
     element: lazy(
       () =>

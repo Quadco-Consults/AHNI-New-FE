@@ -40,12 +40,14 @@ const VendorManagement = () => {
           <h4 className="text-lg font-bold">Prequalification</h4>
 
           <div className="flex justify-end">
-            <Button>
-              <span>
-                <Plus size={20} />
-              </span>
-              Add Vendor
-            </Button>
+            <Link to={generatePath(RouteEnum.VENDOR_REGISTRATION)}>
+              <Button>
+                <span>
+                  <Plus size={20} />
+                </span>
+                Add Vendor
+              </Button>
+            </Link>
           </div>
 
           <div className="flex items-center justify-between mt-1">
