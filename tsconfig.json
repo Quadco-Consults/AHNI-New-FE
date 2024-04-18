@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-  "target": "esnext",
+    "target": "esnext",
     "module": "esnext",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
@@ -16,6 +16,8 @@
     "baseUrl": ".",
     "paths": {
       "components/*": ["src/components/*"],
+      "molecules/*": ["src/molecules/*"],
+      "atoms/*": ["src/atoms/*"],
       "assets/*": ["src/assets/*"],
       "configs/*": ["src/configs/*"],
       "constants/*": ["src/constants/*"],

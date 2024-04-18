@@ -29,7 +29,7 @@ const VendorManagement = () => {
         <h4 className="text-lg font-bold">Prequalification</h4>
         <h6>
           Procurement -{" "}
-          <span className="text-black font-medium dark:text-grey-dark">
+          <span className="font-medium text-black dark:text-grey-dark">
             Vendor Management
           </span>
         </h6>
@@ -40,16 +40,18 @@ const VendorManagement = () => {
           <h4 className="text-lg font-bold">Prequalification</h4>
 
           <div className="flex justify-end">
-            <Button>
-              <span>
-                <Plus size={20} />
-              </span>
-              Add Vendor
-            </Button>
+            <Link to={generatePath(RouteEnum.VENDOR_REGISTRATION)}>
+              <Button>
+                <span>
+                  <Plus size={20} />
+                </span>
+                Add Vendor
+              </Button>
+            </Link>
           </div>
 
-          <div className="flex mt-1 justify-between items-center">
-            <div className="border w-1/3 py-2 px-2 flex items-center rounded-lg">
+          <div className="flex items-center justify-between mt-1">
+            <div className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
               <Icon icon="iconamoon:search-light" fontSize={25} />
               <Input
                 placeholder="Search Category"
@@ -81,7 +83,7 @@ const VendorManagement = () => {
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-64">
-                <h4 className="font-medium p-5 text-base">Filter Options</h4>
+                <h4 className="p-5 text-base font-medium">Filter Options</h4>
                 <hr />
 
                 <div className="p-5 space-y-5">

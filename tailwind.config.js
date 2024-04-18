@@ -1,12 +1,11 @@
-/* eslint-disable no-undef */
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
   content: [
-    "./pages/**/*.{js,jsx}",
-    "./components/**/*.{js,jsx}",
-    "./app/**/*.{js,jsx}",
-    "./src/**/*.{js,jsx}",
+    "./pages/**/*.{js,jsx, ts,tsx}",
+    "./components/**/*.{js,jsx, ts,tsx}",
+    "./app/**/*.{js,jsx, ts,tsx}",
+    "./src/**/*.{js,jsx, ts,tsx}",
   ],
   prefix: "",
   theme: {
@@ -52,11 +51,6 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        purple: { dark: "#7239EA", light: "#F8F5FF" },
-        yellow: { dark: "#FFC700", darker: "#DEA004", light: "#FFF8DD" },
-        green: { dark: "#50CD89", light: "#E8FFF3" },
-        red: { dark: "#F1416C", light: "#FFF5F8" },
-        grey: { dark: "#99A1B7", light: "#4E4E4E" },
       },
       borderRadius: {
         lg: "var(--radius)",
