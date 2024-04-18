@@ -9,6 +9,8 @@ export default defineConfig({
   resolve: {
     alias: {
       components: path.resolve(__dirname, "src/components"),
+      molecules: path.resolve(__dirname, "src/molecules"),
+      atoms: path.resolve(__dirname, "src/atoms"),
       assets: path.resolve(__dirname, "src/assets"),
       configs: path.resolve(__dirname, "src/configs"),
       constants: path.resolve(__dirname, "src/constants"),

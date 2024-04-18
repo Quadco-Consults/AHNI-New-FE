@@ -21,6 +21,14 @@ export const RouteEnum = {
   EOI_VENDOR: "/procurement-management/vendor-management/eoi-vendor",
   VENDOR_MANAGEMENT:
     "/procurement-management/vendor-management/prequalification",
+  VENDOR_REGISTRATION:
+    "/procurement-management/vendor-management/vendor-registration",
+  VENDOR_COMPANY: "/procurement-management/vendor-management/the-company",
+  VENDOR_TECHNICAL:
+    "/procurement-management/vendor-management/technical-capacity",
+  VENDOR_QUESTIONER: "/procurement-management/vendor-management/questionnaire",
+  VENDOR_ATTESTATION: "/procurement-management/vendor-management/attestation",
+  VENDOR_UPLOAD: "/procurement-management/vendor-management/upload",
   VENDOR_MANAGEMENT_DETAILS:
     "/procurement-management/vendor-management/prequalification/:id",
   VENDOR_MANAGEMENT_START_PREQUALIFICATION:
