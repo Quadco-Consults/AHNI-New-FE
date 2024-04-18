@@ -22,7 +22,7 @@ const steps: Step[] = [
 const VendorRegistrationHeading = () => {
   const [completedSteps, setCompletedSteps] = useState<boolean[]>(() => {
     // Retrieve the completion state from local storage or initialize if not present
-    const savedSteps = localStorage.getItem("completedSteps");
+    const savedSteps = sessionStorage.getItem("completedSteps");
     return savedSteps
       ? JSON.parse(savedSteps)
       : new Array(steps.length).fill(false);
@@ -40,7 +40,7 @@ const VendorRegistrationHeading = () => {
       setCompletedSteps((prev) => {
         const updatedSteps = [...prev];
         updatedSteps[currentStepIndex - 1] = true; // Mark the previous step as completed
-        localStorage.setItem("completedSteps", JSON.stringify(updatedSteps));
+        sessionStorage.setItem("completedSteps", JSON.stringify(updatedSteps));
         return updatedSteps;
       });
     }

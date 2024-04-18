@@ -3,9 +3,12 @@ import VendorRegistationLayout from "./VendorRegistationLayout";
 import { useForm } from "react-hook-form";
 import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelect";
-import { Button } from "components/ui/button";
+
 import { ChevronRight } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { Label } from "components/ui/label";
+import FormButton from "atoms/FormButton";
+import { Button } from "components/ui/button";
 
 const Registration = () => {
   const form = useForm();
@@ -28,7 +31,7 @@ const Registration = () => {
   };
   return (
     <VendorRegistationLayout>
-      <div className="px-3 py-6">
+      <div className="px-3 ">
         <h2 className="text-lg font-bold">Vendor Registration</h2>
         <div className="mt-10">
           <Form {...form}>
@@ -41,24 +44,52 @@ const Registration = () => {
                   label="Year of incorporation"
                   required
                 />
-                <FormInput name="companyemail" label="Company Email" required />
-                <FormInput
-                  name="companyAddrress"
-                  label="Company Website Address"
-                  required
-                />
-                <FormInput
-                  name="companyAddrress"
-                  label="Create Password"
-                  required
-                  type="password"
-                />
+                <div className="grid grid-cols-2 col-span-3 gap-x-6 ">
+                  <FormInput
+                    name="companyregnumber"
+                    label="Company Registration Number"
+                    required
+                  />
+                  <FormInput
+                    name="companywebsite"
+                    label="Company Website Address"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-2 col-span-3 gap-x-6 ">
+                  <FormInput
+                    name="companyremail"
+                    label="Company Email"
+                    required
+                  />
+                  <FormInput
+                    name="password"
+                    label="Create Password"
+                    required
+                    type="password"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col w-[299px] mt-10 space-y-3">
+                <Label>Category</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="text-[#DEA004]"
+                >
+                  Click to select categories that applies
+                </Button>
               </div>
               <div className="flex justify-between mt-16">
-                <Button className="bg-[#FFF2F2] text-primary ">Cancel</Button>
-                <Button className="bg-primary">
-                  Proceed <ChevronRight size={14} />{" "}
+                <Button type="button" className="bg-[#FFF2F2] text-primary ">
+                  Cancel
                 </Button>
+                {/* <Button className="bg-primary">
+                  Proceed <ChevronRight size={14} />{" "}
+                </Button> */}
+                <FormButton suffix={<ChevronRight size={14} />}>
+                  Proceed
+                </FormButton>
               </div>
             </form>
           </Form>

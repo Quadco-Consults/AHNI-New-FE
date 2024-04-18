@@ -159,6 +159,42 @@ export const procurment = [
     ),
   },
   {
+    path: RouteEnum.VENDOR_TECHNICAL,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/vendor-management/vendor-registration/Technical"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.VENDOR_QUESTIONER,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/vendor-management/vendor-registration/Questionier"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.VENDOR_ATTESTATION,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/vendor-management/vendor-registration/Attestation"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.VENDOR_UPLOAD,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/vendor-management/vendor-registration/Upload"
+        )
+    ),
+  },
+  {
     path: RouteEnum.VENDOR_MANAGEMENT_DETAILS,
     element: lazy(
       () =>

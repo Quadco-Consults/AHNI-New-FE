@@ -9,7 +9,7 @@ const VendorRegistationLayout: FC<IPageProps> = ({ children }) => {
   return (
     <div>
       <VendorRegistrationHeading />
-      <div>{children}</div>
+      <div className="px-4 py-8 bg-white">{children}</div>
     </div>
   );
 };

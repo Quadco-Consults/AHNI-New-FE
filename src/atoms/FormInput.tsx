@@ -53,7 +53,7 @@ const FormInput: FC<InputProps> = ({ name, label, ...rest }) => {
                   placeholder={rest.placeholder}
                   onChange={onChange}
                   value={value}
-                  className="font-medium "
+                  className="font-medium bg-[#F9F9F9] "
                 />
                 {rest.type === "password" && (
                   <div
