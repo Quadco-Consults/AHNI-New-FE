@@ -1,4 +1,5 @@
-import * as React from "react";
+/* eslint-disable react/prop-types */
+
 import { cva } from "class-variance-authority";
 
 import { cn } from "lib/utils";

@@ -9,9 +9,14 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Label } from "components/ui/label";
 import FormButton from "atoms/FormButton";
 import { Button } from "components/ui/button";
+import { useAppDispatch } from "hooks/useStore";
+import { openDialog } from "store/ui";
+import { DialogType, largeDailogScreen } from "constants/dailogs";
 
 const Registration = () => {
   const form = useForm();
+
+  const dispatch = useAppDispatch();
 
   const navigate = useNavigate();
 
@@ -76,6 +81,16 @@ const Registration = () => {
                   type="button"
                   variant="outline"
                   className="text-[#DEA004]"
+                  onClick={() => {
+                    dispatch(
+                      openDialog({
+                        type: DialogType.Categories,
+                        dialogProps: {
+                          ...largeDailogScreen,
+                        },
+                      })
+                    );
+                  }}
                 >
                   Click to select categories that applies
                 </Button>

@@ -25,7 +25,10 @@
       "pages/*": ["src/pages/*"],
       "utils/*": ["src/utils/*"],
       "lib/*": ["src/lib/*"],
-      "apis/*": ["src/apis/*"]
+      "apis/*": ["src/apis/*"],
+      "definations/*": ["src/definations/*"],
+      "services/*": ["src/services/*"],
+      "store/*": ["src/store/*"]
     },
     "jsx": "react-jsx" // This is crucial for JSX support
   },
