@@ -12,12 +12,15 @@ export const RouteEnum = {
   REPORT: "/procurement-management/report",
   RFQ: "/procurement-management/solicitation/rfq",
   RFQ_DETAILS: "/procurement-management/solicitation/rfq/:id",
+  RFQ_COMPETITIVE_BID_ANALYSIS:
+    "/procurement-management/solicitation/rfq/competitive-bid-analysis/:id",
   RFQ_DETAILS_BID_SUBMISSION:
     "/procurement-management/solicitation/rfq/:id/manual-bid-submission",
   OPEN_TENDER: "/procurement-management/solicitation/national-open-tender",
   SINGLE_SOURCING: "/procurement-management/solicitation/single-sourcing",
   RFQ_VENDOR: "/procurement-management/rfq-vendor",
   EOI: "/procurement-management/vendor-management/eoi",
+  EOI_VIEW: "/procurement-management/vendor-management/eoi/view",
   EOI_VENDOR: "/procurement-management/vendor-management/eoi-vendor",
   VENDOR_MANAGEMENT:
     "/procurement-management/vendor-management/prequalification",

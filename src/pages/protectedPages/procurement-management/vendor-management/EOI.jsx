@@ -280,9 +280,11 @@ const EOI = () => {
                 <h6 className="line-clamp-5">{description}</h6>
 
                 <div className="flex justify-center">
-                  <Button variant="ghost" className="border text-primary">
-                    Tap to View
-                  </Button>
+                  <Link to={RouteEnum.EOI_VIEW}>
+                    <Button variant="ghost" className="border text-primary">
+                      Tap to View
+                    </Button>
+                  </Link>
                 </div>
               </Card>
             ))}
