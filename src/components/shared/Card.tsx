@@ -1,7 +1,14 @@
 /* eslint-disable react/prop-types */
 import { cn } from "lib/utils";
+import { ReactNode } from "react";
 
-const Card = ({ children, className }) => {
+const Card = ({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) => {
   return (
     <div
       className={cn(
