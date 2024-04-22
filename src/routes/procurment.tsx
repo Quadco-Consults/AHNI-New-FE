@@ -45,6 +45,15 @@ export const procurment = [
     ),
   },
   {
+    path: RouteEnum.EOI_VIEW,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/vendor-management/ViewEOI"
+        )
+    ),
+  },
+  {
     path: RouteEnum.PAYMENT_REQUEST,
     element: lazy(
       () =>
@@ -110,6 +119,15 @@ export const procurment = [
       () =>
         import(
           "pages/protectedPages/procurement-management/solicitation-management/RFQ/Manual-bid-submission"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.RFQ_COMPETITIVE_BID_ANALYSIS,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/solicitation-management/RFQ/CompetittveBidAnalysis"
         )
     ),
   },

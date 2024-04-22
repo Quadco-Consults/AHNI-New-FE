@@ -2,6 +2,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { Button } from "components/ui/button";
 import DetailsContent from "./tab-contents/Details-content";
 import VendorSubmission from "./tab-contents/Vendor-submission";
+import { generatePath, Link } from "react-router-dom";
+import { RouteEnum } from "constants/RouterConstants";
 
 const RFQDetails = () => {
   return (
@@ -9,13 +11,13 @@ const RFQDetails = () => {
       <div className="flex justify-between">
         <h4 className="text-lg font-bold">Supply of medical consumables</h4>
 
-        {/* <Link
-          to={generatePath(RouteEnum.VENDOR_MANAGEMENT_START_PREQUALIFICATION, {
+        <Link
+          to={generatePath(RouteEnum.RFQ_COMPETITIVE_BID_ANALYSIS, {
             id: "1",
           })}
-        > */}
-        <Button>Start Competitive Bid Analysis</Button>
-        {/* </Link> */}
+        >
+          <Button>Start Competitive Bid Analysis</Button>
+        </Link>
       </div>
 
       <Tabs defaultValue="rfq-details">
