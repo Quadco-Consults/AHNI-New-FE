@@ -26,11 +26,11 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
       <div className="h-20 relative">
         <div
           className={cn(
-            "fixed h-[75px] pt-4 border-dashed border-b-2 border-black z-20 bg-background duration-200 dark:border-[hsl(12,6.5%,15.1%)]",
+            "fixed h-[75px] z-20 bg-background duration-200 ",
             sidebarWidth === false ? "w-[19%]" : "w-[5%]"
           )}
         >
-          <img src={logoSvg} alt="logo" width={70} className="pl-5" />
+          <img src={logoSvg} alt="logo" width={100} className=" mx-auto" />
           <IconButton
             onClick={() => setSidebarWidth(!sidebarWidth)}
             className={cn(
@@ -57,7 +57,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
 
             <h4
               className={cn(
-                "duration-200",
+                "duration-200 font-bold",
                 sidebarWidth === false ? "block" : "hidden"
               )}
             >
