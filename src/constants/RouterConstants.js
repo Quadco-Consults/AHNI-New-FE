@@ -8,6 +8,8 @@ export const RouteEnum = {
   PAYMENT_REQUEST: "/procurement-management/payment-request",
   PURCHASE_REQUEST: "/procurement-management/purchase-request",
   PROCUREMENT_PLAN: "/procurement-management/procurement-plan",
+  PROCUREMENT_DETAILS: "/procurement-management/procurement-plan/:id",
+  CREATE_PROCUREMENT: "/procurement-management/procurement-plan/create-procurement",
   PROCUREMENT_PLAN_TRACKER: "/procurement-management/procurement-plan-tracker",
   REPORT: "/procurement-management/report",
   RFQ: "/procurement-management/solicitation/rfq",

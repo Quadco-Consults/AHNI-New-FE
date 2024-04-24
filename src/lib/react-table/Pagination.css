@@ -1,6 +1,6 @@
 .Pagination {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   padding: 8px;
   gap: 2px;
@@ -9,8 +9,14 @@
 
 .Pagination__info {
   margin-right: 16px;
+  font-size: 14px;
 }
 
 .Pagination__page {
   padding: 8px;
+}
+
+.activePage {
+  border: 1px solid red;
+  color: red;
 }
