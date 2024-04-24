@@ -1,7 +1,6 @@
 /* eslint-disable react/prop-types */
-
 import { Moon, Sun } from "lucide-react";
-import avatarPng from "assets/imgs/Image.png";
+import avatarPng from "assets/imgs/avatar.png";
 import { Button } from "components/ui/button";
 import {
   DropdownMenu,
@@ -12,26 +11,21 @@ import {
 import { useTheme } from "configs/theme-provider";
 import { cn } from "lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "components/ui/avatar";
-import { Label } from "components/ui/label";
 import { useLocation } from "react-router-dom";
 
 const Header = ({ sidebarWidth }) => {
   const { setTheme } = useTheme();
-
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const pageTitle = getPageTitle(location.pathname);
 
   return (
     <nav
       className={cn(
-        "py-[17px] w-full fixed z-20 px-10 bg-background flex justify-between border-b shadow-sm",
+        "py-[17px] w-full fixed z-20 px-10 bg-background flex items-center justify-between border-b shadow-sm",
         sidebarWidth === false ? "md:w-[81%]" : "md:w-[95%]"
       )}
     >
-      <div>
-        <Label className="text-lg font-bold capitalize ">
-          {pathname.split("/").at(-1).replaceAll("-", " ")}
-        </Label>
-      </div>
+      <div className="capitalize font-bold text-xl">{pageTitle}</div>
       <div className="flex items-center gap-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -67,3 +61,9 @@ const Header = ({ sidebarWidth }) => {
 };
 
 export default Header;
+
+// Function to extract page title from URL
+const getPageTitle = (pathname) => {
+  const lastSegment = pathname.split("/").pop();
+  return lastSegment.replace(/-/g, " ");
+};

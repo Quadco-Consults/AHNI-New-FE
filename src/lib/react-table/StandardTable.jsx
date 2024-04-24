@@ -240,7 +240,7 @@ function renderHeaderCell(headerCell, instance, props) {
                 headerCell.column.columnDef.header,
                 headerCell.getContext()
               )}
-          <div
+          {/* <div
             {...{
               onMouseDown: headerCell.getResizeHandler(),
               onTouchStart: headerCell.getResizeHandler(),
@@ -259,7 +259,7 @@ function renderHeaderCell(headerCell, instance, props) {
                     : "",
               },
             }}
-          />
+          /> */}
         </>
       )}
     </HeaderCell>

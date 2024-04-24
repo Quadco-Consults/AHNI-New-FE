@@ -64,7 +64,21 @@ export const procurment = [
     path: RouteEnum.PROCUREMENT_PLAN,
     element: lazy(
       () =>
-        import("pages/protectedPages/procurement-management/Procurement-plan")
+        import("pages/protectedPages/procurement-management/procurement-plan/")
+    ),
+  },
+  {
+    path: RouteEnum.PROCUREMENT_DETAILS,
+    element: lazy(
+      () =>
+        import("pages/protectedPages/procurement-management/procurement-plan/id")
+    ),
+  },
+  {
+    path: RouteEnum.CREATE_PROCUREMENT,
+    element: lazy(
+      () =>
+        import("pages/protectedPages/procurement-management/procurement-plan/create-procurement")
     ),
   },
   {
