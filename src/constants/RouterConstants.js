@@ -9,7 +9,8 @@ export const RouteEnum = {
   PURCHASE_REQUEST: "/procurement-management/purchase-request",
   PROCUREMENT_PLAN: "/procurement-management/procurement-plan",
   PROCUREMENT_DETAILS: "/procurement-management/procurement-plan/:id",
-  CREATE_PROCUREMENT: "/procurement-management/procurement-plan/create-procurement",
+  CREATE_PROCUREMENT:
+    "/procurement-management/procurement-plan/create-procurement",
   PROCUREMENT_PLAN_TRACKER: "/procurement-management/procurement-plan-tracker",
   REPORT: "/procurement-management/report",
   RFQ: "/procurement-management/solicitation/rfq",
@@ -39,6 +40,7 @@ export const RouteEnum = {
   VENDOR_MANAGEMENT_START_PREQUALIFICATION:
     "/procurement-management/vendor-management/prequalification/:id/start-prequalification",
   PURCHASE_ORDER: "/procurement-management/purchase-order",
+  PURCHASE_ORDER_NEW: "/procurement-management/purchase-order-new",
   SUBMISSION_OF_BIDS: "/procurement-management/submission-of-bids",
   PRICE_INTELLIGENCE: "/procurement-management/price-intelligence",
   SUPPLIER_DATABASE: "/procurement-management/supplier-database",
