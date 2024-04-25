@@ -71,14 +71,18 @@ export const procurment = [
     path: RouteEnum.PROCUREMENT_DETAILS,
     element: lazy(
       () =>
-        import("pages/protectedPages/procurement-management/procurement-plan/id")
+        import(
+          "pages/protectedPages/procurement-management/procurement-plan/id"
+        )
     ),
   },
   {
     path: RouteEnum.CREATE_PROCUREMENT,
     element: lazy(
       () =>
-        import("pages/protectedPages/procurement-management/procurement-plan/create-procurement")
+        import(
+          "pages/protectedPages/procurement-management/procurement-plan/create-procurement"
+        )
     ),
   },
   {
@@ -255,6 +259,13 @@ export const procurment = [
     path: RouteEnum.PURCHASE_ORDER,
     element: lazy(
       () => import("pages/protectedPages/procurement-management/Purchase-order")
+    ),
+  },
+  {
+    path: RouteEnum.PURCHASE_ORDER_NEW,
+    element: lazy(
+      () =>
+        import("pages/protectedPages/procurement-management/PurchaseOrderNew")
     ),
   },
   {

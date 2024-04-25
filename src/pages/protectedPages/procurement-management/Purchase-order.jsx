@@ -162,7 +162,7 @@ const PurchaseOrder = () => {
   return (
     <div className="space-y-10">
       <div className="flex justify-end">
-        <Link to={generatePath(RouteEnum.PURCHASE_REQUEST)}>
+        <Link to={generatePath(RouteEnum.PURCHASE_ORDER_NEW)}>
           <Button className="flex items-center gap-x-3">
             <p className="flex h-[20.5px] w-[20.5px] items-center justify-center rounded  bg-white/30">
               <PlusIcon size={14} />

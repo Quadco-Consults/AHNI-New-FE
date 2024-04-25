@@ -1,5 +1,6 @@
 import Card from "components/shared/Card";
 import { Checkbox } from "components/ui/checkbox";
+import { Textarea } from "components/ui/textarea";
 
 const items = [
   {
@@ -62,14 +63,14 @@ const Description = ({
   quantity: number;
 }) => {
   return (
-    <div className=" flex justify-end items-end w-full py-3    border-b  ">
+    <div className="flex items-end justify-end w-full py-3 border-b ">
       <div className="grid w-full  py-2 grid-cols-7 h-[60px]">
-        <div className=" col-span-1 ">
+        <div className="col-span-1 ">
           <p className="text-sm ">{serialNo}</p>
         </div>
-        <div className=" col-span-5 space-y-1 ">
+        <div className="col-span-5 space-y-1 ">
           <p className="text-sm font-semibold line-clamp-1 ">{item}</p>
-          <p className=" text-xs ">{description}</p>
+          <p className="text-xs ">{description}</p>
         </div>
         <div className="col-span-1">
           <p className="text-sm ">{quantity}</p>
@@ -81,14 +82,14 @@ const Description = ({
 
 const Products = () => {
   return (
-    <div className=" flex justify-end items-end w-full py-3    border-b  ">
+    <div className="flex items-end justify-end w-full py-3 border-b ">
       <div className="grid w-full items-center  py-2 grid-cols-5 px-2 h-[60px] ">
-        <div className=" col-span-1 ">
+        <div className="col-span-1 ">
           <p className="text-sm ">
             <Checkbox />
           </p>
         </div>
-        <div className=" col-span-3 space-y-1 ">
+        <div className="col-span-3 space-y-1 ">
           <p>14,678.00</p>
         </div>
         <div className="col-span-1">
@@ -102,16 +103,16 @@ const Products = () => {
 const CompetittveBidAnalysis = () => {
   return (
     <div>
-      <Card className=" overflow-x-auto ">
+      <Card className="overflow-x-auto ">
         <div className="w-[1700px]  ">
           {/* Headers */}
-          <div className="grid grid-cols-4 divide-x-2 devide-y-2 border-y-destructive-foreground  ">
-            <div className=" flex justify-end items-end w-full     border-b-2  ">
-              <div className="grid w-full py-2 grid-cols-7">
-                <div className=" col-span-1 ">
+          <div className="grid grid-cols-4 divide-x-2 devide-y-2 border-y-destructive-foreground ">
+            <div className="flex items-end justify-end w-full border-b-2 ">
+              <div className="grid w-full grid-cols-7 py-2">
+                <div className="col-span-1 ">
                   <p className="text-sm text-[#DEA004]">S/N</p>
                 </div>
-                <div className=" col-span-5  ">
+                <div className="col-span-5 ">
                   <p className="text-sm text-[#DEA004]">Description</p>
                 </div>
                 <div className="col-span-1">
@@ -120,17 +121,17 @@ const CompetittveBidAnalysis = () => {
               </div>
             </div>
             {/* company 1 */}
-            <div className=" flex flex-col justify-end items-end w-full px-2    border-b-2  ">
-              <div className="w-full text-center font-semibold my-2">
+            <div className="flex flex-col items-end justify-end w-full px-2 border-b-2 ">
+              <div className="w-full my-2 font-semibold text-center">
                 SOUTHGATE TECHNOLOGIES LIMITED
               </div>
-              <div className="grid w-full py-2 grid-cols-5">
-                <div className=" col-span-1 ">
+              <div className="grid w-full grid-cols-5 py-2">
+                <div className="col-span-1 ">
                   <p className="text-sm text-[#DEA004]">
                     <Checkbox />
                   </p>
                 </div>
-                <div className=" col-span-3  ">
+                <div className="col-span-3 ">
                   <p className="text-sm text-[#DEA004]">Unit Price</p>
                 </div>
                 <div className="col-span-1">
@@ -139,17 +140,17 @@ const CompetittveBidAnalysis = () => {
               </div>
             </div>
             {/* company 2 */}
-            <div className=" flex flex-col justify-end items-end w-full px-2    border-b-2  ">
-              <div className="w-full text-center font-semibold my-2">
+            <div className="flex flex-col items-end justify-end w-full px-2 border-b-2 ">
+              <div className="w-full my-2 font-semibold text-center">
                 SOUTHGATE TECHNOLOGIES LIMITED
               </div>
-              <div className="grid w-full py-2 grid-cols-5">
-                <div className=" col-span-1 ">
+              <div className="grid w-full grid-cols-5 py-2">
+                <div className="col-span-1 ">
                   <p className="text-sm text-[#DEA004]">
                     <Checkbox />
                   </p>
                 </div>
-                <div className=" col-span-3  ">
+                <div className="col-span-3 ">
                   <p className="text-sm text-[#DEA004]">Unit Price</p>
                 </div>
                 <div className="col-span-1">
@@ -158,17 +159,17 @@ const CompetittveBidAnalysis = () => {
               </div>
             </div>
             {/* company 3 */}
-            <div className=" flex flex-col justify-end items-end w-full px-2    border-b-2  ">
-              <div className="w-full text-center font-semibold my-2">
+            <div className="flex flex-col items-end justify-end w-full px-2 border-b-2 ">
+              <div className="w-full my-2 font-semibold text-center">
                 SOUTHGATE TECHNOLOGIES LIMITED
               </div>
-              <div className="grid w-full py-2 grid-cols-5">
-                <div className=" col-span-1 ">
+              <div className="grid w-full grid-cols-5 py-2">
+                <div className="col-span-1 ">
                   <p className="text-sm text-[#DEA004]">
                     <Checkbox />
                   </p>
                 </div>
-                <div className=" col-span-3  ">
+                <div className="col-span-3 ">
                   <p className="text-sm text-[#DEA004]">Unut Price</p>
                 </div>
                 <div className="col-span-1">
@@ -178,7 +179,7 @@ const CompetittveBidAnalysis = () => {
             </div>
           </div>
           {/* Body */}
-          <div className="grid grid-cols-4 divide-x-2 devide-y-2 border-y-destructive-foreground  ">
+          <div className="grid grid-cols-4 divide-x-2 devide-y-2 border-y-destructive-foreground ">
             <div>
               {items.map((item, i) => {
                 return <Description {...item} key={i} />;
@@ -214,6 +215,37 @@ const CompetittveBidAnalysis = () => {
           </div>
         </div>
       </Card>
+      <div className="flex justify-end w-full py-4 my-6 border-t-2 border-b-2 border-yellow-500">
+        <div className="mr-10">
+          <p className="flex justify-between w-[300px] rounded border border-red-500 p-4 text-red-500 font-semibold">
+            <span>Total:</span>
+            <span>22,970.660.55</span>
+          </p>
+        </div>
+      </div>
+      <div className="overflow-x-auto ">
+        <div className="grid gap-x-4 justify-center grid-cols-4 w-[1700px] ">
+          <div>Brand</div>
+          <div>
+            <Textarea
+              className="placeholder:text-xs"
+              placeholder="Enter list of brands"
+            />
+          </div>
+          <div>
+            <Textarea
+              className="placeholder:text-xs"
+              placeholder="Enter list of brands"
+            />
+          </div>
+          <div>
+            <Textarea
+              className="placeholder:text-xs"
+              placeholder="Enter list of brands"
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
