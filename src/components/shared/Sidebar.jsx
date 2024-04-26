@@ -328,14 +328,14 @@ const DEPARTMENTAL_LINKS = [
       //   ],
       // },
 
-      {
-        name: "Competitive Bid Analysis",
-        path: RouteEnum.COMPETITIVE_ANALYSIS,
-        // sublinks: [
-        //   { name: "CBA", path: RouteEnum.COMPETITIVE_ANALYSIS },
-        //   { name: "Selection", path: RouteEnum.COMPETITIVE_SELECTION },
-        // ],
-      },
+      // {
+      //   name: "Competitive Bid Analysis",
+      //   path: RouteEnum.COMPETITIVE_ANALYSIS,
+      //   // sublinks: [
+      //   //   { name: "CBA", path: RouteEnum.COMPETITIVE_ANALYSIS },
+      //   //   { name: "Selection", path: RouteEnum.COMPETITIVE_SELECTION },
+      //   // ],
+      // },
       { name: "Purchase Order", path: RouteEnum.PURCHASE_ORDER },
       { name: "Payment Request", path: RouteEnum.PAYMENT_REQUEST },
 
