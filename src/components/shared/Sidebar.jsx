@@ -23,14 +23,14 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
         sidebarWidth === false ? "w-[19%]" : "w-[5%]"
       )}
     >
-      <div className="h-20 relative">
+      <div className="relative h-20">
         <div
           className={cn(
             "fixed h-[75px] z-20 bg-background duration-200 ",
             sidebarWidth === false ? "w-[19%]" : "w-[5%]"
           )}
         >
-          <img src={logoSvg} alt="logo" width={100} className=" mx-auto" />
+          <img src={logoSvg} alt="logo" width={100} className="mx-auto " />
           <IconButton
             onClick={() => setSidebarWidth(!sidebarWidth)}
             className={cn(
@@ -118,7 +118,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
                         height: 0,
                       }
                 }
-                className="pl-14 list-disc h-0 overflow-hidden"
+                className="h-0 overflow-hidden list-disc pl-14"
               >
                 {link?.link?.map((el, i) =>
                   el?.sublinks ? (
@@ -168,7 +168,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
                               return isActive ? "text-primary" : "";
                             }}
                           >
-                            <li className="list-disc py-2 ml-5 hover:text-primary hover:cursor-pointer">
+                            <li className="py-2 ml-5 list-disc hover:text-primary hover:cursor-pointer">
                               {sublink.name}
                             </li>
                           </NavLink>
@@ -197,7 +197,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
             <NavigationMenuList>
               <NavigationMenuItem>
                 <NavigationMenuTrigger>
-                  <div className="flex gap-3 items-center">
+                  <div className="flex items-center gap-3">
                     <svg
                       width="24"
                       height="24"
@@ -327,10 +327,7 @@ const DEPARTMENTAL_LINKS = [
       //     { name: "Vendor of Submission", path: RouteEnum.RFQ_VENDOR },
       //   ],
       // },
-      {
-        name: "Submission of Bids",
-        path: RouteEnum.SUBMISSION_OF_BIDS,
-      },
+
       {
         name: "Competitive Bid Analysis",
         path: RouteEnum.COMPETITIVE_ANALYSIS,
@@ -341,10 +338,7 @@ const DEPARTMENTAL_LINKS = [
       },
       { name: "Purchase Order", path: RouteEnum.PURCHASE_ORDER },
       { name: "Payment Request", path: RouteEnum.PAYMENT_REQUEST },
-      {
-        name: "Procurement Plan Tracker",
-        path: RouteEnum.PROCUREMENT_PLAN_TRACKER,
-      },
+
       { name: "Procurement Report", path: RouteEnum.REPORT },
     ],
   },
