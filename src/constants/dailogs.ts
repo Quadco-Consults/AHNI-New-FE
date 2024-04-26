@@ -1,5 +1,6 @@
 export const DialogType = {
   Categories: "Categories",
+  PriceInteligence: "PriceInteligence",
 };
 
 export const largeDailogScreen = {
