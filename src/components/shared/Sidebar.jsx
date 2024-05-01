@@ -31,6 +31,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
         sidebarWidth === false ? 'w-[19%]' : 'w-[5%]'
       )}
     >
+
       <section className="flex w-full flex-col gap-2">
         <div className="relative h-[5rem] overflow-hidden">
           <div
@@ -124,6 +125,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
                   />
                 </div>
 
+
                 <motion.ul
                   animate={
                     showMenu && selectedLinkIndex === index
@@ -207,6 +209,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
                         }}
                       >
                         <li
+
                           className={cn(
                             'hover:text-amber-400 flex items-center justify-start gap-2 text-sm',
                             location.pathname.startsWith(el.path) &&
@@ -233,7 +236,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
             <NavigationMenuList>
               <NavigationMenuItem>
                 <NavigationMenuTrigger>
-                  <div className="flex gap-3 items-center">
+                  <div className="flex items-center gap-3">
                     <svg
                       width="24"
                       height="24"

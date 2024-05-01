@@ -2,6 +2,9 @@
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
 import { Progress } from "components/ui/progress";
+import { DialogType, largeDailogScreen } from "constants/dailogs";
+import { useAppDispatch } from "hooks/useStore";
+import { openDialog } from "store/ui";
 
 const RatingCircle = ({ showInner }) => {
   return (
@@ -14,9 +17,22 @@ const RatingCircle = ({ showInner }) => {
 };
 
 const PriceCard = () => {
+  const dispatch = useAppDispatch();
   return (
-    <Card className="h-[275px]">
-      <div className="flex flex-col justify-between h-full">
+    <Card className="h-[275px] cursor-pointer">
+      <div
+        onClick={() => {
+          dispatch(
+            openDialog({
+              type: DialogType.PriceInteligence,
+              dialogProps: {
+                ...largeDailogScreen,
+              },
+            })
+          );
+        }}
+        className="flex flex-col justify-between h-full"
+      >
         <div className="space-y-2 w-[70%]">
           <h2 className="text-lg font-semibold">Laptop Computer</h2>
           <p className="text-sm leading-6 ">
