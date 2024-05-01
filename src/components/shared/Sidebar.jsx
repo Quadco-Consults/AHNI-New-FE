@@ -30,7 +30,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
             sidebarWidth === false ? 'w-[19%]' : 'w-[5%]'
           )}
         >
-          <img src={logoSvg} alt="logo" width={100} className=" mx-auto" />
+          <img src={logoSvg} alt="logo" width={100} className="mx-auto " />
           <IconButton
             onClick={() => setSidebarWidth(!sidebarWidth)}
             className={cn(
@@ -197,7 +197,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
             <NavigationMenuList>
               <NavigationMenuItem>
                 <NavigationMenuTrigger>
-                  <div className="flex gap-3 items-center">
+                  <div className="flex items-center gap-3">
                     <svg
                       width="24"
                       height="24"
@@ -346,6 +346,7 @@ const DEPARTMENTAL_LINKS = [
       //   path: RouteEnum.PROCUREMENT_PLAN_TRACKER,
       // },
       { name: 'Procurement Report', path: RouteEnum.REPORT },
+
     ],
   },
   {
