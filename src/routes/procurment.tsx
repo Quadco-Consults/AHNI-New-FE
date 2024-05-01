@@ -85,15 +85,15 @@ export const procurment = [
         )
     ),
   },
-  // {
-  //   path: RouteEnum.PROCUREMENT_PLAN_TRACKER,
-  //   element: lazy(
-  //     () =>
-  //       import(
-  //         "pages/protectedPages/procurement-management/Procurement-plan-tracker"
-  //       )
-  //   ),
-  // },
+  {
+    path: RouteEnum.PROCUREMENT_TRACKER,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/procurement-tracker"
+        )
+    ),
+  },
   {
     path: RouteEnum.PURCHASE_REQUEST,
     element: lazy(
