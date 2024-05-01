@@ -6,7 +6,6 @@ import {
   DialogTitle,
 } from "components/ui/dialog";
 import SuccessProcess from "assets/imgs/successful-process.png";
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "components/ui/button";
 

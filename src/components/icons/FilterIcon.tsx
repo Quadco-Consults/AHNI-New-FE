@@ -1,7 +1,6 @@
-import React from 'react'
 
 type Props = {
-    size: string
+    size?: string
 }
 
 const FilterIcon = ({size = '24'}: Props) => {
