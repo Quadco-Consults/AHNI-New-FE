@@ -1,7 +1,6 @@
-import React from 'react'
 
 type Props = {
-    size: string
+    size?: string
 }
 
 const DeleteIcon = ({size = '16'}: Props) => {

@@ -31,8 +31,8 @@ const FormInput: FC<InputProps> = ({ name, label, ...rest }) => {
       render={({ field }) => {
         const { value, onChange } = field;
         return (
-          <FormItem>
-            <FormLabel className="font-semibold ">
+          <FormItem className="flex flex-col gap-0">
+            <FormLabel className="font-semibold -mb-1">
               {label}
               {required && (
                 <span className="text-red-500" title="required">
@@ -53,7 +53,7 @@ const FormInput: FC<InputProps> = ({ name, label, ...rest }) => {
                   placeholder={rest.placeholder}
                   onChange={onChange}
                   value={value}
-                  className="font-medium bg-[#F9F9F9] "
+                  className="font-medium bg-[#F9F9F9] placeholder:text-black/30 "
                 />
                 {rest.type === "password" && (
                   <div
