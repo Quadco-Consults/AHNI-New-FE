@@ -1,4 +1,3 @@
-import React from "react";
 import { Link, generatePath } from "react-router-dom";
 import Card from "components/shared/Card";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";

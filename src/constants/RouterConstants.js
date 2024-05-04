@@ -1,18 +1,35 @@
 export const RouteEnum = {
   // procurement routes
   DASHBOARD: "/",
+
+
   OVERVIEW: "/procurement-management/overview",
+
+
   COMPETITIVE_ANALYSIS: "/procurement-management/competitive-bid-analysis/CBA",
   COMPETITIVE_SELECTION:
     "/procurement-management/competitive-bid-analysis/selection",
+
+
+
   PAYMENT_REQUEST: "/procurement-management/payment-request",
+
+
+
   PURCHASE_REQUEST: "/procurement-management/purchase-request",
+  PURCHASE_REQUEST_DETAILS: "/procurement-management/purchase-request/:id",
+  CREATE_PURCHASE_REQUEST: "/procurement-management/create-purchase-request",
+
   PROCUREMENT_PLAN: "/procurement-management/procurement-plan",
   PROCUREMENT_DETAILS: "/procurement-management/procurement-plan/:id",
   CREATE_PROCUREMENT:
     "/procurement-management/procurement-plan/create-procurement",
-  PROCUREMENT_PLAN_TRACKER: "/procurement-management/procurement-plan-tracker",
+
+  // PROCUREMENT_PLAN_TRACKER: "/procurement-management/procurement-plan-tracker",
+
   REPORT: "/procurement-management/report",
+
+
   RFQ: "/procurement-management/solicitation/rfq",
   RFQ_DETAILS: "/procurement-management/solicitation/rfq/:id",
   RFQ_COMPETITIVE_BID_ANALYSIS:
@@ -21,7 +38,11 @@ export const RouteEnum = {
     "/procurement-management/solicitation/rfq/:id/manual-bid-submission",
   OPEN_TENDER: "/procurement-management/solicitation/national-open-tender",
   SINGLE_SOURCING: "/procurement-management/solicitation/single-sourcing",
+
+
   RFQ_VENDOR: "/procurement-management/rfq-vendor",
+
+
   EOI: "/procurement-management/vendor-management/eoi",
   EOI_VIEW: "/procurement-management/vendor-management/eoi/view",
   EOI_VENDOR: "/procurement-management/vendor-management/eoi-vendor",

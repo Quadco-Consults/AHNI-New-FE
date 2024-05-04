@@ -1,7 +1,6 @@
-import React from 'react'
 
 type Props = {
-    size: string
+    size?: string
 }
 
 const MoreOptionsHorizontalIcon = ({size = '24'}: Props) => {

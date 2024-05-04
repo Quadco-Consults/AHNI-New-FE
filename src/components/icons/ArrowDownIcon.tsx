@@ -1,7 +1,7 @@
 import React from "react";
 
 type Props = {
-  size: string;
+  size?: string;
 };
 
 const ArrowDownIcon = ({ size = "24" }: Props) => {

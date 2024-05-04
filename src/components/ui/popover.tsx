@@ -1,13 +1,21 @@
 import * as React from "react";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
-
 import { cn } from "lib/utils";
 
 const Popover = PopoverPrimitive.Root;
 
-const PopoverTrigger = PopoverPrimitive.Trigger;
+const PopoverTrigger: React.FC<React.ComponentProps<typeof PopoverPrimitive.Trigger>> = (
+  props
+) => {
+  return <PopoverPrimitive.Trigger {...props} />;
+};
 
-const PopoverContent = React.forwardRef(
+interface PopoverContentProps extends React.ComponentProps<typeof PopoverPrimitive.Content> {
+  align?: "start" | "center" | "end";
+  sideOffset?: number;
+}
+
+const PopoverContent = React.forwardRef<HTMLDivElement, PopoverContentProps>(
   ({ className, align = "center", sideOffset = 4, ...props }, ref) => (
     <PopoverPrimitive.Portal>
       <PopoverPrimitive.Content
