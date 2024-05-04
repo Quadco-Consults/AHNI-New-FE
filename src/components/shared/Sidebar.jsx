@@ -8,6 +8,7 @@ import { Icon } from '@iconify/react';
 import { cn } from 'lib/utils';
 import { motion } from 'framer-motion';
 import IconButton from './IconButton';
+
 import DashboardIcon from 'components/icons/sidebar-icons/DashboardIcon';
 import ProjectsIcon from 'components/icons/sidebar-icons/ProjectsIcon';
 import ProgramsIcon from 'components/icons/sidebar-icons/ProgramsIcon';
@@ -16,6 +17,7 @@ import AdminIcon from 'components/icons/sidebar-icons/AdminIcon';
 import CGIcon from 'components/icons/sidebar-icons/CGIcon';
 import HRIcon from 'components/icons/sidebar-icons/HRIcon';
 import FinanceIcon from 'components/icons/sidebar-icons/FinanceIcon';
+
 
 const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
   const location = useLocation();
@@ -58,6 +60,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
           </div>
         </div>
 
+
         <div className="space-y-6 px-2">
           {/* Dashboard button */}
           <button className="w-full">
@@ -93,6 +96,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
               DEPARTMENTAL HUB
             </h4>
 
+
             {DEPARTMENTAL_LINKS.map((link, index) => (
               <div key={index} className="w-full ">
                 <div
@@ -124,8 +128,6 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }) => {
                     aria-hidden="true"
                   />
                 </div>
-
-
                 <motion.ul
                   animate={
                     showMenu && selectedLinkIndex === index
@@ -391,6 +393,7 @@ const DEPARTMENTAL_LINKS = [
       },
       { name: 'Purchase Order', path: RouteEnum.PURCHASE_ORDER },
       { name: 'Payment Request', path: RouteEnum.PAYMENT_REQUEST },
+
       {
         name: 'Procurement Tracker',
         path: RouteEnum.PROCUREMENT_TRACKER,
@@ -441,6 +444,7 @@ const DEPARTMENTAL_LINKS = [
   {
     name: 'C&G',
     icon: <CGIcon />,
+
     link: [
       { name: 'Overview', path: '/' },
       {

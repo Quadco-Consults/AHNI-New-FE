@@ -85,6 +85,15 @@ export const procurment = [
         )
     ),
   },
+  // {
+  //   path: RouteEnum.PROCUREMENT_PLAN_TRACKER,
+  //   element: lazy(
+  //     () =>
+  //       import(
+  //         "pages/protectedPages/procurement-management/Procurement-plan-tracker"
+  //       )
+  //   ),
+  // },
   {
     path: RouteEnum.PROCUREMENT_TRACKER,
     element: lazy(
@@ -95,7 +104,14 @@ export const procurment = [
     ),
   },
   {
-    path: RouteEnum.PURCHASE_REQUEST,
+    path: RouteEnum.PURCHASE_REQUEST_DETAILS,
+    element: lazy(
+      () =>
+        import("pages/protectedPages/procurement-management/purchase-request/id/")
+    ),
+  },
+  {
+    path: RouteEnum.CREATE_PURCHASE_REQUEST,
     element: lazy(
       () =>
         import("pages/protectedPages/procurement-management/purchase-request/")
