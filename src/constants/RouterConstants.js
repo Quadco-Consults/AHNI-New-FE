@@ -24,9 +24,7 @@ export const RouteEnum = {
   PROCUREMENT_DETAILS: "/procurement-management/procurement-plan/:id",
   CREATE_PROCUREMENT:
     "/procurement-management/procurement-plan/create-procurement",
-
-  // PROCUREMENT_PLAN_TRACKER: "/procurement-management/procurement-plan-tracker",
-
+  PROCUREMENT_TRACKER: "/procurement-management/procurement-tracker",
   REPORT: "/procurement-management/report",
 
 

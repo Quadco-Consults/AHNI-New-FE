@@ -95,7 +95,23 @@ export const procurment = [
   //   ),
   // },
   {
-    path: RouteEnum.PURCHASE_REQUEST,
+    path: RouteEnum.PROCUREMENT_TRACKER,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/procurement-tracker"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.PURCHASE_REQUEST_DETAILS,
+    element: lazy(
+      () =>
+        import("pages/protectedPages/procurement-management/purchase-request/id/")
+    ),
+  },
+  {
+    path: RouteEnum.CREATE_PURCHASE_REQUEST,
     element: lazy(
       () =>
         import("pages/protectedPages/procurement-management/purchase-request/")
