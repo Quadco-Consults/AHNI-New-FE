@@ -23,4 +23,23 @@ export const program = [
     path: RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION,
     element: lazy(() => import("pages/protectedPages/programs/ssp/index")),
   },
+  {
+    path: RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_DETAIL,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/programs/ssp/SupportiveSupervisionPlanLayout"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_COMPOSITION,
+    element: lazy(
+      () => import("pages/protectedPages/programs/ssp/Composition")
+    ),
+  },
+  {
+    path: RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_CHECKLIST,
+    element: lazy(() => import("pages/protectedPages/programs/ssp/Checklist")),
+  },
 ];
