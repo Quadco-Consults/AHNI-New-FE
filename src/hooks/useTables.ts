@@ -4,7 +4,7 @@ import {
   getPaginationRowModel,
 } from "@tanstack/react-table";
 
-function useTable(options) {
+function useTable(options: any) {
   return useReactTable({
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -24,6 +24,6 @@ function useTable(options) {
 
 export default useTable;
 
-const data = [];
+const data: any = [];
 
 const columns = [{}];

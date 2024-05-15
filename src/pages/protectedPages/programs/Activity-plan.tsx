@@ -1,0 +1,130 @@
+import Card from "components/shared/Card";
+// import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import useTable from "hooks/useTables";
+import Table from "lib/react-table/Table";
+import { Button } from "components/ui/button";
+import AddSquareIcon from "components/icons/AddSquareIcon";
+import SearchIcon from "components/icons/SearchIcon";
+import FilterIcon from "components/icons/FilterIcon";
+import { ColumnDef } from "@tanstack/react-table";
+import { useMemo } from "react";
+
+type ActivityPlanData = {
+  name: string;
+  partners: string;
+  objectives: string;
+  code: string;
+  description: string;
+};
+
+const data: ActivityPlanData[] = [
+  {
+    name: "Accelerating Control of the HIV Epidemic in Nigeria (ACE 5 AKS & CRS)",
+    partners: "PHO",
+    objectives:
+      "A project focused on advancing community education and health.",
+    code: "PHO/IR/1.1.1",
+    description:
+      "Develop context specific implementation plans to guide state teams to implement innovative, high impact decentralized HIV service delivery (e.g Super-Hub Cluster Model) in FCV and hard-to-reach areas",
+  },
+  {
+    name: "Partners for Learning for All Nigeria (PLANE)",
+    partners: "ADSO",
+    objectives:
+      "A project focused on advancing community education and health.",
+    code: "PHO/IR/1.1.1",
+    description:
+      "Develop context specific implementation plans to guide state teams to implement innovative, high impact decentralized HIV service delivery (e.g Super-Hub Cluster Model) in FCV and hard-to-reach areas",
+  },
+  {
+    name: "Accelerating Control of the HIV Epidemic in Nigeria (ACE 5 AKS & CRS)",
+    partners: "PHO",
+    objectives:
+      "A project focused on advancing community education and health.",
+    code: "PHO/IR/1.1.1",
+    description:
+      "Develop context specific implementation plans to guide state teams to implement innovative, high impact decentralized HIV service delivery (e.g Super-Hub Cluster Model) in FCV and hard-to-reach areas",
+  },
+  {
+    name: "Partners for Learning for All Nigeria (PLANE)",
+    partners: "ADSO",
+    objectives:
+      "A project focused on advancing community education and health.",
+    code: "PHO/IR/1.1.1",
+    description:
+      "Develop context specific implementation plans to guide state teams to implement innovative, high impact decentralized HIV service delivery (e.g Super-Hub Cluster Model) in FCV and hard-to-reach areas",
+  },
+];
+
+const ActivityPlan = () => {
+  const columns = useMemo<ColumnDef<ActivityPlanData>[]>(
+    () => [
+      {
+        header: "Project Name",
+        accessorKey: "name",
+        size: 300,
+      },
+      {
+        header: "Project Partners",
+        accessorKey: "partners",
+        size: 200,
+      },
+      {
+        header: "Objectives",
+        accessorKey: "objectives",
+        size: 300,
+      },
+      {
+        header: "Activity Code",
+        accessorKey: "code",
+        size: 200,
+      },
+      {
+        header: "Activity Description",
+        accessorKey: "description",
+        size: 400,
+      },
+    ],
+    []
+  );
+
+  const tableInstance = useTable({
+    columns,
+    data,
+  });
+
+  return (
+    <div className="space-y-5">
+      <div className="flex justify-end">
+        <Button className="flex gap-2 py-6">
+          <AddSquareIcon />
+          Upload Activity Plan
+        </Button>
+      </div>
+
+      <Card className="space-y-5">
+        <div className="flex items-center justify-start gap-2">
+          <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
+            <SearchIcon />
+            <input
+              placeholder="Search"
+              type="text"
+              className="ml-2 h-6 border-none bg-none focus:outline-none outline-none"
+            />
+          </span>
+          <Button className="shadow-sm" variant="ghost">
+            <FilterIcon />
+          </Button>
+        </div>
+        <Table
+          instance={tableInstance}
+          // loading={customersQueryResult.isFetching}
+          // error={customersQueryResult.isError}
+          // onReload={customersQueryResult.refetch}
+        />
+      </Card>
+    </div>
+  );
+};
+
+export default ActivityPlan;

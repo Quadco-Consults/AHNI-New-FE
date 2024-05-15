@@ -2,19 +2,13 @@ export const RouteEnum = {
   // procurement routes
   DASHBOARD: "/",
 
-
   OVERVIEW: "/procurement-management/overview",
-
 
   COMPETITIVE_ANALYSIS: "/procurement-management/competitive-bid-analysis/CBA",
   COMPETITIVE_SELECTION:
     "/procurement-management/competitive-bid-analysis/selection",
 
-
-
   PAYMENT_REQUEST: "/procurement-management/payment-request",
-
-
 
   PURCHASE_REQUEST: "/procurement-management/purchase-request",
   PURCHASE_REQUEST_DETAILS: "/procurement-management/purchase-request/:id",
@@ -27,7 +21,6 @@ export const RouteEnum = {
   PROCUREMENT_TRACKER: "/procurement-management/procurement-tracker",
   REPORT: "/procurement-management/report",
 
-
   RFQ: "/procurement-management/solicitation/rfq",
   RFQ_DETAILS: "/procurement-management/solicitation/rfq/:id",
   RFQ_COMPETITIVE_BID_ANALYSIS:
@@ -37,9 +30,7 @@ export const RouteEnum = {
   OPEN_TENDER: "/procurement-management/solicitation/national-open-tender",
   SINGLE_SOURCING: "/procurement-management/solicitation/single-sourcing",
 
-
   RFQ_VENDOR: "/procurement-management/rfq-vendor",
-
 
   EOI: "/procurement-management/vendor-management/eoi",
   EOI_VIEW: "/procurement-management/vendor-management/eoi/view",
@@ -64,14 +55,19 @@ export const RouteEnum = {
   PRICE_INTELLIGENCE: "/procurement-management/price-intelligence",
   SUPPLIER_DATABASE: "/procurement-management/supplier-database",
   //program routes
-  PROGRAM_OVERVIEW: "/program/overview",
-  WORK_PLAN: "/program/work-plan",
-  WORK_PLAN_AUDIT: "/program/work-plan-audit",
-  DONOR_MANAGEMENT: "/program/donor-management",
+  PROGRAM_WORK_PLAN: "/program/plan/work plan",
+  PROGRAM_WORK_PLAN_DETAILS: "/program/plan/work plan/:id",
+  PROGRAM_ACTIVITY: "/program/plan/activity",
+  PROGRAM_RISK_MANAGEMENT: "/program/plan/risk management plan",
+  PROGRAM_VALUE_MANAGEMENT: "/program/plan/value management plan",
+  PROGRAM_SUPPORTIVE_SUPERVISION: "/program/plan/supportive supervision plan",
+  PROGRAM_FUND_REQUEST: "/program/fund request",
+  PROGRAM_REPORT: "/program/reports",
+  //projects routes
   PROJECTS: "/program/projects",
   TRAINING: "/program/training-and-procurement",
   PROGRAM_PAYMENT_REQUEST: "/program/payment-request",
-  PROGRAM_REPORT: "/program/report",
+
   // PROGRAM_OVERVIEW: "/program/overview",
   // PROGRAM_OVERVIEW: "/program/overview",
 };
