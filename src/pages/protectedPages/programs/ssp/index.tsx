@@ -100,9 +100,12 @@ const SupportiveSupervisionPlan = () => {
               <div className="flex flex-col items-start justify-between gap-1">
                 <Link
                   className="w-full"
-                  to={generatePath(RouteEnum.PROGRAM_WORK_PLAN_DETAILS, {
-                    id: "1",
-                  })}
+                  to={generatePath(
+                    RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_DETAIL,
+                    {
+                      id: "1",
+                    }
+                  )}
                 >
                   <Button
                     className="w-full flex items-center justify-start gap-2"
