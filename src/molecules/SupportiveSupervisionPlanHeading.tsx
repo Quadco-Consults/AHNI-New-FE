@@ -16,7 +16,7 @@ const steps: Step[] = [
     stepName: "Facility & Team Composition",
     route: "Facility&Team-Composition",
   },
-  { step: 2, stepName: "Evaluation Checklist", route: "evaluation-checklist" },
+  { step: 2, stepName: "Evaluation Checklist", route: "evolution-checklist" },
 ];
 
 const SupportiveSupervisionPlanHeading = () => {

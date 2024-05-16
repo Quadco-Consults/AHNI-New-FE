@@ -1,3 +1,4 @@
+import Card from "components/shared/Card";
 import SupportiveSupervisionPlanHeading from "molecules/SupportiveSupervisionPlanHeading";
 import { FC, ReactNode } from "react";
 
@@ -7,9 +8,9 @@ type IPageProps = {
 
 const SupportiveSupervisionPlanLayout: FC<IPageProps> = ({ children }) => {
   return (
-    <div>
+    <div className="space-y-5">
       <SupportiveSupervisionPlanHeading />
-      <div className="px-4 py-8 bg-white">{children}</div>
+      <Card>{children}</Card>
     </div>
   );
 };

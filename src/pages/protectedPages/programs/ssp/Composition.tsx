@@ -5,17 +5,11 @@ import { useForm } from "react-hook-form";
 import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelect";
 import { ChevronRight } from "lucide-react";
-import { Label } from "components/ui/label";
 import FormButton from "atoms/FormButton";
 import { Button } from "components/ui/button";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType, largeDailogScreen } from "constants/dailogs";
 
 const Composition = () => {
   const form = useForm();
-
-  const dispatch = useAppDispatch();
 
   const navigate = useNavigate();
 
@@ -28,7 +22,7 @@ const Composition = () => {
 
     path = path.substring(0, path.lastIndexOf("/"));
 
-    path += "/evaluation-checklist";
+    path += "/evolution-checklist";
     navigate(path);
   };
   return (
@@ -72,26 +66,7 @@ const Composition = () => {
                   />
                 </div>
               </div>
-              <div className="flex flex-col w-[299px] mt-10 space-y-3">
-                <Label>Category</Label>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="text-[#DEA004]"
-                  onClick={() => {
-                    dispatch(
-                      openDialog({
-                        type: DialogType.Categories,
-                        dialogProps: {
-                          ...largeDailogScreen,
-                        },
-                      })
-                    );
-                  }}
-                >
-                  Click to select categories that applies
-                </Button>
-              </div>
+
               <div className="flex justify-between mt-16">
                 <Button type="button" className="bg-[#FFF2F2] text-primary ">
                   Cancel
