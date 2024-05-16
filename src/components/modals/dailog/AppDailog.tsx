@@ -5,10 +5,12 @@ import { ReactNode } from "react";
 import { DialogType } from "constants/dailogs";
 import CategoriesModal from "./components/CategoriesModal";
 import PriceModal from "./components/PriceModal";
+import ChecklistModal from "./components/ChecklistModal";
 
 const sheets: Record<string, ReactNode> = {
   [DialogType.Categories]: <CategoriesModal />,
   [DialogType.PriceInteligence]: <PriceModal />,
+  [DialogType.Checklist]: <ChecklistModal />,
 };
 
 const AppDailog = () => {

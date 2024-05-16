@@ -101,7 +101,7 @@ const SupportiveSupervisionPlan = () => {
                 <Link
                   className="w-full"
                   to={generatePath(
-                    RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_DETAIL,
+                    RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_COMPOSITION,
                     {
                       id: "1",
                     }
