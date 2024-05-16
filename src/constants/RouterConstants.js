@@ -66,6 +66,7 @@ export const RouteEnum = {
   PROGRAM_SUPPORTIVE_SUPERVISION_CHECKLIST:
     "/program/plan/supportive supervision plan/:id/evolution-checklist",
   PROGRAM_FUND_REQUEST: "/program/fund request",
+  PROGRAM_FUND_REQUEST_DETAILS: "/program/fund request/:id",
   PROGRAM_REPORT: "/program/reports",
   //projects routes
   PROJECTS: "/program/projects",

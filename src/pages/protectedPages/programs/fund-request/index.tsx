@@ -16,45 +16,58 @@ import { useMemo } from "react";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
 import ApproveIcon from "components/icons/ApproveIcon";
-import ApprovalStatusIcon from "components/icons/ApprovalStatusIcon";
 
 type WorkPlanData = {
-  facility: string;
+  projectTitle: string;
   state: string;
-  lga: string;
+  projectID: string;
   year: string;
+  projectStartDate: string;
+  projectEndDate: string;
   status: string;
 };
 
 const data: WorkPlanData[] = Array(10).fill({
-  facility: "ACEBAY",
+  projectTitle: "ACEBAY",
   state: "Lagos",
-  lga: "Surulere",
+  projectID: "1111.0004-ACE",
   year: "02/2024",
+  projectStartDate: "10/04/2023",
+  projectEndDate: "10/04/2023",
   status: "Pending",
 });
 
-const SupportiveSupervisionPlan = () => {
+const FundRequest = () => {
   const columns = useMemo<ColumnDef<WorkPlanData>[]>(
     () => [
       {
-        header: "Facility",
-        accessorKey: "facility",
-        size: 200,
+        header: "Project Title",
+        accessorKey: "projectTitle",
+        size: 150,
       },
       {
         header: "State",
         accessorKey: "state",
-        size: 200,
+        size: 150,
       },
       {
-        header: "LGA",
-        accessorKey: "lga",
+        header: "PROJECT ID",
+        accessorKey: "projectID",
         size: 200,
       },
       {
         header: "Month/Year",
         accessorKey: "year",
+        size: 150,
+      },
+      {
+        header: "Project Start Date",
+        accessorKey: "projectStartDate",
+        size: 200,
+      },
+      {
+        header: "Project End Date",
+        accessorKey: "projectEndDate",
         size: 200,
       },
       {
@@ -69,7 +82,8 @@ const SupportiveSupervisionPlan = () => {
                 "p-1 rounded-lg",
                 getValue() === "Approved" && "bg-green-light text-green-dark",
                 getValue() === "Reject" && "bg-red-light text-red-dark",
-                getValue() === "Pending" && "bg-yellow-200 text-yellow-dark",
+                getValue() === "Pending" &&
+                  "bg-yellow-200 text-yellow-800 text-yellow-dark",
                 getValue() === "On Hold" && "text-grey-light bg-grey-dark"
               )}
             >
@@ -102,12 +116,9 @@ const SupportiveSupervisionPlan = () => {
               <div className="flex flex-col items-start justify-between gap-1">
                 <Link
                   className="w-full"
-                  to={generatePath(
-                    RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_COMPOSITION,
-                    {
-                      id: "1",
-                    }
-                  )}
+                  to={generatePath(RouteEnum.PROGRAM_FUND_REQUEST_DETAILS, {
+                    id: "1",
+                  })}
                 >
                   <Button
                     className="w-full flex items-center justify-start gap-2"
@@ -123,13 +134,6 @@ const SupportiveSupervisionPlan = () => {
                 >
                   <ApproveIcon />
                   Approve
-                </Button>
-                <Button
-                  className="w-full flex items-center justify-start gap-2"
-                  variant="ghost"
-                >
-                  <ApprovalStatusIcon />
-                  Approval Status
                 </Button>
                 <Button
                   className="w-full flex items-center justify-start gap-2"
@@ -156,7 +160,7 @@ const SupportiveSupervisionPlan = () => {
       <div className="flex justify-end">
         <Button className="flex gap-2 py-6">
           <AddSquareIcon />
-          New Supervision plan
+          New Fund Request
         </Button>
       </div>
 
@@ -185,4 +189,4 @@ const SupportiveSupervisionPlan = () => {
   );
 };
 
-export default SupportiveSupervisionPlan;
+export default FundRequest;

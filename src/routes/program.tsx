@@ -33,4 +33,16 @@ export const program = [
     path: RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_CHECKLIST,
     element: lazy(() => import("pages/protectedPages/programs/ssp/Checklist")),
   },
+  {
+    path: RouteEnum.PROGRAM_FUND_REQUEST,
+    element: lazy(
+      () => import("pages/protectedPages/programs/fund-request/index")
+    ),
+  },
+  {
+    path: RouteEnum.PROGRAM_FUND_REQUEST_DETAILS,
+    element: lazy(
+      () => import("pages/protectedPages/programs/fund-request/id/index")
+    ),
+  },
 ];
