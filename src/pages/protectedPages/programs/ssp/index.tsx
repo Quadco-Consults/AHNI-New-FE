@@ -17,6 +17,11 @@ import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
 import ApproveIcon from "components/icons/ApproveIcon";
 import ApprovalStatusIcon from "components/icons/ApprovalStatusIcon";
+import ArrowDownIcon from "components/icons/ArrowDownIcon";
+import { useAppDispatch } from "hooks/useStore";
+import { DialogType } from "constants/dailogs";
+import { openDialog } from "store/ui";
+import UploadIcon from "components/icons/UploadIcon";
 
 type WorkPlanData = {
   facility: string;
@@ -35,6 +40,8 @@ const data: WorkPlanData[] = Array(10).fill({
 });
 
 const SupportiveSupervisionPlan = () => {
+  const dispatch = useAppDispatch();
+
   const columns = useMemo<ColumnDef<WorkPlanData>[]>(
     () => [
       {
@@ -120,6 +127,17 @@ const SupportiveSupervisionPlan = () => {
                 <Button
                   className="w-full flex items-center justify-start gap-2"
                   variant="ghost"
+                  onClick={() => {
+                    dispatch(
+                      openDialog({
+                        type: DialogType.SspApproveModal,
+                        dialogProps: {
+                          header: "Request Approval",
+                          width: "max-w-2xl",
+                        },
+                      })
+                    );
+                  }}
                 >
                   <ApproveIcon />
                   Approve
@@ -154,10 +172,49 @@ const SupportiveSupervisionPlan = () => {
   return (
     <div className="space-y-5">
       <div className="flex justify-end">
-        <Button className="flex gap-2 py-6">
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button className="flex gap-2 py-6">
+              <AddSquareIcon />
+              New Supervision plan
+              <ArrowDownIcon />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className=" w-fit">
+            <div className="flex flex-col items-start justify-between gap-1">
+              <Button
+                className="w-full flex gap-2 items-center justify-start"
+                variant="ghost"
+                type="button"
+                onClick={() => {
+                  dispatch(
+                    openDialog({
+                      type: DialogType.SspUpload,
+                      dialogProps: {
+                        header: "Upload New Document",
+                        width: "max-w-2xl",
+                      },
+                    })
+                  );
+                }}
+              >
+                <UploadIcon />
+                Upload
+              </Button>
+              <Button
+                className="w-full flex gap-2 items-center justify-start"
+                variant="ghost"
+              >
+                <AddSquareIcon fillColor="#FF0000" />
+                Create Manually
+              </Button>
+            </div>
+          </PopoverContent>
+        </Popover>
+        {/* <Button className="flex gap-2 py-6">
           <AddSquareIcon />
           New Supervision plan
-        </Button>
+        </Button> */}
       </div>
 
       <Card className="space-y-5">
