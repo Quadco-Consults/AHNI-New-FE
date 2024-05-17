@@ -8,6 +8,9 @@ import SearchIcon from "components/icons/SearchIcon";
 import FilterIcon from "components/icons/FilterIcon";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
+import { openDialog } from "store/ui";
+import { DialogType } from "constants/dailogs";
+import { useAppDispatch } from "hooks/useStore";
 
 type ActivityPlanData = {
   name: string;
@@ -57,6 +60,8 @@ const data: ActivityPlanData[] = [
 ];
 
 const ActivityPlan = () => {
+  const dispatch = useAppDispatch();
+
   const columns = useMemo<ColumnDef<ActivityPlanData>[]>(
     () => [
       {
@@ -96,7 +101,21 @@ const ActivityPlan = () => {
   return (
     <div className="space-y-5">
       <div className="flex justify-end">
-        <Button className="flex gap-2 py-6">
+        <Button
+          className="flex gap-2 py-6"
+          type="button"
+          onClick={() => {
+            dispatch(
+              openDialog({
+                type: DialogType.ActivityUpload,
+                dialogProps: {
+                  header: "Upload An Activity",
+                  width: "max-w-2xl",
+                },
+              })
+            );
+          }}
+        >
           <AddSquareIcon />
           Upload Activity Plan
         </Button>

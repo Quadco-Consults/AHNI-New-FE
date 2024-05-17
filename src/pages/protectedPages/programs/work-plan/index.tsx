@@ -13,6 +13,9 @@ import EyeIcon from "components/icons/EyeIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
+import { useAppDispatch } from "hooks/useStore";
+import { openDialog } from "store/ui";
+import { DialogType } from "constants/dailogs";
 
 type WorkPlanData = {
   name: string;
@@ -37,6 +40,7 @@ const data: WorkPlanData[] = [
 ];
 
 const WorkPlan = () => {
+  const dispatch = useAppDispatch();
   const columns = useMemo<ColumnDef<WorkPlanData>[]>(
     () => [
       {
@@ -118,7 +122,21 @@ const WorkPlan = () => {
   return (
     <div className="space-y-5">
       <div className="flex justify-end">
-        <Button className="flex gap-2 py-6">
+        <Button
+          className="flex gap-2 py-6"
+          type="button"
+          onClick={() => {
+            dispatch(
+              openDialog({
+                type: DialogType.WorkPlanUpload,
+                dialogProps: {
+                  header: "Upload New Work plan",
+                  width: "max-w-2xl",
+                },
+              })
+            );
+          }}
+        >
           <AddSquareIcon />
           Upload New Work Plan
         </Button>

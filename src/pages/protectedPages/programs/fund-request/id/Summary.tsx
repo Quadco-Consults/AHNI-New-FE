@@ -2,72 +2,56 @@ import { Badge } from "components/ui/badge";
 
 const Summary = () => {
   return (
-    <div className="space-y-10">
+    <div className="space-y-5">
       <div className="space-y-3">
-        <h3 className="font-semibold text-lg">Project Name</h3>
-
-        <p className="text-sm text-gray-500">
-          Accelerating Control of the HIV Epidemic in Nigeria (ACE 5 AKS & CRS)
-        </p>
-
-        <h3 className="font-semibold text-lg">Budget</h3>
-
-        <p className="text-sm text-gray-500">$2,000,000</p>
+        <h3 className="font-semibold">Project Name</h3>
+        <p className="text-sm text-gray-500">ACEBAY</p>
       </div>
 
-      <hr />
-
-      <div className="space-y-3">
-        <h3 className="text-lg font-semibold text-[#FF0000]">
-          Project Objectives
-        </h3>
-
-        <div className="space-y-5">
-          {[
-            "To Increase   resiliency, responsiveness, and accountability of the health system ",
-            "To Improve the   Quality of HIV/AIDS and TB Services ",
-            "To Improve the   Quality of HIV/AIDS and TB Services ",
-          ].map((option: string, index: number) => (
-            <div key={index} className="flex gap-5">
-              <h3 className="font-semibold">{index + 1}</h3>
-              <div className="space-y-3">
-                <h3 className="font-semibold">Objective</h3>
-                <h3 className="text-sm text-gray-500">{option}</h3>
-              </div>
-            </div>
-          ))}
+      <div className="grid pb-5 grid-cols-2 gap-5 md:grid-cols-3">
+        <div className="space-y-3">
+          <h3 className="font-semibold">Project ID</h3>
+          <p className="text-sm text-gray-500">1111.0004-ACE</p>
+        </div>
+        <div className="space-y-3">
+          <h3 className="font-semibold">State</h3>
+          <p className="text-sm text-gray-500">AHNI Adamawa H/O</p>
+        </div>
+        <div className="space-y-3">
+          <h3 className="font-semibold">Month</h3>
+          <p className="text-sm text-gray-500">02/2024</p>
+        </div>
+        <div className="space-y-3">
+          <h3 className="font-semibold">Project Start Date</h3>
+          <p className="text-sm text-gray-500">10/04/2023</p>
+        </div>
+        <div className="space-y-3">
+          <h3 className="font-semibold">Project End Date</h3>
+          <p className="text-sm text-gray-500">10/04/2023</p>
+        </div>
+        <div className="space-y-3">
+          <h3 className="font-semibold">Currency</h3>
+          <p className="text-sm text-gray-500">NGN</p>
+        </div>
+        <div className="space-y-3">
+          <h3 className="font-semibold">Financial Year</h3>
+          <p className="text-sm text-gray-500">10/2022 - 09/2023</p>
         </div>
       </div>
 
-      <hr />
+      <hr className="pb-5" />
 
       <div className="space-y-3">
-        <h3 className="font-semibold text-lg">Financial Year</h3>
-        <h6 className="text-sm text-gray-500">10/2022 - 09/2023</h6>
-
-        <h3 className="font-semibold text-lg">Project Location</h3>
-        <div className="flex flex-wrap gap-3">
-          {["Kaduna", "FCT", "Jigawa", "Lagos"].map(
-            (option: string, index: number) => (
-              <Badge
-                variant="default"
-                key={index}
-                className="bg-[#EBE8E1] text-[#1a0000ad] px-4 py-2 rounded-lg"
-              >
-                {option}
-              </Badge>
-            )
-          )}
-        </div>
-
-        <h3 className="font-semibold text-lg">Project Partners</h3>
+        <h3 className="font-semibold">State Offices Involved</h3>
         <div className="flex flex-wrap gap-3">
           {[
-            "Family Health International (FHI 360)",
-            "The American University of Nigeria-AUN",
-            "Ekklesiyar ‘Yan uwa a Nigeria (EYN)",
-            "Federation of Muslim Associations of Nigeria (FOMWAN)",
-            "Next Generation Empowerment Initiative (NextGen)",
+            "ACE Project Head Office Adamawa",
+            "Adamawa State office",
+            "Borno State Office",
+            "Yobe State Office",
+            "American University of Nigeria (AUN)",
+            "Federation of Muslim Women’s Associations in Nigeria (FOMWAN)",
+            "Ekklesiyar Yan’uwa a Nigeria (EYN)",
           ].map((option: string, index: number) => (
             <Badge
               variant="default"
