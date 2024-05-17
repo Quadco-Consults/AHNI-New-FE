@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import SupportiveSupervisionPlanLayout from "./SupportiveSupervisionPlanLayout";
 import FormButton from "atoms/FormButton";
-import { RouteEnum } from "constants/RouterConstants";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { openDialog } from "store/ui";
 import { DialogType, largeDailogScreen } from "constants/dailogs";
@@ -15,7 +14,6 @@ const Checklist = () => {
   const dispatch = useAppDispatch();
 
   const onSubmit = () => {
-    navigate(RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION);
     sessionStorage.removeItem("supportiveCompletedSteps");
   };
   return (
@@ -55,7 +53,17 @@ const Checklist = () => {
             </FormButton>
 
             <FormButton
-              onClick={() => onSubmit()}
+              onClick={() => {
+                onSubmit();
+                dispatch(
+                  openDialog({
+                    type: DialogType.SuccessModal,
+                    dialogProps: {
+                      width: "max-w-lg",
+                    },
+                  })
+                );
+              }}
               suffix={<ArrowRight size={14} />}
             >
               Finish

@@ -10,6 +10,7 @@ import WorkPlanUploadModal from "./components/WorkPlanUploadModal";
 import ActivityUploadModal from "./components/ActivityUploadModal";
 import SspUploadModal from "./components/SspUploadModal";
 import SspApproveModal from "./components/SspApproveModal";
+import SuccessModal from "./components/SuccessModal";
 
 const sheets: Record<string, ReactNode> = {
   [DialogType.Categories]: <CategoriesModal />,
@@ -19,6 +20,7 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.ActivityUpload]: <ActivityUploadModal />,
   [DialogType.SspUpload]: <SspUploadModal />,
   [DialogType.SspApproveModal]: <SspApproveModal />,
+  [DialogType.SuccessModal]: <SuccessModal />,
 };
 
 const AppDailog = () => {

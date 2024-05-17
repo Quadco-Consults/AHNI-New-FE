@@ -110,7 +110,7 @@ const SupportiveSupervisionPlan = () => {
                 <Link
                   className="w-full"
                   to={generatePath(
-                    RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_COMPOSITION,
+                    RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS,
                     {
                       id: "1",
                     }
@@ -201,20 +201,19 @@ const SupportiveSupervisionPlan = () => {
                 <UploadIcon />
                 Upload
               </Button>
-              <Button
-                className="w-full flex gap-2 items-center justify-start"
-                variant="ghost"
-              >
-                <AddSquareIcon fillColor="#FF0000" />
-                Create Manually
-              </Button>
+
+              <Link to={RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_COMPOSITION}>
+                <Button
+                  className="w-full flex gap-2 items-center justify-start"
+                  variant="ghost"
+                >
+                  <AddSquareIcon fillColor="#FF0000" />
+                  Create Manually
+                </Button>
+              </Link>
             </div>
           </PopoverContent>
         </Popover>
-        {/* <Button className="flex gap-2 py-6">
-          <AddSquareIcon />
-          New Supervision plan
-        </Button> */}
       </div>
 
       <Card className="space-y-5">
