@@ -63,6 +63,10 @@ export const RouteEnum = {
   PROGRAM_SUPPORTIVE_SUPERVISION: "/program/plan/supportive supervision plan",
   PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS:
     "/program/plan/supportive supervision plan/:id",
+  PROGRAM_SUPPORTIVE_SUPERVISION_MANAGEMENT:
+    "/program/plan/supportive supervision plan/:id/core management systems",
+  PROGRAM_SUPPORTIVE_SUPERVISION_GUIDELINE:
+    "/program/plan/supportive supervision plan/:id/guideline",
   PROGRAM_SUPPORTIVE_SUPERVISION_COMPOSITION:
     "/program/plan/supportive supervision plan/create/facility&team-composition",
   PROGRAM_SUPPORTIVE_SUPERVISION_CHECKLIST:
