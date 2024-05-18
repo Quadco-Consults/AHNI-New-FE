@@ -1,14 +1,16 @@
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
 import { Label } from "components/ui/label";
+import { RouteEnum } from "constants/RouterConstants";
 import { ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const SspDetails = () => {
   const navigate = useNavigate();
   const goBack = () => {
     navigate(-1);
   };
+
   return (
     <div className="space-y-5">
       <Button
@@ -112,7 +114,9 @@ const SspDetails = () => {
         </div>
       </Card>
       <div className="flex justify-end">
-        <Button>Start Evaluation</Button>
+        <Link to={RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_MANAGEMENT}>
+          <Button>Start Evaluation</Button>
+        </Link>
       </div>
     </div>
   );

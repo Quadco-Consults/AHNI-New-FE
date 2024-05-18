@@ -28,6 +28,19 @@ export const program = [
     element: lazy(() => import("pages/protectedPages/programs/ssp/[id]/index")),
   },
   {
+    path: RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_MANAGEMENT,
+    element: lazy(
+      () =>
+        import("pages/protectedPages/programs/ssp/[id]/CoreManagementSystems")
+    ),
+  },
+  {
+    path: RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_GUIDELINE,
+    element: lazy(
+      () => import("pages/protectedPages/programs/ssp/[id]/Guideline")
+    ),
+  },
+  {
     path: RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_COMPOSITION,
     element: lazy(
       () => import("pages/protectedPages/programs/ssp/Composition")
