@@ -41,6 +41,30 @@ export const program = [
     ),
   },
   {
+    path: RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_MONITORING,
+    element: lazy(
+      () => import("pages/protectedPages/programs/ssp/[id]/Monitoring")
+    ),
+  },
+  {
+    path: RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_ASSESS,
+    element: lazy(
+      () => import("pages/protectedPages/programs/ssp/[id]/Assess-monthly")
+    ),
+  },
+  {
+    path: RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_TX_NEW,
+    element: lazy(
+      () => import("pages/protectedPages/programs/ssp/[id]/TX-new")
+    ),
+  },
+  {
+    path: RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_SERVICE_DELIVERY,
+    element: lazy(
+      () => import("pages/protectedPages/programs/ssp/[id]/Service-delivery")
+    ),
+  },
+  {
     path: RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_COMPOSITION,
     element: lazy(
       () => import("pages/protectedPages/programs/ssp/Composition")
