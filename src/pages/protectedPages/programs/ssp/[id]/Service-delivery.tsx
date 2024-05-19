@@ -8,7 +8,7 @@ import { ArrowLeft } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 
-const Guideline = () => {
+const ServiceDelivery = () => {
   const navigate = useNavigate();
   const goBack = () => {
     navigate(-1);
@@ -39,7 +39,7 @@ const Guideline = () => {
     <div className="space-y-5">
       <div className="flex justify-end">
         <div className="py-2 px-4 rounded-lg border text-green-500 border-green-500 bg-green-50">
-          Page 2/7
+          Page 6/7
         </div>
       </div>
 
@@ -52,23 +52,394 @@ const Guideline = () => {
             <hr />
             <Card className="space-y-3">
               <h4 className="font-semibold text-red-600">
-                Assess Once in a Financial Year (October – December in FY)
+                Standards of service delivery
               </h4>
-              <h6 className="font-light">
-                Verify the availability and use of the current version of the
-                following documents
-              </h6>
+              <h6 className="font-light">Verify the following</h6>
 
               <Card className="space-y-3 border-yellow-600">
                 <h4 className="text-semibold text-yellow-600">
-                  Availability and utilization of HIV/AIDS Policies, standards,
-                  and guidelines
+                  Review standard of care. <br /> Review 2.5% TX_CURR weekly;
+                  10% monthly; 25% quarterly; 50% by SAPR; 100% by APR
+                </h4>
+                <h6 className="font-light">
+                  Review all service forms for last visit
+                </h6>
+
+                <div className="flex justify-between py-3 gap-5">
+                  <div className="">
+                    <h2>Pharmacy Order form</h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>Care and Support checklist</h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>Last VL</h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>ICT/Genealogy forms</h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>Cervical cancer form (if applicable)</h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+                <FormInput name="comment" label="Comment" />
+              </Card>
+
+              <Card className="space-y-3 border-yellow-600">
+                <h4 className="text-semibold text-yellow-600">
+                  Correctness and consistency of bio-data on care card
                 </h4>
 
+                <div className="flex justify-between py-3 gap-5">
+                  <div className="">
+                    <h2>Age</h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
                 <div className="flex justify-between pb-3 gap-5">
-                  <div>
+                  <div className="">
+                    <h2>Gender</h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>Contact details</h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>ART start date</h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
                     <h2>
-                      Integrated National Guidelines/Rapid advice if applicable
+                      Documentation of clinic visits inside care card (VL,
+                      adherence, TPT etc)
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+
+                <FormInput name="comment" label="Comment" />
+              </Card>
+
+              <Card className="space-y-3 border-yellow-600">
+                <h4 className="text-semibold text-yellow-600">PMTCT clients</h4>
+
+                <div className="flex justify-between py-3 gap-5">
+                  <div className="">
+                    <h2>Review maternal cohort register</h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>
+                      Update mother-baby pair information in relevant sections
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>
+                      VL at 32-36 weeks. Done? Scheduled? Not Done? If not done,
+                      explore challenges
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+
+                <FormInput name="comment" label="Comment" />
+              </Card>
+
+              <Card className="space-y-3 border-yellow-600">
+                <h4 className="text-semibold text-yellow-600">TPT</h4>
+
+                <div className="flex justify-between py-3 gap-5">
+                  <div className="">
+                    <h2>TPT initiated?</h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>Review POF</h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>TPT completion?</h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>Documented?</h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+
+                <FormInput name="comment" label="Comment" />
+              </Card>
+
+              <Card className="space-y-3 border-yellow-600">
+                <h4 className="text-semibold text-yellow-600">
+                  Clients who missed their appointment traced (Review 50 clients
+                  who have missed appointment)
+                </h4>
+
+                <div className="flex justify-between py-3 gap-5">
+                  <div className="">
+                    <h2>Client tracking and termination form?</h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>Is the client tracking register updated?</h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>Look for client entries in register</h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+
+                <FormInput name="comment" label="Comment" />
+              </Card>
+
+              <Card className="space-y-3 border-yellow-600">
+                <h4 className="text-semibold text-yellow-600">
+                  HEI management
+                </h4>
+                <h6>Review for HEIs up to 12 months before visit</h6>
+
+                <div className="flex justify-between py-3 gap-5">
+                  <div className="">
+                    <h2>
+                      All HIV exposed new-born have access to appropriate
+                      prophylaxis. Check <br /> documentation in child Follow up
+                      register
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>
+                      All HEIs delivered in the hospital have DBS done at birth
+                      (up to 72hrs after birth). <br /> Review documentation in
+                      Child Follow up Register. Explore reasons for gaps if any.
                     </h2>
                   </div>
                   <div className="flex gap-5 justify-between w-1/5">
@@ -88,621 +459,10 @@ const Guideline = () => {
                 <hr />
 
                 <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>Anti-stigma Bill</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>Client tracking SOP</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>Positive Connection guide for adolescent</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>Continuous Quality Improvement Handbook</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>Service flow chart</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>Medication adherence SOP</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>Logistic SOP/ Emergency order guide</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
+                  <div className="">
                     <h2>
-                      HTS Job aids (Serial testing algorithm, Finger prick,
-                      Determine, Unigold, stat Pak,
-                      <br /> and Recency- assess all testing points)
-                    </h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>Referral SOP</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>Viral load sample collection and management SOP</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>Index testing SOP</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>EAC guidelines</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>GBV SOP</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>Laboratory biosafety SOP</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>
-                      SOP for sample collection, storage, and transportation
-                    </h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>
-                      SOPs for all HIV related tests done at the laboratory
-                      -Serology, HIVST, Recency, CD4,
-                      <br /> EID, PCR
-                    </h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>Data Management SOP</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>Filing SOP</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>Waste Segregation Guide</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>PrEP SOP</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>IPV screening SOP</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>Facility specific IPAC plan</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>Facility specific IPAC plan</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>Client Satisfaction SOP-Complaint handling protocol</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>Waste Management SOP</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>Disclosure guide for Adolescent</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>Cervical Cancer Screening and Treatment Guidelines</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>Advanced HIV Disease SOP</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>DQA SOP</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>Medication dispensing SOP</h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div>
-                    <h2>
-                      EOIAHNi03 Child safeguarding policy for preventing and
-                      responding to abuse, exploitation, or <br /> neglect by
-                      personnel and volunteers
+                      Provision of DBS sample collection service at 6 weeks.
+                      (Review Child Follow Register)
                     </h2>
                   </div>
                   <div className="flex gap-5 justify-between w-1/5">
@@ -732,7 +492,7 @@ const Guideline = () => {
         >
           <ArrowLeft size={15} /> Back
         </Button>
-        <Link to={RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_MONITORING}>
+        <Link to={RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_SERVICE_DELIVERY}>
           <Button className="px-8">Next</Button>
         </Link>
       </div>
@@ -740,4 +500,4 @@ const Guideline = () => {
   );
 };
 
-export default Guideline;
+export default ServiceDelivery;
