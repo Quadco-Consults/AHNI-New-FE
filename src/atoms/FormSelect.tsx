@@ -22,9 +22,15 @@ import { SelectHTMLAttributes } from "react";
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   name: string;
   label?: string;
+  placeholder?: string;
   required?: boolean;
 }
-const FormSelect: FC<SelectProps> = ({ name, label, required }) => {
+const FormSelect: FC<SelectProps> = ({
+  name,
+  label,
+  required,
+  placeholder,
+}) => {
   const { control } = useFormContext();
 
   useDisableNumberInputScroll();
@@ -48,7 +54,7 @@ const FormSelect: FC<SelectProps> = ({ name, label, required }) => {
             <Select onValueChange={onChange} defaultValue={value}>
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder="" />
+                  <SelectValue placeholder={placeholder} />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
