@@ -1,0 +1,19 @@
+import FileUpload from "atoms/FileUpload";
+import { Button } from "components/ui/button";
+
+const SspUploadModal = () => {
+  return (
+    <div className="w-full">
+      <FileUpload />
+
+      <div className="flex justify-between gap-5 mt-16">
+        <Button type="button" className="bg-[#FFF2F2] text-primary ">
+          Cancel
+        </Button>
+        <Button>Done</Button>
+      </div>
+    </div>
+  );
+};
+
+export default SspUploadModal;
