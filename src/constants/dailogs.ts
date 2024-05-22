@@ -7,6 +7,7 @@ export const DialogType = {
   SspUpload: "SspUpload",
   SspApproveModal: "SspApproveModal",
   SuccessModal: "SuccessModal",
+  PreventionModal: "PreventionModal",
 };
 
 export const largeDailogScreen = {

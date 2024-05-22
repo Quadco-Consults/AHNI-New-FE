@@ -65,6 +65,18 @@ export const program = [
     ),
   },
   {
+    path: RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_PREVENTION,
+    element: lazy(
+      () => import("pages/protectedPages/programs/ssp/[id]/Prevention")
+    ),
+  },
+  {
+    path: RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS_APPROVAL,
+    element: lazy(
+      () => import("pages/protectedPages/programs/ssp/[id]/ApprovalStatus")
+    ),
+  },
+  {
     path: RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_COMPOSITION,
     element: lazy(
       () => import("pages/protectedPages/programs/ssp/Composition")
