@@ -3,7 +3,6 @@ import VendorRegistationLayout from "./VendorRegistationLayout";
 import { useForm } from "react-hook-form";
 import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelect";
-
 import { ChevronRight } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Label } from "components/ui/label";
