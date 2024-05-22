@@ -142,13 +142,17 @@ const SupportiveSupervisionPlan = () => {
                   <ApproveIcon />
                   Approve
                 </Button>
-                <Button
-                  className="w-full flex items-center justify-start gap-2"
-                  variant="ghost"
+                <Link
+                  to={RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS_APPROVAL}
                 >
-                  <ApprovalStatusIcon />
-                  Approval Status
-                </Button>
+                  <Button
+                    className="w-full flex items-center justify-start gap-2"
+                    variant="ghost"
+                  >
+                    <ApprovalStatusIcon />
+                    Approval Status
+                  </Button>
+                </Link>
                 <Button
                   className="w-full flex items-center justify-start gap-2"
                   variant="ghost"

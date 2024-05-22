@@ -478,6 +478,552 @@ const ServiceDelivery = () => {
                 </div>
 
                 <FormInput name="comment" label="Comment" />
+
+                <hr />
+
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>
+                      DBS results received at most within 2 weeks of sample
+                      collection. (Review TAT for DBS)
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+
+                <FormInput name="comment" label="Comment" />
+
+                <hr />
+
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>
+                      Final HEI status determined by 24 months. (Review for HEIs
+                      eligible for PMTCT_FO). <br /> Identify root causes for
+                      gaps.
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+
+                <FormInput name="comment" label="Comment" />
+
+                <hr />
+
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>
+                      DBS positive HEIs receive confirmatory DBS testing (Review
+                      for positive DBS)
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+
+                <FormInput name="comment" label="Comment" />
+
+                <hr />
+
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>
+                      Positive HEIs linked to ART? (Triangulate with infant
+                      folder and EMR)
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+
+                <FormInput name="comment" label="Comment" />
+              </Card>
+
+              <Card className="space-y-3 border-yellow-600">
+                <h4 className="font-semibold text-yellow-600">
+                  Case Management: Activities of the case managers
+                </h4>
+
+                <div className="flex justify-between py-3 gap-5">
+                  <div className="">
+                    <h2>
+                      Same day assignment of new clients to case managers
+                      (Verify EMR entries for new <br /> clients in week
+                      preceding visit)
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+
+                <FormInput name="comment" label="Comment" />
+
+                <hr />
+
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>
+                      Review shoe rack system for refills. (Are expected refills
+                      for the month, <br /> week segregated for pre-appointment
+                      reminder?) How is this tracked?
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+
+                <FormInput name="comment" label="Comment" />
+
+                <hr />
+
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>
+                      Is there a system for the identification and tracking of
+                      defaulting clients and missed <br /> appointment?
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>
+                      Review missed appointment for the previous day/week?
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>
+                      How many have been tracked? Review tracking and
+                      termination form?
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>
+                      Review tracking register? Engage with case managers to
+                      understand challenges with <br /> tracking?
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+
+                <FormInput name="comment" label="Comment" />
+
+                <hr />
+
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>
+                      Use of client tracking and termination form for client
+                      tracking (Review for completeness, <br /> consistency of
+                      documentation, availability of forms in folder)
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+
+                <FormInput name="comment" label="Comment" />
+
+                <hr />
+
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>
+                      ART patient tracking documentation is complete and shows
+                      outcomes for all clients <br /> tracked at the end of the
+                      tracking period (28 days).
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+
+                <FormInput name="comment" label="Comment" />
+
+                <hr />
+
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>
+                      Check consistency of tracking outcome documented on the
+                      EMR. Review records of all tracking done within the last
+                      month, compare EMR documentation with register.
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+
+                <FormInput name="comment" label="Comment" />
+
+                <hr />
+
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>
+                      Does each case manager have their updated missed,
+                      defaulter, refill and VL line lists? Review a sample of
+                      CMs
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+
+                <FormInput name="comment" label="Comment" />
+              </Card>
+
+              <Card className="space-y-3 border-yellow-600">
+                <h4 className="text-semibold text-yellow-600">TB/HIV</h4>
+                <h6>
+                  Verify the following: Where applicable review folders of TB
+                  cases in the last 3 months
+                </h6>
+
+                <div className="flex justify-between py-3 gap-5">
+                  <div className="">
+                    <h2>
+                      Review procedure for linking identified presumptive cases
+                      to GeneXpert/ Testing. How <br /> many presumptive cases
+                      in the last month? What proportion were successfully
+                      linked to <br />
+                      GeneXpert? If less than 100%, what are the challenges?
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+
+                <FormInput name="comment" label="Comment" />
+
+                <hr />
+
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>
+                      Review all TB cases to ensure they have documented HIV
+                      status. Assess reason for <br /> gaps if any. Where is the
+                      HIV test result documented? Review TB treatment card.{" "}
+                      <br /> Review central TB register
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+
+                <FormInput name="comment" label="Comment" />
+
+                <hr />
+
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>
+                      Is there 100% linkage of TB_STAT_POS to ART? If less than
+                      100%, identify reasons for <br /> gap.
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+
+                <FormInput name="comment" label="Comment" />
+
+                <hr />
+
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>
+                      The facility achieved at least 90% IPT completion rate for
+                      PLHIV started on INH in <br /> the last 6-8moonths -
+                      review INH register
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+
+                <FormInput name="comment" label="Comment" />
+              </Card>
+
+              <Card className="space-y-3 border-yellow-600">
+                <h4 className="text-semibold text-yellow-600">
+                  Advanced HIV Disease
+                </h4>
+                <h6>Verify folder for AHD clients (CD4 &#60;200)</h6>
+
+                <div className="flex justify-between py-3 gap-5">
+                  <div className="">
+                    <h2>
+                      WHO clinical staging is done for all newly diagnosed
+                      patients at the facility
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+
+                <FormInput name="comment" label="Comment" />
+
+                <hr />
+
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>
+                      What proportion of AHD clients have TB-LAM on the date of
+                      enrolment?
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>_LAM positive individuals referred for GeneXpert?</h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>
+                      Same day initiation to TB treatment? Are there gaps in
+                      linkage to TB treatment? What <br /> are the challenges?
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+
+                <FormInput name="comment" label="Comment" />
+
+                <hr />
+
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>
+                      Has CrAG done for all confirmed AHD clients? If less than
+                      100%, explore reasons for gap
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-between pb-3 gap-5">
+                  <div className="">
+                    <h2>
+                      Management of CrAG positive clients? Review folder and
+                      records
+                    </h2>
+                  </div>
+                  <div className="flex gap-5 justify-between w-1/5">
+                    <div className="flex gap-2 items-center text-green-500">
+                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
+                      <h6>Yes</h6>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <h6>No</h6>
+                    </div>
+                  </div>
+                </div>
+
+                <FormInput name="comment" label="Comment" />
               </Card>
             </Card>
           </form>
@@ -492,7 +1038,7 @@ const ServiceDelivery = () => {
         >
           <ArrowLeft size={15} /> Back
         </Button>
-        <Link to={RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_SERVICE_DELIVERY}>
+        <Link to={RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_PREVENTION}>
           <Button className="px-8">Next</Button>
         </Link>
       </div>

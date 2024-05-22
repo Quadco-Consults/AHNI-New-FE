@@ -1,4 +1,4 @@
-import SuccessProcess from "assets/imgs/successful-process.png";
+import SuccessProcess from "assets/imgs/successful.png";
 import { Button } from "components/ui/button";
 import { RouteEnum } from "constants/RouterConstants";
 import { useAppDispatch } from "hooks/useStore";
@@ -14,6 +14,7 @@ const SuccessModal = () => {
 
     dispatch(closeDialog());
   };
+
   return (
     <div className="text-center space-y-5">
       <img className="mx-auto" src={SuccessProcess} alt="success" width={150} />
