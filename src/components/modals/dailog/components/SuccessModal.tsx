@@ -1,4 +1,4 @@
-import SuccessProcess from "assets/imgs/successful.png";
+import successProcess from "assets/imgs/successful.png";
 import { Button } from "components/ui/button";
 import { RouteEnum } from "constants/RouterConstants";
 import { useAppDispatch } from "hooks/useStore";
@@ -17,7 +17,7 @@ const SuccessModal = () => {
 
   return (
     <div className="text-center space-y-5">
-      <img className="mx-auto" src={SuccessProcess} alt="success" width={150} />
+      <img className="mx-auto" src={successProcess} alt="success" width={150} />
       <h4>supervision plan have been successfully created</h4>
 
       <Button onClick={handleCloseDailog}>Back to SSP</Button>
