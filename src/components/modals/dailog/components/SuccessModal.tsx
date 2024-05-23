@@ -18,7 +18,7 @@ const SuccessModal = () => {
   return (
     <div className="text-center space-y-5">
       <img className="mx-auto" src={successProcess} alt="success" width={150} />
-      <h4>supervision plan have been successfully created.</h4>
+      <h4>supervision plan have been successfully created</h4>
 
       <Button onClick={handleCloseDailog}>Back to SSP</Button>
     </div>
