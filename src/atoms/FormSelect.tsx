@@ -46,7 +46,7 @@ const FormSelect: FC<SelectProps> = ({
             <FormLabel className="font-semibold -mb-1">
               {label}
               {required && (
-                <span className="text-red-500" title="required">
+                <span className="text-red-500 " title="required">
                   *
                 </span>
               )}
