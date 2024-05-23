@@ -6,18 +6,6 @@ import viteSvgr from "vite-plugin-svgr";
 
 export default defineConfig({
   plugins: [react(), viteSvgr()],
-  build: {
-    sourcemap: true,
-    rollupOptions: {
-      onwarn(warning, defaultHandler) {
-        if (warning.code === "SOURCEMAP_ERROR") {
-          return;
-        }
-
-        defaultHandler(warning);
-      },
-    },
-  },
   resolve: {
     alias: {
       components: path.resolve(__dirname, "src/components"),
