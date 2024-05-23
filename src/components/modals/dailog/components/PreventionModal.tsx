@@ -26,7 +26,7 @@ const PreventionModal = () => {
       <h4>
         You have successfully submitted the SSP evaluation, the <br />{" "}
         designated signatories will give their consent before the final <br />{" "}
-        approval, this can take up to 3 working days
+        approval, this can take up to 3 working days.
       </h4>
 
       <div className="flex justify-between gap-5 mt-16">
