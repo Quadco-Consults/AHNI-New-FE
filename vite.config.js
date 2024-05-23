@@ -19,7 +19,6 @@ export default defineConfig({
     },
   },
   resolve: {
-    sourcemap: true,
     alias: {
       components: path.resolve(__dirname, "src/components"),
       molecules: path.resolve(__dirname, "src/molecules"),
