@@ -1,20 +1,21 @@
+export const AdminRoutes = {
+  OVERVIEW: "/admin/overview",
+  CONSUMABLES: "/admin/inventory-managment/consumables",
+  ASSETS: "/admin/inventory-managment/assets",
+  CREateConsumables: "/admin/inventory-managment/create-consumables",
+};
+
 export const RouteEnum = {
   // procurement routes
   DASHBOARD: "/",
 
-
   OVERVIEW: "/procurement-management/overview",
-
 
   COMPETITIVE_ANALYSIS: "/procurement-management/competitive-bid-analysis/CBA",
   COMPETITIVE_SELECTION:
     "/procurement-management/competitive-bid-analysis/selection",
 
-
-
   PAYMENT_REQUEST: "/procurement-management/payment-request",
-
-
 
   PURCHASE_REQUEST: "/procurement-management/purchase-request",
   PURCHASE_REQUEST_DETAILS: "/procurement-management/purchase-request/:id",
@@ -27,7 +28,6 @@ export const RouteEnum = {
   PROCUREMENT_TRACKER: "/procurement-management/procurement-tracker",
   REPORT: "/procurement-management/report",
 
-
   RFQ: "/procurement-management/solicitation/rfq",
   RFQ_DETAILS: "/procurement-management/solicitation/rfq/:id",
   RFQ_COMPETITIVE_BID_ANALYSIS:
@@ -37,9 +37,7 @@ export const RouteEnum = {
   OPEN_TENDER: "/procurement-management/solicitation/national-open-tender",
   SINGLE_SOURCING: "/procurement-management/solicitation/single-sourcing",
 
-
   RFQ_VENDOR: "/procurement-management/rfq-vendor",
-
 
   EOI: "/procurement-management/vendor-management/eoi",
   EOI_VIEW: "/procurement-management/vendor-management/eoi/view",
