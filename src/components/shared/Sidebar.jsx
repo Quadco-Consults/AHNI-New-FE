@@ -3,7 +3,7 @@ import { useState } from "react";
 import logoSvg from "assets/svgs/logo-bg.svg";
 import { NavLink, useLocation } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
-import { AdminRoutes, RouteEnum } from "constants/RouterConstants";
+import { RouteEnum, AdminRoutes } from "constants/RouterConstants";
 import { Icon } from "@iconify/react";
 import { cn } from "lib/utils";
 import { motion } from "framer-motion";
@@ -310,26 +310,34 @@ const DEPARTMENTAL_LINKS = [
     path: "/program",
     icon: <ProgramsIcon />,
     link: [
-      { name: "Overview", path: "/" },
       {
         name: "Plans",
         sublinks: [
-          { name: "Work Plan", path: "/" },
-          { name: "Activity Plan", path: "/" },
-          { name: "Risk Management Plan", path: "/" },
-          { name: "Value Management Plan", path: "/" },
-          { name: "Supportive Supervision Plan", path: "/" },
+          { name: "Work Plan", path: RouteEnum.PROGRAM_WORK_PLAN },
+          { name: "Activity Plan", path: RouteEnum.PROGRAM_ACTIVITY },
+          {
+            name: "Risk Management Plan",
+            path: RouteEnum.PROGRAM_RISK_MANAGEMENT,
+          },
+          {
+            name: "Value Management Plan",
+            path: RouteEnum.PROGRAM_RISK_MANAGEMENT,
+          },
+          {
+            name: "Supportive Supervision Plan",
+            path: RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION,
+          },
         ],
       },
-      { name: "Fund Request", path: "/" },
-      { name: "Reports", path: "/" },
-      {
-        name: "Stakeholder Management",
-        sublinks: [
-          { name: "Analysis/Mapping", path: "/" },
-          { name: "Engagement Plan", path: "/" },
-        ],
-      },
+      { name: "Fund Request", path: RouteEnum.PROGRAM_FUND_REQUEST },
+      { name: "Reports", path: RouteEnum.PROGRAM_REPORT },
+      // {
+      //   name: 'Stakeholder Management',
+      //   sublinks: [
+      //     { name: 'Analysis/Mapping', path: '/' },
+      //     { name: 'Engagement Plan', path: '/' },
+      //   ],
+      // },
     ],
   },
   {

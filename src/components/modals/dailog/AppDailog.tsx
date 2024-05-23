@@ -5,10 +5,24 @@ import { ReactNode } from "react";
 import { DialogType } from "constants/dailogs";
 import CategoriesModal from "./components/CategoriesModal";
 import PriceModal from "./components/PriceModal";
+import ChecklistModal from "./components/ChecklistModal";
+import WorkPlanUploadModal from "./components/WorkPlanUploadModal";
+import ActivityUploadModal from "./components/ActivityUploadModal";
+import SspUploadModal from "./components/SspUploadModal";
+import SspApproveModal from "./components/SspApproveModal";
+import SuccessModal from "./components/SuccessModal";
+import PreventionModal from "./components/PreventionModal";
 
 const sheets: Record<string, ReactNode> = {
   [DialogType.Categories]: <CategoriesModal />,
   [DialogType.PriceInteligence]: <PriceModal />,
+  [DialogType.Checklist]: <ChecklistModal />,
+  [DialogType.WorkPlanUpload]: <WorkPlanUploadModal />,
+  [DialogType.ActivityUpload]: <ActivityUploadModal />,
+  [DialogType.SspUpload]: <SspUploadModal />,
+  [DialogType.SspApproveModal]: <SspApproveModal />,
+  [DialogType.SuccessModal]: <SuccessModal />,
+  [DialogType.PreventionModal]: <PreventionModal />,
 };
 
 const AppDailog = () => {

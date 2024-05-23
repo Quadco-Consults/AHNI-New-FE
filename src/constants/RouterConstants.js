@@ -62,14 +62,43 @@ export const RouteEnum = {
   PRICE_INTELLIGENCE: "/procurement-management/price-intelligence",
   SUPPLIER_DATABASE: "/procurement-management/supplier-database",
   //program routes
-  PROGRAM_OVERVIEW: "/program/overview",
-  WORK_PLAN: "/program/work-plan",
-  WORK_PLAN_AUDIT: "/program/work-plan-audit",
-  DONOR_MANAGEMENT: "/program/donor-management",
+  PROGRAM_WORK_PLAN: "/program/plan/work plan",
+  PROGRAM_WORK_PLAN_DETAILS: "/program/plan/work plan/:id",
+  PROGRAM_ACTIVITY: "/program/plan/activity",
+  PROGRAM_RISK_MANAGEMENT: "/program/plan/risk management plan",
+  PROGRAM_VALUE_MANAGEMENT: "/program/plan/value management plan",
+  PROGRAM_SUPPORTIVE_SUPERVISION: "/program/plan/supportive supervision plan",
+  PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS:
+    "/program/plan/supportive supervision plan/:id",
+  PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS_APPROVAL:
+    "/program/plan/supportive supervision plan/:id/approval status",
+  PROGRAM_SUPPORTIVE_SUPERVISION_MANAGEMENT:
+    "/program/plan/supportive supervision plan/:id/core management systems",
+  PROGRAM_SUPPORTIVE_SUPERVISION_GUIDELINE:
+    "/program/plan/supportive supervision plan/:id/guideline",
+  PROGRAM_SUPPORTIVE_SUPERVISION_MONITORING:
+    "/program/plan/supportive supervision plan/:id/monitoring and evaluation",
+  PROGRAM_SUPPORTIVE_SUPERVISION_ASSESS:
+    "/program/plan/supportive supervision plan/:id/assess monthly",
+  PROGRAM_SUPPORTIVE_SUPERVISION_TX_NEW:
+    "/program/plan/supportive supervision plan/:id/tx new",
+  PROGRAM_SUPPORTIVE_SUPERVISION_SERVICE_DELIVERY:
+    "/program/plan/supportive supervision plan/:id/service delivery",
+  PROGRAM_SUPPORTIVE_SUPERVISION_PREVENTION:
+    "/program/plan/supportive supervision plan/:id/prevention",
+
+  PROGRAM_SUPPORTIVE_SUPERVISION_COMPOSITION:
+    "/program/plan/supportive supervision plan/create/facility&team-composition",
+  PROGRAM_SUPPORTIVE_SUPERVISION_CHECKLIST:
+    "/program/plan/supportive supervision plan/create/evolution-checklist",
+  PROGRAM_FUND_REQUEST: "/program/fund request",
+  PROGRAM_FUND_REQUEST_DETAILS: "/program/fund request/:id",
+  PROGRAM_REPORT: "/program/reports",
+  //projects routes
   PROJECTS: "/program/projects",
   TRAINING: "/program/training-and-procurement",
   PROGRAM_PAYMENT_REQUEST: "/program/payment-request",
-  PROGRAM_REPORT: "/program/report",
+
   // PROGRAM_OVERVIEW: "/program/overview",
   // PROGRAM_OVERVIEW: "/program/overview",
 };

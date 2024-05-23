@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "components/ui/dialog";
-import SuccessProcess from "assets/imgs/successful-process.png";
+// import SuccessProcess from "assets/imgs/successful-process.png";
 import { useNavigate } from "react-router-dom";
 import { Button } from "components/ui/button";
 
@@ -23,7 +23,7 @@ const SuccessModal = ({ isOpen, onClose }: Props) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-1/3 h-[60dvh] space-y-4 flex flex-col items-center justify-center overflow-hidden p-4">
-        <img src={SuccessProcess} alt="" className="w-[12rem]" />
+        {/* <img src={SuccessProcess} alt="" className="w-[12rem]" /> */}
         <DialogDescription>
           Your request has been submitted successfully.
         </DialogDescription>

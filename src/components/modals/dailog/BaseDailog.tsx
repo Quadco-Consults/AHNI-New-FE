@@ -22,12 +22,14 @@ export function BaseDailog({ children }: { children: React.ReactNode }) {
       <DialogContent
         className={cn(
           dialogProps?.width ? `${dialogProps.width}` : "sm:max-w-[425px]",
-          dialogProps?.heigth && `${dialogProps.heigth}`
+          dialogProps?.height && `${dialogProps.height}`
         )}
       >
         {header ? (
-          <DialogHeader className="pb-4">
-            <DialogTitle className="font-semibold">{header}</DialogTitle>
+          <DialogHeader className="py-5">
+            <DialogTitle className="font-semibold text-center">
+              {header}
+            </DialogTitle>
           </DialogHeader>
         ) : undefined}
         {children}
