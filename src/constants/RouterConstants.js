@@ -5,6 +5,11 @@ export const AdminRoutes = {
   CREateConsumables: "/admin/inventory-managment/create-consumables",
   CreateAssets: "/admin/inventory-managment/create-assets",
   ViewAssets: "/admin/inventory-managment/view-assets",
+  VehicleRequest: "/admin/fleet-managment/vehichle-request",
+  VehicleMaitenance: "/admin/fleet-managment/vehicle-maintenance",
+  FuelConsumptions: "/admin/fleet-managment/fuel-request",
+  NewVehicleRequest: "/admin/fleet-managment/new-vehicle-request",
+  ViewVehicleRequest: "/admin/fleet-managment/view-vehicle",
 };
 
 export const RouteEnum = {

@@ -419,9 +419,15 @@ const DEPARTMENTAL_LINKS = [
       {
         name: "Fleet Management",
         sublinks: [
-          { name: "Vehicle request", path: "/" },
-          { name: "Vehicle maintenance ticket", path: "/" },
-          { name: "Fuel consumption record", path: "/" },
+          { name: "Vehicle request", path: AdminRoutes.VehicleRequest },
+          {
+            name: "Vehicle maintenance ticket",
+            path: AdminRoutes.VehicleMaitenance,
+          },
+          {
+            name: "Fuel consumption record",
+            path: AdminRoutes.FuelConsumptions,
+          },
         ],
       },
       { name: "Facility Management", path: "/" },
