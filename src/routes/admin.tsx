@@ -32,4 +32,36 @@ export const adminRoutes = [
     path: AdminRoutes.ViewAssets,
     element: lazy(() => import("pages/protectedPages/admin/ViewAssets")),
   },
+  {
+    path: AdminRoutes.VehicleRequest,
+    element: lazy(
+      () => import("pages/protectedPages/admin/FleetManagment/VehicleRequest")
+    ),
+  },
+  {
+    path: AdminRoutes.VehicleMaitenance,
+    element: lazy(
+      () =>
+        import("pages/protectedPages/admin/FleetManagment/VehichleMaitanace")
+    ),
+  },
+  {
+    path: AdminRoutes.FuelConsumptions,
+    element: lazy(
+      () => import("pages/protectedPages/admin/FleetManagment/FuelConsumption")
+    ),
+  },
+  {
+    path: AdminRoutes.NewVehicleRequest,
+    element: lazy(
+      () =>
+        import("pages/protectedPages/admin/FleetManagment/NewVehicleRequest")
+    ),
+  },
+  {
+    path: AdminRoutes.ViewVehicleRequest,
+    element: lazy(
+      () => import("pages/protectedPages/admin/FleetManagment/ViewVehicle")
+    ),
+  },
 ];
