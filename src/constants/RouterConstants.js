@@ -3,6 +3,8 @@ export const AdminRoutes = {
   CONSUMABLES: "/admin/inventory-managment/consumables",
   ASSETS: "/admin/inventory-managment/assets",
   CREateConsumables: "/admin/inventory-managment/create-consumables",
+  CreateAssets: "/admin/inventory-managment/create-assets",
+  ViewAssets: "/admin/inventory-managment/view-assets",
 };
 
 export const RouteEnum = {

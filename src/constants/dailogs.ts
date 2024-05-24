@@ -8,10 +8,16 @@ export const DialogType = {
   SspApproveModal: "SspApproveModal",
   SuccessModal: "SuccessModal",
   PreventionModal: "PreventionModal",
+  AssestAction: "AssestAction",
 };
 
 export const largeDailogScreen = {
   width: "max-w-6xl ",
+  height: "max-h-[700px]",
+};
+
+export const mediumDailogScreen = {
+  width: "max-w-2xl",
   height: "max-h-[700px]",
 };
 

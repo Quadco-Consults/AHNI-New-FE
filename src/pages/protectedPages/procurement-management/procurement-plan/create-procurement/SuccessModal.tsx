@@ -1,17 +1,11 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription } from "components/ui/dialog";
 // import SuccessProcess from "assets/imgs/successful-process.png";
 import { useNavigate } from "react-router-dom";
 import { Button } from "components/ui/button";
 
 type Props = {
   onClose: () => void;
-  isOpen: () => void;
+  isOpen: boolean;
 };
 
 const SuccessModal = ({ isOpen, onClose }: Props) => {
