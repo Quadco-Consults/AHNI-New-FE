@@ -9,6 +9,7 @@ export const DialogType = {
   SuccessModal: "SuccessModal",
   PreventionModal: "PreventionModal",
   AssestAction: "AssestAction",
+  FundRequestModal: "FundRequestModal",
 };
 
 export const largeDailogScreen = {

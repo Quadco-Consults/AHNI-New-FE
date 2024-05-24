@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import Card from "components/shared/Card";
 import Summary from "./Summary";
-import Activity from "./activity";
 import { Button } from "components/ui/button";
+import FundSummary from "./Fund-summary";
 
 const FundRequestDetail = () => {
   const navigate = useNavigate();
@@ -39,7 +39,7 @@ const FundRequestDetail = () => {
           </Card>
         </TabsContent>
         <TabsContent value="fund Request Summary">
-          <Activity />
+          <FundSummary />
         </TabsContent>
       </Tabs>
     </div>
