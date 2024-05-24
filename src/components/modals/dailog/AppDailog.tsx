@@ -12,6 +12,7 @@ import SspUploadModal from "./components/SspUploadModal";
 import SspApproveModal from "./components/SspApproveModal";
 import SuccessModal from "./components/SuccessModal";
 import PreventionModal from "./components/PreventionModal";
+import FundRequestModal from "./components/FundRequestModal";
 
 const sheets: Record<string, ReactNode> = {
   [DialogType.Categories]: <CategoriesModal />,
@@ -23,6 +24,7 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.SspApproveModal]: <SspApproveModal />,
   [DialogType.SuccessModal]: <SuccessModal />,
   [DialogType.PreventionModal]: <PreventionModal />,
+  [DialogType.FundRequestModal]: <FundRequestModal />,
 };
 
 const AppDailog = () => {

@@ -1,7 +1,10 @@
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
+import { DialogType } from "constants/dailogs";
+import { useAppDispatch } from "hooks/useStore";
 import useTable from "hooks/useTables";
 import Table from "lib/react-table/Table";
+import { openDialog } from "store/ui";
 
 const FundSummary = () => {
   const tableInstance = useTable({
@@ -76,23 +79,23 @@ const columns = [
 ];
 
 const ActionListAction = ({ data }: any) => {
+  const dispatch = useAppDispatch();
   console.log(data);
   return (
     <Button
       className="flex gap-2 py-6"
       variant="ghost"
       type="button"
-      //   onClick={() => {
-      //     dispatch(
-      //       openDialog({
-      //         type: DialogType.WorkPlanUpload,
-      //         dialogProps: {
-      //           header: "Upload New Work plan",
-      //           width: "max-w-2xl",
-      //         },
-      //       })
-      //     );
-      //   }}
+      onClick={() => {
+        dispatch(
+          openDialog({
+            type: DialogType.FundRequestModal,
+            dialogProps: {
+              width: "max-w-2xl",
+            },
+          })
+        );
+      }}
     >
       View
     </Button>
