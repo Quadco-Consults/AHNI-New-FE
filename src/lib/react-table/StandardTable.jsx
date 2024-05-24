@@ -20,7 +20,7 @@ function StandardTable(props) {
 StandardTable.defaultProps = {
   variant: "default",
   header: true,
-  footer: false,
+  footer: true,
   pagination: true,
   flexRender,
   renderRoot,
