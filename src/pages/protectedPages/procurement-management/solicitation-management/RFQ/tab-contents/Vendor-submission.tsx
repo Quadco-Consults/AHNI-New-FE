@@ -4,23 +4,25 @@ import Card from "components/shared/Card";
 import IconButton from "components/shared/IconButton";
 import { Badge } from "components/ui/badge";
 import { Checkbox } from "components/ui/checkbox";
-import useTable from "hooks/useTable";
-import Table from "lib/react-table/Table";
 import { cn } from "lib/utils";
 import { Button } from "components/ui/button";
 import { Input } from "components/ui/input";
 import { Link, generatePath } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
+import DataTable from "components/Table/DataTable";
+import { ColumnDef } from "@tanstack/react-table";
+
+type Data = {
+  name: string;
+  number: number;
+  email: string;
+  products: string;
+  status: string;
+  prequalification: string;
+  isSelected: boolean;
+};
 
 const VendorSubmission = () => {
-  const tableInstance = useTable({
-    columns,
-    data,
-    //  state: { pagination },
-    //  pageCount: customersQueryResult?.data?.number_of_pages,
-    //  manualPagination: true,
-    //  onPaginationChange: setPagination,
-  });
   return (
     <div className="space-y-10">
       <Card className="space-y-10">
@@ -37,10 +39,7 @@ const VendorSubmission = () => {
           <Link
             to={generatePath(RouteEnum.RFQ_DETAILS_BID_SUBMISSION, { id: "1" })}
           >
-            <Button
-              variant="filter"
-              className="bg-[#FFF2F2] gap-2 text-primary"
-            >
+            <Button variant="ghost" className="bg-[#FFF2F2] gap-2 text-primary">
               <svg
                 width="24"
                 height="24"
@@ -67,12 +66,7 @@ const VendorSubmission = () => {
           </Link>
         </div>
 
-        <Table
-          instance={tableInstance}
-          // loading={customersQueryResult.isFetching}
-          // error={customersQueryResult.isError}
-          // onReload={customersQueryResult.refetch}
-        />
+        <DataTable data={data} columns={columns} />
       </Card>
     </div>
   );
@@ -80,7 +74,7 @@ const VendorSubmission = () => {
 
 export default VendorSubmission;
 
-const columns = [
+const columns: ColumnDef<Data>[] = [
   {
     id: "select",
     size: 50,
@@ -128,12 +122,12 @@ const columns = [
         <Badge
           className={cn(
             "px-3 py-2 rounded-lg",
-            getValue() === "Pass" && "bg-green-light text-green-dark",
-            getValue() === "Fail" && "bg-red-light text-red-dark",
-            getValue() === "Unreviewed" && "bg-yellow-light text-yellow-dark"
+            getValue() === "Pass" && "bg-green-50 text-green-500",
+            getValue() === "Fail" && "bg-red-50 text-red-500",
+            getValue() === "Unreviewed" && "bg-yellow-50 text-yellow-500"
           )}
         >
-          {getValue()}
+          {getValue() as string}
         </Badge>
       );
     },
@@ -146,12 +140,12 @@ const columns = [
         <Badge
           className={cn(
             "px-3 py-2 rounded-lg",
-            getValue() === "Pass" && "bg-green-light text-green-dark",
-            getValue() === "Fail" && "bg-red-light text-red-dark",
-            getValue() === "Unreviewed" && "bg-yellow-light text-yellow-dark"
+            getValue() === "Pass" && "bg-green-50 text-green-500",
+            getValue() === "Fail" && "bg-red-50 text-red-500",
+            getValue() === "Unreviewed" && "bg-yellow-50 text-yellow-500"
           )}
         >
-          {getValue()}
+          {getValue() as string}
         </Badge>
       );
     },
@@ -163,7 +157,8 @@ const columns = [
   },
 ];
 
-const ActionListAction = () => {
+const ActionListAction = ({ data }: any) => {
+  console.log(data);
   return (
     <div className="flex gap-2">
       <Link to={generatePath(RouteEnum.VENDOR_MANAGEMENT_DETAILS, { id: "1" })}>
@@ -178,23 +173,6 @@ const ActionListAction = () => {
   );
 };
 
-// const VendorAction = ({ data }) => {
-//   return (
-//     <div className="flex gap-3">
-//       <div>
-//         <Avatar>
-//           <AvatarImage src={data.vendor.png} />
-//           <AvatarFallback>{data.vendor.name}</AvatarFallback>
-//         </Avatar>
-//       </div>
-//       <div>
-//         <h4 className="font-bold">{data.vendor.name}</h4>
-//         <h6>{data.vendor.desc}</h6>
-//       </div>
-//     </div>
-//   );
-// };
-
 const data = [
   {
     name: "Medical Supplies Ltd.",
@@ -203,6 +181,7 @@ const data = [
     products: "MEDICAL EQUIPMENT, SURGICAL TOOLS",
     status: "Pass",
     prequalification: "Pass",
+    isSelected: false,
   },
   {
     name: "Naija Labs & Co.",
@@ -211,6 +190,7 @@ const data = [
     products: "Diagnostic kits, laboratory equipment",
     status: "Unreviewed",
     prequalification: "Pass",
+    isSelected: false,
   },
   {
     name: "HealthTech Nigeria",
@@ -219,6 +199,7 @@ const data = [
     products: "Healthcare software, patient management systems",
     status: "Pass",
     prequalification: "Pass",
+    isSelected: false,
   },
   {
     name: "Medical Supplies Ltd.",
@@ -227,6 +208,7 @@ const data = [
     products: "MEDICAL EQUIPMENT, SURGICAL TOOLS",
     status: "Fail",
     prequalification: "Pass",
+    isSelected: false,
   },
   {
     name: "Naija Labs & Co.",
@@ -235,6 +217,7 @@ const data = [
     products: "Diagnostic kits, laboratory equipment",
     status: "Unreviewed",
     prequalification: "Pass",
+    isSelected: false,
   },
   {
     name: "HealthTech Nigeria",
@@ -243,5 +226,6 @@ const data = [
     products: "Healthcare software, patient management systems",
     status: "Pass",
     prequalification: "Pass",
+    isSelected: false,
   },
 ];

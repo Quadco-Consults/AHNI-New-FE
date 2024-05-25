@@ -1,7 +1,5 @@
 import Card from "components/shared/Card";
 // import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import useTable from "hooks/useTables";
-import Table from "lib/react-table/Table";
 import { Button } from "components/ui/button";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import SearchIcon from "components/icons/SearchIcon";
@@ -11,6 +9,7 @@ import { useMemo } from "react";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
+import DataTable from "components/Table/DataTable";
 
 type ActivityPlanData = {
   name: string;
@@ -93,11 +92,6 @@ const ActivityPlan = () => {
     []
   );
 
-  const tableInstance = useTable({
-    columns,
-    data,
-  });
-
   return (
     <div className="space-y-5">
       <div className="flex justify-end">
@@ -135,12 +129,8 @@ const ActivityPlan = () => {
             <FilterIcon />
           </Button>
         </div>
-        <Table
-          instance={tableInstance}
-          // loading={customersQueryResult.isFetching}
-          // error={customersQueryResult.isError}
-          // onReload={customersQueryResult.refetch}
-        />
+
+        <DataTable data={data} columns={columns} />
       </Card>
     </div>
   );

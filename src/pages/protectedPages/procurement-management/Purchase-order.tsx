@@ -1,7 +1,6 @@
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
 import { PlusIcon } from "lucide-react";
-import useTable from "hooks/useTable";
 import { Checkbox } from "components/ui/checkbox";
 
 import { Input } from "components/ui/input";
@@ -10,7 +9,6 @@ import { RouteEnum } from "constants/RouterConstants";
 import IconButton from "components/shared/IconButton";
 
 import { cn } from "lib/utils";
-import Table from "lib/react-table/Table";
 import { CircleEllipsisIcon } from "lucide-react";
 import {
   DropdownMenu,
@@ -18,14 +16,26 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "components/ui/dropdown-menu";
+import { ColumnDef } from "@tanstack/react-table";
+import DataTable from "components/Table/DataTable";
 
-const data = [
+type Data = {
+  name: string;
+  number: number;
+  email: string;
+  products: string;
+  date: string;
+  isSelected: boolean;
+};
+
+const data: Data[] = [
   {
     name: "AHNI-010-002-ABJ-2023",
     number: +2348071234567,
     email: "contact@medsupplies.com.ng",
     products: "MEDICAL EQUIPMENT, SURGICAL TOOLS",
     date: "10/04/2023",
+    isSelected: false,
   },
   {
     name: "AHNI-010-002-ABJ-2023",
@@ -33,6 +43,7 @@ const data = [
     email: "info@naijalabs.com.ng",
     products: "Diagnostic kits, laboratory equipment",
     date: "10/04/2023",
+    isSelected: false,
   },
   {
     name: "AHNI-010-002-ABJ-2023",
@@ -40,6 +51,7 @@ const data = [
     email: "support@healthtechnigeria.com.ng",
     products: "Healthcare software, patient management systems",
     date: "10/04/2023",
+    isSelected: false,
   },
   {
     name: "AHNI-010-002-ABJ-2023.",
@@ -47,6 +59,7 @@ const data = [
     email: "contact@medsupplies.com.ng",
     products: "MEDICAL EQUIPMENT, SURGICAL TOOLS",
     date: "10/04/2023",
+    isSelected: false,
   },
   {
     name: "AHNI-010-002-ABJ-2023",
@@ -54,6 +67,7 @@ const data = [
     email: "info@naijalabs.com.ng",
     products: "Diagnostic kits, laboratory equipment",
     date: "10/04/2023",
+    isSelected: false,
   },
   {
     name: "AHNI-010-002-ABJ-2023",
@@ -61,37 +75,11 @@ const data = [
     email: "support@healthtechnigeria.com.ng",
     products: "Healthcare software, patient management systems",
     date: "10/04/2023",
+    isSelected: false,
   },
 ];
 
-const ActionListAction = () => {
-  return (
-    <div className="flex gap-2">
-      {/* <Link to={generatePath(RouteEnum.VENDOR_MANAGEMENT_DETAILS, { id: "1" })}>
-        <IconButton className="bg-[#F9F9F9] hover:text-primary">
-          <Icon icon="ph:eye-duotone" fontSize={15} />
-        </IconButton>
-      </Link>
-      <IconButton className="bg-[#F9F9F9] hover:text-primary">
-        <Icon icon="ant-design:delete-twotone" fontSize={15} />
-      </IconButton> */}
-      <DropdownMenu>
-        <DropdownMenuTrigger>
-          <IconButton>
-            <CircleEllipsisIcon />
-          </IconButton>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem>Item 1</DropdownMenuItem>
-          <DropdownMenuItem>Item 1</DropdownMenuItem>
-          <DropdownMenuItem>Item 1</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-  );
-};
-
-const columns = [
+const columns: ColumnDef<Data>[] = [
   {
     id: "select",
     size: 50,
@@ -135,30 +123,42 @@ const columns = [
     header: "Date Generated",
     accessorKey: "date",
     cell: ({ getValue }) => {
-      return <div className={cn("px-3 py-2 rounded-lg")}>{getValue()}</div>;
+      return (
+        <div className={cn("px-3 py-2 rounded-lg")}>{getValue() as string}</div>
+      );
     },
   },
-
   {
-    header: (
-      <IconButton>
-        <CircleEllipsisIcon />
-      </IconButton>
-    ),
+    // header: (
+    //   <IconButton>
+    //     <CircleEllipsisIcon />
+    //   </IconButton>
+    // ),
     id: "actions",
     cell: ({ row }) => <ActionListAction data={row.original} />,
   },
 ];
+const ActionListAction = ({ data }: any) => {
+  console.log(data);
+  return (
+    <div className="flex gap-2">
+      <DropdownMenu>
+        <DropdownMenuTrigger>
+          <IconButton>
+            <CircleEllipsisIcon />
+          </IconButton>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem>Item 1</DropdownMenuItem>
+          <DropdownMenuItem>Item 1</DropdownMenuItem>
+          <DropdownMenuItem>Item 1</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+};
 
 const PurchaseOrder = () => {
-  const tableInstance = useTable({
-    columns,
-    data,
-    //  state: { pagination },
-    //  pageCount: customersQueryResult?.data?.number_of_pages,
-    //  manualPagination: true,
-    //  onPaginationChange: setPagination,
-  });
   return (
     <div className="space-y-10">
       <div className="flex justify-end">
@@ -175,14 +175,8 @@ const PurchaseOrder = () => {
         <div>
           <Input type="Search" placeholder="search" className="w-[30%]" />
         </div>
-        <div>
-          <Table
-            instance={tableInstance}
-            // loading={customersQueryResult.isFetching}
-            // error={customersQueryResult.isError}
-            // onReload={customersQueryResult.refetch}
-          />
-        </div>
+
+        <DataTable data={data} columns={columns} />
       </Card>
     </div>
   );

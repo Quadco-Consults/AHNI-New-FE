@@ -1,8 +1,6 @@
 import { Link, generatePath } from "react-router-dom";
 import Card from "components/shared/Card";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import useTable from "hooks/useTable";
-import Table from "lib/react-table/Table";
 import { Button } from "components/ui/button";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import ArrowDownIcon from "components/icons/ArrowDownIcon";
@@ -12,11 +10,18 @@ import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIco
 import { RouteEnum } from "constants/RouterConstants";
 import EyeIcon from "components/icons/EyeIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
+import { ColumnDef } from "@tanstack/react-table";
+import DataTable from "components/Table/DataTable";
 
-// type Props = {}
+type Data = {
+  budgetLine: string;
+  owner: string;
+  approvedBudget: string;
+  responsiblePRStaff: string;
+};
 
 function ProcurementPlan() {
-  const columns = [
+  const columns: ColumnDef<Data>[] = [
     {
       header: "Budget Line",
       accessorKey: "budgetLine",
@@ -44,7 +49,8 @@ function ProcurementPlan() {
     },
   ];
 
-  const ActionListAction = () => {
+  const ActionListAction = ({ data }: any) => {
+    console.log(data);
     return (
       <div className="flex items-center gap-2">
         <>
@@ -83,7 +89,7 @@ function ProcurementPlan() {
     );
   };
 
-  const data = [
+  const data: Data[] = [
     {
       budgetLine: "1",
       owner: "AHNi",
@@ -157,15 +163,6 @@ function ProcurementPlan() {
       responsiblePRStaff: "M&E Team Lead",
     },
   ];
-
-  const tableInstance = useTable({
-    columns,
-    data,
-    //  state: { pagination },
-    //  pageCount: customersQueryResult?.data?.number_of_pages,
-    //  manualPagination: true,
-    //  onPaginationChange: setPagination,
-  });
 
   return (
     <section className="min-h-screen space-y-8">
@@ -215,12 +212,8 @@ function ProcurementPlan() {
             <FilterIcon />
           </Button>
         </div>
-        <Table
-          instance={tableInstance}
-          // loading={customersQueryResult.isFetching}
-          // error={customersQueryResult.isError}
-          // onReload={customersQueryResult.refetch}
-        />
+
+        <DataTable data={data} columns={columns} />
       </Card>
     </section>
   );

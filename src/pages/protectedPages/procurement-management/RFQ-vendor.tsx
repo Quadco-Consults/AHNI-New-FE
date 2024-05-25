@@ -1,7 +1,5 @@
 import { Checkbox } from "components/ui/checkbox";
 import Card from "components/shared/Card";
-import useTable from "hooks/useTable";
-import Table from "lib/react-table/Table";
 import { cn } from "lib/utils";
 import { Badge } from "components/ui/badge";
 import IconButton from "components/shared/IconButton";
@@ -34,16 +32,19 @@ import {
 import { EOIFormSchema } from "utils/Validator";
 import { Button } from "components/ui/button";
 import { Input } from "components/ui/input";
+import { ColumnDef } from "@tanstack/react-table";
+import DataTable from "components/Table/DataTable";
+
+type Data = {
+  ref: string;
+  requisition: string;
+  vendor_responses: string;
+  amount: number;
+  evaluation_status: string;
+  isSelected: boolean;
+};
 
 const RFQVendor = () => {
-  const tableInstance = useTable({
-    columns,
-    data,
-    //  state: { pagination },
-    //  pageCount: customersQueryResult?.data?.number_of_pages,
-    //  manualPagination: true,
-    //  onPaginationChange: setPagination,
-  });
   return (
     <div className="space-y-10">
       <div>
@@ -59,21 +60,14 @@ const RFQVendor = () => {
       <Card className="space-y-10">
         <h4 className="text-base font-bold">Vendor Submissions</h4>
 
-        <div className=" overflow-auto">
-          <Table
-            instance={tableInstance}
-            // loading={customersQueryResult.isFetching}
-            // error={customersQueryResult.isError}
-            // onReload={customersQueryResult.refetch}
-          />
-        </div>
+        <DataTable data={data} columns={columns} />
       </Card>
     </div>
   );
 };
 
 export default RFQVendor;
-const columns = [
+const columns: ColumnDef<Data>[] = [
   {
     id: "select",
     size: 50,
@@ -125,11 +119,11 @@ const columns = [
           className={cn(
             "p-1 rounded-lg",
             getValue() === "Approved"
-              ? "bg-green-light text-green-dark"
-              : "bg-red-light text-red-dark"
+              ? "bg-green-50 text-green-500"
+              : "bg-red-50 text-red-500"
           )}
         >
-          {getValue()}
+          {getValue() as string}
         </Badge>
       );
     },
@@ -141,7 +135,8 @@ const columns = [
   },
 ];
 
-const ActionListAction = () => {
+const ActionListAction = ({ data }: any) => {
+  console.log(data);
   const formHook = useForm({
     resolver: zodResolver(EOIFormSchema),
     defaultValues: {
@@ -153,7 +148,7 @@ const ActionListAction = () => {
     },
   });
 
-  const onSubmit = (data) => {
+  const onSubmit = (data: any) => {
     console.log(data);
   };
 
@@ -178,7 +173,7 @@ const ActionListAction = () => {
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                   <FormField
                     control={formHook.control}
-                    name="ref"
+                    name="description"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Ref no</FormLabel>
@@ -195,7 +190,7 @@ const ActionListAction = () => {
                   />
                   <FormField
                     control={formHook.control}
-                    name="date"
+                    name="description"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Opening Date</FormLabel>
@@ -211,7 +206,7 @@ const ActionListAction = () => {
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                   <FormField
                     control={formHook.control}
-                    name="aquisition"
+                    name="description"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Requisition Name</FormLabel>
@@ -294,13 +289,14 @@ const ActionListAction = () => {
   );
 };
 
-const data = [
+const data: Data[] = [
   {
     ref: "REF001",
     requisition: "Office Supplies",
     vendor_responses: "ABC Supplies Ltd",
     amount: 9000,
     evaluation_status: "Rejected",
+    isSelected: false,
   },
   {
     ref: "REF002",
@@ -308,6 +304,7 @@ const data = [
     vendor_responses: "XYZ Tech Solutions",
     amount: 9000,
     evaluation_status: "Approved",
+    isSelected: false,
   },
   {
     ref: "REF003",
@@ -315,6 +312,7 @@ const data = [
     vendor_responses: "Furniture World",
     amount: 9000,
     evaluation_status: "Rejected",
+    isSelected: false,
   },
   {
     ref: "REF004",
@@ -322,5 +320,6 @@ const data = [
     vendor_responses: "Constructo Builders",
     amount: 9000,
     evaluation_status: "Approved",
+    isSelected: false,
   },
 ];

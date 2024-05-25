@@ -4,7 +4,7 @@ import React from "react";
 
 type IconButtonProps = {
   children: React.ReactNode;
-  className: string;
+  className?: string;
   onClick?: () => void;
 };
 

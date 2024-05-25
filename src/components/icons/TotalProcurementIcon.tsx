@@ -1,9 +1,12 @@
 type Props = {
   size?: string;
-  fillColor: string
+  fillColor?: string;
 };
 
-const TotalProcurementIcon = ({ size = '62', fillColor = 'currentColor' }: Props) => {
+const TotalProcurementIcon = ({
+  size = "62",
+  fillColor = "currentColor",
+}: Props) => {
   return (
     <svg
       width={size}
@@ -12,7 +15,7 @@ const TotalProcurementIcon = ({ size = '62', fillColor = 'currentColor' }: Props
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <rect x="0.5" y="0.5" width={size} height={size} rx="3.5" stroke='none' />
+      <rect x="0.5" y="0.5" width={size} height={size} rx="3.5" stroke="none" />
       <path
         opacity="0.4"
         fillRule="evenodd"

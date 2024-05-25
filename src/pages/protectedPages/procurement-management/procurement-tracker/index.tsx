@@ -1,41 +1,47 @@
-import Card from 'components/shared/Card';
-import useTable from 'hooks/useTable';
-import Table from 'lib/react-table/Table';
-import { Button } from 'components/ui/button';
-import SearchIcon from 'components/icons/SearchIcon';
-import FilterIcon from 'components/icons/FilterIcon';
-import TotalProcurementIcon from 'components/icons/TotalProcurementIcon';
-import OngoingProcurementIcon from 'components/icons/OngoingProcurementIcon';
-import CompletedProcurementIcon from 'components/icons/CompletedProcurementIcon';
+import Card from "components/shared/Card";
+import { Button } from "components/ui/button";
+import SearchIcon from "components/icons/SearchIcon";
+import FilterIcon from "components/icons/FilterIcon";
+import TotalProcurementIcon from "components/icons/TotalProcurementIcon";
+import OngoingProcurementIcon from "components/icons/OngoingProcurementIcon";
+import CompletedProcurementIcon from "components/icons/CompletedProcurementIcon";
+import DataTable from "components/Table/DataTable";
+import { ColumnDef } from "@tanstack/react-table";
 
-// type Props = {}
+type Data = {
+  budgetLine: string;
+  owner: string;
+  approvedBudget: string;
+  responsiblePRStaff: string;
+  progress: string;
+};
 
 function ProcurementTracker() {
-  const columns = [
+  const columns: ColumnDef<Data>[] = [
     {
-      header: 'Budget Line',
-      accessorKey: 'budgetLine',
+      header: "Budget Line",
+      accessorKey: "budgetLine",
       size: 150,
     },
     {
-      header: 'Owner',
-      accessorKey: 'owner',
+      header: "Owner",
+      accessorKey: "owner",
       size: 250,
     },
     {
-      header: 'Approved Budget ($)',
-      accessorKey: 'approvedBudget',
+      header: "Approved Budget ($)",
+      accessorKey: "approvedBudget",
       size: 250,
     },
     {
-      header: 'Responsible PR Staff',
-      accessorKey: 'responsiblePRStaff',
+      header: "Responsible PR Staff",
+      accessorKey: "responsiblePRStaff",
       size: 250,
     },
     {
-      header: 'Progress',
-      accessorKey: 'progress',
-      cell: ({ row }) => {
+      header: "Progress",
+      accessorKey: "progress",
+      cell: ({ row }: any) => {
         const progressPercentage = parseInt(row.original.progress); // Parse the progress string to an integer
         return <ProgressBar widthPercentage={progressPercentage} />;
       },
@@ -43,7 +49,7 @@ function ProcurementTracker() {
   ];
 
   // eslint-disable-next-line react/prop-types
-  const ProgressBar = ({ widthPercentage }) => {
+  const ProgressBar = ({ widthPercentage }: any) => {
     const progressBarStyle = {
       width: `${widthPercentage}%`,
     };
@@ -65,62 +71,53 @@ function ProcurementTracker() {
     );
   };
 
-  const data = [
+  const data: Data[] = [
     {
-      budgetLine: '1',
-      owner: 'AHNi',
-      approvedBudget: '204,375.79 ',
-      responsiblePRStaff: 'M&E Team Lead',
-      progress: '85%',
+      budgetLine: "1",
+      owner: "AHNi",
+      approvedBudget: "204,375.79 ",
+      responsiblePRStaff: "M&E Team Lead",
+      progress: "85%",
     },
     {
-      budgetLine: '1',
-      owner: 'AHNi',
-      approvedBudget: '204,375.79 ',
-      responsiblePRStaff: 'M&E Team Lead',
-      progress: '35%',
+      budgetLine: "1",
+      owner: "AHNi",
+      approvedBudget: "204,375.79 ",
+      responsiblePRStaff: "M&E Team Lead",
+      progress: "35%",
     },
     {
-      budgetLine: '1',
-      owner: 'AHNi',
-      approvedBudget: '204,375.79 ',
-      responsiblePRStaff: 'M&E Team Lead',
-      progress: '65%',
+      budgetLine: "1",
+      owner: "AHNi",
+      approvedBudget: "204,375.79 ",
+      responsiblePRStaff: "M&E Team Lead",
+      progress: "65%",
     },
     {
-      budgetLine: '1',
-      owner: 'AHNi',
-      approvedBudget: '204,375.79 ',
-      responsiblePRStaff: 'M&E Team Lead',
-      progress: '10%',
+      budgetLine: "1",
+      owner: "AHNi",
+      approvedBudget: "204,375.79 ",
+      responsiblePRStaff: "M&E Team Lead",
+      progress: "10%",
     },
     {
-      budgetLine: '1',
-      owner: 'AHNi',
-      approvedBudget: '204,375.79 ',
-      responsiblePRStaff: 'M&E Team Lead',
-      progress: '70%',
+      budgetLine: "1",
+      owner: "AHNi",
+      approvedBudget: "204,375.79 ",
+      responsiblePRStaff: "M&E Team Lead",
+      progress: "70%",
     },
     {
-      budgetLine: '1',
-      owner: 'AHNi',
-      approvedBudget: '204,375.79 ',
-      responsiblePRStaff: 'M&E Team Lead',
-      progress: '85%',
+      budgetLine: "1",
+      owner: "AHNi",
+      approvedBudget: "204,375.79 ",
+      responsiblePRStaff: "M&E Team Lead",
+      progress: "85%",
     },
   ];
 
-  const tableInstance = useTable({
-    columns,
-    data,
-    //  state: { pagination },
-    //  pageCount: customersQueryResult?.data?.number_of_pages,
-    //  manualPagination: true,
-    //  onPaginationChange: setPagination,
-  });
-
   // eslint-disable-next-line react/prop-types
-  const SummaryCard = ({ color, icon, title, value }) => {
+  const SummaryCard = ({ color, icon, title, value }: any) => {
     return (
       <div
         className={`text-primaryWhite relative flex h-[8rem] w-full select-none  items-center justify-between gap-5 rounded-md p-4`}
@@ -172,12 +169,8 @@ function ProcurementTracker() {
             <FilterIcon />
           </Button>
         </div>
-        <Table
-          instance={tableInstance}
-          // loading={customersQueryResult.isFetching}
-          // error={customersQueryResult.isError}
-          // onReload={customersQueryResult.refetch}
-        />
+
+        <DataTable data={data} columns={columns} />
       </Card>
     </section>
   );

@@ -2,7 +2,6 @@ import Footer from "components/shared/Footer";
 import Header from "components/shared/Header";
 import Sidebar from "components/shared/Sidebar";
 import Suspense from "components/shared/Suspense";
-
 import { cn } from "lib/utils";
 import { useMemo, useState } from "react";
 import { useRoutes } from "react-router-dom";
@@ -32,10 +31,7 @@ const ProtectedPage = () => {
             sidebarWidth === false ? "md:w-[81%]" : "md:w-[95%]"
           )}
         >
-          <Header
-            setSidebarWidth={setSidebarWidth}
-            sidebarWidth={sidebarWidth}
-          />
+          <Header sidebarWidth={sidebarWidth} />
           <Suspense>
             <main className="p-5 mt-20">{routes}</main>
           </Suspense>

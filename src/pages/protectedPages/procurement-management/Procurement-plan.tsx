@@ -26,8 +26,6 @@ import {
 } from "components/ui/form";
 import { Switch } from "components/ui/switch";
 import { Label } from "components/ui/label";
-import useTable from "hooks/useTable";
-import Table from "lib/react-table/Table";
 import { Checkbox } from "components/ui/checkbox";
 import IconButton from "components/shared/IconButton";
 import { Icon } from "@iconify/react";
@@ -36,17 +34,16 @@ import { FormDescription } from "components/ui/form";
 import { RFQFormSchema } from "utils/Validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { ColumnDef } from "@tanstack/react-table";
+import DataTable from "components/Table/DataTable";
 
+type Data = {
+  plan: string;
+  size: string;
+  upload_on: string;
+  isSelected: boolean;
+};
 const ProcurementPlan = () => {
-  const tableInstance = useTable({
-    columns,
-    data,
-    //  state: { pagination },
-    //  pageCount: customersQueryResult?.data?.number_of_pages,
-    //  manualPagination: true,
-    //  onPaginationChange: setPagination,
-  });
-
   const formHook = useForm({
     resolver: zodResolver(RFQFormSchema),
     defaultValues: {
@@ -55,7 +52,7 @@ const ProcurementPlan = () => {
     },
   });
 
-  const onSubmit = (data) => {
+  const onSubmit = (data: any) => {
     console.log(data);
   };
 
@@ -74,7 +71,7 @@ const ProcurementPlan = () => {
       <div className="flex items-center justify-end gap-4">
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="filter">
+            <Button variant="ghost">
               <span>
                 <svg
                   width="19"
@@ -224,7 +221,7 @@ const ProcurementPlan = () => {
                   >
                     <FormField
                       control={formHook.control}
-                      name="description"
+                      name="background"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Background</FormLabel>
@@ -252,12 +249,7 @@ const ProcurementPlan = () => {
           </Dialog>
         </div>
 
-        <Table
-          instance={tableInstance}
-          // loading={customersQueryResult.isFetching}
-          // error={customersQueryResult.isError}
-          // onReload={customersQueryResult.refetch}
-        />
+        <DataTable columns={columns} data={data} />
       </Card>
     </div>
   );
@@ -265,7 +257,7 @@ const ProcurementPlan = () => {
 
 export default ProcurementPlan;
 
-const columns = [
+const columns: ColumnDef<Data>[] = [
   {
     id: "select",
     size: 50,
@@ -315,7 +307,7 @@ const columns = [
               />
             </g>
           </svg>
-          <h6>{getValue()}</h6>
+          <h6>{getValue() as string}</h6>
         </div>
       );
     },
@@ -337,7 +329,8 @@ const columns = [
   },
 ];
 
-const ActionListAction = () => {
+const ActionListAction = ({ data }: any) => {
+  console.log(data);
   return (
     <div className="flex items-center gap-2">
       <IconButton className="bg-[#F9F9F9] hover:text-primary">
@@ -350,30 +343,35 @@ const ActionListAction = () => {
   );
 };
 
-const data = [
+const data: Data[] = [
   {
     plan: "AHNI 2023",
     size: "-",
     upload_on: "",
+    isSelected: false,
   },
   {
     plan: "AHNI 2022",
     size: "-",
     upload_on: "",
+    isSelected: false,
   },
   {
     plan: "AHNI 2021",
     size: "-",
     upload_on: "",
+    isSelected: false,
   },
   {
     plan: "AHNI 2020",
     size: "-",
     upload_on: "",
+    isSelected: false,
   },
   {
     plan: "AHNI 2023",
     size: "-",
     upload_on: "",
+    isSelected: false,
   },
 ];

@@ -1,8 +1,6 @@
 import { Link, generatePath } from "react-router-dom";
 import Card from "components/shared/Card";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import useTable from "hooks/useTables";
-import Table from "lib/react-table/Table";
 import { Button } from "components/ui/button";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import SearchIcon from "components/icons/SearchIcon";
@@ -22,6 +20,7 @@ import { useAppDispatch } from "hooks/useStore";
 import { DialogType } from "constants/dailogs";
 import { openDialog } from "store/ui";
 import UploadIcon from "components/icons/UploadIcon";
+import DataTable from "components/Table/DataTable";
 
 type WorkPlanData = {
   facility: string;
@@ -74,13 +73,13 @@ const SupportiveSupervisionPlan = () => {
               variant="default"
               className={cn(
                 "p-1 rounded-lg",
-                getValue() === "Approved" && "bg-green-light text-green-dark",
-                getValue() === "Reject" && "bg-red-light text-red-dark",
-                getValue() === "Pending" && "bg-yellow-200 text-yellow-dark",
-                getValue() === "On Hold" && "text-grey-light bg-grey-dark"
+                getValue() === "Approved" && "bg-green-100 text-green-500",
+                getValue() === "Reject" && "bg-red-100 text-red-500",
+                getValue() === "Pending" && "bg-yellow-100 text-yellow-500",
+                getValue() === "On Hold" && "text-gray-100 bg-gray-500"
               )}
             >
-              {getValue()}
+              {getValue() as string}
             </Badge>
           );
         },
@@ -168,11 +167,6 @@ const SupportiveSupervisionPlan = () => {
     );
   };
 
-  const tableInstance = useTable({
-    columns,
-    data,
-  });
-
   return (
     <div className="space-y-5">
       <div className="flex justify-end">
@@ -234,12 +228,8 @@ const SupportiveSupervisionPlan = () => {
             <FilterIcon />
           </Button>
         </div>
-        <Table
-          instance={tableInstance}
-          // loading={customersQueryResult.isFetching}
-          // error={customersQueryResult.isError}
-          // onReload={customersQueryResult.refetch}
-        />
+
+        <DataTable data={data} columns={columns} />
       </Card>
     </div>
   );
