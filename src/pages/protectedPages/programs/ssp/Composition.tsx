@@ -27,6 +27,7 @@ const Composition = () => {
     path += "/evolution-checklist";
     navigate(path);
   };
+
   return (
     <SupportiveSupervisionPlanLayout>
       <div className="px-3 ">

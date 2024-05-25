@@ -1,6 +1,13 @@
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "components/ui/accordion";
+
 const FundRequestModal = () => {
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 p-10">
       <div className="space-y-3">
         <h4 className="font-semibold text-yellow-600">AHNI Adamawa H/O</h4>
         <h3 className="font-semibold">Project Name</h3>
@@ -36,6 +43,37 @@ const FundRequestModal = () => {
           <h3 className="font-semibold">Financial Year</h3>
           <p className="text-sm text-gray-500">10/2022 - 09/2023</p>
         </div>
+      </div>
+
+      <hr />
+
+      <div className="space-y-3">
+        <h4 className="font-semibold text-yellow-600">Detailed Breakdown</h4>
+        <div className="flex justify-between gap-5 bg-[#DBDFE9] font-medium p-2">
+          <h4>Description of Activity</h4>
+          <div className="flex items-center gap-5">
+            <h4>QTY</h4>
+            <h4>Unit Cost</h4>
+            <h4>FRQ</h4>
+          </div>
+          <div className="flex items-center gap-5">
+            <h4>Requested Amount</h4>
+            <h4>Comment</h4>
+          </div>
+        </div>
+
+        <Accordion type="single" collapsible className="w-full">
+          {Array(3)
+            .fill({ description: "532100 - Consultants" })
+            .map((item, index) => (
+              <AccordionItem key={index} value={`item-${index}`}>
+                <AccordionTrigger>{item.description}</AccordionTrigger>
+                <AccordionContent>
+                  Yes. It adheres to the WAI-ARIA design pattern.
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+        </Accordion>
       </div>
     </div>
   );

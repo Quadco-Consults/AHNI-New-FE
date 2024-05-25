@@ -152,10 +152,12 @@ const FundRequest = () => {
   return (
     <div className="space-y-5">
       <div className="flex justify-end">
-        <Button className="flex gap-2 py-6">
-          <AddSquareIcon />
-          New Fund Request
-        </Button>
+        <Link to={RouteEnum.PROGRAM_FUND_REQUEST_PROJECT_DETAIL}>
+          <Button className="flex gap-2 py-6">
+            <AddSquareIcon />
+            New Fund Request
+          </Button>
+        </Link>
       </div>
 
       <Card className="space-y-5">
