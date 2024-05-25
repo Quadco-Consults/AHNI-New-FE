@@ -14,6 +14,7 @@ import SuccessModal from "./components/SuccessModal";
 import PreventionModal from "./components/PreventionModal";
 import AssestAction from "./components/AssestAction";
 import FundRequestModal from "./components/FundRequestModal";
+import StateModal from "./components/StateModal";
 
 const sheets: Record<string, ReactNode> = {
   [DialogType.Categories]: <CategoriesModal />,
@@ -27,6 +28,7 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.PreventionModal]: <PreventionModal />,
   [DialogType.AssestAction]: <AssestAction />,
   [DialogType.FundRequestModal]: <FundRequestModal />,
+  [DialogType.StateModal]: <StateModal />,
 };
 
 const AppDailog = () => {

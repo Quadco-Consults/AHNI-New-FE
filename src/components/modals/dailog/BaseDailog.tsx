@@ -21,6 +21,7 @@ export function BaseDailog({ children }: { children: React.ReactNode }) {
     <Dialog open={isOpen} onOpenChange={() => dispatch(closeDialog())}>
       <DialogContent
         className={cn(
+          "overflow-auto",
           dialogProps?.width ? `${dialogProps.width}` : "sm:max-w-[425px]",
           dialogProps?.height && `${dialogProps.height}`
         )}

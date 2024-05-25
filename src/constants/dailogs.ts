@@ -10,10 +10,11 @@ export const DialogType = {
   PreventionModal: "PreventionModal",
   AssestAction: "AssestAction",
   FundRequestModal: "FundRequestModal",
+  StateModal: "StateModal",
 };
 
 export const largeDailogScreen = {
-  width: "max-w-6xl ",
+  width: "max-w-6xl",
   height: "max-h-[700px]",
 };
 

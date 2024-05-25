@@ -98,4 +98,16 @@ export const program = [
       () => import("pages/protectedPages/programs/fund-request/id/index")
     ),
   },
+  {
+    path: RouteEnum.PROGRAM_FUND_REQUEST_PROJECT_DETAIL,
+    element: lazy(
+      () => import("pages/protectedPages/programs/fund-request/Project-details")
+    ),
+  },
+  {
+    path: RouteEnum.PROGRAM_FUND_REQUEST_FUND_SUMMARY,
+    element: lazy(
+      () => import("pages/protectedPages/programs/fund-request/Fund-summary")
+    ),
+  },
 ];
