@@ -9,7 +9,6 @@ import {
 import { Input } from "components/ui/input";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { Textarea } from "components/ui/textarea";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -27,7 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "components/ui/select";
-import { EOIFormSchema } from "utils/Validator";
+
 import eoiPng from "assets/imgs/rfq.png";
 import Card from "components/shared/Card";
 import { Icon } from "@iconify/react";
@@ -36,7 +35,6 @@ import { RouteEnum } from "constants/RouterConstants";
 
 const RFQ = () => {
   const formHook = useForm({
-    resolver: zodResolver(EOIFormSchema),
     defaultValues: {
       description: "",
       vendor_category: [],
@@ -56,18 +54,18 @@ const RFQ = () => {
         <h4 className="text-lg font-bold">Request For Quotations</h4>
         <h6>
           Procurement -{" "}
-          <span className="text-black font-medium dark:text-grey-dark">
+          <span className="font-medium text-black dark:text-grey-dark">
             Request For Quotations
           </span>
         </h6>
       </div>
 
       <div className="space-y-10 p-10 bg-white shadow-sm rounded-2xl dark:bg-[hsl(15,13%,6%)]">
-        <div className="flex justify-end items-center">
+        <div className="flex items-center justify-end">
           <div>
             <Dialog>
               <DialogTrigger>
-                <div className="flex items-center bg-primary text-primary-foreground rounded-md text-sm font-medium h-11 px-4 py-3 hover:bg-primary/90">
+                <div className="flex items-center px-4 py-3 text-sm font-medium rounded-md bg-primary text-primary-foreground h-11 hover:bg-primary/90">
                   <span>
                     <Plus size={15} />
                   </span>
@@ -229,7 +227,7 @@ const RFQ = () => {
                       </div>
 
                       {/* <div className="space-y-2">
-                        <h4 className=" font-medium">Category</h4>
+                        <h4 className="font-medium ">Category</h4>
                         {category.length > 0 ? (
                           <Badge className="py-2 rounded-lg bg-[#EBE8E1] text-black">
                             Medical Laboratory Consumables
@@ -238,12 +236,12 @@ const RFQ = () => {
                           <div>
                             <Dialog>
                               <DialogTrigger>
-                                <div className="rounded-lg px-2 py-2 text-yellow-darker border">
+                                <div className="px-2 py-2 border rounded-lg text-yellow-darker">
                                   Click to select categories that applies
                                 </div>
                               </DialogTrigger>
                               <DialogContent className="max-w-6xl max-h-[700px]">
-                                <DialogHeader className="text-center mt-10 space-y-5">
+                                <DialogHeader className="mt-10 space-y-5 text-center">
                                   <img
                                     src={logoPng}
                                     alt="logo"
@@ -260,7 +258,7 @@ const RFQ = () => {
                                   </DialogDescription>
                                 </DialogHeader>
                                 <div className="flex justify-center">
-                                  <div className="border w-1/2 py-2 px-4 flex items-center rounded-lg">
+                                  <div className="flex items-center w-1/2 px-4 py-2 border rounded-lg">
                                     <Input
                                       placeholder="Search Category"
                                       type="search"
@@ -340,14 +338,14 @@ const RFQ = () => {
                 <img src={eoiPng} alt="eoi" />
                 <h2 className="text-lg font-bold">{title}</h2>
 
-                <div className="flex gap-3 items-center">
+                <div className="flex items-center gap-3">
                   <Icon icon="ooui:reference" fontSize={18} /> <h6>{ref}</h6>
                 </div>
-                <div className="flex gap-3 items-center">
+                <div className="flex items-center gap-3">
                   <Icon icon="iconamoon:location-pin-duotone" fontSize={18} />
                   <h6>{location}</h6>
                 </div>
-                <div className="flex gap-3 items-center">
+                <div className="flex items-center gap-3">
                   <Icon
                     icon="solar:case-minimalistic-bold-duotone"
                     fontSize={18}

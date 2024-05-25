@@ -11,7 +11,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "components/ui/dialog";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -29,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "components/ui/select";
-import { EOIFormSchema } from "utils/Validator";
+
 import { Button } from "components/ui/button";
 import { Input } from "components/ui/input";
 import DataTable from "components/Table/DataTable";
@@ -51,7 +50,7 @@ const EOIVendor = () => {
         <h4 className="text-lg font-bold">EOI Vendor Submissions</h4>
         <h6>
           Procurement -{" "}
-          <span className="text-black font-medium dark:text-grey-dark">
+          <span className="font-medium text-black dark:text-grey-dark">
             EOI Vendor Submissions
           </span>
         </h6>
@@ -175,7 +174,6 @@ const data: Data[] = [
 const ActionListAction = ({ data }: any) => {
   console.log(data);
   const formHook = useForm({
-    resolver: zodResolver(EOIFormSchema),
     defaultValues: {
       description: "",
       vendor_category: [],

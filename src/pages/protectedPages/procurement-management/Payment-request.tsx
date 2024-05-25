@@ -22,8 +22,7 @@ import { Badge } from "components/ui/badge";
 import IconButton from "components/shared/IconButton";
 import { Icon } from "@iconify/react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { RFQFormSchema } from "utils/Validator";
+
 import { Textarea } from "components/ui/textarea";
 import { Input } from "components/ui/input";
 import DataTable from "components/Table/DataTable";
@@ -41,7 +40,6 @@ type Data = {
 
 const PaymentRequest = () => {
   const formHook = useForm({
-    resolver: zodResolver(RFQFormSchema),
     defaultValues: {
       description: "",
       category: "",
@@ -61,20 +59,20 @@ const PaymentRequest = () => {
         <h4 className="text-lg font-bold">Payment Request</h4>
         <h6>
           Procurement -{" "}
-          <span className="text-black font-medium dark:text-grey-dark">
+          <span className="font-medium text-black dark:text-grey-dark">
             Payment Request
           </span>
         </h6>
       </div>
 
       <Card className="space-y-10">
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between">
           <h4 className="text-base font-bold">Payment Request</h4>
 
           <div>
             <Dialog>
               <DialogTrigger>
-                <div className="flex items-center bg-primary text-primary-foreground rounded-md text-sm font-medium h-11 px-4 py-3 hover:bg-primary/90">
+                <div className="flex items-center px-4 py-3 text-sm font-medium rounded-md bg-primary text-primary-foreground h-11 hover:bg-primary/90">
                   <span>
                     <Plus size={20} />
                   </span>

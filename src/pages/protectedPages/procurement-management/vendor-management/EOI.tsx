@@ -11,7 +11,6 @@ import {
 import { Input } from "components/ui/input";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { Textarea } from "components/ui/textarea";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -21,7 +20,7 @@ import {
   FormLabel,
   FormMessage,
 } from "components/ui/form";
-import { EOIFormSchema } from "utils/Validator";
+
 // import EoiApi from "apis/procurement/Eoi";
 import eoiPng from "assets/imgs/eoi.png";
 import logoPng from "assets/imgs/logo.png";
@@ -51,7 +50,6 @@ const EOI = () => {
   const category = [];
 
   const formHook = useForm({
-    resolver: zodResolver(EOIFormSchema),
     defaultValues: {
       background: "",
       vendor_category: [],
