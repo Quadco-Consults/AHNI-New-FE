@@ -1,8 +1,6 @@
 import { Link, generatePath } from "react-router-dom";
 import Card from "components/shared/Card";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import useTable from "hooks/useTables";
-import Table from "lib/react-table/Table";
 import { Button } from "components/ui/button";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import SearchIcon from "components/icons/SearchIcon";
@@ -16,6 +14,7 @@ import { useMemo } from "react";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
+import DataTable from "components/Table/DataTable";
 
 type WorkPlanData = {
   name: string;
@@ -114,11 +113,6 @@ const WorkPlan = () => {
     );
   };
 
-  const tableInstance = useTable({
-    columns,
-    data,
-  });
-
   return (
     <div className="space-y-5">
       <div className="flex justify-end">
@@ -156,12 +150,8 @@ const WorkPlan = () => {
             <FilterIcon />
           </Button>
         </div>
-        <Table
-          instance={tableInstance}
-          // loading={customersQueryResult.isFetching}
-          // error={customersQueryResult.isError}
-          // onReload={customersQueryResult.refetch}
-        />
+
+        <DataTable data={data} columns={columns} />
       </Card>
     </div>
   );
