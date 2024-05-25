@@ -31,8 +31,6 @@ import IconButton from "components/shared/IconButton";
 import { Icon } from "@iconify/react";
 import { Input } from "components/ui/input";
 import { FormDescription } from "components/ui/form";
-import { RFQFormSchema } from "utils/Validator";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
@@ -45,7 +43,6 @@ type Data = {
 };
 const ProcurementPlan = () => {
   const formHook = useForm({
-    resolver: zodResolver(RFQFormSchema),
     defaultValues: {
       background: "",
       reference: "",
@@ -62,7 +59,7 @@ const ProcurementPlan = () => {
         <h4 className="text-base font-bold">Procurement Plan</h4>
         <h6>
           Procurement -{" "}
-          <span className="text-black font-medium dark:text-grey-dark">
+          <span className="font-medium text-black dark:text-grey-dark">
             Procurement Plan
           </span>
         </h6>
@@ -96,7 +93,7 @@ const ProcurementPlan = () => {
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-64">
-            <h4 className="font-medium p-5 text-base">Filter Options</h4>
+            <h4 className="p-5 text-base font-medium">Filter Options</h4>
             <hr />
 
             <div className="p-5 space-y-5">

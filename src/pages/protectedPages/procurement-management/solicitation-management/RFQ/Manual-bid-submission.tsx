@@ -20,8 +20,7 @@ import {
   FormLabel,
   FormMessage,
 } from "components/ui/form";
-import { EOIFormSchema } from "utils/Validator";
-import { zodResolver } from "@hookform/resolvers/zod";
+
 import { useForm } from "react-hook-form";
 import { Input } from "components/ui/input";
 import { ColumnDef } from "@tanstack/react-table";
@@ -40,7 +39,6 @@ type Data = {
 
 const ManualBidSubmission = () => {
   const formHook = useForm({
-    resolver: zodResolver(EOIFormSchema),
     defaultValues: {
       description: "",
       vendor_category: [],
@@ -89,14 +87,14 @@ const ManualBidSubmission = () => {
       </div>
 
       <div className="space-y-1">
-        <h4 className="font-bold text-base">Items Quotation</h4>
+        <h4 className="text-base font-bold">Items Quotation</h4>
         <h6>Please provide your quotation for the following Items</h6>
       </div>
 
       <div>
         <DataTable data={data} columns={columns} />
 
-        <div className="flex items-center w-1/6 rounded-lg mx-auto px-5 py-3 justify-center gap-20 border border-primary text-primary">
+        <div className="flex items-center justify-center w-1/6 gap-20 px-5 py-3 mx-auto border rounded-lg border-primary text-primary">
           <h4>Total:</h4>
           <h4>₦0.00</h4>
         </div>
