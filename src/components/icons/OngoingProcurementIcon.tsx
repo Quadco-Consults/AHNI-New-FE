@@ -1,11 +1,11 @@
 type Props = {
   size?: string;
-  fillColor: string;
+  fillColor?: string;
 };
 
 const OngoingProcurementIcon = ({
-  size = '62',
-  fillColor = 'currentColor',
+  size = "62",
+  fillColor = "currentColor",
 }: Props) => {
   return (
     <svg
