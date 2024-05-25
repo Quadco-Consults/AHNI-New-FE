@@ -1,11 +1,11 @@
 type Props = {
   size?: string;
-  fillColor: string;
+  fillColor?: string;
 };
 
 const CompletedProcurementIcon = ({
-  size = '62',
-  fillColor = 'currentColor',
+  size = "62",
+  fillColor = "currentColor",
 }: Props) => {
   return (
     <svg
@@ -15,14 +15,7 @@ const CompletedProcurementIcon = ({
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <rect
-        x="1.16699"
-        y="0.5"
-        width="53"
-        height="53"
-        rx="3.5"
-        stroke="none"
-      />
+      <rect x="1.16699" y="0.5" width="53" height="53" rx="3.5" stroke="none" />
       <path
         opacity="0.4"
         d="M6.16699 27.0004C6.16699 38.8745 15.7929 48.5004 27.667 48.5004C39.5411 48.5004 49.167 38.8745 49.167 27.0004C49.167 15.1262 39.5411 5.50037 27.667 5.50037C15.7929 5.50037 6.16699 15.1262 6.16699 27.0004Z"

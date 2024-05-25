@@ -46,7 +46,7 @@ const RFQ = () => {
     },
   });
 
-  const onSubmit = (data) => {
+  const onSubmit = (data: any) => {
     console.log(data);
   };
 
@@ -88,7 +88,7 @@ const RFQ = () => {
                     >
                       <FormField
                         control={formHook.control}
-                        name="background"
+                        name="description"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>
@@ -105,7 +105,7 @@ const RFQ = () => {
 
                       <FormField
                         control={formHook.control}
-                        name="background"
+                        name="description"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Background</FormLabel>

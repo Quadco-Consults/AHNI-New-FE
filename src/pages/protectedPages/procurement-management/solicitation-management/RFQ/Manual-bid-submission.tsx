@@ -12,8 +12,6 @@ import {
   SelectValue,
 } from "components/ui/select";
 import { Label } from "components/ui/label";
-import useTable from "hooks/useTable";
-import Table from "lib/react-table/Table";
 import {
   Form,
   FormControl,
@@ -26,17 +24,21 @@ import { EOIFormSchema } from "utils/Validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Input } from "components/ui/input";
+import { ColumnDef } from "@tanstack/react-table";
+import DataTable from "components/Table/DataTable";
+
+type Data = {
+  description: {
+    title: string;
+    desc: string;
+  };
+  qty: number;
+  brand: string;
+  price: string;
+  total: string;
+};
 
 const ManualBidSubmission = () => {
-  const tableInstance = useTable({
-    columns,
-    data,
-    //  state: { pagination },
-    //  pageCount: customersQueryResult?.data?.number_of_pages,
-    //  manualPagination: true,
-    //  onPaginationChange: setPagination,
-  });
-
   const formHook = useForm({
     resolver: zodResolver(EOIFormSchema),
     defaultValues: {
@@ -48,7 +50,7 @@ const ManualBidSubmission = () => {
     },
   });
 
-  const onSubmit = (data) => {
+  const onSubmit = (data: any) => {
     console.log(data);
   };
 
@@ -92,12 +94,7 @@ const ManualBidSubmission = () => {
       </div>
 
       <div>
-        <Table
-          instance={tableInstance}
-          // loading={customersQueryResult.isFetching}
-          // error={customersQueryResult.isError}
-          // onReload={customersQueryResult.refetch}
-        />
+        <DataTable data={data} columns={columns} />
 
         <div className="flex items-center w-1/6 rounded-lg mx-auto px-5 py-3 justify-center gap-20 border border-primary text-primary">
           <h4>Total:</h4>
@@ -110,7 +107,7 @@ const ManualBidSubmission = () => {
           <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
             <FormField
               control={formHook.control}
-              name="background"
+              name="description"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Delivery Timefame</FormLabel>
@@ -123,7 +120,7 @@ const ManualBidSubmission = () => {
             />
             <FormField
               control={formHook.control}
-              name="background"
+              name="description"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Payment Terms</FormLabel>
@@ -136,7 +133,7 @@ const ManualBidSubmission = () => {
             />
             <FormField
               control={formHook.control}
-              name="background"
+              name="description"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Tax Identification Number (TIN)</FormLabel>
@@ -152,7 +149,7 @@ const ManualBidSubmission = () => {
           <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
             <FormField
               control={formHook.control}
-              name="background"
+              name="description"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Validity Period of Quote</FormLabel>
@@ -300,7 +297,7 @@ const ManualBidSubmission = () => {
             />
             <FormField
               control={formHook.control}
-              name="background"
+              name="description"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Warranty</FormLabel>
@@ -329,7 +326,7 @@ const ManualBidSubmission = () => {
 
 export default ManualBidSubmission;
 
-const columns = [
+const columns: ColumnDef<Data>[] = [
   {
     header: "S/N",
     id: "id",
@@ -364,14 +361,14 @@ const columns = [
   },
 ];
 
-const Price = ({ data }) => {
+const Price = ({ data }: any) => {
   return (
     <div>
       <Input value={data.price} />
     </div>
   );
 };
-const Total = ({ data }) => {
+const Total = ({ data }: any) => {
   return (
     <div>
       <Input value={data.price} />
@@ -379,7 +376,7 @@ const Total = ({ data }) => {
   );
 };
 
-const Description = ({ data }) => {
+const Description = ({ data }: any) => {
   return (
     <div className="space-y-2">
       <h2 className="font-semibold">{data.description.title}</h2>
@@ -388,7 +385,7 @@ const Description = ({ data }) => {
   );
 };
 
-const data = Array(7).fill({
+const data: Data[] = Array(7).fill({
   description: {
     title: "Laptop Computer",
     desc: "Specification: 15” 4k OLED Display, Intel Core i9 Processor, 32-64GB RAM, 2TB SSD (XPS 15 9530)",

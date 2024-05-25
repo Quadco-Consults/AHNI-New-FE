@@ -6,7 +6,7 @@ import { DialogType, largeDailogScreen } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 
-const RatingCircle = ({ showInner }) => {
+const RatingCircle = ({ showInner }: any) => {
   return (
     <p className="w-[24px] p-1 flex justify-center items-center h-[24px] rounded-full border-[#DEA004] border">
       {showInner && (
@@ -59,7 +59,7 @@ const PriceCard = () => {
                 </p>
               </div>
               <Progress
-                className2="bg-[#E0FDD6]"
+                // className2="bg-[#E0FDD6]"
                 value={50}
                 className="w-full h-4 bg-[#FF0000]"
               />

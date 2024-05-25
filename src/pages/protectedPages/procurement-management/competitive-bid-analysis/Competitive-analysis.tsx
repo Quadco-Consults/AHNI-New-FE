@@ -15,21 +15,21 @@ import { Calendar } from "components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { cn } from "lib/utils";
 import { format } from "date-fns";
-import Table from "lib/react-table/Table";
-import useTable from "hooks/useTable";
 import { useState } from "react";
+import DataTable from "components/Table/DataTable";
+import { ColumnDef } from "@tanstack/react-table";
+
+type Data = {
+  vendor: string;
+  supplies: string[];
+  enterprises: string[];
+  lifesavers: string[];
+  hub: string[];
+  global: string[];
+};
 
 const CompetitiveAnalysis = () => {
   const [date, setDate] = useState(null);
-
-  const tableInstance = useTable({
-    columns,
-    data,
-    //  state: { pagination },
-    //  pageCount: customersQueryResult?.data?.number_of_pages,
-    //  manualPagination: true,
-    //  onPaginationChange: setPagination,
-  });
 
   return (
     <div className="space-y-10">
@@ -100,12 +100,7 @@ const CompetitiveAnalysis = () => {
           </div>
         </div>
 
-        <Table
-          instance={tableInstance}
-          // loading={customersQueryResult.isFetching}
-          // error={customersQueryResult.isError}
-          // onReload={customersQueryResult.refetch}
-        />
+        <DataTable data={data} columns={columns} />
       </Card>
     </div>
   );
@@ -113,7 +108,7 @@ const CompetitiveAnalysis = () => {
 
 export default CompetitiveAnalysis;
 
-const columns = [
+const columns: ColumnDef<Data>[] = [
   {
     header: "VENDOR",
     accessorKey: "vendor",
@@ -150,7 +145,7 @@ const columns = [
   },
 ];
 
-const data = [
+const data: Data[] = [
   {
     vendor: "Total Items",
     supplies: ["3"],
@@ -197,46 +192,46 @@ const data = [
   },
 ];
 
-const SuppliesAction = ({ data }) => {
+const SuppliesAction = ({ data }: any) => {
   return (
     <div className=" text-end">
-      {data.supplies.map((el, index) => (
+      {data.supplies.map((el: string, index: number) => (
         <h6 key={index}>{el}</h6>
       ))}
     </div>
   );
 };
-const EnterpriseAction = ({ data }) => {
+const EnterpriseAction = ({ data }: any) => {
   return (
     <div className=" text-end">
-      {data.enterprises.map((el, index) => (
+      {data.enterprises.map((el: string, index: number) => (
         <h6 key={index}>{el}</h6>
       ))}
     </div>
   );
 };
-const LifeAction = ({ data }) => {
+const LifeAction = ({ data }: any) => {
   return (
     <div className=" text-end">
-      {data.lifesavers.map((el, index) => (
+      {data.lifesavers.map((el: string, index: number) => (
         <h6 key={index}>{el}</h6>
       ))}
     </div>
   );
 };
-const HubAction = ({ data }) => {
+const HubAction = ({ data }: any) => {
   return (
     <div className=" text-end">
-      {data.hub.map((el, index) => (
+      {data.hub.map((el: string, index: number) => (
         <h6 key={index}>{el}</h6>
       ))}
     </div>
   );
 };
-const GlobalAction = ({ data }) => {
+const GlobalAction = ({ data }: any) => {
   return (
     <div className=" text-end">
-      {data.global.map((el, index) => (
+      {data.global.map((el: string, index: number) => (
         <h6 key={index}>{el}</h6>
       ))}
     </div>

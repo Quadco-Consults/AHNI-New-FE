@@ -1,29 +1,15 @@
+import { ColumnDef } from "@tanstack/react-table";
+import DataTable from "components/Table/DataTable";
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
-import useTable from "hooks/useTables";
-import Table from "lib/react-table/Table";
 import { openDialog } from "store/ui";
 
 const FundSummary = () => {
-  const tableInstance = useTable({
-    columns,
-    data,
-    //  state: { pagination },
-    //  pageCount: customersQueryResult?.data?.number_of_pages,
-    //  manualPagination: true,
-    //  onPaginationChange: setPagination,
-  });
-
   return (
     <Card>
-      <Table
-        instance={tableInstance}
-        // loading={customersQueryResult.isFetching}
-        // error={customersQueryResult.isError}
-        // onReload={customersQueryResult.refetch}
-      />
+      <DataTable data={data} columns={columns} />
 
       <div className="flex justify-end my-10">
         <h4 className="font-semibold">General Comment/Recommendation</h4>
@@ -34,13 +20,19 @@ const FundSummary = () => {
 
 export default FundSummary;
 
-const data = Array(7).fill({
+type Data = {
+  description: string;
+  fund: string;
+  code: string;
+};
+
+const data: Data[] = Array(7).fill({
   description: "ACE Project Head Office Adamawa ",
   fund: "₦2,000,000",
   code: "1111.0004-01",
 });
 
-const columns = [
+const columns: ColumnDef<Data>[] = [
   {
     header: "S/N",
     id: "id",

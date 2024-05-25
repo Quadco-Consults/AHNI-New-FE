@@ -132,7 +132,7 @@ const Report = () => {
             <div>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button size="icon" variant="iconBtn">
+                  <Button size="icon" variant="ghost">
                     <svg
                       width="21"
                       height="20"
@@ -258,7 +258,7 @@ const Report = () => {
             <div>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button size="icon" variant="iconBtn">
+                  <Button size="icon" variant="ghost">
                     <svg
                       width="21"
                       height="20"
@@ -417,7 +417,7 @@ const renderCustomizedLabel = ({
   innerRadius,
   outerRadius,
   percent,
-}) => {
+}: any) => {
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
   const y = cy + radius * Math.sin(-midAngle * RADIAN);

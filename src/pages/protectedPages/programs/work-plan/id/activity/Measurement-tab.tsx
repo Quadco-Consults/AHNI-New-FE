@@ -1,6 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import useTable from "hooks/useTables";
-import Table from "lib/react-table/Table";
+import DataTable from "components/Table/DataTable";
 import { useMemo } from "react";
 
 type MeasurementData = {
@@ -94,21 +93,7 @@ const MeasurementTab = () => {
     []
   );
 
-  const tableInstance = useTable({
-    columns,
-    data,
-  });
-
-  return (
-    <div>
-      <Table
-        instance={tableInstance}
-        // loading={customersQueryResult.isFetching}
-        // error={customersQueryResult.isError}
-        // onReload={customersQueryResult.refetch}
-      />
-    </div>
-  );
+  return <DataTable data={data} columns={columns} />;
 };
 
 export default MeasurementTab;

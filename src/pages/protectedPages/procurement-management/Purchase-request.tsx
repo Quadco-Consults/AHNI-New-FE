@@ -1,8 +1,6 @@
 import { Checkbox } from "components/ui/checkbox";
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
-import useTable from "hooks/useTable";
-import Table from "lib/react-table/Table";
 import { Plus } from "lucide-react";
 import {
   Dialog,
@@ -35,17 +33,18 @@ import { useForm } from "react-hook-form";
 import { EOIFormSchema, RFQFormSchema } from "utils/Validator";
 import { Input } from "components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ColumnDef } from "@tanstack/react-table";
+import DataTable from "components/Table/DataTable";
+
+type Data = {
+  requisition: string;
+  requested_project: string;
+  status: string;
+  unit: string;
+  isSelected: boolean;
+};
 
 const PurchaseRequest = () => {
-  const tableInstance = useTable({
-    columns,
-    data,
-    //  state: { pagination },
-    //  pageCount: customersQueryResult?.data?.number_of_pages,
-    //  manualPagination: true,
-    //  onPaginationChange: setPagination,
-  });
-
   const formHook = useForm({
     resolver: zodResolver(RFQFormSchema),
     defaultValues: {
@@ -54,7 +53,7 @@ const PurchaseRequest = () => {
     },
   });
 
-  const onSubmit = (data) => {
+  const onSubmit = (data: any) => {
     console.log(data);
   };
 
@@ -99,7 +98,7 @@ const PurchaseRequest = () => {
                       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                         <FormField
                           control={formHook.control}
-                          name="description"
+                          name="background"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Requisition Name</FormLabel>
@@ -112,7 +111,7 @@ const PurchaseRequest = () => {
                         />
                         <FormField
                           control={formHook.control}
-                          name="description"
+                          name="background"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Total</FormLabel>
@@ -234,7 +233,7 @@ const PurchaseRequest = () => {
                         />
                         <FormField
                           control={formHook.control}
-                          name="description"
+                          name="background"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Specifications</FormLabel>
@@ -249,7 +248,7 @@ const PurchaseRequest = () => {
 
                       <FormField
                         control={formHook.control}
-                        name="description"
+                        name="background"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Upload Specification</FormLabel>
@@ -275,19 +274,14 @@ const PurchaseRequest = () => {
           </div>
         </div>
 
-        <Table
-          instance={tableInstance}
-          // loading={customersQueryResult.isFetching}
-          // error={customersQueryResult.isError}
-          // onReload={customersQueryResult.refetch}
-        />
+        <DataTable data={data} columns={columns} />
       </Card>
     </div>
   );
 };
 
 export default PurchaseRequest;
-const columns = [
+const columns: ColumnDef<Data>[] = [
   {
     id: "select",
     size: 50,
@@ -334,13 +328,13 @@ const columns = [
         <Badge
           className={cn(
             "p-1 rounded-lg",
-            getValue() === "Approved" && "bg-green-light text-green-dark",
-            getValue() === "Reject" && "bg-red-light text-red-dark",
-            getValue() === "Pending" && "bg-yellow-light text-yellow-dark",
-            getValue() === "On Hold" && "text-grey-light bg-grey-dark"
+            getValue() === "Approved" && "bg-green-50 text-green-500",
+            getValue() === "Reject" && "bg-red-50 text-red-500",
+            getValue() === "Pending" && "bg-yellow-50 text-yellow-500",
+            getValue() === "On Hold" && "text-grey-50 bg-grey-500"
           )}
         >
-          {getValue()}
+          {getValue() as string}
         </Badge>
       );
     },
@@ -352,46 +346,53 @@ const columns = [
   },
 ];
 
-const data = [
+const data: Data[] = [
   {
     requisition: "HIV/AIDS Testing Kit Order",
     requested_project: "Project LifeGuard: Comprehensive HIV/AIDS Intervention",
     status: "Pending",
     unit: "HR Department",
+    isSelected: false,
   },
   {
     requisition: "Reproductive Health Survey Equipment",
     requested_project: "VitalVision: A Study on Child Nutrition and Health",
     status: "Approved",
     unit: "Finance Department",
+    isSelected: false,
   },
   {
     requisition: "Mobile Health Unit Vehicle Purchase",
     requested_project: "BeatTheBite: Malaria Eradication Initiative",
     status: "Rejected",
     unit: "IT Department",
+    isSelected: false,
   },
   {
     requisition: "HIV/AIDS Awareness Campaign Materials",
     requested_project: "HarvestHope: Sustainable Agriculture and Food Security",
     status: "Pending",
     unit: "Sales Department",
+    isSelected: false,
   },
   {
     requisition: "Women's Shelter Establishment Fund ",
     requested_project: "ShieldShe: Women's Safety and Empowerment Drive",
     status: "Approved",
     unit: "Marketing Department",
+    isSelected: false,
   },
   {
     requisition: "Health Awareness Poster Design",
     requested_project: "UnitedForHealth: AHNi-UNICEF Joint Initiative",
     status: "On Hold",
     unit: "Operations Department",
+    isSelected: false,
   },
 ];
 
-const ActionListAction = () => {
+const ActionListAction = ({ data }: any) => {
+  console.log(data);
   const formHook = useForm({
     resolver: zodResolver(EOIFormSchema),
     defaultValues: {
@@ -403,7 +404,7 @@ const ActionListAction = () => {
     },
   });
 
-  const onSubmit = (data) => {
+  const onSubmit = (data: any) => {
     console.log(data);
   };
   return (
@@ -427,7 +428,7 @@ const ActionListAction = () => {
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                   <FormField
                     control={formHook.control}
-                    name="ref"
+                    name="vendor"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Requisition Name</FormLabel>
@@ -444,7 +445,7 @@ const ActionListAction = () => {
                   />
                   <FormField
                     control={formHook.control}
-                    name="date"
+                    name="description"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Total</FormLabel>
@@ -559,7 +560,7 @@ const ActionListAction = () => {
                   />
                   <FormField
                     control={formHook.control}
-                    name="ref"
+                    name="description"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Specifications</FormLabel>
