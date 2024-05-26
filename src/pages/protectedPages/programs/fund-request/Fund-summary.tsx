@@ -61,6 +61,7 @@ const FundSummary: React.FC = () => {
     ];
     setInputValues(newInputValues);
   };
+
   const form = useForm();
 
   const { handleSubmit } = form;
@@ -117,14 +118,15 @@ const FundSummary: React.FC = () => {
                       onChange={(e) => handleInputChange(e, index, "code")}
                     />
                   </TableCell>
-                  <TableCell className="flex justify-center">
+                  <TableCell className="flex justify-center max">
                     <Button
                       onClick={() => {
                         dispatch(
                           openDialog({
                             type: DialogType.FundRequstSummaryModal,
                             dialogProps: {
-                              width: "max-w-5xl",
+                              width: "max-w-4xl",
+                              height: "max-h-[700px]",
                             },
                           })
                         );
@@ -164,7 +166,7 @@ const FundSummary: React.FC = () => {
                 onSubmit();
                 dispatch(
                   openDialog({
-                    type: DialogType.SuccessModal,
+                    type: DialogType.FundSuccessModal,
                     dialogProps: {
                       width: "max-w-lg",
                     },

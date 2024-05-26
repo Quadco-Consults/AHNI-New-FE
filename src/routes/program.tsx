@@ -110,4 +110,19 @@ export const program = [
       () => import("pages/protectedPages/programs/fund-request/Fund-summary")
     ),
   },
+  {
+    path: RouteEnum.PROGRAM_RISK_MANAGEMENT,
+    element: lazy(
+      () => import("pages/protectedPages/programs/risk-management/index")
+    ),
+  },
+  {
+    path: RouteEnum.PROGRAM_RISK_MANAGEMENT_CREATE,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/programs/risk-management/Create-risk-management"
+        )
+    ),
+  },
 ];
