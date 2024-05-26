@@ -35,68 +35,66 @@ const ProjectDetails = () => {
 
   return (
     <FundRequstLayout>
-      <div>
-        <Form {...form}>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <Card className="space-y-10 py-5">
+      <Form {...form}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Card className="space-y-10 py-5">
+            <FormSelect
+              name="Project"
+              label="Project Name"
+              placeholder="Select Project"
+              required
+            />
+
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+              <div className="grid grid-cols-2 gap-3 items-center">
+                <FormInput
+                  name="month"
+                  placeholder="MM"
+                  label="Financial Month"
+                />
+                <FormInput name="year" placeholder="YYY" />
+              </div>
+
               <FormSelect
-                name="Project"
-                label="Project Name"
-                placeholder="Select Project"
+                name="state"
+                label="State"
+                placeholder="Select State"
                 required
               />
-
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                <div className="grid grid-cols-2 gap-3 items-center">
-                  <FormInput
-                    name="month"
-                    placeholder="MM"
-                    label="Financial Month"
-                  />
-                  <FormInput name="year" placeholder="YYY" />
-                </div>
-
-                <FormSelect
-                  name="state"
-                  label="State"
-                  placeholder="Select State"
-                  required
-                />
-              </div>
-
-              <hr />
-
-              <div className="flex flex-col w-[299px] mt-10 space-y-3">
-                <Label className="font-medium">State Offices Involved</Label>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="text-[#DEA004]"
-                  onClick={() => {
-                    dispatch(
-                      openDialog({
-                        type: DialogType.StateModal,
-                        dialogProps: {
-                          width: "max-w-5xl",
-                        },
-                      })
-                    );
-                  }}
-                >
-                  Click to select checklist criteria
-                </Button>
-              </div>
-            </Card>
-
-            <div className="flex justify-end gap-5 mt-16">
-              <Button type="button" className="bg-[#FFF2F2] text-primary ">
-                Cancel
-              </Button>
-              <FormButton suffix={<ChevronRight size={14} />}>Next</FormButton>
             </div>
-          </form>
-        </Form>
-      </div>
+
+            <hr />
+
+            <div className="flex flex-col w-[299px] mt-10 space-y-3">
+              <Label className="font-medium">State Offices Involved</Label>
+              <Button
+                type="button"
+                variant="outline"
+                className="text-[#DEA004]"
+                onClick={() => {
+                  dispatch(
+                    openDialog({
+                      type: DialogType.StateModal,
+                      dialogProps: {
+                        width: "max-w-5xl",
+                      },
+                    })
+                  );
+                }}
+              >
+                Click to select checklist criteria
+              </Button>
+            </div>
+          </Card>
+
+          <div className="flex justify-end gap-5 mt-16">
+            <Button type="button" className="bg-[#FFF2F2] text-primary ">
+              Cancel
+            </Button>
+            <FormButton suffix={<ChevronRight size={14} />}>Next</FormButton>
+          </div>
+        </form>
+      </Form>
     </FundRequstLayout>
   );
 };
