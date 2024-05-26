@@ -11,6 +11,7 @@ export const DialogType = {
   AssestAction: "AssestAction",
   FundRequestModal: "FundRequestModal",
   StateModal: "StateModal",
+  FundRequstSummaryModal: "FundRequstSummaryModal",
 };
 
 export const largeDailogScreen = {
