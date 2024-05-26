@@ -7,6 +7,7 @@ export const DialogType = {
   SspUpload: "SspUpload",
   SspApproveModal: "SspApproveModal",
   SuccessModal: "SuccessModal",
+  FundSuccessModal: "FundSuccessModal",
   PreventionModal: "PreventionModal",
   AssestAction: "AssestAction",
   FundRequestModal: "FundRequestModal",
