@@ -13,6 +13,7 @@ export const DialogType = {
   FundRequestModal: "FundRequestModal",
   StateModal: "StateModal",
   FundRequstSummaryModal: "FundRequstSummaryModal",
+  StakeholderModal: "StakeholderModal",
 };
 
 export const largeDailogScreen = {
