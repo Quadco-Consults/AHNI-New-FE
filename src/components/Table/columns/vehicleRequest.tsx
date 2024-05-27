@@ -1,4 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
+import { Badge } from "components/ui/badge";
 import { Checkbox } from "components/ui/checkbox";
 
 type Data = {
@@ -92,6 +93,14 @@ export const vehicleRequestColumns: ColumnDef<Data>[] = [
   {
     header: "Approval",
     accessorKey: "approval",
+    cell: ({ getValue }) => {
+      return (
+        <Badge variant={getValue() === "Approved" ? "success" : "destructive"}>
+          {" "}
+          {getValue() as string}{" "}
+        </Badge>
+      );
+    },
   },
   {
     header: "N.F.T",

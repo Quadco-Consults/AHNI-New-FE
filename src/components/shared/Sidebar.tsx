@@ -438,23 +438,29 @@ const DEPARTMENTAL_LINKS = [
           },
         ],
       },
-      { name: "Facility Management", path: "/" },
+      {
+        name: "Facility Management",
+        sublinks: [
+          { name: "Facilities", path: AdminRoutes.Facilities },
+          {
+            name: "Facility  Maintenance Ticket",
+            path: AdminRoutes.FacilitiesTicket,
+          },
+        ],
+      },
+      { name: "Payment Request", path: AdminRoutes.PaymentRequest },
       {
         name: "Agreements",
         sublinks: [
-          { name: "Lease", path: "/" },
-          { name: "SLA", path: "/" },
-          { name: "HMO", path: "/" },
-          { name: "Security", path: "/" },
-          { name: "Insurance", path: "/" },
-          { name: "Ticketing", path: "/" },
+          { name: "Lease", path: AdminRoutes.Lease },
+          { name: "SLA", path: AdminRoutes.SLA },
+          { name: "HMO", path: AdminRoutes.HMO },
+          { name: "Security", path: AdminRoutes.Security },
+          { name: "Insurance", path: AdminRoutes.Insurance },
+          { name: "Ticketing", path: AdminRoutes.Ticketing },
         ],
       },
-      {
-        name: "Competitive Analysis",
-        path: "/",
-      },
-      { name: "Payment Request", path: "/" },
+
       { name: "Report", path: "/" },
     ],
   },
