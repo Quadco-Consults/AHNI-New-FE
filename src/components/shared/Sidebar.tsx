@@ -320,6 +320,7 @@ const DEPARTMENTAL_LINKS = [
     link: [
       {
         name: "Plans",
+        path: "/program/plan",
         sublinks: [
           { name: "Work Plan", path: RouteEnum.PROGRAM_WORK_PLAN },
           { name: "Activity Plan", path: RouteEnum.PROGRAM_ACTIVITY },
@@ -337,15 +338,26 @@ const DEPARTMENTAL_LINKS = [
           },
         ],
       },
+      {
+        name: "Stakeholder Management",
+        path: "/program/stakeholder-management",
+        sublinks: [
+          {
+            name: "Analysis/Mapping",
+            path: RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS,
+          },
+          {
+            name: "Stakeholder Register",
+            path: RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER,
+          },
+          {
+            name: "Engagement Plan",
+            path: RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER,
+          },
+        ],
+      },
       { name: "Fund Request", path: RouteEnum.PROGRAM_FUND_REQUEST },
       { name: "Reports", path: RouteEnum.PROGRAM_REPORT },
-      // {
-      //   name: 'Stakeholder Management',
-      //   sublinks: [
-      //     { name: 'Analysis/Mapping', path: '/' },
-      //     { name: 'Engagement Plan', path: '/' },
-      //   ],
-      // },
     ],
   },
   {
@@ -419,6 +431,7 @@ const DEPARTMENTAL_LINKS = [
       { name: "Overview", path: AdminRoutes.OVERVIEW },
       {
         name: "Inventory Management",
+        path: "/admin/inventory-managment",
         sublinks: [
           { name: "Consumable", path: AdminRoutes.CONSUMABLES },
           { name: "Assets", path: AdminRoutes.ASSETS },
@@ -426,6 +439,7 @@ const DEPARTMENTAL_LINKS = [
       },
       {
         name: "Fleet Management",
+        path: "/admin/fleet-management",
         sublinks: [
           { name: "Vehicle request", path: AdminRoutes.VehicleRequest },
           {
@@ -441,6 +455,7 @@ const DEPARTMENTAL_LINKS = [
       { name: "Facility Management", path: "/" },
       {
         name: "Agreements",
+        path: "/admin/agreements",
         sublinks: [
           { name: "Lease", path: "/" },
           { name: "SLA", path: "/" },

@@ -98,12 +98,23 @@ export const RouteEnum = {
   PROGRAM_SUPPORTIVE_SUPERVISION_COMPOSITION:
     "/program/plan/supportive-supervision-plan/create/facility&team-composition",
   PROGRAM_SUPPORTIVE_SUPERVISION_CHECKLIST:
-    "/program/plan/supportive supervision plan/create/evolution-checklist",
+    "/program/plan/supportive-supervision-plan/create/evolution-checklist",
   PROGRAM_FUND_REQUEST: "/program/fund-request",
   PROGRAM_FUND_REQUEST_DETAILS: "/program/fund-request/:id",
   PROGRAM_FUND_REQUEST_PROJECT_DETAIL: "/program/fund-request/project-details",
   PROGRAM_FUND_REQUEST_FUND_SUMMARY:
     "/program/fund-request/fund-request-summary",
+
+  PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS:
+    "/program/stakeholder-management/analysis&mapping",
+  PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS_DETAILS:
+    "/program/stakeholder-management/analysis&mapping/:id",
+  PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS_CREATE:
+    "/program/stakeholder-management/analysis&mapping/create",
+  PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER:
+    "/program/stakeholder-management/stakeholder-register",
+  PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN:
+    "/program/stakeholder-management/engagement-plan",
 
   PROGRAM_REPORT: "/program/reports",
   //projects routes
