@@ -64,4 +64,76 @@ export const adminRoutes = [
       () => import("pages/protectedPages/admin/FleetManagment/ViewVehicle")
     ),
   },
+  {
+    path: AdminRoutes.Facilities,
+    element: lazy(
+      () => import("pages/protectedPages/admin/FacilitiesManagment/Facilties")
+    ),
+  },
+  {
+    path: AdminRoutes.FacilitiesTicket,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/admin/FacilitiesManagment/FacilitiesMaintanance"
+        )
+    ),
+  },
+  {
+    path: AdminRoutes.FacilitiesView,
+    element: lazy(
+      () =>
+        import("pages/protectedPages/admin/FacilitiesManagment/FacilitiesView")
+    ),
+  },
+  {
+    path: AdminRoutes.PaymentRequest,
+    element: lazy(
+      () =>
+        import("pages/protectedPages/admin/PaymentRequest/PaymentRequestList")
+    ),
+  },
+  {
+    path: AdminRoutes.PaymentRequestCreate,
+    element: lazy(
+      () =>
+        import("pages/protectedPages/admin/PaymentRequest/PaymentRequestCreate")
+    ),
+  },
+  {
+    path: AdminRoutes.PaymentRequestView,
+    element: lazy(
+      () => import("pages/protectedPages/admin/PaymentRequest/PaymentView")
+    ),
+  },
+  {
+    path: AdminRoutes.Lease,
+    element: lazy(() => import("pages/protectedPages/admin/Agreement/Lease")),
+  },
+  {
+    path: AdminRoutes.SLA,
+    element: lazy(() => import("pages/protectedPages/admin/Agreement/Lease")),
+  },
+  {
+    path: AdminRoutes.HMO,
+    element: lazy(() => import("pages/protectedPages/admin/Agreement/Lease")),
+  },
+  {
+    path: AdminRoutes.Insurance,
+    element: lazy(() => import("pages/protectedPages/admin/Agreement/Lease")),
+  },
+  {
+    path: AdminRoutes.Security,
+    element: lazy(() => import("pages/protectedPages/admin/Agreement/Lease")),
+  },
+  {
+    path: AdminRoutes.Ticketing,
+    element: lazy(() => import("pages/protectedPages/admin/Agreement/Lease")),
+  },
+  {
+    path: AdminRoutes.ViewAggrement,
+    element: lazy(
+      () => import("pages/protectedPages/admin/Agreement/ViewAgreement")
+    ),
+  },
 ];
