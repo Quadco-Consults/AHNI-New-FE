@@ -352,7 +352,7 @@ const DEPARTMENTAL_LINKS = [
           },
           {
             name: "Engagement Plan",
-            path: RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER,
+            path: RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN,
           },
         ],
       },

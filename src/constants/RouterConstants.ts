@@ -110,11 +110,19 @@ export const RouteEnum = {
   PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS_DETAILS:
     "/program/stakeholder-management/analysis&mapping/:id",
   PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS_CREATE:
-    "/program/stakeholder-management/analysis&mapping/create",
+    "/program/stakeholder-management/analysis&mapping/create-analysis",
   PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER:
     "/program/stakeholder-management/stakeholder-register",
+  PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER_CREATE:
+    "/program/stakeholder-management/stakeholder-register/create-stakeholder",
+  PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER_DETAILS:
+    "/program/stakeholder-management/stakeholder-register/:id",
   PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN:
     "/program/stakeholder-management/engagement-plan",
+  PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN_CREATE:
+    "/program/stakeholder-management/engagement-plan/create-stakeholder",
+  PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN_DETAILS:
+    "/program/stakeholder-management/engagement-plan/:id",
 
   PROGRAM_REPORT: "/program/reports",
   //projects routes

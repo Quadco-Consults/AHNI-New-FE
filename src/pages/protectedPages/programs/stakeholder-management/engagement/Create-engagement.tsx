@@ -9,11 +9,15 @@ import LongArrowLeft from "components/icons/LongArrowLeft";
 import Card from "components/shared/Card";
 import { useForm } from "react-hook-form";
 import { Form } from "components/ui/form";
-import FormSelect from "atoms/FormSelect";
 import FormInput from "atoms/FormInput";
 import DeleteIcon from "components/icons/DeleteIcon";
+import FormTextArea from "atoms/FormTextArea";
+import FormSelect from "atoms/FormSelect";
+import { ColumnDef } from "@tanstack/react-table";
+import DataTable from "components/Table/DataTable";
+import { Checkbox } from "components/ui/checkbox";
 
-const CreateAnalysis = () => {
+const CreateEngagement = () => {
   const navigate = useNavigate();
   const form = useForm();
 
@@ -37,21 +41,36 @@ const CreateAnalysis = () => {
 
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <Card className="space-y-10 p-10">
-            <FormSelect
-              name="state"
-              label="State"
-              placeholder="Select state"
-              required
-            />
+          <Card className="space-y-5 p-10">
+            <FormInput name="name" label="Project Name" required />
+            <FormTextArea name="deliverables" label="Project Deliverables" />
+            <FormInput name="manager" label="Project Manager" required />
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+              <div>
+                <Label>Start Date</Label>
+                <div className="grid grid-cols-3 gap-3">
+                  <FormInput name="date" placeholder="DD" />
+                  <FormInput name="month" placeholder="MM" />
+                  <FormInput name="year" placeholder="YYYY" />
+                </div>
+              </div>
+              <div>
+                <Label>End Date</Label>
+                <div className="grid grid-cols-3 gap-3">
+                  <FormInput name="date" placeholder="DD" />
+                  <FormInput name="month" placeholder="MM" />
+                  <FormInput name="year" placeholder="YYYY" />
+                </div>
+              </div>
+            </div>
 
-            <div className="flex flex-col mt-10 space-y-3">
+            <div className="flex flex-col space-y-3">
               <Label className="font-semibold">
                 3 Stakeholders selected for this state
               </Label>
 
               <div className="space-y-3">
-                {Array(3)
+                {Array(2)
                   .fill({
                     title: "Roger Dokidis",
                     org: "Borno State House of Assembly",
@@ -98,11 +117,19 @@ const CreateAnalysis = () => {
                         </div>
                       </div>
                       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-                        <FormInput name="role" label="Project Role" />
-                        <FormInput name="importance" label="Importance" />
-                        <FormInput name="score" label="score" />
-                        <FormInput name="concerns" label="Major Concerns" />
-                        <FormInput name="owner" label="Relationship Owner" />
+                        <FormSelect
+                          name="influence"
+                          label="Influence"
+                          placeholder="Medium"
+                          required
+                        />
+                        <FormInput
+                          name="information_type"
+                          label="Information Type"
+                        />
+                        <FormInput name="decision" label="Decision Maker" />
+                        <FormInput name="frequency" label="Frequency" />
+                        <FormInput name="type" label="Type" />
                         <div>
                           <Button className="flex gap-2 mt-3 py-6 bg-[#FFF2F2] text-red-500">
                             <DeleteIcon />
@@ -135,6 +162,12 @@ const CreateAnalysis = () => {
                 Click to add stakeholders
               </Button>
             </div>
+
+            <hr />
+
+            <h4 className="font-semibold text-yellow-600">Commitment Level</h4>
+
+            <DataTable data={data} columns={columns} />
           </Card>
 
           <div className="flex justify-end gap-5 pt-10">
@@ -160,4 +193,80 @@ const CreateAnalysis = () => {
   );
 };
 
-export default CreateAnalysis;
+export default CreateEngagement;
+
+type WorkPlanData = {
+  name: string;
+  unaware: string;
+  against: string;
+  neutral: string;
+  supportive: string;
+  leading: string;
+};
+
+const data: WorkPlanData[] = Array(2).fill({
+  name: "Omar Calzoni",
+  unaware: "",
+  against: "",
+  neutral: "",
+  supportive: "",
+  leading: "",
+});
+
+const columns: ColumnDef<WorkPlanData>[] = [
+  {
+    header: "Stakeholder names",
+    accessorKey: "name",
+    size: 200,
+  },
+  {
+    header: "Unaware",
+    accessorKey: "unaware",
+    size: 200,
+    cell: () => (
+      <div className="flex items-center w-full">
+        <Checkbox />
+      </div>
+    ),
+  },
+  {
+    header: "Against",
+    accessorKey: "against",
+    size: 200,
+    cell: () => (
+      <div className="flex items-center w-full">
+        <Checkbox />
+      </div>
+    ),
+  },
+  {
+    header: "Neutral",
+    accessorKey: "neutral",
+    size: 200,
+    cell: () => (
+      <div className="flex items-center w-full">
+        <Checkbox />
+      </div>
+    ),
+  },
+  {
+    header: "Phone Supportive",
+    accessorKey: "supportive",
+    size: 200,
+    cell: () => (
+      <div className="flex items-center w-full">
+        <Checkbox />
+      </div>
+    ),
+  },
+  {
+    header: "Leading",
+    accessorKey: "leading",
+    size: 200,
+    cell: () => (
+      <div className="flex items-center w-full">
+        <Checkbox />
+      </div>
+    ),
+  },
+];
