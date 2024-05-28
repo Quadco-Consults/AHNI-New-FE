@@ -171,11 +171,47 @@ export const program = [
     ),
   },
   {
+    path: RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER_CREATE,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/programs/stakeholder-management/register/Create-register"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER_DETAILS,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/programs/stakeholder-management/register/[id]/index"
+        )
+    ),
+  },
+  {
     path: RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN,
     element: lazy(
       () =>
         import(
           "pages/protectedPages/programs/stakeholder-management/engagement/index"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN_CREATE,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/programs/stakeholder-management/engagement/Create-engagement"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN_DETAILS,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/programs/stakeholder-management/engagement/[id]/index"
         )
     ),
   },
