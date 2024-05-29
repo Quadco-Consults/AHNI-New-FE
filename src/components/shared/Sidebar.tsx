@@ -66,29 +66,28 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
           </div>
         </div>
 
-        <div className="px-2 space-y-6">
+        <div className="px-2 pt-5 space-y-6">
           {/* Dashboard button */}
-          <button className="w-full">
-            <NavLink
-              to={RouteEnum.DASHBOARD}
-              className={({ isActive }) => {
-                return isActive
-                  ? "bg-primary px dark:text-inherit flex w-full items-center justify-start gap-3 rounded-lg p-3 text-white hover:opacity-70"
-                  : "bg-inherit px hover:bg-primary flex w-full items-center justify-start gap-3 rounded-lg p-3 hover:text-white";
-              }}
-            >
-              <DashboardIcon />
 
-              <h4
-                className={cn(
-                  "font-semibold duration-200",
-                  sidebarWidth === false ? "block" : "hidden"
-                )}
-              >
-                Dashboard
-              </h4>
-            </NavLink>
-          </button>
+          <NavLink
+            to={RouteEnum.DASHBOARD}
+            className={({ isActive }) => {
+              return isActive
+                ? "bg-primary px dark:text-inherit flex w-full items-center justify-start gap-3 rounded-lg p-3 text-white hover:opacity-70"
+                : "bg-inherit px hover:bg-primary flex w-full items-center justify-start gap-3 rounded-lg p-3 hover:text-white";
+            }}
+          >
+            <DashboardIcon />
+
+            <h4
+              className={cn(
+                "font-semibold duration-200",
+                sidebarWidth === false ? "block" : "hidden"
+              )}
+            >
+              Dashboard
+            </h4>
+          </NavLink>
 
           {/* Departmental Links */}
           <div className="">
@@ -100,6 +99,29 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
             >
               DEPARTMENTAL HUB
             </h4>
+
+            <NavLink
+              to={RouteEnum.PROJECTS}
+              className={cn(
+                "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
+                location.pathname.startsWith(RouteEnum.PROJECTS) &&
+                  "text-primary "
+              )}
+            >
+              <div className="flex w-[85%] items-center gap-2">
+                <span className="">
+                  <ProjectsIcon />
+                </span>
+                <h4
+                  className={cn(
+                    " w-[100%] truncate font-medium",
+                    sidebarWidth === false ? "block" : "hidden"
+                  )}
+                >
+                  Projects
+                </h4>
+              </div>
+            </NavLink>
 
             {DEPARTMENTAL_LINKS.map((link: any, index: number) => (
               <div key={index} className="w-full ">
@@ -304,15 +326,15 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
 export default Sidebar;
 
 const DEPARTMENTAL_LINKS = [
-  {
-    name: "Projects",
-    path: "/project",
-    icon: <ProjectsIcon />,
-    link: [
-      { name: "Ongoing", path: "/" },
-      { name: "Closed Out", path: "/" },
-    ],
-  },
+  // {
+  //   name: "Projects",
+  //   path: "/project",
+  //   icon: <ProjectsIcon />,
+  //   link: [
+  //     { name: "Ongoing", path: "/" },
+  //     { name: "Closed Out", path: "/" },
+  //   ],
+  // },
   {
     name: "Programs",
     path: "/program",
