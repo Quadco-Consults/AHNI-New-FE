@@ -79,7 +79,7 @@ const EngagementPlan = () => {
                 <Link
                   className="w-full"
                   to={generatePath(
-                    RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER_DETAILS,
+                    RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN_DETAILS,
                     {
                       id: "1",
                     }
