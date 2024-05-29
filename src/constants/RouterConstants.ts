@@ -123,10 +123,12 @@ export const RouteEnum = {
     "/program/stakeholder-management/engagement-plan/create-stakeholder",
   PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN_DETAILS:
     "/program/stakeholder-management/engagement-plan/:id",
-
   PROGRAM_REPORT: "/program/reports",
+
   //projects routes
-  PROJECTS: "/program/projects",
+  PROJECTS: "/projects",
+  PROJECTS_DETAILS: "/projects/:id",
+
   TRAINING: "/program/training-and-procurement",
   PROGRAM_PAYMENT_REQUEST: "/program/payment-request",
 
