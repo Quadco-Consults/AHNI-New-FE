@@ -3,6 +3,7 @@ import { procurment } from "./procurment";
 import { adminRoutes } from "./admin";
 import { program } from "./program";
 import { configureRoutes } from "utils/RouteUtils";
+import { project } from "./project";
 
 const getRoutes = function getRoutes() {
   return configureRoutes([
@@ -10,6 +11,7 @@ const getRoutes = function getRoutes() {
     ...procurment,
     ...adminRoutes,
     ...program,
+    ...project,
   ]);
 };
 

@@ -83,7 +83,8 @@ const ActionListAction = ({ data }: any) => {
           openDialog({
             type: DialogType.FundRequestModal,
             dialogProps: {
-              width: "max-w-2xl",
+              width: "max-w-4xl",
+              height: "max-h-[700px]",
             },
           })
         );
