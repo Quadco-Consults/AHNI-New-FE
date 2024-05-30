@@ -4,10 +4,9 @@ import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
 import { Checkbox } from "components/ui/checkbox";
 import { Form } from "components/ui/form";
-import { RouteEnum } from "constants/RouterConstants";
 import { ArrowLeft } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
@@ -153,7 +152,7 @@ const Prevention = () => {
                   }}
                 >
                   <AddSquareIcon />
-                  Upload Activity Plan
+                  Upload New Document
                 </Button>
 
                 <hr />
@@ -194,7 +193,7 @@ const Prevention = () => {
                   }}
                 >
                   <AddSquareIcon />
-                  Upload Activity Plan
+                  Upload New Document
                 </Button>
 
                 <hr />
@@ -232,7 +231,7 @@ const Prevention = () => {
                   }}
                 >
                   <AddSquareIcon />
-                  Upload Activity Plan
+                  Upload New Document
                 </Button>
 
                 <hr />

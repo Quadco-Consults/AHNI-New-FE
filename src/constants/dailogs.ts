@@ -7,13 +7,17 @@ export const DialogType = {
   SspUpload: "SspUpload",
   SspApproveModal: "SspApproveModal",
   SuccessModal: "SuccessModal",
+  FundSuccessModal: "FundSuccessModal",
   PreventionModal: "PreventionModal",
   AssestAction: "AssestAction",
   FundRequestModal: "FundRequestModal",
+  StateModal: "StateModal",
+  FundRequstSummaryModal: "FundRequstSummaryModal",
+  StakeholderModal: "StakeholderModal",
 };
 
 export const largeDailogScreen = {
-  width: "max-w-6xl ",
+  width: "max-w-6xl",
   height: "max-h-[700px]",
 };
 
