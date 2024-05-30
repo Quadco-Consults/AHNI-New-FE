@@ -128,6 +128,9 @@ export const RouteEnum = {
   //projects routes
   PROJECTS: "/projects",
   PROJECTS_DETAILS: "/projects/:id",
+  PROJECTS_CREATE_SUMMARY: "/projects/create-projects/summary",
+  PROJECTS_CREATE_PERFORMANCE: "/projects/create-projects/performance",
+  PROJECTS_CREATE_UPLOADS: "/projects/create-projects/uploads",
 
   TRAINING: "/program/training-and-procurement",
   PROGRAM_PAYMENT_REQUEST: "/program/payment-request",
