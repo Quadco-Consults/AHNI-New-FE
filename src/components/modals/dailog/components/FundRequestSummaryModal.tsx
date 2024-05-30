@@ -55,6 +55,7 @@ const FundRequestSummaryModal = () => {
     ];
     setInputValues(newInputValues);
   };
+
   const form = useForm();
 
   const { handleSubmit } = form;
