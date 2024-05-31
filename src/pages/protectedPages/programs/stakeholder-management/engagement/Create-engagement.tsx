@@ -16,6 +16,7 @@ import FormSelect from "atoms/FormSelect";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import { Checkbox } from "components/ui/checkbox";
+import { RouteEnum } from "constants/RouterConstants";
 
 const CreateEngagement = () => {
   const navigate = useNavigate();
@@ -29,7 +30,9 @@ const CreateEngagement = () => {
 
   const dispatch = useAppDispatch();
 
-  const onSubmit = () => {};
+  const onSubmit = () => {
+    navigate(RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN);
+  };
   return (
     <div className="space-y-6 min-h-screen">
       <button

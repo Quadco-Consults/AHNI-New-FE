@@ -5,17 +5,13 @@ import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";
 import { useForm } from "react-hook-form";
 
-const WorkPlanUploadModal = () => {
+const ProjectUploadModal = () => {
   const form = useForm({
     defaultValues: {
       title: [
         {
-          descriptionOfItems: "",
+          name: "",
           numberOfPersons: "",
-          numberOfDays: "",
-          fco: "",
-          unitCost: "",
-          total: "",
         },
       ],
     },
@@ -31,7 +27,8 @@ const WorkPlanUploadModal = () => {
     <div className="w-full">
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
-          <FormInput name="project-name" label="Name of Project Partner" />
+          <FormInput name="name" label="Name of Document" />
+
           <FileUpload />
         </form>
       </Form>
@@ -46,4 +43,4 @@ const WorkPlanUploadModal = () => {
   );
 };
 
-export default WorkPlanUploadModal;
+export default ProjectUploadModal;

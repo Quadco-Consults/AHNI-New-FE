@@ -76,9 +76,9 @@ const Summary = () => {
 
                   <div>
                     <h4>{option.name}</h4>
-                    <p className="flex items-center gap-2">
+                    <p className="flex items-center gap-1 text-sm">
                       <span>
-                        <MapPin />
+                        <MapPin size={15} />
                       </span>
                       {option.location}
                     </p>

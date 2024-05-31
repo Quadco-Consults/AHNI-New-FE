@@ -15,6 +15,8 @@ export const DialogType = {
   FundRequstSummaryModal: "FundRequstSummaryModal",
   StakeholderModal: "StakeholderModal",
   ProjectObjectiveModal: "ProjectObjectiveModal",
+  ConsortiumModal: "ConsortiumModal",
+  ProjectUploadModal: "ProjectUploadModal",
 };
 
 export const largeDailogScreen = {

@@ -13,6 +13,7 @@ import { FormField, FormItem, Form, FormControl } from "components/ui/form";
 import Card from "components/shared/Card";
 import FormInput from "atoms/FormInput";
 import MultiSelectFormField from "components/ui/multiselect";
+import { Badge } from "components/ui/badge";
 
 const frameworksList = [
   {
@@ -57,7 +58,7 @@ const Summary = () => {
 
     path = path.substring(0, path.lastIndexOf("/"));
 
-    path += "/summary";
+    path += "/performance";
     navigate(path);
   };
 
@@ -129,33 +130,51 @@ const Summary = () => {
 
               <FormInput name="population" label="Target population" />
 
-              <div className="flex flex-col w-[350px] mt-10 space-y-3">
+              <div className="flex flex-col w-full mt-10 space-y-3">
                 <Label className="font-semibold">Consortium partners</Label>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="text-[#DEA004]"
-                  onClick={() => {
-                    dispatch(
-                      openDialog({
-                        type: DialogType.StateModal,
-                        dialogProps: {
-                          width: "max-w-5xl",
-                        },
-                      })
-                    );
-                  }}
-                >
-                  Click to select consortium partners that applies
-                </Button>
+                <div className="flex flex-wrap gap-3">
+                  {[
+                    "Family Health International (FHI 360)",
+                    "The American University of Nigeria-AUN",
+                    "Ekklesiyar ‘Yan uwa a Nigeria (EYN)",
+                    "Federation of Muslim Associations of Nigeria (FOMWAN)",
+                  ].map((option: string, index: number) => (
+                    <Badge
+                      variant="default"
+                      key={index}
+                      className="bg-[#EBE8E1] text-[#1a0000ad] px-4 py-2 rounded-lg"
+                    >
+                      {option}
+                    </Badge>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="text-[#DEA004]"
+                    onClick={() => {
+                      dispatch(
+                        openDialog({
+                          type: DialogType.ConsortiumModal,
+                          dialogProps: {
+                            width: "max-w-6xl",
+                          },
+                        })
+                      );
+                    }}
+                  >
+                    Click to select consortium partners that applies
+                  </Button>
+                </div>
               </div>
             </Card>
 
-            <div className="flex justify-end gap-5 mt-16">
+            <div className="flex justify-between gap-5 mt-16">
               <Button type="button" className="bg-[#FFF2F2] text-primary ">
                 Cancel
               </Button>
-              <FormButton suffix={<ChevronRight size={14} />}>Next</FormButton>
+              <FormButton type="submit" suffix={<ChevronRight size={14} />}>
+                Next
+              </FormButton>
             </div>
           </form>
         </Form>

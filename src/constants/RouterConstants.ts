@@ -73,7 +73,8 @@ export const RouteEnum = {
   PROGRAM_WORK_PLAN_DETAILS: "/program/plan/work-plan/:id",
   PROGRAM_ACTIVITY: "/program/plan/activity",
   PROGRAM_RISK_MANAGEMENT: "/program/plan/risk-management-plan",
-  PROGRAM_RISK_MANAGEMENT_CREATE: "/program/plan/risk-management-plan/create",
+  PROGRAM_RISK_MANAGEMENT_CREATE:
+    "/program/plan/risk-management-plan/create-risk-management",
   PROGRAM_VALUE_MANAGEMENT: "/program/plan/value-management-plan",
   PROGRAM_SUPPORTIVE_SUPERVISION: "/program/plan/supportive-supervision-plan",
   PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS:
@@ -101,9 +102,10 @@ export const RouteEnum = {
     "/program/plan/supportive-supervision-plan/create/evolution-checklist",
   PROGRAM_FUND_REQUEST: "/program/fund-request",
   PROGRAM_FUND_REQUEST_DETAILS: "/program/fund-request/:id",
-  PROGRAM_FUND_REQUEST_PROJECT_DETAIL: "/program/fund-request/project-details",
+  PROGRAM_FUND_REQUEST_PROJECT_DETAIL:
+    "/program/fund-request/create/project-details",
   PROGRAM_FUND_REQUEST_FUND_SUMMARY:
-    "/program/fund-request/fund-request-summary",
+    "/program/fund-request/create/fund-request-summary",
 
   PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS:
     "/program/stakeholder-management/analysis&mapping",
