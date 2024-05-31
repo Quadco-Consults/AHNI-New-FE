@@ -36,6 +36,30 @@ const data: WorkPlanData[] = [
     year: "10/2022 - 09/2023",
     budget: 200000,
   },
+  {
+    name: "Accelerating Control of the HIV Epidemic in Nigeria (ACE 5 AKS & CRS)",
+    partners: "PHO",
+    year: "10/2022 - 09/2023",
+    budget: 200000,
+  },
+  {
+    name: "Partners for Learning for All Nigeria (PLANE)",
+    partners: "ADSO",
+    year: "10/2022 - 09/2023",
+    budget: 200000,
+  },
+  {
+    name: "Accelerating Control of the HIV Epidemic in Nigeria (ACE 5 AKS & CRS)",
+    partners: "PHO",
+    year: "10/2022 - 09/2023",
+    budget: 200000,
+  },
+  {
+    name: "Partners for Learning for All Nigeria (PLANE)",
+    partners: "ADSO",
+    year: "10/2022 - 09/2023",
+    budget: 200000,
+  },
 ];
 
 const WorkPlan = () => {

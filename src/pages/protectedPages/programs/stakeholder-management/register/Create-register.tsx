@@ -5,6 +5,7 @@ import FormTextArea from "atoms/FormTextArea";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import Card from "components/shared/Card";
 import { Form } from "components/ui/form";
+import { RouteEnum } from "constants/RouterConstants";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
@@ -18,7 +19,9 @@ const CreateRegister = () => {
     navigate(-1);
   };
 
-  const onSubmit = () => {};
+  const onSubmit = () => {
+    navigate(RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER);
+  };
 
   return (
     <div className="space-y-6 min-h-screen">
@@ -55,13 +58,7 @@ const CreateRegister = () => {
               Cancel
             </FormButton>
 
-            <FormButton
-              onClick={() => {
-                onSubmit();
-              }}
-            >
-              Create
-            </FormButton>
+            <FormButton>Create</FormButton>
           </div>
         </form>
       </Form>

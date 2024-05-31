@@ -12,6 +12,7 @@ import { Form } from "components/ui/form";
 import FormSelect from "atoms/FormSelect";
 import FormInput from "atoms/FormInput";
 import DeleteIcon from "components/icons/DeleteIcon";
+import { RouteEnum } from "constants/RouterConstants";
 
 const CreateAnalysis = () => {
   const navigate = useNavigate();
@@ -25,7 +26,9 @@ const CreateAnalysis = () => {
 
   const dispatch = useAppDispatch();
 
-  const onSubmit = () => {};
+  const onSubmit = () => {
+    navigate(RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS);
+  };
   return (
     <div className="space-y-6 min-h-screen">
       <button
@@ -146,13 +149,7 @@ const CreateAnalysis = () => {
               Cancel
             </FormButton>
 
-            <FormButton
-              onClick={() => {
-                onSubmit();
-              }}
-            >
-              Create
-            </FormButton>
+            <FormButton>Create</FormButton>
           </div>
         </form>
       </Form>

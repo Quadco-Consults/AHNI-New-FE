@@ -51,7 +51,7 @@ const ProjectsHeading = () => {
   }, [currentPath]);
 
   return (
-    <div className="grid justify-between w-2/3 grid-cols-3 px-4 py-2 gap-y-4">
+    <div className="grid justify-between w-full grid-cols-3 px-4 py-2 gap-y-4 md:w-2/3 ">
       {steps.map((item, i) => {
         return (
           <div className="flex items-center" key={i}>

@@ -12,7 +12,7 @@ const FileUpload: FC<PageProps> = ({ label }) => {
     <div className="w-full">
       <div>
         {label && <Label>{label}</Label>}
-        <div className="flex flex-wrap items-center mt-4 gap-x-10">
+        <div className="flex flex-wrap items-center mt-2 gap-x-5">
           <div className="w-[142px] relative gap-x-3 h-[52px] rounded-[16.2px] border flex justify-center items-center">
             <UploadFile size={20} />
             <p>Select file</p>

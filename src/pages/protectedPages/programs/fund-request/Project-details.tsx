@@ -46,13 +46,12 @@ const ProjectDetails = () => {
             />
 
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-              <div className="grid grid-cols-2 gap-3 items-center">
-                <FormInput
-                  name="month"
-                  placeholder="MM"
-                  label="Financial Month"
-                />
-                <FormInput name="year" placeholder="YYY" />
+              <div className="-mt-2">
+                <Label>Financial Month</Label>
+                <div className="grid grid-cols-2 gap-3 items-center">
+                  <FormInput name="month" placeholder="MM" />
+                  <FormInput name="year" placeholder="YYY" />
+                </div>
               </div>
 
               <FormSelect

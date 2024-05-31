@@ -19,6 +19,8 @@ import FundRequestSummaryModal from "./components/FundRequestSummaryModal";
 import FundSuccessModal from "./components/FundSuccessModal";
 import StakeholderModal from "./components/StakeholderModal";
 import ProjectObjectiveModal from "./components/ProjectObjectiveModal";
+import ConsortiumModal from "./components/ConsortiumModal";
+import ProjectUploadModal from "./components/ProjectUploadModal";
 
 const sheets: Record<string, ReactNode> = {
   [DialogType.Categories]: <CategoriesModal />,
@@ -37,6 +39,8 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.FundRequstSummaryModal]: <FundRequestSummaryModal />,
   [DialogType.StakeholderModal]: <StakeholderModal />,
   [DialogType.ProjectObjectiveModal]: <ProjectObjectiveModal />,
+  [DialogType.ConsortiumModal]: <ConsortiumModal />,
+  [DialogType.ProjectUploadModal]: <ProjectUploadModal />,
 };
 
 const AppDailog = () => {
