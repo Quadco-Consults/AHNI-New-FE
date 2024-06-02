@@ -1,5 +1,4 @@
-import React from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import CheckIcon from "assets/svgs/CheckIcon";
 import PendingIcon from "assets/svgs/PendingIcon";
 import LongArrowLeft from "components/icons/LongArrowLeft";
@@ -16,24 +15,31 @@ interface StepHeaderProps {
 }
 
 const StepHeader = ({ steps, currentStep }: StepHeaderProps) => {
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const goBack = () => {
-    navigate(-1)
+    navigate(-1);
   };
 
   return (
     <section className="space-y-4">
-      <button onClick={goBack} className="w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center">
+      <button
+        onClick={goBack}
+        className="w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center"
+      >
         <LongArrowLeft />
       </button>
       <div className="grid justify-between w-full grid-cols-6 px-4 py-2 gap-y-4">
         {steps.map((step, index) => (
-          <div className="flex items-start justify-center relative" key={index}>
+          <div className="relative flex items-start justify-center" key={index}>
             <div className="w-[15rem] overflow-hidden h-[8rem] flex flex-col items-start justify-start gap-5">
-              <span>{index < currentStep - 1 ? <CheckIcon /> : <PendingIcon />}</span>
+              <span>
+                {index < currentStep - 1 ? <CheckIcon /> : <PendingIcon />}
+              </span>
               <div className="space-y-1">
-                <div className="text-[10px] font-semibold text-gray-400">STEP {step.step}</div>
+                <div className="text-[10px] font-semibold text-gray-400">
+                  STEP {step.step}
+                </div>
                 <div className="text-sm font-semibold">{step.stepName}</div>
               </div>
             </div>

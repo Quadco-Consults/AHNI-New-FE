@@ -107,7 +107,9 @@ export const procurment = [
     path: RouteEnum.PURCHASE_REQUEST_DETAILS,
     element: lazy(
       () =>
-        import("pages/protectedPages/procurement-management/purchase-request/id/")
+        import(
+          "pages/protectedPages/procurement-management/purchase-request/id/"
+        )
     ),
   },
   {
@@ -121,14 +123,18 @@ export const procurment = [
     path: RouteEnum.PURCHASE_REQUEST_DETAILS,
     element: lazy(
       () =>
-        import("pages/protectedPages/procurement-management/purchase-request/id/")
+        import(
+          "pages/protectedPages/procurement-management/purchase-request/id/"
+        )
     ),
   },
   {
     path: RouteEnum.CREATE_PURCHASE_REQUEST,
     element: lazy(
       () =>
-        import("pages/protectedPages/procurement-management/purchase-request/create-purchase-request")
+        import(
+          "pages/protectedPages/procurement-management/purchase-request/create-purchase-request"
+        )
     ),
   },
   {
