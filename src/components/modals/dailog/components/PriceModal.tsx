@@ -44,6 +44,7 @@ const CustomTooltip = ({
   if (active && payload && payload.length) {
     return (
       <div className="p-2 bg-white border rounded shadow-lg">
+        {/* @ts-ignore */}
         <p className="label">{`${label} : ${payload[0].value.toLocaleString()}`}</p>
       </div>
     );
