@@ -13,7 +13,7 @@ import { FormField, FormItem, Form, FormControl } from "components/ui/form";
 import Card from "components/shared/Card";
 import FormInput from "atoms/FormInput";
 import MultiSelectFormField from "components/ui/multiselect";
-import { Badge } from "components/ui/badge";
+import LocationSvg from "assets/svgs/LocationSvg";
 
 const frameworksList = [
   {
@@ -104,11 +104,7 @@ const Summary = () => {
               <FormInput name="result" label="Expected results" />
 
               <div className="space-y-1">
-                <Label className="font-semibold">Location of the project</Label>
-                <p className="text-xs font-light">
-                  Enter all locations that applies and press the “Enter” key
-                  after each location
-                </p>
+                <Label className="font-semibold">Target population</Label>
                 <FormField
                   control={form.control}
                   name="location"
@@ -128,24 +124,52 @@ const Summary = () => {
                 />
               </div>
 
-              <FormInput name="population" label="Target population" />
+              {/* <FormInput name="population" label="Target population" /> */}
 
               <div className="flex flex-col w-full mt-10 space-y-3">
                 <Label className="font-semibold">Consortium partners</Label>
                 <div className="flex flex-wrap gap-3">
                   {[
-                    "Family Health International (FHI 360)",
-                    "The American University of Nigeria-AUN",
-                    "Ekklesiyar ‘Yan uwa a Nigeria (EYN)",
-                    "Federation of Muslim Associations of Nigeria (FOMWAN)",
-                  ].map((option: string, index: number) => (
-                    <Badge
-                      variant="default"
+                    {
+                      location: "Abuja",
+                      partner: [
+                        "Family Health International (FHI 360)",
+                        "The American University of Nigeria-AUN",
+                      ],
+                    },
+                    {
+                      location: "Kaduna",
+                      partner: [
+                        "The American University of Nigeria-AUN",
+                        "The American University of Nigeria-AUN",
+                      ],
+                    },
+                    {
+                      location: "Jigawa",
+                      partner: [
+                        "Ekklesiyar ‘Yan uwa a Nigeria (EYN)",
+                        "The American University of Nigeria-AUN",
+                      ],
+                    },
+                  ].map((option: any, index: number) => (
+                    <div
                       key={index}
-                      className="bg-[#EBE8E1] text-[#1a0000ad] px-4 py-2 rounded-lg"
+                      className="border px-7 py-4 space-y-3 rounded-lg"
                     >
-                      {option}
-                    </Badge>
+                      <div className="flex gap-3 items-center">
+                        <LocationSvg />{" "}
+                        <h4 className="font-semibold">{option.location}</h4>
+                      </div>
+                      <ul className="text-sm text-[#756D6D] space-y-2">
+                        {option.partner.map(
+                          (partner: string, index: number) => (
+                            <li key={index} className=" list-disc">
+                              {partner}
+                            </li>
+                          )
+                        )}
+                      </ul>
+                    </div>
                   ))}
                   <Button
                     type="button"
