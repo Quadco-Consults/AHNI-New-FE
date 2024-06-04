@@ -27,6 +27,7 @@ const Uploads = () => {
   const { handleSubmit } = form;
 
   const onSubmit = () => {
+    sessionStorage.removeItem("projectsCompletedSteps");
     navigate(RouteEnum.PROJECTS);
   };
 
