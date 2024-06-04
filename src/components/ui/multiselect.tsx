@@ -3,7 +3,6 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { CheckIcon, XCircle, ChevronDown, XIcon } from "lucide-react";
 import { cn } from "lib/utils";
 import { Separator } from "components/ui/separator";
-import { Button } from "components/ui/button";
 import { Badge } from "components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import {
@@ -25,7 +24,7 @@ const multiSelectVariants = cva("m-1", {
         "border-foreground/10 bg-secondary text-secondary-foreground hover:bg-secondary/80",
       destructive:
         "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
-      inverted: "inverted",
+      inverted: "bg-yellow-600",
     },
   },
   defaultVariants: {
@@ -190,9 +189,9 @@ const MultiSelectFormField = React.forwardRef<
                     >
                       <div
                         className={cn(
-                          "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                          "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-yellow-600",
                           isSelected
-                            ? "bg-primary text-primary-foreground"
+                            ? "bg-yellow-600 text-primary-foreground"
                             : "opacity-50 [&_svg]:invisible"
                         )}
                       >
