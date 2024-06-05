@@ -32,10 +32,9 @@ const WorkPlanUploadModal = () => {
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
           <FormInput name="project-name" label="Name of Project Partner" />
+          <FileUpload />
         </form>
       </Form>
-
-      <FileUpload />
 
       <div className="flex justify-between gap-5 mt-16">
         <Button type="button" className="bg-[#FFF2F2] text-primary ">
