@@ -15,6 +15,9 @@ import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
 import ApproveIcon from "components/icons/ApproveIcon";
 import DataTable from "components/Table/DataTable";
+import { openDialog } from "store/ui";
+import { DialogType } from "constants/dailogs";
+import { useAppDispatch } from "hooks/useStore";
 
 type WorkPlanData = {
   projectTitle: string;
@@ -37,6 +40,8 @@ const data: WorkPlanData[] = Array(10).fill({
 });
 
 const FundRequest = () => {
+  const dispatch = useAppDispatch();
+
   const columns = useMemo<ColumnDef<WorkPlanData>[]>(
     () => [
       {
@@ -81,8 +86,7 @@ const FundRequest = () => {
                 "p-1 rounded-lg",
                 getValue() === "Approved" && "bg-green-50 text-green-500",
                 getValue() === "Reject" && "bg-red-50 text-red-500",
-                getValue() === "Pending" &&
-                  "bg-yellow-200 text-yellow-800 text-yellow-500",
+                getValue() === "Pending" && "bg-yellow-50 text-yellow-500",
                 getValue() === "On Hold" && "text-grey-50 bg-grey-500"
               )}
             >
@@ -130,6 +134,17 @@ const FundRequest = () => {
                 <Button
                   className="w-full flex items-center justify-start gap-2"
                   variant="ghost"
+                  onClick={() => {
+                    dispatch(
+                      openDialog({
+                        type: DialogType.SspApproveModal,
+                        dialogProps: {
+                          header: "Request Approval",
+                          width: "max-w-2xl",
+                        },
+                      })
+                    );
+                  }}
                 >
                   <ApproveIcon />
                   Approve
@@ -152,10 +167,12 @@ const FundRequest = () => {
   return (
     <div className="space-y-5">
       <div className="flex justify-end">
-        <Button className="flex gap-2 py-6">
-          <AddSquareIcon />
-          New Fund Request
-        </Button>
+        <Link to={RouteEnum.PROGRAM_FUND_REQUEST_PROJECT_DETAIL}>
+          <Button className="flex gap-2 py-6">
+            <AddSquareIcon />
+            New Fund Request
+          </Button>
+        </Link>
       </div>
 
       <Card className="space-y-5">
