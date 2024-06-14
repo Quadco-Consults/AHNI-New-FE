@@ -1,3 +1,7 @@
+export const AuthRoutes = {
+  LOGIN: "/auth/login",
+};
+
 export const AdminRoutes = {
   OVERVIEW: "/admin/overview",
   CONSUMABLES: "/admin/inventory-managment/consumables",

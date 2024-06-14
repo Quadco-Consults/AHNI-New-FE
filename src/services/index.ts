@@ -8,12 +8,12 @@ import {
 import { RootState } from "src/store";
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: "/api/v1",
+  baseUrl: "http://apierp.ahnigeria.org/api/v1/",
   prepareHeaders: (headers, { getState }) => {
     const { auth } = getState() as RootState;
 
-    if (auth.accessToken) {
-      headers.set("Authorization", `Token ${auth.accessToken}`);
+    if (auth.access_token) {
+      headers.set("Authorization", `Bearer ${auth.access_token}`);
     }
     return headers;
   },

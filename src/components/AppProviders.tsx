@@ -5,6 +5,7 @@ import { Provider as ReduxProvider } from "react-redux";
 import AppDailog from "./modals/dailog/AppDailog";
 import { store } from "store/index";
 import { BrowserRouter } from "react-router-dom";
+import { Toaster } from "./ui/sonner";
 
 type PageProps = {
   children: ReactNode;
@@ -16,6 +17,7 @@ const AppProviders: FC<PageProps> = ({ children }) => {
       <ReduxProvider store={store}>
         <BrowserRouter>
           <AppDailog />
+          <Toaster richColors />
           {children}
         </BrowserRouter>
       </ReduxProvider>
