@@ -13,38 +13,29 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
 import DataTable from "components/Table/DataTable";
-
-type projectData = {
-  projectTitle: string;
-  projectID: string;
-  projectStartDate: string;
-  projectEndDate: string;
-  status: string;
-  budget: string;
-  source: string;
-  manager: string;
-  impact: string;
-  beneficiarie: string;
-};
-
-const data: projectData[] = Array(10).fill({
-  projectTitle:
-    "Accelerating Control of the HIV Epidemic in Nigeria (ACE 5 AKS & CRS)",
-  projectID: "ACE001",
-  projectStartDate: "10/04/2023",
-  projectEndDate: "10/04/2023",
-  status: "Review Pending",
-  budget: "$2,000,000",
-  source: "External Global funding",
-  manager: "Jane Doe",
-  impact: "Increased literacy and reduced disease prevalence",
-  beneficiaries: "Rural communities",
-});
+import projectsAPi from "services/projectsApi";
+import { ProjectsResultsData } from "definations/projects";
+import { useMemo } from "react";
 
 const FundRequest = () => {
-  const columns: ColumnDef<projectData>[] = [
+  const projectsQueryResult = projectsAPi.useGetProjectsQuery(
+    useMemo(
+      () => ({
+        params: {
+          // fields: "id, logo, name, state",
+          // page_size: pagination.pageSize,
+          // page: pagination.pageIndex + 1,
+        },
+      }),
+      []
+    )
+  );
+
+  const projects = projectsQueryResult?.data?.results;
+
+  const columns: ColumnDef<ProjectsResultsData>[] = [
     {
-      header: "Project Title",
+      header: "Title",
       accessorKey: "projectTitle",
       size: 150,
     },
@@ -184,7 +175,7 @@ const FundRequest = () => {
           </Button>
         </div>
 
-        <DataTable data={data} columns={columns} />
+        <DataTable data={projects || []} columns={columns} />
       </Card>
     </div>
   );

@@ -7,7 +7,6 @@ import { Button } from "components/ui/button";
 import { Checkbox } from "components/ui/checkbox";
 import { MapPin, Search } from "lucide-react";
 import { Input } from "components/ui/input";
-import fhiIcon from "assets/imgs/fhi.png";
 import {
   Select,
   SelectContent,
@@ -15,8 +14,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "components/ui/select";
+import partnersAPi from "services/partnersApi";
+import { PartnerResultsData } from "definations/partners";
+import { useMemo } from "react";
 
 const ConsortiumModal = () => {
+  const partnersQueryResult = partnersAPi.useGetPartnersQuery(
+    useMemo(
+      () => ({
+        params: {
+          fields: "id, logo, name, state",
+          // page_size: pagination.pageSize,
+          // page: pagination.pageIndex + 1,
+        },
+      }),
+      []
+    )
+  );
+  const partners = partnersQueryResult?.data?.results;
+
   return (
     <div className="flex flex-col mt-10 items-center justify-center w-full h-[80vh] ">
       <ScrollArea className="h-[90%] space-y-5 pb-5">
@@ -55,30 +71,26 @@ const ConsortiumModal = () => {
         </div>
 
         <div className="grid grid-cols-2 gap-5 bg-gray-100 mt-10 p-5 rounded-lg shadow-inner md:grid-cols-3">
-          {Array(6)
-            .fill({
-              icon: fhiIcon,
-              name: "Family Health International (FHI 360)",
-              location: "Adamawa",
-            })
-            .map((option: any, index: number) => (
-              <div
-                key={index}
-                className="flex p-5 bg-white border rounded-lg gap-1 items-center "
-              >
-                <Checkbox />
-                <img src={fhiIcon} alt="" width={100} />
-                <div className="text-sm space-y-1">
-                  <h4>{option.name}</h4>
-                  <p className="flex items-center gap-1">
-                    <span>
-                      <MapPin size={15} />
-                    </span>
-                    {option.location}
-                  </p>
-                </div>
+          {partners?.map((option: PartnerResultsData) => (
+            <div
+              key={option.id}
+              className="flex p-5 bg-white border rounded-lg gap-3 items-center "
+            >
+              <Checkbox />
+              <div>
+                <img src={option.logo} alt="" width={80} />
               </div>
-            ))}
+              <div className="text-sm space-y-1">
+                <h4>{option.name}</h4>
+                <p className="flex items-center gap-1">
+                  <span>
+                    <MapPin size={15} />
+                  </span>
+                  {option.state}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </ScrollArea>
       <div className="flex justify-end w-full my-5">
