@@ -45,12 +45,12 @@ const FundRequest = () => {
       size: 200,
     },
     {
-      header: "Project Start Date",
+      header: "Start Date",
       accessorKey: "projectStartDate",
       size: 200,
     },
     {
-      header: "Project End Date",
+      header: "End Date",
       accessorKey: "projectEndDate",
       size: 200,
     },
@@ -86,7 +86,7 @@ const FundRequest = () => {
       size: 150,
     },
     {
-      header: "Project Manager",
+      header: "Manager",
       accessorKey: "manager",
       size: 150,
     },
@@ -96,7 +96,7 @@ const FundRequest = () => {
       size: 150,
     },
     {
-      header: "Project Beneficiaries",
+      header: "Beneficiaries",
       accessorKey: "beneficiaries",
       size: 150,
     },

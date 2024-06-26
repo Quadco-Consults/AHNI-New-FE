@@ -2,9 +2,11 @@ import FormButton from "atoms/FormButton";
 import FormTextArea from "atoms/FormTextArea";
 import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";
+import { useAppDispatch } from "hooks/useStore";
 import { X } from "lucide-react";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { closeDialog } from "store/ui";
 
 interface InputValues {
   value: string;
@@ -12,7 +14,7 @@ interface InputValues {
 
 const ProjectObjectiveModal = () => {
   const [inputValues, setInputValues] = useState<InputValues[]>([]);
-  console.log(inputValues);
+  const dispatch = useAppDispatch();
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -86,7 +88,7 @@ const ProjectObjectiveModal = () => {
           <Button type="button" className="bg-[#FFF2F2] text-primary ">
             Cancel
           </Button>
-          <FormButton>Done</FormButton>
+          <Button onClick={() => dispatch(closeDialog())}>Done</Button>
         </div>
       </form>
     </Form>
