@@ -2,7 +2,7 @@
 /* eslint-disable no-unused-vars */
 import { invalidateTags, provideTags } from "utils/QueryUtils";
 import baseAPI from ".";
-import { z } from "zod";
+import { boolean, number, z } from "zod";
 import {
   PartnerResultsData,
   PartnersData,
@@ -14,10 +14,11 @@ const BASE_URL = "/projects/partners/";
 
 const partnersAPi = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getPartners: builder.query<PartnersData, { params: {} }>({
-      query: () => {
+    getPartners: builder.query<PartnersData, {}>({
+      query: (config) => {
         return {
           url: `${BASE_URL}`,
+          ...config,
         };
       },
       providesTags: (data, error) =>
