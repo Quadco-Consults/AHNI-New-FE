@@ -1,13 +1,12 @@
 import { combineReducers } from "@reduxjs/toolkit";
 import { persistReducer } from "redux-persist";
 import baseAPI from "../services";
-import storage from "redux-persist/es/storage";
+import storage from "redux-persist/es/storage/session";
 import auth from "./auth/authSlice";
 import ui from "./ui";
 
 const persistConfig = {
   storage,
-
   key: "ahni",
 };
 
