@@ -8,7 +8,7 @@ import {
 import { RootState } from "src/store";
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: "http://apierp.ahnigeria.org/api/v1/",
+  baseUrl: "https://apierp.ahnigeria.org/api/v1/",
   prepareHeaders: (headers, { getState }) => {
     const { auth } = getState() as RootState;
 
