@@ -32,7 +32,6 @@ const LoginForm = () => {
         dispatch(setAuth(resp.data));
         navigate("/");
         toast.success(resp.message);
-        console.log(resp);
       }
     } catch (error) {
       toast.error("Somethign wen wrong pls, try again");
@@ -45,7 +44,7 @@ const LoginForm = () => {
           className="flex flex-col gap-y-14"
           onSubmit={handleSubmit(onSubmit)}
         >
-          <img src="/src/assets/svgs/logo.svg" className="w-[130px]" />
+          <img src="/imgs/logo.png" className="w-[130px]" />
           <h1 className="text-2xl font-bold">Sign In</h1>
           <div className="space-y-8">
             <FormInput
