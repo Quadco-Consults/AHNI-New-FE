@@ -1,18 +1,43 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import Card from "components/shared/Card";
 import Summary from "./Summary";
 import Performance from "./Performance";
 import Uploads from "./Upload";
 import Activity from "./Activity";
+import projectsAPi from "services/projectsApi";
+import Loading from "components/shared/Loading";
+// import { useMemo } from "react";
 
 const ProjectDetail = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
+
+  const projectsQueryResult = projectsAPi.useGetProjectQuery(
+    { path: { id: id as string } }
+    // useMemo(
+    //   () => ({
+    //     params: {
+    //       // fields: "id, logo, name, state",
+    //       // page_size: pagination.pageSize,
+    //       // page: pagination.pageIndex + 1,
+    //     },
+    //   }),
+    //   []
+    // )
+  );
+
+  const projects = projectsQueryResult?.data;
+  console.log(projects);
 
   const goBack = () => {
     navigate(-1);
   };
+
+  if (projectsQueryResult?.isLoading) {
+    return <Loading />;
+  }
 
   return (
     <div className="space-y-6 relative min-h-screen">
@@ -30,12 +55,12 @@ const ProjectDetail = () => {
             Project Performance
           </TabsTrigger>
           <TabsTrigger value="Upload">Uploads</TabsTrigger>
-          <TabsTrigger value="activity/Report">Activity/Report</TabsTrigger>
+          {/* <TabsTrigger value="activity/Report">Activity/Report</TabsTrigger> */}
         </TabsList>
 
         <TabsContent value="summary">
           <Card>
-            <Summary />
+            <Summary {...projects} />
           </Card>
         </TabsContent>
         <TabsContent value="project Performance">
@@ -44,9 +69,9 @@ const ProjectDetail = () => {
         <TabsContent value="Upload">
           <Uploads />
         </TabsContent>
-        <TabsContent value="activity/Report">
+        {/* <TabsContent value="activity/Report">
           <Activity />
-        </TabsContent>
+        </TabsContent> */}
       </Tabs>
     </div>
   );
