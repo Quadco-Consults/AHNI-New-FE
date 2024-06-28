@@ -15,7 +15,6 @@ const Summary = (projects: any) => {
 
       <div className="space-y-1">
         <h3 className="font-semibold">Project Objectives</h3>
-
         {projects.project_objectives.map((obj: any) => (
           <div key={obj?.id} className="space-y-2">
             <p className="text-sm text-gray-500">{obj?.title}</p>

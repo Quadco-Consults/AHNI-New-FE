@@ -3,33 +3,21 @@ import { useNavigate, useParams } from "react-router-dom";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import Card from "components/shared/Card";
 import Summary from "./Summary";
-import Performance from "./Performance";
+// import Performance from "./Performance";
 import Uploads from "./Upload";
-import Activity from "./Activity";
+// import Activity from "./Activity";
 import projectsAPi from "services/projectsApi";
-import Loading from "components/shared/Loading";
-// import { useMemo } from "react";
+import { Loading } from "components/shared/Loading";
 
 const ProjectDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const projectsQueryResult = projectsAPi.useGetProjectQuery(
-    { path: { id: id as string } }
-    // useMemo(
-    //   () => ({
-    //     params: {
-    //       // fields: "id, logo, name, state",
-    //       // page_size: pagination.pageSize,
-    //       // page: pagination.pageIndex + 1,
-    //     },
-    //   }),
-    //   []
-    // )
-  );
+  const projectsQueryResult = projectsAPi.useGetProjectQuery({
+    path: { id: id as string },
+  });
 
   const projects = projectsQueryResult?.data;
-  console.log(projects);
 
   const goBack = () => {
     navigate(-1);
@@ -51,9 +39,9 @@ const ProjectDetail = () => {
       <Tabs defaultValue="summary" className="space-y-10">
         <TabsList className="ml-20">
           <TabsTrigger value="summary">Project Summary</TabsTrigger>
-          <TabsTrigger value="project Performance">
+          {/* <TabsTrigger value="project Performance">
             Project Performance
-          </TabsTrigger>
+          </TabsTrigger> */}
           <TabsTrigger value="Upload">Uploads</TabsTrigger>
           {/* <TabsTrigger value="activity/Report">Activity/Report</TabsTrigger> */}
         </TabsList>
@@ -63,9 +51,9 @@ const ProjectDetail = () => {
             <Summary {...projects} />
           </Card>
         </TabsContent>
-        <TabsContent value="project Performance">
+        {/* <TabsContent value="project Performance">
           <Performance />
-        </TabsContent>
+        </TabsContent> */}
         <TabsContent value="Upload">
           <Uploads />
         </TabsContent>
