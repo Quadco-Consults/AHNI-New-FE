@@ -26,28 +26,44 @@ import {
   DialogTrigger,
 } from "components/ui/dialog";
 import FormTextArea from "atoms/FormTextArea";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "store/index";
 import projectsAPi from "services/projectsApi";
 import { toast } from "sonner";
 import { closeDialog } from "store/ui";
 import { format } from "date-fns";
-
 import { cn } from "lib/utils";
 import { Calendar } from "components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import FundingSourceAPi from "services/funding-sourceApi";
+import { partnerActions } from "store/formData/partner-location";
 
 interface InputValues {
   title: string;
 }
 
 const Summary = () => {
-  const [date, setDate] = useState<Date>();
+  const [startDate, setStartDate] = useState<Date>();
+  const [endDate, setEndDate] = useState<Date>();
+  const dispatchPartner = useDispatch();
   const beneficiariesQueryResults = beneficiariesAPi.useGetBeneficiariesQuery(
     useMemo(
       () => ({
         params: {
-          fields: "id,name",
+          // fields: "id,name",
+          no_paginate: false,
+          // page_size: pagination.pageSize,
+          // page: pagination.pageIndex + 1,
+        },
+      }),
+      []
+    )
+  );
+  const fundingSourceQueryResults = FundingSourceAPi.useGetFundingSourcesQuery(
+    useMemo(
+      () => ({
+        params: {
+          // fields: "id,name",
           no_paginate: false,
           // page_size: pagination.pageSize,
           // page: pagination.pageIndex + 1,
@@ -83,6 +99,7 @@ const Summary = () => {
   };
 
   const beneficiariesData = beneficiariesQueryResults?.data?.results;
+  const fundingSourceData = fundingSourceQueryResults?.data?.results;
 
   const navigate = useNavigate();
 
@@ -98,9 +115,10 @@ const Summary = () => {
   const form = useForm<z.infer<typeof ProjectsSummarySchema>>({
     resolver: zodResolver(ProjectsSummarySchema),
     defaultValues: {
+      // project_id: "5667e",
       title: "",
       goal: "",
-      budget: 0,
+      budget: "",
       funding_source: [],
       project_manager: "",
       objectives: "",
@@ -115,16 +133,23 @@ const Summary = () => {
 
   const onSubmit = async (data: z.infer<typeof ProjectsSummarySchema>) => {
     const formData = {
+      project_id: "f12345",
       objectives: [
         {
           title: data.objectives,
           sub_objectives: inputValues,
         },
       ],
+      project_manager: data.project_manager,
       location_partners,
       goal: data.goal,
       expected_results: data.expected_results,
       beneficiaries: data.beneficiaries,
+      funding_source: data.funding_source,
+      title: data.title,
+      budget: Number(data.budget),
+      start_date: startDate && format(startDate, "yyy-MM-dd"),
+      end_date: endDate && format(endDate, "yyy-MM-dd"),
     };
 
     try {
@@ -134,7 +159,8 @@ const Summary = () => {
       toast.error("Something went wrong");
       console.log(error);
     }
-    console.log(formData);
+
+    dispatchPartner(partnerActions.clearPartnerLocation());
 
     let path = pathname;
 
@@ -171,12 +197,12 @@ const Summary = () => {
                         variant={"outline"}
                         className={cn(
                           "w-[280px] justify-start text-left font-normal",
-                          !date && "text-muted-foreground"
+                          !startDate && "text-muted-foreground"
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {date ? (
-                          format(date, "yyy-MM-dd")
+                        {startDate ? (
+                          format(startDate, "yyy-MM-dd")
                         ) : (
                           <span>Pick a date</span>
                         )}
@@ -185,8 +211,8 @@ const Summary = () => {
                     <PopoverContent className="w-auto p-0">
                       <Calendar
                         mode="single"
-                        selected={date}
-                        onSelect={setDate}
+                        selected={startDate}
+                        onSelect={setStartDate}
                         initialFocus
                       />
                     </PopoverContent>
@@ -201,12 +227,12 @@ const Summary = () => {
                         variant={"outline"}
                         className={cn(
                           "w-[280px] justify-start text-left font-normal",
-                          !date && "text-muted-foreground"
+                          !endDate && "text-muted-foreground"
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {date ? (
-                          format(date, "yyy-MM-dd")
+                        {endDate ? (
+                          format(endDate, "yyy-MM-dd")
                         ) : (
                           <span>Pick a date</span>
                         )}
@@ -215,8 +241,8 @@ const Summary = () => {
                     <PopoverContent className="w-auto p-0">
                       <Calendar
                         mode="single"
-                        selected={date}
-                        onSelect={setDate}
+                        selected={endDate}
+                        onSelect={setEndDate}
                         initialFocus
                       />
                     </PopoverContent>
@@ -224,9 +250,9 @@ const Summary = () => {
                 </div>
               </div>
 
-              <div className="grid gap-3 grid-cols-1 md:grid-cols-3">
+              <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
                 <FormInput name="budget" label="Budget" />
-                <FormInput name="funding_source" label="Funding Source" />
+
                 <FormInput
                   required
                   name="project_manager"
@@ -234,7 +260,26 @@ const Summary = () => {
                 />
               </div>
 
-              <FormInput name="outcome" label="Outcomes/Impact" />
+              <div>
+                <Label className="font-semibold">Funding Source</Label>
+                <FormField
+                  control={form.control}
+                  name="funding_source"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <MultiSelectFormField
+                          options={fundingSourceData || []}
+                          defaultValue={field.value}
+                          onValueChange={field.onChange}
+                          placeholder="Select options"
+                          variant="inverted"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <hr />
 
@@ -342,39 +387,17 @@ const Summary = () => {
               <div className="flex flex-col w-full mt-10 space-y-3">
                 <Label className="font-semibold">Consortium partners</Label>
                 <div className="flex flex-wrap gap-3">
-                  {[
-                    {
-                      location: "Abuja",
-                      partner: [
-                        "Family Health International (FHI 360)",
-                        "The American University of Nigeria-AUN",
-                      ],
-                    },
-                    {
-                      location: "Kaduna",
-                      partner: [
-                        "The American University of Nigeria-AUN",
-                        "The American University of Nigeria-AUN",
-                      ],
-                    },
-                    {
-                      location: "Jigawa",
-                      partner: [
-                        "Ekklesiyar ‘Yan uwa a Nigeria (EYN)",
-                        "The American University of Nigeria-AUN",
-                      ],
-                    },
-                  ].map((option: any, index: number) => (
+                  {location_partners.map((option: any, index: number) => (
                     <div
                       key={index}
                       className="border px-7 py-4 space-y-3 rounded-lg"
                     >
                       <div className="flex gap-3 items-center">
                         <LocationSvg />{" "}
-                        <h4 className="font-semibold">{option.location}</h4>
+                        <h4 className="font-semibold">{option.location_id}</h4>
                       </div>
                       <ul className="text-sm text-[#756D6D] space-y-2">
-                        {option.partner.map(
+                        {option.partner_ids.map(
                           (partner: string, index: number) => (
                             <li key={index} className=" list-disc">
                               {partner}

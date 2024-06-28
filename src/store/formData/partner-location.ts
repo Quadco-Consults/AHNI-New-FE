@@ -20,6 +20,9 @@ const partnerSlice = createSlice({
     addPartnerLocation: (state, { payload }: PayloadAction<PartnerProps>) => {
       state.items.push(payload);
     },
+    clearPartnerLocation: (state) => {
+      state.items = [];
+    },
   },
 });
 

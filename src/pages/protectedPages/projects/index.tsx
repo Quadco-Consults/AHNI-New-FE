@@ -36,22 +36,22 @@ const FundRequest = () => {
   const columns: ColumnDef<ProjectsResultsData>[] = [
     {
       header: "Title",
-      accessorKey: "projectTitle",
+      accessorKey: "title",
       size: 150,
     },
     {
       header: "ProjectID",
-      accessorKey: "projectID",
+      accessorKey: "project_id",
       size: 200,
     },
     {
       header: "Start Date",
-      accessorKey: "projectStartDate",
+      accessorKey: "start_date",
       size: 200,
     },
     {
       header: "End Date",
-      accessorKey: "projectEndDate",
+      accessorKey: "end_date",
       size: 200,
     },
     {
@@ -82,22 +82,22 @@ const FundRequest = () => {
     },
     {
       header: "Funding Source",
-      accessorKey: "source",
+      cell: ({ row }) => <ProjectFundingSource data={row.original} />,
       size: 150,
     },
     {
       header: "Manager",
-      accessorKey: "manager",
+      accessorKey: "project_manager",
       size: 150,
     },
     {
       header: "Outcome/Impact",
-      accessorKey: "impact",
+      accessorKey: "goal",
       size: 150,
     },
     {
       header: "Beneficiaries",
-      accessorKey: "beneficiaries",
+      cell: ({ row }) => <ProjectBeneficiaries data={row.original} />,
       size: 150,
     },
     {
@@ -106,9 +106,30 @@ const FundRequest = () => {
       cell: ({ row }) => <ActionListAction data={row.original} />,
     },
   ];
+  const ProjectBeneficiaries = ({ data }: any) => {
+    return (
+      <div className="flex gap-2 flex-wrap">
+        {data?.project_funding_source.map((el: any) => (
+          <Badge key={el.id} className="bg-[#EBE8E1] text-[#1a0000ad]">
+            {el.name}
+          </Badge>
+        ))}
+      </div>
+    );
+  };
+  const ProjectFundingSource = ({ data }: any) => {
+    return (
+      <div className="flex gap-2 flex-wrap">
+        {data?.project_beneficiaries.map((el: any) => (
+          <Badge key={el.id} className="bg-[#EBE8E1] text-[#1a0000ad]">
+            {el.name}
+          </Badge>
+        ))}
+      </div>
+    );
+  };
 
   const ActionListAction = ({ data }: any) => {
-    console.log(data);
     return (
       <div className="flex items-center gap-2">
         <>
@@ -123,7 +144,7 @@ const FundRequest = () => {
                 <Link
                   className="w-full"
                   to={generatePath(RouteEnum.PROJECTS_DETAILS, {
-                    id: "1",
+                    id: data?.id,
                   })}
                 >
                   <Button
@@ -175,7 +196,11 @@ const FundRequest = () => {
           </Button>
         </div>
 
-        <DataTable data={projects || []} columns={columns} />
+        <DataTable
+          data={projects || []}
+          columns={columns}
+          isLoading={projectsQueryResult?.isLoading}
+        />
       </Card>
     </div>
   );

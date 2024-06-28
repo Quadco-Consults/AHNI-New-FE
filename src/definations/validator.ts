@@ -51,12 +51,9 @@ export const ProjectPartnerSchema = z.object({
 });
 
 export const ProjectDocumentSchema = z.object({
-  //   id: z.string(),
-  created_at: z.string(),
-  updated_at: z.string(),
   title: z.string(),
-  document: z.string(),
   project: z.string(),
+  document: z.instanceof(FileList),
 });
 
 const objectives = z.object({
@@ -71,7 +68,7 @@ const locationPartners = z.object({
 
 // Define the main schema
 export const ProjectsSummarySchema = z.object({
-  //   id: z.string(),
+  // project_id: z.string(),
   beneficiaries: z.array(z.string()),
   objectives: z.string(),
   // project_partners: z.array(ProjectPartnerSchema),
@@ -82,7 +79,7 @@ export const ProjectsSummarySchema = z.object({
   title: z.string(),
   goal: z.string(),
   expected_results: z.string(),
-  budget: z.number(),
+  budget: z.string(),
   // status: z.string(),
   project_manager: z.string(),
   funding_source: z.array(z.string()),

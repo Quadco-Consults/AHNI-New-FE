@@ -1,15 +1,15 @@
-export type ProjectsResultsData = {
+export interface ProjectsResultsData {
   id: string;
-  beneficiaries: [
+  beneficiaries?: [
     {
-      id: string;
+      id: string | undefined;
       created_at: string;
       updated_at: string;
       name: string;
       description: string;
     }
   ];
-  funding_sources: [
+  funding_sources?: [
     {
       id: string;
       created_at: string;
@@ -60,8 +60,8 @@ export type ProjectsResultsData = {
   budget: number;
   status: string;
   project_manager: string;
-  funding_source: string[];
-};
+  funding_source?: string[];
+}
 
 export interface ProjectsData {
   count: number;
