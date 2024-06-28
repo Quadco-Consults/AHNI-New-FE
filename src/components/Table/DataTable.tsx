@@ -5,6 +5,7 @@ import {
   ColumnDef,
   flexRender,
 } from "@tanstack/react-table";
+import Loading from "components/shared/Loading";
 
 import {
   Table as ShadTable,
@@ -19,9 +20,15 @@ interface TableProps<TData> {
   data: TData[];
   columns: ColumnDef<TData, any>[];
   onRowClick?: () => void;
+  isLoading: boolean;
 }
 
-function DataTable<TData>({ data, columns, onRowClick }: TableProps<TData>) {
+function DataTable<TData>({
+  data,
+  columns,
+  onRowClick,
+  isLoading,
+}: TableProps<TData>) {
   const table = useReactTable<TData>({
     data,
     columns,
@@ -58,21 +65,25 @@ function DataTable<TData>({ data, columns, onRowClick }: TableProps<TData>) {
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows.map((row) => (
-            <TableRow
-              className="cursor-pointer text-[#756D6D] text-sm "
-              key={row.id}
-              onClick={() => onRowClick && onRowClick()}
-            >
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
+        {isLoading ? (
+          <Loading />
+        ) : (
+          <TableBody>
+            {table.getRowModel().rows.map((row) => (
+              <TableRow
+                className="cursor-pointer text-[#756D6D] text-sm "
+                key={row.id}
+                onClick={() => onRowClick && onRowClick()}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        )}
       </ShadTable>
       <div className="flex justify-end my-4 gap-x-4 ">
         <button

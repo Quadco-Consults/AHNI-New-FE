@@ -5,9 +5,7 @@ import logoPng from "assets/imgs/logo.png";
 import { ScrollArea } from "components/ui/scroll-area";
 import { Button } from "components/ui/button";
 import { Checkbox } from "components/ui/checkbox";
-import { MapPin, Search } from "lucide-react";
-import { Input } from "components/ui/input";
-import fhiIcon from "assets/imgs/fhi.png";
+import { MapPin } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -15,22 +13,96 @@ import {
   SelectTrigger,
   SelectValue,
 } from "components/ui/select";
+import partnersAPi from "services/partnersApi";
+import { PartnerResultsData } from "definations/partners";
+import { useMemo, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "components/ui/form";
+import { PartnersFormSchema } from "definations/validator";
+import LocationAPi from "services/locationApi";
+import { LocationResultsData } from "definations/location";
+import { useDispatch } from "react-redux";
+import { partnerActions } from "store/formData/partner-location";
 
 const ConsortiumModal = () => {
-  return (
-    <div className="flex flex-col mt-10 items-center justify-center w-full h-[80vh] ">
-      <ScrollArea className="h-[90%] space-y-5 pb-5">
-        <div className="flex flex-col items-center justify-between">
-          <div>
-            <img src={logoPng} alt="logo" width={150} />
-          </div>
-          <h4 className="mt-8 text-lg font-bold">Select Consortium partners</h4>
-          <p className="mt-5 text-muted-foreground">
-            You can search for partners based on their name and location
-          </p>
+  const [locationValue, setLocationValue] = useState("");
+  const dispatch = useDispatch();
 
-          <div className="flex border rounded-lg mt-6 items-center text-[#20293A] w-full max-w-lg">
-            <div className="ml-2">
+  const handleLocation = (value: string) => {
+    setLocationValue(value);
+  };
+
+  const partnersQueryResult = partnersAPi.useGetPartnersQuery(
+    useMemo(
+      () => ({
+        params: {
+          fields: "id,name,logo,state",
+          // no_paginate: true,
+          // page_size: pagination.pageSize,
+          // page: pagination.pageIndex + 1,
+        },
+      }),
+      []
+    )
+  );
+  const locationsQueryResult = LocationAPi.useGetLocationQuery(
+    useMemo(
+      () => ({
+        params: {
+          fields: "id,state",
+          // no_paginate: true,
+          // page_size: pagination.pageSize,
+          // page: pagination.pageIndex + 1,
+        },
+      }),
+      []
+    )
+  );
+
+  const partners = partnersQueryResult?.data?.results;
+  const locations = locationsQueryResult?.data?.results;
+
+  const form = useForm<z.infer<typeof PartnersFormSchema>>({
+    resolver: zodResolver(PartnersFormSchema),
+    defaultValues: {
+      items: [],
+    },
+  });
+
+  const onSubmit = (data: z.infer<typeof PartnersFormSchema>) => {
+    const submittedValues = {
+      location_id: locationValue,
+      partner_ids: data?.items,
+    };
+    dispatch(partnerActions.addPartnerLocation(submittedValues));
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <div className="flex flex-col mt-10 items-center justify-center w-full h-[80vh] ">
+          <ScrollArea className="h-[90%] space-y-5 pb-5">
+            <div className="flex flex-col items-center justify-between">
+              <div>
+                <img src={logoPng} alt="logo" width={150} />
+              </div>
+              <h4 className="mt-8 text-lg font-bold">
+                Select Consortium partners
+              </h4>
+              <p className="mt-5 text-muted-foreground">
+                You can search for partners based on their name and location
+              </p>
+
+              <div className="flex gap-2 mt-6 items-center w-full max-w-sm">
+                {/* <div className="ml-2">
               <Search />
             </div>
             <Input
@@ -38,58 +110,87 @@ const ConsortiumModal = () => {
               placeholder="Search name"
               type="search"
             />
-            <p>|</p>
-            <Select>
-              <SelectTrigger className="border-none rounded-none">
-                <SelectValue placeholder="Location" />
-              </SelectTrigger>
+            <p>|</p> */}
+                <Select onValueChange={handleLocation}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Location" />
+                  </SelectTrigger>
 
-              <SelectContent>
-                <SelectItem value="m@example.com">m@example.com</SelectItem>
-                <SelectItem value="m@google.com">m@google.com</SelectItem>
-                <SelectItem value="m@support.com">m@support.com</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button>Search</Button>
+                  <SelectContent>
+                    {locations?.map((partner: LocationResultsData) => (
+                      <SelectItem key={partner?.id} value={partner.id}>
+                        {partner.state}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button>Search</Button>
+              </div>
+            </div>
+
+            <FormField
+              control={form.control}
+              name="items"
+              render={() => (
+                <FormItem className="grid grid-cols-2 gap-5 bg-gray-100 mt-10 p-5 rounded-lg shadow-inner md:grid-cols-3">
+                  {partners?.map((item: PartnerResultsData) => (
+                    <FormField
+                      key={item?.id}
+                      control={form.control}
+                      name="items"
+                      render={({ field }) => {
+                        return (
+                          <FormItem
+                            key={item.id}
+                            className="flex p-5 bg-white border rounded-lg gap-3 items-center "
+                          >
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value?.includes(item?.id)}
+                                onCheckedChange={(checked) => {
+                                  return checked
+                                    ? field.onChange([...field.value, item?.id])
+                                    : field.onChange(
+                                        field.value?.filter(
+                                          (value) => value !== item?.id
+                                        )
+                                      );
+                                }}
+                              />
+                            </FormControl>
+                            <div>
+                              <img src={item.logo} alt="" width={80} />
+                            </div>
+                            <div className="text-sm space-y-1">
+                              <h4>{item.name}</h4>
+                              <p className="flex items-center gap-1">
+                                <span>
+                                  <MapPin size={15} />
+                                </span>
+                                {item.state}
+                              </p>
+                            </div>
+                          </FormItem>
+                        );
+                      }}
+                    />
+                  ))}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </ScrollArea>
+          <div className="flex justify-end w-full my-5">
+            <div className="flex items-center gap-x-4">
+              {/* <p className="text-sm font-medium text-primary">
+                {form.getValues.length} Criteria Selected
+              </p> */}
+              <Button type="submit">Save & Continue</Button>
+            </div>
           </div>
         </div>
-
-        <div className="grid grid-cols-2 gap-5 bg-gray-100 mt-10 p-5 rounded-lg shadow-inner md:grid-cols-3">
-          {Array(6)
-            .fill({
-              icon: fhiIcon,
-              name: "Family Health International (FHI 360)",
-              location: "Adamawa",
-            })
-            .map((option: any, index: number) => (
-              <div
-                key={index}
-                className="flex p-5 bg-white border rounded-lg gap-1 items-center "
-              >
-                <Checkbox />
-                <img src={fhiIcon} alt="" width={100} />
-                <div className="text-sm space-y-1">
-                  <h4>{option.name}</h4>
-                  <p className="flex items-center gap-1">
-                    <span>
-                      <MapPin size={15} />
-                    </span>
-                    {option.location}
-                  </p>
-                </div>
-              </div>
-            ))}
-        </div>
-      </ScrollArea>
-      <div className="flex justify-end w-full my-5">
-        <div className="flex items-center gap-x-4">
-          <p className="text-sm font-medium text-primary">
-            2 Criteria Selected
-          </p>
-          <Button>Save & Continue</Button>
-        </div>
-      </div>
-    </div>
+      </form>
+    </Form>
   );
 };
 

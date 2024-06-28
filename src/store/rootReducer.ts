@@ -4,6 +4,7 @@ import baseAPI from "../services";
 import storage from "redux-persist/es/storage/session";
 import auth from "./auth/authSlice";
 import ui from "./ui";
+import partnerLocation from "./formData/partner-location";
 
 const persistConfig = {
   storage,
@@ -15,6 +16,7 @@ export const rootStore = combineReducers({
   [baseAPI.reducerPath]: baseAPI.reducer,
   auth,
   ui,
+  partnerLocation,
 });
 
 export const rootReducer = persistReducer(persistConfig, rootStore);
