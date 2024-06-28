@@ -3,23 +3,40 @@ import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
 import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";
+import { ProjectDocumentSchema } from "definations/validator";
+import { useMemo } from "react";
 import { useForm } from "react-hook-form";
+import projectsAPi from "services/projectsApi";
+import { z } from "zod";
 
 const ProjectUploadModal = () => {
-  const form = useForm({
-    defaultValues: {
-      title: [
-        {
-          name: "",
-          numberOfPersons: "",
+  const { data } = projectsAPi.useGetProjectsQuery(
+    useMemo(
+      () => ({
+        params: {
+          // fields: "id, logo, name, state",
+          // page_size: pagination.pageSize,
+          // page: pagination.pageIndex + 1,
         },
-      ],
+      }),
+      []
+    )
+  );
+  const form = useForm<z.infer<typeof ProjectDocumentSchema>>({
+    defaultValues: {
+      title: "",
+      // document: FileList,
     },
   });
 
   const { handleSubmit } = form;
 
   const onSubmit = (data: any) => {
+    const formData = new FormData();
+    // const file = data?.file[0];
+    // const blob = new Blob([file], { type: file?.type });
+    formData.append("file", data?.file[0]);
+    console.log(formData);
     console.table(">>>>>>>>>>>>>>>>", data);
   };
 

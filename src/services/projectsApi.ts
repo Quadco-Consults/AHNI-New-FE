@@ -8,7 +8,7 @@ import {
   ProjectsResultsData,
 } from "definations/projects";
 import { z } from "zod";
-import { ProjectsSchema } from "definations/validator";
+import { ProjectsSummarySchema } from "definations/validator";
 
 const BASE_URL = "/projects/projects/";
 
@@ -24,10 +24,7 @@ const projectsAPi = baseAPI.injectEndpoints({
         !error ? provideTags("PROJECTS", data) : [],
     }),
 
-    createProject: builder.mutation<
-      ProjectsResponse,
-      z.infer<typeof ProjectsSchema>
-    >({
+    createProject: builder.mutation<ProjectsResponse, any>({
       query: (body) => ({
         url: `${BASE_URL}`,
         method: "POST",
