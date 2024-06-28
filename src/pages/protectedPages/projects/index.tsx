@@ -13,54 +13,45 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
 import DataTable from "components/Table/DataTable";
-
-type projectData = {
-  projectTitle: string;
-  projectID: string;
-  projectStartDate: string;
-  projectEndDate: string;
-  status: string;
-  budget: string;
-  source: string;
-  manager: string;
-  impact: string;
-  beneficiarie: string;
-};
-
-const data: projectData[] = Array(10).fill({
-  projectTitle:
-    "Accelerating Control of the HIV Epidemic in Nigeria (ACE 5 AKS & CRS)",
-  projectID: "ACE001",
-  projectStartDate: "10/04/2023",
-  projectEndDate: "10/04/2023",
-  status: "Review Pending",
-  budget: "$2,000,000",
-  source: "External Global funding",
-  manager: "Jane Doe",
-  impact: "Increased literacy and reduced disease prevalence",
-  beneficiaries: "Rural communities",
-});
+import projectsAPi from "services/projectsApi";
+import { ProjectsResultsData } from "definations/projects";
+import { useMemo } from "react";
 
 const FundRequest = () => {
-  const columns: ColumnDef<projectData>[] = [
+  const projectsQueryResult = projectsAPi.useGetProjectsQuery(
+    useMemo(
+      () => ({
+        params: {
+          // fields: "id, logo, name, state",
+          // page_size: pagination.pageSize,
+          // page: pagination.pageIndex + 1,
+        },
+      }),
+      []
+    )
+  );
+
+  const projects = projectsQueryResult?.data?.results;
+
+  const columns: ColumnDef<ProjectsResultsData>[] = [
     {
-      header: "Project Title",
-      accessorKey: "projectTitle",
+      header: "Title",
+      accessorKey: "title",
       size: 150,
     },
     {
       header: "ProjectID",
-      accessorKey: "projectID",
+      accessorKey: "project_id",
       size: 200,
     },
     {
-      header: "Project Start Date",
-      accessorKey: "projectStartDate",
+      header: "Start Date",
+      accessorKey: "start_date",
       size: 200,
     },
     {
-      header: "Project End Date",
-      accessorKey: "projectEndDate",
+      header: "End Date",
+      accessorKey: "end_date",
       size: 200,
     },
     {
@@ -91,22 +82,22 @@ const FundRequest = () => {
     },
     {
       header: "Funding Source",
-      accessorKey: "source",
+      cell: ({ row }) => <ProjectFundingSource data={row.original} />,
       size: 150,
     },
     {
-      header: "Project Manager",
-      accessorKey: "manager",
+      header: "Manager",
+      accessorKey: "project_manager",
       size: 150,
     },
     {
       header: "Outcome/Impact",
-      accessorKey: "impact",
+      accessorKey: "goal",
       size: 150,
     },
     {
-      header: "Project Beneficiaries",
-      accessorKey: "beneficiaries",
+      header: "Beneficiaries",
+      cell: ({ row }) => <ProjectBeneficiaries data={row.original} />,
       size: 150,
     },
     {
@@ -115,9 +106,30 @@ const FundRequest = () => {
       cell: ({ row }) => <ActionListAction data={row.original} />,
     },
   ];
+  const ProjectBeneficiaries = ({ data }: any) => {
+    return (
+      <div className="flex gap-2 flex-wrap">
+        {data?.project_funding_source.map((el: any) => (
+          <Badge key={el.id} className="bg-[#EBE8E1] text-[#1a0000ad]">
+            {el.name}
+          </Badge>
+        ))}
+      </div>
+    );
+  };
+  const ProjectFundingSource = ({ data }: any) => {
+    return (
+      <div className="flex gap-2 flex-wrap">
+        {data?.project_beneficiaries.map((el: any) => (
+          <Badge key={el.id} className="bg-[#EBE8E1] text-[#1a0000ad]">
+            {el.name}
+          </Badge>
+        ))}
+      </div>
+    );
+  };
 
   const ActionListAction = ({ data }: any) => {
-    console.log(data);
     return (
       <div className="flex items-center gap-2">
         <>
@@ -132,7 +144,7 @@ const FundRequest = () => {
                 <Link
                   className="w-full"
                   to={generatePath(RouteEnum.PROJECTS_DETAILS, {
-                    id: "1",
+                    id: data?.id,
                   })}
                 >
                   <Button
@@ -184,7 +196,11 @@ const FundRequest = () => {
           </Button>
         </div>
 
-        <DataTable data={data} columns={columns} />
+        <DataTable
+          data={projects || []}
+          columns={columns}
+          isLoading={projectsQueryResult?.isLoading}
+        />
       </Card>
     </div>
   );

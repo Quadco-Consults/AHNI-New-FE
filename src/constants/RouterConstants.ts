@@ -1,3 +1,7 @@
+export const AuthRoutes = {
+  LOGIN: "/auth/login",
+};
+
 export const AdminRoutes = {
   OVERVIEW: "/admin/overview",
   CONSUMABLES: "/admin/inventory-managment/consumables",
@@ -10,6 +14,19 @@ export const AdminRoutes = {
   FuelConsumptions: "/admin/fleet-managment/fuel-request",
   NewVehicleRequest: "/admin/fleet-managment/new-vehicle-request",
   ViewVehicleRequest: "/admin/fleet-managment/view-vehicle",
+  Facilities: "/admin/facilities/facilities-list",
+  FacilitiesTicket: "/admin/facilities/facilities-ticket",
+  FacilitiesView: "/admin/facilities/facilities-view",
+  PaymentRequest: "/admin/payment-request/payment-list",
+  PaymentRequestCreate: "/admin/payment-request/Create-Payment",
+  PaymentRequestView: "/admin/payment-request/View-Payment",
+  Lease: "/admin/agrements/Lease",
+  HMO: "/admin/agrements/HM0",
+  SLA: "/admin/agrements/SLA",
+  Security: "/admin/agrements/security",
+  Insurance: "/admin/agrements/insurance",
+  Ticketing: "/admin/agrements/ticketing",
+  ViewAggrement: "/admin/agrements/View-Aggrement",
 };
 
 export const RouteEnum = {

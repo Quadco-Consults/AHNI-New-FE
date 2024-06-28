@@ -2,17 +2,24 @@ import { Label } from "components/ui/label";
 import { Input } from "components/ui/input";
 import { Upload as UploadFile } from "lucide-react";
 import { FC } from "react";
+import { cn } from "lib/utils";
 
 type PageProps = {
   label?: string;
   name?: string;
+  extraClass?: string;
 };
-const FileUpload: FC<PageProps> = ({ label }) => {
+const FileUpload: FC<PageProps> = ({ label, extraClass }) => {
   return (
     <div className="w-full">
       <div>
         {label && <Label>{label}</Label>}
-        <div className="flex flex-wrap items-center mt-2 gap-x-5">
+        <div
+          className={cn(
+            "flex flex-wrap items-center mt-4 gap-x-10",
+            extraClass
+          )}
+        >
           <div className="w-[142px] relative gap-x-3 h-[52px] rounded-[16.2px] border flex justify-center items-center">
             <UploadFile size={20} />
             <p>Select file</p>

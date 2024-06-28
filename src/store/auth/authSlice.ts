@@ -1,25 +1,32 @@
-import { createSelector, createSlice } from "@reduxjs/toolkit";
+import { PayloadAction, createSelector, createSlice } from "@reduxjs/toolkit";
 
 import { RootState } from "..";
+import { LoginData } from "definations/auth";
 
-interface IinitialState {
-  email: string;
-  merchantId: string;
-  accessToken: string;
-}
+const initialState: LoginData = {
+  access_token: "",
 
-const initialState: IinitialState = {
-  email: "",
-  merchantId: "",
-  accessToken: "",
+  refresh_token: "",
+  user: {
+    id: "",
+    first_name: "",
+    last_name: "",
+    email: "",
+    last_login: "",
+    roles: [],
+    permissions: [],
+  },
 };
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setAuth: (state) => {
-      return state;
+    setAuth: (state, { payload }: PayloadAction<LoginData>) => {
+      return {
+        ...state,
+        ...payload,
+      };
     },
   },
 });
