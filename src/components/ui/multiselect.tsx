@@ -37,14 +37,14 @@ interface MultiSelectFormFieldProps
     VariantProps<typeof multiSelectVariants> {
   asChild?: boolean;
   options: {
-    label: string;
-    value: string;
+    id: string;
+    name: string;
   }[];
   defaultValue?: string[];
   disabled?: boolean;
   placeholder: string;
   className?: string;
-  onValueChange: (value: string[]) => void;
+  onValueChange: (id: string[]) => void;
 }
 
 const MultiSelectFormField = React.forwardRef<
@@ -112,21 +112,21 @@ const MultiSelectFormField = React.forwardRef<
             {selectedValues.length > 0 ? (
               <div className="flex justify-between items-center w-full">
                 <div className="flex flex-wrap items-center">
-                  {selectedValues.map((value) => {
-                    const option = options.find((o) => o.value === value);
+                  {selectedValues.map((id) => {
+                    const option = options.find((o) => o.id === id);
                     return (
                       <Badge
-                        key={value}
+                        key={id}
                         className={cn(
                           multiSelectVariants({ variant, className })
                         )}
                       >
-                        {option?.label}
+                        {option?.name}
                         <XCircle
                           className="ml-2 h-4 w-4 cursor-pointer"
                           onClick={(event) => {
                             event.stopPropagation();
-                            toggleOption(value);
+                            toggleOption(id);
                           }}
                         />
                       </Badge>
@@ -174,13 +174,11 @@ const MultiSelectFormField = React.forwardRef<
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup>
                 {options.map((option) => {
-                  const isSelected = selectedValuesSet.current.has(
-                    option.value
-                  );
+                  const isSelected = selectedValuesSet.current.has(option.id);
                   return (
                     <CommandItem
-                      key={option.value}
-                      onSelect={() => toggleOption(option.value)}
+                      key={option.id}
+                      onSelect={() => toggleOption(option.id)}
                       style={{
                         pointerEvents: "auto",
                         opacity: 1,
@@ -198,7 +196,7 @@ const MultiSelectFormField = React.forwardRef<
                         <CheckIcon className="h-4 w-4" />
                       </div>
 
-                      <span>{option.label}</span>
+                      <span>{option.name}</span>
                     </CommandItem>
                   );
                 })}
