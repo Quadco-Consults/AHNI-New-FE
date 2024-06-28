@@ -18,18 +18,13 @@ import { ProjectsResultsData } from "definations/projects";
 import { useMemo } from "react";
 
 const FundRequest = () => {
-  const projectsQueryResult = projectsAPi.useGetProjectsQuery(
-    useMemo(
-      () => ({
-        params: {
-          // fields: "id, logo, name, state",
-          // page_size: pagination.pageSize,
-          // page: pagination.pageIndex + 1,
-        },
-      }),
-      []
-    )
-  );
+  const projectsQueryResult = projectsAPi.useGetProjectsQuery({
+    params: {
+      // fields: "title,goal",
+      // page_size: pagination.pageSize,
+      // page: pagination.pageIndex + 1,
+    },
+  });
 
   const projects = projectsQueryResult?.data?.results;
 
@@ -42,22 +37,22 @@ const FundRequest = () => {
     {
       header: "ProjectID",
       accessorKey: "project_id",
-      size: 200,
+      size: 100,
     },
     {
       header: "Start Date",
       accessorKey: "start_date",
-      size: 200,
+      size: 130,
     },
     {
       header: "End Date",
       accessorKey: "end_date",
-      size: 200,
+      size: 130,
     },
     {
       header: "Status",
       accessorKey: "status",
-      size: 150,
+      size: 100,
       cell: ({ getValue }) => {
         return (
           <Badge
@@ -78,17 +73,17 @@ const FundRequest = () => {
     {
       header: "Budget",
       accessorKey: "budget",
-      size: 150,
+      size: 120,
     },
     {
       header: "Funding Source",
       cell: ({ row }) => <ProjectFundingSource data={row.original} />,
-      size: 150,
+      size: 200,
     },
     {
       header: "Manager",
       accessorKey: "project_manager",
-      size: 150,
+      size: 120,
     },
     {
       header: "Outcome/Impact",
@@ -98,11 +93,12 @@ const FundRequest = () => {
     {
       header: "Beneficiaries",
       cell: ({ row }) => <ProjectBeneficiaries data={row.original} />,
-      size: 150,
+      size: 200,
     },
     {
-      header: "",
+      header: "Action",
       id: "actions",
+      size: 50,
       cell: ({ row }) => <ActionListAction data={row.original} />,
     },
   ];

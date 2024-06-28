@@ -14,7 +14,7 @@ import { useAppDispatch } from "hooks/useStore";
 import { RouteEnum } from "constants/RouterConstants";
 import projectDocumentAPi from "services/project-document";
 import { useMemo } from "react";
-import Loading from "components/shared/Loading";
+import { Loading } from "components/shared/Loading";
 
 const Uploads = () => {
   const navigate = useNavigate();

@@ -14,11 +14,10 @@ const BASE_URL = "/projects/partners/";
 
 const partnersAPi = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getPartners: builder.query<PartnersData, {}>({
-      query: (config) => {
+    getPartners: builder.query<PartnersData, { params: {} }>({
+      query: () => {
         return {
           url: `${BASE_URL}`,
-          ...config,
         };
       },
       providesTags: (data, error) =>

@@ -36,7 +36,9 @@ import { cn } from "lib/utils";
 import { Calendar } from "components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import FundingSourceAPi from "services/funding-sourceApi";
-import { partnerActions } from "store/formData/partner-location";
+import { partnerActions } from "store/formData/project-values";
+import { objectivesActions } from "store/formData/project-objective";
+import { IndexKind, isIndexSignatureDeclaration } from "typescript";
 
 interface InputValues {
   title: string;
@@ -108,9 +110,12 @@ const Summary = () => {
   };
 
   const dispatch = useAppDispatch();
+
   const location_partners = useSelector(
     (state: RootState) => state.partnerLocation.items
   );
+  const objs = useSelector((state: RootState) => state.objectives.objectives);
+  console.log(objs);
 
   const form = useForm<z.infer<typeof ProjectsSummarySchema>>({
     resolver: zodResolver(ProjectsSummarySchema),
@@ -129,7 +134,18 @@ const Summary = () => {
 
   const { pathname } = useLocation();
 
-  const { handleSubmit } = form;
+  const { handleSubmit, watch } = form;
+  const objTitle = watch("objectives");
+
+  const addObjectivesHandler = () => {
+    const submittedValues = {
+      title: objTitle,
+      sub_objectives: inputValues,
+    };
+
+    dispatchPartner(objectivesActions.addObjectives(submittedValues));
+    dispatch(closeDialog());
+  };
 
   const onSubmit = async (data: z.infer<typeof ProjectsSummarySchema>) => {
     const formData = {
@@ -161,12 +177,13 @@ const Summary = () => {
     }
 
     dispatchPartner(partnerActions.clearPartnerLocation());
+    dispatchPartner(objectivesActions.clearObjectives());
 
     let path = pathname;
 
     path = path.substring(0, path.lastIndexOf("/"));
 
-    path += "/performance";
+    path += "/uploads";
     navigate(path);
   };
 
@@ -283,79 +300,104 @@ const Summary = () => {
 
               <hr />
 
-              <div className="w-[299px] mt-10 space-y-3">
+              <div className=" mt-10 space-y-3">
                 <Label className="font-semibold text-red-600">Objectives</Label>
-                <div>
-                  <Dialog>
-                    <DialogTrigger>
-                      <p className="text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm">
-                        Click to add objectives
-                      </p>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <div className="space-y-10">
-                        <h4 className="text-xl font-semibold">Add Objective</h4>
+                <div className="flex flex-wrap gap-3">
+                  {objs?.map((option: any, index: number) => (
+                    <div
+                      key={index}
+                      className="border px-7 py-4 space-y-3 rounded-lg"
+                    >
+                      <p className="text-sm font-semibold">{option?.title}</p>
 
-                        <FormTextArea name="objectives" label="Objective" />
-
-                        <div className="space-y-3">
+                      {option?.sub_objectives && (
+                        <ul className="space-y-2">
+                          {option?.sub_objectives.map((obj: any, i: number) => (
+                            <li
+                              key={i}
+                              className="text-sm text-gray-500 list-disc pl-5"
+                            >
+                              {obj?.title}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ))}
+                  <div>
+                    <Dialog>
+                      <DialogTrigger>
+                        <p className="text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm">
+                          Click to add objectives
+                        </p>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <div className="space-y-10">
                           <h4 className="text-xl font-semibold">
-                            Add Sub-Objective
+                            Add Objective
                           </h4>
 
-                          {inputValues.map((value, index) => (
-                            <div
-                              key={index}
-                              className="flex items-center gap-2"
+                          <FormTextArea name="objectives" label="Objective" />
+
+                          <div className="space-y-3">
+                            <h4 className="text-xl font-semibold">
+                              Add Sub-Objective
+                            </h4>
+
+                            {inputValues.map((value, index) => (
+                              <div
+                                key={index}
+                                className="flex items-center gap-2"
+                              >
+                                <div className="w-[90%]">
+                                  <textarea
+                                    className="w-full border rounded-lg p-3"
+                                    rows={3}
+                                    onChange={(e) =>
+                                      handleInputChange(e, index, "title")
+                                    }
+                                  />
+                                </div>
+                                <div>
+                                  <Button
+                                    onClick={() => handleDeleteInput(index)}
+                                    variant="ghost"
+                                    size="icon"
+                                    className="text-red-500"
+                                  >
+                                    <X />
+                                  </Button>
+                                </div>
+                              </div>
+                            ))}
+
+                            <Button
+                              onClick={handleAddInput}
+                              type="button"
+                              className="bg-[#FFF2F2] text-primary "
                             >
-                              <div className="w-[90%]">
-                                <textarea
-                                  className="w-full border rounded-lg p-3"
-                                  rows={3}
-                                  onChange={(e) =>
-                                    handleInputChange(e, index, "title")
-                                  }
-                                />
-                              </div>
-                              <div>
-                                <Button
-                                  onClick={() => handleDeleteInput(index)}
-                                  variant="ghost"
-                                  size="icon"
-                                  className="text-red-500"
-                                >
-                                  <X />
-                                </Button>
-                              </div>
-                            </div>
-                          ))}
-
-                          <Button
-                            onClick={handleAddInput}
-                            type="button"
-                            className="bg-[#FFF2F2] text-primary "
-                          >
-                            Add
-                          </Button>
-                        </div>
-
-                        <div className="flex justify-end gap-5 mt-16">
-                          <Button
-                            type="button"
-                            className="bg-[#FFF2F2] text-primary "
-                          >
-                            Cancel
-                          </Button>
-
-                          <DialogClose asChild>
-                            <Button onClick={() => dispatch(closeDialog())}>
-                              Done
+                              Add
                             </Button>
-                          </DialogClose>
+                          </div>
+
+                          <div className="flex justify-end gap-5 mt-16">
+                            <Button
+                              type="button"
+                              className="bg-[#FFF2F2] text-primary "
+                            >
+                              Cancel
+                            </Button>
+
+                            <DialogClose asChild>
+                              <Button onClick={addObjectivesHandler}>
+                                Done
+                              </Button>
+                            </DialogClose>
+                          </div>
                         </div>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                 </div>
               </div>
 
@@ -394,13 +436,15 @@ const Summary = () => {
                     >
                       <div className="flex gap-3 items-center">
                         <LocationSvg />{" "}
-                        <h4 className="font-semibold">{option.location_id}</h4>
+                        <h4 className="font-semibold">
+                          {option.obj.location_id}
+                        </h4>
                       </div>
                       <ul className="text-sm text-[#756D6D] space-y-2">
-                        {option.partner_ids.map(
-                          (partner: string, index: number) => (
+                        {option.obj.partner_ids.map(
+                          (partner: any, index: number) => (
                             <li key={index} className=" list-disc">
-                              {partner}
+                              {partner.name}
                             </li>
                           )
                         )}
