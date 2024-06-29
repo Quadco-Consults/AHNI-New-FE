@@ -74,11 +74,11 @@ const ConsortiumModal = () => {
   });
 
   const locationName = locations?.find(
-    (location) => location?.id === locationValue
+    (location: LocationResultsData) => location?.id === locationValue
   );
 
   const onSubmit = (data: z.infer<typeof PartnersFormSchema>) => {
-    const matchedPartners = partners?.filter((partner) =>
+    const matchedPartners = partners?.filter((partner: PartnerResultsData) =>
       data.items.includes(partner?.id)
     );
 

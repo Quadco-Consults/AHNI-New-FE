@@ -21,7 +21,7 @@ export const LoadingSpinner = () => {
   return (
     <div className="flex justify-center items-center pt-8">
       <div>
-        <Icon icon="eos-icons:bubble-loading" />
+        <Icon icon="eos-icons:bubble-loading" className="text-2xl" />
       </div>
     </div>
   );

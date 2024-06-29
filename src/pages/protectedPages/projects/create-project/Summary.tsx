@@ -1,4 +1,3 @@
-import LongArrowLeft from "components/icons/LongArrowLeft";
 import { useAppDispatch } from "hooks/useStore";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -105,17 +104,14 @@ const Summary = () => {
 
   const navigate = useNavigate();
 
-  const goBack = () => {
-    navigate(-1);
-  };
-
   const dispatch = useAppDispatch();
 
   const location_partners = useSelector(
     (state: RootState) => state.partnerLocation.items
   );
+  const idsObj = location_partners?.map((partner: any) => partner.ids);
+
   const objs = useSelector((state: RootState) => state.objectives.objectives);
-  console.log(objs);
 
   const form = useForm<z.infer<typeof ProjectsSummarySchema>>({
     resolver: zodResolver(ProjectsSummarySchema),
@@ -157,7 +153,7 @@ const Summary = () => {
         },
       ],
       project_manager: data.project_manager,
-      location_partners,
+      location_partners: idsObj,
       goal: data.goal,
       expected_results: data.expected_results,
       beneficiaries: data.beneficiaries,
@@ -169,7 +165,9 @@ const Summary = () => {
     };
 
     try {
-      projectsMutation(formData).unwrap();
+      const res = await projectsMutation(formData).unwrap();
+      console.log(res?.data.id);
+      localStorage.setItem("projectID", res?.data.id);
       toast.success("Project successfully added.");
     } catch (error) {
       toast.error("Something went wrong");
@@ -188,15 +186,8 @@ const Summary = () => {
   };
 
   return (
-    <div className="space-y-6 min-h-screen">
-      <button
-        onClick={goBack}
-        className="w-[3rem] h-[3rem] rounded-full drop-shadow-md bg-white flex items-center justify-center"
-      >
-        <LongArrowLeft />
-      </button>
-
-      <ProjectLayout>
+    <ProjectLayout>
+      <div className="space-y-6">
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <Card className="space-y-6 py-5">
@@ -482,8 +473,8 @@ const Summary = () => {
             </div>
           </form>
         </Form>
-      </ProjectLayout>
-    </div>
+      </div>
+    </ProjectLayout>
   );
 };
 

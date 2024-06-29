@@ -12,6 +12,7 @@ import { Loading } from "components/shared/Loading";
 const ProjectDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  localStorage.setItem("projectDetailID", id as string);
 
   const projectsQueryResult = projectsAPi.useGetProjectQuery({
     path: { id: id as string },
@@ -55,7 +56,7 @@ const ProjectDetail = () => {
           <Performance />
         </TabsContent> */}
         <TabsContent value="Upload">
-          <Uploads />
+          <Uploads {...projects} />
         </TabsContent>
         {/* <TabsContent value="activity/Report">
           <Activity />
