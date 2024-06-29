@@ -75,3 +75,7 @@ export interface ProjectsResponse {
   message: string;
   data: ProjectsData;
 }
+export interface ProjectsCreateResponse {
+  message: string;
+  data: ProjectsResultsData;
+}

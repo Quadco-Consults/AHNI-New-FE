@@ -3,6 +3,7 @@
 import { invalidateTags, provideTags } from "utils/QueryUtils";
 import baseAPI from ".";
 import {
+  ProjectsCreateResponse,
   ProjectsData,
   ProjectsResponse,
   ProjectsResultsData,
@@ -24,7 +25,7 @@ const projectsAPi = baseAPI.injectEndpoints({
         !error ? provideTags("PROJECTS", data) : [],
     }),
 
-    createProject: builder.mutation<ProjectsResponse, any>({
+    createProject: builder.mutation<ProjectsCreateResponse, any>({
       query: (body) => ({
         url: `${BASE_URL}`,
         method: "POST",

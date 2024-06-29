@@ -24,13 +24,13 @@ const projectDocumentAPi = baseAPI.injectEndpoints({
         !error ? provideTags("PROJECT_DOCUMENT", data) : [],
     }),
 
-    createProjectDocument: builder.mutation<
-      ProjectDocumentResponse,
-      z.infer<typeof ProjectDocumentSchema>
-    >({
+    createProjectDocument: builder.mutation<ProjectDocumentResponse, any>({
       query: (body) => ({
         url: `${BASE_URL}`,
         method: "POST",
+        // headers: {
+        //   "Content-Type": "multipart/form-data",
+        // },
         body,
       }),
       invalidatesTags: (_, error, {}) =>

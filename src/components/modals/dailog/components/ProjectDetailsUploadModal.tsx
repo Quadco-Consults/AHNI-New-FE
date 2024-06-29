@@ -1,5 +1,3 @@
-import FileUpload from "atoms/FileUpload";
-import FormButton from "atoms/FormButton";
 import {
   Select,
   SelectContent,
@@ -10,8 +8,8 @@ import {
 import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";
 import { ProjectDocumentSchema } from "definations/validator";
-import { useEffect, useMemo, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
 import projectDocumentTypesAPi from "services/project-document-types";
 import { Input } from "components/ui/input";
 import { Upload as UploadFile } from "lucide-react";
@@ -21,9 +19,11 @@ import { ProjectDocumentTypesResultsData } from "definations/project-document-ty
 import projectDocumentAPi from "services/project-document";
 import { toast } from "sonner";
 
-const ProjectUploadModal = () => {
+const ProjectDetailsUploadModal = () => {
   const [locationValue, setLocationValue] = useState("");
   const [file, setFile] = useState<File | null>(null);
+
+  const projectID = localStorage.getItem("projectDetailID");
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -57,7 +57,7 @@ const ProjectUploadModal = () => {
 
   const form = useForm<z.infer<typeof ProjectDocumentSchema>>({
     defaultValues: {
-      project: localStorage.getItem("projectID") || "",
+      project: projectID as string,
       // document: null as any,
     },
   });
@@ -75,8 +75,6 @@ const ProjectUploadModal = () => {
     formData.append("title", locationValue);
     formData.append("project", data?.project);
 
-    console.log(formData);
-
     try {
       await projectDocumentMutation(formData).unwrap();
       toast.success("Document upload successfully.");
@@ -84,6 +82,7 @@ const ProjectUploadModal = () => {
       console.log(error);
       toast.error("Something went wrong");
     }
+    localStorage.removeItem("projectDetailID");
   };
 
   return (
@@ -133,4 +132,4 @@ const ProjectUploadModal = () => {
   );
 };
 
-export default ProjectUploadModal;
+export default ProjectDetailsUploadModal;
