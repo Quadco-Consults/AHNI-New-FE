@@ -21,6 +21,14 @@ import { DialogType } from "constants/dailogs";
 import { openDialog } from "store/ui";
 import UploadIcon from "components/icons/UploadIcon";
 import DataTable from "components/Table/DataTable";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "components/ui/breadcrumb";
+import { Icon } from "@iconify/react";
 
 type WorkPlanData = {
   facility: string;
@@ -169,6 +177,25 @@ const SupportiveSupervisionPlan = () => {
 
   return (
     <div className="space-y-5">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbPage>Programs</BreadcrumbPage>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator>
+            <Icon icon="iconoir:slash" />
+          </BreadcrumbSeparator>
+          <BreadcrumbItem>
+            <BreadcrumbPage>Plans</BreadcrumbPage>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator>
+            <Icon icon="iconoir:slash" />
+          </BreadcrumbSeparator>
+          <BreadcrumbItem>
+            <BreadcrumbPage>Supportive Supervision Plan</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <div className="flex justify-end">
         <Popover>
           <PopoverTrigger asChild>
@@ -229,7 +256,7 @@ const SupportiveSupervisionPlan = () => {
           </Button>
         </div>
 
-        <DataTable data={data} columns={columns} />
+        <DataTable data={data} columns={columns} isLoading={false} />
       </Card>
     </div>
   );

@@ -27,6 +27,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 const Uploads = (projects: any) => {
   const [numPages, setNumPages] = useState<number>();
   const [pageNumber, setPageNumber] = useState<number>(1);
+  console.log(projects);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }): void {
     setNumPages(numPages);
@@ -104,27 +105,25 @@ const Uploads = (projects: any) => {
                 <Dialog>
                   <DialogTrigger>
                     <Document
-                      // file={doc?.document}
-                      file="https://www.tutorialspoint.com/java/java_tutorial.pdf"
+                      file={doc?.document}
                       onLoadSuccess={onDocumentLoadSuccess}
                     >
                       <Page pageNumber={pageNumber} width={200} height={100} />
                     </Document>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="min-w-[60%]">
                     <DialogHeader>
                       <DialogTitle>{doc.title}</DialogTitle>
-                      <div>
+                      <div className="flex pt-5 justify-center">
                         <Document
-                          // file={doc.document}
-                          file="https://www.tutorialspoint.com/java/java_tutorial.pdf"
+                          file={doc.document}
                           onLoadSuccess={onDocumentLoadSuccess}
                         >
                           {Array.from(new Array(numPages), (el, index) => (
                             <Page
                               key={`page_${index + 1}`}
                               pageNumber={index + 1}
-                              width={480}
+                              width={600}
                               // height={100}
                             />
                           ))}

@@ -8,6 +8,16 @@ import Uploads from "./Upload";
 // import Activity from "./Activity";
 import projectsAPi from "services/projectsApi";
 import { Loading } from "components/shared/Loading";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "components/ui/breadcrumb";
+import { Icon } from "@iconify/react";
+import { RouteEnum } from "constants/RouterConstants";
 
 const ProjectDetail = () => {
   const navigate = useNavigate();
@@ -30,15 +40,28 @@ const ProjectDetail = () => {
 
   return (
     <div className="space-y-6 relative min-h-screen">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href={RouteEnum.PROJECTS}>Projects</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator>
+            <Icon icon="iconoir:slash" />
+          </BreadcrumbSeparator>
+          <BreadcrumbItem>
+            <BreadcrumbPage>Details</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <button
         onClick={goBack}
-        className="w-[3rem] absolute -top-1 left-0 aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center"
+        className="w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center"
       >
         <LongArrowLeft />
       </button>
 
       <Tabs defaultValue="summary" className="space-y-10">
-        <TabsList className="ml-20">
+        <TabsList className="ml-10">
           <TabsTrigger value="summary">Project Summary</TabsTrigger>
           {/* <TabsTrigger value="project Performance">
             Project Performance
