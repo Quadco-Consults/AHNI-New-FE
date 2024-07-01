@@ -18,10 +18,13 @@ import { LoadingSpinner } from "components/shared/Loading";
 import { ProjectDocumentTypesResultsData } from "definations/project-document-types";
 import projectDocumentAPi from "services/project-document";
 import { toast } from "sonner";
+import { useLocation } from "react-router-dom";
 
 const ProjectDetailsUploadModal = () => {
   const [locationValue, setLocationValue] = useState("");
   const [file, setFile] = useState<File | null>(null);
+
+  const location = useLocation();
 
   const projectID = localStorage.getItem("projectDetailID");
 
@@ -74,6 +77,8 @@ const ProjectDetailsUploadModal = () => {
     formData.append("document", file);
     formData.append("title", locationValue);
     formData.append("project", data?.project);
+
+    console.log(formData);
 
     try {
       await projectDocumentMutation(formData).unwrap();

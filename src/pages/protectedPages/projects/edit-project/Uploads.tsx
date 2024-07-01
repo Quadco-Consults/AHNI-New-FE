@@ -127,8 +127,8 @@ const Uploads = () => {
                         <Dialog>
                           <DialogTrigger>
                             <Document
-                              file={doc.document}
-                              // file="https://www.tutorialspoint.com/java/java_tutorial.pdf"
+                              // file={doc.document}
+                              file="https://www.tutorialspoint.com/java/java_tutorial.pdf"
                               onLoadSuccess={onDocumentLoadSuccess}
                             >
                               <Page
@@ -144,6 +144,7 @@ const Uploads = () => {
                               <div className="flex pt-5 justify-center">
                                 <Document
                                   file={doc.document}
+                                  // file="https://www.tutorialspoint.com/java/java_tutorial.pdf"
                                   onLoadSuccess={onDocumentLoadSuccess}
                                 >
                                   {Array.from(

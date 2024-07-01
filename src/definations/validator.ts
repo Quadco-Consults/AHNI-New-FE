@@ -69,14 +69,15 @@ const locationPartners = z.object({
 
 // Define the main schema
 export const ProjectsSummarySchema = z.object({
-  beneficiaries: z.array(z.string()),
+  beneficiaries: z.array(z.any()),
   objectives: z.string(),
   title: z.string(),
+  project_id: z.string(),
   goal: z.string(),
   expected_results: z.string(),
   budget: z.string(),
   project_manager: z.string(),
-  funding_source: z.array(z.string()),
+  project_funding_source: z.array(z.string()),
 });
 
 export const PartnersFormSchema = z.object({
