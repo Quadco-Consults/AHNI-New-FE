@@ -13,10 +13,10 @@ import Card from "components/shared/Card";
 import FormInput from "atoms/FormInput";
 import MultiSelectFormField from "components/ui/multiselect";
 import LocationSvg from "assets/svgs/LocationSvg";
-import beneficiariesAPi from "services/beneficiariesApi";
+import beneficiariesAPi from "services/projectsApi/beneficiariesApi";
 import { useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ProjectsSummarySchema } from "definations/validator";
+import { ProjectsSummarySchema } from "definations/project-validator";
 import { z } from "zod";
 import {
   Dialog,
@@ -27,14 +27,14 @@ import {
 import FormTextArea from "atoms/FormTextArea";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "store/index";
-import projectsAPi from "services/projectsApi";
+import projectsAPi from "services/projectsApi/projectsApi";
 import { toast } from "sonner";
 import { closeDialog } from "store/ui";
 import { format } from "date-fns";
 import { cn } from "lib/utils";
 import { Calendar } from "components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import FundingSourceAPi from "services/funding-sourceApi";
+import FundingSourceAPi from "services/projectsApi/funding-sourceApi";
 import { partnerActions } from "store/formData/project-values";
 import { objectivesActions } from "store/formData/project-objective";
 import { IndexKind, isIndexSignatureDeclaration } from "typescript";

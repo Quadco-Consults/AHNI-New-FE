@@ -1,44 +1,44 @@
 /* eslint-disable no-empty-pattern */
 /* eslint-disable no-unused-vars */
 import { invalidateTags, provideTags } from "utils/QueryUtils";
-import baseAPI from ".";
+import baseAPI from "..";
 import { z } from "zod";
+import { ProjectDocumentSchema } from "definations/project-validator";
 import {
-  ProjectObjectiveData,
-  ProjectObjectiveResponse,
-  ProjectObjectiveResultsData,
-} from "definations/project-objective";
-import { ProjectObjectiveSchema } from "definations/validator";
+  ProjectDocumentData,
+  ProjectDocumentResponse,
+  ProjectDocumentResultsData,
+} from "definations/project-types/project-document";
 
-const BASE_URL = "/projects/project-objectives/";
+const BASE_URL = "/projects/project-documents/";
 
-const projectObjectiveAPi = baseAPI.injectEndpoints({
+const projectDocumentAPi = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getProjectObjectives: builder.query<ProjectObjectiveData, { params: {} }>({
+    getProjectDocuments: builder.query<ProjectDocumentData, { params: {} }>({
       query: () => {
         return {
           url: `${BASE_URL}`,
         };
       },
       providesTags: (data, error) =>
-        !error ? provideTags("PROJECT_OBJECTIVE", data) : [],
+        !error ? provideTags("PROJECT_DOCUMENT", data) : [],
     }),
 
-    createProjectObjective: builder.mutation<
-      ProjectObjectiveResponse,
-      z.infer<typeof ProjectObjectiveSchema>
-    >({
+    createProjectDocument: builder.mutation<ProjectDocumentResponse, any>({
       query: (body) => ({
         url: `${BASE_URL}`,
         method: "POST",
+        // headers: {
+        //   "Content-Type": "multipart/form-data",
+        // },
         body,
       }),
       invalidatesTags: (_, error, {}) =>
-        !error ? invalidateTags("PROJECT_OBJECTIVE") : [],
+        !error ? invalidateTags("PROJECT_DOCUMENT") : [],
     }),
 
-    getProjectObjective: builder.query<
-      ProjectObjectiveResultsData,
+    getProjectDocument: builder.query<
+      ProjectDocumentResultsData,
       { path: { id: string } }
     >({
       query: ({ path }) => {
@@ -47,11 +47,11 @@ const projectObjectiveAPi = baseAPI.injectEndpoints({
         };
       },
       providesTags: (data, error) =>
-        !error ? provideTags("PROJECT_OBJECTIVE", data) : [],
+        !error ? provideTags("PROJECT_DOCUMENT", data) : [],
     }),
 
-    updateProjectObjective: builder.mutation<
-      ProjectObjectiveResponse,
+    updateProjectDocument: builder.mutation<
+      ProjectDocumentResponse,
       { path: { id: string }; body: any }
     >({
       query: ({ path, body }) => ({
@@ -60,11 +60,11 @@ const projectObjectiveAPi = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("PROJECT_OBJECTIVE", { ids: [path.id] }) : [],
+        !error ? invalidateTags("PROJECT_DOCUMENT", { ids: [path.id] }) : [],
     }),
 
-    modifyProjectObjective: builder.mutation<
-      ProjectObjectiveResponse,
+    modifyProjectDocument: builder.mutation<
+      ProjectDocumentResponse,
       { path: { id: string }; body: any }
     >({
       query: ({ path, body }) => ({
@@ -73,11 +73,11 @@ const projectObjectiveAPi = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("PROJECT_OBJECTIVE", { ids: [path.id] }) : [],
+        !error ? invalidateTags("PROJECT_DOCUMENT", { ids: [path.id] }) : [],
     }),
 
-    deleteProjectObjective: builder.mutation<
-      ProjectObjectiveResponse,
+    deleteProjectDocument: builder.mutation<
+      ProjectDocumentResponse,
       { path: { id: string } }
     >({
       query: ({ path }) => ({
@@ -85,9 +85,9 @@ const projectObjectiveAPi = baseAPI.injectEndpoints({
         method: "DELETE",
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("PROJECT_OBJECTIVE", { ids: [path.id] }) : [],
+        !error ? invalidateTags("PROJECT_DOCUMENT", { ids: [path.id] }) : [],
     }),
   }),
 });
 
-export default projectObjectiveAPi;
+export default projectDocumentAPi;

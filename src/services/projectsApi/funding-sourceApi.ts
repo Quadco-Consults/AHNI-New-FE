@@ -1,14 +1,14 @@
 /* eslint-disable no-empty-pattern */
 /* eslint-disable no-unused-vars */
 import { invalidateTags, provideTags } from "utils/QueryUtils";
-import baseAPI from ".";
+import baseAPI from "..";
 import { z } from "zod";
-import { FundingSourceSchema } from "definations/validator";
+import { FundingSourceSchema } from "definations/project-validator";
 import {
   FundingSourceData,
   FundingSourceResponse,
   FundingSourceResultsData,
-} from "definations/funding-source";
+} from "definations/project-types/funding-source";
 
 const BASE_URL = "/projects/funding-sources/";
 

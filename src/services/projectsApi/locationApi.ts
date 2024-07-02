@@ -1,44 +1,45 @@
 /* eslint-disable no-empty-pattern */
 /* eslint-disable no-unused-vars */
 import { invalidateTags, provideTags } from "utils/QueryUtils";
-import baseAPI from ".";
+import baseAPI from "..";
 import { z } from "zod";
-import { ProjectDocumentSchema } from "definations/validator";
 import {
-  ProjectDocumentData,
-  ProjectDocumentResponse,
-  ProjectDocumentResultsData,
-} from "definations/project-document";
+  LocationData,
+  LocationResponse,
+  LocationResultsData,
+} from "definations/project-types/location";
+import { LocationSchema } from "definations/project-validator";
 
-const BASE_URL = "/projects/project-documents/";
+const BASE_URL = "/config/locations/";
 
-const projectDocumentAPi = baseAPI.injectEndpoints({
+const LocationAPi = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getProjectDocuments: builder.query<ProjectDocumentData, { params: {} }>({
-      query: () => {
+    getLocation: builder.query<LocationData, { params: {} }>({
+      query: (config) => {
         return {
           url: `${BASE_URL}`,
+          ...config,
         };
       },
       providesTags: (data, error) =>
-        !error ? provideTags("PROJECT_DOCUMENT", data) : [],
+        !error ? provideTags("LOCATION", data) : [],
     }),
 
-    createProjectDocument: builder.mutation<ProjectDocumentResponse, any>({
+    createFundingSource: builder.mutation<
+      LocationResponse,
+      z.infer<typeof LocationSchema>
+    >({
       query: (body) => ({
         url: `${BASE_URL}`,
         method: "POST",
-        // headers: {
-        //   "Content-Type": "multipart/form-data",
-        // },
         body,
       }),
       invalidatesTags: (_, error, {}) =>
-        !error ? invalidateTags("PROJECT_DOCUMENT") : [],
+        !error ? invalidateTags("LOCATION") : [],
     }),
 
-    getProjectDocument: builder.query<
-      ProjectDocumentResultsData,
+    getFundingSource: builder.query<
+      LocationResultsData,
       { path: { id: string } }
     >({
       query: ({ path }) => {
@@ -47,11 +48,11 @@ const projectDocumentAPi = baseAPI.injectEndpoints({
         };
       },
       providesTags: (data, error) =>
-        !error ? provideTags("PROJECT_DOCUMENT", data) : [],
+        !error ? provideTags("LOCATION", data) : [],
     }),
 
-    updateProjectDocument: builder.mutation<
-      ProjectDocumentResponse,
+    updateFundingSource: builder.mutation<
+      LocationResponse,
       { path: { id: string }; body: any }
     >({
       query: ({ path, body }) => ({
@@ -60,11 +61,11 @@ const projectDocumentAPi = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("PROJECT_DOCUMENT", { ids: [path.id] }) : [],
+        !error ? invalidateTags("LOCATION", { ids: [path.id] }) : [],
     }),
 
-    modifyProjectDocument: builder.mutation<
-      ProjectDocumentResponse,
+    modifyFundingSource: builder.mutation<
+      LocationResponse,
       { path: { id: string }; body: any }
     >({
       query: ({ path, body }) => ({
@@ -73,11 +74,11 @@ const projectDocumentAPi = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("PROJECT_DOCUMENT", { ids: [path.id] }) : [],
+        !error ? invalidateTags("LOCATION", { ids: [path.id] }) : [],
     }),
 
-    deleteProjectDocument: builder.mutation<
-      ProjectDocumentResponse,
+    deleteFundingSource: builder.mutation<
+      LocationResponse,
       { path: { id: string } }
     >({
       query: ({ path }) => ({
@@ -85,9 +86,9 @@ const projectDocumentAPi = baseAPI.injectEndpoints({
         method: "DELETE",
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("PROJECT_DOCUMENT", { ids: [path.id] }) : [],
+        !error ? invalidateTags("LOCATION", { ids: [path.id] }) : [],
     }),
   }),
 });
 
-export default projectDocumentAPi;
+export default LocationAPi;

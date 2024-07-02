@@ -7,16 +7,16 @@ import {
 } from "components/ui/select";
 import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";
-import { ProjectDocumentSchema } from "definations/validator";
+import { ProjectDocumentSchema } from "definations/project-validator";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import projectDocumentTypesAPi from "services/project-document-types";
+import projectDocumentTypesAPi from "services/projectsApi/project-document-types";
 import { Input } from "components/ui/input";
 import { Upload as UploadFile } from "lucide-react";
 import { z } from "zod";
 import { LoadingSpinner } from "components/shared/Loading";
-import { ProjectDocumentTypesResultsData } from "definations/project-document-types";
-import projectDocumentAPi from "services/project-document";
+import { ProjectDocumentTypesResultsData } from "definations/project-types/project-document-types";
+import projectDocumentAPi from "services/projectsApi/project-document";
 import { toast } from "sonner";
 import { useLocation } from "react-router-dom";
 

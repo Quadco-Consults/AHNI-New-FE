@@ -1,14 +1,14 @@
 /* eslint-disable no-empty-pattern */
 /* eslint-disable no-unused-vars */
 import { invalidateTags, provideTags } from "utils/QueryUtils";
-import baseAPI from ".";
+import baseAPI from "..";
 import { z } from "zod";
 import {
   ProjectDocumentTypesData,
   ProjectDocumentTypesResponse,
   ProjectDocumentTypesResultsData,
-} from "definations/project-document-types";
-import { DocumentTypesSchema } from "definations/validator";
+} from "definations/project-types/project-document-types";
+import { DocumentTypesSchema } from "definations/project-validator";
 
 const BASE_URL = "/projects/document-types/";
 
