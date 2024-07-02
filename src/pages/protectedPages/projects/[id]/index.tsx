@@ -6,7 +6,7 @@ import Summary from "./Summary";
 // import Performance from "./Performance";
 import Uploads from "./Upload";
 // import Activity from "./Activity";
-import projectsAPi from "services/projectsApi";
+import projectsAPi from "services/projectsApi/projectsApi";
 import { Loading } from "components/shared/Loading";
 import {
   Breadcrumb,

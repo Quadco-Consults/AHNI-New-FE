@@ -13,8 +13,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
 import DataTable from "components/Table/DataTable";
-import projectsAPi from "services/projectsApi";
-import { ProjectsResultsData } from "definations/projects";
+import projectsAPi from "services/projectsApi/projectsApi";
+import { ProjectsResultsData } from "definations/project-types/projects";
 import { useMemo } from "react";
 import {
   Breadcrumb,
@@ -25,13 +25,19 @@ import {
 import { toast } from "sonner";
 
 const FundRequest = () => {
-  const projectsQueryResult = projectsAPi.useGetProjectsQuery({
-    params: {
-      // fields: "title,goal",
-      // page_size: pagination.pageSize,
-      // page: pagination.pageIndex + 1,
-    },
-  });
+  const projectsQueryResult = projectsAPi.useGetProjectsQuery(
+    useMemo(
+      () => ({
+        params: {
+          // fields: "id,name",
+          no_paginate: false,
+          // page_size: pagination.pageSize,
+          // page: pagination.pageIndex + 1,
+        },
+      }),
+      []
+    )
+  );
 
   const projects = projectsQueryResult?.data?.results;
 

@@ -177,7 +177,7 @@ const WorkPlan = () => {
                 type: DialogType.WorkPlanUpload,
                 dialogProps: {
                   header: "Upload New Work plan",
-                  width: "max-w-2xl",
+                  width: "max-w-lg",
                 },
               })
             );

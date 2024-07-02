@@ -10,7 +10,7 @@ import { DialogType } from "constants/dailogs";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import { useAppDispatch } from "hooks/useStore";
 import { RouteEnum } from "constants/RouterConstants";
-import projectDocumentAPi from "services/project-document";
+import projectDocumentAPi from "services/projectsApi/project-document";
 import { useMemo } from "react";
 import { Loading } from "components/shared/Loading";
 import { useState } from "react";
@@ -127,8 +127,8 @@ const Uploads = () => {
                         <Dialog>
                           <DialogTrigger>
                             <Document
-                              // file={doc.document}
-                              file="https://www.tutorialspoint.com/java/java_tutorial.pdf"
+                              file={doc.document}
+                              // file="https://www.tutorialspoint.com/java/java_tutorial.pdf"
                               onLoadSuccess={onDocumentLoadSuccess}
                             >
                               <Page

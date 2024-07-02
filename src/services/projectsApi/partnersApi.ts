@@ -1,52 +1,54 @@
 /* eslint-disable no-empty-pattern */
 /* eslint-disable no-unused-vars */
 import { invalidateTags, provideTags } from "utils/QueryUtils";
-import baseAPI from ".";
+import baseAPI from "..";
+import { boolean, number, z } from "zod";
 import {
-  ProjectsCreateResponse,
-  ProjectsData,
-  ProjectsResponse,
-  ProjectsResultsData,
-} from "definations/projects";
-import { z } from "zod";
-import { ProjectsSummarySchema } from "definations/validator";
+  PartnerResultsData,
+  PartnersData,
+  PartnersResponse,
+} from "definations/project-types/partners";
+import { ProjectPartnerSchema } from "definations/project-validator";
 
-const BASE_URL = "/projects/projects/";
+const BASE_URL = "/projects/partners/";
 
-const projectsAPi = baseAPI.injectEndpoints({
+const partnersAPi = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getProjects: builder.query<ProjectsData, { params: {} }>({
+    getPartners: builder.query<PartnersData, { params: {} }>({
       query: () => {
         return {
           url: `${BASE_URL}`,
         };
       },
       providesTags: (data, error) =>
-        !error ? provideTags("PROJECTS", data) : [],
+        !error ? provideTags("PARTNERS", data) : [],
     }),
 
-    createProject: builder.mutation<ProjectsCreateResponse, any>({
+    createPartner: builder.mutation<
+      PartnersResponse,
+      z.infer<typeof ProjectPartnerSchema>
+    >({
       query: (body) => ({
         url: `${BASE_URL}`,
         method: "POST",
         body,
       }),
       invalidatesTags: (_, error, {}) =>
-        !error ? invalidateTags("PROJECTS") : [],
+        !error ? invalidateTags("PARTNERS") : [],
     }),
 
-    getProject: builder.query<ProjectsResultsData, { path: { id: string } }>({
+    getPartner: builder.query<PartnerResultsData, { path: { id: string } }>({
       query: ({ path }) => {
         return {
           url: `${BASE_URL}${path.id}/`,
         };
       },
       providesTags: (data, error) =>
-        !error ? provideTags("PROJECTS", data) : [],
+        !error ? provideTags("PARTNERS", data) : [],
     }),
 
-    updateProject: builder.mutation<
-      ProjectsResponse,
+    updatePartner: builder.mutation<
+      PartnersResponse,
       { path: { id: string }; body: any }
     >({
       query: ({ path, body }) => ({
@@ -55,11 +57,11 @@ const projectsAPi = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("PROJECTS", { ids: [path.id] }) : [],
+        !error ? invalidateTags("PARTNERS", { ids: [path.id] }) : [],
     }),
 
-    modifyProject: builder.mutation<
-      ProjectsResponse,
+    modifyPartner: builder.mutation<
+      PartnersResponse,
       { path: { id: string }; body: any }
     >({
       query: ({ path, body }) => ({
@@ -68,20 +70,20 @@ const projectsAPi = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("PROJECTS", { ids: [path.id] }) : [],
+        !error ? invalidateTags("PARTNERS", { ids: [path.id] }) : [],
     }),
 
-    deleteProject: builder.mutation<ProjectsResponse, { path: { id: string } }>(
+    deletePartner: builder.mutation<PartnersResponse, { path: { id: string } }>(
       {
         query: ({ path }) => ({
           url: `${BASE_URL}${path.id}/`,
           method: "DELETE",
         }),
         invalidatesTags: (_, error, { path }) =>
-          !error ? invalidateTags("PROJECTS", { ids: [path.id] }) : [],
+          !error ? invalidateTags("PARTNERS", { ids: [path.id] }) : [],
       }
     ),
   }),
 });
 
-export default projectsAPi;
+export default partnersAPi;

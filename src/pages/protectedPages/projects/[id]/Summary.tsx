@@ -4,7 +4,7 @@ import { MapPin } from "lucide-react";
 
 const Summary = (projects: any) => {
   return (
-    <div className="space-y-7">
+    <div className="space-y-10">
       <h4 className="font-semibold text-lg">Project Summary</h4>
       <hr />
 

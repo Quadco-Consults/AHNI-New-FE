@@ -13,8 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "components/ui/select";
-import partnersAPi from "services/partnersApi";
-import { PartnerResultsData } from "definations/partners";
+import partnersAPi from "services/projectsApi/partnersApi";
+import { PartnerResultsData } from "definations/project-types/partners";
 import { useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -26,9 +26,9 @@ import {
   FormItem,
   FormMessage,
 } from "components/ui/form";
-import { PartnersFormSchema } from "definations/validator";
-import LocationAPi from "services/locationApi";
-import { LocationResultsData } from "definations/location";
+import { PartnersFormSchema } from "definations/project-validator";
+import LocationAPi from "services/projectsApi/locationApi";
+import { LocationResultsData } from "definations/project-types/location";
 import { useDispatch } from "react-redux";
 import { partnerActions } from "store/formData/project-values";
 import { LoadingSpinner } from "components/shared/Loading";
