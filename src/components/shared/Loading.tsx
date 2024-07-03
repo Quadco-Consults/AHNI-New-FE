@@ -1,7 +1,7 @@
-import React from "react";
 import logoPng from "assets/svgs/logo-bg.svg";
+import { Icon } from "@iconify/react";
 
-const Loading = () => {
+export const Loading = () => {
   return (
     <div className="flex justify-center h-screen items-center p-8">
       <div>
@@ -17,4 +17,12 @@ const Loading = () => {
   );
 };
 
-export default Loading;
+export const LoadingSpinner = () => {
+  return (
+    <div className="flex justify-center items-center pt-8">
+      <div>
+        <Icon icon="eos-icons:bubble-loading" className="text-2xl" />
+      </div>
+    </div>
+  );
+};

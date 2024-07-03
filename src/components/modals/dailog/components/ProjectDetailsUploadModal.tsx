@@ -18,10 +18,15 @@ import { LoadingSpinner } from "components/shared/Loading";
 import { ProjectDocumentTypesResultsData } from "definations/project-types/project-document-types";
 import projectDocumentAPi from "services/projectsApi/project-document";
 import { toast } from "sonner";
+import { useLocation } from "react-router-dom";
 
-const ProjectUploadModal = () => {
+const ProjectDetailsUploadModal = () => {
   const [locationValue, setLocationValue] = useState("");
   const [file, setFile] = useState<File | null>(null);
+
+  const location = useLocation();
+
+  const projectID = localStorage.getItem("projectDetailID");
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -55,7 +60,7 @@ const ProjectUploadModal = () => {
 
   const form = useForm<z.infer<typeof ProjectDocumentSchema>>({
     defaultValues: {
-      project: localStorage.getItem("projectID") || "",
+      project: projectID as string,
       // document: null as any,
     },
   });
@@ -82,6 +87,7 @@ const ProjectUploadModal = () => {
       console.log(error);
       toast.error("Something went wrong");
     }
+    localStorage.removeItem("projectDetailID");
   };
 
   return (
@@ -131,4 +137,4 @@ const ProjectUploadModal = () => {
   );
 };
 
-export default ProjectUploadModal;
+export default ProjectDetailsUploadModal;

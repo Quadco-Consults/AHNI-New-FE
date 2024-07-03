@@ -31,7 +31,7 @@ const steps: Step[] = [
   { step: 2, stepName: "Uploads", route: "uploads" },
 ];
 
-const ProjectsHeading = () => {
+const ProjectsEditHeading = () => {
   const [completedSteps, setCompletedSteps] = useState<boolean[]>(() => {
     // Retrieve the completion state from local storage or initialize if not present
     const savedSteps = sessionStorage.getItem("projectsCompletedSteps");
@@ -78,7 +78,7 @@ const ProjectsHeading = () => {
             <Icon icon="iconoir:slash" />
           </BreadcrumbSeparator>
           <BreadcrumbItem>
-            <BreadcrumbPage>Create</BreadcrumbPage>
+            <BreadcrumbPage>Edit</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -119,4 +119,4 @@ const ProjectsHeading = () => {
   );
 };
 
-export default ProjectsHeading;
+export default ProjectsEditHeading;
