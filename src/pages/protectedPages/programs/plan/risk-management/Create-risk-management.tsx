@@ -8,6 +8,15 @@ import FormInput from "atoms/FormInput";
 import FormTextArea from "atoms/FormTextArea";
 import { Button } from "components/ui/button";
 import { RouteEnum } from "constants/RouterConstants";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "components/ui/breadcrumb";
+import { Icon } from "@iconify/react";
 
 const CreateRickManagement = () => {
   const navigate = useNavigate();
@@ -25,6 +34,33 @@ const CreateRickManagement = () => {
 
   return (
     <div className="space-y-6 min-h-screen">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbPage>Programs</BreadcrumbPage>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator>
+            <Icon icon="iconoir:slash" />
+          </BreadcrumbSeparator>
+          <BreadcrumbItem>
+            <BreadcrumbPage>Plans</BreadcrumbPage>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator>
+            <Icon icon="iconoir:slash" />
+          </BreadcrumbSeparator>
+          <BreadcrumbItem>
+            <BreadcrumbLink href={RouteEnum.PROGRAM_RISK_MANAGEMENT}>
+              Risk Management Plan
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator>
+            <Icon icon="iconoir:slash" />
+          </BreadcrumbSeparator>
+          <BreadcrumbItem>
+            <BreadcrumbPage>Create</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <button
         onClick={goBack}
         className="w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center"

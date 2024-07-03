@@ -1,5 +1,5 @@
 import { Suspense as ReactSuspense } from "react";
-import Loading from "./Loading";
+import { Loading } from "./Loading";
 
 /**
  *

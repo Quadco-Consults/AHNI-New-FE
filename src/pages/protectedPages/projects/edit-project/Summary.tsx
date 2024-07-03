@@ -1,6 +1,6 @@
 import { useAppDispatch } from "hooks/useStore";
 import { useForm } from "react-hook-form";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ProjectLayout from "./ProjectLayout";
 import { Button } from "components/ui/button";
 import FormButton from "atoms/FormButton";
@@ -44,8 +44,14 @@ interface InputValues {
 }
 
 const Summary = () => {
-  const [startDate, setStartDate] = useState<Date>();
-  const [endDate, setEndDate] = useState<Date>();
+  const { id } = useParams();
+  const projectsQueryResults = projectsAPi.useGetProjectQuery({
+    path: { id: id as string },
+  });
+  const projectsData = projectsQueryResults?.data;
+
+  const [startDate, setStartDate] = useState<any>(projectsData?.start_date);
+  const [endDate, setEndDate] = useState<any>(projectsData?.end_date);
   const dispatchPartner = useDispatch();
   const beneficiariesQueryResults = beneficiariesAPi.useGetBeneficiariesQuery(
     useMemo(
@@ -73,8 +79,9 @@ const Summary = () => {
       []
     )
   );
+
   const [projectsMutation, { isLoading }] =
-    projectsAPi.useCreateProjectMutation();
+    projectsAPi.useUpdateProjectMutation();
 
   const [inputValues, setInputValues] = useState<InputValues[]>([]);
 
@@ -113,18 +120,31 @@ const Summary = () => {
 
   const objs = useSelector((state: RootState) => state.objectives.objectives);
 
+  const funding_source = projectsData?.project_funding_source?.map(
+    (item) => item?.id
+  );
+  const beneficiaries = projectsData?.project_beneficiaries?.map(
+    (item) => item?.id
+  );
+  const locationPartners = projectsData?.project_partners?.map((partner) => {
+    return {
+      location_id: partner.location.id,
+      partner_ids: partner.partners.map((items) => items.id),
+    };
+  });
+
   const form = useForm<z.infer<typeof ProjectsSummarySchema>>({
     resolver: zodResolver(ProjectsSummarySchema),
     defaultValues: {
-      project_id: "",
-      title: "",
-      goal: "",
-      budget: "",
-      project_funding_source: [],
-      project_manager: "",
+      project_id: projectsData?.project_id,
+      title: projectsData?.title,
+      goal: projectsData?.goal,
+      budget: projectsData?.budget.toString(),
+      project_funding_source: funding_source,
+      project_manager: projectsData?.project_manager,
       objectives: "",
-      expected_results: "",
-      beneficiaries: [],
+      expected_results: projectsData?.expected_results,
+      beneficiaries: beneficiaries,
     },
   });
 
@@ -143,17 +163,26 @@ const Summary = () => {
     dispatch(closeDialog());
   };
 
+  const objID = projectsData?.project_objectives.map((objective) =>
+    objective.sub_objectives.map((item) => item.id)
+  );
+
+  console.log({ ...inputValues, id: objID });
+
   const onSubmit = async (data: z.infer<typeof ProjectsSummarySchema>) => {
     const formData = {
-      project_id: data.project_id,
-      objectives: [
-        {
-          title: data.objectives,
-          sub_objectives: inputValues,
-        },
-      ],
+      project_id: data?.project_id,
+      objectives:
+        data?.objectives.length > 0
+          ? [
+              {
+                title: data.objectives,
+                sub_objectives: inputValues,
+              },
+            ]
+          : projectsData?.project_objectives,
       project_manager: data.project_manager,
-      location_partners: idsObj,
+      location_partners: idsObj.length > 0 ? idsObj : locationPartners,
       goal: data.goal,
       expected_results: data.expected_results,
       beneficiaries: data.beneficiaries,
@@ -163,11 +192,14 @@ const Summary = () => {
       start_date: startDate && format(startDate, "yyy-MM-dd"),
       end_date: endDate && format(endDate, "yyy-MM-dd"),
     };
+    console.log(formData);
 
     try {
-      const res = await projectsMutation(formData).unwrap();
-      console.log(res?.data.id);
-      localStorage.setItem("projectID", res?.data.id);
+      await projectsMutation({
+        path: { id: id as string },
+        body: formData,
+      }).unwrap();
+
       toast.success("Project successfully added.");
     } catch (error) {
       toast.error("Something went wrong");
@@ -194,6 +226,7 @@ const Summary = () => {
               <h4 className="text-lg font-semibold">Project Summary</h4>
               <FormInput name="title" label="Project Name" />
               <FormInput name="project_id" label="Project ID" />
+
               <FormInput name="goal" label="Goal of the project" />
 
               <div className="flex gap-5">
@@ -295,27 +328,55 @@ const Summary = () => {
               <div className=" mt-10 space-y-3">
                 <Label className="font-semibold text-red-600">Objectives</Label>
                 <div className="flex flex-wrap gap-3">
-                  {objs?.map((option: any, index: number) => (
-                    <div
-                      key={index}
-                      className="border px-7 py-4 space-y-3 rounded-lg"
-                    >
-                      <p className="text-sm font-semibold">{option?.title}</p>
+                  {objs.length > 0
+                    ? objs?.map((option: any, index: number) => (
+                        <div
+                          key={index}
+                          className="border px-7 py-4 space-y-3 rounded-lg"
+                        >
+                          <p className="text-sm font-semibold">
+                            {option?.title}
+                          </p>
 
-                      {option?.sub_objectives && (
-                        <ul className="space-y-2">
-                          {option?.sub_objectives.map((obj: any, i: number) => (
-                            <li
-                              key={i}
-                              className="text-sm text-gray-500 list-disc pl-5"
-                            >
-                              {obj?.title}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  ))}
+                          {option?.sub_objectives && (
+                            <ul className="space-y-2">
+                              {option?.sub_objectives.map(
+                                (obj: any, i: number) => (
+                                  <li
+                                    key={i}
+                                    className="text-sm text-gray-500 list-disc pl-5"
+                                  >
+                                    {obj?.title}
+                                  </li>
+                                )
+                              )}
+                            </ul>
+                          )}
+                        </div>
+                      ))
+                    : projectsData?.project_objectives?.map((option) => (
+                        <div
+                          key={option.id}
+                          className="border px-7 py-4 space-y-3 rounded-lg"
+                        >
+                          <p className="text-sm font-semibold">
+                            {option?.title}
+                          </p>
+
+                          {option?.sub_objectives && (
+                            <ul className="space-y-2">
+                              {option?.sub_objectives.map((obj) => (
+                                <li
+                                  key={obj.id}
+                                  className="text-sm text-gray-500 list-disc pl-5"
+                                >
+                                  {obj?.title}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      ))}
                   <div>
                     <Dialog>
                       <DialogTrigger>
@@ -421,28 +482,51 @@ const Summary = () => {
               <div className="flex flex-col w-full mt-10 space-y-3">
                 <Label className="font-semibold">Consortium partners</Label>
                 <div className="flex flex-wrap gap-3">
-                  {location_partners.map((option: any, index: number) => (
-                    <div
-                      key={index}
-                      className="border px-7 py-4 space-y-3 rounded-lg"
-                    >
-                      <div className="flex gap-3 items-center">
-                        <LocationSvg />{" "}
-                        <h4 className="font-semibold">
-                          {option.obj.location_id}
-                        </h4>
-                      </div>
-                      <ul className="text-sm text-[#756D6D] space-y-2">
-                        {option.obj.partner_ids.map(
-                          (partner: any, index: number) => (
-                            <li key={index} className=" list-disc">
-                              {partner.name}
-                            </li>
-                          )
-                        )}
-                      </ul>
-                    </div>
-                  ))}
+                  {location_partners.length > 0
+                    ? location_partners.map((option: any, index: number) => (
+                        <div
+                          key={index}
+                          className="border px-7 py-4 space-y-3 rounded-lg"
+                        >
+                          <div className="flex gap-3 items-center">
+                            <LocationSvg />{" "}
+                            <h4 className="font-semibold">
+                              {option.obj.location_id}
+                            </h4>
+                          </div>
+                          <ul className="text-sm text-[#756D6D] space-y-2">
+                            {option.obj.partner_ids.map(
+                              (partner: any, index: number) => (
+                                <li key={index} className=" list-disc">
+                                  {partner.name}
+                                </li>
+                              )
+                            )}
+                          </ul>
+                        </div>
+                      ))
+                    : projectsData?.project_partners.map(
+                        (option, index: number) => (
+                          <div
+                            key={index}
+                            className="border px-7 py-4 space-y-3 rounded-lg"
+                          >
+                            <div className="flex gap-3 items-center">
+                              <LocationSvg />{" "}
+                              <h4 className="font-semibold">
+                                {option.location.name}
+                              </h4>
+                            </div>
+                            <ul className="text-sm text-[#756D6D] space-y-2">
+                              {option.partners.map((partner) => (
+                                <li key={partner.id} className=" list-disc">
+                                  {partner.name}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )
+                      )}
                   <Button
                     type="button"
                     variant="outline"

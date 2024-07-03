@@ -1,32 +1,33 @@
 /* eslint-disable no-empty-pattern */
 /* eslint-disable no-unused-vars */
 import { invalidateTags, provideTags } from "utils/QueryUtils";
-import baseAPI from ".";
+import baseAPI from "..";
 import { z } from "zod";
-import { FundingSourceSchema } from "definations/validator";
 import {
-  FundingSourceData,
-  FundingSourceResponse,
-  FundingSourceResultsData,
-} from "definations/funding-source";
+  LocationData,
+  LocationResponse,
+  LocationResultsData,
+} from "definations/project-types/location";
+import { LocationSchema } from "definations/project-validator";
 
-const BASE_URL = "/projects/funding-sources/";
+const BASE_URL = "/config/locations/";
 
-const FundingSourceAPi = baseAPI.injectEndpoints({
+const LocationAPi = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getFundingSources: builder.query<FundingSourceData, { params: {} }>({
-      query: () => {
+    getLocation: builder.query<LocationData, { params: {} }>({
+      query: (config) => {
         return {
           url: `${BASE_URL}`,
+          ...config,
         };
       },
       providesTags: (data, error) =>
-        !error ? provideTags("FUNDING_SOURCE", data) : [],
+        !error ? provideTags("LOCATION", data) : [],
     }),
 
     createFundingSource: builder.mutation<
-      FundingSourceResponse,
-      z.infer<typeof FundingSourceSchema>
+      LocationResponse,
+      z.infer<typeof LocationSchema>
     >({
       query: (body) => ({
         url: `${BASE_URL}`,
@@ -34,11 +35,11 @@ const FundingSourceAPi = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, {}) =>
-        !error ? invalidateTags("FUNDING_SOURCE") : [],
+        !error ? invalidateTags("LOCATION") : [],
     }),
 
     getFundingSource: builder.query<
-      FundingSourceResultsData,
+      LocationResultsData,
       { path: { id: string } }
     >({
       query: ({ path }) => {
@@ -47,11 +48,11 @@ const FundingSourceAPi = baseAPI.injectEndpoints({
         };
       },
       providesTags: (data, error) =>
-        !error ? provideTags("FUNDING_SOURCE", data) : [],
+        !error ? provideTags("LOCATION", data) : [],
     }),
 
     updateFundingSource: builder.mutation<
-      FundingSourceResponse,
+      LocationResponse,
       { path: { id: string }; body: any }
     >({
       query: ({ path, body }) => ({
@@ -60,11 +61,11 @@ const FundingSourceAPi = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("FUNDING_SOURCE", { ids: [path.id] }) : [],
+        !error ? invalidateTags("LOCATION", { ids: [path.id] }) : [],
     }),
 
     modifyFundingSource: builder.mutation<
-      FundingSourceResponse,
+      LocationResponse,
       { path: { id: string }; body: any }
     >({
       query: ({ path, body }) => ({
@@ -73,11 +74,11 @@ const FundingSourceAPi = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("FUNDING_SOURCE", { ids: [path.id] }) : [],
+        !error ? invalidateTags("LOCATION", { ids: [path.id] }) : [],
     }),
 
     deleteFundingSource: builder.mutation<
-      FundingSourceResponse,
+      LocationResponse,
       { path: { id: string } }
     >({
       query: ({ path }) => ({
@@ -85,9 +86,9 @@ const FundingSourceAPi = baseAPI.injectEndpoints({
         method: "DELETE",
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("FUNDING_SOURCE", { ids: [path.id] }) : [],
+        !error ? invalidateTags("LOCATION", { ids: [path.id] }) : [],
     }),
   }),
 });
 
-export default FundingSourceAPi;
+export default LocationAPi;

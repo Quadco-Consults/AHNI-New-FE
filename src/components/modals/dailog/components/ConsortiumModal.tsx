@@ -13,8 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "components/ui/select";
-import partnersAPi from "services/partnersApi";
-import { PartnerResultsData } from "definations/partners";
+import partnersAPi from "services/projectsApi/partnersApi";
+import { PartnerResultsData } from "definations/project-types/partners";
 import { useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -26,11 +26,13 @@ import {
   FormItem,
   FormMessage,
 } from "components/ui/form";
-import { PartnersFormSchema } from "definations/validator";
-import LocationAPi from "services/locationApi";
-import { LocationResultsData } from "definations/location";
+import { PartnersFormSchema } from "definations/project-validator";
+import LocationAPi from "services/projectsApi/locationApi";
+import { LocationResultsData } from "definations/project-types/location";
 import { useDispatch } from "react-redux";
-import { partnerActions } from "store/formData/partner-location";
+import { partnerActions } from "store/formData/project-values";
+import { LoadingSpinner } from "components/shared/Loading";
+import { closeDialog } from "store/ui";
 
 const ConsortiumModal = () => {
   const [locationValue, setLocationValue] = useState("");
@@ -45,9 +47,6 @@ const ConsortiumModal = () => {
       () => ({
         params: {
           fields: "id,name,logo,state",
-          // no_paginate: true,
-          // page_size: pagination.pageSize,
-          // page: pagination.pageIndex + 1,
         },
       }),
       []
@@ -58,9 +57,6 @@ const ConsortiumModal = () => {
       () => ({
         params: {
           fields: "id,state",
-          // no_paginate: true,
-          // page_size: pagination.pageSize,
-          // page: pagination.pageIndex + 1,
         },
       }),
       []
@@ -77,12 +73,25 @@ const ConsortiumModal = () => {
     },
   });
 
+  const locationName = locations?.find(
+    (location: LocationResultsData) => location?.id === locationValue
+  );
+
   const onSubmit = (data: z.infer<typeof PartnersFormSchema>) => {
+    const matchedPartners = partners?.filter((partner: PartnerResultsData) =>
+      data.items.includes(partner?.id)
+    );
+
     const submittedValues = {
-      location_id: locationValue,
-      partner_ids: data?.items,
+      obj: { location_id: locationName?.state, partner_ids: matchedPartners },
+      ids: {
+        location_id: locationValue,
+        partner_ids: data?.items,
+      },
     };
+    console.log(submittedValues);
     dispatch(partnerActions.addPartnerLocation(submittedValues));
+    dispatch(closeDialog());
   };
 
   return (
@@ -117,68 +126,79 @@ const ConsortiumModal = () => {
                   </SelectTrigger>
 
                   <SelectContent>
-                    {locations?.map((partner: LocationResultsData) => (
-                      <SelectItem key={partner?.id} value={partner.id}>
-                        {partner.state}
-                      </SelectItem>
-                    ))}
+                    {locationsQueryResult?.isLoading ? (
+                      <LoadingSpinner />
+                    ) : (
+                      locations?.map((partner: LocationResultsData) => (
+                        <SelectItem key={partner?.id} value={partner.id}>
+                          {partner.state}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
                 <Button>Search</Button>
               </div>
             </div>
 
-            <FormField
-              control={form.control}
-              name="items"
-              render={() => (
-                <FormItem className="grid grid-cols-2 gap-5 bg-gray-100 mt-10 p-5 rounded-lg shadow-inner md:grid-cols-3">
-                  {partners?.map((item: PartnerResultsData) => (
-                    <FormField
-                      key={item?.id}
-                      control={form.control}
-                      name="items"
-                      render={({ field }) => {
-                        return (
-                          <FormItem
-                            key={item.id}
-                            className="flex p-5 bg-white border rounded-lg gap-3 items-center "
-                          >
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value?.includes(item?.id)}
-                                onCheckedChange={(checked) => {
-                                  return checked
-                                    ? field.onChange([...field.value, item?.id])
-                                    : field.onChange(
-                                        field.value?.filter(
-                                          (value) => value !== item?.id
-                                        )
-                                      );
-                                }}
-                              />
-                            </FormControl>
-                            <div>
-                              <img src={item.logo} alt="" width={80} />
-                            </div>
-                            <div className="text-sm space-y-1">
-                              <h4>{item.name}</h4>
-                              <p className="flex items-center gap-1">
-                                <span>
-                                  <MapPin size={15} />
-                                </span>
-                                {item.state}
-                              </p>
-                            </div>
-                          </FormItem>
-                        );
-                      }}
-                    />
-                  ))}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {partnersQueryResult?.isLoading ? (
+              <LoadingSpinner />
+            ) : (
+              <FormField
+                control={form.control}
+                name="items"
+                render={() => (
+                  <FormItem className="grid grid-cols-2 gap-5 bg-gray-100 mt-10 p-5 rounded-lg shadow-inner md:grid-cols-3">
+                    {partners?.map((item: PartnerResultsData) => (
+                      <FormField
+                        key={item?.id}
+                        control={form.control}
+                        name="items"
+                        render={({ field }) => {
+                          return (
+                            <FormItem
+                              key={item.id}
+                              className="flex p-5 bg-white border rounded-lg gap-3 items-center "
+                            >
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value?.includes(item?.id)}
+                                  onCheckedChange={(checked) => {
+                                    return checked
+                                      ? field.onChange([
+                                          ...field.value,
+                                          item?.id,
+                                        ])
+                                      : field.onChange(
+                                          field.value?.filter(
+                                            (value) => value !== item?.id
+                                          )
+                                        );
+                                  }}
+                                />
+                              </FormControl>
+                              <div>
+                                <img src={item.logo} alt="" width={80} />
+                              </div>
+                              <div className="text-sm space-y-1">
+                                <h4>{item.name}</h4>
+                                <p className="flex items-center gap-1">
+                                  <span>
+                                    <MapPin size={15} />
+                                  </span>
+                                  {item.state}
+                                </p>
+                              </div>
+                            </FormItem>
+                          );
+                        }}
+                      />
+                    ))}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
           </ScrollArea>
           <div className="flex justify-end w-full my-5">
             <div className="flex items-center gap-x-4">
