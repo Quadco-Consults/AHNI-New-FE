@@ -119,7 +119,7 @@ const Summary = () => {
       project_id: "",
       title: "",
       goal: "",
-      budget: "",
+      budget: 0,
       project_funding_source: [],
       project_manager: "",
       objectives: "",
@@ -169,6 +169,13 @@ const Summary = () => {
       console.log(res?.data.id);
       localStorage.setItem("projectID", res?.data.id);
       toast.success("Project successfully added.");
+
+      let path = pathname;
+
+      path = path.substring(0, path.lastIndexOf("/"));
+
+      path += "/uploads";
+      navigate(path);
     } catch (error) {
       toast.error("Something went wrong");
       console.log(error);
@@ -176,13 +183,6 @@ const Summary = () => {
 
     dispatchPartner(partnerActions.clearPartnerLocation());
     dispatchPartner(objectivesActions.clearObjectives());
-
-    let path = pathname;
-
-    path = path.substring(0, path.lastIndexOf("/"));
-
-    path += "/uploads";
-    navigate(path);
   };
 
   return (
@@ -260,7 +260,7 @@ const Summary = () => {
               </div>
 
               <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
-                <FormInput name="budget" label="Budget" />
+                <FormInput name="budget" label="Budget" type="number" />
 
                 <FormInput
                   required
@@ -465,7 +465,11 @@ const Summary = () => {
             </Card>
 
             <div className="flex justify-between gap-5 mt-16">
-              <Button type="button" className="bg-[#FFF2F2] text-primary ">
+              <Button
+                onClick={() => navigate(-1)}
+                type="button"
+                className="bg-[#FFF2F2] text-primary "
+              >
                 Cancel
               </Button>
               <FormButton type="submit" suffix={<ChevronRight size={14} />}>

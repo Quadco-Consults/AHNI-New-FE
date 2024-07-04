@@ -34,7 +34,7 @@ const projectDocumentAPi = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, {}) =>
-        !error ? invalidateTags("PROJECT_DOCUMENT") : [],
+        !error ? invalidateTags("PROJECTS") : [],
     }),
 
     getProjectDocument: builder.query<
@@ -60,7 +60,7 @@ const projectDocumentAPi = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("PROJECT_DOCUMENT", { ids: [path.id] }) : [],
+        !error ? invalidateTags("PROJECTS", { ids: [path.id] }) : [],
     }),
 
     modifyProjectDocument: builder.mutation<
@@ -73,7 +73,7 @@ const projectDocumentAPi = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("PROJECT_DOCUMENT", { ids: [path.id] }) : [],
+        !error ? invalidateTags("PROJECTS", { ids: [path.id] }) : [],
     }),
 
     deleteProjectDocument: builder.mutation<
@@ -85,7 +85,7 @@ const projectDocumentAPi = baseAPI.injectEndpoints({
         method: "DELETE",
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("PROJECT_DOCUMENT", { ids: [path.id] }) : [],
+        !error ? invalidateTags("PROJECTS", { ids: [path.id] }) : [],
     }),
   }),
 });

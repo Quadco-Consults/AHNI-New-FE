@@ -17,6 +17,7 @@ import { ProjectsResultsData } from "definations/project-types/projects";
 import { Label } from "components/ui/label";
 import { PartnerResultsData } from "definations/project-types/partners";
 import { toast } from "sonner";
+import FormButton from "atoms/FormButton";
 
 const WorkPlanUploadModal = () => {
   const [partnerValue, setPartnerValue] = useState("");
@@ -157,9 +158,9 @@ const WorkPlanUploadModal = () => {
           <Button type="button" className="bg-[#FFF2F2] text-primary ">
             Cancel
           </Button>
-          <Button type="submit" disabled={isLoading}>
+          <FormButton loading={isLoading} type="submit" disabled={isLoading}>
             Done
-          </Button>
+          </FormButton>
         </div>
       </form>
     </div>

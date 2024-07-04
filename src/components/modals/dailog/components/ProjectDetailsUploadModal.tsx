@@ -19,6 +19,7 @@ import { ProjectDocumentTypesResultsData } from "definations/project-types/proje
 import projectDocumentAPi from "services/projectsApi/project-document";
 import { toast } from "sonner";
 import { useLocation } from "react-router-dom";
+import FormButton from "atoms/FormButton";
 
 const ProjectDetailsUploadModal = () => {
   const [locationValue, setLocationValue] = useState("");
@@ -38,7 +39,7 @@ const ProjectDetailsUploadModal = () => {
     setLocationValue(value);
   };
 
-  const [projectDocumentMutation] =
+  const [projectDocumentMutation, { isLoading }] =
     projectDocumentAPi.useCreateProjectDocumentMutation();
 
   const documentTypesQueryResults =
@@ -77,8 +78,6 @@ const ProjectDetailsUploadModal = () => {
     formData.append("document", file);
     formData.append("title", locationValue);
     formData.append("project", data?.project);
-
-    console.log(formData);
 
     try {
       await projectDocumentMutation(formData).unwrap();
@@ -129,7 +128,9 @@ const ProjectDetailsUploadModal = () => {
             <Button type="button" className="bg-[#FFF2F2] text-primary ">
               Cancel
             </Button>
-            <Button type="submit">Done</Button>
+            <FormButton loading={isLoading} disabled={isLoading} type="submit">
+              Done
+            </FormButton>
           </div>
         </form>
       </Form>
