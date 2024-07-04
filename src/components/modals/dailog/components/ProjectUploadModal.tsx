@@ -18,6 +18,7 @@ import { LoadingSpinner } from "components/shared/Loading";
 import { ProjectDocumentTypesResultsData } from "definations/project-types/project-document-types";
 import projectDocumentAPi from "services/projectsApi/project-document";
 import { toast } from "sonner";
+import FormButton from "atoms/FormButton";
 
 const ProjectUploadModal = () => {
   const [locationValue, setLocationValue] = useState("");
@@ -33,7 +34,7 @@ const ProjectUploadModal = () => {
     setLocationValue(value);
   };
 
-  const [projectDocumentMutation] =
+  const [projectDocumentMutation, { isLoading }] =
     projectDocumentAPi.useCreateProjectDocumentMutation();
 
   const documentTypesQueryResults =
@@ -55,8 +56,7 @@ const ProjectUploadModal = () => {
 
   const form = useForm<z.infer<typeof ProjectDocumentSchema>>({
     defaultValues: {
-      project: localStorage.getItem("projectID") || "",
-      // document: null as any,
+      project: localStorage.getItem("projectID") as string,
     },
   });
 
@@ -73,8 +73,6 @@ const ProjectUploadModal = () => {
     formData.append("title", locationValue);
     formData.append("project", data?.project);
 
-    console.log(formData);
-
     try {
       await projectDocumentMutation(formData).unwrap();
       toast.success("Document upload successfully.");
@@ -82,6 +80,9 @@ const ProjectUploadModal = () => {
       console.log(error);
       toast.error("Something went wrong");
     }
+
+    setLocationValue("");
+    setFile(null);
   };
 
   return (
@@ -123,7 +124,9 @@ const ProjectUploadModal = () => {
             <Button type="button" className="bg-[#FFF2F2] text-primary ">
               Cancel
             </Button>
-            <Button type="submit">Done</Button>
+            <FormButton loading={isLoading} disabled={isLoading} type="submit">
+              Done
+            </FormButton>
           </div>
         </form>
       </Form>
