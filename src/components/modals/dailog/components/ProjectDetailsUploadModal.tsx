@@ -125,7 +125,10 @@ const ProjectDetailsUploadModal = () => {
           </div>
 
           <div className="flex justify-between gap-5 mt-10">
-            <Button type="button" className="bg-[#FFF2F2] text-primary ">
+            <Button
+              type="button"
+              className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+            >
               Cancel
             </Button>
             <FormButton loading={isLoading} disabled={isLoading} type="submit">

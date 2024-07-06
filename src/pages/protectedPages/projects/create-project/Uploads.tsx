@@ -185,7 +185,7 @@ const Uploads = () => {
                   ))}
 
                   <Button
-                    className="flex gap-2 py-6 bg-[#FFF2F2] text-red-500"
+                    className="flex gap-2 py-6 bg-[#FFF2F2] text-red-500 dark:bg-primary dark:text-white"
                     type="button"
                     onClick={() => {
                       dispatch(
@@ -209,7 +209,7 @@ const Uploads = () => {
               <Button
                 onClick={goBack}
                 type="button"
-                className="bg-[#FFF2F2] text-primary "
+                className="bg-[#FFF2F2] text-primary dark:text-gray-500"
               >
                 Previous
               </Button>

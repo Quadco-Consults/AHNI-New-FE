@@ -444,7 +444,11 @@ const Dashboard = () => {
             </h6>
           </div>
 
-          <DataTable data={dasboardData} columns={dashboardColumns} />
+          <DataTable
+            data={dasboardData}
+            columns={dashboardColumns}
+            isLoading={false}
+          />
         </Card>
 
         <Card className="space-y-4">

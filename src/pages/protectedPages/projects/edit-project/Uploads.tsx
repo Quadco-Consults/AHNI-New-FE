@@ -248,7 +248,7 @@ const Uploads = () => {
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button
-                        className="flex gap-2 py-6 bg-[#FFF2F2] text-red-500"
+                        className="flex gap-2 py-6 bg-[#FFF2F2] text-red-500 dark:bg-primary dark:text-white"
                         type="button"
                       >
                         <AddSquareIcon />
@@ -297,7 +297,7 @@ const Uploads = () => {
                         <div className="flex justify-between gap-5 mt-10">
                           <Button
                             type="button"
-                            className="bg-[#FFF2F2] text-primary "
+                            className="bg-[#FFF2F2] text-primary dark:text-gray-500"
                           >
                             Cancel
                           </Button>
@@ -320,7 +320,7 @@ const Uploads = () => {
               <Button
                 onClick={goBack}
                 type="button"
-                className="bg-[#FFF2F2] text-primary "
+                className="bg-[#FFF2F2] text-primary dark:text-gray-500"
               >
                 Previous
               </Button>

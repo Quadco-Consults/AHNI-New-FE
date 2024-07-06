@@ -7,7 +7,6 @@ const monthly_budget = z.object({
 });
 
 export const ProgramWorkPlanSchema = z.object({
-  //   id: z.string(),
   monthly_budget: z.array(monthly_budget),
   annual_total_in_ngn: z.string(),
   created_at: z.string(),
@@ -27,5 +26,24 @@ export const ProgramWorkPlanSchema = z.object({
   financial_year: z.string(),
   project_objective: z.string(),
   partner: z.string(),
+  project: z.string(),
+});
+
+export const ProgramActivitySchema = z.object({
+  created_at: z.string(),
+  updated_at: z.string(),
+  objectives: z.number(),
+  ir: z.string(),
+  activity_code: z.string(),
+  activity_description: z.string(),
+  start_date: z.string(),
+  end_date: z.string(),
+  responsible_person: z.string(),
+  resources_required: z.string(),
+  memo_required: z.string(),
+  ea_required: z.string(),
+  results_achieved: z.string(),
+  follow_up_action: z.string(),
+  comments: z.string(),
   project: z.string(),
 });

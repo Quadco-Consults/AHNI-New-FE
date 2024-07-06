@@ -144,7 +144,7 @@ const CreateAnalysis = () => {
             <FormButton
               onClick={goBack}
               type="button"
-              className="bg-[#FFF2F2] text-primary "
+              className="bg-[#FFF2F2] text-primary dark:text-gray-500"
             >
               Cancel
             </FormButton>

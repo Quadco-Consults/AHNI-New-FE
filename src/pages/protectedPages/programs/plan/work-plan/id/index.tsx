@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import Card from "components/shared/Card";
 import Summary from "./Summary";
@@ -14,8 +14,28 @@ import {
 } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
 import { RouteEnum } from "constants/RouterConstants";
+import WorkPlanAPi from "services/programsApi/work-plan";
+import { WorkPlanDetails } from "definations/program-types/program-workplan";
+
+type Params = {
+  partner_id: string;
+  project_id: string;
+  financial_year: string;
+};
 
 const WorkPlanDetail = () => {
+  const { partner_id, project_id, financial_year } = useParams<Params>();
+
+  const workPlanQueryResult = WorkPlanAPi.useGetWorkPlansDetailsQuery({
+    params: {
+      partner_id: partner_id,
+      project_id: project_id,
+      financial_year: financial_year,
+    },
+  });
+
+  const data = workPlanQueryResult?.data;
+
   const navigate = useNavigate();
 
   const goBack = () => {
@@ -66,11 +86,11 @@ const WorkPlanDetail = () => {
         </div>
         <TabsContent value="summary">
           <Card>
-            <Summary />
+            <Summary {...(data as WorkPlanDetails)} />
           </Card>
         </TabsContent>
         <TabsContent value="activity/report">
-          <Activity />
+          <Activity {...(data as WorkPlanDetails)} />
         </TabsContent>
       </Tabs>
     </div>
