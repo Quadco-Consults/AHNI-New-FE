@@ -133,7 +133,10 @@ const Composition = () => {
               </div>
 
               <div className="flex justify-end gap-5 mt-16">
-                <Button type="button" className="bg-[#FFF2F2] text-primary ">
+                <Button
+                  type="button"
+                  className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                >
                   Cancel
                 </Button>
                 <FormButton suffix={<ChevronRight size={14} />}>

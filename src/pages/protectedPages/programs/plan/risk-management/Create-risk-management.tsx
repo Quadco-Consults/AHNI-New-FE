@@ -117,7 +117,9 @@ const CreateRickManagement = () => {
           </Card>
 
           <div className="flex justify-end gap-5 mt-16">
-            <Button className="bg-[#FFF2F2] text-primary ">Cancel</Button>
+            <Button className="bg-[#FFF2F2] text-primary dark:text-gray-500">
+              Cancel
+            </Button>
             <Button type="submit">Create</Button>
           </div>
         </form>

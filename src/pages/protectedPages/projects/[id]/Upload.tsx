@@ -54,7 +54,7 @@ const Uploads = (projects: any) => {
         <h4 className="font-bold text-lg">Uploaded Documents</h4>
         <div>
           <Button
-            className="flex gap-2 py-6 bg-[#FFF2F2] text-red-500"
+            className="flex gap-2 py-6 bg-[#FFF2F2] text-red-500 dark:bg-primary dark:text-white"
             type="button"
             onClick={() => {
               dispatch(

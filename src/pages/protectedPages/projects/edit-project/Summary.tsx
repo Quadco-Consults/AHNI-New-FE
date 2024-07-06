@@ -438,7 +438,7 @@ const Summary = () => {
                             <Button
                               onClick={handleAddInput}
                               type="button"
-                              className="bg-[#FFF2F2] text-primary "
+                              className="bg-[#FFF2F2] text-primary dark:text-gray-500"
                             >
                               Add
                             </Button>
@@ -447,7 +447,7 @@ const Summary = () => {
                           <div className="flex justify-end gap-5 mt-16">
                             <Button
                               type="button"
-                              className="bg-[#FFF2F2] text-primary "
+                              className="bg-[#FFF2F2] text-primary dark:text-gray-500"
                             >
                               Cancel
                             </Button>
@@ -563,7 +563,7 @@ const Summary = () => {
               <Button
                 onClick={() => navigate(-1)}
                 type="button"
-                className="bg-[#FFF2F2] text-primary "
+                className="bg-[#FFF2F2] text-primary dark:text-gray-500"
               >
                 Cancel
               </Button>
