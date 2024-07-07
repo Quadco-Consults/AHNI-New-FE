@@ -1,6 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
-import { WorkPlanDetails } from "definations/program-types/program-workplan";
 import { useMemo } from "react";
 
 const ActivityTab = (data: any) => {
@@ -19,30 +18,50 @@ const ActivityTab = (data: any) => {
       {
         header: "ACT. No.",
         accessorKey: "identification",
-        cell: ({ row }) => <Identification data={row.original} />,
-        size: 200,
+        cell: ({ row }) => {
+          return (
+            <p>
+              {row.original.workplans.map(
+                (workplan: any) => workplan.identification
+              )}
+            </p>
+          );
+        },
+        size: 150,
       },
       {
         header: "Activities",
-        cell: ({ row }) => <Activity data={row.original} />,
+        accessorKey: "activities",
+        cell: ({ row }) => {
+          return (
+            <p>
+              {row.original.workplans.map(
+                (workplan: any) => workplan.description
+              )}
+            </p>
+          );
+        },
+        size: 400,
+      },
+      {
+        header: "Activities Justification",
+        accessorKey: "activity_justification",
+        cell: ({ row }) => {
+          return (
+            <p>
+              {row.original.workplans.map(
+                (workplan: any) => workplan.activity_justification
+              )}
+            </p>
+          );
+        },
         size: 400,
       },
     ],
     []
   );
 
-  return <DataTable data={data || []} columns={columns} isLoading={false} />;
+  return <DataTable data={[data] || []} columns={columns} isLoading={false} />;
 };
 
 export default ActivityTab;
-
-const Identification = ({ data }: any) => {
-  console.log(data);
-  return <p>hello</p>;
-};
-
-const Activity = ({ data }: any) => {
-  return data?.workplans?.map(
-    (workplan: any) => workplan.activity_justification
-  );
-};
