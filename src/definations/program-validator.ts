@@ -47,3 +47,12 @@ export const ProgramActivitySchema = z.object({
   comments: z.string(),
   project: z.string(),
 });
+
+export const SupportiveSupervisionSchema = z.object({
+  facility: z.string(),
+  month_year: z.string(),
+  date_of_visit: z.string(),
+  status: z.string(),
+  evaluation_criteria: z.array(z.string()),
+  team_members: z.array(z.string()),
+});

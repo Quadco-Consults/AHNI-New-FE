@@ -25,16 +25,16 @@ const Activity = (data: WorkPlanDetails) => {
           <ActivityTab {...(data as WorkPlanDetails)} />
         </TabsContent>
         <TabsContent value="details">
-          <DetailTab />
+          <DetailTab {...(data as WorkPlanDetails)} />
         </TabsContent>
         <TabsContent value="gannt Chart">
-          <ChartTab />
+          <ChartTab {...(data as WorkPlanDetails)} />
         </TabsContent>
         <TabsContent value="measurement">
-          <MeasurementTab />
+          <MeasurementTab {...(data as WorkPlanDetails)} />
         </TabsContent>
         <TabsContent value="budget">
-          <BudgetTab />
+          <BudgetTab {...(data as WorkPlanDetails)} />
         </TabsContent>
       </Tabs>
     </Card>
