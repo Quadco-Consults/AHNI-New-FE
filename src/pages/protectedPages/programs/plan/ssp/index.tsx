@@ -29,46 +29,38 @@ import {
   BreadcrumbSeparator,
 } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
-
-type WorkPlanData = {
-  facility: string;
-  state: string;
-  lga: string;
-  year: string;
-  status: string;
-};
-
-const data: WorkPlanData[] = Array(10).fill({
-  facility: "ACEBAY",
-  state: "Lagos",
-  lga: "Surulere",
-  year: "02/2024",
-  status: "Pending",
-});
+import SupportiveSupervisionAPI from "services/programsApi/suportive-supervision";
+import { SupportiveSupervisionData } from "definations/program-types/supportive-supervision";
 
 const SupportiveSupervisionPlan = () => {
   const dispatch = useAppDispatch();
 
-  const columns = useMemo<ColumnDef<WorkPlanData>[]>(
+  const { data, isLoading } =
+    SupportiveSupervisionAPI.useGetSupportiveSupervisionsQuery();
+
+  const columns = useMemo<ColumnDef<SupportiveSupervisionData>[]>(
     () => [
       {
         header: "Facility",
-        accessorKey: "facility",
+        id: "facility",
+        accessorFn: (data) => `${data.facility.name}`,
         size: 200,
       },
       {
         header: "State",
-        accessorKey: "state",
+        id: "state",
+        accessorFn: (data) => `${data.facility.state}`,
         size: 200,
       },
       {
         header: "LGA",
-        accessorKey: "lga",
+        id: "lga",
+        accessorFn: (data) => `${data.facility.local_govt}`,
         size: 200,
       },
       {
         header: "Month/Year",
-        accessorKey: "year",
+        accessorKey: "month_year",
         size: 200,
       },
       {
@@ -102,7 +94,6 @@ const SupportiveSupervisionPlan = () => {
   );
 
   const ActionListAction = ({ data }: any) => {
-    console.log(data);
     return (
       <div className="flex items-center gap-2">
         <>
@@ -119,7 +110,7 @@ const SupportiveSupervisionPlan = () => {
                   to={generatePath(
                     RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS,
                     {
-                      id: "1",
+                      id: data?.id,
                     }
                   )}
                 >
@@ -256,7 +247,7 @@ const SupportiveSupervisionPlan = () => {
           </Button>
         </div>
 
-        <DataTable data={data} columns={columns} isLoading={false} />
+        <DataTable data={data || []} columns={columns} isLoading={false} />
       </Card>
     </div>
   );

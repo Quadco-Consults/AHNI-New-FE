@@ -56,3 +56,9 @@ export const SupportiveSupervisionSchema = z.object({
   evaluation_criteria: z.array(z.string()),
   team_members: z.array(z.string()),
 });
+
+export const FacilitySchema = z.object({
+  name: z.string(),
+  state: z.string(),
+  local_govt: z.string(),
+});

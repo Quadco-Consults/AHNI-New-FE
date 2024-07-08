@@ -1,4 +1,4 @@
-import { FC } from "react";
+import React, { FC } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { useDisableNumberInputScroll } from "../hooks/useDisableNumberInputScroll";
@@ -9,13 +9,7 @@ import {
   FormLabel,
   FormMessage,
 } from "components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "components/ui/select";
+import { Select, SelectTrigger, SelectValue } from "components/ui/select";
 
 import { SelectHTMLAttributes } from "react";
 
@@ -24,12 +18,14 @@ interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
   placeholder?: string;
   required?: boolean;
+  children: React.ReactNode;
 }
 const FormSelect: FC<SelectProps> = ({
   name,
   label,
   required,
   placeholder,
+  children,
 }) => {
   const { control } = useFormContext();
 
@@ -57,11 +53,7 @@ const FormSelect: FC<SelectProps> = ({
                   <SelectValue placeholder={placeholder} />
                 </SelectTrigger>
               </FormControl>
-              <SelectContent>
-                <SelectItem value="m@example.com">m@example.com</SelectItem>
-                <SelectItem value="m@google.com">m@google.com</SelectItem>
-                <SelectItem value="m@support.com">m@support.com</SelectItem>
-              </SelectContent>
+              {children}
             </Select>
             <FormMessage />
           </FormItem>
