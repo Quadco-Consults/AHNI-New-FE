@@ -5,6 +5,7 @@ import baseAPI from "..";
 import {
   SupportiveSupervisionData,
   SupportiveSupervisionResponse,
+  SupportiveSupervisionEvaluationData,
 } from "definations/program-types/supportive-supervision";
 import { z } from "zod";
 import { SupportiveSupervisionSchema } from "definations/program-validator";
@@ -24,6 +25,20 @@ const SupportiveSupervisionAPI = baseAPI.injectEndpoints({
           !error ? provideTags("SUPPORTIVE_SUPERVISION", data) : [],
       }
     ),
+
+    getSupportiveSupervisionsEvaluationCriteria: builder.query<
+      SupportiveSupervisionEvaluationData[],
+      {}
+    >({
+      query: (config) => {
+        return {
+          url: `${BASE_URL}evaluation-criteria/`,
+          ...config,
+        };
+      },
+      providesTags: (data, error) =>
+        !error ? provideTags("SUPPORTIVE_SUPERVISION", data) : [],
+    }),
 
     getSupportiveSupervision: builder.query<
       SupportiveSupervisionData,
@@ -51,7 +66,7 @@ const SupportiveSupervisionAPI = baseAPI.injectEndpoints({
         !error ? provideTags("SUPPORTIVE_SUPERVISION", data) : [],
     }),
 
-    createWorkPlan: builder.mutation<
+    createSupportiveSupervision: builder.mutation<
       SupportiveSupervisionResponse,
       z.infer<typeof SupportiveSupervisionSchema>
     >({
@@ -64,7 +79,7 @@ const SupportiveSupervisionAPI = baseAPI.injectEndpoints({
         !error ? invalidateTags("SUPPORTIVE_SUPERVISION") : [],
     }),
 
-    updateWorkPlan: builder.mutation<
+    updateSupportiveSupervision: builder.mutation<
       SupportiveSupervisionResponse,
       { path: { id: string }; body: any }
     >({
@@ -79,7 +94,7 @@ const SupportiveSupervisionAPI = baseAPI.injectEndpoints({
           : [],
     }),
 
-    modifyWorkPlan: builder.mutation<
+    modifySupportiveSupervision: builder.mutation<
       SupportiveSupervisionResponse,
       { path: { id: string }; body: any }
     >({
@@ -94,7 +109,7 @@ const SupportiveSupervisionAPI = baseAPI.injectEndpoints({
           : [],
     }),
 
-    deleteWorkPlan: builder.mutation<
+    deleteSupportiveSupervision: builder.mutation<
       SupportiveSupervisionResponse,
       { path: { id: string } }
     >({
