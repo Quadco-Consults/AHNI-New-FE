@@ -71,7 +71,7 @@ function DataTable<TData>({
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody>
+        <TableBody className="bg-white">
           {isLoading ? (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24">

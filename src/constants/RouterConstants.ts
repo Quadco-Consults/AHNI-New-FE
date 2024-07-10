@@ -155,6 +155,8 @@ export const RouteEnum = {
 
   TRAINING: "/program/training-and-procurement",
   PROGRAM_PAYMENT_REQUEST: "/program/payment-request",
+  USERS: "/users",
+  CREATE_USERS: "/users/create",
 
   // PROGRAM_OVERVIEW: "/program/overview",
   // PROGRAM_OVERVIEW: "/program/overview",

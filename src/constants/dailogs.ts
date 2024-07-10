@@ -18,6 +18,7 @@ export const DialogType = {
   ConsortiumModal: "ConsortiumModal",
   ProjectUploadModal: "ProjectUploadModal",
   ProjectDetailsUploadModal: "ProjectDetailsUploadModal",
+  EditUser: "EditUser",
 };
 
 export const largeDailogScreen = {
