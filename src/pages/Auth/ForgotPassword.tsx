@@ -6,16 +6,7 @@ const ForgotPassword = () => {
       <div className="w-[26rem] h-[26rem] rounded-full border-2 border-[#DBDFE9] flex items-center justify-center">
         <div className="">
           <div className="relative">
-            <img
-              className="w-[21rem] h-[13rem]"
-              src="/src/assets/imgs/clock.png"
-              alt=""
-            />
-            <img
-              className="w-[3rem] md:w-[6rem] lg:w-[6rem] absolute top-[10rem] left-[67%]"
-              src="/src/assets/imgs/asteric.png"
-              alt=""
-            />
+            <img className="" src="/imgs/forgotPassword.png" alt="" />
           </div>
         </div>
       </div>
