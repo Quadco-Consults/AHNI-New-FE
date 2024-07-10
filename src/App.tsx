@@ -1,7 +1,5 @@
 import useScrollToTop from "hooks/useScrollToTop";
 import Login from "pages/Auth/Login";
-import ForgotPassword from "pages/Auth/ForgotPassword";
-import ChangePassword from "pages/Auth/ChangePassword";
 import ProtectedPage from "pages/protectedPages/ProtectedPage";
 import { Route, useLocation, Routes, Navigate } from "react-router-dom";
 import getRoutes from "./routes";
@@ -18,11 +16,9 @@ function App() {
   const token = access_token;
 
   return (
-    <div className="text-[#4e4e4e] bg-[hsl(0,0%,98%)] h-screen dark:bg-[hsl(20,14.3%,4.1%)] dark:text-white">
+    <div className="text-[#4e4e4e] bg-[hsl(0,0%,98%)] h-screen overflow-auto dark:bg-[hsl(20,14.3%,4.1%)] dark:text-white">
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/change-password" element={<ChangePassword />} />
         {/* <Route path="/" element={<ProtectedPage />}>
         
           <Route path="dashboard" element={<Dashboard />} />
