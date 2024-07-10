@@ -10,10 +10,7 @@ const Login = () => {
           </div>
         </div>
         <div className="flex flex-1">
-          <img
-            src="/src/assets/imgs/LoginImage.png"
-            className="flex flex-1 h-screen"
-          />
+          <img src="/imgs/LoginImage.png" className="flex flex-1 h-screen" />
         </div>
       </div>
     </div>

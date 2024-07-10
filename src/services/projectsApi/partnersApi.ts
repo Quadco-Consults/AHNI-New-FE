@@ -1,24 +1,23 @@
 /* eslint-disable no-empty-pattern */
 /* eslint-disable no-unused-vars */
 import { invalidateTags, provideTags } from "utils/QueryUtils";
-import baseAPI from ".";
+import baseAPI from "..";
 import { boolean, number, z } from "zod";
 import {
   PartnerResultsData,
   PartnersData,
   PartnersResponse,
-} from "definations/partners";
-import { ProjectPartnerSchema } from "definations/validator";
+} from "definations/project-types/partners";
+import { ProjectPartnerSchema } from "definations/project-validator";
 
 const BASE_URL = "/projects/partners/";
 
 const partnersAPi = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getPartners: builder.query<PartnersData, {}>({
-      query: (config) => {
+    getPartners: builder.query<PartnersData, { params: {} }>({
+      query: () => {
         return {
           url: `${BASE_URL}`,
-          ...config,
         };
       },
       providesTags: (data, error) =>

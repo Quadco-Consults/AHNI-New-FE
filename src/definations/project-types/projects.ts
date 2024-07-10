@@ -1,15 +1,6 @@
 export interface ProjectsResultsData {
   id: string;
-  beneficiaries?: [
-    {
-      id: string | undefined;
-      created_at: string;
-      updated_at: string;
-      name: string;
-      description: string;
-    }
-  ];
-  funding_sources?: [
+  project_beneficiaries: [
     {
       id: string;
       created_at: string;
@@ -18,25 +9,50 @@ export interface ProjectsResultsData {
       description: string;
     }
   ];
-  objectives: [
+  project_funding_source: [
     {
       id: string;
       created_at: string;
       updated_at: string;
       name: string;
       description: string;
-      project: string;
-      parent: string;
+    }
+  ];
+  project_objectives: [
+    {
+      id: string;
+      title: string;
+      serial_number: number;
+      sub_objectives: [
+        {
+          id: string;
+          title: string;
+          serial_number: number;
+        }
+      ];
     }
   ];
   project_partners: [
     {
-      id: string;
-      created_at: string;
-      updated_at: string;
-      location: string;
-      project: string;
-      partner: string;
+      location: {
+        id: string;
+        name: string;
+      };
+      partners: [
+        {
+          id: string;
+          created_at: string;
+          updated_at: string;
+          name: string;
+          address: string;
+          city: string;
+          state: string;
+          email: string;
+          phone: string;
+          website: string;
+          logo: string;
+        }
+      ];
     }
   ];
   documents: [
@@ -74,4 +90,8 @@ export interface ProjectsData {
 export interface ProjectsResponse {
   message: string;
   data: ProjectsData;
+}
+export interface ProjectsCreateResponse {
+  message: string;
+  data: ProjectsResultsData;
 }
