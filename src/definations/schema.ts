@@ -16,3 +16,8 @@ export const uiSchema = z.object({
       .optional(),
   }),
 });
+
+export type IOptions = {
+  label: string;
+  value: string | number | boolean;
+};

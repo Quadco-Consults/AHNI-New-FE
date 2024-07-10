@@ -23,3 +23,17 @@ export interface LoginResponse {
   message: string;
   data: LoginData;
 }
+
+export interface TRequest {
+  page?: number;
+  page_size?: number;
+  no_paginate?: boolean;
+  fields?: string;
+}
+
+export interface TBasePaginatedRespose<T> {
+  count: number;
+  next: string;
+  previous: string;
+  results: T;
+}

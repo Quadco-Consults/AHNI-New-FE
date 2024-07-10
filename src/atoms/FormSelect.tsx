@@ -18,18 +18,21 @@ import {
 } from "components/ui/select";
 
 import { SelectHTMLAttributes } from "react";
+import { IOptions } from "definations/schema";
 
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   name: string;
   label?: string;
   placeholder?: string;
   required?: boolean;
+  options?: IOptions[];
 }
 const FormSelect: FC<SelectProps> = ({
   name,
   label,
   required,
   placeholder,
+  options,
 }) => {
   const { control } = useFormContext();
 
@@ -43,7 +46,7 @@ const FormSelect: FC<SelectProps> = ({
         const { value, onChange } = field;
         return (
           <FormItem className="flex flex-col gap-0">
-            <FormLabel className="font-semibold -mb-1">
+            <FormLabel className="-mb-1 font-semibold">
               {label}
               {required && (
                 <span className="text-red-500 " title="required">
@@ -58,9 +61,16 @@ const FormSelect: FC<SelectProps> = ({
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                <SelectItem value="m@example.com">m@example.com</SelectItem>
-                <SelectItem value="m@google.com">m@google.com</SelectItem>
-                <SelectItem value="m@support.com">m@support.com</SelectItem>
+                {options?.map((item) => {
+                  return (
+                    <SelectItem
+                      value={item.value as string}
+                      key={item.value as string}
+                    >
+                      {item.label}
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
             <FormMessage />
