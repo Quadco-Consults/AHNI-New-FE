@@ -19,6 +19,7 @@ export const DialogType = {
   ProjectUploadModal: "ProjectUploadModal",
   ProjectDetailsUploadModal: "ProjectDetailsUploadModal",
   EditUser: "EditUser",
+  AssingRoleToUser: "AssingRoleToUser",
 };
 
 export const largeDailogScreen = {

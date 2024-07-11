@@ -4,17 +4,20 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import FormInput from "atoms/FormInput";
 import FormButton from "atoms/FormButton";
+import { useChangePasswordMutation } from "services/authAPI";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 const formSchema = z
   .object({
-    oldPassword: z.string().trim().min(1, "Please enter a valid password"),
-    newPassword: z.string().trim().min(1, "Please enter a valid password"),
-    confirmPassword: z
+    old_password: z.string().trim().min(1, "Please enter a valid password"),
+    new_password: z.string().trim().min(1, "Please enter a valid password"),
+    confirm_new_password: z
       .string()
       .trim()
       .min(1, "Password must be at least character(s)"),
   })
-  .refine((data) => data.newPassword === data.confirmPassword, {
+  .refine((data) => data.new_password === data.confirm_new_password, {
     message: "Passwords don't match",
     path: ["confirmPassword"], // path of error
   });
@@ -23,14 +26,24 @@ const ChangePasswordForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      oldPassword: "",
-      newPassword: "",
-      confirmPassword: "",
+      old_password: "",
+      new_password: "",
+      confirm_new_password: "",
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+  const navigate = useNavigate();
+
+  const [changePassword, { isLoading }] = useChangePasswordMutation();
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      await changePassword(values);
+      toast.success("Password changed successfully");
+      navigate("/login");
+    } catch (err: any) {
+      toast.error(err.data.message || "Something went wrong");
+    }
   };
 
   return (
@@ -67,7 +80,7 @@ const ChangePasswordForm = () => {
             </div>
           </div>
           <div className="w-[5/12]">
-            <FormButton>Change Password</FormButton>
+            <FormButton loading={isLoading}>Change Password</FormButton>
           </div>
         </form>
       </Form>
