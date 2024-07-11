@@ -24,6 +24,7 @@ import ProjectUploadModal from "./components/ProjectUploadModal";
 import ProjectDetailsUploadModal from "./components/ProjectDetailsUploadModal";
 import EditUser from "./components/users/EditUser";
 import AssingRole from "./components/users/AssingRole";
+import SspSubmitModal from "./components/sspSubmitModal";
 
 const sheets: Record<string, ReactNode> = {
   [DialogType.Categories]: <CategoriesModal />,
@@ -47,6 +48,7 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.ProjectDetailsUploadModal]: <ProjectDetailsUploadModal />,
   [DialogType.EditUser]: <EditUser />,
   [DialogType.AssingRoleToUser]: <AssingRole />,
+  [DialogType.SspSubmitModal]: <SspSubmitModal />,
 };
 
 const AppDailog = () => {

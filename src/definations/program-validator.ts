@@ -7,7 +7,6 @@ const monthly_budget = z.object({
 });
 
 export const ProgramWorkPlanSchema = z.object({
-  //   id: z.string(),
   monthly_budget: z.array(monthly_budget),
   annual_total_in_ngn: z.string(),
   created_at: z.string(),
@@ -28,4 +27,70 @@ export const ProgramWorkPlanSchema = z.object({
   project_objective: z.string(),
   partner: z.string(),
   project: z.string(),
+});
+
+export const ProgramActivitySchema = z.object({
+  created_at: z.string(),
+  updated_at: z.string(),
+  objectives: z.number(),
+  ir: z.string(),
+  activity_code: z.string(),
+  activity_description: z.string(),
+  start_date: z.string(),
+  end_date: z.string(),
+  responsible_person: z.string(),
+  resources_required: z.string(),
+  memo_required: z.string(),
+  ea_required: z.string(),
+  results_achieved: z.string(),
+  follow_up_action: z.string(),
+  comments: z.string(),
+  project: z.string(),
+});
+
+export const SupportiveSupervisionSchema = z.object({
+  facility: z.string(),
+  month_year: z.string(),
+  date_of_visit: z.string(),
+  status: z.string(),
+  evaluation_criteria: z.array(z.string()),
+  team_members: z.array(z.string()),
+});
+export const SupportiveSupervisionResponseDataSchema = z.object({
+  responses: z.array(
+    z.object({
+      supervision_response: z.string(),
+      comments: z.string(),
+      response_id: z.string(),
+    })
+  ),
+});
+
+export const FacilitySchema = z.object({
+  name: z.string(),
+  state: z.string(),
+  local_govt: z.string(),
+});
+
+export const RiskCategoriesSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+});
+
+export const DepartmentsSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+});
+
+export const RiskPlansSchema = z.object({
+  risk_description: z.string(),
+  impact_description: z.string(),
+  impact_level: z.string(),
+  occurrence_probability: z.string(),
+  total_risk_response: z.string(),
+  risk_response: z.string(),
+  implementation_timeline: z.string(),
+  risk_status: z.string(),
+  risk_category: z.string(),
+  risk_owner: z.string(),
 });

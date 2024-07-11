@@ -2,98 +2,84 @@ import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import { useMemo } from "react";
 
-type DetailData = {
-  objective: string;
-  subObjective: string;
-  accNumber: string;
-  activities: string;
-  justification: string;
-  leadDept: string;
-  leadPerson: string;
-};
-
-const data: DetailData[] = [
-  {
-    objective:
-      "To Increase resiliency, responsiveness, and accountability of the health system",
-    subObjective: "Increased equity to access to HIV services",
-    accNumber: "PHO/IR/1.1.1",
-    activities:
-      "Develop context specific implementation plans to guide state teams to implement innovative, high impact decentralized HIV service delivery (e.g Super-Hub Cluster Model) in FCV and hard-to-reach areas",
-    justification:
-      "To fit to the different and  changing security context in BAY states",
-    leadDept: "PCT",
-    leadPerson: "STO PCT",
-  },
-  {
-    objective:
-      "To Increase resiliency, responsiveness, and accountability of the health system",
-    subObjective: "Increased equity to access to HIV services",
-    accNumber: "PHO/IR/1.1.1",
-    activities:
-      "Develop context specific implementation plans to guide state teams to implement innovative, high impact decentralized HIV service delivery (e.g Super-Hub Cluster Model) in FCV and hard-to-reach areas",
-    justification:
-      "To fit to the different and  changing security context in BAY states",
-    leadDept: "PCT",
-    leadPerson: "STO PCT",
-  },
-  {
-    objective:
-      "To Increase resiliency, responsiveness, and accountability of the health system",
-    subObjective: "Increased equity to access to HIV services",
-    accNumber: "PHO/IR/1.1.1",
-    activities:
-      "Develop context specific implementation plans to guide state teams to implement innovative, high impact decentralized HIV service delivery (e.g Super-Hub Cluster Model) in FCV and hard-to-reach areas",
-    justification:
-      "To fit to the different and  changing security context in BAY states",
-    leadDept: "PCT",
-    leadPerson: "STO PCT",
-  },
-];
-
-const DetailTab = () => {
-  const columns = useMemo<ColumnDef<DetailData>[]>(
+const DetailTab = (data: any) => {
+  const columns = useMemo<ColumnDef<any>[]>(
     () => [
       {
-        header: "Objective",
-        accessorKey: "objective",
-        size: 300,
-      },
-      {
-        header: "Sub-Objective",
-        accessorKey: "subObjective",
-        size: 300,
-      },
-      {
         header: "ACT. No.",
-        accessorKey: "accNumber",
-        size: 200,
+        accessorKey: "identification",
+        cell: ({ row }) => {
+          return (
+            <p>
+              {row.original.workplans.map(
+                (workplan: any) => workplan.identification
+              )}
+            </p>
+          );
+        },
+        size: 150,
       },
       {
         header: "Activities",
         accessorKey: "activities",
+        cell: ({ row }) => {
+          return (
+            <p>
+              {row.original.workplans.map(
+                (workplan: any) => workplan.description
+              )}
+            </p>
+          );
+        },
         size: 400,
-      },
-      {
-        header: "Activity Justification",
-        accessorKey: "justification",
-        size: 300,
       },
       {
         header: "Lead Dept",
         accessorKey: "leadDept",
-        size: 200,
+        cell: ({ row }) => {
+          return (
+            <p>
+              {row.original.workplans.map(
+                (workplan: any) => workplan.lead_department
+              )}
+            </p>
+          );
+        },
+        size: 150,
       },
       {
         header: "Lead Person",
         accessorKey: "leadPerson",
+        cell: ({ row }) => {
+          return (
+            <p>
+              {row.original.workplans.map(
+                (workplan: any) => workplan.lead_person
+              )}
+            </p>
+          );
+        },
+        size: 150,
+      },
+      {
+        header: "Locations",
+        accessorKey: "location",
+        cell: ({ row }) => {
+          return (
+            <p>
+              {row.original.workplans.map(
+                (workplan: any) => workplan.locations
+              )}
+            </p>
+          );
+        },
         size: 200,
       },
     ],
     []
   );
 
-  return <DataTable data={data} columns={columns} />;
+  return <DataTable data={[data] || []} columns={columns} isLoading={false} />;
 };
 
 export default DetailTab;

@@ -71,12 +71,12 @@ const locationPartners = z.object({
 export const ProjectsSummarySchema = z.object({
   beneficiaries: z.array(z.any()),
   objectives: z.string(),
-  title: z.string(),
-  project_id: z.string(),
-  goal: z.string(),
-  expected_results: z.string(),
-  budget: z.string(),
-  project_manager: z.string(),
+  title: z.string().min(1, "Title is required"),
+  project_id: z.string().min(1, "ProjectID is required"),
+  goal: z.string().min(1, "Goal is required"),
+  expected_results: z.string().min(1, "This field is required"),
+  budget: z.union([z.string(), z.number()]),
+  project_manager: z.string().min(1, "Manager is required"),
   project_funding_source: z.array(z.string()),
 });
 

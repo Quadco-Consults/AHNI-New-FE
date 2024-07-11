@@ -1,4 +1,4 @@
-import { Link, generatePath } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Card from "components/shared/Card";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
@@ -6,7 +6,6 @@ import AddSquareIcon from "components/icons/AddSquareIcon";
 import SearchIcon from "components/icons/SearchIcon";
 import FilterIcon from "components/icons/FilterIcon";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import { RouteEnum } from "constants/RouterConstants";
 import EyeIcon from "components/icons/EyeIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { ColumnDef } from "@tanstack/react-table";
@@ -23,71 +22,32 @@ import {
   BreadcrumbSeparator,
 } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
-
-type WorkPlanData = {
-  name: string;
-  partners: string;
-  year: string;
-  budget: number;
-};
-
-const data: WorkPlanData[] = [
-  {
-    name: "Accelerating Control of the HIV Epidemic in Nigeria (ACE 5 AKS & CRS)",
-    partners: "PHO",
-    year: "10/2022 - 09/2023",
-    budget: 200000,
-  },
-  {
-    name: "Partners for Learning for All Nigeria (PLANE)",
-    partners: "ADSO",
-    year: "10/2022 - 09/2023",
-    budget: 200000,
-  },
-  {
-    name: "Accelerating Control of the HIV Epidemic in Nigeria (ACE 5 AKS & CRS)",
-    partners: "PHO",
-    year: "10/2022 - 09/2023",
-    budget: 200000,
-  },
-  {
-    name: "Partners for Learning for All Nigeria (PLANE)",
-    partners: "ADSO",
-    year: "10/2022 - 09/2023",
-    budget: 200000,
-  },
-  {
-    name: "Accelerating Control of the HIV Epidemic in Nigeria (ACE 5 AKS & CRS)",
-    partners: "PHO",
-    year: "10/2022 - 09/2023",
-    budget: 200000,
-  },
-  {
-    name: "Partners for Learning for All Nigeria (PLANE)",
-    partners: "ADSO",
-    year: "10/2022 - 09/2023",
-    budget: 200000,
-  },
-];
+import { WorkPlanList } from "definations/program-types/program-workplan";
+import WorkPlanAPi from "services/programsApi/work-plan";
 
 const WorkPlan = () => {
   const dispatch = useAppDispatch();
-  const columns = useMemo<ColumnDef<WorkPlanData>[]>(
+
+  const workPlanQueryResult = WorkPlanAPi.useGetWorkPlansListQuery();
+
+  const data = workPlanQueryResult?.data?.results;
+
+  const columns = useMemo<ColumnDef<WorkPlanList>[]>(
     () => [
       {
         header: "Project Name",
-        accessorKey: "name",
-        size: 400,
+        accessorKey: "project_title",
+        size: 300,
       },
       {
         header: "Project Partners",
-        accessorKey: "partners",
-        size: 200,
+        accessorKey: "partner_name",
+        size: 300,
       },
       {
         header: "Financial Year",
-        accessorKey: "year",
-        size: 250,
+        accessorKey: "financial_year",
+        size: 200,
       },
       {
         header: "Budget ($)",
@@ -96,6 +56,7 @@ const WorkPlan = () => {
       },
       {
         header: "",
+        size: 80,
         id: "actions",
         cell: ({ row }) => <ActionListAction data={row.original} />,
       },
@@ -104,7 +65,6 @@ const WorkPlan = () => {
   );
 
   const ActionListAction = ({ data }: any) => {
-    console.log(data);
     return (
       <div className="flex items-center gap-2">
         <>
@@ -118,9 +78,9 @@ const WorkPlan = () => {
               <div className="flex flex-col items-start justify-between gap-1">
                 <Link
                   className="w-full"
-                  to={generatePath(RouteEnum.PROGRAM_WORK_PLAN_DETAILS, {
-                    id: "1",
-                  })}
+                  to={`/program/plan/work-plan/${data.partner_id}/${
+                    data.project_id
+                  }/${encodeURIComponent(data.financial_year)}`}
                 >
                   <Button
                     className="w-full flex items-center justify-start gap-2"
@@ -203,7 +163,11 @@ const WorkPlan = () => {
           </Button>
         </div>
 
-        <DataTable data={data} columns={columns} isLoading={false} />
+        <DataTable
+          data={data || []}
+          columns={columns}
+          isLoading={workPlanQueryResult?.isLoading}
+        />
       </Card>
     </div>
   );
