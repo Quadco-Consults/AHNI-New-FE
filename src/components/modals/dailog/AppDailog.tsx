@@ -22,6 +22,7 @@ import ProjectObjectiveModal from "./components/ProjectObjectiveModal";
 import ConsortiumModal from "./components/ConsortiumModal";
 import ProjectUploadModal from "./components/ProjectUploadModal";
 import ProjectDetailsUploadModal from "./components/ProjectDetailsUploadModal";
+import SspSubmitModal from "./components/sspSubmitModal";
 
 const sheets: Record<string, ReactNode> = {
   [DialogType.Categories]: <CategoriesModal />,
@@ -43,6 +44,7 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.ConsortiumModal]: <ConsortiumModal />,
   [DialogType.ProjectUploadModal]: <ProjectUploadModal />,
   [DialogType.ProjectDetailsUploadModal]: <ProjectDetailsUploadModal />,
+  [DialogType.SspSubmitModal]: <SspSubmitModal />,
 };
 
 const AppDailog = () => {

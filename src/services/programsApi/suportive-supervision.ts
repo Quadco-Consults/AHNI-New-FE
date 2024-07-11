@@ -6,9 +6,13 @@ import {
   SupportiveSupervisionData,
   SupportiveSupervisionResponse,
   SupportiveSupervisionEvaluationData,
+  EvaluationCriteria,
 } from "definations/program-types/supportive-supervision";
 import { z } from "zod";
-import { SupportiveSupervisionSchema } from "definations/program-validator";
+import {
+  SupportiveSupervisionResponseDataSchema,
+  SupportiveSupervisionSchema,
+} from "definations/program-validator";
 
 const BASE_URL = "/programs/supportive-supervisions/";
 
@@ -54,7 +58,7 @@ const SupportiveSupervisionAPI = baseAPI.injectEndpoints({
     }),
 
     getSupportiveSupervisionCriteria: builder.query<
-      any,
+      EvaluationCriteria[],
       { path: { id: string } }
     >({
       query: ({ path }) => {
@@ -72,6 +76,32 @@ const SupportiveSupervisionAPI = baseAPI.injectEndpoints({
     >({
       query: (body) => ({
         url: `${BASE_URL}`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: (_, error, {}) =>
+        !error ? invalidateTags("SUPPORTIVE_SUPERVISION") : [],
+    }),
+
+    createSupportiveSupervisionResponseData: builder.mutation<
+      SupportiveSupervisionResponse,
+      z.infer<typeof SupportiveSupervisionResponseDataSchema>
+    >({
+      query: (body) => ({
+        url: `${BASE_URL}response-data/`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: (_, error, {}) =>
+        !error ? invalidateTags("SUPPORTIVE_SUPERVISION") : [],
+    }),
+
+    createSupportiveSupervisionResponseDocument: builder.mutation<
+      SupportiveSupervisionResponse,
+      { path: { id: string }; body: any }
+    >({
+      query: ({ path, body }) => ({
+        url: `${BASE_URL}response-document/${path.id}`,
         method: "POST",
         body,
       }),

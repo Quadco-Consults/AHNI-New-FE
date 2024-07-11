@@ -3,7 +3,6 @@
 //@ts-ignore
 import logoPng from "assets/imgs/logo.png";
 import { ScrollArea } from "components/ui/scroll-area";
-import { Button } from "components/ui/button";
 import {
   Select,
   SelectContent,
@@ -55,7 +54,6 @@ const ChecklistModal = () => {
   const compositionData = JSON.parse(
     localStorage.getItem("compositionData") as string
   );
-  console.log(compositionData);
 
   const onSubmit = async (data: any) => {
     const formData = {

@@ -37,7 +37,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import FundingSourceAPi from "services/projectsApi/funding-sourceApi";
 import { partnerActions } from "store/formData/project-values";
 import { objectivesActions } from "store/formData/project-objective";
-import { IndexKind, isIndexSignatureDeclaration } from "typescript";
 
 interface InputValues {
   title: string;

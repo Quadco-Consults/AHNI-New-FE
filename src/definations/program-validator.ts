@@ -56,9 +56,41 @@ export const SupportiveSupervisionSchema = z.object({
   evaluation_criteria: z.array(z.string()),
   team_members: z.array(z.string()),
 });
+export const SupportiveSupervisionResponseDataSchema = z.object({
+  responses: z.array(
+    z.object({
+      supervision_response: z.string(),
+      comments: z.string(),
+      response_id: z.string(),
+    })
+  ),
+});
 
 export const FacilitySchema = z.object({
   name: z.string(),
   state: z.string(),
   local_govt: z.string(),
+});
+
+export const RiskCategoriesSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+});
+
+export const DepartmentsSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+});
+
+export const RiskPlansSchema = z.object({
+  risk_description: z.string(),
+  impact_description: z.string(),
+  impact_level: z.string(),
+  occurrence_probability: z.string(),
+  total_risk_response: z.string(),
+  risk_response: z.string(),
+  implementation_timeline: z.string(),
+  risk_status: z.string(),
+  risk_category: z.string(),
+  risk_owner: z.string(),
 });
