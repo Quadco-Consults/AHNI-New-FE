@@ -2,7 +2,7 @@
 import { useState } from "react";
 import logoSvg from "assets/svgs/logo-bg.svg";
 import { NavLink, useLocation } from "react-router-dom";
-import { ChevronDown, User } from "lucide-react";
+import { ChevronDown, User, VaultIcon } from "lucide-react";
 import { RouteEnum, AdminRoutes } from "constants/RouterConstants";
 import { Icon } from "@iconify/react";
 import { cn } from "lib/utils";
@@ -288,6 +288,30 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                     )}
                   >
                     Users
+                  </h4>
+                </div>
+              </NavLink>
+            </div>
+            <div>
+              <NavLink
+                to={RouteEnum.AUTHORIZATION}
+                className={cn(
+                  "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
+                  location.pathname.startsWith(RouteEnum.PROJECTS) &&
+                    "text-primary "
+                )}
+              >
+                <div className="flex w-[85%] items-center gap-2">
+                  <span className="">
+                    <VaultIcon />
+                  </span>
+                  <h4
+                    className={cn(
+                      " w-[100%] truncate font-medium",
+                      sidebarWidth === false ? "block" : "hidden"
+                    )}
+                  >
+                    Authorization
                   </h4>
                 </div>
               </NavLink>

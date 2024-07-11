@@ -4,6 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import FormInput from "atoms/FormInput";
 import FormButton from "atoms/FormButton";
+import { useForgotPasswordMutation } from "services/authAPI";
+import { toast } from "sonner";
 
 const emailSchema = z.object({
   email: z.string().email(),
@@ -17,8 +19,15 @@ const ForgotPasswordForm = () => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof emailSchema>) => {
-    console.log(values);
+  const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
+
+  const onSubmit = async (values: z.infer<typeof emailSchema>) => {
+    try {
+      await forgotPassword(values);
+      toast.success("Email sent successfully");
+    } catch (err: any) {
+      toast.error(err.data.message || "Something went wrong");
+    }
   };
 
   return (
@@ -42,7 +51,7 @@ const ForgotPasswordForm = () => {
           />
         </div>
         <div className="w-[5/12]">
-          <FormButton>Continue</FormButton>
+          <FormButton loading={isLoading}>Continue</FormButton>
         </div>
       </form>
     </Form>
