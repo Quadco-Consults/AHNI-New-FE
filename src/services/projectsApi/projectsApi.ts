@@ -1,14 +1,13 @@
 /* eslint-disable no-empty-pattern */
 /* eslint-disable no-unused-vars */
 import { invalidateTags, provideTags } from "utils/QueryUtils";
-import baseAPI from ".";
+import baseAPI from "..";
 import {
+  ProjectsCreateResponse,
   ProjectsData,
   ProjectsResponse,
   ProjectsResultsData,
-} from "definations/projects";
-import { z } from "zod";
-import { ProjectsSummarySchema } from "definations/validator";
+} from "definations/project-types/projects";
 
 const BASE_URL = "/projects/projects/";
 
@@ -24,7 +23,7 @@ const projectsAPi = baseAPI.injectEndpoints({
         !error ? provideTags("PROJECTS", data) : [],
     }),
 
-    createProject: builder.mutation<ProjectsResponse, any>({
+    createProject: builder.mutation<ProjectsCreateResponse, any>({
       query: (body) => ({
         url: `${BASE_URL}`,
         method: "POST",

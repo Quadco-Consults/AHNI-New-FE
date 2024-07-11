@@ -4,6 +4,7 @@ import { adminRoutes } from "./admin";
 import { program } from "./program";
 import { configureRoutes } from "utils/RouteUtils";
 import { project } from "./project";
+import { users } from "./users";
 
 const getRoutes = function getRoutes() {
   return configureRoutes([
@@ -12,6 +13,7 @@ const getRoutes = function getRoutes() {
     ...adminRoutes,
     ...program,
     ...project,
+    ...users,
   ]);
 };
 

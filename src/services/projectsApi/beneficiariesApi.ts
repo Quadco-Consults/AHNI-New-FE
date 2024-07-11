@@ -1,32 +1,33 @@
 /* eslint-disable no-empty-pattern */
 /* eslint-disable no-unused-vars */
 import { invalidateTags, provideTags } from "utils/QueryUtils";
-import baseAPI from ".";
+import baseAPI from "..";
 import { z } from "zod";
+import { BeneficiarySchema } from "definations/project-validator";
 import {
-  LocationData,
-  LocationResponse,
-  LocationResultsData,
-} from "definations/location";
-import { LocationSchema } from "definations/validator";
+  BeneficiariesData,
+  BeneficiariesResponse,
+  BeneficiariesResultsData,
+} from "definations/project-types/beneficiaries";
 
-const BASE_URL = "/config/locations/";
+const BASE_URL = "/projects/beneficiaries/";
 
-const LocationAPi = baseAPI.injectEndpoints({
+const beneficiariesAPi = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getLocation: builder.query<LocationData, { params: {} }>({
-      query: () => {
+    getBeneficiaries: builder.query<BeneficiariesData, {}>({
+      query: (config) => {
         return {
           url: `${BASE_URL}`,
+          ...config,
         };
       },
       providesTags: (data, error) =>
-        !error ? provideTags("LOCATION", data) : [],
+        !error ? provideTags("BENEFICIARIES", data) : [],
     }),
 
-    createFundingSource: builder.mutation<
-      LocationResponse,
-      z.infer<typeof LocationSchema>
+    createBeneficiary: builder.mutation<
+      BeneficiariesResponse,
+      z.infer<typeof BeneficiarySchema>
     >({
       query: (body) => ({
         url: `${BASE_URL}`,
@@ -34,11 +35,11 @@ const LocationAPi = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, {}) =>
-        !error ? invalidateTags("LOCATION") : [],
+        !error ? invalidateTags("BENEFICIARIES") : [],
     }),
 
-    getFundingSource: builder.query<
-      LocationResultsData,
+    getBeneficiary: builder.query<
+      BeneficiariesResultsData,
       { path: { id: string } }
     >({
       query: ({ path }) => {
@@ -47,11 +48,11 @@ const LocationAPi = baseAPI.injectEndpoints({
         };
       },
       providesTags: (data, error) =>
-        !error ? provideTags("LOCATION", data) : [],
+        !error ? provideTags("BENEFICIARIES", data) : [],
     }),
 
-    updateFundingSource: builder.mutation<
-      LocationResponse,
+    updateBeneficiary: builder.mutation<
+      BeneficiariesResponse,
       { path: { id: string }; body: any }
     >({
       query: ({ path, body }) => ({
@@ -60,11 +61,11 @@ const LocationAPi = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("LOCATION", { ids: [path.id] }) : [],
+        !error ? invalidateTags("BENEFICIARIES", { ids: [path.id] }) : [],
     }),
 
-    modifyFundingSource: builder.mutation<
-      LocationResponse,
+    modifyBeneficiary: builder.mutation<
+      BeneficiariesResponse,
       { path: { id: string }; body: any }
     >({
       query: ({ path, body }) => ({
@@ -73,11 +74,11 @@ const LocationAPi = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("LOCATION", { ids: [path.id] }) : [],
+        !error ? invalidateTags("BENEFICIARIES", { ids: [path.id] }) : [],
     }),
 
-    deleteFundingSource: builder.mutation<
-      LocationResponse,
+    deleteBeneficiary: builder.mutation<
+      BeneficiariesResponse,
       { path: { id: string } }
     >({
       query: ({ path }) => ({
@@ -85,9 +86,9 @@ const LocationAPi = baseAPI.injectEndpoints({
         method: "DELETE",
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("LOCATION", { ids: [path.id] }) : [],
+        !error ? invalidateTags("BENEFICIARIES", { ids: [path.id] }) : [],
     }),
   }),
 });
 
-export default LocationAPi;
+export default beneficiariesAPi;

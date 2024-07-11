@@ -148,11 +148,15 @@ export const RouteEnum = {
   PROJECTS: "/projects",
   PROJECTS_DETAILS: "/projects/:id",
   PROJECTS_CREATE_SUMMARY: "/projects/create-projects/summary",
-  PROJECTS_CREATE_PERFORMANCE: "/projects/create-projects/performance",
   PROJECTS_CREATE_UPLOADS: "/projects/create-projects/uploads",
+  PROJECTS_EDIT_SUMMARY: "/projects/:id/edit-projects/summary",
+  PROJECTS_EDIT_UPLOADS: "/projects/:id/edit-projects/uploads",
+  // PROJECTS_CREATE_PERFORMANCE: "/projects/create-projects/performance",
 
   TRAINING: "/program/training-and-procurement",
   PROGRAM_PAYMENT_REQUEST: "/program/payment-request",
+  USERS: "/users",
+  CREATE_USERS: "/users/create",
 
   // PROGRAM_OVERVIEW: "/program/overview",
   // PROGRAM_OVERVIEW: "/program/overview",

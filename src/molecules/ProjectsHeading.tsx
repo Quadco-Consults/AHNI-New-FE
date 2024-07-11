@@ -1,8 +1,19 @@
+import { Icon } from "@iconify/react";
 import CheckIcon from "assets/svgs/CheckIcon";
 import PendingIcon from "assets/svgs/PendingIcon";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "components/ui/breadcrumb";
 import { Separator } from "components/ui/separator";
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import LongArrowLeft from "components/icons/LongArrowLeft";
+import { RouteEnum } from "constants/RouterConstants";
 
 interface Step {
   step: number;
@@ -16,8 +27,8 @@ const steps: Step[] = [
     stepName: "Project Summary",
     route: "summary",
   },
-  { step: 2, stepName: "Project Performance", route: "performance" },
-  { step: 3, stepName: "Uploads", route: "uploads" },
+  // { step: 2, stepName: "Project Performance", route: "performance" },
+  { step: 2, stepName: "Uploads", route: "uploads" },
 ];
 
 const ProjectsHeading = () => {
@@ -31,6 +42,12 @@ const ProjectsHeading = () => {
   const { pathname } = useLocation();
 
   const currentPath = pathname.split("/").at(-1);
+
+  const navigate = useNavigate();
+
+  const goBack = () => {
+    navigate(-1);
+  };
 
   useEffect(() => {
     const currentStepIndex = steps.findIndex(
@@ -51,33 +68,54 @@ const ProjectsHeading = () => {
   }, [currentPath]);
 
   return (
-    <div className="grid justify-between w-full grid-cols-3 px-4 py-2 gap-y-4 md:w-2/3 ">
-      {steps.map((item, i) => {
-        return (
-          <div className="flex items-center" key={i}>
-            {completedSteps[i] ? <CheckIcon /> : <PendingIcon />}
+    <section className="space-y-5">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href={RouteEnum.PROJECTS}>Projects</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator>
+            <Icon icon="iconoir:slash" />
+          </BreadcrumbSeparator>
+          <BreadcrumbItem>
+            <BreadcrumbPage>Create</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <button
+        onClick={goBack}
+        className="w-[3rem] h-[3rem] rounded-full drop-shadow-md bg-white flex items-center justify-center"
+      >
+        <LongArrowLeft />
+      </button>
+      <div className="grid justify-between w-full grid-cols-2 px-4 py-2 gap-y-4 md:w-2/3 ">
+        {steps.map((item, i) => {
+          return (
+            <div className="flex items-center" key={i}>
+              {completedSteps[i] ? <CheckIcon /> : <PendingIcon />}
 
-            {i !== steps.length - 1 && (
-              <div className="flex items-center justify-center w-full text-center ">
-                <Separator className="w-[70%] text-center h-[2px] bg-[#756D6D] " />
-              </div>
-            )}
-          </div>
-        );
-      })}
-      {steps.map((step, index) => {
-        return (
-          <div className="flex items-center " key={index}>
-            <div className="text-sm ">
-              <div className="space-y-1">
-                <div className="text-xs">STEP {step.step}</div>
-                <div className="text-sm font-semibold">{step.stepName}</div>
+              {i !== steps.length - 1 && (
+                <div className="flex items-center justify-center w-full text-center ">
+                  <Separator className="w-[70%] text-center h-[2px] bg-[#756D6D] " />
+                </div>
+              )}
+            </div>
+          );
+        })}
+        {steps.map((step, index) => {
+          return (
+            <div className="flex items-center " key={index}>
+              <div className="text-sm ">
+                <div className="space-y-1">
+                  <div className="text-xs">STEP {step.step}</div>
+                  <div className="text-sm font-semibold">{step.stepName}</div>
+                </div>
               </div>
             </div>
-          </div>
-        );
-      })}
-    </div>
+          );
+        })}
+      </div>
+    </section>
   );
 };
 

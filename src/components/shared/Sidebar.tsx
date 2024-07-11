@@ -2,7 +2,7 @@
 import { useState } from "react";
 import logoSvg from "assets/svgs/logo-bg.svg";
 import { NavLink, useLocation } from "react-router-dom";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, User } from "lucide-react";
 import { RouteEnum, AdminRoutes } from "constants/RouterConstants";
 import { Icon } from "@iconify/react";
 import { cn } from "lib/utils";
@@ -258,52 +258,40 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                 </motion.ul>
               </div>
             ))}
-            {/* {DEPARTMENTAL_LINKS.map((link) => (
-          <NavigationMenu key={link.name}>
-            <NavigationMenuList>
-              <NavigationMenuItem>
-                <NavigationMenuTrigger>
-                  <div className="flex items-center gap-3">
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M6.5 17.5L6.5 14.5M11.5 17.5L11.5 8.5M16.5 17.5V13.5"
-                        stroke="#667185"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                      />
-                      <path
-                        d="M21.5 5.5C21.5 7.15685 20.1569 8.5 18.5 8.5C16.8431 8.5 15.5 7.15685 15.5 5.5C15.5 3.84315 16.8431 2.5 18.5 2.5C20.1569 2.5 21.5 3.84315 21.5 5.5Z"
-                        stroke="#667185"
-                        stroke-width="1.5"
-                      />
-                      <path
-                        d="M21.4955 11C21.4955 11 21.5 11.3395 21.5 12C21.5 16.4784 21.5 18.7175 20.1088 20.1088C18.7175 21.5 16.4783 21.5 12 21.5C7.52166 21.5 5.28249 21.5 3.89124 20.1088C2.5 18.7175 2.5 16.4784 2.5 12C2.5 7.52169 2.5 5.28252 3.89124 3.89127C5.28249 2.50003 7.52166 2.50003 12 2.50003L13 2.5"
-                        stroke="#667185"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                    <h4>{link.name}</h4>
-                  </div>
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  {link?.link?.map((el, index) => (
-                    <NavigationMenuLink key={index}>
-                      <h4 className="py-1">{el.name}</h4>
-                    </NavigationMenuLink>
-                  ))}
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
-        ))} */}
+          </div>
+          <div>
+            <h4
+              className={cn(
+                "text-black/40 px-2 py-3 text-xs font-semibold uppercase duration-200",
+                sidebarWidth === false ? "block" : "hidden"
+              )}
+            >
+              SETTINGS
+            </h4>
+            <div>
+              <NavLink
+                to={RouteEnum.USERS}
+                className={cn(
+                  "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
+                  location.pathname.startsWith(RouteEnum.PROJECTS) &&
+                    "text-primary "
+                )}
+              >
+                <div className="flex w-[85%] items-center gap-2">
+                  <span className="">
+                    <User />
+                  </span>
+                  <h4
+                    className={cn(
+                      " w-[100%] truncate font-medium",
+                      sidebarWidth === false ? "block" : "hidden"
+                    )}
+                  >
+                    Users
+                  </h4>
+                </div>
+              </NavLink>
+            </div>
           </div>
 
           {/* Global Hub */}
@@ -326,15 +314,6 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
 export default Sidebar;
 
 const DEPARTMENTAL_LINKS = [
-  // {
-  //   name: "Projects",
-  //   path: "/project",
-  //   icon: <ProjectsIcon />,
-  //   link: [
-  //     { name: "Ongoing", path: "/" },
-  //     { name: "Closed Out", path: "/" },
-  //   ],
-  // },
   {
     name: "Programs",
     path: "/program",
@@ -605,3 +584,11 @@ const DEPARTMENTAL_LINKS = [
     ],
   },
 ];
+
+// const SETTINGS = [
+//   {
+//     name: "Users",
+//     path: "/users",
+//     icon: <User2 />,
+//   },
+// ];

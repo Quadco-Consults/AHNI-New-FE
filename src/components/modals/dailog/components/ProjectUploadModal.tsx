@@ -1,61 +1,132 @@
-import FileUpload from "atoms/FileUpload";
-import FormButton from "atoms/FormButton";
-import FormInput from "atoms/FormInput";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "components/ui/select";
 import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";
-import { ProjectDocumentSchema } from "definations/validator";
-import { useMemo } from "react";
+import { ProjectDocumentSchema } from "definations/project-validator";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import projectsAPi from "services/projectsApi";
+import projectDocumentTypesAPi from "services/projectsApi/project-document-types";
+import { Input } from "components/ui/input";
+import { Upload as UploadFile } from "lucide-react";
 import { z } from "zod";
+import { LoadingSpinner } from "components/shared/Loading";
+import { ProjectDocumentTypesResultsData } from "definations/project-types/project-document-types";
+import projectDocumentAPi from "services/projectsApi/project-document";
+import { toast } from "sonner";
 
 const ProjectUploadModal = () => {
-  const { data } = projectsAPi.useGetProjectsQuery(
-    useMemo(
-      () => ({
-        params: {
-          // fields: "id, logo, name, state",
-          // page_size: pagination.pageSize,
-          // page: pagination.pageIndex + 1,
-        },
-      }),
-      []
-    )
-  );
+  const [locationValue, setLocationValue] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      setFile(event.target.files[0]);
+    }
+  };
+
+  const handleLocation = (value: string) => {
+    setLocationValue(value);
+  };
+
+  const [projectDocumentMutation] =
+    projectDocumentAPi.useCreateProjectDocumentMutation();
+
+  const documentTypesQueryResults =
+    projectDocumentTypesAPi.useGetProjectDocumentTypesQuery(
+      useMemo(
+        () => ({
+          params: {
+            // fields: "id,name",
+            no_paginate: false,
+            // page_size: pagination.pageSize,
+            // page: pagination.pageIndex + 1,
+          },
+        }),
+        []
+      )
+    );
+
+  const documentTypesData = documentTypesQueryResults?.data?.results;
+
   const form = useForm<z.infer<typeof ProjectDocumentSchema>>({
     defaultValues: {
-      title: "",
-      // document: FileList,
+      project: localStorage.getItem("projectID") || "",
+      // document: null as any,
     },
   });
 
   const { handleSubmit } = form;
 
-  const onSubmit = (data: any) => {
+  const onSubmit = async (data: any) => {
+    if (!file) {
+      console.error("No file selected");
+      return;
+    }
+
     const formData = new FormData();
-    // const file = data?.file[0];
-    // const blob = new Blob([file], { type: file?.type });
-    formData.append("file", data?.file[0]);
+    formData.append("document", file);
+    formData.append("title", locationValue);
+    formData.append("project", data?.project);
+
     console.log(formData);
-    console.table(">>>>>>>>>>>>>>>>", data);
+
+    try {
+      await projectDocumentMutation(formData).unwrap();
+      toast.success("Document upload successfully.");
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
+    }
   };
 
   return (
     <div className="w-full">
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
-          <FormInput name="name" label="Name of Document" />
+          <Select onValueChange={handleLocation}>
+            <SelectTrigger>
+              <SelectValue placeholder="Document type" />
+            </SelectTrigger>
 
-          <FileUpload />
+            <SelectContent>
+              {documentTypesQueryResults?.isLoading ? (
+                <LoadingSpinner />
+              ) : (
+                documentTypesData?.map(
+                  (doc: ProjectDocumentTypesResultsData) => (
+                    <SelectItem key={doc?.id} value={doc.name}>
+                      {doc.name}
+                    </SelectItem>
+                  )
+                )
+              )}
+            </SelectContent>
+          </Select>
+
+          <div className="w-full relative gap-x-3 h-[52px] rounded-[16.2px] border flex justify-center items-center">
+            <UploadFile size={20} />
+            <div>
+              <Input
+                type="file"
+                onChange={handleFileChange}
+                className="bg-inherit border-none cursor-pointer "
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-between gap-5 mt-10">
+            <Button type="button" className="bg-[#FFF2F2] text-primary ">
+              Cancel
+            </Button>
+            <Button type="submit">Done</Button>
+          </div>
         </form>
       </Form>
-
-      <div className="flex justify-between gap-5 mt-16">
-        <Button type="button" className="bg-[#FFF2F2] text-primary ">
-          Cancel
-        </Button>
-        <FormButton>Done</FormButton>
-      </div>
     </div>
   );
 };
