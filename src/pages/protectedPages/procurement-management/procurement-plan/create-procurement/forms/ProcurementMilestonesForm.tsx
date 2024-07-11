@@ -1,15 +1,15 @@
-import React from 'react'
+import React from "react";
 import { Button } from "components/ui/button";
 import { Input } from "components/ui/input-2";
 import { useForm } from "react-hook-form";
 
 type Props = {
-  handlePrev: () => void,
-  handleNext: () => void,
-}
+  handlePrev: () => void;
+  handleNext: () => void;
+};
 
-const ProcurementMilestonesForm = ({handleNext, handlePrev}: Props) => {
-   const {
+const ProcurementMilestonesForm = ({ handleNext, handlePrev }: Props) => {
+  const {
     register,
     formState: { errors },
     handleSubmit,
@@ -39,11 +39,14 @@ const ProcurementMilestonesForm = ({handleNext, handlePrev}: Props) => {
               type="text"
             />
           </div>
-
         </fieldset>
         <span className="w-full flex items-center justify-end gap-5">
-          <Button type="button" className="bg-[#FFF2F2] text-primary " onClick={handlePrev}>
-           Back
+          <Button
+            type="button"
+            className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+            onClick={handlePrev}
+          >
+            Back
           </Button>
           <Button onClick={handleNext}>Finish</Button>
         </span>
@@ -52,4 +55,4 @@ const ProcurementMilestonesForm = ({handleNext, handlePrev}: Props) => {
   );
 };
 
-export default ProcurementMilestonesForm
+export default ProcurementMilestonesForm;
