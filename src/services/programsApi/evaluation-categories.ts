@@ -8,6 +8,7 @@ import {
   EvaluationCategoryResponse,
   EvaluationCategorySchema,
 } from "definations/program-types/evaluation-category";
+import { EvaluationCriteria } from "definations/program-types/supportive-supervision";
 
 const BASE_URL = "/programs/evaluation-categories/";
 

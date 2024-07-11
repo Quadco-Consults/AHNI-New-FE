@@ -31,6 +31,7 @@ import {
 import { Icon } from "@iconify/react";
 import SupportiveSupervisionAPI from "services/programsApi/suportive-supervision";
 import { SupportiveSupervisionData } from "definations/program-types/supportive-supervision";
+import { toast } from "sonner";
 
 const SupportiveSupervisionPlan = () => {
   const dispatch = useAppDispatch();
@@ -94,6 +95,17 @@ const SupportiveSupervisionPlan = () => {
   );
 
   const ActionListAction = ({ data }: any) => {
+    const [deleteRiskPlanMutation] =
+      SupportiveSupervisionAPI.useDeleteSupportiveSupervisionMutation();
+    const deleteHandler = async () => {
+      try {
+        await deleteRiskPlanMutation({ path: { id: data?.id } }).unwrap();
+        toast.success("Successfully deleted");
+      } catch (error) {
+        console.log(error);
+        toast.error("Something went wrong");
+      }
+    };
     return (
       <div className="flex items-center gap-2">
         <>
@@ -154,6 +166,7 @@ const SupportiveSupervisionPlan = () => {
                 <Button
                   className="w-full flex items-center justify-start gap-2"
                   variant="ghost"
+                  onClick={deleteHandler}
                 >
                   <DeleteIcon />
                   delete
@@ -208,7 +221,7 @@ const SupportiveSupervisionPlan = () => {
                       type: DialogType.SspUpload,
                       dialogProps: {
                         header: "Upload New Document",
-                        width: "max-w-2xl",
+                        width: "max-w-md",
                       },
                     })
                   );
@@ -247,7 +260,7 @@ const SupportiveSupervisionPlan = () => {
           </Button>
         </div>
 
-        <DataTable data={data || []} columns={columns} isLoading={false} />
+        <DataTable data={data || []} columns={columns} isLoading={isLoading} />
       </Card>
     </div>
   );
