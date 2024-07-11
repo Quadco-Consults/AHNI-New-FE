@@ -1,4 +1,3 @@
-import LongArrowLeft from "components/icons/LongArrowLeft";
 import { useAppDispatch } from "hooks/useStore";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -14,10 +13,10 @@ import Card from "components/shared/Card";
 import FormInput from "atoms/FormInput";
 import MultiSelectFormField from "components/ui/multiselect";
 import LocationSvg from "assets/svgs/LocationSvg";
-import beneficiariesAPi from "services/beneficiariesApi";
+import beneficiariesAPi from "services/projectsApi/beneficiariesApi";
 import { useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ProjectsSummarySchema } from "definations/validator";
+import { ProjectsSummarySchema } from "definations/project-validator";
 import { z } from "zod";
 import {
   Dialog,
@@ -28,15 +27,17 @@ import {
 import FormTextArea from "atoms/FormTextArea";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "store/index";
-import projectsAPi from "services/projectsApi";
+import projectsAPi from "services/projectsApi/projectsApi";
 import { toast } from "sonner";
 import { closeDialog } from "store/ui";
 import { format } from "date-fns";
 import { cn } from "lib/utils";
 import { Calendar } from "components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import FundingSourceAPi from "services/funding-sourceApi";
-import { partnerActions } from "store/formData/partner-location";
+import FundingSourceAPi from "services/projectsApi/funding-sourceApi";
+import { partnerActions } from "store/formData/project-values";
+import { objectivesActions } from "store/formData/project-objective";
+import { IndexKind, isIndexSignatureDeclaration } from "typescript";
 
 interface InputValues {
   title: string;
@@ -103,23 +104,23 @@ const Summary = () => {
 
   const navigate = useNavigate();
 
-  const goBack = () => {
-    navigate(-1);
-  };
-
   const dispatch = useAppDispatch();
+
   const location_partners = useSelector(
     (state: RootState) => state.partnerLocation.items
   );
+  const idsObj = location_partners?.map((partner: any) => partner.ids);
+
+  const objs = useSelector((state: RootState) => state.objectives.objectives);
 
   const form = useForm<z.infer<typeof ProjectsSummarySchema>>({
     resolver: zodResolver(ProjectsSummarySchema),
     defaultValues: {
-      // project_id: "5667e",
+      project_id: "",
       title: "",
       goal: "",
       budget: "",
-      funding_source: [],
+      project_funding_source: [],
       project_manager: "",
       objectives: "",
       expected_results: "",
@@ -129,11 +130,22 @@ const Summary = () => {
 
   const { pathname } = useLocation();
 
-  const { handleSubmit } = form;
+  const { handleSubmit, watch } = form;
+  const objTitle = watch("objectives");
+
+  const addObjectivesHandler = () => {
+    const submittedValues = {
+      title: objTitle,
+      sub_objectives: inputValues,
+    };
+
+    dispatchPartner(objectivesActions.addObjectives(submittedValues));
+    dispatch(closeDialog());
+  };
 
   const onSubmit = async (data: z.infer<typeof ProjectsSummarySchema>) => {
     const formData = {
-      project_id: "f12345",
+      project_id: data.project_id,
       objectives: [
         {
           title: data.objectives,
@@ -141,11 +153,11 @@ const Summary = () => {
         },
       ],
       project_manager: data.project_manager,
-      location_partners,
+      location_partners: idsObj,
       goal: data.goal,
       expected_results: data.expected_results,
       beneficiaries: data.beneficiaries,
-      funding_source: data.funding_source,
+      funding_source: data.project_funding_source,
       title: data.title,
       budget: Number(data.budget),
       start_date: startDate && format(startDate, "yyy-MM-dd"),
@@ -153,7 +165,9 @@ const Summary = () => {
     };
 
     try {
-      projectsMutation(formData).unwrap();
+      const res = await projectsMutation(formData).unwrap();
+      console.log(res?.data.id);
+      localStorage.setItem("projectID", res?.data.id);
       toast.success("Project successfully added.");
     } catch (error) {
       toast.error("Something went wrong");
@@ -161,30 +175,25 @@ const Summary = () => {
     }
 
     dispatchPartner(partnerActions.clearPartnerLocation());
+    dispatchPartner(objectivesActions.clearObjectives());
 
     let path = pathname;
 
     path = path.substring(0, path.lastIndexOf("/"));
 
-    path += "/performance";
+    path += "/uploads";
     navigate(path);
   };
 
   return (
-    <div className="space-y-6 min-h-screen">
-      <button
-        onClick={goBack}
-        className="w-[3rem] h-[3rem] rounded-full drop-shadow-md bg-white flex items-center justify-center"
-      >
-        <LongArrowLeft />
-      </button>
-
-      <ProjectLayout>
+    <ProjectLayout>
+      <div className="space-y-6">
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <Card className="space-y-6 py-5">
               <h4 className="text-lg font-semibold">Project Summary</h4>
               <FormInput name="title" label="Project Name" />
+              <FormInput name="project_id" label="Project ID" />
               <FormInput name="goal" label="Goal of the project" />
 
               <div className="flex gap-5">
@@ -264,7 +273,7 @@ const Summary = () => {
                 <Label className="font-semibold">Funding Source</Label>
                 <FormField
                   control={form.control}
-                  name="funding_source"
+                  name="project_funding_source"
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
@@ -283,79 +292,104 @@ const Summary = () => {
 
               <hr />
 
-              <div className="w-[299px] mt-10 space-y-3">
+              <div className=" mt-10 space-y-3">
                 <Label className="font-semibold text-red-600">Objectives</Label>
-                <div>
-                  <Dialog>
-                    <DialogTrigger>
-                      <p className="text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm">
-                        Click to add objectives
-                      </p>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <div className="space-y-10">
-                        <h4 className="text-xl font-semibold">Add Objective</h4>
+                <div className="flex flex-wrap gap-3">
+                  {objs?.map((option: any, index: number) => (
+                    <div
+                      key={index}
+                      className="border px-7 py-4 space-y-3 rounded-lg"
+                    >
+                      <p className="text-sm font-semibold">{option?.title}</p>
 
-                        <FormTextArea name="objectives" label="Objective" />
-
-                        <div className="space-y-3">
+                      {option?.sub_objectives && (
+                        <ul className="space-y-2">
+                          {option?.sub_objectives.map((obj: any, i: number) => (
+                            <li
+                              key={i}
+                              className="text-sm text-gray-500 list-disc pl-5"
+                            >
+                              {obj?.title}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ))}
+                  <div>
+                    <Dialog>
+                      <DialogTrigger>
+                        <p className="text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm">
+                          Click to add objectives
+                        </p>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <div className="space-y-10">
                           <h4 className="text-xl font-semibold">
-                            Add Sub-Objective
+                            Add Objective
                           </h4>
 
-                          {inputValues.map((value, index) => (
-                            <div
-                              key={index}
-                              className="flex items-center gap-2"
+                          <FormTextArea name="objectives" label="Objective" />
+
+                          <div className="space-y-3">
+                            <h4 className="text-xl font-semibold">
+                              Add Sub-Objective
+                            </h4>
+
+                            {inputValues.map((value, index) => (
+                              <div
+                                key={index}
+                                className="flex items-center gap-2"
+                              >
+                                <div className="w-[90%]">
+                                  <textarea
+                                    className="w-full border rounded-lg p-3"
+                                    rows={3}
+                                    onChange={(e) =>
+                                      handleInputChange(e, index, "title")
+                                    }
+                                  />
+                                </div>
+                                <div>
+                                  <Button
+                                    onClick={() => handleDeleteInput(index)}
+                                    variant="ghost"
+                                    size="icon"
+                                    className="text-red-500"
+                                  >
+                                    <X />
+                                  </Button>
+                                </div>
+                              </div>
+                            ))}
+
+                            <Button
+                              onClick={handleAddInput}
+                              type="button"
+                              className="bg-[#FFF2F2] text-primary "
                             >
-                              <div className="w-[90%]">
-                                <textarea
-                                  className="w-full border rounded-lg p-3"
-                                  rows={3}
-                                  onChange={(e) =>
-                                    handleInputChange(e, index, "title")
-                                  }
-                                />
-                              </div>
-                              <div>
-                                <Button
-                                  onClick={() => handleDeleteInput(index)}
-                                  variant="ghost"
-                                  size="icon"
-                                  className="text-red-500"
-                                >
-                                  <X />
-                                </Button>
-                              </div>
-                            </div>
-                          ))}
-
-                          <Button
-                            onClick={handleAddInput}
-                            type="button"
-                            className="bg-[#FFF2F2] text-primary "
-                          >
-                            Add
-                          </Button>
-                        </div>
-
-                        <div className="flex justify-end gap-5 mt-16">
-                          <Button
-                            type="button"
-                            className="bg-[#FFF2F2] text-primary "
-                          >
-                            Cancel
-                          </Button>
-
-                          <DialogClose asChild>
-                            <Button onClick={() => dispatch(closeDialog())}>
-                              Done
+                              Add
                             </Button>
-                          </DialogClose>
+                          </div>
+
+                          <div className="flex justify-end gap-5 mt-16">
+                            <Button
+                              type="button"
+                              className="bg-[#FFF2F2] text-primary "
+                            >
+                              Cancel
+                            </Button>
+
+                            <DialogClose asChild>
+                              <Button onClick={addObjectivesHandler}>
+                                Done
+                              </Button>
+                            </DialogClose>
+                          </div>
                         </div>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                 </div>
               </div>
 
@@ -394,13 +428,15 @@ const Summary = () => {
                     >
                       <div className="flex gap-3 items-center">
                         <LocationSvg />{" "}
-                        <h4 className="font-semibold">{option.location_id}</h4>
+                        <h4 className="font-semibold">
+                          {option.obj.location_id}
+                        </h4>
                       </div>
                       <ul className="text-sm text-[#756D6D] space-y-2">
-                        {option.partner_ids.map(
-                          (partner: string, index: number) => (
+                        {option.obj.partner_ids.map(
+                          (partner: any, index: number) => (
                             <li key={index} className=" list-disc">
-                              {partner}
+                              {partner.name}
                             </li>
                           )
                         )}
@@ -438,8 +474,8 @@ const Summary = () => {
             </div>
           </form>
         </Form>
-      </ProjectLayout>
-    </div>
+      </div>
+    </ProjectLayout>
   );
 };
 

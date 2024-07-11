@@ -12,7 +12,7 @@ const ForgotPassword = () => {
               alt=""
             />
             <img
-              className="w-[clamp(1rem,15vw,6rem)] absolute top-[10rem] left-[67%]"
+              className="w-[3rem] md:w-[6rem] lg:w-[6rem] absolute top-[10rem] left-[67%]"
               src="/src/assets/imgs/asteric.png"
               alt=""
             />

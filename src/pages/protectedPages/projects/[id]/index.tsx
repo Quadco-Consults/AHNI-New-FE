@@ -3,33 +3,32 @@ import { useNavigate, useParams } from "react-router-dom";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import Card from "components/shared/Card";
 import Summary from "./Summary";
-import Performance from "./Performance";
+// import Performance from "./Performance";
 import Uploads from "./Upload";
-import Activity from "./Activity";
-import projectsAPi from "services/projectsApi";
-import Loading from "components/shared/Loading";
-// import { useMemo } from "react";
+// import Activity from "./Activity";
+import projectsAPi from "services/projectsApi/projectsApi";
+import { Loading } from "components/shared/Loading";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "components/ui/breadcrumb";
+import { Icon } from "@iconify/react";
+import { RouteEnum } from "constants/RouterConstants";
 
 const ProjectDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  localStorage.setItem("projectDetailID", id as string);
 
-  const projectsQueryResult = projectsAPi.useGetProjectQuery(
-    { path: { id: id as string } }
-    // useMemo(
-    //   () => ({
-    //     params: {
-    //       // fields: "id, logo, name, state",
-    //       // page_size: pagination.pageSize,
-    //       // page: pagination.pageIndex + 1,
-    //     },
-    //   }),
-    //   []
-    // )
-  );
+  const projectsQueryResult = projectsAPi.useGetProjectQuery({
+    path: { id: id as string },
+  });
 
   const projects = projectsQueryResult?.data;
-  console.log(projects);
 
   const goBack = () => {
     navigate(-1);
@@ -41,19 +40,32 @@ const ProjectDetail = () => {
 
   return (
     <div className="space-y-6 relative min-h-screen">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href={RouteEnum.PROJECTS}>Projects</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator>
+            <Icon icon="iconoir:slash" />
+          </BreadcrumbSeparator>
+          <BreadcrumbItem>
+            <BreadcrumbPage>Details</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <button
         onClick={goBack}
-        className="w-[3rem] absolute -top-1 left-0 aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center"
+        className="w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center"
       >
         <LongArrowLeft />
       </button>
 
       <Tabs defaultValue="summary" className="space-y-10">
-        <TabsList className="ml-20">
+        <TabsList className="ml-10">
           <TabsTrigger value="summary">Project Summary</TabsTrigger>
-          <TabsTrigger value="project Performance">
+          {/* <TabsTrigger value="project Performance">
             Project Performance
-          </TabsTrigger>
+          </TabsTrigger> */}
           <TabsTrigger value="Upload">Uploads</TabsTrigger>
           {/* <TabsTrigger value="activity/Report">Activity/Report</TabsTrigger> */}
         </TabsList>
@@ -63,11 +75,11 @@ const ProjectDetail = () => {
             <Summary {...projects} />
           </Card>
         </TabsContent>
-        <TabsContent value="project Performance">
+        {/* <TabsContent value="project Performance">
           <Performance />
-        </TabsContent>
+        </TabsContent> */}
         <TabsContent value="Upload">
-          <Uploads />
+          <Uploads {...projects} />
         </TabsContent>
         {/* <TabsContent value="activity/Report">
           <Activity />

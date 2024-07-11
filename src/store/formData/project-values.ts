@@ -1,15 +1,6 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
-type PartnerProps = {
-  location_id: string;
-  partner_ids: string[];
-};
-
-interface InitialStateProps {
-  items: PartnerProps[];
-}
-
-const initialState: InitialStateProps = {
+const initialState: any = {
   items: [],
 };
 
@@ -17,7 +8,7 @@ const partnerSlice = createSlice({
   name: "partner",
   initialState,
   reducers: {
-    addPartnerLocation: (state, { payload }: PayloadAction<PartnerProps>) => {
+    addPartnerLocation: (state, { payload }: PayloadAction<any>) => {
       state.items.push(payload);
     },
     clearPartnerLocation: (state) => {

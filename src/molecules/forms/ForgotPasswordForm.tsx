@@ -29,9 +29,17 @@ const ForgotPasswordForm = () => {
       >
         <img src="/src/assets/svgs/logo.svg" className="w-[130px] mb-[3rem]" />
         <h1 className="text-2xl font-bold">Forgot Password</h1>
-        <p className="text-[#8F8585] text-base font-normal">Enter your email and we'll send a link to reset your password</p>
+        <p className="text-[#8F8585] text-base font-normal">
+          Enter your email and well send a link to reset your password
+        </p>
         <div className="space-y-8 w-[90%]">
-          <FormInput label="Email" required type="email" name="email" placeholder="admin@demo.com" />
+          <FormInput
+            label="Email"
+            required
+            type="email"
+            name="email"
+            placeholder="admin@demo.com"
+          />
         </div>
         <div className="w-[5/12]">
           <FormButton>Continue</FormButton>

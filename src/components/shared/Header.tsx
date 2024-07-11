@@ -8,15 +8,22 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "components/ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { useTheme } from "configs/theme-provider";
 import { cn } from "lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "components/ui/avatar";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { AuthRoutes } from "constants/RouterConstants";
 
 const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
   const { setTheme } = useTheme();
   const location = useLocation();
   const pageTitle = getPageTitle(location.pathname);
+
+  const logoutHandler = () => {
+    localStorage.removeItem("persist:ahni");
+    window.location.reload();
+  };
 
   return (
     <nav
@@ -50,11 +57,23 @@ const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
-        <Avatar>
-          <AvatarImage src={avatarPng} />
-          <AvatarFallback>AD</AvatarFallback>
-        </Avatar>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Avatar>
+              <AvatarImage src={avatarPng} />
+              <AvatarFallback>AD</AvatarFallback>
+            </Avatar>
+          </PopoverTrigger>
+          <PopoverContent className="w-35 p-5">
+            <Button
+              onClick={logoutHandler}
+              variant="secondary"
+              className="w-full"
+            >
+              Logout
+            </Button>
+          </PopoverContent>
+        </Popover>
       </div>
     </nav>
   );
@@ -65,5 +84,5 @@ export default Header;
 // Function to extract page title from URL
 const getPageTitle = (pathname: string) => {
   const lastSegment = pathname.split("/").pop();
-  return lastSegment.replace(/-/g, " ");
+  return lastSegment?.replace(/-/g, " ");
 };

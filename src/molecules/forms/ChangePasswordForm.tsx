@@ -7,10 +7,11 @@ import FormButton from "atoms/FormButton";
 
 const formSchema = z
   .object({
-    oldPassword: z.string().min(1, "Please enter a valid password"),
-    newPassword: z.string().min(1, "Please enter a valid password"),
+    oldPassword: z.string().trim().min(1, "Please enter a valid password"),
+    newPassword: z.string().trim().min(1, "Please enter a valid password"),
     confirmPassword: z
       .string()
+      .trim()
       .min(1, "Password must be at least character(s)"),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
