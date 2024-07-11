@@ -101,7 +101,7 @@ const SupportiveSupervisionAPI = baseAPI.injectEndpoints({
       { path: { id: string }; body: any }
     >({
       query: ({ path, body }) => ({
-        url: `${BASE_URL}response-document/${path.id}`,
+        url: `${BASE_URL}response-document/${path.id}/`,
         method: "POST",
         body,
       }),

@@ -2,7 +2,7 @@ import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
 import { RouteEnum } from "constants/RouterConstants";
 import { ArrowLeft } from "lucide-react";
-import { useParams } from "react-router-dom";
+import { Link, generatePath, useNavigate, useParams } from "react-router-dom";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -18,13 +18,11 @@ import { Input } from "components/ui/input";
 import { Upload as UploadFile } from "lucide-react";
 import FormButton from "atoms/FormButton";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { supportiveSupervisionActions } from "store/formData/ssp-values";
 import { Loading } from "components/shared/Loading";
 import { toast } from "sonner";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
+import { RootState } from "store/index";
 
 type FormData = {
   [key: string]: string;
@@ -34,12 +32,16 @@ const CoreManagementSystems = () => {
   const [formData, setFormData] = useState<FormData>({});
   const [page, setPage] = useState(0);
   const [file, setFile] = useState<File | null>(null);
+  const responses = useSelector((state: RootState) => state.ssp.items);
+  const combinedArray = [].concat(...responses);
 
   const [
     uploadSupportiveSupervisionResponseDocumentMutation,
     { isLoading: loading },
   ] =
     SupportiveSupervisionAPI.useCreateSupportiveSupervisionResponseDocumentMutation();
+  const [createSupportiveSupervisionResponseDataMutation, { isLoading: load }] =
+    SupportiveSupervisionAPI.useCreateSupportiveSupervisionResponseDataMutation();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -49,7 +51,7 @@ const CoreManagementSystems = () => {
 
   const { id } = useParams();
   const dispatch = useDispatch();
-  const appDispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const handleUploads = async (response_id: string) => {
     if (!file) {
@@ -100,21 +102,26 @@ const CoreManagementSystems = () => {
       }));
 
       dispatch(supportiveSupervisionActions.addSupportiveSupervision(result));
+      console.log(result);
 
       setPage((prev) =>
         prev === data?.length - 1 ? data?.length - 1 : prev + 1
       );
+    }
+  };
 
-      if (page === data?.length - 1)
-        appDispatch(
-          openDialog({
-            type: DialogType.SspSubmitModal,
-            dialogProps: {
-              header: "Supportive Supervision",
-              width: "max-w-md",
-            },
-          })
-        );
+  const onSubmit = async () => {
+    console.log(combinedArray);
+    try {
+      await createSupportiveSupervisionResponseDataMutation({
+        responses: combinedArray,
+      }).unwrap();
+      toast.success("Document upload successfully.");
+      dispatch(supportiveSupervisionActions.clearSupportiveSupervision());
+      navigate(RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION);
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
     }
   };
 
@@ -262,6 +269,17 @@ const CoreManagementSystems = () => {
         <Button onClick={handleSubmit} className="px-8">
           Next
         </Button>
+        {data && page === data?.length - 1 && (
+          <FormButton
+            loading={load}
+            disabled={load}
+            onClick={onSubmit}
+            className="px-8"
+            variant="secondary"
+          >
+            Submit
+          </FormButton>
+        )}
       </div>
     </div>
   );
