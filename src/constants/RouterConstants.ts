@@ -87,7 +87,8 @@ export const RouteEnum = {
   SUPPLIER_DATABASE: "/procurement-management/supplier-database",
   //program routes
   PROGRAM_WORK_PLAN: "/program/plan/work-plan",
-  PROGRAM_WORK_PLAN_DETAILS: "/program/plan/work-plan/:id",
+  PROGRAM_WORK_PLAN_DETAILS:
+    "/program/plan/work-plan/:partner_id/:project_id/:financial_year",
   PROGRAM_ACTIVITY: "/program/plan/activity",
   PROGRAM_RISK_MANAGEMENT: "/program/plan/risk-management-plan",
   PROGRAM_RISK_MANAGEMENT_CREATE:

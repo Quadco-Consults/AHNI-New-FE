@@ -5,8 +5,9 @@ import DetailTab from "./Details-tab";
 import ChartTab from "./ChartTab";
 import MeasurementTab from "./Measurement-tab";
 import BudgetTab from "./Budget-tab";
+import { WorkPlanDetails } from "definations/program-types/program-workplan";
 
-const Activity = () => {
+const Activity = (data: WorkPlanDetails) => {
   return (
     <Card>
       <Tabs defaultValue="activities">
@@ -21,19 +22,19 @@ const Activity = () => {
         <hr className="my-3" />
 
         <TabsContent value="activities">
-          <ActivityTab />
+          <ActivityTab {...(data as WorkPlanDetails)} />
         </TabsContent>
         <TabsContent value="details">
-          <DetailTab />
+          <DetailTab {...(data as WorkPlanDetails)} />
         </TabsContent>
         <TabsContent value="gannt Chart">
-          <ChartTab />
+          <ChartTab {...(data as WorkPlanDetails)} />
         </TabsContent>
         <TabsContent value="measurement">
-          <MeasurementTab />
+          <MeasurementTab {...(data as WorkPlanDetails)} />
         </TabsContent>
         <TabsContent value="budget">
-          <BudgetTab />
+          <BudgetTab {...(data as WorkPlanDetails)} />
         </TabsContent>
       </Tabs>
     </Card>

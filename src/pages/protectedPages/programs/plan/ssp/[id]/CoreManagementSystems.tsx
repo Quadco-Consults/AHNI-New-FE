@@ -1,12 +1,8 @@
-import FormInput from "atoms/FormInput";
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
-import { Checkbox } from "components/ui/checkbox";
-import { Form } from "components/ui/form";
 import { RouteEnum } from "constants/RouterConstants";
 import { ArrowLeft } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, generatePath, useNavigate, useParams } from "react-router-dom";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -16,33 +12,122 @@ import {
   BreadcrumbSeparator,
 } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
+import SupportiveSupervisionAPI from "services/programsApi/suportive-supervision";
+import { Criteria } from "definations/program-types/supportive-supervision";
+import { Input } from "components/ui/input";
+import { Upload as UploadFile } from "lucide-react";
+import FormButton from "atoms/FormButton";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { supportiveSupervisionActions } from "store/formData/ssp-values";
+import { Loading } from "components/shared/Loading";
+import { toast } from "sonner";
+import { RootState } from "store/index";
+
+type FormData = {
+  [key: string]: string;
+};
 
 const CoreManagementSystems = () => {
+  const [formData, setFormData] = useState<FormData>({});
+  const [page, setPage] = useState(0);
+  const [file, setFile] = useState<File | null>(null);
+  const responses = useSelector((state: RootState) => state.ssp.items);
+  const combinedArray = [].concat(...responses);
+
+  const [
+    uploadSupportiveSupervisionResponseDocumentMutation,
+    { isLoading: loading },
+  ] =
+    SupportiveSupervisionAPI.useCreateSupportiveSupervisionResponseDocumentMutation();
+  const [createSupportiveSupervisionResponseDataMutation, { isLoading: load }] =
+    SupportiveSupervisionAPI.useCreateSupportiveSupervisionResponseDataMutation();
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      setFile(event.target.files[0]);
+    }
+  };
+
+  const { id } = useParams();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const goBack = () => {
-    navigate(-1);
+
+  const handleUploads = async (response_id: string) => {
+    if (!file) {
+      console.error("No file selected");
+      return;
+    }
+
+    const uploadData = new FormData();
+    uploadData.append("supporting_document", file);
+
+    try {
+      await uploadSupportiveSupervisionResponseDocumentMutation({
+        path: { id: response_id },
+        body: uploadData,
+      }).unwrap();
+      toast.success("Document upload successfully.");
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
+    }
+    setFile(null);
   };
 
-  const form = useForm({
-    defaultValues: {
-      title: [
-        {
-          descriptionOfItems: "",
-          numberOfPersons: "",
-          numberOfDays: "",
-          fco: "",
-          unitCost: "",
-          total: "",
-        },
-      ],
-    },
-  });
+  const { data, isLoading } =
+    SupportiveSupervisionAPI.useGetSupportiveSupervisionCriteriaQuery({
+      path: { id: id as string },
+    });
 
-  const { handleSubmit } = form;
-
-  const onSubmit = (data: any) => {
-    console.table(">>>>>>>>>>>>>>>>", data);
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
   };
+  const prevPage = () => {
+    setPage((prev) => (prev === 0 ? 0 : prev - 1));
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    // Process data to form an array of objects
+    if (data) {
+      const result = data[page]?.criteria?.map((criterion: Criteria) => ({
+        response_id: criterion.response_id,
+        comments: formData[criterion.response_id] || "",
+        supervision_response: formData[criterion.name] || "",
+      }));
+
+      dispatch(supportiveSupervisionActions.addSupportiveSupervision(result));
+      console.log(result);
+
+      setPage((prev) =>
+        prev === data?.length - 1 ? data?.length - 1 : prev + 1
+      );
+    }
+  };
+
+  const onSubmit = async () => {
+    console.log(combinedArray);
+    try {
+      await createSupportiveSupervisionResponseDataMutation({
+        responses: combinedArray,
+      }).unwrap();
+      toast.success("Document upload successfully.");
+      dispatch(supportiveSupervisionActions.clearSupportiveSupervision());
+      navigate(RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION);
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
+    }
+  };
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <div className="space-y-5">
@@ -81,91 +166,120 @@ const CoreManagementSystems = () => {
       </Breadcrumb>
       <div className="flex justify-end">
         <div className="py-2 px-4 rounded-lg border text-green-500 border-green-500 bg-green-50">
-          Page 1/7
+          Page {page + 1}/{data?.length}
         </div>
       </div>
 
       <Card>
-        <Form {...form}>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-            <h4 className="font-semibold">
-              Integrated Facility Visit Checklist for Comprehensive Sites
-            </h4>
-            <hr />
+        <form className="space-y-3">
+          <h4 className="font-semibold">
+            Integrated Facility Visit Checklist for Comprehensive Sites
+          </h4>
+          <hr />
+          {data && (
             <Card className="space-y-3">
-              <h4 className="font-semibold text-red-600">
-                Management System (Assess every 6 months; first visit at the
-                beginning of the FY and first visit after SAPR)
-              </h4>
-              <h6 className="font-light">Verify the following</h6>
+              <h4 className="font-semibold text-red-600">{data[page]?.name}</h4>
+              <h6 className="font-light">{data[page]?.description}</h6>
 
-              <Card className="space-y-3 border-yellow-600">
-                <h4 className="text-semibold text-yellow-600">
-                  Core Management Systems
-                </h4>
+              {data[page]?.criteria?.map((criteria: Criteria) => (
+                <Card key={criteria.id} className="space-y-3 border-yellow-600">
+                  <h4 className="text-semibold text-yellow-600">
+                    {criteria.name}
+                  </h4>
 
-                <div className="flex justify-between pb-3 gap-5">
-                  <div className="">
-                    <h2>
-                      Facility staff, including Adhoc understand the ACEBAY
-                      project. (Assess understanding <br /> of PEPFAR and USIAD
-                      role in funding)
-                    </h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
+                  <div className="flex justify-between pb-3 gap-5">
+                    <div className="">
+                      <h2>{criteria.description}</h2>
                     </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
-                    </div>
-                  </div>
-                </div>
-
-                <FormInput name="comment" label="Comment" />
-
-                <hr className="" />
-
-                <div className="flex justify-between pb-3 gap-5">
-                  <div className="">
-                    <h2>
-                      EOIAHNi03 Staff can describe their roles and
-                      responsibilities (Also assess their weekly activity <br />{" "}
-                      plan)
-                    </h2>
-                  </div>
-                  <div className="flex gap-5 justify-between w-1/5">
-                    <div className="flex gap-2 items-center text-green-500">
-                      <Checkbox className="border-green-500 data-[state=checked]:bg-inherit data-[state=checked]:text-green-500" />
-                      <h6>Yes</h6>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <h6>No</h6>
+                    <div className="flex gap-5 justify-between w-1/5">
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          id={criteria.response_id}
+                          value="yes"
+                          name={criteria.name}
+                          onChange={handleInputChange}
+                        />
+                        <label htmlFor="yes">Yes</label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          id={criteria.response_id}
+                          value="no"
+                          name={criteria.name}
+                          className=" text-primary"
+                          onChange={handleInputChange}
+                        />
+                        <label htmlFor="no">No</label>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <FormInput name="comment" label="Comment" />
-              </Card>
+                  {criteria.requires_document ? (
+                    <input
+                      className="flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-gray-100 dark:bg-background"
+                      id={criteria.response_id}
+                      type="text"
+                      name={criteria.response_id}
+                      value={formData[criteria.response_id] || ""}
+                      onChange={handleInputChange}
+                      // required
+                    />
+                  ) : (
+                    <div className="flex gap-2">
+                      <div className="w-full relative gap-x-3 h-[40px] rounded-[16.2px] border flex justify-center items-center">
+                        <UploadFile size={20} />
+                        <div>
+                          <Input
+                            type="file"
+                            onChange={handleFileChange}
+                            className="bg-inherit border-none cursor-pointer "
+                          />
+                        </div>
+                      </div>
+                      <FormButton
+                        loading={loading}
+                        disabled={loading}
+                        type="button"
+                        onClick={() => handleUploads(criteria?.response_id)}
+                      >
+                        Upload
+                      </FormButton>
+                    </div>
+                  )}
+
+                  <hr className="" />
+                </Card>
+              ))}
             </Card>
-          </form>
-        </Form>
+          )}
+        </form>
       </Card>
 
       <div className="flex justify-between">
         <Button
-          onClick={goBack}
+          onClick={prevPage}
           variant="outline"
           className="flex gap-4 items-center text-primary border-primary hover:bg-red-50 hover:text-red-500"
         >
           <ArrowLeft size={15} /> Back
         </Button>
-        <Link to={RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_GUIDELINE}>
-          <Button className="px-8">Next</Button>
-        </Link>
+
+        <Button onClick={handleSubmit} className="px-8">
+          Next
+        </Button>
+        {data && page === data?.length - 1 && (
+          <FormButton
+            loading={load}
+            disabled={load}
+            onClick={onSubmit}
+            className="px-8"
+            variant="secondary"
+          >
+            Submit
+          </FormButton>
+        )}
       </div>
     </div>
   );

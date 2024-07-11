@@ -1,7 +1,7 @@
 import { Button } from "components/ui/button";
 import { Input } from "components/ui/input-2";
 import React from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 
 type Props = {
@@ -224,14 +224,14 @@ const ProcurementPlansForm = ({ handleNext }: Props) => {
               type="text"
             />
           </div>
-           <Input
-              name="precurement_process"
-              label="PROCUREMENT PROCESS (EOI, RFP, RFQ, Minimum Quotes, Open or Limited Bidding etc. as per organizational Procurement Policy, refer relevant section)"
-              placeholder=""
-              register={register}
-              error={errors.procurement_process}
-              type="text"
-            />
+          <Input
+            name="precurement_process"
+            label="PROCUREMENT PROCESS (EOI, RFP, RFQ, Minimum Quotes, Open or Limited Bidding etc. as per organizational Procurement Policy, refer relevant section)"
+            placeholder=""
+            register={register}
+            error={errors.procurement_process}
+            type="text"
+          />
           <div className="grid grid-cols-3 gap-5">
             <Input
               name="start_date"
@@ -258,14 +258,14 @@ const ProcurementPlansForm = ({ handleNext }: Props) => {
               type="text"
             />
           </div>
-            <Input
-              name="delivery_to"
-              label="DELIVERY TO (Central warehouse, State warehouse, treatment site, SR)"
-              placeholder=""
-              register={register}
-              error={errors.delivery_to}
-              type="text"
-            />
+          <Input
+            name="delivery_to"
+            label="DELIVERY TO (Central warehouse, State warehouse, treatment site, SR)"
+            placeholder=""
+            register={register}
+            error={errors.delivery_to}
+            type="text"
+          />
           <div className="grid grid-cols-2 gap-5">
             <Input
               name="donor_remarks"
@@ -284,11 +284,14 @@ const ProcurementPlansForm = ({ handleNext }: Props) => {
               type="text"
             />
           </div>
-
         </fieldset>
         <span className="w-full flex items-center justify-end gap-5">
-          <Button type="button" className="bg-[#FFF2F2] text-primary " onClick={() => navigate(-1)}>
-           Cancel
+          <Button
+            type="button"
+            className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+            onClick={() => navigate(-1)}
+          >
+            Cancel
           </Button>
           <Button onClick={handleNext}>Next</Button>
         </span>

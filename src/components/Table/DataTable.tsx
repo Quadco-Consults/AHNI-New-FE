@@ -53,7 +53,7 @@ function DataTable<TData>({
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
                 <TableHead
-                  className="font-semibold text-black cursor-pointer "
+                  className="font-semibold text-black cursor-pointer dark:text-gray-300"
                   key={header.id}
                   style={{
                     minWidth: header.column.columnDef.size,
@@ -82,7 +82,7 @@ function DataTable<TData>({
             <>
               {table.getRowModel().rows.map((row) => (
                 <TableRow
-                  className="cursor-pointer text-[#756D6D] text-sm "
+                  className="cursor-pointer text-[#756D6D] text-sm dark:text-white"
                   key={row.id}
                   onClick={() => onRowClick && onRowClick()}
                 >

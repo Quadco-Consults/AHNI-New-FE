@@ -4,6 +4,9 @@ import { invalidateTags, provideTags } from "utils/QueryUtils";
 import baseAPI from "..";
 import {
   WorkPlanData,
+  WorkPlanDetails,
+  WorkPlanList,
+  WorkPlanListData,
   WorkPlanResponse,
   WorkPlanResultsData,
 } from "definations/program-types/program-workplan";
@@ -16,6 +19,25 @@ const WorkPlanAPi = baseAPI.injectEndpoints({
       query: () => {
         return {
           url: `${BASE_URL}`,
+        };
+      },
+      providesTags: (data, error) =>
+        !error ? provideTags("WORK_PLANS", data) : [],
+    }),
+    getWorkPlansDetails: builder.query<WorkPlanDetails, {}>({
+      query: (config) => {
+        return {
+          url: `${BASE_URL}detail/`,
+          ...config,
+        };
+      },
+      providesTags: (data, error) =>
+        !error ? provideTags("WORK_PLANS", data) : [],
+    }),
+    getWorkPlansList: builder.query<WorkPlanListData, void>({
+      query: () => {
+        return {
+          url: `${BASE_URL}list/`,
         };
       },
       providesTags: (data, error) =>
@@ -52,18 +74,18 @@ const WorkPlanAPi = baseAPI.injectEndpoints({
         !error ? provideTags("WORK_PLANS", data) : [],
     }),
 
-    updateWorkPlan: builder.mutation<
-      WorkPlanResponse,
-      { path: { id: string }; body: any }
-    >({
-      query: ({ path, body }) => ({
-        url: `${BASE_URL}${path.id}/`,
-        method: "PUT",
-        body,
-      }),
-      invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("WORK_PLANS", { ids: [path.id] }) : [],
-    }),
+    // updateWorkPlan: builder.mutation<
+    //   WorkPlanResponse,
+    //   { path: { id: string }; body: any }
+    // >({
+    //   query: ({ path, body }) => ({
+    //     url: `${BASE_URL}${path.id}/`,
+    //     method: "PUT",
+    //     body,
+    //   }),
+    //   invalidatesTags: (_, error, { path }) =>
+    //     !error ? invalidateTags("WORK_PLANS", { ids: [path.id] }) : [],
+    // }),
 
     modifyWorkPlan: builder.mutation<
       WorkPlanResponse,
