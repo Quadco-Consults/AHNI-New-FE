@@ -95,7 +95,10 @@ const Registration = () => {
                 </Button>
               </div>
               <div className="flex justify-between mt-16">
-                <Button type="button" className="bg-[#FFF2F2] text-primary ">
+                <Button
+                  type="button"
+                  className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                >
                   Cancel
                 </Button>
                 {/* <Button className="bg-primary">

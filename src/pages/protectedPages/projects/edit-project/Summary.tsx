@@ -14,7 +14,7 @@ import FormInput from "atoms/FormInput";
 import MultiSelectFormField from "components/ui/multiselect";
 import LocationSvg from "assets/svgs/LocationSvg";
 import beneficiariesAPi from "services/projectsApi/beneficiariesApi";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ProjectsSummarySchema } from "definations/project-validator";
 import { z } from "zod";
@@ -136,22 +136,37 @@ const Summary = () => {
   const form = useForm<z.infer<typeof ProjectsSummarySchema>>({
     resolver: zodResolver(ProjectsSummarySchema),
     defaultValues: {
-      project_id: projectsData?.project_id,
-      title: projectsData?.title,
-      goal: projectsData?.goal,
-      budget: projectsData?.budget.toString(),
-      project_funding_source: funding_source,
-      project_manager: projectsData?.project_manager,
+      project_id: "",
+      title: "",
+      goal: "",
+      budget: 0,
+      project_funding_source: [],
+      project_manager: "",
       objectives: "",
-      expected_results: projectsData?.expected_results,
-      beneficiaries: beneficiaries,
+      expected_results: "",
+      beneficiaries: [],
     },
   });
 
   const { pathname } = useLocation();
 
-  const { handleSubmit, watch } = form;
+  const { handleSubmit, watch, setValue } = form;
   const objTitle = watch("objectives");
+
+  useEffect(() => {
+    if (projectsData) {
+      setValue("project_id", projectsData?.project_id),
+        setValue("title", projectsData?.title),
+        setValue("goal", projectsData?.goal),
+        setValue("budget", projectsData?.budget),
+        setValue("project_funding_source", funding_source || []),
+        setValue("project_manager", projectsData?.project_manager),
+        setValue("expected_results", projectsData?.expected_results),
+        setValue("beneficiaries", beneficiaries || []),
+        setStartDate(projectsData?.start_date),
+        setEndDate(projectsData?.end_date);
+    }
+  }, [projectsData]);
 
   const addObjectivesHandler = () => {
     const submittedValues = {
@@ -163,13 +178,9 @@ const Summary = () => {
     dispatch(closeDialog());
   };
 
-  const objID = projectsData?.project_objectives.map((objective) =>
-    objective.sub_objectives.map((item) => item.id)
-  );
-
-  console.log({ ...inputValues, id: objID });
-
   const onSubmit = async (data: z.infer<typeof ProjectsSummarySchema>) => {
+    console.log(data?.budget);
+
     const formData = {
       project_id: data?.project_id,
       objectives:
@@ -201,6 +212,13 @@ const Summary = () => {
       }).unwrap();
 
       toast.success("Project successfully added.");
+
+      let path = pathname;
+
+      path = path.substring(0, path.lastIndexOf("/"));
+
+      path += "/uploads";
+      navigate(path);
     } catch (error) {
       toast.error("Something went wrong");
       console.log(error);
@@ -208,13 +226,6 @@ const Summary = () => {
 
     dispatchPartner(partnerActions.clearPartnerLocation());
     dispatchPartner(objectivesActions.clearObjectives());
-
-    let path = pathname;
-
-    path = path.substring(0, path.lastIndexOf("/"));
-
-    path += "/uploads";
-    navigate(path);
   };
 
   return (
@@ -427,7 +438,7 @@ const Summary = () => {
                             <Button
                               onClick={handleAddInput}
                               type="button"
-                              className="bg-[#FFF2F2] text-primary "
+                              className="bg-[#FFF2F2] text-primary dark:text-gray-500"
                             >
                               Add
                             </Button>
@@ -436,7 +447,7 @@ const Summary = () => {
                           <div className="flex justify-end gap-5 mt-16">
                             <Button
                               type="button"
-                              className="bg-[#FFF2F2] text-primary "
+                              className="bg-[#FFF2F2] text-primary dark:text-gray-500"
                             >
                               Cancel
                             </Button>
@@ -549,7 +560,11 @@ const Summary = () => {
             </Card>
 
             <div className="flex justify-between gap-5 mt-16">
-              <Button type="button" className="bg-[#FFF2F2] text-primary ">
+              <Button
+                onClick={() => navigate(-1)}
+                type="button"
+                className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+              >
                 Cancel
               </Button>
               <FormButton type="submit" suffix={<ChevronRight size={14} />}>
