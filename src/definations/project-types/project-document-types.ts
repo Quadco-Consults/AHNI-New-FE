@@ -14,5 +14,5 @@ export interface ProjectDocumentTypesData {
 
 export interface ProjectDocumentTypesResponse {
   message: string;
-  data: ProjectDocumentTypesData;
+  data: ProjectDocumentTypesResultsData;
 }

@@ -5,7 +5,6 @@ import baseAPI from "..";
 import {
   WorkPlanData,
   WorkPlanDetails,
-  WorkPlanList,
   WorkPlanListData,
   WorkPlanResponse,
   WorkPlanResultsData,
@@ -54,7 +53,7 @@ const WorkPlanAPi = baseAPI.injectEndpoints({
         !error ? invalidateTags("WORK_PLANS") : [],
     }),
 
-    createWorkPlanDocument: builder.mutation<WorkPlanResponse, any>({
+    createWorkPlanDocument: builder.mutation<any, any>({
       query: (body) => ({
         url: `${BASE_URL}upload/`,
         method: "POST",
@@ -74,19 +73,6 @@ const WorkPlanAPi = baseAPI.injectEndpoints({
         !error ? provideTags("WORK_PLANS", data) : [],
     }),
 
-    // updateWorkPlan: builder.mutation<
-    //   WorkPlanResponse,
-    //   { path: { id: string }; body: any }
-    // >({
-    //   query: ({ path, body }) => ({
-    //     url: `${BASE_URL}${path.id}/`,
-    //     method: "PUT",
-    //     body,
-    //   }),
-    //   invalidatesTags: (_, error, { path }) =>
-    //     !error ? invalidateTags("WORK_PLANS", { ids: [path.id] }) : [],
-    // }),
-
     modifyWorkPlan: builder.mutation<
       WorkPlanResponse,
       { path: { id: string }; body: any }
@@ -100,10 +86,7 @@ const WorkPlanAPi = baseAPI.injectEndpoints({
         !error ? invalidateTags("WORK_PLANS", { ids: [path.id] }) : [],
     }),
 
-    deleteWorkPlan: builder.mutation<
-      WorkPlanResponse,
-      { path: { id: string } }
-    >({
+    deleteWorkPlan: builder.mutation<void, { path: { id: string } }>({
       query: ({ path }) => ({
         url: `${BASE_URL}${path.id}/`,
         method: "DELETE",

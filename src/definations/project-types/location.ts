@@ -20,5 +20,5 @@ export interface LocationData {
 
 export interface LocationResponse {
   message: string;
-  data: LocationData;
+  data: LocationResultsData;
 }

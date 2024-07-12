@@ -77,10 +77,7 @@ const LocationAPi = baseAPI.injectEndpoints({
         !error ? invalidateTags("LOCATION", { ids: [path.id] }) : [],
     }),
 
-    deleteFundingSource: builder.mutation<
-      LocationResponse,
-      { path: { id: string } }
-    >({
+    deleteFundingSource: builder.mutation<void, { path: { id: string } }>({
       query: ({ path }) => ({
         url: `${BASE_URL}${path.id}/`,
         method: "DELETE",

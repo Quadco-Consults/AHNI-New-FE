@@ -4,8 +4,8 @@ import { invalidateTags, provideTags } from "utils/QueryUtils";
 import baseAPI from "..";
 import { z } from "zod";
 import {
-  DepartmentsResultsData,
   DepartmentsResponse,
+  DepartmentsResultsData,
 } from "definations/program-types/departments";
 import { DepartmentsSchema } from "definations/program-validator";
 
@@ -21,7 +21,7 @@ const DepartmentsAPI = baseAPI.injectEndpoints({
         };
       },
       providesTags: (data, error) =>
-        !error ? provideTags("RISK_PLANS", data) : [],
+        !error ? provideTags("DEPARTMENT", data) : [],
     }),
 
     createDepartment: builder.mutation<
@@ -34,17 +34,20 @@ const DepartmentsAPI = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, {}) =>
-        !error ? invalidateTags("RISK_PLANS") : [],
+        !error ? invalidateTags("DEPARTMENT") : [],
     }),
 
-    getDepartment: builder.query<[], { path: { id: string } }>({
+    getDepartment: builder.query<
+      DepartmentsResultsData,
+      { path: { id: string } }
+    >({
       query: ({ path }) => {
         return {
           url: `${BASE_URL}${path.id}/`,
         };
       },
       providesTags: (data, error) =>
-        !error ? provideTags("RISK_PLANS", data) : [],
+        !error ? provideTags("DEPARTMENT", data) : [],
     }),
 
     updateDepartment: builder.mutation<
@@ -57,7 +60,7 @@ const DepartmentsAPI = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("RISK_PLANS", { ids: [path.id] }) : [],
+        !error ? invalidateTags("DEPARTMENT", { ids: [path.id] }) : [],
     }),
 
     modifyDepartment: builder.mutation<
@@ -70,19 +73,16 @@ const DepartmentsAPI = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("RISK_PLANS", { ids: [path.id] }) : [],
+        !error ? invalidateTags("DEPARTMENT", { ids: [path.id] }) : [],
     }),
 
-    deleteDepartment: builder.mutation<
-      DepartmentsResponse,
-      { path: { id: string } }
-    >({
+    deleteDepartment: builder.mutation<void, { path: { id: string } }>({
       query: ({ path }) => ({
         url: `${BASE_URL}${path.id}/`,
         method: "DELETE",
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("RISK_PLANS", { ids: [path.id] }) : [],
+        !error ? invalidateTags("DEPARTMENT", { ids: [path.id] }) : [],
     }),
   }),
 });

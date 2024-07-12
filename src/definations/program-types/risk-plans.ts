@@ -40,5 +40,5 @@ export interface RiskPlansData {
 
 export interface RiskPlansResponse {
   message: string;
-  data: RiskPlansData;
+  data: RiskPlansResultsData;
 }

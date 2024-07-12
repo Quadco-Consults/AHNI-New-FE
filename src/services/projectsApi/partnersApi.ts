@@ -14,10 +14,21 @@ const BASE_URL = "/projects/partners/";
 
 const partnersAPi = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getPartners: builder.query<PartnersData, { params: {} }>({
-      query: () => {
+    getPartners: builder.query<PartnersData, {}>({
+      query: (config) => {
         return {
           url: `${BASE_URL}`,
+          ...config,
+        };
+      },
+      providesTags: (data, error) =>
+        !error ? provideTags("PARTNERS", data) : [],
+    }),
+    getPartnersParams: builder.query<PartnerResultsData[], {}>({
+      query: (config) => {
+        return {
+          url: `${BASE_URL}`,
+          ...config,
         };
       },
       providesTags: (data, error) =>
@@ -73,16 +84,14 @@ const partnersAPi = baseAPI.injectEndpoints({
         !error ? invalidateTags("PARTNERS", { ids: [path.id] }) : [],
     }),
 
-    deletePartner: builder.mutation<PartnersResponse, { path: { id: string } }>(
-      {
-        query: ({ path }) => ({
-          url: `${BASE_URL}${path.id}/`,
-          method: "DELETE",
-        }),
-        invalidatesTags: (_, error, { path }) =>
-          !error ? invalidateTags("PARTNERS", { ids: [path.id] }) : [],
-      }
-    ),
+    deletePartner: builder.mutation<void, { path: { id: string } }>({
+      query: ({ path }) => ({
+        url: `${BASE_URL}${path.id}/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (_, error, { path }) =>
+        !error ? invalidateTags("PARTNERS", { ids: [path.id] }) : [],
+    }),
   }),
 });
 

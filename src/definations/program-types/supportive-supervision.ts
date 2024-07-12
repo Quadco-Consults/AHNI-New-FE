@@ -56,5 +56,5 @@ export interface SupportiveSupervisionData {
 
 export interface SupportiveSupervisionResponse {
   message: string;
-  data: SupportiveSupervisionData[];
+  data: SupportiveSupervisionData;
 }

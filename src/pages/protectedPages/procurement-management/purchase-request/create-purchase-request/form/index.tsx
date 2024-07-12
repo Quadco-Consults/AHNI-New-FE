@@ -1,23 +1,23 @@
-import FormInput from 'atoms/FormInput';
-import FormSelect from 'atoms/FormSelect';
-import AddSquareIcon from 'components/icons/AddSquareIcon';
-import LongArrowRight from 'components/icons/LongArrowRight';
-import { Button } from 'components/ui/button';
-import { Form } from 'components/ui/form';
-import { Label } from 'components/ui/label';
-import { useFieldArray, useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import FormInput from "atoms/FormInput";
+import FormSelect from "atoms/FormSelectField";
+import AddSquareIcon from "components/icons/AddSquareIcon";
+import LongArrowRight from "components/icons/LongArrowRight";
+import { Button } from "components/ui/button";
+import { Form } from "components/ui/form";
+import { Label } from "components/ui/label";
+import { useFieldArray, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 const CreatePurchaseRequestForm = () => {
   const form = useForm({
     defaultValues: {
       title: [
         {
-          descriptionOfItems: '',
-          numberOfPersons: '',
-          numberOfDays: '',
-          fco: '',
-          unitCost: '',
-          total: '',
+          descriptionOfItems: "",
+          numberOfPersons: "",
+          numberOfDays: "",
+          fco: "",
+          unitCost: "",
+          total: "",
         },
       ],
     },
@@ -29,7 +29,7 @@ const CreatePurchaseRequestForm = () => {
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: 'title',
+    name: "title",
   });
 
   // const {
@@ -41,14 +41,12 @@ const CreatePurchaseRequestForm = () => {
   //   name: "keystaff",
   // });
 
-
-
   const handleAppendForm = (data: any) => {
-    console.table('>>>>>>>>>>>>>>>>', data);
+    console.table(">>>>>>>>>>>>>>>>", data);
   };
   const onSubmit = (data: any) => {
-    console.table('>>>>>>>>>>>>>>>>', data);
-    navigate(-1)
+    console.table(">>>>>>>>>>>>>>>>", data);
+    navigate(-1);
   };
 
   return (
@@ -74,26 +72,30 @@ const CreatePurchaseRequestForm = () => {
           <table className="">
             <thead>
               <tr className="text-amber-500 whitespace-nowrap border-b-2 py-4 text-xs font-semibold">
-                <th className='py-4'>S/N</th>
-                <th className='py-4'>NO of Persons/Unit</th>
-                <th className='py-4'>Description of items/services</th>
-                <th className='py-4'>No of Days</th>
-                <th className='py-4'>FCO</th>
-                <th className='py-4'>Unit Cost</th>
-                <th className='py-4'>Total</th>
+                <th className="py-4">S/N</th>
+                <th className="py-4">NO of Persons/Unit</th>
+                <th className="py-4">Description of items/services</th>
+                <th className="py-4">No of Days</th>
+                <th className="py-4">FCO</th>
+                <th className="py-4">Unit Cost</th>
+                <th className="py-4">Total</th>
               </tr>
             </thead>
             <tbody>
               <tr className="w-full">
-                <td className='w-fit text-center py-4 '><span className='p-2 px-4 text-xs bg-black text-white rounded'>1.</span></td>
-                <td className='w-fit text-center py-4'>
+                <td className="w-fit text-center py-4 ">
+                  <span className="p-2 px-4 text-xs bg-black text-white rounded">
+                    1.
+                  </span>
+                </td>
+                <td className="w-fit text-center py-4">
                   <FormInput label="" name="dor" placeholder="Title" />
                 </td>
-                <td className='w-fit text-center py-4'></td>
-                <td className='w-fit text-center py-4'></td>
-                <td className='w-fit text-center py-4'></td>
-                <td className='w-fit text-center py-4'></td>
-                <td className='flex items-center justify-center text-center py-4'>
+                <td className="w-fit text-center py-4"></td>
+                <td className="w-fit text-center py-4"></td>
+                <td className="w-fit text-center py-4"></td>
+                <td className="w-fit text-center py-4"></td>
+                <td className="flex items-center justify-center text-center py-4">
                   <Button
                     type="button"
                     className="text-primary bg-[#FFF2F2] flex gap-2 items-center justify-center"

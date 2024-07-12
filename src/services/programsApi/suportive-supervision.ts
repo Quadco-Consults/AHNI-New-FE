@@ -140,7 +140,7 @@ const SupportiveSupervisionAPI = baseAPI.injectEndpoints({
     }),
 
     deleteSupportiveSupervision: builder.mutation<
-      SupportiveSupervisionResponse,
+      void,
       { path: { id: string } }
     >({
       query: ({ path }) => ({
