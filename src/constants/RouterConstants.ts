@@ -100,19 +100,7 @@ export const RouteEnum = {
   PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS_APPROVAL:
     "/program/plan/supportive-supervision-plan/:id/approval-status",
   PROGRAM_SUPPORTIVE_SUPERVISION_MANAGEMENT:
-    "/program/plan/supportive-supervision-plan/:id/core-management-systems",
-  PROGRAM_SUPPORTIVE_SUPERVISION_GUIDELINE:
-    "/program/plan/supportive-supervision-plan/:id/guideline",
-  PROGRAM_SUPPORTIVE_SUPERVISION_MONITORING:
-    "/program/plan/supportive-supervision-plan/:id/monitoring-and-evaluation",
-  PROGRAM_SUPPORTIVE_SUPERVISION_ASSESS:
-    "/program/plan/supportive-supervision-plan/:id/assess-monthly",
-  PROGRAM_SUPPORTIVE_SUPERVISION_TX_NEW:
-    "/program/plan/supportive-supervision-plan/:id/tx-new",
-  PROGRAM_SUPPORTIVE_SUPERVISION_SERVICE_DELIVERY:
-    "/program/plan/supportive-supervision-plan/:id/service-delivery",
-  PROGRAM_SUPPORTIVE_SUPERVISION_PREVENTION:
-    "/program/plan/supportive-supervision-plan/:id/prevention",
+    "/program/plan/supportive-supervision-plan/:id/evaluation",
 
   PROGRAM_SUPPORTIVE_SUPERVISION_COMPOSITION:
     "/program/plan/supportive-supervision-plan/create/facility&team-composition",

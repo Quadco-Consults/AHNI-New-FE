@@ -17,5 +17,5 @@ export interface FacilityData {
 
 export interface FacilityResponse {
   message: string;
-  data: FacilityData[];
+  data: FacilityData;
 }

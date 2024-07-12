@@ -74,10 +74,7 @@ const RiskPlansAPI = baseAPI.injectEndpoints({
         !error ? invalidateTags("RISK_PLANS", { ids: [path.id] }) : [],
     }),
 
-    deleteRiskPlan: builder.mutation<
-      RiskPlansResponse,
-      { path: { id: string } }
-    >({
+    deleteRiskPlan: builder.mutation<void, { path: { id: string } }>({
       query: ({ path }) => ({
         url: `${BASE_URL}${path.id}/`,
         method: "DELETE",

@@ -72,10 +72,7 @@ const FacilityAPI = baseAPI.injectEndpoints({
         !error ? invalidateTags("FACILITIES", { ids: [path.id] }) : [],
     }),
 
-    deleteFacility: builder.mutation<
-      FacilityResponse,
-      { path: { id: string } }
-    >({
+    deleteFacility: builder.mutation<void, { path: { id: string } }>({
       query: ({ path }) => ({
         url: `${BASE_URL}${path.id}/`,
         method: "DELETE",

@@ -76,10 +76,7 @@ const FundingSourceAPi = baseAPI.injectEndpoints({
         !error ? invalidateTags("FUNDING_SOURCE", { ids: [path.id] }) : [],
     }),
 
-    deleteFundingSource: builder.mutation<
-      FundingSourceResponse,
-      { path: { id: string } }
-    >({
+    deleteFundingSource: builder.mutation<void, { path: { id: string } }>({
       query: ({ path }) => ({
         url: `${BASE_URL}${path.id}/`,
         method: "DELETE",

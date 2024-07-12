@@ -93,7 +93,7 @@ const EvaluationCategoriesAPI = baseAPI.injectEndpoints({
     }),
 
     deleteEvaluationCategoryCriteria: builder.mutation<
-      EvaluationCategoryResponse,
+      void,
       { path: { id: string } }
     >({
       query: ({ path }) => ({

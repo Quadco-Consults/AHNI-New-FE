@@ -2,7 +2,6 @@ import { z } from "zod";
 
 // Define individual schemas
 export const BeneficiarySchema = z.object({
-  //   id: z.string(),
   created_at: z.string(),
   updated_at: z.string(),
   name: z.string(),
@@ -10,7 +9,6 @@ export const BeneficiarySchema = z.object({
 });
 
 export const FundingSourceSchema = z.object({
-  //   id: z.string(),
   created_at: z.string(),
   updated_at: z.string(),
   name: z.string(),
@@ -18,7 +16,6 @@ export const FundingSourceSchema = z.object({
 });
 
 export const PartnerSchema = z.object({
-  //  id: string;
   created_at: z.string(),
   updated_at: z.string(),
   name: z.string(),
@@ -32,7 +29,6 @@ export const PartnerSchema = z.object({
 });
 
 export const ProjectObjectiveSchema = z.object({
-  //   id: z.string(),
   created_at: z.string(),
   updated_at: z.string(),
   name: z.string(),
@@ -42,7 +38,6 @@ export const ProjectObjectiveSchema = z.object({
 });
 
 export const ProjectPartnerSchema = z.object({
-  //   id: z.string(),
   created_at: z.string(),
   updated_at: z.string(),
   location: z.string(),
@@ -55,16 +50,6 @@ export const ProjectDocumentSchema = z.object({
   // document: z
   //   .instanceof(FileList)
   //   .refine((files) => files.length > 0, "File is required"),
-});
-
-const objectives = z.object({
-  title: z.string(),
-  sub_objectives: z.object({ title: z.string() }),
-});
-
-const locationPartners = z.object({
-  location_id: z.string(),
-  partner_ids: z.array(z.string()),
 });
 
 // Define the main schema

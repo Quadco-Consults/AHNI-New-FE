@@ -2,17 +2,19 @@
 /* eslint-disable no-unused-vars */
 import { invalidateTags, provideTags } from "utils/QueryUtils";
 import baseAPI from "..";
+import { z } from "zod";
+import { WeeklyActivitySchema } from "definations/program-validator";
 import {
-  ProjectsData,
-  ProjectsResponse,
-  ProjectsResultsData,
-} from "definations/project-types/projects";
+  WeeklyActivityData,
+  WeeklyActivityResponse,
+  WeeklyActivityResultsData,
+} from "definations/program-types/weekly-activity";
 
-const BASE_URL = "/projects/projects/";
+const BASE_URL = "/programs/weekly-activity/";
 
-const projectsAPi = baseAPI.injectEndpoints({
+const WeeklyActivityAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getProjects: builder.query<ProjectsData, {}>({
+    getWeeklyActivities: builder.query<WeeklyActivityData, {}>({
       query: (config) => {
         return {
           url: `${BASE_URL}`,
@@ -20,41 +22,37 @@ const projectsAPi = baseAPI.injectEndpoints({
         };
       },
       providesTags: (data, error) =>
-        !error ? provideTags("PROJECTS", data) : [],
-    }),
-    getProjectsParams: builder.query<ProjectsResultsData[], {}>({
-      query: (config) => {
-        return {
-          url: `${BASE_URL}`,
-          ...config,
-        };
-      },
-      providesTags: (data, error) =>
-        !error ? provideTags("PROJECTS", data) : [],
+        !error ? provideTags("WEEKLY_ACTIVITY", data) : [],
     }),
 
-    createProject: builder.mutation<ProjectsResponse, any>({
+    createWeeklyActivity: builder.mutation<
+      WeeklyActivityResponse,
+      z.infer<typeof WeeklyActivitySchema>
+    >({
       query: (body) => ({
         url: `${BASE_URL}`,
         method: "POST",
         body,
       }),
       invalidatesTags: (_, error, {}) =>
-        !error ? invalidateTags("PROJECTS") : [],
+        !error ? invalidateTags("WEEKLY_ACTIVITY") : [],
     }),
 
-    getProject: builder.query<ProjectsResultsData, { path: { id: string } }>({
+    getWeeklyActivity: builder.query<
+      WeeklyActivityResultsData,
+      { path: { id: string } }
+    >({
       query: ({ path }) => {
         return {
           url: `${BASE_URL}${path.id}/`,
         };
       },
       providesTags: (data, error) =>
-        !error ? provideTags("PROJECTS", data) : [],
+        !error ? provideTags("WEEKLY_ACTIVITY", data) : [],
     }),
 
-    updateProject: builder.mutation<
-      ProjectsResponse,
+    updateWeeklyActivity: builder.mutation<
+      WeeklyActivityResponse,
       { path: { id: string }; body: any }
     >({
       query: ({ path, body }) => ({
@@ -63,11 +61,11 @@ const projectsAPi = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("PROJECTS", { ids: [path.id] }) : [],
+        !error ? invalidateTags("WEEKLY_ACTIVITY", { ids: [path.id] }) : [],
     }),
 
-    modifyProject: builder.mutation<
-      ProjectsResponse,
+    modifyWeeklyActivity: builder.mutation<
+      WeeklyActivityResponse,
       { path: { id: string }; body: any }
     >({
       query: ({ path, body }) => ({
@@ -76,18 +74,18 @@ const projectsAPi = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("PROJECTS", { ids: [path.id] }) : [],
+        !error ? invalidateTags("WEEKLY_ACTIVITY", { ids: [path.id] }) : [],
     }),
 
-    deleteProject: builder.mutation<void, { path: { id: string } }>({
+    deleteWeeklyActivity: builder.mutation<void, { path: { id: string } }>({
       query: ({ path }) => ({
         url: `${BASE_URL}${path.id}/`,
         method: "DELETE",
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("PROJECTS", { ids: [path.id] }) : [],
+        !error ? invalidateTags("WEEKLY_ACTIVITY", { ids: [path.id] }) : [],
     }),
   }),
 });
 
-export default projectsAPi;
+export default WeeklyActivityAPI;
