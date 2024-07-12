@@ -3,7 +3,7 @@ import LongArrowLeft from "components/icons/LongArrowLeft";
 import Card from "components/shared/Card";
 import { Form } from "components/ui/form";
 import { useForm } from "react-hook-form";
-import FormSelect from "atoms/FormSelect";
+import FormSelect from "atoms/FormSelectField";
 import FormInput from "atoms/FormInput";
 import FormTextArea from "atoms/FormTextArea";
 import { Button } from "components/ui/button";
@@ -28,6 +28,7 @@ import RiskPlansAPI from "services/programsApi/risk-plans";
 import { toast } from "sonner";
 import DepartmentsAPI from "services/programsApi/departments";
 import { DepartmentsResultsData } from "definations/program-types/departments";
+import FormButton from "atoms/FormButton";
 
 const CreateRickManagement = () => {
   const navigate = useNavigate();
@@ -35,6 +36,7 @@ const CreateRickManagement = () => {
   const { data, isLoading } = RiskCategoriesAPI.useGetRiskCategoriesQuery({
     params: { no_paginate: true },
   });
+
   const departmentQueryResults = DepartmentsAPI.useGetDepartmentsQuery({
     params: { no_paginate: true },
   });
@@ -240,7 +242,9 @@ const CreateRickManagement = () => {
             <Button className="bg-[#FFF2F2] text-primary dark:text-gray-500">
               Cancel
             </Button>
-            <Button type="submit">Create</Button>
+            <FormButton loading={loading} disabled={loading} type="submit">
+              Create
+            </FormButton>
           </div>
         </form>
       </Form>

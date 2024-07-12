@@ -2,7 +2,7 @@ import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
 import { RouteEnum } from "constants/RouterConstants";
 import { ArrowLeft } from "lucide-react";
-import { Link, generatePath, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -258,13 +258,17 @@ const CoreManagementSystems = () => {
       </Card>
 
       <div className="flex justify-between">
-        <Button
-          onClick={prevPage}
-          variant="outline"
-          className="flex gap-4 items-center text-primary border-primary hover:bg-red-50 hover:text-red-500"
-        >
-          <ArrowLeft size={15} /> Back
-        </Button>
+        {data && page > 0 ? (
+          <Button
+            onClick={prevPage}
+            variant="outline"
+            className="flex gap-4 items-center text-primary border-primary hover:bg-red-50 hover:text-red-500"
+          >
+            <ArrowLeft size={15} /> Back
+          </Button>
+        ) : (
+          <div />
+        )}
 
         <Button onClick={handleSubmit} className="px-8">
           Next

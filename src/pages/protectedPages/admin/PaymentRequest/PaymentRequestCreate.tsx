@@ -2,7 +2,7 @@ import BackNavigation from "atoms/BackNavigation";
 import FileUpload from "atoms/FileUpload";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
-import FormSelect from "atoms/FormSelect";
+import FormSelect from "atoms/FormSelectField";
 import { Form } from "components/ui/form";
 import { Minus, Plus } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";

@@ -16,5 +16,5 @@ export interface RiskCategoriesData {
 
 export interface RiskCategoriesResponse {
   message: string;
-  data: RiskCategoriesData;
+  data: RiskCategoriesResultsData;
 }

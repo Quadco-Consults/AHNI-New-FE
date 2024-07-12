@@ -15,5 +15,5 @@ export interface EvaluationCategoryData {
 
 export interface EvaluationCategoryResponse {
   message: string;
-  data: EvaluationCategoryData[];
+  data: EvaluationCategoryData;
 }

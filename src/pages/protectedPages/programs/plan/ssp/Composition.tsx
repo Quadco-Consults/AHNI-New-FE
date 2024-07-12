@@ -3,7 +3,7 @@ import SupportiveSupervisionPlanLayout from "./SupportiveSupervisionPlanLayout";
 import { Form, FormControl, FormField, FormItem } from "components/ui/form";
 import { useForm } from "react-hook-form";
 import FormInput from "atoms/FormInput";
-import FormSelect from "atoms/FormSelect";
+import FormSelect from "atoms/FormSelectField";
 import { ChevronRight } from "lucide-react";
 import FormButton from "atoms/FormButton";
 import { Button } from "components/ui/button";
@@ -23,7 +23,7 @@ const Composition = () => {
       () => ({
         params: {
           // fields: "id,name",
-          no_paginate: false,
+          no_paginate: true,
           // page_size: pagination.pageSize,
           // page: pagination.pageIndex + 1,
         },
@@ -162,7 +162,7 @@ const Composition = () => {
                     <FormItem>
                       <FormControl>
                         <MultiSelectFormField
-                          options={usersData?.results || []}
+                          options={usersData || []}
                           defaultValue={field.value}
                           onValueChange={field.onChange}
                           placeholder="Select team members"

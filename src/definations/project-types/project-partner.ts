@@ -17,5 +17,5 @@ export interface ProjectPartnersData {
 
 export interface ProjectPartnersResponse {
   message: string;
-  data: ProjectPartnersData;
+  data: ProjectPartnerResultsData;
 }

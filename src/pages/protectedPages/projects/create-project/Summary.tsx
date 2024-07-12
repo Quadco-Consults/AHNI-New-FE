@@ -427,9 +427,7 @@ const Summary = () => {
                     >
                       <div className="flex gap-3 items-center">
                         <LocationSvg />{" "}
-                        <h4 className="font-semibold">
-                          {option.obj.location_id}
-                        </h4>
+                        <h4 className="font-semibold">{option.obj.location}</h4>
                       </div>
                       <ul className="text-sm text-[#756D6D] space-y-2">
                         {option.obj.partner_ids.map(

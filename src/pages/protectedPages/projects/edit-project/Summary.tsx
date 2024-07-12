@@ -37,7 +37,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import FundingSourceAPi from "services/projectsApi/funding-sourceApi";
 import { partnerActions } from "store/formData/project-values";
 import { objectivesActions } from "store/formData/project-objective";
-import { IndexKind, isIndexSignatureDeclaration } from "typescript";
 
 interface InputValues {
   title: string;
@@ -128,7 +127,7 @@ const Summary = () => {
   );
   const locationPartners = projectsData?.project_partners?.map((partner) => {
     return {
-      location_id: partner.location.id,
+      location: partner.location,
       partner_ids: partner.partners.map((items) => items.id),
     };
   });
@@ -203,7 +202,6 @@ const Summary = () => {
       start_date: startDate && format(startDate, "yyy-MM-dd"),
       end_date: endDate && format(endDate, "yyy-MM-dd"),
     };
-    console.log(formData);
 
     try {
       await projectsMutation({
@@ -502,7 +500,7 @@ const Summary = () => {
                           <div className="flex gap-3 items-center">
                             <LocationSvg />{" "}
                             <h4 className="font-semibold">
-                              {option.obj.location_id}
+                              {option.obj.location}
                             </h4>
                           </div>
                           <ul className="text-sm text-[#756D6D] space-y-2">
@@ -525,7 +523,7 @@ const Summary = () => {
                             <div className="flex gap-3 items-center">
                               <LocationSvg />{" "}
                               <h4 className="font-semibold">
-                                {option.location.name}
+                                {option.location}
                               </h4>
                             </div>
                             <ul className="text-sm text-[#756D6D] space-y-2">

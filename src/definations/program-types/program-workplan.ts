@@ -36,10 +36,6 @@ export interface WorkPlanData {
 
 export interface WorkPlanResponse {
   message: string;
-  data: WorkPlanData;
-}
-export interface WorkPlanCreateResponse {
-  message: string;
   data: WorkPlanResultsData;
 }
 
