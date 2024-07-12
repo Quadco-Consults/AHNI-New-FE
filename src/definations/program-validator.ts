@@ -94,3 +94,20 @@ export const RiskPlansSchema = z.object({
   risk_category: z.string(),
   risk_owner: z.string(),
 });
+
+export const WeeklyActivitySchema = z.object({
+  objectives: z.number(),
+  ir: z.string(),
+  activity_code: z.string(),
+  activity_description: z.string(),
+  start_date: z.string(),
+  end_date: z.string(),
+  responsible_person: z.string(),
+  resources_required: z.string(),
+  memo_required: z.string(),
+  ea_required: z.string(),
+  results_achieved: z.string(),
+  follow_up_action: z.string(),
+  comments: z.string(),
+  project: z.string(),
+});

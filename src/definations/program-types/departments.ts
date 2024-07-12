@@ -16,5 +16,5 @@ export interface DepartmentsData {
 
 export interface DepartmentsResponse {
   message: string;
-  data: DepartmentsData;
+  data: DepartmentsResultsData;
 }

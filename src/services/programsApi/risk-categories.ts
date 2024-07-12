@@ -76,10 +76,7 @@ const RiskCategoriesAPI = baseAPI.injectEndpoints({
         !error ? invalidateTags("RISK_CATEGORIES", { ids: [path.id] }) : [],
     }),
 
-    deleteRiskCategory: builder.mutation<
-      RiskCategoriesResponse,
-      { path: { id: string } }
-    >({
+    deleteRiskCategory: builder.mutation<void, { path: { id: string } }>({
       query: ({ path }) => ({
         url: `${BASE_URL}${path.id}/`,
         method: "DELETE",

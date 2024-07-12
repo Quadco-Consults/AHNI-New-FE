@@ -1,4 +1,4 @@
-export interface ActivityResultsData {
+export type WeeklyActivityResultsData = {
   id: string;
   created_at: string;
   updated_at: string;
@@ -16,17 +16,17 @@ export interface ActivityResultsData {
   follow_up_action: string;
   comments: string;
   project: string;
-}
+};
 
-export interface ActivityData {
+export interface WeeklyActivityData {
   count: number;
   next: string;
   number_of_pages: number;
   previous: string;
-  results: ActivityResultsData[];
+  results: WeeklyActivityResultsData[];
 }
 
-export interface ActivityResponse {
+export interface WeeklyActivityResponse {
   message: string;
-  data: ActivityResultsData;
+  data: WeeklyActivityResultsData;
 }

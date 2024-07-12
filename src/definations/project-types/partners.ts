@@ -22,5 +22,5 @@ export interface PartnersData {
 
 export interface PartnersResponse {
   message: string;
-  data: PartnersData;
+  data: PartnerResultsData;
 }

@@ -1,20 +1,14 @@
 /* eslint-disable no-empty-pattern */
 /* eslint-disable no-unused-vars */
 import { invalidateTags, provideTags } from "utils/QueryUtils";
-import { z } from "zod";
-import {
-  UsersData,
-  UsersResponse,
-  UsersResultsData,
-  UsersSchema,
-} from "definations/users";
 import baseAPI from ".";
+import { TCreateUser, TUser } from "definations/users";
 
 const BASE_URL = "/auth/users/";
 
 const usersAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getUsers: builder.query<UsersData, {}>({
+    getUsers: builder.query<TUser[], {}>({
       query: (config) => {
         return {
           url: `${BASE_URL}`,
@@ -24,7 +18,7 @@ const usersAPI = baseAPI.injectEndpoints({
       providesTags: (data, error) => (!error ? provideTags("USERS", data) : []),
     }),
 
-    createUser: builder.mutation<UsersResponse, z.infer<typeof UsersSchema>>({
+    createUser: builder.mutation<TUser, TCreateUser>({
       query: (body) => ({
         url: `${BASE_URL}`,
         method: "POST",
@@ -34,10 +28,7 @@ const usersAPI = baseAPI.injectEndpoints({
         !error ? invalidateTags("USERS") : [],
     }),
 
-    createUserRole: builder.mutation<
-      UsersResponse,
-      { path: { id: string }; body: any }
-    >({
+    createUserRole: builder.mutation<any, { path: { id: string }; body: any }>({
       query: ({ path, body }) => ({
         url: `${BASE_URL}${path.id}/assign_role/`,
         method: "POST",
@@ -47,7 +38,7 @@ const usersAPI = baseAPI.injectEndpoints({
         !error ? invalidateTags("USERS") : [],
     }),
 
-    getUser: builder.query<UsersResultsData, { path: { id: string } }>({
+    getUser: builder.query<TUser, { path: { id: string } }>({
       query: ({ path }) => {
         return {
           url: `${BASE_URL}${path.id}/`,
@@ -56,10 +47,7 @@ const usersAPI = baseAPI.injectEndpoints({
       providesTags: (data, error) => (!error ? provideTags("USERS", data) : []),
     }),
 
-    updateUser: builder.mutation<
-      UsersResponse,
-      { path: { id: string }; body: any }
-    >({
+    updateUser: builder.mutation<TUser, { path: { id: string }; body: any }>({
       query: ({ path, body }) => ({
         url: `${BASE_URL}${path.id}/`,
         method: "PUT",
@@ -69,10 +57,7 @@ const usersAPI = baseAPI.injectEndpoints({
         !error ? invalidateTags("USERS", { ids: [path.id] }) : [],
     }),
 
-    modifyUser: builder.mutation<
-      UsersResponse,
-      { path: { id: string }; body: any }
-    >({
+    modifyUser: builder.mutation<TUser, { path: { id: string }; body: any }>({
       query: ({ path, body }) => ({
         url: `${BASE_URL}${path.id}/`,
         method: "PATCH",
@@ -82,7 +67,7 @@ const usersAPI = baseAPI.injectEndpoints({
         !error ? invalidateTags("USERS", { ids: [path.id] }) : [],
     }),
 
-    deleteUser: builder.mutation<UsersResponse, { path: { id: string } }>({
+    deleteUser: builder.mutation<TUser, { path: { id: string } }>({
       query: ({ path }) => ({
         url: `${BASE_URL}${path.id}/`,
         method: "DELETE",

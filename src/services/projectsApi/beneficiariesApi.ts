@@ -77,10 +77,7 @@ const beneficiariesAPi = baseAPI.injectEndpoints({
         !error ? invalidateTags("BENEFICIARIES", { ids: [path.id] }) : [],
     }),
 
-    deleteBeneficiary: builder.mutation<
-      BeneficiariesResponse,
-      { path: { id: string } }
-    >({
+    deleteBeneficiary: builder.mutation<void, { path: { id: string } }>({
       query: ({ path }) => ({
         url: `${BASE_URL}${path.id}/`,
         method: "DELETE",

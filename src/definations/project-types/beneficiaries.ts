@@ -16,5 +16,5 @@ export interface BeneficiariesData {
 
 export interface BeneficiariesResponse {
   message: string;
-  data: BeneficiariesData;
+  data: BeneficiariesResultsData;
 }

@@ -18,7 +18,7 @@ export const program = [
   {
     path: RouteEnum.PROGRAM_ACTIVITY,
     element: lazy(
-      () => import("pages/protectedPages/programs/plan/Activity-plan")
+      () => import("pages/protectedPages/programs/plan/activity-plan/index")
     ),
   },
   {
@@ -38,43 +38,6 @@ export const program = [
         import(
           "pages/protectedPages/programs/plan/ssp/[id]/CoreManagementSystems"
         )
-    ),
-  },
-  {
-    path: RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_GUIDELINE,
-    element: lazy(
-      () => import("pages/protectedPages/programs/plan/ssp/[id]/Guideline")
-    ),
-  },
-  {
-    path: RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_MONITORING,
-    element: lazy(
-      () => import("pages/protectedPages/programs/plan/ssp/[id]/Monitoring")
-    ),
-  },
-  {
-    path: RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_ASSESS,
-    element: lazy(
-      () => import("pages/protectedPages/programs/plan/ssp/[id]/Assess-monthly")
-    ),
-  },
-  {
-    path: RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_TX_NEW,
-    element: lazy(
-      () => import("pages/protectedPages/programs/plan/ssp/[id]/TX-new")
-    ),
-  },
-  {
-    path: RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_SERVICE_DELIVERY,
-    element: lazy(
-      () =>
-        import("pages/protectedPages/programs/plan/ssp/[id]/Service-delivery")
-    ),
-  },
-  {
-    path: RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_PREVENTION,
-    element: lazy(
-      () => import("pages/protectedPages/programs/plan/ssp/[id]/Prevention")
     ),
   },
   {

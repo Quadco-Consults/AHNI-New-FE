@@ -1,7 +1,7 @@
 import RoundBack from "assets/svgs/RoundBack";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
-import FormSelect from "atoms/FormSelect";
+import FormSelect from "atoms/FormSelectField";
 import { Form } from "components/ui/form";
 import { ChevronRight } from "lucide-react";
 import { useForm } from "react-hook-form";

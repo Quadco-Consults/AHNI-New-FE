@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Form } from "components/ui/form";
 import { useForm } from "react-hook-form";
 import FormInput from "atoms/FormInput";
-import FormSelect from "atoms/FormSelect";
+import FormSelect from "atoms/FormSelectField";
 import { ChevronRight } from "lucide-react";
 import FormButton from "atoms/FormButton";
 import { Button } from "components/ui/button";
