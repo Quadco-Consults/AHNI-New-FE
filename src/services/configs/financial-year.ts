@@ -4,16 +4,16 @@ import { invalidateTags, provideTags } from "utils/QueryUtils";
 import baseAPI from "..";
 import { z } from "zod";
 import {
-  DepartmentsResponse,
-  DepartmentsResultsData,
-} from "definations/program-types/departments";
-import { DepartmentsSchema } from "definations/program-validator";
+  FinancialYearResponse,
+  FinancialYearResultsData,
+  FinancialYearSchema,
+} from "definations/configs/financial-year";
 
-const BASE_URL = "/config/departments/";
+const BASE_URL = "/config/financial-year/";
 
-const DepartmentsAPI = baseAPI.injectEndpoints({
+const FinancialAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getDepartments: builder.query<DepartmentsResultsData[], {}>({
+    getFinancialYears: builder.query<FinancialYearResultsData[], {}>({
       query: (config) => {
         return {
           url: `${BASE_URL}`,
@@ -21,12 +21,12 @@ const DepartmentsAPI = baseAPI.injectEndpoints({
         };
       },
       providesTags: (data, error) =>
-        !error ? provideTags("DEPARTMENT", data) : [],
+        !error ? provideTags("FINANCIAL_YEAR", data) : [],
     }),
 
-    createDepartment: builder.mutation<
-      DepartmentsResponse,
-      z.infer<typeof DepartmentsSchema>
+    createFinancialYear: builder.mutation<
+      FinancialYearResponse,
+      z.infer<typeof FinancialYearSchema>
     >({
       query: (body) => ({
         url: `${BASE_URL}`,
@@ -34,11 +34,11 @@ const DepartmentsAPI = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, {}) =>
-        !error ? invalidateTags("DEPARTMENT") : [],
+        !error ? invalidateTags("FINANCIAL_YEAR") : [],
     }),
 
-    getDepartment: builder.query<
-      DepartmentsResultsData,
+    getFinancialYear: builder.query<
+      FinancialYearResultsData,
       { path: { id: string } }
     >({
       query: ({ path }) => {
@@ -47,11 +47,11 @@ const DepartmentsAPI = baseAPI.injectEndpoints({
         };
       },
       providesTags: (data, error) =>
-        !error ? provideTags("DEPARTMENT", data) : [],
+        !error ? provideTags("FINANCIAL_YEAR", data) : [],
     }),
 
-    updateDepartment: builder.mutation<
-      DepartmentsResponse,
+    updateFinancialYear: builder.mutation<
+      FinancialYearResponse,
       { path: { id: string }; body: any }
     >({
       query: ({ path, body }) => ({
@@ -60,11 +60,11 @@ const DepartmentsAPI = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("DEPARTMENT", { ids: [path.id] }) : [],
+        !error ? invalidateTags("FINANCIAL_YEAR", { ids: [path.id] }) : [],
     }),
 
-    modifyDepartment: builder.mutation<
-      DepartmentsResponse,
+    modifyFinancialYear: builder.mutation<
+      FinancialYearResponse,
       { path: { id: string }; body: any }
     >({
       query: ({ path, body }) => ({
@@ -73,18 +73,18 @@ const DepartmentsAPI = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("DEPARTMENT", { ids: [path.id] }) : [],
+        !error ? invalidateTags("FINANCIAL_YEAR", { ids: [path.id] }) : [],
     }),
 
-    deleteDepartment: builder.mutation<void, { path: { id: string } }>({
+    deleteFinancialYear: builder.mutation<void, { path: { id: string } }>({
       query: ({ path }) => ({
         url: `${BASE_URL}${path.id}/`,
         method: "DELETE",
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("DEPARTMENT", { ids: [path.id] }) : [],
+        !error ? invalidateTags("FINANCIAL_YEAR", { ids: [path.id] }) : [],
     }),
   }),
 });
 
-export default DepartmentsAPI;
+export default FinancialAPI;

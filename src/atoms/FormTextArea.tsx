@@ -16,9 +16,10 @@ import { Textarea } from "components/ui/textarea";
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   name: string;
   label?: string;
+  rows?: number;
 }
 
-const FormTextArea: FC<InputProps> = ({ name, label, ...rest }) => {
+const FormTextArea: FC<InputProps> = ({ name, label, rows, ...rest }) => {
   const { control } = useFormContext();
   const { required } = rest;
 
@@ -38,6 +39,7 @@ const FormTextArea: FC<InputProps> = ({ name, label, ...rest }) => {
           </FormLabel>
           <FormControl>
             <Textarea
+              rows={rows}
               className="resize-none font-medium bg-[#F9F9F9]"
               {...field}
             />

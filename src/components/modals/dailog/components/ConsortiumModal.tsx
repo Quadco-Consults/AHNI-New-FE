@@ -27,13 +27,11 @@ import {
   FormMessage,
 } from "components/ui/form";
 import { PartnersFormSchema } from "definations/project-validator";
-import LocationAPi from "services/projectsApi/locationApi";
-import { LocationResultsData } from "definations/project-types/location";
 import { useDispatch } from "react-redux";
 import { partnerActions } from "store/formData/project-values";
 import { LoadingSpinner } from "components/shared/Loading";
 import { closeDialog } from "store/ui";
-import StateAPI from "services/programsApi/state";
+import StateAPI from "services/configs/state";
 
 const ConsortiumModal = () => {
   const [locationValue, setLocationValue] = useState("");
@@ -181,9 +179,9 @@ const ConsortiumModal = () => {
           </ScrollArea>
           <div className="flex justify-end w-full my-5">
             <div className="flex items-center gap-x-4">
-              {/* <p className="text-sm font-medium text-primary">
-                {form.getValues.length} Criteria Selected
-              </p> */}
+              <p className="text-sm font-medium text-primary">
+                {form.watch("items").length} Criteria Selected
+              </p>
               <Button type="submit">Save & Continue</Button>
             </div>
           </div>

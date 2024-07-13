@@ -64,7 +64,7 @@ export const RouteEnum = {
   RFQ_VENDOR: "/procurement-management/rfq-vendor",
 
   EOI: "/procurement-management/vendor-management/eoi",
-  EOI_VIEW: "/procurement-management/vendor-management/eoi/view",
+  EOI_VIEW: "/procurement-management/vendor-management/eoi/:id",
   EOI_VENDOR: "/procurement-management/vendor-management/eoi-vendor",
   VENDOR_MANAGEMENT:
     "/procurement-management/vendor-management/prequalification",

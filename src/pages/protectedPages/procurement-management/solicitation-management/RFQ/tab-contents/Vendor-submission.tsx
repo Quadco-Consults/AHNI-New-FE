@@ -36,9 +36,7 @@ const VendorSubmission = () => {
             />
           </div>
 
-          <Link
-            to={generatePath(RouteEnum.RFQ_DETAILS_BID_SUBMISSION, { id: "1" })}
-          >
+          <Link to={generatePath(RouteEnum.VENDOR_REGISTRATION, { id: "1" })}>
             <Button variant="ghost" className="bg-[#FFF2F2] gap-2 text-primary">
               <svg
                 width="24"

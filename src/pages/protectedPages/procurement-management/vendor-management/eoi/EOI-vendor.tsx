@@ -59,7 +59,7 @@ const EOIVendor = () => {
       <Card className="space-y-10">
         <h4 className="text-base font-bold">Vendor Submissions</h4>
 
-        <DataTable data={data} columns={columns} />
+        <DataTable data={data} columns={columns} isLoading={false} />
       </Card>
     </div>
   );
