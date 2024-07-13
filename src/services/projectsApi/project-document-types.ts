@@ -84,7 +84,7 @@ const projectDocumentTypesAPi = baseAPI.injectEndpoints({
     }),
 
     deleteProjectDocumentTypes: builder.mutation<
-      ProjectDocumentTypesResponse,
+      void,
       { path: { id: string } }
     >({
       query: ({ path }) => ({

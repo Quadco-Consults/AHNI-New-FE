@@ -76,10 +76,7 @@ const projectObjectiveAPi = baseAPI.injectEndpoints({
         !error ? invalidateTags("PROJECT_OBJECTIVE", { ids: [path.id] }) : [],
     }),
 
-    deleteProjectObjective: builder.mutation<
-      ProjectObjectiveResponse,
-      { path: { id: string } }
-    >({
+    deleteProjectObjective: builder.mutation<void, { path: { id: string } }>({
       query: ({ path }) => ({
         url: `${BASE_URL}${path.id}/`,
         method: "DELETE",

@@ -2,131 +2,253 @@ import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import { useMemo } from "react";
 
-type BudgetData = {
-  objective: string;
-  subObjective: string;
-  accNumber: string;
-  activities: string;
-  justification: string;
-  oct: number;
-  nov: number;
-  dec: number;
-  jan: number;
-  feb: number;
-  mar: number;
-};
-
-const data: BudgetData[] = [
-  {
-    objective:
-      "To Increase resiliency, responsiveness, and accountability of the health system",
-    subObjective: "Increased equity to access to HIV services",
-    accNumber: "PHO/IR/1.1.1",
-    activities:
-      "Develop context specific implementation plans to guide state teams to implement innovative, high impact decentralized HIV service delivery (e.g Super-Hub Cluster Model) in FCV and hard-to-reach areas",
-    justification: "",
-    oct: 4,
-    nov: 1,
-    dec: 6,
-    jan: 2,
-    feb: 2,
-    mar: 8,
-  },
-  {
-    objective:
-      "To Increase resiliency, responsiveness, and accountability of the health system",
-    subObjective: "Increased equity to access to HIV services",
-    accNumber: "PHO/IR/1.1.1",
-    activities:
-      "Develop context specific implementation plans to guide state teams to implement innovative, high impact decentralized HIV service delivery (e.g Super-Hub Cluster Model) in FCV and hard-to-reach areas",
-    justification: "",
-    oct: 4,
-    nov: 1,
-    dec: 6,
-    jan: 2,
-    feb: 2,
-    mar: 8,
-  },
-  {
-    objective:
-      "To Increase resiliency, responsiveness, and accountability of the health system",
-    subObjective: "Increased equity to access to HIV services",
-    accNumber: "PHO/IR/1.1.1",
-    activities:
-      "Develop context specific implementation plans to guide state teams to implement innovative, high impact decentralized HIV service delivery (e.g Super-Hub Cluster Model) in FCV and hard-to-reach areas",
-    justification: "",
-    oct: 4,
-    nov: 1,
-    dec: 6,
-    jan: 2,
-    feb: 2,
-    mar: 8,
-  },
-];
-
-const BudgetTab = () => {
-  const columns = useMemo<ColumnDef<BudgetData>[]>(
+const BudgetTab = (data: any) => {
+  const columns = useMemo<ColumnDef<any>[]>(
     () => [
       {
-        header: "Objective",
-        accessorKey: "objective",
-        size: 300,
-      },
-      {
-        header: "Sub-Objective",
-        accessorKey: "subObjective",
-        size: 300,
-      },
-      {
         header: "ACT. No.",
-        accessorKey: "accNumber",
-        size: 200,
+        accessorKey: "identification",
+        cell: ({ row }) => {
+          return (
+            <p>
+              {row.original.workplans.map(
+                (workplan: any) => workplan.identification
+              )}
+            </p>
+          );
+        },
+        size: 150,
       },
       {
         header: "Activities",
         accessorKey: "activities",
+        cell: ({ row }) => {
+          return (
+            <p>
+              {row.original.workplans.map(
+                (workplan: any) => workplan.description
+              )}
+            </p>
+          );
+        },
         size: 400,
       },
       {
-        header: "Activities Justification",
-        accessorKey: "justification",
-        size: 200,
+        header: "Unit Cost",
+        accessorKey: "cost",
+        cell: ({ row }) => {
+          return (
+            <p>
+              {row.original.workplans.map(
+                (workplan: any) => workplan.unit_cost_ngn
+              )}
+            </p>
+          );
+        },
+        size: 100,
       },
       {
         header: "Oct",
         accessorKey: "oct",
-        size: 50,
+        cell: ({ row }) => {
+          return (
+            <p>
+              {row.original.workplans.map(
+                (workplan: any) => workplan.monthly_budget[0].monthly_total
+              )}
+            </p>
+          );
+        },
+        size: 100,
       },
       {
         header: "Nov",
         accessorKey: "nov",
-        size: 50,
+        cell: ({ row }) => {
+          return (
+            <p>
+              {row.original.workplans.map(
+                (workplan: any) => workplan.monthly_budget[1].monthly_total
+              )}
+            </p>
+          );
+        },
+        size: 100,
       },
       {
         header: "Dec",
         accessorKey: "dec",
-        size: 50,
+        cell: ({ row }) => {
+          return (
+            <p>
+              {row.original.workplans.map(
+                (workplan: any) => workplan.monthly_budget[2].monthly_total
+              )}
+            </p>
+          );
+        },
+        size: 100,
       },
       {
         header: "Jan",
         accessorKey: "jan",
-        size: 50,
+        cell: ({ row }) => {
+          return (
+            <p>
+              {row.original.workplans.map(
+                (workplan: any) => workplan.monthly_budget[3].monthly_total
+              )}
+            </p>
+          );
+        },
+        size: 100,
       },
       {
         header: "Feb",
         accessorKey: "feb",
-        size: 50,
+        cell: ({ row }) => {
+          return (
+            <p>
+              {row.original.workplans.map(
+                (workplan: any) => workplan.monthly_budget[4].monthly_total
+              )}
+            </p>
+          );
+        },
+        size: 100,
       },
       {
         header: "Mar",
         accessorKey: "mar",
-        size: 50,
+        cell: ({ row }) => {
+          return (
+            <p>
+              {row.original.workplans.map(
+                (workplan: any) => workplan.monthly_budget[5].monthly_total
+              )}
+            </p>
+          );
+        },
+        size: 100,
+      },
+      {
+        header: "Apr",
+        accessorKey: "apr",
+        cell: ({ row }) => {
+          return (
+            <p>
+              {row.original.workplans.map(
+                (workplan: any) => workplan.monthly_budget[6].monthly_total
+              )}
+            </p>
+          );
+        },
+        size: 100,
+      },
+      {
+        header: "May",
+        accessorKey: "may",
+        cell: ({ row }) => {
+          return (
+            <p>
+              {row.original.workplans.map(
+                (workplan: any) => workplan.monthly_budget[7].monthly_total
+              )}
+            </p>
+          );
+        },
+        size: 100,
+      },
+      {
+        header: "Jun",
+        accessorKey: "jun",
+        cell: ({ row }) => {
+          return (
+            <p>
+              {row.original.workplans.map(
+                (workplan: any) => workplan.monthly_budget[8].monthly_total
+              )}
+            </p>
+          );
+        },
+        size: 100,
+      },
+      {
+        header: "Jul",
+        accessorKey: "jul",
+        cell: ({ row }) => {
+          return (
+            <p>
+              {row.original.workplans.map(
+                (workplan: any) => workplan.monthly_budget[9].monthly_total
+              )}
+            </p>
+          );
+        },
+        size: 100,
+      },
+      {
+        header: "Aug",
+        accessorKey: "aug",
+        cell: ({ row }) => {
+          return (
+            <p>
+              {row.original.workplans.map(
+                (workplan: any) => workplan.monthly_budget[10].monthly_total
+              )}
+            </p>
+          );
+        },
+        size: 100,
+      },
+      {
+        header: "Sep",
+        accessorKey: "sep",
+        cell: ({ row }) => {
+          return (
+            <p>
+              {row.original.workplans.map(
+                (workplan: any) => workplan.monthly_budget[11].monthly_total
+              )}
+            </p>
+          );
+        },
+        size: 100,
+      },
+      {
+        header: "Total (NGN)",
+        accessorKey: "ngn",
+        cell: ({ row }) => {
+          return (
+            <p>
+              ₦
+              {row.original.workplans.map(
+                (workplan: any) => workplan.annual_total_in_ngn
+              )}
+            </p>
+          );
+        },
+        size: 100,
+      },
+      {
+        header: "Total (USD)",
+        accessorKey: "usd",
+        // cell: ({ row }) => {
+        //   return (
+        //     <p>
+        //       {row.original.workplans.map(
+        //         (workplan: any) => workplan.monthly_budget[0].month
+        //       )}
+        //     </p>
+        //   );
+        // },
+        size: 100,
       },
     ],
     []
   );
 
-  return <DataTable data={data} columns={columns} />;
+  return <DataTable data={[data] || []} columns={columns} isLoading={false} />;
 };
 
 export default BudgetTab;

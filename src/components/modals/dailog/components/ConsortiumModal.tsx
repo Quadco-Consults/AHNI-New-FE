@@ -27,12 +27,11 @@ import {
   FormMessage,
 } from "components/ui/form";
 import { PartnersFormSchema } from "definations/project-validator";
-import LocationAPi from "services/projectsApi/locationApi";
-import { LocationResultsData } from "definations/project-types/location";
 import { useDispatch } from "react-redux";
 import { partnerActions } from "store/formData/project-values";
 import { LoadingSpinner } from "components/shared/Loading";
 import { closeDialog } from "store/ui";
+import StateAPI from "services/configs/state";
 
 const ConsortiumModal = () => {
   const [locationValue, setLocationValue] = useState("");
@@ -52,19 +51,10 @@ const ConsortiumModal = () => {
       []
     )
   );
-  const locationsQueryResult = LocationAPi.useGetLocationQuery(
-    useMemo(
-      () => ({
-        params: {
-          fields: "id,state",
-        },
-      }),
-      []
-    )
-  );
+  const StateQueryResult = StateAPI.useGetStatesQuery();
 
   const partners = partnersQueryResult?.data?.results;
-  const locations = locationsQueryResult?.data?.results;
+  const states = StateQueryResult?.data;
 
   const form = useForm<z.infer<typeof PartnersFormSchema>>({
     resolver: zodResolver(PartnersFormSchema),
@@ -73,19 +63,15 @@ const ConsortiumModal = () => {
     },
   });
 
-  const locationName = locations?.find(
-    (location: LocationResultsData) => location?.id === locationValue
-  );
-
   const onSubmit = (data: z.infer<typeof PartnersFormSchema>) => {
     const matchedPartners = partners?.filter((partner: PartnerResultsData) =>
       data.items.includes(partner?.id)
     );
 
     const submittedValues = {
-      obj: { location_id: locationName?.state, partner_ids: matchedPartners },
+      obj: { location: locationValue, partner_ids: matchedPartners },
       ids: {
-        location_id: locationValue,
+        location: locationValue,
         partner_ids: data?.items,
       },
     };
@@ -97,13 +83,13 @@ const ConsortiumModal = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className="flex flex-col mt-10 items-center justify-center w-full h-[80vh] ">
+        <div className="flex flex-col mt-5 items-center justify-center w-full h-[80vh] ">
           <ScrollArea className="h-[90%] space-y-5 pb-5">
             <div className="flex flex-col items-center justify-between">
               <div>
                 <img src={logoPng} alt="logo" width={150} />
               </div>
-              <h4 className="mt-8 text-lg font-bold">
+              <h4 className="mt-5 text-lg font-bold">
                 Select Consortium partners
               </h4>
               <p className="mt-5 text-muted-foreground">
@@ -111,27 +97,18 @@ const ConsortiumModal = () => {
               </p>
 
               <div className="flex gap-2 mt-6 items-center w-full max-w-sm">
-                {/* <div className="ml-2">
-              <Search />
-            </div>
-            <Input
-              className="w-full border-none py-2 text-sm bg-white border border-gray-300 rounded-none focus:outline-none focus:ring-blue-500 dark:text-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-              placeholder="Search name"
-              type="search"
-            />
-            <p>|</p> */}
                 <Select onValueChange={handleLocation}>
                   <SelectTrigger>
                     <SelectValue placeholder="Location" />
                   </SelectTrigger>
 
                   <SelectContent>
-                    {locationsQueryResult?.isLoading ? (
+                    {StateQueryResult?.isLoading ? (
                       <LoadingSpinner />
                     ) : (
-                      locations?.map((partner: LocationResultsData) => (
-                        <SelectItem key={partner?.id} value={partner.id}>
-                          {partner.state}
+                      states?.map((partner: string, index: number) => (
+                        <SelectItem key={index} value={partner}>
+                          {partner}
                         </SelectItem>
                       ))
                     )}
@@ -202,9 +179,9 @@ const ConsortiumModal = () => {
           </ScrollArea>
           <div className="flex justify-end w-full my-5">
             <div className="flex items-center gap-x-4">
-              {/* <p className="text-sm font-medium text-primary">
-                {form.getValues.length} Criteria Selected
-              </p> */}
+              <p className="text-sm font-medium text-primary">
+                {form.watch("items").length} Criteria Selected
+              </p>
               <Button type="submit">Save & Continue</Button>
             </div>
           </div>

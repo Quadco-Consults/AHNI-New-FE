@@ -9,7 +9,7 @@ import LongArrowLeft from "components/icons/LongArrowLeft";
 import Card from "components/shared/Card";
 import { useForm } from "react-hook-form";
 import { Form } from "components/ui/form";
-import FormSelect from "atoms/FormSelect";
+import FormSelect from "atoms/FormSelectField";
 import FormInput from "atoms/FormInput";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { RouteEnum } from "constants/RouterConstants";
@@ -144,7 +144,7 @@ const CreateAnalysis = () => {
             <FormButton
               onClick={goBack}
               type="button"
-              className="bg-[#FFF2F2] text-primary "
+              className="bg-[#FFF2F2] text-primary dark:text-gray-500"
             >
               Cancel
             </FormButton>

@@ -48,7 +48,7 @@ const Attestation = () => {
               onClick={() => navigate(-1)}
               preffix={<ArrowLeft size={14} />}
               type="button"
-              className="bg-[#FFF2F2] text-primary "
+              className="bg-[#FFF2F2] text-primary dark:text-gray-500"
             >
               Back
             </FormButton>

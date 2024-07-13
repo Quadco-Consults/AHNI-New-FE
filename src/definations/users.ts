@@ -1,6 +1,23 @@
 import { z } from "zod";
 
-export const userSchema = z.object({
+export const userSchema = z
+  .object({
+    first_name: z.string(),
+    last_name: z.string(),
+    email: z.string().email(),
+    last_login: z.string().datetime().optional(),
+    phone_number: z.string(),
+    gender: z.enum(["Male", "Female", "Other"]),
+    designation: z.string(),
+    password: z.string(),
+    confirm_password: z.string(),
+  })
+  .refine((data) => data.password === data.confirm_password, {
+    message: "Passwords don't match",
+    path: ["confirm_password"],
+  });
+
+export const updateUserSchema = z.object({
   first_name: z.string(),
   last_name: z.string(),
   email: z.string().email(),
@@ -11,12 +28,13 @@ export const userSchema = z.object({
 });
 
 export type TCreateUser = z.infer<typeof userSchema>;
+export type TUpdateUser = z.infer<typeof updateUserSchema>;
 interface Role {
   id: number;
   name: string;
 }
 
-interface Permission {
+export interface Permission {
   id: number;
   name: string;
   codename: string;
@@ -39,4 +57,10 @@ export interface TUser {
   department: string;
   position: string;
   actions: string; //
+}
+
+export interface TRole {
+  id: number;
+  name: string;
+  permissions: Permission[];
 }

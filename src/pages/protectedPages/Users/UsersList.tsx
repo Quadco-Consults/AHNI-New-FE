@@ -11,7 +11,12 @@ import { Link } from "react-router-dom";
 import { useGetUserQuery } from "services/users";
 
 const UsersList = () => {
-  const { data, isLoading } = useGetUserQuery({ no_paginate: false });
+  const { data, isLoading } = useGetUserQuery(
+    { no_paginate: false },
+    {
+      refetchOnMountOrArgChange: true,
+    }
+  );
 
   const drivedData = useMemo(() => {
     return data?.results.map((user) => ({
@@ -44,7 +49,7 @@ const UsersList = () => {
         <TableFilters>
           <DataTable
             columns={userColums}
-            data={drivedData as unknown as TUser[]}
+            data={(drivedData as unknown as TUser[]) || []}
             isLoading={isLoading}
           />
         </TableFilters>

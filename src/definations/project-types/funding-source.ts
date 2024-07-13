@@ -16,5 +16,5 @@ export interface FundingSourceData {
 
 export interface FundingSourceResponse {
   message: string;
-  data: FundingSourceData;
+  data: FundingSourceResultsData;
 }

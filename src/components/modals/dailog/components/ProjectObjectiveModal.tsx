@@ -78,14 +78,17 @@ const ProjectObjectiveModal = () => {
           <Button
             onClick={handleAddInput}
             type="button"
-            className="bg-[#FFF2F2] text-primary "
+            className="bg-[#FFF2F2] text-primary dark:text-gray-500"
           >
             Add
           </Button>
         </div>
 
         <div className="flex justify-end gap-5 mt-16">
-          <Button type="button" className="bg-[#FFF2F2] text-primary ">
+          <Button
+            type="button"
+            className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+          >
             Cancel
           </Button>
           <Button onClick={() => dispatch(closeDialog())}>Done</Button>

@@ -28,10 +28,15 @@ const authSlice = createSlice({
         ...payload,
       };
     },
+    logOut: () => {
+      return {
+        ...initialState,
+      };
+    },
   },
 });
 
-export const { setAuth } = authSlice.actions;
+export const { setAuth, logOut } = authSlice.actions;
 
 export default authSlice.reducer;
 

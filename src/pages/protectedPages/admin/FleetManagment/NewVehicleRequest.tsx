@@ -1,7 +1,7 @@
 import BackNavigation from "atoms/BackNavigation";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
-import FormSelect from "atoms/FormSelect";
+import FormSelect from "atoms/FormSelectField";
 import { Card, CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { useForm } from "react-hook-form";

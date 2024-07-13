@@ -1,6 +1,6 @@
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
-import FormSelect from "atoms/FormSelect";
+import FormSelect from "atoms/FormSelectField";
 import FormTextArea from "atoms/FormTextArea";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import Card from "components/shared/Card";
@@ -53,7 +53,7 @@ const CreateRegister = () => {
             <FormButton
               onClick={goBack}
               type="button"
-              className="bg-[#FFF2F2] text-primary "
+              className="bg-[#FFF2F2] text-primary dark:text-gray-500"
             >
               Cancel
             </FormButton>

@@ -11,10 +11,14 @@ import {
 import { Button } from "components/ui/button";
 
 import { MoreHorizontal, Edit, RefreshCw, UserMinus } from "lucide-react";
-import { TUser } from "definations/users";
+import { Permission, TUser } from "definations/users";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
-import { DialogType, mediumDailogScreen } from "constants/dailogs";
+import {
+  DialogType,
+  largeDailogScreen,
+  mediumDailogScreen,
+} from "constants/dailogs";
 
 // Action handlers (implement these in your component)
 
@@ -27,6 +31,7 @@ const ActionDropdown = ({
   designation,
   gender,
   email,
+  roles,
 }: TUser) => {
   const dispatch = useAppDispatch();
 
@@ -49,13 +54,19 @@ const ActionDropdown = ({
         },
       })
     );
-    console.log("Edit user with id:", id);
-    // Implement edit logic
   };
 
   const handleUpdate = (id: string) => {
-    console.log("Update user with id:", id);
-    // Implement update logic
+    dispatch(
+      openDialog({
+        type: DialogType.AssingRoleToUser,
+        dialogProps: {
+          ...largeDailogScreen,
+          id,
+          roles: roles as unknown as string,
+        },
+      })
+    );
   };
 
   const handleDeactivate = (id: string) => {
@@ -125,5 +136,22 @@ export const userColums = [
   columnHelper.accessor("actions", {
     header: "",
     cell: ({ row }) => <ActionDropdown {...row.original} />, // This represents the actions column with the three dots
+  }),
+];
+
+const permissionHelper = createColumnHelper<Permission>();
+
+export const permissionColums = [
+  permissionHelper.accessor("name", {
+    header: "Name",
+    cell: (info) => info.getValue(),
+  }),
+  permissionHelper.accessor("module", {
+    header: "Module",
+    cell: (info) => info.getValue(),
+  }),
+  permissionHelper.accessor("codename", {
+    header: "Code Name",
+    cell: (info) => info.getValue(),
   }),
 ];

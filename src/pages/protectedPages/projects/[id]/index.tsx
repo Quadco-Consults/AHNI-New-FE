@@ -22,6 +22,7 @@ import { RouteEnum } from "constants/RouterConstants";
 const ProjectDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+
   localStorage.setItem("projectDetailID", id as string);
 
   const projectsQueryResult = projectsAPi.useGetProjectQuery({

@@ -21,8 +21,15 @@ import {
   BreadcrumbSeparator,
 } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
+import RiskPlansAPI from "services/programsApi/risk-plans";
+import { RiskPlansResultsData } from "definations/program-types/risk-plans";
+import { toast } from "sonner";
 
 const RiskManagement = () => {
+  const { data, isLoading } = RiskPlansAPI.useGetRiskPlansQuery({
+    params: { no_paginate: true },
+  });
+
   return (
     <div className="space-y-5">
       <Breadcrumb>
@@ -69,7 +76,7 @@ const RiskManagement = () => {
           </Button>
         </div>
 
-        <DataTable data={data} columns={columns} isLoading={false} />
+        <DataTable data={data || []} columns={columns} isLoading={isLoading} />
       </Card>
     </div>
   );
@@ -77,21 +84,7 @@ const RiskManagement = () => {
 
 export default RiskManagement;
 
-type WorkPlanData = {
-  risk_number: string;
-  riskCategory: string;
-  riskDesc: string;
-  riskOwner: string;
-  impactDesc: string;
-  level: string;
-  probability: string;
-  total_risk_response: string;
-  risk_response: string;
-  timeline: string;
-  status: string;
-};
-
-const columns: ColumnDef<WorkPlanData>[] = [
+const columns: ColumnDef<RiskPlansResultsData>[] = [
   {
     header: "Risk Number",
     accessorKey: "risk_number",
@@ -99,27 +92,29 @@ const columns: ColumnDef<WorkPlanData>[] = [
   },
   {
     header: "Risk Category	",
-    accessorKey: "riskCategory",
-    size: 150,
+    id: "risk_category",
+    accessorFn: (data) => `${data.risk_category.name}`,
+    size: 250,
   },
   {
     header: "Risk Description",
-    accessorKey: "riskDesc",
-    size: 200,
+    accessorKey: "risk_description",
+    size: 250,
   },
   {
     header: "Risk Owner",
-    accessorKey: "riskOwner",
-    size: 150,
+    id: "risk_owner",
+    accessorFn: (data) => `${data.risk_owner.name}`,
+    size: 200,
   },
   {
     header: "Impact Description",
-    accessorKey: "impactDesc",
+    accessorKey: "impact_description",
     size: 200,
   },
   {
     header: "Impact Level",
-    accessorKey: "level",
+    accessorKey: "impact_level",
     size: 150,
     cell: ({ getValue }) => {
       return (
@@ -127,8 +122,8 @@ const columns: ColumnDef<WorkPlanData>[] = [
           variant="default"
           className={cn(
             "p-1 rounded-lg",
-            getValue() === "Very High" && "bg-[#8DF384] text-[#021A0D]",
-            getValue() === "Very Low" && "bg-[#F97066] text-[#1A0000]",
+            getValue() === "Very high" && "bg-[#8DF384] text-[#021A0D]",
+            getValue() === "Very low" && "bg-[#F97066] text-[#1A0000]",
             getValue() === "High" && "bg-[#E0FDD6] text-[#096735]",
             getValue() === "Low" && "bg-[#FECDCA] text-[#7A271A]",
             getValue() === "Medium" && "bg-[#F3CB65] text-[#473200]"
@@ -141,7 +136,7 @@ const columns: ColumnDef<WorkPlanData>[] = [
   },
   {
     header: "Probability of Occurrence",
-    accessorKey: "probability",
+    accessorKey: "occurrence_probability",
     size: 150,
     cell: ({ getValue }) => {
       return (
@@ -149,8 +144,8 @@ const columns: ColumnDef<WorkPlanData>[] = [
           variant="default"
           className={cn(
             "p-1 rounded-lg",
-            getValue() === "Very High" && "bg-[#8DF384] text-[#021A0D]",
-            getValue() === "Very Low" && "bg-[#F97066] text-[#1A0000]",
+            getValue() === "Very high" && "bg-[#8DF384] text-[#021A0D]",
+            getValue() === "Very low" && "bg-[#F97066] text-[#1A0000]",
             getValue() === "High" && "bg-[#E0FDD6] text-[#096735]",
             getValue() === "Low" && "bg-[#FECDCA] text-[#7A271A]",
             getValue() === "Medium" && "bg-[#F3CB65] text-[#473200]"
@@ -171,8 +166,8 @@ const columns: ColumnDef<WorkPlanData>[] = [
           variant="default"
           className={cn(
             "p-1 rounded-lg",
-            getValue() === "Very High" && "bg-[#8DF384] text-[#021A0D]",
-            getValue() === "Very Low" && "bg-[#F97066] text-[#1A0000]",
+            getValue() === "Very high" && "bg-[#8DF384] text-[#021A0D]",
+            getValue() === "Very low" && "bg-[#F97066] text-[#1A0000]",
             getValue() === "High" && "bg-[#E0FDD6] text-[#096735]",
             getValue() === "Low" && "bg-[#FECDCA] text-[#7A271A]",
             getValue() === "Medium" && "bg-[#F3CB65] text-[#473200]"
@@ -190,13 +185,13 @@ const columns: ColumnDef<WorkPlanData>[] = [
   },
   {
     header: "Implementation Timeline",
-    accessorKey: "timeline",
+    accessorKey: "implementation_timeline",
     size: 200,
   },
   {
     header: "Risk Status",
-    accessorKey: "status",
-    size: 150,
+    accessorKey: "risk_status",
+    size: 180,
     cell: ({ getValue }) => {
       return (
         <Badge
@@ -204,7 +199,8 @@ const columns: ColumnDef<WorkPlanData>[] = [
           className={cn(
             "p-1 rounded-lg",
             getValue() === "Open" && "bg-[#1A9B3E] text-white",
-            getValue() === "Closed" && "bg-[#4D4545] text-white"
+            getValue() === "Closed" && "bg-[#4D4545] text-white",
+            getValue() === "Completed/Mitigated" && "bg-[#F97066] text-white"
           )}
         >
           {getValue() as string}
@@ -215,12 +211,22 @@ const columns: ColumnDef<WorkPlanData>[] = [
   {
     header: "",
     id: "actions",
+    size: 80,
     cell: ({ row }) => <ActionListAction data={row.original} />,
   },
 ];
 
 const ActionListAction = ({ data }: any) => {
-  console.log(data);
+  const [deleteRiskPlanMutation] = RiskPlansAPI.useDeleteRiskPlanMutation();
+  const deleteHandler = async () => {
+    try {
+      await deleteRiskPlanMutation({ path: { id: data?.id } }).unwrap();
+      toast.success("Successfully deleted");
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
+    }
+  };
   return (
     <div className="flex items-center gap-2">
       <>
@@ -268,6 +274,7 @@ const ActionListAction = ({ data }: any) => {
               <Button
                 className="w-full flex items-center justify-start gap-2"
                 variant="ghost"
+                onClick={deleteHandler}
               >
                 <DeleteIcon />
                 delete
@@ -279,19 +286,3 @@ const ActionListAction = ({ data }: any) => {
     </div>
   );
 };
-
-const data: WorkPlanData[] = Array(10).fill({
-  risk_number: "AR 001",
-  riskCategory: "Regulatory Compliance",
-  riskDesc:
-    "There is possibility of delaying in remitting taxes at the stipulated time.",
-  riskOwner: "Finance Department",
-  impactDesc: "Government could impose penalty for non-compliance. ",
-  level: "Low",
-  probability: "Very High",
-  total_risk_response: "Very Low",
-  risk_response:
-    "Finance team will ensure that adherence to the regulatory timeline.",
-  timeline: "Immediate",
-  status: "Closed",
-});
