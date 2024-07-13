@@ -4,17 +4,16 @@ import { invalidateTags, provideTags } from "utils/QueryUtils";
 import baseAPI from "..";
 import { z } from "zod";
 import {
-  LocationData,
-  LocationResponse,
-  LocationResultsData,
-} from "definations/project-types/location";
-import { LocationSchema } from "definations/project-validator";
+  DepartmentsResponse,
+  DepartmentsResultsData,
+} from "definations/configs/departments";
+import { DepartmentsSchema } from "definations/program-validator";
 
-const BASE_URL = "/config/locations/";
+const BASE_URL = "/config/departments/";
 
-const LocationAPi = baseAPI.injectEndpoints({
+const DepartmentsAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getLocation: builder.query<LocationData, { params: {} }>({
+    getDepartments: builder.query<DepartmentsResultsData[], {}>({
       query: (config) => {
         return {
           url: `${BASE_URL}`,
@@ -22,12 +21,12 @@ const LocationAPi = baseAPI.injectEndpoints({
         };
       },
       providesTags: (data, error) =>
-        !error ? provideTags("LOCATION", data) : [],
+        !error ? provideTags("DEPARTMENT", data) : [],
     }),
 
-    createFundingSource: builder.mutation<
-      LocationResponse,
-      z.infer<typeof LocationSchema>
+    createDepartment: builder.mutation<
+      DepartmentsResponse,
+      z.infer<typeof DepartmentsSchema>
     >({
       query: (body) => ({
         url: `${BASE_URL}`,
@@ -35,11 +34,11 @@ const LocationAPi = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, {}) =>
-        !error ? invalidateTags("LOCATION") : [],
+        !error ? invalidateTags("DEPARTMENT") : [],
     }),
 
-    getFundingSource: builder.query<
-      LocationResultsData,
+    getDepartment: builder.query<
+      DepartmentsResultsData,
       { path: { id: string } }
     >({
       query: ({ path }) => {
@@ -48,11 +47,11 @@ const LocationAPi = baseAPI.injectEndpoints({
         };
       },
       providesTags: (data, error) =>
-        !error ? provideTags("LOCATION", data) : [],
+        !error ? provideTags("DEPARTMENT", data) : [],
     }),
 
-    updateFundingSource: builder.mutation<
-      LocationResponse,
+    updateDepartment: builder.mutation<
+      DepartmentsResponse,
       { path: { id: string }; body: any }
     >({
       query: ({ path, body }) => ({
@@ -61,11 +60,11 @@ const LocationAPi = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("LOCATION", { ids: [path.id] }) : [],
+        !error ? invalidateTags("DEPARTMENT", { ids: [path.id] }) : [],
     }),
 
-    modifyFundingSource: builder.mutation<
-      LocationResponse,
+    modifyDepartment: builder.mutation<
+      DepartmentsResponse,
       { path: { id: string }; body: any }
     >({
       query: ({ path, body }) => ({
@@ -74,18 +73,18 @@ const LocationAPi = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("LOCATION", { ids: [path.id] }) : [],
+        !error ? invalidateTags("DEPARTMENT", { ids: [path.id] }) : [],
     }),
 
-    deleteFundingSource: builder.mutation<void, { path: { id: string } }>({
+    deleteDepartment: builder.mutation<void, { path: { id: string } }>({
       query: ({ path }) => ({
         url: `${BASE_URL}${path.id}/`,
         method: "DELETE",
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("LOCATION", { ids: [path.id] }) : [],
+        !error ? invalidateTags("DEPARTMENT", { ids: [path.id] }) : [],
     }),
   }),
 });
 
-export default LocationAPi;
+export default DepartmentsAPI;

@@ -152,17 +152,8 @@ const Questionier = () => {
                   </div>
                 </div>
               </div>
-              <Separator />
-              <div>
-                <Label className="text-red-500">
-                  Attach Current Policy Cover
-                </Label>
-                <div className="grid grid-cols-2 gap-6">
-                  <FormInput required name="" label="Insurance Cover" />
-                  <FormInput required name="" label="Type of Policy Cover" />
-                </div>
-              </div>
-              <div className="flex justify-between pt-24">
+
+              <div className="flex justify-between pt-10">
                 <FormButton
                   onClick={() => navigate(-1)}
                   preffix={<ArrowLeft size={14} />}

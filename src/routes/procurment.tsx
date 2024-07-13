@@ -31,7 +31,7 @@ export const procurment = [
     element: lazy(
       () =>
         import(
-          "pages/protectedPages/procurement-management/vendor-management/EOI-vendor"
+          "pages/protectedPages/procurement-management/vendor-management/eoi/EOI-vendor"
         )
     ),
   },
@@ -40,7 +40,7 @@ export const procurment = [
     element: lazy(
       () =>
         import(
-          "pages/protectedPages/procurement-management/vendor-management/EOI"
+          "pages/protectedPages/procurement-management/vendor-management/eoi/EOI"
         )
     ),
   },
@@ -49,7 +49,7 @@ export const procurment = [
     element: lazy(
       () =>
         import(
-          "pages/protectedPages/procurement-management/vendor-management/ViewEOI"
+          "pages/protectedPages/procurement-management/vendor-management/eoi/id"
         )
     ),
   },
