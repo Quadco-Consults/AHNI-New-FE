@@ -7,7 +7,7 @@ import { Checkbox } from "components/ui/checkbox";
 import { cn } from "lib/utils";
 import { Button } from "components/ui/button";
 import { Input } from "components/ui/input";
-import { Link, generatePath } from "react-router-dom";
+import { Link, generatePath, useParams } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
@@ -23,6 +23,7 @@ type Data = {
 };
 
 const EOIVendorSubmission = () => {
+  const { id } = useParams();
   return (
     <div className="space-y-10">
       <Card className="space-y-10">
@@ -36,9 +37,7 @@ const EOIVendorSubmission = () => {
             />
           </div>
 
-          <Link
-            to={generatePath(RouteEnum.RFQ_DETAILS_BID_SUBMISSION, { id: "1" })}
-          >
+          <Link to={generatePath(RouteEnum.VENDOR_REGISTRATION)}>
             <Button variant="ghost" className="bg-[#FFF2F2] gap-2 text-primary">
               <svg
                 width="24"
@@ -66,7 +65,7 @@ const EOIVendorSubmission = () => {
           </Link>
         </div>
 
-        <DataTable columns={columns} data={data} />
+        <DataTable columns={columns} data={data} isLoading={false} />
       </Card>
     </div>
   );

@@ -353,10 +353,10 @@ const DEPARTMENTAL_LINKS = [
             name: "Risk Management Plan",
             path: RouteEnum.PROGRAM_RISK_MANAGEMENT,
           },
-          {
-            name: "Value Management Plan",
-            path: RouteEnum.PROGRAM_RISK_MANAGEMENT,
-          },
+          // {
+          //   name: "Value Management Plan",
+          //   path: RouteEnum.PROGRAM_RISK_MANAGEMENT,
+          // },
           {
             name: "Supportive Supervision Plan",
             path: RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION,

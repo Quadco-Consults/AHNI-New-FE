@@ -26,8 +26,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import RiskPlansAPI from "services/programsApi/risk-plans";
 import { toast } from "sonner";
-import DepartmentsAPI from "services/programsApi/departments";
-import { DepartmentsResultsData } from "definations/program-types/departments";
+import DepartmentsAPI from "services/configs/departments";
+import { DepartmentsResultsData } from "definations/configs/departments";
 import FormButton from "atoms/FormButton";
 
 const CreateRickManagement = () => {
