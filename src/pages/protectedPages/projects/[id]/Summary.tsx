@@ -118,7 +118,6 @@ const Summary = (projects: any) => {
           <div className="flex flex-wrap gap-3">
             {projects.project_partners.map((option: any, index: number) => (
               <div key={index}>
-                {" "}
                 {option.partners.map((el: any) => (
                   <Badge
                     variant="default"

@@ -1,16 +1,24 @@
 import baseAPI from ".";
+import { TBasePaginatedRespose, TRequest } from "definations/auth";
 import {
-  LoginResponse,
-  TBasePaginatedRespose,
-  TRequest,
-} from "definations/auth";
-import { TCreateUser, TUser } from "definations/users";
+  Permission,
+  TCreateUser,
+  TRole,
+  TUpdateUser,
+  TUser,
+} from "definations/users";
 
 const usersAPi = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    roles: builder.query<LoginResponse, TRequest>({
+    roles: builder.query<TBasePaginatedRespose<TRole[]>, TRequest>({
       query: (params) => ({
         url: "/auth/roles/",
+        params,
+      }),
+    }),
+    permissions: builder.query<TBasePaginatedRespose<Permission[]>, TRequest>({
+      query: (params) => ({
+        url: "/auth/permissions/",
         params,
       }),
     }),
@@ -20,12 +28,13 @@ const usersAPi = baseAPI.injectEndpoints({
         method: "POST",
         body: body,
       }),
+      invalidatesTags: ["Users"],
     }),
     updateUser: builder.mutation<
       TUser,
       {
         id: string;
-        body: TCreateUser;
+        body: TUpdateUser;
       }
     >({
       query: ({ id, body }) => ({
@@ -33,12 +42,30 @@ const usersAPi = baseAPI.injectEndpoints({
         method: "PATCH",
         body: body,
       }),
+      invalidatesTags: ["Users"],
     }),
     getUser: builder.query<TBasePaginatedRespose<TUser[]>, TRequest>({
       query: (params) => ({
         url: "/auth/users/",
         params,
       }),
+      providesTags: ["Users"],
+    }),
+    addUserRole: builder.mutation<
+      any,
+      {
+        id: string;
+        body: {
+          items: string[];
+        };
+      }
+    >({
+      query: ({ id, body }) => ({
+        url: `/auth/users/${id}/assign_role/`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Users"],
     }),
   }),
 });
@@ -48,4 +75,6 @@ export const {
   useCreateUserMutation,
   useGetUserQuery,
   useUpdateUserMutation,
+  useAddUserRoleMutation,
+  usePermissionsQuery,
 } = usersAPi;

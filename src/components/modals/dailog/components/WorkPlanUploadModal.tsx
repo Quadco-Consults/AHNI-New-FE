@@ -17,11 +17,15 @@ import { ProjectsResultsData } from "definations/project-types/projects";
 import { Label } from "components/ui/label";
 import { PartnerResultsData } from "definations/project-types/partners";
 import { toast } from "sonner";
+import FormButton from "atoms/FormButton";
+import { useAppDispatch } from "hooks/useStore";
+import { closeDialog } from "store/ui";
 
 const WorkPlanUploadModal = () => {
   const [partnerValue, setPartnerValue] = useState("");
   const [projectValue, setProjectValue] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const dispatch = useAppDispatch();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -36,36 +40,30 @@ const WorkPlanUploadModal = () => {
     setProjectValue(value);
   };
 
-  const projectsQueryResult = projectsAPi.useGetProjectsQuery(
+  const projectsQueryResult = projectsAPi.useGetProjectsParamsQuery(
     useMemo(
       () => ({
         params: {
-          // fields: "id,name",
           no_paginate: true,
-          // page_size: pagination.pageSize,
-          // page: pagination.pageIndex + 1,
         },
       }),
       []
     )
   );
-  const partnersQueryResult = partnersAPi.useGetPartnersQuery(
+  const partnersQueryResult = partnersAPi.useGetPartnersParamsQuery(
     useMemo(
       () => ({
         params: {
-          // fields: "id,name",
+          project: projectValue,
           no_paginate: true,
-          // page_size: pagination.pageSize,
-          // page: pagination.pageIndex + 1,
         },
       }),
-      []
+      [projectValue]
     )
   );
 
-  const projects = projectsQueryResult?.data?.results;
-
-  const partners = partnersQueryResult?.data?.results;
+  const projects = projectsQueryResult?.data;
+  const partners = partnersQueryResult?.data;
 
   const [createWorkPlanMutation, { isLoading }] =
     WorkPlanAPi.useCreateWorkPlanDocumentMutation();
@@ -73,7 +71,7 @@ const WorkPlanUploadModal = () => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!file) {
-      console.error("No file selected");
+      toast.error("No file selected");
       return;
     }
 
@@ -100,31 +98,9 @@ const WorkPlanUploadModal = () => {
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         <div className="space-y-2">
           <Label>
-            Name of Project Partner <span className="text-red-500">*</span>
-          </Label>
-          <Select onValueChange={handlePartnerValue}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select project partner" />
-            </SelectTrigger>
-            <SelectContent>
-              {partnersQueryResult?.isLoading ? (
-                <LoadingSpinner />
-              ) : (
-                partners?.map((doc: PartnerResultsData) => (
-                  <SelectItem key={doc?.id} value={doc.id}>
-                    {doc.name}
-                  </SelectItem>
-                ))
-              )}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label>
             Name of Project <span className="text-red-500">*</span>
           </Label>
-          <Select onValueChange={handleProjectValue}>
+          <Select required onValueChange={handleProjectValue}>
             <SelectTrigger>
               <SelectValue placeholder="Select project" />
             </SelectTrigger>
@@ -142,6 +118,30 @@ const WorkPlanUploadModal = () => {
           </Select>
         </div>
 
+        {projectValue && (
+          <div className="space-y-2">
+            <Label>
+              Name of Project Partner <span className="text-red-500">*</span>
+            </Label>
+            <Select required onValueChange={handlePartnerValue}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select project partner" />
+              </SelectTrigger>
+              <SelectContent>
+                {partnersQueryResult?.isLoading ? (
+                  <LoadingSpinner />
+                ) : (
+                  partners?.map((doc: PartnerResultsData) => (
+                    <SelectItem key={doc?.id} value={doc.id}>
+                      {doc.name}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
         <div className="w-full relative gap-x-3 h-[52px] rounded-[16.2px] border flex justify-center items-center">
           <UploadFile size={20} />
           <div>
@@ -154,12 +154,16 @@ const WorkPlanUploadModal = () => {
         </div>
 
         <div className="flex justify-between gap-5 mt-16">
-          <Button type="button" className="bg-[#FFF2F2] text-primary ">
+          <Button
+            onClick={() => dispatch(closeDialog())}
+            type="button"
+            className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+          >
             Cancel
           </Button>
-          <Button type="submit" disabled={isLoading}>
+          <FormButton loading={isLoading} type="submit" disabled={isLoading}>
             Done
-          </Button>
+          </FormButton>
         </div>
       </form>
     </div>

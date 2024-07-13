@@ -12,7 +12,7 @@ import { Form } from "components/ui/form";
 import FormInput from "atoms/FormInput";
 import DeleteIcon from "components/icons/DeleteIcon";
 import FormTextArea from "atoms/FormTextArea";
-import FormSelect from "atoms/FormSelect";
+import FormSelect from "atoms/FormSelectField";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import { Checkbox } from "components/ui/checkbox";
@@ -177,7 +177,7 @@ const CreateEngagement = () => {
             <FormButton
               onClick={goBack}
               type="button"
-              className="bg-[#FFF2F2] text-primary "
+              className="bg-[#FFF2F2] text-primary dark:text-gray-500"
             >
               Cancel
             </FormButton>

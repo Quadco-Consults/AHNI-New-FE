@@ -8,6 +8,7 @@ import { Label } from "components/ui/label";
 import { ArrowLeft, ArrowRight, MinusCircle, PlusCircle } from "lucide-react";
 import FormButton from "atoms/FormButton";
 import { useLocation, useNavigate } from "react-router-dom";
+import FormSelect from "atoms/FormSelect";
 
 const Company = () => {
   const form = useForm({
@@ -71,25 +72,7 @@ const Company = () => {
         <div>
           <Form {...form}>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-              <FormInput label="Nature of Business" name="natureOfBusiness" />
-              <FormTextArea label="Company Address" name="company addree" />
-              <div className="grid grid-cols-2 gap-x-6">
-                <FormInput
-                  label="Company Chairman/Managing Director"
-                  name="managinDirector"
-                />
-                <FormInput label="Contact Telephone" name="contactTel" />
-              </div>
-              <div className="grid grid-cols-3 gap-x-6 ">
-                <FormInput label="Company's Bankers" name="cb" />
-                <FormInput label="Company's Bankers Address" name="baadd" />
-                <FormInput label="Number of permanent staff" name="permst" />
-              </div>
-              <FormInput
-                label="Company's Tax Identification Number (TIN) (also include Certificate)"
-                name="t"
-              />
-              <Separator className="mt-8" />
+              {/* <Separator className="mt-8" /> */}
               <div>
                 <Label className="text-red-500">Branch Office(s) Address</Label>
                 <div>
@@ -107,19 +90,19 @@ const Company = () => {
                             ({label})
                           </p>
                           <FormInput
-                            label="Branch"
+                            label="Name"
                             name={`officeaddress[${index}].branch`}
                             defaultValue={field.branch}
                             required
                           />
                           <FormInput
-                            label="Contact"
+                            label="Address"
                             name={`officeaddress[${index}].contact`}
                             defaultValue={field.contact}
                             required
                           />
                           <FormInput
-                            label="Tel"
+                            label="Phone Number"
                             name={`officeaddress[${index}].tel`}
                             defaultValue={field.tel}
                             required
@@ -176,7 +159,7 @@ const Company = () => {
                             required
                           />
                           <FormInput
-                            label="Tel"
+                            label="Phone Number"
                             name={`stakeholder[${index}].tel`}
                             defaultValue={field.tel}
                             required
@@ -216,7 +199,7 @@ const Company = () => {
                         className="flex items-center justify-between gap-x-3 "
                         key={index}
                       >
-                        <div className="relative w-[97%] grid grid-cols-3 pl-8 mt-4 gap-x-4 ">
+                        <div className="relative w-[97%] grid grid-cols-2 pl-8 mt-4 gap-4 ">
                           <p className="absolute top-0 left-0 font-semibold ">
                             ({label})
                           </p>
@@ -233,7 +216,13 @@ const Company = () => {
                             required
                           />
                           <FormInput
-                            label="Tel"
+                            label="Phone Number"
+                            name={`stakeholder[${index}].tel`}
+                            defaultValue={field.tel}
+                            required
+                          />
+                          <FormInput
+                            label="Address"
                             name={`stakeholder[${index}].tel`}
                             defaultValue={field.tel}
                             required
@@ -261,7 +250,7 @@ const Company = () => {
               <Separator className="mt-8" />
               <div>
                 <Label className="text-red-500">
-                  Subsidiaries, Associates, Affiliates or technical Partners
+                  Subsidiaries, Associates, Affiliates or Technical Partners
                 </Label>
                 <div>
                   {subsidiaries.map((field, index) => {
@@ -273,7 +262,7 @@ const Company = () => {
                         className="flex items-center justify-between gap-x-3 "
                         key={index}
                       >
-                        <div className="relative w-[97%] grid grid-cols-3 pl-8 mt-4 gap-x-4 ">
+                        <div className="relative w-[97%] grid grid-cols-2 pl-8 mt-4 gap-4 ">
                           <p className="absolute top-0 left-0 font-semibold ">
                             ({label})
                           </p>
@@ -290,7 +279,13 @@ const Company = () => {
                             required
                           />
                           <FormInput
-                            label="Tel"
+                            label="Phone Number"
+                            name={`stakeholder[${index}].tel`}
+                            defaultValue={field.tel}
+                            required
+                          />
+                          <FormSelect
+                            label="Association Type"
                             name={`stakeholder[${index}].tel`}
                             defaultValue={field.tel}
                             required
@@ -320,7 +315,7 @@ const Company = () => {
                   onClick={() => navigate(-1)}
                   preffix={<ArrowLeft size={14} />}
                   type="button"
-                  className="bg-[#FFF2F2] text-primary "
+                  className="bg-[#FFF2F2] text-primary dark:text-gray-500"
                 >
                   Back
                 </FormButton>

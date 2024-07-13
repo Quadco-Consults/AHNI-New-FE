@@ -4,7 +4,7 @@ import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelect";
 import { Form } from "components/ui/form";
-import { TCreateUser, userSchema } from "definations/users";
+import { TUpdateUser, updateUserSchema } from "definations/users";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { useEffect, useState } from "react";
 
@@ -20,8 +20,8 @@ const genderOptions = [
 ];
 
 const EditUser = () => {
-  const form = useForm<TCreateUser>({
-    resolver: zodResolver(userSchema),
+  const form = useForm<TUpdateUser>({
+    resolver: zodResolver(updateUserSchema),
   });
 
   const dispatch = useAppDispatch();
@@ -40,7 +40,7 @@ const EditUser = () => {
 
   const [updateUser, { isLoading }] = useUpdateUserMutation();
 
-  const onSubmit: SubmitHandler<TCreateUser> = async (data) => {
+  const onSubmit: SubmitHandler<TUpdateUser> = async (data) => {
     try {
       await updateUser({
         id,

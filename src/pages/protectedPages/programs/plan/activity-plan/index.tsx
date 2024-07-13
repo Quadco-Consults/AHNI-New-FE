@@ -18,83 +18,82 @@ import {
   BreadcrumbSeparator,
 } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
-
-type ActivityPlanData = {
-  name: string;
-  partners: string;
-  objectives: string;
-  code: string;
-  description: string;
-};
-
-const data: ActivityPlanData[] = [
-  {
-    name: "Accelerating Control of the HIV Epidemic in Nigeria (ACE 5 AKS & CRS)",
-    partners: "PHO",
-    objectives:
-      "A project focused on advancing community education and health.",
-    code: "PHO/IR/1.1.1",
-    description:
-      "Develop context specific implementation plans to guide state teams to implement innovative, high impact decentralized HIV service delivery (e.g Super-Hub Cluster Model) in FCV and hard-to-reach areas",
-  },
-  {
-    name: "Partners for Learning for All Nigeria (PLANE)",
-    partners: "ADSO",
-    objectives:
-      "A project focused on advancing community education and health.",
-    code: "PHO/IR/1.1.1",
-    description:
-      "Develop context specific implementation plans to guide state teams to implement innovative, high impact decentralized HIV service delivery (e.g Super-Hub Cluster Model) in FCV and hard-to-reach areas",
-  },
-  {
-    name: "Accelerating Control of the HIV Epidemic in Nigeria (ACE 5 AKS & CRS)",
-    partners: "PHO",
-    objectives:
-      "A project focused on advancing community education and health.",
-    code: "PHO/IR/1.1.1",
-    description:
-      "Develop context specific implementation plans to guide state teams to implement innovative, high impact decentralized HIV service delivery (e.g Super-Hub Cluster Model) in FCV and hard-to-reach areas",
-  },
-  {
-    name: "Partners for Learning for All Nigeria (PLANE)",
-    partners: "ADSO",
-    objectives:
-      "A project focused on advancing community education and health.",
-    code: "PHO/IR/1.1.1",
-    description:
-      "Develop context specific implementation plans to guide state teams to implement innovative, high impact decentralized HIV service delivery (e.g Super-Hub Cluster Model) in FCV and hard-to-reach areas",
-  },
-];
+import WeeklyActivityAPI from "services/programsApi/weekly-activity";
+import { WeeklyActivityResultsData } from "definations/program-types/weekly-activity";
 
 const ActivityPlan = () => {
   const dispatch = useAppDispatch();
 
-  const columns = useMemo<ColumnDef<ActivityPlanData>[]>(
+  const { data, isLoading } = WeeklyActivityAPI.useGetWeeklyActivitiesQuery(
+    useMemo(() => ({ params: {} }), [])
+  );
+
+  const columns = useMemo<ColumnDef<WeeklyActivityResultsData>[]>(
     () => [
-      {
-        header: "Project Name",
-        accessorKey: "name",
-        size: 300,
-      },
-      {
-        header: "Project Partners",
-        accessorKey: "partners",
-        size: 200,
-      },
       {
         header: "Objectives",
         accessorKey: "objectives",
-        size: 300,
+        size: 150,
+      },
+      {
+        header: "IR",
+        accessorKey: "ir",
+        size: 150,
       },
       {
         header: "Activity Code",
-        accessorKey: "code",
-        size: 200,
+        accessorKey: "activity_code",
+        size: 150,
       },
       {
         header: "Activity Description",
-        accessorKey: "description",
+        accessorKey: "activity_description",
         size: 400,
+      },
+      {
+        header: "Start Date",
+        accessorKey: "start_date",
+        size: 150,
+      },
+      {
+        header: "End Date",
+        accessorKey: "end_date",
+        size: 150,
+      },
+      {
+        header: "Responsible Person",
+        accessorKey: "responsible_person",
+        size: 200,
+      },
+      {
+        header: "Resources/Vehicle Required",
+        accessorKey: "resources_required",
+        size: 200,
+      },
+      {
+        header: "Memo Required",
+        accessorKey: "memo_required",
+        size: 150,
+      },
+      {
+        header: "EA Required",
+        accessorKey: "ea_required",
+        size: 150,
+      },
+      {
+        header: "Results Achieved",
+        accessorKey: "results_achieved",
+        size: 300,
+      },
+      {
+        header: "Follow Up Action",
+        accessorKey: "follow_up_action",
+        size: 200,
+      },
+      {
+        header: "Comments",
+        accessorKey: "comments",
+        size: 300,
       },
     ],
     []
@@ -132,7 +131,7 @@ const ActivityPlan = () => {
                 type: DialogType.ActivityUpload,
                 dialogProps: {
                   header: "Upload An Activity",
-                  width: "max-w-2xl",
+                  width: "max-w-lg",
                 },
               })
             );
@@ -158,7 +157,11 @@ const ActivityPlan = () => {
           </Button>
         </div>
 
-        <DataTable data={data} columns={columns} isLoading={false} />
+        <DataTable
+          data={data?.results || []}
+          columns={columns}
+          isLoading={isLoading}
+        />
       </Card>
     </div>
   );

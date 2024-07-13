@@ -64,7 +64,7 @@ export const RouteEnum = {
   RFQ_VENDOR: "/procurement-management/rfq-vendor",
 
   EOI: "/procurement-management/vendor-management/eoi",
-  EOI_VIEW: "/procurement-management/vendor-management/eoi/view",
+  EOI_VIEW: "/procurement-management/vendor-management/eoi/:id",
   EOI_VENDOR: "/procurement-management/vendor-management/eoi-vendor",
   VENDOR_MANAGEMENT:
     "/procurement-management/vendor-management/prequalification",
@@ -87,7 +87,8 @@ export const RouteEnum = {
   SUPPLIER_DATABASE: "/procurement-management/supplier-database",
   //program routes
   PROGRAM_WORK_PLAN: "/program/plan/work-plan",
-  PROGRAM_WORK_PLAN_DETAILS: "/program/plan/work-plan/:id",
+  PROGRAM_WORK_PLAN_DETAILS:
+    "/program/plan/work-plan/:partner_id/:project_id/:financial_year",
   PROGRAM_ACTIVITY: "/program/plan/activity",
   PROGRAM_RISK_MANAGEMENT: "/program/plan/risk-management-plan",
   PROGRAM_RISK_MANAGEMENT_CREATE:
@@ -99,19 +100,7 @@ export const RouteEnum = {
   PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS_APPROVAL:
     "/program/plan/supportive-supervision-plan/:id/approval-status",
   PROGRAM_SUPPORTIVE_SUPERVISION_MANAGEMENT:
-    "/program/plan/supportive-supervision-plan/:id/core-management-systems",
-  PROGRAM_SUPPORTIVE_SUPERVISION_GUIDELINE:
-    "/program/plan/supportive-supervision-plan/:id/guideline",
-  PROGRAM_SUPPORTIVE_SUPERVISION_MONITORING:
-    "/program/plan/supportive-supervision-plan/:id/monitoring-and-evaluation",
-  PROGRAM_SUPPORTIVE_SUPERVISION_ASSESS:
-    "/program/plan/supportive-supervision-plan/:id/assess-monthly",
-  PROGRAM_SUPPORTIVE_SUPERVISION_TX_NEW:
-    "/program/plan/supportive-supervision-plan/:id/tx-new",
-  PROGRAM_SUPPORTIVE_SUPERVISION_SERVICE_DELIVERY:
-    "/program/plan/supportive-supervision-plan/:id/service-delivery",
-  PROGRAM_SUPPORTIVE_SUPERVISION_PREVENTION:
-    "/program/plan/supportive-supervision-plan/:id/prevention",
+    "/program/plan/supportive-supervision-plan/:id/evaluation",
 
   PROGRAM_SUPPORTIVE_SUPERVISION_COMPOSITION:
     "/program/plan/supportive-supervision-plan/create/facility&team-composition",
@@ -155,8 +144,11 @@ export const RouteEnum = {
 
   TRAINING: "/program/training-and-procurement",
   PROGRAM_PAYMENT_REQUEST: "/program/payment-request",
+
+  // users
   USERS: "/users",
   CREATE_USERS: "/users/create",
+  AUTHORIZATION: "/authorization",
 
   // PROGRAM_OVERVIEW: "/program/overview",
   // PROGRAM_OVERVIEW: "/program/overview",

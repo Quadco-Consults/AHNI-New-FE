@@ -28,10 +28,10 @@ const CreateUsers = () => {
     try {
       await createUser(data).unwrap();
       toast.success("User Created Succesfully");
+      form.reset();
     } catch (error: any) {
       toast.error(error.data.message || "Something went wrong");
     }
-    console.log(data);
   };
   return (
     <div>
@@ -68,8 +68,22 @@ const CreateUsers = () => {
                   />
                   <FormInput label="Designation" name="designation" required />
                 </div>
+                <div className="grid grid-cols-2 gap-x-7">
+                  <FormInput
+                    label="Password"
+                    name="password"
+                    required
+                    type="password"
+                  />
+                  <FormInput
+                    label="Confirm Password"
+                    name="confirm_password"
+                    required
+                    type="password"
+                  />
+                </div>
                 <div className="flex justify-end">
-                  <FormButton loading={isLoading}>Update</FormButton>
+                  <FormButton loading={isLoading}>Create</FormButton>
                 </div>
               </form>
             </Form>

@@ -14,15 +14,22 @@ import { cn } from "lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "components/ui/avatar";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AuthRoutes } from "constants/RouterConstants";
+import { useAppDispatch } from "hooks/useStore";
+import { logOut } from "store/auth/authSlice";
 
 const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
   const { setTheme } = useTheme();
   const location = useLocation();
   const pageTitle = getPageTitle(location.pathname);
 
+  const navigate = useNavigate();
+
+  const dispatch = useAppDispatch();
+
   const logoutHandler = () => {
-    localStorage.removeItem("persist:ahni");
-    window.location.reload();
+    dispatch(logOut());
+    navigate(AuthRoutes.LOGIN);
+    sessionStorage.removeItem("persist:ahni");
   };
 
   return (

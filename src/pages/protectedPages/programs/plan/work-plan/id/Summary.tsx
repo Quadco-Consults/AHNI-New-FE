@@ -1,18 +1,19 @@
 import { Badge } from "components/ui/badge";
+import { WorkPlanDetails } from "definations/program-types/program-workplan";
 
-const Summary = () => {
+const Summary = (data: WorkPlanDetails) => {
   return (
     <div className="space-y-10">
       <div className="space-y-3">
         <h3 className="font-semibold text-lg">Project Name</h3>
 
-        <p className="text-sm text-gray-500">
-          Accelerating Control of the HIV Epidemic in Nigeria (ACE 5 AKS & CRS)
-        </p>
+        <p className="text-sm text-gray-500">{data?.project?.title}</p>
 
         <h3 className="font-semibold text-lg">Budget</h3>
 
-        <p className="text-sm text-gray-500">$2,000,000</p>
+        <p className="text-sm text-gray-500">
+          ${data?.project?.budget.toLocaleString()}
+        </p>
       </div>
 
       <hr />
@@ -23,17 +24,21 @@ const Summary = () => {
         </h3>
 
         <div className="space-y-5">
-          {[
-            "To Increase   resiliency, responsiveness, and accountability of the health system ",
-            "To Improve the   Quality of HIV/AIDS and TB Services ",
-            "To Improve the   Quality of HIV/AIDS and TB Services ",
-          ].map((option: string, index: number) => (
-            <div key={index} className="flex gap-5">
-              <h3 className="font-semibold">{index + 1}</h3>
-              <div className="space-y-3">
-                <h3 className="font-semibold">Objective</h3>
-                <h3 className="text-sm text-gray-500">{option}</h3>
-              </div>
+          {data?.project?.project_objectives?.map((obj: any) => (
+            <div key={obj?.id} className="space-y-2">
+              <p className="text-sm text-gray-500">{obj?.title}</p>
+
+              <p className="font-semibold text-sm">Project Sub-Objectives</p>
+              <ul className="space-y-2">
+                {obj.sub_objectives?.map((obj: any) => (
+                  <li
+                    key={obj?.id}
+                    className="text-sm text-gray-500 list-disc pl-5"
+                  >
+                    {obj?.title}
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>
@@ -43,18 +48,22 @@ const Summary = () => {
 
       <div className="space-y-3">
         <h3 className="font-semibold text-lg">Financial Year</h3>
-        <h6 className="text-sm text-gray-500">10/2022 - 09/2023</h6>
+        {data?.workplans?.map((workplan: any) => (
+          <h6 key={workplan.id} className="text-sm text-gray-500">
+            {workplan.financial_year}
+          </h6>
+        ))}
 
         <h3 className="font-semibold text-lg">Project Location</h3>
         <div className="flex flex-wrap gap-3">
-          {["Kaduna", "FCT", "Jigawa", "Lagos"].map(
-            (option: string, index: number) => (
+          {data?.project?.project_partners?.map(
+            (option: any, index: number) => (
               <Badge
                 variant="default"
                 key={index}
                 className="bg-[#EBE8E1] text-[#1a0000ad] px-4 py-2 rounded-lg"
               >
-                {option}
+                {option?.location?.name}
               </Badge>
             )
           )}
@@ -62,21 +71,21 @@ const Summary = () => {
 
         <h3 className="font-semibold text-lg">Project Partners</h3>
         <div className="flex flex-wrap gap-3">
-          {[
-            "Family Health International (FHI 360)",
-            "The American University of Nigeria-AUN",
-            "Ekklesiyar ‘Yan uwa a Nigeria (EYN)",
-            "Federation of Muslim Associations of Nigeria (FOMWAN)",
-            "Next Generation Empowerment Initiative (NextGen)",
-          ].map((option: string, index: number) => (
-            <Badge
-              variant="default"
-              key={index}
-              className="bg-[#EBE8E1] text-[#1a0000ad] px-4 py-2 rounded-lg"
-            >
-              {option}
-            </Badge>
-          ))}
+          {data?.project?.project_partners?.map(
+            (option: any, index: number) => (
+              <div key={index}>
+                {option?.partners.map((partner: any) => (
+                  <Badge
+                    variant="default"
+                    key={partner?.id}
+                    className="bg-[#EBE8E1] text-[#1a0000ad] px-4 py-2 rounded-lg"
+                  >
+                    {partner?.name}
+                  </Badge>
+                ))}
+              </div>
+            )
+          )}
         </div>
       </div>
     </div>

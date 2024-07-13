@@ -34,10 +34,7 @@ export interface ProjectsResultsData {
   ];
   project_partners: [
     {
-      location: {
-        id: string;
-        name: string;
-      };
+      location: string;
       partners: [
         {
           id: string;
@@ -88,10 +85,6 @@ export interface ProjectsData {
 }
 
 export interface ProjectsResponse {
-  message: string;
-  data: ProjectsData;
-}
-export interface ProjectsCreateResponse {
   message: string;
   data: ProjectsResultsData;
 }

@@ -18,5 +18,5 @@ export interface ProjectObjectiveData {
 
 export interface ProjectObjectiveResponse {
   message: string;
-  data: ProjectObjectiveData;
+  data: ProjectObjectiveResultsData;
 }

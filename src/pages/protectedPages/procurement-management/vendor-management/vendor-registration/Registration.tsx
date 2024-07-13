@@ -11,6 +11,7 @@ import { Button } from "components/ui/button";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType, largeDailogScreen } from "constants/dailogs";
+import FormTextArea from "atoms/FormTextArea";
 
 const Registration = () => {
   const form = useForm();
@@ -39,11 +40,11 @@ const Registration = () => {
         <h2 className="text-lg font-bold">Vendor Registration</h2>
         <div className="mt-10">
           <Form {...form}>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <div className="grid grid-cols-3 gap-6">
-                <FormInput name="companyName" label="Company Name" required />
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <FormInput name="companyName" label="Company Name" required />
+              <div className="grid grid-cols-2 gap-6">
                 <FormSelect name="test" label="Type of Business" required />
-                <FormSelect
+                <FormInput
                   name="incoperationYear"
                   label="Year of incorporation"
                   required
@@ -67,10 +68,30 @@ const Registration = () => {
                     required
                   />
                   <FormInput
-                    name="password"
-                    label="Create Password"
+                    name="phone_number"
+                    label="Phone Number"
                     required
-                    type="password"
+                    type="number"
+                  />
+                </div>
+              </div>
+              <div className="space-y-4">
+                <FormInput label="Nature of Business" name="natureOfBusiness" />
+                <FormTextArea label="Company Address" name="company addree" />
+                <div className="grid grid-cols-2 gap-x-6">
+                  <FormInput
+                    label="Company Chairman/Managing Director"
+                    name="managinDirector"
+                  />
+                  <FormInput label="Contact Telephone" name="contactTel" />
+                </div>
+                <div className="grid grid-cols-2 gap-4 ">
+                  <FormInput label="Company's Bankers" name="cb" />
+                  <FormInput label="Company's Bankers Address" name="baadd" />
+                  <FormInput label="Number of permanent staff" name="permst" />
+                  <FormInput
+                    label="Company's Tax Identification Number (TIN)"
+                    name="t"
                   />
                 </div>
               </div>
@@ -95,7 +116,10 @@ const Registration = () => {
                 </Button>
               </div>
               <div className="flex justify-between mt-16">
-                <Button type="button" className="bg-[#FFF2F2] text-primary ">
+                <Button
+                  type="button"
+                  className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                >
                   Cancel
                 </Button>
                 {/* <Button className="bg-primary">

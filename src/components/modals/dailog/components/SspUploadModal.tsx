@@ -7,7 +7,10 @@ const SspUploadModal = () => {
       <FileUpload />
 
       <div className="flex justify-between gap-5 mt-16">
-        <Button type="button" className="bg-[#FFF2F2] text-primary ">
+        <Button
+          type="button"
+          className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+        >
           Cancel
         </Button>
         <Button>Done</Button>

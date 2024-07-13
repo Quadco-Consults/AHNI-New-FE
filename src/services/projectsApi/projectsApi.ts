@@ -3,7 +3,6 @@
 import { invalidateTags, provideTags } from "utils/QueryUtils";
 import baseAPI from "..";
 import {
-  ProjectsCreateResponse,
   ProjectsData,
   ProjectsResponse,
   ProjectsResultsData,
@@ -13,17 +12,28 @@ const BASE_URL = "/projects/projects/";
 
 const projectsAPi = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getProjects: builder.query<ProjectsData, { params: {} }>({
-      query: () => {
+    getProjects: builder.query<ProjectsData, {}>({
+      query: (config) => {
         return {
           url: `${BASE_URL}`,
+          ...config,
+        };
+      },
+      providesTags: (data, error) =>
+        !error ? provideTags("PROJECTS", data) : [],
+    }),
+    getProjectsParams: builder.query<ProjectsResultsData[], {}>({
+      query: (config) => {
+        return {
+          url: `${BASE_URL}`,
+          ...config,
         };
       },
       providesTags: (data, error) =>
         !error ? provideTags("PROJECTS", data) : [],
     }),
 
-    createProject: builder.mutation<ProjectsCreateResponse, any>({
+    createProject: builder.mutation<ProjectsResponse, any>({
       query: (body) => ({
         url: `${BASE_URL}`,
         method: "POST",
@@ -69,16 +79,14 @@ const projectsAPi = baseAPI.injectEndpoints({
         !error ? invalidateTags("PROJECTS", { ids: [path.id] }) : [],
     }),
 
-    deleteProject: builder.mutation<ProjectsResponse, { path: { id: string } }>(
-      {
-        query: ({ path }) => ({
-          url: `${BASE_URL}${path.id}/`,
-          method: "DELETE",
-        }),
-        invalidatesTags: (_, error, { path }) =>
-          !error ? invalidateTags("PROJECTS", { ids: [path.id] }) : [],
-      }
-    ),
+    deleteProject: builder.mutation<void, { path: { id: string } }>({
+      query: ({ path }) => ({
+        url: `${BASE_URL}${path.id}/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (_, error, { path }) =>
+        !error ? invalidateTags("PROJECTS", { ids: [path.id] }) : [],
+    }),
   }),
 });
 
