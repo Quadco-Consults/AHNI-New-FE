@@ -2,61 +2,73 @@ import { Form } from "components/ui/form";
 import VendorRegistationLayout from "./VendorRegistationLayout";
 import { useFieldArray, useForm } from "react-hook-form";
 import FormInput from "atoms/FormInput";
-import FormTextArea from "atoms/FormTextArea";
 import { Separator } from "components/ui/separator";
 import { Label } from "components/ui/label";
 import { ArrowLeft, ArrowRight, MinusCircle, PlusCircle } from "lucide-react";
 import FormButton from "atoms/FormButton";
 import { useLocation, useNavigate } from "react-router-dom";
-import FormSelect from "atoms/FormSelect";
+import FormSelect from "atoms/FormSelectField";
+import { VendorsCompanySchema } from "definations/procurement-validator";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { SelectContent, SelectItem } from "components/ui/select";
+import { useDispatch } from "react-redux";
+import { vendorsActions } from "store/formData/procurement-vendors";
 
 const Company = () => {
-  const form = useForm({
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { pathname } = useLocation();
+
+  const form = useForm<z.infer<typeof VendorsCompanySchema>>({
+    resolver: zodResolver(VendorsCompanySchema),
     defaultValues: {
-      officeaddress: [{ branch: "", contact: "", tel: "" }],
-      stakeholder: [{ name: "", address: "", tel: "" }],
-      keystaff: [{ name: "", qualification: "", tel: "" }],
-      subsidiary: [{ name: "", address: "", tel: "" }],
+      branches: [{ name: "", address: "", phone_number: "" }],
+      share_holders: [{ name: "", address: "", phone_number: "" }],
+      key_staff: [
+        { name: "", address: "", qualification: "", phone_number: "" },
+      ],
+      associated_entities: [
+        { name: "", address: "", phone_number: "", entity_type: "" },
+      ],
     },
   });
-
-  const navigate = useNavigate();
-  const { pathname } = useLocation();
 
   const { control, handleSubmit } = form;
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "officeaddress",
+    name: "branches",
   });
 
   const {
-    fields: keystaff,
+    fields: key_staff,
     append: appendKeystaff,
     remove: removeKeystaff,
   } = useFieldArray({
     control,
-    name: "keystaff",
+    name: "key_staff",
   });
   const {
-    fields: stakeholders,
+    fields: share_holders,
     append: appendStakeholder,
     remove: removeStakeholder,
   } = useFieldArray({
     control,
-    name: "stakeholder",
+    name: "share_holders",
   });
 
   const {
-    fields: subsidiaries,
+    fields: associated_entities,
     append: appendSubsidiary,
     remove: removeSubsidiary,
   } = useFieldArray({
     control,
-    name: "stakeholder",
+    name: "associated_entities",
   });
 
-  const onSubmit = () => {
+  const onSubmit = (data: z.infer<typeof VendorsCompanySchema>) => {
+    dispatch(vendorsActions.addVendors(data));
     let path = pathname;
 
     path = path.substring(0, path.lastIndexOf("/"));
@@ -91,20 +103,20 @@ const Company = () => {
                           </p>
                           <FormInput
                             label="Name"
-                            name={`officeaddress[${index}].branch`}
-                            defaultValue={field.branch}
+                            name={`branches[${index}].name`}
+                            defaultValue={field.name}
                             required
                           />
                           <FormInput
                             label="Address"
-                            name={`officeaddress[${index}].contact`}
-                            defaultValue={field.contact}
+                            name={`branches[${index}].address`}
+                            defaultValue={field.address}
                             required
                           />
                           <FormInput
                             label="Phone Number"
-                            name={`officeaddress[${index}].tel`}
-                            defaultValue={field.tel}
+                            name={`branches[${index}].phone_number`}
+                            defaultValue={field.phone_number}
                             required
                           />
                         </div>
@@ -120,7 +132,7 @@ const Company = () => {
                   <div className="flex justify-end mt-2">
                     <PlusCircle
                       onClick={() =>
-                        append({ branch: "", contact: "", tel: "" })
+                        append({ name: "", address: "", phone_number: "" })
                       }
                       className="cursor-pointer text-primary"
                     />
@@ -133,7 +145,7 @@ const Company = () => {
                   Majority Shareholders & Directors{" "}
                 </Label>
                 <div>
-                  {stakeholders.map((field, index) => {
+                  {share_holders.map((field, index) => {
                     const label = String.fromCharCode(
                       "a".charCodeAt(0) + index
                     );
@@ -148,20 +160,20 @@ const Company = () => {
                           </p>
                           <FormInput
                             label="Name"
-                            name={`stakeholder[${index}].name`}
+                            name={`share_holders[${index}].name`}
                             defaultValue={field.name}
                             required
                           />
                           <FormInput
                             label="Address"
-                            name={`stakeholder[${index}].address`}
+                            name={`share_holders[${index}].address`}
                             defaultValue={field.address}
                             required
                           />
                           <FormInput
                             label="Phone Number"
-                            name={`stakeholder[${index}].tel`}
-                            defaultValue={field.tel}
+                            name={`share_holders[${index}].phone_number`}
+                            defaultValue={field.phone_number}
                             required
                           />
                         </div>
@@ -177,7 +189,11 @@ const Company = () => {
                   <div className="flex justify-end mt-2">
                     <PlusCircle
                       onClick={() =>
-                        appendStakeholder({ name: "", address: "", tel: "" })
+                        appendStakeholder({
+                          name: "",
+                          address: "",
+                          phone_number: "",
+                        })
                       }
                       className="cursor-pointer text-primary"
                     />
@@ -190,7 +206,7 @@ const Company = () => {
                   Names & Qualifications of Key Staff
                 </Label>
                 <div>
-                  {keystaff.map((field, index) => {
+                  {key_staff.map((field, index) => {
                     const label = String.fromCharCode(
                       "a".charCodeAt(0) + index
                     );
@@ -205,26 +221,26 @@ const Company = () => {
                           </p>
                           <FormInput
                             label="Name"
-                            name={`stakeholder[${index}].name`}
+                            name={`key_staff[${index}].name`}
                             defaultValue={field.name}
                             required
                           />
                           <FormInput
                             label="Qualification"
-                            name={`stakeholder[${index}].qualification`}
+                            name={`key_staff[${index}].qualification`}
                             defaultValue={field.qualification}
                             required
                           />
                           <FormInput
                             label="Phone Number"
-                            name={`stakeholder[${index}].tel`}
-                            defaultValue={field.tel}
+                            name={`key_staff[${index}].address`}
+                            defaultValue={field.address}
                             required
                           />
                           <FormInput
                             label="Address"
-                            name={`stakeholder[${index}].tel`}
-                            defaultValue={field.tel}
+                            name={`key_staff[${index}].phone_number`}
+                            defaultValue={field.phone_number}
                             required
                           />
                         </div>
@@ -240,7 +256,12 @@ const Company = () => {
                   <div className="flex justify-end mt-2">
                     <PlusCircle
                       onClick={() =>
-                        appendKeystaff({ name: "", qualification: "", tel: "" })
+                        appendKeystaff({
+                          name: "",
+                          qualification: "",
+                          phone_number: "",
+                          address: "",
+                        })
                       }
                       className="cursor-pointer text-primary"
                     />
@@ -253,7 +274,7 @@ const Company = () => {
                   Subsidiaries, Associates, Affiliates or Technical Partners
                 </Label>
                 <div>
-                  {subsidiaries.map((field, index) => {
+                  {associated_entities.map((field, index) => {
                     const label = String.fromCharCode(
                       "a".charCodeAt(0) + index
                     );
@@ -268,28 +289,41 @@ const Company = () => {
                           </p>
                           <FormInput
                             label="Name"
-                            name={`stakeholder[${index}].name`}
+                            name={`associated_entities[${index}].name`}
                             defaultValue={field.name}
                             required
                           />
                           <FormInput
                             label="Address"
-                            name={`stakeholder[${index}].address`}
+                            name={`associated_entities[${index}].address`}
                             defaultValue={field.address}
                             required
                           />
                           <FormInput
                             label="Phone Number"
-                            name={`stakeholder[${index}].tel`}
-                            defaultValue={field.tel}
+                            name={`associated_entities[${index}].phone_number`}
+                            defaultValue={field.phone_number}
                             required
                           />
                           <FormSelect
                             label="Association Type"
-                            name={`stakeholder[${index}].tel`}
-                            defaultValue={field.tel}
+                            name={`associated_entities[${index}].entity_type`}
+                            defaultValue={field.entity_type}
                             required
-                          />
+                          >
+                            <SelectContent>
+                              {[
+                                "Subsidiary",
+                                "Associate",
+                                "Affiliate",
+                                "Technical Partner",
+                              ].map((value: string, index: number) => (
+                                <SelectItem key={index} value={value}>
+                                  {value}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </FormSelect>
                         </div>
                         <div className="flex items-center h-full ">
                           <MinusCircle
@@ -303,14 +337,19 @@ const Company = () => {
                   <div className="flex justify-end mt-2">
                     <PlusCircle
                       onClick={() =>
-                        appendSubsidiary({ name: "", address: "", tel: "" })
+                        appendSubsidiary({
+                          name: "",
+                          address: "",
+                          phone_number: "",
+                          entity_type: "",
+                        })
                       }
                       className="cursor-pointer text-primary"
                     />
                   </div>
                 </div>
               </div>
-              <div className="flex justify-between pt-24">
+              <div className="flex justify-between pt-5">
                 <FormButton
                   onClick={() => navigate(-1)}
                   preffix={<ArrowLeft size={14} />}

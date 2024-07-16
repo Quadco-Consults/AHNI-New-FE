@@ -1,21 +1,23 @@
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
 import { Checkbox } from "components/ui/checkbox";
-import { RouteEnum } from "constants/RouterConstants";
 import { ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const StartPrequalification = () => {
+  const navigate = useNavigate();
   return (
     <div className="space-y-5">
-      <Link to={RouteEnum.VENDOR_MANAGEMENT_DETAILS}>
-        <Button variant="outline" className="gap-2 text-primary border-primary">
-          <span>
-            <ArrowLeft size={15} />
-          </span>
-          View Vendor info
-        </Button>
-      </Link>
+      <Button
+        onClick={() => navigate(-1)}
+        variant="outline"
+        className="gap-2 text-primary border-primary"
+      >
+        <span>
+          <ArrowLeft size={15} />
+        </span>
+        View Vendor info
+      </Button>
 
       <div className="bg-white border shadow-sm rounded-2xl dark:bg-[hsl(15,13%,6%)]">
         <div className="p-5 ">
