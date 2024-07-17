@@ -111,3 +111,14 @@ export const WeeklyActivitySchema = z.object({
   comments: z.string(),
   project: z.string(),
 });
+
+export const StakeholderManagementSchema = z.object({
+  stakeholder_name: z.string().min(1, "Field is required"),
+  institution_organization: z.string().min(1, "Field is required"),
+  physical_office_address: z.string().min(1, "Field is required"),
+  state: z.string().min(1, "Field is required"),
+  gender: z.string().min(1, "Field is required"),
+  designation: z.string().min(1, "Field is required"),
+  phone_number: z.string().min(1, "Field is required"),
+  email: z.string().email().min(1, "Field is required"),
+});
