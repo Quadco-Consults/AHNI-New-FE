@@ -268,6 +268,70 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
             >
               SETTINGS
             </h4>
+
+            {/* modules */}
+            <div>
+              <li className="text-sm list-none hover:text-amber-400 hover:cursor-pointer px-4">
+                <div
+                  onClick={() => {
+                    setShowSubMenu(!showSubMenu);
+                  }}
+                  className={cn(
+                    "flex items-center justify-start gap-2",
+                    location.pathname.startsWith("/modules") &&
+                      " text-amber-400 "
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "bg-black hover:bg-amber-400 aspect-square w-2 truncate rounded-full border",
+                      location.pathname.startsWith(
+                        "/modules"
+                      ) && " bg-amber-400 border-amber-400 hover:bg-amber-400"
+                    )}
+                  ></span>
+                  <h6 className="py-2">Modules</h6>
+                </div>
+              </li>
+            </div>
+            <motion.ul
+              animate={
+                showSubMenu
+                  ? {
+                      height: "fit-content",
+                    }
+                  : {
+                      height: 0,
+                    }
+              }
+              className="h-0 overflow-hidden text-sm"
+            >
+              {MODULE_LINKS.map((link: any) => (
+                <NavLink
+                  key={link.name}
+                  to={link.path}
+                  className={({ isActive }) => {
+                    return isActive ? "text-amber-400" : "";
+                  }}
+                >
+                  <li
+                    className={cn(
+                      "hover:text-amber-400 flex items-center justify-start gap-2 text-sm px-6",
+                      location.pathname.startsWith(link.path) && " text-amber-400 "
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "bg-black hover:bg-amber-400 aspect-square w-2 rounded-full border",
+                        location.pathname.startsWith(link.path) && " bg-amber-400 border-amber-400 hover:bg-amber-400"
+                      )}
+                    ></span>
+                    <h6 className="py-2">{link.name}</h6>
+                  </li>
+                </NavLink>
+              ))}
+            </motion.ul>
+
             <div>
               <NavLink
                 to={RouteEnum.USERS}
@@ -336,6 +400,17 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
 };
 
 export default Sidebar;
+
+const MODULE_LINKS = [
+  {
+    name: "projects",
+    path: RouteEnum.MODULES_PROJECTS,
+  },
+  {
+    name: "programs",
+    path: RouteEnum.MODULES_PROGRAMS,
+  },
+];
 
 const DEPARTMENTAL_LINKS = [
   {
