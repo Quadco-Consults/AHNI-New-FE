@@ -30,7 +30,7 @@ const SupervisionCriteria = () => {
         </Dialog>
       </div>
       <div>
-        <div className="flex justify-between text-[#756D6D] font-semibold text-sm mb-10">
+        <div className="flex justify-between text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4">
           <h1>Name</h1>
           <h1>Description</h1>
           <h1></h1>
