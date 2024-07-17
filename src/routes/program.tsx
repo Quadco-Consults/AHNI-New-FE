@@ -143,6 +143,15 @@ export const program = [
     ),
   },
   {
+    path: RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER_EDIT,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/programs/stakeholder-management/register/edit-register"
+        )
+    ),
+  },
+  {
     path: RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER_DETAILS,
     element: lazy(
       () =>
