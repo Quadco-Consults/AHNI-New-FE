@@ -12,7 +12,7 @@ import { RouteEnum } from "constants/RouterConstants";
 import { StakeholderManagementSchema } from "definations/program-validator";
 import { PartnerResultsData } from "definations/project-types/partners";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import StateAPI from "services/configs/state";
 import StakeholderManagementAPI from "services/programsApi/stakeholder-management";
 import partnersAPi from "services/projectsApi/partnersApi";
@@ -21,21 +21,31 @@ import { z } from "zod";
 import {
   Breadcrumb,
   BreadcrumbItem,
+  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
+import { useEffect } from "react";
 
-const CreateRegister = () => {
+const EditRegister = () => {
   const navigate = useNavigate();
+  const goBack = () => {
+    navigate(-1);
+  };
+  const { id } = useParams();
 
+  const { data, isLoading: mgtLoading } =
+    StakeholderManagementAPI.useGetStakeholderManagementQuery({
+      path: { id: id as string },
+    });
   const stateResultQuery = StateAPI.useGetStatesQuery();
   const states = stateResultQuery?.data;
   const partnerResultQuery = partnersAPi.useGetPartnersQuery({});
   const partners = partnerResultQuery?.data?.results;
-  const [createStakeholderManagementMutation, { isLoading }] =
-    StakeholderManagementAPI.useCreateStakeholderManagementMutation();
+  const [updateStakeholderManagementMutation, { isLoading }] =
+    StakeholderManagementAPI.useModifyStakeholderManagementMutation();
 
   const form = useForm<z.infer<typeof StakeholderManagementSchema>>({
     resolver: zodResolver(StakeholderManagementSchema),
@@ -51,11 +61,20 @@ const CreateRegister = () => {
     },
   });
 
-  const { handleSubmit } = form;
+  const { handleSubmit, setValue } = form;
 
-  const goBack = () => {
-    navigate(-1);
-  };
+  useEffect(() => {
+    if (data) {
+      setValue("stakeholder_name", data?.stakeholder_name),
+        setValue("institution_organization", data?.institution_organization),
+        setValue("physical_office_address", data?.physical_office_address),
+        setValue("state", data?.state),
+        setValue("gender", data?.gender),
+        setValue("designation", data?.designation),
+        setValue("phone_number", data?.phone_number),
+        setValue("email", data?.email);
+    }
+  }, [data]);
 
   const onSubmit = async (
     data: z.infer<typeof StakeholderManagementSchema>
@@ -63,8 +82,11 @@ const CreateRegister = () => {
     console.log(data);
 
     try {
-      await createStakeholderManagementMutation(data).unwrap();
-      toast.success("Stakeholder successfully created.");
+      await updateStakeholderManagementMutation({
+        path: { id: id as string },
+        body: data,
+      }).unwrap();
+      toast.success("Stakeholder successfully updated.");
       navigate(RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER);
     } catch (error) {
       toast.error("Something went wrong");
@@ -95,7 +117,7 @@ const CreateRegister = () => {
             <Icon icon="iconoir:slash" />
           </BreadcrumbSeparator>
           <BreadcrumbItem>
-            <BreadcrumbPage>Create</BreadcrumbPage>
+            <BreadcrumbPage>Edit</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -109,6 +131,7 @@ const CreateRegister = () => {
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Card className="space-y-10 p-10">
+            {mgtLoading && <LoadingSpinner />}
             <FormInput
               name="stakeholder_name"
               label="Stakeholder Name"
@@ -188,4 +211,4 @@ const CreateRegister = () => {
   );
 };
 
-export default CreateRegister;
+export default EditRegister;
