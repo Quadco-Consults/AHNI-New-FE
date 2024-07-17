@@ -114,72 +114,76 @@ export const SUPERVISION_EVALUATION_CRITERIA = [
     },
   ];
 
-export const CONSORTIUM_PARTNERS = [
+export const FACILITY = [
   {
-    logo: "../../../../public/imgs/fhi-logo.png",
-    name: "Family Health International(FHI 360)",
-    address: "Jigawa",
-    city: "Jigawa",
-    state: "Jigawa",
-    phone: "+2348030689530",
-    email: `rogerdokidis@gm\nail.com`,
-    website: "acebay.com",
-    icon: "../../../../public/imgs/module.png",
+    facilityName: "Drake House Heaven",
+    contactPerson: "Dr. Umar Adamu",
+    position: "Managing Director, AHNI",
+    phoneNumber: "+2348024013326",
+    state: "Lagos",
+    lga: "Surulere",
+    icon: "../../../../public/imgs/arrow-right.png"
   },
   {
-    logo: "../../../../public/imgs/fhi-logo.png",
-    name: "Family Health International (FHI 360)",
-    address: "Jigawa",
-    city: "Jigawa",
-    state: "Jigawa",
-    phone: "+2348030689530",
-    email: "rogerdokidis@gm\nail.com",
-    website: "acebay.com",
-    icon: "../../../../public/imgs/module.png",
+    facilityName: "Drake House Heaven",
+    contactPerson: "Dr. Umar Adamu",
+    position: "Managing Director, AHNI",
+    phoneNumber: "+2348024013326",
+    state: "Lagos",
+    lga: "Surulere",
+    icon: "../../../../public/imgs/arrow-right.png"
   },
   {
-    logo: "../../../../public/imgs/fhi-logo.png",
-    name: "Family Health International (FHI 360)",
-    address: "Jigawa",
-    city: "Jigawa",
-    state: "Jigawa",
-    phone: "+2348030689530",
-    email: "rogerdokidis@gm\nail.com",
-    website: "acebay.com",
-    icon: "../../../../public/imgs/module.png",
+    facilityName: "Drake House Heaven",
+    contactPerson: "Dr. Umar Adamu",
+    position: "Managing Director, AHNI",
+    phoneNumber: "+2348024013326",
+    state: "Lagos",
+    lga: "Surulere",
+    icon: "../../../../public/imgs/arrow-right.png"
   },
   {
-    logo: "../../../../public/imgs/fhi-logo.png",
-    name: "Family Health International (FHI 360)",
-    address: "Jigawa",
-    city: "Jigawa",
-    state: "Jigawa",
-    phone: "+2348030689530",
-    email: "rogerdokidis@gm\nail.com",
-    website: "acebay.com",
-    icon: "../../../../public/imgs/module.png",
-  },
+    facilityName: "Drake House Heaven",
+    contactPerson: "Dr. Umar Adamu",
+    position: "Managing Director, AHNI",
+    phoneNumber: "+2348024013326",
+    state: "Lagos",
+    lga: "Surulere",
+    icon: "../../../../public/imgs/arrow-right.png"
+  }
 ];
 
-export const DOCUMENT_TYPE = [
+export const RISK_CATEGORY = [
   {
-    name: "Family Health International(FHI 360)",
-    description: "Jigawa",
-    icon: "../../../../public/imgs/module.png",
+    name: "Roger Dokidis",
+    gender: "Male",
+    designation: "Medical Director",
+    phone: "09075364587",
+    email: "rogerdokidis@gmail.com",
+    icon: "../../../../public/imgs/module.png"
   },
   {
-    name: "Family Health International(FHI 360)",
-    description: "Jigawa",
-    icon: "../../../../public/imgs/module.png",
+    name: "Roger Dokidis",
+    gender: "Male",
+    designation: "Medical Director",
+    phone: "09075364587",
+    email: "rogerdokidis@gmail.com",
+    icon: "../../../../public/imgs/module.png"
   },
   {
-    name: "Family Health International(FHI 360)",
-    description: "Jigawa",
-    icon: "../../../../public/imgs/module.png",
+    name: "Roger Dokidis",
+    gender: "Male",
+    designation: "Medical Director",
+    phone: "09075364587",
+    email: "rogerdokidis@gmail.com",
+    icon: "../../../../public/imgs/module.png"
   },
   {
-    name: "Family Health International(FHI 360)",
-    description: "Jigawa",
-    icon: "../../../../public/imgs/module.png",
-  },
+    name: "Roger Dokidis",
+    gender: "Male",
+    designation: "Medical Director",
+    phone: "09075364587",
+    email: "rogerdokidis@gmail.com",
+    icon: "../../../../public/imgs/module.png"
+  }
 ];

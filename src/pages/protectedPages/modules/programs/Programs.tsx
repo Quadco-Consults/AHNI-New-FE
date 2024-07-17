@@ -3,6 +3,8 @@ import { Tabs, TabsList, TabsTrigger } from "components/ui/tabs";
 import { Card } from "components/ui/card";
 import SupervisionCategory from "./SupervisionCategory";
 import SupervisionCriteria from "./SupervisionCriteria";
+import Facility from "./Facility";
+import RiskCategory from "./RiskCategory";
 
 const Programs = () => {
   return (
@@ -30,10 +32,14 @@ const Programs = () => {
             </Card>
           </TabsContent>
           <TabsContent value="facility">
-            <Card className="mt-10 pb-8 px-6">Facility</Card>
+            <Card className="mt-10 pb-8 px-6">
+            <Facility />
+            </Card>
           </TabsContent>
           <TabsContent value="risk">
-            <Card className="mt-10 pb-8 px-6">Risk Category</Card>
+            <Card className="mt-10 pb-8 px-6">
+              <RiskCategory />
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
