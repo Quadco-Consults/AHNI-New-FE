@@ -31,7 +31,7 @@ const formSchema = z.object({
   contactPhone: z.string(),
 });
 
-const AddProjects = () => {
+const AddFacility = () => {
   const [addMore, setAddMore] = useState(false);
   const navigate = useNavigate()
 
@@ -124,4 +124,4 @@ const AddProjects = () => {
   );
 };
 
-export default AddProjects;
+export default AddFacility;
