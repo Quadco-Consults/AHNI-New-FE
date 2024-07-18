@@ -21,6 +21,7 @@ const usersAPi = baseAPI.injectEndpoints({
         url: "/auth/permissions/",
         params,
       }),
+      providesTags: ["Permission"],
     }),
     createUser: builder.mutation<TUser, TCreateUser>({
       query: (body) => ({
@@ -67,6 +68,22 @@ const usersAPi = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["Users"],
     }),
+    addPermissionToRole: builder.mutation<
+      any,
+      {
+        id: string;
+        body: {
+          items: string[];
+        };
+      }
+    >({
+      query: ({ id, body }) => ({
+        url: `/auth/roles/${id}/assign_permission/`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Permission"],
+    }),
   }),
 });
 
@@ -77,4 +94,6 @@ export const {
   useUpdateUserMutation,
   useAddUserRoleMutation,
   usePermissionsQuery,
+  useLazyPermissionsQuery,
+  useAddPermissionToRoleMutation,
 } = usersAPi;
