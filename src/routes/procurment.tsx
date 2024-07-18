@@ -208,7 +208,7 @@ export const procurment = [
     element: lazy(
       () =>
         import(
-          "pages/protectedPages/procurement-management/vendor-management/Prequalification"
+          "pages/protectedPages/procurement-management/vendor-management/prequalification"
         )
     ),
   },
@@ -271,7 +271,7 @@ export const procurment = [
     element: lazy(
       () =>
         import(
-          "pages/protectedPages/procurement-management/vendor-management/Prequalification-details"
+          "pages/protectedPages/procurement-management/vendor-management/prequalification/id"
         )
     ),
   },
@@ -280,7 +280,7 @@ export const procurment = [
     element: lazy(
       () =>
         import(
-          "pages/protectedPages/procurement-management/vendor-management/Start-prequalification"
+          "pages/protectedPages/procurement-management/vendor-management/prequalification/id/Start-prequalification"
         )
     ),
   },
