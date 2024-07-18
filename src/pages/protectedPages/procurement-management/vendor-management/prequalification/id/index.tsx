@@ -12,7 +12,6 @@ import { VendorsResultsData } from "definations/procurement-types/vendors";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
@@ -41,9 +40,7 @@ const PrequalificationDetails = () => {
             <Icon icon="iconoir:slash" />
           </BreadcrumbSeparator>
           <BreadcrumbItem>
-            <BreadcrumbLink href={RouteEnum.VENDOR_MANAGEMENT}>
-              Prequalification
-            </BreadcrumbLink>
+            <BreadcrumbItem>Prequalification</BreadcrumbItem>
           </BreadcrumbItem>
           <BreadcrumbSeparator>
             <Icon icon="iconoir:slash" />
@@ -58,7 +55,7 @@ const PrequalificationDetails = () => {
 
         <Link
           to={generatePath(RouteEnum.VENDOR_MANAGEMENT_START_PREQUALIFICATION, {
-            id: "1",
+            id: id,
           })}
         >
           <Button>Start Prequalification</Button>
