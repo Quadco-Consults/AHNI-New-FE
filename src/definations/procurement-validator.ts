@@ -31,11 +31,14 @@ export const LotsSchema = z.object({
 export const VendorsRegistrationSchema = z.object({
   company_name: z.string().min(1, "Field is required"),
   company_registration_number: z.string().min(1, "Field is required"),
-  year_or_incorperation: z.string().min(1, "Field is required"),
+  year_or_incorperation: z
+    .string()
+    .min(1, "Field is required")
+    .max(4, "Max length of four characters"),
   type_of_business: z.string().min(1, "Field is required"),
   nature_of_business: z.string().min(1, "Field is required"),
   company_address: z.string().min(1, "Field is required"),
-  email: z.string().min(1, "Field is required"),
+  email: z.string().email().min(1, "Field is required"),
   website: z.string().min(1, "Field is required"),
   phone_numbers: z.string().min(1, "Field is required"),
   tin: z.string().min(1, "Field is required"),
@@ -102,12 +105,6 @@ export const VendorsQuestionnaireSchema = z.object({
       phone_number: z.string().min(1, "Field is required"),
     })
   ),
-  // questionairs: z.array(
-  //   z.object({
-  //     questionair: z.string().min(1, "Field is required"),
-  //     response: z.string().min(1, "Field is required"),
-  //   })
-  // ),
 });
 
 export const VendorsSchema = z.object({
