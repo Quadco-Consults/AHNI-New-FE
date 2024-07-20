@@ -34,13 +34,13 @@ export interface VendorPrequalificationResponse {
 
 export const VendorPrequalificationSchema = z.object({
   vendor: z.string(),
-  financial_year: z.string(),
-  prequalifications: z.array(
-    z.object({
-      score: z.boolean(),
-      remark: z.string(),
-      criteria: z.string(),
-    })
-  ),
+  // financial_year: z.string(),
+  // prequalifications: z.array(
+  //   z.object({
+  //     score: z.boolean(),
+  //     remark: z.string(),
+  //     criteria: z.string(),
+  //   })
+  // ),
   approved_categories: z.array(z.string()),
 });
