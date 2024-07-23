@@ -3,31 +3,29 @@
 import { invalidateTags, provideTags } from "utils/QueryUtils";
 import baseAPI from "..";
 import { z } from "zod";
-import {
-  StakeholderManagementSchema,
-  StakeholderMappingSchema,
-} from "definations/program-validator";
+import { StakeholderManagementSchema } from "definations/program-validator";
 import {
   StakeholderManagementData,
   StakeholderManagementResponse,
   StakeholderManagementResultsData,
 } from "definations/program-types/stakeholder-management";
 
-const BASE_URL = "/programs/stakeholder-mgt/";
+const BASE_URL = "/programs/stakeholders/";
 
-const StakeholderManagementAPI = baseAPI.injectEndpoints({
+const StakeholderAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getStakeholderManagements: builder.query<StakeholderManagementData, {}>({
-      query: () => {
+    getStakeholders: builder.query<StakeholderManagementData, {}>({
+      query: (config) => {
         return {
           url: `${BASE_URL}`,
+          ...config,
         };
       },
       providesTags: (data, error) =>
-        !error ? provideTags("STAKEHOLDER_MANAGEMENT", data) : [],
+        !error ? provideTags("STAKEHOLDER", data) : [],
     }),
 
-    getStakeholderManagement: builder.query<
+    getStakeholder: builder.query<
       StakeholderManagementResultsData,
       { path: { id: string } }
     >({
@@ -37,10 +35,10 @@ const StakeholderManagementAPI = baseAPI.injectEndpoints({
         };
       },
       providesTags: (data, error) =>
-        !error ? provideTags("STAKEHOLDER_MANAGEMENT", data) : [],
+        !error ? provideTags("STAKEHOLDER", data) : [],
     }),
 
-    createStakeholderManagement: builder.mutation<
+    createStakeholder: builder.mutation<
       StakeholderManagementResponse,
       z.infer<typeof StakeholderManagementSchema>
     >({
@@ -50,23 +48,10 @@ const StakeholderManagementAPI = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, {}) =>
-        !error ? invalidateTags("STAKEHOLDER_MANAGEMENT") : [],
+        !error ? invalidateTags("STAKEHOLDER") : [],
     }),
 
-    createStakeholderMapping: builder.mutation<
-      StakeholderManagementResponse,
-      z.infer<typeof StakeholderMappingSchema>
-    >({
-      query: (body) => ({
-        url: `${BASE_URL}project-mapping/`,
-        method: "POST",
-        body,
-      }),
-      invalidatesTags: (_, error, {}) =>
-        !error ? invalidateTags("STAKEHOLDER_MANAGEMENT") : [],
-    }),
-
-    updateStakeholderManagement: builder.mutation<
+    updateStakeholder: builder.mutation<
       StakeholderManagementResponse,
       { path: { id: string }; body: any }
     >({
@@ -76,12 +61,10 @@ const StakeholderManagementAPI = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error
-          ? invalidateTags("STAKEHOLDER_MANAGEMENT", { ids: [path.id] })
-          : [],
+        !error ? invalidateTags("STAKEHOLDER", { ids: [path.id] }) : [],
     }),
 
-    modifyStakeholderManagement: builder.mutation<
+    modifyStakeholder: builder.mutation<
       StakeholderManagementResponse,
       { path: { id: string }; body: any }
     >({
@@ -91,25 +74,18 @@ const StakeholderManagementAPI = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error
-          ? invalidateTags("STAKEHOLDER_MANAGEMENT", { ids: [path.id] })
-          : [],
+        !error ? invalidateTags("STAKEHOLDER", { ids: [path.id] }) : [],
     }),
 
-    deleteStakeholderManagement: builder.mutation<
-      void,
-      { path: { id: string } }
-    >({
+    deleteStakeholder: builder.mutation<void, { path: { id: string } }>({
       query: ({ path }) => ({
         url: `${BASE_URL}${path.id}/`,
         method: "DELETE",
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error
-          ? invalidateTags("STAKEHOLDER_MANAGEMENT", { ids: [path.id] })
-          : [],
+        !error ? invalidateTags("STAKEHOLDER", { ids: [path.id] }) : [],
     }),
   }),
 });
 
-export default StakeholderManagementAPI;
+export default StakeholderAPI;
