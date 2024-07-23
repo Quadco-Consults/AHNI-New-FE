@@ -47,6 +47,14 @@ const CreateAnalysis = () => {
   const [matchedStakeholdersData, setMatchedStakeholdersData] = useState<
     StakeholderManagementResultsData[]
   >([]);
+  const form = useForm<z.infer<typeof StakeholderMappingSchema>>({
+    resolver: zodResolver(StakeholderMappingSchema),
+    defaultValues: {
+      submitted_stakeholders: [],
+    },
+  });
+
+  const { handleSubmit, watch, control, setValue } = form;
 
   const navigate = useNavigate();
   const goBack = () => {
@@ -67,35 +75,27 @@ const CreateAnalysis = () => {
   const stakeholders = stakeholderQueryResult?.data?.results;
   const states = stateQueryResult?.data;
 
-  const data = matchedStakeholdersData.map(() => ({
-    project_role: "",
-    importance: "",
-    major_concerns: "",
-    influence: "",
-    score: "",
-    relationship_owner: "",
-  }));
-  console.log(data);
-
-  const form = useForm<z.infer<typeof StakeholderMappingSchema>>({
-    resolver: zodResolver(StakeholderMappingSchema),
-    defaultValues: {
-      stakeholders: data,
-      submitted_stakeholders: [],
-    },
-  });
-
-  const { handleSubmit, watch, control, setValue } = form;
+  const data = useMemo(() => {
+    return matchedStakeholdersData.map(() => ({
+      project_role: "",
+      importance: "",
+      major_concerns: "",
+      influence: "",
+      score: "",
+      relationship_owner: "",
+    }));
+  }, [matchedStakeholdersData]);
 
   useEffect(() => {
-    setValue("stakeholders", data);
-  }, []);
+    if (data) {
+      setValue("stakeholders", data);
+    }
+  }, [data, setValue]);
 
   const { fields } = useFieldArray({
     control,
     name: "stakeholders",
   });
-  console.log(watch("stakeholders"));
 
   useEffect(() => {
     const matchedStakeholders =
@@ -110,7 +110,7 @@ const CreateAnalysis = () => {
   };
 
   return (
-    <div className="space-y-6 min-h-screen">
+    <div className="min-h-screen space-y-6">
       <button
         onClick={goBack}
         className="w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center"
@@ -120,7 +120,7 @@ const CreateAnalysis = () => {
 
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <Card className="space-y-10 p-10">
+          <Card className="p-10 space-y-10">
             <div className="flex flex-col mt-10 space-y-3">
               <Label className="font-semibold">
                 {matchedStakeholdersData.length} Stakeholders selected for this
@@ -150,7 +150,7 @@ const CreateAnalysis = () => {
                         </p>
                       </div>
 
-                      <div className="grid text-xs grid-cols-2 gap-3">
+                      <div className="grid grid-cols-2 gap-3 text-xs">
                         <div>
                           <h4 className="font-semibold">Gender:</h4>
                           <p>{matchedStakeholdersData[index]?.gender}</p>
@@ -161,7 +161,7 @@ const CreateAnalysis = () => {
                         </div>
                       </div>
 
-                      <div className="grid text-xs grid-cols-2 gap-3">
+                      <div className="grid grid-cols-2 gap-3 text-xs">
                         <div>
                           <h4 className="font-semibold">Phone Number:</h4>
                           <p>{matchedStakeholdersData[index]?.phone_number}</p>
@@ -247,7 +247,7 @@ const CreateAnalysis = () => {
                         control={form.control}
                         name="submitted_stakeholders"
                         render={() => (
-                          <FormItem className="grid grid-cols-2 gap-5 bg-gray-100 mt-10 p-5 rounded-lg shadow-inner md:grid-cols-3">
+                          <FormItem className="grid grid-cols-2 gap-5 p-5 mt-10 bg-gray-100 rounded-lg shadow-inner md:grid-cols-3">
                             {stakeholders?.map(
                               (
                                 stakeholder: StakeholderManagementResultsData
@@ -260,7 +260,7 @@ const CreateAnalysis = () => {
                                     return (
                                       <FormItem
                                         key={stakeholder.id}
-                                        className="space-y-3 bg-white rounded-lg text-xs p-5"
+                                        className="p-5 space-y-3 text-xs bg-white rounded-lg"
                                       >
                                         <div className="flex items-center gap-4">
                                           <FormControl>
@@ -299,7 +299,7 @@ const CreateAnalysis = () => {
                                           </p>
                                         </div>
 
-                                        <div className="grid text-xs grid-cols-2 gap-3">
+                                        <div className="grid grid-cols-2 gap-3 text-xs">
                                           <div>
                                             <h4 className="font-semibold">
                                               Gender:
@@ -314,7 +314,7 @@ const CreateAnalysis = () => {
                                           </div>
                                         </div>
 
-                                        <div className="grid text-xs grid-cols-2 gap-3">
+                                        <div className="grid grid-cols-2 gap-3 text-xs">
                                           <div>
                                             <h4 className="font-semibold">
                                               Phone Number:
@@ -341,13 +341,13 @@ const CreateAnalysis = () => {
                     )}
 
                     <div className="flex justify-end">
-                      <div className="flex gap-4 items-center">
+                      <div className="flex items-center gap-4">
                         <h6 className="text-primary">
                           {watch("submitted_stakeholders")?.length} categories
                           Selected
                         </h6>
                         <DialogClose>
-                          <div className="flex items-center bg-primary text-primary-foreground rounded-md text-sm font-medium h-11 px-4 py-3 hover:opacity-60">
+                          <div className="flex items-center px-4 py-3 text-sm font-medium rounded-md bg-primary text-primary-foreground h-11 hover:opacity-60">
                             Save & Continue
                           </div>
                         </DialogClose>
