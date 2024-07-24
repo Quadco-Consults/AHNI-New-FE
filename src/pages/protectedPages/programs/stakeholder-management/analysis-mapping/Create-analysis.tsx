@@ -1,7 +1,7 @@
 import { Label } from "components/ui/label";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import Card from "components/shared/Card";
-import DeleteIcon from "components/icons/DeleteIcon";
+// import DeleteIcon from "components/icons/DeleteIcon";
 import { RouteEnum } from "constants/RouterConstants";
 import {
   Form,
@@ -12,9 +12,9 @@ import {
 } from "components/ui/form";
 import { useFieldArray, useForm } from "react-hook-form";
 import FormInput from "atoms/FormInput";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import FormButton from "atoms/FormButton";
-import { Button } from "components/ui/button";
+// import { Button } from "components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -38,21 +38,28 @@ import {
   SelectValue,
 } from "components/ui/select";
 import StakeholderAPI from "services/programsApi/stakeholder";
-import { StakeholderManagementResultsData } from "definations/program-types/stakeholder-management";
 import StateAPI from "services/configs/state";
-import { StakeholderMappingSchema } from "definations/program-validator";
+import {
+  StakeholderMappingSchema,
+  StakeholderSchema,
+} from "definations/program-validator";
+import StakeholderManagementAPI from "services/programsApi/stakeholder-management";
+import { toast } from "sonner";
+import { StakeholderResultsData } from "definations/program-types/stakeholder";
 
 const CreateAnalysis = () => {
   const [stateSearchParams, setStateSearchParams] = useState("");
   const [matchedStakeholdersData, setMatchedStakeholdersData] = useState<
-    StakeholderManagementResultsData[]
+    StakeholderResultsData[]
   >([]);
-  const form = useForm<z.infer<typeof StakeholderMappingSchema>>({
-    resolver: zodResolver(StakeholderMappingSchema),
+
+  const form = useForm<z.infer<typeof StakeholderSchema>>({
+    resolver: zodResolver(StakeholderSchema),
     defaultValues: {
       submitted_stakeholders: [],
     },
   });
+  const { id } = useParams();
 
   const { handleSubmit, watch, control, setValue } = form;
 
@@ -71,18 +78,23 @@ const CreateAnalysis = () => {
       [stateSearchParams]
     )
   );
+  const [createStakeholderMappingMutation, { isLoading }] =
+    StakeholderManagementAPI.useCreateStakeholderMappingMutation();
+
   const stateQueryResult = StateAPI.useGetStatesQuery();
   const stakeholders = stakeholderQueryResult?.data?.results;
   const states = stateQueryResult?.data;
 
   const data = useMemo(() => {
-    return matchedStakeholdersData.map(() => ({
+    return matchedStakeholdersData.map((data) => ({
       project_role: "",
       importance: "",
       major_concerns: "",
       influence: "",
       score: "",
       relationship_owner: "",
+      project: id || "",
+      stake_holder: data?.id,
     }));
   }, [matchedStakeholdersData]);
 
@@ -96,17 +108,29 @@ const CreateAnalysis = () => {
     control,
     name: "stakeholders",
   });
+  console.log(watch("stakeholders"));
 
   useEffect(() => {
     const matchedStakeholders =
-      stakeholders?.filter((stakeholder: StakeholderManagementResultsData) =>
+      stakeholders?.filter((stakeholder: StakeholderResultsData) =>
         watch("submitted_stakeholders").includes(stakeholder?.id)
       ) || [];
     setMatchedStakeholdersData(matchedStakeholders);
   }, [watch("submitted_stakeholders")]);
 
-  const onSubmit = () => {
-    navigate(RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS);
+  const onSubmit = async (data: z.infer<typeof StakeholderMappingSchema>) => {
+    const formData = {
+      stakeholders: data.stakeholders,
+    };
+
+    try {
+      await createStakeholderMappingMutation(formData).unwrap();
+      toast.success("Stakeholder successfully created.");
+      navigate(RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS);
+    } catch (error) {
+      toast.error("Something went wrong");
+      console.log(error);
+    }
   };
 
   return (
@@ -178,14 +202,26 @@ const CreateAnalysis = () => {
                         name={`stakeholders.${index}.project_role`}
                       />
 
-                      <FormInput name="importance" label="Importance" />
-                      <FormInput name="score" label="score" />
-                      <FormInput name="major_concerns" label="Major Concerns" />
                       <FormInput
-                        name="relationship_owner"
+                        name={`stakeholders.${index}.importance`}
+                        label="Importance"
+                      />
+                      <FormInput
+                        name={`stakeholders.${index}.score`}
+                        label="score"
+                      />
+                      <FormInput
+                        name={`stakeholders.${index}.major_concerns`}
+                        label="Major Concerns"
+                      />
+                      <FormInput
+                        name={`stakeholders.${index}.relationship_owner`}
                         label="Relationship Owner"
                       />
-                      <FormInput name="influence" label="Influence" />
+                      <FormInput
+                        name={`stakeholders.${index}.influence`}
+                        label="Influence"
+                      />
                       {/* <div>
                           <Button className="flex gap-2 mt-3 py-6 bg-[#FFF2F2] text-red-500">
                             <DeleteIcon />
@@ -249,9 +285,7 @@ const CreateAnalysis = () => {
                         render={() => (
                           <FormItem className="grid grid-cols-2 gap-5 p-5 mt-10 bg-gray-100 rounded-lg shadow-inner md:grid-cols-3">
                             {stakeholders?.map(
-                              (
-                                stakeholder: StakeholderManagementResultsData
-                              ) => (
+                              (stakeholder: StakeholderResultsData) => (
                                 <FormField
                                   key={stakeholder?.id}
                                   control={form.control}
@@ -368,7 +402,9 @@ const CreateAnalysis = () => {
               Cancel
             </FormButton>
 
-            <FormButton>Create</FormButton>
+            <FormButton loading={isLoading} disabled={isLoading}>
+              Create
+            </FormButton>
           </div>
         </form>
       </Form>

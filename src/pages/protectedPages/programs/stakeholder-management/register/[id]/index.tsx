@@ -28,39 +28,41 @@ const RegisterDetails = () => {
 
       <Card className="space-y-6">
         {isLoading && <LoadingSpinner />}
-        <h4 className="font-semibold">{data?.stakeholder_name}</h4>
+        <h4 className="font-semibold">
+          {data?.stake_holder?.stakeholder_name}
+        </h4>
         <p className="font-extralight">ACEBAY</p>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
             <h4 className="font-semibold">Institution/Organization:</h4>
-            <p>{data?.institution_organization}</p>
+            <p>{data?.stake_holder?.institution_organization}</p>
           </div>
           <div>
             <h4 className="font-semibold">Physical Office Address:</h4>
-            <p>{data?.physical_office_address}</p>
+            <p>{data?.stake_holder?.physical_office_address}</p>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
             <h4 className="font-semibold">State:</h4>
-            <p>{data?.state}</p>
+            <p>{data?.stake_holder?.state}</p>
           </div>
           <div>
             <h4 className="font-semibold">Designation:</h4>
-            <p>{data?.designation}</p>
+            <p>{data?.stake_holder?.designation}</p>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
             <h4 className="font-semibold">Phone Number:</h4>
-            <p>{data?.phone_number}</p>
+            <p>{data?.stake_holder?.phone_number}</p>
           </div>
           <div>
             <h4 className="font-semibold">E-mail:</h4>
-            <p>{data?.email}</p>
+            <p>{data?.stake_holder?.email}</p>
           </div>
         </div>
       </Card>
