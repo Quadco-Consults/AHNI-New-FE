@@ -6,9 +6,12 @@ import {
   DialogTrigger,
   DialogTitle,
 } from "components/ui/dialog";
-import { SUPERVISION_EVALUATION_CATEGORY } from "./list";
+import { useSupervisionCategoryQuery } from "services/module-programs";
 
 const SupervisionCategory = () => {
+  const {data} = useSupervisionCategoryQuery({
+    no_paginate: false
+  })
   return (
     <div>
       <div className="flex justify-between items-center py-6 mb-6">
@@ -32,20 +35,25 @@ const SupervisionCategory = () => {
       <div>
         <div className="flex justify-between text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4">
           <h1>Name</h1>
-          <h1>Description</h1>
+          <h1 className="ml-[8rem]">Description</h1>
+          <h1 className="ml-[5rem]">Code</h1>
+          <h1>Serial Number</h1>
+          <h1>Job Category</h1>
           <h1></h1>
         </div>
         <div>
-          {SUPERVISION_EVALUATION_CATEGORY.map((table, index) => (
-            <div
-              key={index}
-              className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
-            >
-              <p>{table.name}</p>
-              <p>{table.description}</p>
-              <img src={table.icon} className="w-[20px]" alt="" />
-            </div>
-          ))}
+          {
+            data?.map((item) => (
+              <div key={item.id} className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs">
+                <p className="w-[20%]">{item.name}</p>
+                <p className="w-[25%]">{item.description}</p>
+                <p className="w-[15%]">{item.code}</p>
+                <p className="w-[5%]">{item.serial_number}</p>
+                <p  className="w-[5%]">{item.job_category}</p>
+                <img src="../../../../public/imgs/module.png" className="w-[20px] object-contain" alt="" />
+              </div>
+            ))
+          }
         </div>
       </div>
     </div>

@@ -6,9 +6,13 @@ import {
   DialogTrigger,
   DialogTitle,
 } from "components/ui/dialog";
-import { FUNDING_SOURCE } from "./list";
+import { useFundingSourcesQuery } from "services/moduleProjects";
 
 const FundingList = () => {
+  const { data } = useFundingSourcesQuery({
+    no_paginate: false,
+  });
+  
   return (
     <div>
       <div className="flex justify-between items-center py-6 mb-6">
@@ -36,16 +40,19 @@ const FundingList = () => {
           <h1></h1>
         </div>
         <div>
-          {FUNDING_SOURCE.map((table, index) => (
-            <div
-              key={index}
-              className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
-            >
-              <p>{table.name}</p>
-              <p>{table.description}</p>
-              <img src={table.icon} className="w-[20px]" alt="" />
-            </div>
-          ))}
+          {data?.results.map((item) => {
+            return (
+              <div key={item.id} className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs">
+                <div className="w-[53%] lg:w-[52%] flex justify-between ">
+                  <p>{item.name}</p>
+                  <p>{item.description}</p>
+                </div>
+                <div>
+                  <img src="../../../../public/imgs/module.png" className="w-[20px]" alt="" />
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

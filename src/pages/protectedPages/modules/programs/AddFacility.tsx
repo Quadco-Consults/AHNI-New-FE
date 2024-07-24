@@ -2,125 +2,76 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelect";
-import FormTextArea from "atoms/FormTextArea";
 import Card from "components/shared/Card";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
-import { z } from "zod";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {
+  useAddFacilitiesMutation,
+  useStatesQuery,
+} from "services/module-programs";
+import { TFacilities, facilitiesSchema } from "definations/module-programs";
 import { toast } from "sonner";
 
-const stateOptions = [
-  { label: "Abia", value: "Abia" },
-  { label: "Adamawa", value: "Adamawa" },
-  { label: "Akwa Ibom", value: "Akwa Ibom" },
-];
-
-const formSchema = z.object({
-  name: z.string(),
-  address: z.string(),
-  city: z.string(),
-  state: z.string(),
-  phone: z.string(),
-  email: z.string(),
-  website: z.string(),
-  contactName: z.string(),
-  position: z.string(),
-  contactPhone: z.string(),
-});
-
 const AddFacility = () => {
-  const [addMore, setAddMore] = useState(false);
-  const navigate = useNavigate()
+  const { data } = useStatesQuery({
+    no_paginate: false,
+  });
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const stateOptions = data?.map((state: string) => ({
+    label: state,
+    value: state,
+  }));
+
+  const form = useForm<TFacilities>({
+    resolver: zodResolver(facilitiesSchema),
     defaultValues: {
       name: "",
-      address: "",
-      city: "",
       state: "",
-      phone: "",
-      email: "",
-      website: "",
-      contactName: "",
-      position: "",
-      contactPhone: "",
+      local_govt: "",
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
-    if(addMore) {
-        form.reset()
+  const [facilities, { isLoading }] = useAddFacilitiesMutation();
+
+  const onSubmit: SubmitHandler<TFacilities> = async (data) => {
+    try {
+      await facilities(data).unwrap();
+      toast.success("Facility Added Succesfully");
+      form.reset();
+    } catch (error: any) {
+      toast.error(error.data.message || "Something went wrong");
     }
-    else {
-        navigate("/modules-projects")
-    }
-    toast.success("Project Added Succesfully");
   };
+
   return (
-    <div>
-      <div>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="bg-white rounded-[2rem] flex flex-col gap-y-10 pb-[5rem]"
+            className="bg-white rounded-[2rem] flex flex-col gap-y-10"
           >
-            <Card className="p-0 pt-4">
+            <Card className="pt-4">
               <CardContent className="w-100% flex flex-col gap-y-10 p-0">
                 <div className="grid grid-cols-1">
-                  <FormInput label="Name" name="name" required />
-                </div>
-                <div className="grid grid-cols-1">
-                  <FormTextArea name="address" label="Address" required />
+                  <FormInput label="Facility Name" name="name" required />
                 </div>
                 <div className="grid grid-cols-2 gap-x-7">
-                  <FormInput label="City" name="city" required />
                   <FormSelect
                     label="State"
                     name="state"
                     required
                     options={stateOptions}
                   />
+                  <FormInput label="LGA" name="local_govt" required />
                 </div>
-                <div className="grid grid-cols-2 gap-x-7">
-                  <FormInput
-                    label="phone"
-                    name="phone"
-                    required
-                    type="number"
-                  />
-                  <FormInput label="Email" name="email" required type="email" />
-                </div>
-                <div className="grid grid-cols-1">
-                  <FormInput label="Website" name="website" required />
+                <div className="flex justify-start gap-4">
+                  <FormButton loading={isLoading}>Save</FormButton>
+                  <FormButton>Save and Add New</FormButton>
                 </div>
               </CardContent>
             </Card>
-            <p className="text-[#FF0000] font-semibold text-sm">Contact Info</p>
-            <div className="grid grid-cols-1">
-              <FormInput label="Name" name="contactName" required />
-            </div>
-            <div className="grid grid-cols-2 gap-x-7">
-              <FormInput label="Position" name="position" required />
-              <FormInput
-                label="Phone"
-                name="contactPhone"
-                required
-                type="number"
-              />
-            </div>
-            <div className="flex justify-start gap-4">
-              <FormButton onClick={() => setAddMore(false)}>Save</FormButton>
-              <FormButton onClick={() => setAddMore(true)}>Save and Add New</FormButton>
-            </div>
           </form>
         </Form>
-      </div>
-    </div>
   );
 };
 
