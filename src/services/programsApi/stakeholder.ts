@@ -5,16 +5,16 @@ import baseAPI from "..";
 import { z } from "zod";
 import { StakeholderManagementSchema } from "definations/program-validator";
 import {
-  StakeholderManagementData,
-  StakeholderManagementResponse,
-  StakeholderManagementResultsData,
-} from "definations/program-types/stakeholder-management";
+  StakeholderData,
+  StakeholderResponse,
+  StakeholderResultsData,
+} from "definations/program-types/stakeholder";
 
 const BASE_URL = "/programs/stakeholders/";
 
 const StakeholderAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getStakeholders: builder.query<StakeholderManagementData, {}>({
+    getStakeholders: builder.query<StakeholderData, {}>({
       query: (config) => {
         return {
           url: `${BASE_URL}`,
@@ -26,7 +26,7 @@ const StakeholderAPI = baseAPI.injectEndpoints({
     }),
 
     getStakeholder: builder.query<
-      StakeholderManagementResultsData,
+      StakeholderResultsData,
       { path: { id: string } }
     >({
       query: ({ path }) => {
@@ -39,7 +39,7 @@ const StakeholderAPI = baseAPI.injectEndpoints({
     }),
 
     createStakeholder: builder.mutation<
-      StakeholderManagementResponse,
+      StakeholderResponse,
       z.infer<typeof StakeholderManagementSchema>
     >({
       query: (body) => ({
@@ -52,7 +52,7 @@ const StakeholderAPI = baseAPI.injectEndpoints({
     }),
 
     updateStakeholder: builder.mutation<
-      StakeholderManagementResponse,
+      StakeholderResponse,
       { path: { id: string }; body: any }
     >({
       query: ({ path, body }) => ({
@@ -65,7 +65,7 @@ const StakeholderAPI = baseAPI.injectEndpoints({
     }),
 
     modifyStakeholder: builder.mutation<
-      StakeholderManagementResponse,
+      StakeholderResponse,
       { path: { id: string }; body: any }
     >({
       query: ({ path, body }) => ({

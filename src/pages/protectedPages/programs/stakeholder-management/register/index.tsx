@@ -13,7 +13,6 @@ import DeleteIcon from "components/icons/DeleteIcon";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import StakeholderManagementAPI from "services/programsApi/stakeholder-management";
-import { StakeholderManagementResultsData } from "definations/program-types/stakeholder-management";
 import { toast } from "sonner";
 import {
   Breadcrumb,
@@ -23,40 +22,47 @@ import {
   BreadcrumbSeparator,
 } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
+import { StakeholderManagementProps } from "definations/program-types/stakeholder-management";
 
 const Register = () => {
   const { data, isLoading } =
     StakeholderManagementAPI.useGetStakeholderManagementsQuery({});
 
-  const columns: ColumnDef<StakeholderManagementResultsData>[] = [
+  const columns: ColumnDef<StakeholderManagementProps>[] = [
     {
       header: "Project Name",
-      accessorKey: "stakeholder_name",
+      id: "stakeholder_name",
+      accessorFn: (data) => `${data.stake_holder.stakeholder_name}`,
       size: 200,
     },
     {
       header: "Physical Office Address",
-      accessorKey: "physical_office_address",
+      id: "physical_office_address",
+      accessorFn: (data) => `${data.stake_holder.physical_office_address}`,
       size: 200,
     },
     {
       header: "Institution/Organization",
-      accessorKey: "institution_organization",
+      id: "institution_organization",
+      accessorFn: (data) => `${data.stake_holder.institution_organization}`,
       size: 200,
     },
     {
       header: "State",
-      accessorKey: "state",
+      id: "state",
+      accessorFn: (data) => `${data.stake_holder.state}`,
       size: 200,
     },
     {
       header: "Phone Number",
-      accessorKey: "phone_number",
+      id: "phone_number",
+      accessorFn: (data) => `${data.stake_holder.phone_number}`,
       size: 200,
     },
     {
       header: "E-Mail",
-      accessorKey: "email",
+      id: "email",
+      accessorFn: (data) => `${data.stake_holder.email}`,
       size: 200,
     },
     {

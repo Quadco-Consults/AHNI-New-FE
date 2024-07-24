@@ -136,5 +136,20 @@ export const StakeholderMappingSchema = z.object({
       stake_holder: z.string().min(1, "Field is required"),
     })
   ),
+});
+
+export const StakeholderSchema = z.object({
+  stakeholders: z.array(
+    z.object({
+      project_role: z.string().min(1, "Field is required"),
+      importance: z.string().min(1, "Field is required"),
+      major_concerns: z.string().min(1, "Field is required"),
+      influence: z.string().min(1, "Field is required"),
+      score: z.string().min(1, "Field is required"),
+      relationship_owner: z.string().min(1, "Field is required"),
+      project: z.string().min(1, "Field is required"),
+      stake_holder: z.string().min(1, "Field is required"),
+    })
+  ),
   submitted_stakeholders: z.array(z.string().min(1, "Field is required")),
 });
