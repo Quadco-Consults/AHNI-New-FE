@@ -118,7 +118,7 @@ export const RouteEnum = {
   PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS_DETAILS:
     "/program/stakeholder-management/analysis&mapping/:id",
   PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS_CREATE:
-    "/program/stakeholder-management/analysis&mapping/create-analysis",
+    "/program/stakeholder-management/analysis&mapping/create-analysis/:id",
   PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER:
     "/program/stakeholder-management/stakeholder-register",
   PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER_CREATE:

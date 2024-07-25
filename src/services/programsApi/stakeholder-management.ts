@@ -3,14 +3,18 @@
 import { invalidateTags, provideTags } from "utils/QueryUtils";
 import baseAPI from "..";
 import { z } from "zod";
-import { StakeholderManagementSchema } from "definations/program-validator";
+import {
+  StakeholderManagementSchema,
+  StakeholderMappingSchema,
+} from "definations/program-validator";
 import {
   StakeholderManagementData,
+  StakeholderManagementProps,
   StakeholderManagementResponse,
-  StakeholderManagementResultsData,
+  StakeholderMgtProjectsData,
 } from "definations/program-types/stakeholder-management";
 
-const BASE_URL = "/programs/stakeholder-mgt/";
+const BASE_URL = "/programs/stakeholder-mgts/";
 
 const StakeholderManagementAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
@@ -24,8 +28,18 @@ const StakeholderManagementAPI = baseAPI.injectEndpoints({
         !error ? provideTags("STAKEHOLDER_MANAGEMENT", data) : [],
     }),
 
+    getStakeholderMgtProjects: builder.query<StakeholderMgtProjectsData[], {}>({
+      query: () => {
+        return {
+          url: `${BASE_URL}project-stakeholders/`,
+        };
+      },
+      providesTags: (data, error) =>
+        !error ? provideTags("STAKEHOLDER_MANAGEMENT", data) : [],
+    }),
+
     getStakeholderManagement: builder.query<
-      StakeholderManagementResultsData,
+      StakeholderManagementProps,
       { path: { id: string } }
     >({
       query: ({ path }) => {
@@ -43,6 +57,19 @@ const StakeholderManagementAPI = baseAPI.injectEndpoints({
     >({
       query: (body) => ({
         url: `${BASE_URL}`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: (_, error, {}) =>
+        !error ? invalidateTags("STAKEHOLDER_MANAGEMENT") : [],
+    }),
+
+    createStakeholderMapping: builder.mutation<
+      StakeholderManagementResponse,
+      z.infer<typeof StakeholderMappingSchema>
+    >({
+      query: (body) => ({
+        url: `${BASE_URL}project-mapping/`,
         method: "POST",
         body,
       }),

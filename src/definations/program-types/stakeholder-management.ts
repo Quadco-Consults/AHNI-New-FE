@@ -1,15 +1,26 @@
-export interface StakeholderManagementResultsData {
+import { StakeholderResultsData } from "./stakeholder";
+
+export interface StakeholderMgtProjectsData {
+  id: string;
+  project_id: string;
+  title: string;
+  start_date: string;
+  end_date: string;
+  locations: string[];
+}
+
+export interface StakeholderManagementProps {
   id: string;
   created_at: string;
   updated_at: string;
-  stakeholder_name: string;
-  institution_organization: string;
-  physical_office_address: string;
-  state: string;
-  gender: string;
-  designation: string;
-  phone_number: string;
-  email: string;
+  project_role: string;
+  importance: string;
+  major_concerns: string;
+  influence: string;
+  score: string;
+  relationship_owner: string;
+  stake_holder: StakeholderResultsData;
+  project: StakeholderMgtProjectsData;
 }
 
 export interface StakeholderManagementData {
@@ -17,10 +28,10 @@ export interface StakeholderManagementData {
   next: string;
   number_of_pages: number;
   previous: string;
-  results: StakeholderManagementResultsData[];
+  results: StakeholderManagementProps[];
 }
 
 export interface StakeholderManagementResponse {
   message: string;
-  data: StakeholderManagementResultsData;
+  data: StakeholderManagementProps;
 }
