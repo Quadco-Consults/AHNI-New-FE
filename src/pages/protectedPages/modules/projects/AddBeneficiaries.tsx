@@ -4,27 +4,31 @@ import FormInput from "atoms/FormInput";
 import Card from "components/shared/Card";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
-import { z } from "zod";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { useAddBeneficiariesMutation } from "services/moduleProjects";
+import { TBeneficiaries, beneficiariesSchema } from "definations/module-projects";
 import { toast } from "sonner";
 
-const formSchema = z.object({
-  name: z.string(),
-  description: z.string(),
-});
 
-const AddTargetPopulation = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+const AddBeneficiaries = () => {
+
+  const form = useForm<TBeneficiaries>({
+    resolver: zodResolver(beneficiariesSchema),
     defaultValues: {
       name: "",
       description: "",
-    },
+    }
   });
+  const [beneficiary, { isLoading }] = useAddBeneficiariesMutation();
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
-    toast.success("Project Added Succesfully");
+  const onSubmit: SubmitHandler<TBeneficiaries> = async (data) => {
+    try {
+      await beneficiary(data).unwrap();
+      toast.success("Beneficiary Added Succesfully");
+      form.reset();
+    } catch (error: any) {
+      toast.error(error.data.message || "Something went wrong");
+    }
   };
 
   return (
@@ -43,8 +47,8 @@ const AddTargetPopulation = () => {
               <FormInput label="Description" name="description" required />
             </div>
             <div className="flex justify-start gap-4">
-              <FormButton>Save</FormButton>
-              <FormButton>Save and Add New</FormButton>
+              <FormButton loading={isLoading}>Save</FormButton>
+              <FormButton loading={isLoading}>Save and Add New</FormButton>
             </div>
           </form>
         </Form>
@@ -53,4 +57,4 @@ const AddTargetPopulation = () => {
   );
 };
 
-export default AddTargetPopulation;
+export default AddBeneficiaries;
