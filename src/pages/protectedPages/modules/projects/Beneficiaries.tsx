@@ -1,22 +1,23 @@
 import { Button } from "components/ui/button";
-import AddRiskCategory from "./AddRiskCategory";
+import { Card } from "components/ui/card";
+import AddBeneficiaries from "./AddBeneficiaries";
 import {
   Dialog,
   DialogContent,
   DialogTrigger,
   DialogTitle,
 } from "components/ui/dialog";
-import { useRiskCategoryQuery } from "services/module-programs";
+import { useBeneficiariesQuery } from "services/moduleProjects";
 
-const RiskCategory = () => {
-  const { data } = useRiskCategoryQuery({
+const Beneficiaries = () => {
+  const { data } = useBeneficiariesQuery({
     no_paginate: false,
   });
-  console.log(data);
+
   return (
-    <div>
+    <Card className="mt-10 pb-8 px-6">
       <div className="flex justify-between items-center py-6 mb-6">
-        <h1 className="text-[#D92D20] font-semibold text-sm">Team Members</h1>
+        <h1 className="text-[#D92D20] font-semibold text-sm">Beneficiaries</h1>
         <Dialog>
           <DialogTrigger asChild>
             <Button
@@ -28,8 +29,8 @@ const RiskCategory = () => {
             </Button>
           </DialogTrigger>
           <DialogContent className="">
-            <DialogTitle>Add Risk Category</DialogTitle>
-            <AddRiskCategory />
+            <DialogTitle>Beneficiaries</DialogTitle>
+            <AddBeneficiaries />
           </DialogContent>
         </Dialog>
       </div>
@@ -41,10 +42,7 @@ const RiskCategory = () => {
         </div>
         <div>
           {data?.results.map((item) => (
-            <div
-              key={item.id}
-              className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
-            >
+            <div key={item.id} className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs">
               <div className="w-[53%] lg:w-[52%] flex justify-between">
                 <p>{item.name}</p>
                 <p>{item.description}</p>
@@ -52,7 +50,7 @@ const RiskCategory = () => {
               <div>
                 <img
                   src="../../../../public/imgs/module.png"
-                  className="w-[20px] object-contain"
+                  className="w-[20px]"
                   alt=""
                 />
               </div>
@@ -60,8 +58,8 @@ const RiskCategory = () => {
           ))}
         </div>
       </div>
-    </div>
+    </Card>
   );
 };
 
-export default RiskCategory;
+export default Beneficiaries;

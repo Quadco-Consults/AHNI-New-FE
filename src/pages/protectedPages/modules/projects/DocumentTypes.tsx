@@ -1,18 +1,22 @@
 import { Button } from "components/ui/button";
-import { DOCUMENT_TYPE } from "./list";
-import AddDocumentType from "./AddDocumentType";
+import AddDocumentTypes from "./AddDocumentTypes";
 import {
   Dialog,
   DialogContent,
   DialogTrigger,
   DialogTitle,
 } from "components/ui/dialog";
+import { useDocumentTypesQuery } from "services/moduleProjects";
 
-const DocumentType = () => {
+const DocumentTypes = () => {
+  const { data } = useDocumentTypesQuery({
+    no_paginate: false
+  })
+
   return (
     <div>
       <div className="flex justify-between items-center py-6 mb-6">
-        <h1 className="text-[#D92D20] font-semibold text-sm">Funding Source</h1>
+        <h1 className="text-[#D92D20] font-semibold text-sm">Document Types</h1>
         <Dialog>
           <DialogTrigger asChild>
             <Button
@@ -25,7 +29,7 @@ const DocumentType = () => {
           </DialogTrigger>
           <DialogContent className="">
             <DialogTitle>Document Type</DialogTitle>
-            <AddDocumentType />
+            <AddDocumentTypes />
           </DialogContent>
         </Dialog>
       </div>
@@ -36,20 +40,23 @@ const DocumentType = () => {
           <h1></h1>
         </div>
         <div>
-          {DOCUMENT_TYPE.map((table, index) => (
-            <div
-              key={index}
-              className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
-            >
-              <p>{table.name}</p>
-              <p className="ml-[-11rem]">{table.description}</p>
-              <img src={table.icon} className="w-[20px]" alt="" />
-            </div>
-          ))}
+          {
+            data?.results.map((item) => (
+              <div key={item.id} className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs">
+                <div className="w-[52%] flex justify-between">
+                  <p>{item.name}</p>
+                  <p>{item.description}</p>
+                </div>
+                <div>
+                  <img src="../../../../public/imgs/module.png" className="w-[20px]" alt="" />
+                </div>
+              </div>
+            ))
+          }
         </div>
       </div>
     </div>
   );
 };
 
-export default DocumentType;
+export default DocumentTypes;
