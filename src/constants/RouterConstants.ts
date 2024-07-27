@@ -108,8 +108,7 @@ export const RouteEnum = {
     "/program/plan/supportive-supervision-plan/create/evolution-checklist",
   PROGRAM_FUND_REQUEST: "/program/fund-request",
   PROGRAM_FUND_REQUEST_DETAILS: "/program/fund-request/:id",
-  PROGRAM_FUND_REQUEST_PROJECT_DETAIL:
-    "/program/fund-request/create/project-details",
+  PROGRAM_FUND_REQUEST_CREATE: "/program/fund-request/create/project-details",
   PROGRAM_FUND_REQUEST_FUND_SUMMARY:
     "/program/fund-request/create/fund-request-summary",
 

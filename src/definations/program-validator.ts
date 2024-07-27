@@ -56,6 +56,7 @@ export const SupportiveSupervisionSchema = z.object({
   evaluation_criteria: z.array(z.string()),
   team_members: z.array(z.string()),
 });
+
 export const SupportiveSupervisionResponseDataSchema = z.object({
   responses: z.array(
     z.object({
@@ -152,4 +153,19 @@ export const StakeholderSchema = z.object({
     })
   ),
   submitted_stakeholders: z.array(z.string().min(1, "Field is required")),
+});
+
+export const FundRequestDetailSchema = z.object({
+  project: z.string().min(1, "Field is required"),
+  partner: z.string().min(1, "Field is required"),
+  year: z
+    .string()
+    .min(4, "Field is required")
+    .max(4, "Four characters required"),
+  month: z
+    .string()
+    .min(2, "Field is required")
+    .max(2, "Two characters required"),
+  currency: z.string().min(1, "Field is required"),
+  type: z.string().min(1, "Field is required"),
 });
