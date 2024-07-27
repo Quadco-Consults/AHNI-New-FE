@@ -22,16 +22,20 @@ import {
 
 interface InputValues {
   description: string;
-  fund: string;
-  code: string;
+  amount: string;
+  comments: string;
+  unit_cost: string;
+  frequency: string;
 }
 
 const FundSummary: React.FC = () => {
   const [inputValues, setInputValues] = useState<InputValues[]>([
     {
       description: "",
-      fund: "",
-      code: "",
+      amount: "",
+      comments: "",
+      unit_cost: "",
+      frequency: "",
     },
   ]);
   console.log(inputValues);
@@ -55,8 +59,10 @@ const FundSummary: React.FC = () => {
       ...inputValues,
       {
         description: "",
-        fund: "",
-        code: "",
+        amount: "",
+        comments: "",
+        unit_cost: "",
+        frequency: "",
       },
     ];
     setInputValues(newInputValues);
@@ -67,7 +73,17 @@ const FundSummary: React.FC = () => {
   const { handleSubmit } = form;
 
   const onSubmit = () => {
-    sessionStorage.removeItem("fundRequestCompletedSteps");
+    const projectFundRequest = JSON.parse(
+      localStorage.getItem("projectFundRequest") as any
+    );
+
+    const formData = {
+      line_items: inputValues,
+      ...projectFundRequest,
+    };
+    console.log(formData);
+
+    // sessionStorage.removeItem("fundRequestCompletedSteps");
   };
 
   return (
@@ -78,12 +94,14 @@ const FundSummary: React.FC = () => {
             {/* <TableCaption>A list of your recent invoices.</TableCaption> */}
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[400px]">
+                <TableHead className="w-[300px]">
                   Description of Activity
                 </TableHead>
-                <TableHead>Fund Request for this period</TableHead>
-                <TableHead>Unique Identifier Code</TableHead>
-                <TableHead>Detailed Breakdown</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Unit Cost</TableHead>
+                <TableHead>Frequency</TableHead>
+                <TableHead className="w-[300px]">Comment</TableHead>
+                {/* <TableHead>Detailed Breakdown</TableHead> */}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -102,23 +120,42 @@ const FundSummary: React.FC = () => {
                   </TableCell>
                   <TableCell>
                     <Input
-                      id="fund"
-                      name="fund"
+                      id="amount"
+                      name="amount"
                       placeholder=""
-                      value={value.fund}
-                      onChange={(e) => handleInputChange(e, index, "fund")}
+                      value={value.amount}
+                      onChange={(e) => handleInputChange(e, index, "amount")}
                     />
                   </TableCell>
                   <TableCell>
                     <Input
-                      id="code"
-                      name="code"
+                      id="unit_cost"
+                      name="unit_cost"
                       placeholder=""
-                      value={value.code}
-                      onChange={(e) => handleInputChange(e, index, "code")}
+                      value={value.unit_cost}
+                      onChange={(e) => handleInputChange(e, index, "unit_cost")}
                     />
                   </TableCell>
-                  <TableCell className="flex justify-center max">
+                  <TableCell>
+                    <Input
+                      id="frequency"
+                      name="frequency"
+                      placeholder=""
+                      value={value.frequency}
+                      onChange={(e) => handleInputChange(e, index, "frequency")}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      id="comments"
+                      name="comments"
+                      placeholder=""
+                      value={value.comments}
+                      onChange={(e) => handleInputChange(e, index, "comments")}
+                    />
+                  </TableCell>
+
+                  {/* <TableCell className="flex justify-center max">
                     <Button
                       onClick={() => {
                         dispatch(
@@ -136,7 +173,7 @@ const FundSummary: React.FC = () => {
                     >
                       Add
                     </Button>
-                  </TableCell>
+                  </TableCell> */}
                 </TableRow>
               ))}
             </TableBody>
@@ -174,6 +211,7 @@ const FundSummary: React.FC = () => {
                 );
               }}
               suffix={<ArrowRight size={14} />}
+              type="submit"
             >
               Submit Request
             </FormButton>
