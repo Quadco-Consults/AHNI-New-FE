@@ -18,6 +18,8 @@ import { PartnerResultsData } from "definations/project-types/partners";
 import { z } from "zod";
 import { FundRequestDetailSchema } from "definations/program-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
+import FinancialAPI from "services/configs/financial-year";
+import { FinancialYearResultsData } from "definations/configs/financial-year";
 
 const CreateFundRequest = () => {
   const form = useForm<z.infer<typeof FundRequestDetailSchema>>({
@@ -29,6 +31,7 @@ const CreateFundRequest = () => {
       month: "",
       currency: "",
       type: "",
+      financial_year: "",
     },
   });
 
@@ -40,6 +43,10 @@ const CreateFundRequest = () => {
     projectsAPi.useGetProjectsQuery({});
   const { data: partners, isLoading: partnerIsLoading } =
     partnersAPi.useGetPartnersQuery({});
+  const { data: financialYear, isLoading: financialYearLoading } =
+    FinancialAPI.useGetFinancialYearsQuery({
+      params: { no_paginate: true },
+    });
 
   const { handleSubmit } = form;
 
@@ -50,6 +57,7 @@ const CreateFundRequest = () => {
       month_year: `${data.month}/${data.year}`,
       currency: data.currency,
       type: data.type,
+      financial_year: data.financial_year,
     };
 
     localStorage.setItem("projectFundRequest", JSON.stringify(formData));
@@ -143,6 +151,24 @@ const CreateFundRequest = () => {
                       {type}
                     </SelectItem>
                   ))}
+                </SelectContent>
+              </FormSelect>
+              <FormSelect
+                name="financial_year"
+                label="Financial Year"
+                placeholder="Select year"
+                required
+              >
+                <SelectContent>
+                  {financialYearLoading ? (
+                    <LoadingSpinner />
+                  ) : (
+                    financialYear?.map((value: FinancialYearResultsData) => (
+                      <SelectItem key={value?.id} value={value?.year}>
+                        {value?.year}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </FormSelect>
             </div>
