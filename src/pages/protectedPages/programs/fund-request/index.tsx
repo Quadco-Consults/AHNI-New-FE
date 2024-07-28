@@ -18,65 +18,44 @@ import DataTable from "components/Table/DataTable";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
-
-type WorkPlanData = {
-  projectTitle: string;
-  state: string;
-  projectID: string;
-  year: string;
-  projectStartDate: string;
-  projectEndDate: string;
-  status: string;
-};
-
-const data: WorkPlanData[] = Array(10).fill({
-  projectTitle: "ACEBAY",
-  state: "Lagos",
-  projectID: "1111.0004-ACE",
-  year: "02/2024",
-  projectStartDate: "10/04/2023",
-  projectEndDate: "10/04/2023",
-  status: "Pending",
-});
+import FundRequestAPI from "services/programsApi/fund-request";
+import { FundRequestResultsData } from "definations/program-types/fund-request";
 
 const FundRequest = () => {
   const dispatch = useAppDispatch();
 
-  const columns = useMemo<ColumnDef<WorkPlanData>[]>(
+  const { data, isLoading } = FundRequestAPI.useGetFundRequestByProjectQuery();
+
+  const columns = useMemo<ColumnDef<FundRequestResultsData>[]>(
     () => [
       {
         header: "Project Title",
-        accessorKey: "projectTitle",
-        size: 150,
-      },
-      {
-        header: "State",
-        accessorKey: "state",
+        accessorKey: "project__title",
         size: 150,
       },
       {
         header: "PROJECT ID",
-        accessorKey: "projectID",
+        accessorKey: "project_id",
         size: 200,
       },
       {
         header: "Month/Year",
-        accessorKey: "year",
+        accessorKey: "month_year",
         size: 150,
       },
       {
         header: "Project Start Date",
-        accessorKey: "projectStartDate",
+        accessorKey: "project__start_date",
         size: 200,
       },
       {
         header: "Project End Date",
-        accessorKey: "projectEndDate",
+        accessorKey: "project__end_date",
         size: 200,
       },
       {
         header: "Status",
-        accessorKey: "status",
+        accessorKey: "project__status",
         size: 150,
         cell: ({ getValue }) => {
           return (
@@ -84,10 +63,10 @@ const FundRequest = () => {
               variant="default"
               className={cn(
                 "p-1 rounded-lg",
-                getValue() === "Approved" && "bg-green-50 text-green-500",
-                getValue() === "Reject" && "bg-red-50 text-red-500",
-                getValue() === "Pending" && "bg-yellow-50 text-yellow-500",
-                getValue() === "On Hold" && "text-grey-50 bg-grey-500"
+                getValue() === "APPROVED" && "bg-green-50 text-green-500",
+                getValue() === "REJECT" && "bg-red-50 text-red-500",
+                getValue() === "PENDING" && "bg-yellow-50 text-yellow-500",
+                getValue() === "ON_HOLD" && "text-grey-50 bg-grey-500"
               )}
             >
               {getValue() as string}
@@ -119,9 +98,9 @@ const FundRequest = () => {
               <div className="flex flex-col items-start justify-between gap-1">
                 <Link
                   className="w-full"
-                  to={generatePath(RouteEnum.PROGRAM_FUND_REQUEST_DETAILS, {
-                    id: "1",
-                  })}
+                  to={`/program/fund-request/${
+                    data?.project_id
+                  }/${encodeURIComponent(data?.month_year)}`}
                 >
                   <Button
                     className="w-full flex items-center justify-start gap-2"
@@ -190,7 +169,11 @@ const FundRequest = () => {
           </Button>
         </div>
 
-        <DataTable data={data} columns={columns} isLoading={false} />
+        <DataTable
+          data={data?.results || []}
+          columns={columns}
+          isLoading={isLoading}
+        />
       </Card>
     </div>
   );

@@ -1,9 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import FormButton from "atoms/FormButton";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import { useAppDispatch } from "hooks/useStore";
 import { Button } from "components/ui/button";
 import FundRequstLayout from "./FundRequstLayout";
 import React, { useState } from "react";
@@ -19,6 +16,9 @@ import {
   TableHeader,
   TableRow,
 } from "components/ui/table";
+import FundRequestAPI from "services/programsApi/fund-request";
+import { toast } from "sonner";
+import { RouteEnum } from "constants/RouterConstants";
 
 interface InputValues {
   description: string;
@@ -41,7 +41,8 @@ const FundSummary: React.FC = () => {
   console.log(inputValues);
   const navigate = useNavigate();
 
-  const dispatch = useAppDispatch();
+  const [createFundRequestMutation, { isLoading }] =
+    FundRequestAPI.useCreateFundRequestMutation();
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -72,7 +73,7 @@ const FundSummary: React.FC = () => {
 
   const { handleSubmit } = form;
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     const projectFundRequest = JSON.parse(
       localStorage.getItem("projectFundRequest") as any
     );
@@ -83,7 +84,16 @@ const FundSummary: React.FC = () => {
     };
     console.log(formData);
 
-    // sessionStorage.removeItem("fundRequestCompletedSteps");
+    try {
+      await createFundRequestMutation(formData).unwrap();
+      toast.success("Successfully created");
+      sessionStorage.removeItem("fundRequestCompletedSteps");
+      localStorage.removeItem("projectFundRequest");
+      navigate(RouteEnum.PROGRAM_FUND_REQUEST);
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
+    }
   };
 
   return (
@@ -142,6 +152,7 @@ const FundSummary: React.FC = () => {
                       name="frequency"
                       placeholder=""
                       value={value.frequency}
+                      type="number"
                       onChange={(e) => handleInputChange(e, index, "frequency")}
                     />
                   </TableCell>
@@ -199,19 +210,10 @@ const FundSummary: React.FC = () => {
             </FormButton>
 
             <FormButton
-              onClick={() => {
-                onSubmit();
-                dispatch(
-                  openDialog({
-                    type: DialogType.FundSuccessModal,
-                    dialogProps: {
-                      width: "max-w-lg",
-                    },
-                  })
-                );
-              }}
               suffix={<ArrowRight size={14} />}
               type="submit"
+              loading={isLoading}
+              disabled={isLoading}
             >
               Submit Request
             </FormButton>
