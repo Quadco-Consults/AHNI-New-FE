@@ -151,6 +151,11 @@ export const RouteEnum = {
   CREATE_USERS: "/users/create",
   AUTHORIZATION: "/authorization",
 
+  // modules
+  MODULES_PROJECTS: "/modules-projects",
+  MODULES_PROGRAMS: "/modules-programs",
+
+
   // PROGRAM_OVERVIEW: "/program/overview",
   // PROGRAM_OVERVIEW: "/program/overview",
 };
