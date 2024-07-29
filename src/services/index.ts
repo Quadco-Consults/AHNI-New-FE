@@ -36,8 +36,18 @@ const baseAPI = createApi({
   baseQuery: baseQueryWithReauth,
   endpoints: () => ({}),
   //  cache , The default time is seconds , Default duration 60 second
-  tagTypes: ["Users", "FUND_REQUEST"],
 
+  tagTypes: ["Users", 
+    "Permission", 
+    "FundingSource", 
+    "Beneficiaries", 
+    "DocumentTypes", 
+    "Partners",
+    "Facilities",
+    "SupervisionCategory",
+    "RiskCategory"
+    "FUND_REQUEST"
+  ],
   keepUnusedDataFor: 5 * 60,
   refetchOnMountOrArgChange: true,
 });
