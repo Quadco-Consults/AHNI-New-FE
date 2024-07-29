@@ -67,7 +67,6 @@ const CreateRickManagement = () => {
   };
 
   const onSubmit = async (data: z.infer<typeof RiskPlansSchema>) => {
-    console.log(data);
     try {
       await createRiskPlanMutation(data).unwrap();
       toast.success("Successfully created");
