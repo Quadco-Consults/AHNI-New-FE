@@ -111,3 +111,30 @@ export const VendorsSchema = z.object({
   passport: z.string().min(1, "Field is required"),
   approved_categories: z.array(z.string()),
 });
+
+export const PurchaseRequestSchema = z.object({
+  items: z.array(
+    z.object({
+      // id: "string",
+      item_id: z.string().min(1, "Field is required"),
+      category: z.string().min(1, "Field is required"),
+      fco: z.string().min(1, "Field is required"),
+      units: z.union([
+        z.string().min(1, "Field is required"),
+        z.number().min(1, "Field is required"),
+      ]),
+      number_of_days: z.union([
+        z.string().min(1, "Field is required"),
+        z.number().min(1, "Field is required"),
+      ]),
+      unit_cost: z.union([
+        z.string().min(1, "Field is required"),
+        z.number().min(1, "Field is required"),
+      ]),
+    })
+  ),
+  request_date: z.string().min(1, "Field is required"),
+  required_date: z.string().min(1, "Field is required"),
+  requesting_department: z.string().min(1, "Field is required"),
+  deliver_to: z.string().min(1, "Field is required"),
+});
