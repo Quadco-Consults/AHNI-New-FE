@@ -4,6 +4,7 @@ import { invalidateTags, provideTags } from "utils/QueryUtils";
 import baseAPI from "..";
 import { z } from "zod";
 import {
+  DepartmentsData,
   DepartmentsResponse,
   DepartmentsResultsData,
 } from "definations/configs/departments";
@@ -13,7 +14,7 @@ const BASE_URL = "/config/departments/";
 
 const DepartmentsAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getDepartments: builder.query<DepartmentsResultsData[], {}>({
+    getDepartments: builder.query<DepartmentsData, {}>({
       query: (config) => {
         return {
           url: `${BASE_URL}`,
