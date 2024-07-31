@@ -296,14 +296,19 @@ export const procurment = [
   {
     path: RouteEnum.PURCHASE_ORDER,
     element: lazy(
-      () => import("pages/protectedPages/procurement-management/Purchase-order")
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/purchase-order/index"
+        )
     ),
   },
   {
     path: RouteEnum.PURCHASE_ORDER_NEW,
     element: lazy(
       () =>
-        import("pages/protectedPages/procurement-management/PurchaseOrderNew")
+        import(
+          "pages/protectedPages/procurement-management/purchase-order/PurchaseOrderNew"
+        )
     ),
   },
   {
