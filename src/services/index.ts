@@ -1,10 +1,4 @@
-import {
-  BaseQueryFn,
-  FetchArgs,
-  fetchBaseQuery,
-  FetchBaseQueryError,
-  createApi,
-} from "@reduxjs/toolkit/query/react";
+import { BaseQueryFn, FetchArgs, fetchBaseQuery, FetchBaseQueryError, createApi } from "@reduxjs/toolkit/query/react";
 import { RootState } from "src/store";
 
 const baseQuery = fetchBaseQuery({
@@ -18,11 +12,7 @@ const baseQuery = fetchBaseQuery({
     return headers;
   },
 });
-const baseQueryWithReauth: BaseQueryFn<
-  string | FetchArgs,
-  unknown,
-  FetchBaseQueryError
-> = async (args, api, extraOptions) => {
+const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (args, api, extraOptions) => {
   const result = await baseQuery(args, api, extraOptions);
 
   if (result.error && result.error.status === 404) {
