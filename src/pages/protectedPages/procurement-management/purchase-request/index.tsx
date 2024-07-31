@@ -3,7 +3,6 @@ import Card from "components/shared/Card";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
 import AddSquareIcon from "components/icons/AddSquareIcon";
-import ArrowDownIcon from "components/icons/ArrowDownIcon";
 import SearchIcon from "components/icons/SearchIcon";
 import FilterIcon from "components/icons/FilterIcon";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
@@ -12,40 +11,40 @@ import EyeIcon from "components/icons/EyeIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
-
-type Data = {
-  requestingDept: string;
-  dor: string;
-  requiredDate: string;
-  deliverTo: string;
-  totalAmount: string;
-};
+import PurchaseRequestAPI from "services/procurementApi/purchase-request";
+import { PurchaseRequestResultsData } from "definations/procurement-types/purchase-request";
+import { toast } from "sonner";
+import BreadcrumbCard from "components/shared/Breadcrumb";
 
 function PurchaseRequest() {
-  const columns: ColumnDef<Data>[] = [
+  const { data, isLoading } = PurchaseRequestAPI.useGetPurchaseRequestsQuery(
+    {}
+  );
+
+  const columns: ColumnDef<PurchaseRequestResultsData>[] = [
     {
       header: "Requesting dept",
-      accessorKey: "requestingDept",
+      accessorKey: "requesting_department",
       size: 250,
     },
     {
       header: "Date of Request",
-      accessorKey: "dor",
+      accessorKey: "request_date",
       size: 150,
     },
     {
       header: "Required Date",
-      accessorKey: "requiredDate",
+      accessorKey: "required_date",
       size: 150,
     },
     {
       header: "Deliver to",
-      accessorKey: "deliverTo",
+      accessorKey: "deliver_to",
       size: 250,
     },
     {
       header: "Total Amount",
-      accessorKey: "totalAmount",
+      accessorKey: "total_amount",
       size: 150,
     },
     {
@@ -56,7 +55,19 @@ function PurchaseRequest() {
   ];
 
   const ActionListAction = ({ data }: any) => {
-    console.log(data);
+    const [deletePurchaseRequestMutation] =
+      PurchaseRequestAPI.useDeletePurchaseRequestMutation();
+
+    const deletePurchaseRequestHandler = async () => {
+      try {
+        await deletePurchaseRequestMutation({ path: { id: data?.id } }).unwrap;
+        toast.success("Document successfully deleted.");
+      } catch (error) {
+        toast.error("Something went wrong");
+        console.log(error);
+      }
+    };
+
     return (
       <div className="flex items-center gap-2">
         <>
@@ -71,7 +82,7 @@ function PurchaseRequest() {
                 <Link
                   className="w-full"
                   to={generatePath(RouteEnum.PURCHASE_REQUEST_DETAILS, {
-                    id: "1",
+                    id: data?.id,
                   })}
                 >
                   <Button
@@ -85,6 +96,7 @@ function PurchaseRequest() {
                 <Button
                   className="flex w-full items-center justify-start gap-2"
                   variant="ghost"
+                  onClick={deletePurchaseRequestHandler}
                 >
                   <DeleteIcon />
                   delete
@@ -97,53 +109,14 @@ function PurchaseRequest() {
     );
   };
 
-  const data: Data[] = [
-    {
-      requestingDept: "Admin",
-      dor: "10/04/2023",
-      requiredDate: "10/04/2023",
-      deliverTo: "AHNi HQ-Abuja",
-      totalAmount: "₦2,922,500.00",
-    },
-    {
-      requestingDept: "Admin",
-      dor: "10/04/2023",
-      requiredDate: "10/04/2023",
-      deliverTo: "AHNi HQ-Abuja",
-      totalAmount: "₦2,922,500.00",
-    },
-    {
-      requestingDept: "Admin",
-      dor: "10/04/2023",
-      requiredDate: "10/04/2023",
-      deliverTo: "AHNi HQ-Abuja",
-      totalAmount: "₦2,922,500.00",
-    },
-    {
-      requestingDept: "Admin",
-      dor: "10/04/2023",
-      requiredDate: "10/04/2023",
-      deliverTo: "AHNi HQ-Abuja",
-      totalAmount: "₦2,922,500.00",
-    },
-    {
-      requestingDept: "Admin",
-      dor: "10/04/2023",
-      requiredDate: "10/04/2023",
-      deliverTo: "AHNi HQ-Abuja",
-      totalAmount: "₦2,922,500.00",
-    },
-    {
-      requestingDept: "Admin",
-      dor: "10/04/2023",
-      requiredDate: "10/04/2023",
-      deliverTo: "AHNi HQ-Abuja",
-      totalAmount: "₦2,922,500.00",
-    },
+  const breadcrumbs = [
+    { name: "Procurement", icon: true },
+    { name: "Purchase Request", icon: false },
   ];
 
   return (
     <section className="min-h-screen space-y-8">
+      <BreadcrumbCard list={breadcrumbs} />
       <div className="flex w-full items-center justify-end gap-4">
         <Link
           className="w-fit"
@@ -152,7 +125,6 @@ function PurchaseRequest() {
           <Button className="flex gap-2 py-6">
             <AddSquareIcon />
             New Purchase Request
-            <ArrowDownIcon />
           </Button>
         </Link>
       </div>
@@ -170,7 +142,11 @@ function PurchaseRequest() {
             <FilterIcon />
           </Button>
         </div>
-        <DataTable data={data} columns={columns} />
+        <DataTable
+          data={data?.results || []}
+          columns={columns}
+          isLoading={isLoading}
+        />
       </Card>
     </section>
   );

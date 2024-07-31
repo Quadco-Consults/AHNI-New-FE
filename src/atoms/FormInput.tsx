@@ -10,6 +10,7 @@ import {
   FormMessage,
 } from "components/ui/form";
 import { Input } from "components/ui/input";
+import { cn } from "lib/utils";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   name: string;
@@ -53,7 +54,10 @@ const FormInput: FC<InputProps> = ({ name, label, ...rest }) => {
                   placeholder={rest.placeholder}
                   onChange={onChange}
                   value={value}
-                  className="font-medium bg-[#F9F9F9] placeholder:text-black/30 "
+                  className={cn(
+                    "font-medium bg-[#F9F9F9] placeholder:text-black/30",
+                    rest.className
+                  )}
                 />
                 {rest.type === "password" && (
                   <div

@@ -48,6 +48,8 @@ const baseAPI = createApi({
     "SupervisionCategory",
     "RiskCategory",
     "FUND_REQUEST",
+    "PURCHASE_REQUEST",
+    "ITEMS",
   ],
   keepUnusedDataFor: 5 * 60,
   refetchOnMountOrArgChange: true,
