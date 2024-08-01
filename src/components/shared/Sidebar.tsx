@@ -2,7 +2,7 @@
 import { useState } from "react";
 import logoSvg from "assets/svgs/logo-bg.svg";
 import { NavLink, useLocation } from "react-router-dom";
-import { ChevronDown, User, VaultIcon } from "lucide-react";
+import { ChevronDown, Package, ScanEye, User, VaultIcon } from "lucide-react";
 import { RouteEnum, AdminRoutes, CandGRoutes } from "constants/RouterConstants";
 import { Icon } from "@iconify/react";
 import { cn } from "lib/utils";
