@@ -1,9 +1,17 @@
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import Card from "components/shared/Card";
-import { useNavigate } from "react-router-dom";
+import { LoadingSpinner } from "components/shared/Loading";
+import { useNavigate, useParams } from "react-router-dom";
+import StakeholderManagementAPI from "services/programsApi/stakeholder-management";
 
 const RegisterDetails = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
+
+  const { data, isLoading } =
+    StakeholderManagementAPI.useGetStakeholderManagementQuery({
+      path: { id: id as string },
+    });
 
   const goBack = () => {
     navigate(-1);
@@ -19,39 +27,42 @@ const RegisterDetails = () => {
       </button>
 
       <Card className="space-y-6">
-        <h4 className="font-semibold">Omar Calzoni</h4>
+        {isLoading && <LoadingSpinner />}
+        <h4 className="font-semibold">
+          {data?.stake_holder?.stakeholder_name}
+        </h4>
         <p className="font-extralight">ACEBAY</p>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
             <h4 className="font-semibold">Institution/Organization:</h4>
-            <p>University of Maiduguri Teaching Hospital, Borno state</p>
+            <p>{data?.stake_holder?.institution_organization}</p>
           </div>
           <div>
             <h4 className="font-semibold">Physical Office Address:</h4>
-            <p>University of Maiduguri Teaching Hospital, Borno state</p>
+            <p>{data?.stake_holder?.physical_office_address}</p>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
             <h4 className="font-semibold">State:</h4>
-            <p>Borno State</p>
+            <p>{data?.stake_holder?.state}</p>
           </div>
           <div>
             <h4 className="font-semibold">Designation:</h4>
-            <p>Medical Director </p>
+            <p>{data?.stake_holder?.designation}</p>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
             <h4 className="font-semibold">Phone Number:</h4>
-            <p>09075364587</p>
+            <p>{data?.stake_holder?.phone_number}</p>
           </div>
           <div>
             <h4 className="font-semibold">E-mail:</h4>
-            <p>rogerdokidis@gmail.com</p>
+            <p>{data?.stake_holder?.email}</p>
           </div>
         </div>
       </Card>

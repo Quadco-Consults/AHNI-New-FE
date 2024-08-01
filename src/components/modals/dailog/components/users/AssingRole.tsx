@@ -58,8 +58,6 @@ const RoleSelector: React.FC<TRoleSelector> = ({ updateSeletedRoles }) => {
     [key: number]: boolean;
   }>([]);
 
-  console.log(selectedRoles);
-
   const rolesfromstore = dialogProps?.roles as string;
 
   useEffect(() => {
@@ -99,11 +97,11 @@ const RoleSelector: React.FC<TRoleSelector> = ({ updateSeletedRoles }) => {
 const SearchMembers = () => {
   return (
     <div className="relative w-[40%] mx-auto">
-      <Search className="absolute right-2 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
+      <Search className="absolute w-5 h-5 text-gray-500 -translate-y-1/2 right-2 top-1/2" />
       <Input
         type="text"
         placeholder="Search members"
-        className="pr-8 pl-4 py-2 w-full  border border-gray-300"
+        className="w-full py-2 pl-4 pr-8 border border-gray-300"
       />
     </div>
   );
@@ -137,24 +135,24 @@ const AssingRole = () => {
   return (
     <div className="pb-10">
       <ScrollArea className="h-[80vh]">
-        <div className="w-full flex justify-center items-center py-7">
-          <div className="space-y-7 w-full">
+        <div className="flex items-center justify-center w-full py-7">
+          <div className="w-full space-y-7">
             <div className="flex justify-center">
               <img src="/imgs/logo.png" alt="logo" className="text-center" />
             </div>
-            <h2 className=" font-bold text-3xl text-center ">Roles</h2>
-            <p className="text-gray-400 text-center">
+            <h2 className="text-3xl font-bold text-center ">Roles</h2>
+            <p className="text-center text-gray-400">
               You can search with name, institution
             </p>
             <SearchMembers />
           </div>
         </div>
         <Card className="mx-auto w-[75%] min-h-56">
-          <CardContent className="p-4 w-full">
+          <CardContent className="w-full p-4">
             <RoleSelector updateSeletedRoles={SetSelectedRoles} />
           </CardContent>
         </Card>
-        <div className="flex gap-x-3 justify-end mt-7 px-7 items-center">
+        <div className="flex items-center justify-end gap-x-3 mt-7 px-7">
           <p className="text-primary">
             {selectedRoles?.length} Stakeholders Selected
           </p>
