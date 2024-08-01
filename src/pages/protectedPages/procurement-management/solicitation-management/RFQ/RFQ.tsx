@@ -62,7 +62,15 @@ const RFQ = () => {
 
       <div className="space-y-10 p-10 bg-white shadow-sm rounded-2xl dark:bg-[hsl(15,13%,6%)]">
         <div className="flex items-center justify-end">
-          <div>
+          <Link to={RouteEnum.RFQ_CREATE_QUOTATION}>
+            <Button>
+              <span>
+                <Plus size={15} />
+              </span>
+              Create New
+            </Button>
+          </Link>
+          {/* <div>
             <Dialog>
               <DialogTrigger>
                 <div className="flex items-center px-4 py-3 text-sm font-medium rounded-md bg-primary text-primary-foreground h-11 hover:bg-primary/90">
@@ -226,88 +234,7 @@ const RFQ = () => {
                         />
                       </div>
 
-                      {/* <div className="space-y-2">
-                        <h4 className="font-medium ">Category</h4>
-                        {category.length > 0 ? (
-                          <Badge className="py-2 rounded-lg bg-[#EBE8E1] text-black">
-                            Medical Laboratory Consumables
-                          </Badge>
-                        ) : (
-                          <div>
-                            <Dialog>
-                              <DialogTrigger>
-                                <div className="px-2 py-2 border rounded-lg text-yellow-darker">
-                                  Click to select categories that applies
-                                </div>
-                              </DialogTrigger>
-                              <DialogContent className="max-w-6xl max-h-[700px]">
-                                <DialogHeader className="mt-10 space-y-5 text-center">
-                                  <img
-                                    src={logoPng}
-                                    alt="logo"
-                                    className="mx-auto"
-                                    width={150}
-                                  />
-                                  <DialogTitle className="text-2xl">
-                                    Select your Category
-                                  </DialogTitle>
-                                  <DialogDescription>
-                                    Select all categories that applies to you,
-                                    you can also check other tabs for more
-                                    categories
-                                  </DialogDescription>
-                                </DialogHeader>
-                                <div className="flex justify-center">
-                                  <div className="flex items-center w-1/2 px-4 py-2 border rounded-lg">
-                                    <Input
-                                      placeholder="Search Category"
-                                      type="search"
-                                      className="h-6 border-none bg-none"
-                                    />
-                                    <Icon
-                                      icon="iconamoon:search-light"
-                                      fontSize={25}
-                                    />
-                                  </div>
-                                </div>
-
-                                <Tabs defaultValue="all">
-                                  <TabsList>
-                                    <TabsTrigger value="all">All</TabsTrigger>
-                                    <TabsTrigger value="EOIAHNi10">
-                                      EOIAHNi01 - EOIAHNi10
-                                    </TabsTrigger>
-                                    <TabsTrigger value="EOIAHNi20">
-                                      EOIAHNi11 - EOIAHNi20
-                                    </TabsTrigger>
-                                    <TabsTrigger value="EOIAHNi30">
-                                      EOIAHNi21 - EOIAHNi30
-                                    </TabsTrigger>
-                                    <TabsTrigger value="EOIAHNi34">
-                                      EOIAHNi31 - EOIAHNi34
-                                    </TabsTrigger>
-                                  </TabsList>
-                                  <div className=" bg-[#dbdfe92f] p-2 my-5">
-                                    <TabsContent value="all">1</TabsContent>
-                                    <TabsContent value="EOIAHNi10">
-                                      2
-                                    </TabsContent>
-                                    <TabsContent value="EOIAHNi20">
-                                      3
-                                    </TabsContent>
-                                    <TabsContent value="EOIAHNi30">
-                                      3
-                                    </TabsContent>
-                                    <TabsContent value="EOIAHNi34">
-                                      3
-                                    </TabsContent>
-                                  </div>
-                                </Tabs>
-                              </DialogContent>
-                            </Dialog>
-                          </div>
-                        )}
-                      </div> */}
+                     
 
                       <div className="flex justify-end gap-5">
                         <DialogClose asChild>
@@ -320,7 +247,7 @@ const RFQ = () => {
                 </div>
               </DialogContent>
             </Dialog>
-          </div>
+          </div> */}
         </div>
 
         <div className="grid grid-cols-2 gap-5">

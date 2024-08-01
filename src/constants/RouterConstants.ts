@@ -53,7 +53,11 @@ export const RouteEnum = {
   REPORT: "/procurement-management/report",
 
   RFQ: "/procurement-management/solicitation/rfq",
+  RFQ_CREATE_QUOTATION:
+    "/procurement-management/solicitation/rfq/create/quotation",
+  RFQ_CREATE_ITEMS: "/procurement-management/solicitation/rfq/create/items",
   RFQ_DETAILS: "/procurement-management/solicitation/rfq/:id",
+  RFQ_CREATE_CBA: "/procurement-management/solicitation/rfq/:id/create-cba",
   RFQ_COMPETITIVE_BID_ANALYSIS:
     "/procurement-management/solicitation/rfq/competitive-bid-analysis/:id",
   RFQ_DETAILS_BID_SUBMISSION:
@@ -154,7 +158,6 @@ export const RouteEnum = {
   // modules
   MODULES_PROJECTS: "/modules-projects",
   MODULES_PROGRAMS: "/modules-programs",
-
 
   // PROGRAM_OVERVIEW: "/program/overview",
   // PROGRAM_OVERVIEW: "/program/overview",

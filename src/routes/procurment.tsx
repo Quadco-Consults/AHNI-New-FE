@@ -179,6 +179,33 @@ export const procurment = [
     ),
   },
   {
+    path: RouteEnum.RFQ_CREATE_QUOTATION,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/solicitation-management/RFQ/create/Quotation"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.RFQ_CREATE_ITEMS,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/solicitation-management/RFQ/create/Items"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.RFQ_CREATE_CBA,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/solicitation-management/RFQ/create/CreateCBA"
+        )
+    ),
+  },
+  {
     path: RouteEnum.RFQ_COMPETITIVE_BID_ANALYSIS,
     element: lazy(
       () =>
