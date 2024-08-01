@@ -65,9 +65,8 @@ const CreatePurchaseRequestForm = () => {
   });
 
   const onSubmit = async (data: z.infer<typeof PurchaseRequestSchema>) => {
-    console.log(data);
     try {
-      const res = await createPurchaseRequestMutation(data).unwrap();
+      await createPurchaseRequestMutation(data).unwrap();
       navigate(RouteEnum.PURCHASE_REQUEST);
       toast.success("Successfully created.");
     } catch (error) {

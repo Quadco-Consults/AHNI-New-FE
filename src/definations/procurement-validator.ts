@@ -115,7 +115,7 @@ export const VendorsSchema = z.object({
 export const PurchaseRequestSchema = z.object({
   items: z.array(
     z.object({
-      // id: "string",
+      id: z.string().optional(),
       item_id: z.string().min(1, "Field is required"),
       category: z.string().min(1, "Field is required"),
       fco: z.string().min(1, "Field is required"),
@@ -137,4 +137,50 @@ export const PurchaseRequestSchema = z.object({
   required_date: z.string().min(1, "Field is required"),
   requesting_department: z.string().min(1, "Field is required"),
   deliver_to: z.string().min(1, "Field is required"),
+});
+
+export const PurchaseOrderSchema = z.object({
+  items: z.array(
+    z.object({
+      id: z.string().optional(),
+      item_id: z.string().min(1, "Field is required"),
+      fco: z.string().min(1, "Field is required"),
+      unit_cost: z.union([
+        z.string().min(1, "Field is required"),
+        z.number().min(1, "Field is required"),
+      ]),
+      quantity: z.union([
+        z.string().min(1, "Field is required"),
+        z.number().min(1, "Field is required"),
+      ]),
+    })
+  ),
+  purchase_request: z.string().min(1, "Field is required"),
+  vendor: z.string().min(1, "Field is required"),
+});
+
+export const PurchaseOrderListSchema = z.object({
+  items: z.array(
+    z.object({
+      // id: z.string().optional(),
+      item_id: z.string().min(1, "Field is required"),
+      fco: z.string().min(1, "Field is required"),
+      unit_cost: z.union([
+        z.string().min(1, "Field is required"),
+        z.number().min(1, "Field is required"),
+      ]),
+      quantity: z.union([
+        z.string().min(1, "Field is required"),
+        z.number().min(1, "Field is required"),
+      ]),
+      description: z.string().min(1, "Field is required"),
+      uom: z.string().min(1, "Field is required"),
+      total: z.union([
+        z.string().min(1, "Field is required"),
+        z.number().min(1, "Field is required"),
+      ]),
+    })
+  ),
+  purchase_request: z.string().min(1, "Field is required"),
+  vendor: z.string().min(1, "Field is required"),
 });

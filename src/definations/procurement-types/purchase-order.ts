@@ -1,4 +1,4 @@
-export type PurchaseRequestItems = {
+export type PurchaseOrderItems = {
   id: string;
   item: {
     id: string;
@@ -18,23 +18,22 @@ export type PurchaseRequestItems = {
   unit_cost: number;
   quantity: number;
   sub_total_amount: number;
-  purchase_request: string;
+  purchase_order: string;
 };
 
-export type PurchaseRequestResultsData = {
+export type PurchaseOrderResultsData = {
   id: string;
-  items: PurchaseRequestItems[];
+  items: PurchaseOrderItems[];
   created_at: string;
   updated_at: string;
-  request_date: string;
+  order_date: string;
   required_date: string;
   total_amount: number;
-  request_id: string;
-  title: string;
+  order_id: string;
   status: string;
-  requesting_department: string;
+  ordering_department: string;
   deliver_to: string;
-  requested_by: {
+  ordered_by: {
     id: string;
     phone_number: string;
     gender: string;
@@ -45,15 +44,15 @@ export type PurchaseRequestResultsData = {
   };
 };
 
-export interface PurchaseRequestData {
+export interface PurchaseOrderData {
   count: number;
   next: string;
   number_of_pages: number;
   previous: string;
-  results: PurchaseRequestResultsData[];
+  results: PurchaseOrderResultsData[];
 }
 
-export interface PurchaseRequestResponse {
+export interface PurchaseOrderResponse {
   message: string;
-  data: PurchaseRequestResultsData;
+  data: PurchaseOrderResultsData;
 }
