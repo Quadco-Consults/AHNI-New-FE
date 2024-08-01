@@ -184,3 +184,55 @@ export const PurchaseOrderListSchema = z.object({
   purchase_request: z.string().min(1, "Field is required"),
   vendor: z.string().min(1, "Field is required"),
 });
+
+export const SolicitationItemsSchema = z.object({
+  items: z.array(
+    z.object({
+      // id: "string",
+      quantity: z.number().min(1, "Field is required"),
+      item: z.string().min(1, "Field is required"),
+      lot: z.number().min(1, "Field is required"),
+    })
+  ),
+  criteria: z.array(
+    z.object({ criteria: z.string().min(1, "Field is required") })
+  ),
+});
+export const SolicitationQuotationSchema = z.object({
+  name: z.string().min(1, "Field is required"),
+  description: z.string().min(1, "Field is required"),
+  status: z.string().min(1, "Field is required"),
+  opening_date: z.string().min(1, "Field is required"),
+  closing_date: z.string().min(1, "Field is required"),
+  document: z.string().min(1, "Field is required"),
+  tender_type: z.string().min(1, "Field is required"),
+  request_type: z.string().min(1, "Field is required"),
+  limited_vendors: z.string().min(1, "Field is required"),
+  purchase_request: z.string().min(1, "Field is required"),
+  reference: z.string().min(1, "Field is required"),
+});
+
+export const SolicitationSchema = z.object({
+  items: z.array(
+    z.object({
+      // id: "string",
+      quantity: z.number().min(1, "Field is required"),
+      item: z.string().min(1, "Field is required"),
+      lot: z.number().min(1, "Field is required"),
+    })
+  ),
+  criteria: z.array(
+    z.object({ criteria: z.string().min(1, "Field is required") })
+  ),
+  name: z.string().min(1, "Field is required"),
+  description: z.string().min(1, "Field is required"),
+  status: z.string().min(1, "Field is required"),
+  opening_date: z.string().min(1, "Field is required"),
+  closing_date: z.string().min(1, "Field is required"),
+  document: z.string().min(1, "Field is required"),
+  tender_type: z.string().min(1, "Field is required"),
+  request_type: z.string().min(1, "Field is required"),
+  limited_vendors: z.string().min(1, "Field is required"),
+  purchase_request: z.string().min(1, "Field is required"),
+  reference: z.string().min(1, "Field is required"),
+});

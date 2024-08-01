@@ -12,11 +12,11 @@ const RFQDetails = () => {
         <h4 className="text-lg font-bold">Supply of medical consumables</h4>
 
         <Link
-          to={generatePath(RouteEnum.RFQ_COMPETITIVE_BID_ANALYSIS, {
+          to={generatePath(RouteEnum.RFQ_CREATE_CBA, {
             id: "1",
           })}
         >
-          <Button>Start Competitive Bid Analysis</Button>
+          <Button>Create CBA</Button>
         </Link>
       </div>
 

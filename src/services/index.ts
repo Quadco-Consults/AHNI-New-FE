@@ -51,6 +51,7 @@ const baseAPI = createApi({
     "PURCHASE_REQUEST",
     "ITEMS",
     "PURCHASE_ORDER",
+    "SOLICITATION",
   ],
   keepUnusedDataFor: 5 * 60,
   refetchOnMountOrArgChange: true,
