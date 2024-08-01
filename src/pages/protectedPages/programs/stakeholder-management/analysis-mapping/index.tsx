@@ -11,31 +11,22 @@ import EyeIcon from "components/icons/EyeIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
-
-type WorkPlanData = {
-  name: string;
-  location: string;
-  start_date: string;
-  end_date: string;
-};
-
-const data: WorkPlanData[] = Array(10).fill({
-  name: "ACEBAY",
-  location: "Borno, Adamawa, Yobe",
-  start_date: "20-04-2024",
-  end_date: "20-04-2024",
-});
+import StakeholderManagementAPI from "services/programsApi/stakeholder-management";
+import { StakeholderMgtProjectsData } from "definations/program-types/stakeholder-management";
 
 const AnalysisMapping = () => {
-  const columns: ColumnDef<WorkPlanData>[] = [
+  const { data, isLoading } =
+    StakeholderManagementAPI.useGetStakeholderMgtProjectsQuery({});
+
+  const columns: ColumnDef<StakeholderMgtProjectsData>[] = [
     {
       header: "Project Name",
-      accessorKey: "name",
+      accessorKey: "title",
       size: 200,
     },
     {
       header: "Location",
-      accessorKey: "location",
+      accessorKey: "locations",
       size: 200,
     },
     {
@@ -56,7 +47,6 @@ const AnalysisMapping = () => {
   ];
 
   const ActionListAction = ({ data }: any) => {
-    console.log(data);
     return (
       <div className="flex items-center gap-2">
         <>
@@ -73,7 +63,7 @@ const AnalysisMapping = () => {
                   to={generatePath(
                     RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS_DETAILS,
                     {
-                      id: "1",
+                      id: data?.id,
                     }
                   )}
                 >
@@ -103,15 +93,6 @@ const AnalysisMapping = () => {
 
   return (
     <div className="space-y-5">
-      <div className="flex justify-end">
-        <Link to={RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS_CREATE}>
-          <Button className="flex gap-2 py-6">
-            <AddSquareIcon />
-            New Risk Analysis Plan
-          </Button>
-        </Link>
-      </div>
-
       <Card className="space-y-5">
         <div className="flex items-center justify-start gap-2">
           <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
@@ -127,7 +108,7 @@ const AnalysisMapping = () => {
           </Button>
         </div>
 
-        <DataTable data={data} columns={columns} />
+        <DataTable data={data || []} columns={columns} isLoading={isLoading} />
       </Card>
     </div>
   );

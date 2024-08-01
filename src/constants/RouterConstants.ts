@@ -91,15 +91,16 @@ export const RouteEnum = {
   PROGRAM_SUPPORTIVE_SUPERVISION_COMPOSITION: "/program/plan/supportive-supervision-plan/create/facility&team-composition",
   PROGRAM_SUPPORTIVE_SUPERVISION_CHECKLIST: "/program/plan/supportive-supervision-plan/create/evolution-checklist",
   PROGRAM_FUND_REQUEST: "/program/fund-request",
-  PROGRAM_FUND_REQUEST_DETAILS: "/program/fund-request/:id",
-  PROGRAM_FUND_REQUEST_PROJECT_DETAIL: "/program/fund-request/create/project-details",
+  PROGRAM_FUND_REQUEST_DETAILS: "/program/fund-request/:id/:month_year",
+  PROGRAM_FUND_REQUEST_CREATE: "/program/fund-request/create/project-details",
   PROGRAM_FUND_REQUEST_FUND_SUMMARY: "/program/fund-request/create/fund-request-summary",
 
   PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS: "/program/stakeholder-management/analysis&mapping",
   PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS_DETAILS: "/program/stakeholder-management/analysis&mapping/:id",
-  PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS_CREATE: "/program/stakeholder-management/analysis&mapping/create-analysis",
+  PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS_CREATE: "/program/stakeholder-management/analysis&mapping/create-analysis/:id",
   PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER: "/program/stakeholder-management/stakeholder-register",
   PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER_CREATE: "/program/stakeholder-management/stakeholder-register/create-stakeholder",
+  PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER_EDIT: "/program/stakeholder-management/stakeholder-register/edit-stakeholder/:id",
   PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER_DETAILS: "/program/stakeholder-management/stakeholder-register/:id",
   PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN: "/program/stakeholder-management/engagement-plan",
   PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN_CREATE: "/program/stakeholder-management/engagement-plan/create-stakeholder",
@@ -122,6 +123,10 @@ export const RouteEnum = {
   USERS: "/users",
   CREATE_USERS: "/users/create",
   AUTHORIZATION: "/authorization",
+
+  // modules
+  MODULES_PROJECTS: "/modules-projects",
+  MODULES_PROGRAMS: "/modules-programs",
 
   // PROGRAM_OVERVIEW: "/program/overview",
   // PROGRAM_OVERVIEW: "/program/overview",

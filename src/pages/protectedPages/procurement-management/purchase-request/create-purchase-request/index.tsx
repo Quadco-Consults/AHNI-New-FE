@@ -1,31 +1,42 @@
-import LongArrowLeft from "components/icons/LongArrowLeft"
+import LongArrowLeft from "components/icons/LongArrowLeft";
 import { useNavigate } from "react-router-dom";
 import CreatePurchaseRequestForm from "./form";
+import BreadcrumbCard from "components/shared/Breadcrumb";
 
-type Props = {}
+type Props = {};
 
 function CreatePurchaseRequest({}: Props) {
-
- const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const goBack = () => {
-    navigate(-1)
+    navigate(-1);
   };
+
+  const breadcrumbs = [
+    { name: "Procurement", icon: true },
+    { name: "Purchase Request", icon: true },
+    { name: "Create", icon: false },
+  ];
+
   return (
-    <div className="">
-      <section className="space-y-4">
-      <button onClick={goBack} className="w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center">
+    <section className="space-y-6">
+      <BreadcrumbCard list={breadcrumbs} />
+
+      <button
+        onClick={goBack}
+        className="w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center"
+      >
         <LongArrowLeft />
       </button>
       <span className="block space-y-2">
-        <h3 className="font-semibold text-xl text-black">Purchase Order Form</h3>
-        <p className="flex gap-2 text-xs">10-04-2023 <div className="w-[1px] h-[15px] border-black/40 border-l-2"/>AHNI-010-002-ABJ-2023</p>
+        <h3 className="font-semibold text-xl text-black">
+          Purchase Request Form
+        </h3>
       </span>
 
       <CreatePurchaseRequestForm />
-    </section>  
-    </div>
-  )
+    </section>
+  );
 }
 
-export default CreatePurchaseRequest
+export default CreatePurchaseRequest;

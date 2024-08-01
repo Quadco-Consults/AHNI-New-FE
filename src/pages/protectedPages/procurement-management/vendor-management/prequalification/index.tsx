@@ -13,17 +13,13 @@ import { Link, generatePath } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
-
-type Data = {
-  name: string;
-  number: number;
-  email: string;
-  products: string;
-  status: string;
-  isSelected: boolean;
-};
+import VendorsAPI from "services/procurementApi/vendors";
+import { VendorsResultsData } from "definations/procurement-types/vendors";
+import { toast } from "sonner";
 
 const VendorManagement = () => {
+  const { data, isLoading } = VendorsAPI.useGetVendorsQuery({});
+
   return (
     <div className="space-y-10">
       <div>
@@ -102,18 +98,9 @@ const VendorManagement = () => {
               </PopoverContent>
             </Popover>
           </div>
-          {/* <h6>
-            NOTE: Vendors register on the platform by themselves on the url:
-            <a
-              href="https://ahni-frontend.vercel.app/vendor-registration"
-              className="text-primary"
-            >
-              https://ahni-frontend.vercel.app/vendor-registration
-            </a>
-          </h6> */}
         </div>
 
-        <DataTable columns={columns} data={data} />
+        <DataTable columns={columns} data={data?.results || []} isLoading={isLoading} />
       </Card>
     </div>
   );
@@ -121,7 +108,7 @@ const VendorManagement = () => {
 
 export default VendorManagement;
 
-const columns: ColumnDef<Data>[] = [
+const columns: ColumnDef<VendorsResultsData>[] = [
   {
     id: "select",
     size: 50,
@@ -146,42 +133,26 @@ const columns: ColumnDef<Data>[] = [
       );
     },
   },
-  // {
-  //   header: ({ table }) => (
-  //     <Checkbox
-  //       checked={table.getIsAllRowsSelected()}
-  //       onCheckedChange={table.getToggleAllRowsSelectedHandler()}
-  //     />
-  //   ),
-  //   accessorKey: "isSelected",
-  //   size: 50,
-  //   cell: ({ row }) => (
-  //     <Checkbox
-  //       checked={row.getIsSelected()}
-  //       onCheckedChange={row.getToggleSelectedHandler()}
-  //     />
-  //   ),
-  // },
   {
     header: "Vendor Name",
-    accessorKey: "name",
+    accessorKey: "company_name",
     size: 250,
   },
   {
     header: "Type of Business",
-    accessorKey: "email",
+    accessorKey: "type_of_business",
     size: 250,
   },
   {
     header: "Company Reg No",
-    accessorKey: "number",
+    accessorKey: "company_registration_number",
     size: 200,
   },
   {
     header: "Evaluation Status",
     accessorKey: "status",
     cell: ({ getValue }) => {
-      return <Badge className={cn("px-3 py-2 rounded-lg", getValue() === "Pass" && "bg-green-light text-green-dark", getValue() === "Fail" && "bg-red-light text-red-dark", getValue() === "Unreviewed" && "bg-yellow-light text-yellow-dark")}>{getValue() as string}</Badge>;
+      return <Badge className={cn("px-3 py-2 rounded-lg", getValue() === "Pass" && "bg-green-200 text-green-800", getValue() === "Fail" && "bg-red-200 text-red-800", getValue() === "Pending" && "bg-yellow-200 text-yellow-800")}>{getValue() as string}</Badge>;
     },
   },
   {
@@ -192,15 +163,25 @@ const columns: ColumnDef<Data>[] = [
 ];
 
 const ActionListAction = ({ data }: any) => {
-  console.log(data);
+  const [deleteVendorMutation] = VendorsAPI.useDeleteVendorMutation();
+
+  const deleteVendorHandler = async (id: string) => {
+    try {
+      await deleteVendorMutation({ path: { id: id } }).unwrap;
+      toast.success("Document successfully deleted.");
+    } catch (error) {
+      toast.error("Something went wrong");
+      console.log(error);
+    }
+  };
   return (
     <div className="flex gap-2">
-      <Link to={generatePath(RouteEnum.VENDOR_MANAGEMENT_DETAILS, { id: "1" })}>
+      <Link to={generatePath(RouteEnum.VENDOR_MANAGEMENT_DETAILS, { id: data.id })}>
         <IconButton className="bg-[#F9F9F9] hover:text-primary">
           <Icon icon="ph:eye-duotone" fontSize={15} />
         </IconButton>
       </Link>
-      <IconButton className="bg-[#F9F9F9] hover:text-primary">
+      <IconButton onClick={() => deleteVendorHandler(data.id)} className="bg-[#F9F9F9] hover:text-primary">
         <Icon icon="ant-design:delete-twotone" fontSize={15} />
       </IconButton>
     </div>
@@ -223,54 +204,3 @@ const ActionListAction = ({ data }: any) => {
 //     </div>
 //   );
 // };
-
-const data: Data[] = [
-  {
-    name: "Medical Supplies Ltd.",
-    number: +2348071234567,
-    email: "contact@medsupplies.com.ng",
-    products: "MEDICAL EQUIPMENT, SURGICAL TOOLS",
-    status: "Pass",
-    isSelected: false,
-  },
-  {
-    name: "Naija Labs & Co.",
-    number: +2348092345678,
-    email: "info@naijalabs.com.ng",
-    products: "Diagnostic kits, laboratory equipment",
-    status: "Unreviewed",
-    isSelected: false,
-  },
-  {
-    name: "HealthTech Nigeria",
-    number: +2348063456789,
-    email: "support@healthtechnigeria.com.ng",
-    products: "Healthcare software, patient management systems",
-    status: "Pass",
-    isSelected: false,
-  },
-  {
-    name: "Medical Supplies Ltd.",
-    number: +2348071234567,
-    email: "contact@medsupplies.com.ng",
-    products: "MEDICAL EQUIPMENT, SURGICAL TOOLS",
-    status: "Fail",
-    isSelected: false,
-  },
-  {
-    name: "Naija Labs & Co.",
-    number: +2348092345678,
-    email: "info@naijalabs.com.ng",
-    products: "Diagnostic kits, laboratory equipment",
-    status: "Unreviewed",
-    isSelected: false,
-  },
-  {
-    name: "HealthTech Nigeria",
-    number: +2348063456789,
-    email: "support@healthtechnigeria.com.ng",
-    products: "Healthcare software, patient management systems",
-    status: "Pass",
-    isSelected: false,
-  },
-];

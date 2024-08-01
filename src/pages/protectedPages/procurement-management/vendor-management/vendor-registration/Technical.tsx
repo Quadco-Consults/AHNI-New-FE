@@ -7,11 +7,24 @@ import { Label } from "components/ui/label";
 import { Form } from "components/ui/form";
 import { Separator } from "components/ui/separator";
 import FormButton from "atoms/FormButton";
+import { z } from "zod";
+import { VendorsTechnicalSchema } from "definations/procurement-validator";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useDispatch } from "react-redux";
+import { vendorsActions } from "store/formData/procurement-vendors";
 
 const Technical = () => {
-  const form = useForm({
+  const dispatch = useDispatch();
+
+  const form = useForm<z.infer<typeof VendorsTechnicalSchema>>({
+    resolver: zodResolver(VendorsTechnicalSchema),
     defaultValues: {
-      equipment: [{ name: "", manufacture: "", year: "" }],
+      production_equipments: [{ name: "", manufacturer: "", year: "" }],
+      number_of_operational_work_shift: "",
+      installed_capacity: "",
+      lagest_capacity_and_utilization: "",
+      brief_of_quality_control: "",
+      brief_of_sampling: "",
     },
   });
 
@@ -23,12 +36,16 @@ const Technical = () => {
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "equipment",
+    name: "production_equipments",
   });
 
   const { handleSubmit } = form;
 
-  const onSubmit = () => {
+  const onSubmit = (data: z.infer<typeof VendorsTechnicalSchema>) => {
+    console.log(data);
+
+    dispatch(vendorsActions.addVendors(data));
+
     let path = pathname;
 
     // Remove the last segment of the path
@@ -62,19 +79,19 @@ const Technical = () => {
                         </p>
                         <FormInput
                           label="Equipment Name"
-                          name={`equipment[${index}].name`}
+                          name={`production_equipments[${index}].name`}
                           defaultValue={field.name}
                           required
                         />
                         <FormInput
                           label="Manufacturer"
-                          name={`equipment[${index}].manufacture`}
-                          defaultValue={field.manufacture}
+                          name={`production_equipments[${index}].manufacturer`}
+                          defaultValue={field.manufacturer}
                           required
                         />
                         <FormInput
                           label="Year"
-                          name={`officeaddress[${index}].year`}
+                          name={`production_equipments[${index}].year`}
                           defaultValue={field.year}
                           required
                         />
@@ -91,7 +108,7 @@ const Technical = () => {
                 <div className="flex justify-end mt-2">
                   <PlusCircle
                     onClick={() =>
-                      append({ name: "", manufacture: "", year: "" })
+                      append({ name: "", manufacturer: "", year: "" })
                     }
                     className="cursor-pointer text-primary"
                   />
@@ -100,22 +117,25 @@ const Technical = () => {
             </div>
             <Separator className="mt-8" />
             <div className="mt-10">
-              <FormInput
-                className=""
-                name="capavity"
-                label="Installed Capacity"
-              />
+              <FormInput name="installed_capacity" label="Installed Capacity" />
             </div>
             <div className="grid grid-cols-2 gap-6 mt-10">
-              <FormInput name="" label="Latest Capacity and Utilization" />
-              <FormInput label="Number of operational work shifts" name="" />
+              <FormInput
+                name="lagest_capacity_and_utilization"
+                label="Latest Capacity and Utilization"
+              />
+              <FormInput
+                label="Number of operational work shifts"
+                type="number"
+                name="number_of_operational_work_shift"
+              />
               <FormInput
                 label="Provide Brief Details of Quality Control Procedures"
-                name=""
+                name="brief_of_quality_control"
               />
               <FormInput
                 label="Provide brief details of sampling procedures"
-                name=""
+                name="brief_of_sampling"
               />
             </div>
             <div className="flex justify-between pt-24">

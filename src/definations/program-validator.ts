@@ -56,6 +56,7 @@ export const SupportiveSupervisionSchema = z.object({
   evaluation_criteria: z.array(z.string()),
   team_members: z.array(z.string()),
 });
+
 export const SupportiveSupervisionResponseDataSchema = z.object({
   responses: z.array(
     z.object({
@@ -110,4 +111,80 @@ export const WeeklyActivitySchema = z.object({
   follow_up_action: z.string(),
   comments: z.string(),
   project: z.string(),
+});
+
+export const StakeholderManagementSchema = z.object({
+  stakeholder_name: z.string().min(1, "Field is required"),
+  institution_organization: z.string().min(1, "Field is required"),
+  physical_office_address: z.string().min(1, "Field is required"),
+  state: z.string().min(1, "Field is required"),
+  gender: z.string().min(1, "Field is required"),
+  designation: z.string().min(1, "Field is required"),
+  phone_number: z.string().min(1, "Field is required"),
+  email: z.string().email().min(1, "Field is required"),
+});
+
+export const StakeholderMappingSchema = z.object({
+  stakeholders: z.array(
+    z.object({
+      project_role: z.string().min(1, "Field is required"),
+      importance: z.string().min(1, "Field is required"),
+      major_concerns: z.string().min(1, "Field is required"),
+      influence: z.string().min(1, "Field is required"),
+      score: z.string().min(1, "Field is required"),
+      relationship_owner: z.string().min(1, "Field is required"),
+      project: z.string().min(1, "Field is required"),
+      stake_holder: z.string().min(1, "Field is required"),
+    })
+  ),
+});
+
+export const StakeholderSchema = z.object({
+  stakeholders: z.array(
+    z.object({
+      project_role: z.string().min(1, "Field is required"),
+      importance: z.string().min(1, "Field is required"),
+      major_concerns: z.string().min(1, "Field is required"),
+      influence: z.string().min(1, "Field is required"),
+      score: z.string().min(1, "Field is required"),
+      relationship_owner: z.string().min(1, "Field is required"),
+      project: z.string().min(1, "Field is required"),
+      stake_holder: z.string().min(1, "Field is required"),
+    })
+  ),
+  submitted_stakeholders: z.array(z.string().min(1, "Field is required")),
+});
+
+export const FundRequestDetailSchema = z.object({
+  project: z.string().min(1, "Field is required"),
+  partner: z.string().min(1, "Field is required"),
+  year: z
+    .string()
+    .min(4, "Field is required")
+    .max(4, "Four characters required"),
+  month: z
+    .string()
+    .min(2, "Field is required")
+    .max(2, "Two characters required"),
+  currency: z.string().min(1, "Field is required"),
+  financial_year: z.string().min(1, "Field is required"),
+  type: z.string().min(1, "Field is required"),
+});
+
+export const FundRequestSchema = z.object({
+  line_items: z.array(
+    z.object({
+      amount: z.string().min(1, "Field is required"),
+      description: z.string().min(1, "Field is required"),
+      unit_cost: z.string().min(1, "Field is required"),
+      frequency: z.number().min(1, "Field is required"),
+      comments: z.string().min(1, "Field is required"),
+    })
+  ),
+  project: z.string().min(1, "Field is required"),
+  partner: z.string().min(1, "Field is required"),
+  month_year: z.string().min(4, "Field is required"),
+  currency: z.string().min(1, "Field is required"),
+  financial_year: z.string().min(1, "Field is required"),
+  type: z.string().min(1, "Field is required"),
 });
