@@ -25,6 +25,7 @@ import ProjectDetailsUploadModal from "./components/ProjectDetailsUploadModal";
 import EditUser from "./components/users/EditUser";
 import AssingRole from "./components/users/AssingRole";
 import SspSubmitModal from "./components/sspSubmitModal";
+import ExpenditureModal from "./components/ExpenditureModal";
 import AssingPermission from "./components/users/AssingPermission";
 
 const sheets: Record<string, ReactNode> = {
@@ -50,6 +51,7 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.EditUser]: <EditUser />,
   [DialogType.AssingRoleToUser]: <AssingRole />,
   [DialogType.SspSubmitModal]: <SspSubmitModal />,
+  [DialogType.ExpenditureModal]: <ExpenditureModal />,
   [DialogType.AddPermissionToRole]: <AssingPermission />,
 };
 
