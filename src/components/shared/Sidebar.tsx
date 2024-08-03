@@ -553,10 +553,10 @@ const DEPARTMENTAL_LINKS = [
       //     { name: "Vendor of Submission", path: RouteEnum.RFQ_VENDOR },
       //   ],
       // },
-      {
-        name: "Submission of Bids",
-        path: RouteEnum.SUBMISSION_OF_BIDS,
-      },
+      // {
+      //   name: "Submission of Bids",
+      //   path: RouteEnum.SUBMISSION_OF_BIDS,
+      // },
       {
         name: "Competitive Bid Analysis",
         path: RouteEnum.COMPETITIVE_ANALYSIS,

@@ -191,25 +191,21 @@ export const SolicitationItemsSchema = z.object({
       // id: "string",
       quantity: z.number().min(1, "Field is required"),
       item: z.string().min(1, "Field is required"),
-      lot: z.number().min(1, "Field is required"),
+      lot: z.string().min(1, "Field is required"),
     })
   ),
-  criteria: z.array(
-    z.object({ criteria: z.string().min(1, "Field is required") })
-  ),
+  criteria: z.array(z.string().min(1, "Field is required")),
 });
+
 export const SolicitationQuotationSchema = z.object({
   name: z.string().min(1, "Field is required"),
   description: z.string().min(1, "Field is required"),
-  status: z.string().min(1, "Field is required"),
   opening_date: z.string().min(1, "Field is required"),
   closing_date: z.string().min(1, "Field is required"),
-  document: z.string().min(1, "Field is required"),
   tender_type: z.string().min(1, "Field is required"),
   request_type: z.string().min(1, "Field is required"),
-  limited_vendors: z.string().min(1, "Field is required"),
+  limited_vendors: z.array(z.string()),
   purchase_request: z.string().min(1, "Field is required"),
-  reference: z.string().min(1, "Field is required"),
 });
 
 export const SolicitationSchema = z.object({
@@ -226,13 +222,28 @@ export const SolicitationSchema = z.object({
   ),
   name: z.string().min(1, "Field is required"),
   description: z.string().min(1, "Field is required"),
-  status: z.string().min(1, "Field is required"),
   opening_date: z.string().min(1, "Field is required"),
   closing_date: z.string().min(1, "Field is required"),
-  document: z.string().min(1, "Field is required"),
   tender_type: z.string().min(1, "Field is required"),
   request_type: z.string().min(1, "Field is required"),
-  limited_vendors: z.string().min(1, "Field is required"),
+  limited_vendors: z.array(z.string().min(1, "Field is required")),
   purchase_request: z.string().min(1, "Field is required"),
-  reference: z.string().min(1, "Field is required"),
+});
+
+export const SolicitationSubmissionSchema = z.object({
+  solicitation_id: z.string().min(1, "Field is required"),
+  vendor_id: z.string().min(1, "Field is required"),
+  items: z.array(
+    z.object({
+      quantity: z.number().min(1, "Field is required"),
+      unit_price: z.string().min(1, "Field is required"),
+      solicitation_item: z.string().min(1, "Field is required"),
+    })
+  ),
+  responses: z.array(
+    z.object({
+      response: z.string().min(1, "Field is required"),
+      solicitation_criteria: z.string().min(1, "Field is required"),
+    })
+  ),
 });
