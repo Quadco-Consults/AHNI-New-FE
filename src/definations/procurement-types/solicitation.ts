@@ -1,9 +1,19 @@
+import { LocationResultsData } from "definations/configs/location";
+
 export type SolicitationItems = {
   id: string;
   created_at: string;
   updated_at: string;
   quantity: number;
-  item: string;
+  item: {
+    id: string;
+    created_at: string;
+    updated_at: string;
+    name: string;
+    description: string;
+    uom: string;
+    category: string;
+  };
   solicitation: string;
   lot: number;
 };
@@ -11,8 +21,8 @@ export type SolicitationCriteria = {
   id: string;
   created_at: string;
   updated_at: string;
-  solicitation: string;
-  criteria: string;
+  name: string;
+  description: string;
 };
 
 export type SolicitationResultsData = {
@@ -30,6 +40,7 @@ export type SolicitationResultsData = {
   limited_vendors: string;
   items: SolicitationItems[];
   criteria: SolicitationCriteria[];
+  location: LocationResultsData;
   reference: string;
   purchase_request: string;
 };
@@ -45,4 +56,21 @@ export interface SolicitationData {
 export interface SolicitationResponse {
   message: string;
   data: SolicitationResultsData;
+}
+
+export type SolicitationSubmissionResultsData = {
+  id: string;
+  company_name: string;
+  company_registration_number: string;
+  year_or_incorperation: string;
+  nature_of_business: string;
+  status: string;
+};
+
+export interface SolicitationSubmissionData {
+  count: number;
+  next: string;
+  number_of_pages: number;
+  previous: string;
+  results: SolicitationSubmissionResultsData[];
 }

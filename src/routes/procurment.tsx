@@ -156,7 +156,7 @@ export const procurment = [
     element: lazy(
       () =>
         import(
-          "pages/protectedPages/procurement-management/solicitation-management/RFQ/RFQ"
+          "pages/protectedPages/procurement-management/solicitation-management/RFQ"
         )
     ),
   },
@@ -165,7 +165,7 @@ export const procurment = [
     element: lazy(
       () =>
         import(
-          "pages/protectedPages/procurement-management/solicitation-management/RFQ/RFQ-details"
+          "pages/protectedPages/procurement-management/solicitation-management/RFQ/[id]/RFQ-details"
         )
     ),
   },
@@ -174,7 +174,7 @@ export const procurment = [
     element: lazy(
       () =>
         import(
-          "pages/protectedPages/procurement-management/solicitation-management/RFQ/Manual-bid-submission"
+          "pages/protectedPages/procurement-management/solicitation-management/RFQ/[id]/Manual-bid-submission"
         )
     ),
   },

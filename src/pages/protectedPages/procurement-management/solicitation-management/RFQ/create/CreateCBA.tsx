@@ -27,6 +27,7 @@ import { Input } from "components/ui/input";
 import { Icon } from "@iconify/react";
 import { LoadingSpinner } from "components/shared/Loading";
 import { Checkbox } from "components/ui/checkbox";
+import BreadcrumbCard from "components/shared/Breadcrumb";
 
 const CreateCBA = () => {
   const navigate = useNavigate();
@@ -39,11 +40,22 @@ const CreateCBA = () => {
 
     //    navigate(RouteEnum.RFQ);
   };
+
+  const breadcrumbs = [
+    { name: "Procurement", icon: true },
+    { name: "Solicitation Management", icon: true },
+    { name: "RFQ", icon: true },
+    { name: "Detail", icon: true },
+    { name: "Create CBA", icon: false },
+  ];
+
   return (
-    <div className="space-y-10">
+    <div className="space-y-5">
+      <BreadcrumbCard list={breadcrumbs} />
+
       <GoBack />
 
-      <h4 className="font-semibold text-lg">Create CBA</h4>
+      <h4 className="font-semibold text-lg pb-5">Create CBA</h4>
 
       <Form {...form}>
         <form className="space-y-8" onSubmit={handleSubmit(onSubmit)}>
