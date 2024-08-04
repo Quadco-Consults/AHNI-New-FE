@@ -33,7 +33,7 @@ const items = [
   {
     serialNo: 5,
     item: "Wireless Table Phones",
-    description: "Quality Wireless Table Phones",
+    description: "Quality Wireless Table Phone",
     quantity: 6,
   },
   {
