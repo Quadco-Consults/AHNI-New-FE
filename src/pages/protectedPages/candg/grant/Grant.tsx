@@ -147,7 +147,14 @@ const Grant: React.FC = () => {
         </div>
       </div>
       <div className="w-full">
-        <DataTable columns={columns} onRowClick={() => navigate(CandGRoutes.GRANT_DETAILS)} data={grantsArray} isLoading={getGrants.isLoading} />
+        <DataTable
+          columns={columns}
+          onRowClick={(row) => {
+            navigate("/c-and-g/grant-details/" + row?.original?.id);
+          }}
+          data={grantsArray}
+          isLoading={getGrants.isLoading}
+        />
       </div>
     </div>
   );

@@ -1,21 +1,23 @@
 import Card from "components/shared/Card";
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 
-const GrantDetailsCard: React.FC = () => {
+const GrantDetailsCard = ({ grantDetails }: { grantDetails: any }) => {
+  console.log(grantDetails);
+
   const CardDetails = useMemo(() => {
     return [
-      { id: 1, label: "Project Name", value: "Malaria Control Program" },
-      { id: 1, label: "Funding Source", value: "NGO Funding " },
-      { id: 1, label: "Guarantor", value: "NGO Funding " },
-      { id: 1, label: "Intervention", value: "Health z" },
-      { id: 1, label: "Project Location", value: "Lagos" },
-      { id: 1, label: "Award Type", value: "Cooperative Agreement " },
-      { id: 1, label: "Reference No", value: "Cooperative Agreement " },
+      { id: 1, label: "Project Name", value: grantDetails?.project?.title || "-" },
+      { id: 1, label: "Funding Source", value: grantDetails?.grantor?.name || "-" },
+      // { id: 1, label: "Guarantor", value: "NGO Funding " },
+      { id: 1, label: "Intervention", value: grantDetails?.intervention_area?.name || "-" },
+      { id: 1, label: "Project Location", value: grantDetails?.location?.address || "-" },
+      { id: 1, label: "Award Type", value: grantDetails?.award_type || "-" },
+      { id: 1, label: "Reference No", value: grantDetails?.reference_number || "-" },
     ];
-  }, []);
+  }, [grantDetails]);
   return (
     <div className="w-full bg-white px-[2.5rem] py-[1.25rem] rounded-2xl flex flex-col gap-y-[1.25rem]">
-      <p className="text-xl font-semibold">Grant Details</p>
+      <p className="text-xl font-semibold">Grantee Details</p>
       <Card>
         <div className="w-full flex flex-wrap items-start justify-between p-3 gap-y-[1.25rem]">
           {CardDetails.map((item, index) => {
