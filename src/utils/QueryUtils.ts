@@ -1,9 +1,4 @@
-export function provideTags(
-  tagType: any,
-  resultsWithIds: any,
-  error?: any,
-  options = {}
-) {
+export function provideTags(tagType: any, resultsWithIds: any, error?: any, options = {}) {
   const { selectId = ({ id }: any) => id }: any = options;
   const listTag = { type: tagType };
   const result = error
@@ -24,11 +19,7 @@ export function provideTags(
 }
 
 export function invalidateTags(tagType: any, ids?: any, error?: any) {
-  const result = error
-    ? []
-    : ids?.length
-    ? [...ids.map((id: any) => ({ type: tagType, id }))]
-    : [{ type: tagType }];
+  const result = error ? [] : ids?.length ? [...ids.map((id: any) => ({ type: tagType, id }))] : [{ type: tagType }];
 
   return result;
 }

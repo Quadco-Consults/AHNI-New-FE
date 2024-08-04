@@ -139,7 +139,9 @@ export const CandGRoutes = {
   GRANT_DETAILS: "/c-and-g/grant-details/:id",
   CLOSE_OUT: "/c-and-g/close-out-plan",
   CLOSE_OUT_DETAILS: "/c-and-g/close-out-plan/details/:id",
-  NEW_CLOSE_OUT_PLAN: "/c-and-g/close-out-plan/new",
-  //   OVERVIEW: "/c-and-g/overview",
+  NEW_CLOSE_OUT_PLAN: "/c-and-g/close-out-plan/new-grant",
+  CONSULTANCY: "/c-and-g/consultancy",
+  NEW_CONSULTANCY: "/c-and-g/consultancy/new-consultancy",
+  CONSULTANCY_DETAILS: "/c-and-g/consultancy/details/:id",
   //   OVERVIEW: "/c-and-g/overview",
 };

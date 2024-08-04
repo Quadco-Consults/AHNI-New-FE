@@ -490,7 +490,7 @@ const DEPARTMENTAL_LINKS = [
       {
         name: "Contract Management",
         sublinks: [
-          { name: "Consultant management", path: "/" },
+          { name: "Consultant management", path: CandGRoutes.CONSULTANCY },
           { name: "Consultancy report", path: "/" },
           { name: "Payment request", path: "/" },
           { name: "Facilitator management", path: "/" },
