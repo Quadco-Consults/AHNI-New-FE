@@ -19,7 +19,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 const NewGrant: React.FC = () => {
-  const departmentQueryResults = DepartmentsAPI.useGetDepartmentsQuery({
+  const departmentQueryResults: any = DepartmentsAPI.useGetDepartmentsQuery({
     params: { no_paginate: true, fields: "id,name" },
   });
   const departments = useMemo(() => {
@@ -118,14 +118,18 @@ const NewGrant: React.FC = () => {
     resolver: zodResolver(CangGAddGrantsSchema),
   });
   const onSubmit: SubmitHandler<z.infer<typeof CangGAddGrantsSchema>> = async (data) => {
-    console.log(data);
+    // console.log(data);
     try {
-      const result = await adNewGrantMutation({ ...data, reference_number: "29dd5874-4f3d-4080-b85e-ff9f4099d1c0" }).unwrap();
+      const result = await adNewGrantMutation({ ...data, reference_number: "AGIF-0023" }).unwrap();
       if (result) {
         toast.success("Grant added");
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
       }
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      toast.error(error?.data?.errors?.[0]?.attr + " is required");
+      // console.log(error);
     }
   };
   return (
