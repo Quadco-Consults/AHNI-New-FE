@@ -1,7 +1,36 @@
 import React, { useMemo } from "react";
 import { TotalExpenditureSvg, TotalIncomeSvg } from "assets/svgs/CAndGSvgs";
+import { expenditureAPIs } from "services/cAndGApi/expenditure";
+import { ColumnDef } from "@tanstack/react-table";
+import DataTable from "components/Table/DataTable";
 
-const ExpenditureHistory: React.FC = () => {
+const ExpenditureHistory: React.FC<any> = ({ grantDetails }) => {
+  console.log(grantDetails);
+
+  const getExpenditures = expenditureAPIs.useGetExpendituresQuery({});
+  console.log(getExpenditures);
+
+  const columns: ColumnDef<any>[] = [
+    {
+      header: "Project",
+      accessorKey: "project",
+      size: 200,
+      cell: ({ row }) => <p>{row?.original?.project || "-"}</p>,
+    },
+    {
+      header: "Amount Spent",
+      accessorKey: "amount",
+      size: 200,
+      cell: ({ row }) => <p>{row?.original?.amount}</p>,
+    },
+    {
+      header: "Month/Year",
+      accessorKey: "mounth_year",
+      size: 200,
+      cell: ({ row }) => <p>{row?.original?.month_year}</p>,
+    },
+  ];
+
   const StatsCard = useMemo(() => {
     return [
       { id: 1, name: "Total Income", stat: 2000000, icon: <TotalIncomeSvg /> },
@@ -22,6 +51,9 @@ const ExpenditureHistory: React.FC = () => {
             </div>
           );
         })}
+      </div>
+      <div className="w-full bg-white border rounded-lg p-2">
+        <DataTable columns={columns} data={getExpenditures?.data?.results || []} isLoading={getExpenditures.isLoading} />
       </div>
     </section>
   );

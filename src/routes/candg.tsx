@@ -22,10 +22,7 @@ export const candg = [
     path: CandGRoutes.CLOSE_OUT,
     element: lazy(() => import("pages/protectedPages/candg/closeout/CloseOut")),
   },
-  {
-    path: CandGRoutes.CLOSE_OUT,
-    element: lazy(() => import("pages/protectedPages/candg/closeout/CloseOut")),
-  },
+
   {
     path: CandGRoutes.CLOSE_OUT_DETAILS,
     element: lazy(() => import("pages/protectedPages/candg/closeout/CloseOutDetails")),
@@ -33,5 +30,17 @@ export const candg = [
   {
     path: CandGRoutes.NEW_CLOSE_OUT_PLAN,
     element: lazy(() => import("pages/protectedPages/candg/closeout/NewCloseOutPlan")),
+  },
+  {
+    path: CandGRoutes.CONSULTANCY,
+    element: lazy(() => import("pages/protectedPages/candg/consultancy/Consultancy")),
+  },
+  {
+    path: CandGRoutes.NEW_CONSULTANCY,
+    element: lazy(() => import("pages/protectedPages/candg/consultancy/CreateNewConsultancy")),
+  },
+  {
+    path: CandGRoutes.CONSULTANCY_DETAILS,
+    element: lazy(() => import("pages/protectedPages/candg/consultancy/ConsultancyDetails")),
   },
 ];

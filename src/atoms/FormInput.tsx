@@ -2,13 +2,7 @@ import { FC, InputHTMLAttributes, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Eye, EyeOff } from "lucide-react";
 import { useDisableNumberInputScroll } from "../hooks/useDisableNumberInputScroll";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "components/ui/form";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "components/ui/form";
 import { Input } from "components/ui/input";
 import { cn } from "lib/utils";
 
@@ -43,32 +37,10 @@ const FormInput: FC<InputProps> = ({ name, label, ...rest }) => {
             </FormLabel>
             <FormControl>
               <div className="relative">
-                <Input
-                  type={
-                    type === "password"
-                      ? isPasswordVisible
-                        ? "text"
-                        : "password"
-                      : type
-                  }
-                  placeholder={rest.placeholder}
-                  onChange={onChange}
-                  value={value}
-                  className={cn(
-                    "font-medium bg-[#F9F9F9] placeholder:text-black/30",
-                    rest.className
-                  )}
-                />
+                <Input type={type === "password" ? (isPasswordVisible ? "text" : "password") : type} placeholder={rest.placeholder} onChange={onChange} value={value} className={cn("font-medium bg-[#F9F9F9] placeholder:text-black/30", rest.className)} />
                 {rest.type === "password" && (
-                  <div
-                    className="absolute transform -translate-y-1/2 cursor-pointer top-1/2 right-4"
-                    onClick={() => setPasswordVisibility(!isPasswordVisible)}
-                  >
-                    {isPasswordVisible ? (
-                      <EyeOff name="eye-off" />
-                    ) : (
-                      <Eye name="eye" />
-                    )}
+                  <div className="absolute transform -translate-y-1/2 cursor-pointer top-1/2 right-4" onClick={() => setPasswordVisibility(!isPasswordVisible)}>
+                    {isPasswordVisible ? <EyeOff name="eye-off" /> : <Eye name="eye" />}
                   </div>
                 )}
               </div>
