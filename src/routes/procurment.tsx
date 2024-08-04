@@ -9,15 +9,6 @@ export const procurment = [
     ),
   },
   {
-    path: RouteEnum.COMPETITIVE_ANALYSIS,
-    element: lazy(
-      () =>
-        import(
-          "pages/protectedPages/procurement-management/competitive-bid-analysis/Competitive-analysis"
-        )
-    ),
-  },
-  {
     path: RouteEnum.COMPETITIVE_SELECTION,
     element: lazy(
       () =>
@@ -165,7 +156,7 @@ export const procurment = [
     element: lazy(
       () =>
         import(
-          "pages/protectedPages/procurement-management/solicitation-management/RFQ/[id]/RFQ-details"
+          "pages/protectedPages/procurement-management/solicitation-management/RFQ/[id]"
         )
     ),
   },
@@ -210,25 +201,34 @@ export const procurment = [
     element: lazy(
       () =>
         import(
-          "pages/protectedPages/procurement-management/solicitation-management/RFQ/CompetittveBidAnalysis"
+          "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/start-competitiveBidAnalysis"
         )
     ),
   },
   {
-    path: RouteEnum.OPEN_TENDER,
+    path: RouteEnum.COMPETITIVE_BID_ANALYSIS,
     element: lazy(
       () =>
         import(
-          "pages/protectedPages/procurement-management/solicitation-management/National-tender"
+          "pages/protectedPages/procurement-management/competitive-bid-analysis/index"
         )
     ),
   },
   {
-    path: RouteEnum.SINGLE_SOURCING,
+    path: RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS,
     element: lazy(
       () =>
         import(
-          "pages/protectedPages/procurement-management/solicitation-management/Single-sourcing"
+          "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/index"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_START,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/start-competitiveBidAnalysis"
         )
     ),
   },

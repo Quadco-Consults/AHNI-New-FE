@@ -559,7 +559,7 @@ const DEPARTMENTAL_LINKS = [
       // },
       {
         name: "Competitive Bid Analysis",
-        path: RouteEnum.COMPETITIVE_ANALYSIS,
+        path: RouteEnum.COMPETITIVE_BID_ANALYSIS,
         // sublinks: [
         //   { name: "CBA", path: RouteEnum.COMPETITIVE_ANALYSIS },
         //   { name: "Selection", path: RouteEnum.COMPETITIVE_SELECTION },

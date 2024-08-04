@@ -25,7 +25,6 @@ import ItemsAPI from "services/configs/items";
 import { ItemsResultsData } from "definations/configs/itmes";
 import { toast } from "sonner";
 import SolicitationAPI from "services/procurementApi/solicitation";
-import { watch } from "fs";
 
 const Items = () => {
   const navigate = useNavigate();
@@ -83,11 +82,8 @@ const Items = () => {
     name: "items",
   });
 
-  console.log(fields);
-
   const onSubmit = async (data: z.infer<typeof SolicitationItemsSchema>) => {
     const submittedData = { ...formData, ...data };
-    console.log(submittedData);
 
     try {
       await createSolicitationMutation(submittedData).unwrap();
