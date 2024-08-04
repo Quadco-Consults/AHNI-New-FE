@@ -1,5 +1,5 @@
 import { Button } from "components/ui/button";
-import { useParams } from "react-router-dom";
+import { Link, generatePath, useParams } from "react-router-dom";
 import { LoadingSpinner } from "components/shared/Loading";
 import BreadcrumbCard from "components/shared/Breadcrumb";
 import CbaAPI from "services/procurementApi/cba";
@@ -9,6 +9,7 @@ import { Icon } from "@iconify/react";
 import { SolicitationItems } from "definations/procurement-types/solicitation";
 import GoBack from "components/shared/GoBack";
 import { CommitteeMemberData } from "definations/procurement-types/cba";
+import { RouteEnum } from "constants/RouterConstants";
 
 const CompetitiveBidAnalysisDetail = () => {
   const { id } = useParams();
@@ -32,7 +33,17 @@ const CompetitiveBidAnalysisDetail = () => {
       <GoBack />
 
       <Card className="space-y-8 p-10">
-        <h2 className="font-semibold text-lg">{data?.title}</h2>
+        <div className="flex justify-between">
+          <h2 className="font-semibold text-lg">{data?.title}</h2>
+
+          <Link
+            to={generatePath(RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_START, {
+              id: id as string,
+            })}
+          >
+            <Button>Start CBA</Button>
+          </Link>
+        </div>
 
         <h4 className="text-green-dark text-base font-semibold">
           Status <Badge>{data?.status.toLowerCase()}</Badge>
