@@ -2,16 +2,7 @@ import React from "react";
 import CarIcon from "assets/svgs/CarIcon";
 import RequestIcon from "assets/svgs/RequestIcon";
 import Card from "components/shared/Card";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  TooltipProps,
-} from "recharts";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, TooltipProps } from "recharts";
 import { Label } from "components/ui/label";
 
 type DataType = {
@@ -19,11 +10,7 @@ type DataType = {
   price: number;
 };
 
-const CustomTooltip = ({
-  active,
-  payload,
-  label,
-}: TooltipProps<number, string>) => {
+const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
   if (active && payload && payload.length) {
     return (
       <div className="p-2 bg-white border rounded shadow-lg">
@@ -68,13 +55,7 @@ const PriceTrendChart: React.FC = () => {
           <XAxis className="text-xs" dataKey="month" />
           <YAxis className="text-xs" />
           <Tooltip content={<CustomTooltip />} />
-          <Area
-            type="monotone"
-            dataKey="price"
-            stroke="#38A169"
-            fillOpacity={1}
-            fill="url(#colorPrice)"
-          />
+          <Area type="monotone" dataKey="price" stroke="#38A169" fillOpacity={1} fill="url(#colorPrice)" />
         </AreaChart>
       </ResponsiveContainer>
     </div>
@@ -97,17 +78,13 @@ const Overview = () => {
               <div className="flex items-start justify-center">
                 <CarIcon />
               </div>
-              <p className="text-xs font-bold text-center">
-                82 Available Vehicles
-              </p>
+              <p className="text-xs font-bold text-center">82 Available Vehicles</p>
             </div>
             <div className="flex flex-col justify-between">
               <div className="flex items-start justify-center">
                 <RequestIcon />
               </div>
-              <p className="text-xs font-bold text-center">
-                82 Request Generated
-              </p>
+              <p className="text-xs font-bold text-center">82 Request Generated</p>
             </div>
           </div>
         </Card>
@@ -126,35 +103,23 @@ const Overview = () => {
           <div className="flex items-center p-3 gap-x-4">
             <div>
               <p className="text-xs font-bold">Hand Stanitizer</p>
-              <p className="text-xs text-gray-400">
-                Remaining qunantity: 10 Packets
-              </p>
+              <p className="text-xs text-gray-400">Remaining qunantity: 10 Packets</p>
             </div>
-            <Label className="py-1 px-2 text-[10px] text-red-600 bg-red-100 rounded-full">
-              Low
-            </Label>
+            <Label className="py-1 px-2 text-[10px] text-red-600 bg-red-100 rounded-full">Low</Label>
           </div>
           <div className="flex items-center p-3 gap-x-4">
             <div>
               <p className="text-xs font-bold">Hand Stanitizer</p>
-              <p className="text-xs text-gray-400">
-                Remaining qunantity: 10 Packets
-              </p>
+              <p className="text-xs text-gray-400">Remaining qunantity: 10 Packets</p>
             </div>
-            <Label className="py-1 px-2 text-[10px] text-red-600 bg-red-100 rounded-full">
-              Low
-            </Label>
+            <Label className="py-1 px-2 text-[10px] text-red-600 bg-red-100 rounded-full">Low</Label>
           </div>
           <div className="flex items-center p-3 gap-x-4">
             <div>
               <p className="text-xs font-bold">Hand Stanitizer</p>
-              <p className="text-xs text-gray-400">
-                Remaining qunantity: 10 Packets
-              </p>
+              <p className="text-xs text-gray-400">Remaining qunantity: 10 Packets</p>
             </div>
-            <Label className="py-1 px-2 text-[10px] text-red-600 bg-red-100 rounded-full">
-              Low
-            </Label>
+            <Label className="py-1 px-2 text-[10px] text-red-600 bg-red-100 rounded-full">Low</Label>
           </div>
         </Card>
       </div>

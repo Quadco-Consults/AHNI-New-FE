@@ -1,8 +1,4 @@
-import {
-  useReactTable,
-  getCoreRowModel,
-  getPaginationRowModel,
-} from "@tanstack/react-table";
+import { useReactTable, getCoreRowModel, getPaginationRowModel } from "@tanstack/react-table";
 
 function useTable(options: any) {
   return useReactTable({

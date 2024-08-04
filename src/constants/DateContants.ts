@@ -3,6 +3,7 @@ export const DateFormatEnum = {
   SPACE_dd_MMM: "dd MMM",
   SPACE_dd_MMMM_yyyy: "dd MMMM yyyy",
   SPACE_dd_MMM_yyyy: "dd MMM yyyy",
+  SPACE_COMMA_dd_MMM_yyyy: "dd MMM, yyyy",
   SPACE_MMMM_yyyy: "MMMM yyyy",
   HYPHEN_yyyy_MM_dd: "yyyy-MM-dd",
   HYPHEN_dd_MM_yyyy: "dd-MM-yyyy",

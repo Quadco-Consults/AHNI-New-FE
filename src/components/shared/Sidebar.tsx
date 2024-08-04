@@ -2,8 +2,8 @@
 import { useState } from "react";
 import logoSvg from "assets/svgs/logo-bg.svg";
 import { NavLink, useLocation } from "react-router-dom";
-import { ChevronDown, Package, ScanEye } from "lucide-react";
-import { RouteEnum, AdminRoutes } from "constants/RouterConstants";
+import { ChevronDown, Package, ScanEye, User, VaultIcon } from "lucide-react";
+import { RouteEnum, AdminRoutes, CandGRoutes } from "constants/RouterConstants";
 import { Icon } from "@iconify/react";
 import { cn } from "lib/utils";
 import { motion } from "framer-motion";
@@ -26,42 +26,22 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
   const location = useLocation();
   const [showMenu, setShowMenu] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [selectedLinkIndex, setSelectedLinkIndex] = useState<null | number>(
-    null
-  );
+  const [selectedLinkIndex, setSelectedLinkIndex] = useState<null | number>(null);
   const [showSubMenu, setShowSubMenu] = useState(false);
-  const [selectedLinkSubIndex, setSelectedLinkSubIndex] = useState<
-    null | number
-  >(null);
+  const [selectedLinkSubIndex, setSelectedLinkSubIndex] = useState<null | number>(null);
 
   return (
-    <aside
-      className={cn(
-        "bg-background fixed inset-0 z-[20] min-h-screen overflow-auto pb-[4rem] duration-200",
-        sidebarWidth === false ? "w-[19%]" : "w-[5%]"
-      )}
-    >
+    <aside className={cn("bg-background fixed inset-0 z-[20] min-h-screen overflow-auto pb-[4rem] duration-200", sidebarWidth === false ? "w-[19%]" : "w-[5%]")}>
       <section className="flex flex-col w-full gap-2">
         <div className="relative h-[5rem] overflow-hidden">
-          <div
-            className={cn(
-              "bg-background z-20 mx-auto duration-200 ",
-              sidebarWidth === false ? "w-[100%]" : "w-[0%]"
-            )}
-          >
+          <div className={cn("bg-background z-20 mx-auto duration-200 ", sidebarWidth === false ? "w-[100%]" : "w-[0%]")}>
             <img
               src={logoSvg}
               alt="logo"
               // width={50}
               className="object-cover w-24 mx-auto"
             />
-            <IconButton
-              onClick={() => setSidebarWidth(!sidebarWidth)}
-              className={cn(
-                "hover:text-primary absolute right-0 top-5 z-40 shadow-sm",
-                sidebarWidth && "right-3 rotate-180 duration-200"
-              )}
-            >
+            <IconButton onClick={() => setSidebarWidth(!sidebarWidth)} className={cn("hover:text-primary absolute right-0 top-5 z-40 shadow-sm", sidebarWidth && "right-3 rotate-180 duration-200")}>
               <Icon icon="ph:arrow-left-duotone" fontSize={15} />
             </IconButton>
           </div>
@@ -73,54 +53,24 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
           <NavLink
             to={RouteEnum.DASHBOARD}
             className={({ isActive }) => {
-              return isActive
-                ? "bg-primary px dark:text-inherit flex w-full items-center justify-start gap-3 rounded-lg p-3 text-white hover:opacity-70"
-                : "bg-inherit px hover:bg-primary flex w-full items-center justify-start gap-3 rounded-lg p-3 hover:text-white";
+              return isActive ? "bg-primary px dark:text-inherit flex w-full items-center justify-start gap-3 rounded-lg p-3 text-white hover:opacity-70" : "bg-inherit px hover:bg-primary flex w-full items-center justify-start gap-3 rounded-lg p-3 hover:text-white";
             }}
           >
             <DashboardIcon />
 
-            <h4
-              className={cn(
-                "font-semibold duration-200",
-                sidebarWidth === false ? "block" : "hidden"
-              )}
-            >
-              Dashboard
-            </h4>
+            <h4 className={cn("font-semibold duration-200", sidebarWidth === false ? "block" : "hidden")}>Dashboard</h4>
           </NavLink>
 
           {/* Departmental Links */}
           <div className="">
-            <h4
-              className={cn(
-                "text-black/40 px-2 py-3 text-xs font-semibold uppercase duration-200",
-                sidebarWidth === false ? "block" : "hidden"
-              )}
-            >
-              DEPARTMENTAL HUB
-            </h4>
+            <h4 className={cn("text-black/40 px-2 py-3 text-xs font-semibold uppercase duration-200", sidebarWidth === false ? "block" : "hidden")}>DEPARTMENTAL HUB</h4>
 
-            <NavLink
-              to={RouteEnum.PROJECTS}
-              className={cn(
-                "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
-                location.pathname.startsWith(RouteEnum.PROJECTS) &&
-                  "text-primary "
-              )}
-            >
+            <NavLink to={RouteEnum.PROJECTS} className={cn("hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer", location.pathname.startsWith(RouteEnum.PROJECTS) && "text-primary ")}>
               <div className="flex w-[85%] items-center gap-2">
                 <span className="">
                   <ProjectsIcon />
                 </span>
-                <h4
-                  className={cn(
-                    " w-[100%] truncate font-medium",
-                    sidebarWidth === false ? "block" : "hidden"
-                  )}
-                >
-                  Projects
-                </h4>
+                <h4 className={cn(" w-[100%] truncate font-medium", sidebarWidth === false ? "block" : "hidden")}>Projects</h4>
               </div>
             </NavLink>
 
@@ -131,29 +81,13 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                     setShowMenu(!showMenu);
                     setSelectedLinkIndex(index);
                   }}
-                  className={cn(
-                    "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
-                    location.pathname.startsWith(link.path) && "text-primary "
-                  )}
+                  className={cn("hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer", location.pathname.startsWith(link.path) && "text-primary ")}
                 >
                   <div className="flex w-[85%] items-center gap-2">
                     <span className="">{link.icon}</span>
-                    <h4
-                      className={cn(
-                        " w-[100%] truncate font-medium",
-                        sidebarWidth === false ? "block" : "hidden"
-                      )}
-                    >
-                      {link.name}
-                    </h4>
+                    <h4 className={cn(" w-[100%] truncate font-medium", sidebarWidth === false ? "block" : "hidden")}>{link.name}</h4>
                   </div>
-                  <ChevronDown
-                    className={cn(
-                      "h-5 w-5 -rotate-90 transition duration-200",
-                      showMenu && selectedLinkIndex === index && "rotate-0"
-                    )}
-                    aria-hidden="true"
-                  />
+                  <ChevronDown className={cn("h-5 w-5 -rotate-90 transition duration-200", showMenu && selectedLinkIndex === index && "rotate-0")} aria-hidden="true" />
                 </div>
                 <motion.ul
                   animate={
@@ -176,29 +110,11 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                               setShowSubMenu(!showSubMenu);
                               setSelectedLinkSubIndex(i);
                             }}
-                            className={cn(
-                              "flex items-center justify-start gap-2",
-                              location.pathname.startsWith(el.path) &&
-                                " text-amber-400 "
-                            )}
+                            className={cn("flex items-center justify-start gap-2", location.pathname.startsWith(el.path) && " text-amber-400 ")}
                           >
-                            <span
-                              className={cn(
-                                "bg-black hover:bg-amber-400 aspect-square w-2 truncate rounded-full border",
-                                location.pathname.startsWith(el.path) &&
-                                  " bg-amber-400 border-amber-400 hover:bg-amber-400"
-                              )}
-                            ></span>
+                            <span className={cn("bg-black hover:bg-amber-400 aspect-square w-2 truncate rounded-full border", location.pathname.startsWith(el.path) && " bg-amber-400 border-amber-400 hover:bg-amber-400")}></span>
                             <h6 className="py-2">{el.name}</h6>
-                            <ChevronDown
-                              className={cn(
-                                "h-3 w-3 transition duration-200",
-                                showSubMenu &&
-                                  selectedLinkSubIndex === i &&
-                                  "rotate-180"
-                              )}
-                              aria-hidden="true"
-                            />
+                            <ChevronDown className={cn("h-3 w-3 transition duration-200", showSubMenu && selectedLinkSubIndex === i && "rotate-180")} aria-hidden="true" />
                           </div>
                         </li>
 
@@ -222,9 +138,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                                 return isActive ? "text-amber-400" : "";
                               }}
                             >
-                              <li className="py-2 ml-8 list-none hover:text-amber-400 hover:cursor-pointer">
-                                {sublink.name}
-                              </li>
+                              <li className="py-2 ml-8 list-none hover:text-amber-400 hover:cursor-pointer">{sublink.name}</li>
                             </NavLink>
                           ))}
                         </motion.ul>
@@ -237,20 +151,8 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                           return isActive ? "text-amber-400" : "";
                         }}
                       >
-                        <li
-                          className={cn(
-                            "hover:text-amber-400 flex items-center justify-start gap-2 text-sm",
-                            location.pathname.startsWith(el.path) &&
-                              " text-amber-400 "
-                          )}
-                        >
-                          <span
-                            className={cn(
-                              "bg-black hover:bg-amber-400 aspect-square w-2 rounded-full border",
-                              location.pathname.startsWith(el.path) &&
-                                " bg-amber-400 border-amber-400 hover:bg-amber-400"
-                            )}
-                          ></span>
+                        <li className={cn("hover:text-amber-400 flex items-center justify-start gap-2 text-sm", location.pathname.startsWith(el.path) && " text-amber-400 ")}>
+                          <span className={cn("bg-black hover:bg-amber-400 aspect-square w-2 rounded-full border", location.pathname.startsWith(el.path) && " bg-amber-400 border-amber-400 hover:bg-amber-400")}></span>
                           <h6 className="py-2">{el.name}</h6>
                         </li>
                       </NavLink>
@@ -263,14 +165,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
 
           {/* settings */}
           <div>
-            <h4
-              className={cn(
-                "text-black/40 px-2 py-3 text-xs font-semibold uppercase duration-200",
-                sidebarWidth === false ? "block" : "hidden"
-              )}
-            >
-              SETTINGS
-            </h4>
+            <h4 className={cn("text-black/40 px-2 py-3 text-xs font-semibold uppercase duration-200", sidebarWidth === false ? "block" : "hidden")}>SETTINGS</h4>
 
             {MODULE_LINKS.map((link: any, index: number) => (
               <div key={index} className="w-full ">
@@ -279,29 +174,13 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                     setShowSettings(!showSettings);
                     setSelectedLinkIndex(index);
                   }}
-                  className={cn(
-                    "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
-                    location.pathname.startsWith(link.path) && "text-primary "
-                  )}
+                  className={cn("hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer", location.pathname.startsWith(link.path) && "text-primary ")}
                 >
                   <div className="flex w-[85%] items-center gap-2">
                     <span className="">{link.icon}</span>
-                    <h4
-                      className={cn(
-                        " w-[100%] truncate font-medium",
-                        sidebarWidth === false ? "block" : "hidden"
-                      )}
-                    >
-                      {link.name}
-                    </h4>
+                    <h4 className={cn(" w-[100%] truncate font-medium", sidebarWidth === false ? "block" : "hidden")}>{link.name}</h4>
                   </div>
-                  <ChevronDown
-                    className={cn(
-                      "h-5 w-5 -rotate-90 transition duration-200",
-                      showSettings && selectedLinkIndex === index && "rotate-0"
-                    )}
-                    aria-hidden="true"
-                  />
+                  <ChevronDown className={cn("h-5 w-5 -rotate-90 transition duration-200", showSettings && selectedLinkIndex === index && "rotate-0")} aria-hidden="true" />
                 </div>
                 <motion.ul
                   animate={
@@ -324,29 +203,11 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                               setShowSubMenu(!showSubMenu);
                               setSelectedLinkSubIndex(i);
                             }}
-                            className={cn(
-                              "flex items-center justify-start gap-2",
-                              location.pathname.startsWith(el.path) &&
-                                " text-amber-400 "
-                            )}
+                            className={cn("flex items-center justify-start gap-2", location.pathname.startsWith(el.path) && " text-amber-400 ")}
                           >
-                            <span
-                              className={cn(
-                                "bg-black hover:bg-amber-400 aspect-square w-2 truncate rounded-full border",
-                                location.pathname.startsWith(el.path) &&
-                                  " bg-amber-400 border-amber-400 hover:bg-amber-400"
-                              )}
-                            ></span>
+                            <span className={cn("bg-black hover:bg-amber-400 aspect-square w-2 truncate rounded-full border", location.pathname.startsWith(el.path) && " bg-amber-400 border-amber-400 hover:bg-amber-400")}></span>
                             <h6 className="py-2">{el.name}</h6>
-                            <ChevronDown
-                              className={cn(
-                                "h-3 w-3 transition duration-200",
-                                showSubMenu &&
-                                  selectedLinkSubIndex === i &&
-                                  "rotate-180"
-                              )}
-                              aria-hidden="true"
-                            />
+                            <ChevronDown className={cn("h-3 w-3 transition duration-200", showSubMenu && selectedLinkSubIndex === i && "rotate-180")} aria-hidden="true" />
                           </div>
                         </li>
 
@@ -370,9 +231,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                                 return isActive ? "text-amber-400" : "";
                               }}
                             >
-                              <li className="py-2 ml-8 list-none hover:text-amber-400 hover:cursor-pointer">
-                                {sublink.name}
-                              </li>
+                              <li className="py-2 ml-8 list-none hover:text-amber-400 hover:cursor-pointer">{sublink.name}</li>
                             </NavLink>
                           ))}
                         </motion.ul>
@@ -385,20 +244,8 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                           return isActive ? "text-amber-400" : "";
                         }}
                       >
-                        <li
-                          className={cn(
-                            "hover:text-amber-400 flex items-center justify-start gap-2 text-sm",
-                            location.pathname.startsWith(el.path) &&
-                              " text-amber-400 "
-                          )}
-                        >
-                          <span
-                            className={cn(
-                              "bg-black hover:bg-amber-400 aspect-square w-2 rounded-full border",
-                              location.pathname.startsWith(el.path) &&
-                                " bg-amber-400 border-amber-400 hover:bg-amber-400"
-                            )}
-                          ></span>
+                        <li className={cn("hover:text-amber-400 flex items-center justify-start gap-2 text-sm", location.pathname.startsWith(el.path) && " text-amber-400 ")}>
+                          <span className={cn("bg-black hover:bg-amber-400 aspect-square w-2 rounded-full border", location.pathname.startsWith(el.path) && " bg-amber-400 border-amber-400 hover:bg-amber-400")}></span>
                           <h6 className="py-2">{el.name}</h6>
                         </li>
                       </NavLink>
@@ -413,14 +260,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
 
           {/* Global Hub */}
           <div className="">
-            <h4
-              className={cn(
-                "text-black/40 px-2 py-3 text-xs font-semibold uppercase duration-200",
-                sidebarWidth === false ? "block" : "hidden"
-              )}
-            >
-              GLOBAL HUB
-            </h4>
+            <h4 className={cn("text-black/40 px-2 py-3 text-xs font-semibold uppercase duration-200", sidebarWidth === false ? "block" : "hidden")}>GLOBAL HUB</h4>
           </div>
         </div>
       </section>
@@ -635,22 +475,22 @@ const DEPARTMENTAL_LINKS = [
     icon: <CGIcon />,
 
     link: [
-      { name: "Overview", path: "/" },
+      { name: "Overview", path: CandGRoutes.OVERVIEW },
       {
         name: "Grant Management",
         sublinks: [
-          { name: "Grants", path: "/" },
+          { name: "Grants", path: CandGRoutes.GRANT },
           { name: "Subgrants", path: "/" },
         ],
       },
       {
         name: "Closeout",
-        sublinks: [{ name: "Closeout Plan", path: "/" }],
+        sublinks: [{ name: "Closeout Plan", path: CandGRoutes.CLOSE_OUT }],
       },
       {
         name: "Contract Management",
         sublinks: [
-          { name: "Consultant management", path: "/" },
+          { name: "Consultant management", path: CandGRoutes.CONSULTANCY },
           { name: "Consultancy report", path: "/" },
           { name: "Payment request", path: "/" },
           { name: "Facilitator management", path: "/" },

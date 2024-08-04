@@ -1,36 +1,19 @@
 import { Icon } from "@iconify/react";
-import {
-  useReactTable,
-  getCoreRowModel,
-  getPaginationRowModel,
-  ColumnDef,
-  flexRender,
-} from "@tanstack/react-table";
+import { useReactTable, getCoreRowModel, getPaginationRowModel, ColumnDef, flexRender } from "@tanstack/react-table";
 import { LoadingSpinner } from "components/shared/Loading";
 import { Button } from "components/ui/button";
 
-import {
-  Table as ShadTable,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "components/ui/table";
+import { Table as ShadTable, TableBody, TableCell, TableHead, TableHeader, TableRow } from "components/ui/table";
 
 interface TableProps<TData> {
   data: TData[];
   columns: ColumnDef<TData, any>[];
-  onRowClick?: () => void;
+  // eslint-disable-next-line no-unused-vars
+  onRowClick?: (row: any) => void;
   isLoading: boolean;
 }
 
-function DataTable<TData>({
-  data,
-  columns,
-  onRowClick,
-  isLoading,
-}: TableProps<TData>) {
+function DataTable<TData>({ data, columns, onRowClick, isLoading }: TableProps<TData>) {
   const table = useReactTable<TData>({
     data,
     columns,
@@ -60,12 +43,7 @@ function DataTable<TData>({
                     maxWidth: header.column.columnDef.size,
                   }}
                 >
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                  {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                 </TableHead>
               ))}
             </TableRow>
@@ -82,18 +60,9 @@ function DataTable<TData>({
             <>
               {table.getRowModel().rows.length > 0 ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    className="cursor-pointer text-[#756D6D] text-sm dark:text-white"
-                    key={row.id}
-                    onClick={() => onRowClick && onRowClick()}
-                  >
+                  <TableRow className="cursor-pointer text-[#756D6D] text-sm dark:text-white" key={row.id} onClick={() => onRowClick && onRowClick(row)}>
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
+                      <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                     ))}
                   </TableRow>
                 ))
@@ -109,24 +78,13 @@ function DataTable<TData>({
         </TableBody>
       </ShadTable>
       <div className="flex items-center justify-end my-4 gap-x-4 ">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
+        <Button variant="outline" size="icon" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
           <Icon icon="hugeicons:arrow-left-double" />
         </Button>
         <span>
-          Page {table.getState().pagination.pageIndex + 1} of{" "}
-          {table.getPageCount()}
+          Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
         </span>{" "}
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
+        <Button variant="outline" size="icon" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
           <Icon icon="hugeicons:arrow-right-double" />
         </Button>
       </div>
