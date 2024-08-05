@@ -1,7 +1,6 @@
-import { AuthRoutes, RouteEnum } from "constants/RouterConstants";
+import { AuthRoutes } from "constants/RouterConstants";
 
 import { lazy } from "react";
-import { Navigate } from "react-router-dom";
 
 export const auth = [
   {

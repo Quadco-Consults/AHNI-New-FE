@@ -5,6 +5,7 @@ export const AuthRoutes = {
 export const AdminRoutes = {
   OVERVIEW: "/admin/overview",
   CONSUMABLES: "/admin/inventory-managment/consumables",
+  CONSUMABLES_VIEW: "/admin/inventory-managment/consumables/view",
   ASSETS: "/admin/inventory-managment/assets",
   CREateConsumables: "/admin/inventory-managment/create-consumables",
   CreateAssets: "/admin/inventory-managment/create-assets",
@@ -155,7 +156,6 @@ export const RouteEnum = {
   // modules
   MODULES_PROJECTS: "/modules-projects",
   MODULES_PROGRAMS: "/modules-programs",
-
 
   // PROGRAM_OVERVIEW: "/program/overview",
   // PROGRAM_OVERVIEW: "/program/overview",

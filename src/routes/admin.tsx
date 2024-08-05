@@ -25,6 +25,10 @@ export const adminRoutes = [
     element: lazy(() => import("pages/protectedPages/admin/CreateConsumables")),
   },
   {
+    path: AdminRoutes.CONSUMABLES_VIEW,
+    element: lazy(() => import("pages/protectedPages/admin/ViewConsumables")),
+  },
+  {
     path: AdminRoutes.CreateAssets,
     element: lazy(() => import("pages/protectedPages/admin/AddAssets")),
   },
