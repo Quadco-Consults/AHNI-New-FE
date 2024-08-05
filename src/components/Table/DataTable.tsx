@@ -21,8 +21,9 @@ import {
 interface TableProps<TData> {
   data: TData[];
   columns: ColumnDef<TData, any>[];
-  onRowClick?: () => void;
-  isLoading: boolean;
+  // eslint-disable-next-line no-unused-vars
+  onRowClick?: (row: any) => void;
+  isLoading?: boolean;
 }
 
 function DataTable<TData>({
@@ -85,7 +86,7 @@ function DataTable<TData>({
                   <TableRow
                     className="cursor-pointer text-[#756D6D] text-sm dark:text-white"
                     key={row.id}
-                    onClick={() => onRowClick && onRowClick()}
+                    onClick={() => onRowClick && onRowClick(row)}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
