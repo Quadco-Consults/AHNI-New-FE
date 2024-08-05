@@ -1,3 +1,4 @@
+import BreadcrumbCard from "components/shared/Breadcrumb";
 import Card from "components/shared/Card";
 import { Checkbox } from "components/ui/checkbox";
 import { Textarea } from "components/ui/textarea";
@@ -32,7 +33,7 @@ const items = [
   {
     serialNo: 5,
     item: "Wireless Table Phones",
-    description: "Quality Wireless Table Phones",
+    description: "Quality Wireless Table Phone",
     quantity: 6,
   },
   {
@@ -100,9 +101,17 @@ const Products = () => {
   );
 };
 
+const breadcrumbs = [
+  { name: "Procurement", icon: true },
+  { name: "Competitive Bid Analysis", icon: true },
+  { name: "Detail", icon: true },
+  { name: "Start CBA", icon: false },
+];
+
 const CompetittveBidAnalysis = () => {
   return (
-    <div>
+    <div className="space-y-10">
+      <BreadcrumbCard list={breadcrumbs} />
       <Card className="overflow-x-auto ">
         <div className="w-[1700px]  ">
           {/* Headers */}

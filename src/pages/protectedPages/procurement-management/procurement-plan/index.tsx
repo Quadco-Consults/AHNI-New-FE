@@ -62,22 +62,13 @@ function ProcurementPlan() {
             </PopoverTrigger>
             <PopoverContent className=" w-fit">
               <div className="flex flex-col items-start justify-between gap-1">
-                <Link
-                  className="w-full"
-                  to={generatePath(RouteEnum.PROCUREMENT_DETAILS, { id: "1" })}
-                >
-                  <Button
-                    className="w-full flex items-center justify-start gap-2"
-                    variant="ghost"
-                  >
+                <Link className="w-full" to={generatePath(RouteEnum.PROCUREMENT_DETAILS, { id: "1" })}>
+                  <Button className="w-full flex items-center justify-start gap-2" variant="ghost">
                     <EyeIcon />
                     View
                   </Button>
                 </Link>
-                <Button
-                  className="w-full flex items-center justify-start gap-2"
-                  variant="ghost"
-                >
+                <Button className="w-full flex items-center justify-start gap-2" variant="ghost">
                   <DeleteIcon />
                   delete
                 </Button>
@@ -177,21 +168,12 @@ function ProcurementPlan() {
           </PopoverTrigger>
           <PopoverContent className=" w-fit">
             <div className="flex flex-col items-start justify-between gap-1">
-              <Link
-                className="w-full"
-                to={generatePath(RouteEnum.CREATE_PROCUREMENT)}
-              >
-                <Button
-                  className="w-full flex items-center justify-start"
-                  variant="ghost"
-                >
+              <Link className="w-full" to={generatePath(RouteEnum.CREATE_PROCUREMENT)}>
+                <Button className="w-full flex items-center justify-start" variant="ghost">
                   Create from scratch
                 </Button>
               </Link>
-              <Button
-                className="w-full flex items-center justify-start"
-                variant="ghost"
-              >
+              <Button className="w-full flex items-center justify-start" variant="ghost">
                 Upload Procurement plan
               </Button>
             </div>
@@ -202,18 +184,14 @@ function ProcurementPlan() {
         <div className="flex items-center justify-start gap-2">
           <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
             <SearchIcon />
-            <input
-              placeholder="Search"
-              type="text"
-              className="ml-2 h-6 border-none bg-none focus:outline-none outline-none"
-            />
+            <input placeholder="Search" type="text" className="ml-2 h-6 border-none bg-none focus:outline-none outline-none" />
           </span>
           <Button className="shadow-sm" variant="ghost">
             <FilterIcon />
           </Button>
         </div>
 
-        <DataTable data={data} columns={columns} />
+        <DataTable data={data} columns={columns} isLoading={false} />
       </Card>
     </section>
   );

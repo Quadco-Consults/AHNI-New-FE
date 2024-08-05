@@ -23,26 +23,16 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/change-password" element={<ChangePassword />} />
-        <Route
-          path="/"
-          element={token ? <ProtectedPage /> : <Navigate to="/login" />}
-        >
+        <Route path="/" element={token ? <ProtectedPage /> : <Navigate to="/login" />}>
           {routes.map(({ path, element, children }) => (
             <Route key={path} path={path} element={element}>
               {children?.map((child: any) => (
-                <Route
-                  key={child.path}
-                  path={child.path}
-                  element={child.element}
-                />
+                <Route key={child.path} path={child.path} element={child.element} />
               ))}
             </Route>
           ))}
         </Route>
-        <Route
-          path="*"
-          element={<Navigate to={token ? "/dashboard" : "/login"} />}
-        />
+        <Route path="*" element={<Navigate to={token ? "/dashboard" : "/login"} />} />
       </Routes>
     </div>
   );

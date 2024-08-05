@@ -36,37 +36,49 @@ export const RouteEnum = {
 
   OVERVIEW: "/procurement-management/overview",
 
-  COMPETITIVE_ANALYSIS: "/procurement-management/competitive-bid-analysis/CBA",
   COMPETITIVE_SELECTION:
     "/procurement-management/competitive-bid-analysis/selection",
 
   PAYMENT_REQUEST: "/procurement-management/payment-request",
 
+  //purchase request routes
   PURCHASE_REQUEST: "/procurement-management/purchase-request",
   PURCHASE_REQUEST_DETAILS: "/procurement-management/purchase-request/:id",
   CREATE_PURCHASE_REQUEST: "/procurement-management/create-purchase-request",
 
+  //procurement routes
   PROCUREMENT_PLAN: "/procurement-management/procurement-plan",
   PROCUREMENT_DETAILS: "/procurement-management/procurement-plan/:id",
   CREATE_PROCUREMENT:
     "/procurement-management/procurement-plan/create-procurement",
   PROCUREMENT_TRACKER: "/procurement-management/procurement-tracker",
-  REPORT: "/procurement-management/report",
 
+  //rfq routes
   RFQ: "/procurement-management/solicitation/rfq",
+  RFQ_CREATE_QUOTATION:
+    "/procurement-management/solicitation/rfq/create/quotation",
+  RFQ_CREATE_ITEMS: "/procurement-management/solicitation/rfq/create/items",
   RFQ_DETAILS: "/procurement-management/solicitation/rfq/:id",
+  RFQ_CREATE_CBA: "/procurement-management/solicitation/rfq/:id/create-cba",
   RFQ_COMPETITIVE_BID_ANALYSIS:
     "/procurement-management/solicitation/rfq/competitive-bid-analysis/:id",
   RFQ_DETAILS_BID_SUBMISSION:
     "/procurement-management/solicitation/rfq/:id/manual-bid-submission",
-  OPEN_TENDER: "/procurement-management/solicitation/national-open-tender",
-  SINGLE_SOURCING: "/procurement-management/solicitation/single-sourcing",
-
   RFQ_VENDOR: "/procurement-management/rfq-vendor",
 
+  //competitive bid analysis routes
+  COMPETITIVE_BID_ANALYSIS: "/procurement-management/competitive-bid-analysis",
+  COMPETITIVE_BID_ANALYSIS_DETAILS:
+    "/procurement-management/competitive-bid-analysis/:id",
+  COMPETITIVE_BID_ANALYSIS_DETAILS_START:
+    "/procurement-management/competitive-bid-analysis/:id/start",
+
+  //eoi routes
   EOI: "/procurement-management/vendor-management/eoi",
   EOI_VIEW: "/procurement-management/vendor-management/eoi/:id",
   EOI_VENDOR: "/procurement-management/vendor-management/eoi-vendor",
+
+  //vendor-management routes
   VENDOR_MANAGEMENT:
     "/procurement-management/vendor-management/prequalification",
   VENDOR_REGISTRATION:
@@ -81,11 +93,14 @@ export const RouteEnum = {
     "/procurement-management/vendor-management/prequalification/:id",
   VENDOR_MANAGEMENT_START_PREQUALIFICATION:
     "/procurement-management/vendor-management/prequalification/:id/start-prequalification",
+
+  //purchase order routes
   PURCHASE_ORDER: "/procurement-management/purchase-order",
   PURCHASE_ORDER_NEW: "/procurement-management/purchase-order-new",
   SUBMISSION_OF_BIDS: "/procurement-management/submission-of-bids",
   PRICE_INTELLIGENCE: "/procurement-management/price-intelligence",
   SUPPLIER_DATABASE: "/procurement-management/supplier-database",
+
   //program routes
   PROGRAM_WORK_PLAN: "/program/plan/work-plan",
   PROGRAM_WORK_PLAN_DETAILS:
@@ -102,18 +117,15 @@ export const RouteEnum = {
     "/program/plan/supportive-supervision-plan/:id/approval-status",
   PROGRAM_SUPPORTIVE_SUPERVISION_MANAGEMENT:
     "/program/plan/supportive-supervision-plan/:id/evaluation",
-
   PROGRAM_SUPPORTIVE_SUPERVISION_COMPOSITION:
     "/program/plan/supportive-supervision-plan/create/facility&team-composition",
   PROGRAM_SUPPORTIVE_SUPERVISION_CHECKLIST:
     "/program/plan/supportive-supervision-plan/create/evolution-checklist",
   PROGRAM_FUND_REQUEST: "/program/fund-request",
-  PROGRAM_FUND_REQUEST_DETAILS: "/program/fund-request/:id",
-  PROGRAM_FUND_REQUEST_PROJECT_DETAIL:
-    "/program/fund-request/create/project-details",
+  PROGRAM_FUND_REQUEST_DETAILS: "/program/fund-request/:id/:month_year",
+  PROGRAM_FUND_REQUEST_CREATE: "/program/fund-request/create/project-details",
   PROGRAM_FUND_REQUEST_FUND_SUMMARY:
     "/program/fund-request/create/fund-request-summary",
-
   PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS:
     "/program/stakeholder-management/analysis&mapping",
   PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS_DETAILS:
@@ -135,6 +147,7 @@ export const RouteEnum = {
   PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN_DETAILS:
     "/program/stakeholder-management/engagement-plan/:id",
   PROGRAM_REPORT: "/program/reports",
+  PROGRAM_PAYMENT_REQUEST: "/program/payment-request",
 
   //projects routes
   PROJECTS: "/projects",
@@ -146,7 +159,7 @@ export const RouteEnum = {
   // PROJECTS_CREATE_PERFORMANCE: "/projects/create-projects/performance",
 
   TRAINING: "/program/training-and-procurement",
-  PROGRAM_PAYMENT_REQUEST: "/program/payment-request",
+  REPORT: "/procurement-management/report",
 
   // users
   USERS: "/users",
@@ -159,4 +172,18 @@ export const RouteEnum = {
 
   // PROGRAM_OVERVIEW: "/program/overview",
   // PROGRAM_OVERVIEW: "/program/overview",
+};
+
+export const CandGRoutes = {
+  OVERVIEW: "/c-and-g/overview",
+  GRANT: "/c-and-g/grant",
+  NEW_GRANT: "/c-and-g/new-grant",
+  GRANT_DETAILS: "/c-and-g/grant-details/:id",
+  CLOSE_OUT: "/c-and-g/close-out-plan",
+  CLOSE_OUT_DETAILS: "/c-and-g/close-out-plan/details/:id",
+  NEW_CLOSE_OUT_PLAN: "/c-and-g/close-out-plan/new-grant",
+  CONSULTANCY: "/c-and-g/consultancy",
+  NEW_CONSULTANCY: "/c-and-g/consultancy/new-consultancy",
+  CONSULTANCY_DETAILS: "/c-and-g/consultancy/details/:id",
+  //   OVERVIEW: "/c-and-g/overview",
 };

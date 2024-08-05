@@ -24,6 +24,16 @@ const VendorsAPI = baseAPI.injectEndpoints({
       providesTags: (data, error) =>
         !error ? provideTags("VENDOR", data) : [],
     }),
+    getVendorList: builder.query<VendorsResultsData[], {}>({
+      query: (config) => {
+        return {
+          url: `${BASE_URL}`,
+          ...config,
+        };
+      },
+      providesTags: (data, error) =>
+        !error ? provideTags("VENDOR", data) : [],
+    }),
 
     createVendor: builder.mutation<VendorsResponse, any>({
       query: (body) => ({
