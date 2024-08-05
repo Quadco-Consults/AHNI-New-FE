@@ -111,8 +111,14 @@ export const adminRoutes = [
     ),
   },
   {
-    path: AdminRoutes.Lease,
+    path: AdminRoutes.Agrements,
     element: lazy(() => import("pages/protectedPages/admin/Agreement/Lease")),
+  },
+  {
+    path: AdminRoutes.AgrementsCreeate,
+    element: lazy(
+      () => import("pages/protectedPages/admin/Agreement/CreateAgreement")
+    ),
   },
   {
     path: AdminRoutes.SLA,

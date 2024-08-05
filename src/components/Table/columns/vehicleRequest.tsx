@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "components/ui/dropdown-menu";
 import { AdminRoutes } from "constants/RouterConstants";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface TeamMember {
   id: string;
@@ -53,6 +53,11 @@ export interface IVehicleRequest {
 }
 // eslint-disable-next-line react-refresh/only-export-components
 const MoreAction = ({ row }: { row: IVehicleRequest }) => {
+  const navigate = useNavigate();
+  const onSelecteion = () => {
+    navigate(AdminRoutes.ViewVehicleRequest);
+    sessionStorage.setItem("vehicle_request", row.id);
+  };
   return (
     <div className="flex items-center space-x-2">
       <DropdownMenu>
@@ -62,10 +67,11 @@ const MoreAction = ({ row }: { row: IVehicleRequest }) => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-24">
-          <DropdownMenuItem className="cursor-pointer ">
-            <Link to={`${AdminRoutes.ViewVehicleRequest}/?id=${row.id}`}>
-              View
-            </Link>
+          <DropdownMenuItem
+            className="cursor-pointer "
+            onClick={() => onSelecteion()}
+          >
+            View
           </DropdownMenuItem>
           <DropdownMenuItem className="cursor-pointer ">
             Delete

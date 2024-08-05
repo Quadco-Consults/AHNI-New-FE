@@ -9,7 +9,7 @@ import { Card } from "components/ui/card";
 import { Checkbox } from "components/ui/checkbox";
 import { Form } from "components/ui/form";
 import { Label } from "components/ui/label";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useSearchParams } from "react-router-dom";
 import { useGetAssetsQuery } from "services/adminApi/assetsApi";
@@ -37,18 +37,22 @@ const AssetsItem = ({
   );
 };
 
-function TravelRequestForm() {
+const ViewVehicle = () => {
   const form = useForm({
     defaultValues: {
       vehicles: [{ vehicle: "", driver: "" }],
     },
   });
 
+  const [VehicleId] = useState(sessionStorage.getItem("vehicle_request"));
+
   const [searchParams] = useSearchParams();
 
   const id = searchParams.get("id") as string;
 
-  const { data: oneVehicle } = useGetOneVehicleRequestsQuery({ id });
+  const { data: oneVehicle } = useGetOneVehicleRequestsQuery({
+    id: String(VehicleId),
+  });
 
   const { data } = useGetAssetsQuery({
     classification: "Vehicle",
@@ -103,15 +107,15 @@ function TravelRequestForm() {
       <Card className="p-6 mx-auto space-y-5 ">
         <AssetsItem
           heading="Requesting Staff"
-          desc={`${String(oneVehicle?.requesting_staff.first_name)} ${String(
-            oneVehicle?.requesting_staff.last_name
+          desc={`${String(oneVehicle?.requesting_staff?.first_name)} ${String(
+            oneVehicle?.requesting_staff?.last_name
           )}`}
         />
 
         <div className="grid grid-cols-3 gap-5 mb-6">
           <AssetsItem
             heading="Location"
-            desc={String(oneVehicle?.location.name)}
+            desc={String(oneVehicle?.location?.name)}
           />
           <AssetsItem
             heading="Date Of Request"
@@ -136,10 +140,10 @@ function TravelRequestForm() {
         </div>
 
         <h3 className="mb-2 text-lg font-bold text-yellow-500">
-          Travel Team Members ({oneVehicle?.team_members.length})
+          Travel Team Members ({oneVehicle?.team_members?.length})
         </h3>
         <div className="grid grid-cols-4 gap-4 mb-6">
-          {oneVehicle?.team_members.map((item, i) => (
+          {oneVehicle?.team_members?.map((item, i) => (
             <Card key={i} className="p-2 bg-amber-50">
               <p>
                 <span className="font-bold">Name:</span> {item.first_name}{" "}
@@ -228,6 +232,6 @@ function TravelRequestForm() {
       </Card>
     </div>
   );
-}
+};
 
-export default TravelRequestForm;
+export default ViewVehicle;
