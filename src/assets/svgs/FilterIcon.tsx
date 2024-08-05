@@ -1,48 +1,14 @@
 const FilterIcon = () => {
   return (
-    <svg
-      width="60"
-      height="60"
-      viewBox="0 0 60 60"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g filter="url(#filter0_d_4685_60001)">
-        <rect
-          x="10"
-          y="2"
-          width="40"
-          height="40"
-          rx="8"
-          fill="white"
-          shapeRendering="crispEdges"
-        />
+        <rect x="10" y="2" width="40" height="40" rx="8" fill="white" shapeRendering="crispEdges" />
         <g opacity="0.4">
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M20 27C20 26.4477 20.4477 26 21 26H27C27.5523 26 28 26.4477 28 27C28 27.5523 27.5523 28 27 28H21C20.4477 28 20 27.5523 20 27Z"
-            fill="#141B34"
-          />
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M32 17C32 16.4477 32.4477 16 33 16L39 16C39.5523 16 40 16.4477 40 17C40 17.5523 39.5523 18 39 18L33 18C32.4477 18 32 17.5523 32 17Z"
-            fill="#141B34"
-          />
+          <path fillRule="evenodd" clipRule="evenodd" d="M20 27C20 26.4477 20.4477 26 21 26H27C27.5523 26 28 26.4477 28 27C28 27.5523 27.5523 28 27 28H21C20.4477 28 20 27.5523 20 27Z" fill="#141B34" />
+          <path fillRule="evenodd" clipRule="evenodd" d="M32 17C32 16.4477 32.4477 16 33 16L39 16C39.5523 16 40 16.4477 40 17C40 17.5523 39.5523 18 39 18L33 18C32.4477 18 32 17.5523 32 17Z" fill="#141B34" />
         </g>
-        <path
-          fillRule="evenodd"
-          clipRule="evenodd"
-          d="M20 17C20 16.4477 20.4477 16 21 16H24C24.5523 16 25 16.4477 25 17C25 17.5523 24.5523 18 24 18H21C20.4477 18 20 17.5523 20 17Z"
-          fill="#141B34"
-        />
-        <path
-          fillRule="evenodd"
-          clipRule="evenodd"
-          d="M35 27C35 26.4477 35.4477 26 36 26H39C39.5523 26 40 26.4477 40 27C40 27.5523 39.5523 28 39 28H36C35.4477 28 35 27.5523 35 27Z"
-          fill="#141B34"
-        />
+        <path fillRule="evenodd" clipRule="evenodd" d="M20 17C20 16.4477 20.4477 16 21 16H24C24.5523 16 25 16.4477 25 17C25 17.5523 24.5523 18 24 18H21C20.4477 18 20 17.5523 20 17Z" fill="#141B34" />
+        <path fillRule="evenodd" clipRule="evenodd" d="M35 27C35 26.4477 35.4477 26 36 26H39C39.5523 26 40 26.4477 40 27C40 27.5523 39.5523 28 39 28H36C35.4477 28 35 27.5523 35 27Z" fill="#141B34" />
         <path
           fillRule="evenodd"
           clipRule="evenodd"
@@ -57,40 +23,15 @@ const FilterIcon = () => {
         />
       </g>
       <defs>
-        <filter
-          id="filter0_d_4685_60001"
-          x="0"
-          y="0"
-          width="60"
-          height="60"
-          filterUnits="userSpaceOnUse"
-          colorInterpolationFilters="sRGB"
-        >
+        <filter id="filter0_d_4685_60001" x="0" y="0" width="60" height="60" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
           <feFlood floodOpacity="0" result="BackgroundImageFix" />
-          <feColorMatrix
-            in="SourceAlpha"
-            type="matrix"
-            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-            result="hardAlpha"
-          />
+          <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
           <feOffset dy="8" />
           <feGaussianBlur stdDeviation="5" />
           <feComposite in2="hardAlpha" operator="out" />
-          <feColorMatrix
-            type="matrix"
-            values="0 0 0 0 0.0588235 0 0 0 0 0.164706 0 0 0 0 0.317647 0 0 0 0.08 0"
-          />
-          <feBlend
-            mode="normal"
-            in2="BackgroundImageFix"
-            result="effect1_dropShadow_4685_60001"
-          />
-          <feBlend
-            mode="normal"
-            in="SourceGraphic"
-            in2="effect1_dropShadow_4685_60001"
-            result="shape"
-          />
+          <feColorMatrix type="matrix" values="0 0 0 0 0.0588235 0 0 0 0 0.164706 0 0 0 0 0.317647 0 0 0 0.08 0" />
+          <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_4685_60001" />
+          <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_4685_60001" result="shape" />
         </filter>
       </defs>
     </svg>

@@ -7,22 +7,22 @@ import { Checkbox } from "components/ui/checkbox";
 import { cn } from "lib/utils";
 import { Button } from "components/ui/button";
 import { Input } from "components/ui/input";
-import { Link, generatePath } from "react-router-dom";
+import { Link, generatePath, useParams } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
 import DataTable from "components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
+import {
+  SolicitationResultsData,
+  SolicitationSubmissionResultsData,
+} from "definations/procurement-types/solicitation";
+import SolicitationAPI from "services/procurementApi/solicitation";
 
-type Data = {
-  name: string;
-  number: number;
-  email: string;
-  products: string;
-  status: string;
-  prequalification: string;
-  isSelected: boolean;
-};
+const VendorSubmission = (vendor: SolicitationResultsData) => {
+  const { id } = useParams();
+  const { data, isLoading } = SolicitationAPI.useGetSolicitationSubmissionQuery(
+    { path: { id: id as string } }
+  );
 
-const VendorSubmission = () => {
   return (
     <div className="space-y-10">
       <Card className="space-y-10">
@@ -36,7 +36,11 @@ const VendorSubmission = () => {
             />
           </div>
 
-          <Link to={generatePath(RouteEnum.VENDOR_REGISTRATION, { id: "1" })}>
+          <Link
+            to={generatePath(RouteEnum.RFQ_DETAILS_BID_SUBMISSION, {
+              id: vendor?.id,
+            })}
+          >
             <Button variant="ghost" className="bg-[#FFF2F2] gap-2 text-primary">
               <svg
                 width="24"
@@ -64,7 +68,11 @@ const VendorSubmission = () => {
           </Link>
         </div>
 
-        <DataTable data={data} columns={columns} />
+        <DataTable
+          data={data?.results || []}
+          columns={columns}
+          isLoading={isLoading}
+        />
       </Card>
     </div>
   );
@@ -72,7 +80,7 @@ const VendorSubmission = () => {
 
 export default VendorSubmission;
 
-const columns: ColumnDef<Data>[] = [
+const columns: ColumnDef<SolicitationSubmissionResultsData>[] = [
   {
     id: "select",
     size: 50,
@@ -99,39 +107,26 @@ const columns: ColumnDef<Data>[] = [
   },
   {
     header: "Vendor Name",
-    accessorKey: "name",
-    size: 250,
-  },
-  {
-    header: "Type of Business",
-    accessorKey: "email",
+    accessorKey: "company_name",
     size: 250,
   },
   {
     header: "Company Reg No",
-    accessorKey: "number",
+    accessorKey: "company_registration_number",
     size: 200,
   },
   {
-    header: "Prequalification",
-    accessorKey: "prequalification",
-    cell: ({ getValue }) => {
-      return (
-        <Badge
-          className={cn(
-            "px-3 py-2 rounded-lg",
-            getValue() === "Pass" && "bg-green-50 text-green-500",
-            getValue() === "Fail" && "bg-red-50 text-red-500",
-            getValue() === "Unreviewed" && "bg-yellow-50 text-yellow-500"
-          )}
-        >
-          {getValue() as string}
-        </Badge>
-      );
-    },
+    header: "Year of Incorporation",
+    accessorKey: "year_or_incorperation",
+    size: 200,
   },
   {
-    header: "Evaluation",
+    header: "Nature of Business",
+    accessorKey: "nature_of_business",
+    size: 200,
+  },
+  {
+    header: "Status",
     accessorKey: "status",
     cell: ({ getValue }) => {
       return (
@@ -140,7 +135,7 @@ const columns: ColumnDef<Data>[] = [
             "px-3 py-2 rounded-lg",
             getValue() === "Pass" && "bg-green-50 text-green-500",
             getValue() === "Fail" && "bg-red-50 text-red-500",
-            getValue() === "Unreviewed" && "bg-yellow-50 text-yellow-500"
+            getValue() === "Pending" && "bg-yellow-50 text-yellow-500"
           )}
         >
           {getValue() as string}
@@ -156,10 +151,11 @@ const columns: ColumnDef<Data>[] = [
 ];
 
 const ActionListAction = ({ data }: any) => {
-  console.log(data);
   return (
     <div className="flex gap-2">
-      <Link to={generatePath(RouteEnum.VENDOR_MANAGEMENT_DETAILS, { id: "1" })}>
+      <Link
+        to={generatePath(RouteEnum.VENDOR_MANAGEMENT_DETAILS, { id: data?.id })}
+      >
         <IconButton className="bg-[#F9F9F9] hover:text-primary">
           <Icon icon="ph:eye-duotone" fontSize={15} />
         </IconButton>
@@ -170,60 +166,3 @@ const ActionListAction = ({ data }: any) => {
     </div>
   );
 };
-
-const data = [
-  {
-    name: "Medical Supplies Ltd.",
-    number: +2348071234567,
-    email: "contact@medsupplies.com.ng",
-    products: "MEDICAL EQUIPMENT, SURGICAL TOOLS",
-    status: "Pass",
-    prequalification: "Pass",
-    isSelected: false,
-  },
-  {
-    name: "Naija Labs & Co.",
-    number: +2348092345678,
-    email: "info@naijalabs.com.ng",
-    products: "Diagnostic kits, laboratory equipment",
-    status: "Unreviewed",
-    prequalification: "Pass",
-    isSelected: false,
-  },
-  {
-    name: "HealthTech Nigeria",
-    number: +2348063456789,
-    email: "support@healthtechnigeria.com.ng",
-    products: "Healthcare software, patient management systems",
-    status: "Pass",
-    prequalification: "Pass",
-    isSelected: false,
-  },
-  {
-    name: "Medical Supplies Ltd.",
-    number: +2348071234567,
-    email: "contact@medsupplies.com.ng",
-    products: "MEDICAL EQUIPMENT, SURGICAL TOOLS",
-    status: "Fail",
-    prequalification: "Pass",
-    isSelected: false,
-  },
-  {
-    name: "Naija Labs & Co.",
-    number: +2348092345678,
-    email: "info@naijalabs.com.ng",
-    products: "Diagnostic kits, laboratory equipment",
-    status: "Unreviewed",
-    prequalification: "Pass",
-    isSelected: false,
-  },
-  {
-    name: "HealthTech Nigeria",
-    number: +2348063456789,
-    email: "support@healthtechnigeria.com.ng",
-    products: "Healthcare software, patient management systems",
-    status: "Pass",
-    prequalification: "Pass",
-    isSelected: false,
-  },
-];

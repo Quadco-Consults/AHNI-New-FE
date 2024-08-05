@@ -213,7 +213,7 @@ const EOI = () => {
                               />
                             </PopoverContent>
                           </Popover>
-                        </div>{" "}
+                        </div>
                         <div>
                           <Label>End Date</Label>
                           <br />
