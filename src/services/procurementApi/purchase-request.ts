@@ -22,6 +22,15 @@ const PurchaseRequestAPI = baseAPI.injectEndpoints({
       },
       providesTags: ["PURCHASE_REQUEST"],
     }),
+    getPurchaseRequestList: builder.query<PurchaseRequestResultsData[], {}>({
+      query: (config) => {
+        return {
+          url: `${BASE_URL}`,
+          ...config,
+        };
+      },
+      providesTags: ["PURCHASE_REQUEST"],
+    }),
 
     createPurchaseRequest: builder.mutation<
       PurchaseRequestResponse,

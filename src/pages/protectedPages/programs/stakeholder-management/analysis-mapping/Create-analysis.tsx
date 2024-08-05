@@ -108,7 +108,6 @@ const CreateAnalysis = () => {
     control,
     name: "stakeholders",
   });
-  console.log(watch("stakeholders"));
 
   useEffect(() => {
     const matchedStakeholders =

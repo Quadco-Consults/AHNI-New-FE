@@ -2,55 +2,47 @@
 /* eslint-disable no-unused-vars */
 import baseAPI from "..";
 import { z } from "zod";
+import { CbaSchema } from "definations/procurement-validator";
 import {
-  ItemsData,
-  ItemsResponse,
-  ItemsResultsData,
-} from "definations/configs/itmes";
+  CbaData,
+  CbaResponse,
+  CbaResultsData,
+} from "definations/procurement-types/cba";
 
-const BASE_URL = "/config/items/";
+const BASE_URL = "/procurement/cba/";
 
-const ItemsAPI = baseAPI.injectEndpoints({
+const CbaAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getItems: builder.query<ItemsData, {}>({
+    getCbaList: builder.query<CbaData, {}>({
       query: (config) => {
         return {
           url: `${BASE_URL}`,
           ...config,
         };
       },
-      providesTags: ["ITEMS"],
-    }),
-    getItemList: builder.query<ItemsResultsData[], {}>({
-      query: (config) => {
-        return {
-          url: `${BASE_URL}`,
-          ...config,
-        };
-      },
-      providesTags: ["ITEMS"],
+      providesTags: ["CBA"],
     }),
 
-    createItem: builder.mutation<ItemsResponse, any>({
+    createCba: builder.mutation<CbaResponse, z.infer<typeof CbaSchema>>({
       query: (body) => ({
         url: `${BASE_URL}`,
         method: "POST",
         body,
       }),
-      invalidatesTags: ["ITEMS"],
+      invalidatesTags: ["CBA"],
     }),
 
-    getItem: builder.query<ItemsResultsData, { path: { id: string } }>({
+    getCba: builder.query<CbaResultsData, { path: { id: string } }>({
       query: ({ path }) => {
         return {
           url: `${BASE_URL}${path.id}/`,
         };
       },
-      providesTags: ["ITEMS"],
+      providesTags: ["CBA"],
     }),
 
-    updateItem: builder.mutation<
-      ItemsResponse,
+    updateCba: builder.mutation<
+      CbaResponse,
       { path: { id: string }; body: any }
     >({
       query: ({ path, body }) => ({
@@ -58,11 +50,11 @@ const ItemsAPI = baseAPI.injectEndpoints({
         method: "PUT",
         body,
       }),
-      invalidatesTags: ["ITEMS"],
+      invalidatesTags: ["CBA"],
     }),
 
-    modifyItem: builder.mutation<
-      ItemsResponse,
+    modifyCba: builder.mutation<
+      CbaResponse,
       { path: { id: string }; body: any }
     >({
       query: ({ path, body }) => ({
@@ -70,17 +62,17 @@ const ItemsAPI = baseAPI.injectEndpoints({
         method: "PATCH",
         body,
       }),
-      invalidatesTags: ["ITEMS"],
+      invalidatesTags: ["CBA"],
     }),
 
-    deleteItem: builder.mutation<void, { path: { id: string } }>({
+    deleteCba: builder.mutation<void, { path: { id: string } }>({
       query: ({ path }) => ({
         url: `${BASE_URL}${path.id}/`,
         method: "DELETE",
       }),
-      invalidatesTags: ["ITEMS"],
+      invalidatesTags: ["CBA"],
     }),
   }),
 });
 
-export default ItemsAPI;
+export default CbaAPI;

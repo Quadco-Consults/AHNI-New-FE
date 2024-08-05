@@ -4,43 +4,77 @@ import { lazy } from "react";
 export const procurment = [
   {
     path: RouteEnum.OVERVIEW,
-    element: lazy(() => import("pages/protectedPages/procurement-management/Overview")),
-  },
-  {
-    path: RouteEnum.COMPETITIVE_ANALYSIS,
-    element: lazy(() => import("pages/protectedPages/procurement-management/competitive-bid-analysis/Competitive-analysis")),
+    element: lazy(
+      () => import("pages/protectedPages/procurement-management/Overview")
+    ),
   },
   {
     path: RouteEnum.COMPETITIVE_SELECTION,
-    element: lazy(() => import("pages/protectedPages/procurement-management/competitive-bid-analysis/Selection")),
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/competitive-bid-analysis/Selection"
+        )
+    ),
   },
   {
     path: RouteEnum.EOI_VENDOR,
-    element: lazy(() => import("pages/protectedPages/procurement-management/vendor-management/eoi/EOI-vendor")),
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/vendor-management/eoi/EOI-vendor"
+        )
+    ),
   },
   {
     path: RouteEnum.EOI,
-    element: lazy(() => import("pages/protectedPages/procurement-management/vendor-management/eoi/EOI")),
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/vendor-management/eoi/EOI"
+        )
+    ),
   },
   {
     path: RouteEnum.EOI_VIEW,
-    element: lazy(() => import("pages/protectedPages/procurement-management/vendor-management/eoi/id")),
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/vendor-management/eoi/id"
+        )
+    ),
   },
   {
     path: RouteEnum.PAYMENT_REQUEST,
-    element: lazy(() => import("pages/protectedPages/procurement-management/Payment-request")),
+    element: lazy(
+      () =>
+        import("pages/protectedPages/procurement-management/Payment-request")
+    ),
   },
   {
     path: RouteEnum.PROCUREMENT_PLAN,
-    element: lazy(() => import("pages/protectedPages/procurement-management/procurement-plan/")),
+    element: lazy(
+      () =>
+        import("pages/protectedPages/procurement-management/procurement-plan/")
+    ),
   },
   {
     path: RouteEnum.PROCUREMENT_DETAILS,
-    element: lazy(() => import("pages/protectedPages/procurement-management/procurement-plan/id")),
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/procurement-plan/id"
+        )
+    ),
   },
   {
     path: RouteEnum.CREATE_PROCUREMENT,
-    element: lazy(() => import("pages/protectedPages/procurement-management/procurement-plan/create-procurement")),
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/procurement-plan/create-procurement"
+        )
+    ),
   },
   // {
   //   path: RouteEnum.PROCUREMENT_PLAN_TRACKER,
@@ -53,110 +87,269 @@ export const procurment = [
   // },
   {
     path: RouteEnum.PROCUREMENT_TRACKER,
-    element: lazy(() => import("pages/protectedPages/procurement-management/procurement-tracker")),
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/procurement-tracker"
+        )
+    ),
   },
   {
     path: RouteEnum.PURCHASE_REQUEST,
-    element: lazy(() => import("pages/protectedPages/procurement-management/purchase-request/index")),
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/purchase-request/index"
+        )
+    ),
   },
   {
     path: RouteEnum.CREATE_PURCHASE_REQUEST,
-    element: lazy(() => import("pages/protectedPages/procurement-management/purchase-request/create-purchase-request/index")),
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/purchase-request/create-purchase-request/index"
+        )
+    ),
   },
   {
     path: RouteEnum.PURCHASE_REQUEST_DETAILS,
-    element: lazy(() => import("pages/protectedPages/procurement-management/purchase-request/id/")),
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/purchase-request/id/"
+        )
+    ),
   },
   {
     path: RouteEnum.CREATE_PURCHASE_REQUEST,
-    element: lazy(() => import("pages/protectedPages/procurement-management/purchase-request/create-purchase-request")),
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/purchase-request/create-purchase-request"
+        )
+    ),
   },
   {
     path: RouteEnum.REPORT,
-    element: lazy(() => import("pages/protectedPages/procurement-management/Report")),
+    element: lazy(
+      () => import("pages/protectedPages/procurement-management/Report")
+    ),
   },
   {
     path: RouteEnum.RFQ_VENDOR,
-    element: lazy(() => import("pages/protectedPages/procurement-management/RFQ-vendor")),
+    element: lazy(
+      () => import("pages/protectedPages/procurement-management/RFQ-vendor")
+    ),
   },
   {
     path: RouteEnum.RFQ,
-    element: lazy(() => import("pages/protectedPages/procurement-management/solicitation-management/RFQ/RFQ")),
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/solicitation-management/RFQ"
+        )
+    ),
   },
   {
     path: RouteEnum.RFQ_DETAILS,
-    element: lazy(() => import("pages/protectedPages/procurement-management/solicitation-management/RFQ/RFQ-details")),
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/solicitation-management/RFQ/[id]"
+        )
+    ),
   },
   {
     path: RouteEnum.RFQ_DETAILS_BID_SUBMISSION,
-    element: lazy(() => import("pages/protectedPages/procurement-management/solicitation-management/RFQ/Manual-bid-submission")),
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/solicitation-management/RFQ/[id]/Manual-bid-submission"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.RFQ_CREATE_QUOTATION,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/solicitation-management/RFQ/create/Quotation"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.RFQ_CREATE_ITEMS,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/solicitation-management/RFQ/create/Items"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.RFQ_CREATE_CBA,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/solicitation-management/RFQ/create/CreateCBA"
+        )
+    ),
   },
   {
     path: RouteEnum.RFQ_COMPETITIVE_BID_ANALYSIS,
-    element: lazy(() => import("pages/protectedPages/procurement-management/solicitation-management/RFQ/CompetittveBidAnalysis")),
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/start-competitiveBidAnalysis"
+        )
+    ),
   },
   {
-    path: RouteEnum.OPEN_TENDER,
-    element: lazy(() => import("pages/protectedPages/procurement-management/solicitation-management/National-tender")),
+    path: RouteEnum.COMPETITIVE_BID_ANALYSIS,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/competitive-bid-analysis/index"
+        )
+    ),
   },
   {
-    path: RouteEnum.SINGLE_SOURCING,
-    element: lazy(() => import("pages/protectedPages/procurement-management/solicitation-management/Single-sourcing")),
+    path: RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/index"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_START,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/start-competitiveBidAnalysis"
+        )
+    ),
   },
   {
     path: RouteEnum.VENDOR_MANAGEMENT,
-    element: lazy(() => import("pages/protectedPages/procurement-management/vendor-management/prequalification")),
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/vendor-management/prequalification"
+        )
+    ),
   },
   {
     path: RouteEnum.VENDOR_REGISTRATION,
-    element: lazy(() => import("pages/protectedPages/procurement-management/vendor-management/vendor-registration/Registration")),
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/vendor-management/vendor-registration/Registration"
+        )
+    ),
   },
   {
     path: RouteEnum.VENDOR_COMPANY,
-    element: lazy(() => import("pages/protectedPages/procurement-management/vendor-management/vendor-registration/Company")),
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/vendor-management/vendor-registration/Company"
+        )
+    ),
   },
   {
     path: RouteEnum.VENDOR_TECHNICAL,
-    element: lazy(() => import("pages/protectedPages/procurement-management/vendor-management/vendor-registration/Technical")),
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/vendor-management/vendor-registration/Technical"
+        )
+    ),
   },
   {
     path: RouteEnum.VENDOR_QUESTIONER,
-    element: lazy(() => import("pages/protectedPages/procurement-management/vendor-management/vendor-registration/Questionier")),
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/vendor-management/vendor-registration/Questionier"
+        )
+    ),
   },
   {
     path: RouteEnum.VENDOR_ATTESTATION,
-    element: lazy(() => import("pages/protectedPages/procurement-management/vendor-management/vendor-registration/Attestation")),
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/vendor-management/vendor-registration/Attestation"
+        )
+    ),
   },
   {
     path: RouteEnum.VENDOR_UPLOAD,
-    element: lazy(() => import("pages/protectedPages/procurement-management/vendor-management/vendor-registration/Upload")),
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/vendor-management/vendor-registration/Upload"
+        )
+    ),
   },
   {
     path: RouteEnum.VENDOR_MANAGEMENT_DETAILS,
-    element: lazy(() => import("pages/protectedPages/procurement-management/vendor-management/prequalification/id")),
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/vendor-management/prequalification/id"
+        )
+    ),
   },
   {
     path: RouteEnum.VENDOR_MANAGEMENT_START_PREQUALIFICATION,
-    element: lazy(() => import("pages/protectedPages/procurement-management/vendor-management/prequalification/id/Start-prequalification")),
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/vendor-management/prequalification/id/Start-prequalification"
+        )
+    ),
   },
   {
     path: RouteEnum.PRICE_INTELLIGENCE,
-    element: lazy(() => import("pages/protectedPages/procurement-management/Price-intelligence")),
+    element: lazy(
+      () =>
+        import("pages/protectedPages/procurement-management/Price-intelligence")
+    ),
   },
   {
     path: RouteEnum.PURCHASE_ORDER,
-    element: lazy(() => import("pages/protectedPages/procurement-management/purchase-order/index")),
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/purchase-order/index"
+        )
+    ),
   },
   {
     path: RouteEnum.PURCHASE_ORDER_NEW,
-    element: lazy(() => import("pages/protectedPages/procurement-management/purchase-order/PurchaseOrderNew")),
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/purchase-order/PurchaseOrderNew"
+        )
+    ),
   },
   {
     path: RouteEnum.SUBMISSION_OF_BIDS,
-    element: lazy(() => import("pages/protectedPages/procurement-management/Submission-of-bids")),
+    element: lazy(
+      () =>
+        import("pages/protectedPages/procurement-management/Submission-of-bids")
+    ),
   },
   {
     path: RouteEnum.SUPPLIER_DATABASE,
-    element: lazy(() => import("pages/protectedPages/procurement-management/Supplier-database")),
+    element: lazy(
+      () =>
+        import("pages/protectedPages/procurement-management/Supplier-database")
+    ),
   },
 ];
