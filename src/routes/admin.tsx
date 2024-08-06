@@ -25,6 +25,10 @@ export const adminRoutes = [
     element: lazy(() => import("pages/protectedPages/admin/CreateConsumables")),
   },
   {
+    path: AdminRoutes.CONSUMABLES_VIEW,
+    element: lazy(() => import("pages/protectedPages/admin/ViewConsumables")),
+  },
+  {
     path: AdminRoutes.CreateAssets,
     element: lazy(() => import("pages/protectedPages/admin/AddAssets")),
   },
@@ -107,8 +111,14 @@ export const adminRoutes = [
     ),
   },
   {
-    path: AdminRoutes.Lease,
+    path: AdminRoutes.Agrements,
     element: lazy(() => import("pages/protectedPages/admin/Agreement/Lease")),
+  },
+  {
+    path: AdminRoutes.AgrementsCreeate,
+    element: lazy(
+      () => import("pages/protectedPages/admin/Agreement/CreateAgreement")
+    ),
   },
   {
     path: AdminRoutes.SLA,

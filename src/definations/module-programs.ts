@@ -1,4 +1,4 @@
-import { number, z } from "zod";
+import { z } from "zod";
 
 export const facilityContactSchema = z.object({
   name: z.string(),
@@ -15,17 +15,17 @@ export const facilitiesSchema = z.object({
 });
 
 export const supervisionCategorySchema = z.object({
-    code: z.string(),
-    name: z.string(),
-    description: z.string(),
-    serial_number: z.string(),
-    job_category: z.enum(["Goods", "Service", "Work", "Others"])
-})
+  code: z.string(),
+  name: z.string(),
+  description: z.string(),
+  serial_number: z.string(),
+  job_category: z.enum(["Goods", "Service", "Work", "Others"]),
+});
 
 export const riskCategorySchema = z.object({
-    description: z.string(),
-    name: z.string(),
-  });
+  description: z.string(),
+  name: z.string(),
+});
 
 export type TFacilities = z.infer<typeof facilitiesSchema>;
 export type TSupervisionCategory = z.infer<typeof supervisionCategorySchema>;
@@ -41,20 +41,20 @@ export interface Facilities {
 }
 
 export interface SupervisionCategory {
-    id: string,
-    code: string,
-    created_at: string,
-    updated_at: string,
-    name: string,
-    description: string,
-    serial_number: number,
-    job_category: string
+  id: string;
+  code: string;
+  created_at: string;
+  updated_at: string;
+  name: string;
+  description: string;
+  serial_number: number;
+  job_category: string;
 }
 
 export interface RiskCategory {
-    created_at: string;
-    description: string;
-    id: string;
-    name: string;
-    updated_at: string;
-  }
+  created_at: string;
+  description: string;
+  id: string;
+  name: string;
+  updated_at: string;
+}

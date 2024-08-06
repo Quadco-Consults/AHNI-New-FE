@@ -1,4 +1,4 @@
-import { string, z } from "zod";
+import { z } from "zod";
 
 export const loginSchema = z.object({
   email: z.string().email(),
@@ -29,6 +29,9 @@ export interface TRequest {
   page_size?: number;
   no_paginate?: boolean;
   fields?: string;
+  consumable?: string;
+  id?: string;
+  classification?: string;
 }
 
 export interface TBasePaginatedRespose<T> {
@@ -43,18 +46,18 @@ export interface TFacilityResponse<T> {
   name: string;
   state: string;
   local_govt: string;
-  facility_contacts: T
+  facility_contacts: T;
 }
 export type TFacilityResponseArray<T> = TFacilityResponse<T>[];
 
 export interface TSupervisionCategoryResponse {
-  id: string,
-  code: string,
-  created_at: string,
-  updated_at: string,
-  name: string,
-  description: string,
-  serial_number: number,
-  job_category: string
+  id: string;
+  code: string;
+  created_at: string;
+  updated_at: string;
+  name: string;
+  description: string;
+  serial_number: number;
+  job_category: string;
 }
 export type TSupervisionCategoryResponseArray = TSupervisionCategoryResponse[];

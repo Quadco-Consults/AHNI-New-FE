@@ -1,166 +1,120 @@
-import { ColumnDef } from "@tanstack/react-table";
+/* eslint-disable react-refresh/only-export-components */
+import { ColumnDef, Row, Table } from "@tanstack/react-table";
+import { Button } from "components/ui/button";
 import { Checkbox } from "components/ui/checkbox";
+import { AdminRoutes } from "constants/RouterConstants";
+import { useAppDispatch, useAppSelector } from "hooks/useStore";
 
-interface Data {
-  organization: string;
-  asset: string;
-  assetCode: string;
-  assetCondition: string;
-  manufacture: string;
-  model: string;
-  // Add a property for the checkbox state
-  isSelected: boolean;
+import { Link } from "react-router-dom";
+import { addAsset, assetSelector, removeAsset } from "store/assets";
+
+interface AssetData {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  asset_code: string;
+  serial_number: string | null;
+  assignee: string;
+  date_of_acquisition: string;
+  state: string;
+  estimated_life_span: string;
+  classification: string;
+  cost_in_usd: string;
+  cost_in_ngn: string;
+  unit: string;
+  implementer: string;
+  asset_type: string;
+  asset_condition: string;
+  location: string;
 }
 
-export const assetsData: Data[] = [
-  {
-    organization: "FHI 360",
-    asset: "Phone",
-    assetCode: "AHHQICTB3451",
-    assetCondition: "F3",
-    manufacture: "Mitel",
-    model: "5312",
-    isSelected: false,
-  },
-  {
-    organization: "FHI 360",
-    asset: "Workstation",
-    assetCode: "AHHQFFB1933",
-    assetCondition: "F3",
-    manufacture: "N/A",
-    model: "4 Seater",
-    isSelected: false,
-  },
-  {
-    organization: "FHI 360",
-    asset: "Chair",
-    assetCode: "AHHQFFB1893",
-    assetCondition: "F3",
-    manufacture: "N/A",
-    model: "Ordinary Swivel",
-    isSelected: false,
-  },
-  {
-    organization: "FHI 360",
-    asset: "Chair",
-    assetCode: "AHHQFFB6746",
-    assetCondition: "F3",
-    manufacture: "Royal Point",
-    model: "Executive Swivel",
-    isSelected: false,
-  },
-  {
-    organization: "FHI 360",
-    asset: "Laptop",
-    assetCode: "AHHQICTB2239",
-    assetCondition: "F3",
-    manufacture: "Dell",
-    model: "Dell Latitude E5480",
-    isSelected: false,
-  },
-  {
-    organization: "FHI 360",
-    asset: "Laptop",
-    assetCode: "AHHQICTB5907",
-    assetCondition: "F3",
-    manufacture: "Dell",
-    model: "Dell Latitude E5480",
-    isSelected: false,
-  },
-  {
-    organization: "FHI 360",
-    asset: "Chair",
-    assetCode: "AHHQFFB0144",
-    assetCondition: "F3",
-    manufacture: "N/A",
-    model: "Visitors",
-    isSelected: false,
-  },
-  {
-    organization: "FHI 360",
-    asset: "Table",
-    assetCode: "AHHQFFB0180",
-    assetCondition: "F3",
-    manufacture: "N/A",
-    model: "N/A",
-    isSelected: false,
-  },
-  {
-    organization: "FHI 360",
-    asset: "Laptop",
-    assetCode: "AHHQICTB2267",
-    assetCondition: "F3",
-    manufacture: "Dell",
-    model: "Latitude E5480",
-    isSelected: false,
-  },
-  {
-    organization: "FHI 360",
-    asset: "Printer",
-    assetCode: "AHHQICTB2136",
-    assetCondition: "F3",
-    manufacture: "HP",
-    model: "Laserjet Pro M402dw",
-    isSelected: false,
-  },
-  {
-    organization: "FHI 360",
-    asset: "Phone",
-    assetCode: "AHHQICTB3466",
-    assetCondition: "F3",
-    manufacture: "N/A",
-    model: "5312",
-    isSelected: false,
-  },
-  {
-    organization: "FHI 360",
-    asset: "UPS",
-    assetCode: "AHHQICTB6740",
-    assetCondition: "F3",
-    manufacture: "APC",
-    model: "BG1530 Elite Pro",
-    isSelected: false,
-  },
-];
+const CheckBoxRow = ({ row }: { row: Row<AssetData> }) => {
+  const dispatch = useAppDispatch();
+  const selectedAssets = useAppSelector(assetSelector);
 
-export const assestColum: ColumnDef<Data>[] = [
+  const isSelected = selectedAssets.includes(row.original.id);
+  const toggleSelected = (checked: boolean) => {
+    row.toggleSelected(checked);
+    if (checked) {
+      dispatch(addAsset(row.original.id));
+    } else {
+      dispatch(removeAsset(row.original.id));
+    }
+  };
+
+  return <Checkbox checked={isSelected} onCheckedChange={toggleSelected} />;
+};
+
+const CheckBoxHeader = ({ table }: { table: Table<AssetData> }) => {
+  const dispatch = useAppDispatch();
+
+  const allSelected = table.getIsAllRowsSelected();
+  const toggleAll = (checked: boolean) => {
+    table.toggleAllRowsSelected(checked);
+    if (checked) {
+      table.getRowModel().rows.forEach((row) => {
+        dispatch(addAsset(row.original.id));
+      });
+    } else {
+      table.getRowModel().rows.forEach((row) => {
+        dispatch(removeAsset(row.original.id));
+      });
+    }
+  };
+
+  return <Checkbox checked={allSelected} onCheckedChange={toggleAll} />;
+};
+
+export const assestColum: ColumnDef<AssetData>[] = [
   {
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllRowsSelected()}
-        onCheckedChange={table.getToggleAllRowsSelectedHandler()}
-      />
-    ),
-    accessorKey: "isSelected",
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={row.getToggleSelectedHandler()}
-      />
-    ),
-  },
-  {
-    header: "Organization",
-    accessorKey: "organization",
-  },
-  {
-    header: "Asset",
-    accessorKey: "asset",
+    id: "select",
+    header: ({ table }) => <CheckBoxHeader table={table} />,
+    cell: ({ row }) => <CheckBoxRow row={row} />,
   },
   {
     header: "Asset Code",
-    accessorKey: "assetCode",
+    accessorKey: "asset_code",
+  },
+
+  {
+    header: "Classification",
+    accessorKey: "classification",
+  },
+
+  {
+    header: "Unit",
+    accessorKey: "unit",
+  },
+  {
+    header: "Organization",
+    accessorKey: "implementer",
+  },
+  {
+    header: "Asset",
+    accessorKey: "asset_type",
   },
   {
     header: "Asset Condition",
-    accessorKey: "assetCondition",
+    accessorKey: "asset_condition",
   },
   {
-    header: "Manufacture",
-    accessorKey: "manufacture",
+    header: "Location",
+    accessorKey: "location",
   },
   {
-    header: "Model",
-    accessorKey: "model",
+    header: "",
+    accessorKey: "view",
+    cell: ({ row }) => {
+      const data = row.original;
+      return (
+        <div className="flex gap-x-2">
+          <Link to={`${AdminRoutes.ViewAssets}?id=${data.id}`}>
+            <Button className="" variant="link">
+              View
+            </Button>
+          </Link>
+        </div>
+      );
+    },
   },
 ];

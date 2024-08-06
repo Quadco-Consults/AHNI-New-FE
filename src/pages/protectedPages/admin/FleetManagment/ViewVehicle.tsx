@@ -1,19 +1,25 @@
-import { Tabs, TabsList, TabsContent, TabsTrigger } from "components/ui/tabs";
-import { Card, CardContent, CardHeader } from "components/ui/card";
-import { Separator } from "components/ui/separator";
+// import { Card, Input, Checkbox, Select, Button } from "@/components/ui";
+
 import BackNavigation from "atoms/BackNavigation";
-import { Input } from "components/ui/input";
-import { Label } from "components/ui/label";
+import FormButton from "atoms/FormButton";
+import FormInput from "atoms/FormInput";
+import FormSelect from "atoms/FormSelectField";
 import { Button } from "components/ui/button";
+import { Card } from "components/ui/card";
 import { Checkbox } from "components/ui/checkbox";
+import { Form } from "components/ui/form";
+import { Label } from "components/ui/label";
+import { useMemo, useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
+import { useSearchParams } from "react-router-dom";
+import { useGetAssetsQuery } from "services/adminApi/assetsApi";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "components/ui/select";
-import FuelTable from "./FuelTable";
+  useApproveRequestMutation,
+  useGetOneVehicleRequestsQuery,
+} from "services/adminApi/VehicleRequestApi";
+import { useGetUserQuery } from "services/users";
+import { toast } from "sonner";
+
 const AssetsItem = ({
   desc,
   heading,
@@ -32,195 +38,198 @@ const AssetsItem = ({
 };
 
 const ViewVehicle = () => {
+  const form = useForm({
+    defaultValues: {
+      vehicles: [{ vehicle: "", driver: "" }],
+    },
+  });
+
+  const [VehicleId] = useState(sessionStorage.getItem("vehicle_request"));
+
+  const [searchParams] = useSearchParams();
+
+  const id = searchParams.get("id") as string;
+
+  const { data: oneVehicle } = useGetOneVehicleRequestsQuery({
+    id: String(VehicleId),
+  });
+
+  const { data } = useGetAssetsQuery({
+    classification: "Vehicle",
+  });
+
+  const { data: users } = useGetUserQuery({});
+  const [approveRequest, { isLoading }] = useApproveRequestMutation();
+
+  const vehichleOptions = useMemo(() => {
+    return data?.results?.map((item) => {
+      return {
+        label: item.asset_type.name,
+        value: item.id,
+      };
+    });
+  }, [data?.results]);
+
+  const usersOptions = useMemo(() => {
+    return users?.results.map((item) => {
+      return {
+        label: `${item.first_name} ${item.last_name}`,
+        value: item.id,
+      };
+    });
+  }, [users?.results]);
+
+  const { control, handleSubmit } = form;
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "vehicles",
+  });
+  const onSubmit = async (data: any) => {
+    const payload = {
+      id: String(id),
+      body: {
+        ...data,
+        status: "Approved",
+      },
+    };
+    try {
+      await approveRequest(payload).unwrap();
+
+      toast.success("Data was successfully submitted");
+    } catch (error) {
+      toast.error(" Error Submitting data ");
+    }
+  };
+
   return (
-    <div>
-      <div className="">
-        <Tabs defaultValue="details">
-          <TabsList>
-            <BackNavigation />
-            <TabsTrigger value="details">Details</TabsTrigger>
-            <TabsTrigger value="fuel">Fuel Consumption</TabsTrigger>
-            <TabsTrigger value="approval">Vehicle Request Approval</TabsTrigger>
-          </TabsList>
+    <div className="space-y-6">
+      <BackNavigation />
+      <Card className="p-6 mx-auto space-y-5 ">
+        <AssetsItem
+          heading="Requesting Staff"
+          desc={`${String(oneVehicle?.requesting_staff?.first_name)} ${String(
+            oneVehicle?.requesting_staff?.last_name
+          )}`}
+        />
 
-          <TabsContent value="details">
-            <Card>
-              <CardHeader className="font-bold">
-                Asset Details
-                <Separator className="mt-4" />
-              </CardHeader>
+        <div className="grid grid-cols-3 gap-5 mb-6">
+          <AssetsItem
+            heading="Location"
+            desc={String(oneVehicle?.location?.name)}
+          />
+          <AssetsItem
+            heading="Date Of Request"
+            desc={String(oneVehicle?.request_date)}
+          />
+          <AssetsItem
+            heading="Travel Destination"
+            desc={String(oneVehicle?.destination)}
+          />
+          <AssetsItem
+            heading="Departure Date"
+            desc={String(oneVehicle?.departure_date)}
+          />
+          <AssetsItem
+            heading="Return Date"
+            desc={String(oneVehicle?.return_date)}
+          />
+          <AssetsItem
+            heading="Point of Departure"
+            desc={String(oneVehicle?.point_of_departure)}
+          />
+        </div>
 
-              <CardContent className="flex flex-col gap-y-4">
-                <AssetsItem heading="Asset" desc="Laptop" />
-
-                <AssetsItem heading="Asset Code" desc="AHHQICTB5907" />
-
-                <AssetsItem heading="Manufacturer" desc="Dell" />
-
-                <AssetsItem heading="Model" desc="Dell Latitude E5480" />
-
-                <AssetsItem heading="Serial Number" desc="BCZB3H2" />
-                <Separator className="my-4" />
-                <AssetsItem
-                  heading="Description"
-                  desc="Dell Latitude E5480 is a Windows 10 laptop with a 14.00-inch display that has a resolution of 1366x768 pixels. It is powered by a Core i5 processor and it comes with 8GB of RAM. The Dell Latitude E5480 packs 256GB of SSD storage. Graphics are powered by Intel HD Graphics."
-                />
-                <Separator className="my-4" />
-                <AssetsItem heading="Classification" desc="IT/Equipment" />
-
-                <AssetsItem heading="Date of Acquisition" desc="21/10/24" />
-
-                <AssetsItem
-                  heading="Acquisition Cost"
-                  desc="$819.53 equivalent ₦290,000"
-                />
-
-                <AssetsItem heading="State" desc="Abuja" />
-
-                <AssetsItem heading="Location" desc="AHNi Admin" />
-
-                <AssetsItem
-                  heading="Implementer"
-                  desc="Family Health International (FHI 360)"
-                />
-
-                <AssetsItem heading="Assignee" desc="Patricia Ohkahkumhe" />
-                <Card className="w-1/2">
-                  <CardContent className="flex flex-col p-4 gap-y-2">
-                    <AssetsItem heading="Asset Condition" desc="F3" />
-
-                    <AssetsItem
-                      heading="Condition Details"
-                      desc="Obsolete/Damaged beyond repair - Unsalvageable"
-                    />
-                  </CardContent>
-                </Card>
-              </CardContent>
+        <h3 className="mb-2 text-lg font-bold text-yellow-500">
+          Travel Team Members ({oneVehicle?.team_members?.length})
+        </h3>
+        <div className="grid grid-cols-4 gap-4 mb-6">
+          {oneVehicle?.team_members?.map((item, i) => (
+            <Card key={i} className="p-2 bg-amber-50">
+              <p>
+                <span className="font-bold">Name:</span> {item.first_name}{" "}
+                {item.last_name}
+              </p>
+              <p>
+                <span className="font-bold">Position:</span> {item.designation}
+              </p>
+              <p>
+                <span className="font-bold">Tel:</span> {item.phone_number}
+              </p>
             </Card>
-          </TabsContent>
-          <TabsContent value="fuel">
-            <FuelTable />
-          </TabsContent>
+          ))}
+        </div>
 
-          <TabsContent value="approval">
-            <Card>
-              <CardHeader className="font-bold">
-                Asset Details
-                <Separator className="mt-4" />
-              </CardHeader>
+        <h3 className="mb-2 text-lg font-bold">Approval</h3>
+        <div className="flex mb-6 space-x-4">
+          <div className="flex items-center gap-x-3">
+            <Checkbox />
+            <Label>Travel Manager Approval</Label>
+          </div>
+          <div className="flex items-center gap-x-3">
+            <Checkbox />
+            <Label>FAA Approval</Label>
+          </div>
+          <div className="flex items-center gap-x-3">
+            <Checkbox />
+            <Label>SFAO Approval</Label>
+          </div>
+          <div className="flex items-center gap-x-3">
+            <Checkbox />
+            <Label>SPM/STL Approval</Label>
+          </div>
+          <div className="flex items-center gap-x-3">
+            <Checkbox />
+            <Label>Director Approval</Label>
+          </div>
+        </div>
 
-              <CardContent className="flex flex-col gap-y-4">
-                <div className="flex flex-wrap gap-x-8">
-                  <AssetsItem
-                    className="px-5 py-3 border rounded-md"
-                    heading="Asset"
-                    desc="Laptop"
+        <h3 className="mb-2 text-lg font-bold">Vehicle</h3>
+        <Form {...form}>
+          <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+            {fields.map((field, index) => (
+              <div key={field.id} className="flex mb-2 space-x-2">
+                <div className="w-[45%]">
+                  <FormSelect
+                    placeholder="Select Vehicle"
+                    name={`vehicles.${index}.vehicle`}
+                    options={vehichleOptions}
                   />
-
-                  <AssetsItem
-                    className="px-5 py-3 border rounded-md"
-                    heading="Asset Code"
-                    desc="AHHQICTB5907"
-                  />
-
-                  <AssetsItem
-                    className="px-5 py-3 border rounded-md"
-                    heading="Manufacturer"
-                    desc="Dell"
-                  />
-
-                  <AssetsItem
-                    className="px-5 py-3 border rounded-md"
-                    heading="Model"
-                    desc="Dell Latitude E5480"
-                  />
-                  <AssetsItem
-                    className="px-5 py-3 border rounded-md"
-                    heading="Model"
-                    desc="Dell Latitude E5480"
+                </div>
+                <div className="w-[45%]">
+                  <FormSelect
+                    placeholder="Select Driver"
+                    name={`vehicles.${index}.driver`}
+                    options={usersOptions}
                   />
                 </div>
 
-                <AssetsItem heading="Remark" desc="IT/Equipment" />
-
-                <AssetsItem heading="Asset Condition" desc="A3" />
-
-                <Separator />
-                <div className="space-y-4">
-                  <Label className="font-semibold"> Approval</Label>
-                  <div className="grid grid-cols-5 gap-x-2">
-                    <div className="flex items-center gap-x-2">
-                      <Checkbox />
-                      <Label className="text-sm">Travel Manager Approval</Label>
-                    </div>
-                    <div className="flex items-center gap-x-2">
-                      <Checkbox />
-                      <Label className="text-sm">FAA Approval</Label>
-                    </div>
-                    <div className="flex items-center gap-x-2">
-                      <Checkbox />
-                      <Label className="text-sm">SFAO Approval</Label>
-                    </div>
-                    <div className="flex items-center gap-x-2">
-                      <Checkbox />
-                      <Label className="text-sm">SPM/STL Approval</Label>
-                    </div>
-                    <div className="flex items-center gap-x-2">
-                      <Checkbox />
-                      <Label className="text-sm">Director Approval</Label>
-                    </div>
-                  </div>
-                  <div className="grid w-6/12 grid-cols-2 gap-x-6">
-                    <div className="my-6 space-y-1 ">
-                      <Label className="font-semibold">Assigned Driver</Label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder={""} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="m@example.com">
-                            m@example.com
-                          </SelectItem>
-                          <SelectItem value="m@google.com">
-                            m@google.com
-                          </SelectItem>
-                          <SelectItem value="m@support.com">
-                            m@support.com
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="my-6 space-y-1 ">
-                      <Label className="font-semibold">Vehcile</Label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder={""} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="m@example.com">
-                            m@example.com
-                          </SelectItem>
-                          <SelectItem value="m@google.com">
-                            m@google.com
-                          </SelectItem>
-                          <SelectItem value="m@support.com">
-                            m@support.com
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
+                <div className="flex justify-end flex-1">
+                  <Button variant="destructive" onClick={() => remove(index)}>
+                    X
+                  </Button>
                 </div>
-                <div className="space-y-2">
-                  <Label className="font-semibold">Recommendation</Label>
-                  <Input placeholder="This can be repaired and we donate it to CBOs" />
-                  <Button className="mt-2">Approve Request</Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
+              </div>
+            ))}
+            <Button
+              type="button"
+              className="mb-6 text-white bg-green-500"
+              onClick={() => append({ vehicle: "", driver: "" })}
+            >
+              + Add Vehicle
+            </Button>
+            <div className="mb-6">
+              <FormInput name="recommendations" label="Recommendations" />
+            </div>
+            <FormButton
+              loading={isLoading}
+              type="submit"
+              className="w-2/12 text-white bg-red-500"
+            >
+              Approve Request
+            </FormButton>
+          </form>
+        </Form>
+      </Card>
     </div>
   );
 };
