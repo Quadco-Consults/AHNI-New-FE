@@ -32,6 +32,7 @@ export interface TRequest {
   consumable?: string;
   id?: string;
   classification?: string;
+  vehicle?: string;
 }
 
 export interface TBasePaginatedRespose<T> {
