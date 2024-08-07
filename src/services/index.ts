@@ -55,6 +55,7 @@ const baseAPI = createApi({
     "SOLICITATION",
     "SOLICITATION_CRITERIA",
     "CBA",
+    "PRICE_INTELLIGENCE",
     "Agreement",
     "Facility",
   ],

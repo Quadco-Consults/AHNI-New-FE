@@ -41,44 +41,48 @@ const RFQ = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 gap-5">
-          {data?.results?.map((value: SolicitationResultsData) => (
-            <Card key={value?.id} className="space-y-4">
-              <img src={eoiPng} alt="eoi" />
-              <h2 className="text-lg font-bold">{value?.name}</h2>
+        {data && data?.results?.length > 0 ? (
+          <div className="grid grid-cols-2 gap-5">
+            {data?.results?.map((value: SolicitationResultsData) => (
+              <Card key={value?.id} className="space-y-4">
+                <img src={eoiPng} alt="eoi" />
+                <h2 className="text-lg font-bold">{value?.name}</h2>
 
-              <div className="flex items-center gap-3">
-                <Icon icon="ooui:reference" fontSize={18} />{" "}
-                <h6>{value?.reference}</h6>
-              </div>
-              <div className="flex items-center gap-3">
-                <Icon icon="iconamoon:location-pin-duotone" fontSize={18} />
-                <h6>
-                  {value?.location?.address}, {value?.location?.city}
-                </h6>
-              </div>
-              <div className="flex items-center gap-3">
-                <Icon
-                  icon="solar:case-minimalistic-bold-duotone"
-                  fontSize={18}
-                />
-                <h6>{value?.tender_type}</h6>
-              </div>
+                <div className="flex items-center gap-3">
+                  <Icon icon="ooui:reference" fontSize={18} />{" "}
+                  <h6>{value?.reference}</h6>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Icon icon="iconamoon:location-pin-duotone" fontSize={18} />
+                  <h6>
+                    {value?.location?.address}, {value?.location?.city}
+                  </h6>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Icon
+                    icon="solar:case-minimalistic-bold-duotone"
+                    fontSize={18}
+                  />
+                  <h6>{value?.tender_type}</h6>
+                </div>
 
-              <h6 className="line-clamp-3">{value?.description}</h6>
+                <h6 className="line-clamp-3">{value?.description}</h6>
 
-              <div className="flex justify-center">
-                <Link
-                  to={generatePath(RouteEnum.RFQ_DETAILS, { id: value?.id })}
-                >
-                  <Button variant="ghost" className="border text-primary">
-                    Tap to View
-                  </Button>
-                </Link>
-              </div>
-            </Card>
-          ))}
-        </div>
+                <div className="flex justify-center">
+                  <Link
+                    to={generatePath(RouteEnum.RFQ_DETAILS, { id: value?.id })}
+                  >
+                    <Button variant="ghost" className="border text-primary">
+                      Tap to View
+                    </Button>
+                  </Link>
+                </div>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <p className="p-5 text-center">No Data</p>
+        )}
       </div>
     </div>
   );
