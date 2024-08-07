@@ -257,3 +257,8 @@ export const CbaSchema = z.object({
   assignee: z.string().min(1, "Field is required"),
   committee_members: z.array(z.string()),
 });
+
+export const CbaApprovalSchema = z.object({
+  status: z.string().min(1, "Field is required"),
+  remarks: z.string().min(1, "Field is required"),
+});

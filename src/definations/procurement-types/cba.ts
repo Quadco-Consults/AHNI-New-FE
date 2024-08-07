@@ -6,11 +6,34 @@ export type CommitteeMemberData = {
   last_name: string;
   designation: string;
 };
+export type SubmissionData = {
+  unit_price: number;
+  sub_total: number;
+  quantity: number;
+  vendor: string;
+  id: string;
+};
+
+export type VendorSubmissionData = {
+  item: {
+    id: string;
+    created_at: string;
+    updated_at: string;
+    name: string;
+    description: string;
+    uom: string;
+    category: string;
+    quantity: number;
+  };
+  submissions: SubmissionData[];
+};
+
 export type CbaResultsData = {
   id: string;
   created_at: string;
   updated_at: string;
-  vendor_submissions: string;
+  vendor_submissions: VendorSubmissionData[];
+  vendor_responses: {};
   cba_type: string;
   cba_date: string;
   remarks: string;
@@ -35,4 +58,9 @@ export interface CbaData {
 export interface CbaResponse {
   message: string;
   data: CbaResultsData;
+}
+
+export interface CbaSubmitPayload {
+  submission_ids: string[];
+  remarks: string;
 }

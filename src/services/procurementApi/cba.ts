@@ -2,11 +2,15 @@
 /* eslint-disable no-unused-vars */
 import baseAPI from "..";
 import { z } from "zod";
-import { CbaSchema } from "definations/procurement-validator";
+import {
+  CbaApprovalSchema,
+  CbaSchema,
+} from "definations/procurement-validator";
 import {
   CbaData,
   CbaResponse,
   CbaResultsData,
+  CbaSubmitPayload,
 } from "definations/procurement-types/cba";
 
 const BASE_URL = "/procurement/cba/";
@@ -26,6 +30,30 @@ const CbaAPI = baseAPI.injectEndpoints({
     createCba: builder.mutation<CbaResponse, z.infer<typeof CbaSchema>>({
       query: (body) => ({
         url: `${BASE_URL}`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["CBA"],
+    }),
+
+    createSubmitCba: builder.mutation<
+      CbaResponse,
+      { path: { id: string }; body: CbaSubmitPayload }
+    >({
+      query: ({ path, body }) => ({
+        url: `${BASE_URL}${path.id}/submit/`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["CBA"],
+    }),
+
+    createApprovalCba: builder.mutation<
+      CbaResponse,
+      { path: { id: string }; body: z.infer<typeof CbaApprovalSchema> }
+    >({
+      query: ({ path, body }) => ({
+        url: `${BASE_URL}${path.id}/approve/`,
         method: "POST",
         body,
       }),
