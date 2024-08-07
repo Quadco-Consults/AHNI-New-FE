@@ -61,15 +61,6 @@ const DetailsContent = (data: SolicitationResultsData) => {
               </Card>
             ))}
           </div>
-
-          <div className="flex justify-end">
-            <Button type="submit" className="gap-2">
-              Generate purchase order
-              <span>
-                <ChevronRight size={18} />
-              </span>
-            </Button>
-          </div>
         </div>
       </Card>
     </div>

@@ -146,6 +146,7 @@ const StartPrequalification = () => {
                         type="radio"
                         id={criteria.id}
                         value="true"
+                        className="accent-purple-500"
                         name={criteria.name}
                         onChange={handleInputChange}
                       />
@@ -157,7 +158,7 @@ const StartPrequalification = () => {
                         id={criteria.id}
                         value="false"
                         name={criteria.name}
-                        className=" text-primary"
+                        className="accent-primary"
                         onChange={handleInputChange}
                       />
                       <label htmlFor="no">No</label>
