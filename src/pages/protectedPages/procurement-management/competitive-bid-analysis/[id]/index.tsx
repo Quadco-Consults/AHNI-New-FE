@@ -10,13 +10,61 @@ import { SolicitationItems } from "definations/procurement-types/solicitation";
 import GoBack from "components/shared/GoBack";
 import { CommitteeMemberData } from "definations/procurement-types/cba";
 import { RouteEnum } from "constants/RouterConstants";
+import { cn } from "lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTrigger,
+} from "components/ui/dialog";
+import { Form } from "components/ui/form";
+import FormSelect from "atoms/FormSelectField";
+import { useForm } from "react-hook-form";
+import { SelectContent, SelectItem } from "components/ui/select";
+import FormTextArea from "atoms/FormTextArea";
+import FormButton from "atoms/FormButton";
+import { z } from "zod";
+import { CbaApprovalSchema } from "definations/procurement-validator";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import { useState } from "react";
 
 const CompetitiveBidAnalysisDetail = () => {
   const { id } = useParams();
+  const [open, setOpen] = useState(false);
 
   const { data, isLoading } = CbaAPI.useGetCbaQuery({
     path: { id: id as string },
   });
+
+  const [createApprovalCbaMutation, { isLoading: createApprovalCbaIsLoading }] =
+    CbaAPI.useCreateApprovalCbaMutation();
+
+  const form = useForm<z.infer<typeof CbaApprovalSchema>>({
+    resolver: zodResolver(CbaApprovalSchema),
+    defaultValues: {
+      status: "",
+      remarks: "",
+    },
+  });
+
+  const { handleSubmit } = form;
+
+  const onSubmit = async (data: z.infer<typeof CbaApprovalSchema>) => {
+    const formData = {
+      path: { id: id as string },
+      body: data,
+    };
+
+    try {
+      await createApprovalCbaMutation(formData).unwrap();
+      toast.success("Successfully added.");
+      setOpen(false);
+    } catch (error) {
+      toast.error("Something went wrong");
+      console.log(error);
+    }
+  };
 
   if (isLoading) return <LoadingSpinner />;
 
@@ -36,17 +84,76 @@ const CompetitiveBidAnalysisDetail = () => {
         <div className="flex justify-between">
           <h2 className="font-semibold text-lg">{data?.title}</h2>
 
-          <Link
-            to={generatePath(RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_START, {
-              id: id as string,
-            })}
-          >
-            <Button>Start CBA</Button>
-          </Link>
+          {data?.status === "COMPLETED" ? (
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button>Approval</Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-xl">
+                <DialogHeader className="text-2xl font-semibold mb-5">
+                  CBA Approval
+                </DialogHeader>
+                <Form {...form}>
+                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                    <FormSelect
+                      name="status"
+                      label="Status"
+                      placeholder="Select status"
+                      required
+                    >
+                      <SelectContent>
+                        <SelectItem value="APPROVED">
+                          Generate Purchase Order
+                        </SelectItem>
+                        <SelectItem value="REJECTED">Redo CBA</SelectItem>
+                      </SelectContent>
+                    </FormSelect>
+
+                    <FormTextArea
+                      name="remarks"
+                      label="Remarks"
+                      placeholder="Enter remarks"
+                    />
+
+                    <div className="flex justify-end">
+                      <FormButton
+                        loading={createApprovalCbaIsLoading}
+                        disabled={createApprovalCbaIsLoading}
+                        type="submit"
+                      >
+                        Submit
+                      </FormButton>
+                    </div>
+                  </form>
+                </Form>
+              </DialogContent>
+            </Dialog>
+          ) : (
+            <Link
+              to={generatePath(
+                RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_START,
+                {
+                  id: id as string,
+                }
+              )}
+            >
+              <Button>Start CBA</Button>
+            </Link>
+          )}
         </div>
 
         <h4 className="text-green-dark text-base font-semibold">
-          Status <Badge>{data?.status.toLowerCase()}</Badge>
+          Status{" "}
+          <Badge
+            className={cn(
+              data?.status === "APPROVED" && "bg-green-200 text-green-500",
+              data?.status === "REJECTED" && "bg-red-200 text-red-500",
+              data?.status === "PENDING" && "bg-yellow-200 text-yellow-500",
+              data?.status === "On Hold" && "text-grey-200 bg-grey-500"
+            )}
+          >
+            {data?.status.toLowerCase()}
+          </Badge>
         </h4>
 
         <div className="flex items-center gap-10">
@@ -94,6 +201,27 @@ const CompetitiveBidAnalysisDetail = () => {
 
         <div className="space-y-4">
           <h2 className="font-semibold text-yellow-darker text-base">
+            Assignee:
+          </h2>
+
+          <Card className="border-yellow-darker space-y-3 w-full md:w-1/2">
+            <div className="flex items-center gap-5">
+              <h4 className="w-1/3 font-semibold">First Name:</h4>
+              <h4>{data?.assignee?.first_name}</h4>
+            </div>
+            <div className="flex items-center gap-5">
+              <h4 className="w-1/3 font-semibold">Last Name:</h4>
+              <h4>{data?.assignee?.last_name}</h4>
+            </div>
+            <div className="flex items-center gap-5">
+              <h4 className="w-1/3 font-semibold">Designation:</h4>
+              <h4>{data?.assignee?.designation}</h4>
+            </div>
+          </Card>
+        </div>
+
+        <div className="space-y-4">
+          <h2 className="font-semibold text-yellow-darker text-base">
             Committee Members:
           </h2>
 
@@ -115,27 +243,6 @@ const CompetitiveBidAnalysisDetail = () => {
               </Card>
             ))}
           </div>
-        </div>
-
-        <div className="space-y-4">
-          <h2 className="font-semibold text-yellow-darker text-base">
-            Assignee:
-          </h2>
-
-          <Card className="border-yellow-darker space-y-3 w-full md:w-1/2">
-            <div className="flex items-center gap-5">
-              <h4 className="w-1/3 font-semibold">First Name:</h4>
-              <h4>{data?.assignee?.first_name}</h4>
-            </div>
-            <div className="flex items-center gap-5">
-              <h4 className="w-1/3 font-semibold">Last Name:</h4>
-              <h4>{data?.assignee?.last_name}</h4>
-            </div>
-            <div className="flex items-center gap-5">
-              <h4 className="w-1/3 font-semibold">Designation:</h4>
-              <h4>{data?.assignee?.designation}</h4>
-            </div>
-          </Card>
         </div>
       </Card>
     </div>

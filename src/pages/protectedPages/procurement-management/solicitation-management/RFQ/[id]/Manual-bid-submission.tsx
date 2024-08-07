@@ -1,30 +1,11 @@
 /* eslint-disable react/prop-types */
 import { Button } from "components/ui/button";
 import { RouteEnum } from "constants/RouterConstants";
-import { ArrowLeft, ChevronRight, MinusCircle } from "lucide-react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "components/ui/select";
-import { Label } from "components/ui/label";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "components/ui/form";
-
+import { ArrowLeft } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
+import { SelectContent, SelectItem } from "components/ui/select";
+import { Form } from "components/ui/form";
 import { useFieldArray, useForm } from "react-hook-form";
-import { Input } from "components/ui/input";
-import { ColumnDef } from "@tanstack/react-table";
-import DataTable from "components/Table/DataTable";
 import SolicitationAPI from "services/procurementApi/solicitation";
 import VendorsAPI from "services/procurementApi/vendors";
 import FormSelect from "atoms/FormSelectField";
@@ -86,7 +67,7 @@ const ManualBidSubmission = () => {
   const dataVal = useMemo(() => {
     return items?.criteria?.map((data) => ({
       response: "",
-      solicitation_criteria: data?.id,
+      solicitation_criteria: data?.solicitation_criteria,
     }));
   }, [items]);
 
@@ -159,6 +140,7 @@ const ManualBidSubmission = () => {
                   <th className="px-2 py-5">S/N</th>
                   <th className="px-2 py-5">Items Description</th>
                   <th className="px-2 py-5">Qty</th>
+                  <th className="px-2 py-5"> Unit of Measure(UoM)</th>
                   <th className="px-2 py-5"> Unit price</th>
                   <th className="px-2 py-5">Total</th>
                 </tr>
@@ -187,6 +169,9 @@ const ManualBidSubmission = () => {
                           type="number"
                           className="w-24"
                         />
+                      </td>
+                      <td className="w-fit p-2 text-center">
+                        <h6> {items?.items[index]?.item?.uom}</h6>
                       </td>
                       <td className="w-fit p-2 text-center">
                         <FormInput
@@ -259,62 +244,3 @@ const ManualBidSubmission = () => {
 };
 
 export default ManualBidSubmission;
-
-// const columns: ColumnDef<Data>[] = [
-//   {
-//     header: "S/N",
-//     id: "id",
-//     size: 80,
-//     cell: ({ row, table }) =>
-//       (table
-//         .getSortedRowModel()
-//         ?.flatRows?.findIndex((flatRow) => flatRow.id === row.id) || 0) + 1,
-//   },
-//   {
-//     header: "Items Description",
-//     accessorKey: "description",
-//     size: 500,
-//     cell: ({ row }) => <Description data={row.original} />,
-//   },
-//   {
-//     header: "Qty",
-//     accessorKey: "qty",
-//     size: 100,
-//   },
-//   {
-//     header: "Unit Price",
-//     accessorKey: "price",
-//     size: 200,
-//     cell: ({ row }) => <Price data={row.original} />,
-//   },
-//   {
-//     header: "Total",
-//     accessorKey: "total",
-//     size: 200,
-//     cell: ({ row }) => <Total data={row.original} />,
-//   },
-// ];
-
-const Price = ({ data }: any) => {
-  return (
-    <div>
-      <Input value={data.price} />
-    </div>
-  );
-};
-const Total = ({ data }: any) => {
-  return (
-    <div>
-      <Input value={data.price} />
-    </div>
-  );
-};
-
-const Description = ({ data }: any) => {
-  return (
-    <div className="space-y-2">
-      <h2 className="font-semibold">{data.description.title}</h2>
-      <h6>{data.description.desc}</h6>
-    </div>
-  );
-};

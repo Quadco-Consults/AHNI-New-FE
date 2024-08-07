@@ -18,11 +18,8 @@ export type SolicitationItems = {
   lot: number;
 };
 export type SolicitationCriteria = {
-  id: string;
-  created_at: string;
-  updated_at: string;
   name: string;
-  description: string;
+  solicitation_criteria: string;
 };
 
 export type SolicitationResultsData = {

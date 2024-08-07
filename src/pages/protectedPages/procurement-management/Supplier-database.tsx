@@ -5,21 +5,17 @@ import IconButton from "components/shared/IconButton";
 import { Badge } from "components/ui/badge";
 import { Checkbox } from "components/ui/checkbox";
 import { cn } from "lib/utils";
-import avatarPng from "assets/imgs/avartar.png";
 import { Avatar, AvatarFallback, AvatarImage } from "components/ui/avatar";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
-
-type Data = {
-  vendor: { png: string; name: string; desc: string };
-  number: number;
-  email: string;
-  products: string;
-  status: string;
-  isSelected: boolean;
-};
+import VendorsAPI from "services/procurementApi/vendors";
+import { VendorsResultsData } from "definations/procurement-types/vendors";
 
 const SupplierDatabase = () => {
+  const { data, isLoading } = VendorsAPI.useGetVendorsQuery({
+    // params: { status: "APPROVED" },
+  });
+
   return (
     <div className="space-y-10">
       <div>
@@ -35,7 +31,11 @@ const SupplierDatabase = () => {
       <Card className="space-y-10">
         <h4 className="text-lg font-bold">Supplier Database</h4>
 
-        <DataTable data={data} columns={columns} />
+        <DataTable
+          data={data?.results || []}
+          columns={columns}
+          isLoading={isLoading}
+        />
       </Card>
     </div>
   );
@@ -43,7 +43,7 @@ const SupplierDatabase = () => {
 
 export default SupplierDatabase;
 
-const columns: ColumnDef<Data>[] = [
+const columns: ColumnDef<VendorsResultsData>[] = [
   {
     id: "select",
     size: 50,
@@ -71,33 +71,36 @@ const columns: ColumnDef<Data>[] = [
   {
     header: "Vendor",
     accessorKey: "vendor",
-    size: 250,
+    size: 350,
     cell: ({ row }) => <VendorAction data={row.original} />,
   },
   {
     header: "Phone Number",
-    accessorKey: "number",
+    size: 200,
+    accessorKey: "phone_number",
   },
   {
     header: "Email",
+    size: 200,
     accessorKey: "email",
   },
   {
     header: "Products/Services",
-    accessorKey: "products",
-    size: 250,
+    accessorKey: "nature_of_business",
+    size: 300,
   },
   {
     header: "Evaluation Status",
+    size: 200,
     accessorKey: "status",
     cell: ({ getValue }) => {
       return (
         <Badge
           className={cn(
             "p-1 rounded-lg",
-            getValue() === "Active" && "bg-green-50 text-green-500",
-            getValue() === "Inactive" && "bg-red-50 text-red-500",
-            getValue() === "Under Review" && "bg-yellow-50 text-yellow-500"
+            getValue() === "Approved" && "bg-green-200 text-green-500",
+            getValue() === "Inactive" && "bg-red-200 text-red-500",
+            getValue() === "Pending" && "bg-yellow-200 text-yellow-500"
           )}
         >
           {getValue() as string}
@@ -131,65 +134,14 @@ const VendorAction = ({ data }: any) => {
     <div className="flex gap-3">
       <div>
         <Avatar>
-          <AvatarImage src={data.vendor.png} />
-          <AvatarFallback>{data.vendor.name}</AvatarFallback>
+          <AvatarImage src={data?.vendor?.png} />
+          <AvatarFallback>{data?.company_name.charAt(0)}</AvatarFallback>
         </Avatar>
       </div>
       <div>
-        <h4 className="font-bold">{data.vendor.name}</h4>
-        <h6>{data.vendor.desc}</h6>
+        <h4 className="font-bold">{data?.company_name}</h4>
+        <h6>{data?.company_address}</h6>
       </div>
     </div>
   );
 };
-
-const data: Data[] = [
-  {
-    vendor: { png: avatarPng, name: "Medical Supplies Ltd.", desc: "AHNI001" },
-    number: +2348071234567,
-    email: "contact@medsupplies.com.ng",
-    products: "MEDICAL EQUIPMENT, SURGICAL TOOLS",
-    status: "Active",
-    isSelected: false,
-  },
-  {
-    vendor: { png: avatarPng, name: "Naija Labs & Co.", desc: "AHNI002" },
-    number: +2348092345678,
-    email: "info@naijalabs.com.ng",
-    products: "Diagnostic kits, laboratory equipment",
-    status: "Under Review",
-    isSelected: false,
-  },
-  {
-    vendor: { png: avatarPng, name: "HealthTech Nigeria", desc: "AHNI002" },
-    number: +2348063456789,
-    email: "support@healthtechnigeria.com.ng",
-    products: "Healthcare software, patient management systems",
-    status: "Inactive",
-    isSelected: false,
-  },
-  {
-    vendor: { png: avatarPng, name: "Medical Supplies Ltd.", desc: "AHNI001" },
-    number: +2348071234567,
-    email: "contact@medsupplies.com.ng",
-    products: "MEDICAL EQUIPMENT, SURGICAL TOOLS",
-    status: "Active",
-    isSelected: false,
-  },
-  {
-    vendor: { png: avatarPng, name: "Naija Labs & Co.", desc: "AHNI002" },
-    number: +2348092345678,
-    email: "info@naijalabs.com.ng",
-    products: "Diagnostic kits, laboratory equipment",
-    status: "Under Review",
-    isSelected: false,
-  },
-  {
-    vendor: { png: avatarPng, name: "HealthTech Nigeria", desc: "AHNI002" },
-    number: +2348063456789,
-    email: "support@healthtechnigeria.com.ng",
-    products: "Healthcare software, patient management systems",
-    status: "Inactive",
-    isSelected: false,
-  },
-];
