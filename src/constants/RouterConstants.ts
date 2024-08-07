@@ -13,6 +13,8 @@ export const AdminRoutes = {
   VehicleRequest: "/admin/fleet-managment/vehichle-request",
   VehicleMaitenance: "/admin/fleet-managment/vehicle-maintenance",
   FuelConsumptions: "/admin/fleet-managment/fuel-request",
+  FuelView: "/admin/fleet-managment/fuel/View-Fuel",
+  FuelCreate: "/admin/fleet-managment/fuel-request/create",
   NewVehicleRequest: "/admin/fleet-managment/new-vehicle-request",
   ViewVehicleRequest: "/admin/fleet-managment/vehicle",
   Facilities: "/admin/facilities/facilities-list",

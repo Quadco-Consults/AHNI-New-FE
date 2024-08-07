@@ -11,7 +11,12 @@ export type Facility = {
   approved_by: string;
   maintenance_type: string;
   recommendations: string;
-  facility: { name: string };
+  facility: {
+    name: string;
+    state: string;
+    local_govt: string;
+    address: string;
+  };
   status: string;
   start_date: string;
   end_date: string;
@@ -49,7 +54,7 @@ export const agrrementsAPI = baseAPI.injectEndpoints({
     }),
     updateFacility: builder.mutation<
       Facility,
-      { id: string; payload: CreateFacilityPayload }
+      { id: string; payload: Partial<CreateFacilityPayload> }
     >({
       query: ({ id, payload }) => ({
         url: `/admins/facility-maintenance-requests/${id}/`,

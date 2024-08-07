@@ -7,6 +7,13 @@ import { Label } from "components/ui/label";
 import { Separator } from "components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { cn } from "lib/utils";
+import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import {
+  useGetFacilityQuery,
+  useUpdateFacilityMutation,
+} from "services/adminApi/faciityMaintenance";
+import { toast } from "sonner";
 
 const AssetsItem = ({
   desc,
@@ -28,6 +35,28 @@ const AssetsItem = ({
 };
 
 const FacilitiesView = () => {
+  const [searchParams] = useSearchParams();
+  const [recommendation, setRecommendation] = useState("");
+  const { data } = useGetFacilityQuery(String(searchParams.get("to")));
+
+  const [updateMaintanace, { isLoading }] = useUpdateFacilityMutation();
+
+  const handleSubmit = async () => {
+    try {
+      await updateMaintanace({
+        id: String(data?.id),
+        payload: {
+          status: "Approved",
+          recommendations: recommendation,
+        },
+      }).unwrap();
+      toast.success("Facility Maintenance Approved");
+      setRecommendation("");
+    } catch (error) {
+      toast.error("Failed to approve facility maintenance");
+    }
+  };
+
   return (
     <Tabs defaultValue="details">
       <TabsList>
@@ -47,25 +76,25 @@ const FacilitiesView = () => {
               <AssetsItem
                 heading="Facility"
                 className="flex justify-between "
-                desc="AHNi Compliance office"
+                desc={data?.facility.name}
                 className2="flex justify-start  w-7/12"
               />
               <AssetsItem
                 heading="State"
                 className="flex justify-between"
-                desc="Abuja"
+                desc={data?.facility?.state}
                 className2="flex justify-start  w-7/12"
               />
               <AssetsItem
                 heading="Address"
                 className="flex justify-between"
-                desc="No. 23, Celina Ayom Crescent, Jabi Abuja."
+                desc={data?.facility?.address}
                 className2="flex justify-start  w-7/12"
               />
               <AssetsItem
                 heading="Maintenance Type"
                 className="flex justify-between"
-                desc="Screeding/Painting"
+                desc={data?.maintenance_type}
                 className2="flex justify-start  w-7/12"
               />
             </div>
@@ -80,38 +109,44 @@ const FacilitiesView = () => {
               <AssetsItem
                 className="px-5 py-3 border rounded-md"
                 heading="Facility"
-                desc="AHNi Compliance office"
+                desc={data?.facility.name}
               />
               <AssetsItem
                 className="px-5 py-3 border rounded-md"
                 heading="State"
-                desc="Abuja"
+                desc={data?.facility?.state}
               />
               <AssetsItem
                 className="px-5 py-3 border rounded-md"
                 heading="Address"
-                desc="No. 23, Celina Ayom Crescent, Jabi Abuja."
+                desc={data?.facility?.address}
               />
               <AssetsItem
                 className="px-5 py-3 border rounded-md"
                 heading="Maintenance Type"
-                desc="Screeding/Painting"
+                desc={data?.maintenance_type}
               />
             </div>
             <div className="mt-4 space-y-3 ">
               <h3 className="text-base font-semibold">Approval</h3>
               <div className="flex items-center gap-x-2">
-                <Checkbox />
+                <Checkbox checked />
                 <Label className="text-xs font-semibold">
                   Facility Manager
                 </Label>
               </div>
               <div>
                 <Label className="text-xs font-semibold">Recommendation </Label>
-                <Input />
+                <Input
+                  name="recommendation"
+                  onChange={(e) => setRecommendation(e.target.value)}
+                  value={recommendation}
+                />
               </div>
               <div className="mt-6">
-                <FormButton>Approve Request</FormButton>
+                <FormButton loading={isLoading} onClick={() => handleSubmit()}>
+                  Approve Request
+                </FormButton>
               </div>
             </div>
           </CardContent>

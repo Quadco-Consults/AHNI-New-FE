@@ -56,6 +56,18 @@ export const adminRoutes = [
     ),
   },
   {
+    path: AdminRoutes.FuelCreate,
+    element: lazy(
+      () => import("pages/protectedPages/admin/FleetManagment/CreateFuelRecord")
+    ),
+  },
+  {
+    path: AdminRoutes.FuelView,
+    element: lazy(
+      () => import("pages/protectedPages/admin/FleetManagment/ViewFuel")
+    ),
+  },
+  {
     path: AdminRoutes.NewVehicleRequest,
     element: lazy(
       () =>
