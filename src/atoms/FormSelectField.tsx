@@ -1,7 +1,6 @@
 import React, { FC } from "react";
 import { useFormContext } from "react-hook-form";
 
-import { useDisableNumberInputScroll } from "../hooks/useDisableNumberInputScroll";
 import {
   FormControl,
   FormField,
@@ -9,16 +8,27 @@ import {
   FormLabel,
   FormMessage,
 } from "components/ui/form";
-import { Select, SelectTrigger, SelectValue } from "components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "components/ui/select";
 
 import { SelectHTMLAttributes } from "react";
 
+type TOption = {
+  label: string;
+  value: string;
+};
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   name: string;
   label?: string;
   placeholder?: string;
   required?: boolean;
-  children: React.ReactNode;
+  options?: TOption[];
+  children?: React.ReactNode;
 }
 const FormSelect: FC<SelectProps> = ({
   name,
@@ -26,10 +36,9 @@ const FormSelect: FC<SelectProps> = ({
   required,
   placeholder,
   children,
+  options,
 }) => {
   const { control } = useFormContext();
-
-  useDisableNumberInputScroll();
 
   return (
     <FormField
@@ -38,22 +47,41 @@ const FormSelect: FC<SelectProps> = ({
       render={({ field }) => {
         const { value, onChange } = field;
         return (
-          <FormItem className="flex flex-col gap-0">
-            <FormLabel className="font-semibold -mb-1">
-              {label}
-              {required && (
-                <span className="text-red-500 " title="required">
-                  *
-                </span>
-              )}
-            </FormLabel>
+          <FormItem className="flex flex-col w-full gap-0">
+            {label && (
+              <FormLabel className="-mb-1 font-semibold">
+                {label}
+                {required && (
+                  <span className="text-red-500 " title="required">
+                    *
+                  </span>
+                )}
+              </FormLabel>
+            )}
             <Select onValueChange={onChange} defaultValue={value}>
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder={placeholder} />
                 </SelectTrigger>
               </FormControl>
-              {children}
+
+              {options ? (
+                <SelectContent>
+                  {options.map((item) => {
+                    return (
+                      <SelectItem
+                        className="cursor-pointer"
+                        key={item.value}
+                        value={item.value as string}
+                      >
+                        {item.label}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              ) : (
+                children
+              )}
             </Select>
             <FormMessage />
           </FormItem>

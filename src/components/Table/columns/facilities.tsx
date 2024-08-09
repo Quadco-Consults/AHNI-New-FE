@@ -1,161 +1,77 @@
-import { ColumnDef } from "@tanstack/react-table";
-import { Checkbox } from "components/ui/checkbox";
-import { ChevronDown } from "lucide-react";
+import { ColumnDef, Row } from "@tanstack/react-table";
 
-interface MaintenanceData {
+import { Badge } from "components/ui/badge";
+
+import { AdminRoutes } from "constants/RouterConstants";
+import TableAction from "atoms/TableAction";
+import { useDeleteFacilityMutation } from "services/adminApi/faciityMaintenance";
+import { toast } from "sonner";
+
+export interface MaintenanceData {
   facility: string;
-  state: string;
-  address: string;
-  maintenanceType: string;
+  maintenance_type: string;
+  description_of_problem: string;
+  status: string;
   // Add a property for the checkbox state
-  isSelected: boolean;
+  action: boolean;
+  id: string;
 }
 
-export const maintenanceData: MaintenanceData[] = [
-  {
-    facility: "AHNi Compliance Office",
-    state: "Jabi, Abuja",
-    address: "No. 23, Celina Ayom Crescent",
-    maintenanceType: "Screeding/Painting",
-    isSelected: false,
-  },
-  {
-    facility: "AHNi Compliance Office",
-    state: "Jabi, Abuja",
-    address: "No. 23, Celina Ayom Crescent",
-    maintenanceType: "Screeding/Painting",
-    isSelected: false,
-  },
-  {
-    facility: "AHNi Compliance Office",
-    state: "Jabi, Abuja",
-    address: "No. 23, Celina Ayom Crescent",
-    maintenanceType: "Screeding/Painting",
-    isSelected: false,
-  },
-  {
-    facility: "AHNi Compliance Office",
-    state: "Jabi, Abuja",
-    address: "No. 23, Celina Ayom Crescent",
-    maintenanceType: "Screeding/Painting",
-    isSelected: false,
-  },
-  {
-    facility: "AHNi Compliance Office",
-    state: "Jabi, Abuja",
-    address: "No. 23, Celina Ayom Crescent",
-    maintenanceType: "Screeding/Painting",
-    isSelected: false,
-  },
-  {
-    facility: "AHNi Compliance Office",
-    state: "Jabi, Abuja",
-    address: "No. 23, Celina Ayom Crescent",
-    maintenanceType: "Screeding/Painting",
-    isSelected: false,
-  },
-  {
-    facility: "AHNi Compliance Office",
-    state: "Jabi, Abuja",
-    address: "No. 23, Celina Ayom Crescent",
-    maintenanceType: "Screeding/Painting",
-    isSelected: false,
-  },
-  {
-    facility: "AHNi Compliance Office",
-    state: "Jabi, Abuja",
-    address: "No. 23, Celina Ayom Crescent",
-    maintenanceType: "Screeding/Painting",
-    isSelected: false,
-  },
-  {
-    facility: "AHNi Compliance Office",
-    state: "Jabi, Abuja",
-    address: "No. 23, Celina Ayom Crescent",
-    maintenanceType: "Screeding/Painting",
-    isSelected: false,
-  },
-  {
-    facility: "AHNi Compliance Office",
-    state: "Jabi, Abuja",
-    address: "No. 23, Celina Ayom Crescent",
-    maintenanceType: "Screeding/Painting",
-    isSelected: false,
-  },
-  {
-    facility: "AHNi Compliance Office",
-    state: "Jabi, Abuja",
-    address: "No. 23, Celina Ayom Crescent",
-    maintenanceType: "Screeding/Painting",
-    isSelected: false,
-  },
-  {
-    facility: "AHNi Compliance Office",
-    state: "Jabi, Abuja",
-    address: "No. 23, Celina Ayom Crescent",
-    maintenanceType: "Screeding/Painting",
-    isSelected: false,
-  },
-  {
-    facility: "AHNi Compliance Office",
-    state: "Jabi, Abuja",
-    address: "No. 23, Celina Ayom Crescent",
-    maintenanceType: "Screeding/Painting",
-    isSelected: false,
-  },
-  {
-    facility: "AHNi Compliance Office",
-    state: "Jabi, Abuja",
-    address: "No. 23, Celina Ayom Crescent",
-    maintenanceType: "Screeding/Painting",
-    isSelected: false,
-  },
-  {
-    facility: "AHNi Compliance Office",
-    state: "Jabi, Abuja",
-    address: "No. 23, Celina Ayom Crescent",
-    maintenanceType: "Screeding/Painting",
-    isSelected: false,
-  },
-];
+// eslint-disable-next-line react-refresh/only-export-components
+const FacilityDelete = ({ row }: { row: Row<MaintenanceData> }) => {
+  const [deleteFaculity] = useDeleteFacilityMutation();
+
+  const onDelete = async () => {
+    try {
+      await deleteFaculity(row.original.id).unwrap();
+      toast.success("Facility Deleted");
+    } catch (error) {
+      toast.error("Failed to delete facility");
+    }
+  };
+  return (
+    <TableAction
+      action={() => onDelete()}
+      route={AdminRoutes.FacilitiesView}
+      row={row.original}
+    />
+  );
+};
 
 export const maintenanceColumns: ColumnDef<MaintenanceData>[] = [
-  {
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllRowsSelected()}
-        onCheckedChange={table.getToggleAllRowsSelectedHandler()}
-      />
-    ),
-    accessorKey: "isSelected",
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={row.getToggleSelectedHandler()}
-      />
-    ),
-  },
   {
     header: "Facility",
     accessorKey: "facility",
   },
   {
-    header: "State",
-    accessorKey: "state",
+    header: "Description",
+    accessorKey: "description_of_problem",
   },
-  {
-    header: "Address",
-    accessorKey: "address",
-  },
+
   {
     header: "Maintenance Type",
-    accessorKey: "maintenanceType",
+    accessorKey: "maintenance_type",
+  },
+  {
+    header: "Status",
+    accessorKey: "status",
+    cell: ({ getValue }) => {
+      return (
+        <Badge
+          variant={
+            getValue<string>().toLowerCase() === "pending"
+              ? "secondary"
+              : "success"
+          }
+        >
+          {getValue<string>()}
+        </Badge>
+      );
+    },
   },
   {
     header: "",
     accessorKey: "action",
-    cell: () => {
-      return <ChevronDown />;
-    },
+    cell: ({ row }) => <FacilityDelete row={row} />,
   },
 ];

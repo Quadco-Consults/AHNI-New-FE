@@ -27,6 +27,9 @@ import AssingRole from "./components/users/AssingRole";
 import SspSubmitModal from "./components/sspSubmitModal";
 import ExpenditureModal from "./components/ExpenditureModal";
 import AssingPermission from "./components/users/AssingPermission";
+import AddStock from "./components/consumables/AddStock";
+
+import TeamMemberSelection from "./components/consumables/AddTeamMembers";
 
 const sheets: Record<string, ReactNode> = {
   [DialogType.Categories]: <CategoriesModal />,
@@ -53,6 +56,8 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.SspSubmitModal]: <SspSubmitModal />,
   [DialogType.ExpenditureModal]: <ExpenditureModal />,
   [DialogType.AddPermissionToRole]: <AssingPermission />,
+  [DialogType.AddStock]: <AddStock />,
+  [DialogType.AddTeamMenbers]: <TeamMemberSelection />,
 };
 
 const AppDailog = () => {
