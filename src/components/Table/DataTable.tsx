@@ -23,7 +23,7 @@ interface TableProps<TData> {
   columns: ColumnDef<TData, any>[];
   // eslint-disable-next-line no-unused-vars
   onRowClick?: (row: any) => void;
-  isLoading: boolean;
+  isLoading?: boolean;
 }
 
 function DataTable<TData>({
@@ -68,7 +68,11 @@ function DataTable<TData>({
                         header.column.columnDef.header,
                         header.getContext()
                       )}
+<<<<<<< HEAD
                 </TableCell>
+=======
+                </TableHead>
+>>>>>>> c97e151a65e8219c0b595317047cc707506099e8
               ))}
             </TableRow>
           ))}

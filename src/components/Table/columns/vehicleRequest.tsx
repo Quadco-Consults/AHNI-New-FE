@@ -1,109 +1,164 @@
 import { ColumnDef } from "@tanstack/react-table";
+import MoreIcon from "assets/MoreIcon";
 import { Badge } from "components/ui/badge";
-import { Checkbox } from "components/ui/checkbox";
+import { AdminRoutes } from "constants/RouterConstants";
+import { useNavigate } from "react-router-dom";
+import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "components/ui/alert-dialog";
+import { useDeleteVehicleRequestMutation } from "services/adminApi/VehicleRequestApi";
+import { toast } from "sonner";
 
-type Data = {
-  vehicleRegNo: string;
-  dateOfDept: string;
-  dateOfReturn: string;
-  approval: string;
-  nft: number;
-  isSelected: boolean;
+interface TeamMember {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone_number: string | null;
+  gender: string;
+  designation: string | null;
+}
+
+interface Location {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  name: string;
+  address: string;
+  city: string | null;
+  state: string;
+  email: string | null;
+  phone: string | null;
+}
+
+export interface IVehicleRequest {
+  id: string;
+  approved_vehicles: any[];
+  created_at: string;
+  updated_at: string;
+  supervisor: string;
+  point_of_departure: string;
+  destination: string;
+  request_date: string;
+  departure_date: string;
+  return_date: string;
+  status: string;
+  recommendations: string;
+  approved_by: string | null;
+  requesting_staff: TeamMember;
+  location: Location;
+  team_members: TeamMember[];
+}
+// eslint-disable-next-line react-refresh/only-export-components
+const MoreAction = ({ row }: { row: IVehicleRequest }) => {
+  const navigate = useNavigate();
+  const onSelecteion = () => {
+    navigate(AdminRoutes.ViewVehicleRequest);
+    sessionStorage.setItem("vehicle_request", row.id);
+  };
+
+ const [deleteVehicle] = useDeleteVehicleRequestMutation()
+
+  const onDelete = async () => {
+    try {
+      await deleteVehicle(row.id).unwrap()
+      toast.success("Vehicle deleted successfully")
+    } catch (error) {
+      toast.error("Error deleting vehicle")
+    }
+  }
+  return (
+    <div className="flex items-center space-x-2">
+       <Popover>
+        <PopoverTrigger>
+          <MoreIcon />
+        </PopoverTrigger>
+        <PopoverContent className="w-32 py-1 space-y-2">
+   
+            <div      onClick={() => onSelecteion()} className="flex items-center gap-2 p-2 cursor-pointer hover:bg-primary hover:text-white">
+              View
+            </div>
+    
+
+          <AlertDialog>
+            <AlertDialogTrigger className="flex items-center w-full gap-2 p-2 cursor-pointer hover:bg-primary hover:text-white">
+              Delete
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {
+                    "This action cannot be undone. This will permanently delete this item and remove all associated data from our servers."}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={() => onDelete()}>Continue</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </PopoverContent>
+      </Popover>
+
+    </div>
+  );
 };
-
-export const vehicleRequestData: Data[] = [
+export const vehicleRequestColumns: ColumnDef<IVehicleRequest>[] = [
   {
-    vehicleRegNo: "Ford - 12R 85 FG",
-    dateOfDept: "10/20/24",
-    dateOfReturn: "10/24/24",
-    approval: "Approved",
-    nft: 6,
-    isSelected: false,
+    header: "Requesting Staff",
+    accessorKey: "requesting_staff",
+    cell: ({ row }) => {
+      const staff = row.original.requesting_staff;
+      return `${staff.first_name} ${staff.last_name}`;
+    },
   },
   {
-    vehicleRegNo: "Toyota Hilux - 12R 75 FG",
-    dateOfDept: "10/20/24",
-    dateOfReturn: "10/24/24",
-    approval: "Pending",
-    nft: 10,
-    isSelected: false,
+    header: "Location",
+    accessorKey: "location.name",
   },
   {
-    vehicleRegNo: "Ford - 12R 85 FG",
-    dateOfDept: "10/20/24",
-    dateOfReturn: "10/24/24",
-    approval: "Approved",
-    nft: 11,
-    isSelected: false,
+    header: "Request Date",
+    accessorKey: "request_date",
   },
   {
-    vehicleRegNo: "Toyota Hilux - 12R 75 FG",
-    dateOfDept: "10/20/24",
-    dateOfReturn: "10/24/24",
-    approval: "Pending",
-    nft: 5,
-    isSelected: false,
+    header: "Departure Date",
+    accessorKey: "departure_date",
   },
   {
-    vehicleRegNo: "Urvan Bus - 12R 85 FG",
-    dateOfDept: "10/20/24",
-    dateOfReturn: "10/24/24",
-    approval: "Approved",
-    nft: 7,
-    isSelected: false,
+    header: "Return Date",
+    accessorKey: "return_date",
   },
   {
-    vehicleRegNo: "Urvan Bus - 12R 75 FG",
-    dateOfDept: "10/20/24",
-    dateOfReturn: "10/24/24",
-    approval: "Pending",
-    nft: 9,
-    isSelected: false,
-  },
-];
-
-export const vehicleRequestColumns: ColumnDef<Data>[] = [
-  {
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllRowsSelected()}
-        onCheckedChange={table.getToggleAllRowsSelectedHandler()}
-      />
-    ),
-    accessorKey: "isSelected",
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={row.getToggleSelectedHandler()}
-      />
-    ),
-  },
-  {
-    header: "Vehicle Reg. No",
-    accessorKey: "vehicleRegNo",
-  },
-  {
-    header: "Date of Dept.",
-    accessorKey: "dateOfDept",
-  },
-  {
-    header: "Date of Return",
-    accessorKey: "dateOfReturn",
-  },
-  {
-    header: "Approval",
-    accessorKey: "approval",
+    header: "Status",
+    accessorKey: "status",
     cell: ({ getValue }) => {
       return (
         <Badge variant={getValue() === "Approved" ? "success" : "destructive"}>
-          {" "}
-          {getValue() as string}{" "}
+          {getValue() as string}
         </Badge>
       );
     },
   },
   {
-    header: "N.F.T",
-    accessorKey: "nft",
+    header: "No. of Personnel",
+    accessorKey: "team_members",
+    cell: ({ row }) => {
+      return row.original.team_members.length;
+    },
+  },
+  {
+    header: "Action",
+    accessorKey: "action",
+    cell: ({ row }) => <MoreAction row={row.original} />,
   },
 ];
