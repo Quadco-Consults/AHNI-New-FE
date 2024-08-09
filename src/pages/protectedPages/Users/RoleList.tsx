@@ -1,11 +1,30 @@
 import { Card, CardContent } from "components/ui/card";
+import { DialogType, largeDailogScreen } from "constants/dailogs";
+import { useAppDispatch } from "hooks/useStore";
 import { ChevronRight } from "lucide-react";
+
 import { useRolesQuery } from "services/users";
+import { openDialog } from "store/ui";
 
 const RoleList = () => {
   const { data } = useRolesQuery({
     no_paginate: false,
   });
+
+  const dispatch = useAppDispatch();
+
+  const onRoleClick = (id: string, permission: string) => {
+    dispatch(
+      openDialog({
+        type: DialogType.AddPermissionToRole,
+        dialogProps: {
+          ...largeDailogScreen,
+          id,
+          permission: permission,
+        },
+      })
+    );
+  };
   return (
     <div className="mt-6">
       <Card>
@@ -20,7 +39,15 @@ const RoleList = () => {
                   <h4 className="text-lg font-bold">{item.name}</h4>
                 </div>
                 <div>
-                  <ChevronRight />
+                  <ChevronRight
+                    className="cursor-pointer "
+                    onClick={() =>
+                      onRoleClick(
+                        String(item.id),
+                        item.permissions as unknown as string
+                      )
+                    }
+                  />
                 </div>
               </div>
             );

@@ -1,18 +1,25 @@
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
-import {
-  fuelConsumptionColumns,
-  fuelConsumptionData,
-} from "components/Table/columns/fuel";
+import { fuelConsumptionColumnsOne } from "components/Table/columns/fuel";
+import { FC, useMemo } from "react";
 
-const FuelTable = () => {
+import { useGetVehicleFuelRecordQuery } from "services/adminApi/VehicleRequestApi";
+
+type FuelTableProps = {
+  vehicle?: string;
+};
+const FuelTable: FC<FuelTableProps> = ({ vehicle }) => {
+  const { data } = useGetVehicleFuelRecordQuery({
+    vehicle,
+  });
+
+  const drivedData = useMemo(() => {
+    return data?.results || [];
+  }, [data?.results]);
   return (
     <div>
       <TableFilters>
-        <DataTable
-          columns={fuelConsumptionColumns}
-          data={fuelConsumptionData}
-        />
+        <DataTable columns={fuelConsumptionColumnsOne} data={drivedData} />
       </TableFilters>
     </div>
   );

@@ -7,6 +7,8 @@ import ui from "./ui";
 import partnerLocation from "./formData/project-values";
 import objectives from "./formData/project-objective";
 import ssp from "./formData/ssp-values";
+import vendors from "./formData/procurement-vendors";
+import assets from "./assets";
 
 const persistConfig = {
   storage,
@@ -21,6 +23,8 @@ export const rootStore = combineReducers({
   partnerLocation,
   objectives,
   ssp,
+  vendors,
+  assets,
 });
 
 export const rootReducer = persistReducer(persistConfig, rootStore);

@@ -2,8 +2,8 @@
 import { useState } from "react";
 import logoSvg from "assets/svgs/logo-bg.svg";
 import { NavLink, useLocation } from "react-router-dom";
-import { ChevronDown, User, VaultIcon } from "lucide-react";
-import { RouteEnum, AdminRoutes } from "constants/RouterConstants";
+import { ChevronDown, Package, ScanEye } from "lucide-react";
+import { RouteEnum, AdminRoutes, CandGRoutes } from "constants/RouterConstants";
 import { Icon } from "@iconify/react";
 import { cn } from "lib/utils";
 import { motion } from "framer-motion";
@@ -25,6 +25,7 @@ type SidebarProps = {
 const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
   const location = useLocation();
   const [showMenu, setShowMenu] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [selectedLinkIndex, setSelectedLinkIndex] = useState<null | number>(
     null
   );
@@ -259,6 +260,8 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
               </div>
             ))}
           </div>
+
+          {/* settings */}
           <div>
             <h4
               className={cn(
@@ -268,54 +271,144 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
             >
               SETTINGS
             </h4>
-            <div>
-              <NavLink
-                to={RouteEnum.USERS}
-                className={cn(
-                  "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
-                  location.pathname.startsWith(RouteEnum.PROJECTS) &&
-                    "text-primary "
-                )}
-              >
-                <div className="flex w-[85%] items-center gap-2">
-                  <span className="">
-                    <User />
-                  </span>
-                  <h4
+
+            {MODULE_LINKS.map((link: any, index: number) => (
+              <div key={index} className="w-full ">
+                <div
+                  onClick={() => {
+                    setShowSettings(!showSettings);
+                    setSelectedLinkIndex(index);
+                  }}
+                  className={cn(
+                    "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
+                    location.pathname.startsWith(link.path) && "text-primary "
+                  )}
+                >
+                  <div className="flex w-[85%] items-center gap-2">
+                    <span className="">{link.icon}</span>
+                    <h4
+                      className={cn(
+                        " w-[100%] truncate font-medium",
+                        sidebarWidth === false ? "block" : "hidden"
+                      )}
+                    >
+                      {link.name}
+                    </h4>
+                  </div>
+                  <ChevronDown
                     className={cn(
-                      " w-[100%] truncate font-medium",
-                      sidebarWidth === false ? "block" : "hidden"
+                      "h-5 w-5 -rotate-90 transition duration-200",
+                      showSettings && selectedLinkIndex === index && "rotate-0"
                     )}
-                  >
-                    Users
-                  </h4>
+                    aria-hidden="true"
+                  />
                 </div>
-              </NavLink>
-            </div>
-            <div>
-              <NavLink
-                to={RouteEnum.AUTHORIZATION}
-                className={cn(
-                  "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
-                  location.pathname.startsWith(RouteEnum.PROJECTS) &&
-                    "text-primary "
-                )}
-              >
-                <div className="flex w-[85%] items-center gap-2">
-                  <span className="">
-                    <VaultIcon />
-                  </span>
-                  <h4
-                    className={cn(
-                      " w-[100%] truncate font-medium",
-                      sidebarWidth === false ? "block" : "hidden"
-                    )}
-                  >
-                    Authorization
-                  </h4>
-                </div>
-              </NavLink>
-            </div>
+                <motion.ul
+                  animate={
+                    showSettings && selectedLinkIndex === index
+                      ? {
+                          height: "fit-content",
+                        }
+                      : {
+                          height: 0,
+                        }
+                  }
+                  className="h-0 overflow-hidden list-none pl-14"
+                >
+                  {link?.link?.map((el: any, i: number) =>
+                    el?.sublinks ? (
+                      <div key={i}>
+                        <li className="text-sm list-none hover:text-amber-400 hover:cursor-pointer">
+                          <div
+                            onClick={() => {
+                              setShowSubMenu(!showSubMenu);
+                              setSelectedLinkSubIndex(i);
+                            }}
+                            className={cn(
+                              "flex items-center justify-start gap-2",
+                              location.pathname.startsWith(el.path) &&
+                                " text-amber-400 "
+                            )}
+                          >
+                            <span
+                              className={cn(
+                                "bg-black hover:bg-amber-400 aspect-square w-2 truncate rounded-full border",
+                                location.pathname.startsWith(el.path) &&
+                                  " bg-amber-400 border-amber-400 hover:bg-amber-400"
+                              )}
+                            ></span>
+                            <h6 className="py-2">{el.name}</h6>
+                            <ChevronDown
+                              className={cn(
+                                "h-3 w-3 transition duration-200",
+                                showSubMenu &&
+                                  selectedLinkSubIndex === i &&
+                                  "rotate-180"
+                              )}
+                              aria-hidden="true"
+                            />
+                          </div>
+                        </li>
+
+                        <motion.ul
+                          animate={
+                            showSubMenu && selectedLinkSubIndex === i
+                              ? {
+                                  height: "fit-content",
+                                }
+                              : {
+                                  height: 0,
+                                }
+                          }
+                          className="h-0 overflow-hidden text-sm"
+                        >
+                          {el?.sublinks?.map((sublink: any) => (
+                            <NavLink
+                              key={sublink.name}
+                              to={sublink.path}
+                              className={({ isActive }) => {
+                                return isActive ? "text-amber-400" : "";
+                              }}
+                            >
+                              <li className="py-2 ml-8 list-none hover:text-amber-400 hover:cursor-pointer">
+                                {sublink.name}
+                              </li>
+                            </NavLink>
+                          ))}
+                        </motion.ul>
+                      </div>
+                    ) : (
+                      <NavLink
+                        key={i}
+                        to={el.path}
+                        className={({ isActive }) => {
+                          return isActive ? "text-amber-400" : "";
+                        }}
+                      >
+                        <li
+                          className={cn(
+                            "hover:text-amber-400 flex items-center justify-start gap-2 text-sm",
+                            location.pathname.startsWith(el.path) &&
+                              " text-amber-400 "
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              "bg-black hover:bg-amber-400 aspect-square w-2 rounded-full border",
+                              location.pathname.startsWith(el.path) &&
+                                " bg-amber-400 border-amber-400 hover:bg-amber-400"
+                            )}
+                          ></span>
+                          <h6 className="py-2">{el.name}</h6>
+                        </li>
+                      </NavLink>
+                    )
+                  )}
+                </motion.ul>
+              </div>
+            ))}
+
+            {/* modules */}
           </div>
 
           {/* Global Hub */}
@@ -336,6 +429,39 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
 };
 
 export default Sidebar;
+
+const MODULE_LINKS = [
+  {
+    name: "Access Management",
+    path: "/users",
+    icon: <ScanEye />,
+    link: [
+      {
+        name: "Users",
+        path: RouteEnum.USERS,
+      },
+      {
+        name: "Authorization",
+        path: RouteEnum.AUTHORIZATION,
+      },
+    ],
+  },
+  {
+    name: "Modules",
+    path: "/modules",
+    icon: <Package />,
+    link: [
+      {
+        name: "Projects",
+        path: RouteEnum.MODULES_PROJECTS,
+      },
+      {
+        name: "Programs",
+        path: RouteEnum.MODULES_PROGRAMS,
+      },
+    ],
+  },
+];
 
 const DEPARTMENTAL_LINKS = [
   {
@@ -427,13 +553,13 @@ const DEPARTMENTAL_LINKS = [
       //     { name: "Vendor of Submission", path: RouteEnum.RFQ_VENDOR },
       //   ],
       // },
-      {
-        name: "Submission of Bids",
-        path: RouteEnum.SUBMISSION_OF_BIDS,
-      },
+      // {
+      //   name: "Submission of Bids",
+      //   path: RouteEnum.SUBMISSION_OF_BIDS,
+      // },
       {
         name: "Competitive Bid Analysis",
-        path: RouteEnum.COMPETITIVE_ANALYSIS,
+        path: RouteEnum.COMPETITIVE_BID_ANALYSIS,
         // sublinks: [
         //   { name: "CBA", path: RouteEnum.COMPETITIVE_ANALYSIS },
         //   { name: "Selection", path: RouteEnum.COMPETITIVE_SELECTION },
@@ -453,7 +579,7 @@ const DEPARTMENTAL_LINKS = [
     name: "Admin",
     icon: <AdminIcon />,
     link: [
-      { name: "Overview", path: AdminRoutes.OVERVIEW },
+      // { name: "Overview", path: AdminRoutes.OVERVIEW },
       {
         name: "Inventory Management",
         path: "/admin/inventory-managment",
@@ -490,15 +616,15 @@ const DEPARTMENTAL_LINKS = [
       { name: "Payment Request", path: AdminRoutes.PaymentRequest },
       {
         name: "Agreements",
-        path: "/admin/agreements",
-        sublinks: [
-          { name: "Lease", path: AdminRoutes.Lease },
-          { name: "SLA", path: AdminRoutes.SLA },
-          { name: "HMO", path: AdminRoutes.HMO },
-          { name: "Security", path: AdminRoutes.Security },
-          { name: "Insurance", path: AdminRoutes.Insurance },
-          { name: "Ticketing", path: AdminRoutes.Ticketing },
-        ],
+        path: AdminRoutes.Agrements,
+        // sublinks: [
+        //   { name: "Lease", path: AdminRoutes.Lease },
+        //   { name: "SLA", path: AdminRoutes.SLA },
+        //   { name: "HMO", path: AdminRoutes.HMO },
+        //   { name: "Security", path: AdminRoutes.Security },
+        //   { name: "Insurance", path: AdminRoutes.Insurance },
+        //   { name: "Ticketing", path: AdminRoutes.Ticketing },
+        // ],
       },
 
       { name: "Report", path: "/" },
@@ -509,22 +635,22 @@ const DEPARTMENTAL_LINKS = [
     icon: <CGIcon />,
 
     link: [
-      { name: "Overview", path: "/" },
+      { name: "Overview", path: CandGRoutes.OVERVIEW },
       {
         name: "Grant Management",
         sublinks: [
-          { name: "Grants", path: "/" },
+          { name: "Grants", path: CandGRoutes.GRANT },
           { name: "Subgrants", path: "/" },
         ],
       },
       {
         name: "Closeout",
-        sublinks: [{ name: "Closeout Plan", path: "/" }],
+        sublinks: [{ name: "Closeout Plan", path: CandGRoutes.CLOSE_OUT }],
       },
       {
         name: "Contract Management",
         sublinks: [
-          { name: "Consultant management", path: "/" },
+          { name: "Consultant management", path: CandGRoutes.CONSULTANCY },
           { name: "Consultancy report", path: "/" },
           { name: "Payment request", path: "/" },
           { name: "Facilitator management", path: "/" },
@@ -608,11 +734,3 @@ const DEPARTMENTAL_LINKS = [
     ],
   },
 ];
-
-// const SETTINGS = [
-//   {
-//     name: "Users",
-//     path: "/users",
-//     icon: <User2 />,
-//   },
-// ];

@@ -71,9 +71,10 @@ export const program = [
     ),
   },
   {
-    path: RouteEnum.PROGRAM_FUND_REQUEST_PROJECT_DETAIL,
+    path: RouteEnum.PROGRAM_FUND_REQUEST_CREATE,
     element: lazy(
-      () => import("pages/protectedPages/programs/fund-request/Project-details")
+      () =>
+        import("pages/protectedPages/programs/fund-request/Create-fund-request")
     ),
   },
   {
@@ -139,6 +140,15 @@ export const program = [
       () =>
         import(
           "pages/protectedPages/programs/stakeholder-management/register/Create-register"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER_EDIT,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/programs/stakeholder-management/register/edit-register"
         )
     ),
   },

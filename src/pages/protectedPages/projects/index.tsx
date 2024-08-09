@@ -73,10 +73,10 @@ const FundRequest = () => {
             variant="default"
             className={cn(
               "p-1 rounded-lg",
-              getValue() === "Approved" && "bg-green-50 text-green-500",
-              getValue() === "Reject" && "bg-red-50 text-red-500",
-              getValue() === "Review Pending" && "bg-yellow-50 text-yellow-500",
-              getValue() === "On Hold" && "text-grey-50 bg-grey-500"
+              getValue() === "APPROVED" && "bg-green-200 text-green-500",
+              getValue() === "Reject" && "bg-red-200 text-red-500",
+              getValue() === "PENDING" && "bg-yellow-200 text-yellow-500",
+              getValue() === "On Hold" && "text-grey-200 bg-grey-500"
             )}
           >
             {getValue() as string}

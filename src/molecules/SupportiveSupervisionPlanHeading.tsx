@@ -23,27 +23,20 @@ const SupportiveSupervisionPlanHeading = () => {
   const [completedSteps, setCompletedSteps] = useState<boolean[]>(() => {
     // Retrieve the completion state from local storage or initialize if not present
     const savedSteps = sessionStorage.getItem("supportiveCompletedSteps");
-    return savedSteps
-      ? JSON.parse(savedSteps)
-      : new Array(steps.length).fill(false);
+    return savedSteps ? JSON.parse(savedSteps) : new Array(steps.length).fill(false);
   });
   const { pathname } = useLocation();
 
   const currentPath = pathname.split("/").at(-1);
 
   useEffect(() => {
-    const currentStepIndex = steps.findIndex(
-      (step) => step.route === currentPath
-    );
+    const currentStepIndex = steps.findIndex((step) => step.route === currentPath);
     // Mark the previous step as completed when navigating to a new step
     if (currentStepIndex > 0) {
       setCompletedSteps((prev) => {
         const updatedSteps = [...prev];
         updatedSteps[currentStepIndex - 1] = true; // Mark the previous step as completed
-        sessionStorage.setItem(
-          "supportiveCompletedSteps",
-          JSON.stringify(updatedSteps)
-        );
+        sessionStorage.setItem("supportiveCompletedSteps", JSON.stringify(updatedSteps));
         return updatedSteps;
       });
     }
