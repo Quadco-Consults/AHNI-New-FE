@@ -6,21 +6,18 @@ import { Button } from "components/ui/button";
 import { AdminRoutes } from "constants/RouterConstants";
 import { Plus } from "lucide-react";
 import { useMemo } from "react";
-import { Link, generatePath, useNavigate } from "react-router-dom";
+import { Link, generatePath} from "react-router-dom";
 import { useGetVehicleRequestsQuery } from "services/adminApi/VehicleRequestApi";
 
 const VehicleRequest = () => {
-  const navigate = useNavigate();
+
 
   const { data, isLoading } = useGetVehicleRequestsQuery({
     page: 1,
     page_size: 20,
   });
 
-  const onRowClick = () => {
-    navigate(AdminRoutes.ViewVehicleRequest);
-  };
-
+ 
   const drivedData = useMemo(() => {
     return data?.results || [];
   }, [data?.results]);
@@ -43,7 +40,7 @@ const VehicleRequest = () => {
       <div>
         <TableFilters>
           <DataTable
-            onRowClick={onRowClick}
+       
             columns={vehicleRequestColumns}
             data={drivedData}
             isLoading={isLoading}

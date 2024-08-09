@@ -1,15 +1,22 @@
 import { ColumnDef } from "@tanstack/react-table";
 import MoreIcon from "assets/MoreIcon";
 import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "components/ui/dropdown-menu";
 import { AdminRoutes } from "constants/RouterConstants";
 import { useNavigate } from "react-router-dom";
+import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "components/ui/alert-dialog";
+import { useDeleteVehicleRequestMutation } from "services/adminApi/VehicleRequestApi";
+import { toast } from "sonner";
 
 interface TeamMember {
   id: string;
@@ -58,26 +65,51 @@ const MoreAction = ({ row }: { row: IVehicleRequest }) => {
     navigate(AdminRoutes.ViewVehicleRequest);
     sessionStorage.setItem("vehicle_request", row.id);
   };
+
+ const [deleteVehicle] = useDeleteVehicleRequestMutation()
+
+  const onDelete = async () => {
+    try {
+      await deleteVehicle(row.id).unwrap()
+      toast.success("Vehicle deleted successfully")
+    } catch (error) {
+      toast.error("Error deleting vehicle")
+    }
+  }
   return (
     <div className="flex items-center space-x-2">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost">
-            <MoreIcon />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-24">
-          <DropdownMenuItem
-            className="cursor-pointer "
-            onClick={() => onSelecteion()}
-          >
-            View
-          </DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer ">
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+       <Popover>
+        <PopoverTrigger>
+          <MoreIcon />
+        </PopoverTrigger>
+        <PopoverContent className="w-32 py-1 space-y-2">
+   
+            <div      onClick={() => onSelecteion()} className="flex items-center gap-2 p-2 cursor-pointer hover:bg-primary hover:text-white">
+              View
+            </div>
+    
+
+          <AlertDialog>
+            <AlertDialogTrigger className="flex items-center w-full gap-2 p-2 cursor-pointer hover:bg-primary hover:text-white">
+              Delete
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {
+                    "This action cannot be undone. This will permanently delete this item and remove all associated data from our servers."}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={() => onDelete()}>Continue</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </PopoverContent>
+      </Popover>
+
     </div>
   );
 };

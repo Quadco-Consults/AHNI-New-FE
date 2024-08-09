@@ -1,92 +1,43 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "components/ui/badge";
-import { Checkbox } from "components/ui/checkbox";
 
-type PaymentData = {
-  paymentTo: string;
-  amount: string;
-  requestedBy: string;
-  approval: string;
+export interface TPaymentRequest {
+  id: string;
+  created_at: string;
+  updated_at: string;
   date: string;
-};
+  payment_to: string;
+  tax_identification_number: string;
+  amount_in_figures: string;
+  amount_in_words: string;
+  account_number: string;
+  bank: string;
+  requested_by: string;
+}
 
-export const paymentData: PaymentData[] = [
-  {
-    paymentTo: "Courier Plus Services",
-    amount: "456,000",
-    requestedBy: "Jennifer Onubi",
-    approval: "Approved",
-    date: "25/10/24",
-  },
-  {
-    paymentTo: "Courier Plus Services",
-    amount: "456,000",
-    requestedBy: "Jennifer Onubi",
-    approval: "Approved",
-    date: "25/10/24",
-  },
-  {
-    paymentTo: "Courier Plus Services",
-    amount: "456,000",
-    requestedBy: "Jennifer Onubi",
-    approval: "Approved",
-    date: "25/10/24",
-  },
-  {
-    paymentTo: "Courier Plus Services",
-    amount: "456,000",
-    requestedBy: "Jennifer Onubi",
-    approval: "Approved",
-    date: "25/10/24",
-  },
-  {
-    paymentTo: "Courier Plus Services",
-    amount: "456,000",
-    requestedBy: "Jennifer Onubi",
-    approval: "Approved",
-    date: "25/10/24",
-  },
-];
-
-export const paymentColumns: ColumnDef<PaymentData>[] = [
-  {
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllRowsSelected()}
-        onCheckedChange={table.getToggleAllRowsSelectedHandler()}
-      />
-    ),
-    accessorKey: "isSelected",
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={row.getToggleSelectedHandler()}
-      />
-    ),
-  },
+export const paymentColumns: ColumnDef<PaymentRequest>[] = [
   {
     header: "Payment To",
-    accessorKey: "paymentTo",
+    accessorKey: "payment_to",
   },
   {
     header: "Amount",
-    accessorKey: "amount",
+    accessorKey: "amount_in_figures",
+    cell: ({ getValue }) => `₦${getValue<number>().toLocaleString()}`,
   },
   {
     header: "Requested By",
-    accessorKey: "requestedBy",
-  },
-  {
-    header: "Approval",
-    accessorKey: "approval",
-    cell: ({ getValue }) => (
-      <Badge variant={getValue() === "Approved" ? "success" : "destructive"}>
-        {getValue() as string}
-      </Badge>
-    ),
+    accessorKey: "requested_by",
   },
   {
     header: "Date",
     accessorKey: "date",
+  },
+  {
+    header: "Bank",
+    accessorKey: "bank",
+  },
+  {
+    header: "Account Number",
+    accessorKey: "account_number",
   },
 ];

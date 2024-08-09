@@ -106,6 +106,19 @@ const consumablesAPi = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["Stock"],
     }),
+    deleteStockCard: builder.mutation<
+      TBasePaginatedRespose<TStockCard[]>,
+      {
+        id: string;
+      }
+    >({
+      query: ({ id }) => ({
+        url: `${path}/inventory-stock-card/${id}/`,
+      
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Stock"],
+    }),
     cosumablesItems: builder.query<
       TBasePaginatedRespose<TCosumableItem[]>,
       void
@@ -126,4 +139,5 @@ export const {
   useGetStockCardQuery,
   useCosumablesItemsQuery,
   useUpdateStockCardMutation,
+  useDeleteStockCardMutation
 } = consumablesAPi;
