@@ -55,6 +55,7 @@ const baseAPI = createApi({
     "SOLICITATION_CRITERIA",
     "CBA",
     "PRICE_INTELLIGENCE",
+    "PROCUREMENT_PLAN",
   ],
   keepUnusedDataFor: 5 * 60,
   refetchOnMountOrArgChange: true,

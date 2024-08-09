@@ -17,6 +17,7 @@ import {
   BreadcrumbSeparator,
 } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
+import GoBack from "components/shared/GoBack";
 
 const PrequalificationDetails = () => {
   const { id } = useParams();
@@ -50,6 +51,7 @@ const PrequalificationDetails = () => {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+      <GoBack />
       <div className="flex justify-between">
         <h4 className="text-lg font-bold">Prequalification</h4>
 

@@ -5,7 +5,6 @@ import { Button } from "components/ui/button";
 import { Progress } from "components/ui/progress";
 import PriceIntelligenceAPI from "services/procurementApi/price-intelligence";
 import { ScrollArea } from "components/ui/scroll-area";
-import { Tabs, TabsList, TabsTrigger } from "components/ui/tabs";
 import React, { useMemo, useState } from "react";
 import {
   AreaChart,
@@ -23,6 +22,9 @@ import {
   DialogHeader,
   DialogTrigger,
 } from "components/ui/dialog";
+import BreadcrumbCard from "components/shared/Breadcrumb";
+import { PriceIntelligenceDetail } from "definations/procurement-types/price-intelligence";
+import { format } from "date-fns";
 
 const RatingCircle = ({ showInner }: any) => {
   return (
@@ -56,8 +58,15 @@ const PriceIntelligence = () => {
   if (isLoading) {
     return <LoadingSpinner />;
   }
+
+  const breadcrumbs = [
+    { name: "Procurement", icon: true },
+    { name: "Price Intelligence", icon: false },
+  ];
+
   return (
-    <div>
+    <div className="space-y-10">
+      <BreadcrumbCard list={breadcrumbs} />
       <div className="grid grid-cols-2 gap-6 ">
         {data?.map((price) => (
           <Card key={price?.id} className="h-[275px] cursor-pointer">
@@ -94,8 +103,8 @@ const PriceIntelligence = () => {
                         </div>
                         <Progress
                           // className2="bg-[#E0FDD6]"
-                          value={50}
-                          className="w-full h-4 bg-[#FF0000]"
+                          value={0}
+                          className="w-full h-4 "
                         />
                       </div>
                       <div>
@@ -121,7 +130,7 @@ const PriceIntelligence = () => {
                       <h2 className="font-semibold text-red-500">
                         Price Trend
                       </h2>
-                      <div>
+                      {/* <div>
                         <Tabs defaultValue="12">
                           <TabsList className="grid w-full grid-cols-4 text-xs ">
                             <TabsTrigger className="text-xs" value="12">
@@ -138,9 +147,11 @@ const PriceIntelligence = () => {
                             </TabsTrigger>
                           </TabsList>
                         </Tabs>
-                      </div>
+                      </div> */}
                     </div>
-                    <PriceTrendChart />
+                    <PriceTrendChart
+                      {...(priceDetails as PriceIntelligenceDetail)}
+                    />
                     <div className="space-y-2">
                       <h3 className="font-bold text-yellow-500">
                         Product Description
@@ -154,17 +165,36 @@ const PriceIntelligence = () => {
                         Price History
                       </h3>
                       <div>
-                        <div className="grid grid-cols-5 mt-6 bg-gray-200">
-                          <div className="py-2 text-sm font-semibold"></div>
-                          <div className="py-2 text-sm font-semibold">Name</div>
-                          <div className="py-2 text-sm font-semibold">QTY</div>
-                          <div className="py-2 text-sm font-semibold">
-                            COST PER UNIT
-                          </div>
-                          <div className="py-2 text-sm font-semibold">
-                            TOTAL
-                          </div>
-                        </div>
+                        <table className="w-full border">
+                          <thead>
+                            <tr className="text-amber-500 whitespace-nowrap text-xs font-semibold">
+                              <th className="px-2 py-5">S/N</th>
+                              <th className="px-2 py-5">Source</th>
+                              <th className="px-2 py-5">Price</th>
+                              <th className="px-2 py-5">Date</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {priceDetails?.history?.map((history, index) => (
+                              <tr key={index} className="w-full border">
+                                <td className="w-fit p-2 text-center ">
+                                  <span className="p-2 px-4 text-xs bg-gray-200 text-black rounded">
+                                    {index + 1}.
+                                  </span>
+                                </td>
+                                <td className="w-fit p-2 text-center">
+                                  {history?.source}
+                                </td>
+                                <td className="w-fit p-2 text-center">
+                                  ₦{history?.price?.toLocaleString()}
+                                </td>
+                                <td className="w-fit p-2 text-center">
+                                  {history?.date}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
                     </div>
                   </ScrollArea>
@@ -222,12 +252,20 @@ const CustomTooltip = ({
 };
 
 // Chart component
-const PriceTrendChart: React.FC = () => {
+const PriceTrendChart = (data: PriceIntelligenceDetail) => {
+  const formattedData = data?.history?.map((history) => {
+    return {
+      source: history?.source,
+      price: history.price,
+      date: format(history?.date, "dd, MMM"),
+    };
+  });
+
   return (
     <div className="p-4">
       <ResponsiveContainer width="100%" height={300}>
         <AreaChart
-          data={data}
+          data={formattedData}
           margin={{
             top: 20,
             right: 30,
@@ -242,7 +280,7 @@ const PriceTrendChart: React.FC = () => {
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis className="text-xs" dataKey="month" />
+          <XAxis className="text-xs" dataKey="date" />
           <YAxis className="text-xs" />
           <Tooltip content={<CustomTooltip />} />
           <Area

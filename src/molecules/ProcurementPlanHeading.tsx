@@ -1,9 +1,10 @@
 import CheckIcon from "assets/svgs/CheckIcon";
 import PendingIcon from "assets/svgs/PendingIcon";
-import BreadcrumbCard from "components/shared/Breadcrumb";
 import { Separator } from "components/ui/separator";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import GoBack from "components/shared/GoBack";
+import BreadcrumbCard from "components/shared/Breadcrumb";
 
 interface Step {
   step: number;
@@ -12,24 +13,18 @@ interface Step {
 }
 
 const steps: Step[] = [
+  { step: 1, stepName: "Procurement Plans", route: "procurement-plan" },
   {
-    step: 1,
-    stepName: "Project Details",
-    route: "project-details",
+    step: 2,
+    stepName: "Procurement Milestones",
+    route: "procurement-milestones",
   },
-  { step: 2, stepName: "Fund Request Summary", route: "fund-request-summary" },
 ];
 
-const breadcrumbs = [
-  { name: "Procurement", icon: true },
-  { name: "Fund Request", icon: true },
-  { name: "Create", icon: false },
-];
-
-const FundRequestHeading = () => {
+const ProcurementPlanHeading = () => {
   const [completedSteps, setCompletedSteps] = useState<boolean[]>(() => {
     // Retrieve the completion state from local storage or initialize if not present
-    const savedSteps = sessionStorage.getItem("fundRequestCompletedSteps");
+    const savedSteps = sessionStorage.getItem("procurementPlanSteps");
     return savedSteps
       ? JSON.parse(savedSteps)
       : new Array(steps.length).fill(false);
@@ -47,19 +42,25 @@ const FundRequestHeading = () => {
       setCompletedSteps((prev) => {
         const updatedSteps = [...prev];
         updatedSteps[currentStepIndex - 1] = true; // Mark the previous step as completed
-        sessionStorage.setItem(
-          "fundRequestCompletedSteps",
-          JSON.stringify(updatedSteps)
-        );
+        sessionStorage.setItem("completedSteps", JSON.stringify(updatedSteps));
         return updatedSteps;
       });
     }
   }, [currentPath]);
 
+  const breadcrumbs = [
+    { name: "Procurement", icon: true },
+    { name: "Procurement Plan", icon: true },
+    { name: "Create", icon: false },
+  ];
+
   return (
-    <div className="space-y-5">
+    <section className="space-y-5">
       <BreadcrumbCard list={breadcrumbs} />
-      <div className="grid justify-between w-1/2 grid-cols-2 px-4 py-2 gap-y-4">
+
+      <GoBack />
+
+      <div className="grid justify-between w-2/3 grid-cols-2 px-4 py-2 gap-y-4">
         {steps.map((item, i) => {
           return (
             <div className="flex items-center" key={i}>
@@ -86,8 +87,8 @@ const FundRequestHeading = () => {
           );
         })}
       </div>
-    </div>
+    </section>
   );
 };
 
-export default FundRequestHeading;
+export default ProcurementPlanHeading;
