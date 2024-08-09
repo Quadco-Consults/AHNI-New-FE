@@ -6,6 +6,7 @@ import {
   SolicitationItems,
   SolicitationResultsData,
 } from "definations/procurement-types/solicitation";
+import { cn } from "lib/utils";
 import { ChevronRight } from "lucide-react";
 
 const DetailsContent = (data: SolicitationResultsData) => {
@@ -15,7 +16,16 @@ const DetailsContent = (data: SolicitationResultsData) => {
         <h2 className="font-semibold text-lg">{data?.name}</h2>
 
         <h4 className="text-green-dark text-base font-medium">
-          Competitive bid analysis <Badge>{data?.status}</Badge>
+          Competitive bid analysis{" "}
+          <Badge
+            className={cn(
+              data?.status === "OPEN" && "bg-green-200 text-green-800",
+              data?.status === "CLOSED" && "bg-red-200 text-red-800",
+              data?.status === "Pending" && "bg-yellow-200 text-yellow-800"
+            )}
+          >
+            {data?.status}
+          </Badge>
         </h4>
 
         <div className="flex items-center gap-10">

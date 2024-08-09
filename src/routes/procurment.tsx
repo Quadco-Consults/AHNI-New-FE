@@ -72,10 +72,20 @@ export const procurment = [
     element: lazy(
       () =>
         import(
-          "pages/protectedPages/procurement-management/procurement-plan/create-procurement"
+          "pages/protectedPages/procurement-management/procurement-plan/create-procurement/forms/ProcurementPlansForm"
         )
     ),
   },
+  {
+    path: RouteEnum.CREATE_PROCUREMENT_MILESTONE,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/procurement-plan/create-procurement/forms/ProcurementMilestonesForm"
+        )
+    ),
+  },
+
   // {
   //   path: RouteEnum.PROCUREMENT_PLAN_TRACKER,
   //   element: lazy(

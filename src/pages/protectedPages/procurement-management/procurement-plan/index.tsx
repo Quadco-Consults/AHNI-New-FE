@@ -12,151 +12,25 @@ import EyeIcon from "components/icons/EyeIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
-
-type Data = {
-  budgetLine: string;
-  owner: string;
-  approvedBudget: string;
-  responsiblePRStaff: string;
-};
+import BreadcrumbCard from "components/shared/Breadcrumb";
+import ProcurementPlanAPI from "services/procurementApi/procurement-plan";
+import { ProcurementPlanResultsData } from "definations/procurement-types/procurementPlan";
+import UploadIcon from "components/icons/UploadIcon";
 
 function ProcurementPlan() {
-  const columns: ColumnDef<Data>[] = [
-    {
-      header: "Budget Line",
-      accessorKey: "budgetLine",
-      size: 150,
-    },
-    {
-      header: "Owner",
-      accessorKey: "owner",
-      size: 250,
-    },
-    {
-      header: "Approved Budget ($)",
-      accessorKey: "approvedBudget",
-      size: 250,
-    },
-    {
-      header: "Responsible PR Staff",
-      accessorKey: "responsiblePRStaff",
-      size: 250,
-    },
-    {
-      header: "",
-      id: "actions",
-      cell: ({ row }) => <ActionListAction data={row.original} />,
-    },
-  ];
+  const { data, isLoading } = ProcurementPlanAPI.useGetProcurementPlansQuery(
+    {}
+  );
 
-  const ActionListAction = ({ data }: any) => {
-    console.log(data);
-    return (
-      <div className="flex items-center gap-2">
-        <>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="ghost" className="flex gap-2 py-6">
-                <MoreOptionsHorizontalIcon />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className=" w-fit">
-              <div className="flex flex-col items-start justify-between gap-1">
-                <Link className="w-full" to={generatePath(RouteEnum.PROCUREMENT_DETAILS, { id: "1" })}>
-                  <Button className="w-full flex items-center justify-start gap-2" variant="ghost">
-                    <EyeIcon />
-                    View
-                  </Button>
-                </Link>
-                <Button className="w-full flex items-center justify-start gap-2" variant="ghost">
-                  <DeleteIcon />
-                  delete
-                </Button>
-              </div>
-            </PopoverContent>
-          </Popover>
-        </>
-      </div>
-    );
-  };
-
-  const data: Data[] = [
-    {
-      budgetLine: "1",
-      owner: "AHNi",
-      approvedBudget: "204,375.79 ",
-      responsiblePRStaff: "M&E Team Lead",
-    },
-    {
-      budgetLine: "1",
-      owner: "AHNi",
-      approvedBudget: "204,375.79 ",
-      responsiblePRStaff: "M&E Team Lead",
-    },
-    {
-      budgetLine: "1",
-      owner: "AHNi",
-      approvedBudget: "204,375.79 ",
-      responsiblePRStaff: "M&E Team Lead",
-    },
-    {
-      budgetLine: "1",
-      owner: "AHNi",
-      approvedBudget: "204,375.79 ",
-      responsiblePRStaff: "M&E Team Lead",
-    },
-    {
-      budgetLine: "1",
-      owner: "AHNi",
-      approvedBudget: "204,375.79 ",
-      responsiblePRStaff: "M&E Team Lead",
-    },
-    {
-      budgetLine: "1",
-      owner: "AHNi",
-      approvedBudget: "204,375.79 ",
-      responsiblePRStaff: "M&E Team Lead",
-    },
-    {
-      budgetLine: "1",
-      owner: "AHNi",
-      approvedBudget: "204,375.79 ",
-      responsiblePRStaff: "M&E Team Lead",
-    },
-    {
-      budgetLine: "1",
-      owner: "AHNi",
-      approvedBudget: "204,375.79 ",
-      responsiblePRStaff: "M&E Team Lead",
-    },
-    {
-      budgetLine: "1",
-      owner: "AHNi",
-      approvedBudget: "204,375.79 ",
-      responsiblePRStaff: "M&E Team Lead",
-    },
-    {
-      budgetLine: "1",
-      owner: "AHNi",
-      approvedBudget: "204,375.79 ",
-      responsiblePRStaff: "M&E Team Lead",
-    },
-    {
-      budgetLine: "1",
-      owner: "AHNi",
-      approvedBudget: "204,375.79 ",
-      responsiblePRStaff: "M&E Team Lead",
-    },
-    {
-      budgetLine: "1",
-      owner: "AHNi",
-      approvedBudget: "204,375.79 ",
-      responsiblePRStaff: "M&E Team Lead",
-    },
+  const breadcrumbs = [
+    { name: "Procurement", icon: true },
+    { name: "Procurement Plan", icon: false },
   ];
 
   return (
-    <section className="min-h-screen space-y-8">
+    <section className="min-h-screen space-y-10">
+      <BreadcrumbCard list={breadcrumbs} />
+
       <div className="flex items-center justify-end gap-4">
         <Popover>
           <PopoverTrigger asChild>
@@ -168,13 +42,22 @@ function ProcurementPlan() {
           </PopoverTrigger>
           <PopoverContent className=" w-fit">
             <div className="flex flex-col items-start justify-between gap-1">
-              <Link className="w-full" to={generatePath(RouteEnum.CREATE_PROCUREMENT)}>
-                <Button className="w-full flex items-center justify-start" variant="ghost">
-                  Create from scratch
+              <Link
+                className="w-full"
+                to={generatePath(RouteEnum.CREATE_PROCUREMENT)}
+              >
+                <Button
+                  className="w-full flex items-center gap-2 justify-start"
+                  variant="ghost"
+                >
+                  <AddSquareIcon fillColor="#FF0000" /> Create from scratch
                 </Button>
               </Link>
-              <Button className="w-full flex items-center justify-start" variant="ghost">
-                Upload Procurement plan
+              <Button
+                className="w-full flex items-center gap-2 justify-start"
+                variant="ghost"
+              >
+                <UploadIcon /> Upload Procurement plan
               </Button>
             </div>
           </PopoverContent>
@@ -182,19 +65,240 @@ function ProcurementPlan() {
       </div>
       <Card className="space-y-5">
         <div className="flex items-center justify-start gap-2">
-          <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
+          <div className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
             <SearchIcon />
-            <input placeholder="Search" type="text" className="ml-2 h-6 border-none bg-none focus:outline-none outline-none" />
-          </span>
+            <input
+              placeholder="Search"
+              type="text"
+              className="ml-2 h-full w-full border-none bg-none focus:outline-none outline-none"
+            />
+          </div>
           <Button className="shadow-sm" variant="ghost">
             <FilterIcon />
           </Button>
         </div>
 
-        <DataTable data={data} columns={columns} isLoading={false} />
+        <DataTable
+          data={data?.results || []}
+          columns={columns}
+          isLoading={isLoading}
+        />
       </Card>
     </section>
   );
 }
 
 export default ProcurementPlan;
+
+const columns: ColumnDef<ProcurementPlanResultsData>[] = [
+  {
+    header: "Budget Line",
+    accessorKey: "budgetLine",
+    size: 120,
+  },
+  {
+    header: "Owner",
+    accessorKey: "owner",
+    size: 100,
+  },
+  {
+    header: "Work Plan Activity Reference",
+    accessorKey: "workplan_activity",
+    size: 250,
+  },
+  {
+    header: "BUDGET ALLOCATION",
+    columns: [
+      {
+        header: "Year 1 (2021)(USD)",
+        accessorKey: "approvedBudget",
+        size: 150,
+      },
+      {
+        header: "Year 2 (2022)(USD)",
+        accessorKey: "approvedBudget",
+        size: 150,
+      },
+      {
+        header: "Year 3 (2023)(USD)",
+        accessorKey: "approvedBudget",
+        size: 150,
+      },
+      {
+        header: "Approved Budget Amount - USD",
+        accessorKey: "gfd",
+        size: 250,
+      },
+      {
+        header: "Year 1 Target",
+        accessorKey: "eggf",
+        size: 250,
+      },
+      {
+        header: "Year 2 Target",
+        accessorKey: "rhrhr",
+        size: 250,
+      },
+      {
+        header: "Year 3 Target",
+        accessorKey: "rhrhr",
+        size: 250,
+      },
+      {
+        header: "Total Quantity(1-3 Years)",
+        accessorKey: "hhjt",
+        size: 250,
+      },
+    ],
+  },
+  {
+    header: "Description of Procurement Activities",
+    accessorKey: "description",
+    size: 250,
+  },
+  {
+    header: "Approved Budget ($)",
+    accessorKey: "approved_budget",
+    size: 250,
+  },
+  {
+    header: "Responsible PR Staff",
+    accessorKey: "pr_staff",
+    size: 250,
+  },
+  {
+    header: "PPM",
+    accessorKey: "approvedBudget",
+    size: 100,
+  },
+  {
+    header: "NON-PPM",
+    accessorKey: "approvedBudget",
+    size: 120,
+  },
+  {
+    header: "Mode Of Procurement",
+    accessorKey: "mode_of_procurement",
+    size: 250,
+  },
+  {
+    header:
+      "Procurement Process (EOI, RFP, RFQ, Minimum Quotes, Open or Limited Bidding etc. as per organizational Procurement Policy, refer relevant section)",
+    accessorKey: "procurement_process",
+    size: 500,
+  },
+  {
+    header: "Start Date (at least week of the month)",
+    accessorKey: "start_date",
+    size: 250,
+  },
+  {
+    header: "PROCUREMENT MILESTONE",
+    columns: [
+      {
+        header: "Bid Document Finalization ",
+        accessorKey: "approvedBudget",
+        size: 200,
+      },
+      {
+        header:
+          "Advertise Bid (national dailies, short-listed vendors, website etc.)",
+        accessorKey: "approvedBudget",
+        size: 300,
+      },
+      {
+        header: "Evaluation",
+        accessorKey: "approvedBudget",
+        size: 200,
+      },
+      {
+        header: "Negotiation",
+        accessorKey: "gfd",
+        size: 250,
+      },
+      {
+        header: "Signing/Final Order",
+        accessorKey: "eggf",
+        size: 250,
+      },
+    ],
+  },
+  {
+    header: "Selected Supplier",
+    accessorKey: "selected_supplier",
+    size: 250,
+  },
+  {
+    header: "Expected Delivery Date 1",
+    accessorKey: "expected_delivery_date_1",
+    size: 200,
+  },
+  {
+    header: "Expected Delivery Date 2",
+    accessorKey: "expected_delivery_date_2",
+    size: 200,
+  },
+  {
+    header:
+      "Delivery to (Central warehouse, State warehouse, treatment site, SR)",
+    accessorKey: "ware_houses",
+    size: 300,
+  },
+  {
+    header: "Donor Remarks",
+    accessorKey: "donor_remarks",
+    size: 200,
+  },
+  {
+    header: "Implementer Remarks",
+    accessorKey: "implenter_remarks",
+    size: 200,
+  },
+  {
+    header: "",
+    size: 80,
+    id: "actions",
+    cell: ({ row }) => <ActionListAction data={row.original} />,
+  },
+];
+
+const ActionListAction = ({ data }: any) => {
+  return (
+    <div className="flex items-center gap-2">
+      <>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" className="flex gap-2 py-6">
+              <MoreOptionsHorizontalIcon />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className=" w-fit">
+            <div className="flex flex-col items-start justify-between gap-1">
+              <Link
+                className="w-full"
+                to={generatePath(RouteEnum.PROCUREMENT_DETAILS, {
+                  id: data?.id,
+                })}
+              >
+                <Button
+                  className="w-full flex items-center justify-start gap-2"
+                  variant="ghost"
+                >
+                  <EyeIcon />
+                  View
+                </Button>
+              </Link>
+              <Button
+                className="w-full flex items-center justify-start gap-2"
+                variant="ghost"
+              >
+                <DeleteIcon />
+                delete
+              </Button>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </>
+    </div>
+  );
+};
