@@ -119,8 +119,11 @@ const ActionListAction = ({ data }: any) => {
   console.log(data);
   return (
     <div className="flex gap-1">
-      <IconButton className="bg-[#F9F9F9] hover:text-primary">
+      {/* <IconButton className="bg-[#F9F9F9] hover:text-primary">
         <Icon icon="solar:pen-bold-duotone" fontSize={15} />
+      </IconButton> */}
+      <IconButton className="bg-[#F9F9F9] hover:text-primary">
+        <Icon icon="ph:eye-duotone" fontSize={15} />
       </IconButton>
       <IconButton className="bg-[#F9F9F9] hover:text-primary">
         <Icon icon="ant-design:delete-twotone" fontSize={15} />

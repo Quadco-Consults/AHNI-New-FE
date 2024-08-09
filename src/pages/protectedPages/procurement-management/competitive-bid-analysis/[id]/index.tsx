@@ -84,7 +84,7 @@ const CompetitiveBidAnalysisDetail = () => {
         <div className="flex justify-between">
           <h2 className="font-semibold text-lg">{data?.title}</h2>
 
-          {data?.status === "COMPLETED" ? (
+          {data?.status === "APPROVED" ? (
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
                 <Button>Approval</Button>

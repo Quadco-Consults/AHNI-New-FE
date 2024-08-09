@@ -94,12 +94,12 @@ const columns: ColumnDef<RiskPlansResultsData>[] = [
     header: "Risk Category	",
     id: "risk_category",
     accessorFn: (data) => `${data.risk_category.name}`,
-    size: 250,
+    size: 180,
   },
   {
     header: "Risk Description",
     accessorKey: "risk_description",
-    size: 250,
+    size: 300,
   },
   {
     header: "Risk Owner",
@@ -181,7 +181,7 @@ const columns: ColumnDef<RiskPlansResultsData>[] = [
   {
     header: "Risk Response",
     accessorKey: "risk_response",
-    size: 200,
+    size: 350,
   },
   {
     header: "Implementation Timeline",
@@ -191,7 +191,7 @@ const columns: ColumnDef<RiskPlansResultsData>[] = [
   {
     header: "Risk Status",
     accessorKey: "risk_status",
-    size: 180,
+    size: 150,
     cell: ({ getValue }) => {
       return (
         <Badge

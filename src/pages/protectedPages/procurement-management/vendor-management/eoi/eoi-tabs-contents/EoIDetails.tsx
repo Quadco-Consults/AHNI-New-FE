@@ -16,6 +16,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "components/ui/dialog";
+import { cn } from "lib/utils";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -49,7 +50,14 @@ const EoIDetails = (data: EOIResultsData) => {
           </div>
           <div className="flex gap-3 items-center">
             <Icon icon="pajamas:status-neutral" fontSize={18} />
-            <Badge className="px-3 bg-gray-300 text-gray-600">
+            <Badge
+              className={cn(
+                "px-3",
+                data?.status === "Approved" && "bg-green-200 text-green-500",
+                data?.status === "Rejected" && "bg-red-200 text-red-500",
+                data?.status === "Pending" && "bg-yellow-200 text-yellow-500"
+              )}
+            >
               {data.status}
             </Badge>
           </div>

@@ -11,14 +11,12 @@ export interface PriceIntelligenceList {
   category: string;
 }
 
+export interface PriceIntelligenceHistory {
+  price: number;
+  source: string;
+  date: string;
+}
+
 export interface PriceIntelligenceDetail extends PriceIntelligenceList {
-  history: {
-    id: string;
-    created_at: string;
-    updated_at: string;
-    price: number;
-    source: string;
-    date: string;
-    item: string;
-  }[];
+  history: PriceIntelligenceHistory[];
 }
