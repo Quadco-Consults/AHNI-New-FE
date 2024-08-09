@@ -1,40 +1,46 @@
 import { ColumnDef } from "@tanstack/react-table";
 import MoreIcon from "assets/MoreIcon";
-import { Button } from "components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "components/ui/dropdown-menu";
+
 import { DialogType } from "constants/dailogs";
 import { AdminRoutes } from "constants/RouterConstants";
 import { useAppDispatch } from "hooks/useStore";
-import { Link } from "react-router-dom";
-import { TConsumables, TStockCard } from "services/adminApi/consumables";
+
+import { TConsumables, TStockCard, useDeleteConsumablesMutation, useDeleteStockCardMutation,  } from "services/adminApi/consumables";
 import { openDialog } from "store/ui";
+import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "components/ui/alert-dialog";
+import { toast } from "sonner";
+import TableAction from "atoms/TableAction";
 
 // eslint-disable-next-line react-refresh/only-export-components
 const MoreAction = ({ row }: { row: TConsumables }) => {
+  const [deleteConsumables] = useDeleteConsumablesMutation()
+
+  const onDelete = async () => {
+    try {
+      await deleteConsumables({
+        id: row.id as string
+      }).unwrap()
+      toast.success("Consumables deleted successfully")
+    } catch (error) {
+      
+      toast.error("Error deleting consumables")
+    }
+  }
   return (
     <div className="flex items-center space-x-2">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost">
-            <MoreIcon />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-24">
-          <DropdownMenuItem className="cursor-pointer ">
-            <Link to={`${AdminRoutes.CONSUMABLES_VIEW}?id=${row.id}`}>
-              View
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer ">
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <TableAction action={onDelete} row={row} route={`${AdminRoutes.CONSUMABLES_VIEW}?id=${row.id}`} />
+      
     </div>
   );
 };
@@ -70,18 +76,29 @@ export const consumableColums: ColumnDef<TConsumables>[] = [
 // eslint-disable-next-line react-refresh/only-export-components
 const StockAction = ({ row }: { row: Partial<TStockCard> }) => {
   const dispatch = useAppDispatch();
+
+  const [deleteStock] = useDeleteStockCardMutation()
+
+  const onDelete = async () => {
+try {
+  await deleteStock({
+    id: row.id as string
+  }).unwrap()
+  toast.success("Stock deleted successfully")
+} catch (error) {
+  toast.error("Error deleteing stock")
+}
+  }
   return (
     <div className="flex items-center space-x-2">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost">
-            <MoreIcon />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-24">
-          <DropdownMenuItem
-            onClick={() => {
-              dispatch(
+      <Popover>
+        <PopoverTrigger>
+          <MoreIcon />
+        </PopoverTrigger>
+        <PopoverContent className="w-32 py-1 space-y-2">
+   
+            <div onClick={() => {
+               dispatch(
                 openDialog({
                   type: DialogType.AddStock,
                   dialogProps: {
@@ -91,16 +108,34 @@ const StockAction = ({ row }: { row: Partial<TStockCard> }) => {
                   },
                 })
               );
-            }}
-            className="cursor-pointer "
-          >
-            Update
-          </DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer ">
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+            } } className="flex items-center gap-2 p-2 cursor-pointer hover:bg-primary hover:text-white">
+              Update
+            </div>
+
+
+          <AlertDialog>
+            <AlertDialogTrigger className="flex items-center w-full gap-2 p-2 cursor-pointer hover:bg-primary hover:text-white">
+              Delete
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {
+                    "This action cannot be undone. This will permanently delete this item and remove all associated data from our servers."}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={() => {
+                  onDelete()
+                }}>Continue</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </PopoverContent>
+      </Popover>
+      
     </div>
   );
 };

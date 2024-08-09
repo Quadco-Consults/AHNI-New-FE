@@ -55,6 +55,7 @@ export const vehicleRequestApi = baseAPI.injectEndpoints({
         url: "/admins/vehicle-requests/",
         params,
       }),
+      providesTags: ["VehicleRequest"]
     }),
 
     getOneVehicleRequests: builder.query<IVehicleRequest, TRequest>({
@@ -72,6 +73,7 @@ export const vehicleRequestApi = baseAPI.injectEndpoints({
         method: "PATCH",
         body: patch,
       }),
+      invalidatesTags: ["VehicleRequest"]
     }),
 
     deleteVehicleRequest: builder.mutation<void, string>({
@@ -79,6 +81,7 @@ export const vehicleRequestApi = baseAPI.injectEndpoints({
         url: `/admins/vehicle-requests/${id}/`,
         method: "DELETE",
       }),
+      invalidatesTags: ["VehicleRequest"]
     }),
     approveRequest: builder.mutation<
       void,

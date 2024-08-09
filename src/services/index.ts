@@ -59,6 +59,7 @@ const baseAPI = createApi({
     "Agreement",
     "Facility",
     "FuelRecord",
+    "VehicleRequest"
   ],
   keepUnusedDataFor: 5 * 60,
   refetchOnMountOrArgChange: true,

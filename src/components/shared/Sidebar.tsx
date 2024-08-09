@@ -579,7 +579,7 @@ const DEPARTMENTAL_LINKS = [
     name: "Admin",
     icon: <AdminIcon />,
     link: [
-      { name: "Overview", path: AdminRoutes.OVERVIEW },
+      // { name: "Overview", path: AdminRoutes.OVERVIEW },
       {
         name: "Inventory Management",
         path: "/admin/inventory-managment",
