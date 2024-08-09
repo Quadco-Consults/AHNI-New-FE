@@ -53,9 +53,10 @@ function DataTable<TData>({
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead
-                  className="font-semibold text-black cursor-pointer dark:text-gray-300"
+                <TableCell
                   key={header.id}
+                  colSpan={header.colSpan}
+                  className="font-semibold text-black cursor-pointer dark:text-gray-300 text-center"
                   style={{
                     minWidth: header.column.columnDef.size,
                     maxWidth: header.column.columnDef.size,
@@ -67,12 +68,12 @@ function DataTable<TData>({
                         header.column.columnDef.header,
                         header.getContext()
                       )}
-                </TableHead>
+                </TableCell>
               ))}
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody className="bg-white">
+        <TableBody>
           {isLoading ? (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24">

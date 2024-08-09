@@ -14,10 +14,21 @@ const BASE_URL = "/programs/workplans/";
 
 const WorkPlanAPi = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getWorkPlans: builder.query<WorkPlanData, { params: {} }>({
-      query: () => {
+    getWorkPlans: builder.query<WorkPlanData, {}>({
+      query: (config) => {
         return {
           url: `${BASE_URL}`,
+          ...config,
+        };
+      },
+      providesTags: (data, error) =>
+        !error ? provideTags("WORK_PLANS", data) : [],
+    }),
+    getWorkPlanAll: builder.query<WorkPlanResultsData[], {}>({
+      query: (config) => {
+        return {
+          url: `${BASE_URL}`,
+          ...config,
         };
       },
       providesTags: (data, error) =>
