@@ -213,7 +213,7 @@ const EOI = () => {
                               />
                             </PopoverContent>
                           </Popover>
-                        </div>{" "}
+                        </div>
                         <div>
                           <Label>End Date</Label>
                           <br />
@@ -443,56 +443,60 @@ const EOI = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-5 md:grid-cols-3">
-          {data?.results?.map((eoi: EOIResultsData) => (
-            <Card
-              key={eoi.id}
-              className="space-y-4 flex flex-col justify-between"
-            >
-              <div className="space-y-4">
-                <div className="flex justify-between">
-                  <img src={eoiPng} alt="eoi" />
-                  <div>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" size="icon">
-                          <DeleteIcon />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-80 p-5">
-                        <div className="grid gap-4">
-                          <div className="space-y-2">
-                            <h4 className="font-medium leading-none">
-                              Are you absolutely sure?
-                            </h4>
-                            <p className="text-sm text-muted-foreground">
-                              This action cannot be undone. This will
-                              permanently delete this data from our servers.
-                            </p>
-                          </div>
-                          <Button onClick={() => deleteEOIHandler(eoi.id)}>
-                            Confirm
+        {data?.results && data?.results.length > 0 ? (
+          <div className="grid grid-cols-2 gap-5 md:grid-cols-3">
+            {data?.results?.map((eoi: EOIResultsData) => (
+              <Card
+                key={eoi.id}
+                className="space-y-4 flex flex-col justify-between"
+              >
+                <div className="space-y-4">
+                  <div className="flex justify-between">
+                    <img src={eoiPng} alt="eoi" />
+                    <div>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" size="icon">
+                            <DeleteIcon />
                           </Button>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80 p-5">
+                          <div className="grid gap-4">
+                            <div className="space-y-2">
+                              <h4 className="font-medium leading-none">
+                                Are you absolutely sure?
+                              </h4>
+                              <p className="text-sm text-muted-foreground">
+                                This action cannot be undone. This will
+                                permanently delete this data from our servers.
+                              </p>
+                            </div>
+                            <Button onClick={() => deleteEOIHandler(eoi.id)}>
+                              Confirm
+                            </Button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
                   </div>
+                  <h2 className="text-lg font-bold">{eoi.name}</h2>
+
+                  <h6 className="line-clamp-5">{eoi.description}</h6>
                 </div>
-                <h2 className="text-lg font-bold">{eoi.name}</h2>
 
-                <h6 className="line-clamp-5">{eoi.description}</h6>
-              </div>
-
-              <div className="flex justify-center">
-                <Link to={generatePath(RouteEnum.EOI_VIEW, { id: eoi.id })}>
-                  <Button variant="ghost" className="border text-primary">
-                    Tap to View
-                  </Button>
-                </Link>
-              </div>
-            </Card>
-          ))}
-        </div>
+                <div className="flex justify-center">
+                  <Link to={generatePath(RouteEnum.EOI_VIEW, { id: eoi.id })}>
+                    <Button variant="ghost" className="border text-primary">
+                      Tap to View
+                    </Button>
+                  </Link>
+                </div>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <p className="text-center">No Data</p>
+        )}
       </div>
     </div>
   );

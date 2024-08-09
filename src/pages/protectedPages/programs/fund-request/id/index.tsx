@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import Card from "components/shared/Card";
 import Summary from "./Summary";
@@ -9,15 +9,33 @@ import ApprovalStatus from "./ApprovalStatus";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
+import FundRequestAPI from "services/programsApi/fund-request";
+import { LoadingSpinner } from "components/shared/Loading";
+import { FundRequestData } from "definations/program-types/fund-request";
 
 const FundRequestDetail = () => {
   const navigate = useNavigate();
+  const { id, month_year } = useParams();
+
+  const { data, isLoading } = FundRequestAPI.useGetFundRequestsQuery({
+    params: {
+      project: id,
+      month_year: month_year,
+    },
+  });
+
+  console.log(data);
 
   const dispatch = useAppDispatch();
 
   const goBack = () => {
     navigate(-1);
   };
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
   return (
     <div className="space-y-6 relative min-h-screen">
       <button
@@ -55,11 +73,11 @@ const FundRequestDetail = () => {
         </div>
         <TabsContent value="summary">
           <Card>
-            <Summary />
+            <Summary {...(data as FundRequestData)} />
           </Card>
         </TabsContent>
         <TabsContent value="fund Request Summary">
-          <FundSummary />
+          <FundSummary {...(data as FundRequestData)} />
         </TabsContent>
         <TabsContent value="approval Status">
           <ApprovalStatus />

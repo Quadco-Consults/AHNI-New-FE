@@ -3,11 +3,10 @@ import PendingIcon from "assets/svgs/PendingIcon";
 import { Button } from "components/ui/button";
 import { Checkbox } from "components/ui/checkbox";
 import { Separator } from "components/ui/separator";
+import { ProcurementPlanResultsData } from "definations/procurement-types/procurementPlan";
 import React, { useState } from "react";
 
-type Props = {};
-
-const ProcurementMilestones = (props: Props) => {
+const ProcurementMilestones = (data: ProcurementPlanResultsData) => {
   const [currentStep, setcurrentStep] = useState(2);
 
   const milestones = [
@@ -22,7 +21,7 @@ const ProcurementMilestones = (props: Props) => {
     { step: 4, date: "14-dec-2024", description: "Evaluation  " },
   ];
   return (
-    <div className="w-[95%] mx-auto space-y-4 pt-4">
+    <div className="w-[95%] mx-auto space-y-4">
       <h3 className="text-primary text-xl font-semibold py-12">
         Procurement Milestones
       </h3>

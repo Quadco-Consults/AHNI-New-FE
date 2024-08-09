@@ -4,13 +4,17 @@ import { Checkbox } from "components/ui/checkbox";
 import FormButton from "atoms/FormButton";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { vendorsActions } from "store/formData/procurement-vendors";
 
 const Attestation = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const dispatch = useDispatch();
 
   const onSubmit = () => {
     let path = pathname;
+    dispatch(vendorsActions.clearVendors());
 
     path = path.substring(0, path.lastIndexOf("/"));
 

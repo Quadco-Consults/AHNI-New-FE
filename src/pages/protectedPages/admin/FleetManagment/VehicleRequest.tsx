@@ -1,21 +1,26 @@
 import BackNavigation from "atoms/BackNavigation";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
-import {
-  vehicleRequestColumns,
-  vehicleRequestData,
-} from "components/Table/columns/vehicleRequest";
+import { vehicleRequestColumns } from "components/Table/columns/vehicleRequest";
 import { Button } from "components/ui/button";
 import { AdminRoutes } from "constants/RouterConstants";
 import { Plus } from "lucide-react";
-import { Link, generatePath, useNavigate } from "react-router-dom";
+import { useMemo } from "react";
+import { Link, generatePath} from "react-router-dom";
+import { useGetVehicleRequestsQuery } from "services/adminApi/VehicleRequestApi";
 
 const VehicleRequest = () => {
-  const navigate = useNavigate();
 
-  const onRowClick = () => {
-    navigate(AdminRoutes.ViewVehicleRequest);
-  };
+
+  const { data, isLoading } = useGetVehicleRequestsQuery({
+    page: 1,
+    page_size: 20,
+  });
+
+ 
+  const drivedData = useMemo(() => {
+    return data?.results || [];
+  }, [data?.results]);
   return (
     <div className="flex flex-col gap-y-7">
       <div className="flex items-center justify-between">
@@ -35,9 +40,10 @@ const VehicleRequest = () => {
       <div>
         <TableFilters>
           <DataTable
-            onRowClick={onRowClick}
+       
             columns={vehicleRequestColumns}
-            data={vehicleRequestData}
+            data={drivedData}
+            isLoading={isLoading}
           />
         </TableFilters>
       </div>

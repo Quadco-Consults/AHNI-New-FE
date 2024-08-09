@@ -21,8 +21,9 @@ import {
 interface TableProps<TData> {
   data: TData[];
   columns: ColumnDef<TData, any>[];
-  onRowClick?: () => void;
-  isLoading: boolean;
+  // eslint-disable-next-line no-unused-vars
+  onRowClick?: (row: any) => void;
+  isLoading?: boolean;
 }
 
 function DataTable<TData>({
@@ -52,9 +53,10 @@ function DataTable<TData>({
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead
-                  className="font-semibold text-black cursor-pointer dark:text-gray-300"
+                <TableCell
                   key={header.id}
+                  colSpan={header.colSpan}
+                  className="font-semibold text-black cursor-pointer dark:text-gray-300 text-center"
                   style={{
                     minWidth: header.column.columnDef.size,
                     maxWidth: header.column.columnDef.size,
@@ -66,12 +68,12 @@ function DataTable<TData>({
                         header.column.columnDef.header,
                         header.getContext()
                       )}
-                </TableHead>
+                </TableCell>
               ))}
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody className="bg-white">
+        <TableBody>
           {isLoading ? (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24">
@@ -80,22 +82,30 @@ function DataTable<TData>({
             </TableRow>
           ) : (
             <>
-              {table.getRowModel().rows.map((row) => (
-                <TableRow
-                  className="cursor-pointer text-[#756D6D] text-sm dark:text-white"
-                  key={row.id}
-                  onClick={() => onRowClick && onRowClick()}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+              {table.getRowModel().rows.length > 0 ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    className="cursor-pointer text-[#756D6D] text-sm dark:text-white"
+                    key={row.id}
+                    onClick={() => onRowClick && onRowClick(row)}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={columns.length} className="h-24">
+                    <p className="text-center">No Data</p>
+                  </TableCell>
                 </TableRow>
-              ))}
+              )}
             </>
           )}
         </TableBody>

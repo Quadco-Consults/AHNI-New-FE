@@ -1,302 +1,292 @@
 import { Button } from "components/ui/button";
-import { Input } from "components/ui/input-2";
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import React, { useMemo } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useFieldArray, useForm } from "react-hook-form";
+import WorkPlanAPi from "services/programsApi/work-plan";
+import FormSelect from "atoms/FormSelectField";
+import { SelectContent, SelectItem } from "components/ui/select";
+import { LoadingSpinner } from "components/shared/Loading";
+import { WorkPlanResultsData } from "definations/program-types/program-workplan";
+import { Form, FormMessage } from "components/ui/form";
+import FormTextArea from "atoms/FormTextArea";
+import FormInput from "atoms/FormInput";
+import { z } from "zod";
+import { ProcurementPlanSchema } from "definations/procurement-validator";
+import { zodResolver } from "@hookform/resolvers/zod";
+import VendorsAPI from "services/procurementApi/vendors";
+import { VendorsResultsData } from "definations/procurement-types/vendors";
+import FormButton from "atoms/FormButton";
+import { MinusCircle } from "lucide-react";
+import AddSquareIcon from "components/icons/AddSquareIcon";
+import ProcurementPlanLayout from "../ProcurementPlanLayout";
 
-type Props = {
-  handleNext: () => void;
-};
-
-const ProcurementPlansForm = ({ handleNext }: Props) => {
+const ProcurementPlansForm = () => {
   const navigate = useNavigate();
-  const {
-    register,
-    formState: { errors },
-    handleSubmit,
-  } = useForm<any>();
+  const { pathname } = useLocation();
+
+  const { data: workPlans, isLoading: workPlansIsLoading } =
+    WorkPlanAPi.useGetWorkPlansQuery({});
+  const { data: vendors, isLoading: VendorsIsLoading } =
+    VendorsAPI.useGetVendorListQuery({ params: { no_paginate: true } });
+
+  const form = useForm<z.infer<typeof ProcurementPlanSchema>>({
+    resolver: zodResolver(ProcurementPlanSchema),
+    defaultValues: {
+      description: "",
+      approved_budget: "",
+      pr_staff: "",
+      mode_of_procurement: "",
+      procurement_committee_review: "",
+      procurement_process: "",
+      donor_remarks: "",
+      implenter_remarks: "",
+      start_date: "",
+      expected_delivery_date_1: "",
+      expected_delivery_date_2: "",
+      ware_houses: "",
+      workplan_activity: "",
+      selected_supplier: "",
+      budget_allocation: [{ date_1: "", date_2: "", date_3: "" }],
+      total_quantity: "",
+    },
+  });
+
+  const { handleSubmit, watch, control } = form;
+
+  const { data: workPlansDetail, isLoading } = WorkPlanAPi.useGetWorkPlanQuery(
+    useMemo(
+      () => ({
+        path: { id: watch("workplan_activity") },
+      }),
+      [watch("workplan_activity")]
+    )
+  );
+
+  const { fields, append, remove } = useFieldArray({
+    control: control,
+    name: "budget_allocation",
+  });
+
+  const onSubmit = (data: z.infer<typeof ProcurementPlanSchema>) => {
+    localStorage.setItem("procurementPlan", JSON.stringify(data));
+    let path = pathname;
+    path = path.substring(0, path.lastIndexOf("/"));
+    path += "/procurement-milestones";
+    navigate(path);
+  };
+
   return (
-    <section className="w-full space-y-8">
-      <h3 className="text-lg font-bold">New Procurement Plan</h3>
-      <form className="space-y-6 " onSubmit={(e): void => e.preventDefault()}>
-        <fieldset className="flex flex-col gap-6">
-          <Input
-            name="workplan_activity_reference"
-            label="Workplan Activity Reference"
-            placeholder=""
-            register={register}
-            error={errors.workplan_activity_reference}
-            type="text"
-          />
-          <span>
-            <label
-              htmlFor="description_of_procurement_activities"
-              className="block mb-1 font-semibold text-gray-700 text-sm"
+    <ProcurementPlanLayout>
+      <section className="w-full space-y-8">
+        <h3 className="text-lg font-bold">New Procurement Plan</h3>
+        <Form {...form}>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-10"
+          >
+            <FormSelect
+              name="workplan_activity"
+              label="Workplan Activity Reference"
+              placeholder="Select work plan"
+              required
             >
-              Description of procurement activities
-            </label>
-            <textarea
-              className="w-full p-2 border-2 border-gray-300 rounded-md caret-black text-small focus:outline-none bg-gray-100 text-gray-600"
-              id="description_of_procurement_activities"
-              {...register("description_of_procurement_activities", {
-                required: true,
-                maxLength: 30,
-              })}
+              <SelectContent>
+                {workPlansIsLoading ? (
+                  <LoadingSpinner />
+                ) : (
+                  workPlans?.results?.map((workplan: WorkPlanResultsData) => (
+                    <SelectItem key={workplan?.id} value={workplan?.id}>
+                      {workplan?.description}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </FormSelect>
+
+            {workPlansDetail?.financial_year && (
+              <div className="space-y-4">
+                {isLoading && <LoadingSpinner />}
+                <label className="block mb-4 font-semibold text-yellow-500 text-sm">
+                  RSSH: Health Management Information Systems and M&E
+                </label>
+
+                <div className="text-sm">
+                  <label className="block mb-1 font-semibold text-gray-700">
+                    Financial Year
+                  </label>
+                  <p className="font-light">
+                    {workPlansDetail?.financial_year}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <FormTextArea
+              name="description"
+              label="Description of procurement activities"
+              required
             />
-            {errors.description_of_procurement_activities &&
-              errors.description_of_procurement_activities.type ===
-                "required" && (
-                <span className="text-red-400 font-semibold text-xs">
-                  This field is required
-                </span>
-              )}
-            {errors.description_of_procurement_activities &&
-              errors.description_of_procurement_activities.type ===
-                "maxLength" && (
-                <span className="text-red-400 font-semibold text-xs">
-                  Max length exceeded
-                </span>
-              )}
-          </span>
-          <div>
-            <label
-              htmlFor=""
-              className="block mb-1 font-semibold text-gray-700 text-sm"
-            >
-              Budget Allocation & Quantity Target
-            </label>
-            <div className="grid grid-cols-3 gap-10">
-              <div className="col-span-1">
-                <label
-                  htmlFor=""
-                  className="block -mb-1 font-semibold text-gray-700 text-sm"
-                >
-                  Year 1
-                </label>
-                <span className="grid grid-cols-3 gap-2">
-                  <Input
-                    name="year_one"
-                    label=""
-                    placeholder="YYYY"
-                    register={register}
-                    error={errors.year_one}
-                    type="text"
-                  />
-                  <Input
-                    name="year_one_amount"
-                    label=""
-                    placeholder="$0.00"
-                    register={register}
-                    error={errors.year_one_amount}
-                    type="text"
-                  />
-                  <Input
-                    name="year_one_target"
-                    label=""
-                    placeholder="Target"
-                    register={register}
-                    error={errors.year_one_target}
-                    type="text"
-                  />
-                </span>
-              </div>
-              <div className="col-span-1">
-                <label
-                  htmlFor=""
-                  className="block -mb-1 font-semibold text-gray-700 text-sm"
-                >
-                  Year 2
-                </label>
-                <span className="grid grid-cols-3 gap-2">
-                  <Input
-                    name="year_two"
-                    label=""
-                    placeholder="YYYY"
-                    register={register}
-                    error={errors.year_two}
-                    type="text"
-                  />
-                  <Input
-                    name="year_two_amount"
-                    label=""
-                    placeholder="$0.00"
-                    register={register}
-                    error={errors.year_two_amount}
-                    type="text"
-                  />
-                  <Input
-                    name="year_two_target"
-                    label=""
-                    placeholder="Target"
-                    register={register}
-                    error={errors.year_two_target}
-                    type="text"
-                  />
-                </span>
-              </div>
-              <div className="col-span-1">
-                <label
-                  htmlFor=""
-                  className="block -mb-1 font-semibold text-gray-700 text-sm"
-                >
-                  Year 3
-                </label>
-                <span className="grid grid-cols-3 gap-2">
-                  <Input
-                    name="year_three"
-                    label=""
-                    placeholder="YYYY"
-                    register={register}
-                    error={errors.year_three}
-                    type="text"
-                  />
-                  <Input
-                    name="year_three_amount"
-                    label=""
-                    placeholder="$0.00"
-                    register={register}
-                    error={errors.year_three_amount}
-                    type="text"
-                  />
-                  <Input
-                    name="year_three_target"
-                    label=""
-                    placeholder="Target"
-                    register={register}
-                    error={errors.year_three_target}
-                    type="text"
-                  />
-                </span>
+            <div>
+              <label className="block mb-4 font-semibold text-yellow-500 text-sm">
+                Budget Allocation & Quantity Target
+              </label>
+              <div className="space-y-4">
+                {fields.map((field, index) => (
+                  <div key={index} className="col-span-1">
+                    <label
+                      htmlFor=""
+                      className="block -mb-1 font-semibold text-gray-700 text-sm"
+                    >
+                      Year {index + 1}
+                    </label>
+                    <div className="flex items-center gap-2 w-full">
+                      <div className="grid grid-cols-3 gap-2 w-full">
+                        <FormInput
+                          name={`budget_allocation.${index}.date_1`}
+                          placeholder="Select Project"
+                          type="date"
+                        />
+                        <FormInput
+                          name={`budget_allocation.${index}.date_2`}
+                          placeholder="Select Project"
+                          type="date"
+                        />
+                        <FormInput
+                          name={`budget_allocation.${index}.date_3`}
+                          placeholder="Select Project"
+                          type="date"
+                        />
+                      </div>
+                      <div className="flex items-center h-full pt-5">
+                        <MinusCircle
+                          onClick={() => remove(index)}
+                          className="cursor-pointer text-primary"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <div className="flex justify-end mt-2">
+                  <Button
+                    type="button"
+                    className="text-primary bg-[#FFF2F2] mt-2 flex gap-2 items-center justify-center"
+                    onClick={() =>
+                      append({
+                        date_1: "",
+                        date_2: "",
+                        date_3: "",
+                      })
+                    }
+                  >
+                    <AddSquareIcon />
+                    Add
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="grid grid-cols-2 gap-5">
-            <Input
-              name="approved_budget_amt"
-              label="Approved Budget Amount - USD"
+            <div className="grid grid-cols-2 gap-5">
+              <FormInput
+                name="approved_budget"
+                type="number"
+                label="Approved Budget Amount - USD"
+                placeholder=""
+              />
+              <FormInput
+                name="total_quantity"
+                type="number"
+                label="Total Quantity "
+                placeholder=""
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-5">
+              <FormInput
+                name="pr_staff"
+                label="Responsible PR Staff"
+                placeholder=""
+              />
+              <FormInput
+                name="mode_of_procurement"
+                label="Mode Of Procurement"
+                placeholder=""
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-5">
+              <FormInput
+                name="procurement_committee_review"
+                label="Procurement Committee Review  (Yes - existing, new; No)"
+                placeholder=""
+              />
+              <FormSelect name="selected_supplier" label="Selected Supplier">
+                <SelectContent>
+                  {VendorsIsLoading ? (
+                    <LoadingSpinner />
+                  ) : (
+                    vendors?.map((vendor: VendorsResultsData) => (
+                      <SelectItem key={vendor?.id} value={vendor?.id}>
+                        {vendor?.company_name}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </FormSelect>
+            </div>
+            <FormInput
+              name="procurement_process"
+              label="PROCUREMENT PROCESS (EOI, RFP, RFQ, Minimum Quotes, Open or Limited Bidding etc. as per organizational Procurement Policy, refer relevant section)"
               placeholder=""
-              register={register}
-              error={errors.approved_budget_amt}
-              type="text"
             />
-            <Input
-              name="total_quantity "
-              label="Total Quantity "
+            <div className="grid grid-cols-3 gap-5">
+              <FormInput
+                name="start_date"
+                type="date"
+                label="Start Date (at least week of the month)"
+                placeholder=""
+              />
+              <FormInput
+                name="expected_delivery_date_1"
+                type="date"
+                label="Expected Delivery Date 1"
+                placeholder=""
+              />
+              <FormInput
+                name="expected_delivery_date_2"
+                type="date"
+                label="Expected Delivery Date 2"
+                placeholder=""
+              />
+            </div>
+            <FormInput
+              name="ware_houses"
+              label="DELIVERY TO (Central warehouse, State warehouse, treatment site, SR)"
               placeholder=""
-              register={register}
-              error={errors.total_quantity}
-              type="text"
             />
-          </div>
-          <div className="grid grid-cols-2 gap-5">
-            <Input
-              name="responsible_pr_staff"
-              label="Responsible PR Staff"
-              placeholder=""
-              register={register}
-              error={errors.responsible_pr_staff}
-              type="text"
-            />
-            <Input
-              name="mode_of_procurement"
-              label="Mode Of Procurement"
-              placeholder=""
-              register={register}
-              error={errors.mode_of_procurement}
-              type="text"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-5">
-            <Input
-              name="procurement_committee_review"
-              label="Procurement Committee Review  (Yes - existing, new; No)"
-              placeholder=""
-              register={register}
-              error={errors.procurement_committee_review}
-              type="text"
-            />
-            <Input
-              name="selected_supplier"
-              label="Selected Supplier"
-              placeholder=""
-              register={register}
-              error={errors.selected_supplier}
-              type="text"
-            />
-          </div>
-          <Input
-            name="precurement_process"
-            label="PROCUREMENT PROCESS (EOI, RFP, RFQ, Minimum Quotes, Open or Limited Bidding etc. as per organizational Procurement Policy, refer relevant section)"
-            placeholder=""
-            register={register}
-            error={errors.procurement_process}
-            type="text"
-          />
-          <div className="grid grid-cols-3 gap-5">
-            <Input
-              name="start_date"
-              label="Start Date (at least week of the month)"
-              placeholder=""
-              register={register}
-              error={errors.start_date}
-              type="text"
-            />
-            <Input
-              name="edd_1"
-              label="Expected Delivery Date 1"
-              placeholder=""
-              register={register}
-              error={errors.edd_1}
-              type="text"
-            />
-            <Input
-              name="edd_2"
-              label="Expected Delivery Date 2"
-              placeholder=""
-              register={register}
-              error={errors.edd_2}
-              type="text"
-            />
-          </div>
-          <Input
-            name="delivery_to"
-            label="DELIVERY TO (Central warehouse, State warehouse, treatment site, SR)"
-            placeholder=""
-            register={register}
-            error={errors.delivery_to}
-            type="text"
-          />
-          <div className="grid grid-cols-2 gap-5">
-            <Input
-              name="donor_remarks"
-              label="Donor Remarks"
-              placeholder=""
-              register={register}
-              error={errors.donor_remarks}
-              type="text"
-            />
-            <Input
-              name="implementer_remarks"
-              label="Implementer Remarks"
-              placeholder=""
-              register={register}
-              error={errors.implementer_remarks}
-              type="text"
-            />
-          </div>
-        </fieldset>
-        <span className="w-full flex items-center justify-end gap-5">
-          <Button
-            type="button"
-            className="bg-[#FFF2F2] text-primary dark:text-gray-500"
-            onClick={() => navigate(-1)}
-          >
-            Cancel
-          </Button>
-          <Button onClick={handleNext}>Next</Button>
-        </span>
-      </form>
-    </section>
+            <div className="grid grid-cols-2 gap-5">
+              <FormTextArea
+                name="donor_remarks"
+                label="Donor Remarks"
+                placeholder=""
+              />
+              <FormTextArea
+                name="implenter_remarks"
+                label="Implementer Remarks"
+                placeholder=""
+              />
+            </div>
+            <FormMessage />
+            <div className="w-full flex items-center justify-end gap-5">
+              <Button
+                type="button"
+                className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                onClick={() => navigate(-1)}
+              >
+                Cancel
+              </Button>
+              <FormButton type="submit">Next</FormButton>
+            </div>
+          </form>
+        </Form>
+      </section>
+    </ProcurementPlanLayout>
   );
 };
 

@@ -20,7 +20,11 @@ export const DialogType = {
   ProjectDetailsUploadModal: "ProjectDetailsUploadModal",
   EditUser: "EditUser",
   AssingRoleToUser: "AssingRoleToUser",
+  AddPermissionToRole: "AddPermissionToRole",
   SspSubmitModal: "SspSubmitModal",
+  AddStock: "AddStock",
+  AddTeamMenbers: "AddTeamMenbers",
+  ExpenditureModal: "ExpenditureModal",
 };
 
 export const largeDailogScreen = {
