@@ -105,6 +105,15 @@ export const procurment = [
     ),
   },
   {
+    path: RouteEnum.PROCUREMENT_TRACKER_DETAIL,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/procurement-tracker/[id]"
+        )
+    ),
+  },
+  {
     path: RouteEnum.PURCHASE_REQUEST,
     element: lazy(
       () =>
