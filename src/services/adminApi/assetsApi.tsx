@@ -1,6 +1,7 @@
 import { TBasePaginatedRespose, TRequest } from "definations/auth";
 
 import baseAPI from "..";
+import { omit } from "lodash";
 
 const path = "/admins";
 
@@ -120,6 +121,9 @@ const assetsAPi = baseAPI.injectEndpoints({
     getOneAssets: builder.query<Asset, TRequest>({
       query: (params) => ({
         url: `${path}/inventory-assets/${params.id}/`,
+        params: {
+          ...omit(params, "id"),
+        },
       }),
     }),
     updateAssets: builder.query<

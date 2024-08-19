@@ -99,14 +99,14 @@ const AssestAction = () => {
               name="remark"
               placeholder="Asset is OBSOLETE in BAD condition"
             />
-            <div className="w-7/12 ">
+            <div className="">
               <FormInput
                 label="Justification for Disposal"
                 required
                 name="justification_for_disposal"
               />
             </div>
-            <div className="w-7/12 ">
+            <div className="">
               <FormInput
                 label="Life Span at Report"
                 required
@@ -114,14 +114,14 @@ const AssestAction = () => {
                 type="number"
               />
             </div>
-            <div className="w-5/12 ">
+            <div className="">
               <FormInput
                 label="Recommendation"
                 required
                 name="recommendation"
               />
             </div>
-            <div className="w-5/12 ">
+            <div className="">
               <FormSelect
                 label="Asset Condition"
                 required

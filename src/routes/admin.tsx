@@ -117,6 +117,13 @@ export const adminRoutes = [
     ),
   },
   {
+    path: AdminRoutes.PaymentRequestUpload,
+    element: lazy(
+      () =>
+        import("pages/protectedPages/admin/PaymentRequest/FileUploadRequest")
+    ),
+  },
+  {
     path: AdminRoutes.PaymentRequestView,
     element: lazy(
       () => import("pages/protectedPages/admin/PaymentRequest/PaymentView")

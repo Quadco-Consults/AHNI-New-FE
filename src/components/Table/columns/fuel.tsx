@@ -10,6 +10,15 @@ import {
 } from "services/adminApi/VehicleRequestApi";
 import { toast } from "sonner";
 
+export type IFuelVehicle = {
+  condition: string;
+  name: string;
+  manufacturer: string;
+  model: string;
+  implementer: string;
+  id: string;
+};
+
 // eslint-disable-next-line react-refresh/only-export-components
 const FuelDelete = ({ row }: { row: Row<FuelRecord> }) => {
   const [deleteFuel] = useDeleteFuelRecordMutation();
@@ -31,6 +40,36 @@ const FuelDelete = ({ row }: { row: Row<FuelRecord> }) => {
     />
   );
 };
+
+export const fuelConsumption: ColumnDef<IFuelVehicle>[] = [
+  {
+    header: "vehicle",
+    accessorKey: "name",
+  },
+  {
+    header: "Model",
+    accessorKey: "model",
+  },
+  {
+    header: "Manufacturer",
+    accessorKey: "manufacturer",
+  },
+  {
+    header: "Implementer",
+    accessorKey: "implementer",
+  },
+  {
+    header: "condition",
+    accessorKey: "condition",
+  },
+  {
+    header: "",
+    accessorKey: "actions",
+    cell: ({ row }) => {
+      return <TableAction row={row.original} route={AdminRoutes.FuelView} />;
+    },
+  },
+];
 
 export const fuelConsumptionColumns: ColumnDef<FuelRecord>[] = [
   {

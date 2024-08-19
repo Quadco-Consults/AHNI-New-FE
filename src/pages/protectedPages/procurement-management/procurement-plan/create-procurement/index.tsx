@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import StepHeader from "./StepHeader";
 import ProcurementPlansForm from "./forms/ProcurementPlansForm";
 import ProcurementMilestonesForm from "./forms/ProcurementMilestonesForm";
@@ -71,7 +71,12 @@ const CreateProcurement = () => {
     <section className="w-[95%] mx-auto min-h-screen relative">
       <StepHeader steps={steps} currentStep={currentStep} />
       <div>{renderForm(currentStep)}</div>
-      {showModal && <SuccessModal isOpen={() => setShowModal(true)} onClose={() => setShowModal(false)} />}
+      {showModal && (
+        <SuccessModal
+          isOpen={() => setShowModal(true)}
+          onClose={() => setShowModal(false)}
+        />
+      )}
     </section>
   );
 };
