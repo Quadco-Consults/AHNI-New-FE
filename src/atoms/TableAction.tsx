@@ -16,7 +16,7 @@ import { Link } from "react-router-dom";
 interface TableActionProps<T> {
   row: T;
   route: string;
-  action: () => void;
+  action?: () => void;
   desc?: string;
 }
 

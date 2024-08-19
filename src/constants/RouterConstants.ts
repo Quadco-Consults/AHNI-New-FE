@@ -22,6 +22,7 @@ export const AdminRoutes = {
   FacilitiesView: "/admin/facilities/facilities-view",
   PaymentRequest: "/admin/payment-request/payment-list",
   PaymentRequestCreate: "/admin/payment-request/Create-Payment",
+  PaymentRequestUpload: "/admin/payment-request/file-updload",
   PaymentRequestView: "/admin/payment-request/View-Payment",
   Agrements: "/admin/agrements",
   AgrementsCreeate: "/admin/agrements/create",

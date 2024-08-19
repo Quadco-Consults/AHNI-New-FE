@@ -1,28 +1,33 @@
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
-import { fuelConsumptionColumns } from "components/Table/columns/fuel";
-import { Button } from "components/ui/button";
-import { AdminRoutes } from "constants/RouterConstants";
+import { fuelConsumption, IFuelVehicle } from "components/Table/columns/fuel";
 import { useMemo } from "react";
-import { Link } from "react-router-dom";
-import { useGetVehicleFuelRecordQuery } from "services/adminApi/VehicleRequestApi";
+import { useGetAssetsQuery } from "services/adminApi/assetsApi";
 
 const FuelConsumption = () => {
-  const { data } = useGetVehicleFuelRecordQuery({});
+  // const { data } = useGetVehicleFuelRecordQuery({});
+
+  const { data } = useGetAssetsQuery({
+    classification: "Vehicle",
+  });
 
   const drivedData = useMemo(() => {
-    return data?.results || [];
+    return data?.results.map((item) => {
+      return {
+        condition: item.asset_condition.description,
+        name: item.asset_type.name,
+        manufacturer: item.asset_type.manufacturer,
+        model: item.asset_type.model,
+        implementer: item.implementer.name,
+        id: item.id,
+      };
+    }) as IFuelVehicle[];
   }, [data?.results]);
 
   return (
     <div>
-      <div className="flex justify-end ">
-        <Button>
-          <Link to={AdminRoutes.FuelCreate}>Create New Record</Link>
-        </Button>
-      </div>
       <TableFilters>
-        <DataTable columns={fuelConsumptionColumns} data={drivedData} />
+        <DataTable columns={fuelConsumption} data={drivedData || []} />
       </TableFilters>
     </div>
   );
