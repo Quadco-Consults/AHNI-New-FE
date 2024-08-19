@@ -17,6 +17,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import { Checkbox } from "components/ui/checkbox";
 import { RouteEnum } from "constants/RouterConstants";
+import BreadcrumbCard from "components/shared/Breadcrumb";
 
 const CreateEngagement = () => {
   const navigate = useNavigate();
@@ -33,8 +34,17 @@ const CreateEngagement = () => {
   const onSubmit = () => {
     navigate(RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN);
   };
+
+  const breadcrumbs = [
+    { name: "Procurement", icon: true },
+    { name: "Stakeholder Management", icon: true },
+    { name: "Engagement Plan", icon: true },
+    { name: "Create", icon: false },
+  ];
+
   return (
     <div className="space-y-6 min-h-screen">
+      <BreadcrumbCard list={breadcrumbs} />
       <button
         onClick={goBack}
         className="w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center"

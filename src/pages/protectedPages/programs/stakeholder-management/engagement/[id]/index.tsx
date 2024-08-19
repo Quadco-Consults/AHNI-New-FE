@@ -1,6 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import LongArrowLeft from "components/icons/LongArrowLeft";
+import BreadcrumbCard from "components/shared/Breadcrumb";
 import Card from "components/shared/Card";
 import { Checkbox } from "components/ui/checkbox";
 import { Label } from "components/ui/label";
@@ -13,8 +14,16 @@ const EngagementDetails = () => {
     navigate(-1);
   };
 
+  const breadcrumbs = [
+    { name: "Procurement", icon: true },
+    { name: "Stakeholder Management", icon: true },
+    { name: "Engagement Plan", icon: true },
+    { name: "Detail", icon: false },
+  ];
+
   return (
     <div className="space-y-6 min-h-screen">
+      <BreadcrumbCard list={breadcrumbs} />
       <button
         onClick={goBack}
         className="w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center"
@@ -129,7 +138,7 @@ const EngagementDetails = () => {
 
         <h4 className="font-semibold text-yellow-600 pt-5">Commitment Level</h4>
 
-        <DataTable data={data} columns={columns} />
+        <DataTable data={data} columns={columns} isLoading={false} />
       </Card>
     </div>
   );

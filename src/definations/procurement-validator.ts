@@ -188,7 +188,7 @@ export const PurchaseOrderListSchema = z.object({
 export const SolicitationItemsSchema = z.object({
   items: z.array(
     z.object({
-      // id: "string",
+      // id:z.string().min(1, "Field is required"),
       quantity: z.number().min(1, "Field is required"),
       item: z.string().min(1, "Field is required"),
       lot: z.string().min(1, "Field is required"),
@@ -211,7 +211,7 @@ export const SolicitationQuotationSchema = z.object({
 export const SolicitationSchema = z.object({
   items: z.array(
     z.object({
-      // id: "string",
+      // id:z.string().min(1, "Field is required"),
       quantity: z.number().min(1, "Field is required"),
       item: z.string().min(1, "Field is required"),
       lot: z.number().min(1, "Field is required"),
@@ -261,4 +261,61 @@ export const CbaSchema = z.object({
 export const CbaApprovalSchema = z.object({
   status: z.string().min(1, "Field is required"),
   remarks: z.string().min(1, "Field is required"),
+});
+
+export const ProcurementMilestoneSchema = z.object({
+  milestone_name: z.string().min(1, "Field is required"),
+  milestone_description: z.string().min(1, "Field is required"),
+});
+
+export const ProcurementPlanSchema = z.object({
+  description: z.string().min(1, "Field is required"),
+  approved_budget: z.string().min(1, "Field is required"),
+  total_quantity: z.string().min(1, "Field is required"),
+  pr_staff: z.string().min(1, "Field is required"),
+  mode_of_procurement: z.string().min(1, "Field is required"),
+  procurement_committee_review: z.string().min(1, "Field is required"),
+  procurement_process: z.string().min(1, "Field is required"),
+  donor_remarks: z.string().min(1, "Field is required"),
+  implenter_remarks: z.string().min(1, "Field is required"),
+  start_date: z.string().min(1, "Field is required"),
+  expected_delivery_date_1: z.string().min(1, "Field is required"),
+  expected_delivery_date_2: z.string().min(1, "Field is required"),
+  ware_houses: z.string().min(1, "Field is required"),
+  workplan_activity: z.string().min(1, "Field is required"),
+  selected_supplier: z.string().min(1, "Field is required"),
+  budget_allocation: z.array(
+    z.object({
+      date_1: z.string().min(1, "Field is required"),
+      date_2: z.string().min(1, "Field is required"),
+      date_3: z.string().min(1, "Field is required"),
+    })
+  ),
+});
+
+export const ProcurementPlanListSchema = z.object({
+  description: z.string().min(1, "Field is required"),
+  approved_budget: z.string().min(1, "Field is required"),
+  total_quantity: z.string().min(1, "Field is required"),
+  pr_staff: z.string().min(1, "Field is required"),
+  mode_of_procurement: z.string().min(1, "Field is required"),
+  procurement_committee_review: z.string().min(1, "Field is required"),
+  procurement_process: z.string().min(1, "Field is required"),
+  donor_remarks: z.string().min(1, "Field is required"),
+  implenter_remarks: z.string().min(1, "Field is required"),
+  start_date: z.string().min(1, "Field is required"),
+  expected_delivery_date_1: z.string().min(1, "Field is required"),
+  expected_delivery_date_2: z.string().min(1, "Field is required"),
+  ware_houses: z.string().min(1, "Field is required"),
+  workplan_activity: z.string().min(1, "Field is required"),
+  selected_supplier: z.string().min(1, "Field is required"),
+  budget_allocation: z.array(
+    z.object({
+      date_1: z.string().min(1, "Field is required"),
+      date_2: z.string().min(1, "Field is required"),
+      date_3: z.string().min(1, "Field is required"),
+    })
+  ),
+  milestone_name: z.string().min(1, "Field is required"),
+  milestone_description: z.string().min(1, "Field is required"),
 });
