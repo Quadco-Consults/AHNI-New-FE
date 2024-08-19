@@ -15,11 +15,12 @@ import { useGetUserQuery } from "services/users";
 
 import * as z from "zod";
 import { toast } from "sonner";
-import StepHeader from "pages/protectedPages/procurement-management/procurement-plan/create-procurement/StepHeader";
+
 import { Card, CardContent } from "components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { AdminRoutes } from "constants/RouterConstants";
 import sessionStorage from "redux-persist/es/storage/session";
+import StepHeader from "components/shared/StepHeader";
 
 const steps = [
   { step: 1, stepName: "Payment Request" },

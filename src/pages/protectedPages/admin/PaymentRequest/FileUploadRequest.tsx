@@ -1,10 +1,11 @@
 import FormButton from "atoms/FormButton";
+import StepHeader from "components/shared/StepHeader";
 import { Button } from "components/ui/button";
 import { Card, CardContent } from "components/ui/card";
 import { Input } from "components/ui/input";
 import { Label } from "components/ui/label";
 import { AdminRoutes } from "constants/RouterConstants";
-import StepHeader from "pages/protectedPages/procurement-management/procurement-plan/create-procurement/StepHeader";
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import sessionStorage from "redux-persist/es/storage/session";
