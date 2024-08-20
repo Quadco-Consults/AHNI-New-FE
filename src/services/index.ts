@@ -61,6 +61,7 @@ const baseAPI = createApi({
     "FuelRecord",
     "VehicleRequest",
     "PROCUREMENT_PLAN",
+    "PROCUREMENT_TRACKER",
   ],
   keepUnusedDataFor: 5 * 60,
   refetchOnMountOrArgChange: true,
