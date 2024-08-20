@@ -4,22 +4,17 @@ import { FC, InputHTMLAttributes } from "react";
 
 import { useFormContext } from "react-hook-form";
 
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "components/ui/form";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "components/ui/form";
 import { Textarea } from "components/ui/textarea";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   name: string;
   label?: string;
   rows?: number;
+  label2?: string;
 }
 
-const FormTextArea: FC<InputProps> = ({ name, label, rows, ...rest }) => {
+const FormTextArea: FC<InputProps> = ({ name, label, label2, rows, ...rest }) => {
   const { control } = useFormContext();
   const { required } = rest;
 
@@ -37,12 +32,11 @@ const FormTextArea: FC<InputProps> = ({ name, label, rows, ...rest }) => {
               </span>
             )}
           </FormLabel>
+          <div>
+            <FormLabel className="text-sm text-[#756D6D]">{label2}</FormLabel>
+          </div>
           <FormControl>
-            <Textarea
-              rows={rows}
-              className="resize-none font-medium bg-[#F9F9F9]"
-              {...field}
-            />
+            <Textarea rows={rows} className="resize-none font-medium bg-[#F9F9F9]" {...field} />
           </FormControl>
           <FormMessage />
         </FormItem>

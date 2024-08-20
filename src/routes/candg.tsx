@@ -40,7 +40,16 @@ export const candg = [
     element: lazy(() => import("pages/protectedPages/candg/consultancy/CreateNewConsultancy")),
   },
   {
+    path: CandGRoutes.NEW_CONSULTANCY_SCOPE,
+    element: lazy(() => import("pages/protectedPages/candg/consultancy/ScopeOfWork")),
+  },
+  {
     path: CandGRoutes.CONSULTANCY_DETAILS,
     element: lazy(() => import("pages/protectedPages/candg/consultancy/ConsultancyDetails")),
+  },
+  // sla
+  {
+    path: CandGRoutes.CONSULTANCY_SLA,
+    element: lazy(() => import("pages/protectedPages/candg/sla/SLA")),
   },
 ];

@@ -1,10 +1,26 @@
 import BackNavigation from "atoms/BackNavigation";
 import TabState from "components/ui/TabState";
 import { useState } from "react";
+import { useParams } from "react-router-dom";
+import { consultancyAPIs } from "services/cAndGApi/consultancy";
+import ConsultancyJobDetails from "./ConsultancyJobDetails";
 
 const ConsultancyDetails = () => {
+  const params = useParams();
+  const consultancyDetails = consultancyAPIs.useGetSingleConsultancyQuery(params.id);
+  console.log(consultancyDetails);
+
   const tabDetails = [
-    { id: 1, state: "job-details", name: "Job Details", tabComponent: <></> },
+    {
+      id: 1,
+      state: "job-details",
+      name: "Job Details",
+      tabComponent: (
+        <>
+          <ConsultancyJobDetails id={params.id} />
+        </>
+      ),
+    },
     { id: 2, state: "scope-of-work", name: "Scope of Work", tabComponent: <></> },
     { id: 2, state: "submitted-applications", name: "Submitted Applications", tabComponent: <></> },
     { id: 2, state: "short-list", name: "Shortlist", tabComponent: <></> },
