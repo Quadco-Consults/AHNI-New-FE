@@ -494,7 +494,7 @@ const DEPARTMENTAL_LINKS = [
           { name: "Consultancy report", path: "/" },
           { name: "Payment request", path: "/" },
           { name: "Facilitator management", path: "/" },
-          { name: "SLA", path: "/" },
+          { name: "SLA", path: CandGRoutes.CONSULTANCY_SLA },
         ],
       },
       { name: "C&G Reports", path: "/" },

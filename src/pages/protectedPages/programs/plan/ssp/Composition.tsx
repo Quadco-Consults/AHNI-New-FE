@@ -81,12 +81,7 @@ const Composition = () => {
           <Form {...form}>
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="space-y-5">
-                <FormSelect
-                  name="facility"
-                  label="Facility"
-                  placeholder="Select facility"
-                  required
-                >
+                <FormSelect name="facility" label="Facility" placeholder="Select facility" required>
                   <SelectContent>
                     {isLoading ? (
                       <LoadingSpinner />
@@ -119,14 +114,9 @@ const Composition = () => {
 
                     <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                       {facilityData?.facility_contacts?.map((facility) => (
-                        <Card
-                          key={facility?.id}
-                          className="border-yellow-600 space-y-3"
-                        >
+                        <Card key={facility?.id} className="border-yellow-600 space-y-3">
                           <div className="flex items-center gap-5">
-                            <h4 className="w-1/3 font-medium">
-                              Contact Person :
-                            </h4>
+                            <h4 className="w-1/3 font-medium">Contact Person :</h4>
                             <h4>{facility?.name}</h4>
                           </div>
                           <div className="flex items-center gap-5">
@@ -161,13 +151,7 @@ const Composition = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <MultiSelectFormField
-                          options={usersData || []}
-                          defaultValue={field.value}
-                          onValueChange={field.onChange}
-                          placeholder="Select team members"
-                          variant="inverted"
-                        />
+                        <MultiSelectFormField options={usersData || []} defaultValue={field.value} onValueChange={field.onChange} placeholder="Select team members" variant="inverted" />
                       </FormControl>
                     </FormItem>
                   )}
@@ -178,30 +162,15 @@ const Composition = () => {
                 <div className="space-y-1">
                   <Label>Date of Visit</Label>
                   <div className="grid grid-cols-3 w-1/3 col-span-3 gap-x-6 ">
-                    <FormInput
-                      type="number"
-                      name="date_visit_day"
-                      placeholder="DD"
-                    />
-                    <FormInput
-                      type="number"
-                      name="date_visit_month"
-                      placeholder="MM"
-                    />
-                    <FormInput
-                      type="number"
-                      name="date_visit_year"
-                      placeholder="YYYY"
-                    />
+                    <FormInput type="number" name="date_visit_day" placeholder="DD" />
+                    <FormInput type="number" name="date_visit_month" placeholder="MM" />
+                    <FormInput type="number" name="date_visit_year" placeholder="YYYY" />
                   </div>
                 </div>
               </div>
 
               <div className="flex justify-end gap-5 mt-16">
-                <Button
-                  type="button"
-                  className="bg-[#FFF2F2] text-primary dark:text-gray-500"
-                >
+                <Button type="button" className="bg-[#FFF2F2] text-primary dark:text-gray-500">
                   Cancel
                 </Button>
                 <FormButton type="submit" suffix={<ChevronRight size={14} />}>

@@ -21,13 +21,7 @@ import { DialogType } from "constants/dailogs";
 import { openDialog } from "store/ui";
 import UploadIcon from "components/icons/UploadIcon";
 import DataTable from "components/Table/DataTable";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "components/ui/breadcrumb";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
 import SupportiveSupervisionAPI from "services/programsApi/suportive-supervision";
 import { SupportiveSupervisionData } from "definations/program-types/supportive-supervision";
@@ -36,8 +30,7 @@ import { toast } from "sonner";
 const SupportiveSupervisionPlan = () => {
   const dispatch = useAppDispatch();
 
-  const { data, isLoading } =
-    SupportiveSupervisionAPI.useGetSupportiveSupervisionsQuery();
+  const { data, isLoading } = SupportiveSupervisionAPI.useGetSupportiveSupervisionsQuery();
 
   const columns = useMemo<ColumnDef<SupportiveSupervisionData>[]>(
     () => [
@@ -70,16 +63,7 @@ const SupportiveSupervisionPlan = () => {
         size: 150,
         cell: ({ getValue }) => {
           return (
-            <Badge
-              variant="default"
-              className={cn(
-                "p-1 rounded-lg",
-                getValue() === "Approved" && "bg-green-100 text-green-500",
-                getValue() === "Reject" && "bg-red-100 text-red-500",
-                getValue() === "Pending" && "bg-yellow-100 text-yellow-500",
-                getValue() === "On Hold" && "text-gray-100 bg-gray-500"
-              )}
-            >
+            <Badge variant="default" className={cn("p-1 rounded-lg", getValue() === "Approved" && "bg-green-100 text-green-500", getValue() === "Reject" && "bg-red-100 text-red-500", getValue() === "Pending" && "bg-yellow-100 text-yellow-500", getValue() === "On Hold" && "text-gray-100 bg-gray-500")}>
               {getValue() as string}
             </Badge>
           );
@@ -95,8 +79,7 @@ const SupportiveSupervisionPlan = () => {
   );
 
   const ActionListAction = ({ data }: any) => {
-    const [deleteRiskPlanMutation] =
-      SupportiveSupervisionAPI.useDeleteSupportiveSupervisionMutation();
+    const [deleteRiskPlanMutation] = SupportiveSupervisionAPI.useDeleteSupportiveSupervisionMutation();
     const deleteHandler = async () => {
       try {
         await deleteRiskPlanMutation({ path: { id: data?.id } }).unwrap();
@@ -119,17 +102,11 @@ const SupportiveSupervisionPlan = () => {
               <div className="flex flex-col items-start justify-between gap-1">
                 <Link
                   className="w-full"
-                  to={generatePath(
-                    RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS,
-                    {
-                      id: data?.id,
-                    }
-                  )}
+                  to={generatePath(RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS, {
+                    id: data?.id,
+                  })}
                 >
-                  <Button
-                    className="w-full flex items-center justify-start gap-2"
-                    variant="ghost"
-                  >
+                  <Button className="w-full flex items-center justify-start gap-2" variant="ghost">
                     <EyeIcon />
                     View
                   </Button>
@@ -152,22 +129,13 @@ const SupportiveSupervisionPlan = () => {
                   <ApproveIcon />
                   Approve
                 </Button>
-                <Link
-                  to={RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS_APPROVAL}
-                >
-                  <Button
-                    className="w-full flex items-center justify-start gap-2"
-                    variant="ghost"
-                  >
+                <Link to={RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS_APPROVAL}>
+                  <Button className="w-full flex items-center justify-start gap-2" variant="ghost">
                     <ApprovalStatusIcon />
                     Approval Status
                   </Button>
                 </Link>
-                <Button
-                  className="w-full flex items-center justify-start gap-2"
-                  variant="ghost"
-                  onClick={deleteHandler}
-                >
+                <Button className="w-full flex items-center justify-start gap-2" variant="ghost" onClick={deleteHandler}>
                   <DeleteIcon />
                   delete
                 </Button>
@@ -232,10 +200,7 @@ const SupportiveSupervisionPlan = () => {
               </Button>
 
               <Link to={RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_COMPOSITION}>
-                <Button
-                  className="w-full flex gap-2 items-center justify-start"
-                  variant="ghost"
-                >
+                <Button className="w-full flex gap-2 items-center justify-start" variant="ghost">
                   <AddSquareIcon fillColor="#FF0000" />
                   Create Manually
                 </Button>
@@ -249,11 +214,7 @@ const SupportiveSupervisionPlan = () => {
         <div className="flex items-center justify-start gap-2">
           <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
             <SearchIcon />
-            <input
-              placeholder="Search"
-              type="text"
-              className="ml-2 h-6 border-none bg-none focus:outline-none outline-none"
-            />
+            <input placeholder="Search" type="text" className="ml-2 h-6 border-none bg-none focus:outline-none outline-none" />
           </span>
           <Button className="shadow-sm" variant="ghost">
             <FilterIcon />

@@ -34,3 +34,29 @@ export const ClosuOutPlanSchema = z.object({
   department: z.string().uuid(),
   location: z.string().uuid(),
 });
+
+const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+export const ConsunltancyApplicationDetails = z.object({
+  // locations: z.string(),
+  title: z.string(),
+  grade_level: z.string(),
+  duration: z.string(),
+  commencement_date: z.string().regex(dateRegex, "Invalid date format (YYYY-MM-DD)"),
+  effective_end_date: z.string().regex(dateRegex, "Invalid date format (YYYY-MM-DD)"),
+  number_of_consultants: z.string(),
+  extra_info: z.string(),
+  background: z.string(),
+  status: z.enum(["Pending", "Approved", "Rejected"]),
+  // job_file: z.string(),
+  evaluation_comments: z.string(),
+  supervisor: z.string().uuid(),
+});
+
+export const ConsunltancyScopeDetails = z.object({
+  description: z.string(),
+  background: z.string(),
+  objectives: z.string(),
+  fee_rate: z.string(),
+  payment_frequency: z.string(),
+  // specific_deliverables: z.record(z.union([z.string(), z.number().nonnegative()])),
+});

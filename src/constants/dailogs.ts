@@ -23,6 +23,7 @@ export const DialogType = {
   AddPermissionToRole: "AddPermissionToRole",
   SspSubmitModal: "SspSubmitModal",
   ExpenditureModal: "ExpenditureModal",
+  ConsultancyApplicationSuccess: "ConsultancyApplicationSuccess",
 };
 
 export const largeDailogScreen = {
