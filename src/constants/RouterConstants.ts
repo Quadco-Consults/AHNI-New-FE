@@ -58,7 +58,6 @@ export const RouteEnum = {
   CREATE_PROCUREMENT_MILESTONE:
     "/procurement-management/procurement-plan/create/procurement-milestones",
   PROCUREMENT_TRACKER: "/procurement-management/procurement-tracker",
-  PROCUREMENT_TRACKER_DETAIL: "/procurement-management/procurement-tracker/:id",
 
   //rfq routes
   RFQ: "/procurement-management/solicitation/rfq",

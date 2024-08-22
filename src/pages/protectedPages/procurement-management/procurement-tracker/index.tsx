@@ -2,53 +2,52 @@ import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
 import SearchIcon from "components/icons/SearchIcon";
 import FilterIcon from "components/icons/FilterIcon";
-import TotalProcurementIcon from "components/icons/TotalProcurementIcon";
-import OngoingProcurementIcon from "components/icons/OngoingProcurementIcon";
-import CompletedProcurementIcon from "components/icons/CompletedProcurementIcon";
 import DataTable from "components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
-import { Link, generatePath } from "react-router-dom";
-import { RouteEnum } from "constants/RouterConstants";
 import BreadcrumbCard from "components/shared/Breadcrumb";
-
-type Data = {
-  budgetLine: string;
-  owner: string;
-  approvedBudget: string;
-  responsiblePRStaff: string;
-  progress: string;
-};
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "components/ui/dialog";
+import ProcurementTrackerAPI from "services/procurementApi/procurement-tracker";
+import { ProcurementTrackerResults } from "definations/procurement-types/procurementPlan";
 
 function ProcurementTracker() {
-  const columns: ColumnDef<Data>[] = [
+  const { data, isLoading } =
+    ProcurementTrackerAPI.useGetProcurementTrackersQuery({});
+
+  const columns: ColumnDef<ProcurementTrackerResults>[] = [
     {
       header: "PR Reference",
-      accessorKey: "budgetLine",
+      accessorKey: "pr_reference",
       size: 150,
     },
     {
       header: "PR Item",
-      accessorKey: "owner",
+      accessorKey: "item_name",
       size: 150,
     },
     {
       header: "Quantity",
-      accessorKey: "approvedBudget",
+      accessorKey: "quantity",
       size: 150,
     },
     {
       header: "Request Date",
-      accessorKey: "responsiblePRStaff",
+      accessorKey: "request_date",
       size: 150,
     },
     {
       header: "Date Required",
-      accessorKey: "responsiblePRStaff",
+      accessorKey: "required_date",
       size: 150,
     },
     {
       header: "Requesting Department",
-      accessorKey: "responsiblePRStaff",
+      accessorKey: "deparment",
       size: 200,
     },
     {
@@ -62,58 +61,84 @@ function ProcurementTracker() {
   // eslint-disable-next-line react/prop-types
   const Action = ({ data }: any) => {
     return (
-      <Link
-        to={generatePath(RouteEnum.PROCUREMENT_TRACKER_DETAIL, { id: "1" })}
-      >
-        <Button variant="ghost">View</Button>
-      </Link>
+      <div>
+        <Dialog>
+          <DialogTrigger>View</DialogTrigger>
+          <DialogContent className="max-w-6xl max-h-[700px] overflow-auto">
+            <DialogHeader className="mt-10 space-y-5 text-center">
+              <DialogTitle className="text-2xl text-center"></DialogTitle>
+            </DialogHeader>
+            <Card className="space-y-10">
+              <Card className="grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-4">
+                <div className="space-y-2">
+                  <h4 className="font-bold">Solicitation Ref</h4>
+                  <p className="text-sm">
+                    {data?.solicitation?.solicitaion_ref}
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-bold">Lot</h4>
+                  <p className="text-sm">{data?.solicitation?.lot}</p>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-bold">Solicitation Date</h4>
+                  <p className="text-sm">{data?.solicitation?.opening_date}</p>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-bold">Request Type</h4>
+                  <p className="text-sm">{data?.solicitation?.request_type}</p>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-bold">Tender Type</h4>
+                  <p className="text-sm">{data?.solicitation?.tender_type}</p>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-bold">Status</h4>
+                  <p className="text-sm">{data?.solicitation?.status}</p>
+                </div>
+              </Card>
+              <Card className="grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-4">
+                <div className="space-y-2">
+                  <h4 className="font-bold">PO Ref</h4>
+                  <p className="text-sm">{data?.purchse_order?.po_reference}</p>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-bold">PO Date</h4>
+                  <p className="text-sm">{data?.purchse_order?.po_date}</p>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-bold">Vendor</h4>
+                  <p className="text-sm">{data?.purchse_order?.vendor}</p>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-bold">FCO</h4>
+                  <p className="text-sm">{data?.purchse_order?.fco}</p>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-bold">Unit Cost</h4>
+                  <p className="text-sm">{data?.purchse_order?.unit_cost}</p>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-bold">Total Amount</h4>
+                  <p className="text-sm">
+                    ₦{data?.purchse_order?.sub_total_amount.toLocaleString()}
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-bold">Status</h4>
+                  <p className="text-sm">{data?.purchse_order?.status}</p>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-bold">Delivery Date</h4>
+                  <p className="text-sm">Pending</p>
+                </div>
+              </Card>
+            </Card>
+          </DialogContent>
+        </Dialog>
+      </div>
     );
   };
-
-  const data: Data[] = [
-    {
-      budgetLine: "1",
-      owner: "AHNi",
-      approvedBudget: "204,375.79 ",
-      responsiblePRStaff: "M&E Team Lead",
-      progress: "85%",
-    },
-    {
-      budgetLine: "1",
-      owner: "AHNi",
-      approvedBudget: "204,375.79 ",
-      responsiblePRStaff: "M&E Team Lead",
-      progress: "35%",
-    },
-    {
-      budgetLine: "1",
-      owner: "AHNi",
-      approvedBudget: "204,375.79 ",
-      responsiblePRStaff: "M&E Team Lead",
-      progress: "65%",
-    },
-    {
-      budgetLine: "1",
-      owner: "AHNi",
-      approvedBudget: "204,375.79 ",
-      responsiblePRStaff: "M&E Team Lead",
-      progress: "10%",
-    },
-    {
-      budgetLine: "1",
-      owner: "AHNi",
-      approvedBudget: "204,375.79 ",
-      responsiblePRStaff: "M&E Team Lead",
-      progress: "70%",
-    },
-    {
-      budgetLine: "1",
-      owner: "AHNi",
-      approvedBudget: "204,375.79 ",
-      responsiblePRStaff: "M&E Team Lead",
-      progress: "85%",
-    },
-  ];
 
   const breadcrumbs = [
     { name: "Procurement", icon: true },
@@ -138,7 +163,11 @@ function ProcurementTracker() {
           </Button>
         </div>
 
-        <DataTable data={data} columns={columns} />
+        <DataTable
+          data={data?.results || []}
+          columns={columns}
+          isLoading={isLoading}
+        />
       </Card>
     </section>
   );
