@@ -10,11 +10,20 @@ import {
   LotsResultsData,
 } from "definations/procurement-types/lots";
 
-const BASE_URL = "/procurement/config/lots/";
+const BASE_URL = "/procurement/lots/";
 
 const LotsAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     getLots: builder.query<LotsData, {}>({
+      query: (config) => {
+        return {
+          url: `${BASE_URL}`,
+          ...config,
+        };
+      },
+      providesTags: (data, error) => (!error ? provideTags("LOTS", data) : []),
+    }),
+    getLotList: builder.query<LotsResultsData[], {}>({
       query: (config) => {
         return {
           url: `${BASE_URL}`,

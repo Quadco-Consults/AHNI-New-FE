@@ -1,89 +1,38 @@
-import { ColumnDef } from "@tanstack/react-table";
-import { Checkbox } from "components/ui/checkbox";
+import { ColumnDef, Row } from "@tanstack/react-table";
+import TableAction from "atoms/TableAction";
 
-interface FuelConsumption {
-  date: string;
-  odometer: number;
-  distanceCovered: number;
-  pricePerLiter: number;
-  quantity: number;
-  amount: number;
-  isSelected: boolean;
-}
+import { AdminRoutes } from "constants/RouterConstants";
+import { formatCurrency } from "lib/utils";
 
-export const fuelConsumptionData: FuelConsumption[] = [
-  {
-    date: "20-Feb-24",
-    odometer: 125258,
-    distanceCovered: 315,
-    pricePerLiter: 700,
-    quantity: 60.6,
-    amount: 42420,
-    isSelected: false,
-  },
-  {
-    date: "FHI 360",
-    odometer: 125550,
-    distanceCovered: 292,
-    pricePerLiter: 700,
-    quantity: 63,
-    amount: 44100,
-    isSelected: false,
-  },
-  {
-    date: "FHI 360",
-    odometer: 125737,
-    distanceCovered: 187,
-    pricePerLiter: 700,
-    quantity: 27.53,
-    amount: 19271,
-    isSelected: false,
-  },
-  {
-    date: "FHI 360",
-    odometer: 125258,
-    distanceCovered: 315,
-    pricePerLiter: 700,
-    quantity: 60.6,
-    amount: 42420,
-    isSelected: false,
-  },
-  {
-    date: "FHI 360",
-    odometer: 125550,
-    distanceCovered: 187,
-    pricePerLiter: 700,
-    quantity: 63,
-    amount: 44100,
-    isSelected: false,
-  },
-  {
-    date: "FHI 360",
-    odometer: 125737,
-    distanceCovered: 292,
-    pricePerLiter: 700,
-    quantity: 27.53,
-    amount: 19271,
-    isSelected: false,
-  },
-];
+import {
+  FuelRecord,
+  useDeleteFuelRecordMutation,
+} from "services/adminApi/VehicleRequestApi";
+import { toast } from "sonner";
 
-export const fuelConsumptionColumns: ColumnDef<FuelConsumption>[] = [
-  {
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllRowsSelected()}
-        onCheckedChange={table.getToggleAllRowsSelectedHandler()}
-      />
-    ),
-    accessorKey: "isSelected",
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={row.getToggleSelectedHandler()}
-      />
-    ),
-  },
+// eslint-disable-next-line react-refresh/only-export-components
+const FuelDelete = ({ row }: { row: Row<FuelRecord> }) => {
+  const [deleteFuel] = useDeleteFuelRecordMutation();
+
+  const onFuelDelete = async () => {
+    try {
+      await deleteFuel(row.original.id).unwrap();
+      toast.success("Fuel Record Deleted");
+    } catch (error) {
+      toast.error("Failed to delete fuel record");
+    }
+  };
+
+  return (
+    <TableAction
+      action={() => onFuelDelete()}
+      route={AdminRoutes.FuelView}
+      row={row.original}
+    />
+  );
+};
+
+export const fuelConsumptionColumns: ColumnDef<FuelRecord>[] = [
   {
     header: "Date",
     accessorKey: "date",
@@ -94,11 +43,11 @@ export const fuelConsumptionColumns: ColumnDef<FuelConsumption>[] = [
   },
   {
     header: "Distance Covered",
-    accessorKey: "distanceCovered",
+    accessorKey: "distance_covered",
   },
   {
-    header: "Price Per Liter",
-    accessorKey: "pricePerLiter",
+    header: "Price Per Liter (₦)",
+    accessorKey: "price_per_liter",
   },
   {
     header: "Quantity",
@@ -107,5 +56,51 @@ export const fuelConsumptionColumns: ColumnDef<FuelConsumption>[] = [
   {
     header: "Amount",
     accessorKey: "amount",
+    cell: ({ getValue }) => {
+      return (
+        <div className="flex items-center justify-center">
+          {formatCurrency(getValue<number>())}
+        </div>
+      );
+    },
+  },
+  {
+    header: "Action",
+    accessorKey: "action",
+    cell: ({ row }) => <FuelDelete row={row} />,
+  },
+];
+
+export const fuelConsumptionColumnsOne: ColumnDef<FuelRecord>[] = [
+  {
+    header: "Date",
+    accessorKey: "date",
+  },
+  {
+    header: "Odometer",
+    accessorKey: "odometer",
+  },
+  {
+    header: "Distance Covered",
+    accessorKey: "distance_covered",
+  },
+  {
+    header: "Price Per Liter (₦)",
+    accessorKey: "price_per_liter",
+  },
+  {
+    header: "Quantity",
+    accessorKey: "quantity",
+  },
+  {
+    header: "Amount",
+    accessorKey: "amount",
+    cell: ({ getValue }) => {
+      return (
+        <div className="flex items-center justify-center">
+          {formatCurrency(getValue<number>())}
+        </div>
+      );
+    },
   },
 ];

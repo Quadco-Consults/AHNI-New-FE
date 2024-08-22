@@ -25,7 +25,7 @@ const ViewEOI = () => {
   });
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-10">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -66,14 +66,14 @@ const ViewEOI = () => {
         {isLoading ? (
           <LoadingSpinner />
         ) : (
-          <div className=" bg-[#dbdfe92f] p-2 my-5">
+          <>
             <TabsContent value="eoi-details">
               <EoIDetails {...(data as EOIResultsData)} />
             </TabsContent>
             <TabsContent value="vendor-submission">
               <EOIVendorSubmission />
             </TabsContent>
-          </div>
+          </>
         )}
       </Tabs>
     </div>

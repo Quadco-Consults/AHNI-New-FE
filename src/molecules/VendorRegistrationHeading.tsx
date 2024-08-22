@@ -13,6 +13,7 @@ import {
 } from "components/ui/breadcrumb";
 import { RouteEnum } from "constants/RouterConstants";
 import { Icon } from "@iconify/react";
+import GoBack from "components/shared/GoBack";
 
 interface Step {
   step: number;
@@ -79,6 +80,8 @@ const VendorRegistrationHeading = () => {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+
+      <GoBack />
 
       <div className="grid justify-between w-full grid-cols-5 px-4 py-2 gap-y-4">
         {steps.map((item, i) => {

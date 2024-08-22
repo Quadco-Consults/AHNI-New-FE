@@ -13,6 +13,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import StakeholderManagementAPI from "services/programsApi/stakeholder-management";
 import { StakeholderMgtProjectsData } from "definations/program-types/stakeholder-management";
+import BreadcrumbCard from "components/shared/Breadcrumb";
 
 const AnalysisMapping = () => {
   const { data, isLoading } =
@@ -42,6 +43,7 @@ const AnalysisMapping = () => {
     {
       header: "",
       id: "actions",
+      size: 80,
       cell: ({ row }) => <ActionListAction data={row.original} />,
     },
   ];
@@ -91,8 +93,15 @@ const AnalysisMapping = () => {
     );
   };
 
+  const breadcrumbs = [
+    { name: "Procurement", icon: true },
+    { name: "Stakeholder Management", icon: true },
+    { name: "Analysis & Mapping", icon: false },
+  ];
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-10">
+      <BreadcrumbCard list={breadcrumbs} />
       <Card className="space-y-5">
         <div className="flex items-center justify-start gap-2">
           <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">

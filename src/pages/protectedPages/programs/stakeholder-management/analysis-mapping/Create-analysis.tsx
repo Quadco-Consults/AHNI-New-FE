@@ -46,6 +46,7 @@ import {
 import StakeholderManagementAPI from "services/programsApi/stakeholder-management";
 import { toast } from "sonner";
 import { StakeholderResultsData } from "definations/program-types/stakeholder";
+import BreadcrumbCard from "components/shared/Breadcrumb";
 
 const CreateAnalysis = () => {
   const [stateSearchParams, setStateSearchParams] = useState("");
@@ -108,7 +109,6 @@ const CreateAnalysis = () => {
     control,
     name: "stakeholders",
   });
-  console.log(watch("stakeholders"));
 
   useEffect(() => {
     const matchedStakeholders =
@@ -133,8 +133,17 @@ const CreateAnalysis = () => {
     }
   };
 
+  const breadcrumbs = [
+    { name: "Procurement", icon: true },
+    { name: "Stakeholder Management", icon: true },
+    { name: "Analysis & Mapping", icon: true },
+    { name: "Detail", icon: true },
+    { name: "Create Stakeholder", icon: false },
+  ];
+
   return (
     <div className="min-h-screen space-y-6">
+      <BreadcrumbCard list={breadcrumbs} />
       <button
         onClick={goBack}
         className="w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center"

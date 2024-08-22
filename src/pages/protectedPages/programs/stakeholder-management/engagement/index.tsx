@@ -12,6 +12,7 @@ import EyeIcon from "components/icons/EyeIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
+import BreadcrumbCard from "components/shared/Breadcrumb";
 
 type WorkPlanData = {
   name: string;
@@ -39,7 +40,7 @@ const EngagementPlan = () => {
     {
       header: "Project Deliverable",
       accessorKey: "location",
-      size: 200,
+      size: 300,
     },
     {
       header: "Project Manager",
@@ -49,16 +50,17 @@ const EngagementPlan = () => {
     {
       header: "Start Date",
       accessorKey: "start_date",
-      size: 200,
+      size: 150,
     },
     {
       header: "End Date",
       accessorKey: "end_date",
-      size: 200,
+      size: 150,
     },
     {
       header: "",
       id: "actions",
+      size: 80,
       cell: ({ row }) => <ActionListAction data={row.original} />,
     },
   ];
@@ -142,8 +144,15 @@ const EngagementPlan = () => {
     );
   };
 
+  const breadcrumbs = [
+    { name: "Procurement", icon: true },
+    { name: "Stakeholder Management", icon: true },
+    { name: "Engagement Plan", icon: false },
+  ];
+
   return (
     <div className="space-y-5">
+      <BreadcrumbCard list={breadcrumbs} />
       <div className="flex justify-end">
         <Link to={RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN_CREATE}>
           <Button className="flex gap-2 py-6">
