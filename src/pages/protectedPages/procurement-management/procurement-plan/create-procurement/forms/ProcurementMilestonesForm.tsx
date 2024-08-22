@@ -1,57 +1,83 @@
-import React from "react";
 import { Button } from "components/ui/button";
-import { Input } from "components/ui/input-2";
 import { useForm } from "react-hook-form";
+import { Form } from "components/ui/form";
+import { useNavigate } from "react-router-dom";
+import FormButton from "atoms/FormButton";
+import FormInput from "atoms/FormInput";
+import ProcurementPlanLayout from "../ProcurementPlanLayout";
+import FormTextArea from "atoms/FormTextArea";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ProcurementMilestoneSchema } from "definations/procurement-validator";
+import ProcurementPlanAPI from "services/procurementApi/procurement-plan";
+import { toast } from "sonner";
+import { RouteEnum } from "constants/RouterConstants";
 
-type Props = {
-  handlePrev: () => void;
-  handleNext: () => void;
-};
+const ProcurementMilestonesForm = () => {
+  const navigate = useNavigate();
 
-const ProcurementMilestonesForm = ({ handleNext, handlePrev }: Props) => {
-  const {
-    register,
-    formState: { errors },
-    handleSubmit,
-  } = useForm<any>();
+  const [createProcurementPlanMutation, { isLoading }] =
+    ProcurementPlanAPI.useCreateProcurementPlanMutation();
+
+  const form = useForm<z.infer<typeof ProcurementMilestoneSchema>>({
+    resolver: zodResolver(ProcurementMilestoneSchema),
+    defaultValues: {
+      milestone_name: "",
+      milestone_description: "",
+    },
+  });
+
+  const { handleSubmit } = form;
+
+  const onSubmit = async (data: z.infer<typeof ProcurementMilestoneSchema>) => {
+    const formData = {
+      ...data,
+      ...JSON.parse(localStorage.getItem("procurementPlan") as any),
+    };
+    try {
+      await createProcurementPlanMutation(formData).unwrap();
+      toast.success("Successfully created.");
+      localStorage.removeItem("procurementPlan");
+      sessionStorage.removeItem("procurementPlanSteps");
+      navigate(RouteEnum.PROCUREMENT_PLAN);
+    } catch (error) {
+      toast.error("Something went wrong");
+      console.log(error);
+    }
+  };
+
   return (
-    <section className="w-full space-y-8">
-      <h3 className="text-lg font-bold">Procurement Milestones</h3>
-      <form className="space-y-6 " onSubmit={(e): void => e.preventDefault()}>
-        <fieldset className="flex flex-col gap-6">
-          <div className="grid grid-cols-2 gap-5">
-            <Input
-              name="description"
-              label="Description"
-              placeholder=""
-              register={register}
-              required
-              error={errors.description}
-              type="text"
+    <ProcurementPlanLayout>
+      <section className="w-full space-y-8">
+        <h3 className="text-lg font-bold">Procurement Milestones</h3>
+        <Form {...form}>
+          <form className="space-y-6 " onSubmit={handleSubmit(onSubmit)}>
+            <FormInput name="milestone_name" label="Milestone Name" />
+            <FormTextArea
+              name="milestone_description"
+              label="Milestone Description"
             />
-            <Input
-              name="date"
-              label="Date"
-              placeholder=""
-              register={register}
-              required
-              error={errors.date}
-              type="text"
-            />
-          </div>
-        </fieldset>
-        <span className="w-full flex items-center justify-end gap-5">
-          <Button
-            type="button"
-            className="bg-[#FFF2F2] text-primary dark:text-gray-500"
-            onClick={handlePrev}
-          >
-            Back
-          </Button>
-          <Button onClick={handleNext}>Finish</Button>
-        </span>
-      </form>
-    </section>
+
+            <div className="w-full flex items-center justify-end gap-5">
+              <Button
+                type="button"
+                className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                onClick={() => navigate(-1)}
+              >
+                Back
+              </Button>
+              <FormButton
+                type="submit"
+                loading={isLoading}
+                disabled={isLoading}
+              >
+                Finish
+              </FormButton>
+            </div>
+          </form>
+        </Form>
+      </section>
+    </ProcurementPlanLayout>
   );
 };
 

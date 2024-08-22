@@ -33,31 +33,31 @@ const Register = () => {
       header: "Project Name",
       id: "stakeholder_name",
       accessorFn: (data) => `${data.stake_holder.stakeholder_name}`,
-      size: 200,
+      size: 250,
     },
     {
       header: "Physical Office Address",
       id: "physical_office_address",
       accessorFn: (data) => `${data.stake_holder.physical_office_address}`,
-      size: 200,
+      size: 250,
     },
     {
       header: "Institution/Organization",
       id: "institution_organization",
       accessorFn: (data) => `${data.stake_holder.institution_organization}`,
-      size: 200,
+      size: 300,
     },
     {
       header: "State",
       id: "state",
       accessorFn: (data) => `${data.stake_holder.state}`,
-      size: 200,
+      size: 150,
     },
     {
       header: "Phone Number",
       id: "phone_number",
       accessorFn: (data) => `${data.stake_holder.phone_number}`,
-      size: 200,
+      size: 150,
     },
     {
       header: "E-Mail",
@@ -68,6 +68,7 @@ const Register = () => {
     {
       header: "",
       id: "actions",
+      size: 80,
       cell: ({ row }) => <ActionListAction data={row.original} />,
     },
   ];

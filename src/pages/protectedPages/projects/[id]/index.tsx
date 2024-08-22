@@ -61,7 +61,7 @@ const ProjectDetail = () => {
         <LongArrowLeft />
       </button>
 
-      <Tabs defaultValue="summary" className="space-y-10">
+      <Tabs defaultValue="summary" className="space-y-5">
         <TabsList className="ml-10">
           <TabsTrigger value="summary">Project Summary</TabsTrigger>
           {/* <TabsTrigger value="project Performance">

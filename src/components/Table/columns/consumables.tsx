@@ -1,123 +1,54 @@
 import { ColumnDef } from "@tanstack/react-table";
 import MoreIcon from "assets/MoreIcon";
-import { Badge } from "components/ui/badge";
 
-import { Checkbox } from "components/ui/checkbox";
+import { DialogType } from "constants/dailogs";
+import { AdminRoutes } from "constants/RouterConstants";
+import { useAppDispatch } from "hooks/useStore";
 
-type Data = {
-  products: string;
-  quantity: string;
-  expiringDate: string;
-  availability: string;
-  category: string;
+import { TConsumables, TStockCard, useDeleteConsumablesMutation, useDeleteStockCardMutation,  } from "services/adminApi/consumables";
+import { openDialog } from "store/ui";
+import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "components/ui/alert-dialog";
+import { toast } from "sonner";
+import TableAction from "atoms/TableAction";
+
+// eslint-disable-next-line react-refresh/only-export-components
+const MoreAction = ({ row }: { row: TConsumables }) => {
+  const [deleteConsumables] = useDeleteConsumablesMutation()
+
+  const onDelete = async () => {
+    try {
+      await deleteConsumables({
+        id: row.id as string
+      }).unwrap()
+      toast.success("Consumables deleted successfully")
+    } catch (error) {
+      
+      toast.error("Error deleting consumables")
+    }
+  }
+  return (
+    <div className="flex items-center space-x-2">
+      <TableAction action={onDelete} row={row} route={`${AdminRoutes.CONSUMABLES_VIEW}?id=${row.id}`} />
+      
+    </div>
+  );
 };
 
-export const consumablesData: Data[] = [
+export const consumableColums: ColumnDef<TConsumables>[] = [
   {
-    products: "Paper",
-    quantity: "10 Rims",
-    expiringDate: "N/A",
-    availability: "Available",
-    category: "Stationary",
-  },
-  {
-    products: "Envelope",
-    quantity: "5 Packets",
-    expiringDate: "N/A",
-    availability: "Low Stock",
-    category: "Stationary",
-  },
-  {
-    products: "Pen",
-    quantity: "20 Packets",
-    expiringDate: "N/A",
-    availability: "Available",
-    category: "Stationary",
-  },
-  {
-    products: "Diesel",
-    quantity: "20 Litres",
-    expiringDate: "N/A",
-    availability: "Low Stock",
-    category: "Fuel & Diesel",
-  },
-  {
-    products: "Tap",
-    quantity: "5",
-    expiringDate: "N/A",
-    availability: "Available",
-    category: "M&E Tools",
-  },
-  {
-    products: "Fuel",
-    quantity: "200 Litres",
-    expiringDate: "N/A",
-    availability: "Available",
-    category: "Fuel & Diesel",
-  },
-  {
-    products: "Water",
-    quantity: "25 Packet",
-    expiringDate: "24/10/24",
-    availability: "Available",
-    category: "",
-  },
-  {
-    products: "Toner",
-    quantity: "20 Toners",
-    expiringDate: "N/A",
-    availability: "Available",
-    category: "Stationary",
-  },
-  {
-    products: "Nose Mask",
-    quantity: "25 Packets",
-    expiringDate: "N/A",
-    availability: "Low Stock",
-    category: "PPEs",
-  },
-  {
-    products: "Eye Goggle",
-    quantity: "30 Safety Goggle",
-    expiringDate: "N/A",
-    availability: "Available",
-    category: "PPEs",
-  },
-  {
-    products: "Safety Boot",
-    quantity: "20 Boots",
-    expiringDate: "N/A",
-    availability: "Available",
-    category: "PPEs",
-  },
-  {
-    products: "Medical Gloves",
-    quantity: "20 Packets",
-    expiringDate: "N/A",
-    availability: "Low Stock",
-    category: "PPEs",
-  },
-];
-
-export const consumableColums: ColumnDef<Data>[] = [
-  {
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllRowsSelected()}
-        onCheckedChange={table.getToggleAllRowsSelectedHandler()}
-      />
-    ),
-    accessorKey: "isSelected",
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={row.getToggleSelectedHandler()}
-      />
-    ),
-  },
-  {
-    header: "Products",
-    accessorKey: "products",
+    header: "Item",
+    accessorKey: "item",
   },
   {
     header: "Quantity",
@@ -125,16 +56,11 @@ export const consumableColums: ColumnDef<Data>[] = [
   },
   {
     header: "Expiring Date",
-    accessorKey: "expiringDate",
+    accessorKey: "expiry_date",
   },
   {
-    header: "Availability",
-    accessorKey: "availability",
-    cell: ({ getValue }) => (
-      <Badge variant={getValue() === "Available" ? "success" : "destructive"}>
-        {getValue() as string}
-      </Badge>
-    ),
+    header: "Stock Level",
+    accessorKey: "minimum_stock_level",
   },
   {
     header: "Category",
@@ -143,8 +69,101 @@ export const consumableColums: ColumnDef<Data>[] = [
   {
     header: "",
     accessorKey: "action",
-    cell: () => {
-      return <MoreIcon />;
-    },
+    cell: ({ row }) => <MoreAction row={row.original} />,
+  },
+];
+
+// eslint-disable-next-line react-refresh/only-export-components
+const StockAction = ({ row }: { row: Partial<TStockCard> }) => {
+  const dispatch = useAppDispatch();
+
+  const [deleteStock] = useDeleteStockCardMutation()
+
+  const onDelete = async () => {
+try {
+  await deleteStock({
+    id: row.id as string
+  }).unwrap()
+  toast.success("Stock deleted successfully")
+} catch (error) {
+  toast.error("Error deleteing stock")
+}
+  }
+  return (
+    <div className="flex items-center space-x-2">
+      <Popover>
+        <PopoverTrigger>
+          <MoreIcon />
+        </PopoverTrigger>
+        <PopoverContent className="w-32 py-1 space-y-2">
+   
+            <div onClick={() => {
+               dispatch(
+                openDialog({
+                  type: DialogType.AddStock,
+                  dialogProps: {
+                    data: {
+                      ...row,
+                    } as unknown as string,
+                  },
+                })
+              );
+            } } className="flex items-center gap-2 p-2 cursor-pointer hover:bg-primary hover:text-white">
+              Update
+            </div>
+
+
+          <AlertDialog>
+            <AlertDialogTrigger className="flex items-center w-full gap-2 p-2 cursor-pointer hover:bg-primary hover:text-white">
+              Delete
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {
+                    "This action cannot be undone. This will permanently delete this item and remove all associated data from our servers."}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={() => {
+                  onDelete()
+                }}>Continue</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </PopoverContent>
+      </Popover>
+      
+    </div>
+  );
+};
+
+export const stockColumns: ColumnDef<TStockCard>[] = [
+  {
+    header: "Date",
+    accessorKey: "date",
+  },
+  {
+    header: "Particular",
+    accessorKey: "particular",
+  },
+  {
+    header: "Stock",
+    accessorKey: "stock",
+  },
+  {
+    header: "Status",
+    accessorKey: "status",
+  },
+  {
+    header: "Stock Left",
+    accessorKey: "stock_left",
+  },
+  {
+    header: "Action",
+    accessorKey: "stock_left",
+    cell: ({ row }) => <StockAction row={row.original} />,
   },
 ];

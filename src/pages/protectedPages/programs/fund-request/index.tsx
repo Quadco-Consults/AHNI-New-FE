@@ -20,6 +20,7 @@ import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
 import FundRequestAPI from "services/programsApi/fund-request";
 import { FundRequestResultsData } from "definations/program-types/fund-request";
+import BreadcrumbCard from "components/shared/Breadcrumb";
 
 const FundRequest = () => {
   const dispatch = useAppDispatch();
@@ -56,7 +57,7 @@ const FundRequest = () => {
       {
         header: "Status",
         accessorKey: "project__status",
-        size: 150,
+        size: 100,
         cell: ({ getValue }) => {
           return (
             <Badge
@@ -77,6 +78,7 @@ const FundRequest = () => {
       {
         header: "",
         id: "actions",
+        size: 80,
         cell: ({ row }) => <ActionListAction data={row.original} />,
       },
     ],
@@ -143,8 +145,15 @@ const FundRequest = () => {
     );
   };
 
+  const breadcrumbs = [
+    { name: "Procurement", icon: true },
+    { name: "Fund Request", icon: false },
+  ];
+
   return (
     <div className="space-y-5">
+      <BreadcrumbCard list={breadcrumbs} />
+
       <div className="flex justify-end">
         <Link to={RouteEnum.PROGRAM_FUND_REQUEST_CREATE}>
           <Button className="flex gap-2 py-6">

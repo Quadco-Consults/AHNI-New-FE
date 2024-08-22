@@ -78,3 +78,19 @@
     @apply bg-background text-foreground;
   }
 }
+
+input {
+  appearance: none;
+  border-radius: 15%;
+  width: 16px;
+  height: 16px;
+  border: 1px solid hsl(var(--primary));
+  transition: 0.2s all linear;
+  margin-right: 5px;
+  position: relative;
+  top: 4px;
+}
+
+input:checked {
+  border: 6px solid hsl(var(--primary));
+}
