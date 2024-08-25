@@ -12,7 +12,15 @@ export interface TPaymentRequest {
   amount_in_words: string;
   account_number: string;
   bank: string;
-  requested_by: string;
+  requested_by: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone_number: string;
+    gender: string;
+    designation: string;
+  };
 }
 
 export type TPaymentRequestPayload = {
@@ -23,7 +31,7 @@ export type TPaymentRequestPayload = {
   amount_in_words: string;
   account_number: string;
   bank: string;
-  requested_by: string;
+  requested_by_id: string;
 };
 
 export interface CreatePaymentRequestPayload {

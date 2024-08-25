@@ -2,14 +2,15 @@ import { ColumnDef } from "@tanstack/react-table";
 import BackNavigation from "atoms/BackNavigation";
 import FormButton from "atoms/FormButton";
 import DataTable from "components/Table/DataTable";
-import { paymentColumns } from "components/Table/columns/payment";
+import {
+  paymentColumns,
+  TPaymentRequest,
+} from "components/Table/columns/payment";
 import { AdminRoutes } from "constants/RouterConstants";
 import { Plus } from "lucide-react";
+import { useMemo } from "react";
 import { Link, generatePath, useNavigate } from "react-router-dom";
-import {
-  TPaymentRequest,
-  useGetPaymentRequestsQuery,
-} from "services/adminApi/paymentRequest";
+import { useGetPaymentRequestsQuery } from "services/adminApi/paymentRequest";
 
 const PaymentRequestList = () => {
   const navigate = useNavigate();
@@ -19,6 +20,16 @@ const PaymentRequestList = () => {
   const onRowClick = () => {
     navigate(AdminRoutes.PaymentRequestView);
   };
+
+  const driveData = useMemo(() => {
+    return (
+      data?.results?.map((item) => ({
+        ...item,
+        requested_by:
+          item.requested_by.first_name + " " + item.requested_by.last_name,
+      })) || []
+    );
+  }, [data?.results]);
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -36,7 +47,7 @@ const PaymentRequestList = () => {
         <DataTable
           onRowClick={onRowClick}
           columns={paymentColumns as ColumnDef<TPaymentRequest>[]}
-          data={data?.results || []}
+          data={driveData as TPaymentRequest[]}
           isLoading={isLoading}
         />
       </div>
