@@ -62,6 +62,7 @@ const baseAPI = createApi({
     "VehicleRequest",
     "PROCUREMENT_PLAN",
     "PROCUREMENT_TRACKER",
+    "PAYMENT",
   ],
   keepUnusedDataFor: 5 * 60,
   refetchOnMountOrArgChange: true,

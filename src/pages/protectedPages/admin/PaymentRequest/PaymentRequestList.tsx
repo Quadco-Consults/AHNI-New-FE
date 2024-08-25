@@ -9,17 +9,11 @@ import {
 import { AdminRoutes } from "constants/RouterConstants";
 import { Plus } from "lucide-react";
 import { useMemo } from "react";
-import { Link, generatePath, useNavigate } from "react-router-dom";
+import { Link, generatePath } from "react-router-dom";
 import { useGetPaymentRequestsQuery } from "services/adminApi/paymentRequest";
 
 const PaymentRequestList = () => {
-  const navigate = useNavigate();
-
   const { data, isLoading } = useGetPaymentRequestsQuery({});
-
-  const onRowClick = () => {
-    navigate(AdminRoutes.PaymentRequestView);
-  };
 
   const driveData = useMemo(() => {
     return (
@@ -45,7 +39,6 @@ const PaymentRequestList = () => {
       </div>
       <div className="mt-8">
         <DataTable
-          onRowClick={onRowClick}
           columns={paymentColumns as ColumnDef<TPaymentRequest>[]}
           data={driveData as TPaymentRequest[]}
           isLoading={isLoading}

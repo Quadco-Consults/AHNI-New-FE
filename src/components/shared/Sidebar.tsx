@@ -627,7 +627,7 @@ const DEPARTMENTAL_LINKS = [
         // ],
       },
 
-      { name: "Report", path: "/" },
+      { name: "Asset Maintenance", path: AdminRoutes.ASSET_MAINTENANCE },
     ],
   },
   {

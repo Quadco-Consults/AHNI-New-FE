@@ -1,7 +1,7 @@
 import baseAPI from "..";
 import { TBasePaginatedRespose, TRequest } from "definations/auth";
 
-interface AssetMaintenanceRequest {
+export interface AssetMaintenanceRequest {
   id: string;
   created_at: string;
   updated_at: string;
@@ -11,6 +11,7 @@ interface AssetMaintenanceRequest {
   maintenance_type: string;
   classification: string;
   asset: string;
+  action?: string;
 }
 
 export interface CreateAssetMaintenanceRequestPayload {

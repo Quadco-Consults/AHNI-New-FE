@@ -7,6 +7,10 @@ export const AdminRoutes = {
   CONSUMABLES: "/admin/inventory-managment/consumables",
   CONSUMABLES_VIEW: "/admin/inventory-managment/consumables/view",
   ASSETS: "/admin/inventory-managment/assets",
+  ASSET_MAINTENANCE: "/admin/inventory-managment/asset-maintenance",
+  ASSET_MAINTENANCE_VIEW: "/admin/inventory-managment/asset-maintenance-view",
+  ASSET_MAINTENANCE_CREATE:
+    "/admin/inventory-managment/asset-maintenance-create",
   CREateConsumables: "/admin/inventory-managment/create-consumables",
   CreateAssets: "/admin/inventory-managment/create-assets",
   ViewAssets: "/admin/inventory-managment/view-assets",

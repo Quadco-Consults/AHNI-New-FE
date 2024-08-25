@@ -165,4 +165,20 @@ export const adminRoutes = [
       () => import("pages/protectedPages/admin/Agreement/ViewAgreement")
     ),
   },
+  {
+    path: AdminRoutes.ASSET_MAINTENANCE,
+    element: lazy(() => import("pages/protectedPages/admin/AssetMaintenance")),
+  },
+  {
+    path: AdminRoutes.ASSET_MAINTENANCE_VIEW,
+    element: lazy(
+      () => import("pages/protectedPages/admin/AssetMaintenanceView")
+    ),
+  },
+  {
+    path: AdminRoutes.ASSET_MAINTENANCE_CREATE,
+    element: lazy(
+      () => import("pages/protectedPages/admin/AssetMaintenanceCreate")
+    ),
+  },
 ];
