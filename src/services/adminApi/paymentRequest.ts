@@ -57,11 +57,13 @@ const paymentRequests = baseAPI.injectEndpoints({
         url,
         params,
       }),
+      providesTags: ["PAYMENT"],
     }),
     getOnePaymentRequest: builder.query<TPaymentRequest, { id: string }>({
       query: ({ id }) => ({
         url: `${url}${id}/`,
       }),
+      providesTags: ["PAYMENT"],
     }),
     createPaymentRequest: builder.mutation<
       TPaymentRequest,
@@ -72,6 +74,7 @@ const paymentRequests = baseAPI.injectEndpoints({
         method: "POST",
         body,
       }),
+      invalidatesTags: ["PAYMENT"],
     }),
     updatePaymentRequest: builder.mutation<
       TPaymentRequest,
@@ -82,12 +85,14 @@ const paymentRequests = baseAPI.injectEndpoints({
         method: "PATCH",
         body,
       }),
+      invalidatesTags: ["PAYMENT"],
     }),
     deletePaymentRequest: builder.mutation<void, { id: string }>({
       query: ({ id }) => ({
         url: `${url}${id}/`,
         method: "DELETE",
       }),
+      invalidatesTags: ["PAYMENT"],
     }),
     uploadDocument: builder.mutation<void, { id: string; body: FormData }>({
       query: ({ id, body }) => ({
