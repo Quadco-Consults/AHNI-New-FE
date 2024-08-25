@@ -33,6 +33,7 @@ const assetMaintenance = baseAPI.injectEndpoints({
         url: url,
         params,
       }),
+      providesTags: ["AM"],
     }),
     getOneAssetMaintenanceRequest: builder.query<
       AssetMaintenanceRequest,
@@ -41,6 +42,7 @@ const assetMaintenance = baseAPI.injectEndpoints({
       query: ({ id }) => ({
         url: `${url}${id}/`,
       }),
+      providesTags: ["AM"],
     }),
     createAssetMaintenanceRequest: builder.mutation<
       AssetMaintenanceRequest,
@@ -51,6 +53,7 @@ const assetMaintenance = baseAPI.injectEndpoints({
         method: "POST",
         body,
       }),
+      invalidatesTags: ["AM"],
     }),
     updateAssetMaintenanceRequest: builder.mutation<
       AssetMaintenanceRequest,
@@ -61,12 +64,14 @@ const assetMaintenance = baseAPI.injectEndpoints({
         method: "PATCH",
         body,
       }),
+      invalidatesTags: ["AM"],
     }),
     deleteAssetMaintenanceRequest: builder.mutation<void, { id: string }>({
       query: ({ id }) => ({
         url: `${url}${id}/`,
         method: "DELETE",
       }),
+      invalidatesTags: ["AM"],
     }),
   }),
 });
