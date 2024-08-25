@@ -17,10 +17,10 @@ import * as z from "zod";
 import { toast } from "sonner";
 
 import { Card, CardContent } from "components/ui/card";
-import { useNavigate } from "react-router-dom";
-import { AdminRoutes } from "constants/RouterConstants";
-import sessionStorage from "redux-persist/es/storage/session";
+
 import StepHeader from "components/shared/StepHeader";
+import { zodResolver } from "@hookform/resolvers/zod";
+import FileUploadRequest from "./FileUploadRequest";
 
 const steps = [
   { step: 1, stepName: "Payment Request" },
@@ -35,20 +35,24 @@ const paymentRequestSchema = z.object({
   amount_in_words: z.string().min(1, "Amount in Words is required"),
   account_number: z.string().min(1, "Account Number is required"),
   bank: z.string().min(1, "Bank is required"),
-  requested_by: z.string().uuid("Requested By is required"),
-  upload: z.array(z.string().optional()).optional(),
+  requested_by_id: z.string().uuid("Requested By is required"),
 });
 
 export type PaymentRequestFormData = z.infer<typeof paymentRequestSchema>;
 
-const PaymentRequestCreate = () => {
-  const [currentStep, setCurrentStep] = useState(1);
+type StepsF = {
+  currentStep: number;
+  // eslint-disable-next-line no-unused-vars
+  setCurrentStep: (step: number) => void;
+  // eslint-disable-next-line no-unused-vars
+  setId: (id: string) => void;
+};
+
+const FormOne = ({ currentStep, setCurrentStep, setId }: StepsF) => {
   const form = useForm<TPaymentRequestPayload>({
     defaultValues: {},
-    // resolver: zodResolver(paymentRequestSchema),
+    resolver: zodResolver(paymentRequestSchema),
   });
-
-  const navigate = useNavigate();
 
   const [createPaymentRequest, { isLoading }] =
     useCreatePaymentRequestMutation();
@@ -68,17 +72,14 @@ const PaymentRequestCreate = () => {
     try {
       const resp = await createPaymentRequest(data).unwrap();
       toast.success("Payment request created successfully");
-      setCurrentStep(2);
-      navigate(AdminRoutes.PaymentRequestUpload);
-      sessionStorage.setItem("paymentId", resp.id);
+      setCurrentStep(currentStep + 1);
+      setId(resp.id);
     } catch (error) {
       toast.error("Error creating payment request");
     }
   };
   return (
     <div>
-      {/* <BackNavigation extraText="Payment Request Form" /> */}
-      <StepHeader steps={steps} currentStep={currentStep} />
       <Card>
         <CardContent>
           <Form {...form}>
@@ -117,7 +118,7 @@ const PaymentRequestCreate = () => {
                 <FormSelect
                   options={drivedData}
                   label="Requested By"
-                  name="requested_by"
+                  name="requested_by_id"
                   required
                 />
               </div>
@@ -131,6 +132,31 @@ const PaymentRequestCreate = () => {
           </Form>
         </CardContent>
       </Card>
+    </div>
+  );
+};
+
+const PaymentRequestCreate = () => {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [rid, setId] = useState("");
+  return (
+    <div>
+      <StepHeader steps={steps} currentStep={currentStep} />
+      {currentStep === 1 && (
+        <FormOne
+          currentStep={currentStep}
+          setCurrentStep={setCurrentStep}
+          setId={setId}
+        />
+      )}
+
+      {currentStep === 2 && (
+        <FileUploadRequest
+          id={rid}
+          setCurrentStep={setCurrentStep}
+          currentStep={currentStep}
+        />
+      )}
     </div>
   );
 };

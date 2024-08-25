@@ -1,40 +1,27 @@
 import FormButton from "atoms/FormButton";
-import StepHeader from "components/shared/StepHeader";
 import { Button } from "components/ui/button";
 import { Card, CardContent } from "components/ui/card";
 import { Input } from "components/ui/input";
 import { Label } from "components/ui/label";
 import { AdminRoutes } from "constants/RouterConstants";
-
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import sessionStorage from "redux-persist/es/storage/session";
 import { useUploadDocumentMutation } from "services/adminApi/paymentRequest";
 import { toast } from "sonner";
 
-const steps = [
-  { step: 1, stepName: "Payment Request" },
-  { step: 2, stepName: "File Uploads" },
-];
+type StepsF = {
+  currentStep: number;
+  // eslint-disable-next-line no-unused-vars
+  setCurrentStep: (step: number) => void;
+  id?: string;
+};
 
-const FileUploadRequest = () => {
-  const [currentStep, setCurrentStep] = useState(2);
+const FileUploadRequest = ({ currentStep, setCurrentStep, id }: StepsF) => {
   const [file, setFile] = useState<File>();
   const [uploadDocument, { isLoading }] = useUploadDocumentMutation();
 
-  const [payId] = useState(
-    async () => await sessionStorage.getItem("paymentId").then((data) => data)
-  );
-
-  const [id, setId] = useState<string>();
-
   const navigate = useNavigate();
-
-  useEffect(() => {
-    payId.then((pay) => setId(pay as string));
-  }, [payId]);
-
-  console.log(id);
 
   const onSubmit = async () => {
     if (!file) {
@@ -60,7 +47,6 @@ const FileUploadRequest = () => {
   };
   return (
     <div>
-      <StepHeader steps={steps} currentStep={currentStep} />
       <Card>
         <CardContent className="p-5 space-y-6">
           <Label>File Upload</Label>
@@ -89,8 +75,7 @@ const FileUploadRequest = () => {
           <div className="flex items-center justify-end gap-x-4 ">
             <Button
               onClick={() => {
-                navigate(-1);
-                setCurrentStep(1);
+                setCurrentStep(currentStep - 1);
               }}
               variant="outline"
             >
