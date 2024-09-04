@@ -46,6 +46,7 @@ export const fuelConsumption: ColumnDef<IFuelVehicle>[] = [
     header: "vehicle",
     accessorKey: "name",
   },
+
   {
     header: "Model",
     accessorKey: "model",
@@ -111,6 +112,10 @@ export const fuelConsumptionColumns: ColumnDef<FuelRecord>[] = [
 ];
 
 export const fuelConsumptionColumnsOne: ColumnDef<FuelRecord>[] = [
+  {
+    header: "Driver",
+    accessorKey: "driver",
+  },
   {
     header: "Date",
     accessorKey: "date",

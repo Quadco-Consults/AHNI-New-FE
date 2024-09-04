@@ -586,6 +586,7 @@ const DEPARTMENTAL_LINKS = [
         sublinks: [
           { name: "Consumable", path: AdminRoutes.CONSUMABLES },
           { name: "Assets", path: AdminRoutes.ASSETS },
+          { name: "Assets Request", path: AdminRoutes.ASSETS_REQUEST },
         ],
       },
       {
@@ -607,10 +608,10 @@ const DEPARTMENTAL_LINKS = [
         name: "Facility Management",
         sublinks: [
           { name: "Facilities", path: AdminRoutes.Facilities },
-          {
-            name: "Facility  Maintenance Ticket",
-            path: AdminRoutes.FacilitiesTicket,
-          },
+          // {
+          //   name: "Facility  Maintenance Ticket",
+          //   path: AdminRoutes.FacilitiesTicket,
+          // },
         ],
       },
       { name: "Payment Request", path: AdminRoutes.PaymentRequest },

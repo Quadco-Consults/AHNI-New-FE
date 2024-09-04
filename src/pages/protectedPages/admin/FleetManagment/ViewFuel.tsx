@@ -55,7 +55,13 @@ const ViewFuel = () => {
           {currentTab === "cunsumption" && (
             <div className="flex justify-end ">
               <Button>
-                <Link to={AdminRoutes.FuelCreate}>Create New Record</Link>
+                <Link
+                  to={`${AdminRoutes.FuelCreate}/?to=${String(
+                    searchParams.get("to")
+                  )}`}
+                >
+                  Create New Record
+                </Link>
               </Button>
             </div>
           )}
