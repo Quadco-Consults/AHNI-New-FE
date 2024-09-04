@@ -1,11 +1,17 @@
 /* eslint-disable react-refresh/only-export-components */
 import { ColumnDef, Row, Table } from "@tanstack/react-table";
+import TableAction from "atoms/TableAction";
 import { Button } from "components/ui/button";
 import { Checkbox } from "components/ui/checkbox";
 import { AdminRoutes } from "constants/RouterConstants";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 
 import { Link } from "react-router-dom";
+import {
+  DisposalReport,
+  useDeleteAssetsRequestMutation,
+} from "services/adminApi/assetsApi";
+import { toast } from "sonner";
 import { addAsset, assetSelector, removeAsset } from "store/assets";
 
 interface AssetData {
@@ -115,6 +121,60 @@ export const assestColum: ColumnDef<AssetData>[] = [
           </Link>
         </div>
       );
+    },
+  },
+];
+
+const RequestActions = ({ row }: { row: Row<DisposalReport> }) => {
+  const [deleteAssetRequest] = useDeleteAssetsRequestMutation();
+
+  const deleteAssest = () => {
+    try {
+      deleteAssetRequest({
+        id: row.original.id,
+      }).unwrap();
+      toast.success("Asset request deleted successfully");
+    } catch (error) {
+      toast.error("Error deleting asset request");
+    }
+  };
+  return (
+    <TableAction
+      route={AdminRoutes.ASSETS_REQUEST_VIEW}
+      row={row.original}
+      action={() => deleteAssest()}
+    />
+  );
+};
+
+export const assestRequestColum: ColumnDef<DisposalReport>[] = [
+  {
+    header: "Remark",
+    accessorKey: "remark",
+  },
+
+  {
+    header: "Recomendation",
+    accessorKey: "recommendation",
+  },
+
+  {
+    header: "Asset Condition",
+    accessorKey: "asset_condition",
+  },
+  {
+    header: "Justification for Recomendation",
+    accessorKey: "justification_for_disposal",
+  },
+  {
+    header: "Life Span as at Report",
+    accessorKey: "life_span_at_report",
+  },
+  {
+    header: "",
+    accessorKey: "action",
+    cell: ({ row }) => {
+      return <RequestActions row={row} />;
     },
   },
 ];

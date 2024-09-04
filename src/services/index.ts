@@ -64,6 +64,7 @@ const baseAPI = createApi({
     "PROCUREMENT_TRACKER",
     "PAYMENT",
     "AM",
+    "AssetsRequest",
   ],
   keepUnusedDataFor: 5 * 60,
   refetchOnMountOrArgChange: true,

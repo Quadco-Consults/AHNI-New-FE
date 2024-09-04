@@ -46,6 +46,15 @@ export const adminRoutes = [
     path: AdminRoutes.VehicleMaitenance,
     element: lazy(
       () =>
+        import(
+          "pages/protectedPages/admin/FleetManagment/VehicleMaintenanceTable"
+        )
+    ),
+  },
+  {
+    path: AdminRoutes.VehicleMaitenanceCreate,
+    element: lazy(
+      () =>
         import("pages/protectedPages/admin/FleetManagment/VehichleMaitanace")
     ),
   },
@@ -180,5 +189,13 @@ export const adminRoutes = [
     element: lazy(
       () => import("pages/protectedPages/admin/AssetMaintenanceCreate")
     ),
+  },
+  {
+    path: AdminRoutes.ASSETS_REQUEST,
+    element: lazy(() => import("pages/protectedPages/admin/AssestRequest")),
+  },
+  {
+    path: AdminRoutes.ASSETS_REQUEST_VIEW,
+    element: lazy(() => import("pages/protectedPages/admin/ViewAssetRequest")),
   },
 ];

@@ -99,8 +99,20 @@ interface AssetActionPayload {
   justification_for_disposal: string;
   life_span_at_report: string;
   recommendation: string;
-  asset_condition: string; // UUID format
+  asset_condition_id: string; // UUID format
   assets: string[]; // Array of UUIDs
+}
+
+export interface DisposalReport {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  remark: string;
+  justification_for_disposal: string;
+  life_span_at_report: number;
+  recommendation: string;
+  asset_condition: string;
+  assets: string[];
 }
 
 const assetsAPi = baseAPI.injectEndpoints({
@@ -110,6 +122,16 @@ const assetsAPi = baseAPI.injectEndpoints({
         url: `${path}/inventory-assets/`,
         params,
       }),
+    }),
+    getAssetsRequest: builder.query<
+      TBasePaginatedRespose<DisposalReport[]>,
+      TRequest
+    >({
+      query: (params) => ({
+        url: `${path}/inventory-asset-actions/`,
+        params,
+      }),
+      providesTags: ["AssetsRequest"],
     }),
     createAssets: builder.mutation<TAssets, Partial<TAssets>>({
       query: (body) => ({
@@ -121,6 +143,14 @@ const assetsAPi = baseAPI.injectEndpoints({
     getOneAssets: builder.query<Asset, TRequest>({
       query: (params) => ({
         url: `${path}/inventory-assets/${params.id}/`,
+        params: {
+          ...omit(params, "id"),
+        },
+      }),
+    }),
+    getOneAssetsRequest: builder.query<DisposalReport, TRequest>({
+      query: (params) => ({
+        url: `${path}/inventory-asset-actions/${params.id}/`,
         params: {
           ...omit(params, "id"),
         },
@@ -147,6 +177,16 @@ const assetsAPi = baseAPI.injectEndpoints({
         url: `${path}/inventory-assets/${params.id}/`,
         method: "DELETE",
       }),
+    }),
+    deleteAssetsRequest: builder.mutation<
+      TBasePaginatedRespose<TConsumables[]>,
+      TRequest
+    >({
+      query: (params) => ({
+        url: `${path}/inventory-asset-actions/${params.id}/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["AssetsRequest"],
     }),
     getAssetType: builder.query<TBasePaginatedRespose<TAssets[]>, TRequest>({
       query: (params) => ({
@@ -181,4 +221,7 @@ export const {
   useGetAssetTypeQuery,
   useGetAssetConditionsQuery,
   useCreateAssetActionsMutation,
+  useGetAssetsRequestQuery,
+  useDeleteAssetsRequestMutation,
+  useGetOneAssetsRequestQuery,
 } = assetsAPi;

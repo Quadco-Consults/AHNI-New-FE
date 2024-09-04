@@ -7,6 +7,8 @@ export const AdminRoutes = {
   CONSUMABLES: "/admin/inventory-managment/consumables",
   CONSUMABLES_VIEW: "/admin/inventory-managment/consumables/view",
   ASSETS: "/admin/inventory-managment/assets",
+  ASSETS_REQUEST: "/admin/inventory-managment/assets-request",
+  ASSETS_REQUEST_VIEW: "/admin/inventory-managment/assets-request-view",
   ASSET_MAINTENANCE: "/admin/inventory-managment/asset-maintenance",
   ASSET_MAINTENANCE_VIEW: "/admin/inventory-managment/asset-maintenance-view",
   ASSET_MAINTENANCE_CREATE:
@@ -15,6 +17,7 @@ export const AdminRoutes = {
   CreateAssets: "/admin/inventory-managment/create-assets",
   ViewAssets: "/admin/inventory-managment/view-assets",
   VehicleRequest: "/admin/fleet-managment/vehichle-request",
+  VehicleMaitenanceCreate: "/admin/fleet-managment/vehicle-maintenance-create",
   VehicleMaitenance: "/admin/fleet-managment/vehicle-maintenance",
   FuelConsumptions: "/admin/fleet-managment/fuel-request",
   FuelView: "/admin/fleet-managment/fuel/View-Fuel",

@@ -14,7 +14,15 @@ const FuelTable: FC<FuelTableProps> = ({ vehicle }) => {
   });
 
   const drivedData = useMemo(() => {
-    return data?.results || [];
+    return (
+      data?.results.map((item) => {
+        return {
+          ...item,
+          // @ts-ignore
+          driver: `${item?.assigned_driver?.first_name}  ${item?.assigned_driver?.last_name}`,
+        };
+      }) || []
+    );
   }, [data?.results]);
   return (
     <div>
