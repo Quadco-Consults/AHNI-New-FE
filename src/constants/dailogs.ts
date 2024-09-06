@@ -24,6 +24,7 @@ export const DialogType = {
   SspSubmitModal: "SspSubmitModal",
   ExpenditureModal: "ExpenditureModal",
   ConsultancyApplicationSuccess: "ConsultancyApplicationSuccess",
+  SubGrantDocumentUpload: "SubGrantDocumentUpload",
 };
 
 export const largeDailogScreen = {
