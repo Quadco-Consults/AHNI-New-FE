@@ -60,3 +60,38 @@ export const ConsunltancyScopeDetails = z.object({
   payment_frequency: z.string(),
   // specific_deliverables: z.record(z.union([z.string(), z.number().nonnegative()])),
 });
+
+// subgrant schema
+
+export const CangGAddSubGrantSchema = z.object({
+  funding_source_id: z.string(),
+  project_title: z.string(),
+  project_number: z.string(),
+  country: z.string(),
+  award_type: z.string(),
+  sub_award_type: z.string(),
+  project_value_usd: z.string(),
+  project_value_local_currency: z.string(),
+  // start_date: z.string(),
+  // end_date: z.string(),
+  grant_administrator: z.string().uuid(),
+  technical_staff: z.string().uuid(),
+  business_unit: z.string().uuid(),
+});
+
+export const ManualSubGrantSchemaOrgDetails = z.object({
+  // sub_grant_id: z.string(),
+  organisation_name: z.string(),
+  principal_one_name: z.string(),
+  principal_one_designation: z.string(),
+  principal_two_name: z.string(),
+  principal_two_designation: z.string(),
+  address: z.string(),
+  telephone: z.string(),
+  email: z.string().email(), // Validates email format
+  fax: z.string().optional(), // Fax can be optional if needed
+  website: z.string().url(), // Validates URL format
+  duns_number: z.string(),
+  has_conflict_of_interest: z.boolean(), // Boolean validation
+  organisation_type: z.string(),
+});

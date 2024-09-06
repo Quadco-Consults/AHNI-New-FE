@@ -28,6 +28,7 @@ import SspSubmitModal from "./components/sspSubmitModal";
 import ExpenditureModal from "./components/ExpenditureModal";
 import AssingPermission from "./components/users/AssingPermission";
 import ConsultancyApplicationSuccessModal from "./components/ConsultancyApplicationSuccessModal";
+import SubGrantManualDocsModal from "./components/SubGrantManualDocsModal";
 
 const sheets: Record<string, ReactNode> = {
   [DialogType.Categories]: <CategoriesModal />,

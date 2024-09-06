@@ -1,15 +1,10 @@
 import BackNavigation from "atoms/BackNavigation";
 import TabState from "components/ui/TabState";
 import { useState } from "react";
-import { useParams } from "react-router-dom";
-import { consultancyAPIs } from "services/cAndGApi/consultancy";
 import ConsultancyJobDetails from "./ConsultancyJobDetails";
+import ConsultancyScopeOfWorkDetails from "./ConsultancyScopeOfWorkDetails";
 
 const ConsultancyDetails = () => {
-  const params = useParams();
-  const consultancyDetails = consultancyAPIs.useGetSingleConsultancyQuery(params.id);
-  console.log(consultancyDetails);
-
   const tabDetails = [
     {
       id: 1,
@@ -17,11 +12,20 @@ const ConsultancyDetails = () => {
       name: "Job Details",
       tabComponent: (
         <>
-          <ConsultancyJobDetails id={params.id} />
+          <ConsultancyJobDetails />
         </>
       ),
     },
-    { id: 2, state: "scope-of-work", name: "Scope of Work", tabComponent: <></> },
+    {
+      id: 2,
+      state: "scope-of-work",
+      name: "Scope of Work",
+      tabComponent: (
+        <>
+          <ConsultancyScopeOfWorkDetails />
+        </>
+      ),
+    },
     { id: 2, state: "submitted-applications", name: "Submitted Applications", tabComponent: <></> },
     { id: 2, state: "short-list", name: "Shortlist", tabComponent: <></> },
     { id: 2, state: "contract-request-form", name: "Contract Request Form", tabComponent: <></> },

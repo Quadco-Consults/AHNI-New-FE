@@ -1,0 +1,73 @@
+// import { useState } from "react";
+import ManualSubGrantStepWrapper from "./ManualSubGrantStepWrapper";
+import Card from "components/shared/Card";
+import FadedButton from "atoms/FadedButton";
+import AddSquareIcon from "components/icons/AddSquareIcon";
+import { useState } from "react";
+import { createPortal } from "react-dom";
+import SubGrantManualDocsModal from "components/modals/dailog/components/SubGrantManualDocsModal";
+import { Document, Page } from "react-pdf";
+import { PDFICon } from "assets/svgs/CAndGSvgs";
+import DeleteIcon from "components/icons/DeleteIcon";
+
+const ManualSubmissionDocumentUpload = () => {
+  const [uploadedDocuments, setUploadedDocuments] = useState<File[]>([]);
+  const [uploadModal, setUploadModal] = useState(false);
+  const [numPages, setNumPages] = useState<number>();
+
+  const handleDeletePdf = (file: any) => {
+    let returnedDocs = uploadedDocuments;
+    returnedDocs = returnedDocs.filter((e) => e !== file);
+    setUploadedDocuments(returnedDocs);
+  };
+
+  function onDocumentLoadSuccess({ numPages }: { numPages: number }): void {
+    setNumPages(numPages);
+  }
+
+  return (
+    <ManualSubGrantStepWrapper>
+      <div className="px-5 text-[#1A0000] flex flex-col gap-y-[3rem]">
+        <p className="text-2xl font-bold">Document Upload</p>
+        <Card className="flex flex-wrap justify-start items-center gap-[1rem] py-[3rem]">
+          <div className="flex flex-wrap w-auto gap-x-[1.25rem] gap-y-[1.25rem]">
+            {uploadedDocuments.map((item, index) => {
+              return (
+                <Card className="w-full md:w-[296px] h-[316px] overflow-hidden py-5 px-4 bg-white rounded-md flex flex-col justify-between items-start" key={index}>
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex gap-x-[1rem] items-center">
+                      <PDFICon />
+                      <p className="text-[#756D6D] font-semibold">{item.name?.slice(0, 15)}</p>
+                    </div>
+                    <div className="cursor-pointer" onClick={() => handleDeletePdf(item)}>
+                      <DeleteIcon />
+                    </div>
+                  </div>
+                  <div className="h-[80%] overflow-hidden flex flex-col justify-center items-center w-full rounded-lg">
+                    <Document className={"w-full h-full rounded-md cursor-pointer flex flex-col justify-center items-center"} noData="Invalid PDF file" file={item} error={"Invalid PDF file"} onLoadSuccess={onDocumentLoadSuccess}>
+                      <Page pageNumber={1} pageIndex={numPages} canvasBackground="gray" className={"rounded-md cursor-pointer bg-gray-300"} scale={0.5}></Page>
+                    </Document>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+          <FadedButton
+            type="button"
+            onClick={() => {
+              setUploadModal(true);
+            }}
+          >
+            <div className="text-[#FF0000] flex items-center gap-x-[.5rem]">
+              <AddSquareIcon />
+              <p>Upload New Document</p>
+            </div>
+          </FadedButton>
+        </Card>
+        {uploadModal && createPortal(<SubGrantManualDocsModal setModalOpen={setUploadModal} setDocs={setUploadedDocuments} />, document.getElementById("portals") as HTMLElement)}
+      </div>
+    </ManualSubGrantStepWrapper>
+  );
+};
+
+export default ManualSubmissionDocumentUpload;

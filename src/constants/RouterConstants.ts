@@ -137,6 +137,13 @@ export const CandGRoutes = {
   GRANT: "/c-and-g/grant",
   NEW_GRANT: "/c-and-g/new-grant",
   GRANT_DETAILS: "/c-and-g/grant-details/:id",
+  // sub grant
+  SUB_GRANT: "/c-and-g/sub-grant",
+  NEW_SUB_GRANT: "/c-and-g/sub-grant/new",
+  SUB_GRANT_DETAILS: "/c-and-g/sub-grant-details/:id",
+  MANUAL_SUB_GRANT_SUBMISSION: "/c-and-g/sub-grant/manual-submission/organization-details/:id",
+  MANUAL_SUB_GRANT_SUBMISSION_DOCS: "/c-and-g/sub-grant/manual-submission/document-upload/:id",
+  // close out
   CLOSE_OUT: "/c-and-g/close-out-plan",
   CLOSE_OUT_DETAILS: "/c-and-g/close-out-plan/details/:id",
   NEW_CLOSE_OUT_PLAN: "/c-and-g/close-out-plan/new-grant",
