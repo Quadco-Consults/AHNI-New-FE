@@ -21,6 +21,15 @@ const ItemsAPI = baseAPI.injectEndpoints({
       },
       providesTags: ["ITEMS"],
     }),
+    getItemList: builder.query<ItemsResultsData[], {}>({
+      query: (config) => {
+        return {
+          url: `${BASE_URL}`,
+          ...config,
+        };
+      },
+      providesTags: ["ITEMS"],
+    }),
 
     createItem: builder.mutation<ItemsResponse, any>({
       query: (body) => ({

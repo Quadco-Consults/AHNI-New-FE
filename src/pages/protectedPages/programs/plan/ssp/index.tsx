@@ -38,29 +38,29 @@ const SupportiveSupervisionPlan = () => {
         header: "Facility",
         id: "facility",
         accessorFn: (data) => `${data.facility.name}`,
-        size: 200,
+        size: 300,
       },
       {
         header: "State",
         id: "state",
         accessorFn: (data) => `${data.facility.state}`,
-        size: 200,
+        size: 150,
       },
       {
         header: "LGA",
         id: "lga",
         accessorFn: (data) => `${data.facility.local_govt}`,
-        size: 200,
+        size: 150,
       },
       {
         header: "Month/Year",
         accessorKey: "month_year",
-        size: 200,
+        size: 150,
       },
       {
         header: "Status",
         accessorKey: "status",
-        size: 150,
+        size: 100,
         cell: ({ getValue }) => {
           return (
             <Badge variant="default" className={cn("p-1 rounded-lg", getValue() === "Approved" && "bg-green-100 text-green-500", getValue() === "Reject" && "bg-red-100 text-red-500", getValue() === "Pending" && "bg-yellow-100 text-yellow-500", getValue() === "On Hold" && "text-gray-100 bg-gray-500")}>
@@ -72,6 +72,7 @@ const SupportiveSupervisionPlan = () => {
       {
         header: "",
         id: "actions",
+        size: 80,
         cell: ({ row }) => <ActionListAction data={row.original} />,
       },
     ],

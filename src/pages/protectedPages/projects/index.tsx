@@ -16,7 +16,12 @@ import DataTable from "components/Table/DataTable";
 import projectsAPi from "services/projectsApi/projectsApi";
 import { ProjectsResultsData } from "definations/project-types/projects";
 import { useMemo } from "react";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "components/ui/breadcrumb";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbPage,
+} from "components/ui/breadcrumb";
 import { toast } from "sonner";
 import EditIcon from "components/icons/EditIcon";
 
@@ -64,7 +69,16 @@ const FundRequest = () => {
       size: 100,
       cell: ({ getValue }) => {
         return (
-          <Badge variant="default" className={cn("p-1 rounded-lg", getValue() === "Approved" && "bg-green-50 text-green-500", getValue() === "Reject" && "bg-red-50 text-red-500", getValue() === "Review Pending" && "bg-yellow-50 text-yellow-500", getValue() === "On Hold" && "text-grey-50 bg-grey-500")}>
+          <Badge
+            variant="default"
+            className={cn(
+              "p-1 rounded-lg",
+              getValue() === "APPROVED" && "bg-green-200 text-green-500",
+              getValue() === "Reject" && "bg-red-200 text-red-500",
+              getValue() === "PENDING" && "bg-yellow-200 text-yellow-500",
+              getValue() === "On Hold" && "text-grey-200 bg-grey-500"
+            )}
+          >
             {getValue() as string}
           </Badge>
         );
@@ -155,7 +169,10 @@ const FundRequest = () => {
                     id: data?.id,
                   })}
                 >
-                  <Button className="w-full flex items-center justify-start gap-2" variant="ghost">
+                  <Button
+                    className="w-full flex items-center justify-start gap-2"
+                    variant="ghost"
+                  >
                     <EyeIcon />
                     View
                   </Button>
@@ -166,12 +183,19 @@ const FundRequest = () => {
                     id: data?.id,
                   })}
                 >
-                  <Button className="w-full flex items-center justify-start gap-2" variant="ghost">
+                  <Button
+                    className="w-full flex items-center justify-start gap-2"
+                    variant="ghost"
+                  >
                     <EditIcon />
                     Edit
                   </Button>
                 </Link>
-                <Button className="w-full flex items-center justify-start gap-2" variant="ghost" onClick={deleteProjectHandler}>
+                <Button
+                  className="w-full flex items-center justify-start gap-2"
+                  variant="ghost"
+                  onClick={deleteProjectHandler}
+                >
                   <DeleteIcon />
                   delete
                 </Button>
@@ -207,14 +231,22 @@ const FundRequest = () => {
           <div className="flex items-center justify-start gap-2">
             <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
               <SearchIcon />
-              <input placeholder="Search" type="text" className="ml-2 h-6 border-none bg-none focus:outline-none outline-none" />
+              <input
+                placeholder="Search"
+                type="text"
+                className="ml-2 h-6 border-none bg-none focus:outline-none outline-none"
+              />
             </span>
             <Button className="shadow-sm" variant="ghost">
               <FilterIcon />
             </Button>
           </div>
 
-          <DataTable data={projects || []} columns={columns} isLoading={projectsQueryResult?.isLoading} />
+          <DataTable
+            data={projects || []}
+            columns={columns}
+            isLoading={projectsQueryResult?.isLoading}
+          />
         </Card>
       </div>
     </section>

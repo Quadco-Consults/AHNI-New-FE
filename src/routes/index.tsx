@@ -6,9 +6,19 @@ import { configureRoutes } from "utils/RouteUtils";
 import { project } from "./project";
 import { users } from "./users";
 import { candg } from "./candg";
+import { modules } from "./modules";
 
 const getRoutes = function getRoutes() {
-  return configureRoutes([...dashboard, ...procurment, ...adminRoutes, ...program, ...project, ...users, ...candg]);
+  return configureRoutes([
+    ...dashboard,
+    ...procurment,
+    ...adminRoutes,
+    ...program,
+    ...project,
+    ...users,
+    ...candg,
+    ...modules,
+  ]);
 };
 
 export default getRoutes;
