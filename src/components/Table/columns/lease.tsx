@@ -1,93 +1,25 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Checkbox } from "components/ui/checkbox";
+import { Agreement } from "services/adminApi/agreements";
 
-interface PaymentData {
-  paymentTo: string;
-  amount: number;
-  requestedBy: string;
-  approval: string;
-  date: string;
-}
-
-export const dataLease: PaymentData[] = [
+export const columnsLease: ColumnDef<Agreement>[] = [
   {
-    paymentTo: "Courier Plus Services",
-    amount: 456000,
-    requestedBy: "Jennifer Onubi",
-    approval: "Approved",
-    date: "25/10/24",
+    accessorKey: "provider",
+    header: "Provider",
   },
   {
-    paymentTo: "Courier Plus Services",
-    amount: 456000,
-    requestedBy: "Jennifer Onubi",
-    approval: "Approved",
-    date: "25/10/24",
+    accessorKey: "service",
+    header: "Service",
   },
   {
-    paymentTo: "Courier Plus Services",
-    amount: 456000,
-    requestedBy: "Jennifer Onubi",
-    approval: "Approved",
-    date: "25/10/24",
+    accessorKey: "Type",
+    header: "type",
   },
   {
-    paymentTo: "Courier Plus Services",
-    amount: 456000,
-    requestedBy: "Jennifer Onubi",
-    approval: "Approved",
-    date: "25/10/24",
+    accessorKey: "Start Date",
+    header: "start_date",
   },
   {
-    paymentTo: "Courier Plus Services",
-    amount: 456000,
-    requestedBy: "Jennifer Onubi",
-    approval: "Approved",
-    date: "25/10/24",
-  },
-  {
-    paymentTo: "Courier Plus Services",
-    amount: 456000,
-    requestedBy: "Jennifer Onubi",
-    approval: "Approved",
-    date: "25/10/24",
-  },
-];
-
-export const columnsLease: ColumnDef<PaymentData>[] = [
-  {
-    id: "selection",
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={table.getToggleAllPageRowsSelectedHandler()}
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={row.getToggleSelectedHandler()}
-      />
-    ),
-  },
-  {
-    accessorKey: "paymentTo",
-    header: "Payment To",
-  },
-  {
-    accessorKey: "amount",
-    header: "Amount",
-  },
-  {
-    accessorKey: "requestedBy",
-    header: "Requested By",
-  },
-  {
-    accessorKey: "approval",
-    header: "Approval",
-  },
-  {
-    accessorKey: "date",
-    header: "Date",
+    accessorKey: "End Date",
+    header: "end_date",
   },
 ];

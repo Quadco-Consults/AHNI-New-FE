@@ -124,17 +124,14 @@ const Questionier = () => {
       const res = await createVendorMutation(finalData).unwrap();
       localStorage.setItem("vendorID", res?.data?.id);
       toast.success("Successfully created.");
+      let path = pathname;
+      path = path.substring(0, path.lastIndexOf("/"));
+      path += "/upload";
+      navigate(path);
     } catch (error) {
       toast.error("Something went wrong");
       console.log(error);
     }
-
-    let path = pathname;
-
-    path = path.substring(0, path.lastIndexOf("/"));
-
-    path += "/upload";
-    navigate(path);
   };
 
   return (
