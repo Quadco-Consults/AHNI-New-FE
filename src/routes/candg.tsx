@@ -40,6 +40,10 @@ export const candg = [
     path: CandGRoutes.MANUAL_SUB_GRANT_SUBMISSION_DOCS,
     element: lazy(() => import("pages/protectedPages/candg/subGrant/ManualSubmissionDocumentUpload")),
   },
+  {
+    path: CandGRoutes.SUBMITTED_APPLICATIONS,
+    element: lazy(() => import("pages/protectedPages/candg/subGrant/SubmittedApplications")),
+  },
   // close out
   {
     path: CandGRoutes.CLOSE_OUT,

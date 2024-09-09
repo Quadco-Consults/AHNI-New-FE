@@ -33,7 +33,7 @@ const ManualSubGrantStepWrapper = ({ children }: Children) => {
   });
   const { pathname } = useLocation();
 
-  const currentPath = pathname.split("/").at(-1);
+  const currentPath = pathname.split("/").at(-2);
   useEffect(() => {
     const currentStepIndex = steps.findIndex((step) => step.route === currentPath);
     // Mark the previous step as completed when navigating to a new step
