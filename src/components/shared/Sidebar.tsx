@@ -637,11 +637,12 @@ const DEPARTMENTAL_LINKS = [
 
     link: [
       { name: "Overview", path: CandGRoutes.OVERVIEW },
+      { name: "Grants", path: CandGRoutes.GRANT },
       {
-        name: "Grant Management",
+        name: "Subgrants",
         sublinks: [
-          { name: "Grants", path: CandGRoutes.GRANT },
-          { name: "Subgrants", path: "/" },
+          { name: "Awards", path: CandGRoutes.SUB_GRANT },
+          { name: "Pre-award Assessment", path: "/" },
         ],
       },
       {
@@ -655,7 +656,7 @@ const DEPARTMENTAL_LINKS = [
           { name: "Consultancy report", path: "/" },
           { name: "Payment request", path: "/" },
           { name: "Facilitator management", path: "/" },
-          { name: "SLA", path: "/" },
+          { name: "SLA", path: CandGRoutes.CONSULTANCY_SLA },
         ],
       },
       { name: "C&G Reports", path: "/" },

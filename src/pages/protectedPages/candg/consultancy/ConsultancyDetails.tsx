@@ -1,11 +1,31 @@
 import BackNavigation from "atoms/BackNavigation";
 import TabState from "components/ui/TabState";
 import { useState } from "react";
+import ConsultancyJobDetails from "./ConsultancyJobDetails";
+import ConsultancyScopeOfWorkDetails from "./ConsultancyScopeOfWorkDetails";
 
 const ConsultancyDetails = () => {
   const tabDetails = [
-    { id: 1, state: "job-details", name: "Job Details", tabComponent: <></> },
-    { id: 2, state: "scope-of-work", name: "Scope of Work", tabComponent: <></> },
+    {
+      id: 1,
+      state: "job-details",
+      name: "Job Details",
+      tabComponent: (
+        <>
+          <ConsultancyJobDetails />
+        </>
+      ),
+    },
+    {
+      id: 2,
+      state: "scope-of-work",
+      name: "Scope of Work",
+      tabComponent: (
+        <>
+          <ConsultancyScopeOfWorkDetails />
+        </>
+      ),
+    },
     { id: 2, state: "submitted-applications", name: "Submitted Applications", tabComponent: <></> },
     { id: 2, state: "short-list", name: "Shortlist", tabComponent: <></> },
     { id: 2, state: "contract-request-form", name: "Contract Request Form", tabComponent: <></> },

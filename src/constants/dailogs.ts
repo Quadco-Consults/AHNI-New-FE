@@ -25,6 +25,8 @@ export const DialogType = {
   AddStock: "AddStock",
   AddTeamMenbers: "AddTeamMenbers",
   ExpenditureModal: "ExpenditureModal",
+  ConsultancyApplicationSuccess: "ConsultancyApplicationSuccess",
+  SubGrantDocumentUpload: "SubGrantDocumentUpload",
   AddFunfingSource: "AddFunfingSource",
 };
 
