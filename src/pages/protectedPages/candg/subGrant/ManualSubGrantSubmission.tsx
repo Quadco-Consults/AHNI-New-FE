@@ -11,23 +11,33 @@ import { ManualSubGrantSchemaOrgDetails } from "definations/candg-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubGrantApplicationsApi } from "services/cAndGApi/subGrant";
 import { toast } from "sonner";
-import { useParams } from "react-router-dom";
+import { generatePath, useNavigate, useParams } from "react-router-dom";
+import { useState } from "react";
+import { CandGRoutes } from "constants/RouterConstants";
 
 const ManualSubGrantSubmission = () => {
   const params = useParams();
   const form = useForm<z.infer<typeof ManualSubGrantSchemaOrgDetails>>({
     resolver: zodResolver(ManualSubGrantSchemaOrgDetails),
   });
+  const navigate = useNavigate();
+  const [conflict, setConflict] = useState(false);
   const [manualSubmissionMutation, manualSubmissionMutationResults] = SubGrantApplicationsApi.useAddSubGrantApplicationMutation();
   const onSubmit: SubmitHandler<z.infer<typeof ManualSubGrantSchemaOrgDetails>> = async (data) => {
-    console.log({ ...data, sub_grant_id: params.id });
-    // try {
-    //   const result = await manualSubmissionMutation({ ...data, sub_grant_id: params.id }).unwrap();
-    //   toast.success(result?.message);
-    //   console.log(result);
-    // } catch (error: any) {
-    //   toast.error(error?.data?.message);
-    // }
+    try {
+      const result = await manualSubmissionMutation({ ...data, sub_grant_id: params.id, has_conflict_of_interest: conflict }).unwrap();
+      toast.success(result?.message);
+      form.reset();
+      if (result?.data?.id) {
+        navigate(
+          generatePath(CandGRoutes.MANUAL_SUB_GRANT_SUBMISSION_DOCS, {
+            id: result?.data?.id,
+          })
+        );
+      }
+    } catch (error: any) {
+      toast.error(error?.data?.message);
+    }
   };
   return (
     <ManualSubGrantStepWrapper>
@@ -78,9 +88,17 @@ const ManualSubGrantSubmission = () => {
                 <FormInput label="DUNS Number (for USG awards only)" name="duns_number" type="text" required />
               </div>
             </div>
-            <div className="w-full flex flex-col">
-              <label htmlFor="">Has Financial Conflict of Interest Policy as applicable to U.S. PHS agencies’ funding.</label>
-              <select name="conflicts" required>
+            <div className="w-full flex flex-col gap-y-3">
+              <label htmlFor="" className="text-sm font-semibold">
+                Has Financial Conflict of Interest Policy as applicable to U.S. PHS agencies’ funding.
+              </label>
+              <select
+                className="border border-[#DBDFE9] py-3 px-4 bg-white rounded-[6px]"
+                required
+                onChange={(e) => {
+                  setConflict(Boolean(e.target.value));
+                }}
+              >
                 <option value="">Select</option>
                 {[
                   { label: "Yes", value: "true" },
@@ -125,7 +143,7 @@ const ManualSubGrantSubmission = () => {
               </div>
               <div>
                 <FormButton loading={manualSubmissionMutationResults.isLoading}>
-                  <p>Submit</p>
+                  <p>Next</p>
                 </FormButton>
               </div>
             </div>

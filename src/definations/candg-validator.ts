@@ -92,6 +92,6 @@ export const ManualSubGrantSchemaOrgDetails = z.object({
   fax: z.string().optional(), // Fax can be optional if needed
   website: z.string().url(), // Validates URL format
   duns_number: z.string(),
-  has_conflict_of_interest: z.boolean(), // Boolean validation
+  // has_conflict_of_interest: z.boolean(), // Boolean validation
   organisation_type: z.string(),
 });

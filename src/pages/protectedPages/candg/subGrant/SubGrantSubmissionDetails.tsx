@@ -2,19 +2,26 @@ import { ColumnDef } from "@tanstack/react-table";
 import FilterIcon2 from "assets/svgs/FilterIcon2";
 import FormButton from "atoms/FormButton";
 import SearchBar from "atoms/SearchBar";
+import DeleteIcon from "components/icons/DeleteIcon";
+import EyeIcon from "components/icons/EyeIcon";
+import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import DataTable from "components/Table/DataTable";
 import { Button } from "components/ui/button";
 import { Checkbox } from "components/ui/checkbox";
-import { useParams } from "react-router-dom";
-import { SubGrantApplicationsApi } from "services/cAndGApi/subGrant";
+import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import { CandGRoutes } from "constants/RouterConstants";
+import { generatePath, Link, useParams } from "react-router-dom";
+import { SubGrantApi, SubGrantApplicationsApi } from "services/cAndGApi/subGrant";
+import { toast } from "sonner";
 
 const SubGrantSubmissionDetails = () => {
   const params = useParams();
   const getSubGrantsApplications = SubGrantApplicationsApi.useGetSubGrantsApplicationQuery({
     params: { no_paginate: false, sub_grant: params?.id },
   });
-  // console.log(getSubGrantsApplications);
-  const subGrantsApplications = getSubGrantsApplications?.data?.results;
+  console.log(getSubGrantsApplications);
+
+  const subGrantsApplications = getSubGrantsApplications?.data?.results || [];
 
   const columns: ColumnDef<any>[] = [
     {
@@ -59,28 +66,91 @@ const SubGrantSubmissionDetails = () => {
     // },
     {
       header: "Legal Name of the Organization",
-      accessorKey: "project",
+      accessorKey: "organisation_name",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.project?.title}</p>,
+      // cell: ({ row }) => <p>{row?.original?.project?.title}</p>,
     },
     {
       header: "Address",
-      accessorKey: "location",
+      accessorKey: "address",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.location?.name}</p>,
     },
     {
       header: "Telephone",
-      accessorKey: "grantor",
+      accessorKey: "telephone",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.grantor?.name}</p>,
+      // cell: ({ row }) => <p>{row?.original?.grantor?.name}</p>,
     },
     {
       header: "Email",
-      accessorKey: "award_amount",
+      accessorKey: "email",
       size: 200,
     },
+    {
+      header: "Action",
+      id: "actions",
+      size: 50,
+      cell: ({ row }) => <ActionListAction data={row.original} />,
+    },
   ];
+
+  const ActionListAction = ({ data }: any) => {
+    const [subgrantDeleteMutation] = SubGrantApi.useDeleteSingleSubGrantsMutation();
+    const deleteSubgrantHandler = async () => {
+      try {
+        await subgrantDeleteMutation({ path: { id: data?.id } }).unwrap();
+        toast.success("Project deleted.");
+      } catch (error) {
+        console.log(error);
+        toast.error("Something went wrong");
+      }
+    };
+
+    return (
+      <div className="flex items-center gap-2">
+        <>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" className="flex gap-2 py-6">
+                <MoreOptionsHorizontalIcon />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className=" w-fit">
+              <div className="flex flex-col items-start justify-between gap-1">
+                <Link
+                  className="w-full"
+                  to={generatePath(CandGRoutes.SUB_GRANT_DETAILS, {
+                    id: data?.id,
+                  })}
+                >
+                  <Button className="w-full flex items-center justify-start gap-2" variant="ghost">
+                    <EyeIcon />
+                    View
+                  </Button>
+                </Link>
+                {/* <Link
+                  className="w-full"
+                  to={generatePath(RouteEnum.PROJECTS_EDIT_SUMMARY, {
+                    id: data?.id,
+                  })}
+                >
+                  <Button className="w-full flex items-center justify-start gap-2" variant="ghost">
+                    <EditIcon />
+                    Edit
+                  </Button>
+                </Link> */}
+                <Button className="w-full flex items-center justify-start gap-2" variant="ghost" onClick={deleteSubgrantHandler}>
+                  <DeleteIcon />
+                  delete
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </>
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col justify-center items-center gap-y-[1rem]">
       <div className="w-full flex justify-between items-center">
