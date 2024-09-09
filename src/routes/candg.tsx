@@ -18,6 +18,33 @@ export const candg = [
     path: CandGRoutes.GRANT_DETAILS,
     element: lazy(() => import("pages/protectedPages/candg/grant/GrantDetails")),
   },
+
+  // sub grant
+  {
+    path: CandGRoutes.SUB_GRANT,
+    element: lazy(() => import("pages/protectedPages/candg/subGrant/SubGrant")),
+  },
+  {
+    path: CandGRoutes.NEW_SUB_GRANT,
+    element: lazy(() => import("pages/protectedPages/candg/subGrant/NewSubGrant")),
+  },
+  {
+    path: CandGRoutes.SUB_GRANT_DETAILS,
+    element: lazy(() => import("pages/protectedPages/candg/subGrant/SubGrantDetails")),
+  },
+  {
+    path: CandGRoutes.MANUAL_SUB_GRANT_SUBMISSION,
+    element: lazy(() => import("pages/protectedPages/candg/subGrant/ManualSubGrantSubmission")),
+  },
+  {
+    path: CandGRoutes.MANUAL_SUB_GRANT_SUBMISSION_DOCS,
+    element: lazy(() => import("pages/protectedPages/candg/subGrant/ManualSubmissionDocumentUpload")),
+  },
+  {
+    path: CandGRoutes.SUBMITTED_APPLICATIONS,
+    element: lazy(() => import("pages/protectedPages/candg/subGrant/SubmittedApplications")),
+  },
+  // close out
   {
     path: CandGRoutes.CLOSE_OUT,
     element: lazy(() => import("pages/protectedPages/candg/closeout/CloseOut")),
@@ -40,7 +67,16 @@ export const candg = [
     element: lazy(() => import("pages/protectedPages/candg/consultancy/CreateNewConsultancy")),
   },
   {
+    path: CandGRoutes.NEW_CONSULTANCY_SCOPE,
+    element: lazy(() => import("pages/protectedPages/candg/consultancy/ScopeOfWork")),
+  },
+  {
     path: CandGRoutes.CONSULTANCY_DETAILS,
     element: lazy(() => import("pages/protectedPages/candg/consultancy/ConsultancyDetails")),
+  },
+  // sla
+  {
+    path: CandGRoutes.CONSULTANCY_SLA,
+    element: lazy(() => import("pages/protectedPages/candg/sla/SLA")),
   },
 ];
