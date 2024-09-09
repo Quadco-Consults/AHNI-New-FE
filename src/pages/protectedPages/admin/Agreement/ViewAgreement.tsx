@@ -3,6 +3,8 @@ import { Tabs, TabsList, TabsContent, TabsTrigger } from "components/ui/tabs";
 import { Card, CardContent, CardHeader } from "components/ui/card";
 import { Separator } from "components/ui/separator";
 import { cn } from "lib/utils";
+import { useSearchParams } from "react-router-dom";
+import { useGetAgreementQuery } from "services/adminApi/agreements";
 const AssetsItem = ({
   desc,
   heading,
@@ -23,6 +25,16 @@ const AssetsItem = ({
 };
 
 const ViewAgreement = () => {
+  const [searchParams] = useSearchParams();
+
+  const id = searchParams.get("to");
+
+  const { data } = useGetAgreementQuery(String(id), {
+    skip: !id,
+  });
+
+  console.log(data);
+
   return (
     <div>
       <Tabs defaultValue="details">
@@ -33,33 +45,33 @@ const ViewAgreement = () => {
         <TabsContent value="details">
           <Card>
             <CardHeader className="font-bold">
-              H.M.O Agreement Details
+              {data?.type} Details
               <Separator className="mt-4" />
             </CardHeader>
             <CardContent>
               <div className="flex flex-col w-10/12 gap-y-8 ">
                 <AssetsItem
-                  heading="Payment To."
+                  heading="Provider"
                   className="flex justify-between "
-                  desc="AHNi Compliance office"
+                  desc={data?.provider}
                   className2="flex justify-start  w-7/12"
                 />
                 <AssetsItem
-                  heading="Task Identification Number."
+                  heading="Service"
                   className="flex justify-between "
-                  desc="AHNi Compliance office"
+                  desc={data?.service}
                   className2="flex justify-start  w-7/12"
                 />
                 <AssetsItem
-                  heading="Task Identification Number."
+                  heading="Start Date"
                   className="flex justify-between "
-                  desc="AHNi Compliance office"
+                  desc={data?.start_date}
                   className2="flex justify-start  w-7/12"
                 />
                 <AssetsItem
-                  heading="Task Identification Number."
+                  heading="Status"
                   className="flex justify-between "
-                  desc="AHNi Compliance office"
+                  desc={data?.status}
                   className2="flex justify-start  w-7/12"
                 />
               </div>

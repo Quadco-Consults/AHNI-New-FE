@@ -31,6 +31,24 @@ const projectsAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["FundingSource"],
     }),
+    updateFundingSource: builder.mutation<
+      FundingSource,
+      { id: string; body: TFundingSource }
+    >({
+      query: ({ id, body }) => ({
+        url: `/projects/funding-sources/${id}/`,
+        method: "PATCH",
+        body: body,
+      }),
+      invalidatesTags: ["FundingSource"],
+    }),
+    deleteFundingSource: builder.mutation<FundingSource, string>({
+      query: (id) => ({
+        url: `/projects/funding-sources/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["FundingSource"],
+    }),
 
     beneficiaries: builder.query<
       TBasePaginatedRespose<Beneficiaries[]>,
@@ -110,4 +128,6 @@ export const {
   useAddPartnersMutation,
   useStatesQuery,
   useLocationQuery,
+  useDeleteFundingSourceMutation,
+  useUpdateFundingSourceMutation,
 } = projectsAPI;

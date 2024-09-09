@@ -34,6 +34,7 @@ import SubGrantManualDocsModal from "./components/SubGrantManualDocsModal";
 import AddStock from "./components/consumables/AddStock";
 
 import TeamMemberSelection from "./components/consumables/AddTeamMembers";
+import AddFundingSource from "pages/protectedPages/modules/projects/AddFundingSource";
 
 
 const sheets: Record<string, ReactNode> = {
@@ -66,7 +67,7 @@ const sheets: Record<string, ReactNode> = {
 
   [DialogType.AddStock]: <AddStock />,
   [DialogType.AddTeamMenbers]: <TeamMemberSelection />,
-
+  [DialogType.AddFunfingSource]: <AddFundingSource />,
 };
 
 const AppDailog = () => {
