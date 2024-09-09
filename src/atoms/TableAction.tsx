@@ -14,10 +14,13 @@ import MoreIcon from "assets/MoreIcon";
 import { Link } from "react-router-dom";
 
 interface TableActionProps<T> {
-  row: T;
-  route: string;
+  row?: T;
+  route?: string;
   action?: () => void;
   desc?: string;
+  update?: boolean;
+  updateAction?: () => void;
+  removeView?: boolean;
 }
 
 const TableAction = <T extends { id: string | number }>({
@@ -25,6 +28,9 @@ const TableAction = <T extends { id: string | number }>({
   route,
   action,
   desc,
+  update,
+  updateAction,
+  removeView,
 }: TableActionProps<T>) => {
   return (
     <div className="flex items-center gap-2">
@@ -33,11 +39,22 @@ const TableAction = <T extends { id: string | number }>({
           <MoreIcon />
         </PopoverTrigger>
         <PopoverContent className="w-32 py-1 space-y-2">
-          <Link to={`${route}?to=${row.id}`}>
-            <div className="flex items-center gap-2 p-2 cursor-pointer hover:bg-primary hover:text-white">
-              View
+          {!removeView && (
+            <Link to={`${route}?to=${row ? row.id : ""}`}>
+              <div className="flex items-center gap-2 p-2 cursor-pointer hover:bg-primary hover:text-white">
+                View
+              </div>
+            </Link>
+          )}
+
+          {update && (
+            <div
+              onClick={() => updateAction && updateAction()}
+              className="flex items-center gap-2 p-2 cursor-pointer hover:bg-primary hover:text-white"
+            >
+              Update
             </div>
-          </Link>
+          )}
 
           <AlertDialog>
             <AlertDialogTrigger className="flex items-center w-full gap-2 p-2 cursor-pointer hover:bg-primary hover:text-white">

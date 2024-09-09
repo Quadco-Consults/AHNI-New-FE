@@ -25,6 +25,7 @@ export const DialogType = {
   AddStock: "AddStock",
   AddTeamMenbers: "AddTeamMenbers",
   ExpenditureModal: "ExpenditureModal",
+  AddFunfingSource: "AddFunfingSource",
 };
 
 export const largeDailogScreen = {

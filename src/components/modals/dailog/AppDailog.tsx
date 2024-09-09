@@ -30,6 +30,7 @@ import AssingPermission from "./components/users/AssingPermission";
 import AddStock from "./components/consumables/AddStock";
 
 import TeamMemberSelection from "./components/consumables/AddTeamMembers";
+import AddFundingSource from "pages/protectedPages/modules/projects/AddFundingSource";
 
 const sheets: Record<string, ReactNode> = {
   [DialogType.Categories]: <CategoriesModal />,
@@ -58,6 +59,7 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.AddPermissionToRole]: <AssingPermission />,
   [DialogType.AddStock]: <AddStock />,
   [DialogType.AddTeamMenbers]: <TeamMemberSelection />,
+  [DialogType.AddFunfingSource]: <AddFundingSource />,
 };
 
 const AppDailog = () => {

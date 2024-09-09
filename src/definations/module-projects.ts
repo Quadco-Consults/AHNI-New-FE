@@ -3,6 +3,7 @@ import { z } from "zod";
 export const fundingSourceSchema = z.object({
   description: z.string(),
   name: z.string(),
+  id: z.string().optional(),
 });
 
 export const beneficiariesSchema = z.object({
@@ -14,14 +15,14 @@ export const documentTypesSchema = z.object({
   name: z.string(),
 });
 export const parternersSchema = z.object({
-    name: z.string(),
-    address: z.string(),
-    city: z.string(),
-    state: z.string(),
-    phone: z.string(),
-    email: z.string(),
-    website: z.string(),
-  });
+  name: z.string(),
+  address: z.string(),
+  city: z.string(),
+  state: z.string(),
+  phone: z.string(),
+  email: z.string(),
+  website: z.string(),
+});
 
 export type TFundingSource = z.infer<typeof fundingSourceSchema>;
 export type TBeneficiaries = z.infer<typeof beneficiariesSchema>;
@@ -61,5 +62,5 @@ export interface Partners {
   email: string;
   phone: string;
   website: string;
-  logo: string
+  logo: string;
 }
