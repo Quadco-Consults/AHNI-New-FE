@@ -93,12 +93,12 @@ const AddStockForm = () => {
   return (
     <div>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className=" space-y-6 ">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 ">
           <div className="grid grid-cols-2 gap-4">
-            <FormInput name="particular" label="Particular" />
+            <FormInput name="particular" label="User" />
             <FormInput name="stock" label="Stock" type="number" />
           </div>
-          <div className="grid grid-cols-2 items-center  gap-x-4">
+          <div className="grid items-center grid-cols-2 gap-x-4">
             <FormInput name="date" label="Date" type="date" />
             <FormSelect name="status" label="Status" options={options} />
           </div>

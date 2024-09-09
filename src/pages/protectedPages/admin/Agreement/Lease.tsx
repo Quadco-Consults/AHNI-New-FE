@@ -6,16 +6,10 @@ import { Button } from "components/ui/button";
 import { AdminRoutes } from "constants/RouterConstants";
 import { useMemo } from "react";
 
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useGetAgreementsQuery } from "services/adminApi/agreements";
 
 const Lease = () => {
-  const navigation = useNavigate();
-
-  const onRowClick = () => {
-    navigation(AdminRoutes.ViewAggrement);
-  };
-
   const { data } = useGetAgreementsQuery({
     page: 1,
     page_size: 20,
@@ -34,11 +28,7 @@ const Lease = () => {
         </Button>
       </div>
       <TableFilters>
-        <DataTable
-          onRowClick={onRowClick}
-          columns={columnsLease}
-          data={drivedData}
-        />
+        <DataTable columns={columnsLease} data={drivedData} />
       </TableFilters>
     </div>
   );

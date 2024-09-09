@@ -12,11 +12,29 @@ export interface TPaymentRequest {
   amount_in_words: string;
   account_number: string;
   bank: string;
-  requested_by: string;
+  requested_by: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone_number: string;
+    gender: string;
+    designation: string;
+  };
 }
 
+export type TPaymentRequestPayload = {
+  date: string;
+  payment_to: string;
+  tax_identification_number: string;
+  amount_in_figures: string;
+  amount_in_words: string;
+  account_number: string;
+  bank: string;
+  requested_by_id: string;
+};
+
 export interface CreatePaymentRequestPayload {
-  supporting_documents: File[];
   date: string;
   payment_to: string;
   tax_identification_number?: string;
@@ -25,7 +43,6 @@ export interface CreatePaymentRequestPayload {
   account_number: string;
   bank: string;
   requested_by: string;
-  upload?: any;
 }
 
 const url = "/admins/payment-requests/";
@@ -40,18 +57,24 @@ const paymentRequests = baseAPI.injectEndpoints({
         url,
         params,
       }),
+      providesTags: ["PAYMENT"],
     }),
     getOnePaymentRequest: builder.query<TPaymentRequest, { id: string }>({
       query: ({ id }) => ({
         url: `${url}${id}/`,
       }),
+      providesTags: ["PAYMENT"],
     }),
-    createPaymentRequest: builder.mutation<TPaymentRequest, FormData>({
+    createPaymentRequest: builder.mutation<
+      TPaymentRequest,
+      TPaymentRequestPayload
+    >({
       query: (body) => ({
-        url: `/admins/payment-requests-submit/`,
+        url: `/admins/payment-requests/`,
         method: "POST",
         body,
       }),
+      invalidatesTags: ["PAYMENT"],
     }),
     updatePaymentRequest: builder.mutation<
       TPaymentRequest,
@@ -62,11 +85,20 @@ const paymentRequests = baseAPI.injectEndpoints({
         method: "PATCH",
         body,
       }),
+      invalidatesTags: ["PAYMENT"],
     }),
     deletePaymentRequest: builder.mutation<void, { id: string }>({
       query: ({ id }) => ({
         url: `${url}${id}/`,
         method: "DELETE",
+      }),
+      invalidatesTags: ["PAYMENT"],
+    }),
+    uploadDocument: builder.mutation<void, { id: string; body: FormData }>({
+      query: ({ id, body }) => ({
+        url: `/admins/payment-requests/${id}/upload_document/`,
+        method: "POST",
+        body,
       }),
     }),
   }),
@@ -78,4 +110,5 @@ export const {
   useCreatePaymentRequestMutation,
   useUpdatePaymentRequestMutation,
   useDeletePaymentRequestMutation,
+  useUploadDocumentMutation,
 } = paymentRequests;

@@ -10,7 +10,9 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
       <div className="w-full grid grid-cols-2 gap-5 border-b pb-16">
         <span className="space-y-2">
           <h4 className="text-lg font-semibold">Workplan Activity Reference</h4>
-          <p className="text-sm text-gray-500">{data?.workplan_activity}</p>
+          <p className="text-sm text-gray-500">
+            {data?.workplan_activity_object?.description}
+          </p>
         </span>
         <span className="space-y-2">
           <h4 className="text-lg font-semibold">
@@ -37,7 +39,9 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
         </span>
         <span className="space-y-2">
           <h4 className="text-lg font-semibold">Approved Budget Amount</h4>
-          <p className="text-sm text-gray-500">${data?.approved_budget}</p>
+          <p className="text-sm text-gray-500">
+            ${data?.approved_budget.toLocaleString()}
+          </p>
         </span>
       </div>
       <h3 className="text-base font-semibold text-[#DEA004]">

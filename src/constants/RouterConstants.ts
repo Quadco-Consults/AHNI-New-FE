@@ -7,10 +7,17 @@ export const AdminRoutes = {
   CONSUMABLES: "/admin/inventory-managment/consumables",
   CONSUMABLES_VIEW: "/admin/inventory-managment/consumables/view",
   ASSETS: "/admin/inventory-managment/assets",
+  ASSETS_REQUEST: "/admin/inventory-managment/assets-request",
+  ASSETS_REQUEST_VIEW: "/admin/inventory-managment/assets-request-view",
+  ASSET_MAINTENANCE: "/admin/inventory-managment/asset-maintenance",
+  ASSET_MAINTENANCE_VIEW: "/admin/inventory-managment/asset-maintenance-view",
+  ASSET_MAINTENANCE_CREATE:
+    "/admin/inventory-managment/asset-maintenance-create",
   CREateConsumables: "/admin/inventory-managment/create-consumables",
   CreateAssets: "/admin/inventory-managment/create-assets",
   ViewAssets: "/admin/inventory-managment/view-assets",
   VehicleRequest: "/admin/fleet-managment/vehichle-request",
+  VehicleMaitenanceCreate: "/admin/fleet-managment/vehicle-maintenance-create",
   VehicleMaitenance: "/admin/fleet-managment/vehicle-maintenance",
   FuelConsumptions: "/admin/fleet-managment/fuel-request",
   FuelView: "/admin/fleet-managment/fuel/View-Fuel",
@@ -22,6 +29,7 @@ export const AdminRoutes = {
   FacilitiesView: "/admin/facilities/facilities-view",
   PaymentRequest: "/admin/payment-request/payment-list",
   PaymentRequestCreate: "/admin/payment-request/Create-Payment",
+  PaymentRequestUpload: "/admin/payment-request/file-updload",
   PaymentRequestView: "/admin/payment-request/View-Payment",
   Agrements: "/admin/agrements",
   AgrementsCreeate: "/admin/agrements/create",
@@ -54,7 +62,6 @@ export const RouteEnum = {
   CREATE_PROCUREMENT: "/procurement-management/procurement-plan/create/procurement-plan",
   CREATE_PROCUREMENT_MILESTONE: "/procurement-management/procurement-plan/create/procurement-milestones",
   PROCUREMENT_TRACKER: "/procurement-management/procurement-tracker",
-  PROCUREMENT_TRACKER_DETAIL: "/procurement-management/procurement-tracker/:id",
 
   //rfq routes
   RFQ: "/procurement-management/solicitation/rfq",
