@@ -1,0 +1,24 @@
+import { TBasePaginatedRespose } from "definations/auth";
+import baseAPI from "..";
+import { ProcurementTrackerResults } from "definations/procurement-types/procurementPlan";
+
+const BASE_URL = "/procurement/procurement-tracker/";
+
+const ProcurementTrackerAPI = baseAPI.injectEndpoints({
+  endpoints: (builder) => ({
+    getProcurementTrackers: builder.query<
+      TBasePaginatedRespose<ProcurementTrackerResults[]>,
+      {}
+    >({
+      query: (config) => {
+        return {
+          url: `${BASE_URL}`,
+          ...config,
+        };
+      },
+      providesTags: ["PROCUREMENT_TRACKER"],
+    }),
+  }),
+});
+
+export default ProcurementTrackerAPI;

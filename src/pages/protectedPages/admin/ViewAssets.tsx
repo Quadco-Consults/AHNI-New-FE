@@ -51,7 +51,7 @@ const ViewAssets = () => {
                 <Separator className="mt-4" />
               </CardHeader>
 
-              <CardContent className="flex flex-col gap-y-4">
+              <CardContent className="grid grid-cols-3 gap-y-8 gap-x-4">
                 <AssetsItem heading="Asset" desc={data?.asset_type?.name} />
 
                 <AssetsItem heading="Asset Code" desc={data?.asset_code} />
@@ -63,16 +63,19 @@ const ViewAssets = () => {
 
                 <AssetsItem heading="Model" desc={data?.asset_type.model} />
 
-                <Separator className="my-4" />
-                <AssetsItem
-                  heading="Description"
-                  desc={data?.asset_condition.description}
-                />
-                <Separator className="my-4" />
                 <AssetsItem
                   heading="Classification"
                   desc={data?.classification}
                 />
+                {/* 
+                <Separator className="my-4" /> */}
+                <div className="col-span-3 ">
+                  <AssetsItem
+                    heading="Description"
+                    desc={data?.asset_condition.description}
+                  />
+                </div>
+                {/* <Separator className="my-4" /> */}
 
                 <AssetsItem
                   heading="Date of Acquisition"
@@ -94,19 +97,16 @@ const ViewAssets = () => {
                 />
 
                 <AssetsItem heading="Assignee" desc={data?.assignee} />
-                <Card className="w-1/2">
-                  <CardContent className="flex flex-col p-4 gap-y-2">
-                    <AssetsItem
-                      heading="Asset Condition"
-                      desc={data?.asset_condition.name}
-                    />
 
-                    <AssetsItem
-                      heading="Condition Details"
-                      desc={data?.asset_condition.description}
-                    />
-                  </CardContent>
-                </Card>
+                <AssetsItem
+                  heading="Asset Condition"
+                  desc={data?.asset_condition.name}
+                />
+
+                <AssetsItem
+                  heading="Condition Details"
+                  desc={data?.asset_condition.description}
+                />
               </CardContent>
             </Card>
           </TabsContent>

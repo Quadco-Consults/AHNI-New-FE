@@ -38,7 +38,7 @@ export const agrrementsAPI = baseAPI.injectEndpoints({
     }),
     createAgreement: builder.mutation<Agreement, CreateAgreementPayload>({
       query: (payload) => ({
-        url: "/admins/agreements",
+        url: "/admins/agreements/",
         method: "POST",
         body: payload,
       }),

@@ -24,7 +24,7 @@ const assetActionSchema = z.object({
     .min(1, "Justification for disposal is required"),
   life_span_at_report: z.string().min(1, "Life span must be a valid integer"),
   recommendation: z.string().min(1, "Recommendation is required"),
-  asset_condition: z.string().uuid("Asset condition must be a valid UUID"),
+  asset_condition_id: z.string().uuid("Asset condition must be a valid UUID"),
 });
 
 type AssetActionFormData = z.infer<typeof assetActionSchema>;
@@ -37,7 +37,7 @@ const AssestAction = () => {
       justification_for_disposal: "",
       life_span_at_report: "",
       recommendation: "",
-      asset_condition: "",
+      asset_condition_id: "",
     },
   });
 
@@ -99,14 +99,14 @@ const AssestAction = () => {
               name="remark"
               placeholder="Asset is OBSOLETE in BAD condition"
             />
-            <div className="w-7/12 ">
+            <div className="">
               <FormInput
                 label="Justification for Disposal"
                 required
                 name="justification_for_disposal"
               />
             </div>
-            <div className="w-7/12 ">
+            <div className="">
               <FormInput
                 label="Life Span at Report"
                 required
@@ -114,18 +114,18 @@ const AssestAction = () => {
                 type="number"
               />
             </div>
-            <div className="w-5/12 ">
+            <div className="">
               <FormInput
                 label="Recommendation"
                 required
                 name="recommendation"
               />
             </div>
-            <div className="w-5/12 ">
+            <div className="">
               <FormSelect
                 label="Asset Condition"
                 required
-                name="asset_condition"
+                name="asset_condition_id"
                 options={drivedConditions}
               />
             </div>

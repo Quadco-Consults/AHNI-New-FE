@@ -2,11 +2,16 @@ export type ProcurementPlanResultsData = {
   id: string;
   created_at: string;
   updated_at: string;
+  workplan_activity_object: {
+    id: string;
+    description: string;
+  };
   description: string;
   approved_budget: number;
   pr_staff: string;
   mode_of_procurement: string;
   procurement_committee_review: string;
+  is_ppm: boolean;
   procurement_process: string;
   donor_remarks: string;
   implenter_remarks: string;
@@ -32,3 +37,33 @@ export interface ProcurementPlanResponse {
   message: string;
   data: ProcurementPlanResultsData;
 }
+
+export type ProcurementTrackerResults = {
+  id: string;
+  pr_reference: string;
+  item_name: string;
+  quantity: number;
+  request_date: string;
+  required_date: string;
+  deparment: string;
+  solicitation: {
+    id: string;
+    solicitaion_ref: string;
+    lot: string;
+    opening_date: string;
+    request_type: string;
+    tender_type: string;
+    status: string;
+  };
+  purchse_order: {
+    id: string;
+    po_reference: string;
+    po_date: string;
+    vendor: string;
+    status: string;
+    unit_cost: number;
+    quantity: number;
+    sub_total_amount: number;
+    fco: string;
+  };
+};

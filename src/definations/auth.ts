@@ -33,6 +33,7 @@ export interface TRequest {
   id?: string;
   classification?: string;
   vehicle?: string;
+  asset_type?: string;
 }
 
 export interface TBasePaginatedRespose<T> {
