@@ -7,8 +7,10 @@ import { Card, CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { useMemo } from "react";
 import { useForm } from "react-hook-form";
-import { useGetAssetsQuery } from "services/adminApi/assetsApi";
+import { useSearchParams } from "react-router-dom";
+
 import { useCreateVehicleFuelRecordMutation } from "services/adminApi/VehicleRequestApi";
+import { useGetUserQuery } from "services/users";
 import { toast } from "sonner";
 import * as z from "zod";
 
@@ -43,7 +45,9 @@ const formSchema = z.object({
   amount: z
     .string()
     .refine((val) => !isNaN(parseFloat(val)), "Amount must be a valid number"),
-  vehicle: z.string().uuid("Invalid vehicle ID"),
+
+  assigned_driver_id: z.string().min(1, "Assigned driver is required"),
+  vehicle: z.string().optional(),
 });
 
 export type FuelRecordForm = z.infer<typeof formSchema>;
@@ -52,30 +56,37 @@ const CreateFuelRecord = () => {
   const form = useForm<FuelRecordForm>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      vehicle: "",
       odometer: "",
       distance_covered: "",
       price_per_liter: "",
       quantity: "",
       amount: "",
+      assigned_driver_id: "",
     },
   });
 
-  const { data } = useGetAssetsQuery({ classification: "Vehicle" });
+  const [searchParams] = useSearchParams();
+
+  const id = String(searchParams.get("to"));
+
+  const { data } = useGetUserQuery({});
 
   const [createFuelRecord, { isLoading }] =
     useCreateVehicleFuelRecordMutation();
 
   const drivedData = useMemo(() => {
     return data?.results?.map((item) => ({
-      label: item.asset_type.name,
+      label: `${item.first_name} ${item.last_name}`,
       value: item.id,
     }));
   }, [data]);
 
   const onSubmit = async (values: FuelRecordForm) => {
     try {
-      await createFuelRecord(values).unwrap();
+      await createFuelRecord({
+        ...values,
+        vehicle: String(id),
+      }).unwrap();
       toast.success("Fuel record created successfully");
       form.reset();
     } catch (error) {
@@ -94,8 +105,8 @@ const CreateFuelRecord = () => {
             >
               <FormSelect
                 required
-                label="Vehicle"
-                name="vehicle"
+                label="Assigned Driver"
+                name="assigned_driver_id"
                 options={drivedData}
               />
               <div className="grid grid-cols-3 gap-4 ">

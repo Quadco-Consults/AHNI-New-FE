@@ -3,8 +3,8 @@ import { Tabs, TabsList, TabsContent, TabsTrigger } from "components/ui/tabs";
 import { Card, CardContent, CardHeader } from "components/ui/card";
 import { Separator } from "components/ui/separator";
 import { cn } from "lib/utils";
-import { useGetOnePaymentRequestQuery } from "services/adminApi/paymentRequest";
 import { useSearchParams } from "react-router-dom";
+import { useGetOneAssetMaintenanceRequestQuery } from "services/adminApi/assetMaintenance";
 const AssetsItem = ({
   desc,
   heading,
@@ -26,10 +26,10 @@ const AssetsItem = ({
   );
 };
 
-const PaymentView = () => {
+const AssetMaintenanceView = () => {
   const [searchParams] = useSearchParams();
 
-  const { data } = useGetOnePaymentRequestQuery({
+  const { data } = useGetOneAssetMaintenanceRequestQuery({
     id: String(searchParams.get("to")),
   });
 
@@ -43,58 +43,47 @@ const PaymentView = () => {
         <TabsContent value="details">
           <Card>
             <CardHeader className="font-bold">
-              Payment Request Details
+              Maintenance Request Details
               <Separator className="mt-4" />
             </CardHeader>
             <CardContent>
               <div className="flex flex-col w-10/12 gap-y-8 ">
                 <AssetsItem
-                  heading="Requested By."
+                  heading="Asset"
                   className="flex justify-between "
-                  desc={`${data?.requested_by.first_name.toLowerCase()} ${data?.requested_by.last_name.toLowerCase()}`}
+                  //   @ts-ignore
+                  desc={data?.asset.asset_type}
                   className2="flex justify-start  w-7/12"
                 />
                 <AssetsItem
-                  heading="Payment To."
+                  heading="Maintenance Type"
                   className="flex justify-between "
-                  desc={data?.payment_to}
+                  desc={data?.maintenance_type}
                   className2="flex justify-start  w-7/12"
                 />
 
                 <AssetsItem
-                  heading="Task Identification Number."
+                  heading="Probelam"
                   className="flex justify-between "
-                  desc={data?.tax_identification_number}
+                  desc={data?.description_of_problem}
                   className2="flex justify-start  w-7/12"
                 />
                 <AssetsItem
-                  heading="Date"
+                  heading="Calssification"
                   className="flex justify-between "
-                  desc={data?.date}
+                  desc={data?.classification}
                   className2="flex justify-start  w-7/12"
                 />
                 <AssetsItem
-                  heading="Amount in Figures."
+                  heading="Status"
                   className="flex justify-between "
-                  desc={data?.amount_in_figures}
+                  desc={data?.status}
                   className2="flex justify-start  w-7/12"
                 />
                 <AssetsItem
-                  heading="Amount in Words."
+                  heading="Approved By"
                   className="flex justify-between "
-                  desc={data?.amount_in_words}
-                  className2="flex justify-start  w-7/12"
-                />
-                <AssetsItem
-                  heading="Account Number."
-                  className="flex justify-between "
-                  desc={data?.account_number}
-                  className2="flex justify-start  w-7/12"
-                />
-                <AssetsItem
-                  heading="Bank."
-                  className="flex justify-between "
-                  desc={data?.bank}
+                  desc={data?.approved_by}
                   className2="flex justify-start  w-7/12"
                 />
               </div>
@@ -106,4 +95,4 @@ const PaymentView = () => {
   );
 };
 
-export default PaymentView;
+export default AssetMaintenanceView;

@@ -93,7 +93,7 @@ export default ProcurementPlan;
 const columns: ColumnDef<ProcurementPlanResultsData>[] = [
   {
     header: "Budget Line",
-    accessorKey: "budgetLine",
+    accessorKey: "budget_line",
     size: 120,
   },
   {
@@ -103,49 +103,19 @@ const columns: ColumnDef<ProcurementPlanResultsData>[] = [
   },
   {
     header: "Work Plan Activity Reference",
-    accessorKey: "workplan_activity",
-    size: 250,
+    accessorFn: (data) => `${data?.workplan_activity_object?.description}`,
+    size: 400,
   },
   {
     header: "BUDGET ALLOCATION",
     columns: [
       {
-        header: "Year 1 (2021)(USD)",
-        accessorKey: "approvedBudget",
-        size: 150,
-      },
-      {
-        header: "Year 2 (2022)(USD)",
-        accessorKey: "approvedBudget",
-        size: 150,
-      },
-      {
-        header: "Year 3 (2023)(USD)",
-        accessorKey: "approvedBudget",
-        size: 150,
-      },
-      {
         header: "Approved Budget Amount - USD",
-        accessorKey: "gfd",
+        accessorKey: "approved_budget_dollars",
         size: 250,
       },
       {
-        header: "Year 1 Target",
-        accessorKey: "eggf",
-        size: 250,
-      },
-      {
-        header: "Year 2 Target",
-        accessorKey: "rhrhr",
-        size: 250,
-      },
-      {
-        header: "Year 3 Target",
-        accessorKey: "rhrhr",
-        size: 250,
-      },
-      {
-        header: "Total Quantity(1-3 Years)",
+        header: "Total Quantity",
         accessorKey: "hhjt",
         size: 250,
       },
@@ -168,13 +138,8 @@ const columns: ColumnDef<ProcurementPlanResultsData>[] = [
   },
   {
     header: "PPM",
-    accessorKey: "approvedBudget",
+    accessorFn: (data) => `${data?.is_ppm ? "Yes" : "No"}`,
     size: 100,
-  },
-  {
-    header: "NON-PPM",
-    accessorKey: "approvedBudget",
-    size: 120,
   },
   {
     header: "Mode Of Procurement",
@@ -182,15 +147,14 @@ const columns: ColumnDef<ProcurementPlanResultsData>[] = [
     size: 250,
   },
   {
-    header:
-      "Procurement Process (EOI, RFP, RFQ, Minimum Quotes, Open or Limited Bidding etc. as per organizational Procurement Policy, refer relevant section)",
+    header: "Procurement Process",
     accessorKey: "procurement_process",
-    size: 500,
+    size: 200,
   },
   {
-    header: "Start Date (at least week of the month)",
+    header: "Start Date",
     accessorKey: "start_date",
-    size: 250,
+    size: 200,
   },
   {
     header: "PROCUREMENT MILESTONE",
@@ -201,8 +165,7 @@ const columns: ColumnDef<ProcurementPlanResultsData>[] = [
         size: 200,
       },
       {
-        header:
-          "Advertise Bid (national dailies, short-listed vendors, website etc.)",
+        header: "Advertise Bid",
         accessorKey: "approvedBudget",
         size: 300,
       },
@@ -239,8 +202,7 @@ const columns: ColumnDef<ProcurementPlanResultsData>[] = [
     size: 200,
   },
   {
-    header:
-      "Delivery to (Central warehouse, State warehouse, treatment site, SR)",
+    header: "Delivery to",
     accessorKey: "ware_houses",
     size: 300,
   },

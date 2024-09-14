@@ -27,6 +27,7 @@ export const DialogType = {
   ExpenditureModal: "ExpenditureModal",
   ConsultancyApplicationSuccess: "ConsultancyApplicationSuccess",
   SubGrantDocumentUpload: "SubGrantDocumentUpload",
+  AddFunfingSource: "AddFunfingSource",
 };
 
 export const largeDailogScreen = {

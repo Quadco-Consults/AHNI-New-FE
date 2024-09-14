@@ -7,8 +7,13 @@ import { FC, ReactNode } from "react";
 type PageProps = {
   children: ReactNode;
   leftAction?: ReactNode;
+  filterAction?: ReactNode;
 };
-const TableFilters: FC<PageProps> = ({ children, leftAction }) => {
+const TableFilters: FC<PageProps> = ({
+  children,
+  leftAction,
+  filterAction,
+}) => {
   return (
     <div className="space-y-8">
       <div>
@@ -16,7 +21,7 @@ const TableFilters: FC<PageProps> = ({ children, leftAction }) => {
           <div className="flex items-center justify-between mt-1 w-96 gap-x-4 ">
             <SearchInput />
             <div className="p-2 bg-white rounded-lg shadow-2xl cursor-pointer">
-              <FilterIcon />
+              {filterAction ? filterAction : <FilterIcon />}
             </div>
           </div>
           {leftAction}

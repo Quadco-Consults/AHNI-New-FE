@@ -1,4 +1,8 @@
 import { ColumnDef } from "@tanstack/react-table";
+import TableAction from "atoms/TableAction";
+import { AdminRoutes } from "constants/RouterConstants";
+import { useDeletePaymentRequestMutation } from "services/adminApi/paymentRequest";
+import { toast } from "sonner";
 
 export interface TPaymentRequest {
   id: string;
@@ -13,6 +17,28 @@ export interface TPaymentRequest {
   bank: string;
   requested_by: string;
 }
+
+// eslint-disable-next-line react-refresh/only-export-components
+const Action = ({ row }: { row: PaymentRequest }) => {
+  const [deletePayment] = useDeletePaymentRequestMutation();
+  const onDelete = () => {
+    deletePayment({ id: row.id })
+      .unwrap()
+      .then(() => {
+        toast.success("Payment request deleted successfully");
+      })
+      .catch(() => {
+        toast.error("Error deleting payment request");
+      });
+  };
+  return (
+    <TableAction
+      row={row}
+      route={AdminRoutes.PaymentRequestView}
+      action={onDelete}
+    />
+  );
+};
 
 export const paymentColumns: ColumnDef<PaymentRequest>[] = [
   {
@@ -39,5 +65,10 @@ export const paymentColumns: ColumnDef<PaymentRequest>[] = [
   {
     header: "Account Number",
     accessorKey: "account_number",
+  },
+  {
+    header: "Action",
+    accessorKey: "action",
+    cell: ({ row }) => <Action row={row.original} />,
   },
 ];

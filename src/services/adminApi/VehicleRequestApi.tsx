@@ -31,7 +31,54 @@ export interface FuelRecord {
   price_per_liter: string;
   quantity: number;
   amount: string;
-  vehicle: string;
+  vehicle: {
+    id: string;
+    implementer: {
+      id: string;
+      created_at: string;
+      updated_at: string;
+      name: string;
+      description: string;
+    };
+    location: {
+      id: string;
+      created_at: string;
+      updated_at: string;
+      name: string;
+      address: string;
+      city: string;
+      state: string;
+      email: string;
+      phone: string;
+    };
+    asset_type: {
+      id: string;
+      created_at: string;
+      updated_at: string;
+      name: string;
+      manufacturer: string;
+      model: string;
+    };
+    asset_condition: {
+      id: string;
+      created_at: string;
+      updated_at: string;
+      name: string;
+      description: string;
+    };
+    created_at: string;
+    updated_at: string;
+    asset_code: string;
+    serial_number: string;
+    assignee: string;
+    date_of_acquisition: string;
+    state: string;
+    estimated_life_span: string;
+    classification: string;
+    cost_in_usd: string;
+    cost_in_ngn: string;
+    unit: string;
+  };
 }
 
 export const vehicleRequestApi = baseAPI.injectEndpoints({
@@ -55,7 +102,7 @@ export const vehicleRequestApi = baseAPI.injectEndpoints({
         url: "/admins/vehicle-requests/",
         params,
       }),
-      providesTags: ["VehicleRequest"]
+      providesTags: ["VehicleRequest"],
     }),
 
     getOneVehicleRequests: builder.query<IVehicleRequest, TRequest>({
@@ -73,7 +120,7 @@ export const vehicleRequestApi = baseAPI.injectEndpoints({
         method: "PATCH",
         body: patch,
       }),
-      invalidatesTags: ["VehicleRequest"]
+      invalidatesTags: ["VehicleRequest"],
     }),
 
     deleteVehicleRequest: builder.mutation<void, string>({
@@ -81,7 +128,7 @@ export const vehicleRequestApi = baseAPI.injectEndpoints({
         url: `/admins/vehicle-requests/${id}/`,
         method: "DELETE",
       }),
-      invalidatesTags: ["VehicleRequest"]
+      invalidatesTags: ["VehicleRequest"],
     }),
     approveRequest: builder.mutation<
       void,
