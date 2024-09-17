@@ -68,6 +68,24 @@ const projectsAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["Beneficiaries"],
     }),
+    updateBeneficiaries: builder.mutation<
+      Beneficiaries,
+      { id: string; body: TBeneficiaries }
+    >({
+      query: ({ id, body }) => ({
+        url: `/projects/beneficiaries/${id}/`,
+        method: "PATCH",
+        body: body,
+      }),
+      invalidatesTags: ["Beneficiaries"],
+    }),
+    deleteBeneficiaries: builder.mutation<Beneficiaries, string>({
+      query: (id) => ({
+        url: `/projects/beneficiaries/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Beneficiaries"],
+    }),
 
     documentTypes: builder.query<
       TBasePaginatedRespose<DocumentTypes[]>,
@@ -87,6 +105,24 @@ const projectsAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["DocumentTypes"],
     }),
+    updateDocumentTypes: builder.mutation<
+      DocumentTypes,
+      { id: string; body: TDocumentTypes }
+    >({
+      query: ({ id, body }) => ({
+        url: `/projects/document-types/${id}/`,
+        method: "PATCH",
+        body: body,
+      }),
+      invalidatesTags: ["DocumentTypes"],
+    }),
+    deleteDocumentTypes: builder.mutation<DocumentTypes, string>({
+      query: (id) => ({
+        url: `/projects/document-types/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["DocumentTypes"],
+    }),
 
     partners: builder.query<TBasePaginatedRespose<Partners[]>, TRequest>({
       query: (params) => ({
@@ -103,7 +139,23 @@ const projectsAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["Partners"],
     }),
-    states: builder.query<any, void>({
+    updatePartners: builder.mutation<Partners, { id: string; body: TPartners }>({
+      query: ({ id, body }) => ({
+        url: `/projects/partners/${id}/`,
+        method: "PATCH",
+        body: body,
+      }),
+      invalidatesTags: ["Partners"],
+    }),
+    deletePartners: builder.mutation<Partners, string>({
+      query: (id) => ({
+        url: `/projects/partners/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Partners"],
+    }),
+
+    states: builder.query<any, any>({
       query: () => ({
         url: "/config/states/",
       }),
@@ -130,4 +182,10 @@ export const {
   useLocationQuery,
   useDeleteFundingSourceMutation,
   useUpdateFundingSourceMutation,
+  useUpdateBeneficiariesMutation,
+  useDeleteBeneficiariesMutation,
+  useDeleteDocumentTypesMutation,
+  useUpdateDocumentTypesMutation,
+  useUpdatePartnersMutation,
+  useDeletePartnersMutation,
 } = projectsAPI;

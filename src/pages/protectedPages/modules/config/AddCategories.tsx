@@ -5,14 +5,11 @@ import FormSelect from "atoms/FormSelect";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { useAddSupervisionCategoryMutation, useUpdateSupervisionCategoryMutation } from "services/module-programs";
-import {
-  TSupervisionCategory,
-  supervisionCategorySchema,
-} from "definations/module-programs";
+import { useAddCategoriesMutation, useUpdateCategoriesMutation } from "services/moduleConfig";
+import { TCategories, categorySchema } from "definations/module-config";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
+import { toast } from "sonner";
 
 const jobCategoryOptions = [
   { label: "Goods", value: "Goods" },
@@ -21,13 +18,12 @@ const jobCategoryOptions = [
   { label: "Others", value: "Others" },
 ];
 
-const AddSupervisionCategory = () => {
+const AddCategories = () => {
   const { dialogProps } = useAppSelector(dailogSelector);
 
-  const data = dialogProps?.data as unknown as TSupervisionCategory;
-
-  const form = useForm<TSupervisionCategory>({
-    resolver: zodResolver(supervisionCategorySchema),
+  const data = dialogProps?.data as unknown as TCategories;
+  const form = useForm<TCategories>({
+    resolver: zodResolver(categorySchema),
     defaultValues: {
       name: data?.name ?? "",
       description: data?.description ?? "",
@@ -37,30 +33,28 @@ const AddSupervisionCategory = () => {
     },
   });
 
+  const [category, { isLoading }] = useAddCategoriesMutation();
+  const [updateCategory, { isLoading: updateCategoryLoading }] = useUpdateCategoriesMutation();
+
   const dispatch = useAppDispatch();
-
-  const [supervisionCategory, { isLoading }] = useAddSupervisionCategoryMutation();
-  const [updateSupervisionCategory, { isLoading: updateSupervisionLoading }] = useUpdateSupervisionCategoryMutation();
-
-  const onSubmit: SubmitHandler<TSupervisionCategory> = async (data) => {
+  const onSubmit: SubmitHandler<TCategories> = async (data) => {
     try {
       dialogProps?.type === "update"
-        ? updateSupervisionCategory({
+        ? updateCategory({
             //@ts-ignore
             id: String(dialogProps?.data?.id),
             body: data,
           }).unwrap()
-        : await supervisionCategory(data).unwrap();
-      toast.success("Supervision Category Added Succesfully");
+        : await category(data).unwrap();
+      toast.success("Category Added Succesfully");
       dispatch(closeDialog());
       form.reset();
     } catch (error: any) {
       toast.error(error.data.message || "Something went wrong");
     }
   };
-
   return (
-      <CardContent>
+    <CardContent>
         <Form {...form}>
           <form
             action=""
@@ -75,11 +69,11 @@ const AddSupervisionCategory = () => {
                 required
               />
             </div>
-            <div className="grid grid-cols-1">
+            <div className="grid grid-cols-2 gap-x-1">
               <FormInput label="Description" name="description" required />
-              {/* <FormInput label="Code" name="code" required /> */}
+              <FormInput label="Code" name="code" required />
             </div>
-            {/* <div className="grid grid-cols-2 gap-x-7">
+            <div className="grid grid-cols-2 gap-x-7">
               <FormInput
                 label="Serial Number"
                 name="serial_number"
@@ -92,14 +86,14 @@ const AddSupervisionCategory = () => {
                 required
                 options={jobCategoryOptions}
               />
-            </div> */}
+            </div>
             <div className="flex justify-start gap-4">
-              <FormButton loading={isLoading || updateSupervisionLoading}>Save</FormButton>
+              <FormButton loading={isLoading || updateCategoryLoading}>Save</FormButton>
             </div>
           </form>
         </Form>
       </CardContent>
-  );
-};
+  )
+}
 
-export default AddSupervisionCategory;
+export default AddCategories

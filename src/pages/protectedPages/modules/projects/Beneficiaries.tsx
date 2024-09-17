@@ -1,38 +1,62 @@
 import { Button } from "components/ui/button";
 import { Card } from "components/ui/card";
-import AddBeneficiaries from "./AddBeneficiaries";
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-  DialogTitle,
-} from "components/ui/dialog";
-import { useBeneficiariesQuery } from "services/moduleProjects";
+import { toast } from "sonner";
+import { useAppDispatch } from "hooks/useStore";
+import { openDialog } from "store/ui";
+import { DialogType } from "constants/dailogs";
+import TableAction from "atoms/TableAction";
+import { useBeneficiariesQuery, useDeleteBeneficiariesMutation } from "services/moduleProjects";
 
 const Beneficiaries = () => {
   const { data } = useBeneficiariesQuery({
     no_paginate: false,
   });
 
+  const dispatch = useAppDispatch();
+  const [deleteBeneficiary] = useDeleteBeneficiariesMutation();
+
+  const onSubmit = async (id: string) => {
+    try {
+      await deleteBeneficiary(id).unwrap();
+      toast.success("Deleted Successfully");
+    } catch (error) {
+      toast.error("Error deleteing item");
+    }
+  };
+
+  const onUpdate = (item: any) => {
+    dispatch(
+      openDialog({
+        type: DialogType.AddBeneficiaries,
+        dialogProps: {
+          header: "Update Beneficiary",
+          data: item,
+          type: "update",
+        },
+      })
+    );
+  };
   return (
     <Card className="mt-10 pb-8 px-6">
       <div className="flex justify-between items-center py-6 mb-6">
         <h1 className="text-[#D92D20] font-semibold text-sm">Beneficiaries</h1>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button
-              variant="outline"
-              className="gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]"
-              size="sm"
-            >
-              Click to add New
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="">
-            <DialogTitle>Beneficiaries</DialogTitle>
-            <AddBeneficiaries />
-          </DialogContent>
-        </Dialog>
+        <Button
+          onClick={() =>
+            dispatch(
+              openDialog({
+                type: DialogType.AddBeneficiaries,
+                dialogProps: {
+                  header: "Add Beneficiary",
+                },
+              })
+            )
+          }
+          variant="outline"
+          className="gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]"
+          size="sm"
+        >
+          Click to add New
+        </Button>
       </div>
       <div>
         <div className="flex justify-between text-[#756D6D] font-semibold text-sm mb-10">
@@ -43,16 +67,17 @@ const Beneficiaries = () => {
         <div>
           {data?.results.map((item) => (
             <div key={item.id} className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs">
-              <div className="w-[53%] lg:w-[52%] flex justify-between">
+              <div className="w-[53%] lg:w-[68%] flex justify-between">
                 <p>{item.name}</p>
-                <p>{item.description}</p>
+                <p className="w-[29%]">{item.description}</p>
               </div>
               <div>
-                <img
-                  src="../../../../public/imgs/module.png"
-                  className="w-[20px]"
-                  alt=""
-                />
+                <TableAction
+                    update
+                    removeView
+                    action={() => onSubmit(item.id)}
+                    updateAction={() => onUpdate(item)}
+                  />
               </div>
             </div>
           ))}
