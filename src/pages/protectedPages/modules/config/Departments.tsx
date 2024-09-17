@@ -1,28 +1,26 @@
 import { Button } from "components/ui/button";
-
 import {
-  useDeleteFundingSourceMutation,
-  useFundingSourcesQuery,
-} from "services/moduleProjects";
-
+  useDepartmentsQuery,
+  useDeleteDepartmentsMutation,
+} from "services/moduleConfig";
 import { toast } from "sonner";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import TableAction from "atoms/TableAction";
 
-const FundingList = () => {
-  const { data } = useFundingSourcesQuery({
+const Departments = () => {
+  const { data } = useDepartmentsQuery({
     no_paginate: false,
   });
 
   const dispatch = useAppDispatch();
 
-  const [deleteFunding] = useDeleteFundingSourceMutation();
+  const [deleteDepartments] = useDeleteDepartmentsMutation();
 
   const onSubmit = async (id: string) => {
     try {
-      await deleteFunding(id).unwrap();
+      await deleteDepartments(id).unwrap();
       toast.success("Deleted Successfully");
     } catch (error) {
       toast.error("Error deleteing item");
@@ -32,28 +30,27 @@ const FundingList = () => {
   const onUpdate = (item: any) => {
     dispatch(
       openDialog({
-        type: DialogType.AddFunfingSource,
+        type: DialogType.AddDepartments,
         dialogProps: {
-          header: "Update Funding Source",
+          header: "Update Department",
           data: item,
           type: "update",
         },
       })
     );
   };
-
   return (
     <div>
       <div className="flex items-center justify-between py-6 mb-6">
-        <h1 className="text-[#D92D20] font-semibold text-sm">Funding Source</h1>
+        <h1 className="text-[#D92D20] font-semibold text-sm">Departments</h1>
 
         <Button
           onClick={() =>
             dispatch(
               openDialog({
-                type: DialogType.AddFunfingSource,
+                type: DialogType.AddDepartments,
                 dialogProps: {
-                  header: "Add Funding Source",
+                  header: "Add Department",
                 },
               })
             )
@@ -79,8 +76,8 @@ const FundingList = () => {
                 className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
               >
                 <div className="w-[53%] lg:w-[68%] flex justify-between ">
-                  <p>{item.name}</p>
-                  <p className="w-[29%]">{item.description}</p>
+                  <p className="">{item.name}</p>
+                  <p className="w-[30%]">{item.description}</p>
                 </div>
                 <div>
                   <TableAction
@@ -99,4 +96,4 @@ const FundingList = () => {
   );
 };
 
-export default FundingList;
+export default Departments;

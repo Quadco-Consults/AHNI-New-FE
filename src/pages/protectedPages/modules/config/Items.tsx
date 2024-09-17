@@ -1,22 +1,25 @@
 import { Button } from "components/ui/button";
-import { useRiskCategoryQuery, useDeleteRiskCategoryMutation } from "services/module-programs";
+import { useItemsQuery, useDeleteItemsMutation } from "services/moduleConfig";
 import { toast } from "sonner";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import TableAction from "atoms/TableAction";
 
-const RiskCategory = () => {
-  const { data } = useRiskCategoryQuery({
+const Items = () => {
+  const { data } = useItemsQuery({
     no_paginate: false,
   });
+
+  console.log(data);
+
   const dispatch = useAppDispatch();
 
-  const [deleteRiskCategory] = useDeleteRiskCategoryMutation();
+  const [deleteItems] = useDeleteItemsMutation();
 
   const onSubmit = async (id: string) => {
     try {
-      await deleteRiskCategory(id).unwrap();
+      await deleteItems(id).unwrap();
       toast.success("Deleted Successfully");
     } catch (error) {
       toast.error("Error deleteing item");
@@ -26,9 +29,9 @@ const RiskCategory = () => {
   const onUpdate = (item: any) => {
     dispatch(
       openDialog({
-        type: DialogType.AddRiskCategory,
+        type: DialogType.AddItems,
         dialogProps: {
-          header: "Update Risk Category",
+          header: "Update Item",
           data: item,
           type: "update",
         },
@@ -37,15 +40,16 @@ const RiskCategory = () => {
   };
   return (
     <div>
-      <div className="flex justify-between items-center py-6 mb-6">
-        <h1 className="text-[#D92D20] font-semibold text-sm">Team Members</h1>
+      <div className="flex items-center justify-between py-6 mb-6">
+        <h1 className="text-[#D92D20] font-semibold text-sm">Items</h1>
+
         <Button
           onClick={() =>
             dispatch(
               openDialog({
-                type: DialogType.AddRiskCategory,
+                type: DialogType.AddItems,
                 dialogProps: {
-                  header: "Add Risk Category",
+                  header: "Add Item",
                 },
               })
             )
@@ -58,9 +62,11 @@ const RiskCategory = () => {
         </Button>
       </div>
       <div>
-        <div className="flex gap-[19rem] text-[#756D6D] font-semibold text-sm mb-10">
+        <div className="flex justify-between text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4">
           <h1>Name</h1>
-          <h1>Description</h1>
+          <h1 className="ml-[8rem]">Description</h1>
+          <h1 className="ml-[5rem]">UOM</h1>
+          <h1>Category</h1>
           <h1></h1>
         </div>
         <div>
@@ -69,18 +75,16 @@ const RiskCategory = () => {
               key={item.id}
               className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
             >
-              <div className="w-[53%] lg:w-[68%] flex justify-between">
-                <p className="w-[40%]">{item.name}</p>
-                <p className="w-[50%]">{item.description}</p>
-              </div>
-              <div>
-                <TableAction
-                    update
-                    removeView
-                    action={() => onSubmit(item.id)}
-                    updateAction={() => onUpdate(item)}
-                  />
-              </div>
+              <p className="">{item.name}</p>
+              <p className="">{item.description}</p>
+              <p className="">{item.uom}</p>
+              <p className="">{item.category}</p>
+              <TableAction
+                update
+                removeView
+                action={() => onSubmit(item.id)}
+                updateAction={() => onUpdate(item)}
+              />
             </div>
           ))}
         </div>
@@ -89,4 +93,4 @@ const RiskCategory = () => {
   );
 };
 
-export default RiskCategory;
+export default Items;

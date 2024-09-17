@@ -1,59 +1,54 @@
 import { Button } from "components/ui/button";
-
-import {
-  useDeleteFundingSourceMutation,
-  useFundingSourcesQuery,
-} from "services/moduleProjects";
-
+import { useAssetConditionsQuery, useDeleteAssetConditionsMutation } from "services/moduleAdmin";
 import { toast } from "sonner";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import TableAction from "atoms/TableAction";
 
-const FundingList = () => {
-  const { data } = useFundingSourcesQuery({
-    no_paginate: false,
-  });
 
-  const dispatch = useAppDispatch();
-
-  const [deleteFunding] = useDeleteFundingSourceMutation();
-
-  const onSubmit = async (id: string) => {
-    try {
-      await deleteFunding(id).unwrap();
-      toast.success("Deleted Successfully");
-    } catch (error) {
-      toast.error("Error deleteing item");
-    }
-  };
-
-  const onUpdate = (item: any) => {
-    dispatch(
-      openDialog({
-        type: DialogType.AddFunfingSource,
-        dialogProps: {
-          header: "Update Funding Source",
-          data: item,
-          type: "update",
-        },
-      })
-    );
-  };
-
+const AssetConditions = () => {
+    const { data } = useAssetConditionsQuery({
+        no_paginate: false,
+      });
+    
+      const dispatch = useAppDispatch();
+    
+      const [deleteAssetConditions] = useDeleteAssetConditionsMutation();
+    
+      const onSubmit = async (id: string) => {
+        try {
+          await deleteAssetConditions(id).unwrap();
+          toast.success("Deleted Successfully");
+        } catch (error) {
+          toast.error("Error deleteing item");
+        }
+      };
+    
+      const onUpdate = (item: any) => {
+        dispatch(
+          openDialog({
+            type: DialogType.AddAssetConditions,
+            dialogProps: {
+              header: "Update Asset Conditions",
+              data: item,
+              type: "update",
+            },
+          })
+        );
+      };
   return (
     <div>
-      <div className="flex items-center justify-between py-6 mb-6">
-        <h1 className="text-[#D92D20] font-semibold text-sm">Funding Source</h1>
+        <div className="flex items-center justify-between py-6 mb-6">
+        <h1 className="text-[#D92D20] font-semibold text-sm">Asset Conditions</h1>
 
         <Button
           onClick={() =>
             dispatch(
               openDialog({
-                type: DialogType.AddFunfingSource,
+                type: DialogType.AddAssetConditions,
                 dialogProps: {
-                  header: "Add Funding Source",
+                  header: "Add Asset Conditions",
                 },
               })
             )
@@ -78,9 +73,9 @@ const FundingList = () => {
                 key={item.id}
                 className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
               >
-                <div className="w-[53%] lg:w-[68%] flex justify-between ">
+                <div className="flex justify-between gap-[29rem] ">
                   <p>{item.name}</p>
-                  <p className="w-[29%]">{item.description}</p>
+                  <p className="">{item.description}</p>
                 </div>
                 <div>
                   <TableAction
@@ -96,7 +91,7 @@ const FundingList = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default FundingList;
+export default AssetConditions
