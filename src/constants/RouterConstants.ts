@@ -155,6 +155,9 @@ export const RouteEnum = {
   // modules
   MODULES_PROJECTS: "/modules-projects",
   MODULES_PROGRAMS: "/modules-programs",
+  MODULES_ADMIN: "/modules-admin",
+  MODULES_CONFIG: "/modules-config",
+  MODULES_PROCUREMENT: "/modules-procurement",
 
   // PROGRAM_OVERVIEW: "/program/overview",
   // PROGRAM_OVERVIEW: "/program/overview",

@@ -459,6 +459,21 @@ const MODULE_LINKS = [
         name: "Programs",
         path: RouteEnum.MODULES_PROGRAMS,
       },
+      ,
+      {
+        name: "Admin",
+        path: RouteEnum.MODULES_ADMIN,
+      },
+      ,
+      {
+        name: "Config",
+        path: RouteEnum.MODULES_CONFIG,
+      },
+      ,
+      {
+        name: "Procurement",
+        path: RouteEnum.MODULES_PROCUREMENT,
+      },
     ],
   },
 ];
