@@ -6,56 +6,57 @@ import FormTextArea from "atoms/FormTextArea";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useAddPartnersMutation, useStatesQuery, useUpdatePartnersMutation } from "services/moduleProjects";
-import { TPartners, parternersSchema } from "definations/module-projects";
-import { toast } from "sonner";
+import {
+  useAddLocationsMutation,
+  useUpdateLocationsMutation,
+  useStatesQuery,
+} from "services/moduleConfig";
+import { TLocations, locationsSchema } from "definations/module-config";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
+import { toast } from "sonner";
 
-
-const AddPartners = () => {
+const AddLocations = () => {
   const { dialogProps } = useAppSelector(dailogSelector);
 
-  const result = dialogProps?.data as unknown as TPartners;
-  console.log(result)
+  const result = dialogProps?.data as unknown as TLocations;
 
-  const {data} = useStatesQuery({
-    no_paginate: false
-  })
+  const { data } = useStatesQuery({
+    no_paginate: false,
+  });
 
-  const stateOptions = data?.map((state: string) => (
-    {
-      label: state, value: state
-    }
-  ))
+  const stateOptions = data?.map((state: string) => ({
+    label: state,
+    value: state,
+  }));
 
-  const form = useForm<TPartners>({
-    resolver: zodResolver(parternersSchema),
+  const form = useForm<TLocations>({
+    resolver: zodResolver(locationsSchema),
     defaultValues: {
       name: result?.name ?? "",
       address: result?.address ?? "",
       city: result?.city ?? "",
       state: result?.state ?? "",
-      phone: result?.phone ?? "",
       email: result?.email ?? "",
-      website: result?.website ?? "",
+      phone: result?.phone ?? "",
     },
   });
 
   const dispatch = useAppDispatch();
-  const [partners, { isLoading }] = useAddPartnersMutation();
-  const [updatePartners, { isLoading: updatePartnersLoading }] = useUpdatePartnersMutation();
-  
-  const onSubmit: SubmitHandler<TPartners> = async (data) => {
+  const [locations, { isLoading }] = useAddLocationsMutation();
+  const [updateLocations, { isLoading: updateLocationsLoading }] =
+    useUpdateLocationsMutation();
+
+  const onSubmit: SubmitHandler<TLocations> = async (data) => {
     try {
       dialogProps?.type === "update"
-        ? updatePartners({
+        ? updateLocations({
             //@ts-ignore
             id: String(dialogProps?.data?.id),
             body: data,
           }).unwrap()
-        : await partners(data).unwrap();
-      toast.success("Partner Added Succesfully");
+        : await locations(data).unwrap();
+      toast.success("Location Added Succesfully");
       dispatch(closeDialog());
       form.reset();
     } catch (error: any) {
@@ -64,7 +65,7 @@ const AddPartners = () => {
   };
 
   return (
-      <CardContent className="w-100% flex flex-col gap-y-10 p-0">
+    <CardContent className="w-100% flex flex-col gap-y-10 p-0">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -89,11 +90,8 @@ const AddPartners = () => {
               <FormInput label="phone" name="phone" type="number" />
               <FormInput label="Email" name="email" type="email" />
             </div>
-            <div className="grid grid-cols-1">
-              <FormInput label="Website" name="website" />
-            </div>
             <div className="flex justify-start gap-4">
-              <FormButton loading={isLoading || updatePartnersLoading}>Save</FormButton>
+              <FormButton loading={isLoading || updateLocationsLoading}>Save</FormButton>
             </div>
           </form>
         </Form>
@@ -101,4 +99,4 @@ const AddPartners = () => {
   );
 };
 
-export default AddPartners;
+export default AddLocations;

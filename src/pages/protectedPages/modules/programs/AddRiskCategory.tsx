@@ -1,30 +1,44 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
-import Card from "components/shared/Card";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useAddRiskCategoryMutation } from "services/module-programs";
+import { useAddRiskCategoryMutation, useUpdateRiskCategoryMutation } from "services/module-programs";
 import { TRiskCategory, riskCategorySchema } from "definations/module-programs";
 import { toast } from "sonner";
+import { useAppDispatch, useAppSelector } from "hooks/useStore";
+import { closeDialog, dailogSelector } from "store/ui";
 
 
 const AddRiskCategory = () => {
+  const { dialogProps } = useAppSelector(dailogSelector);
+
+  const data = dialogProps?.data as unknown as TRiskCategory;
 
   const form = useForm<TRiskCategory>({
     resolver: zodResolver(riskCategorySchema),
     defaultValues: {
-      name: "",
-      description: "",
+      name: data?.name ?? "",
+      description: data?.description ?? "",
     }
   });
+
+  const dispatch = useAppDispatch();
   const [riskCategory, { isLoading }] = useAddRiskCategoryMutation();
+  const [updateRiskCategory, { isLoading: updateRiskLoading }] = useUpdateRiskCategoryMutation();
 
   const onSubmit: SubmitHandler<TRiskCategory> = async (data) => {
     try {
-      await riskCategory(data).unwrap();
+      dialogProps?.type === "update"
+        ? updateRiskCategory({
+            //@ts-ignore
+            id: String(dialogProps?.data?.id),
+            body: data,
+          }).unwrap()
+        : await riskCategory(data).unwrap();
       toast.success("Risk Category Added Succesfully");
+      dispatch(closeDialog());
       form.reset();
     } catch (error: any) {
       toast.error(error.data.message || "Something went wrong");
@@ -32,7 +46,6 @@ const AddRiskCategory = () => {
   };
 
   return (
-    <Card className="max-w-[743px]">
       <CardContent>
         <Form {...form}>
           <form
@@ -47,13 +60,11 @@ const AddRiskCategory = () => {
               <FormInput label="Description" name="description" required />
             </div>
             <div className="flex justify-start gap-4">
-              <FormButton loading={isLoading}>Save</FormButton>
-              <FormButton>Save and Add New</FormButton>
+              <FormButton loading={isLoading || updateRiskLoading}>Save</FormButton>
             </div>
           </form>
         </Form>
       </CardContent>
-    </Card>
   );
 };
 

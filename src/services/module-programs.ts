@@ -48,6 +48,27 @@ const projectsAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["Facilities"],
     }),
+    updateFacilities: builder.mutation<
+    Facilities,
+      { id: string; body: TFacilities }
+    >({
+      query: ({ id, body }) => ({
+        url: `/programs/facilities/${id}/`,
+        method: "PATCH",
+        body: body,
+      }),
+      invalidatesTags: ["Facilities"],
+    }),
+    deleteFacilities: builder.mutation<
+    Facilities,
+      string
+    >({
+      query: (id) => ({
+        url: `/programs/facilities/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Facilities"],
+    }),
     states: builder.query({
       query: (params) => ({
         url: "/config/states/",
@@ -76,6 +97,27 @@ const projectsAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["SupervisionCategory"],
     }),
+    updateSupervisionCategory: builder.mutation<
+      TSupervisionCategoryResponseArray,
+      { id: string; body: TSupervisionCategory }
+    >({
+      query: ({ id, body }) => ({
+        url: `/programs/evaluation-categories/${id}/`,
+        method: "PATCH",
+        body: body,
+      }),
+      invalidatesTags: ["SupervisionCategory"],
+    }),
+    deleteSupervisionCategory: builder.mutation<
+      TSupervisionCategoryResponseArray,
+      string
+    >({
+      query: (id) => ({
+        url: `/programs/evaluation-categories/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["SupervisionCategory"],
+    }),
 
     riskCategory: builder.query<
       TBasePaginatedRespose<RiskCategory[]>,
@@ -95,6 +137,24 @@ const projectsAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["RiskCategory"],
     }),
+    updateRiskCategory: builder.mutation<
+      RiskCategory,
+      { id: string; body: TRiskCategory }
+    >({
+      query: ({ id, body }) => ({
+        url: `/programs/risk-categories/${id}/`,
+        method: "PATCH",
+        body: body,
+      }),
+      invalidatesTags: ["RiskCategory"],
+    }),
+    deleteRiskCategory: builder.mutation<RiskCategory, string>({
+      query: (id) => ({
+        url: `/programs/risk-categories/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["RiskCategory"],
+    }),
   }),
 });
 
@@ -106,4 +166,10 @@ export const {
   useAddSupervisionCategoryMutation,
   useRiskCategoryQuery,
   useAddRiskCategoryMutation,
+  useDeleteRiskCategoryMutation,
+  useUpdateRiskCategoryMutation,
+  useDeleteSupervisionCategoryMutation,
+  useUpdateSupervisionCategoryMutation,
+  useDeleteFacilitiesMutation,
+  useUpdateFacilitiesMutation,
 } = projectsAPI;
