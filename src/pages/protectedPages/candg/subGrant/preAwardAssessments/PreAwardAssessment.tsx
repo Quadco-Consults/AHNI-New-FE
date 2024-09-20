@@ -10,14 +10,13 @@ import { Button } from "components/ui/button";
 import { Checkbox } from "components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { CandGRoutes } from "constants/RouterConstants";
-import { generatePath, Link, useParams } from "react-router-dom";
+import { generatePath, Link } from "react-router-dom";
 import { SubGrantApplicationsApi } from "services/cAndGApi/subGrant";
 import { toast } from "sonner";
 
-const SubGrantSubmissionDetails = () => {
-  const params = useParams();
+const PreAwardAssessment = () => {
   const getSubGrantsApplications = SubGrantApplicationsApi.useGetSubGrantsApplicationQuery({
-    params: { no_paginate: false, sub_grant: params?.id },
+    params: { no_paginate: false },
   });
   // console.log(getSubGrantsApplications);
 
@@ -87,7 +86,7 @@ const SubGrantSubmissionDetails = () => {
       size: 200,
     },
     {
-      header: "Action",
+      header: "",
       id: "actions",
       size: 50,
       cell: ({ row }) => <ActionListAction data={row.original} />,
@@ -119,7 +118,7 @@ const SubGrantSubmissionDetails = () => {
               <div className="flex flex-col items-start justify-between gap-1">
                 <Link
                   className="w-full"
-                  to={generatePath(CandGRoutes.SUBMITTED_APPLICATIONS, {
+                  to={generatePath(CandGRoutes.PRE_AWARD_ASSESSMENT_SINGLE, {
                     id: data?.id,
                   })}
                 >
@@ -188,7 +187,7 @@ const SubGrantSubmissionDetails = () => {
   );
 };
 
-export default SubGrantSubmissionDetails;
+export default PreAwardAssessment;
 
 const CustomDownIcon = () => {
   return (

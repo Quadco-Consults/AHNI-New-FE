@@ -44,6 +44,32 @@ export const candg = [
     path: CandGRoutes.SUBMITTED_APPLICATIONS,
     element: lazy(() => import("pages/protectedPages/candg/subGrant/SubmittedApplications")),
   },
+  //////pre awrd assessments
+  {
+    path: CandGRoutes.PRE_AWARD_ASSESSMENT,
+    element: lazy(() => import("pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessment")),
+  },
+  {
+    path: CandGRoutes.PRE_AWARD_ASSESSMENT_SINGLE,
+    element: lazy(() => import("pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentSingle")),
+  },
+  {
+    path: CandGRoutes.PRE_AWARD_ASSESSMENT_STEP_1,
+    element: lazy(() => import("pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep1")),
+  },
+  {
+    path: CandGRoutes.PRE_AWARD_ASSESSMENT_STEP_2,
+    element: lazy(() => import("pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep2")),
+  },
+  {
+    path: CandGRoutes.PRE_AWARD_ASSESSMENT_STEP_3,
+    element: lazy(() => import("pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep3")),
+  },
+  {
+    path: CandGRoutes.PRE_AWARD_ASSESSMENT_STEP_4,
+    element: lazy(() => import("pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep4")),
+  },
+
   // close out
   {
     path: CandGRoutes.CLOSE_OUT,
