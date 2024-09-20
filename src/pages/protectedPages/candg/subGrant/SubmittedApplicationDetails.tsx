@@ -1,32 +1,40 @@
 import Card from "components/shared/Card";
 import { useMemo } from "react";
+import { useParams } from "react-router-dom";
+import { SubGrantApplicationsApi } from "services/cAndGApi/subGrant";
 
 const SubmittedApplicationDetails = () => {
+  const params = useParams();
+
+  const getSingleSubmittedApplication = SubGrantApplicationsApi.useGetSingleSubGrantsApplicationQuery({ id: params.id });
+
+  const Data = getSingleSubmittedApplication?.data;
+
   const DetailsData = useMemo(() => {
     return [
       {
         label: "1st Principal’s Name & Title",
         subData: [
-          { label: "Name:", value: "UDOKA NWANGWU" },
-          { label: "Email", value: "Board Chairman" },
+          { label: "Name:", value: Data?.principal_one_name || "" },
+          { label: "Email", value: Data?.principal_one_designation || "" },
         ],
       },
       {
         label: "2nd Principal’s Name & Title",
         subData: [
-          { label: "Name:", value: "Lindsey Rosser" },
-          { label: "Email:", value: "lindseyrosser@gmail.com" },
+          { label: "Name:", value: Data?.principal_two_name || "" },
+          { label: "Email:", value: Data?.principal_two_designation || "" },
         ],
       },
-      { label: "Address", value: "No. 14 Habert Nkwocha Avenue, beside Enugu Ukwu General Hospital, Njikoka LGA, Anambra state." },
-      { label: "Telephone", value: "08065252517" },
-      { label: "Fax", value: "" },
-      { label: "Web Address", value: "" },
-      { label: "DUNS Number (for USG awards only)", value: "" },
-      { label: "Has Financial Conflict of Interest Policy as applicable to U.S. PHS agencies’ funding.", value: "Yes" },
-      { label: "Organization Type", value: "Not for Profit or Nongovernmental" },
+      { label: "Address", value: Data?.address || "" },
+      { label: "Telephone", value: Data?.telephone || "" },
+      { label: "Fax", value: Data?.fax || "" },
+      { label: "Web Address", value: Data?.website || "" },
+      { label: "DUNS Number (for USG awards only)", value: Data?.duns_number || "" },
+      { label: "Has Financial Conflict of Interest Policy as applicable to U.S. PHS agencies’ funding.", value: Data?.has_conflict_of_interest === true ? "Yes" : "No" },
+      { label: "Organization Type", value: Data?.organisation_type || "" },
     ];
-  }, []);
+  }, [Data]);
   return (
     <div className="w-full flex flex-col text-[#1A0000] justify-center items-center">
       <div className="w-full bg-white rounded-2xl flex flex-col gap-y-[1.25rem] py-5 px-10">
@@ -35,7 +43,7 @@ const SubmittedApplicationDetails = () => {
           <div className="flex flex-wrap justify-between gap-y-[1.25rem]">
             {DetailsData.map((item, index) => {
               return item.subData ? (
-                <div className="w-[45%] flex flex-col gap-y-[1.25rem]">
+                <div className="w-[45%] flex flex-col gap-y-[1.25rem]" key={index}>
                   <p className="font-semibold">{item.label}</p>
                   <div className="w-full space-y-[10px]">
                     {item.subData.map((subData, subIndex) => {

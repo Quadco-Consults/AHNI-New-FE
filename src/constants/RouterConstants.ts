@@ -11,8 +11,7 @@ export const AdminRoutes = {
   ASSETS_REQUEST_VIEW: "/admin/inventory-managment/assets-request-view",
   ASSET_MAINTENANCE: "/admin/inventory-managment/asset-maintenance",
   ASSET_MAINTENANCE_VIEW: "/admin/inventory-managment/asset-maintenance-view",
-  ASSET_MAINTENANCE_CREATE:
-    "/admin/inventory-managment/asset-maintenance-create",
+  ASSET_MAINTENANCE_CREATE: "/admin/inventory-managment/asset-maintenance-create",
   CREateConsumables: "/admin/inventory-managment/create-consumables",
   CreateAssets: "/admin/inventory-managment/create-assets",
   ViewAssets: "/admin/inventory-managment/view-assets",
@@ -172,6 +171,14 @@ export const CandGRoutes = {
   MANUAL_SUB_GRANT_SUBMISSION: "/c-and-g/sub-grant/manual-submission/organization-details/:id",
   MANUAL_SUB_GRANT_SUBMISSION_DOCS: "/c-and-g/sub-grant/manual-submission/document-upload/:id",
   SUBMITTED_APPLICATIONS: "/c-and-g/sub-grant/submitted-applications/:id",
+  ////// pre award assessment
+  PRE_AWARD_ASSESSMENT: "/c-and-g/sub-grant/pre-award-assessment",
+  PRE_AWARD_ASSESSMENT_SINGLE: "/c-and-g/sub-grant/pre-award-assessment/:id",
+  PRE_AWARD_ASSESSMENT_STEP_1: "/c-and-g/sub-grant/pre-award-assessment_1/:id",
+  PRE_AWARD_ASSESSMENT_STEP_2: "/c-and-g/sub-grant/pre-award-assessment_2/:id",
+  PRE_AWARD_ASSESSMENT_STEP_3: "/c-and-g/sub-grant/pre-award-assessment_3/:id/:result",
+  PRE_AWARD_ASSESSMENT_STEP_4: "/c-and-g/sub-grant/pre-award-assessment_3/:id",
+
   // close out
   CLOSE_OUT: "/c-and-g/close-out-plan",
   CLOSE_OUT_DETAILS: "/c-and-g/close-out-plan/details/:id",
