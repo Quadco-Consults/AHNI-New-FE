@@ -4,7 +4,7 @@ services:
   ahni-client:
     image: moha0886/ahni-client:latest
     container_name: ahni_client
-    ports:
-      - "5001:3000"
+    volumes:
+      - ./dist:/var/www/html/vite-app
     env_file:
       - .env
