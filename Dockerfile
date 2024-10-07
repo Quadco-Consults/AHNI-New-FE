@@ -1,27 +1,17 @@
-# Use the official Node.js image as a base image
-FROM node:14-alpine
+FROM node:18 AS build
 
-ARG BASE_URL
-
-ENV BASE_URL=$BASE_URL
-
-# Set the working directory
 WORKDIR /app
 
-# Copy package.json and install dependencies
-COPY package.json ./
-RUN npm install
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
 
-# Copy the rest of the app
-COPY . ./
+COPY . .
+RUN yarn build
 
-# Build the app for production
-RUN npm run build
+# Step 2: Create a minimal image with the build files
+FROM alpine:latest AS production
 
-# Install a lightweight web server (nginx) to serve the static files
-RUN npm install -g serve
+WORKDIR /app
 
-# Expose port 3000
-EXPOSE 3000
-# Start the app
-CMD ["serve", "-s", "build"]
+# Copy the build output to the production stage
+COPY --from=build /app/dist ./dist
