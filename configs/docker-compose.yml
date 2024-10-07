@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  ahni-client:
+    image: moha0886/ahni-client:latest
+    container_name: ahni_client
+    ports:
+      - "5001:3000"
+    env_file:
+      - .env
