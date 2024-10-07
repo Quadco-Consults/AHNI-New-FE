@@ -10,18 +10,24 @@ import { Button } from "components/ui/button";
 import { Checkbox } from "components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { CandGRoutes } from "constants/RouterConstants";
-import { generatePath, Link, useParams } from "react-router-dom";
-import { SubGrantApplicationsApi } from "services/cAndGApi/subGrant";
+import React, { useMemo } from "react";
+import { generatePath, Link, useNavigate, useParams } from "react-router-dom";
+import { consultancyAPIs } from "services/cAndGApi/consultancy";
 import { toast } from "sonner";
 
-const SubGrantSubmissionDetails = () => {
+const ConsultancyShortList = () => {
   const params = useParams();
-  const getSubGrantsApplications = SubGrantApplicationsApi.useGetSubGrantsApplicationQuery({
-    params: { no_paginate: false, sub_grant: params?.id },
+  const navigate = useNavigate();
+  const getConsultancyApplications = consultancyAPIs.useGetAllConsultancyApplicationsQuery({
+    params: {
+      job_detail: params.id,
+      status: "short-listed",
+    },
   });
-  // console.log(getSubGrantsApplications);
 
-  const subGrantsApplications = getSubGrantsApplications?.data?.results || [];
+  const closeOutArray = useMemo(() => {
+    return getConsultancyApplications?.data?.results || [];
+  }, [getConsultancyApplications]);
 
   const columns: ColumnDef<any>[] = [
     {
@@ -65,29 +71,26 @@ const SubGrantSubmissionDetails = () => {
     //   ),
     // },
     {
-      header: "Legal Name of the Organization",
-      accessorKey: "organisation_name",
-      size: 200,
-      // cell: ({ row }) => <p>{row?.original?.project?.title}</p>,
+      header: "Applicant Name",
+      accessorKey: "applicant_name",
+      size: 250,
+      // cell: ({ row }) => <p>{row?.original?.project_id}</p>,
     },
     {
-      header: "Address",
-      accessorKey: "address",
-      size: 200,
+      header: "Employment type",
+      accessorKey: "employment_type",
+      size: 250,
+      // cell: ({ row }) => <p>{row?.original?.closeout_task_count}</p>,
     },
     {
-      header: "Telephone",
-      accessorKey: "telephone",
-      size: 200,
-      // cell: ({ row }) => <p>{row?.original?.grantor?.name}</p>,
+      header: "Applicant Email",
+      accessorKey: "applicant_email",
+      size: 250,
+      // cell: ({ row }) => <p>{row?.original?.closeout_duration}</p>,
     },
+
     {
-      header: "Email",
-      accessorKey: "email",
-      size: 200,
-    },
-    {
-      header: "Action",
+      header: "",
       id: "actions",
       size: 50,
       cell: ({ row }) => <ActionListAction data={row.original} />,
@@ -95,10 +98,10 @@ const SubGrantSubmissionDetails = () => {
   ];
 
   const ActionListAction = ({ data }: any) => {
-    const [subgrantDeleteMutation] = SubGrantApplicationsApi.useDeleteSingleSubGrantsApplicationMutation();
+    // const [subgrantDeleteMutation] = closeoutPlanAPis.useAddCloseOutPlanMutation();
     const deleteSubgrantHandler = async () => {
       try {
-        await subgrantDeleteMutation({ path: { id: data?.id } }).unwrap();
+        // await subgrantDeleteMutation({ path: { id: data?.id } }).unwrap();
         toast.success("Project deleted.");
       } catch (error) {
         console.log(error);
@@ -119,7 +122,7 @@ const SubGrantSubmissionDetails = () => {
               <div className="flex flex-col items-start justify-between gap-1">
                 <Link
                   className="w-full"
-                  to={generatePath(CandGRoutes.SUBMITTED_APPLICATIONS, {
+                  to={generatePath(CandGRoutes.CONSULTANCY_APPLICATION_DETAILS, {
                     id: data?.id,
                   })}
                 >
@@ -150,9 +153,9 @@ const SubGrantSubmissionDetails = () => {
       </div>
     );
   };
-
   return (
-    <div className="flex flex-col justify-center items-center gap-y-[1rem]">
+    <main className="w-full flex flex-col items-center justify-center gap-y-[1rem] px-[4rem]">
+      {" "}
       <div className="w-full flex justify-between items-center">
         <div className="flex items-center justify-center">
           <SearchBar onchange={() => ""} />
@@ -164,44 +167,49 @@ const SubGrantSubmissionDetails = () => {
         <div className="flex items-center">
           <FormButton
             onClick={() => {
-              // navigate(CandGRoutes.MANUAL_SUB_GRANT_SUBMISSION);
+              navigate(generatePath(CandGRoutes.CONSULTANCY_SHORTLIST_METRIC, { id: params.id }));
             }}
-            variant={"custom"}
-            className="bg-[#FFF2F2] text-[#FF0000]"
           >
-            <p>Bulk Actions</p>
-            <CustomDownIcon />
+            <ArrowIcon />
+            <p>Start Interview</p>
           </FormButton>
         </div>
       </div>
       <div className="w-full">
         <DataTable
           columns={columns}
-          onRowClick={() => {
-            // navigate("/c-and-g/grant-details/" + row?.original?.id);
-          }}
-          data={subGrantsApplications || []}
-          isLoading={getSubGrantsApplications.isLoading}
+          // onRowClick={(row) => {
+          //   navigate("/c-and-g/close-out-plan/details/" + row?.original?.id);
+          // }}
+          data={closeOutArray}
+          isLoading={getConsultancyApplications.isLoading}
         />
       </div>
+      <div className="w-full flex flex-wrap justify-between items-start gap-y-[1rem]"></div>
+    </main>
+  );
+};
+
+export default ConsultancyShortList;
+
+export const DetailsTag = ({ icon, deet }: { icon: React.ReactNode; deet: string }) => {
+  return (
+    <div className="flex items-center border border-[#C7CBD5] text-sm p-1 px-[.625rem] gap-x-[.25rem] rounded-full">
+      {icon}
+      <p>{deet}</p>
     </div>
   );
 };
 
-export default SubGrantSubmissionDetails;
-
-const CustomDownIcon = () => {
+const ArrowIcon = () => {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         opacity="0.4"
-        d="M18.593 8.19486C19.0376 8.52237 19.1326 9.14837 18.8051 9.59306C18.5507 9.93847 18.2963 10.2668 18.0731 10.5528C17.6276 11.1236 17.0143 11.8882 16.3479 12.6556C15.6859 13.4181 14.9518 14.2064 14.2666 14.8119C13.9251 15.1136 13.5721 15.3911 13.2279 15.5986C12.9112 15.7895 12.476 16 11.9999 16C11.5238 16 11.0885 15.7895 10.7718 15.5986C10.4276 15.3911 10.0747 15.1136 9.7332 14.8119C9.04791 14.2064 8.31387 13.4181 7.65183 12.6556C6.98548 11.8882 6.37216 11.1236 5.92664 10.5528C5.70347 10.2668 5.44902 9.93847 5.19463 9.59307C4.86712 9.14837 4.96211 8.52237 5.4068 8.19486C5.58556 8.0632 5.79362 7.99983 5.99982 8L11.9999 8L17.9999 8C18.2061 7.99983 18.4142 8.0632 18.593 8.19486Z"
-        fill="#FF0000"
+        d="M19.6968 1.78314C20.397 1.85063 21.1299 2.03918 21.5973 2.54257C22.0509 3.03106 22.1999 3.76556 22.2388 4.46477C22.2798 5.20207 22.206 6.0823 22.0568 7.0301C21.7577 8.9306 21.1368 11.2173 20.3917 13.4096C19.6462 15.6028 18.7652 17.7347 17.9332 19.3247C17.5192 20.1159 17.1031 20.8005 16.7071 21.2953C16.51 21.5414 16.2975 21.7666 16.0715 21.9344C15.8571 22.0938 15.5444 22.2655 15.1683 22.2489C14.5642 22.2222 14.1052 21.8913 13.7678 21.4533C13.4445 21.0336 13.1892 20.4645 12.9623 19.8071C12.5073 18.4888 12.0798 16.5447 11.5288 14.0391C11.4104 13.5007 11.3108 13.318 11.2213 13.2216C11.1355 13.1291 10.9724 13.0226 10.4646 12.8802C10.1518 12.7924 9.6779 12.6958 9.08022 12.574L9.08018 12.574C8.89638 12.5365 8.70087 12.4967 8.49473 12.454C7.64346 12.2776 6.65324 12.06 5.71161 11.7792C4.77998 11.5014 3.84284 11.1467 3.12327 10.676C2.41829 10.2149 1.75629 9.5279 1.75002 8.55582C1.74764 8.18549 1.92123 7.87829 2.08623 7.66237C2.25922 7.436 2.48919 7.22331 2.74121 7.02586C3.24734 6.62932 3.94355 6.21648 4.74626 5.80847C6.35914 4.98865 8.51281 4.13295 10.7222 3.42176C12.9302 2.71102 15.2288 2.13337 17.1313 1.88382C18.08 1.75939 18.9611 1.71223 19.6968 1.78314Z"
+        fill="white"
       />
-      <path
-        d="M18.593 8.19486C19.0376 8.52237 19.1326 9.14837 18.8051 9.59306C18.5507 9.93847 18.2963 10.2668 18.0731 10.5528C17.6276 11.1236 17.0143 11.8882 16.3479 12.6556C15.6859 13.4181 14.9518 14.2064 14.2666 14.8119C13.9251 15.1136 13.5721 15.3911 13.2279 15.5986C12.9112 15.7895 12.476 16 11.9999 16C11.5238 16 11.0885 15.7895 10.7718 15.5986C10.4276 15.3911 10.0747 15.1136 9.7332 14.8119C9.15076 14.2973 8.53312 13.6506 7.95439 13L13 8L17.9999 8C18.2061 7.99983 18.4142 8.0632 18.593 8.19486Z"
-        fill="#FF0000"
-      />
+      <path d="M11.5004 13.9134C11.3945 13.4713 11.3038 13.3101 11.2217 13.2216C11.1359 13.1291 10.9727 13.0226 10.465 12.8802C10.3023 12.8345 10.0961 12.7865 9.85156 12.7338L14.2928 8.29287C14.6834 7.90236 15.3165 7.90238 15.707 8.29292C16.0975 8.68346 16.0975 9.31662 15.707 9.70713L11.5004 13.9134Z" fill="white" />
     </svg>
   );
 };

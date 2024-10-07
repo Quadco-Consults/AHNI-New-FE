@@ -4,6 +4,7 @@ import baseAPI from "..";
 const SUB_GRANT_BASE_URL = "/contract-grants/sub-grants/";
 const SUB_GRANT_APPLICATIONS_BASE_URL = "/contract-grants/sub-grants-applications/";
 const SUB_GRANT_APPLICATIONS_DOCS_BASE_URL = "/contract-grants/sub-grants-applications-docs/";
+const SUB_GRANT_PRE_AWARDS_BASE_URL = "/contract-grants/sub-grants-pre-awards/";
 
 export const SubGrantApi = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
@@ -127,6 +128,78 @@ export const SubGrantApplicationsDocsApi = baseAPI.injectEndpoints({
         method: "DELETE",
       }),
       invalidatesTags: (_, data, error) => (!error ? invalidateTags("SUB_GRANTS_DOCS", data) : []),
+    }),
+  }),
+});
+
+export const SubGrantPreAwardsApi = baseAPI.injectEndpoints({
+  endpoints: (builder) => ({
+    getSubGrantPreAwardsDocs: builder.query({
+      query: ({ id }) => ({
+        url: `${SUB_GRANT_PRE_AWARDS_BASE_URL}${id}/award_assessment_document/`,
+        method: "GET",
+      }),
+      providesTags: (data, error) => (!error ? provideTags("SUB_GRANTS", data) : []),
+    }),
+
+    getSubGrantPreAwardsDocumentNames: builder.query({
+      query: () => ({
+        url: `${SUB_GRANT_PRE_AWARDS_BASE_URL}award_assessment_document_types/`,
+        method: "GET",
+      }),
+    }),
+
+    getSubGrantPreAwardsStepOneQuestions: builder.query({
+      query: () => ({
+        url: `${SUB_GRANT_PRE_AWARDS_BASE_URL}program_capacity_questions/`,
+        method: "GET",
+      }),
+    }),
+
+    addSubGrantPreAwardsStep1: builder.mutation({
+      query: ({ body, id }) => ({
+        url: `${SUB_GRANT_PRE_AWARDS_BASE_URL}${id}/program_capacity_response/`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: (_, data, error) => (!error ? invalidateTags("SUB_GRANTS", data) : []),
+    }),
+
+    getSubGrantPreAwardsStepTwoQuestions: builder.query({
+      query: () => ({
+        url: `${SUB_GRANT_PRE_AWARDS_BASE_URL}rating_questions/`,
+        method: "GET",
+      }),
+    }),
+    addSubGrantPreAwardsStepTwo: builder.mutation({
+      query: ({ body, id }) => ({
+        url: `${SUB_GRANT_PRE_AWARDS_BASE_URL}${id}/application_rating/`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: (_, data, error) => (!error ? invalidateTags("SUB_GRANTS", data) : []),
+    }),
+    getSubGrantPreAwardAssessmentRecommendation: builder.query({
+      query: ({ id }) => ({
+        url: `${SUB_GRANT_PRE_AWARDS_BASE_URL}${id}/assessment-recommendation/`,
+        method: "GET",
+      }),
+    }),
+    addSubGrantPreAwardsStep3: builder.mutation({
+      query: ({ body, id }) => ({
+        url: `${SUB_GRANT_PRE_AWARDS_BASE_URL}${id}/assessment-recommendation/`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: (_, data, error) => (!error ? invalidateTags("SUB_GRANTS", data) : []),
+    }),
+    addSubGrantPreAwardsStep4: builder.mutation({
+      query: ({ body, id }) => ({
+        url: `${SUB_GRANT_PRE_AWARDS_BASE_URL}${id}/award_assessment_document/`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: (_, data, error) => (!error ? invalidateTags("SUB_GRANTS", data) : []),
     }),
   }),
 });
