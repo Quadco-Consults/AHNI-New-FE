@@ -183,10 +183,15 @@ export const CandGRoutes = {
   CLOSE_OUT: "/c-and-g/close-out-plan",
   CLOSE_OUT_DETAILS: "/c-and-g/close-out-plan/details/:id",
   NEW_CLOSE_OUT_PLAN: "/c-and-g/close-out-plan/new-grant",
+
+  // consultancy
   CONSULTANCY: "/c-and-g/consultancy",
   NEW_CONSULTANCY: "/c-and-g/consultancy/create-new-consultancy/application-details",
   NEW_CONSULTANCY_SCOPE: "/c-and-g/consultancy/create-new-consultancy/scope-of-work",
   CONSULTANCY_DETAILS: "/c-and-g/consultancy/details/:id",
+  ADD_CONSULTANCY_APPLICATION: "/api/v1/contract-grants/consultancy-applications/:id",
+  CONSULTANCY_APPLICATION_DETAILS: "/api/v1/contract-grants/consultancy-applications_details/:id",
+  CONSULTANCY_SHORTLIST_METRIC: "/api/v1/consultancy/shortlisted-applications-metrics/:id",
   CONSULTANCY_SLA: "/c-and-g/consultancy/sla",
   //   OVERVIEW: "/c-and-g/overview",
 };

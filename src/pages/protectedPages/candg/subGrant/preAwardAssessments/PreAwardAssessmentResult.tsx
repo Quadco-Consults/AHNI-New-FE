@@ -1,6 +1,12 @@
 import Card from "components/shared/Card";
+import { useParams } from "react-router-dom";
+import { SubGrantPreAwardsApi } from "services/cAndGApi/subGrant";
 
 const PreAwardAssessmentResult = () => {
+  const params = useParams();
+  const getPreAwardAssessmentResult = SubGrantPreAwardsApi.useGetSubGrantPreAwardAssessmentRecommendationQuery({ id: params.id });
+  console.log(getPreAwardAssessmentResult);
+
   return (
     <main className="w-full flex flex-col justify-center items-center">
       <Card className="w-full">

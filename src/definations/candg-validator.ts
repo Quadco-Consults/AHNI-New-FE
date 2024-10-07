@@ -95,3 +95,16 @@ export const ManualSubGrantSchemaOrgDetails = z.object({
   // has_conflict_of_interest: z.boolean(), // Boolean validation
   organisation_type: z.string(),
 });
+
+// consultancy application
+export const ConsultancyApplication = z.object({
+  applicant_name: z.string(),
+  applicant_email: z.string().email(),
+  applicant_phone_number: z.string(),
+  employment_type: z.string(),
+});
+
+export const ConsultancyMetrics = z.object({
+  selected_applications: z.array(z.string()),
+  evaluation_comments: z.string(),
+});

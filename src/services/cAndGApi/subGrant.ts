@@ -179,6 +179,12 @@ export const SubGrantPreAwardsApi = baseAPI.injectEndpoints({
       }),
       invalidatesTags: (_, data, error) => (!error ? invalidateTags("SUB_GRANTS", data) : []),
     }),
+    getSubGrantPreAwardAssessmentRecommendation: builder.query({
+      query: ({ id }) => ({
+        url: `${SUB_GRANT_PRE_AWARDS_BASE_URL}${id}/assessment-recommendation/`,
+        method: "GET",
+      }),
+    }),
     addSubGrantPreAwardsStep3: builder.mutation({
       query: ({ body, id }) => ({
         url: `${SUB_GRANT_PRE_AWARDS_BASE_URL}${id}/assessment-recommendation/`,
