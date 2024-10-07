@@ -1,16 +1,19 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import BackNavigation from "atoms/BackNavigation";
+import FadedButton from "atoms/FadedButton";
 import FormButton from "atoms/FormButton";
-import FormInput from "atoms/FormInput";
+import FormTextArea from "atoms/FormTextArea";
 import Card from "components/shared/Card";
 import { FormField, FormItem, Form, FormControl } from "components/ui/form";
 import { Label } from "components/ui/label";
 import MultiSelectFormField from "components/ui/multiselect";
+import { CandGRoutes } from "constants/RouterConstants";
 import { ConsultancyMetrics } from "definations/candg-validator";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useParams } from "react-router-dom";
+import { generatePath, useNavigate, useParams } from "react-router-dom";
 import { consultancyAPIs } from "services/cAndGApi/consultancy";
+import { toast } from "sonner";
 import { z } from "zod";
 
 interface Evaluation {
@@ -20,11 +23,14 @@ interface Evaluation {
 
 const ConsultancyShortlisMetric = () => {
   const params = useParams();
+  const navigate = useNavigate();
   const form = useForm<z.infer<typeof ConsultancyMetrics>>({
     resolver: zodResolver(ConsultancyMetrics),
   });
 
-  const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
+  const [submitMetricsMutation, submitMetricsMutationResults] = consultancyAPIs.usePostConsultantMetricsMutation();
+
+  const [evaluations, setEvaluations] = useState<Evaluation[][]>([]);
 
   // const navigate = useNavigate();
   const getConsultancyApplications = consultancyAPIs.useGetAllConsultancyApplicationsQuery({
@@ -41,8 +47,29 @@ const ConsultancyShortlisMetric = () => {
 
   const onSubmit = async (data: z.infer<typeof ConsultancyMetrics>) => {
     // normailize the array field
+    const applicationReviews = Consultants?.map((consultant: any, index: number) => {
+      return {
+        application_id: consultant?.id,
+        evaluations: evaluations[index].reduce((curr: any, newCurr: any) => {
+          curr[newCurr.evaluationId] = newCurr.evaluation;
+          return curr;
+        }, {}),
+      };
+    });
 
-    console.log({ ...data, evaluations: evaluations });
+    try {
+      await submitMetricsMutation({ ...data, job_detail_id: params.id, application_reviews: applicationReviews }).unwrap();
+      toast.success("success");
+      setTimeout(() => {
+        navigate(
+          generatePath(CandGRoutes.CONSULTANCY_DETAILS, {
+            id: params.id,
+          })
+        );
+      }, 1500);
+    } catch (error: any) {
+      toast.error(error?.data?.message + error?.data?.errors[0]?.attr);
+    }
   };
 
   return (
@@ -70,10 +97,10 @@ const ConsultancyShortlisMetric = () => {
               </div>
             </div>
             <div className="flex items-center w-full">
-              <div className="w-[20%] border-r">
+              <div className="w-[20%]">
                 {Consultants?.map((consultant: any, index: number) => {
                   return (
-                    <p className="px-[.625rem] py-5 w-full border-b border-[#DBDFE9]" key={index}>
+                    <p className="px-[.625rem] h-[70px] flex flex-col justify-center items-center w-full border-b border-[#DBDFE9]" key={index}>
                       {consultant?.applicant_name}
                     </p>
                   );
@@ -82,22 +109,25 @@ const ConsultancyShortlisMetric = () => {
               <div className="w-full flex overflow-auto">
                 <div className="w-full border-l overflow-x-auto">
                   {/* <div className="w-full bg-gradient-to-br from-yellow-400 via-purple-600 to-indigo-400 border-l overflow-x-auto"> */}
-                  {Consultants?.map((item: any, index: number) => {
+                  {Consultants?.map((item: any, indexParent: number) => {
                     return (
-                      <div className="flex w-auto shrink-0" key={index}>
+                      <div className="flex w-auto shrink-0" key={indexParent}>
                         {MetricQuestions?.map((question: any, index: number) => {
                           return (
-                            <p className="w-[15rem] border-r border-y p-[.625rem] font-semibold h-[70px] justify-center items-center flex text-xs" key={index}>
+                            <div className="w-[15rem] border-r border-b px-[.625rem] font-semibold h-[70px] justify-center items-center flex text-xs" key={index}>
                               <select
                                 className="w-full p-2 rounded-lg bg-white border"
                                 id={`evaluation-${question?.id}`}
                                 onChange={(e) => {
                                   let currEvaluation = [...evaluations];
-                                  if (!currEvaluation[index]) {
-                                    currEvaluation[index] = { evaluation: "", evaluationId: "" };
+                                  if (!currEvaluation[indexParent]) {
+                                    currEvaluation[indexParent] = [];
                                   }
-                                  currEvaluation[index].evaluation = e.target.value;
-                                  currEvaluation[index].evaluationId = question?.id;
+                                  if (!currEvaluation[indexParent][index]) {
+                                    currEvaluation[indexParent][index] = { evaluation: "", evaluationId: "" };
+                                  }
+                                  currEvaluation[indexParent][index].evaluation = e.target.value;
+                                  currEvaluation[indexParent][index].evaluationId = question?.id;
                                   setEvaluations(currEvaluation);
                                 }}
                                 required
@@ -108,7 +138,7 @@ const ConsultancyShortlisMetric = () => {
                                 <option value="Acceptable">Acceptable</option>
                                 <option value="Excellent">Excellent</option>
                               </select>{" "}
-                            </p>
+                            </div>
                           );
                         })}
                       </div>
@@ -118,24 +148,10 @@ const ConsultancyShortlisMetric = () => {
               </div>
             </div>
           </div>
-          <Card>
+          <Card className="gap-y-[1.25rem] flex flex-col">
             <p className="font-semibold text-[#DEA004]">Justification for Selection/Other Comments (narrative)</p> <div></div>
-            {/* <div>
-              <Label>Preferred Consultant</Label>
-              <MultiSelectFormField
-                name="selected_ids"
-                options={Consultants?.map((consultant: any) => {
-                  return {
-                    id: consultant?.id,
-                    name: consultant?.applicant_name,
-                  };
-                })}
-                placeholder=""
-                onValueChange={() => ""}
-              />
-            </div> */}
             <div className="space-y-1">
-              <Label className="font-semibold">Target population</Label>
+              <Label className="font-semibold">Preferred Consultant</Label>
               <FormField
                 control={form.control}
                 name="selected_applications"
@@ -161,12 +177,19 @@ const ConsultancyShortlisMetric = () => {
                 )}
               />
             </div>
-            <FormInput name="evaluation_comments" label="Comments" required />
+            <FormTextArea name="evaluation_comments" label="Comments" required />
           </Card>
-          <div>
-            <FormButton type="submit">
-              <p>Submit</p>
-            </FormButton>
+          <div className="flex justify-end items-center gap-x-[1rem]">
+            <div>
+              <FadedButton type="button">
+                <p className="text-primary">Cancel</p>
+              </FadedButton>
+            </div>
+            <div>
+              <FormButton loading={submitMetricsMutationResults.isLoading}>
+                <p>Submit</p>
+              </FormButton>
+            </div>
           </div>
         </form>
       </Form>
