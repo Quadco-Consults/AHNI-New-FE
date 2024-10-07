@@ -1,4 +1,5 @@
 import Card from "components/shared/Card";
+import { LoadingSpinner } from "components/shared/Loading";
 import { useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { SubGrantApi } from "services/cAndGApi/subGrant";
@@ -25,7 +26,9 @@ const SubGrantAwardDetails = () => {
       { id: 1, label: "End Date", value: `${Data?.end_date}` },
     ];
   }, [Data]);
-  return (
+  return getSubGrantDetails.isLoading ? (
+    <LoadingSpinner />
+  ) : (
     <div className="w-full flex flex-col text-[#1A0000] justify-center items-center">
       <div className="w-full bg-white rounded-2xl flex flex-col gap-y-[1.25rem] py-5 px-10">
         <p className="text-xl font-semibold">Award Details</p>
