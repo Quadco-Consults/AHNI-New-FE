@@ -100,6 +100,18 @@ export const candg = [
     path: CandGRoutes.CONSULTANCY_DETAILS,
     element: lazy(() => import("pages/protectedPages/candg/consultancy/ConsultancyDetails")),
   },
+  {
+    path: CandGRoutes.ADD_CONSULTANCY_APPLICATION,
+    element: lazy(() => import("pages/protectedPages/candg/consultancy/AddConsultancyApplication")),
+  },
+  {
+    path: CandGRoutes.CONSULTANCY_APPLICATION_DETAILS,
+    element: lazy(() => import("pages/protectedPages/candg/consultancy/ConsultancyApplicationDetails")),
+  },
+  {
+    path: CandGRoutes.CONSULTANCY_SHORTLIST_METRIC,
+    element: lazy(() => import("pages/protectedPages/candg/consultancy/ConsultancyShortlisMetric")),
+  },
   // sla
   {
     path: CandGRoutes.CONSULTANCY_SLA,

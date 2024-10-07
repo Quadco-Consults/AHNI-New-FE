@@ -19,8 +19,6 @@ const Consultancy = () => {
     params: { no_paginate: false },
   });
 
-  console.log(consultancy);
-
   return (
     <main className="w-full flex flex-col items-center justify-center gap-y-[1rem] px-[4rem]">
       {" "}

@@ -23,12 +23,12 @@ const CloseOutDetails: React.FC = () => {
   }, [departmentQueryResults]);
 
   const tabDetails = useMemo(() => {
-    return departments.map((item: any) => {
+    return departments?.map((item: any) => {
       return { id: 1, state: item?.value, name: item?.label, tabComponent: <></> };
     });
   }, [departments]);
 
-  const [tabState, setTabState] = useState<string | number>(tabDetails[0].state);
+  const [tabState, setTabState] = useState<string | number>(tabDetails?.[0]?.state);
   const closeOutPlansDetails = closeoutPlanAPis.useGetCloseOutPlansDetailsQuery(
     useMemo(
       () => ({

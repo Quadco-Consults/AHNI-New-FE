@@ -1,6 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
+import { DropDownIcon } from "assets/svgs/CAndGSvgs";
 import SearchBar from "atoms/SearchBar";
-import AddSquareIcon from "components/icons/AddSquareIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import EyeIcon from "components/icons/EyeIcon";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
@@ -10,16 +10,24 @@ import { Checkbox } from "components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { CandGRoutes } from "constants/RouterConstants";
 import React, { useMemo } from "react";
-import { generatePath, Link, useNavigate } from "react-router-dom";
-import { closeoutPlanAPis } from "services/cAndGApi/closeOutPlan";
+import { generatePath, Link, useNavigate, useParams } from "react-router-dom";
+import { consultancyAPIs } from "services/cAndGApi/consultancy";
 import { toast } from "sonner";
 
-const CloseOut: React.FC = () => {
+const ConsultancySubmittedApplications: React.FC = () => {
+  const params = useParams();
   const navigate = useNavigate();
-  const getCloseOutPlan = closeoutPlanAPis.useGetCloseOutPlansQuery({});
+  const getConsultancyApplications = consultancyAPIs.useGetAllConsultancyApplicationsQuery({
+    params: {
+      job_detail: params.id,
+    },
+  });
+
+  // console.log(getConsultancyApplications);
+
   const closeOutArray = useMemo(() => {
-    return getCloseOutPlan?.data?.results || [];
-  }, [getCloseOutPlan]);
+    return getConsultancyApplications?.data?.results || [];
+  }, [getConsultancyApplications]);
 
   const columns: ColumnDef<any>[] = [
     {
@@ -63,31 +71,26 @@ const CloseOut: React.FC = () => {
     //   ),
     // },
     {
-      header: "Project Name",
-      accessorKey: "project_id",
+      header: "Applicant Name",
+      accessorKey: "applicant_name",
       size: 250,
-      cell: ({ row }) => <p>{row?.original?.project_id}</p>,
+      // cell: ({ row }) => <p>{row?.original?.project_id}</p>,
     },
     {
-      header: "Task ID/ No",
-      accessorKey: "closeout_task_count",
+      header: "Employment type",
+      accessorKey: "employment_type",
       size: 250,
-      cell: ({ row }) => <p>{row?.original?.closeout_task_count}</p>,
+      // cell: ({ row }) => <p>{row?.original?.closeout_task_count}</p>,
     },
     {
-      header: "Duration",
-      accessorKey: "closeout_duration",
+      header: "Applicant Email",
+      accessorKey: "applicant_email",
       size: 250,
-      cell: ({ row }) => <p>{row?.original?.closeout_duration}</p>,
+      // cell: ({ row }) => <p>{row?.original?.closeout_duration}</p>,
     },
+
     {
-      header: "Status",
-      accessorKey: "closeout_status",
-      size: 250,
-      cell: ({ row }) => <p>{row?.original?.closeout_status}</p>,
-    },
-    {
-      header: "Action",
+      header: "",
       id: "actions",
       size: 50,
       cell: ({ row }) => <ActionListAction data={row.original} />,
@@ -95,10 +98,10 @@ const CloseOut: React.FC = () => {
   ];
 
   const ActionListAction = ({ data }: any) => {
-    const [subgrantDeleteMutation] = closeoutPlanAPis.useAddCloseOutPlanMutation();
+    // const [subgrantDeleteMutation] = closeoutPlanAPis.useAddCloseOutPlanMutation();
     const deleteSubgrantHandler = async () => {
       try {
-        await subgrantDeleteMutation({ path: { id: data?.id } }).unwrap();
+        // await subgrantDeleteMutation({ path: { id: data?.id } }).unwrap();
         toast.success("Project deleted.");
       } catch (error) {
         console.log(error);
@@ -119,7 +122,7 @@ const CloseOut: React.FC = () => {
               <div className="flex flex-col items-start justify-between gap-1">
                 <Link
                   className="w-full"
-                  to={generatePath("/c-and-g/close-out-plan/details/:id", {
+                  to={generatePath(CandGRoutes.CONSULTANCY_APPLICATION_DETAILS, {
                     id: data?.id,
                   })}
                 >
@@ -159,9 +162,11 @@ const CloseOut: React.FC = () => {
           onClick={() => {
             navigate(CandGRoutes.NEW_CLOSE_OUT_PLAN);
           }}
+          variant={"custom"}
+          className="bg-[#FFF2F2] text-primary"
         >
-          <AddSquareIcon />
-          <p>Create New Close Out Plan</p>
+          <p>Actions</p>
+          <DropDownIcon />
         </Button>
       </section>
       <div className="w-full">
@@ -171,11 +176,11 @@ const CloseOut: React.FC = () => {
           //   navigate("/c-and-g/close-out-plan/details/" + row?.original?.id);
           // }}
           data={closeOutArray}
-          isLoading={getCloseOutPlan.isLoading}
+          isLoading={getConsultancyApplications.isLoading}
         />
       </div>
     </main>
   );
 };
 
-export default CloseOut;
+export default ConsultancySubmittedApplications;
