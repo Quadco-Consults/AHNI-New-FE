@@ -75,6 +75,48 @@ const DetailTab = (data: any) => {
         },
         size: 200,
       },
+      {
+        header: "Module",
+        accessorKey: "module",
+        // cell: ({ row }) => {
+        //   return (
+        //     <p>
+        //       {row.original.workplans.map(
+        //         (workplan: any) => workplan.locations
+        //       )}
+        //     </p>
+        //   );
+        // },
+        size: 200,
+      },
+      {
+        header: "Interventions",
+        accessorKey: "interventions",
+        // cell: ({ row }) => {
+        //   return (
+        //     <p>
+        //       {row.original.workplans.map(
+        //         (workplan: any) => workplan.locations
+        //       )}
+        //     </p>
+        //   );
+        // },
+        size: 200,
+      },
+      {
+        header: "Cost Category",
+        accessorKey: "cost_category",
+        // cell: ({ row }) => {
+        //   return (
+        //     <p>
+        //       {row.original.workplans.map(
+        //         (workplan: any) => workplan.locations
+        //       )}
+        //     </p>
+        //   );
+        // },
+        size: 200,
+      },
     ],
     []
   );

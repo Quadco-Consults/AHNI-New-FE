@@ -1,5 +1,4 @@
 import { Badge } from "components/ui/badge";
-import fhiIcon from "assets/imgs/fhi.png";
 import { MapPin } from "lucide-react";
 
 const Summary = (projects: any) => {
@@ -64,6 +63,19 @@ const Summary = (projects: any) => {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div className="space-y-1">
+          <h3 className="font-semibold">Narration</h3>
+          <p className="text-sm text-gray-500">{projects.expected_results}</p>
+        </div>
+        <div className="space-y-1">
+          <h3 className="font-semibold">Budget Performance</h3>
+          <p className="text-sm text-gray-500">
+            ${projects.budget.toLocaleString()}
+          </p>
+        </div>
+      </div>
+
       <div className="space-y-1">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <div className="space-y-2">
@@ -75,7 +87,7 @@ const Summary = (projects: any) => {
                   key={index}
                   className="bg-[#EBE8E1] text-[#1a0000ad] px-4 py-2 rounded-lg"
                 >
-                  {option.location.name}
+                  {option.location}
                 </Badge>
               ))}
             </div>
