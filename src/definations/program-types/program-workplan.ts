@@ -1,3 +1,7 @@
+import { FinancialYearResultsData } from "definations/configs/financial-year";
+import { PartnerResultsData } from "definations/project-types/partners";
+import { ProjectsResultsData } from "definations/project-types/projects";
+
 export interface WorkPlanResultsData {
   id: string;
   monthly_budget: {
@@ -44,7 +48,7 @@ export interface WorkPlanList {
   project_title: string;
   partner_id: string;
   partner_name: string;
-  financial_year: string;
+  financial_year: FinancialYearResultsData;
   budget: number;
   count: 1;
 }
@@ -62,10 +66,7 @@ export interface WorkPlanDetails {
     id: string;
     project_partners: [
       {
-        location: {
-          id: string;
-          name: string;
-        };
+        location: string;
         partners: [
           {
             id: string;
@@ -145,6 +146,9 @@ export interface WorkPlanDetails {
     budget: number;
     status: string;
     project_manager: string;
+    narrative: string;
+    budget_performance: string;
+    stake_holders: string[];
   };
   partner: {
     id: string;
@@ -236,13 +240,13 @@ export interface WorkPlanDetails {
       expected_result: string;
       indicator: string;
       mov: string;
-      locations: string;
+      locations: string[];
       approval_number: string;
       comments: string;
-      financial_year: string;
+      financial_year: FinancialYearResultsData;
       project_objective: string;
-      partner: string;
-      project: string;
+      partner: PartnerResultsData;
+      project: ProjectsResultsData;
     }
   ];
 }

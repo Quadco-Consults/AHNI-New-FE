@@ -14,11 +14,16 @@ import FormInput from "atoms/FormInput";
 import MultiSelectFormField from "components/ui/multiselect";
 import LocationSvg from "assets/svgs/LocationSvg";
 import beneficiariesAPi from "services/projectsApi/beneficiariesApi";
-import { useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ProjectsSummarySchema } from "definations/project-validator";
 import { z } from "zod";
-import { Dialog, DialogClose, DialogContent, DialogTrigger } from "components/ui/dialog";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogTrigger,
+} from "components/ui/dialog";
 import FormTextArea from "atoms/FormTextArea";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "store/index";
@@ -67,17 +72,22 @@ const Summary = () => {
       []
     )
   );
-  const [projectsMutation, { isLoading }] = projectsAPi.useCreateProjectMutation();
+  const [projectsMutation, { isLoading }] =
+    projectsAPi.useCreateProjectMutation();
 
   const [inputValues, setInputValues] = useState<InputValues[]>([]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>, index: number, field: keyof InputValues) => {
+  const handleInputChange = (
+    e: ChangeEvent<HTMLTextAreaElement>,
+    index: number,
+    field: keyof InputValues
+  ) => {
     const newInputValues = [...inputValues];
     newInputValues[index][field] = e.target.value;
     setInputValues(newInputValues);
   };
 
-  const handleAddInput = (e: React.FormEvent) => {
+  const handleAddInput = (e: FormEvent) => {
     e.preventDefault();
     const newInputValues = [...inputValues, { title: "" }];
     setInputValues(newInputValues);
@@ -95,7 +105,9 @@ const Summary = () => {
 
   const dispatch = useAppDispatch();
 
-  const location_partners = useSelector((state: RootState) => state.partnerLocation.items);
+  const location_partners = useSelector(
+    (state: RootState) => state.partnerLocation.items
+  );
   const idsObj = location_partners?.map((partner: any) => partner.ids);
 
   const objs = useSelector((state: RootState) => state.objectives.objectives);
@@ -153,7 +165,6 @@ const Summary = () => {
 
     try {
       const res = await projectsMutation(formData).unwrap();
-      console.log(res?.data.id);
       localStorage.setItem("projectID", res?.data.id);
       toast.success("Project successfully added.");
 
@@ -181,7 +192,9 @@ const Summary = () => {
               <h4 className="text-lg font-semibold">Project Summary</h4>
               <FormInput name="title" label="Project Name" />
               <FormInput name="project_id" label="Project ID" />
-              <FormInput name="goal" label="Goal of the project" />
+              <FormTextArea name="goal" label="Goal of the project" />
+              <FormTextArea name="narrative" label="Narrative" />
+              <FormInput name="budget_performance" label="Budget Performance" />
 
               <div className="flex gap-5">
                 <div>
@@ -189,13 +202,28 @@ const Summary = () => {
                   <br />
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant={"outline"} className={cn("w-[280px] justify-start text-left font-normal", !startDate && "text-muted-foreground")}>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-[280px] justify-start text-left font-normal",
+                          !startDate && "text-muted-foreground"
+                        )}
+                      >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {startDate ? format(startDate, "yyy-MM-dd") : <span>Pick a date</span>}
+                        {startDate ? (
+                          format(startDate, "yyy-MM-dd")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
-                      <Calendar mode="single" selected={startDate} onSelect={setStartDate} initialFocus />
+                      <Calendar
+                        mode="single"
+                        selected={startDate}
+                        onSelect={setStartDate}
+                        initialFocus
+                      />
                     </PopoverContent>
                   </Popover>
                 </div>{" "}
@@ -204,13 +232,28 @@ const Summary = () => {
                   <br />
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant={"outline"} className={cn("w-[280px] justify-start text-left font-normal", !endDate && "text-muted-foreground")}>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-[280px] justify-start text-left font-normal",
+                          !endDate && "text-muted-foreground"
+                        )}
+                      >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {endDate ? format(endDate, "yyy-MM-dd") : <span>Pick a date</span>}
+                        {endDate ? (
+                          format(endDate, "yyy-MM-dd")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
-                      <Calendar mode="single" selected={endDate} onSelect={setEndDate} initialFocus />
+                      <Calendar
+                        mode="single"
+                        selected={endDate}
+                        onSelect={setEndDate}
+                        initialFocus
+                      />
                     </PopoverContent>
                   </Popover>
                 </div>
@@ -219,7 +262,11 @@ const Summary = () => {
               <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
                 <FormInput name="budget" label="Budget" type="number" />
 
-                <FormInput required name="project_manager" label="Project Manager" />
+                <FormInput
+                  required
+                  name="project_manager"
+                  label="Project Manager"
+                />
               </div>
 
               <div>
@@ -230,7 +277,13 @@ const Summary = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <MultiSelectFormField options={fundingSourceData || []} defaultValue={field.value} onValueChange={field.onChange} placeholder="Select options" variant="inverted" />
+                        <MultiSelectFormField
+                          options={fundingSourceData || []}
+                          defaultValue={field.value}
+                          onValueChange={field.onChange}
+                          placeholder="Select options"
+                          variant="inverted"
+                        />
                       </FormControl>
                     </FormItem>
                   )}
@@ -243,13 +296,19 @@ const Summary = () => {
                 <Label className="font-semibold text-red-600">Objectives</Label>
                 <div className="flex flex-wrap gap-3">
                   {objs?.map((option: any, index: number) => (
-                    <div key={index} className="border px-7 py-4 space-y-3 rounded-lg">
+                    <div
+                      key={index}
+                      className="border px-7 py-4 space-y-3 rounded-lg"
+                    >
                       <p className="text-sm font-semibold">{option?.title}</p>
 
                       {option?.sub_objectives && (
                         <ul className="space-y-2">
                           {option?.sub_objectives.map((obj: any, i: number) => (
-                            <li key={i} className="text-sm text-gray-500 list-disc pl-5">
+                            <li
+                              key={i}
+                              className="text-sm text-gray-500 list-disc pl-5"
+                            >
                               {obj?.title}
                             </li>
                           ))}
@@ -260,42 +319,71 @@ const Summary = () => {
                   <div>
                     <Dialog>
                       <DialogTrigger>
-                        <p className="text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm">Click to add objectives</p>
+                        <p className="text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm">
+                          Click to add objectives
+                        </p>
                       </DialogTrigger>
                       <DialogContent>
                         <div className="space-y-10">
-                          <h4 className="text-xl font-semibold">Add Objective</h4>
+                          <h4 className="text-xl font-semibold">
+                            Add Objective
+                          </h4>
 
                           <FormTextArea name="objectives" label="Objective" />
 
                           <div className="space-y-3">
-                            <h4 className="text-xl font-semibold">Add Sub-Objective</h4>
+                            <h4 className="text-xl font-semibold">
+                              Add Sub-Objective
+                            </h4>
 
                             {inputValues.map((value, index) => (
-                              <div key={index} className="flex items-center gap-2">
+                              <div
+                                key={index}
+                                className="flex items-center gap-2"
+                              >
                                 <div className="w-[90%]">
-                                  <textarea className="w-full border rounded-lg p-3" rows={3} onChange={(e) => handleInputChange(e, index, "title")} />
+                                  <textarea
+                                    className="w-full border rounded-lg p-3"
+                                    rows={3}
+                                    onChange={(e) =>
+                                      handleInputChange(e, index, "title")
+                                    }
+                                  />
                                 </div>
                                 <div>
-                                  <Button onClick={() => handleDeleteInput(index)} variant="ghost" size="icon" className="text-red-500">
+                                  <Button
+                                    onClick={() => handleDeleteInput(index)}
+                                    variant="ghost"
+                                    size="icon"
+                                    className="text-red-500"
+                                  >
                                     <X />
                                   </Button>
                                 </div>
                               </div>
                             ))}
 
-                            <Button onClick={handleAddInput} type="button" className="bg-[#FFF2F2] text-primary dark:text-gray-500">
+                            <Button
+                              onClick={handleAddInput}
+                              type="button"
+                              className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                            >
                               Add
                             </Button>
                           </div>
 
                           <div className="flex justify-end gap-5 mt-16">
-                            <Button type="button" className="bg-[#FFF2F2] text-primary dark:text-gray-500">
+                            <Button
+                              type="button"
+                              className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                            >
                               Cancel
                             </Button>
 
                             <DialogClose asChild>
-                              <Button onClick={addObjectivesHandler}>Done</Button>
+                              <Button onClick={addObjectivesHandler}>
+                                Done
+                              </Button>
                             </DialogClose>
                           </div>
                         </div>
@@ -315,7 +403,13 @@ const Summary = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <MultiSelectFormField options={beneficiariesData || []} defaultValue={field.value} onValueChange={field.onChange} placeholder="Select options" variant="inverted" />
+                        <MultiSelectFormField
+                          options={beneficiariesData || []}
+                          defaultValue={field.value}
+                          onValueChange={field.onChange}
+                          placeholder="Select options"
+                          variant="inverted"
+                        />
                       </FormControl>
                     </FormItem>
                   )}
@@ -328,16 +422,22 @@ const Summary = () => {
                 <Label className="font-semibold">Consortium partners</Label>
                 <div className="flex flex-wrap gap-3">
                   {location_partners.map((option: any, index: number) => (
-                    <div key={index} className="border px-7 py-4 space-y-3 rounded-lg">
+                    <div
+                      key={index}
+                      className="border px-7 py-4 space-y-3 rounded-lg"
+                    >
                       <div className="flex gap-3 items-center">
-                        <LocationSvg /> <h4 className="font-semibold">{option.obj.location}</h4>
+                        <LocationSvg />{" "}
+                        <h4 className="font-semibold">{option.obj.location}</h4>
                       </div>
                       <ul className="text-sm text-[#756D6D] space-y-2">
-                        {option.obj.partner_ids.map((partner: any, index: number) => (
-                          <li key={index} className=" list-disc">
-                            {partner.name}
-                          </li>
-                        ))}
+                        {option.obj.partner_ids.map(
+                          (partner: any, index: number) => (
+                            <li key={index} className=" list-disc">
+                              {partner.name}
+                            </li>
+                          )
+                        )}
                       </ul>
                     </div>
                   ))}
@@ -363,10 +463,19 @@ const Summary = () => {
             </Card>
 
             <div className="flex justify-between gap-5 mt-16">
-              <Button onClick={() => navigate(-1)} type="button" className="bg-[#FFF2F2] text-primary dark:text-gray-500">
+              <Button
+                onClick={() => navigate(-1)}
+                type="button"
+                className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+              >
                 Cancel
               </Button>
-              <FormButton type="submit" suffix={<ChevronRight size={14} />}>
+              <FormButton
+                loading={isLoading}
+                disabled={isLoading}
+                type="submit"
+                suffix={<ChevronRight size={14} />}
+              >
                 Next
               </FormButton>
             </div>

@@ -65,13 +65,25 @@ const SspDetails = () => {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <Button
-        onClick={goBack}
-        variant="outline"
-        className="flex gap-4 items-center text-primary border-primary hover:bg-red-50 hover:text-red-500"
-      >
-        <ArrowLeft size={15} /> Back
-      </Button>
+      <div className="flex justify-between">
+        <Button
+          onClick={goBack}
+          variant="outline"
+          className="flex gap-4 items-center text-primary border-primary hover:bg-red-50 hover:text-red-500"
+        >
+          <ArrowLeft size={15} /> Back
+        </Button>
+        <Link
+          to={generatePath(
+            RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_MANAGEMENT,
+            {
+              id: data?.id,
+            }
+          )}
+        >
+          <Button>Start Evaluation</Button>
+        </Link>
+      </div>
 
       <Card className="space-y-5">
         <h2 className="text-lg font-bold">Facility & Team Composition</h2>
@@ -149,18 +161,6 @@ const SspDetails = () => {
           </div>
         </div>
       </Card>
-      <div className="flex justify-end">
-        <Link
-          to={generatePath(
-            RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_MANAGEMENT,
-            {
-              id: data?.id,
-            }
-          )}
-        >
-          <Button>Start Evaluation</Button>
-        </Link>
-      </div>
     </div>
   );
 };
