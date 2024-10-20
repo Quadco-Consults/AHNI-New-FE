@@ -46,6 +46,8 @@ export const DialogType = {
   AddPrequalificationCategory: "AddPrequalificationCategory",
   AddPrequalificationCriteria: "AddPrequalificationCriteria",
   AddQuestionairs: "AddQuestionairs",
+  ProcurementUploadModal: "ProcurementUploadModal",
+  HrSuccessModal: "HrSuccessModal",
 };
 
 export const largeDailogScreen = {

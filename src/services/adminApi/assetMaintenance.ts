@@ -1,5 +1,5 @@
 import baseAPI from "..";
-import { TBasePaginatedRespose, TRequest } from "definations/auth";
+import { TBasePaginatedResponse, TRequest } from "definations/auth";
 
 export interface AssetMaintenanceRequest {
   id: string;
@@ -26,7 +26,7 @@ const url = "/admins/asset-maintenance-requests/";
 const assetMaintenance = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     getAssetMaintenanceRequests: builder.query<
-      TBasePaginatedRespose<AssetMaintenanceRequest[]>,
+      TBasePaginatedResponse<AssetMaintenanceRequest[]>,
       TRequest
     >({
       query: (params) => ({

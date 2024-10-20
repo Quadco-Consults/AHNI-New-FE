@@ -58,6 +58,14 @@ const PurchaseRequesttDetails = () => {
             <h6 className="text-base font-semibold">Deliver to:</h6>
             <p className="text-sm">{data?.deliver_to}</p>
           </span>
+          <span className="space-y-2">
+            <h6 className="text-base font-semibold">PR Number:</h6>
+            <p className="text-sm">{data?.request_id}</p>
+          </span>
+          <span className="space-y-2">
+            <h6 className="text-base font-semibold">Status:</h6>
+            <p className="text-sm">{data?.status}</p>
+          </span>
         </div>
 
         {/* table showing all results of the page */}

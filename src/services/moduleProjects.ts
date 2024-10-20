@@ -1,5 +1,5 @@
 import baseAPI from ".";
-import { TBasePaginatedRespose, TRequest } from "definations/auth";
+import { TBasePaginatedResponse, TRequest } from "definations/auth";
 import {
   FundingSource,
   TFundingSource,
@@ -14,7 +14,7 @@ import {
 const projectsAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     fundingSources: builder.query<
-      TBasePaginatedRespose<FundingSource[]>,
+      TBasePaginatedResponse<FundingSource[]>,
       TRequest
     >({
       query: (params) => ({
@@ -51,7 +51,7 @@ const projectsAPI = baseAPI.injectEndpoints({
     }),
 
     beneficiaries: builder.query<
-      TBasePaginatedRespose<Beneficiaries[]>,
+      TBasePaginatedResponse<Beneficiaries[]>,
       TRequest
     >({
       query: (params) => ({
@@ -88,7 +88,7 @@ const projectsAPI = baseAPI.injectEndpoints({
     }),
 
     documentTypes: builder.query<
-      TBasePaginatedRespose<DocumentTypes[]>,
+      TBasePaginatedResponse<DocumentTypes[]>,
       TRequest
     >({
       query: (params) => ({
@@ -124,7 +124,7 @@ const projectsAPI = baseAPI.injectEndpoints({
       invalidatesTags: ["DocumentTypes"],
     }),
 
-    partners: builder.query<TBasePaginatedRespose<Partners[]>, TRequest>({
+    partners: builder.query<TBasePaginatedResponse<Partners[]>, TRequest>({
       query: (params) => ({
         url: "/projects/partners/",
         params,
@@ -139,14 +139,16 @@ const projectsAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["Partners"],
     }),
-    updatePartners: builder.mutation<Partners, { id: string; body: TPartners }>({
-      query: ({ id, body }) => ({
-        url: `/projects/partners/${id}/`,
-        method: "PATCH",
-        body: body,
-      }),
-      invalidatesTags: ["Partners"],
-    }),
+    updatePartners: builder.mutation<Partners, { id: string; body: TPartners }>(
+      {
+        query: ({ id, body }) => ({
+          url: `/projects/partners/${id}/`,
+          method: "PATCH",
+          body: body,
+        }),
+        invalidatesTags: ["Partners"],
+      }
+    ),
     deletePartners: builder.mutation<Partners, string>({
       query: (id) => ({
         url: `/projects/partners/${id}`,

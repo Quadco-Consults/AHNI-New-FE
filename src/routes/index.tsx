@@ -7,6 +7,7 @@ import { project } from "./project";
 import { users } from "./users";
 import { candg } from "./candg";
 import { modules } from "./modules";
+import { hr } from "./hr";
 
 const getRoutes = function getRoutes() {
   return configureRoutes([
@@ -18,6 +19,7 @@ const getRoutes = function getRoutes() {
     ...users,
     ...candg,
     ...modules,
+    ...hr,
   ]);
 };
 

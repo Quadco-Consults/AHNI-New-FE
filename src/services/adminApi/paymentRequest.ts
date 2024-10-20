@@ -1,5 +1,5 @@
 import baseAPI from "..";
-import { TBasePaginatedRespose, TRequest } from "definations/auth";
+import { TBasePaginatedResponse, TRequest } from "definations/auth";
 
 export interface TPaymentRequest {
   id: string;
@@ -50,7 +50,7 @@ const url = "/admins/payment-requests/";
 const paymentRequests = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     getPaymentRequests: builder.query<
-      TBasePaginatedRespose<TPaymentRequest[]>,
+      TBasePaginatedResponse<TPaymentRequest[]>,
       TRequest
     >({
       query: (params) => ({

@@ -16,8 +16,13 @@ import BreadcrumbCard from "components/shared/Breadcrumb";
 import ProcurementPlanAPI from "services/procurementApi/procurement-plan";
 import { ProcurementPlanResultsData } from "definations/procurement-types/procurementPlan";
 import UploadIcon from "components/icons/UploadIcon";
+import { openDialog } from "store/ui";
+import { useAppDispatch } from "hooks/useStore";
+import { DialogType } from "constants/dailogs";
 
 function ProcurementPlan() {
+  const dispatch = useAppDispatch();
+
   const { data, isLoading } = ProcurementPlanAPI.useGetProcurementPlansQuery(
     {}
   );
@@ -56,6 +61,11 @@ function ProcurementPlan() {
               <Button
                 className="w-full flex items-center gap-2 justify-start"
                 variant="ghost"
+                onClick={() =>
+                  dispatch(
+                    openDialog({ type: DialogType.ProcurementUploadModal })
+                  )
+                }
               >
                 <UploadIcon /> Upload Procurement plan
               </Button>
@@ -166,12 +176,12 @@ const columns: ColumnDef<ProcurementPlanResultsData>[] = [
       },
       {
         header: "Advertise Bid",
-        accessorKey: "approvedBudget",
+        accessorKey: "approvedBudget1",
         size: 300,
       },
       {
         header: "Evaluation",
-        accessorKey: "approvedBudget",
+        accessorKey: "approvedBudget2",
         size: 200,
       },
       {

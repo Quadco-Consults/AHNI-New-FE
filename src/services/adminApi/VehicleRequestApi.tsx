@@ -1,6 +1,6 @@
 // VehicleRequestApi.tsx
 
-import { TBasePaginatedRespose, TRequest } from "definations/auth";
+import { TBasePaginatedResponse, TRequest } from "definations/auth";
 import baseAPI from "..";
 import { IVehicleRequest } from "components/Table/columns/vehicleRequest";
 import { FuelRecordForm } from "pages/protectedPages/admin/FleetManagment/CreateFuelRecord";
@@ -95,7 +95,7 @@ export const vehicleRequestApi = baseAPI.injectEndpoints({
     }),
 
     getVehicleRequests: builder.query<
-      TBasePaginatedRespose<IVehicleRequest[]>,
+      TBasePaginatedResponse<IVehicleRequest[]>,
       TRequest
     >({
       query: (params) => ({
@@ -162,7 +162,7 @@ export const vehicleRequestApi = baseAPI.injectEndpoints({
       invalidatesTags: ["FuelRecord"],
     }),
     getVehicleFuelRecord: builder.query<
-      TBasePaginatedRespose<FuelRecord[]>,
+      TBasePaginatedResponse<FuelRecord[]>,
       TRequest
     >({
       query: (params) => ({
