@@ -1,6 +1,6 @@
 import baseAPI from ".";
 import {
-  TBasePaginatedRespose,
+  TBasePaginatedResponse,
   TRequest,
   TSupervisionCategoryResponseArray,
 } from "definations/auth";
@@ -49,7 +49,7 @@ const projectsAPI = baseAPI.injectEndpoints({
       invalidatesTags: ["Facilities"],
     }),
     updateFacilities: builder.mutation<
-    Facilities,
+      Facilities,
       { id: string; body: TFacilities }
     >({
       query: ({ id, body }) => ({
@@ -59,10 +59,7 @@ const projectsAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["Facilities"],
     }),
-    deleteFacilities: builder.mutation<
-    Facilities,
-      string
-    >({
+    deleteFacilities: builder.mutation<Facilities, string>({
       query: (id) => ({
         url: `/programs/facilities/${id}`,
         method: "DELETE",
@@ -120,7 +117,7 @@ const projectsAPI = baseAPI.injectEndpoints({
     }),
 
     riskCategory: builder.query<
-      TBasePaginatedRespose<RiskCategory[]>,
+      TBasePaginatedResponse<RiskCategory[]>,
       TRequest
     >({
       query: (params) => ({
