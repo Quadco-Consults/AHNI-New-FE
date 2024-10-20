@@ -1,4 +1,4 @@
-import { TBasePaginatedRespose } from "definations/auth";
+import { TBasePaginatedResponse } from "definations/auth";
 import baseAPI from "..";
 import { ProcurementTrackerResults } from "definations/procurement-types/procurementPlan";
 
@@ -7,7 +7,7 @@ const BASE_URL = "/procurement/procurement-tracker/";
 const ProcurementTrackerAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     getProcurementTrackers: builder.query<
-      TBasePaginatedRespose<ProcurementTrackerResults[]>,
+      TBasePaginatedResponse<ProcurementTrackerResults[]>,
       {}
     >({
       query: (config) => {

@@ -1,4 +1,4 @@
-import { TBasePaginatedRespose, TRequest } from "definations/auth";
+import { TBasePaginatedResponse, TRequest } from "definations/auth";
 
 import baseAPI from "..";
 
@@ -33,7 +33,7 @@ type CreateFacilityPayload = {
 
 export const agrrementsAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getFacilities: builder.query<TBasePaginatedRespose<Facility[]>, TRequest>({
+    getFacilities: builder.query<TBasePaginatedResponse<Facility[]>, TRequest>({
       query: (params) => ({
         url: "/admins/facility-maintenance-requests/",
         params,

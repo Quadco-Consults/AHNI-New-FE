@@ -1,5 +1,5 @@
 import baseAPI from ".";
-import { TBasePaginatedRespose, TRequest } from "definations/auth";
+import { TBasePaginatedResponse, TRequest } from "definations/auth";
 import {
   AssetConditions,
   TAssetConditions,
@@ -10,7 +10,7 @@ import {
 const projectsAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     assetConditions: builder.query<
-      TBasePaginatedRespose<AssetConditions[]>,
+      TBasePaginatedResponse<AssetConditions[]>,
       TRequest
     >({
       query: (params) => ({
@@ -46,10 +46,7 @@ const projectsAPI = baseAPI.injectEndpoints({
       invalidatesTags: ["AssetConditions"],
     }),
 
-    assetTypes: builder.query<
-      TBasePaginatedRespose<AssetTypes[]>,
-      TRequest
-    >({
+    assetTypes: builder.query<TBasePaginatedResponse<AssetTypes[]>, TRequest>({
       query: (params) => ({
         url: "/admins/inventory-asset-types/",
         params,
@@ -65,7 +62,7 @@ const projectsAPI = baseAPI.injectEndpoints({
       invalidatesTags: ["AssetTypes"],
     }),
     updateAssetTypes: builder.mutation<
-    AssetTypes,
+      AssetTypes,
       { id: string; body: TAssetTypes }
     >({
       query: ({ id, body }) => ({

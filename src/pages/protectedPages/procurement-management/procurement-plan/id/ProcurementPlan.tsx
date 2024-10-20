@@ -1,5 +1,4 @@
 import { ProcurementPlanResultsData } from "definations/procurement-types/procurementPlan";
-import React from "react";
 
 const ProcurementPlan = (data: ProcurementPlanResultsData) => {
   return (
@@ -40,7 +39,7 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
         <span className="space-y-2">
           <h4 className="text-lg font-semibold">Approved Budget Amount</h4>
           <p className="text-sm text-gray-500">
-            ${data?.approved_budget.toLocaleString()}
+            ${data?.approved_budget?.toLocaleString()}
           </p>
         </span>
       </div>

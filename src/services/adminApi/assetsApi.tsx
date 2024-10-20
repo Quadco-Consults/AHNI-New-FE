@@ -1,4 +1,4 @@
-import { TBasePaginatedRespose, TRequest } from "definations/auth";
+import { TBasePaginatedResponse, TRequest } from "definations/auth";
 
 import baseAPI from "..";
 import { omit } from "lodash";
@@ -117,14 +117,14 @@ export interface DisposalReport {
 
 const assetsAPi = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getAssets: builder.query<TBasePaginatedRespose<Asset[]>, TRequest>({
+    getAssets: builder.query<TBasePaginatedResponse<Asset[]>, TRequest>({
       query: (params) => ({
         url: `${path}/inventory-assets/`,
         params,
       }),
     }),
     getAssetsRequest: builder.query<
-      TBasePaginatedRespose<DisposalReport[]>,
+      TBasePaginatedResponse<DisposalReport[]>,
       TRequest
     >({
       query: (params) => ({
@@ -170,7 +170,7 @@ const assetsAPi = baseAPI.injectEndpoints({
       }),
     }),
     deleteAssets: builder.mutation<
-      TBasePaginatedRespose<TConsumables[]>,
+      TBasePaginatedResponse<TConsumables[]>,
       TRequest
     >({
       query: (params) => ({
@@ -179,7 +179,7 @@ const assetsAPi = baseAPI.injectEndpoints({
       }),
     }),
     deleteAssetsRequest: builder.mutation<
-      TBasePaginatedRespose<TConsumables[]>,
+      TBasePaginatedResponse<TConsumables[]>,
       TRequest
     >({
       query: (params) => ({
@@ -188,14 +188,14 @@ const assetsAPi = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["AssetsRequest"],
     }),
-    getAssetType: builder.query<TBasePaginatedRespose<TAssets[]>, TRequest>({
+    getAssetType: builder.query<TBasePaginatedResponse<TAssets[]>, TRequest>({
       query: (params) => ({
         url: `${path}/inventory-asset-types/`,
         params,
       }),
     }),
     getAssetConditions: builder.query<
-      TBasePaginatedRespose<AssetCondition[]>,
+      TBasePaginatedResponse<AssetCondition[]>,
       TRequest
     >({
       query: (params) => ({
