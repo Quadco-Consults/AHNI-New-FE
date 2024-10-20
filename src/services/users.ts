@@ -1,5 +1,5 @@
 import baseAPI from ".";
-import { TBasePaginatedRespose, TRequest } from "definations/auth";
+import { TBasePaginatedResponse, TRequest } from "definations/auth";
 import {
   Permission,
   TCreateUser,
@@ -10,13 +10,13 @@ import {
 
 const usersAPi = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    roles: builder.query<TBasePaginatedRespose<TRole[]>, TRequest>({
+    roles: builder.query<TBasePaginatedResponse<TRole[]>, TRequest>({
       query: (params) => ({
         url: "/auth/roles/",
         params,
       }),
     }),
-    permissions: builder.query<TBasePaginatedRespose<Permission[]>, TRequest>({
+    permissions: builder.query<TBasePaginatedResponse<Permission[]>, TRequest>({
       query: (params) => ({
         url: "/auth/permissions/",
         params,
@@ -45,7 +45,7 @@ const usersAPi = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["Users"],
     }),
-    getUser: builder.query<TBasePaginatedRespose<TUser[]>, TRequest>({
+    getUser: builder.query<TBasePaginatedResponse<TUser[]>, TRequest>({
       query: (params) => ({
         url: "/auth/users/",
         params,

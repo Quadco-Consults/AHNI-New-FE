@@ -14,7 +14,7 @@ import {
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import { RouteEnum } from "constants/RouterConstants";
 import { LoadingSpinner } from "components/shared/Loading";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Document, Page } from "react-pdf";
 import { pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
@@ -45,7 +45,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 
 const Upload = () => {
   const [numPages, setNumPages] = useState<number>();
-  const [pageNumber, setPageNumber] = useState<number>(1);
+  const [pageNumber] = useState<number>(1);
   const [docType, setDocType] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const dispatch = useDispatch();
@@ -155,14 +155,14 @@ const Upload = () => {
                               fill="#FF0000"
                             />
                             <path
-                              fill-rule="evenodd"
-                              clip-rule="evenodd"
+                              fillRule="evenodd"
+                              clipRule="evenodd"
                               d="M8.01565 12.25C8.02714 12.2501 8.0386 12.2501 8.05002 12.2501H8.75002C9.85421 12.2501 10.8125 13.1114 10.8125 14.2501C10.8125 15.3887 9.85421 16.2501 8.75002 16.2501H7.75002V18.0001C7.75002 18.4143 7.41423 18.7501 7.00002 18.7501C6.58581 18.7501 6.25002 18.4143 6.25002 18.0001V14.0001C6.25002 13.9884 6.25002 13.9766 6.25001 13.9648C6.24992 13.7605 6.24982 13.5363 6.27661 13.3466C6.30854 13.1204 6.39077 12.8375 6.63655 12.6034C6.87717 12.3742 7.15902 12.3026 7.3787 12.2744C7.57026 12.2499 7.7985 12.25 8.01565 12.25ZM7.75002 14.7501H8.75002C9.09558 14.7501 9.31252 14.4921 9.31252 14.2501C9.31252 14.008 9.09558 13.7501 8.75002 13.7501H8.05002C7.92879 13.7501 7.83325 13.7501 7.75123 13.7519C7.75006 13.8209 7.75002 13.9009 7.75002 14.0001V14.7501Z"
                               fill="#FF0000"
                             />
                             <path
-                              fill-rule="evenodd"
-                              clip-rule="evenodd"
+                              fillRule="evenodd"
+                              clipRule="evenodd"
                               d="M13.1038 12.25C13.1114 12.25 13.1188 12.25 13.1263 12.25C14.9554 12.25 16.5013 13.671 16.5013 15.5C16.5013 17.329 14.9554 18.75 13.1263 18.75C13.1188 18.75 13.1114 18.75 13.1038 18.75C12.96 18.75 12.8085 18.7501 12.6786 18.7389C12.5328 18.7263 12.3436 18.6953 12.1524 18.5902C11.7694 18.3796 11.6021 18.0433 11.5398 17.752C11.4958 17.5463 11.4992 17.3183 11.5008 17.2081C11.5011 17.1914 11.5013 17.1775 11.5013 17.1667V13.8333C11.5013 13.8226 11.5011 13.8086 11.5008 13.792C11.4992 13.6818 11.4958 13.4537 11.5398 13.248C11.6021 12.9567 11.7694 12.6204 12.1524 12.4098C12.3436 12.3047 12.5328 12.2737 12.6786 12.2612C12.8085 12.2499 12.96 12.25 13.1038 12.25ZM13.0008 13.7502L13.0008 13.7518C13.0011 13.7773 13.0013 13.807 13.0013 13.8333V17.1667C13.0013 17.1931 13.0011 17.2228 13.0008 17.2482L13.0008 17.2498C13.0378 17.25 13.0791 17.25 13.1263 17.25C14.1967 17.25 15.0013 16.4325 15.0013 15.5C15.0013 14.5676 14.1967 13.75 13.1263 13.75C13.0791 13.75 13.0378 13.75 13.0008 13.7502Z"
                               fill="#FF0000"
                             />

@@ -1,25 +1,21 @@
 import baseAPI from ".";
+import { TBasePaginatedResponse, TRequest } from "definations/auth";
 import {
-  TBasePaginatedRespose,
-  TRequest,
-} from "definations/auth";
-import { 
   TCategories,
-  Categories, 
-  TDepartments, 
+  Categories,
+  TDepartments,
   Departments,
   TFinancialYear,
-  FinancialYear, 
+  FinancialYear,
   TItems,
   Items,
   TLocations,
-  Locations
+  Locations,
 } from "definations/module-config";
 
 const projectsAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    categories: builder.query<TBasePaginatedRespose<Categories[]>,
-    TRequest>({
+    categories: builder.query<TBasePaginatedResponse<Categories[]>, TRequest>({
       query: (params) => ({
         url: "/config/category/",
         params,
@@ -35,7 +31,7 @@ const projectsAPI = baseAPI.injectEndpoints({
       invalidatesTags: ["Categories"],
     }),
     updateCategories: builder.mutation<
-    Categories,
+      Categories,
       { id: string; body: TCategories }
     >({
       query: ({ id, body }) => ({
@@ -45,9 +41,7 @@ const projectsAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["Categories"],
     }),
-    deleteCategories: builder.mutation<
-    Categories, string
-    >({
+    deleteCategories: builder.mutation<Categories, string>({
       query: (id) => ({
         url: `/config/category/${id}`,
         method: "DELETE",
@@ -55,14 +49,15 @@ const projectsAPI = baseAPI.injectEndpoints({
       invalidatesTags: ["Categories"],
     }),
 
-    departments: builder.query<TBasePaginatedRespose<Departments[]>,
-    TRequest>({
-      query: (params) => ({
-        url: "/config/departments/",
-        params,
-      }),
-      providesTags: ["Departments"],
-    }),
+    departments: builder.query<TBasePaginatedResponse<Departments[]>, TRequest>(
+      {
+        query: (params) => ({
+          url: "/config/departments/",
+          params,
+        }),
+        providesTags: ["Departments"],
+      }
+    ),
     addDepartments: builder.mutation<Departments, TDepartments>({
       query: (body) => ({
         url: "/config/departments/",
@@ -72,7 +67,7 @@ const projectsAPI = baseAPI.injectEndpoints({
       invalidatesTags: ["Departments"],
     }),
     updateDepartments: builder.mutation<
-    Departments,
+      Departments,
       { id: string; body: TDepartments }
     >({
       query: ({ id, body }) => ({
@@ -82,9 +77,7 @@ const projectsAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["Departments"],
     }),
-    deleteDepartments: builder.mutation<
-    Departments, string
-    >({
+    deleteDepartments: builder.mutation<Departments, string>({
       query: (id) => ({
         url: `/config/departments/${id}`,
         method: "DELETE",
@@ -92,8 +85,10 @@ const projectsAPI = baseAPI.injectEndpoints({
       invalidatesTags: ["Departments"],
     }),
 
-    financialYear: builder.query<TBasePaginatedRespose<FinancialYear[]>,
-    TRequest>({
+    financialYear: builder.query<
+      TBasePaginatedResponse<FinancialYear[]>,
+      TRequest
+    >({
       query: (params) => ({
         url: "/config/financial-year/",
         params,
@@ -109,7 +104,7 @@ const projectsAPI = baseAPI.injectEndpoints({
       invalidatesTags: ["FinancialYear"],
     }),
     updateFinancialYear: builder.mutation<
-    FinancialYear,
+      FinancialYear,
       { id: string; body: TFinancialYear }
     >({
       query: ({ id, body }) => ({
@@ -119,9 +114,7 @@ const projectsAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["FinancialYear"],
     }),
-    deleteFinancialYear: builder.mutation<
-    FinancialYear, string
-    >({
+    deleteFinancialYear: builder.mutation<FinancialYear, string>({
       query: (id) => ({
         url: `/config/financial-year/${id}`,
         method: "DELETE",
@@ -129,8 +122,7 @@ const projectsAPI = baseAPI.injectEndpoints({
       invalidatesTags: ["FinancialYear"],
     }),
 
-    items: builder.query<TBasePaginatedRespose<Items[]>,
-    TRequest>({
+    items: builder.query<TBasePaginatedResponse<Items[]>, TRequest>({
       query: (params) => ({
         url: "/config/items/",
         params,
@@ -145,10 +137,7 @@ const projectsAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["Items"],
     }),
-    updateItems: builder.mutation<
-    Items,
-      { id: string; body: TItems }
-    >({
+    updateItems: builder.mutation<Items, { id: string; body: TItems }>({
       query: ({ id, body }) => ({
         url: `/config/items/${id}/`,
         method: "PATCH",
@@ -156,9 +145,7 @@ const projectsAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["Items"],
     }),
-    deleteItems: builder.mutation<
-    Items, string
-    >({
+    deleteItems: builder.mutation<Items, string>({
       query: (id) => ({
         url: `/config/items/${id}`,
         method: "DELETE",
@@ -166,8 +153,7 @@ const projectsAPI = baseAPI.injectEndpoints({
       invalidatesTags: ["Items"],
     }),
 
-    locations: builder.query<TBasePaginatedRespose<Locations[]>,
-    TRequest>({
+    locations: builder.query<TBasePaginatedResponse<Locations[]>, TRequest>({
       query: (params) => ({
         url: "/config/locations/",
         params,
@@ -183,7 +169,7 @@ const projectsAPI = baseAPI.injectEndpoints({
       invalidatesTags: ["Locations"],
     }),
     updateLocations: builder.mutation<
-    Locations,
+      Locations,
       { id: string; body: TLocations }
     >({
       query: ({ id, body }) => ({
@@ -193,9 +179,7 @@ const projectsAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["Locations"],
     }),
-    deleteLocations: builder.mutation<
-    Locations, string
-    >({
+    deleteLocations: builder.mutation<Locations, string>({
       query: (id) => ({
         url: `/config/locations/${id}`,
         method: "DELETE",

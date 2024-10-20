@@ -76,7 +76,8 @@ const baseAPI = createApi({
     "Solicitation",
     "PrequalificationCategory",
     "PrequalificationCriteria",
-    "Questionairs"
+    "Questionairs",
+    "WORKFORCE",
   ],
   keepUnusedDataFor: 5 * 60,
   refetchOnMountOrArgChange: true,

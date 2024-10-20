@@ -1,5 +1,5 @@
 import baseAPI from ".";
-import { TBasePaginatedRespose, TRequest } from "definations/auth";
+import { TBasePaginatedResponse, TRequest } from "definations/auth";
 import {
   TLots,
   Lots,
@@ -15,7 +15,7 @@ import {
 
 const projectsAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    lots: builder.query<TBasePaginatedRespose<Lots[]>, TRequest>({
+    lots: builder.query<TBasePaginatedResponse<Lots[]>, TRequest>({
       query: (params) => ({
         url: "/procurement/lots/",
         params,
@@ -47,7 +47,7 @@ const projectsAPI = baseAPI.injectEndpoints({
     }),
 
     solicitation: builder.query<
-      TBasePaginatedRespose<Solicitation[]>,
+      TBasePaginatedResponse<Solicitation[]>,
       TRequest
     >({
       query: (params) => ({
@@ -84,7 +84,7 @@ const projectsAPI = baseAPI.injectEndpoints({
     }),
 
     prequalificationCategory: builder.query<
-      TBasePaginatedRespose<PrequalificationCategory[]>,
+      TBasePaginatedResponse<PrequalificationCategory[]>,
       TRequest
     >({
       query: (params) => ({
@@ -127,7 +127,7 @@ const projectsAPI = baseAPI.injectEndpoints({
     }),
 
     prequalificationCriteria: builder.query<
-      TBasePaginatedRespose<PrequalificationCriteria[]>,
+      TBasePaginatedResponse<PrequalificationCriteria[]>,
       TRequest
     >({
       query: (params) => ({
@@ -170,7 +170,7 @@ const projectsAPI = baseAPI.injectEndpoints({
     }),
 
     questionairs: builder.query<
-      TBasePaginatedRespose<Questionairs[]>,
+      TBasePaginatedResponse<Questionairs[]>,
       TRequest
     >({
       query: (params) => ({

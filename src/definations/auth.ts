@@ -36,11 +36,15 @@ export interface TRequest {
   asset_type?: string;
 }
 
-export interface TBasePaginatedRespose<T> {
+export interface TBasePaginatedResponse<T> {
   count: number;
   next: string;
   previous: string;
   results: T;
+}
+export interface TBaseCreateResponse<T> {
+  message: string;
+  data: T;
 }
 
 export interface TFacilityResponse<T> {

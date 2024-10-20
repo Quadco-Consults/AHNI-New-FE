@@ -29,7 +29,6 @@ import ExpenditureModal from "./components/ExpenditureModal";
 import AssingPermission from "./components/users/AssingPermission";
 
 import ConsultancyApplicationSuccessModal from "./components/ConsultancyApplicationSuccessModal";
-import SubGrantManualDocsModal from "./components/SubGrantManualDocsModal";
 
 import AddStock from "./components/consumables/AddStock";
 
@@ -53,7 +52,8 @@ import AddSolicitation from "pages/protectedPages/modules/procurement/AddSolicit
 import AddPrequalificationCategory from "pages/protectedPages/modules/procurement/AddPrequalificationCategory";
 import AddPrequalificationCriteria from "pages/protectedPages/modules/procurement/AddPrequalificationCriteria";
 import AddQuestionairs from "pages/protectedPages/modules/procurement/AddQuestionairs";
-
+import ProcurementUploadModal from "./components/ProcurementUploadModal";
+import HrSuccessModal from "./components/HrSuccessModal";
 
 const sheets: Record<string, ReactNode> = {
   [DialogType.Categories]: <CategoriesModal />,
@@ -81,7 +81,9 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.ExpenditureModal]: <ExpenditureModal />,
   [DialogType.AddPermissionToRole]: <AssingPermission />,
 
-  [DialogType.ConsultancyApplicationSuccess]: <ConsultancyApplicationSuccessModal />,
+  [DialogType.ConsultancyApplicationSuccess]: (
+    <ConsultancyApplicationSuccessModal />
+  ),
 
   [DialogType.AddStock]: <AddStock />,
   [DialogType.AddTeamMenbers]: <TeamMemberSelection />,
@@ -104,7 +106,8 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.AddPrequalificationCategory]: <AddPrequalificationCategory />,
   [DialogType.AddPrequalificationCriteria]: <AddPrequalificationCriteria />,
   [DialogType.AddQuestionairs]: <AddQuestionairs />,
-
+  [DialogType.ProcurementUploadModal]: <ProcurementUploadModal />,
+  [DialogType.HrSuccessModal]: <HrSuccessModal />,
 };
 
 const AppDailog = () => {
