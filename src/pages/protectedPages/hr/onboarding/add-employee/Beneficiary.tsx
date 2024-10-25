@@ -1,201 +1,227 @@
 import { useForm } from "react-hook-form";
-import EmployeeRegistrationLayout from "./EmployeeRegistrationLayout";
 import { Form } from "components/ui/form";
-import FormCheckBox from "atoms/FormCheckBox";
+// import FormCheckBox from "atoms/FormCheckBox";
 import { Separator } from "components/ui/separator";
 import { Button } from "components/ui/button";
-import PencilIcon from "components/icons/PencilIcon";
-import DescriptionCard from "components/shared/DescriptionCard";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import FormSelect from "atoms/FormSelect";
 import FormInput from "atoms/FormInput";
 import { ChevronRight, Save } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
+import { HrRoutes } from "constants/RouterConstants";
+import Card from "components/shared/Card";
+import {
+  HrBeneficiaryFormValues,
+  hrBeneficiarySchema,
+  HrContingentBeneficiaryFormValues,
+  hrContingentBeneficiarySchema,
+} from "definations/hr-validator";
+import { zodResolver } from "@hookform/resolvers/zod";
+import HrBeneficiaryAPI from "services/hrApi/hr-beneficiary";
+import { toast } from "sonner";
+import FormButton from "atoms/FormButton";
 
 const Beneficiary = () => {
-  const { pathname } = useLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const form = useForm();
-  const { handleSubmit } = form;
+  const [createHrBeneficiaryMutation, { isLoading }] =
+    HrBeneficiaryAPI.useCreateHrBeneficiaryMutation();
+
+  const beneficiaryForm = useForm<HrBeneficiaryFormValues>({
+    resolver: zodResolver(hrBeneficiarySchema),
+    defaultValues: {
+      name: "",
+      relationship: "",
+      percentage: "",
+      phone_number: "",
+      beneficiary_type: "primary",
+      employee: localStorage.getItem("workforceID") as string,
+    },
+  });
+
+  const contingentBeneficiaryForm = useForm<HrContingentBeneficiaryFormValues>({
+    resolver: zodResolver(hrContingentBeneficiarySchema),
+    defaultValues: {
+      name: "",
+      relationship: "",
+      phone_number: "",
+      beneficiary_type: "contingent",
+      employee: localStorage.getItem("workforceID") as string,
+    },
+  });
 
   const handleNext = () => {
-    let path = pathname;
-
-    path = path.substring(0, path.lastIndexOf("/"));
-
-    path += "/id-card-information";
-    navigate(path);
+    navigate(HrRoutes.ONBOARDING_ADD_EMPLOYEE_ID_CARD);
   };
 
-  const onSubmit = () => {
-    dispatch(
-      openDialog({
-        type: DialogType.HrSuccessModal,
-        dialogProps: {
-          label: "Employee information saved",
-        },
-      })
-    );
+  const onSubmit = async (data: HrBeneficiaryFormValues) => {
+    try {
+      await createHrBeneficiaryMutation(data).unwrap();
+      dispatch(
+        openDialog({
+          type: DialogType.HrSuccessModal,
+          dialogProps: {
+            label: "Beneficiary information saved",
+          },
+        })
+      );
+      beneficiaryForm.reset();
+    } catch (error) {
+      toast.error("Something went wrong");
+    }
+  };
+  const submitHandler = async (data: HrContingentBeneficiaryFormValues) => {
+    try {
+      await createHrBeneficiaryMutation(data).unwrap();
+      dispatch(
+        openDialog({
+          type: DialogType.HrSuccessModal,
+          dialogProps: {
+            label: "Contingent Beneficiary information saved",
+          },
+        })
+      );
+      contingentBeneficiaryForm.reset();
+    } catch (error) {
+      toast.error("Something went wrong");
+    }
   };
 
   return (
-    <EmployeeRegistrationLayout>
-      <div className="space-y-6 max-w-4xl mx-auto">
-        <div>
-          <h4 className="font-semibold text-lg text-center">
-            Beneficiary Designation Form
-          </h4>
-          <p className="text-small text-center">
-            To be used for all requests concerning the granting, amending &
-            removal of Network access
-          </p>
-        </div>
+    <Card className="space-y-6 mt-6 max-w-4xl mx-auto">
+      <div>
+        <h4 className="font-semibold text-lg text-center">
+          Beneficiary Designation Form
+        </h4>
+        <p className="text-small text-center">
+          To be used for all requests concerning the granting, amending &
+          removal of Network access
+        </p>
+      </div>
 
-        <Form {...form}>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="flex justify-end gap-x-4">
-              <FormCheckBox name="new" label="New" reverse />
-              <FormCheckBox name="change" label="Change" reverse />
-            </div>
-            <div className="card-wrapper bg-gray-100">
-              <p className="text-small">
-                I designate the person(s) named below as my primary
-                beneficiary(ies) to receive payment under the policy in the
-                event of death.
-              </p>
-            </div>
-            <div className="card-wrapper space-y-6">
-              <h4 className="text-red-500 text-lg font-medium">
-                Primary Beneficiary(ies)
-              </h4>
-              <Separator />
-              <div className="card-wrapper space-y-6 border-yellow-500">
-                <div className="flex justify-end">
-                  <Button variant="custom">
-                    <PencilIcon />
-                    Edit
-                  </Button>
-                </div>
-                <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-                  <div className="space-y-6">
-                    <DescriptionCard
-                      label="Beneficiary Names (Last, First)"
-                      description="Adebayo Grace"
-                    />
-                    <DescriptionCard
-                      label="Relationship with Employee"
-                      description="Spouse"
-                    />
-                  </div>
-                  <div className="space-y-6">
-                    <DescriptionCard label="% of Benefit" description="50%" />
-                    <DescriptionCard
-                      label="Phone Number"
-                      description="08039876543"
-                    />
-                  </div>
-                </div>
-                <Button type="button">
-                  <AddSquareIcon />
-                  Add
-                </Button>
-              </div>
-            </div>
+      <Form {...beneficiaryForm}>
+        <form
+          onSubmit={beneficiaryForm.handleSubmit(onSubmit)}
+          className="space-y-6"
+        >
+          <div className="card-wrapper bg-gray-100">
+            <p className="text-small">
+              I designate the person(s) named below as my primary
+              beneficiary(ies) to receive payment under the policy in the event
+              of death.
+            </p>
+          </div>
+          <div className="card-wrapper space-y-6">
+            <h4 className="text-red-500 text-lg font-medium">
+              Primary Beneficiary(ies)
+            </h4>
+
+            <FormInput
+              name="name"
+              label="Beneficiary Names (Last, First)"
+              required
+            />
+            <FormInput name="percentage" label="% of Benefit" required />
+            <FormInput
+              name="relationship"
+              label="Relationship with Employee"
+              required
+            />
+            <FormInput name="phone_number" label="Phone Number" required />
+          </div>
+
+          <FormButton
+            loading={isLoading}
+            disabled={isLoading}
+            variant="outline"
+          >
+            <Save size={20} /> Save
+          </FormButton>
+        </form>
+      </Form>
+
+      <Form {...contingentBeneficiaryForm}>
+        <form
+          onSubmit={contingentBeneficiaryForm.handleSubmit(submitHandler)}
+          className="space-y-6"
+        >
+          {/* <div className="flex justify-end gap-x-4">
+            <FormCheckBox name="new" label="New" reverse />
+            <FormCheckBox name="change" label="Change" reverse />
+          </div> */}
+
+          <div className="card-wrapper space-y-6">
+            <h4 className="text-red-500 text-lg font-medium">
+              Contingent Beneficiary
+            </h4>
+            <p className="text-small">
+              (Used only if any of the above beneficiaries passes on before you.
+              The % allocated to the affected primary beneficiary will be
+              transferred to the contingent beneficiary in the order listed
+              below)
+            </p>
             <Separator />
-            <div className="card-wrapper space-y-6">
-              <h4 className="text-red-500 text-lg font-medium">
-                Contingent Beneficiary
-              </h4>
-              <p className="text-small">
-                (Used only if any of the above beneficiaries passes on before
-                you. The % allocated to the affected primary beneficiary will be
-                transferred to the contingent beneficiary in the order listed
-                below)
-              </p>
-              <Separator />
-              <div className="card-wrapper space-y-6 border-yellow-500">
-                <div className="flex justify-end">
-                  <Button variant="custom">
-                    <PencilIcon />
-                    Edit
-                  </Button>
-                </div>
-                <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-                  <div className="space-y-6">
-                    <DescriptionCard
-                      label="Contingent Beneficiary Names (Last, First)"
-                      description="Adebayo Grace"
-                    />
-                    <DescriptionCard
-                      label="Phone Number"
-                      description="08039876543"
-                    />
-                  </div>
-                  <div className="space-y-6">
-                    <DescriptionCard
-                      label="Relationship with employee"
-                      description="Brother"
-                    />
-                  </div>
-                </div>
-                <Button type="button">
-                  <AddSquareIcon />
-                  Add
-                </Button>
-              </div>
-            </div>
+            <FormInput
+              name="name"
+              label="Contingent Beneficiary Names (Last, First)"
+              required
+            />
+            <FormInput
+              name="relationship"
+              label="Relationship with Employee"
+              required
+            />
+            <FormInput name="phone_number" label="Phone Number" required />
+          </div>
+          {/* <Separator />
+          <div className="card-wrapper space-y-6">
+            <h4 className="text-red-500 text-lg font-medium">
+              Authorization and Signatories
+            </h4>
+            <p className="text-small">
+              By signing this document, I understand and agree that this
+              Beneficiary Designation Form will apply to AHNi Business Travel/
+              Accidental death and Dismemberment Policy.
+            </p>
             <Separator />
-            <div className="card-wrapper space-y-6">
-              <h4 className="text-red-500 text-lg font-medium">
-                Authorization and Signatories
-              </h4>
-              <p className="text-small">
-                By signing this document, I understand and agree that this
-                Beneficiary Designation Form will apply to AHNi Business Travel/
-                Accidental death and Dismemberment Policy.
-              </p>
-              <Separator />
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <FormSelect
-                  options={[]}
-                  name="employee"
-                  label="Employee"
-                  placeholder="Select Employee"
-                  required
-                />
-                <FormInput type="date" name="date" label="Date" required />
-                <FormInput
-                  name="witness"
-                  label="Full Name of Witness"
-                  required
-                />
-                <FormInput type="date" name="date" label="Date" required />
-              </div>
-              <FormInput
-                type="file"
-                name="signature"
-                label="Witness Signature"
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <FormSelect
+                options={[]}
+                name="employee"
+                label="Employee"
+                placeholder="Select Employee"
                 required
               />
+              <FormInput type="date" name="date" label="Date" required />
+              <FormInput name="witness" label="Full Name of Witness" required />
+              <FormInput type="date" name="date" label="Date" required />
             </div>
-            <div className="flex gap-x-6 justify-end">
-              <Button variant="outline">
-                <Save size={20} /> Save
-              </Button>
-              <Button type="button" onClick={handleNext}>
-                Next
-                <ChevronRight size={20} />
-              </Button>
-            </div>
-          </form>
-        </Form>
+            <FormInput
+              type="file"
+              name="signature"
+              label="Witness Signature"
+              required
+            />
+          </div> */}
+
+          <FormButton
+            loading={isLoading}
+            disabled={isLoading}
+            variant="outline"
+          >
+            <Save size={20} /> Save
+          </FormButton>
+        </form>
+      </Form>
+      <div className="flex gap-x-6 justify-end">
+        <Button type="button" onClick={handleNext}>
+          Next
+          <ChevronRight size={20} />
+        </Button>
       </div>
-    </EmployeeRegistrationLayout>
+    </Card>
   );
 };
 

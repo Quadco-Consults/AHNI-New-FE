@@ -14,7 +14,17 @@ const BASE_URL = "/config/locations/";
 
 const LocationAPi = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getLocation: builder.query<LocationData, { params: {} }>({
+    getLocation: builder.query<LocationData, {}>({
+      query: (config) => {
+        return {
+          url: `${BASE_URL}`,
+          ...config,
+        };
+      },
+      providesTags: (data, error) =>
+        !error ? provideTags("LOCATION", data) : [],
+    }),
+    getLocationList: builder.query<LocationResultsData[], {}>({
       query: (config) => {
         return {
           url: `${BASE_URL}`,

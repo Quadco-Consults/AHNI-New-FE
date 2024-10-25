@@ -241,8 +241,12 @@ export const CandGRoutes = {
 
 export const HrRoutes = {
   ADVERTISEMENT: "/hr/advertisement",
+  ADVERTISEMENT_ADD: "/hr/advertisement/add-advertisement",
+  ADVERTISEMENT_DETAIL: "/hr/advertisement/:id",
+  ADVERTISEMENT_DETAIL_SUB_APP:
+    "/hr/advertisement/:id/submitted-applications/:appID",
   ONBOARDING: "/hr/onboarding",
-  ONBOARDING_DETAIL: "/hr/onboarding/:id",
+  ONBOARDING_START: "/hr/onboarding/start-onboarding",
   ONBOARDING_ADD_EMPLOYEE_INFO:
     "/hr/onboarding/add-employee/employee-information",
   ONBOARDING_ADD_EMPLOYEE_ADD:

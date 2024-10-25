@@ -1,17 +1,35 @@
 import DescriptionCard from "components/shared/DescriptionCard";
+import { LoadingSpinner } from "components/shared/Loading";
 import { Separator } from "components/ui/separator";
+import { useParams } from "react-router-dom";
+import WorkforceAPI from "services/hrApi/workforce";
 
 const BankAccount = () => {
+  const { id } = useParams();
+  const { data, isLoading } = WorkforceAPI.useGetWorkforceBankAccountQuery({
+    path: { id: id as string },
+  });
+  const { data: pension } = WorkforceAPI.useGetWorkforcePensionQuery({
+    path: { id: id as string },
+  });
+
   return (
     <div className="card-wrapper space-y-10">
+      {isLoading && <LoadingSpinner />}
       <h4 className="text-red-500 text-lg font-medium">Bank Account Details</h4>
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-        <DescriptionCard label="Bank Name" description="Access Bank" />
-        <DescriptionCard label="Branch Name" description="Wuse 2" />
-        <DescriptionCard label="Account Name" description="Grace Adebayo" />
-        <DescriptionCard label="Account Number" description="2034567890" />
-        <DescriptionCard label="Sort Code" description="011234567" />
-        <DescriptionCard label="Date" description="2034567890" />
+        <DescriptionCard label="Bank Name" description={data?.bank_name} />
+        <DescriptionCard label="Branch Name" description={data?.branch_name} />
+        <DescriptionCard
+          label="Account Name"
+          description={data?.account_name}
+        />
+        <DescriptionCard
+          label="Account Number"
+          description={data?.account_number}
+        />
+        <DescriptionCard label="Sort Code" description={data?.sort_code} />
+        <DescriptionCard label="Date" description={data?.date_provided} />
       </div>
 
       <Separator />
@@ -22,19 +40,22 @@ const BankAccount = () => {
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
         <DescriptionCard
           label="Name of selected PFA"
-          description="ARM Pension Managers (PFA) Limited"
+          description={pension?.name}
         />
-        <DescriptionCard label="RSA Number" description="2034567890" />
+        <DescriptionCard label="RSA Number" description={pension?.rsa_number} />
         <DescriptionCard
           label="PFC (Pension Fund Custodian) Account Name"
-          description="2034567890"
+          description={pension?.pfc_account_name}
         />
-        <DescriptionCard label="PFC Account Number" description="2034567890" />
         <DescriptionCard
+          label="PFC Account Number"
+          description={pension?.pfc_account_number}
+        />
+        {/* <DescriptionCard
           label="Do you already have a Retirement Savings Account with any PFA?"
           description="Yes"
-        />
-        <DescriptionCard label="Date" description="847847" />
+        /> */}
+        <DescriptionCard label="Date" description={pension?.date_provided} />
       </div>
     </div>
   );
