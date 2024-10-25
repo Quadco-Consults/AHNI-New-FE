@@ -1,4 +1,4 @@
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, Row } from "@tanstack/react-table";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import ApproveIcon from "components/icons/ApproveIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
@@ -11,14 +11,16 @@ import DataTable from "components/Table/DataTable";
 import { Button } from "components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { HrRoutes } from "constants/RouterConstants";
-import { TOnboarding } from "definations/hr-types/hr";
+import { WorkforceResults } from "definations/hr-types/workforce";
 import { generatePath, Link } from "react-router-dom";
+import WorkforceAPI from "services/hrApi/workforce";
 
 const WorkforceDatabase = () => {
+  const { data, isLoading } = WorkforceAPI.useGetWorkforcesQuery({});
   return (
     <div className="space-y-6">
       <div className="flex justify-end">
-        <Link to={HrRoutes.ONBOARDING_ADD_EMPLOYEE_INFO}>
+        <Link to={HrRoutes.ONBOARDING_START}>
           <Button>
             <AddSquareIcon /> Add New Employee
           </Button>
@@ -39,7 +41,11 @@ const WorkforceDatabase = () => {
           </Button>
         </div>
 
-        <DataTable data={data} columns={columns} isLoading={false} />
+        <DataTable
+          data={data?.results || []}
+          columns={columns}
+          isLoading={isLoading}
+        />
       </Card>
     </div>
   );
@@ -47,17 +53,11 @@ const WorkforceDatabase = () => {
 
 export default WorkforceDatabase;
 
-const data: TOnboarding[] = Array(5).fill({
-  staff_name: "James Septimus",
-  position: "Technical Associate",
-  employment_type: "Technical Associate",
-  email: "Technical Associate",
-});
-
-const columns: ColumnDef<TOnboarding>[] = [
+const columns: ColumnDef<WorkforceResults>[] = [
   {
-    header: "Staff_name",
-    accessorKey: "staff_name",
+    header: "Staff Name",
+    id: "staff_name",
+    accessorFn: (data) => `${data.user.first_name} ${data.user.last_name}`,
     size: 150,
   },
   {
@@ -72,18 +72,19 @@ const columns: ColumnDef<TOnboarding>[] = [
   },
   {
     header: "Email",
-    accessorKey: "email",
+    id: "email",
+    accessorFn: (data) => `${data.user.email}`,
     size: 130,
   },
   {
     header: "Action",
     id: "actions",
     size: 50,
-    cell: () => <ActionList />,
+    cell: ({ row }) => <ActionList data={row} />,
   },
 ];
 
-const ActionList = () => {
+const ActionList = ({ data }: { data: Row<WorkforceResults> }) => {
   return (
     <div className="flex items-center gap-2">
       <>
@@ -96,7 +97,9 @@ const ActionList = () => {
           <PopoverContent className=" w-fit">
             <div className="flex flex-col items-start justify-between gap-1">
               <Link
-                to={generatePath(HrRoutes.WORKFORCE_DATABASE_DETAIL, { id: 1 })}
+                to={generatePath(HrRoutes.WORKFORCE_DATABASE_DETAIL, {
+                  id: data.original.id,
+                })}
               >
                 <Button
                   className="w-full flex items-center justify-start gap-2"
