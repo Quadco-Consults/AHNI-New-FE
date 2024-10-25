@@ -7,12 +7,35 @@ export const hr = [
     element: lazy(() => import("pages/protectedPages/hr/advertisement/index")),
   },
   {
+    path: HrRoutes.ADVERTISEMENT_ADD,
+    element: lazy(
+      () => import("pages/protectedPages/hr/advertisement/AddAdvertisement")
+    ),
+  },
+  {
+    path: HrRoutes.ADVERTISEMENT_DETAIL,
+    element: lazy(
+      () => import("pages/protectedPages/hr/advertisement/id/index")
+    ),
+  },
+  {
+    path: HrRoutes.ADVERTISEMENT_DETAIL_SUB_APP,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/hr/advertisement/id/SubmittedApplicationDetail"
+        )
+    ),
+  },
+  {
     path: HrRoutes.ONBOARDING,
     element: lazy(() => import("pages/protectedPages/hr/onboarding/index")),
   },
   {
-    path: HrRoutes.ONBOARDING_DETAIL,
-    element: lazy(() => import("pages/protectedPages/hr/onboarding/id/index")),
+    path: HrRoutes.ONBOARDING_START,
+    element: lazy(
+      () => import("pages/protectedPages/hr/onboarding/start-onboarding/index")
+    ),
   },
   {
     path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_INFO,

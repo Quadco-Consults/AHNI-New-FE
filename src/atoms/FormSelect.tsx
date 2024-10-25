@@ -2,8 +2,20 @@ import { FC } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { useDisableNumberInputScroll } from "../hooks/useDisableNumberInputScroll";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "components/ui/select";
 
 import { SelectHTMLAttributes } from "react";
 import { IOptions } from "definations/schema";
@@ -15,7 +27,13 @@ interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   required?: boolean;
   options?: IOptions[];
 }
-const FormSelect: FC<SelectProps> = ({ name, label, required, placeholder, options }) => {
+const FormSelect: FC<SelectProps> = ({
+  name,
+  label,
+  required,
+  placeholder,
+  options,
+}) => {
   const { control } = useFormContext();
 
   useDisableNumberInputScroll();
@@ -28,7 +46,7 @@ const FormSelect: FC<SelectProps> = ({ name, label, required, placeholder, optio
         const { value, onChange } = field;
         return (
           <FormItem className="flex flex-col gap-0">
-            <FormLabel className="-mb-1 font-semibold">
+            <FormLabel className="font-semibold">
               {label}
               {required && (
                 <span className="text-red-500 " title="required">
@@ -45,7 +63,10 @@ const FormSelect: FC<SelectProps> = ({ name, label, required, placeholder, optio
               <SelectContent>
                 {options?.map((item) => {
                   return (
-                    <SelectItem value={item.value as string} key={item.value as string}>
+                    <SelectItem
+                      value={item.value as string}
+                      key={item.value as string}
+                    >
                       {item.label}
                     </SelectItem>
                   );

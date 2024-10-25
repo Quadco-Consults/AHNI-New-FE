@@ -9,18 +9,13 @@ import { Badge } from "components/ui/badge";
 import { Button } from "components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { HrRoutes } from "constants/RouterConstants";
-import { TOnboarding } from "definations/hr-types/hr";
+import { TOnboarding } from "definations/hr-types/hr-beneficiary";
 import { cn } from "lib/utils";
-import { generatePath, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Onboarding = () => {
   return (
     <Card className="space-y-4">
-      {/* <div className="flex justify-end">
-        <Button>
-          <AddSquareIcon /> Add New Employee
-        </Button>
-      </div> */}
       <div className="flex items-center justify-start gap-2 pt-4">
         <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
           <SearchIcon />
@@ -112,7 +107,7 @@ const ActionList = () => {
           </PopoverTrigger>
           <PopoverContent className=" w-fit">
             <Link
-              to={generatePath(HrRoutes.ONBOARDING_DETAIL, { id: 1 })}
+              to={HrRoutes.ONBOARDING_START}
               className="flex flex-col items-start justify-between gap-1"
             >
               <Button

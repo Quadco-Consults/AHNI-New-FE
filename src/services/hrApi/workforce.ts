@@ -1,14 +1,14 @@
 import { TBaseCreateResponse, TBasePaginatedResponse } from "definations/auth";
 import baseAPI from "..";
 import {
+  WorkforceBankAccount,
   WorkforcePension,
   WorkforceQualificationResult,
   WorkforceResults,
 } from "definations/hr-types/workforce";
 import {
-  WorkforceFormValues,
+  WorkforceBankAccountFormValues,
   WorkforcePensionFormValues,
-  WorkforceQualificationFormValues,
 } from "definations/hr-validator";
 
 const BASE_URL = "/hr/hr-workforce/";
@@ -28,7 +28,7 @@ const WorkforceAPI = baseAPI.injectEndpoints({
       providesTags: ["WORKFORCE"],
     }),
     getWorkforceQualifications: builder.query<
-      TBasePaginatedResponse<WorkforceQualificationResult[]>,
+      WorkforceQualificationResult[],
       { path: { id: string } }
     >({
       query: ({ path }) => {
@@ -68,9 +68,31 @@ const WorkforceAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["WORKFORCE"],
     }),
+    getWorkforceBankAccount: builder.query<
+      WorkforceBankAccount,
+      { path: { id: string } }
+    >({
+      query: ({ path }) => {
+        return {
+          url: `${BASE_URL}${path.id}/bank-account/`,
+        };
+      },
+      providesTags: ["WORKFORCE"],
+    }),
+    createWorkforceBankAccount: builder.mutation<
+      TBaseCreateResponse<WorkforceBankAccount>,
+      { path: { id: string }; body: WorkforceBankAccountFormValues }
+    >({
+      query: ({ path, body }) => ({
+        url: `${BASE_URL}${path.id}/bank-account/`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["WORKFORCE"],
+    }),
     createWorkforceQualification: builder.mutation<
       TBaseCreateResponse<WorkforcePension>,
-      { path: { id: string }; body: WorkforceQualificationFormValues }
+      { path: { id: string }; body: FormData }
     >({
       query: ({ path, body }) => ({
         url: `${BASE_URL}${path.id}/qualifications/`,
@@ -81,7 +103,7 @@ const WorkforceAPI = baseAPI.injectEndpoints({
     }),
     createWorkforce: builder.mutation<
       TBaseCreateResponse<WorkforceResults>,
-      WorkforceFormValues
+      any
     >({
       query: (body) => ({
         url: `${BASE_URL}`,

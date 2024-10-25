@@ -1,3 +1,7 @@
+import { DepartmentsResultsData } from "definations/configs/departments";
+import { LocationResultsData } from "definations/configs/location";
+import { HrGradeResults } from "./hr-grades";
+
 export type WorkforceEmergencyContactOne = {
   name: string;
   relationship: string;
@@ -13,6 +17,14 @@ export type WorkforceEmergencyContactTwo = {
   phone_number_2: string;
   email: string;
   address: string;
+};
+export type WorkforceBankAccount = {
+  bank_name: string;
+  branch_name: string;
+  account_name: string;
+  account_number: string;
+  sort_code: string;
+  date_provided: string;
 };
 export type WorkforcePension = {
   id: string;
@@ -65,8 +77,31 @@ export type WorkforceResults = {
   address: string;
   marital_status: string;
   religion: string;
-  location: string;
-  department: string;
-  position: string;
+  location: LocationResultsData;
+  department: DepartmentsResultsData;
+  position: HrGradeResults;
   grade: string;
+};
+
+export const workforceAdditionalInfoValues = {
+  date_of_birth: "",
+  address: "",
+  marital_status: "",
+  religion: "",
+  emergency_contact_one: {
+    name: "",
+    relationship: "",
+    phone_number_1: "",
+    phone_number_2: "",
+    email: "",
+    address: "",
+  },
+  emergency_contact_two: {
+    name: "",
+    relationship: "",
+    phone_number_1: "",
+    phone_number_2: "",
+    email: "",
+    address: "",
+  },
 };
