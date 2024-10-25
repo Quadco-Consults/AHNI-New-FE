@@ -1,59 +1,89 @@
 import DescriptionCard from "components/shared/DescriptionCard";
 import { Separator } from "components/ui/separator";
+import { WorkforceResults } from "definations/hr-types/workforce";
 
-const AdditionalInfo = () => {
+const AdditionalInfo = ({ data }: { data: WorkforceResults }) => {
   return (
     <div className="card-wrapper space-y-10">
       <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-2 lg:grid-cols-2">
         <DescriptionCard
           label="Department/Unit"
-          description="Operations and Programs Management Unit"
+          description={data?.department?.name}
         />
-        <DescriptionCard label="Tel. Ext." description="+2348061234567" />
-        <DescriptionCard label="Project Name" description="ACEBAY Project" />
-        <DescriptionCard label="Type" description="---" />
-        <DescriptionCard label="Status" description="---" />
-        <DescriptionCard label="Do you have a Computer?" description="Yes" />
         <DescriptionCard
-          label="Do you require Email access?"
-          description="No"
+          label="Date of Birth"
+          description={data?.date_of_birth}
+        />
+        <DescriptionCard label="Religion" description={data?.religion} />
+        <DescriptionCard
+          label="Marital Status"
+          description={data?.marital_status}
         />
       </div>
 
       <div className="card-wrapper space-y-8">
         <h4 className="text-red-500 text-lg font-medium">
-          Group Membership & Location
+          Emergency Contact One
         </h4>
         <Separator />
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <DescriptionCard label="Group Membership" description="---" />
-          <DescriptionCard label="Location" description="----" />
+          <DescriptionCard
+            label="Name"
+            description={data?.emergency_contact_one?.name}
+          />
+          <DescriptionCard
+            label="Relationship"
+            description={data?.emergency_contact_one?.relationship}
+          />
+          <DescriptionCard
+            label="Email"
+            description={data?.emergency_contact_one?.email}
+          />
+          <DescriptionCard
+            label="Address"
+            description={data?.emergency_contact_one?.address}
+          />
+          <DescriptionCard
+            label="Phone Number"
+            description={data?.emergency_contact_one?.phone_number_1}
+          />
+          <DescriptionCard
+            label="Other Number"
+            description={data?.emergency_contact_one?.phone_number_2}
+          />
         </div>
       </div>
 
-      <div className="card-wrapper space-y-6">
+      <div className="card-wrapper space-y-8">
         <h4 className="text-red-500 text-lg font-medium">
-          System Analyst Authorization
+          Emergency Contact Two
         </h4>
         <Separator />
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <DescriptionCard
-            label="User Login Name"
-            description="gadebayo_AHNI."
+            label="Name"
+            description={data?.emergency_contact_two?.name}
           />
           <DescriptionCard
-            label="Computer Name (Only if previously granted)"
-            description="---"
+            label="Relationship"
+            description={data?.emergency_contact_two?.relationship}
           />
           <DescriptionCard
-            label="User Login Name"
-            description="gadebayo_AHNI."
+            label="Email"
+            description={data?.emergency_contact_two?.email}
           />
           <DescriptionCard
-            label="E-mail MailBox Alias (only if previously approved)"
-            description=""
+            label="Address"
+            description={data?.emergency_contact_two?.address}
           />
-          <DescriptionCard label="Training Completed" description="Yes" />
+          <DescriptionCard
+            label="Phone Number"
+            description={data?.emergency_contact_two?.phone_number_1}
+          />
+          <DescriptionCard
+            label="Other Number"
+            description={data?.emergency_contact_two?.phone_number_2}
+          />
         </div>
       </div>
     </div>

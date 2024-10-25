@@ -8,7 +8,7 @@ import {
 import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";
 import { ProjectDocumentSchema } from "definations/project-validator";
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import projectDocumentTypesAPi from "services/projectsApi/project-document-types";
 import { Input } from "components/ui/input";
@@ -18,14 +18,11 @@ import { LoadingSpinner } from "components/shared/Loading";
 import { ProjectDocumentTypesResultsData } from "definations/project-types/project-document-types";
 import projectDocumentAPi from "services/projectsApi/project-document";
 import { toast } from "sonner";
-import { useLocation } from "react-router-dom";
 import FormButton from "atoms/FormButton";
 
 const ProjectDetailsUploadModal = () => {
   const [locationValue, setLocationValue] = useState("");
   const [file, setFile] = useState<File | null>(null);
-
-  const location = useLocation();
 
   const projectID = localStorage.getItem("projectDetailID");
 
