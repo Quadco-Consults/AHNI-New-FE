@@ -67,6 +67,14 @@ export const paymentColumns: ColumnDef<PaymentRequest>[] = [
     accessorKey: "account_number",
   },
   {
+    header: "Reason",
+    accessorKey: "d",
+  },
+  {
+    header: "Approval Levels",
+    accessorKey: "f",
+  },
+  {
     header: "Action",
     accessorKey: "action",
     cell: ({ row }) => <Action row={row.original} />,

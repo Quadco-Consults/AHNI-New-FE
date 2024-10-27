@@ -60,6 +60,7 @@ const CreateAnalysis = () => {
       submitted_stakeholders: [],
     },
   });
+
   const { id } = useParams();
 
   const { handleSubmit, watch, control, setValue } = form;

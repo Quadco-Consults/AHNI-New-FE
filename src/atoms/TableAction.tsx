@@ -47,6 +47,13 @@ const TableAction = <T extends { id: string | number }>({
             </Link>
           )}
 
+          <div
+            // onClick={() => updateAction && updateAction()}
+            className="flex items-center gap-2 p-2 cursor-pointer hover:bg-primary hover:text-white"
+          >
+            Edit
+          </div>
+
           {update && (
             <div
               onClick={() => updateAction && updateAction()}
