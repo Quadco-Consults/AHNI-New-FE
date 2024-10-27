@@ -46,7 +46,7 @@ const FormSelect: FC<SelectProps> = ({
         const { value, onChange } = field;
         return (
           <FormItem className="flex flex-col gap-0">
-            <FormLabel className="font-semibold">
+            <FormLabel>
               {label}
               {required && (
                 <span className="text-red-500 " title="required">

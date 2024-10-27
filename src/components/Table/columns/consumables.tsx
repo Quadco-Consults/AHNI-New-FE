@@ -5,7 +5,12 @@ import { DialogType } from "constants/dailogs";
 import { AdminRoutes } from "constants/RouterConstants";
 import { useAppDispatch } from "hooks/useStore";
 
-import { TConsumables, TStockCard, useDeleteConsumablesMutation, useDeleteStockCardMutation,  } from "services/adminApi/consumables";
+import {
+  TConsumables,
+  TStockCard,
+  useDeleteConsumablesMutation,
+  useDeleteStockCardMutation,
+} from "services/adminApi/consumables";
 import { openDialog } from "store/ui";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import {
@@ -21,26 +26,29 @@ import {
 } from "components/ui/alert-dialog";
 import { toast } from "sonner";
 import TableAction from "atoms/TableAction";
+import { Badge } from "components/ui/badge";
 
 // eslint-disable-next-line react-refresh/only-export-components
 const MoreAction = ({ row }: { row: TConsumables }) => {
-  const [deleteConsumables] = useDeleteConsumablesMutation()
+  const [deleteConsumables] = useDeleteConsumablesMutation();
 
   const onDelete = async () => {
     try {
       await deleteConsumables({
-        id: row.id as string
-      }).unwrap()
-      toast.success("Consumables deleted successfully")
+        id: row.id as string,
+      }).unwrap();
+      toast.success("Consumables deleted successfully");
     } catch (error) {
-      
-      toast.error("Error deleting consumables")
+      toast.error("Error deleting consumables");
     }
-  }
+  };
   return (
     <div className="flex items-center space-x-2">
-      <TableAction action={onDelete} row={row} route={`${AdminRoutes.CONSUMABLES_VIEW}?id=${row.id}`} />
-      
+      <TableAction
+        action={onDelete}
+        row={row}
+        route={`${AdminRoutes.CONSUMABLES_VIEW}?id=${row.id}`}
+      />
     </div>
   );
 };
@@ -57,6 +65,15 @@ export const consumableColums: ColumnDef<TConsumables>[] = [
   {
     header: "Expiring Date",
     accessorKey: "expiry_date",
+  },
+  {
+    header: "Date",
+    size: 200,
+    accessorKey: "rt",
+  },
+  {
+    header: "Vendor",
+    accessorKey: "df",
   },
   {
     header: "Stock Level",
@@ -77,18 +94,18 @@ export const consumableColums: ColumnDef<TConsumables>[] = [
 const StockAction = ({ row }: { row: Partial<TStockCard> }) => {
   const dispatch = useAppDispatch();
 
-  const [deleteStock] = useDeleteStockCardMutation()
+  const [deleteStock] = useDeleteStockCardMutation();
 
   const onDelete = async () => {
-try {
-  await deleteStock({
-    id: row.id as string
-  }).unwrap()
-  toast.success("Stock deleted successfully")
-} catch (error) {
-  toast.error("Error deleteing stock")
-}
-  }
+    try {
+      await deleteStock({
+        id: row.id as string,
+      }).unwrap();
+      toast.success("Stock deleted successfully");
+    } catch (error) {
+      toast.error("Error deleteing stock");
+    }
+  };
   return (
     <div className="flex items-center space-x-2">
       <Popover>
@@ -96,9 +113,9 @@ try {
           <MoreIcon />
         </PopoverTrigger>
         <PopoverContent className="w-32 py-1 space-y-2">
-   
-            <div onClick={() => {
-               dispatch(
+          <div
+            onClick={() => {
+              dispatch(
                 openDialog({
                   type: DialogType.AddStock,
                   dialogProps: {
@@ -108,10 +125,11 @@ try {
                   },
                 })
               );
-            } } className="flex items-center gap-2 p-2 cursor-pointer hover:bg-primary hover:text-white">
-              Update
-            </div>
-
+            }}
+            className="flex items-center gap-2 p-2 cursor-pointer hover:bg-primary hover:text-white"
+          >
+            Update
+          </div>
 
           <AlertDialog>
             <AlertDialogTrigger className="flex items-center w-full gap-2 p-2 cursor-pointer hover:bg-primary hover:text-white">
@@ -122,20 +140,24 @@ try {
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
                   {
-                    "This action cannot be undone. This will permanently delete this item and remove all associated data from our servers."}
+                    "This action cannot be undone. This will permanently delete this item and remove all associated data from our servers."
+                  }
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => {
-                  onDelete()
-                }}>Continue</AlertDialogAction>
+                <AlertDialogAction
+                  onClick={() => {
+                    onDelete();
+                  }}
+                >
+                  Continue
+                </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
         </PopoverContent>
       </Popover>
-      
     </div>
   );
 };
@@ -146,24 +168,46 @@ export const stockColumns: ColumnDef<TStockCard>[] = [
     accessorKey: "date",
   },
   {
-    header: "Particular",
-    accessorKey: "particular",
+    header: "Description",
+    accessorKey: "description",
   },
   {
-    header: "Stock",
-    accessorKey: "stock",
+    header: "Unit Cost",
+    accessorKey: "unit_cost",
+  },
+  {
+    header: "Quantity Received",
+    accessorKey: "quantity",
+    size: 200,
+  },
+  {
+    header: "Quantity Issued",
+    accessorKey: "quantity",
+  },
+  {
+    header: "Balance",
+    accessorKey: "balance",
   },
   {
     header: "Status",
     accessorKey: "status",
-  },
-  {
-    header: "Stock Left",
-    accessorKey: "stock_left",
+    cell: ({ getValue }) => {
+      return (
+        <Badge
+          variant={
+            getValue<string>().toLowerCase() === "untreated"
+              ? "secondary"
+              : "success"
+          }
+        >
+          {getValue<string>()}
+        </Badge>
+      );
+    },
   },
   {
     header: "Action",
-    accessorKey: "stock_left",
+    accessorKey: "id",
     cell: ({ row }) => <StockAction row={row.original} />,
   },
 ];

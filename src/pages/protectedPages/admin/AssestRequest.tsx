@@ -1,7 +1,12 @@
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { assestRequestColum } from "components/Table/columns/assest";
+import AddSquareIcon from "components/icons/AddSquareIcon";
+import Card from "components/shared/Card";
+import { Button } from "components/ui/button";
+import { AdminRoutes } from "constants/RouterConstants";
 import { useMemo } from "react";
+import { Link } from "react-router-dom";
 
 import { useGetAssetsRequestQuery } from "services/adminApi/assetsApi";
 
@@ -24,15 +29,19 @@ const AssestRequest = () => {
   }, [data?.results]);
 
   return (
-    <div>
-      <div className="flex justify-between">
-        <div></div>
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <Link to={AdminRoutes.ASSETS_REQUEST_CREATE}>
+          <Button>
+            <AddSquareIcon /> Asset Request
+          </Button>
+        </Link>
       </div>
-      <div className="mt-10 space-y-6">
+      <Card className="space-y-6">
         <TableFilters>
           <DataTable columns={assestRequestColum} data={drivedData} />
         </TableFilters>
-      </div>
+      </Card>
     </div>
   );
 };
