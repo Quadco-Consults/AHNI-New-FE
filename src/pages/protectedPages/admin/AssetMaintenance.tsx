@@ -28,7 +28,7 @@ const AssetMaintenance = () => {
     <div className="flex flex-col gap-y-7">
       <div className="flex items-center justify-end">
         <Button>
-          <Link to={AdminRoutes.ASSET_MAINTENANCE_CREATE}>
+          <Link to={AdminRoutes.FacilitiesTicket}>
             Create Asset Maintenance Request
           </Link>
         </Button>

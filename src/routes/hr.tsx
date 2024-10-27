@@ -131,4 +131,11 @@ export const hr = [
       () => import("pages/protectedPages/hr/timesheet-management/index")
     ),
   },
+  {
+    path: HrRoutes.TIMESHEET_MANAGEMENT_CREATE,
+    element: lazy(
+      () =>
+        import("pages/protectedPages/hr/timesheet-management/CreateTimesheet")
+    ),
+  },
 ];

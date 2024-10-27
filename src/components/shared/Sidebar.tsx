@@ -602,8 +602,13 @@ const DEPARTMENTAL_LINKS = [
         path: "/admin/inventory-managment",
         sublinks: [
           { name: "Consumable", path: AdminRoutes.CONSUMABLES },
+          {
+            name: "Item Requisition",
+            path: AdminRoutes.ITEM_REQUISITION,
+          },
           { name: "Assets", path: AdminRoutes.ASSETS },
           { name: "Assets Request", path: AdminRoutes.ASSETS_REQUEST },
+          { name: "Good Receive Note", path: AdminRoutes.GRN },
         ],
       },
       {
@@ -646,6 +651,10 @@ const DEPARTMENTAL_LINKS = [
       },
 
       { name: "Asset Maintenance", path: AdminRoutes.ASSET_MAINTENANCE },
+      {
+        name: "Expense Authorization",
+        path: AdminRoutes.EXPENSE_AUTHORIZATION,
+      },
     ],
   },
   {
@@ -675,6 +684,7 @@ const DEPARTMENTAL_LINKS = [
           { name: "Consultant management", path: CandGRoutes.CONSULTANCY },
           { name: "Consultancy report", path: "/" },
           { name: "Payment request", path: "/" },
+          { name: "Agreement", path: CandGRoutes.AGREEMENT },
           { name: "Facilitator management", path: "/" },
           { name: "SLA", path: CandGRoutes.CONSULTANCY_SLA },
         ],

@@ -6,9 +6,15 @@ import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelectField";
 import { Button } from "components/ui/button";
 import { Card } from "components/ui/card";
-import { Checkbox } from "components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "components/ui/select";
+
 import { Form } from "components/ui/form";
-import { Label } from "components/ui/label";
 import { useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useSearchParams } from "react-router-dom";
@@ -19,6 +25,7 @@ import {
 } from "services/adminApi/VehicleRequestApi";
 import { useGetUserQuery } from "services/users";
 import { toast } from "sonner";
+import { APPROVAL_PROCESS } from "../FacilitiesManagment/FacilitiesMaintanance";
 
 const AssetsItem = ({
   desc,
@@ -102,7 +109,7 @@ const ViewVehicle = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <BackNavigation />
       <Card className="p-6 mx-auto space-y-5 ">
         <AssetsItem
@@ -144,7 +151,7 @@ const ViewVehicle = () => {
         </h3>
         <div className="grid grid-cols-4 gap-4 mb-6">
           {oneVehicle?.team_members?.map((item, i) => (
-            <Card key={i} className="p-2 bg-amber-50">
+            <Card key={i} className="p-2 space-y-3 bg-amber-50">
               <p>
                 <span className="font-bold">Name:</span> {item.first_name}{" "}
                 {item.last_name}
@@ -159,28 +166,32 @@ const ViewVehicle = () => {
           ))}
         </div>
 
-        <h3 className="mb-2 text-lg font-bold">Approval</h3>
-        <div className="flex mb-6 space-x-4">
-          <div className="flex items-center gap-x-3">
-            <Checkbox />
-            <Label>Travel Manager Approval</Label>
-          </div>
-          <div className="flex items-center gap-x-3">
-            <Checkbox />
-            <Label>FAA Approval</Label>
-          </div>
-          <div className="flex items-center gap-x-3">
-            <Checkbox />
-            <Label>SFAO Approval</Label>
-          </div>
-          <div className="flex items-center gap-x-3">
-            <Checkbox />
-            <Label>SPM/STL Approval</Label>
-          </div>
-          <div className="flex items-center gap-x-3">
-            <Checkbox />
-            <Label>Director Approval</Label>
-          </div>
+        <h3 className="text-lg font-bold">Approval</h3>
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <Select>
+            <SelectTrigger>
+              <SelectValue placeholder="Select approval" />
+            </SelectTrigger>
+            <SelectContent>
+              {APPROVAL_PROCESS.map((approval, index) => (
+                <SelectItem key={index} value={approval.value}>
+                  {approval.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select>
+            <SelectTrigger>
+              <SelectValue placeholder="Select name" />
+            </SelectTrigger>
+            <SelectContent>
+              {APPROVAL_PROCESS.map((approval, index) => (
+                <SelectItem key={index} value={approval.value}>
+                  {approval.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <h3 className="mb-2 text-lg font-bold">Vehicle</h3>

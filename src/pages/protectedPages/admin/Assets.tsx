@@ -7,7 +7,7 @@ import { Button } from "components/ui/button";
 import { AdminRoutes } from "constants/RouterConstants";
 import { DialogType, mediumDailogScreen } from "constants/dailogs";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { Plus } from "lucide-react";
+import { FileDown, Plus } from "lucide-react";
 import { useMemo } from "react";
 import { Link, generatePath } from "react-router-dom";
 import { useGetAssetsQuery } from "services/adminApi/assetsApi";
@@ -20,6 +20,8 @@ import {
   DropdownMenuTrigger,
 } from "components/ui/dropdown-menu";
 import FilterIcon from "components/icons/FilterIcon";
+import { UploadFileSvg } from "assets/svgs/CAndGSvgs";
+import Card from "components/shared/Card";
 
 const Assets = () => {
   const { data } = useGetAssetsQuery({
@@ -82,28 +84,39 @@ const Assets = () => {
   };
 
   return (
-    <div>
-      <div className="flex justify-between">
-        <div></div>
-        <div className="mt-6">
-          <Link to={generatePath(AdminRoutes.CreateAssets)}>
-            <Button>
-              <span>
-                <Plus size={20} />
-              </span>
-              Add Asset
-            </Button>
-          </Link>
-        </div>
+    <div className="space-y-5">
+      <div className="flex justify-end">
+        <Link to={generatePath(AdminRoutes.CreateAssets)}>
+          <Button>
+            <span>
+              <Plus size={20} />
+            </span>
+            Add Asset
+          </Button>
+        </Link>
       </div>
-      <div className="mt-10 space-y-6">
+      <div className="flex gap-x-4 justify-end">
+        <Button variant="outline">
+          <span>
+            <UploadFileSvg />
+          </span>
+          Upload
+        </Button>
+        <Button variant="custom">
+          <span>
+            <FileDown size={18} />
+          </span>
+          Template
+        </Button>
+      </div>
+      <Card className="space-y-4">
         <TableFilters
           filterAction={<FilterAction />}
           leftAction={asset.length > 0 ? <AssetAction /> : ""}
         >
           <DataTable columns={assestColum} data={drivedData} />
         </TableFilters>
-      </div>
+      </Card>
     </div>
   );
 };

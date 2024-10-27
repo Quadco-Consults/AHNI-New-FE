@@ -66,28 +66,29 @@ const MoreAction = ({ row }: { row: IVehicleRequest }) => {
     sessionStorage.setItem("vehicle_request", row.id);
   };
 
- const [deleteVehicle] = useDeleteVehicleRequestMutation()
+  const [deleteVehicle] = useDeleteVehicleRequestMutation();
 
   const onDelete = async () => {
     try {
-      await deleteVehicle(row.id).unwrap()
-      toast.success("Vehicle deleted successfully")
+      await deleteVehicle(row.id).unwrap();
+      toast.success("Vehicle deleted successfully");
     } catch (error) {
-      toast.error("Error deleting vehicle")
+      toast.error("Error deleting vehicle");
     }
-  }
+  };
   return (
     <div className="flex items-center space-x-2">
-       <Popover>
+      <Popover>
         <PopoverTrigger>
           <MoreIcon />
         </PopoverTrigger>
         <PopoverContent className="w-32 py-1 space-y-2">
-   
-            <div      onClick={() => onSelecteion()} className="flex items-center gap-2 p-2 cursor-pointer hover:bg-primary hover:text-white">
-              View
-            </div>
-    
+          <div
+            onClick={() => onSelecteion()}
+            className="flex items-center gap-2 p-2 cursor-pointer hover:bg-primary hover:text-white"
+          >
+            View
+          </div>
 
           <AlertDialog>
             <AlertDialogTrigger className="flex items-center w-full gap-2 p-2 cursor-pointer hover:bg-primary hover:text-white">
@@ -98,18 +99,20 @@ const MoreAction = ({ row }: { row: IVehicleRequest }) => {
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
                   {
-                    "This action cannot be undone. This will permanently delete this item and remove all associated data from our servers."}
+                    "This action cannot be undone. This will permanently delete this item and remove all associated data from our servers."
+                  }
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => onDelete()}>Continue</AlertDialogAction>
+                <AlertDialogAction onClick={() => onDelete()}>
+                  Continue
+                </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
         </PopoverContent>
       </Popover>
-
     </div>
   );
 };
@@ -137,6 +140,26 @@ export const vehicleRequestColumns: ColumnDef<IVehicleRequest>[] = [
   {
     header: "Return Date",
     accessorKey: "return_date",
+  },
+  {
+    header: "Point of departure",
+    accessorKey: "df",
+  },
+  {
+    header: "Point of Return",
+    accessorKey: "df",
+  },
+  {
+    header: "Time of departure",
+    accessorKey: "df",
+  },
+  {
+    header: "Time of Return",
+    accessorKey: "df",
+  },
+  {
+    header: "Purpose od Travel",
+    accessorKey: "df",
   },
   {
     header: "Status",

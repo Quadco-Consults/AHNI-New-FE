@@ -1,8 +1,13 @@
 /* eslint-disable react-refresh/only-export-components */
 import { ColumnDef, Row, Table } from "@tanstack/react-table";
 import TableAction from "atoms/TableAction";
+import DeleteIcon from "components/icons/DeleteIcon";
+import EditIcon from "components/icons/EditIcon";
+import EyeIcon from "components/icons/EyeIcon";
+import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import { Button } from "components/ui/button";
 import { Checkbox } from "components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { AdminRoutes } from "constants/RouterConstants";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 
@@ -86,10 +91,25 @@ export const assestColum: ColumnDef<AssetData>[] = [
     header: "Classification",
     accessorKey: "classification",
   },
-
   {
     header: "Unit",
     accessorKey: "unit",
+  },
+  {
+    header: "Donor",
+    accessorKey: "donor",
+  },
+  {
+    header: "Project",
+    accessorKey: "project",
+  },
+  {
+    header: "Assignee",
+    accessorKey: "assignee",
+  },
+  {
+    header: "Serial Number",
+    accessorKey: "serial",
   },
   {
     header: "Organization",
@@ -109,21 +129,50 @@ export const assestColum: ColumnDef<AssetData>[] = [
   },
   {
     header: "",
-    accessorKey: "view",
-    cell: ({ row }) => {
-      const data = row.original;
-      return (
-        <div className="flex gap-x-2">
-          <Link to={`${AdminRoutes.ViewAssets}?id=${data.id}`}>
-            <Button className="" variant="link">
-              View
-            </Button>
-          </Link>
-        </div>
-      );
-    },
+    id: "view",
+    cell: ({ row }) => <ActionList data={row} />,
   },
 ];
+const ActionList = ({ data }: any) => {
+  return (
+    <div className="flex items-center gap-2">
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="ghost" className="flex gap-2 py-6">
+            <MoreOptionsHorizontalIcon />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className=" w-fit">
+          <div className="flex flex-col items-start justify-between gap-1">
+            <Link to={`${AdminRoutes.ViewAssets}?id=${data?.original?.id}`}>
+              <Button
+                className="w-full flex items-center justify-start gap-2"
+                variant="ghost"
+              >
+                <EyeIcon />
+                View
+              </Button>
+            </Link>
+            <Button
+              className="w-full flex items-center justify-start gap-2"
+              variant="ghost"
+            >
+              <EditIcon />
+              Edit
+            </Button>
+            <Button
+              className="w-full flex items-center justify-start gap-2"
+              variant="ghost"
+            >
+              <DeleteIcon />
+              delete
+            </Button>
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+};
 
 const RequestActions = ({ row }: { row: Row<DisposalReport> }) => {
   const [deleteAssetRequest] = useDeleteAssetsRequestMutation();
@@ -165,14 +214,17 @@ export const assestRequestColum: ColumnDef<DisposalReport>[] = [
   {
     header: "Justification for Recomendation",
     accessorKey: "justification_for_disposal",
+    size: 250,
   },
   {
     header: "Life Span as at Report",
     accessorKey: "life_span_at_report",
+    size: 250,
   },
   {
     header: "",
     accessorKey: "action",
+    size: 80,
     cell: ({ row }) => {
       return <RequestActions row={row} />;
     },
