@@ -46,6 +46,12 @@ export const DialogType = {
   AddPrequalificationCategory: "AddPrequalificationCategory",
   AddPrequalificationCriteria: "AddPrequalificationCriteria",
   AddQuestionairs: "AddQuestionairs",
+  AddCostCategory: "AddCostCategories",
+  AddBudgetLine: "AddBudgetLine",
+  AddCostInput: "AddCostInput",
+  AddFcoNumber: "AddFcoNumber",
+  AddProjectClasses: "AddProjectClasses",
+  AddChartsOfAccounts: "AddChartsOfAccounts",
   ProcurementUploadModal: "ProcurementUploadModal",
   HrSuccessModal: "HrSuccessModal",
 };
