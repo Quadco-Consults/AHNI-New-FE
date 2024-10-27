@@ -476,6 +476,10 @@ const MODULE_LINKS = [
         name: "Procurement",
         path: RouteEnum.MODULES_PROCUREMENT,
       },
+      {
+        name: "Finance",
+        path: RouteEnum.MODULES_FINANCE,
+      },
     ],
   },
 ];
