@@ -84,30 +84,33 @@ const FormOne = ({ currentStep, setCurrentStep, setId }: StepsF) => {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
-              <div className="grid grid-cols-3 mt-6 gap-x-10">
+              <div className="grid grid-cols-3 mt-6 gap-8">
                 <FormInput type="date" label="Date" name="date" />
+                <FormSelect
+                  options={[]}
+                  label="SO/PO Number"
+                  name=""
+                  required
+                />
                 <FormInput label="Payment To" name="payment_to" />
                 <FormInput
                   label="Tax Identification Number"
                   name="tax_identification_number"
                 />
-              </div>
-              <div className="grid grid-cols-3 mt-6 gap-x-10">
+
                 <FormInput
                   label="Amount In Figures"
                   name="amount_in_figures"
                   required
                   type="number"
                 />
-                <div className="col-span-2 ">
-                  <FormInput
-                    label="Amount In Words"
-                    name="amount_in_words"
-                    required
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-3 mt-6 gap-x-10">
+
+                <FormInput
+                  label="Amount In Words"
+                  name="amount_in_words"
+                  required
+                />
+
                 <FormInput
                   label="Account Number"
                   name="account_number"
@@ -119,6 +122,27 @@ const FormOne = ({ currentStep, setCurrentStep, setId }: StepsF) => {
                   options={drivedData}
                   label="Requested By"
                   name="requested_by_id"
+                  required
+                />
+                <FormInput label="Reason for Payment" name="" />
+                <FormSelect
+                  options={[
+                    { label: "Reviewer", value: "reviewer" },
+                    { label: "Authorization", value: "authorization" },
+                    { label: "Approver", value: "approver" },
+                  ]}
+                  label="Approval Levels"
+                  name=""
+                  required
+                />
+                <FormSelect
+                  options={[
+                    { label: "Reviewer", value: "reviewer" },
+                    { label: "Authorization", value: "authorization" },
+                    { label: "Approver", value: "approver" },
+                  ]}
+                  label="Name"
+                  name=""
                   required
                 />
               </div>

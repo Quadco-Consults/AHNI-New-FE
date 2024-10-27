@@ -5,6 +5,12 @@ import { Separator } from "components/ui/separator";
 import { cn } from "lib/utils";
 import { useSearchParams } from "react-router-dom";
 import { useGetOneAssetMaintenanceRequestQuery } from "services/adminApi/assetMaintenance";
+import FormTextArea from "atoms/FormTextArea";
+import FormSelect from "atoms/FormSelect";
+import { APPROVAL_PROCESS } from "./FacilitiesManagment/FacilitiesMaintanance";
+import { Button } from "components/ui/button";
+import { useForm } from "react-hook-form";
+import { Form } from "components/ui/form";
 const AssetsItem = ({
   desc,
   heading,
@@ -28,6 +34,8 @@ const AssetsItem = ({
 
 const AssetMaintenanceView = () => {
   const [searchParams] = useSearchParams();
+
+  const form = useForm();
 
   const { data } = useGetOneAssetMaintenanceRequestQuery({
     id: String(searchParams.get("to")),
@@ -56,6 +64,30 @@ const AssetMaintenanceView = () => {
                   className2="flex justify-start  w-7/12"
                 />
                 <AssetsItem
+                  heading="Chassis Number"
+                  className="flex justify-between "
+                  desc="N/A"
+                  className2="flex justify-start  w-7/12"
+                />
+                <AssetsItem
+                  heading="Brand"
+                  className="flex justify-between "
+                  desc="N/A"
+                  className2="flex justify-start  w-7/12"
+                />
+                <AssetsItem
+                  heading="Year of Manufacture"
+                  className="flex justify-between "
+                  desc="N/A"
+                  className2="flex justify-start  w-7/12"
+                />
+                <AssetsItem
+                  heading="Plate Number"
+                  className="flex justify-between "
+                  desc="N/A"
+                  className2="flex justify-start  w-7/12"
+                />
+                <AssetsItem
                   heading="Maintenance Type"
                   className="flex justify-between "
                   desc={data?.maintenance_type}
@@ -63,13 +95,13 @@ const AssetMaintenanceView = () => {
                 />
 
                 <AssetsItem
-                  heading="Probelam"
+                  heading="Problem"
                   className="flex justify-between "
                   desc={data?.description_of_problem}
                   className2="flex justify-start  w-7/12"
                 />
                 <AssetsItem
-                  heading="Calssification"
+                  heading="Classification"
                   className="flex justify-between "
                   desc={data?.classification}
                   className2="flex justify-start  w-7/12"
@@ -86,6 +118,30 @@ const AssetMaintenanceView = () => {
                   desc={data?.approved_by}
                   className2="flex justify-start  w-7/12"
                 />
+                <Form {...form}>
+                  <form className="space-y-2 max-w-2xl">
+                    <FormTextArea
+                      name=""
+                      label="Comment"
+                      placeholder="This can be repaired and we donate it to CBOs"
+                    />
+                    <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                      <FormSelect
+                        name=""
+                        placeholder="Select approval"
+                        options={APPROVAL_PROCESS}
+                      />
+                      <FormSelect
+                        name=""
+                        placeholder="Select name"
+                        options={APPROVAL_PROCESS}
+                      />
+                    </div>
+                    <Button variant="custom" type="button">
+                      Approve
+                    </Button>
+                  </form>
+                </Form>
               </div>
             </CardContent>
           </Card>

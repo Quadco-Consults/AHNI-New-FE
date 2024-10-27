@@ -1,14 +1,18 @@
 import BackNavigation from "atoms/BackNavigation";
-import { Button } from "components/ui/button";
+import FormSelect from "atoms/FormSelect";
+import FormTextArea from "atoms/FormTextArea";
 import { Card, CardContent, CardHeader } from "components/ui/card";
-import { Input } from "components/ui/input";
-import { Label } from "components/ui/label";
-
+import { Form } from "components/ui/form";
 import { Separator } from "components/ui/separator";
-
 import { Tabs, TabsList, TabsContent, TabsTrigger } from "components/ui/tabs";
+import { useForm } from "react-hook-form";
 import { useSearchParams } from "react-router-dom";
 import { useGetOneAssetsQuery } from "services/adminApi/assetsApi";
+import { APPROVAL_PROCESS } from "./FacilitiesManagment/FacilitiesMaintanance";
+import { Button } from "components/ui/button";
+import { ColumnDef } from "@tanstack/react-table";
+import TableFilters from "components/Table/TableFilters";
+import DataTable from "components/Table/DataTable";
 
 const AssetsItem = ({
   desc,
@@ -30,6 +34,8 @@ const AssetsItem = ({
 const ViewAssets = () => {
   const [seachParams] = useSearchParams();
 
+  const form = useForm();
+
   const id = seachParams.get("id") as string;
 
   const { data } = useGetOneAssetsQuery({ id });
@@ -41,7 +47,7 @@ const ViewAssets = () => {
           <TabsList>
             <BackNavigation />
             <TabsTrigger value="details">Details</TabsTrigger>
-            <TabsTrigger value="approval">Approval</TabsTrigger>
+            <TabsTrigger value="approval">Management Approval</TabsTrigger>
           </TabsList>
 
           <TabsContent value="details">
@@ -69,12 +75,16 @@ const ViewAssets = () => {
                 />
                 {/* 
                 <Separator className="my-4" /> */}
-                <div className="col-span-3 ">
-                  <AssetsItem
-                    heading="Description"
-                    desc={data?.asset_condition.description}
-                  />
-                </div>
+
+                <AssetsItem
+                  heading="Description"
+                  desc={data?.asset_condition.description}
+                />
+                <AssetsItem heading="Current Insurance Duration" desc="N/A" />
+                <AssetsItem heading="Serial Number" desc="N/A" />
+                <AssetsItem heading="Salvage Value" desc="N/A" />
+                <AssetsItem heading="Life of Project" desc="N/A" />
+
                 {/* <Separator className="my-4" /> */}
 
                 <AssetsItem
@@ -91,10 +101,7 @@ const ViewAssets = () => {
 
                 <AssetsItem heading="Location" desc={data?.location.name} />
 
-                <AssetsItem
-                  heading="Implementer"
-                  desc={data?.implementer.name}
-                />
+                <AssetsItem heading="Donor" desc={data?.implementer.name} />
 
                 <AssetsItem heading="Assignee" desc={data?.assignee} />
 
@@ -108,6 +115,17 @@ const ViewAssets = () => {
                   desc={data?.asset_condition.description}
                 />
               </CardContent>
+
+              <CardHeader className="font-bold text-lg">
+                <Separator className="my-4" />
+                Asset History Movement
+              </CardHeader>
+
+              <div className="px-5">
+                <TableFilters>
+                  <DataTable data={[]} columns={columns} />
+                </TableFilters>
+              </div>
             </Card>
           </TabsContent>
 
@@ -118,8 +136,8 @@ const ViewAssets = () => {
                 <Separator className="mt-4" />
               </CardHeader>
 
-              <CardContent className="flex flex-col gap-y-4">
-                <div className="flex flex-wrap gap-x-8">
+              <CardContent className="flex flex-col gap-y-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-5">
                   <AssetsItem
                     className="px-5 py-3 border rounded-md"
                     heading="Asset"
@@ -145,44 +163,112 @@ const ViewAssets = () => {
                   />
                   <AssetsItem
                     className="px-5 py-3 border rounded-md"
-                    heading="Model"
-                    desc="Dell Latitude E5480"
+                    heading="Serial Number"
+                    desc="N/A"
                   />
                 </div>
 
-                <AssetsItem heading="Remark" desc="IT/Equipment" />
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <AssetsItem
+                    heading="Acquisition Cost"
+                    desc="$819.53 equivalent ₦290,000"
+                  />
 
-                <AssetsItem
-                  heading="Justification for Disposal"
-                  desc="21/10/24"
-                />
+                  <AssetsItem heading="State" desc="Abuja" />
 
-                <AssetsItem
-                  heading="Acquisition Cost"
-                  desc="$819.53 equivalent ₦290,000"
-                />
+                  <AssetsItem heading="Location" desc="AHNi Admin" />
 
-                <AssetsItem heading="State" desc="Abuja" />
+                  <AssetsItem
+                    heading="Implementer"
+                    desc="Family Health International (FHI 360)"
+                  />
 
-                <AssetsItem heading="Location" desc="AHNi Admin" />
-
-                <AssetsItem
-                  heading="Implementer"
-                  desc="Family Health International (FHI 360)"
-                />
-
-                <AssetsItem heading="Assignee" desc="Patricia Ohkahkumhe" />
-
-                <div className="space-y-2">
-                  <Label className="font-semibold">GT CT Approval</Label>
-                  <Input placeholder="This can be repaired and we donate it to CBOs" />
-                  <Button className="mt-2">Approve</Button>
+                  <AssetsItem heading="Assignee" desc="Patricia Ohkahkumhe" />
                 </div>
-                <div className="space-y-2">
-                  <Label className="font-semibold">CCM Approval</Label>
-                  <Input placeholder="This can be repaired and we donate it to CBOs" />
-                  <Button className="mt-2">Approve</Button>
-                </div>
+
+                <Form {...form}>
+                  <form className="space-y-4">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <FormTextArea
+                          name=""
+                          label="Justification for Disposal"
+                          placeholder="This can be repaired and we donate it to CBOs"
+                        />
+                        <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                          <FormSelect
+                            name=""
+                            placeholder="Select approval"
+                            options={APPROVAL_PROCESS}
+                          />
+                          <FormSelect
+                            name=""
+                            placeholder="Select name"
+                            options={APPROVAL_PROCESS}
+                          />
+                        </div>
+                        <Button variant="custom" type="button">
+                          Approve
+                        </Button>
+                      </div>
+                      <div className="space-y-2">
+                        <FormTextArea
+                          name=""
+                          label="GT CT Approval"
+                          placeholder="This can be repaired and we donate it to CBOs"
+                        />
+                        <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                          <FormSelect
+                            name=""
+                            placeholder="Select approval"
+                            options={APPROVAL_PROCESS}
+                          />
+                          <FormSelect
+                            name=""
+                            placeholder="Select name"
+                            options={APPROVAL_PROCESS}
+                          />
+                        </div>
+                        <Button variant="custom" type="button">
+                          Approve
+                        </Button>
+                      </div>
+                      <div className="space-y-2">
+                        <FormTextArea
+                          name=""
+                          label="CCM Approval"
+                          placeholder="This can be repaired and we donate it to CBOs"
+                        />
+                        <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                          <FormSelect
+                            name=""
+                            placeholder="Select approval"
+                            options={APPROVAL_PROCESS}
+                          />
+                          <FormSelect
+                            name=""
+                            placeholder="Select name"
+                            options={APPROVAL_PROCESS}
+                          />
+                        </div>
+                        <Button variant="custom" type="button">
+                          Approve
+                        </Button>
+                      </div>
+                      <div className="space-y-2">
+                        <FormTextArea name="" label="Remarks" />
+                        <FormSelect
+                          name=""
+                          placeholder="Select approval"
+                          options={APPROVAL_PROCESS}
+                        />
+                        <Button variant="custom" type="button">
+                          Approve
+                        </Button>
+                      </div>
+                    </div>
+                  </form>
+                </Form>
               </CardContent>
             </Card>
           </TabsContent>
@@ -193,3 +279,26 @@ const ViewAssets = () => {
 };
 
 export default ViewAssets;
+
+type TItemRequisition = {
+  name: string;
+};
+
+const columns: ColumnDef<TItemRequisition>[] = [
+  {
+    header: "Date",
+    accessorKey: "date",
+  },
+  {
+    header: "Description",
+    accessorKey: "description",
+  },
+  {
+    header: "Status",
+    accessorKey: "status",
+  },
+  {
+    header: "Remark",
+    accessorKey: "remark",
+  },
+];

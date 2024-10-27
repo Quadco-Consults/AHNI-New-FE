@@ -97,6 +97,18 @@ const PaymentView = () => {
                   desc={data?.bank}
                   className2="flex justify-start  w-7/12"
                 />
+                <AssetsItem
+                  heading="Reason for Payment."
+                  className="flex justify-between "
+                  desc="N/A"
+                  className2="flex justify-start  w-7/12"
+                />
+                <AssetsItem
+                  heading="Approval Levels."
+                  className="flex justify-between "
+                  desc="N/A"
+                  className2="flex justify-start  w-7/12"
+                />
               </div>
             </CardContent>
           </Card>
