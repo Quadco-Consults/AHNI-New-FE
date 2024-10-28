@@ -1,8 +1,13 @@
 import { ColumnDef, Row } from "@tanstack/react-table";
 import TableAction from "atoms/TableAction";
-
+import DeleteIcon from "components/icons/DeleteIcon";
+import EyeIcon from "components/icons/EyeIcon";
+import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
+import { Button } from "components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { AdminRoutes } from "constants/RouterConstants";
 import { formatCurrency } from "lib/utils";
+import { generatePath, Link } from "react-router-dom";
 
 import {
   FuelRecord,
@@ -10,8 +15,16 @@ import {
 } from "services/adminApi/VehicleRequestApi";
 import { toast } from "sonner";
 
-// eslint-disable-next-line react-refresh/only-export-components
-const FuelDelete = ({ row }: { row: Row<FuelRecord> }) => {
+export type IFuelVehicle = {
+  condition: string;
+  name: string;
+  manufacturer: string;
+  model: string;
+  implementer: string;
+  id: string;
+};
+
+const ActionList = ({ row }: { row: Row<FuelRecord> }) => {
   const [deleteFuel] = useDeleteFuelRecordMutation();
 
   const onFuelDelete = async () => {
@@ -24,33 +37,110 @@ const FuelDelete = ({ row }: { row: Row<FuelRecord> }) => {
   };
 
   return (
-    <TableAction
-      action={() => onFuelDelete()}
-      route={AdminRoutes.FuelView}
-      row={row.original}
-    />
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="ghost" className="flex gap-2 py-6">
+          <MoreOptionsHorizontalIcon />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className=" w-fit">
+        <div className="flex flex-col items-start justify-between gap-1">
+          <Link
+            className="w-full"
+            to={generatePath(AdminRoutes.FuelViewDetail, {
+              id: 1,
+            })}
+          >
+            <Button
+              className="w-full flex items-center justify-start gap-2"
+              variant="ghost"
+            >
+              <EyeIcon />
+              View
+            </Button>
+          </Link>
+          <Button
+            onClick={onFuelDelete}
+            className="w-full flex items-center justify-start gap-2"
+            variant="ghost"
+          >
+            <DeleteIcon />
+            delete
+          </Button>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 };
 
-export const fuelConsumptionColumns: ColumnDef<FuelRecord>[] = [
+export const fuelConsumption: ColumnDef<IFuelVehicle>[] = [
+  {
+    header: "vehicle",
+    accessorKey: "name",
+  },
+
+  {
+    header: "Model",
+    accessorKey: "model",
+  },
+  {
+    header: "Manufacturer",
+    accessorKey: "manufacturer",
+  },
+  {
+    header: "Implementer",
+    accessorKey: "implementer",
+  },
+  {
+    header: "condition",
+    accessorKey: "condition",
+  },
+  {
+    header: "",
+    accessorKey: "actions",
+    cell: ({ row }) => {
+      return <TableAction row={row.original} route={AdminRoutes.FuelView} />;
+    },
+  },
+];
+
+export const fuelConsumptionColumnsOne: ColumnDef<FuelRecord>[] = [
   {
     header: "Date",
     accessorKey: "date",
   },
   {
-    header: "Odometer",
+    header: "Previous Odometer Reading",
     accessorKey: "odometer",
+    size: 200,
+  },
+  {
+    header: "Current Odometer Reading",
+    accessorKey: "current_odometer",
+    size: 200,
   },
   {
     header: "Distance Covered",
     accessorKey: "distance_covered",
   },
   {
+    header: "Fuel Coupon Number",
+    accessorKey: "coupon_number",
+  },
+  {
+    header: "Location",
+    accessorKey: "-",
+  },
+  {
+    header: "Vendor",
+    accessorKey: "--",
+  },
+  {
     header: "Price Per Liter (₦)",
     accessorKey: "price_per_liter",
   },
   {
-    header: "Quantity",
+    header: "Litre Quantity",
     accessorKey: "quantity",
   },
   {
@@ -66,12 +156,16 @@ export const fuelConsumptionColumns: ColumnDef<FuelRecord>[] = [
   },
   {
     header: "Action",
-    accessorKey: "action",
-    cell: ({ row }) => <FuelDelete row={row} />,
+    id: "action",
+    cell: ({ row }) => <ActionList row={row} />,
   },
 ];
 
-export const fuelConsumptionColumnsOne: ColumnDef<FuelRecord>[] = [
+export const fuelConsumptionColumns: ColumnDef<FuelRecord>[] = [
+  {
+    header: "Driver",
+    accessorKey: "driver",
+  },
   {
     header: "Date",
     accessorKey: "date",

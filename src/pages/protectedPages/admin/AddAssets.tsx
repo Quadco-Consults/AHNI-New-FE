@@ -82,7 +82,7 @@ const AddAssets = () => {
     page_size: 20,
   });
 
-  const { data: state } = useStatesQuery();
+  const { data: state } = useStatesQuery({});
 
   const drivedState = useMemo(() => {
     return state?.map((item: string) => {

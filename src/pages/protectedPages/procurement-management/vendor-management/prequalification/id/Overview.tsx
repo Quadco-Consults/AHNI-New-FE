@@ -56,6 +56,18 @@ const Overview = (data: VendorsResultsData) => {
           <h4 className="font-bold">Active Company Telephone Number</h4>
           <h4>{data?.phone_number}</h4>
         </div>
+        <div className="grid grid-cols-2 items-center">
+          <h4 className="font-bold">Submitted Category</h4>
+          <h4>{}</h4>
+        </div>
+        <div className="grid grid-cols-2 items-center">
+          <h4 className="font-bold">Date Submitted</h4>
+          <h4>{}</h4>
+        </div>
+        <div className="grid grid-cols-2 items-center">
+          <h4 className="font-bold">Bank Account</h4>
+          <h4>{}</h4>
+        </div>
       </div>
     </div>
   );

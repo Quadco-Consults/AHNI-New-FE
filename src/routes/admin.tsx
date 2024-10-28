@@ -17,6 +17,27 @@ export const adminRoutes = [
     element: lazy(() => import("pages/protectedPages/admin/Consumables")),
   },
   {
+    path: AdminRoutes.ITEM_REQUISITION,
+    element: lazy(
+      () => import("pages/protectedPages/admin/ItemRequisition/index")
+    ),
+  },
+  {
+    path: AdminRoutes.ITEM_REQUISITION_DETAIL,
+    element: lazy(
+      () => import("pages/protectedPages/admin/ItemRequisition/id/index")
+    ),
+  },
+  {
+    path: AdminRoutes.CREATE_ITEM_REQUISITION,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/admin/ItemRequisition/CreateItemRequisition"
+        )
+    ),
+  },
+  {
     path: AdminRoutes.ASSETS,
     element: lazy(() => import("pages/protectedPages/admin/Assets")),
   },
@@ -46,6 +67,15 @@ export const adminRoutes = [
     path: AdminRoutes.VehicleMaitenance,
     element: lazy(
       () =>
+        import(
+          "pages/protectedPages/admin/FleetManagment/VehicleMaintenanceTable"
+        )
+    ),
+  },
+  {
+    path: AdminRoutes.VehicleMaitenanceCreate,
+    element: lazy(
+      () =>
         import("pages/protectedPages/admin/FleetManagment/VehichleMaitanace")
     ),
   },
@@ -65,6 +95,12 @@ export const adminRoutes = [
     path: AdminRoutes.FuelView,
     element: lazy(
       () => import("pages/protectedPages/admin/FleetManagment/ViewFuel")
+    ),
+  },
+  {
+    path: AdminRoutes.FuelViewDetail,
+    element: lazy(
+      () => import("pages/protectedPages/admin/FleetManagment/FuelTableDetail")
     ),
   },
   {
@@ -117,6 +153,13 @@ export const adminRoutes = [
     ),
   },
   {
+    path: AdminRoutes.PaymentRequestUpload,
+    element: lazy(
+      () =>
+        import("pages/protectedPages/admin/PaymentRequest/FileUploadRequest")
+    ),
+  },
+  {
     path: AdminRoutes.PaymentRequestView,
     element: lazy(
       () => import("pages/protectedPages/admin/PaymentRequest/PaymentView")
@@ -156,6 +199,67 @@ export const adminRoutes = [
     path: AdminRoutes.ViewAggrement,
     element: lazy(
       () => import("pages/protectedPages/admin/Agreement/ViewAgreement")
+    ),
+  },
+  {
+    path: AdminRoutes.ASSET_MAINTENANCE,
+    element: lazy(() => import("pages/protectedPages/admin/AssetMaintenance")),
+  },
+  {
+    path: AdminRoutes.ASSET_MAINTENANCE_VIEW,
+    element: lazy(
+      () => import("pages/protectedPages/admin/AssetMaintenanceView")
+    ),
+  },
+  {
+    path: AdminRoutes.ASSET_MAINTENANCE_CREATE,
+    element: lazy(
+      () => import("pages/protectedPages/admin/AssetMaintenanceCreate")
+    ),
+  },
+  {
+    path: AdminRoutes.ASSETS_REQUEST,
+    element: lazy(() => import("pages/protectedPages/admin/AssestRequest")),
+  },
+  {
+    path: AdminRoutes.ASSETS_REQUEST_CREATE,
+    element: lazy(() => import("pages/protectedPages/admin/AddAssetRequest")),
+  },
+  {
+    path: AdminRoutes.ASSETS_REQUEST_VIEW,
+    element: lazy(() => import("pages/protectedPages/admin/ViewAssetRequest")),
+  },
+  {
+    path: AdminRoutes.GRN,
+    element: lazy(() => import("pages/protectedPages/admin/GRN/index")),
+  },
+  {
+    path: AdminRoutes.GRN_CREATE,
+    element: lazy(() => import("pages/protectedPages/admin/GRN/CreateGRN")),
+  },
+  {
+    path: AdminRoutes.GRN_DETAIL,
+    element: lazy(() => import("pages/protectedPages/admin/GRN/id/index")),
+  },
+  {
+    path: AdminRoutes.EXPENSE_AUTHORIZATION,
+    element: lazy(
+      () => import("pages/protectedPages/admin/ExpenseAuthorization/index")
+    ),
+  },
+  {
+    path: AdminRoutes.EXPENSE_AUTHORIZATION_CREATE,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/admin/ExpenseAuthorization/ExpenseAuthorizationCreate"
+        )
+    ),
+  },
+  {
+    path: AdminRoutes.EXPENSE_AUTHORIZATION_DETAIL,
+    element: lazy(
+      () => import("pages/protectedPages/admin/ExpenseAuthorization/id/index")
     ),
   },
 ];

@@ -1,7 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { Form } from "components/ui/form";
 import { useForm } from "react-hook-form";
-import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelectField";
 import { ChevronRight } from "lucide-react";
 import FormButton from "atoms/FormButton";
@@ -20,6 +19,32 @@ import { FundRequestDetailSchema } from "definations/program-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FinancialAPI from "services/configs/financial-year";
 import { FinancialYearResultsData } from "definations/configs/financial-year";
+import { useLocationQuery } from "services/moduleProjects";
+import _ from "lodash";
+import { useGetUserQuery } from "services/users";
+
+const getYearOptions = () => {
+  const currentYear = new Date().getFullYear();
+  const startYear = 2012;
+  return new Array(currentYear - startYear + 1).fill(_).map((_, i) => {
+    const value = currentYear - i;
+    return `${value}`;
+  });
+};
+
+const getMonthOptions = () => {
+  const monthsArr = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
+  const months = monthsArr.map((month, index) => ({
+    label: month,
+    value: index < 9 ? `0${index + 1}` : `${index + 1}`
+  }));
+
+  return months;
+};
 
 const CreateFundRequest = () => {
   const form = useForm<z.infer<typeof FundRequestDetailSchema>>({
@@ -47,6 +72,8 @@ const CreateFundRequest = () => {
     FinancialAPI.useGetFinancialYearsQuery({
       params: { no_paginate: true },
     });
+  const { data: locations, isLoading: isLoadingLcation } = useLocationQuery({});
+  const { data: users, isLoading: isLoadingUsers } = useGetUserQuery({});
 
   const { handleSubmit } = form;
 
@@ -98,8 +125,24 @@ const CreateFundRequest = () => {
               <div className="-mt-2">
                 <Label>Financial Month</Label>
                 <div className="grid grid-cols-2 gap-3 items-center">
-                  <FormInput name="month" placeholder="MM" type="number" />
-                  <FormInput name="year" placeholder="YYY" type="number" />
+                <FormSelect name="month" placeholder="Select month">
+                    <SelectContent>
+                      {getMonthOptions().map(({label, value}) => (
+                          <SelectItem key={value} value={value}>
+                            {label}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </FormSelect>
+                  <FormSelect name="year" placeholder="Select year">
+                    <SelectContent>
+                      {getYearOptions().map((year) => (
+                        <SelectItem key={year} value={year}>
+                          {year}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </FormSelect>
                 </div>
               </div>
 
@@ -166,6 +209,42 @@ const CreateFundRequest = () => {
                     financialYear?.map((value: FinancialYearResultsData) => (
                       <SelectItem key={value?.id} value={value?.year}>
                         {value?.year}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </FormSelect>
+              <FormSelect
+                name="locations"
+                label="Location"
+                placeholder="Select location"
+                required
+              >
+                <SelectContent>
+                  {isLoadingLcation ? (
+                    <LoadingSpinner />
+                  ) : (
+                    locations?.results?.map(({ id, name }: any) => (
+                      <SelectItem key={id} value={id}>
+                        {name}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </FormSelect>
+              <FormSelect
+                name="reviewer"
+                label="Reviewer"
+                placeholder="Select reviewer"
+                required
+              >
+                <SelectContent>
+                  {isLoadingUsers ? (
+                    <LoadingSpinner />
+                  ) : (
+                    users?.results?.map(({ id, first_name, last_name }: any) => (
+                      <SelectItem key={id} value={id}>
+                        {first_name} {last_name}
                       </SelectItem>
                     ))
                   )}

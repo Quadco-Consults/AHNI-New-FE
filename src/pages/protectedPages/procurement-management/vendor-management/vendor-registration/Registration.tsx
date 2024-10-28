@@ -170,6 +170,15 @@ const Registration = () => {
                     name="bank_address"
                   />
                   <FormInput
+                    label="Company's Bankers Account Number"
+                    name="bank_account_number"
+                  />
+                  <FormInput
+                    label="Date Submitted"
+                    name="date_submitted"
+                    type="date"
+                  />
+                  <FormInput
                     label="Number of permanent staff"
                     name="number_of_permanent_staff"
                     type="number"

@@ -1,11 +1,22 @@
 /* eslint-disable react-refresh/only-export-components */
 import { ColumnDef, Row, Table } from "@tanstack/react-table";
+import TableAction from "atoms/TableAction";
+import DeleteIcon from "components/icons/DeleteIcon";
+import EditIcon from "components/icons/EditIcon";
+import EyeIcon from "components/icons/EyeIcon";
+import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import { Button } from "components/ui/button";
 import { Checkbox } from "components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { AdminRoutes } from "constants/RouterConstants";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 
 import { Link } from "react-router-dom";
+import {
+  DisposalReport,
+  useDeleteAssetsRequestMutation,
+} from "services/adminApi/assetsApi";
+import { toast } from "sonner";
 import { addAsset, assetSelector, removeAsset } from "store/assets";
 
 interface AssetData {
@@ -80,10 +91,25 @@ export const assestColum: ColumnDef<AssetData>[] = [
     header: "Classification",
     accessorKey: "classification",
   },
-
   {
     header: "Unit",
     accessorKey: "unit",
+  },
+  {
+    header: "Donor",
+    accessorKey: "donor",
+  },
+  {
+    header: "Project",
+    accessorKey: "project",
+  },
+  {
+    header: "Assignee",
+    accessorKey: "assignee",
+  },
+  {
+    header: "Serial Number",
+    accessorKey: "serial",
   },
   {
     header: "Organization",
@@ -103,18 +129,104 @@ export const assestColum: ColumnDef<AssetData>[] = [
   },
   {
     header: "",
-    accessorKey: "view",
-    cell: ({ row }) => {
-      const data = row.original;
-      return (
-        <div className="flex gap-x-2">
-          <Link to={`${AdminRoutes.ViewAssets}?id=${data.id}`}>
-            <Button className="" variant="link">
-              View
+    id: "view",
+    cell: ({ row }) => <ActionList data={row} />,
+  },
+];
+const ActionList = ({ data }: any) => {
+  return (
+    <div className="flex items-center gap-2">
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="ghost" className="flex gap-2 py-6">
+            <MoreOptionsHorizontalIcon />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className=" w-fit">
+          <div className="flex flex-col items-start justify-between gap-1">
+            <Link to={`${AdminRoutes.ViewAssets}?id=${data?.original?.id}`}>
+              <Button
+                className="w-full flex items-center justify-start gap-2"
+                variant="ghost"
+              >
+                <EyeIcon />
+                View
+              </Button>
+            </Link>
+            <Button
+              className="w-full flex items-center justify-start gap-2"
+              variant="ghost"
+            >
+              <EditIcon />
+              Edit
             </Button>
-          </Link>
-        </div>
-      );
+            <Button
+              className="w-full flex items-center justify-start gap-2"
+              variant="ghost"
+            >
+              <DeleteIcon />
+              delete
+            </Button>
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+};
+
+const RequestActions = ({ row }: { row: Row<DisposalReport> }) => {
+  const [deleteAssetRequest] = useDeleteAssetsRequestMutation();
+
+  const deleteAssest = () => {
+    try {
+      deleteAssetRequest({
+        id: row.original.id,
+      }).unwrap();
+      toast.success("Asset request deleted successfully");
+    } catch (error) {
+      toast.error("Error deleting asset request");
+    }
+  };
+  return (
+    <TableAction
+      route={AdminRoutes.ASSETS_REQUEST_VIEW}
+      row={row.original}
+      action={() => deleteAssest()}
+    />
+  );
+};
+
+export const assestRequestColum: ColumnDef<DisposalReport>[] = [
+  {
+    header: "Remark",
+    accessorKey: "remark",
+  },
+
+  {
+    header: "Recomendation",
+    accessorKey: "recommendation",
+  },
+
+  {
+    header: "Asset Condition",
+    accessorKey: "asset_condition",
+  },
+  {
+    header: "Justification for Recomendation",
+    accessorKey: "justification_for_disposal",
+    size: 250,
+  },
+  {
+    header: "Life Span as at Report",
+    accessorKey: "life_span_at_report",
+    size: 250,
+  },
+  {
+    header: "",
+    accessorKey: "action",
+    size: 80,
+    cell: ({ row }) => {
+      return <RequestActions row={row} />;
     },
   },
 ];

@@ -24,6 +24,16 @@ const DepartmentsAPI = baseAPI.injectEndpoints({
       providesTags: (data, error) =>
         !error ? provideTags("DEPARTMENT", data) : [],
     }),
+    getDepartmentPaginate: builder.query<DepartmentsResultsData[], {}>({
+      query: (config) => {
+        return {
+          url: `${BASE_URL}`,
+          ...config,
+        };
+      },
+      providesTags: (data, error) =>
+        !error ? provideTags("DEPARTMENT", data) : [],
+    }),
 
     createDepartment: builder.mutation<
       DepartmentsResponse,

@@ -102,7 +102,17 @@ const FundRequest = () => {
     {
       header: "Outcome/Impact",
       accessorKey: "goal",
+      size: 180,
+    },
+    {
+      header: "Achievement",
+      accessorKey: "achievement",
       size: 150,
+    },
+    {
+      header: "Budget Performance",
+      accessorKey: "budget_performance",
+      size: 200,
     },
     {
       header: "Beneficiaries",

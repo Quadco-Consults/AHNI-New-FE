@@ -2,16 +2,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelect";
-import Card from "components/shared/Card";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useAddSupervisionCategoryMutation } from "services/module-programs";
+import { useAddSupervisionCategoryMutation, useUpdateSupervisionCategoryMutation } from "services/module-programs";
 import {
   TSupervisionCategory,
   supervisionCategorySchema,
 } from "definations/module-programs";
+import { useAppDispatch, useAppSelector } from "hooks/useStore";
+import { closeDialog, dailogSelector } from "store/ui";
 
 const jobCategoryOptions = [
   { label: "Goods", value: "Goods" },
@@ -21,23 +22,37 @@ const jobCategoryOptions = [
 ];
 
 const AddSupervisionCategory = () => {
+  const { dialogProps } = useAppSelector(dailogSelector);
+
+  const data = dialogProps?.data as unknown as TSupervisionCategory;
+
   const form = useForm<TSupervisionCategory>({
     resolver: zodResolver(supervisionCategorySchema),
     defaultValues: {
-      name: "",
-      description: "",
-      job_category: undefined,
-      serial_number: "",
-      code: "",
+      name: data?.name ?? "",
+      description: data?.description ?? "",
+      job_category: data?.job_category ?? undefined,
+      serial_number: data?.serial_number ?? "",
+      code: data?.code ?? "",
     },
   });
-  const [supervisionCategory, { isLoading }] =
-    useAddSupervisionCategoryMutation();
+
+  const dispatch = useAppDispatch();
+
+  const [supervisionCategory, { isLoading }] = useAddSupervisionCategoryMutation();
+  const [updateSupervisionCategory, { isLoading: updateSupervisionLoading }] = useUpdateSupervisionCategoryMutation();
 
   const onSubmit: SubmitHandler<TSupervisionCategory> = async (data) => {
     try {
-      await supervisionCategory(data).unwrap();
+      dialogProps?.type === "update"
+        ? updateSupervisionCategory({
+            //@ts-ignore
+            id: String(dialogProps?.data?.id),
+            body: data,
+          }).unwrap()
+        : await supervisionCategory(data).unwrap();
       toast.success("Supervision Category Added Succesfully");
+      dispatch(closeDialog());
       form.reset();
     } catch (error: any) {
       toast.error(error.data.message || "Something went wrong");
@@ -45,7 +60,6 @@ const AddSupervisionCategory = () => {
   };
 
   return (
-    <Card className="max-w-[743px]">
       <CardContent>
         <Form {...form}>
           <form
@@ -61,10 +75,11 @@ const AddSupervisionCategory = () => {
                 required
               />
             </div>
-            <div className="grid grid-cols-1 gap-y-7">
+            <div className="grid grid-cols-1">
               <FormInput label="Description" name="description" required />
+              {/* <FormInput label="Code" name="code" required /> */}
             </div>
-            <div className="grid grid-cols-2 gap-x-7">
+            {/* <div className="grid grid-cols-2 gap-x-7">
               <FormInput
                 label="Serial Number"
                 name="serial_number"
@@ -77,15 +92,13 @@ const AddSupervisionCategory = () => {
                 required
                 options={jobCategoryOptions}
               />
-            </div>
+            </div> */}
             <div className="flex justify-start gap-4">
-              <FormButton loading={isLoading}>Save</FormButton>
-              <FormButton>Save and Add New</FormButton>
+              <FormButton loading={isLoading || updateSupervisionLoading}>Save</FormButton>
             </div>
           </form>
         </Form>
       </CardContent>
-    </Card>
   );
 };
 

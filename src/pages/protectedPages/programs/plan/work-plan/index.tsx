@@ -47,6 +47,7 @@ const WorkPlan = () => {
       {
         header: "Financial Year",
         accessorKey: "financial_year",
+        accessorFn: (data) => `${data?.financial_year?.year}`,
         size: 200,
       },
       {
@@ -80,7 +81,7 @@ const WorkPlan = () => {
                   className="w-full"
                   to={`/program/plan/work-plan/${data.partner_id}/${
                     data.project_id
-                  }/${encodeURIComponent(data.financial_year)}`}
+                  }/${encodeURIComponent(data.financial_year.id)}`}
                 >
                   <Button
                     className="w-full flex items-center justify-start gap-2"

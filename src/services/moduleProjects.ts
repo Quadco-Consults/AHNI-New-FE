@@ -1,5 +1,5 @@
 import baseAPI from ".";
-import { TBasePaginatedRespose, TRequest } from "definations/auth";
+import { TBasePaginatedResponse, TRequest } from "definations/auth";
 import {
   FundingSource,
   TFundingSource,
@@ -14,7 +14,7 @@ import {
 const projectsAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     fundingSources: builder.query<
-      TBasePaginatedRespose<FundingSource[]>,
+      TBasePaginatedResponse<FundingSource[]>,
       TRequest
     >({
       query: (params) => ({
@@ -31,9 +31,27 @@ const projectsAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["FundingSource"],
     }),
+    updateFundingSource: builder.mutation<
+      FundingSource,
+      { id: string; body: TFundingSource }
+    >({
+      query: ({ id, body }) => ({
+        url: `/projects/funding-sources/${id}/`,
+        method: "PATCH",
+        body: body,
+      }),
+      invalidatesTags: ["FundingSource"],
+    }),
+    deleteFundingSource: builder.mutation<FundingSource, string>({
+      query: (id) => ({
+        url: `/projects/funding-sources/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["FundingSource"],
+    }),
 
     beneficiaries: builder.query<
-      TBasePaginatedRespose<Beneficiaries[]>,
+      TBasePaginatedResponse<Beneficiaries[]>,
       TRequest
     >({
       query: (params) => ({
@@ -50,9 +68,27 @@ const projectsAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["Beneficiaries"],
     }),
+    updateBeneficiaries: builder.mutation<
+      Beneficiaries,
+      { id: string; body: TBeneficiaries }
+    >({
+      query: ({ id, body }) => ({
+        url: `/projects/beneficiaries/${id}/`,
+        method: "PATCH",
+        body: body,
+      }),
+      invalidatesTags: ["Beneficiaries"],
+    }),
+    deleteBeneficiaries: builder.mutation<Beneficiaries, string>({
+      query: (id) => ({
+        url: `/projects/beneficiaries/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Beneficiaries"],
+    }),
 
     documentTypes: builder.query<
-      TBasePaginatedRespose<DocumentTypes[]>,
+      TBasePaginatedResponse<DocumentTypes[]>,
       TRequest
     >({
       query: (params) => ({
@@ -69,8 +105,26 @@ const projectsAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["DocumentTypes"],
     }),
+    updateDocumentTypes: builder.mutation<
+      DocumentTypes,
+      { id: string; body: TDocumentTypes }
+    >({
+      query: ({ id, body }) => ({
+        url: `/projects/document-types/${id}/`,
+        method: "PATCH",
+        body: body,
+      }),
+      invalidatesTags: ["DocumentTypes"],
+    }),
+    deleteDocumentTypes: builder.mutation<DocumentTypes, string>({
+      query: (id) => ({
+        url: `/projects/document-types/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["DocumentTypes"],
+    }),
 
-    partners: builder.query<TBasePaginatedRespose<Partners[]>, TRequest>({
+    partners: builder.query<TBasePaginatedResponse<Partners[]>, TRequest>({
       query: (params) => ({
         url: "/projects/partners/",
         params,
@@ -85,7 +139,25 @@ const projectsAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["Partners"],
     }),
-    states: builder.query<any, void>({
+    updatePartners: builder.mutation<Partners, { id: string; body: TPartners }>(
+      {
+        query: ({ id, body }) => ({
+          url: `/projects/partners/${id}/`,
+          method: "PATCH",
+          body: body,
+        }),
+        invalidatesTags: ["Partners"],
+      }
+    ),
+    deletePartners: builder.mutation<Partners, string>({
+      query: (id) => ({
+        url: `/projects/partners/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Partners"],
+    }),
+
+    states: builder.query<any, any>({
       query: () => ({
         url: "/config/states/",
       }),
@@ -110,4 +182,12 @@ export const {
   useAddPartnersMutation,
   useStatesQuery,
   useLocationQuery,
+  useDeleteFundingSourceMutation,
+  useUpdateFundingSourceMutation,
+  useUpdateBeneficiariesMutation,
+  useDeleteBeneficiariesMutation,
+  useDeleteDocumentTypesMutation,
+  useUpdateDocumentTypesMutation,
+  useUpdatePartnersMutation,
+  useDeletePartnersMutation,
 } = projectsAPI;

@@ -85,6 +85,16 @@ const columns: ColumnDef<VendorsResultsData>[] = [
     accessorKey: "email",
   },
   {
+    header: "RC Number",
+    size: 200,
+    accessorKey: "rc_number",
+  },
+  {
+    header: "Tax ID",
+    size: 200,
+    accessorKey: "tax_id",
+  },
+  {
     header: "Products/Services",
     accessorKey: "nature_of_business",
     size: 300,
@@ -111,12 +121,11 @@ const columns: ColumnDef<VendorsResultsData>[] = [
   {
     header: "Actions",
     id: "actions",
-    cell: ({ row }) => <ActionListAction data={row.original} />,
+    cell: () => <ActionListAction />,
   },
 ];
 
-const ActionListAction = ({ data }: any) => {
-  console.log(data);
+const ActionListAction = () => {
   return (
     <div className="flex gap-1">
       {/* <IconButton className="bg-[#F9F9F9] hover:text-primary">
@@ -134,7 +143,7 @@ const ActionListAction = ({ data }: any) => {
 
 const VendorAction = ({ data }: any) => {
   return (
-    <div className="flex gap-3">
+    <div className="flex items-center gap-3">
       <div>
         <Avatar>
           <AvatarImage src={data?.vendor?.png} />
@@ -143,7 +152,7 @@ const VendorAction = ({ data }: any) => {
       </div>
       <div>
         <h4 className="font-bold">{data?.company_name}</h4>
-        <h6>{data?.company_address}</h6>
+        {/* <h6>{data?.company_address}</h6> */}
       </div>
     </div>
   );

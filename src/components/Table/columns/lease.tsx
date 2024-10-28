@@ -1,5 +1,31 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Agreement } from "services/adminApi/agreements";
+import TableAction from "atoms/TableAction";
+import { AdminRoutes } from "constants/RouterConstants";
+import {
+  Agreement,
+  useDeleteAgreementMutation,
+} from "services/adminApi/agreements";
+import { toast } from "sonner";
+
+// eslint-disable-next-line react-refresh/only-export-components
+const OnTableAction = ({ row }: { row: Agreement }) => {
+  const [deleteAgrement] = useDeleteAgreementMutation();
+  const onSubmit = async () => {
+    try {
+      await deleteAgrement(row.id).unwrap();
+      toast.success("Agreement deleted successfully");
+    } catch (error) {
+      toast.error("Error deleting");
+    }
+  };
+  return (
+    <TableAction
+      row={row}
+      route={AdminRoutes.ViewAggrement}
+      action={onSubmit}
+    />
+  );
+};
 
 export const columnsLease: ColumnDef<Agreement>[] = [
   {
@@ -11,15 +37,37 @@ export const columnsLease: ColumnDef<Agreement>[] = [
     header: "Service",
   },
   {
-    accessorKey: "Type",
-    header: "type",
+    accessorKey: "type",
+    header: "Type",
   },
   {
-    accessorKey: "Start Date",
-    header: "start_date",
+    accessorKey: "start_date",
+    header: "Start Date",
   },
   {
-    accessorKey: "End Date",
-    header: "end_date",
+    accessorKey: "end_date",
+    header: "End Date",
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ getValue }) => {
+      return (
+        <div
+          className={`${
+            getValue<string>().toLowerCase() === "active"
+              ? "bg-[#E9F9F0] text-[#008248]"
+              : "bg-[#FEEFEF] text-[#D8000C]"
+          } px-2 text-center py-1 rounded-md text-sm capitalize`}
+        >
+          {getValue<string>()}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "actions",
+    header: "",
+    cell: ({ row }) => <OnTableAction row={row.original} />,
   },
 ];

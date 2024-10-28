@@ -1,5 +1,5 @@
 import { Button } from "components/ui/button";
-import { FormEvent, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useMemo, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -20,14 +20,17 @@ import { toast } from "sonner";
 import FormButton from "atoms/FormButton";
 import { useAppDispatch } from "hooks/useStore";
 import { closeDialog } from "store/ui";
+import FinancialAPI from "services/configs/financial-year";
+import { FinancialYearResultsData } from "definations/configs/financial-year";
 
 const WorkPlanUploadModal = () => {
   const [partnerValue, setPartnerValue] = useState("");
   const [projectValue, setProjectValue] = useState("");
+  const [financialYearValue, setFinancialYearValue] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const dispatch = useAppDispatch();
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       setFile(event.target.files[0]);
     }
@@ -38,6 +41,9 @@ const WorkPlanUploadModal = () => {
   };
   const handleProjectValue = (value: string) => {
     setProjectValue(value);
+  };
+  const handleFinancialYear = (value: string) => {
+    setFinancialYearValue(value);
   };
 
   const projectsQueryResult = projectsAPi.useGetProjectsParamsQuery(
@@ -61,9 +67,20 @@ const WorkPlanUploadModal = () => {
       [projectValue]
     )
   );
+  const financialYearQueryResult = FinancialAPI.useGetFinancialYearsQuery(
+    useMemo(
+      () => ({
+        params: {
+          no_paginate: true,
+        },
+      }),
+      []
+    )
+  );
 
   const projects = projectsQueryResult?.data;
   const partners = partnersQueryResult?.data;
+  const financialYear = financialYearQueryResult?.data;
 
   const [createWorkPlanMutation, { isLoading }] =
     WorkPlanAPi.useCreateWorkPlanDocumentMutation();
@@ -78,6 +95,7 @@ const WorkPlanUploadModal = () => {
     const formData = new FormData();
     formData.append("partner_id", partnerValue);
     formData.append("project_id", projectValue);
+    formData.append("financial_year_id", financialYearValue);
     formData.append("file", file);
 
     try {
@@ -90,6 +108,7 @@ const WorkPlanUploadModal = () => {
 
     setPartnerValue("");
     setProjectValue("");
+    setFinancialYearValue("");
     setFile(null);
   };
 
@@ -141,6 +160,28 @@ const WorkPlanUploadModal = () => {
             </Select>
           </div>
         )}
+
+        <div className="space-y-2">
+          <Label>
+            Financial Year <span className="text-red-500">*</span>
+          </Label>
+          <Select required onValueChange={handleFinancialYear}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select project" />
+            </SelectTrigger>
+            <SelectContent>
+              {financialYearQueryResult?.isLoading ? (
+                <LoadingSpinner />
+              ) : (
+                financialYear?.map((year: FinancialYearResultsData) => (
+                  <SelectItem key={year?.id} value={year.id}>
+                    {year.year}
+                  </SelectItem>
+                ))
+              )}
+            </SelectContent>
+          </Select>
+        </div>
 
         <div className="w-full relative gap-x-3 h-[52px] rounded-[16.2px] border flex justify-center items-center">
           <UploadFile size={20} />

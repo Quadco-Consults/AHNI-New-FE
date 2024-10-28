@@ -1,4 +1,4 @@
-import { TBasePaginatedRespose, TRequest } from "definations/auth";
+import { TBasePaginatedResponse, TRequest } from "definations/auth";
 
 import baseAPI from "..";
 
@@ -41,7 +41,7 @@ type TCosumableItem = {
 const consumablesAPi = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     getConsumables: builder.query<
-      TBasePaginatedRespose<TConsumables[]>,
+      TBasePaginatedResponse<TConsumables[]>,
       TRequest
     >({
       query: (params) => ({
@@ -50,7 +50,7 @@ const consumablesAPi = baseAPI.injectEndpoints({
       }),
     }),
     createConsumables: builder.mutation<
-      TBasePaginatedRespose<TConsumables[]>,
+      TBasePaginatedResponse<TConsumables[]>,
       Partial<TConsumables>
     >({
       query: (body) => ({
@@ -66,7 +66,7 @@ const consumablesAPi = baseAPI.injectEndpoints({
       }),
     }),
     deleteConsumables: builder.mutation<
-      TBasePaginatedRespose<TConsumables[]>,
+      TBasePaginatedResponse<TConsumables[]>,
       TRequest
     >({
       query: (params) => ({
@@ -74,15 +74,17 @@ const consumablesAPi = baseAPI.injectEndpoints({
         method: "DELETE",
       }),
     }),
-    getStockCard: builder.query<TBasePaginatedRespose<TStockCard[]>, TRequest>({
-      query: (params) => ({
-        url: `${path}/inventory-stock-card/`,
-        params,
-      }),
-      providesTags: ["Stock"],
-    }),
+    getStockCard: builder.query<TBasePaginatedResponse<TStockCard[]>, TRequest>(
+      {
+        query: (params) => ({
+          url: `${path}/inventory-stock-card/`,
+          params,
+        }),
+        providesTags: ["Stock"],
+      }
+    ),
     createStockCard: builder.mutation<
-      TBasePaginatedRespose<TStockCard[]>,
+      TBasePaginatedResponse<TStockCard[]>,
       Partial<TStockCard>
     >({
       query: (body) => ({
@@ -93,7 +95,7 @@ const consumablesAPi = baseAPI.injectEndpoints({
       invalidatesTags: ["Stock"],
     }),
     updateStockCard: builder.mutation<
-      TBasePaginatedRespose<TStockCard[]>,
+      TBasePaginatedResponse<TStockCard[]>,
       {
         id: string;
         body: Partial<TStockCard>;
@@ -107,20 +109,20 @@ const consumablesAPi = baseAPI.injectEndpoints({
       invalidatesTags: ["Stock"],
     }),
     deleteStockCard: builder.mutation<
-      TBasePaginatedRespose<TStockCard[]>,
+      TBasePaginatedResponse<TStockCard[]>,
       {
         id: string;
       }
     >({
       query: ({ id }) => ({
         url: `${path}/inventory-stock-card/${id}/`,
-      
+
         method: "DELETE",
       }),
       invalidatesTags: ["Stock"],
     }),
     cosumablesItems: builder.query<
-      TBasePaginatedRespose<TCosumableItem[]>,
+      TBasePaginatedResponse<TCosumableItem[]>,
       void
     >({
       query: () => ({
@@ -139,5 +141,5 @@ export const {
   useGetStockCardQuery,
   useCosumablesItemsQuery,
   useUpdateStockCardMutation,
-  useDeleteStockCardMutation
+  useDeleteStockCardMutation,
 } = consumablesAPi;

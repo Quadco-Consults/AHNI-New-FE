@@ -4,24 +4,44 @@ export const AuthRoutes = {
 
 export const AdminRoutes = {
   OVERVIEW: "/admin/overview",
-  CONSUMABLES: "/admin/inventory-managment/consumables",
-  CONSUMABLES_VIEW: "/admin/inventory-managment/consumables/view",
-  ASSETS: "/admin/inventory-managment/assets",
-  CREateConsumables: "/admin/inventory-managment/create-consumables",
-  CreateAssets: "/admin/inventory-managment/create-assets",
-  ViewAssets: "/admin/inventory-managment/view-assets",
-  VehicleRequest: "/admin/fleet-managment/vehichle-request",
-  VehicleMaitenance: "/admin/fleet-managment/vehicle-maintenance",
-  FuelConsumptions: "/admin/fleet-managment/fuel-request",
-  FuelView: "/admin/fleet-managment/fuel/View-Fuel",
-  FuelCreate: "/admin/fleet-managment/fuel-request/create",
-  NewVehicleRequest: "/admin/fleet-managment/new-vehicle-request",
-  ViewVehicleRequest: "/admin/fleet-managment/vehicle",
+  EXPENSE_AUTHORIZATION: "/admin/expense-authorization",
+  EXPENSE_AUTHORIZATION_CREATE: "/admin/expense-authorization/create",
+  EXPENSE_AUTHORIZATION_DETAIL: "/admin/expense-authorization/:id",
+  CONSUMABLES: "/admin/inventory-management/consumables",
+  GRN: "/admin/inventory-management/good-receive-note",
+  GRN_CREATE: "/admin/inventory-management/good-receive-note/create",
+  GRN_DETAIL: "/admin/inventory-management/good-receive-note/:id",
+  ITEM_REQUISITION: "/admin/inventory-management/item-requisition",
+  ITEM_REQUISITION_DETAIL: "/admin/inventory-management/item-requisition/:id",
+  CREATE_ITEM_REQUISITION:
+    "/admin/inventory-management/item-requisition/create",
+  CONSUMABLES_VIEW: "/admin/inventory-management/consumables/view",
+  ASSETS: "/admin/inventory-management/assets",
+  ASSETS_REQUEST: "/admin/inventory-management/assets-request",
+  ASSETS_REQUEST_CREATE: "/admin/inventory-management/assets-request/create",
+  ASSETS_REQUEST_VIEW: "/admin/inventory-management/assets-request-view",
+  ASSET_MAINTENANCE: "/admin/inventory-management/asset-maintenance",
+  ASSET_MAINTENANCE_VIEW: "/admin/inventory-management/asset-maintenance-view",
+  ASSET_MAINTENANCE_CREATE:
+    "/admin/inventory-management/asset-maintenance-create",
+  CREateConsumables: "/admin/inventory-management/create-consumables",
+  CreateAssets: "/admin/inventory-management/create-assets",
+  ViewAssets: "/admin/inventory-management/view-assets",
+  VehicleRequest: "/admin/fleet-management/vehichle-request",
+  VehicleMaitenanceCreate: "/admin/fleet-management/vehicle-maintenance-create",
+  VehicleMaitenance: "/admin/fleet-management/vehicle-maintenance",
+  FuelConsumptions: "/admin/fleet-management/fuel-request",
+  FuelView: "/admin/fleet-management/fuel/View-Fuel",
+  FuelViewDetail: "/admin/fleet-management/fuel/View-Fuel/:id",
+  FuelCreate: "/admin/fleet-management/fuel-request/create",
+  NewVehicleRequest: "/admin/fleet-management/new-vehicle-request",
+  ViewVehicleRequest: "/admin/fleet-management/vehicle",
   Facilities: "/admin/facilities/facilities-list",
-  FacilitiesTicket: "/admin/facilities/facilities-ticket",
+  FacilitiesTicket: "/admin/facilities/maintenance-ticket",
   FacilitiesView: "/admin/facilities/facilities-view",
   PaymentRequest: "/admin/payment-request/payment-list",
   PaymentRequestCreate: "/admin/payment-request/Create-Payment",
+  PaymentRequestUpload: "/admin/payment-request/file-updload",
   PaymentRequestView: "/admin/payment-request/View-Payment",
   Agrements: "/admin/agrements",
   AgrementsCreeate: "/admin/agrements/create",
@@ -57,7 +77,6 @@ export const RouteEnum = {
   CREATE_PROCUREMENT_MILESTONE:
     "/procurement-management/procurement-plan/create/procurement-milestones",
   PROCUREMENT_TRACKER: "/procurement-management/procurement-tracker",
-  PROCUREMENT_TRACKER_DETAIL: "/procurement-management/procurement-tracker/:id",
 
   //rfq routes
   RFQ: "/procurement-management/solicitation/rfq",
@@ -179,6 +198,10 @@ export const RouteEnum = {
   // modules
   MODULES_PROJECTS: "/modules-projects",
   MODULES_PROGRAMS: "/modules-programs",
+  MODULES_ADMIN: "/modules-admin",
+  MODULES_CONFIG: "/modules-config",
+  MODULES_PROCUREMENT: "/modules-procurement",
+  MODULES_FINANCE: "/modules-finance",
 
   // PROGRAM_OVERVIEW: "/program/overview",
   // PROGRAM_OVERVIEW: "/program/overview",
@@ -187,15 +210,78 @@ export const RouteEnum = {
 export const CandGRoutes = {
   OVERVIEW: "/c-and-g/overview",
   GRANT: "/c-and-g/grant",
+  AGREEMENT: "/c-and-g/agreement",
   NEW_GRANT: "/c-and-g/new-grant",
   GRANT_DETAILS: "/c-and-g/grant-details/:id",
+  // sub grant
+  SUB_GRANT: "/c-and-g/sub-grant",
+  NEW_SUB_GRANT: "/c-and-g/sub-grant/new",
+  SUB_GRANT_DETAILS: "/c-and-g/sub-grant-details/:id",
+  MANUAL_SUB_GRANT_SUBMISSION:
+    "/c-and-g/sub-grant/manual-submission/organization-details/:id",
+  MANUAL_SUB_GRANT_SUBMISSION_DOCS:
+    "/c-and-g/sub-grant/manual-submission/document-upload/:id",
+  SUBMITTED_APPLICATIONS: "/c-and-g/sub-grant/submitted-applications/:id",
+  ////// pre award assessment
+  PRE_AWARD_ASSESSMENT: "/c-and-g/sub-grant/pre-award-assessment",
+  PRE_AWARD_ASSESSMENT_SINGLE: "/c-and-g/sub-grant/pre-award-assessment/:id",
+  PRE_AWARD_ASSESSMENT_STEP_1: "/c-and-g/sub-grant/pre-award-assessment_1/:id",
+  PRE_AWARD_ASSESSMENT_STEP_2: "/c-and-g/sub-grant/pre-award-assessment_2/:id",
+  PRE_AWARD_ASSESSMENT_STEP_3:
+    "/c-and-g/sub-grant/pre-award-assessment_3/:id/:result",
+  PRE_AWARD_ASSESSMENT_STEP_4: "/c-and-g/sub-grant/pre-award-assessment_3/:id",
+
+  // close out
   CLOSE_OUT: "/c-and-g/close-out-plan",
   CLOSE_OUT_DETAILS: "/c-and-g/close-out-plan/details/:id",
   NEW_CLOSE_OUT_PLAN: "/c-and-g/close-out-plan/new-grant",
+
+  // consultancy
   CONSULTANCY: "/c-and-g/consultancy",
-  NEW_CONSULTANCY: "/c-and-g/consultancy/create-new-consultancy/application-details",
-  NEW_CONSULTANCY_SCOPE: "/c-and-g/consultancy/create-new-consultancy/scope-of-work",
+  NEW_CONSULTANCY:
+    "/c-and-g/consultancy/create-new-consultancy/application-details",
+  NEW_CONSULTANCY_SCOPE:
+    "/c-and-g/consultancy/create-new-consultancy/scope-of-work",
   CONSULTANCY_DETAILS: "/c-and-g/consultancy/details/:id",
+  ADD_CONSULTANCY_APPLICATION:
+    "/api/v1/contract-grants/consultancy-applications/:id",
+  CONSULTANCY_APPLICATION_DETAILS:
+    "/api/v1/contract-grants/consultancy-applications_details/:id",
+  CONSULTANCY_SHORTLIST_METRIC:
+    "/api/v1/consultancy/shortlisted-applications-metrics/:id",
   CONSULTANCY_SLA: "/c-and-g/consultancy/sla",
   //   OVERVIEW: "/c-and-g/overview",
+};
+
+export const HrRoutes = {
+  ADVERTISEMENT: "/hr/advertisement",
+  ADVERTISEMENT_ADD: "/hr/advertisement/add-advertisement",
+  ADVERTISEMENT_DETAIL: "/hr/advertisement/:id",
+  ADVERTISEMENT_DETAIL_SUB_APP:
+    "/hr/advertisement/:id/submitted-applications/:appID",
+  ONBOARDING: "/hr/onboarding",
+  ONBOARDING_START: "/hr/onboarding/start-onboarding",
+  ONBOARDING_ADD_EMPLOYEE_INFO:
+    "/hr/onboarding/add-employee/employee-information",
+  ONBOARDING_ADD_EMPLOYEE_ADD:
+    "/hr/onboarding/add-employee/additional-information",
+  ONBOARDING_ADD_EMPLOYEE_BENEFICIARY:
+    "/hr/onboarding/add-employee/beneficiary-designation",
+  ONBOARDING_ADD_EMPLOYEE_ID_CARD:
+    "/hr/onboarding/add-employee/id-card-information",
+  ONBOARDING_ADD_EMPLOYEE_SALARY:
+    "/hr/onboarding/add-employee/salary-account-details",
+  ONBOARDING_ADD_EMPLOYEE_PENSION:
+    "/hr/onboarding/add-employee/pension-scheme-enrolment",
+  WORKFORCE_DATABASE: "/hr/workforce-database",
+  WORKFORCE_DATABASE_DETAIL: "/hr/workforce-database/:id",
+  PERFORMANCE_MANAGEMENT: "/hr/performance-management",
+  EMPLOYEE_BENEFITS: "/hr/employee_benefit",
+  SEPARATION_MANAGEMENT: "/hr/separation-management",
+  GRIEVANCE_MANAGEMENT: "/hr/grievance-management",
+  LEAVE_MANAGEMENT: "/hr/leave-management",
+  TIMESHEET_MANAGEMENT: "/hr/timesheet-management",
+  TIMESHEET_MANAGEMENT_DETAIL: "/hr/timesheet-management/:id",
+  TIMESHEET_MANAGEMENT_CREATE:
+    "/hr/timesheet-management/create-timesheet-management",
 };

@@ -3,6 +3,7 @@ import RoundBack from "assets/svgs/RoundBack";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelectField";
+import Card from "components/shared/Card";
 import { Form } from "components/ui/form";
 import { ChevronRight } from "lucide-react";
 import { useMemo } from "react";
@@ -89,7 +90,7 @@ const CreateConsumables = () => {
         </div>
         <h4 className="text-xl font-bold">Item Registration</h4>
       </div>
-      <div>
+      <Card>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -121,17 +122,22 @@ const CreateConsumables = () => {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-8 gap-x-16">
-              <div className="col-span-2">
-                <FormInput name="expiry_date" type="date" label="Expiry Date" />
-              </div>
-              <div className="col-span-2">
-                <FormInput
-                  name="minimum_stock_level"
-                  type="number"
-                  label="Minimum Stock Level"
-                />
-              </div>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+              <FormInput name="expiry_date" type="date" label="Expiry Date" />
+              <FormInput
+                name="minimum_stock_level"
+                type="number"
+                label="Minimum Stock Level"
+              />
+              <FormInput name="" type="number" label="Previous Quantity" />
+              <FormInput name="" type="number" label="Re-order Level" />
+              <FormInput name="" type="number" label="Buffer Stock" />
+              <FormInput name="" type="number" label="Minimum Stock" />
+              <FormInput name="" type="number" label="Max Stock" />
+              <FormInput name="" type="number" label="Level" />
+              <FormInput name="" type="date" label="Entry Date" />
+              <FormInput name="" type="number" label="Available Quantity" />
+              <FormInput name="" type="number" label="Cost of Item" />
             </div>
             <FormButton
               loading={isLoading}
@@ -142,7 +148,7 @@ const CreateConsumables = () => {
             </FormButton>
           </form>
         </Form>
-      </div>
+      </Card>
     </div>
   );
 };

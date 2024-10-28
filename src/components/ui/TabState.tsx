@@ -15,7 +15,7 @@ export interface tabDetails {
 const TabState = ({ tabArray, tabState, setState }: TabStateProps) => {
   return (
     <div className="bg-white w-auto p-[.5rem] flex gap-x-1 shadow-md shadow-[#00000008] rounded-lg">
-      {tabArray.map((tab, index) => {
+      {tabArray?.map((tab, index) => {
         return (
           <div
             onClick={() => {
