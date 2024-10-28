@@ -7,6 +7,8 @@ import React, { useState } from "react";
 import { Input } from "components/ui/input";
 import { useForm } from "react-hook-form";
 import { Form } from "components/ui/form";
+import { SelectContent, SelectItem } from "components/ui/select";
+import FormSelect from "atoms/FormSelectField";
 import {
   Table,
   TableBody,
@@ -27,6 +29,44 @@ interface InputValues {
   unit_cost: string;
   frequency: string;
 }
+
+const data = [
+  {
+    id: "1",
+    name: "Travel: International Travel",
+    description:
+      "Expenses related to international travel, including flights, accommodations, and meals.",
+    code: "TRAVEL_INTL",
+  },
+  {
+    id: "2",
+    name: "Travel: Domestic Travel",
+    description:
+      "Expenses for domestic travel within the country, covering transportation, lodging, and per diem.",
+    code: "TRAVEL_DOM",
+  },
+  {
+    id: "3",
+    name: "Equipment: Health Equipment",
+    description:
+      "Medical and health-related equipment used in healthcare settings, such as monitors and diagnostic tools.",
+    code: "EQP_HEALTH",
+  },
+  {
+    id: "4",
+    name: "Equipment: Non-Health Equipment",
+    description:
+      "Non-medical equipment used for general purposes, including office supplies, furniture, and IT hardware.",
+    code: "EQP_NONHEALTH",
+  },
+  {
+    id: "5",
+    name: "Fringe Benefits",
+    description:
+      "Employee benefits offered in addition to wages, such as insurance, retirement plans, and paid time off.",
+    code: "FRINGE_BEN",
+  },
+];
 
 const FundSummary: React.FC = () => {
   const [inputValues, setInputValues] = useState<InputValues[]>([
@@ -110,6 +150,7 @@ const FundSummary: React.FC = () => {
                 <TableHead>Amount</TableHead>
                 <TableHead>Unit Cost</TableHead>
                 <TableHead>Frequency</TableHead>
+                <TableHead className="w-[300px]">Category</TableHead>
                 <TableHead className="w-[300px]">Comment</TableHead>
                 {/* <TableHead>Detailed Breakdown</TableHead> */}
               </TableRow>
@@ -155,6 +196,21 @@ const FundSummary: React.FC = () => {
                       type="number"
                       onChange={(e) => handleInputChange(e, index, "frequency")}
                     />
+                  </TableCell>
+                  <TableCell>
+                    <FormSelect
+                      name="category"
+                      placeholder="Select cost category"
+                      required
+                    >
+                      <SelectContent>
+                        {data.map((el, i) => (
+                          <SelectItem key={i} value={el.id}>
+                            {el.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </FormSelect>
                   </TableCell>
                   <TableCell>
                     <Input
