@@ -43,6 +43,12 @@ import AddFacility from "pages/protectedPages/modules/programs/AddFacility";
 import AddAssetConditions from "pages/protectedPages/modules/admin/AddAssetConditions";
 import AddAssetTypes from "pages/protectedPages/modules/admin/AddAssetTypes";
 import AddCategories from "pages/protectedPages/modules/config/AddCategories";
+import AddCostCategory from "pages/protectedPages/modules/finance/AddCostCategory";
+import AddBudgetLine from "pages/protectedPages/modules/finance/AddBudgetLine";
+import AddCostInput from "pages/protectedPages/modules/finance/AddCostInput";
+import AddFcoNumber from "pages/protectedPages/modules/finance/AddFcoNumber";
+import AddProjectClasses from "pages/protectedPages/modules/finance/AddProjectClasses";
+import AddChartsOfAccount from "pages/protectedPages/modules/finance/AddChartsOfAccount";
 import AddDepartments from "pages/protectedPages/modules/config/AddDepartments";
 import AddFinancialYear from "pages/protectedPages/modules/config/AddFinancialYear";
 import AddItems from "pages/protectedPages/modules/config/AddItems";
@@ -106,6 +112,12 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.AddPrequalificationCategory]: <AddPrequalificationCategory />,
   [DialogType.AddPrequalificationCriteria]: <AddPrequalificationCriteria />,
   [DialogType.AddQuestionairs]: <AddQuestionairs />,
+  [DialogType.AddCostCategory]: <AddCostCategory />,
+  [DialogType.AddBudgetLine]: <AddBudgetLine />,
+  [DialogType.AddCostInput]: <AddCostInput />,
+  [DialogType.AddFcoNumber]: <AddFcoNumber />,
+  [DialogType.AddProjectClasses]: <AddProjectClasses />,
+  [DialogType.AddChartsOfAccounts]: <AddChartsOfAccount />,
   [DialogType.ProcurementUploadModal]: <ProcurementUploadModal />,
   [DialogType.HrSuccessModal]: <HrSuccessModal />,
 };
