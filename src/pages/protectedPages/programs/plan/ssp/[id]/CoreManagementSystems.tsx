@@ -17,7 +17,7 @@ import { Criteria } from "definations/program-types/supportive-supervision";
 import { Input } from "components/ui/input";
 import { Upload as UploadFile } from "lucide-react";
 import FormButton from "atoms/FormButton";
-import { useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { supportiveSupervisionActions } from "store/formData/ssp-values";
 import { Loading } from "components/shared/Loading";
@@ -43,7 +43,7 @@ const CoreManagementSystems = () => {
   const [createSupportiveSupervisionResponseDataMutation, { isLoading: load }] =
     SupportiveSupervisionAPI.useCreateSupportiveSupervisionResponseDataMutation();
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       setFile(event.target.files[0]);
     }
@@ -80,7 +80,7 @@ const CoreManagementSystems = () => {
       path: { id: id as string },
     });
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setFormData({
       ...formData,
@@ -91,7 +91,7 @@ const CoreManagementSystems = () => {
     setPage((prev) => (prev === 0 ? 0 : prev - 1));
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     // Process data to form an array of objects
     if (data) {
@@ -216,17 +216,17 @@ const CoreManagementSystems = () => {
                     </div>
                   </div>
 
-                  {criteria.requires_document ? (
-                    <input
-                      className="flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-gray-100 dark:bg-background"
-                      id={criteria.response_id}
-                      type="text"
-                      name={criteria.response_id}
-                      value={formData[criteria.response_id] || ""}
-                      onChange={handleInputChange}
-                      // required
-                    />
-                  ) : (
+                  <input
+                    className="flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-gray-100 dark:bg-background"
+                    id={criteria.response_id}
+                    type="text"
+                    placeholder="Comment..."
+                    name={criteria.response_id}
+                    value={formData[criteria.response_id] || ""}
+                    onChange={handleInputChange}
+                    // required
+                  />
+                  {criteria.requires_document && (
                     <div className="flex gap-2">
                       <div className="w-full relative gap-x-3 h-[40px] rounded-[16.2px] border flex justify-center items-center">
                         <UploadFile size={20} />

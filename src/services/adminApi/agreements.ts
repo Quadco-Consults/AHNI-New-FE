@@ -1,4 +1,4 @@
-import { TBasePaginatedRespose, TRequest } from "definations/auth";
+import { TBasePaginatedResponse, TRequest } from "definations/auth";
 
 import baseAPI from "..";
 
@@ -25,20 +25,22 @@ type CreateAgreementPayload = {
 
 export const agrrementsAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getAgreements: builder.query<TBasePaginatedRespose<Agreement[]>, TRequest>({
-      query: (params) => ({
-        url: "/admins/agreements/",
-        params,
-      }),
-      providesTags: ["Agreement"],
-    }),
+    getAgreements: builder.query<TBasePaginatedResponse<Agreement[]>, TRequest>(
+      {
+        query: (params) => ({
+          url: "/admins/agreements/",
+          params,
+        }),
+        providesTags: ["Agreement"],
+      }
+    ),
     getAgreement: builder.query<Agreement, string>({
       query: (id) => `/admins/agreements/${id}/`,
       providesTags: ["Agreement"],
     }),
     createAgreement: builder.mutation<Agreement, CreateAgreementPayload>({
       query: (payload) => ({
-        url: "/admins/agreements",
+        url: "/admins/agreements/",
         method: "POST",
         body: payload,
       }),

@@ -1,13 +1,14 @@
 import { FC, useMemo } from "react";
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
-import { Plus } from "lucide-react";
+import { FileDown, Plus } from "lucide-react";
 import { Link, generatePath } from "react-router-dom";
 import { AdminRoutes } from "constants/RouterConstants";
 import DataTable from "components/Table/DataTable";
 import { consumableColums } from "components/Table/columns/consumables";
 import TableFilters from "components/Table/TableFilters";
 import { useGetConsumablesQuery } from "services/adminApi/consumables";
+import { UploadFileSvg } from "assets/svgs/CAndGSvgs";
 
 const Consumables: FC = () => {
   const { data, isLoading } = useGetConsumablesQuery({
@@ -40,6 +41,20 @@ const Consumables: FC = () => {
                 Add Item
               </Button>
             </Link>
+          </div>
+          <div className="flex gap-x-4 justify-end">
+            <Button variant="outline">
+              <span>
+                <UploadFileSvg />
+              </span>
+              Upload
+            </Button>
+            <Button variant="custom">
+              <span>
+                <FileDown size={18} />
+              </span>
+              Template
+            </Button>
           </div>
         </div>
         <TableFilters>

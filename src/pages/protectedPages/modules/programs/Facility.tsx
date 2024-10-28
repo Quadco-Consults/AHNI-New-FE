@@ -1,29 +1,45 @@
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "components/ui/dropdown-menu";
-import { Edit, RefreshCw } from "lucide-react";
 import { Button } from "components/ui/button";
-import AddFacility from "./AddFacility";
 import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-  DialogTitle,
-} from "components/ui/dialog";
-import { ChevronDown } from "lucide-react";
-import { useFacilitiesQuery } from "services/module-programs";
+  useFacilitiesQuery,
+  useDeleteFacilitiesMutation,
+} from "services/module-programs";
+import { toast } from "sonner";
+import { useAppDispatch } from "hooks/useStore";
+import { openDialog } from "store/ui";
+import { DialogType } from "constants/dailogs";
+import TableAction from "atoms/TableAction";
 
 const Facility = () => {
   const { data } = useFacilitiesQuery({
     no_paginate: false,
   });
+  console.log(data)
 
+  const dispatch = useAppDispatch();
 
+  const [deleteFacility] = useDeleteFacilitiesMutation();
+
+  const onSubmit = async (id: string) => {
+    try {
+      await deleteFacility(id).unwrap();
+      toast.success("Deleted Successfully");
+    } catch (error) {
+      toast.error("Error deleteing item");
+    }
+  };
+
+  const onUpdate = (item: any) => {
+    dispatch(
+      openDialog({
+        type: DialogType.AddFacility,
+        dialogProps: {
+          header: "Update Facility",
+          data: item,
+          type: "update",
+        },
+      })
+    );
+  };
 
   return (
     <div>
@@ -31,21 +47,23 @@ const Facility = () => {
         <h1 className="text-[#D92D20] font-semibold text-sm">
           Facility & Team Composition
         </h1>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button
-              variant="outline"
-              className="gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]"
-              size="sm"
-            >
-              Click to add New
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="">
-            <DialogTitle>Add Facility</DialogTitle>
-            <AddFacility />
-          </DialogContent>
-        </Dialog>
+        <Button
+          onClick={() =>
+            dispatch(
+              openDialog({
+                type: DialogType.AddFacility,
+                dialogProps: {
+                  header: "Add Facility",
+                },
+              })
+            )
+          }
+          variant="outline"
+          className="gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]"
+          size="sm"
+        >
+          Click to add New
+        </Button>
       </div>
       <div>
         <div className="flex gap-[5rem] text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4">
@@ -75,26 +93,14 @@ const Facility = () => {
               ))}
               <p>{item.state}</p>
               <p>{item.local_govt}</p>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="w-8 h-8 p-0">
-                    <span className="sr-only">Open menu</span>
-                    <ChevronDown className="w-4 h-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="cursor-pointer ">
-                    <Edit className="w-4 h-4 mr-2" />
-                    <span>Edit</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer ">
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    <span>Update Role</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div>
+                <TableAction
+                  update
+                  removeView
+                  action={() => onSubmit(item.id)}
+                  updateAction={() => onUpdate(item)}
+                />
+              </div>
             </div>
           ))}
         </div>

@@ -1,6 +1,6 @@
 /* eslint-disable no-empty-pattern */
 /* eslint-disable no-unused-vars */
-import { invalidateTags, provideTags } from "utils/QueryUtils";
+import { provideTags } from "utils/QueryUtils";
 import baseAPI from "..";
 import { z } from "zod";
 import {
@@ -21,8 +21,7 @@ const CategoryAPI = baseAPI.injectEndpoints({
           ...config,
         };
       },
-      providesTags: (data, error) =>
-        !error ? provideTags("CATEGORY", data) : [],
+      providesTags: ["Categories"],
     }),
 
     createCategory: builder.mutation<
@@ -34,8 +33,7 @@ const CategoryAPI = baseAPI.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: (_, error, {}) =>
-        !error ? invalidateTags("CATEGORY") : [],
+      invalidatesTags: ["Categories"],
     }),
 
     getCategory: builder.query<CategoryResultsData, { path: { id: string } }>({
@@ -44,8 +42,7 @@ const CategoryAPI = baseAPI.injectEndpoints({
           url: `${BASE_URL}${path.id}/`,
         };
       },
-      providesTags: (data, error) =>
-        !error ? provideTags("CATEGORY", data) : [],
+      providesTags: ["Categories"],
     }),
 
     updateCategory: builder.mutation<
@@ -57,8 +54,7 @@ const CategoryAPI = baseAPI.injectEndpoints({
         method: "PUT",
         body,
       }),
-      invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("CATEGORY", { ids: [path.id] }) : [],
+      invalidatesTags: ["Categories"],
     }),
 
     modifyCategory: builder.mutation<
@@ -70,8 +66,7 @@ const CategoryAPI = baseAPI.injectEndpoints({
         method: "PATCH",
         body,
       }),
-      invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("CATEGORY", { ids: [path.id] }) : [],
+      invalidatesTags: ["Categories"],
     }),
 
     deleteCategory: builder.mutation<void, { path: { id: string } }>({
@@ -79,8 +74,8 @@ const CategoryAPI = baseAPI.injectEndpoints({
         url: `${BASE_URL}${path.id}/`,
         method: "DELETE",
       }),
-      invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("CATEGORY", { ids: [path.id] }) : [],
+
+      invalidatesTags: ["Categories"],
     }),
   }),
 });

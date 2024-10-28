@@ -1,7 +1,7 @@
 import baseAPI from "..";
-import { TBasePaginatedRespose, TRequest } from "definations/auth";
+import { TBasePaginatedResponse, TRequest } from "definations/auth";
 
-interface AssetMaintenanceRequest {
+export interface AssetMaintenanceRequest {
   id: string;
   created_at: string;
   updated_at: string;
@@ -11,6 +11,7 @@ interface AssetMaintenanceRequest {
   maintenance_type: string;
   classification: string;
   asset: string;
+  action?: string;
 }
 
 export interface CreateAssetMaintenanceRequestPayload {
@@ -25,13 +26,14 @@ const url = "/admins/asset-maintenance-requests/";
 const assetMaintenance = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     getAssetMaintenanceRequests: builder.query<
-      TBasePaginatedRespose<AssetMaintenanceRequest[]>,
+      TBasePaginatedResponse<AssetMaintenanceRequest[]>,
       TRequest
     >({
       query: (params) => ({
         url: url,
         params,
       }),
+      providesTags: ["AM"],
     }),
     getOneAssetMaintenanceRequest: builder.query<
       AssetMaintenanceRequest,
@@ -40,6 +42,7 @@ const assetMaintenance = baseAPI.injectEndpoints({
       query: ({ id }) => ({
         url: `${url}${id}/`,
       }),
+      providesTags: ["AM"],
     }),
     createAssetMaintenanceRequest: builder.mutation<
       AssetMaintenanceRequest,
@@ -50,6 +53,7 @@ const assetMaintenance = baseAPI.injectEndpoints({
         method: "POST",
         body,
       }),
+      invalidatesTags: ["AM"],
     }),
     updateAssetMaintenanceRequest: builder.mutation<
       AssetMaintenanceRequest,
@@ -60,12 +64,14 @@ const assetMaintenance = baseAPI.injectEndpoints({
         method: "PATCH",
         body,
       }),
+      invalidatesTags: ["AM"],
     }),
     deleteAssetMaintenanceRequest: builder.mutation<void, { id: string }>({
       query: ({ id }) => ({
         url: `${url}${id}/`,
         method: "DELETE",
       }),
+      invalidatesTags: ["AM"],
     }),
   }),
 });

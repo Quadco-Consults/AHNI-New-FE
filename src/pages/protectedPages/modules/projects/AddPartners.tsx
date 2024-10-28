@@ -3,16 +3,22 @@ import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelect";
 import FormTextArea from "atoms/FormTextArea";
-import Card from "components/shared/Card";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useAddPartnersMutation, useStatesQuery } from "services/moduleProjects";
+import { useAddPartnersMutation, useStatesQuery, useUpdatePartnersMutation } from "services/moduleProjects";
 import { TPartners, parternersSchema } from "definations/module-projects";
 import { toast } from "sonner";
+import { useAppDispatch, useAppSelector } from "hooks/useStore";
+import { closeDialog, dailogSelector } from "store/ui";
 
 
 const AddPartners = () => {
+  const { dialogProps } = useAppSelector(dailogSelector);
+
+  const result = dialogProps?.data as unknown as TPartners;
+  console.log(result)
+
   const {data} = useStatesQuery({
     no_paginate: false
   })
@@ -26,28 +32,38 @@ const AddPartners = () => {
   const form = useForm<TPartners>({
     resolver: zodResolver(parternersSchema),
     defaultValues: {
-      name: "",
-      address: "",
-      city: "",
-      state: "",
-      phone: "",
-      email: "",
-      website: "",
+      name: result?.name ?? "",
+      address: result?.address ?? "",
+      city: result?.city ?? "",
+      state: result?.state ?? "",
+      phone: result?.phone ?? "",
+      email: result?.email ?? "",
+      website: result?.website ?? "",
     },
   });
-  const [partners, { isLoading }] = useAddPartnersMutation();
 
+  const dispatch = useAppDispatch();
+  const [partners, { isLoading }] = useAddPartnersMutation();
+  const [updatePartners, { isLoading: updatePartnersLoading }] = useUpdatePartnersMutation();
+  
   const onSubmit: SubmitHandler<TPartners> = async (data) => {
     try {
-      await partners(data).unwrap();
+      dialogProps?.type === "update"
+        ? updatePartners({
+            //@ts-ignore
+            id: String(dialogProps?.data?.id),
+            body: data,
+          }).unwrap()
+        : await partners(data).unwrap();
       toast.success("Partner Added Succesfully");
+      dispatch(closeDialog());
       form.reset();
     } catch (error: any) {
       toast.error(error.data.message || "Something went wrong");
     }
   };
+
   return (
-    <Card className="pt-4">
       <CardContent className="w-100% flex flex-col gap-y-10 p-0">
         <Form {...form}>
           <form
@@ -77,13 +93,11 @@ const AddPartners = () => {
               <FormInput label="Website" name="website" />
             </div>
             <div className="flex justify-start gap-4">
-              <FormButton loading={isLoading}>Save</FormButton>
-              <FormButton>Save and Add New</FormButton>
+              <FormButton loading={isLoading || updatePartnersLoading}>Save</FormButton>
             </div>
           </form>
         </Form>
       </CardContent>
-    </Card>
   );
 };
 

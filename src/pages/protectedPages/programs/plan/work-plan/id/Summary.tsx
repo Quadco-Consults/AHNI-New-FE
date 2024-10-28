@@ -50,7 +50,7 @@ const Summary = (data: WorkPlanDetails) => {
         <h3 className="font-semibold text-lg">Financial Year</h3>
         {data?.workplans?.map((workplan: any) => (
           <h6 key={workplan.id} className="text-sm text-gray-500">
-            {workplan.financial_year}
+            {workplan.financial_year.year}
           </h6>
         ))}
 
@@ -63,7 +63,7 @@ const Summary = (data: WorkPlanDetails) => {
                 key={index}
                 className="bg-[#EBE8E1] text-[#1a0000ad] px-4 py-2 rounded-lg"
               >
-                {option?.location?.name}
+                {option?.location}
               </Badge>
             )
           )}

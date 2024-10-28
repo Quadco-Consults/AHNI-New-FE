@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import RfqLayout from "./RfqLayout";
 import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelectField";
@@ -19,7 +19,7 @@ import SolicitationCriteriaAPI from "services/procurementApi/solicitation-evalua
 import MultiSelectFormField from "components/ui/rfqmultiselect";
 import LotsAPI from "services/procurementApi/lots";
 import { LotsResultsData } from "definations/procurement-types/lots";
-import { LoadingSpinner } from "components/shared/Loading";
+import { Loading, LoadingSpinner } from "components/shared/Loading";
 import PurchaseRequestAPI from "services/procurementApi/purchase-request";
 import ItemsAPI from "services/configs/items";
 import { ItemsResultsData } from "definations/configs/itmes";
@@ -41,7 +41,7 @@ const Items = () => {
     ItemsAPI.useGetItemListQuery({
       params: { no_paginate: true },
     });
-  const { data: purchaseRequests, isLoading: purchaseRequestsIsLoading } =
+  const { data: purchaseRequests } =
     PurchaseRequestAPI.useGetPurchaseRequestQuery(
       useMemo(
         () => ({
@@ -113,6 +113,7 @@ const Items = () => {
                     required
                   >
                     <SelectContent>
+                      {itemsIsLoading && <Loading />}
                       {items?.map((value: ItemsResultsData) => (
                         <SelectItem key={value?.id} value={value?.id}>
                           {value?.name}

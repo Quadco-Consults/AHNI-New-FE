@@ -37,7 +37,7 @@ const CreateRickManagement = () => {
     params: { no_paginate: true },
   });
 
-  const departmentQueryResults = DepartmentsAPI.useGetDepartmentsQuery({
+  const departmentQueryResults = DepartmentsAPI.useGetDepartmentPaginateQuery({
     params: { no_paginate: true },
   });
 
@@ -215,10 +215,23 @@ const CreateRickManagement = () => {
             </div>
 
             <FormTextArea name="risk_response" label="Risk Response" />
-            <FormInput
+
+            <FormSelect
               name="implementation_timeline"
               label="Implementation Timeline"
-            />
+              placeholder="select a timeline"
+              required
+            >
+              <SelectContent>
+                {["Immediate", "Short Term", "Medium Term", "Long Term"].map(
+                  (value: string, index: number) => (
+                    <SelectItem key={index} value={value}>
+                      {value}
+                    </SelectItem>
+                  )
+                )}
+              </SelectContent>
+            </FormSelect>
             <FormSelect
               name="risk_status"
               label="Risk Status"

@@ -63,7 +63,7 @@ const RiskPlansAPI = baseAPI.injectEndpoints({
 
     modifyRiskPlan: builder.mutation<
       RiskPlansResponse,
-      { path: { id: string }; body: any }
+      { path: { id: string }; body: { risk_status: string } }
     >({
       query: ({ path, body }) => ({
         url: `${BASE_URL}${path.id}/`,

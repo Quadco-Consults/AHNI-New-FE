@@ -38,6 +38,19 @@ const WeeklyActivityAPI = baseAPI.injectEndpoints({
         !error ? invalidateTags("WEEKLY_ACTIVITY") : [],
     }),
 
+    uploadWeeklyActivity: builder.mutation<
+      WeeklyActivityResponse,
+      { path: { id: string }; body: any }
+    >({
+      query: ({ path, body }) => ({
+        url: `${BASE_URL}upload/${path.id}/`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: (_, error, {}) =>
+        !error ? invalidateTags("WEEKLY_ACTIVITY") : [],
+    }),
+
     getWeeklyActivity: builder.query<
       WeeklyActivityResultsData,
       { path: { id: string } }

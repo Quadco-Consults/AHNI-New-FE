@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const facilityContactSchema = z.object({
+  id: z.string().optional(),
   name: z.string(),
   position: z.string(),
   phone_number: z.string(),
@@ -11,7 +12,7 @@ export const facilitiesSchema = z.object({
   name: z.string(),
   local_govt: z.string(),
   state: z.string(),
-  facility_contacts: z.array(facilityContactSchema),
+  // facility_contacts: z.array(facilityContactSchema),
 });
 
 export const supervisionCategorySchema = z.object({

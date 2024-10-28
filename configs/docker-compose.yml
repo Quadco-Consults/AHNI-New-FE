@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  ahni-client:
+    build: .
+    container_name: ahni_client
+    volumes:
+      - ./dist:/var/www/html/vite-app
+    env_file:
+      - .env

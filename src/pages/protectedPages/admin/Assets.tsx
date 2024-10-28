@@ -1,5 +1,3 @@
-import FhiIcon from "assets/FhiIcon";
-import RoundBack from "assets/svgs/RoundBack";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { assestColum } from "components/Table/columns/assest";
@@ -9,16 +7,23 @@ import { Button } from "components/ui/button";
 import { AdminRoutes } from "constants/RouterConstants";
 import { DialogType, mediumDailogScreen } from "constants/dailogs";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { Plus } from "lucide-react";
+import { FileDown, Plus } from "lucide-react";
 import { useMemo } from "react";
-import { Link, generatePath, useNavigate } from "react-router-dom";
+import { Link, generatePath } from "react-router-dom";
 import { useGetAssetsQuery } from "services/adminApi/assetsApi";
 import { assetSelector } from "store/assets";
 import { openDialog } from "store/ui";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "components/ui/dropdown-menu";
+import FilterIcon from "components/icons/FilterIcon";
+import { UploadFileSvg } from "assets/svgs/CAndGSvgs";
+import Card from "components/shared/Card";
 
 const Assets = () => {
-  const navigate = useNavigate();
-
   const { data } = useGetAssetsQuery({
     page: 1,
     page_size: 20,
@@ -62,40 +67,56 @@ const Assets = () => {
     );
   };
 
+  const FilterAction = () => {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger>
+          <FilterIcon />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem>Asset Condition</DropdownMenuItem>
+          <DropdownMenuItem>Organization</DropdownMenuItem>
+          <DropdownMenuItem>Category</DropdownMenuItem>
+          <DropdownMenuItem>Manufacture</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  };
+
   return (
-    <div>
-      <div className="flex justify-between">
-        <div>
-          <div className="flex items-center gap-x-2">
-            <div onClick={() => navigate(-1)}>
-              <RoundBack />
-            </div>
-            <h4 className="text-xl font-bold">Item Registration</h4>
-          </div>
-          <div className="flex items-center mx-3 gap-x-3">
-            <FhiIcon />
-            <div>
-              <h4 className="text-xl font-bold">Family Health</h4>
-              <h4 className="text-xl font-bold">International (FHI 360)</h4>
-            </div>
-          </div>
-        </div>
-        <div className="mt-6">
-          <Link to={generatePath(AdminRoutes.CreateAssets)}>
-            <Button>
-              <span>
-                <Plus size={20} />
-              </span>
-              Add Asset
-            </Button>
-          </Link>
-        </div>
+    <div className="space-y-5">
+      <div className="flex justify-end">
+        <Link to={generatePath(AdminRoutes.CreateAssets)}>
+          <Button>
+            <span>
+              <Plus size={20} />
+            </span>
+            Add Asset
+          </Button>
+        </Link>
       </div>
-      <div className="mt-10 space-y-6">
-        <TableFilters leftAction={asset.length > 0 ? <AssetAction /> : ""}>
+      <div className="flex gap-x-4 justify-end">
+        <Button variant="outline">
+          <span>
+            <UploadFileSvg />
+          </span>
+          Upload
+        </Button>
+        <Button variant="custom">
+          <span>
+            <FileDown size={18} />
+          </span>
+          Template
+        </Button>
+      </div>
+      <Card className="space-y-4">
+        <TableFilters
+          filterAction={<FilterAction />}
+          leftAction={asset.length > 0 ? <AssetAction /> : ""}
+        >
           <DataTable columns={assestColum} data={drivedData} />
         </TableFilters>
-      </div>
+      </Card>
     </div>
   );
 };

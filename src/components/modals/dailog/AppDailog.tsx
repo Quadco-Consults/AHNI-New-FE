@@ -33,7 +33,33 @@ import ConsultancyApplicationSuccessModal from "./components/ConsultancyApplicat
 import AddStock from "./components/consumables/AddStock";
 
 import TeamMemberSelection from "./components/consumables/AddTeamMembers";
-
+import AddFundingSource from "pages/protectedPages/modules/projects/AddFundingSource";
+import AddBeneficiaries from "pages/protectedPages/modules/projects/AddBeneficiaries";
+import AddDocumentTypes from "pages/protectedPages/modules/projects/AddDocumentTypes";
+import AddPartners from "pages/protectedPages/modules/projects/AddPartners";
+import AddRiskCategory from "pages/protectedPages/modules/programs/AddRiskCategory";
+import AddSupervisionCategory from "pages/protectedPages/modules/programs/AddSupervisionCategory";
+import AddFacility from "pages/protectedPages/modules/programs/AddFacility";
+import AddAssetConditions from "pages/protectedPages/modules/admin/AddAssetConditions";
+import AddAssetTypes from "pages/protectedPages/modules/admin/AddAssetTypes";
+import AddCategories from "pages/protectedPages/modules/config/AddCategories";
+import AddCostCategory from "pages/protectedPages/modules/finance/AddCostCategory";
+import AddBudgetLine from "pages/protectedPages/modules/finance/AddBudgetLine";
+import AddCostInput from "pages/protectedPages/modules/finance/AddCostInput";
+import AddFcoNumber from "pages/protectedPages/modules/finance/AddFcoNumber";
+import AddProjectClasses from "pages/protectedPages/modules/finance/AddProjectClasses";
+import AddChartsOfAccount from "pages/protectedPages/modules/finance/AddChartsOfAccount";
+import AddDepartments from "pages/protectedPages/modules/config/AddDepartments";
+import AddFinancialYear from "pages/protectedPages/modules/config/AddFinancialYear";
+import AddItems from "pages/protectedPages/modules/config/AddItems";
+import AddLocations from "pages/protectedPages/modules/config/AddLocations";
+import AddLots from "pages/protectedPages/modules/procurement/AddLots";
+import AddSolicitation from "pages/protectedPages/modules/procurement/AddSolicitation";
+import AddPrequalificationCategory from "pages/protectedPages/modules/procurement/AddPrequalificationCategory";
+import AddPrequalificationCriteria from "pages/protectedPages/modules/procurement/AddPrequalificationCriteria";
+import AddQuestionairs from "pages/protectedPages/modules/procurement/AddQuestionairs";
+import ProcurementUploadModal from "./components/ProcurementUploadModal";
+import HrSuccessModal from "./components/HrSuccessModal";
 
 const sheets: Record<string, ReactNode> = {
   [DialogType.Categories]: <CategoriesModal />,
@@ -61,11 +87,39 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.ExpenditureModal]: <ExpenditureModal />,
   [DialogType.AddPermissionToRole]: <AssingPermission />,
 
-  [DialogType.ConsultancyApplicationSuccess]: <ConsultancyApplicationSuccessModal />,
+  [DialogType.ConsultancyApplicationSuccess]: (
+    <ConsultancyApplicationSuccessModal />
+  ),
 
   [DialogType.AddStock]: <AddStock />,
   [DialogType.AddTeamMenbers]: <TeamMemberSelection />,
-
+  [DialogType.AddFunfingSource]: <AddFundingSource />,
+  [DialogType.AddBeneficiaries]: <AddBeneficiaries />,
+  [DialogType.AddDocumentTypes]: <AddDocumentTypes />,
+  [DialogType.AddPartners]: <AddPartners />,
+  [DialogType.AddRiskCategory]: <AddRiskCategory />,
+  [DialogType.AddSupervisionCategory]: <AddSupervisionCategory />,
+  [DialogType.AddFacility]: <AddFacility />,
+  [DialogType.AddAssetConditions]: <AddAssetConditions />,
+  [DialogType.AddAssetTypes]: <AddAssetTypes />,
+  [DialogType.AddCategories]: <AddCategories />,
+  [DialogType.AddDepartments]: <AddDepartments />,
+  [DialogType.AddFinancialYear]: <AddFinancialYear />,
+  [DialogType.AddItems]: <AddItems />,
+  [DialogType.AddLocations]: <AddLocations />,
+  [DialogType.AddLots]: <AddLots />,
+  [DialogType.AddSolicitation]: <AddSolicitation />,
+  [DialogType.AddPrequalificationCategory]: <AddPrequalificationCategory />,
+  [DialogType.AddPrequalificationCriteria]: <AddPrequalificationCriteria />,
+  [DialogType.AddQuestionairs]: <AddQuestionairs />,
+  [DialogType.AddCostCategory]: <AddCostCategory />,
+  [DialogType.AddBudgetLine]: <AddBudgetLine />,
+  [DialogType.AddCostInput]: <AddCostInput />,
+  [DialogType.AddFcoNumber]: <AddFcoNumber />,
+  [DialogType.AddProjectClasses]: <AddProjectClasses />,
+  [DialogType.AddChartsOfAccounts]: <AddChartsOfAccount />,
+  [DialogType.ProcurementUploadModal]: <ProcurementUploadModal />,
+  [DialogType.HrSuccessModal]: <HrSuccessModal />,
 };
 
 const AppDailog = () => {

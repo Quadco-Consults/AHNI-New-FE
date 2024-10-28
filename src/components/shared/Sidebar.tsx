@@ -3,7 +3,12 @@ import { useState } from "react";
 import logoSvg from "assets/svgs/logo-bg.svg";
 import { NavLink, useLocation } from "react-router-dom";
 import { ChevronDown, Package, ScanEye } from "lucide-react";
-import { RouteEnum, AdminRoutes, CandGRoutes } from "constants/RouterConstants";
+import {
+  RouteEnum,
+  AdminRoutes,
+  CandGRoutes,
+  HrRoutes,
+} from "constants/RouterConstants";
 import { Icon } from "@iconify/react";
 import { cn } from "lib/utils";
 import { motion } from "framer-motion";
@@ -459,6 +464,22 @@ const MODULE_LINKS = [
         name: "Programs",
         path: RouteEnum.MODULES_PROGRAMS,
       },
+      {
+        name: "Admin",
+        path: RouteEnum.MODULES_ADMIN,
+      },
+      {
+        name: "Config",
+        path: RouteEnum.MODULES_CONFIG,
+      },
+      {
+        name: "Procurement",
+        path: RouteEnum.MODULES_PROCUREMENT,
+      },
+      {
+        name: "Finance",
+        path: RouteEnum.MODULES_FINANCE,
+      },
     ],
   },
 ];
@@ -585,7 +606,13 @@ const DEPARTMENTAL_LINKS = [
         path: "/admin/inventory-managment",
         sublinks: [
           { name: "Consumable", path: AdminRoutes.CONSUMABLES },
+          {
+            name: "Item Requisition",
+            path: AdminRoutes.ITEM_REQUISITION,
+          },
           { name: "Assets", path: AdminRoutes.ASSETS },
+          { name: "Assets Request", path: AdminRoutes.ASSETS_REQUEST },
+          { name: "Good Receive Note", path: AdminRoutes.GRN },
         ],
       },
       {
@@ -607,10 +634,10 @@ const DEPARTMENTAL_LINKS = [
         name: "Facility Management",
         sublinks: [
           { name: "Facilities", path: AdminRoutes.Facilities },
-          {
-            name: "Facility  Maintenance Ticket",
-            path: AdminRoutes.FacilitiesTicket,
-          },
+          // {
+          //   name: "Facility  Maintenance Ticket",
+          //   path: AdminRoutes.FacilitiesTicket,
+          // },
         ],
       },
       { name: "Payment Request", path: AdminRoutes.PaymentRequest },
@@ -627,7 +654,11 @@ const DEPARTMENTAL_LINKS = [
         // ],
       },
 
-      { name: "Report", path: "/" },
+      { name: "Asset Maintenance", path: AdminRoutes.ASSET_MAINTENANCE },
+      {
+        name: "Expense Authorization",
+        path: AdminRoutes.EXPENSE_AUTHORIZATION,
+      },
     ],
   },
   {
@@ -636,11 +667,15 @@ const DEPARTMENTAL_LINKS = [
 
     link: [
       { name: "Overview", path: CandGRoutes.OVERVIEW },
+      { name: "Grants", path: CandGRoutes.GRANT },
       {
-        name: "Grant Management",
+        name: "Subgrants",
         sublinks: [
-          { name: "Grants", path: CandGRoutes.GRANT },
-          { name: "Subgrants", path: "/" },
+          { name: "Awards", path: CandGRoutes.SUB_GRANT },
+          {
+            name: "Pre-award Assessment",
+            path: CandGRoutes.PRE_AWARD_ASSESSMENT,
+          },
         ],
       },
       {
@@ -653,6 +688,7 @@ const DEPARTMENTAL_LINKS = [
           { name: "Consultant management", path: CandGRoutes.CONSULTANCY },
           { name: "Consultancy report", path: "/" },
           { name: "Payment request", path: "/" },
+          { name: "Agreement", path: CandGRoutes.AGREEMENT },
           { name: "Facilitator management", path: "/" },
           { name: "SLA", path: CandGRoutes.CONSULTANCY_SLA },
         ],
@@ -671,36 +707,45 @@ const DEPARTMENTAL_LINKS = [
             name: "Workforce Need Analysis",
             path: "/",
           },
-          { name: "Workforce Database", path: "/" },
+          { name: "Workforce Database", path: HrRoutes.WORKFORCE_DATABASE },
         ],
       },
       {
         name: "Recruitment",
         sublinks: [
-          { name: "Advertisement", path: "/" },
+          { name: "Advertisement", path: HrRoutes.ADVERTISEMENT },
           { name: "Selection", path: "/" },
-          { name: "Onboarding", path: "/" },
+          { name: "Onboarding", path: HrRoutes.ONBOARDING },
         ],
       },
       {
         name: "Performance Management",
         sublinks: [
-          { name: "Timesheet Management", path: "/" },
-          { name: "Performance Appraisal", path: "/" },
+          { name: "Timesheet Management", path: HrRoutes.TIMESHEET_MANAGEMENT },
+          {
+            name: "Performance Appraisal",
+            path: HrRoutes.PERFORMANCE_MANAGEMENT,
+          },
         ],
       },
-      { name: "Employee compensation & benefits", path: "/" },
       {
-        name: "Separation Management",
-        sublinks: [
-          { name: "Voluntary Separation", path: "/" },
-          { name: "End of Project", path: "/" },
-          { name: "Dismissal", path: "/" },
-          { name: "Exit", path: "/" },
-          { name: "Evaluation", path: "/" },
-          { name: "Feedback", path: "/" },
-        ],
+        name: "Employee compensation & benefits",
+        path: HrRoutes.EMPLOYEE_BENEFITS,
       },
+      // {
+      //   name: "Separation Management",
+      //   sublinks: [
+      //     { name: "Voluntary Separation", path: "/" },
+      //     { name: "End of Project", path: "/" },
+      //     { name: "Dismissal", path: "/" },
+      //     { name: "Exit", path: "/" },
+      //     { name: "Evaluation", path: "/" },
+      //     { name: "Feedback", path: "/" },
+      //   ],
+      // },
+      { name: "Separation Management", path: HrRoutes.SEPARATION_MANAGEMENT },
+      { name: "Grievance Management", path: HrRoutes.GRIEVANCE_MANAGEMENT },
+      { name: "Leave Management", path: HrRoutes.LEAVE_MANAGEMENT },
       { name: "HR Reports", path: "/" },
     ],
   },
