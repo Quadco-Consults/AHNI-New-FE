@@ -143,6 +143,8 @@ export const RouteEnum = {
   PROGRAM_FUND_REQUEST_CREATE: "/program/fund-request/create/project-details",
   PROGRAM_FUND_REQUEST_FUND_SUMMARY:
     "/program/fund-request/create/fund-request-summary",
+    PROGRAM_FUND_REQUEST_PREVIEW:
+    "/program/fund-request/create/fund-request-preview",
   PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS:
     "/program/stakeholder-management/analysis&mapping",
   PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS_DETAILS:

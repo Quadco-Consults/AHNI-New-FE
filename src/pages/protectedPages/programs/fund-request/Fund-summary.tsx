@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import FormButton from "atoms/FormButton";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "components/ui/button";
@@ -18,9 +18,6 @@ import {
   TableHeader,
   TableRow,
 } from "components/ui/table";
-import FundRequestAPI from "services/programsApi/fund-request";
-import { toast } from "sonner";
-import { RouteEnum } from "constants/RouterConstants";
 
 interface InputValues {
   description: string;
@@ -80,9 +77,7 @@ const FundSummary: React.FC = () => {
   ]);
   console.log(inputValues);
   const navigate = useNavigate();
-
-  const [createFundRequestMutation, { isLoading }] =
-    FundRequestAPI.useCreateFundRequestMutation();
+  const { pathname } = useLocation();
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -124,16 +119,14 @@ const FundSummary: React.FC = () => {
     };
     console.log(formData);
 
-    try {
-      await createFundRequestMutation(formData).unwrap();
-      toast.success("Successfully created");
-      sessionStorage.removeItem("fundRequestCompletedSteps");
-      localStorage.removeItem("projectFundRequest");
-      navigate(RouteEnum.PROGRAM_FUND_REQUEST);
-    } catch (error) {
-      console.log(error);
-      toast.error("Something went wrong");
-    }
+    localStorage.setItem("projectFundRequest", JSON.stringify(formData));
+
+    let path = pathname;
+
+    path = path.substring(0, path.lastIndexOf("/"));
+
+    path += "/fund-request-preview";
+    navigate(path);
   };
 
   return (
@@ -268,10 +261,8 @@ const FundSummary: React.FC = () => {
             <FormButton
               suffix={<ArrowRight size={14} />}
               type="submit"
-              loading={isLoading}
-              disabled={isLoading}
             >
-              Submit Request
+              Next
             </FormButton>
           </div>
         </form>
