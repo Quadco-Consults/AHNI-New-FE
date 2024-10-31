@@ -54,6 +54,8 @@ export const DialogType = {
   AddChartsOfAccounts: "AddChartsOfAccounts",
   ProcurementUploadModal: "ProcurementUploadModal",
   HrSuccessModal: "HrSuccessModal",
+  ApprovalModal: "ApprovalModal",
+  FeedbackModal: "FeedbackModal",
 };
 
 export const largeDailogScreen = {
