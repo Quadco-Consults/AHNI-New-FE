@@ -126,9 +126,39 @@ export const hr = [
     ),
   },
   {
+    path: HrRoutes.SEPARATION_MANAGEMENT_CREATE,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/hr/separation-management/CreateSeparationManagement"
+        )
+    ),
+  },
+  {
+    path: HrRoutes.SEPARATION_MANAGEMENT_DETAIL,
+    element: lazy(
+      () => import("pages/protectedPages/hr/separation-management/id/index")
+    ),
+  },
+  {
     path: HrRoutes.TIMESHEET_MANAGEMENT,
     element: lazy(
       () => import("pages/protectedPages/hr/timesheet-management/index")
+    ),
+  },
+  {
+    path: HrRoutes.TIMESHEET_MANAGEMENT_DETAIL,
+    element: lazy(
+      () => import("pages/protectedPages/hr/timesheet-management/id/index")
+    ),
+  },
+  {
+    path: HrRoutes.TIMESHEET_MANAGEMENT_DETAIL_CREATE,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/hr/timesheet-management/id/CreateTimesheetManagementDetail"
+        )
     ),
   },
   {

@@ -137,9 +137,8 @@ const ActionList = () => {
           <PopoverContent className=" w-fit">
             <div className="flex flex-col items-start justify-between gap-1">
               <Link
-                to={generatePath(HrRoutes.ADVERTISEMENT_DETAIL_SUB_APP, {
+                to={generatePath(HrRoutes.TIMESHEET_MANAGEMENT_DETAIL, {
                   id: 1,
-                  appID: 2,
                 })}
               >
                 <Button

@@ -280,10 +280,13 @@ export const HrRoutes = {
   PERFORMANCE_MANAGEMENT: "/hr/performance-management",
   EMPLOYEE_BENEFITS: "/hr/employee_benefit",
   SEPARATION_MANAGEMENT: "/hr/separation-management",
+  SEPARATION_MANAGEMENT_CREATE: "/hr/separation-management/create",
+  SEPARATION_MANAGEMENT_DETAIL: "/hr/separation-management/:id",
   GRIEVANCE_MANAGEMENT: "/hr/grievance-management",
   LEAVE_MANAGEMENT: "/hr/leave-management",
   TIMESHEET_MANAGEMENT: "/hr/timesheet-management",
   TIMESHEET_MANAGEMENT_DETAIL: "/hr/timesheet-management/:id",
+  TIMESHEET_MANAGEMENT_DETAIL_CREATE: "/hr/timesheet-management/:id/create",
   TIMESHEET_MANAGEMENT_CREATE:
     "/hr/timesheet-management/create-timesheet-management",
 };
