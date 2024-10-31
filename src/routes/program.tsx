@@ -78,6 +78,12 @@ export const program = [
     ),
   },
   {
+    path: RouteEnum.PROGRAM_FUND_REQUEST_PREVIEW,
+    element: lazy(
+      () => import("pages/protectedPages/programs/fund-request/Fund-request-preview")
+    ),
+  },
+  {
     path: RouteEnum.PROGRAM_FUND_REQUEST_FUND_SUMMARY,
     element: lazy(
       () => import("pages/protectedPages/programs/fund-request/Fund-summary")
