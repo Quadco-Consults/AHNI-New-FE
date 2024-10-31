@@ -13,7 +13,7 @@ import {
   Table as ShadTable,
   TableBody,
   TableCell,
-  TableHead,
+  TableFooter,
   TableHeader,
   TableRow,
 } from "components/ui/table";
@@ -24,6 +24,7 @@ interface TableProps<TData> {
   // eslint-disable-next-line no-unused-vars
   onRowClick?: (row: any) => void;
   isLoading?: boolean;
+  footer?: boolean;
 }
 
 function DataTable<TData>({
@@ -31,6 +32,7 @@ function DataTable<TData>({
   columns,
   onRowClick,
   isLoading,
+  footer = false,
 }: TableProps<TData>) {
   const table = useReactTable<TData>({
     data,
@@ -109,6 +111,32 @@ function DataTable<TData>({
             </>
           )}
         </TableBody>
+        {footer && (
+          <TableFooter>
+            {table.getFooterGroups().map((footerGroup) => (
+              <TableRow key={footerGroup.id}>
+                {footerGroup.headers.map((footer) => (
+                  <TableCell
+                    key={footer.id}
+                    colSpan={footer.colSpan}
+                    className="font-semibold text-black cursor-pointer dark:text-gray-300"
+                    style={{
+                      minWidth: footer.column.columnDef.size,
+                      maxWidth: footer.column.columnDef.size,
+                    }}
+                  >
+                    {footer.isPlaceholder
+                      ? null
+                      : flexRender(
+                          footer.column.columnDef.footer,
+                          footer.getContext()
+                        )}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableFooter>
+        )}
       </ShadTable>
       <div className="flex items-center justify-end my-4 gap-x-4 ">
         <Button
