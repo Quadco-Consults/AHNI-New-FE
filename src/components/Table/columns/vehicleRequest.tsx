@@ -158,7 +158,7 @@ export const vehicleRequestColumns: ColumnDef<IVehicleRequest>[] = [
     accessorKey: "df",
   },
   {
-    header: "Purpose od Travel",
+    header: "Purpose of Travel",
     accessorKey: "df",
   },
   {

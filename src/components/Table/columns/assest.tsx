@@ -81,43 +81,39 @@ export const assestColum: ColumnDef<AssetData>[] = [
     id: "select",
     header: ({ table }) => <CheckBoxHeader table={table} />,
     cell: ({ row }) => <CheckBoxRow row={row} />,
+    size: 50,
   },
   {
-    header: "Asset Code",
-    accessorKey: "asset_code",
+    header: "Asset Name",
+    accessorKey: "asset_type",
   },
-
   {
     header: "Classification",
     accessorKey: "classification",
   },
   {
-    header: "Unit",
-    accessorKey: "unit",
+    header: "Asset Code",
+    accessorKey: "asset_code",
   },
   {
-    header: "Donor",
-    accessorKey: "donor",
-  },
-  {
-    header: "Project",
-    accessorKey: "project",
-  },
-  {
-    header: "Assignee",
-    accessorKey: "assignee",
+    header: "Model Number",
+    accessorKey: "serial",
   },
   {
     header: "Serial Number",
     accessorKey: "serial",
   },
   {
-    header: "Organization",
-    accessorKey: "implementer",
+    header: "Project",
+    accessorKey: "project",
   },
   {
-    header: "Asset",
-    accessorKey: "asset_type",
+    header: "Donor",
+    accessorKey: "donor",
+  },
+  {
+    header: "Assignee",
+    accessorKey: "assignee",
   },
   {
     header: "Asset Condition",
@@ -125,6 +121,10 @@ export const assestColum: ColumnDef<AssetData>[] = [
   },
   {
     header: "Location",
+    accessorKey: "location",
+  },
+  {
+    header: "Remarks",
     accessorKey: "location",
   },
   {
@@ -198,28 +198,40 @@ const RequestActions = ({ row }: { row: Row<DisposalReport> }) => {
 
 export const assestRequestColum: ColumnDef<DisposalReport>[] = [
   {
-    header: "Remark",
+    header: "Asset Code",
     accessorKey: "remark",
   },
-
   {
-    header: "Recomendation",
-    accessorKey: "recommendation",
+    header: "Asset Name",
+    accessorKey: "remark",
   },
-
+  {
+    header: "Asset Type",
+    accessorKey: "remark",
+  },
   {
     header: "Asset Condition",
     accessorKey: "asset_condition",
   },
   {
-    header: "Justification for Recomendation",
+    header: "Justification",
     accessorKey: "justification_for_disposal",
-    size: 250,
   },
   {
-    header: "Life Span as at Report",
+    header: "Status",
     accessorKey: "life_span_at_report",
-    size: 250,
+  },
+  {
+    header: "Request Date",
+    accessorKey: "life_span_at_report",
+  },
+  {
+    header: "Remark",
+    accessorKey: "remark",
+  },
+  {
+    header: "Recommendation",
+    accessorKey: "recommendation",
   },
   {
     header: "",

@@ -106,7 +106,7 @@ const Assets = () => {
           <span>
             <FileDown size={18} />
           </span>
-          Template
+          Download
         </Button>
       </div>
       <Card className="space-y-4">
