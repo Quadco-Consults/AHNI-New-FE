@@ -21,8 +21,18 @@ const AddAssetRequest = () => {
       <Card>
         <Form {...form}>
           <form className="space-y-6">
+            <FormInput name="" label="Asset Code" />
             <FormInput name="" label="Asset Name" />
             <FormInput name="" label="Asset Condition" />
+            <FormSelect
+              label="Request Type"
+              name=""
+              placeholder="Select request type"
+              options={[
+                { label: "Movement", value: "movement" },
+                { label: "Disposal", value: "disposal" },
+              ]}
+            />
             <FormInput name="" label="Recommendation" />
             <FormTextArea name="" label="Description" />
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">

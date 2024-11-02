@@ -13,6 +13,7 @@ import { Button } from "components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import TableFilters from "components/Table/TableFilters";
 import DataTable from "components/Table/DataTable";
+import PdfContent from "components/shared/PdfContent";
 
 const AssetsItem = ({
   desc,
@@ -48,6 +49,7 @@ const ViewAssets = () => {
             <BackNavigation />
             <TabsTrigger value="details">Details</TabsTrigger>
             <TabsTrigger value="approval">Management Approval</TabsTrigger>
+            <TabsTrigger value="uploads">Uploads</TabsTrigger>
           </TabsList>
 
           <TabsContent value="details">
@@ -82,8 +84,8 @@ const ViewAssets = () => {
                 />
                 <AssetsItem heading="Current Insurance Duration" desc="N/A" />
                 <AssetsItem heading="Serial Number" desc="N/A" />
-                <AssetsItem heading="Salvage Value" desc="N/A" />
-                <AssetsItem heading="Life of Project" desc="N/A" />
+                <AssetsItem heading="Depreciation Rate" desc="N/A" />
+                <AssetsItem heading="Life of Asset" desc="N/A" />
 
                 {/* <Separator className="my-4" /> */}
 
@@ -114,6 +116,7 @@ const ViewAssets = () => {
                   heading="Condition Details"
                   desc={data?.asset_condition.description}
                 />
+                <AssetsItem heading="Remarks" desc="N/A" />
               </CardContent>
 
               <CardHeader className="font-bold text-lg">
@@ -269,6 +272,20 @@ const ViewAssets = () => {
                     </div>
                   </form>
                 </Form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="uploads">
+            <Card>
+              <CardHeader className="font-bold">
+                Uploads
+                <Separator className="mt-4" />
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+                  <PdfContent />
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

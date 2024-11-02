@@ -43,6 +43,7 @@ const CreateGRN = () => {
               <FormTextArea name="" label="Description" />
               <FormInput name="" label="Procurement Officer" />
               <FormInput name="" label="Requestor" />
+              <FormInput name="" label="Receiving Location" />
               <FormInput name="" label="Inventory Officer" />
               <FormInput name="" label="Goods received by (store)" />
             </div>
