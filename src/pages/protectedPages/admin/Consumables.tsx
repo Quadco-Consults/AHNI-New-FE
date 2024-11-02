@@ -53,7 +53,7 @@ const Consumables: FC = () => {
               <span>
                 <FileDown size={18} />
               </span>
-              Template
+              Download
             </Button>
           </div>
         </div>
