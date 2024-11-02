@@ -103,38 +103,19 @@ const CreateConsumables = () => {
               required
               options={drivedData}
             />
-            <div className="grid grid-cols-8 gap-x-16">
-              <div className="col-span-2">
-                <FormInput name="quantity" type="number" label="Quantity" />
-              </div>
-              <div className="col-span-3">
-                <FormSelect
-                  name="stock_control_method"
-                  label="Stock Control Method"
-                  options={stockControl}
-                />
-              </div>
-              <div className="col-span-3">
-                <FormSelect
-                  name="category"
-                  label="Category"
-                  options={category}
-                />
-              </div>
-            </div>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              <FormInput name="expiry_date" type="date" label="Expiry Date" />
-              <FormInput
-                name="minimum_stock_level"
-                type="number"
-                label="Minimum Stock Level"
+              <FormInput name="quantity" type="number" label="Quantity" />
+              <FormSelect
+                name="stock_control_method"
+                label="Stock Control Method"
+                options={stockControl}
               />
+              <FormSelect name="category" label="Category" options={category} />
+              <FormInput name="expiry_date" type="date" label="Expiry Date" />
               <FormInput name="" type="number" label="Previous Quantity" />
               <FormInput name="" type="number" label="Re-order Level" />
               <FormInput name="" type="number" label="Buffer Stock" />
-              <FormInput name="" type="number" label="Minimum Stock" />
               <FormInput name="" type="number" label="Max Stock" />
-              <FormInput name="" type="number" label="Level" />
               <FormInput name="" type="date" label="Entry Date" />
               <FormInput name="" type="number" label="Available Quantity" />
               <FormInput name="" type="number" label="Cost of Item" />

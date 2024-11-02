@@ -13,23 +13,25 @@ const GRNDetail = () => {
           <span>
             <FileDown size={18} />
           </span>
-          Template
+          Download
         </Button>
       </div>
 
       <Card className="grid grid-cols-1 p-10 gap-8 md:grid-cols-2">
         <DescriptionCard description="N/A" label="Vendor" />
+        <DescriptionCard description="N/A" label="Supplier Address" />
         <DescriptionCard description="N/A" label="PO Number" />
+        <DescriptionCard description="N/A" label="Description" />
         <DescriptionCard description="N/A" label="Quantity Ordered" />
         <DescriptionCard description="N/A" label="Quantity Received" />
         <DescriptionCard description="N/A" label="Invoice Number" />
         <DescriptionCard description="N/A" label="Waybill Number" />
-        <DescriptionCard description="N/A" label="Remark" />
-        <DescriptionCard description="N/A" label="Description" />
         <DescriptionCard description="N/A" label="Procurement Officer" />
         <DescriptionCard description="N/A" label="Requestor" />
         <DescriptionCard description="N/A" label="Inventory Officer" />
         <DescriptionCard description="N/A" label="Goods received by (store)" />
+        <DescriptionCard description="N/A" label="Receiving Location" />
+        <DescriptionCard description="N/A" label="Remark" />
       </Card>
     </div>
   );
