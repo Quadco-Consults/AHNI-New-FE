@@ -40,18 +40,23 @@ export default function VerifyOTPForm() {
 
                 <h1 className="text-2xl font-bold">Verify OTP</h1>
 
-                <p className="text-[#8F8585] text-base font-normal">
-                    Please enter the 6-digit OTP sent to your registered <br />
-                    email or phone number to verify your account.
+                <div>
+                    <p className="text-[#8F8585] text-base font-normal">
+                        Please enter the 6-digit OTP sent to your registered{" "}
+                        <br />
+                        email or phone number to verify your account.
+                    </p>
+
                     <FormButton
                         variant="link"
                         loading={loading}
                         onClick={handleResendOTP}
                         type="button"
+                        className="p-0"
                     >
                         Resend OTP
                     </FormButton>
-                </p>
+                </div>
 
                 <div className="space-y-8">
                     <OtpInput
