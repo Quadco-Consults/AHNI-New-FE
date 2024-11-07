@@ -35,8 +35,11 @@ const LoginForm = () => {
                 navigate("/", { replace: true });
                 toast.success(resp.message);
             }
-        } catch (error) {
-            toast.error("Something went wrong pls, try again");
+        } catch (error: any) {
+            console.log(error.data.data.non_field_errors[0]);
+            toast.error(
+                error.data.data.non_field_errors[0] || "Something went wrong"
+            );
         }
     };
     return (
