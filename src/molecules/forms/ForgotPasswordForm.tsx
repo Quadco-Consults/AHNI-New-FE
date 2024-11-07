@@ -20,14 +20,16 @@ const ForgotPasswordForm = () => {
         },
     });
 
-    const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
+    const [forgotPassword, { isLoading, error }] = useForgotPasswordMutation();
 
     const navigate = useNavigate();
 
     const onSubmit = async (values: z.infer<typeof emailSchema>) => {
         try {
-            await forgotPassword(values);
-            toast.success("Email sent successfully");
+            await forgotPassword(values).unwrap();
+            toast.success(
+                "We've sent the OTP to your inbox. Please check your email and enter the code to continue."
+            );
             navigate("/verify-otp");
         } catch (err: any) {
             toast.error(err.data.message || "Something went wrong");
