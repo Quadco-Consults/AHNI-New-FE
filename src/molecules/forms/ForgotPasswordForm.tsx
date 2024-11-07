@@ -42,10 +42,7 @@ const ForgotPasswordForm = () => {
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="flex flex-col gap-y-6"
             >
-                <img
-                    src="/src/assets/svgs/logo.svg"
-                    className="w-[130px] mb-[3rem]"
-                />
+                <img src="/imgs/logo.png" className="w-[130px] mb-[3rem]" />
                 <h1 className="text-2xl font-bold">Forgot Password</h1>
                 <p className="text-[#8F8585] text-base font-normal">
                     Enter your email and well send a link to reset your password
