@@ -40,7 +40,7 @@ const LoginForm = () => {
         }
     };
     return (
-        <div>
+        <div className="w-[60%]">
             <Form {...form}>
                 <form
                     className="flex flex-col gap-y-14"
