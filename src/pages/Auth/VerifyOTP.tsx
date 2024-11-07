@@ -1,10 +1,10 @@
-import ForgotPasswordForm from "molecules/forms/ForgotPasswordForm";
+import VerifyOTPForm from "molecules/forms/VerifyOTPForm";
 
-const ForgotPassword = () => {
+export default function VerifyOTP() {
     return (
         <div className="flex h-screen justify-center items-center bg-gray-50">
             <div className="flex-1 h-full flex items-center justify-center">
-                <ForgotPasswordForm />
+                <VerifyOTPForm />
             </div>
 
             <div className="flex flex-1">
@@ -15,6 +15,4 @@ const ForgotPassword = () => {
             </div>
         </div>
     );
-};
-
-export default ForgotPassword;
+}
