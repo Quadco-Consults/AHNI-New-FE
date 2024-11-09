@@ -2,18 +2,18 @@ import ChangePasswordForm from "molecules/forms/ChangePasswordForm";
 
 export default function ChangePassword() {
     return (
-        <div className="flex h-screen flex-1 md:ml-[5rem] lg:ml-[8rem] md:gap-[10rem] items-center bg-gray-50">
-            <div className="w-[26rem] h-[26rem] rounded-full border-2 border-[#DBDFE9] hidden md:flex items-center justify-center">
-                <div className="">
-                    <img
-                        className="w-[22rem]"
-                        src="/imgs/changePassword.png"
-                        alt=""
-                    />
+        <div className="flex flex-1 h-screen">
+            <div className="flex bg-[#FEF2F2] w-full">
+                <div className="w-full flex flex-1 items-center justify-center">
+                    <ChangePasswordForm />
                 </div>
-            </div>
-            <div className=" w-[22rem] mx-auto">
-                <ChangePasswordForm />
+                <div className="hidden md:flex md:flex-1 md:items-center md:justify-center bg-[url('/img/login.jpeg')] bg-[#161630B2] bg-blend-overlay bg-opacity-100">
+                    <div className="font-bold text-xl text-white text-center">
+                        Providing solutions that are essential to the <br />
+                        advancement of human development in communities we{" "}
+                        <br /> serve
+                    </div>
+                </div>
             </div>
         </div>
     );

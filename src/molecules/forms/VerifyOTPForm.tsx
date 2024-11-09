@@ -2,10 +2,13 @@ import FormButton from "atoms/FormButton";
 import { toast } from "sonner";
 import { OtpInput } from "reactjs-otp-input";
 import { Button } from "components/ui/button";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import Card from "components/shared/Card";
 
 export default function VerifyOTPForm() {
+    const [countTimer, setCountTimer] = useState(60);
+
     const [loading, setLoading] = useState(false);
     const [otpValue, setOtpValue] = useState("");
 
@@ -15,12 +18,23 @@ export default function VerifyOTPForm() {
         setOtpValue(otpInputValue);
     };
 
+    useEffect(() => {
+        if (countTimer > 0) {
+            const timerID = setInterval(() => {
+                setCountTimer((prevCountTimer) => prevCountTimer - 1);
+            }, 1000);
+
+            return () => clearInterval(timerID);
+        }
+    }, [countTimer]);
+
     const handleResendOTP = (
         e: React.MouseEvent<HTMLButtonElement, MouseEvent>
     ) => {
         e.preventDefault();
 
         setLoading(true);
+        setCountTimer(60);
         toast.success(
             "We've resent the OTP to your inbox. Please check your email and enter the code to continue."
         );
@@ -31,50 +45,76 @@ export default function VerifyOTPForm() {
 
         setLoading(true);
         // console.log(otpValue);
-        navigate("/login", { replace: true });
+        navigate("/change-password");
     };
     return (
         <div>
             <form className="flex flex-col gap-y-6" onSubmit={onSubmit}>
-                <img src="/imgs/logo.png" className="w-[130px]" />
+                <img src="/imgs/logo.png" className="w-[130px] mx-auto" />
+                <Card className="max-w-[500px] flex flex-col items-center gap-y-14 mt-10 py-10">
+                    <div className="text-center">
+                        <h1 className="text-2xl font-bold">Enter OTP</h1>
+                        <p className="text-[#8F8585] text-base font-normal">
+                            Enter the 6 digit code sent to you email address
+                        </p>
+                    </div>
 
-                <h1 className="text-2xl font-bold">Verify OTP</h1>
+                    <div className="space-y-8">
+                        <OtpInput
+                            numInputs={6}
+                            separator="&nbsp;&nbsp;&nbsp;"
+                            onChange={handleChange}
+                            inputStyle={{
+                                width: 50,
+                                height: 50,
+                                backgroundColor: "#FEE4E2",
+                                borderTopColor: "#F97066",
+                            }}
+                            shouldAutoFocus
+                            value={otpValue}
+                        />
+                    </div>
 
-                <div>
-                    <p className="text-[#8F8585] text-base font-normal">
-                        Please enter the 6-digit OTP sent to your registered{" "}
-                        <br />
-                        email or phone number to verify your account.
-                    </p>
+                    <div className="flex flex-col items-center">
+                        <p className="text-[10px] text-[#828282]">
+                            OTP will expire in
+                        </p>
+                        <span className="text-[12px] text-[#828282] font-semibold ">
+                            00:{countTimer < 10 && "0"}
+                            {countTimer}
+                        </span>
 
-                    <FormButton
-                        variant="link"
-                        loading={loading}
-                        onClick={handleResendOTP}
-                        type="button"
-                        className="p-0"
-                    >
-                        Resend OTP
-                    </FormButton>
-                </div>
+                        {countTimer === 0 && (
+                            <FormButton
+                                variant="ghost"
+                                loading={loading}
+                                onClick={handleResendOTP}
+                                type="button"
+                                className="text-primary hover:text-primary"
+                            >
+                                Resend OTP
+                            </FormButton>
+                        )}
+                    </div>
 
-                <div className="space-y-8">
-                    <OtpInput
-                        numInputs={4}
-                        separator="&nbsp;-&nbsp;"
-                        onChange={handleChange}
-                        inputStyle={{
-                            width: 50,
-                            height: 50,
-                        }}
-                        shouldAutoFocus
-                        value={otpValue}
-                    />
+                    <div className="w-full self-stretch">
+                        <FormButton
+                            type="submit"
+                            loading={loading}
+                            className="w-full rounded-full"
+                            size="lg"
+                        >
+                            Confirm
+                        </FormButton>
 
-                    <FormButton type="submit" loading={loading}>
-                        Submit
-                    </FormButton>
-                </div>
+                        <p className="text-center text-[#98A2B3] mt-2 text-[12px]">
+                            Having a bit of trouble?{" "}
+                            <Link to="/" className="text-primary font-semibold">
+                                Contact support
+                            </Link>
+                        </p>
+                    </div>
+                </Card>
             </form>
         </div>
     );

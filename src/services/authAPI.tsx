@@ -21,7 +21,7 @@ const authAPi = baseAPI.injectEndpoints({
     changePassword: builder.mutation<
       any,
       {
-        old_password: string;
+        // old_password: string;
         new_password: string;
         confirm_new_password: string;
       }
