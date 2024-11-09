@@ -86,7 +86,8 @@ const ChangePasswordForm = () => {
                             </h1>
 
                             <p className="text-[#8F8585] text-base font-normal">
-                                Create new password{" "}
+                                {/* Create new password{" "} */}
+                                Create a new password to login your account with
                             </p>
                         </div>
                         <div className="space-y-8 self-stretch">
