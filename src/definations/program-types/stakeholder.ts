@@ -10,6 +10,12 @@ export interface StakeholderResultsData {
   designation: string;
   phone_number: string;
   email: string;
+  project_role: string;
+  importance: string;
+  influence: string;
+  score: number;
+  major_concerns: string;
+  relationship_owner: string;
 }
 
 export interface StakeholderData {

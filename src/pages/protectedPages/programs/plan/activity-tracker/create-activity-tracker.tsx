@@ -27,7 +27,7 @@ import {
 } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
 
-const CreateRegister = () => {
+export default function CreateActivityTracker() {
     const navigate = useNavigate();
 
     const stateResultQuery = StateAPI.useGetStatesQuery();
@@ -83,19 +83,19 @@ const CreateRegister = () => {
             <Breadcrumb>
                 <BreadcrumbList>
                     <BreadcrumbItem>
+                        <BreadcrumbPage>Programs</BreadcrumbPage>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator>
+                        <Icon icon="iconoir:slash" />
+                    </BreadcrumbSeparator>
+                    <BreadcrumbItem>
                         <BreadcrumbPage>Plans</BreadcrumbPage>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator>
                         <Icon icon="iconoir:slash" />
                     </BreadcrumbSeparator>
                     <BreadcrumbItem>
-                        <BreadcrumbPage>Stakeholder</BreadcrumbPage>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Icon icon="iconoir:slash" />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Stakeholder Register</BreadcrumbPage>
+                        <BreadcrumbPage>Activity Tracker</BreadcrumbPage>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator>
                         <Icon icon="iconoir:slash" />
@@ -116,143 +116,119 @@ const CreateRegister = () => {
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <Card className="space-y-10 p-10">
                         <FormInput
-                            name="stakeholder_name"
-                            label="Stakeholder Name"
+                            label="Activity Name"
+                            name="activity_name"
+                            placeholder="Enter activity name"
                             required
                         />
+
+                        <FormInput
+                            label="Activity Reference Number (As in WP)"
+                            name=""
+                            placeholder="Enter activity Ref. Number"
+                            required
+                        />
+
                         <FormSelect
-                            name="institution_organization"
-                            label="Institution/Organization"
+                            label="Month"
+                            name="month"
+                            placeholder="Select Month"
                             required
                         >
                             <SelectContent>
                                 {partnerResultQuery?.isLoading ? (
                                     <LoadingSpinner />
                                 ) : (
-                                    partners?.map(
-                                        (partner: PartnerResultsData) => (
+                                    ["January", "Februray"]?.map(
+                                        (month: string) => (
                                             <SelectItem
-                                                value={partner.id}
-                                                key={partner.id}
+                                                value={month}
+                                                key={month}
                                             >
-                                                {partner.name}
+                                                {month}
                                             </SelectItem>
                                         )
                                     )
                                 )}
                             </SelectContent>
                         </FormSelect>
+
                         <FormTextArea
-                            name="physical_office_address"
-                            label="Physical Office Address"
+                            label="Activities Plan for the Month"
+                            name=""
                         />
+
+                        <FormTextArea label="Objectives" name="" />
+
                         <FormSelect
-                            name="state"
-                            label="State"
-                            placeholder="Select state"
+                            label="Location"
+                            name="location"
+                            placeholder="Select Location"
                             required
                         >
                             <SelectContent>
-                                {stateResultQuery?.isLoading ? (
+                                {partnerResultQuery?.isLoading ? (
                                     <LoadingSpinner />
                                 ) : (
-                                    states?.map(
-                                        (state: string, index: number) => (
+                                    ["Lagos", "Abuja"]?.map((month: string) => (
+                                        <SelectItem value={month} key={month}>
+                                            {month}
+                                        </SelectItem>
+                                    ))
+                                )}
+                            </SelectContent>
+                        </FormSelect>
+
+                        <FormInput label="IR" name="" />
+                        <FormInput label="Lead Dept" name="" required />
+                        <FormInput label="Lead Partner" name="" required />
+
+                        <div className="bg-red-100 py-5 px-2.5 rounded-md">
+                            <h2 className="text-lg font-bold text-red-500">
+                                Activity Tracker
+                            </h2>
+                        </div>
+
+                        <FormInput label="Frq. of Activity" name="" />
+                        <FormInput label="Planned Output" name="" />
+                        <FormTextArea label="Description of Output" name="" />
+                        <FormInput label="Percentage of Achievement" name="" />
+                        <FormSelect
+                            label="Status"
+                            name="status"
+                            placeholder="Select Status"
+                            required
+                        >
+                            <SelectContent>
+                                {partnerResultQuery?.isLoading ? (
+                                    <LoadingSpinner />
+                                ) : (
+                                    ["Pending", "Approved"]?.map(
+                                        (month: string) => (
                                             <SelectItem
-                                                value={state}
-                                                key={index}
+                                                value={month}
+                                                key={month}
                                             >
-                                                {state}
+                                                {month}
                                             </SelectItem>
                                         )
                                     )
                                 )}
                             </SelectContent>
                         </FormSelect>
-                        <FormInput name="designation" label="Designation" />
 
-                        <FormInput name="phone_number" label="Phone Number" />
-                        <FormInput name="email" label="E-Mail" />
+                        <div className="bg-red-100 py-5 px-2.5 rounded-md">
+                            <h2 className="text-lg font-bold text-red-500">
+                                Variance Analysis
+                            </h2>
+                        </div>
 
-                        <FormSelect
-                            name="project_role"
-                            label="Project Role"
-                            placeholder="Select number"
-                            required
-                        >
-                            <SelectContent>
-                                {["10", "20"].map(
-                                    (gender: string, index: number) => (
-                                        <SelectItem value={gender} key={index}>
-                                            {gender}
-                                        </SelectItem>
-                                    )
-                                )}
-                            </SelectContent>
-                        </FormSelect>
-
-                        <FormSelect
-                            name="importance"
-                            label="Importance"
-                            placeholder="Select number"
-                            required
-                        >
-                            <SelectContent>
-                                {["10", "20"].map(
-                                    (gender: string, index: number) => (
-                                        <SelectItem value={gender} key={index}>
-                                            {gender}
-                                        </SelectItem>
-                                    )
-                                )}
-                            </SelectContent>
-                        </FormSelect>
-
-                        <FormSelect
-                            name="influence"
-                            label="Influence"
-                            placeholder="Select number"
-                            required
-                        >
-                            <SelectContent>
-                                {["10", "20"].map(
-                                    (gender: string, index: number) => (
-                                        <SelectItem value={gender} key={index}>
-                                            {gender}
-                                        </SelectItem>
-                                    )
-                                )}
-                            </SelectContent>
-                        </FormSelect>
-
-                        <FormSelect
-                            name="score"
-                            label="Score"
-                            placeholder="Select number"
-                            required
-                        >
-                            <SelectContent>
-                                {["10", "20"].map(
-                                    (gender: string, index: number) => (
-                                        <SelectItem value={gender} key={index}>
-                                            {gender}
-                                        </SelectItem>
-                                    )
-                                )}
-                            </SelectContent>
-                        </FormSelect>
-
-                        <FormInput
-                            name="major_concerns"
-                            label="Major Concerns"
-                            placeholder="Enter major concerns"
-                        />
-
-                        <FormInput
-                            name="relationship_owner"
-                            label="Relationship Owner"
-                            placeholder="Enter relationship owner"
-                        />
+                        <FormInput label="Total NGN" name="" />
+                        <FormInput label="Total USD" name="" />
+                        <FormInput label="Amount Expended" name="" />
+                        <FormInput label="Implementation USD Rate" name="" />
+                        <FormInput label="Amount Expended USD" name="" />
+                        <FormInput label="Expenditure Rate NGN" name="" />
                     </Card>
 
                     <div className="flex justify-end gap-5 pt-10">
@@ -272,18 +248,4 @@ const CreateRegister = () => {
             </Form>
         </div>
     );
-};
-
-export default CreateRegister;
-
-/*         {/* <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-              <FormSelect name="gender" label="Gender">
-                <SelectContent>
-                  {["Male", "Female"].map((gender: string, index: number) => (
-                    <SelectItem value={gender} key={index}>
-                      {gender}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </FormSelect>
-            </div> */
+}
