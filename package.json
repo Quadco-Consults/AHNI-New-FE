@@ -3,7 +3,6 @@
     "private": true,
     "version": "0.0.0",
     "type": "module",
-    "proxy": "https://ahni-erp-029252c2fbb9.herokuapp.com",
     "scripts": {
         "dev": "vite",
         "build": "vite build",
