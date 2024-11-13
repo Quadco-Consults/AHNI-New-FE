@@ -124,7 +124,7 @@ const WorkPlanUploadModal = () => {
               <SelectValue placeholder="Select project" />
             </SelectTrigger>
             <SelectContent>
-              {projectsQueryResult?.isLoading ? (
+              {/* {projectsQueryResult?.isLoading ? (
                 <LoadingSpinner />
               ) : (
                 projects?.map((doc: ProjectsResultsData) => (
@@ -132,7 +132,7 @@ const WorkPlanUploadModal = () => {
                     {doc.title}
                   </SelectItem>
                 ))
-              )}
+              )} */}
             </SelectContent>
           </Select>
         </div>
