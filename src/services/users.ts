@@ -10,13 +10,13 @@ import {
 
 const usersAPi = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    roles: builder.query<TBasePaginatedResponse<TRole[]>, TRequest>({
+    roles: builder.query<TRole[], TRequest>({
       query: (params) => ({
         url: "/auth/roles/",
         params,
       }),
     }),
-    permissions: builder.query<TBasePaginatedResponse<Permission[]>, TRequest>({
+    permissions: builder.query<Permission[], TRequest>({
       query: (params) => ({
         url: "/auth/permissions/",
         params,

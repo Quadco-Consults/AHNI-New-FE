@@ -5,21 +5,21 @@ import { Permission } from "definations/users";
 import { usePermissionsQuery } from "services/users";
 
 const AuthList = () => {
-  const { data, isLoading } = usePermissionsQuery({
-    no_paginate: false,
-  });
+    const { data, isLoading } = usePermissionsQuery({
+        no_paginate: false,
+    });
 
-  return (
-    <div className="mt-6">
-      <TableFilters>
-        <DataTable
-          columns={permissionColums}
-          data={(data?.results as Permission[]) || []}
-          isLoading={isLoading}
-        />
-      </TableFilters>
-    </div>
-  );
+    return (
+        <div className="mt-6">
+            <TableFilters>
+                <DataTable
+                    columns={permissionColums}
+                    data={(data as Permission[]) || []}
+                    isLoading={isLoading}
+                />
+            </TableFilters>
+        </div>
+    );
 };
 
 export default AuthList;

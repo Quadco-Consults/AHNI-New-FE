@@ -9,6 +9,7 @@ import { Form } from "components/ui/form";
 import { TCreateUser, userSchema } from "definations/users";
 
 import { SubmitHandler, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import { useCreateUserMutation } from "services/users";
 import { toast } from "sonner";
 
@@ -24,11 +25,14 @@ const CreateUsers = () => {
     });
     const [createUser, { isLoading }] = useCreateUserMutation();
 
+    const navigate = useNavigate();
+
     const onSubmit: SubmitHandler<TCreateUser> = async (data) => {
         try {
             await createUser(data).unwrap();
             toast.success("User Created Succesfully");
             form.reset();
+            navigate("/users");
         } catch (error: any) {
             const keys = Object.keys(error.data);
             const errMsg = error.data[keys[0]][0];
