@@ -12,7 +12,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
+import { DialogType, mediumDailogScreen } from "constants/dailogs";
 import DataTable from "components/Table/DataTable";
 import {
     Breadcrumb,
@@ -267,7 +267,17 @@ export default function ActivityTracker() {
                             <Button
                                 className="w-full flex items-center gap-2 justify-start"
                                 variant="ghost"
-                                // onClick={() => setModalOpen(true)}
+                                onClick={() =>
+                                    dispatch(
+                                        openDialog({
+                                            type: DialogType.ActivityTrackerModal,
+                                            dialogProps: {
+                                                header: "Upload An Activity Tracker",
+                                                ...mediumDailogScreen,
+                                            },
+                                        })
+                                    )
+                                }
                             >
                                 <UploadIcon /> Upload
                             </Button>
