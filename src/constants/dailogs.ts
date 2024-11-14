@@ -57,6 +57,7 @@ export const DialogType = {
     ApprovalModal: "ApprovalModal",
     FeedbackModal: "FeedbackModal",
     ActivityTrackerModal: "ActivityTrackerModal",
+    AddNewRoleModal: "AddNewRoleModal",
 };
 
 export const largeDailogScreen = {

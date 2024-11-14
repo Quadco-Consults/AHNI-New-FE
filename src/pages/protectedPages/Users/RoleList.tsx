@@ -1,5 +1,11 @@
+import AddSquareIcon from "components/icons/AddSquareIcon";
+import { Button } from "components/ui/button";
 import { Card, CardContent } from "components/ui/card";
-import { DialogType, largeDailogScreen } from "constants/dailogs";
+import {
+    DialogType,
+    largeDailogScreen,
+    mediumDailogScreen,
+} from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
 import { ChevronRight } from "lucide-react";
 
@@ -10,8 +16,6 @@ const RoleList = () => {
     const { data } = useRolesQuery({
         no_paginate: false,
     });
-
-    console.log({ data });
 
     const dispatch = useAppDispatch();
 
@@ -31,11 +35,29 @@ const RoleList = () => {
         <div className="mt-6">
             <Card>
                 <CardContent className="p-4">
+                    <Button
+                        className="float-end"
+                        onClick={() =>
+                            dispatch(
+                                openDialog({
+                                    type: DialogType.AddNewRoleModal,
+                                    dialogProps: {
+                                        header: "Add New Role",
+                                        width: "max-w-md",
+                                        height: "max-h-[700px]",
+                                    },
+                                })
+                            )
+                        }
+                    >
+                        <AddSquareIcon />
+                        Add New Role
+                    </Button>
                     {data?.map((item, i) => {
                         return (
                             <div
                                 key={item.id}
-                                className="flex justify-between py-5 border-b"
+                                className="flex justify-between py-5 border-b clear-end"
                             >
                                 <div className="flex item-center gap-x-4">
                                     <p className=" rounded-full bg-[#DBDFE9] h-6 w-6 flex items-center justify-center text-sm ">
