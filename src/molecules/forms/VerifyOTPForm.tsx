@@ -1,13 +1,18 @@
 import FormButton from "atoms/FormButton";
 import { toast } from "sonner";
 import { OtpInput } from "reactjs-otp-input";
-import { Button } from "components/ui/button";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Card from "components/shared/Card";
+import { useVerifyOTPMutation } from "services/authAPI";
+import useQuery from "hooks/useQuery";
 
 export default function VerifyOTPForm() {
     const [countTimer, setCountTimer] = useState(60);
+
+    const [verifyOTP, { isLoading }] = useVerifyOTPMutation();
+
+    const query = useQuery();
 
     const [loading, setLoading] = useState(false);
     const [otpValue, setOtpValue] = useState("");
@@ -43,9 +48,22 @@ export default function VerifyOTPForm() {
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        setLoading(true);
-        // console.log(otpValue);
-        navigate("/change-password");
+        const email = query.get("email");
+
+        try {
+            await verifyOTP({
+                email: email as string,
+                token: otpValue,
+            }).unwrap();
+
+            toast.success("Token verified successfully.");
+            localStorage.setItem("authToken", JSON.stringify(otpValue));
+            navigate(`/change-password?email=${email}`);
+        } catch (error: any) {
+            toast.error(
+                error.data.non_field_errors[0] || "Something went wrong"
+            );
+        }
     };
     return (
         <div>
@@ -100,7 +118,7 @@ export default function VerifyOTPForm() {
                     <div className="w-full self-stretch">
                         <FormButton
                             type="submit"
-                            loading={loading}
+                            loading={isLoading}
                             className="w-full rounded-full"
                             size="lg"
                         >

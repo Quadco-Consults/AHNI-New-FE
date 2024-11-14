@@ -38,7 +38,6 @@ const LoginForm = () => {
                 toast.success(resp.message);
             }
         } catch (error: any) {
-            console.log(error.data.data.non_field_errors[0]);
             toast.error(
                 error.data.data.non_field_errors[0] || "Something went wrong"
             );

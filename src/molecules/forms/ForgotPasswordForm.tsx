@@ -21,17 +21,22 @@ const ForgotPasswordForm = () => {
         },
     });
 
+    const { watch } = form;
+
     const [forgotPassword, { isLoading, error }] = useForgotPasswordMutation();
 
     const navigate = useNavigate();
 
     const onSubmit = async (values: z.infer<typeof emailSchema>) => {
         try {
-            await forgotPassword(values).unwrap();
+            const response = await forgotPassword(values).unwrap();
+            const token = response.token;
+            localStorage.setItem("authToken", JSON.stringify(token));
+
             toast.success(
                 "We've sent the OTP to your inbox. Please check your email and enter the code to continue."
             );
-            navigate("/verify-otp");
+            navigate(`/verify-otp?email=${watch("email")}`);
         } catch (err: any) {
             toast.error(err.data.message || "Something went wrong");
         }
