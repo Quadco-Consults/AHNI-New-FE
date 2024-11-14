@@ -77,7 +77,7 @@ const partnersAPi = baseAPI.injectEndpoints({
     >({
       query: ({ path, body }) => ({
         url: `${BASE_URL}${path.id}/`,
-        method: "PATCH",
+        method: "PUT",
         body,
       }),
       invalidatesTags: (_, error, { path }) =>
