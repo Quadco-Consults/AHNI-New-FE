@@ -37,7 +37,7 @@ const projectsAPI = baseAPI.injectEndpoints({
     >({
       query: ({ id, body }) => ({
         url: `/projects/funding-sources/${id}/`,
-        method: "PATCH",
+        method: "PUT",
         body: body,
       }),
       invalidatesTags: ["FundingSource"],
@@ -74,7 +74,7 @@ const projectsAPI = baseAPI.injectEndpoints({
     >({
       query: ({ id, body }) => ({
         url: `/projects/beneficiaries/${id}/`,
-        method: "PATCH",
+        method: "PUT",
         body: body,
       }),
       invalidatesTags: ["Beneficiaries"],
@@ -111,7 +111,7 @@ const projectsAPI = baseAPI.injectEndpoints({
     >({
       query: ({ id, body }) => ({
         url: `/projects/document-types/${id}/`,
-        method: "PATCH",
+        method: "PUT",
         body: body,
       }),
       invalidatesTags: ["DocumentTypes"],
@@ -143,7 +143,7 @@ const projectsAPI = baseAPI.injectEndpoints({
       {
         query: ({ id, body }) => ({
           url: `/projects/partners/${id}/`,
-          method: "PATCH",
+          method: "PUT",
           body: body,
         }),
         invalidatesTags: ["Partners"],
