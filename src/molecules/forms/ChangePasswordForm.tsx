@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import Card from "components/shared/Card";
 import PasswordHint from "components/features/PasswordHint";
+import useQuery from "hooks/useQuery";
 
 const formSchema = z
     .object({
@@ -25,7 +26,7 @@ const formSchema = z
                 "Password must contain at least one uppercase character"
             )
             .regex(/[0-9]/, "Password must contain at least one number"),
-        confirm_new_password: z
+        confirm_password: z
             .string()
             .min(8, "Password must be at least 8 characters")
             .trim()
@@ -39,9 +40,9 @@ const formSchema = z
             )
             .regex(/[0-9]/, "Password must contain at least one number"),
     })
-    .refine((data) => data.new_password === data.confirm_new_password, {
+    .refine((data) => data.new_password === data.confirm_password, {
         message: "Passwords don't match",
-        path: ["confirm_new_password"], // path of error
+        path: ["confirm_password"], // path of error
     });
 
 const ChangePasswordForm = () => {
@@ -49,18 +50,34 @@ const ChangePasswordForm = () => {
         resolver: zodResolver(formSchema),
         defaultValues: {
             new_password: "",
-            confirm_new_password: "",
+            confirm_password: "",
         },
     });
+
+    const query = useQuery();
 
     const navigate = useNavigate();
 
     const [changePassword, { isLoading }] = useChangePasswordMutation();
 
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const onSubmit = async ({
+        new_password,
+        confirm_password,
+    }: z.infer<typeof formSchema>) => {
+        const email = query.get("email");
+        const token = JSON.parse(localStorage.getItem("authToken") || "{}");
+
+        const payload = {
+            email,
+            token,
+            new_password,
+            confirm_password,
+        };
+
         try {
-            await changePassword(values);
+            await changePassword(payload);
             toast.success("Password changed successfully");
+            localStorage.removeItem("authToken");
             navigate("/login");
         } catch (err: any) {
             toast.error(err.data.message || "Something went wrong");
@@ -103,7 +120,7 @@ const ChangePasswordForm = () => {
                                 <FormInput
                                     label="Confirm password"
                                     type="password"
-                                    name="confirm_new_password"
+                                    name="confirm_password"
                                     placeholder="Confirm new password"
                                 />
                             </div>
