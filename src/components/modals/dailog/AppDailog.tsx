@@ -60,6 +60,7 @@ import HrSuccessModal from "./components/HrSuccessModal";
 import ApprovalModal from "./components/ApprovalModal";
 import FeedbackModal from "./components/FeedbackModal";
 import ActivityTrackerModal from "./components/ActivityTrackerModal";
+import AddNewRoleModal from "./components/AddNewRoleModal";
 
 const sheets: Record<string, ReactNode> = {
     [DialogType.Categories]: <CategoriesModal />,
@@ -123,6 +124,8 @@ const sheets: Record<string, ReactNode> = {
     [DialogType.HrSuccessModal]: <HrSuccessModal />,
     [DialogType.ApprovalModal]: <ApprovalModal />,
     [DialogType.FeedbackModal]: <FeedbackModal />,
+
+    [DialogType.AddNewRoleModal]: <AddNewRoleModal />,
 };
 
 const AppDailog = () => {

@@ -40,7 +40,7 @@ export interface TBasePaginatedResponse<T> {
     count: number;
     next: string;
     previous: string;
-    results: T;
+    results: T
 }
 export interface TBaseCreateResponse<T> {
     message: string;

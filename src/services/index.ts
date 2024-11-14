@@ -39,6 +39,7 @@ const baseAPI = createApi({
 
     tagTypes: [
         "Users",
+        "Roles",
         "Permission",
         "FundingSource",
         "Beneficiaries",
