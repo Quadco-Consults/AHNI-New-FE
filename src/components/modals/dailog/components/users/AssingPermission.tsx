@@ -67,8 +67,8 @@ const PermissionSelector: FC<TPermissionSelector> = ({
             const result = await fetchItems({
                 page,
             }).unwrap();
-            if (result.results) {
-                setItems((prevItems) => [...prevItems, ...result.results]);
+            if (result) {
+                setItems((prevItems) => [...prevItems, ...result]);
             } else {
                 setItems((prevItems) => [...prevItems]);
             }
@@ -157,7 +157,7 @@ const AssignPermission = () => {
             dispatch(closeDialog());
             toast.success("Permission added successfully");
         } catch (err: any) {
-            toast.error("Error adding permission" || err?.message);
+            // toast.error("Error adding permission" || err?.message);
         }
     };
 
