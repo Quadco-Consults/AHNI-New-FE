@@ -1,7 +1,6 @@
 import { z } from "zod";
 
-export const userSchema = z
-  .object({
+export const userSchema = z.object({
     first_name: z.string(),
     last_name: z.string(),
     email: z.string().email(),
@@ -9,58 +8,58 @@ export const userSchema = z
     phone_number: z.string(),
     gender: z.enum(["Male", "Female", "Other"]),
     designation: z.string(),
-    password: z.string(),
-    confirm_password: z.string(),
-  })
-  .refine((data) => data.password === data.confirm_password, {
-    message: "Passwords don't match",
-    path: ["confirm_password"],
-  });
+    // password: z.string(),
+    // confirm_password: z.string(),
+});
+// .refine((data) => data.password === data.confirm_password, {
+//     message: "Passwords don't match",
+//     path: ["confirm_password"],
+// });
 
 export const updateUserSchema = z.object({
-  first_name: z.string(),
-  last_name: z.string(),
-  email: z.string().email(),
-  last_login: z.string().datetime().optional(),
-  phone_number: z.string(),
-  gender: z.enum(["Male", "Female", "Other"]),
-  designation: z.string(),
+    first_name: z.string(),
+    last_name: z.string(),
+    email: z.string().email(),
+    last_login: z.string().datetime().optional(),
+    phone_number: z.string(),
+    gender: z.enum(["Male", "Female", "Other"]),
+    designation: z.string(),
 });
 
 export type TCreateUser = z.infer<typeof userSchema>;
 export type TUpdateUser = z.infer<typeof updateUserSchema>;
 interface Role {
-  id: number;
-  name: string;
+    id: number;
+    name: string;
 }
 
 export interface Permission {
-  id: number;
-  name: string;
-  codename: string;
-  module: string;
+    id: number;
+    name: string;
+    codename: string;
+    module: string;
 }
 
 export interface TUser {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  last_login: string;
-  roles: Role[];
-  permissions: Permission[];
-  phone_number: string;
-  gender: "Male" | "Female" | "Other";
-  designation: string;
-  fullName: string;
-  action: string;
-  department: string;
-  position: string;
-  actions: string; //
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    last_login: string;
+    roles: Role[];
+    permissions: Permission[];
+    phone_number: string;
+    gender: "Male" | "Female" | "Other";
+    designation: string;
+    fullName: string;
+    action: string;
+    department: string;
+    position: string;
+    actions: string; //
 }
 
 export interface TRole {
-  id: number;
-  name: string;
-  permissions: Permission[];
+    id: number;
+    name: string;
+    permissions: Permission[];
 }
