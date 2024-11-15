@@ -66,7 +66,7 @@ const usersAPi = baseAPI.injectEndpoints({
             {
                 id: string;
                 body: {
-                    items: string[];
+                    items: number[];
                 };
             }
         >({

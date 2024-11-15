@@ -23,7 +23,7 @@ export const updateUserSchema = z.object({
     last_login: z.string().datetime().optional(),
     phone_number: z.string(),
     gender: z.enum(["Male", "Female", "Other"]),
-    designation: z.string(),
+    department: z.string(),
 });
 
 export type TCreateUser = z.infer<typeof userSchema>;

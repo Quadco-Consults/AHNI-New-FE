@@ -11,51 +11,54 @@ import { Link } from "react-router-dom";
 import { useGetUserQuery } from "services/users";
 
 const UsersList = () => {
-  const { data, isLoading } = useGetUserQuery(
-    { no_paginate: false },
-    {
-      refetchOnMountOrArgChange: true,
-    }
-  );
+    const { data, isLoading } = useGetUserQuery(
+        { no_paginate: false },
+        {
+            refetchOnMountOrArgChange: true,
+        }
+    );
 
-  const drivedData = useMemo(() => {
-    return data?.results.map((user) => ({
-      id: user.id,
-      fullName: `${user.first_name} ${user.last_name}`,
-      email: user.email,
-      department: user.designation,
-      position: user?.roles?.length > 0 ? user.roles[0].name : "N/A",
-      roles: user.roles.map((role) => role.name).join(", "),
-      lastLogin: new Date(user.last_login).toLocaleString(),
-      first_name: user.first_name,
-      last_name: user.last_name,
-      gender: user.gender,
-      phone_number: user.phone_number,
-      designation: user.designation,
-    }));
-  }, [data?.results]);
-  return (
-    <div>
-      <div className="flex items-center justify-between">
-        <BackNavigation extraText="Users" />
-        <Link to={RouteEnum.CREATE_USERS}>
-          <Button className="gap-x-2" size="sm">
-            <AddSquareIcon />
-            Add Users
-          </Button>
-        </Link>
-      </div>
-      <div>
-        <TableFilters>
-          <DataTable
-            columns={userColums}
-            data={(drivedData as unknown as TUser[]) || []}
-            isLoading={isLoading}
-          />
-        </TableFilters>
-      </div>
-    </div>
-  );
+    const drivedData = useMemo(() => {
+        return data?.results.map((user) => ({
+            id: user.id,
+            fullName: `${user.first_name} ${user.last_name}`,
+            email: user.email,
+            department: user.designation,
+            position: user?.roles?.length > 0 ? user.roles[0].name : "N/A",
+            roles: user.roles,
+            lastLogin: new Date(user.last_login).toLocaleString(),
+            first_name: user.first_name,
+            last_name: user.last_name,
+            gender: user.gender,
+            phone_number: user.phone_number,
+            designation: user.designation,
+        }));
+    }, [data?.results]);
+
+    console.log({ users: data });
+
+    return (
+        <div>
+            <div className="flex items-center justify-between">
+                <BackNavigation extraText="Users" />
+                <Link to={RouteEnum.CREATE_USERS}>
+                    <Button className="gap-x-2" size="sm">
+                        <AddSquareIcon />
+                        Add Users
+                    </Button>
+                </Link>
+            </div>
+            <div>
+                <TableFilters>
+                    <DataTable
+                        columns={userColums}
+                        data={(drivedData as unknown as TUser[]) || []}
+                        isLoading={isLoading}
+                    />
+                </TableFilters>
+            </div>
+        </div>
+    );
 };
 
 export default UsersList;

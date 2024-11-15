@@ -31,7 +31,7 @@ const Summary = (projects: any) => {
 
       <div className="space-y-1">
         <h3 className="font-semibold">Project Objectives</h3>
-        {projects.project_objectives.map((obj: any) => (
+        {projects.project_objectives?.map((obj: any) => (
           <div key={obj?.id} className="space-y-2">
             <p className="text-sm text-gray-500">{obj?.title}</p>
 
@@ -81,7 +81,7 @@ const Summary = (projects: any) => {
           <div className="space-y-2">
             <h3 className="font-semibold">Project Location</h3>
             <div className="flex flex-wrap gap-3">
-              {projects.project_partners.map((option: any, index: number) => (
+              {projects?.project_partners?.map((option: any, index: number) => (
                 <Badge
                   variant="default"
                   key={index}
@@ -95,7 +95,7 @@ const Summary = (projects: any) => {
           <div className="space-y-2">
             <h3 className="font-semibold">Project Location</h3>
             <div className="flex flex-wrap gap-3">
-              {projects.project_funding_source.map(
+              {projects?.project_funding_source?.map(
                 (option: any, index: number) => (
                   <Badge
                     variant="default"
@@ -113,7 +113,7 @@ const Summary = (projects: any) => {
         <div className="space-y-3 py-5">
           <h3 className="font-semibold">Target Population</h3>
           <div className="flex flex-wrap gap-3">
-            {projects.project_beneficiaries.map((option: any) => (
+            {projects?.project_beneficiaries?.map((option: any) => (
               <Badge
                 variant="default"
                 key={option.id}
@@ -128,9 +128,9 @@ const Summary = (projects: any) => {
         <div className="space-y-3">
           <h3 className="font-semibold">Consortium partners</h3>
           <div className="flex flex-wrap gap-3">
-            {projects.project_partners.map((option: any, index: number) => (
+            {projects?.project_partners?.map((option: any, index: number) => (
               <div key={index}>
-                {option.partners.map((el: any) => (
+                {option?.partners?.map((el: any) => (
                   <Badge
                     variant="default"
                     key={el.id}

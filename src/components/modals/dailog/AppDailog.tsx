@@ -23,7 +23,7 @@ import ConsortiumModal from "./components/ConsortiumModal";
 import ProjectUploadModal from "./components/ProjectUploadModal";
 import ProjectDetailsUploadModal from "./components/ProjectDetailsUploadModal";
 import EditUser from "./components/users/EditUser";
-import AssingRole from "./components/users/AssingRole";
+import AssingRole from "./components/users/AssignRole";
 import SspSubmitModal from "./components/sspSubmitModal";
 import ExpenditureModal from "./components/ExpenditureModal";
 import AssingPermission from "./components/users/AssingPermission";
