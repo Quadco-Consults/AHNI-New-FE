@@ -130,7 +130,7 @@ const FundRequest = () => {
   const ProjectBeneficiaries = ({ data }: any) => {
     return (
       <div className="flex gap-2 flex-wrap">
-        {data?.project_funding_source.map((el: any) => (
+        {data?.project_funding_source?.map((el: any) => (
           <Badge key={el.id} className="bg-[#EBE8E1] text-[#1a0000ad]">
             {el.name}
           </Badge>
@@ -141,7 +141,7 @@ const FundRequest = () => {
   const ProjectFundingSource = ({ data }: any) => {
     return (
       <div className="flex gap-2 flex-wrap">
-        {data?.project_beneficiaries.map((el: any) => (
+        {data?.project_beneficiaries?.map((el: any) => (
           <Badge key={el.id} className="bg-[#EBE8E1] text-[#1a0000ad]">
             {el.name}
           </Badge>

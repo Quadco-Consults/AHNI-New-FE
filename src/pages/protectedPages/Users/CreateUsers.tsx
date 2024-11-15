@@ -10,6 +10,7 @@ import { TCreateUser, userSchema } from "definations/users";
 
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { useDepartmentsQuery } from "services/moduleConfig";
 import { useCreateUserMutation } from "services/users";
 import { toast } from "sonner";
 
@@ -23,6 +24,10 @@ const CreateUsers = () => {
     const form = useForm<TCreateUser>({
         resolver: zodResolver(userSchema),
     });
+    const { data } = useDepartmentsQuery({ page: 1, page_size: 100 });
+
+    console.log({ departmentQuery: data });
+
     const [createUser, { isLoading }] = useCreateUserMutation();
 
     const navigate = useNavigate();
@@ -85,26 +90,12 @@ const CreateUsers = () => {
                                         required
                                         options={genderOptions}
                                     />
-                                    <FormInput
-                                        label="Designation"
-                                        name="designation"
+                                    <FormSelect
+                                        label="Department"
+                                        name="department"
                                         required
                                     />
                                 </div>
-                                {/* <div className="grid grid-cols-2 gap-x-7">
-                  <FormInput
-                    label="Password"
-                    name="password"
-                    required
-                    type="password"
-                  />
-                  <FormInput
-                    label="Confirm Password"
-                    name="confirm_password"
-                    required
-                    type="password"
-                  />
-                </div> */}
                                 <div className="flex justify-end">
                                     <FormButton loading={isLoading}>
                                         Create
