@@ -8,19 +8,21 @@ import { users } from "./users";
 import { candg } from "./candg";
 import { modules } from "./modules";
 import { hr } from "./hr";
+import { notification } from "./notification";
 
 const getRoutes = function getRoutes() {
-  return configureRoutes([
-    ...dashboard,
-    ...procurment,
-    ...adminRoutes,
-    ...program,
-    ...project,
-    ...users,
-    ...candg,
-    ...modules,
-    ...hr,
-  ]);
+    return configureRoutes([
+        ...dashboard,
+        ...procurment,
+        ...adminRoutes,
+        ...program,
+        ...project,
+        ...users,
+        ...candg,
+        ...modules,
+        ...hr,
+        ...notification,
+    ]);
 };
 
 export default getRoutes;

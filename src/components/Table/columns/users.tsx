@@ -71,7 +71,6 @@ const ActionDropdown = ({
 
     const handleDeactivate = (id: string) => {
         console.log("Deactivate user with id:", id);
-        // Implement deactivate logic
     };
     return (
         <DropdownMenu>
@@ -89,7 +88,7 @@ const ActionDropdown = ({
                     onClick={() => handleEdit(id)}
                 >
                     <Edit className="w-4 h-4 mr-2" />
-                    <span>Edit</span>
+                    <span>Edit User</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                     className="cursor-pointer "
@@ -159,8 +158,3 @@ export const permissionColums = [
         cell: (info) => info.getValue(),
     }),
 ];
-
-/* {
-                    "id": 1,
-                    "name": "admin"
-                } */

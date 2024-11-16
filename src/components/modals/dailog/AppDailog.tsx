@@ -26,7 +26,7 @@ import EditUser from "./components/users/EditUser";
 import AssingRole from "./components/users/AssignRole";
 import SspSubmitModal from "./components/sspSubmitModal";
 import ExpenditureModal from "./components/ExpenditureModal";
-import AssingPermission from "./components/users/AssingPermission";
+import AssingPermission from "./components/users/AssignPermission";
 import ConsultancyApplicationSuccessModal from "./components/ConsultancyApplicationSuccessModal";
 import AddStock from "./components/consumables/AddStock";
 import TeamMemberSelection from "./components/consumables/AddTeamMembers";
