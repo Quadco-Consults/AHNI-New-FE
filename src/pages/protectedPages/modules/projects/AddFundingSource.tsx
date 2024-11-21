@@ -39,7 +39,7 @@ const AddFundingSource = () => {
     const onSubmit: SubmitHandler<TFundingSource> = async (data) => {
         try {
             dialogProps?.type === "update"
-                ? updateFunding({
+                ? await updateFunding({
                       //@ts-ignore
                       id: String(dialogProps?.data?.id),
                       body: data,

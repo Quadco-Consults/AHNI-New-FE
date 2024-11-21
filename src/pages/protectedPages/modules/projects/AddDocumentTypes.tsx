@@ -38,7 +38,7 @@ const AddDocumentTypes = () => {
     const onSubmit: SubmitHandler<TDocumentTypes> = async (data) => {
         try {
             dialogProps?.type === "update"
-                ? updateDocumentTypes({
+                ? await updateDocumentTypes({
                       //@ts-ignore
                       id: String(dialogProps?.data?.id),
                       body: data,

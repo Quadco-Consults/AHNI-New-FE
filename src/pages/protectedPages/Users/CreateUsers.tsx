@@ -15,18 +15,29 @@ import { useCreateUserMutation } from "services/users";
 import { toast } from "sonner";
 
 const genderOptions = [
-    { label: "Male", value: "Male" },
-    { label: "Female", value: "Female" },
+    { label: "Male", value: "MALE" },
+    { label: "Female", value: "FEMALE" },
     { label: "Other", value: "Other" },
 ];
 
 const CreateUsers = () => {
     const form = useForm<TCreateUser>({
         resolver: zodResolver(userSchema),
+        defaultValues: {
+            first_name: "",
+            last_name: "",
+            email: "",
+            mobile_number: "",
+            password: "",
+            confirm_password: "",
+        },
     });
     const { data } = useDepartmentsQuery({ page: 1, page_size: 100 });
 
-    console.log({ departmentQuery: data });
+    const departmentOptions = data?.data?.results?.map((dept) => ({
+        label: dept.name,
+        value: dept.id,
+    }));
 
     const [createUser, { isLoading }] = useCreateUserMutation();
 
@@ -76,8 +87,8 @@ const CreateUsers = () => {
                                         required
                                     />
                                     <FormInput
-                                        label="Contact"
-                                        name="phone_number"
+                                        label="Mobile Number"
+                                        name="mobile_number"
                                         required
                                         type="number"
                                     />
@@ -90,9 +101,29 @@ const CreateUsers = () => {
                                         required
                                         options={genderOptions}
                                     />
+
                                     <FormSelect
                                         label="Department"
                                         name="department"
+                                        required
+                                        options={departmentOptions}
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-x-7">
+                                    <FormInput
+                                        type="password"
+                                        label="Password"
+                                        name="password"
+                                        placeholder="Enter password"
+                                        required
+                                    />
+
+                                    <FormInput
+                                        type="password"
+                                        label="Confirm Password"
+                                        name="confirm_password"
+                                        placeholder="Confirm Password"
                                         required
                                     />
                                 </div>

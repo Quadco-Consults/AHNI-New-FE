@@ -34,7 +34,7 @@ const usersAPi = baseAPI.injectEndpoints({
         }),
         createUser: builder.mutation<TUser, TCreateUser>({
             query: (body) => ({
-                url: "/auth/users/",
+                url: "/users/",
                 method: "POST",
                 body: body,
             }),
@@ -54,9 +54,9 @@ const usersAPi = baseAPI.injectEndpoints({
             }),
             invalidatesTags: ["Users"],
         }),
-        getUser: builder.query<TBasePaginatedResponse<TUser[]>, TRequest>({
+        getUser: builder.query<TBasePaginatedResponse<TUser>, TRequest>({
             query: (params) => ({
-                url: "/auth/users/",
+                url: "/users/",
                 params,
             }),
             providesTags: ["Users"],

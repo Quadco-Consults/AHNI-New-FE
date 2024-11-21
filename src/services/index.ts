@@ -82,8 +82,16 @@ const baseAPI = createApi({
         "HR_GRADE",
         "HR_POSITION",
         "HR_BENEFICIARIES",
+        "Cost_Category",
+        "Cost_Input",
+        "BudgetLine",
+        "FCONumber",
+        "ProjectClass",
+        "ChartAccount",
+        "SupervisionCriteria",
     ],
-    keepUnusedDataFor: 5 * 60,
+    // keepUnusedDataFor: 5 * 60,
+    keepUnusedDataFor: 0,
     refetchOnMountOrArgChange: true,
 });
 

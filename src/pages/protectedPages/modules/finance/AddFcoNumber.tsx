@@ -4,75 +4,94 @@ import FormInput from "atoms/FormInput";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useAddCategoriesMutation, useUpdateCategoriesMutation } from "services/moduleConfig";
-import { TCategories, categorySchema } from "definations/module-config";
+import {
+    useAddCategoriesMutation,
+    useUpdateCategoriesMutation,
+} from "services/moduleConfig";
+import { TCategories } from "definations/module-config";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
 import { toast } from "sonner";
+import { FCONumberSchema, TFCONumber } from "definations/module-finance";
+import {
+    useAddFCONumberMutation,
+    useUpdateFCONumberMutation,
+} from "services/moduleFinance";
 
 const AddFcoNumber = () => {
-  const { dialogProps } = useAppSelector(dailogSelector);
+    const { dialogProps } = useAppSelector(dailogSelector);
 
-  const data = dialogProps?.data as unknown as TCategories;
-  const form = useForm<TCategories>({
-    resolver: zodResolver(categorySchema),
-    defaultValues: {
-      name: data?.name ?? "",
-      description: data?.description ?? "",
-      job_category: data?.job_category ?? undefined,
-      serial_number: data?.serial_number ?? "",
-      code: data?.code ?? "",
-    },
-  });
+    const data = dialogProps?.data as unknown as TFCONumber;
 
-  const [category, { isLoading }] = useAddCategoriesMutation();
-  const [updateCategory, { isLoading: updateCategoryLoading }] = useUpdateCategoriesMutation();
+    const form = useForm<TFCONumber>({
+        resolver: zodResolver(FCONumberSchema),
+        defaultValues: {
+            name: data?.name ?? "",
+            description: data?.description ?? "",
+            code: data?.code ?? "",
+        },
+    });
 
-  const dispatch = useAppDispatch();
-  const onSubmit: SubmitHandler<TCategories> = async (data) => {
-    try {
-      dialogProps?.type === "update"
-        ? updateCategory({
-            //@ts-ignore
-            id: String(dialogProps?.data?.id),
-            body: data,
-          }).unwrap()
-        : await category(data).unwrap();
-      toast.success("Category Added Succesfully");
-      dispatch(closeDialog());
-      form.reset();
-    } catch (error: any) {
-      toast.error(error.data.message || "Something went wrong");
-    }
-  };
-  return (
-    <CardContent>
-        <Form {...form}>
-          <form
-            action=""
-            // onSubmit={form.handleSubmit(onSubmit)}
-            onSubmit={() => dispatch(closeDialog() || form.handleSubmit(onSubmit))}
-            className="flex flex-col gap-y-10"
-          >
-            <div className="grid grid-cols-1 gap-y-7">
-              <FormInput
-                label="Title"
-                name="name"
-                placeholder="e.g Travel: International Travel"
-                required
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-x-1">
-              <FormInput label="Description" name="description" required />
-              <FormInput label="Code" name="code" required />
-            </div>
-            <div className="flex justify-start gap-4">
-              <FormButton loading={isLoading || updateCategoryLoading}>Save</FormButton>
-            </div>
-          </form>
-        </Form>
-      </CardContent>
-  )
-}
+    const [addFCONumber, { isLoading }] = useAddFCONumberMutation();
+    const [updateFCONumber, { isLoading: isUpdateLoading }] =
+        useUpdateFCONumberMutation();
 
-export default AddFcoNumber
+    const dispatch = useAppDispatch();
+    const onSubmit: SubmitHandler<TFCONumber> = async (data) => {
+        try {
+            dialogProps?.type === "update"
+                ? await updateFCONumber({
+                      //@ts-ignore
+                      id: String(dialogProps?.data?.id),
+                      body: data,
+                  }).unwrap()
+                : await addFCONumber(data).unwrap();
+            toast.success("Category Added Succesfully");
+            dispatch(closeDialog());
+            form.reset();
+        } catch (error: any) {
+            toast.error(error.data.message || "Something went wrong");
+        }
+    };
+    return (
+        <CardContent>
+            <Form {...form}>
+                <form
+                    action=""
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="flex flex-col gap-y-10"
+                >
+                    <div className="grid grid-cols-1 gap-y-7">
+                        <FormInput
+                            label="Name"
+                            name="name"
+                            placeholder="Enter name"
+                            required
+                        />
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-1">
+                        <FormInput
+                            label="Description"
+                            name="description"
+                            placeholder="Enter description"
+                            required
+                        />
+                        <FormInput
+                            label="Code"
+                            name="code"
+                            required
+                            placeholder="Enter code"
+                        />
+                    </div>
+                    <div className="flex justify-start gap-4">
+                        <FormButton loading={isLoading || isUpdateLoading}>
+                            Save
+                        </FormButton>
+                    </div>
+                </form>
+            </Form>
+        </CardContent>
+    );
+};
+
+export default AddFcoNumber;

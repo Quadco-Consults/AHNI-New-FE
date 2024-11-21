@@ -36,7 +36,7 @@ const AddBeneficiaries = () => {
     const onSubmit: SubmitHandler<TBeneficiaries> = async (data) => {
         try {
             dialogProps?.type === "update"
-                ? updateBeneficiary({
+                ? await updateBeneficiary({
                       //@ts-ignore
                       id: String(dialogProps?.data?.id),
                       body: data,
