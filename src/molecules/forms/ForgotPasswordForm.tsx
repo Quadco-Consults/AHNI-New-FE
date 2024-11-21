@@ -30,6 +30,11 @@ const ForgotPasswordForm = () => {
     const onSubmit = async (values: z.infer<typeof emailSchema>) => {
         try {
             const response = await forgotPassword(values).unwrap();
+
+            if (!response?.data) {
+                throw new Error(response?.message || "Unexpected error");
+            }
+
             const token = response.token;
             localStorage.setItem("authToken", JSON.stringify(token));
 
@@ -38,7 +43,8 @@ const ForgotPasswordForm = () => {
             );
             navigate(`/verify-otp?email=${watch("email")}`);
         } catch (err: any) {
-            toast.error(err.data.message || "Something went wrong");
+            console.log(err);
+            toast.error(err.message || "Something went wrong");
         }
     };
 

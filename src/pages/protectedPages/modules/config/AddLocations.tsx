@@ -9,7 +9,6 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import {
     useAddLocationsMutation,
     useUpdateLocationsMutation,
-    useStatesQuery,
 } from "services/moduleConfig";
 import { TLocations, locationsSchema } from "definations/module-config";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
@@ -21,10 +20,6 @@ const AddLocations = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
     const result = dialogProps?.data as unknown as TLocations;
-
-    const { data } = useStatesQuery({
-        no_paginate: false,
-    });
 
     const stateOptions = nigerianStates?.map((state: string) => ({
         label: state,
@@ -50,13 +45,16 @@ const AddLocations = () => {
 
     const onSubmit: SubmitHandler<TLocations> = async (data) => {
         try {
-            dialogProps?.type === "update"
-                ? updateLocations({
-                      //@ts-ignore
-                      id: String(dialogProps?.data?.id),
-                      body: data,
-                  }).unwrap()
-                : await locations(data).unwrap();
+            if (dialogProps?.type === "update") {
+                await updateLocations({
+                    //@ts-ignore
+                    id: String(dialogProps?.data?.id),
+                    body: data,
+                }).unwrap();
+            } else {
+                await locations(data).unwrap();
+            }
+
             toast.success("Location Added Succesfully");
             dispatch(closeDialog());
             form.reset();

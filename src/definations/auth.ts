@@ -36,12 +36,30 @@ export interface TRequest {
     asset_type?: string;
 }
 
+// export interface TBasePaginatedResponse<T> {
+//     count: number;
+//     next: string;
+//     previous: string;
+//     results: T
+// }
+
 export interface TBasePaginatedResponse<T> {
-    count: number;
-    next: string;
-    previous: string;
-    results: T
+    status: boolean;
+    message: string;
+    data: {
+        pagination: {
+            count: number;
+            page: number;
+            page_size: number;
+            total_pages: number;
+            next_page_number: number | null;
+            previous: number | null;
+            previous_page_number: number | null;
+        };
+        results: T[];
+    };
 }
+
 export interface TBaseCreateResponse<T> {
     message: string;
     data: T;

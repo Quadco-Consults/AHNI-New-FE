@@ -61,6 +61,7 @@ import ApprovalModal from "./components/ApprovalModal";
 import FeedbackModal from "./components/FeedbackModal";
 import ActivityTrackerModal from "./components/ActivityTrackerModal";
 import AddNewRoleModal from "./components/AddNewRoleModal";
+import AddSupervisionCriteria from "./components/AddSupervisionCriteria";
 
 const sheets: Record<string, ReactNode> = {
     [DialogType.Categories]: <CategoriesModal />,
@@ -126,6 +127,7 @@ const sheets: Record<string, ReactNode> = {
     [DialogType.FeedbackModal]: <FeedbackModal />,
 
     [DialogType.AddNewRoleModal]: <AddNewRoleModal />,
+    [DialogType.AddSupervisionCriteria]: <AddSupervisionCriteria />,
 };
 
 const AppDailog = () => {

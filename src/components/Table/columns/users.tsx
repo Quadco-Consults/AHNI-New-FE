@@ -27,7 +27,7 @@ const ActionDropdown = ({
     id,
     first_name,
     last_name,
-    phone_number,
+    mobile_number,
     designation,
     gender,
     email,
@@ -46,7 +46,7 @@ const ActionDropdown = ({
                         id,
                         first_name,
                         last_name,
-                        phone_number,
+                        mobile_number,
                         designation,
                         gender,
                         email,
@@ -120,22 +120,22 @@ export const userColums = [
         header: "Email",
         cell: (info) => info.getValue(),
     }),
-    columnHelper.accessor("department", {
-        header: "Department",
-        cell: (info) => info.getValue(),
-    }),
-    columnHelper.accessor("position", {
-        header: "Position",
-        cell: (info) => info.getValue(),
-    }),
-    columnHelper.accessor("roles", {
-        header: "Roles",
-        cell: (info) =>
-            info
-                .getValue()
-                .map((role) => role.name)
-                .join(", "),
-    }),
+    // columnHelper.accessor("department", {
+    //     header: "Department",
+    //     cell: (info) => info.getValue(),
+    // }),
+    // columnHelper.accessor("position", {
+    //     header: "Position",
+    //     cell: (info) => info.getValue(),
+    // }),
+    // columnHelper.accessor("roles", {
+    //     header: "Roles",
+    //     cell: (info) =>
+    //         info
+    //             .getValue()
+    //             .map((role) => role.name)
+    //             .join(", "),
+    // }),
     columnHelper.accessor("actions", {
         header: "",
         cell: ({ row }) => <ActionDropdown {...row.original} />, // This represents the actions column with the three dots

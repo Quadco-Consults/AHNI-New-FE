@@ -11,11 +11,16 @@ import {
 } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
 import ArrowDownIcon from "components/icons/ArrowDownIcon";
-import DashboardIcon from "components/icons/sidebar-icons/DashboardIcon";
-import { Separator } from "components/ui/separator";
-import NotificationItem from "components/features/NotificationItem";
+import { useGetNotificationsQuery } from "services/notification";
+import NotificationContent from "components/features/NotificationContent";
+import NotificationList from "components/features/NotificationList";
+import EmptyTodoIcon from "components/icons/EmptyTodoIcon";
 
 export default function Notifications() {
+    const { data, isLoading } = useGetNotificationsQuery(null);
+
+    const notifications = data?.results;
+
     return (
         <div className="space-y-5">
             <Breadcrumb>
@@ -27,7 +32,7 @@ export default function Notifications() {
                         <Icon icon="iconoir:slash" />
                     </BreadcrumbSeparator>
                     <BreadcrumbItem>
-                        <BreadcrumbPage>Notification</BreadcrumbPage>
+                        <BreadcrumbPage>Notifications</BreadcrumbPage>
                     </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
@@ -59,75 +64,22 @@ export default function Notifications() {
             </div>
 
             <Card className="space-y-5 rounded-none">
-                <div className="flex">
-                    <div className="w-[35%] border-solid border-[1px] border-gray-200 rounded-sm shadow-md pb-4">
-                        <div className="flex items-center justify-between py-2 px-4">
-                            <h2 className="font-medium">Notifications</h2>
-
-                            <DashboardIcon fillColor="red" />
-                        </div>
-
-                        <Separator />
-
-                        <ul className="mt-6 px-2 space-y-4">
-                            <NotificationItem active />
-                            <NotificationItem />
-                            <NotificationItem />
-                            <NotificationItem />
-                            <NotificationItem />
-                            <NotificationItem />
-                            <NotificationItem />
-                        </ul>
+                {isLoading ? (
+                    <h1>Loading</h1>
+                ) : notifications?.length === 0 ? (
+                    <div className="flex flex-col items-center gap-2.5">
+                        <EmptyTodoIcon />
+                        <h3 className="font-bold text-md">
+                            You are all caught up. You do not have any
+                            notifications
+                        </h3>
                     </div>
-
-                    <div className="w-[65%] space-y-2 pt-16 px-8">
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-[#344054] text-[12px]">
-                                Subject
-                            </h3>
-                            <p className="font-medium">
-                                Issues With Health Insurance
-                            </p>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-[#344054] text-[12px]">
-                                Sender
-                            </h3>
-                            <p className="font-medium">Admin</p>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-[#344054] text-[12px]">
-                                Email
-                            </h3>
-                            <p className="font-medium">
-                                support@anhisupport.com
-                            </p>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-[#344054] text-[12px]">
-                                Date Created
-                            </h3>
-                            <p className="font-medium">Nov 16, 2024</p>
-                        </div>
-                        <div className="mt-4">
-                            <h3 className="text-[#344054] text-[12px]">
-                                Message
-                            </h3>
-                            <p className="text-[#344054] text-[10px] mt-2">
-                                Lorem ipsum dolor sit amet consectetur
-                                adipisicing elit. Nulla facilis maiores veniam
-                                eos incidunt quibusdam laboriosam repellendus
-                                totam veritatis perspiciatis non sunt dolorum,
-                                ex magni nesciunt rem officia. Odit, nulla animi
-                                asperiores harum obcaecati at unde cum
-                                consequuntur optio fugiat?
-                            </p>
-                        </div>
+                ) : (
+                    <div className="flex">
+                        <NotificationList notifications={notifications} />
+                        <NotificationContent />
                     </div>
-                </div>
+                )}
             </Card>
         </div>
     );

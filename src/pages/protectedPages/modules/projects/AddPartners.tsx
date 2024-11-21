@@ -53,7 +53,7 @@ const AddPartners = () => {
     const onSubmit: SubmitHandler<TPartners> = async (data) => {
         try {
             dialogProps?.type === "update"
-                ? updatePartners({
+                ? await updatePartners({
                       //@ts-ignore
                       id: String(dialogProps?.data?.id),
                       body: data,

@@ -1,52 +1,70 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
+import FormSelect from "atoms/FormSelect";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import {
-    useAddLotsMutation,
-    useUpdateLotsMutation,
-} from "services/moduleProcurement";
-import { TLots, lotsSchema } from "definations/module-procurement";
+    useAddSupervisionCategoryMutation,
+    useAddSupervisionCriteriaMutation,
+    useUpdateSupervisionCategoryMutation,
+    useUpdateSupervisionCriteriaMutation,
+} from "services/module-programs";
+import {
+    SupervisionCriteriaSchema,
+    TSupervisionCategory,
+    TSupervisionCriteria,
+    supervisionCategorySchema,
+} from "definations/module-programs";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
-import { toast } from "sonner";
 
-const AddLots = () => {
+const jobCategoryOptions = [
+    { label: "Goods", value: "Goods" },
+    { label: "Service", value: "Service" },
+    { label: "Work", value: "Work" },
+    { label: "Others", value: "Others" },
+];
+
+const AddSupervisionCriteria = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TLots;
-    const form = useForm<TLots>({
-        resolver: zodResolver(lotsSchema),
+    const data = dialogProps?.data as unknown as TSupervisionCriteria;
+
+    const form = useForm<TSupervisionCriteria>({
+        resolver: zodResolver(SupervisionCriteriaSchema),
         defaultValues: {
             name: data?.name ?? "",
-            packet_number: data?.packet_number ?? "",
+            description: data?.description ?? "",
         },
     });
 
-    const [lots, { isLoading }] = useAddLotsMutation();
-    const [updateLots, { isLoading: updateLotsLoading }] =
-        useUpdateLotsMutation();
-
     const dispatch = useAppDispatch();
-    
-    const onSubmit: SubmitHandler<TLots> = async (data) => {
+
+    const [addSupervisionCriteria, { isLoading }] =
+        useAddSupervisionCriteriaMutation();
+    const [updateSupervisionCriteria, { isLoading: updateSupervisionLoading }] =
+        useUpdateSupervisionCriteriaMutation();
+
+    const onSubmit: SubmitHandler<TSupervisionCategory> = async (data) => {
         try {
             dialogProps?.type === "update"
-                ? await updateLots({
+                ? await updateSupervisionCriteria({
                       //@ts-ignore
                       id: String(dialogProps?.data?.id),
                       body: data,
                   }).unwrap()
-                : await lots(data).unwrap();
-            toast.success("Lots Added Succesfully");
+                : await addSupervisionCriteria(data).unwrap();
+            toast.success("Supervision Category Added Succesfully");
             dispatch(closeDialog());
             form.reset();
         } catch (error: any) {
             toast.error(error.data.message || "Something went wrong");
         }
     };
+
     return (
         <CardContent>
             <Form {...form}>
@@ -63,16 +81,19 @@ const AddLots = () => {
                             required
                         />
                     </div>
-                    <div className="grid grid-cols-1 gap-y-7">
+                    <div className="grid grid-cols-1">
                         <FormInput
-                            label="Packet Number"
-                            name="packet_number"
-                            placeholder="Enter packet number"
+                            label="Description"
+                            placeholder="Enter description"
+                            name="description"
                             required
                         />
                     </div>
+
                     <div className="flex justify-start gap-4">
-                        <FormButton loading={isLoading || updateLotsLoading}>
+                        <FormButton
+                            loading={isLoading || updateSupervisionLoading}
+                        >
                             Save
                         </FormButton>
                     </div>
@@ -82,4 +103,4 @@ const AddLots = () => {
     );
 };
 
-export default AddLots;
+export default AddSupervisionCriteria;
