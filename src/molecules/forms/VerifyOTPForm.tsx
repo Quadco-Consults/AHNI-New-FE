@@ -4,13 +4,10 @@ import { OtpInput } from "reactjs-otp-input";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Card from "components/shared/Card";
-import { useVerifyOTPMutation } from "services/authAPI";
 import useQuery from "hooks/useQuery";
 
 export default function VerifyOTPForm() {
     const [countTimer, setCountTimer] = useState(60);
-
-    const [verifyOTP, { isLoading }] = useVerifyOTPMutation();
 
     const query = useQuery();
 
@@ -51,12 +48,6 @@ export default function VerifyOTPForm() {
         const email = query.get("email");
 
         try {
-            await verifyOTP({
-                email: email as string,
-                token: otpValue,
-            }).unwrap();
-
-            toast.success("Token verified successfully.");
             localStorage.setItem("authToken", JSON.stringify(otpValue));
             navigate(`/change-password?email=${email}`);
         } catch (error: any) {
@@ -118,7 +109,6 @@ export default function VerifyOTPForm() {
                     <div className="w-full self-stretch">
                         <FormButton
                             type="submit"
-                            loading={isLoading}
                             className="w-full rounded-full"
                             size="lg"
                         >

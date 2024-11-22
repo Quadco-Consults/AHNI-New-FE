@@ -53,7 +53,7 @@ const RoleList = () => {
                         <AddSquareIcon />
                         Add New Role
                     </Button>
-                    {data?.map((item, i) => {
+                    {data?.data?.results?.map((item, i) => {
                         return (
                             <div
                                 key={item.id}

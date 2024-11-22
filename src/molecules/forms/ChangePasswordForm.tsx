@@ -69,13 +69,13 @@ const ChangePasswordForm = () => {
 
         const payload = {
             email,
-            token,
+            otp: token,
             new_password,
             confirm_password,
         };
 
         try {
-            await changePassword(payload);
+            await changePassword(payload).unwrap();
             toast.success("Password changed successfully");
             localStorage.removeItem("authToken");
             navigate("/login");

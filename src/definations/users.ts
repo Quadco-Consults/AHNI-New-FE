@@ -1,20 +1,27 @@
 import { z } from "zod";
 
-export const userSchema = z.object({
-    first_name: z.string(),
-    last_name: z.string(),
-    email: z.string().email(),
-    last_login: z.string().datetime().optional(),
-    phone_number: z.string(),
-    gender: z.enum(["Male", "Female", "Other"]),
-    designation: z.string(),
-    // password: z.string(),
-    // confirm_password: z.string(),
-});
-// .refine((data) => data.password === data.confirm_password, {
-//     message: "Passwords don't match",
-//     path: ["confirm_password"],
-// });
+export const userSchema = z
+    .object({
+        first_name: z.string().min(1, "Please enter first name"),
+        last_name: z.string().min(1, "Please enter last name"),
+        email: z
+            .string()
+            .min(1, "Please enter an email")
+            .email("Email is not valid"),
+        last_login: z.string().datetime().optional(),
+        mobile_number: z.string().min(1, "Please enter a mobile number"),
+        gender: z.enum(["MALE", "FEMALE", "Other"]),
+        password: z.string().min(1, "Please enter a password").optional(),
+        department: z.string().min(1, "Please select a department"),
+        confirm_password: z
+            .string()
+            .min(1, "Please enter a password")
+            .optional(),
+    })
+    .refine((data) => data.password === data.confirm_password, {
+        message: "Passwords don't match",
+        path: ["confirm_password"],
+    });
 
 export const updateUserSchema = z.object({
     first_name: z.string(),
@@ -23,7 +30,7 @@ export const updateUserSchema = z.object({
     last_login: z.string().datetime().optional(),
     phone_number: z.string(),
     gender: z.enum(["Male", "Female", "Other"]),
-    designation: z.string(),
+    department: z.string(),
 });
 
 export type TCreateUser = z.infer<typeof userSchema>;
@@ -48,8 +55,8 @@ export interface TUser {
     last_login: string;
     roles: Role[];
     permissions: Permission[];
-    phone_number: string;
-    gender: "Male" | "Female" | "Other";
+    mobile_number: string;
+    gender: "MALE" | "FEMALE" | "Other";
     designation: string;
     fullName: string;
     action: string;

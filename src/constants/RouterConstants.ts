@@ -216,6 +216,8 @@ export const RouteEnum = {
 
     // PROGRAM_OVERVIEW: "/program/overview",
     // PROGRAM_OVERVIEW: "/program/overview",
+
+    NOTIFICATIONS: "/notifications",
 };
 
 export const CandGRoutes = {

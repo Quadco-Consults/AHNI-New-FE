@@ -14,7 +14,7 @@ const AuthList = () => {
             <TableFilters>
                 <DataTable
                     columns={permissionColums}
-                    data={(data as Permission[]) || []}
+                    data={(data?.data as Permission[]) || []}
                     isLoading={isLoading}
                 />
             </TableFilters>

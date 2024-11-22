@@ -23,10 +23,10 @@ import ConsortiumModal from "./components/ConsortiumModal";
 import ProjectUploadModal from "./components/ProjectUploadModal";
 import ProjectDetailsUploadModal from "./components/ProjectDetailsUploadModal";
 import EditUser from "./components/users/EditUser";
-import AssingRole from "./components/users/AssingRole";
+import AssingRole from "./components/users/AssignRole";
 import SspSubmitModal from "./components/sspSubmitModal";
 import ExpenditureModal from "./components/ExpenditureModal";
-import AssingPermission from "./components/users/AssingPermission";
+import AssingPermission from "./components/users/AssignPermission";
 import ConsultancyApplicationSuccessModal from "./components/ConsultancyApplicationSuccessModal";
 import AddStock from "./components/consumables/AddStock";
 import TeamMemberSelection from "./components/consumables/AddTeamMembers";
@@ -61,6 +61,7 @@ import ApprovalModal from "./components/ApprovalModal";
 import FeedbackModal from "./components/FeedbackModal";
 import ActivityTrackerModal from "./components/ActivityTrackerModal";
 import AddNewRoleModal from "./components/AddNewRoleModal";
+import AddSupervisionCriteria from "./components/AddSupervisionCriteria";
 
 const sheets: Record<string, ReactNode> = {
     [DialogType.Categories]: <CategoriesModal />,
@@ -126,6 +127,7 @@ const sheets: Record<string, ReactNode> = {
     [DialogType.FeedbackModal]: <FeedbackModal />,
 
     [DialogType.AddNewRoleModal]: <AddNewRoleModal />,
+    [DialogType.AddSupervisionCriteria]: <AddSupervisionCriteria />,
 };
 
 const AppDailog = () => {

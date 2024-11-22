@@ -19,10 +19,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ProjectsSummarySchema } from "definations/project-validator";
 import { z } from "zod";
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogTrigger,
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogTrigger,
 } from "components/ui/dialog";
 import FormTextArea from "atoms/FormTextArea";
 import { useDispatch, useSelector } from "react-redux";
@@ -37,453 +37,557 @@ import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import FundingSourceAPi from "services/projectsApi/funding-sourceApi";
 import { partnerActions } from "store/formData/project-values";
 import { objectivesActions } from "store/formData/project-objective";
+import FormSelect from "atoms/FormSelect";
+import { useGetUserQuery } from "services/users";
+import {
+    useBeneficiariesQuery,
+    useFundingSourcesQuery,
+} from "services/moduleProjects";
 
 interface InputValues {
-  title: string;
+    title: string;
 }
 
 const Summary = () => {
-  const [startDate, setStartDate] = useState<Date>();
-  const [endDate, setEndDate] = useState<Date>();
-  const dispatchPartner = useDispatch();
-  const beneficiariesQueryResults = beneficiariesAPi.useGetBeneficiariesQuery(
-    useMemo(
-      () => ({
-        params: {
-          // fields: "id,name",
-          no_paginate: false,
-          // page_size: pagination.pageSize,
-          // page: pagination.pageIndex + 1,
-        },
-      }),
-      []
-    )
-  );
-  const fundingSourceQueryResults = FundingSourceAPi.useGetFundingSourcesQuery(
-    useMemo(
-      () => ({
-        params: {
-          // fields: "id,name",
-          no_paginate: false,
-          // page_size: pagination.pageSize,
-          // page: pagination.pageIndex + 1,
-        },
-      }),
-      []
-    )
-  );
-  const [projectsMutation, { isLoading }] =
-    projectsAPi.useCreateProjectMutation();
+    const [startDate, setStartDate] = useState<Date>();
+    const [endDate, setEndDate] = useState<Date>();
+    const dispatchPartner = useDispatch();
 
-  const [inputValues, setInputValues] = useState<InputValues[]>([]);
+    const { data: beneficiaries } = useBeneficiariesQuery({
+        no_paginate: false,
+    });
 
-  const handleInputChange = (
-    e: ChangeEvent<HTMLTextAreaElement>,
-    index: number,
-    field: keyof InputValues
-  ) => {
-    const newInputValues = [...inputValues];
-    newInputValues[index][field] = e.target.value;
-    setInputValues(newInputValues);
-  };
+    const { data: fundingSourceData } = useFundingSourcesQuery({
+        no_paginate: false,
+    });
 
-  const handleAddInput = (e: FormEvent) => {
-    e.preventDefault();
-    const newInputValues = [...inputValues, { title: "" }];
-    setInputValues(newInputValues);
-  };
+    const { data: users } = useGetUserQuery({ no_paginate: false });
 
-  const handleDeleteInput = (index: number) => {
-    const newInputValues = inputValues.filter((_, i) => i !== index);
-    setInputValues(newInputValues);
-  };
+    const userOptions = users?.data?.results?.map((user) => ({
+        name: user.first_name + " " + user.last_name,
+        id: user.id,
+    }));
 
-  const beneficiariesData = beneficiariesQueryResults?.data?.results;
-  const fundingSourceData = fundingSourceQueryResults?.data?.results;
+    const [projectsMutation, { isLoading }] =
+        projectsAPi.useCreateProjectMutation();
 
-  const navigate = useNavigate();
+    const [inputValues, setInputValues] = useState<InputValues[]>([]);
 
-  const dispatch = useAppDispatch();
-
-  const location_partners = useSelector(
-    (state: RootState) => state.partnerLocation.items
-  );
-  const idsObj = location_partners?.map((partner: any) => partner.ids);
-
-  const objs = useSelector((state: RootState) => state.objectives.objectives);
-
-  const form = useForm<z.infer<typeof ProjectsSummarySchema>>({
-    resolver: zodResolver(ProjectsSummarySchema),
-    defaultValues: {
-      project_id: "",
-      title: "",
-      goal: "",
-      budget: 0,
-      project_funding_source: [],
-      project_manager: "",
-      objectives: "",
-      expected_results: "",
-      beneficiaries: [],
-    },
-  });
-
-  const { pathname } = useLocation();
-
-  const { handleSubmit, watch } = form;
-  const objTitle = watch("objectives");
-
-  const addObjectivesHandler = () => {
-    const submittedValues = {
-      title: objTitle,
-      sub_objectives: inputValues,
+    const handleInputChange = (
+        e: ChangeEvent<HTMLTextAreaElement>,
+        index: number,
+        field: keyof InputValues
+    ) => {
+        const newInputValues = [...inputValues];
+        newInputValues[index][field] = e.target.value;
+        setInputValues(newInputValues);
     };
 
-    dispatchPartner(objectivesActions.addObjectives(submittedValues));
-    dispatch(closeDialog());
-  };
-
-  const onSubmit = async (data: z.infer<typeof ProjectsSummarySchema>) => {
-    const formData = {
-      project_id: data.project_id,
-      objectives: [
-        {
-          title: data.objectives,
-          sub_objectives: inputValues,
-        },
-      ],
-      project_manager: data.project_manager,
-      location_partners: idsObj,
-      goal: data.goal,
-      expected_results: data.expected_results,
-      beneficiaries: data.beneficiaries,
-      funding_source: data.project_funding_source,
-      title: data.title,
-      budget: Number(data.budget),
-      start_date: startDate && format(startDate, "yyy-MM-dd"),
-      end_date: endDate && format(endDate, "yyy-MM-dd"),
+    const handleAddInput = (e: FormEvent) => {
+        e.preventDefault();
+        const newInputValues = [...inputValues, { title: "" }];
+        setInputValues(newInputValues);
     };
 
-    try {
-      const res = await projectsMutation(formData).unwrap();
-      localStorage.setItem("projectID", res?.data.id);
-      toast.success("Project successfully added.");
+    const handleDeleteInput = (index: number) => {
+        const newInputValues = inputValues.filter((_, i) => i !== index);
+        setInputValues(newInputValues);
+    };
 
-      let path = pathname;
+    const navigate = useNavigate();
 
-      path = path.substring(0, path.lastIndexOf("/"));
+    const dispatch = useAppDispatch();
 
-      path += "/uploads";
-      navigate(path);
-    } catch (error) {
-      toast.error("Something went wrong");
-      console.log(error);
-    }
+    const location_partners = useSelector(
+        (state: RootState) => state.partnerLocation.items
+    );
 
-    dispatchPartner(partnerActions.clearPartnerLocation());
-    dispatchPartner(objectivesActions.clearObjectives());
-  };
+    const idsObj = location_partners?.map((partner: any) => partner.ids);
 
-  return (
-    <ProjectLayout>
-      <div className="space-y-6">
-        <Form {...form}>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <Card className="space-y-6 py-5">
-              <h4 className="text-lg font-semibold">Project Summary</h4>
-              <FormInput name="title" label="Project Name" />
-              <FormInput name="project_id" label="Project ID" />
-              <FormTextArea name="goal" label="Goal of the project" />
-              <FormTextArea name="narrative" label="Narrative" />
-              <FormInput name="budget_performance" label="Budget Performance" />
+    const objs = useSelector((state: RootState) => state.objectives.objectives);
 
-              <div className="flex gap-5">
-                <div>
-                  <Label>Start Date</Label>
-                  <br />
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-[280px] justify-start text-left font-normal",
-                          !startDate && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {startDate ? (
-                          format(startDate, "yyy-MM-dd")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={startDate}
-                        onSelect={setStartDate}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>{" "}
-                <div>
-                  <Label>End Date</Label>
-                  <br />
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-[280px] justify-start text-left font-normal",
-                          !endDate && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {endDate ? (
-                          format(endDate, "yyy-MM-dd")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={endDate}
-                        onSelect={setEndDate}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              </div>
+    const form = useForm<z.infer<typeof ProjectsSummarySchema>>({
+        resolver: zodResolver(ProjectsSummarySchema),
+        defaultValues: {
+            project_id: "",
+            title: "",
+            goal: "",
+            budget: 0,
+            project_funding_source: [],
+            project_manager: [],
+            objectives: "",
+            expected_results: "",
+            beneficiaries: [],
+        },
+    });
 
-              <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
-                <FormInput name="budget" label="Budget" type="number" />
+    const { pathname } = useLocation();
 
-                <FormInput
-                  required
-                  name="project_manager"
-                  label="Project Manager"
-                />
-              </div>
+    const { handleSubmit, watch } = form;
+    const objTitle = watch("objectives");
 
-              <div>
-                <Label className="font-semibold">Funding Source</Label>
-                <FormField
-                  control={form.control}
-                  name="project_funding_source"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <MultiSelectFormField
-                          options={fundingSourceData || []}
-                          defaultValue={field.value}
-                          onValueChange={field.onChange}
-                          placeholder="Select options"
-                          variant="inverted"
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
+    const addObjectivesHandler = () => {
+        const submittedValues = {
+            title: objTitle,
+            sub_objectives: inputValues,
+        };
 
-              <hr />
+        dispatchPartner(objectivesActions.addObjectives(submittedValues));
+        dispatch(closeDialog());
+    };
 
-              <div className=" mt-10 space-y-3">
-                <Label className="font-semibold text-red-600">Objectives</Label>
-                <div className="flex flex-wrap gap-3">
-                  {objs?.map((option: any, index: number) => (
-                    <div
-                      key={index}
-                      className="border px-7 py-4 space-y-3 rounded-lg"
-                    >
-                      <p className="text-sm font-semibold">{option?.title}</p>
+    const onSubmit = async (data: z.infer<typeof ProjectsSummarySchema>) => {
+        const formData = {
+            project_id: data.project_id,
+            objectives: [
+                {
+                    title: data.objectives,
+                    sub_objectives: inputValues,
+                },
+            ],
+            project_managers: data.project_manager,
+            location_partners: idsObj,
+            goal: data.goal,
+            expected_results: data.expected_results,
+            beneficiaries: data.beneficiaries,
+            funding_sources: data.project_funding_source,
+            title: data.title,
+            budget: Number(data.budget),
+            start_date: startDate && format(startDate, "yyy-MM-dd"),
+            end_date: endDate && format(endDate, "yyy-MM-dd"),
+        };
 
-                      {option?.sub_objectives && (
-                        <ul className="space-y-2">
-                          {option?.sub_objectives.map((obj: any, i: number) => (
-                            <li
-                              key={i}
-                              className="text-sm text-gray-500 list-disc pl-5"
-                            >
-                              {obj?.title}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  ))}
-                  <div>
-                    <Dialog>
-                      <DialogTrigger>
-                        <p className="text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm">
-                          Click to add objectives
-                        </p>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <div className="space-y-10">
-                          <h4 className="text-xl font-semibold">
-                            Add Objective
-                          </h4>
+        try {
+            const res = await projectsMutation(formData).unwrap();
+            localStorage.setItem("projectID", res?.data.id);
+            toast.success("Project successfully added.");
 
-                          <FormTextArea name="objectives" label="Objective" />
+            let path = pathname;
 
-                          <div className="space-y-3">
-                            <h4 className="text-xl font-semibold">
-                              Add Sub-Objective
+            path = path.substring(0, path.lastIndexOf("/"));
+
+            path += "/uploads";
+            navigate(path);
+        } catch (error) {
+            toast.error("Something went wrong");
+            console.log(error);
+        }
+
+        dispatchPartner(partnerActions.clearPartnerLocation());
+        dispatchPartner(objectivesActions.clearObjectives());
+    };
+
+    return (
+        <ProjectLayout>
+            <div className="space-y-6">
+                <Form {...form}>
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                        <Card className="space-y-6 py-5">
+                            <h4 className="text-lg font-semibold">
+                                Project Summary
                             </h4>
+                            <FormInput name="title" label="Project Name" />
+                            <FormInput name="project_id" label="Project ID" />
+                            <FormTextArea
+                                name="goal"
+                                label="Goal of the project"
+                            />
+                            <FormTextArea name="narrative" label="Narrative" />
+                            <FormInput
+                                name="budget_performance"
+                                label="Budget Performance"
+                            />
 
-                            {inputValues.map((value, index) => (
-                              <div
-                                key={index}
-                                className="flex items-center gap-2"
-                              >
-                                <div className="w-[90%]">
-                                  <textarea
-                                    className="w-full border rounded-lg p-3"
-                                    rows={3}
-                                    onChange={(e) =>
-                                      handleInputChange(e, index, "title")
-                                    }
-                                  />
-                                </div>
+                            <div className="flex gap-5">
                                 <div>
-                                  <Button
-                                    onClick={() => handleDeleteInput(index)}
-                                    variant="ghost"
-                                    size="icon"
-                                    className="text-red-500"
-                                  >
-                                    <X />
-                                  </Button>
+                                    <Label>Start Date</Label>
+                                    <br />
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant={"outline"}
+                                                className={cn(
+                                                    "w-[280px] justify-start text-left font-normal",
+                                                    !startDate &&
+                                                        "text-muted-foreground"
+                                                )}
+                                            >
+                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                {startDate ? (
+                                                    format(
+                                                        startDate,
+                                                        "yyy-MM-dd"
+                                                    )
+                                                ) : (
+                                                    <span>Pick a date</span>
+                                                )}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0">
+                                            <Calendar
+                                                mode="single"
+                                                selected={startDate}
+                                                onSelect={setStartDate}
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>{" "}
+                                <div>
+                                    <Label>End Date</Label>
+                                    <br />
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant={"outline"}
+                                                className={cn(
+                                                    "w-[280px] justify-start text-left font-normal",
+                                                    !endDate &&
+                                                        "text-muted-foreground"
+                                                )}
+                                            >
+                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                {endDate ? (
+                                                    format(endDate, "yyy-MM-dd")
+                                                ) : (
+                                                    <span>Pick a date</span>
+                                                )}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0">
+                                            <Calendar
+                                                mode="single"
+                                                selected={endDate}
+                                                onSelect={setEndDate}
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
                                 </div>
-                              </div>
-                            ))}
+                            </div>
 
+                            <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
+                                <FormInput
+                                    name="budget"
+                                    label="Budget"
+                                    type="number"
+                                />
+
+                                {/* <FormSelect
+                                    required
+                                    name="project_manager"
+                                    label="Project Manager"
+                                    options={userOptions}
+                                /> */}
+
+                                <div>
+                                    <Label className="font-semibold">
+                                        Project Manager
+                                    </Label>
+
+                                    <FormField
+                                        control={form.control}
+                                        name="project_manager"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormControl>
+                                                    <MultiSelectFormField
+                                                        options={
+                                                            userOptions || []
+                                                        }
+                                                        defaultValue={
+                                                            field.value
+                                                        }
+                                                        onValueChange={
+                                                            field.onChange
+                                                        }
+                                                        placeholder="Select options"
+                                                        variant="inverted"
+                                                    />
+                                                </FormControl>
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <Label className="font-semibold">
+                                    Funding Source
+                                </Label>
+                                <FormField
+                                    control={form.control}
+                                    name="project_funding_source"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormControl>
+                                                <MultiSelectFormField
+                                                    options={
+                                                        fundingSourceData?.data
+                                                            .results || []
+                                                    }
+                                                    defaultValue={field.value}
+                                                    onValueChange={
+                                                        field.onChange
+                                                    }
+                                                    placeholder="Select options"
+                                                    variant="inverted"
+                                                />
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
+                            <hr />
+
+                            <div className=" mt-10 space-y-3">
+                                <Label className="font-semibold text-red-600">
+                                    Objectives
+                                </Label>
+                                <div className="flex flex-wrap gap-3">
+                                    {objs?.map((option: any, index: number) => (
+                                        <div
+                                            key={index}
+                                            className="border px-7 py-4 space-y-3 rounded-lg"
+                                        >
+                                            <p className="text-sm font-semibold">
+                                                {option?.title}
+                                            </p>
+
+                                            {option?.sub_objectives && (
+                                                <ul className="space-y-2">
+                                                    {option?.sub_objectives.map(
+                                                        (
+                                                            obj: any,
+                                                            i: number
+                                                        ) => (
+                                                            <li
+                                                                key={i}
+                                                                className="text-sm text-gray-500 list-disc pl-5"
+                                                            >
+                                                                {obj?.title}
+                                                            </li>
+                                                        )
+                                                    )}
+                                                </ul>
+                                            )}
+                                        </div>
+                                    ))}
+                                    <div>
+                                        <Dialog>
+                                            <DialogTrigger>
+                                                <p className="text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm">
+                                                    Click to add objectives
+                                                </p>
+                                            </DialogTrigger>
+                                            <DialogContent>
+                                                <div className="space-y-10">
+                                                    <h4 className="text-xl font-semibold">
+                                                        Add Objective
+                                                    </h4>
+
+                                                    <FormTextArea
+                                                        name="objectives"
+                                                        label="Objective"
+                                                    />
+
+                                                    <div className="space-y-3">
+                                                        <h4 className="text-xl font-semibold">
+                                                            Add Sub-Objective
+                                                        </h4>
+
+                                                        {inputValues.map(
+                                                            (value, index) => (
+                                                                <div
+                                                                    key={index}
+                                                                    className="flex items-center gap-2"
+                                                                >
+                                                                    <div className="w-[90%]">
+                                                                        <textarea
+                                                                            className="w-full border rounded-lg p-3"
+                                                                            rows={
+                                                                                3
+                                                                            }
+                                                                            onChange={(
+                                                                                e
+                                                                            ) =>
+                                                                                handleInputChange(
+                                                                                    e,
+                                                                                    index,
+                                                                                    "title"
+                                                                                )
+                                                                            }
+                                                                        />
+                                                                    </div>
+                                                                    <div>
+                                                                        <Button
+                                                                            onClick={() =>
+                                                                                handleDeleteInput(
+                                                                                    index
+                                                                                )
+                                                                            }
+                                                                            variant="ghost"
+                                                                            size="icon"
+                                                                            className="text-red-500"
+                                                                        >
+                                                                            <X />
+                                                                        </Button>
+                                                                    </div>
+                                                                </div>
+                                                            )
+                                                        )}
+
+                                                        <Button
+                                                            onClick={
+                                                                handleAddInput
+                                                            }
+                                                            type="button"
+                                                            className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                                                        >
+                                                            Add
+                                                        </Button>
+                                                    </div>
+
+                                                    <div className="flex justify-end gap-5 mt-16">
+                                                        <Button
+                                                            type="button"
+                                                            className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                                                        >
+                                                            Cancel
+                                                        </Button>
+
+                                                        <DialogClose asChild>
+                                                            <Button
+                                                                onClick={
+                                                                    addObjectivesHandler
+                                                                }
+                                                            >
+                                                                Done
+                                                            </Button>
+                                                        </DialogClose>
+                                                    </div>
+                                                </div>
+                                            </DialogContent>
+                                        </Dialog>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <FormInput
+                                name="expected_results"
+                                label="Expected results"
+                            />
+
+                            <div className="space-y-1">
+                                <Label className="font-semibold">
+                                    Target population
+                                </Label>
+                                <FormField
+                                    control={form.control}
+                                    name="beneficiaries"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormControl>
+                                                <MultiSelectFormField
+                                                    options={
+                                                        beneficiaries?.data
+                                                            ?.results || []
+                                                    }
+                                                    defaultValue={field.value}
+                                                    onValueChange={
+                                                        field.onChange
+                                                    }
+                                                    placeholder="Select options"
+                                                    variant="inverted"
+                                                />
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
+                            {/* <FormInput name="population" label="Target population" /> */}
+
+                            <div className="flex flex-col w-full mt-10 space-y-3">
+                                <Label className="font-semibold">
+                                    Consortium partners
+                                </Label>
+                                <div className="flex flex-wrap gap-3">
+                                    {location_partners.map(
+                                        (option: any, index: number) => (
+                                            <div
+                                                key={index}
+                                                className="border px-7 py-4 space-y-3 rounded-lg"
+                                            >
+                                                <div className="flex gap-3 items-center">
+                                                    <LocationSvg />{" "}
+                                                    <h4 className="font-semibold">
+                                                        {option.obj.location}
+                                                    </h4>
+                                                </div>
+                                                <ul className="text-sm text-[#756D6D] space-y-2">
+                                                    {option.obj.partner_ids.map(
+                                                        (
+                                                            partner: any,
+                                                            index: number
+                                                        ) => (
+                                                            <li
+                                                                key={index}
+                                                                className=" list-disc"
+                                                            >
+                                                                {partner.name}
+                                                            </li>
+                                                        )
+                                                    )}
+                                                </ul>
+                                            </div>
+                                        )
+                                    )}
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="text-[#DEA004]"
+                                        onClick={() => {
+                                            dispatch(
+                                                openDialog({
+                                                    type: DialogType.ConsortiumModal,
+                                                    dialogProps: {
+                                                        width: "max-w-6xl",
+                                                    },
+                                                })
+                                            );
+                                        }}
+                                    >
+                                        Click to select consortium partners
+                                        based on location
+                                    </Button>
+                                </div>
+                            </div>
+                        </Card>
+
+                        <div className="flex justify-between gap-5 mt-16">
                             <Button
-                              onClick={handleAddInput}
-                              type="button"
-                              className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                                onClick={() => navigate(-1)}
+                                type="button"
+                                className="bg-[#FFF2F2] text-primary dark:text-gray-500"
                             >
-                              Add
+                                Cancel
                             </Button>
-                          </div>
-
-                          <div className="flex justify-end gap-5 mt-16">
-                            <Button
-                              type="button"
-                              className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                            <FormButton
+                                loading={isLoading}
+                                disabled={isLoading}
+                                type="submit"
+                                suffix={<ChevronRight size={14} />}
                             >
-                              Cancel
-                            </Button>
-
-                            <DialogClose asChild>
-                              <Button onClick={addObjectivesHandler}>
-                                Done
-                              </Button>
-                            </DialogClose>
-                          </div>
+                                Next
+                            </FormButton>
                         </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                </div>
-              </div>
-
-              <FormInput name="expected_results" label="Expected results" />
-
-              <div className="space-y-1">
-                <Label className="font-semibold">Target population</Label>
-                <FormField
-                  control={form.control}
-                  name="beneficiaries"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <MultiSelectFormField
-                          options={beneficiariesData || []}
-                          defaultValue={field.value}
-                          onValueChange={field.onChange}
-                          placeholder="Select options"
-                          variant="inverted"
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* <FormInput name="population" label="Target population" /> */}
-
-              <div className="flex flex-col w-full mt-10 space-y-3">
-                <Label className="font-semibold">Consortium partners</Label>
-                <div className="flex flex-wrap gap-3">
-                  {location_partners.map((option: any, index: number) => (
-                    <div
-                      key={index}
-                      className="border px-7 py-4 space-y-3 rounded-lg"
-                    >
-                      <div className="flex gap-3 items-center">
-                        <LocationSvg />{" "}
-                        <h4 className="font-semibold">{option.obj.location}</h4>
-                      </div>
-                      <ul className="text-sm text-[#756D6D] space-y-2">
-                        {option.obj.partner_ids.map(
-                          (partner: any, index: number) => (
-                            <li key={index} className=" list-disc">
-                              {partner.name}
-                            </li>
-                          )
-                        )}
-                      </ul>
-                    </div>
-                  ))}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="text-[#DEA004]"
-                    onClick={() => {
-                      dispatch(
-                        openDialog({
-                          type: DialogType.ConsortiumModal,
-                          dialogProps: {
-                            width: "max-w-6xl",
-                          },
-                        })
-                      );
-                    }}
-                  >
-                    Click to select consortium partners based on location
-                  </Button>
-                </div>
-              </div>
-            </Card>
-
-            <div className="flex justify-between gap-5 mt-16">
-              <Button
-                onClick={() => navigate(-1)}
-                type="button"
-                className="bg-[#FFF2F2] text-primary dark:text-gray-500"
-              >
-                Cancel
-              </Button>
-              <FormButton
-                loading={isLoading}
-                disabled={isLoading}
-                type="submit"
-                suffix={<ChevronRight size={14} />}
-              >
-                Next
-              </FormButton>
+                    </form>
+                </Form>
             </div>
-          </form>
-        </Form>
-      </div>
-    </ProjectLayout>
-  );
+        </ProjectLayout>
+    );
 };
 
 export default Summary;

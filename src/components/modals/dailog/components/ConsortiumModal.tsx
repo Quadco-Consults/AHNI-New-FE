@@ -31,8 +31,8 @@ import { useDispatch } from "react-redux";
 import { partnerActions } from "store/formData/project-values";
 import { LoadingSpinner } from "components/shared/Loading";
 import { closeDialog } from "store/ui";
-import StateAPI from "services/configs/state";
 import { nigerianStates } from "lib/index";
+import { usePartnersQuery } from "services/moduleProjects";
 
 const ConsortiumModal = () => {
     const [locationValue, setLocationValue] = useState("");
@@ -42,20 +42,7 @@ const ConsortiumModal = () => {
         setLocationValue(value);
     };
 
-    const partnersQueryResult = partnersAPi.useGetPartnersQuery(
-        useMemo(
-            () => ({
-                params: {
-                    fields: "id,name,logo,state",
-                },
-            }),
-            []
-        )
-    );
-    // const StateQueryResult = StateAPI.useGetStatesQuery();
-
-    const partners = partnersQueryResult?.data?.results;
-    // const states = StateQueryResult?.data;
+    const { data: partners, isLoading } = usePartnersQuery({ no_paginate: false });
 
     const form = useForm<z.infer<typeof PartnersFormSchema>>({
         resolver: zodResolver(PartnersFormSchema),
@@ -65,7 +52,7 @@ const ConsortiumModal = () => {
     });
 
     const onSubmit = (data: z.infer<typeof PartnersFormSchema>) => {
-        const matchedPartners = partners?.filter(
+        const matchedPartners = partners?.data?.results?.filter(
             (partner: PartnerResultsData) => data.items.includes(partner?.id)
         );
 
@@ -76,7 +63,6 @@ const ConsortiumModal = () => {
                 partner_ids: data?.items,
             },
         };
-        console.log(submittedValues);
         dispatch(partnerActions.addPartnerLocation(submittedValues));
         dispatch(closeDialog());
     };
@@ -144,7 +130,7 @@ const ConsortiumModal = () => {
                             </div>
                         </div>
 
-                        {partnersQueryResult?.isLoading ? (
+                        {isLoading ? (
                             <LoadingSpinner />
                         ) : (
                             <FormField
@@ -152,7 +138,7 @@ const ConsortiumModal = () => {
                                 name="items"
                                 render={() => (
                                     <FormItem className="grid grid-cols-2 gap-5 bg-gray-100 mt-10 p-5 rounded-lg shadow-inner md:grid-cols-3">
-                                        {partners?.map(
+                                        {partners?.data?.results?.map(
                                             (item: PartnerResultsData) => (
                                                 <FormField
                                                     key={item?.id}
