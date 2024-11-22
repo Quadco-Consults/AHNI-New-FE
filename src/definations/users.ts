@@ -11,11 +11,12 @@ export const userSchema = z
         last_login: z.string().datetime().optional(),
         mobile_number: z.string().min(1, "Please enter a mobile number"),
         gender: z.enum(["MALE", "FEMALE", "Other"]),
-        password: z.string().min(1, "Please enter a password"),
-        confirm_password: z.string().min(1, "Please enter a password"),
-        // designation: z.string(),
-        // password: z.string(),
-        // confirm_password: z.string(),
+        password: z.string().min(1, "Please enter a password").optional(),
+        department: z.string().min(1, "Please select a department"),
+        confirm_password: z
+            .string()
+            .min(1, "Please enter a password")
+            .optional(),
     })
     .refine((data) => data.password === data.confirm_password, {
         message: "Passwords don't match",
@@ -30,8 +31,6 @@ export const updateUserSchema = z.object({
     phone_number: z.string(),
     gender: z.enum(["Male", "Female", "Other"]),
     department: z.string(),
-    password: z.string().min(1, "Please enter a password"),
-    confirm_password: z.string().min(1, "Please enter a password"),
 });
 
 export type TCreateUser = z.infer<typeof userSchema>;
@@ -57,7 +56,7 @@ export interface TUser {
     roles: Role[];
     permissions: Permission[];
     mobile_number: string;
-    gender: "Male" | "Female" | "Other";
+    gender: "MALE" | "FEMALE" | "Other";
     designation: string;
     fullName: string;
     action: string;

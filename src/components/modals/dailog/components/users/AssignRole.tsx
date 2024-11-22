@@ -61,7 +61,7 @@ const RoleSelector: React.FC<TRoleSelector> = ({
 
     return (
         <div className="flex flex-wrap gap-2">
-            {data?.map((role) => (
+            {data?.data?.results?.map((role) => (
                 <RoleCheckbox
                     key={role.id}
                     role={role}
@@ -97,10 +97,12 @@ const AssignRole = () => {
 
     const rolesfromstore = dialogProps?.roles as string;
 
+    // console.log({ rolesfromstore });
+
     useEffect(() => {
         // @ts-ignore
-        const previousRoles = rolesfromstore.map((role) => role.id);
-        setSelectedRoles([...previousRoles]);
+        // const previousRoles = rolesfromstore?.map((role) => role.id);
+        // setSelectedRoles([...previousRoles]);
     }, []);
 
     const handleSelectRole = (roleId: number) => {
@@ -119,7 +121,7 @@ const AssignRole = () => {
             await addUserRole({
                 id: dialogProps?.id as string,
                 body: {
-                    items: selectedRoles,
+                    roles: selectedRoles,
                 },
             }).unwrap();
             toast.success("Role Added Succesfully");
