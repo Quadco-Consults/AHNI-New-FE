@@ -3,91 +3,95 @@
 import { invalidateTags, provideTags } from "utils/QueryUtils";
 import baseAPI from "..";
 import {
-  ProjectsData,
-  ProjectsResponse,
-  ProjectsResultsData,
+    ProjectsData,
+    ProjectsResponse,
+    ProjectsResultsData,
 } from "definations/project-types/projects";
+import { TBasePaginatedResponse } from "definations/auth";
 
-const BASE_URL = "/projects/projects/";
+const BASE_URL = "/projects/";
 
 const projectsAPi = baseAPI.injectEndpoints({
-  endpoints: (builder) => ({
-    getProjects: builder.query<ProjectsData, {}>({
-      query: (config) => {
-        return {
-          url: `${BASE_URL}`,
-          ...config,
-        };
-      },
-      providesTags: (data, error) =>
-        !error ? provideTags("PROJECTS", data) : [],
-    }),
-    getProjectsParams: builder.query<ProjectsResultsData[], {}>({
-      query: (config) => {
-        return {
-          url: `${BASE_URL}`,
-          ...config,
-        };
-      },
-      providesTags: (data, error) =>
-        !error ? provideTags("PROJECTS", data) : [],
-    }),
+    endpoints: (builder) => ({
+        getProjects: builder.query<TBasePaginatedResponse<ProjectsData>, {}>({
+            query: (config) => {
+                return {
+                    url: `${BASE_URL}`,
+                    ...config,
+                };
+            },
+            providesTags: (data, error) =>
+                !error ? provideTags("PROJECTS", data) : [],
+        }),
+        getProjectsParams: builder.query<ProjectsResultsData[], {}>({
+            query: (config) => {
+                return {
+                    url: `${BASE_URL}`,
+                    ...config,
+                };
+            },
+            providesTags: (data, error) =>
+                !error ? provideTags("PROJECTS", data) : [],
+        }),
 
-    createProject: builder.mutation<ProjectsResponse, any>({
-      query: (body) => ({
-        url: `${BASE_URL}`,
-        method: "POST",
-        body,
-      }),
-      invalidatesTags: (_, error, {}) =>
-        !error ? invalidateTags("PROJECTS") : [],
-    }),
+        createProject: builder.mutation<ProjectsResponse, any>({
+            query: (body) => ({
+                url: `${BASE_URL}`,
+                method: "POST",
+                body,
+            }),
+            invalidatesTags: (_, error, {}) =>
+                !error ? invalidateTags("PROJECTS") : [],
+        }),
 
-    getProject: builder.query<ProjectsResultsData, { path: { id: string } }>({
-      query: ({ path }) => {
-        return {
-          url: `${BASE_URL}${path.id}/`,
-        };
-      },
-      providesTags: (data, error) =>
-        !error ? provideTags("PROJECTS", data) : [],
-    }),
+        getProject: builder.query<
+            ProjectsResultsData,
+            { path: { id: string } }
+        >({
+            query: ({ path }) => {
+                return {
+                    url: `${BASE_URL}${path.id}/`,
+                };
+            },
+            providesTags: (data, error) =>
+                !error ? provideTags("PROJECTS", data) : [],
+        }),
 
-    updateProject: builder.mutation<
-      ProjectsResponse,
-      { path: { id: string }; body: any }
-    >({
-      query: ({ path, body }) => ({
-        url: `${BASE_URL}${path.id}/`,
-        method: "PUT",
-        body,
-      }),
-      invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("PROJECTS", { ids: [path.id] }) : [],
-    }),
+        updateProject: builder.mutation<
+            ProjectsResponse,
+            { path: { id: string }; body: any }
+        >({
+            query: ({ path, body }) => ({
+                url: `${BASE_URL}${path.id}/`,
+                method: "PUT",
+                body,
+            }),
+            invalidatesTags: (_, error, { path }) =>
+                !error ? invalidateTags("PROJECTS", { ids: [path.id] }) : [],
+        }),
 
-    modifyProject: builder.mutation<
-      ProjectsResponse,
-      { path: { id: string }; body: any }
-    >({
-      query: ({ path, body }) => ({
-        url: `${BASE_URL}${path.id}/`,
-        method: "PATCH",
-        body,
-      }),
-      invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("PROJECTS", { ids: [path.id] }) : [],
-    }),
+        modifyProject: builder.mutation<
+            ProjectsResponse,
+            { path: { id: string }; body: any }
+        >({
+            query: ({ path, body }) => ({
+                url: `${BASE_URL}${path.id}/`,
+                method: "PATCH",
+                body,
+            }),
+            invalidatesTags: (_, error, { path }) =>
+                !error ? invalidateTags("PROJECTS", { ids: [path.id] }) : [],
+        }),
 
-    deleteProject: builder.mutation<void, { path: { id: string } }>({
-      query: ({ path }) => ({
-        url: `${BASE_URL}${path.id}/`,
-        method: "DELETE",
-      }),
-      invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("PROJECTS", { ids: [path.id] }) : [],
+        deleteProject: builder.mutation<void, { path: { id: string } }>({
+            query: ({ path }) => ({
+                url: `${BASE_URL}${path.id}/`,
+                method: "DELETE",
+            }),
+            invalidatesTags: (_, error, { path }) =>
+                !error ? invalidateTags("PROJECTS", { ids: [path.id] }) : [],
+        }),
     }),
-  }),
 });
 
 export default projectsAPi;

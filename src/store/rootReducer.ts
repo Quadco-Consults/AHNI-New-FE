@@ -11,20 +11,22 @@ import vendors from "./formData/procurement-vendors";
 import assets from "./assets";
 
 const persistConfig = {
-  storage,
-  key: "ahni",
+    storage,
+    key: "ahni",
+    blacklist: [baseAPI.reducerPath], // Exclude RTK Query cache
 };
 
 export const rootStore = combineReducers({
-  // ...your reducers here
-  [baseAPI.reducerPath]: baseAPI.reducer,
-  auth,
-  ui,
-  partnerLocation,
-  objectives,
-  ssp,
-  vendors,
-  assets,
+    // ...your reducers here
+    [baseAPI.reducerPath]: baseAPI.reducer,
+    auth,
+    ui,
+    partnerLocation,
+    objectives,
+    ssp,
+    vendors,
+    assets,
 });
 
 export const rootReducer = persistReducer(persistConfig, rootStore);
+// export const rootReducer = rootStore;

@@ -10,19 +10,35 @@ import { TCreateUser, userSchema } from "definations/users";
 
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { useDepartmentsQuery } from "services/moduleConfig";
 import { useCreateUserMutation } from "services/users";
 import { toast } from "sonner";
 
 const genderOptions = [
-    { label: "Male", value: "Male" },
-    { label: "Female", value: "Female" },
+    { label: "Male", value: "MALE" },
+    { label: "Female", value: "FEMALE" },
     { label: "Other", value: "Other" },
 ];
 
 const CreateUsers = () => {
     const form = useForm<TCreateUser>({
         resolver: zodResolver(userSchema),
+        defaultValues: {
+            first_name: "",
+            last_name: "",
+            email: "",
+            mobile_number: "",
+            password: "",
+            confirm_password: "",
+        },
     });
+    const { data } = useDepartmentsQuery({ page: 1, page_size: 100 });
+
+    const departmentOptions = data?.data?.results?.map((dept) => ({
+        label: dept.name,
+        value: dept.id,
+    }));
+
     const [createUser, { isLoading }] = useCreateUserMutation();
 
     const navigate = useNavigate();
@@ -71,8 +87,8 @@ const CreateUsers = () => {
                                         required
                                     />
                                     <FormInput
-                                        label="Contact"
-                                        name="phone_number"
+                                        label="Mobile Number"
+                                        name="mobile_number"
                                         required
                                         type="number"
                                     />
@@ -85,26 +101,32 @@ const CreateUsers = () => {
                                         required
                                         options={genderOptions}
                                     />
+
+                                    <FormSelect
+                                        label="Department"
+                                        name="department"
+                                        required
+                                        options={departmentOptions}
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-x-7">
                                     <FormInput
-                                        label="Designation"
-                                        name="designation"
+                                        type="password"
+                                        label="Password"
+                                        name="password"
+                                        placeholder="Enter password"
+                                        required
+                                    />
+
+                                    <FormInput
+                                        type="password"
+                                        label="Confirm Password"
+                                        name="confirm_password"
+                                        placeholder="Confirm Password"
                                         required
                                     />
                                 </div>
-                                {/* <div className="grid grid-cols-2 gap-x-7">
-                  <FormInput
-                    label="Password"
-                    name="password"
-                    required
-                    type="password"
-                  />
-                  <FormInput
-                    label="Confirm Password"
-                    name="confirm_password"
-                    required
-                    type="password"
-                  />
-                </div> */}
                                 <div className="flex justify-end">
                                     <FormButton loading={isLoading}>
                                         Create

@@ -33,13 +33,16 @@ const AddDepartments = () => {
 
     const onSubmit: SubmitHandler<TDepartments> = async (data) => {
         try {
-            dialogProps?.type === "update"
-                ? updateDepartments({
-                      //@ts-ignore
-                      id: String(dialogProps?.data?.id),
-                      body: data,
-                  }).unwrap()
-                : await departments(data).unwrap();
+            if (dialogProps?.type === "update") {
+                await updateDepartments({
+                    //@ts-ignore
+                    id: String(dialogProps?.data?.id),
+                    body: data,
+                }).unwrap();
+            } else {
+                await departments(data).unwrap();
+            }
+
             toast.success("Department Added Succesfully");
             dispatch(closeDialog());
             form.reset();

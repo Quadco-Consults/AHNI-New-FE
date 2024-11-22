@@ -10,31 +10,34 @@ import {
 
 const usersAPi = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
-        roles: builder.query<TRole[], TRequest>({
+        roles: builder.query<TBasePaginatedResponse<TRole>, TRequest>({
             query: (params) => ({
-                url: "/auth/roles/",
+                url: "/roles/",
                 params,
             }),
             providesTags: ["Roles"],
         }),
         createRole: builder.mutation<null, { name: string }>({
             query: (body) => ({
-                url: "/auth/roles/",
+                url: "/roles/",
                 method: "POST",
                 body,
             }),
             invalidatesTags: ["Roles"],
         }),
-        permissions: builder.query<Permission[], TRequest>({
+        permissions: builder.query<
+            { status: string; message: string; data: Permission[] },
+            TRequest
+        >({
             query: (params) => ({
-                url: "/auth/permissions/",
+                url: "/permissions/",
                 params,
             }),
             providesTags: ["Permission"],
         }),
         createUser: builder.mutation<TUser, TCreateUser>({
             query: (body) => ({
-                url: "/auth/users/",
+                url: "/users/",
                 method: "POST",
                 body: body,
             }),
@@ -44,19 +47,19 @@ const usersAPi = baseAPI.injectEndpoints({
             TUser,
             {
                 id: string;
-                body: TUpdateUser;
+                body: TUser;
             }
         >({
             query: ({ id, body }) => ({
-                url: `/auth/users/${id}/`,
-                method: "PATCH",
+                url: `/users/${id}/`,
+                method: "PUT",
                 body: body,
             }),
             invalidatesTags: ["Users"],
         }),
-        getUser: builder.query<TBasePaginatedResponse<TUser[]>, TRequest>({
+        getUser: builder.query<TBasePaginatedResponse<TUser>, TRequest>({
             query: (params) => ({
-                url: "/auth/users/",
+                url: "/users/",
                 params,
             }),
             providesTags: ["Users"],
@@ -66,12 +69,12 @@ const usersAPi = baseAPI.injectEndpoints({
             {
                 id: string;
                 body: {
-                    items: string[];
+                    roles: number[];
                 };
             }
         >({
             query: ({ id, body }) => ({
-                url: `/auth/users/${id}/assign_role/`,
+                url: `/users/${id}/roles/`,
                 method: "POST",
                 body,
             }),
