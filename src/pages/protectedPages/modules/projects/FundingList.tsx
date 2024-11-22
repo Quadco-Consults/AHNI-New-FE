@@ -10,15 +10,17 @@ import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import TableAction from "atoms/TableAction";
+import { LoadingSpinner } from "components/shared/Loading";
 
 const FundingList = () => {
-    const { data } = useFundingSourcesQuery({
+    const { data, isLoading } = useFundingSourcesQuery({
         no_paginate: false,
     });
 
     const dispatch = useAppDispatch();
 
-    const [deleteFunding] = useDeleteFundingSourceMutation();
+    const [deleteFunding, { isLoading: isDeleteLoading }] =
+        useDeleteFundingSourceMutation();
 
     const onSubmit = async (id: string) => {
         try {
@@ -69,35 +71,36 @@ const FundingList = () => {
             </div>
             <div>
                 <div className="flex justify-between text-[#756D6D] font-semibold text-sm mb-10">
-                    <h1>Name</h1>
-                    <h1>Description</h1>
-                    <h1></h1>
+                    <h1 className="flex-1">Name</h1>
+                    <h1 className="flex-1">Description</h1>
+                    <h1 className="flex-1"></h1>
                 </div>
-                <div>
-                    {data?.data?.results.map((item) => {
-                        return (
-                            <div
-                                key={item.id}
-                                className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
-                            >
-                                <div className="w-[53%] lg:w-[68%] flex justify-between ">
-                                    <p>{item.name}</p>
-                                    <p className="w-[29%]">
-                                        {item.description}
-                                    </p>
+
+                {isLoading || isDeleteLoading ? (
+                    <LoadingSpinner />
+                ) : (
+                    <div>
+                        {data?.data?.results.map((item) => {
+                            return (
+                                <div
+                                    key={item.id}
+                                    className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
+                                >
+                                    <p className="flex-1">{item.name}</p>
+                                    <p className="flex-1">{item.description}</p>
+                                    <div className="flex-1">
+                                        <TableAction
+                                            update
+                                            removeView
+                                            action={() => onSubmit(item.id)}
+                                            updateAction={() => onUpdate(item)}
+                                        />
+                                    </div>
                                 </div>
-                                <div>
-                                    <TableAction
-                                        update
-                                        removeView
-                                        action={() => onSubmit(item.id)}
-                                        updateAction={() => onUpdate(item)}
-                                    />
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
+                            );
+                        })}
+                    </div>
+                )}
             </div>
         </div>
     );

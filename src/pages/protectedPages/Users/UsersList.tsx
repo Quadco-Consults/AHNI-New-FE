@@ -21,20 +21,16 @@ const UsersList = () => {
     const drivedData = useMemo(() => {
         return data?.data?.results.map((user) => ({
             id: user.id,
+            first_name: user?.first_name,
+            last_name: user?.last_name,
             fullName: `${user.first_name} ${user.last_name}`,
             email: user.email,
-            department: "N/A",
-            position: "N/A",
-            
-            // department: user.designation,
-            // position: user?.roles?.length > 0 ? user.roles[0].name : "N/A",
-            // roles: user.roles,
-            // lastLogin: new Date(user.last_login).toLocaleString(),
-            // first_name: user.first_name,
-            // last_name: user.last_name,
-            // gender: user.gender,
-            phone_number: user.mobile_number,
-            // designation: user.designation,
+            gender: user?.gender,
+            department: user?.department,
+            position: user?.department,
+            mobile_number: user.mobile_number,
+            lastLogin: new Date(user.last_login).toLocaleString(),
+            roles: user.roles,
         }));
     }, [data?.data?.results]);
 

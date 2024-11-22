@@ -15,7 +15,6 @@ import { cn } from "lib/utils";
 import DataTable from "components/Table/DataTable";
 import projectsAPi from "services/projectsApi/projectsApi";
 import { ProjectsResultsData } from "definations/project-types/projects";
-import { useMemo } from "react";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -26,21 +25,7 @@ import { toast } from "sonner";
 import EditIcon from "components/icons/EditIcon";
 
 const FundRequest = () => {
-    const projectsQueryResult = projectsAPi.useGetProjectsQuery(
-        useMemo(
-            () => ({
-                params: {
-                    // fields: "id,name",
-                    no_paginate: false,
-                    // page_size: pagination.pageSize,
-                    // page: pagination.pageIndex + 1,
-                },
-            }),
-            []
-        )
-    );
-
-    const projects = projectsQueryResult?.data?.results;
+    const { data, isLoading } = projectsAPi.useGetProjectsQuery({});
 
     const columns: ColumnDef<ProjectsResultsData>[] = [
         {
@@ -92,26 +77,27 @@ const FundRequest = () => {
             header: "Budget",
             accessorKey: "budget",
             size: 120,
+            cell: ({ row }) => `$${row.original.budget}`,
         },
         {
             header: "Funding Source",
-            cell: ({ row }) => <ProjectFundingSource data={row.original} />,
+            accessorKey: "funding_sources",
+            cell: ({ row }) => <ProjectFundingSource data={row.original.funding_sources} />,
             size: 200,
         },
         {
-            header: "Manager",
+            header: "Project Manager",
             accessorKey: "project_manager",
             size: 120,
+            cell: ({ row }) =>
+                row.original.project_managers
+                    .map((el) => `${el.first_name} ${el.last_name}`)
+                    .join(", "),
         },
         {
             header: "Outcome/Impact",
             accessorKey: "goal",
             size: 180,
-        },
-        {
-            header: "Achievement",
-            accessorKey: "achievement",
-            size: 150,
         },
         {
             header: "Budget Performance",
@@ -120,7 +106,9 @@ const FundRequest = () => {
         },
         {
             header: "Beneficiaries",
-            cell: ({ row }) => <ProjectBeneficiaries data={row.original} />,
+            cell: ({ row }) => (
+                <ProjectBeneficiaries data={row.original.beneficiaries} />
+            ),
             size: 200,
         },
         {
@@ -134,7 +122,7 @@ const FundRequest = () => {
     const ProjectBeneficiaries = ({ data }: any) => {
         return (
             <div className="flex gap-2 flex-wrap">
-                {data?.project_funding_source?.map((el: any) => (
+                {data?.map((el: any) => (
                     <Badge
                         key={el.id}
                         className="bg-[#EBE8E1] text-[#1a0000ad]"
@@ -148,7 +136,7 @@ const FundRequest = () => {
     const ProjectFundingSource = ({ data }: any) => {
         return (
             <div className="flex gap-2 flex-wrap">
-                {data?.project_beneficiaries?.map((el: any) => (
+                {data?.map((el: any) => (
                     <Badge
                         key={el.id}
                         className="bg-[#EBE8E1] text-[#1a0000ad]"
@@ -271,9 +259,9 @@ const FundRequest = () => {
                     </div>
 
                     <DataTable
-                        data={projects || []}
+                        data={data?.data?.results || []}
                         columns={columns}
-                        isLoading={projectsQueryResult?.isLoading}
+                        isLoading={isLoading}
                     />
                 </Card>
             </div>
