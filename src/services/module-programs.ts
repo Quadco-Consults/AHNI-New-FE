@@ -2,6 +2,7 @@ import baseAPI from ".";
 import {
     TBasePaginatedResponse,
     TRequest,
+    TResponse,
     TSupervisionCategoryResponse,
     TSupervisionCategoryResponseArray,
 } from "definations/auth";
@@ -47,6 +48,7 @@ const projectsAPI = baseAPI.injectEndpoints({
             }),
             providesTags: ["Facilities"],
         }),
+
         addFacilities: builder.mutation<Facilities, TFacilities>({
             query: (body) => ({
                 url: "/programs/facility/",
@@ -55,6 +57,16 @@ const projectsAPI = baseAPI.injectEndpoints({
             }),
             invalidatesTags: ["Facilities"],
         }),
+
+        getSingleFacility: builder.query<Facility, string>({
+            query: (id) => ({
+                method: "GET",
+                url: `/programs/facility/${id}`,
+            }),
+
+            transformResponse: (response: TResponse<Facility>) => response.data,
+        }),
+
         updateFacilities: builder.mutation<
             Facilities,
             { id: string; body: TFacilities }
@@ -66,18 +78,13 @@ const projectsAPI = baseAPI.injectEndpoints({
             }),
             invalidatesTags: ["Facilities"],
         }),
+
         deleteFacilities: builder.mutation<Facilities, string>({
             query: (id) => ({
                 url: `/programs/facility/${id}`,
                 method: "DELETE",
             }),
             invalidatesTags: ["Facilities"],
-        }),
-        states: builder.query({
-            query: (params) => ({
-                url: "/config/states/",
-                params,
-            }),
         }),
 
         supervisionCategory: builder.query<
@@ -213,7 +220,7 @@ const projectsAPI = baseAPI.injectEndpoints({
 export const {
     useFacilitiesQuery,
     useAddFacilitiesMutation,
-    useStatesQuery,
+    useLazyGetSingleFacilityQuery,
     useSupervisionCategoryQuery,
     useAddSupervisionCategoryMutation,
     useRiskCategoryQuery,
