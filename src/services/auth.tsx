@@ -11,6 +11,7 @@ const authAPi = baseAPI.injectEndpoints({
                 body,
             }),
         }),
+        
         forgotPassword: builder.mutation<any, { email: string }>({
             query: (body) => ({
                 url: "/auth/password/reset/",
@@ -18,6 +19,7 @@ const authAPi = baseAPI.injectEndpoints({
                 body,
             }),
         }),
+
         changePassword: builder.mutation<
             any,
             {

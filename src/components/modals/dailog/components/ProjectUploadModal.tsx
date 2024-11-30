@@ -13,57 +13,67 @@ import {
 } from "definations/project-validator";
 import React, { useMemo, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import projectDocumentTypesAPi from "services/projectsApi/project-document-types";
 import { Input } from "components/ui/input";
 import { Upload as UploadFile } from "lucide-react";
 import { z } from "zod";
 import { LoadingSpinner } from "components/shared/Loading";
 import { ProjectDocumentTypesResultsData } from "definations/project-types/project-document-types";
-import projectDocumentAPi from "services/projectsApi/project-document";
 import { toast } from "sonner";
 import FormButton from "atoms/FormButton";
 import { useDocumentTypesQuery } from "services/moduleProjects";
 import FormInput from "atoms/FormInput";
 import { closeDialog } from "store/ui";
-import { useDispatch } from "react-redux";
 import { useAppDispatch } from "hooks/useStore";
+import { useCreateProjectDocumentMutation } from "services/projectsApi/project-document";
+import useQuery from "hooks/useQuery";
+import FormSelect from "atoms/FormSelect";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const ProjectUploadModal = () => {
     const [file, setFile] = useState<File | null>(null);
 
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files && event.target.files.length > 0) {
-            setFile(event.target.files[0]);
-        }
-    };
-
     const dispatch = useAppDispatch();
 
     const [projectDocumentMutation, { isLoading }] =
-        projectDocumentAPi.useCreateProjectDocumentMutation();
+        useCreateProjectDocumentMutation();
 
-    const { data, isLoading: isFetchLoading } = useDocumentTypesQuery({
-        no_paginate: false,
-    });
+    const { data: documentTypes, isLoading: isFetchLoading } =
+        useDocumentTypesQuery({
+            no_paginate: false,
+        });
+
+    const documentTypeOptions = documentTypes?.data.results.map((doc) => ({
+        label: doc.name,
+        value: doc.id,
+    }));
+
     const form = useForm<z.infer<typeof ProjectDocumentSchema>>({
+        resolver: zodResolver(ProjectDocumentSchema),
         defaultValues: {
-            project: localStorage.getItem("projectID") as string,
             title: "",
+            document_type: "",
+            file: "",
         },
     });
 
-    const { handleSubmit } = form;
+    const query = useQuery();
+
+    const { handleSubmit, setValue } = form;
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files && event.target.files.length > 0) {
+            setFile(event.target.files[0]);
+            setValue("file", event.target.files[0].name);
+        }
+    };
 
     const onSubmit: SubmitHandler<TProjectDocument> = async (data) => {
-        if (!file) {
-            console.error("No file selected");
-            return;
-        }
-
         const formData = new FormData();
-        formData.append("file", file);
         formData.append("title", data.title);
-        formData.append("project", data?.project);
+        formData.append("file", file as Blob);
+        // formData.append("document_type", data.document_type);
+        formData.append("document_type", "PDF");
+        formData.append("project", query.get("id") as string);
 
         try {
             // @ts-ignore
@@ -92,44 +102,32 @@ const ProjectUploadModal = () => {
                         required
                     />
 
-                    <Select>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Document type" />
-                        </SelectTrigger>
+                    <FormSelect
+                        label="Document Type"
+                        name="document_type"
+                        placeholder="Select document type"
+                        required
+                        options={documentTypeOptions}
+                    />
 
-                        <SelectContent>
-                            {isFetchLoading ? (
-                                <LoadingSpinner />
-                            ) : (
-                                data?.data?.results?.map(
-                                    (doc: ProjectDocumentTypesResultsData) => (
-                                        <SelectItem
-                                            key={doc?.id}
-                                            value={doc.name}
-                                        >
-                                            {doc.name}
-                                        </SelectItem>
-                                    )
-                                )
-                            )}
-                        </SelectContent>
-                    </Select>
-
-                    <div className="w-full relative gap-x-3 h-[52px] rounded-[16.2px] border flex justify-center items-center">
-                        <UploadFile size={20} />
-                        <div>
+                    <div>
+                        <div className="w-full relative gap-x-3 h-[52px] rounded-[16.2px] border flex justify-center items-center">
+                            <UploadFile size={20} />
                             <Input
                                 type="file"
                                 onChange={handleFileChange}
                                 className="bg-inherit border-none cursor-pointer "
                             />
                         </div>
+
+                        <FormInput type="hidden" name="file" />
                     </div>
 
                     <div className="flex justify-between gap-5 mt-10">
                         <Button
                             type="button"
                             className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                            onClick={() => dispatch(closeDialog())}
                         >
                             Cancel
                         </Button>

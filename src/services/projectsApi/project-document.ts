@@ -18,11 +18,11 @@ const BASE_URL = "/projects/documents/";
 
 const projectDocumentAPi = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
-        getProjectDocuments: builder.query<
+        getAllProjectDocuments: builder.query<
             TBasePaginatedResponse<ProjectDocumentResultsData>,
-            null
+            string
         >({
-            query: () => {
+            query: (projectId) => {
                 return {
                     url: `${BASE_URL}`,
                 };
@@ -45,13 +45,10 @@ const projectDocumentAPi = baseAPI.injectEndpoints({
                 !error ? invalidateTags("PROJECTS") : [],
         }),
 
-        getProjectDocument: builder.query<
-            ProjectDocumentResultsData,
-            { path: { id: string } }
-        >({
-            query: ({ path }) => {
+        getProjectDocument: builder.query<ProjectDocumentResultsData, string>({
+            query: (projectId) => {
                 return {
-                    url: `${BASE_URL}${path.id}/`,
+                    url: `${BASE_URL}${projectId}/`,
                 };
             },
             providesTags: (data, error) =>
@@ -99,4 +96,9 @@ const projectDocumentAPi = baseAPI.injectEndpoints({
     }),
 });
 
-export default projectDocumentAPi;
+export const {
+    useCreateProjectDocumentMutation,
+    useGetAllProjectDocumentsQuery,
+    useDeleteProjectDocumentMutation,
+    useGetProjectDocumentQuery,
+} = projectDocumentAPi;

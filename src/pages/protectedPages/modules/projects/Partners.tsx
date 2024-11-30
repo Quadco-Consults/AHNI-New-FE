@@ -8,9 +8,10 @@ import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import TableAction from "atoms/TableAction";
+import { LoadingSpinner } from "components/shared/Loading";
 
 const Partners = () => {
-    const { data } = usePartnersQuery({
+    const { data, isLoading } = usePartnersQuery({
         no_paginate: false,
     });
 
@@ -65,48 +66,45 @@ const Partners = () => {
                 </Button>
             </div>
             <div>
-                <div className="flex justify-between text-[#756D6D] font-semibold text-sm mb-4 border-b border-gray-300 pb-4">
-                    <h1 className="">Name</h1>
-                    <h1 className="ml-[-1rem]">Address</h1>
-                    <h1>City</h1>
-                    <h1>State</h1>
-                    <h1>Phone</h1>
-                    <h1>Email</h1>
-                    <h1>Website</h1>
-                    <h1></h1>
+                <div className="flex justify-between gap-x-5 text-[#756D6D] font-semibold text-sm mb-4 border-b border-gray-300 pb-4">
+                    <h1 className="flex-1">Name</h1>
+                    <h1 className="flex-1">Address</h1>
+                    <h1 className="flex-1">City</h1>
+                    <h1 className="flex-1">State</h1>
+                    <h1 className="flex-1">Phone</h1>
+                    <h1 className="flex-1">Email</h1>
+                    <h1 className="flex-1">Website</h1>
+                    <h1 className="flex-1"></h1>
                 </div>
-                <div>
-                    {data?.data?.results.map((item) => (
-                        <div
-                            key={item.id}
-                            className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
-                        >
-                            <div className="w-[98%] flex justify-between">
-                                <p className="w-[10%]">{item.name}</p>
-                                <p className="w-[12%] mr-[1.5rem]">
-                                    {item.address}
-                                </p>
-                                <p className="w-[6%] mr-[3rem]">{item.city}</p>
-                                <p className="w-[8%] mr-[2.5rem]">
-                                    {item.state}
-                                </p>
-                                <p className="w-[10%]">{item.phone}</p>
-                                <p className="w-[13%]">{item.email}</p>
-                                <p className="w-[10%] mr-[1.8rem]">
-                                    {item.website}
-                                </p>
+
+                {isLoading ? (
+                    <LoadingSpinner />
+                ) : (
+                    <div>
+                        {data?.data?.results.map((item) => (
+                            <div
+                                key={item.id}
+                                className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs gap-x-5"
+                            >
+                                <p className="flex-1">{item.name}</p>
+                                <p className="flex-1">{item.address}</p>
+                                <p className="flex-1">{item.city}</p>
+                                <p className="flex-1">{item.state}</p>
+                                <p className="flex-1">{item.phone}</p>
+                                <p className="flex-1">{item.email}</p>
+                                <p className="flex-1">{item.website}</p>
+                                <div className="flex-1">
+                                    <TableAction
+                                        update
+                                        removeView
+                                        action={() => onSubmit(item.id)}
+                                        updateAction={() => onUpdate(item)}
+                                    />
+                                </div>
                             </div>
-                            <div>
-                                <TableAction
-                                    update
-                                    removeView
-                                    action={() => onSubmit(item.id)}
-                                    updateAction={() => onUpdate(item)}
-                                />
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );

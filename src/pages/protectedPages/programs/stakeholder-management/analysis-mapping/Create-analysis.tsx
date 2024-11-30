@@ -1,7 +1,6 @@
 import { Label } from "components/ui/label";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import Card from "components/shared/Card";
-// import DeleteIcon from "components/icons/DeleteIcon";
 import { RouteEnum } from "constants/RouterConstants";
 import {
     Form,
@@ -14,7 +13,6 @@ import { useFieldArray, useForm } from "react-hook-form";
 import FormInput from "atoms/FormInput";
 import { useNavigate, useParams } from "react-router-dom";
 import FormButton from "atoms/FormButton";
-// import { Button } from "components/ui/button";
 import {
     Dialog,
     DialogContent,
@@ -37,8 +35,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "components/ui/select";
-import StakeholderAPI from "services/programsApi/stakeholder";
-import StateAPI from "services/configs/state";
 import {
     StakeholderMappingSchema,
     StakeholderSchema,
@@ -75,18 +71,8 @@ const CreateAnalysis = () => {
         setStateSearchParams(value);
     };
 
-    const stakeholderQueryResult = StakeholderAPI.useGetStakeholdersQuery(
-        useMemo(
-            () => ({ params: { state: stateSearchParams } }),
-            [stateSearchParams]
-        )
-    );
     const [createStakeholderMappingMutation, { isLoading }] =
         StakeholderManagementAPI.useCreateStakeholderMappingMutation();
-
-    const stateQueryResult = StateAPI.useGetStatesQuery();
-    const stakeholders = stakeholderQueryResult?.data?.results;
-    const states = stateQueryResult?.data;
 
     const data = useMemo(() => {
         return matchedStakeholdersData.map((data) => ({
@@ -112,13 +98,13 @@ const CreateAnalysis = () => {
         name: "stakeholders",
     });
 
-    useEffect(() => {
-        const matchedStakeholders =
-            stakeholders?.filter((stakeholder: StakeholderResultsData) =>
-                watch("submitted_stakeholders").includes(stakeholder?.id)
-            ) || [];
-        setMatchedStakeholdersData(matchedStakeholders);
-    }, [watch("submitted_stakeholders")]);
+    // useEffect(() => {
+    //     const matchedStakeholders =
+    //         stakeholders?.filter((stakeholder: StakeholderResultsData) =>
+    //             watch("submitted_stakeholders").includes(stakeholder?.id)
+    //         ) || [];
+    //     setMatchedStakeholdersData(matchedStakeholders);
+    // }, [watch("submitted_stakeholders")]);
 
     const onSubmit = async (data: z.infer<typeof StakeholderMappingSchema>) => {
         const formData = {
@@ -142,6 +128,8 @@ const CreateAnalysis = () => {
         { name: "Detail", icon: true },
         { name: "Create Stakeholder", icon: false },
     ];
+
+    return <></>;
 
     return (
         <div className="min-h-screen space-y-6">

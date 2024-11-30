@@ -8,9 +8,10 @@ import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import TableAction from "atoms/TableAction";
+import { LoadingSpinner } from "components/shared/Loading";
 
 const Facility = () => {
-    const { data } = useFacilitiesQuery({
+    const { data, isLoading } = useFacilitiesQuery({
         no_paginate: false,
     });
 
@@ -65,40 +66,47 @@ const Facility = () => {
                 </Button>
             </div>
             <div>
-                <div className="flex gap-[5rem] text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4">
-                    <h1 className="">Facility Name</h1>
-                    <h1>Contact Person</h1>
-                    <h1>Phone Number</h1>
-                    <h1 className="">Position</h1>
-                    <h1>Email</h1>
-                    <h1 className="">State</h1>
-                    <h1>LGA</h1>
-                    <h1></h1>
+                <div className="flex text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4">
+                    <h1 className="flex-1">Facility Name</h1>
+                    <h1 className="flex-1">Contact Person</h1>
+                    <h1 className="flex-1">Phone Number</h1>
+                    <h1 className="flex-1">Position</h1>
+                    <h1 className="flex-1">Email</h1>
+                    <h1 className="flex-1">State</h1>
+                    <h1 className="flex-1">LGA</h1>
+                    <h1 className="flex-1"></h1>
                 </div>
-                <div>
-                    {data?.data?.results?.map((item) => (
-                        <div
-                            key={item.id}
-                            className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
-                        >
-                            <p>{item.name}</p>
-                            <p>{item.contact_person}</p>
-                            <p>{item.phone}</p>
-                            <p>{item.postion}</p>
-                            <p>{item.email}</p>
-                            <p>{item.state}</p>
-                            <p>{item.lga}</p>
-                            <div>
-                                <TableAction
-                                    update
-                                    removeView
-                                    action={() => onSubmit(item.id)}
-                                    updateAction={() => onUpdate(item)}
-                                />
+
+                {isLoading ? (
+                    <LoadingSpinner />
+                ) : (
+                    <div>
+                        {data?.data?.results?.map((item) => (
+                            <div
+                                key={item.id}
+                                className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
+                            >
+                                <p className="flex-1">{item.name}</p>
+                                <p className="flex-1">
+                                    {item.contact_person}
+                                </p>
+                                <p className="flex-1">{item.phone}</p>
+                                <p className="flex-1">{item.postion}</p>
+                                <p className="flex-1">{item.email}</p>
+                                <p className="flex-1">{item.state}</p>
+                                <p className="flex-1">{item.lga}</p>
+                                <div className="flex-1">
+                                    <TableAction
+                                        update
+                                        removeView
+                                        action={() => onSubmit(item.id)}
+                                        updateAction={() => onUpdate(item)}
+                                    />
+                                </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );

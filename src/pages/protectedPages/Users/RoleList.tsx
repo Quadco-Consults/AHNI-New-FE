@@ -19,13 +19,14 @@ const RoleList = () => {
 
     const dispatch = useAppDispatch();
 
-    const onRoleClick = (id: string, permission: string) => {
+    const onRoleClick = (id: string, name: string, permission: string) => {
         dispatch(
             openDialog({
                 type: DialogType.AddPermissionToRole,
                 dialogProps: {
                     ...largeDailogScreen,
                     id,
+                    name,
                     permission: permission,
                 },
             })
@@ -73,6 +74,7 @@ const RoleList = () => {
                                         onClick={() =>
                                             onRoleClick(
                                                 String(item.id),
+                                                item.name,
                                                 item.permissions as unknown as string
                                             )
                                         }

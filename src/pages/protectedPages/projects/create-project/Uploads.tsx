@@ -10,7 +10,10 @@ import { DialogType } from "constants/dailogs";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import { useAppDispatch } from "hooks/useStore";
 import { RouteEnum } from "constants/RouterConstants";
-import projectDocumentAPi from "services/projectsApi/project-document";
+import {
+    useDeleteProjectDocumentMutation,
+    useGetAllProjectDocumentsQuery,
+} from "services/projectsApi/project-document";
 import { Loading } from "components/shared/Loading";
 import { useState } from "react";
 import { Document, Page } from "react-pdf";
@@ -27,7 +30,8 @@ import {
 } from "components/ui/dialog";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { toast } from "sonner";
-import projectsAPi from "services/projectsApi/projectsApi";
+import useQuery from "hooks/useQuery";
+import { skipToken } from "@reduxjs/toolkit/query/react";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
     "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -37,8 +41,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 const Uploads = () => {
     const [numPages, setNumPages] = useState<number>();
     const [pageNumber, setPageNumber] = useState<number>(1);
-    const [deleteProjectDocumentMutation] =
-        projectDocumentAPi.useDeleteProjectDocumentMutation();
+    const [deleteProjectDocumentMutation] = useDeleteProjectDocumentMutation();
 
     function onDocumentLoadSuccess({ numPages }: { numPages: number }): void {
         setNumPages(numPages);
@@ -47,16 +50,13 @@ const Uploads = () => {
 
     const dispatch = useAppDispatch();
 
-    const projectsQueryResult = projectsAPi.useGetProjectQuery({
-        path: { id: localStorage.getItem("projectID") as string },
-    });
+    const query = useQuery();
 
-    const projects = projectsQueryResult?.data;
+    const projectId = query.get("id");
 
-    const { data: documents } =
-        projectDocumentAPi.useGetProjectDocumentsQuery(null);
-
-    console.log({ documents });
+    const { data: documents, isLoading } = useGetAllProjectDocumentsQuery(
+        projectId ?? skipToken
+    );
 
     const goBack = () => {
         navigate(-1);
@@ -68,7 +68,6 @@ const Uploads = () => {
 
     const onSubmit = () => {
         sessionStorage.removeItem("projectsCompletedSteps");
-        localStorage.removeItem("projectID");
         navigate(RouteEnum.PROJECTS);
     };
 
@@ -90,7 +89,7 @@ const Uploads = () => {
                         <Card className="space-y-6 py-5">
                             <h4 className="text-lg font-semibold">Uploads</h4>
 
-                            {projectsQueryResult?.isLoading ? (
+                            {isLoading ? (
                                 <Loading />
                             ) : (
                                 <div className="grid grid-cols-1 items-center gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -216,7 +215,7 @@ const Uploads = () => {
                                                     Last Updated:{" "}
                                                     <span>
                                                         {format(
-                                                            doc.uploaded_at,
+                                                            doc.uploaded_datetime,
                                                             "MMM dd, yyy"
                                                         )}
                                                     </span>

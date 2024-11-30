@@ -59,6 +59,9 @@ export const DialogType = {
     ActivityTrackerModal: "ActivityTrackerModal",
     AddNewRoleModal: "AddNewRoleModal",
     AddSupervisionCriteria: "AddSupervisionCriteria",
+    FundRequestBreakdown: "FundRequestBreakdown",
+    ChangeRiskStatusModal: "ChangeRiskStatusModal",
+    ChangeProjectStatusModal: "ChangeProjectStatusModal",
 };
 
 export const largeDailogScreen = {

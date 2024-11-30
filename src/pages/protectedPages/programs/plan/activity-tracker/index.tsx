@@ -22,20 +22,22 @@ import {
     BreadcrumbSeparator,
 } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
-import { WorkPlanList } from "definations/program-types/program-workplan";
-import WorkPlanAPi from "services/programsApi/work-plan";
 import { RouteEnum } from "constants/RouterConstants";
 import ArrowDownIcon from "components/icons/ArrowDownIcon";
 import UploadIcon from "components/icons/UploadIcon";
+import { useGetAllActivityTrackerQuery } from "services/programsApi/activity-tracker";
+
+import { TActivityTrackerResult } from "definations/program-types/activity-tracker";
+import { Badge } from "components/ui/badge";
 
 export default function ActivityTracker() {
     const dispatch = useAppDispatch();
 
-    const workPlanQueryResult = WorkPlanAPi.useGetWorkPlansListQuery();
+    const { data, isLoading } = useGetAllActivityTrackerQuery({
+        no_paginate: false,
+    });
 
-    const data = workPlanQueryResult?.data?.results;
-
-    const columns = useMemo<ColumnDef<WorkPlanList>[]>(
+    const columns = useMemo<ColumnDef<TActivityTrackerResult>[]>(
         () => [
             {
                 header: "Activity Name",
@@ -44,140 +46,184 @@ export default function ActivityTracker() {
             },
             {
                 header: "Activity Reference Number (As in WP)",
-                accessorKey: "activity_number",
+                accessorKey: "activity_reference_number",
                 size: 200,
             },
+
             {
                 header: "Month",
                 accessorKey: "month",
-                // accessorFn: (data) => `${data?.financial_year?.year}`,
                 size: 200,
             },
+
             {
-                header: "Activities Plan for the Month",
-                accessorKey: "activities_plan",
+                header: "Activities Plans for the Month",
+                accessorKey: "activity_plans",
                 size: 150,
             },
+
             {
                 header: "Objectives",
-                accessorKey: "objectivies",
+                accessorKey: "objectives",
                 size: 150,
             },
+
             {
                 header: "Location",
                 accessorKey: "location",
                 size: 150,
             },
+
             {
                 header: "Lead Dept",
                 accessorKey: "lead_dept",
                 size: 150,
             },
+
             {
                 header: "Lead Partner",
                 accessorKey: "lead_partner",
                 size: 150,
             },
-            {
-                header: "Sub-Objective",
-                accessorKey: "subobjectives",
-                size: 150,
-            },
+
             {
                 header: "Frq. of Activity",
-                accessorKey: "objectivies",
+                accessorKey: "activity_frequency",
                 size: 150,
             },
+
             {
                 header: "Planned Output",
-                accessorKey: "objectivies",
+                accessorKey: "planned_output",
                 size: 150,
             },
+
             {
                 header: "Description of Output",
-                accessorKey: "objectivies",
+                accessorKey: "output_description",
                 size: 150,
             },
+
             {
                 header: "Achieved Output",
-                accessorKey: "objectivies",
+                accessorKey: "",
                 size: 150,
             },
+
             {
                 header: "% Achievement",
-                accessorKey: "objectivies",
+                accessorKey: "achievement_percentage",
                 size: 150,
             },
+
             {
                 header: "Status",
                 accessorKey: "status",
                 size: 150,
+                cell: ({ getValue }) => {
+                    const status = getValue();
+
+                    return (
+                        <Badge
+                            className={`${
+                                status === "PENDING"
+                                    ? "bg-yellow-500"
+                                    : "bg-green-500"
+                            }`}
+                        >
+                            {getValue() as string}
+                        </Badge>
+                    );
+                },
             },
+
             {
                 header: "Total NGN",
-                accessorKey: "objectivies",
+                accessorKey: "total_amount_ngn",
                 size: 150,
             },
+
             {
                 header: "Total USD",
-                accessorKey: "objectivies",
+                accessorKey: "total_amount_usd",
                 size: 150,
             },
+
             {
-                header: "Amount Expected (NGN)",
-                accessorKey: "objectivies",
+                header: "Amount Expended (NGN)",
+                accessorKey: "expended_amount_ngn",
                 size: 150,
             },
+
             {
                 header: "Implementation USD Rate",
-                accessorKey: "objectivies",
+                accessorKey: "implementation_usd_rate",
                 size: 150,
             },
+
             {
                 header: "Amount Expended (USD)",
-                accessorKey: "objectivies",
+                accessorKey: "",
+                accessorFn: () => "N/A",
                 size: 150,
             },
+
             {
                 header: "Expenditure Rate (USD)",
-                accessorKey: "objectivies",
+                accessorKey: "",
+                accessorFn: () => "N/A",
                 size: 150,
             },
+
             {
                 header: "Variance (NGN)",
-                accessorKey: "objectivies",
+                accessorKey: "",
+                accessorFn: () => "N/A",
                 size: 150,
             },
+
             {
                 header: "Variance (USD)",
-                accessorKey: "objectivies",
+                accessorKey: "",
+                accessorFn: () => "N/A",
                 size: 150,
             },
+
             {
                 header: "% of Variance (NGN)",
-                accessorKey: "objectivies",
+                accessorKey: "",
+                accessorFn: () => "N/A",
                 size: 150,
             },
+
             {
                 header: "% ofVariance (USD)",
-                accessorKey: "objectivies",
+                accessorKey: "",
+                accessorFn: () => "N/A",
                 size: 150,
             },
+
             {
                 header: "Efficiency Output vs Expenditure (Ratio)",
-                accessorKey: "objectivies",
+                accessorKey: "",
+                accessorFn: () => "N/A",
                 size: 150,
             },
+
             {
                 header: "Efficiency Output vs Expenditure (Level)",
-                accessorKey: "objectivies",
+                accessorKey: "",
+                accessorFn: () => "N/A",
                 size: 150,
             },
+
             {
                 header: "Comments (e.g Provide reasons for non completion, variance)",
-                accessorKey: "objectivies",
+                accessorKey: "",
+                accessorFn: () => "N/A",
                 size: 150,
             },
+
             {
                 header: "",
                 size: 80,
@@ -202,11 +248,12 @@ export default function ActivityTracker() {
                             <div className="flex flex-col items-start justify-between gap-1">
                                 <Link
                                     className="w-full"
-                                    to={`/program/plan/work-plan/${
-                                        data.partner_id
-                                    }/${data.project_id}/${encodeURIComponent(
-                                        data.financial_year.id
-                                    )}`}
+                                    // to={`/program/plan/work-plan/${
+                                    //     data.partner_id
+                                    // }/${data.project_id}/${encodeURIComponent(
+                                    //     data.financial_year.id
+                                    // )}`}
+                                    to="/"
                                 >
                                     <Button
                                         className="w-full flex items-center justify-start gap-2"
@@ -262,7 +309,7 @@ export default function ActivityTracker() {
                             <ArrowDownIcon />
                         </Button>
                     </PopoverTrigger>
-                    <PopoverContent className=" w-fit">
+                    <PopoverContent className="w-fit">
                         <div className="flex flex-col items-start justify-between gap-1">
                             <Button
                                 className="w-full flex items-center gap-2 justify-start"
@@ -316,9 +363,9 @@ export default function ActivityTracker() {
                 </div>
 
                 <DataTable
-                    data={data || []}
+                    data={data?.data.results || []}
                     columns={columns}
-                    isLoading={workPlanQueryResult?.isLoading}
+                    isLoading={isLoading}
                 />
             </Card>
         </div>

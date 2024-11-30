@@ -14,348 +14,312 @@ import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
 import DataTable from "components/Table/DataTable";
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
 } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
-import RiskPlansAPI from "services/programsApi/risk-plans";
-import { RiskPlansResultsData } from "definations/program-types/risk-plans";
 import { toast } from "sonner";
-import { useState } from "react";
+
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "components/ui/select";
+    useDeleteRiskManagementPlanMutation,
+    useGetAllRiskManagementPlansQuery,
+    usePatchRiskManagementPlanMutation,
+} from "services/programsApi/risk-plans";
+import { TRiskPlanPlanManagementResponse } from "definations/program-validator";
+import EditIcon from "components/icons/EditIcon";
+import PencilIcon from "components/icons/PencilIcon";
+import { FormEvent, useState } from "react";
+import { useAppDispatch } from "hooks/useStore";
+import { openDialog } from "store/ui";
+import { DialogType, mediumDailogScreen } from "constants/dailogs";
 
 const RiskManagement = () => {
-  const { data, isLoading } = RiskPlansAPI.useGetRiskPlansQuery({
-    params: { no_paginate: true },
-  });
+    const { data, isLoading } = useGetAllRiskManagementPlansQuery({
+        no_paginate: false,
+    });
 
-  return (
-    <div className="space-y-5">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbPage>Programs</BreadcrumbPage>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator>
-            <Icon icon="iconoir:slash" />
-          </BreadcrumbSeparator>
-          <BreadcrumbItem>
-            <BreadcrumbPage>Plans</BreadcrumbPage>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator>
-            <Icon icon="iconoir:slash" />
-          </BreadcrumbSeparator>
-          <BreadcrumbItem>
-            <BreadcrumbPage>Risk Management Plan</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+    return (
+        <div className="space-y-5">
+            <Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>Programs</BreadcrumbPage>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator>
+                        <Icon icon="iconoir:slash" />
+                    </BreadcrumbSeparator>
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>Plans</BreadcrumbPage>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator>
+                        <Icon icon="iconoir:slash" />
+                    </BreadcrumbSeparator>
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>Risk Management Plan</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
+            </Breadcrumb>
 
-      <div className="flex justify-end">
-        <Link to={RouteEnum.PROGRAM_RISK_MANAGEMENT_CREATE}>
-          <Button className="flex gap-2 py-6">
-            <AddSquareIcon />
-            New Risk Analysis Plan
-          </Button>
-        </Link>
-      </div>
+            <div className="flex justify-end">
+                <Link to={RouteEnum.PROGRAM_RISK_MANAGEMENT_CREATE}>
+                    <Button className="flex gap-2 py-6">
+                        <AddSquareIcon />
+                        New Risk Management
+                    </Button>
+                </Link>
+            </div>
 
-      <Card className="space-y-5">
-        <div className="flex items-center justify-start gap-2">
-          <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
-            <SearchIcon />
-            <input
-              placeholder="Search"
-              type="text"
-              className="ml-2 h-6 border-none bg-none focus:outline-none outline-none"
-            />
-          </span>
-          <Button className="shadow-sm" variant="ghost">
-            <FilterIcon />
-          </Button>
+            <Card className="space-y-5">
+                <div className="flex items-center justify-start gap-2">
+                    <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
+                        <SearchIcon />
+                        <input
+                            placeholder="Search"
+                            type="text"
+                            className="ml-2 h-6 border-none bg-none focus:outline-none outline-none"
+                        />
+                    </span>
+                    <Button className="shadow-sm" variant="ghost">
+                        <FilterIcon />
+                    </Button>
+                </div>
+
+                <DataTable
+                    data={data?.data.results || []}
+                    columns={columns}
+                    isLoading={isLoading}
+                />
+            </Card>
         </div>
-
-        <DataTable data={data || []} columns={columns} isLoading={isLoading} />
-      </Card>
-    </div>
-  );
+    );
 };
 
 export default RiskManagement;
 
-const columns: ColumnDef<RiskPlansResultsData>[] = [
-  {
-    header: "Risk Number",
-    accessorKey: "risk_number",
-    size: 150,
-  },
-  {
-    header: "Risk Category	",
-    id: "risk_category",
-    accessorFn: (data) => `${data.risk_category.name}`,
-    size: 180,
-  },
-  {
-    header: "Risk Description",
-    accessorKey: "risk_description",
-    size: 300,
-  },
-  {
-    header: "Risk Owner",
-    id: "risk_owner",
-    accessorFn: (data) => `${data.risk_owner.name}`,
-    size: 200,
-  },
-  {
-    header: "Impact Description",
-    accessorKey: "impact_description",
-    size: 200,
-  },
-  {
-    header: "Impact Level",
-    accessorKey: "impact_level",
-    size: 150,
-    cell: ({ getValue }) => {
-      return (
-        <Badge
-          variant="default"
-          className={cn(
-            "p-1 rounded-lg",
-            getValue() === "Very high" && "bg-[#8DF384] text-[#021A0D]",
-            getValue() === "Very low" && "bg-[#F97066] text-[#1A0000]",
-            getValue() === "High" && "bg-[#E0FDD6] text-[#096735]",
-            getValue() === "Low" && "bg-[#FECDCA] text-[#7A271A]",
-            getValue() === "Medium" && "bg-[#F3CB65] text-[#473200]"
-          )}
-        >
-          {getValue() as string}
-        </Badge>
-      );
+const columns: ColumnDef<TRiskPlanPlanManagementResponse>[] = [
+    {
+        header: "Risk Number",
+        accessorKey: "risk_number",
+        size: 150,
     },
-  },
-  {
-    header: "Probability of Occurrence",
-    accessorKey: "occurrence_probability",
-    size: 150,
-    cell: ({ getValue }) => {
-      return (
-        <Badge
-          variant="default"
-          className={cn(
-            "p-1 rounded-lg",
-            getValue() === "Very high" && "bg-[#8DF384] text-[#021A0D]",
-            getValue() === "Very low" && "bg-[#F97066] text-[#1A0000]",
-            getValue() === "High" && "bg-[#E0FDD6] text-[#096735]",
-            getValue() === "Low" && "bg-[#FECDCA] text-[#7A271A]",
-            getValue() === "Medium" && "bg-[#F3CB65] text-[#473200]"
-          )}
-        >
-          {getValue() as string}
-        </Badge>
-      );
+
+    {
+        header: "Risk Description",
+        accessorKey: "risk_description",
+        size: 300,
     },
-  },
-  {
-    header: "Total Risk on Response",
-    accessorKey: "total_risk_response",
-    size: 150,
-    cell: ({ getValue }) => {
-      return (
-        <Badge
-          variant="default"
-          className={cn(
-            "p-1 rounded-lg",
-            getValue() === "Very high" && "bg-[#8DF384] text-[#021A0D]",
-            getValue() === "Very low" && "bg-[#F97066] text-[#1A0000]",
-            getValue() === "High" && "bg-[#E0FDD6] text-[#096735]",
-            getValue() === "Low" && "bg-[#FECDCA] text-[#7A271A]",
-            getValue() === "Medium" && "bg-[#F3CB65] text-[#473200]"
-          )}
-        >
-          {getValue() as string}
-        </Badge>
-      );
+
+    {
+        header: "Impact Description",
+        accessorKey: "impact_description",
+        size: 200,
     },
-  },
-  {
-    header: "Risk Response",
-    accessorKey: "risk_response",
-    size: 350,
-  },
-  {
-    header: "Implementation Timeline",
-    accessorKey: "implementation_timeline",
-    size: 200,
-  },
-  {
-    header: "Risk Status",
-    accessorKey: "risk_status",
-    size: 200,
-    cell: ({ getValue }) => {
-      return (
-        <Badge
-          variant="default"
-          className={cn(
-            "p-1 rounded-lg",
-            getValue() === "Open" && "bg-[#1A9B3E] text-white",
-            getValue() === "Closed" && "bg-[#4D4545] text-white",
-            getValue() === "Completed/Mitigated" && "bg-[#F97066] text-white"
-          )}
-        >
-          {getValue() as string}
-        </Badge>
-      );
+
+    {
+        header: "Impact Level",
+        accessorKey: "impact_level",
+        size: 150,
+        cell: ({ getValue }) => {
+            return (
+                <Badge
+                    variant="default"
+                    className={cn(
+                        "p-1 rounded-lg",
+                        getValue() === "VERY_HIGH" &&
+                            "bg-[#8DF384] text-[#021A0D]",
+                        getValue() === "VERY_LOW" &&
+                            "bg-[#F97066] text-[#1A0000]",
+                        getValue() === "HIGH" && "bg-[#E0FDD6] text-[#096735]",
+                        getValue() === "LOW" && "bg-[#FECDCA] text-[#7A271A]",
+                        getValue() === "MEDIUM" && "bg-[#F3CB65] text-[#473200]"
+                    )}
+                >
+                    {getValue() as string}
+                </Badge>
+            );
+        },
     },
-  },
-  {
-    header: "",
-    id: "actions",
-    size: 80,
-    cell: ({ row }) => <ActionListAction data={row.original} />,
-  },
+
+    {
+        header: "Occurence Probability",
+        accessorKey: "occurence_probability",
+        size: 150,
+        cell: ({ getValue }) => {
+            return (
+                <Badge
+                    variant="default"
+                    className={cn(
+                        "p-1 rounded-lg",
+                        getValue() === "VERY_HIGH" &&
+                            "bg-[#8DF384] text-[#021A0D]",
+                        getValue() === "VERY_LOW" &&
+                            "bg-[#F97066] text-[#1A0000]",
+                        getValue() === "HIGH" && "bg-[#E0FDD6] text-[#096735]",
+                        getValue() === "LOW" && "bg-[#FECDCA] text-[#7A271A]",
+                        getValue() === "MEDIUM" && "bg-[#F3CB65] text-[#473200]"
+                    )}
+                >
+                    {getValue() as string}
+                </Badge>
+            );
+        },
+    },
+
+    {
+        header: "Total Risk on Response",
+        accessorKey: "total_risk_on_response",
+        size: 150,
+        cell: ({ getValue }) => {
+            return (
+                <Badge
+                    variant="default"
+                    className={cn(
+                        "p-1 rounded-lg",
+                        getValue() === "VERY_HIGH" &&
+                            "bg-[#8DF384] text-[#021A0D]",
+                        getValue() === "VERY_LOW" &&
+                            "bg-[#F97066] text-[#1A0000]",
+                        getValue() === "HIGH" && "bg-[#E0FDD6] text-[#096735]",
+                        getValue() === "LOW" && "bg-[#FECDCA] text-[#7A271A]",
+                        getValue() === "MEDIUM" && "bg-[#F3CB65] text-[#473200]"
+                    )}
+                >
+                    {getValue() as string}
+                </Badge>
+            );
+        },
+    },
+
+    {
+        header: "Risk Response",
+        accessorKey: "risk_response",
+        size: 350,
+    },
+
+    {
+        header: "Implementation Timeline",
+        accessorKey: "implementation_timeline",
+        size: 200,
+        cell: ({ getValue }) => (
+            <Badge className="bg-gray-500">{getValue() as string}</Badge>
+        ),
+    },
+    {
+        header: "Risk Status",
+        accessorKey: "risk_status",
+        size: 200,
+        cell: ({ getValue }) => {
+            return (
+                <Badge
+                    variant="default"
+                    className={cn(
+                        "p-1 rounded-lg",
+                        getValue() === "OPEN" && "bg-[#1A9B3E] text-white",
+                        getValue() === "CLOSED" && "bg-[#4D4545] text-white",
+                        getValue() === "MITIGATED" &&
+                            "bg-[#F97066] text-white"
+                    )}
+                >
+                    {getValue() as string}
+                </Badge>
+            );
+        },
+    },
+
+    {
+        header: "Risk Category",
+        accessorKey: "risk_category",
+        size: 180,
+    },
+
+    {
+        header: "Risk Owner",
+        accessorKey: "risk_owner",
+        size: 200,
+    },
+
+    {
+        header: "",
+        id: "actions",
+        size: 80,
+        cell: ({ row }) => <ActionListAction data={row.original} />,
+    },
 ];
 
 const ActionListAction = ({ data }: any) => {
-  const [status, setStatus] = useState("");
-  const [deleteRiskPlanMutation] = RiskPlansAPI.useDeleteRiskPlanMutation();
-  const [modifyRiskPlanMutation] = RiskPlansAPI.useModifyRiskPlanMutation();
+    const [deleteRiskManagementPlan] = useDeleteRiskManagementPlanMutation();
 
-  const handleStatus = (value: string) => {
-    setStatus(value);
-  };
+    const dispatch = useAppDispatch();
 
-  const deleteHandler = async () => {
-    try {
-      await deleteRiskPlanMutation({ path: { id: data?.id } }).unwrap();
-      toast.success("Successfully deleted");
-    } catch (error) {
-      console.log(error);
-      toast.error("Something went wrong");
-    }
-  };
+    const handleDelete = async () => {
+        try {
+            await deleteRiskManagementPlan(data.id).unwrap();
+            toast.success("Risk Management Plan Deleted");
+        } catch (error: any) {
+            toast.error(error.data.message || "Something went wrong");
+        }
+    };
 
-  const modifyHandler = async () => {
-    try {
-      await modifyRiskPlanMutation({
-        path: { id: data?.id },
-        body: { risk_status: status },
-      }).unwrap();
-      toast.success("Update Successful");
-    } catch (error) {
-      console.log(error);
-      toast.error("Something went wrong");
-    }
-  };
-
-  return (
-    <div className="flex items-center gap-2">
-      <>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="ghost" className="flex gap-2 py-6">
-              <MoreOptionsHorizontalIcon />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className=" w-fit">
-            <div className="flex flex-col items-start justify-between gap-1">
-              <Dialog>
-                <DialogTrigger>
-                  <Button
-                    className="w-full flex items-center justify-start gap-2"
-                    variant="ghost"
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <g clip-path="url(#clip0_6296_42527)">
-                        <path
-                          opacity="0.4"
-                          d="M11.9863 0.892096C12.4252 0.702635 12.9228 0.702635 13.3617 0.892096C13.5381 0.968245 13.6863 1.07818 13.8297 1.20392C13.9671 1.3244 14.1238 1.48103 14.3099 1.66716L14.3325 1.68981L14.3325 1.68982C14.5187 1.87593 14.6753 2.03256 14.7958 2.16997C14.9215 2.31338 15.0314 2.4616 15.1076 2.638C15.297 3.0769 15.297 3.57452 15.1076 4.01342C15.0314 4.18983 14.9215 4.33805 14.7958 4.48146C14.6753 4.61886 14.5187 4.77548 14.3326 4.96158L14.3325 4.96162L10.9065 8.38767L10.9065 8.38767C10.1461 9.14833 9.67577 9.6188 9.08003 9.90064C8.48429 10.1825 7.72797 10.257 6.6576 10.3624L6.13211 10.4143C5.9831 10.429 5.83534 10.3761 5.72946 10.2702C5.62358 10.1643 5.57072 10.0166 5.58543 9.86757L5.63728 9.34208C5.74271 8.27171 5.81721 7.51539 6.09904 6.91965C6.38087 6.3239 6.85135 5.85359 7.61201 5.09319L11.038 1.66718L11.038 1.66717C11.2242 1.48103 11.3808 1.3244 11.5182 1.20392C11.6616 1.07818 11.8098 0.968245 11.9863 0.892096Z"
-                          fill="#BE8800"
-                        />
-                        <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
-                          d="M0.75 11.0833C0.75 10.0708 1.57081 9.25 2.58333 9.25H4.08333C4.45152 9.25 4.75 9.54848 4.75 9.91667C4.75 10.2849 4.45152 10.5833 4.08333 10.5833H2.58333C2.30719 10.5833 2.08333 10.8072 2.08333 11.0833C2.08333 11.3595 2.30719 11.5833 2.58333 11.5833H8.91667C9.92919 11.5833 10.75 12.4041 10.75 13.4167C10.75 14.4292 9.92919 15.25 8.91667 15.25H7.41667C7.04848 15.25 6.75 14.9515 6.75 14.5833C6.75 14.2151 7.04848 13.9167 7.41667 13.9167H8.91667C9.19281 13.9167 9.41667 13.6928 9.41667 13.4167C9.41667 13.1405 9.19281 12.9167 8.91667 12.9167H2.58333C1.57081 12.9167 0.75 12.0959 0.75 11.0833Z"
-                          fill="#BE8800"
-                        />
-                      </g>
-                      <defs>
-                        <clipPath id="clip0_6296_42527">
-                          <rect width="16" height="16" fill="white" />
-                        </clipPath>
-                      </defs>
-                    </svg>
-                    Change Risk Status
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="space-y-4">
-                  <DialogHeader>
-                    <DialogTitle>Change Risk Status</DialogTitle>
-                  </DialogHeader>
-                  <Select onValueChange={handleStatus}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[
-                        { label: "Open", value: "Open" },
-                        { label: "Closed", value: "Closed" },
-                        {
-                          label: "Completed/Mitigated",
-                          value: "Completed/Mitigated",
-                        },
-                      ].map((status) => (
-                        <SelectItem key={status.value} value={status.value}>
-                          {status.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <div className="flex justify-end">
-                    <DialogClose
-                      className="bg-primary text-white py-2 px-4 rounded-md"
-                      onClick={modifyHandler}
-                    >
-                      Confirm
-                    </DialogClose>
-                  </div>
-                </DialogContent>
-              </Dialog>
-
-              <Button
-                className="w-full flex items-center justify-start gap-2"
-                variant="ghost"
-                onClick={deleteHandler}
-              >
-                <DeleteIcon />
-                delete
-              </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
-      </>
-    </div>
-  );
+    return (
+        <div className="flex items-center gap-2">
+            <>
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button variant="ghost" className="flex gap-2 py-6">
+                            <MoreOptionsHorizontalIcon />
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className=" w-fit">
+                        <div className="flex flex-col items-start justify-between gap-1">
+                            <Button
+                                variant="ghost"
+                                type="button"
+                                onClick={() => {
+                                    dispatch(
+                                        openDialog({
+                                            type: DialogType.ChangeRiskStatusModal,
+                                            dialogProps: {
+                                                ...mediumDailogScreen,
+                                                id: data.id,
+                                            },
+                                        })
+                                    );
+                                }}
+                            >
+                                <PencilIcon />
+                                Change Risk Status
+                            </Button>
+                            <Link
+                                to={{
+                                    pathname:
+                                        RouteEnum.PROGRAM_RISK_MANAGEMENT_CREATE,
+                                    search: `?id=${data.id}`,
+                                }}
+                                className="w-full"
+                            >
+                                <Button
+                                    variant="ghost"
+                                    className="w-full flex items-center justify-start gap-2"
+                                >
+                                    <EditIcon />
+                                    Edit
+                                </Button>
+                            </Link>
+                            <Button
+                                className="w-full flex items-center justify-start gap-2"
+                                variant="ghost"
+                                onClick={handleDelete}
+                            >
+                                <DeleteIcon />
+                                Delete
+                            </Button>
+                        </div>
+                    </PopoverContent>
+                </Popover>
+            </>
+        </div>
+    );
 };
