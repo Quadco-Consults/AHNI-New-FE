@@ -1,6 +1,3 @@
-// import logoPng from "assets/svgs/logo-bg-svg";
-// import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-//@ts-ignore
 import logoPng from "assets/imgs/logo.png";
 import { ScrollArea } from "components/ui/scroll-area";
 import { Button } from "components/ui/button";
@@ -13,9 +10,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "components/ui/select";
-import partnersAPi from "services/projectsApi/partnersApi";
 import { PartnerResultsData } from "definations/project-types/partners";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -28,11 +24,12 @@ import {
 } from "components/ui/form";
 import { PartnersFormSchema } from "definations/project-validator";
 import { useDispatch } from "react-redux";
-import { partnerActions } from "store/formData/project-values";
+import { addPartners } from "store/formData/project-values";
 import { LoadingSpinner } from "components/shared/Loading";
 import { closeDialog } from "store/ui";
 import { nigerianStates } from "lib/index";
 import { usePartnersQuery } from "services/moduleProjects";
+import { useAppSelector } from "hooks/useStore";
 
 const ConsortiumModal = () => {
     const [locationValue, setLocationValue] = useState("");
@@ -42,28 +39,26 @@ const ConsortiumModal = () => {
         setLocationValue(value);
     };
 
-    const { data: partners, isLoading } = usePartnersQuery({ no_paginate: false });
+    const { data: partners, isLoading } = usePartnersQuery({
+        no_paginate: false,
+    });
+
+    const { dailog } = useAppSelector((state) => state.ui);
+
+    const { partners: partnerIds } = useAppSelector(
+        (state) => state.partnerLocation
+    );
 
     const form = useForm<z.infer<typeof PartnersFormSchema>>({
         resolver: zodResolver(PartnersFormSchema),
         defaultValues: {
-            items: [],
+            items: partnerIds,
         },
     });
 
     const onSubmit = (data: z.infer<typeof PartnersFormSchema>) => {
-        const matchedPartners = partners?.data?.results?.filter(
-            (partner: PartnerResultsData) => data.items.includes(partner?.id)
-        );
+        dispatch(addPartners(data.items));
 
-        const submittedValues = {
-            obj: { location: locationValue, partner_ids: matchedPartners },
-            ids: {
-                location: locationValue,
-                partner_ids: data?.items,
-            },
-        };
-        dispatch(partnerActions.addPartnerLocation(submittedValues));
         dispatch(closeDialog());
     };
 
@@ -89,26 +84,6 @@ const ConsortiumModal = () => {
                                     <SelectTrigger>
                                         <SelectValue placeholder="Location" />
                                     </SelectTrigger>
-
-                                    {/* <SelectContent>
-                                        {StateQueryResult?.isLoading ? (
-                                            <LoadingSpinner />
-                                        ) : (
-                                            nigerianStates?.map(
-                                                (
-                                                    partner: string,
-                                                    index: number
-                                                ) => (
-                                                    <SelectItem
-                                                        key={index}
-                                                        value={partner}
-                                                    >
-                                                        {partner}
-                                                    </SelectItem>
-                                                )
-                                            )
-                                        )}
-                                    </SelectContent> */}
 
                                     <SelectContent>
                                         {nigerianStates?.map(

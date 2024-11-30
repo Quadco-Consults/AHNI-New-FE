@@ -62,6 +62,10 @@ import FeedbackModal from "./components/FeedbackModal";
 import ActivityTrackerModal from "./components/ActivityTrackerModal";
 import AddNewRoleModal from "./components/AddNewRoleModal";
 import AddSupervisionCriteria from "./components/AddSupervisionCriteria";
+import FundRequestBreakdown from "./components/FundRequestBreakdownModal";
+
+import ChangeRiskStatusModal from "./components/ChangeRiskStatusModal";
+import ChangeProjectStatusModal from "./components/ChangeProjectStatusModal";
 
 const sheets: Record<string, ReactNode> = {
     [DialogType.Categories]: <CategoriesModal />,
@@ -128,6 +132,10 @@ const sheets: Record<string, ReactNode> = {
 
     [DialogType.AddNewRoleModal]: <AddNewRoleModal />,
     [DialogType.AddSupervisionCriteria]: <AddSupervisionCriteria />,
+
+    [DialogType.FundRequestBreakdown]: <FundRequestBreakdown />,
+    [DialogType.ChangeRiskStatusModal]: <ChangeRiskStatusModal />,
+    [DialogType.ChangeProjectStatusModal]: <ChangeProjectStatusModal />,
 };
 
 const AppDailog = () => {

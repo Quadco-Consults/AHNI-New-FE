@@ -46,24 +46,27 @@ export const ProjectPartnerSchema = z.object({
 });
 
 export const ProjectDocumentSchema = z.object({
-    title: z.string().min(1, "Please enter a title"),
-    project: z.string().min(1, "Project ID is required"),
+    title: z.string().min(1, "Please enter document title"),
+    document_type: z.string().min(1, "Please select document type"),
+    file: z.string().min(1, "Please select a file"),
 });
 
 export type TProjectDocument = z.infer<typeof ProjectDocumentSchema>;
 
 // Define the main schema
 export const ProjectsSummarySchema = z.object({
-    beneficiaries: z.array(z.any()),
-    objectives: z.string(),
     title: z.string().min(1, "Title is required"),
     project_id: z.string().min(1, "ProjectID is required"),
     goal: z.string().min(1, "Goal is required"),
-    expected_results: z.string().min(1, "This field is required"),
+    narrative: z.string().min(1, "Narrrative is required"),
+    budget_performance: z.string().min(1, "Budget performance is required"),
     budget: z.union([z.string(), z.number()]),
-    // project_manager: z.string().min(1, "Manager is required"),
-    project_manager: z.array(z.string()),
-    project_funding_source: z.array(z.string()),
+    project_managers: z.array(z.string()),
+    funding_sources: z.array(z.string()),
+    // objectives: z.string(),
+    beneficiaries: z.array(z.any()),
+    expected_results: z.string().min(1, "This field is required"),
+    achievement_against_target: z.string().min(1, "This field is required"),
 });
 
 export const PartnersFormSchema = z.object({

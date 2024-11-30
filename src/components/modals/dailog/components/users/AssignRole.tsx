@@ -1,15 +1,21 @@
+import { skipToken } from "@reduxjs/toolkit/query/react";
 import FormButton from "atoms/FormButton";
 
 import { Card, CardContent } from "components/ui/card";
 import { Checkbox } from "components/ui/checkbox";
 import { Input } from "components/ui/input";
 import { ScrollArea } from "components/ui/scroll-area";
+import { TRole } from "definations/users";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { cn } from "lib/utils";
 import { Search } from "lucide-react";
 
 import React, { useEffect, useState } from "react";
-import { useAddUserRoleMutation, useRolesQuery } from "services/users";
+import {
+    useAddUserRoleMutation,
+    useGetSingleUserQuery,
+    useRolesQuery,
+} from "services/users";
 import { toast } from "sonner";
 import { closeDialog, dailogSelector } from "store/ui";
 
@@ -19,7 +25,7 @@ interface Role {
 }
 
 const RoleCheckbox: React.FC<{
-    role: Role;
+    role: TRole;
     checked: boolean;
     // eslint-disable-next-line no-unused-vars
     onChange: () => void;
@@ -36,7 +42,6 @@ const RoleCheckbox: React.FC<{
         >
             <Checkbox
                 checked={checked}
-                // onCheckedChange={onChange}
                 className={cn(
                     "h-4 w-4 rounded-sm border-2",
                     checked ? "border-red-500 bg-red-500" : "border-gray-300"
@@ -48,9 +53,9 @@ const RoleCheckbox: React.FC<{
 };
 
 type TRoleSelector = {
-    selectedRoles: number[];
+    selectedRoles: string[];
     // eslint-disable-next-line no-unused-vars
-    onSelectRole: (roleId: number) => void;
+    onSelectRole: (roleId: string) => void;
 };
 
 const RoleSelector: React.FC<TRoleSelector> = ({
@@ -87,7 +92,7 @@ const SearchMembers = () => {
 };
 
 const AssignRole = () => {
-    const [selectedRoles, setSelectedRoles] = useState<number[]>([]);
+    const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
 
     const { dialogProps } = useAppSelector(dailogSelector);
 
@@ -95,17 +100,20 @@ const AssignRole = () => {
 
     const dispatch = useAppDispatch();
 
-    const rolesfromstore = dialogProps?.roles as string;
+    const userId = dialogProps?.id;
 
-    // console.log({ rolesfromstore });
+    // @ts-ignore
+    const { data: user } = useGetSingleUserQuery(userId ?? skipToken);
 
     useEffect(() => {
-        // @ts-ignore
-        // const previousRoles = rolesfromstore?.map((role) => role.id);
-        // setSelectedRoles([...previousRoles]);
-    }, []);
+        const roles = user?.data?.roles?.map((role) => role.id);
 
-    const handleSelectRole = (roleId: number) => {
+        if (roles) {
+            setSelectedRoles((prevState) => [...prevState, ...roles]);
+        }
+    }, [user]);
+
+    const handleSelectRole = (roleId: string) => {
         const isSelected = selectedRoles.indexOf(roleId);
 
         if (isSelected > -1) {
@@ -162,7 +170,7 @@ const AssignRole = () => {
                 </Card>
                 <div className="flex items-center justify-end gap-x-3 mt-7 px-7">
                     <p className="text-primary">
-                        {selectedRoles?.length} Stakeholders Selected
+                        {selectedRoles?.length} Roles Selected
                     </p>
                     <div>
                         <FormButton

@@ -1,15 +1,25 @@
 import baseAPI from ".";
-import { TBasePaginatedResponse, TRequest } from "definations/auth";
-import {
-    Permission,
-    TCreateUser,
-    TRole,
-    TUpdateUser,
-    TUser,
-} from "definations/users";
+import { TBasePaginatedResponse, TRequest, TResponse } from "definations/auth";
+import { Permission, TCreateUser, TRole, TUser } from "definations/users";
+
+interface TRolePermission {
+    id: string;
+    name: string;
+    permissions: {
+        module: string;
+        permissions: { codename: string; id: number; name: string }[];
+    }[];
+}
 
 const usersAPi = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
+        getUserProfile: builder.query<TResponse<TUser>, null>({
+            query: () => ({
+                method: "GET",
+                url: `/users/profile/`,
+            }),
+        }),
+
         roles: builder.query<TBasePaginatedResponse<TRole>, TRequest>({
             query: (params) => ({
                 url: "/roles/",
@@ -17,6 +27,7 @@ const usersAPi = baseAPI.injectEndpoints({
             }),
             providesTags: ["Roles"],
         }),
+
         createRole: builder.mutation<null, { name: string }>({
             query: (body) => ({
                 url: "/roles/",
@@ -25,6 +36,14 @@ const usersAPi = baseAPI.injectEndpoints({
             }),
             invalidatesTags: ["Roles"],
         }),
+
+        getSingleRole: builder.query<TResponse<TRolePermission>, string>({
+            query: (roleId) => ({
+                method: "GET",
+                url: `/roles/${roleId}/`,
+            }),
+        }),
+
         permissions: builder.query<
             { status: string; message: string; data: Permission[] },
             TRequest
@@ -35,6 +54,16 @@ const usersAPi = baseAPI.injectEndpoints({
             }),
             providesTags: ["Permission"],
         }),
+
+        getRolePermissions: builder.query<
+            { status: string; message: string; data: Permission[] },
+            string
+        >({
+            query: (id) => ({
+                url: `/permissions/${id}/`,
+            }),
+        }),
+
         createUser: builder.mutation<TUser, TCreateUser>({
             query: (body) => ({
                 url: "/users/",
@@ -57,6 +86,7 @@ const usersAPi = baseAPI.injectEndpoints({
             }),
             invalidatesTags: ["Users"],
         }),
+
         getUser: builder.query<TBasePaginatedResponse<TUser>, TRequest>({
             query: (params) => ({
                 url: "/users/",
@@ -64,12 +94,22 @@ const usersAPi = baseAPI.injectEndpoints({
             }),
             providesTags: ["Users"],
         }),
+
+        getSingleUser: builder.query<
+            { status: string; message: string; data: TUser },
+            number
+        >({
+            query: (id) => ({
+                url: `/users/${id}/`,
+            }),
+        }),
+
         addUserRole: builder.mutation<
             any,
             {
                 id: string;
                 body: {
-                    roles: number[];
+                    roles: string[];
                 };
             }
         >({
@@ -80,6 +120,22 @@ const usersAPi = baseAPI.injectEndpoints({
             }),
             invalidatesTags: ["Users"],
         }),
+
+        updateRole: builder.mutation<
+            null,
+            {
+                roleId: string;
+                body: { name: string; permissions: number[] };
+            }
+        >({
+            query: ({ roleId, body }) => ({
+                url: `/roles/${roleId}/`,
+                method: "PUT",
+                body,
+            }),
+            invalidatesTags: ["Roles"],
+        }),
+
         addPermissionToRole: builder.mutation<
             any,
             {
@@ -96,12 +152,30 @@ const usersAPi = baseAPI.injectEndpoints({
             }),
             invalidatesTags: ["Permission"],
         }),
+
+        activateUser: builder.mutation<TUser, string>({
+            query: (id) => ({
+                method: "POST",
+                url: `/users/${id}/activate/`,
+            }),
+            invalidatesTags: ["Users"],
+        }),
+
+        deactivateUser: builder.mutation<TUser, string>({
+            query: (id) => ({
+                method: "POST",
+                url: `/users/${id}/deactivate/`,
+            }),
+            invalidatesTags: ["Users"],
+        }),
     }),
 });
 
 export const {
+    useGetUserProfileQuery,
     useRolesQuery,
     useCreateRoleMutation,
+    useGetSingleRoleQuery,
     useCreateUserMutation,
     useGetUserQuery,
     useUpdateUserMutation,
@@ -109,4 +183,9 @@ export const {
     usePermissionsQuery,
     useLazyPermissionsQuery,
     useAddPermissionToRoleMutation,
+    useGetSingleUserQuery,
+    useActivateUserMutation,
+    useDeactivateUserMutation,
+    useUpdateRoleMutation,
+    useGetRolePermissionsQuery,
 } = usersAPi;
