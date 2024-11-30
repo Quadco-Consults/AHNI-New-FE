@@ -1,22 +1,34 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
-const initialState: any = {
-  items: [],
+type TInitialState = {
+    partners: string[];
+};
+
+const initialState: TInitialState = {
+    partners: [],
 };
 
 const partnerSlice = createSlice({
-  name: "partner",
-  initialState,
-  reducers: {
-    addPartnerLocation: (state, { payload }: PayloadAction<any>) => {
-      state.items.push(payload);
+    name: "partner",
+    initialState,
+    reducers: {
+        addPartners: (state, { payload }: PayloadAction<string[]>) => {
+            state.partners = payload;
+        },
+
+        removePartner: (state, { payload }: PayloadAction<string>) => {
+            state.partners = state.partners.filter(
+                (partner) => partner !== payload
+            );
+        },
+
+        clearPartners: (state) => {
+            state.partners = [];
+        },
     },
-    clearPartnerLocation: (state) => {
-      state.items = [];
-    },
-  },
 });
 
-export const partnerActions = partnerSlice.actions;
+export const { addPartners, removePartner, clearPartners } =
+    partnerSlice.actions;
 
 export default partnerSlice.reducer;

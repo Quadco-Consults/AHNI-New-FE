@@ -83,18 +83,54 @@ export const DepartmentsSchema = z.object({
     description: z.string(),
 });
 
-export const RiskPlansSchema = z.object({
-    risk_description: z.string(),
-    impact_description: z.string(),
-    impact_level: z.string(),
-    occurrence_probability: z.string(),
-    total_risk_response: z.string(),
-    risk_response: z.string(),
-    implementation_timeline: z.string(),
-    risk_status: z.string(),
-    risk_category: z.string(),
-    risk_owner: z.string(),
+export const RiskPlanManagementSchema = z.object({
+    risk_number: z.string().min(1, "This field is required"),
+    risk_description: z.string().min(1, "This field is required"),
+    impact_description: z.string().min(1, "This field is required"),
+    impact_level: z.enum(["VERY_LOW", "LOW", "MEDIUM", "HIGH", "VERY_HIGH"]),
+    occurence_probability: z.enum([
+        "VERY_LOW",
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "VERY_HIGH",
+    ]),
+    total_risk_on_response: z.enum([
+        "VERY_LOW",
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "VERY_HIGH",
+    ]),
+    risk_response: z.string().min(1, "This field is required"),
+    implementation_timeline: z.enum([
+        "IMMEDIATE",
+        "SHORT_TERM",
+        "MEDIUM_TERM",
+        "LONG_TERM",
+    ]),
+    risk_status: z.enum(["OPEN", "CLOSED", "MITIGATED"]),
+    risk_category: z.string().min(1, "This field is required"),
+    risk_owner: z.string().min(1, "This field is required"),
 });
+
+export type TRiskPlanManagementFormValues = z.infer<
+    typeof RiskPlanManagementSchema
+>;
+export type TRiskPlanPlanManagementResponse = Omit<
+    TRiskPlanManagementFormValues,
+    "risk_category" | "risk_owner"
+> & {
+    id: string;
+    risk_category: {
+        id: string;
+        name: string;
+    };
+    risk_owner: {
+        id: string;
+        name: string;
+    };
+};
 
 export const WeeklyActivitySchema = z.object({
     objectives: z.number(),
@@ -113,22 +149,32 @@ export const WeeklyActivitySchema = z.object({
     project: z.string(),
 });
 
-export const StakeholderManagementSchema = z.object({
-    stakeholder_name: z.string().min(1, "Field is required"),
-    institution_organization: z.string().min(1, "Field is required"),
-    physical_office_address: z.string().min(1, "Field is required"),
+export const StakeholderRegisterSchema = z.object({
+    name: z.string().min(1, "Field is required"),
+    organization: z.string().min(1, "Field is required"),
+    office_address: z.string().min(1, "Field is required"),
     state: z.string().min(1, "Field is required"),
-    gender: z.string().min(1, "Field is required"),
     designation: z.string().min(1, "Field is required"),
     phone_number: z.string().min(1, "Field is required"),
-    email: z.string().email().min(1, "Field is required"),
+    email: z.string().min(1, "Field is required").email(),
     project_role: z.string().min(1, "Field is required"),
-    importance: z.string().min(1, "Field is required"),
+    importance: z.enum(["1", "2", "3", "4", "5"]),
     influence: z.string().min(1, "Field is required"),
     score: z.string().min(1, "Field is required"),
     major_concerns: z.string().min(1, "Field is required"),
     relationship_owner: z.string().min(1, "Field is required"),
 });
+
+export type TStakeholderRegister = z.infer<typeof StakeholderRegisterSchema>;
+
+export type TStakeholderRegisterResponse = Omit<
+    TStakeholderRegister,
+    "importance" | "influence"
+> & {
+    id: string;
+    importance: number;
+    influence: number;
+};
 
 export const StakeholderMappingSchema = z.object({
     stakeholders: z.array(

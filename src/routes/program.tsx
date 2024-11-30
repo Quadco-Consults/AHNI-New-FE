@@ -16,11 +16,22 @@ export const program = [
                 import("pages/protectedPages/programs/plan/work-plan/id/index")
         ),
     },
+
     {
         path: RouteEnum.PROGRAM_ACTIVITY,
         element: lazy(
             () =>
                 import("pages/protectedPages/programs/plan/activity-plan/index")
+        ),
+    },
+
+    {
+        path: RouteEnum.PROGRAM_CREATE_ACTIVITY_PLAN,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/programs/plan/activity-plan//CreateActivityPlan"
+                )
         ),
     },
     {
@@ -185,15 +196,7 @@ export const program = [
                 )
         ),
     },
-    {
-        path: RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER_EDIT,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/programs/stakeholder-management/register/edit-register"
-                )
-        ),
-    },
+
     {
         path: RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER_DETAILS,
         element: lazy(

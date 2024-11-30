@@ -5,19 +5,11 @@ import FormSelect from "atoms/FormSelectField";
 import FormTextArea from "atoms/FormTextArea";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import Card from "components/shared/Card";
-import { LoadingSpinner } from "components/shared/Loading";
 import { Form } from "components/ui/form";
-import { SelectContent, SelectItem } from "components/ui/select";
 import { RouteEnum } from "constants/RouterConstants";
-import { StakeholderManagementSchema } from "definations/program-validator";
-import { PartnerResultsData } from "definations/project-types/partners";
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import StateAPI from "services/configs/state";
-import StakeholderManagementAPI from "services/programsApi/stakeholder-management";
-import partnersAPi from "services/projectsApi/partnersApi";
 import { toast } from "sonner";
-import { z } from "zod";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -26,55 +18,100 @@ import {
     BreadcrumbSeparator,
 } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
+import { nigerianStates } from "lib/index";
+import {
+    StakeholderRegisterSchema,
+    TStakeholderRegister,
+} from "definations/program-validator";
+import {
+    useCreateStakeholderRegisterMutation,
+    useEditStakeholderRegisterMutation,
+    useGetSingleStakeholderRegisterQuery,
+} from "services/programsApi/stakeholder";
+import { useEffect } from "react";
+import useQuery from "hooks/useQuery";
+import { skipToken } from "@reduxjs/toolkit/query/react";
+
+const importanceOptions = ["1", "2", "3", "4", "5"].map((option) => ({
+    label: option,
+    value: option,
+}));
 
 const CreateRegister = () => {
     const navigate = useNavigate();
 
-    const stateResultQuery = StateAPI.useGetStatesQuery();
-    const states = stateResultQuery?.data;
-    const partnerResultQuery = partnersAPi.useGetPartnersQuery({});
-    const partners = partnerResultQuery?.data?.results;
-    const [createStakeholderManagementMutation, { isLoading }] =
-        StakeholderManagementAPI.useCreateStakeholderManagementMutation();
+    const [createStakeholderRegister, { isLoading }] =
+        useCreateStakeholderRegisterMutation();
 
-    const form = useForm<z.infer<typeof StakeholderManagementSchema>>({
-        resolver: zodResolver(StakeholderManagementSchema),
+    const query = useQuery();
+    const id = query.get("id");
+
+    const { data: prevStakeholder } = useGetSingleStakeholderRegisterQuery(
+        id ?? skipToken
+    );
+
+    const [editStakeholderRegister, { isLoading: isUpdateLoading }] =
+        useEditStakeholderRegisterMutation();
+
+    const stateOptions = nigerianStates?.map((state) => ({
+        label: state,
+        value: state,
+    }));
+
+    const form = useForm<TStakeholderRegister>({
+        resolver: zodResolver(StakeholderRegisterSchema),
         defaultValues: {
-            stakeholder_name: "",
-            institution_organization: "",
-            physical_office_address: "",
+            name: "",
+            organization: "",
+            office_address: "",
             state: "",
-            gender: "",
             designation: "",
             phone_number: "",
             email: "",
             project_role: "",
-            importance: "",
-            influence: "",
             score: "",
             major_concerns: "",
             relationship_owner: "",
         },
     });
 
-    const { handleSubmit } = form;
+    const { handleSubmit, watch, setValue, reset } = form;
+    useEffect(() => {
+        if (prevStakeholder) {
+            const prevData = prevStakeholder?.data;
+
+            reset({
+                ...prevData,
+                importance: prevData.importance.toString() as any,
+                influence: prevData.influence.toString() as any,
+            });
+        }
+    }, [prevStakeholder]);
 
     const goBack = () => {
         navigate(-1);
     };
 
-    const onSubmit = async (
-        data: z.infer<typeof StakeholderManagementSchema>
-    ) => {
-        console.log(data);
+    const importance = Number(watch("importance") || 0);
+    const influence = Number(watch("influence") || 0);
 
+    useEffect(() => {
+        setValue("score", String(importance * influence));
+    }, [importance, influence]);
+
+    const onSubmit: SubmitHandler<TStakeholderRegister> = async (data) => {
         try {
-            await createStakeholderManagementMutation(data).unwrap();
-            toast.success("Stakeholder successfully created.");
+            if (id) {
+                await editStakeholderRegister({ id, body: data }).unwrap();
+                toast.success("Stakeholder Register Created");
+            } else {
+                await createStakeholderRegister(data).unwrap();
+                toast.success("Stakeholder Register Updated");
+            }
+
             navigate(RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER);
-        } catch (error) {
-            toast.error("Something went wrong");
-            console.log(error);
+        } catch (error: any) {
+            toast.error(error.data.message || "Something went wrong");
         }
     };
 
@@ -116,142 +153,97 @@ const CreateRegister = () => {
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <Card className="space-y-10 p-10">
                         <FormInput
-                            name="stakeholder_name"
                             label="Stakeholder Name"
+                            name="name"
+                            placeholder="Enter Stakeholder Name"
                             required
                         />
-                        <FormSelect
-                            name="institution_organization"
+
+                        <FormInput
+                            name="organization"
                             label="Institution/Organization"
+                            placeholder="Enter Organization"
                             required
-                        >
-                            <SelectContent>
-                                {partnerResultQuery?.isLoading ? (
-                                    <LoadingSpinner />
-                                ) : (
-                                    partners?.map(
-                                        (partner: PartnerResultsData) => (
-                                            <SelectItem
-                                                value={partner.id}
-                                                key={partner.id}
-                                            >
-                                                {partner.name}
-                                            </SelectItem>
-                                        )
-                                    )
-                                )}
-                            </SelectContent>
-                        </FormSelect>
-                        <FormTextArea
-                            name="physical_office_address"
-                            label="Physical Office Address"
                         />
+
+                        <FormTextArea
+                            name="office_address"
+                            placeholder="Enter Physical Office Address"
+                            label="Physical Office Address"
+                            required
+                        />
+
                         <FormSelect
                             name="state"
                             label="State"
-                            placeholder="Select state"
+                            placeholder="Select State"
                             required
-                        >
-                            <SelectContent>
-                                {stateResultQuery?.isLoading ? (
-                                    <LoadingSpinner />
-                                ) : (
-                                    states?.map(
-                                        (state: string, index: number) => (
-                                            <SelectItem
-                                                value={state}
-                                                key={index}
-                                            >
-                                                {state}
-                                            </SelectItem>
-                                        )
-                                    )
-                                )}
-                            </SelectContent>
-                        </FormSelect>
-                        <FormInput name="designation" label="Designation" />
+                            options={stateOptions}
+                        />
 
-                        <FormInput name="phone_number" label="Phone Number" />
-                        <FormInput name="email" label="E-Mail" />
+                        <FormInput
+                            label="Designation"
+                            placeholder="Enter Designation"
+                            name="designation"
+                            required
+                        />
 
-                        <FormSelect
+                        <FormInput
+                            name="phone_number"
+                            label="Phone Number"
+                            placeholder="Enter Phone Number"
+                            required
+                        />
+
+                        <FormInput
+                            label="E-Mail"
+                            placeholder="Enter Email Address"
+                            name="email"
+                            required
+                        />
+
+                        <FormInput
                             name="project_role"
                             label="Project Role"
-                            placeholder="Select number"
+                            placeholder="Enter Project Role"
                             required
-                        >
-                            <SelectContent>
-                                {["10", "20"].map(
-                                    (gender: string, index: number) => (
-                                        <SelectItem value={gender} key={index}>
-                                            {gender}
-                                        </SelectItem>
-                                    )
-                                )}
-                            </SelectContent>
-                        </FormSelect>
+                        />
 
                         <FormSelect
                             name="importance"
                             label="Importance"
-                            placeholder="Select number"
+                            placeholder="Select Importance"
                             required
-                        >
-                            <SelectContent>
-                                {["10", "20"].map(
-                                    (gender: string, index: number) => (
-                                        <SelectItem value={gender} key={index}>
-                                            {gender}
-                                        </SelectItem>
-                                    )
-                                )}
-                            </SelectContent>
-                        </FormSelect>
+                            options={importanceOptions}
+                        />
 
                         <FormSelect
                             name="influence"
                             label="Influence"
-                            placeholder="Select number"
+                            placeholder="Select Influence"
                             required
-                        >
-                            <SelectContent>
-                                {["10", "20"].map(
-                                    (gender: string, index: number) => (
-                                        <SelectItem value={gender} key={index}>
-                                            {gender}
-                                        </SelectItem>
-                                    )
-                                )}
-                            </SelectContent>
-                        </FormSelect>
+                            options={importanceOptions}
+                        />
 
-                        <FormSelect
-                            name="score"
+                        <FormInput
                             label="Score"
-                            placeholder="Select number"
+                            name="score"
+                            placeholder="Enter Score"
                             required
-                        >
-                            <SelectContent>
-                                {["10", "20"].map(
-                                    (gender: string, index: number) => (
-                                        <SelectItem value={gender} key={index}>
-                                            {gender}
-                                        </SelectItem>
-                                    )
-                                )}
-                            </SelectContent>
-                        </FormSelect>
+                        />
 
                         <FormInput
                             name="major_concerns"
                             label="Major Concerns"
                             placeholder="Enter major concerns"
+                            required
                         />
 
                         <FormInput
                             name="relationship_owner"
                             label="Relationship Owner"
                             placeholder="Enter relationship owner"
+                            required
                         />
                     </Card>
 
@@ -264,8 +256,11 @@ const CreateRegister = () => {
                             Cancel
                         </FormButton>
 
-                        <FormButton loading={isLoading} disabled={isLoading}>
-                            Create
+                        <FormButton
+                            loading={isLoading || isUpdateLoading}
+                            disabled={isLoading || isUpdateLoading}
+                        >
+                            {id ? "Update" : "Create"}
                         </FormButton>
                     </div>
                 </form>
@@ -275,15 +270,3 @@ const CreateRegister = () => {
 };
 
 export default CreateRegister;
-
-/*         {/* <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-              <FormSelect name="gender" label="Gender">
-                <SelectContent>
-                  {["Male", "Female"].map((gender: string, index: number) => (
-                    <SelectItem value={gender} key={index}>
-                      {gender}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </FormSelect>
-            </div> */

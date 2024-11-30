@@ -1,4 +1,4 @@
-import { useAppDispatch } from "hooks/useStore";
+import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
 import ProjectLayout from "./ProjectLayout";
@@ -6,52 +6,47 @@ import { Button } from "components/ui/button";
 import FormButton from "atoms/FormButton";
 import { Label } from "components/ui/label";
 import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import { CalendarIcon, ChevronRight, X } from "lucide-react";
+import { DialogType, mediumDailogScreen } from "constants/dailogs";
+import { CalendarIcon, ChevronRight } from "lucide-react";
 import { FormField, FormItem, Form, FormControl } from "components/ui/form";
 import Card from "components/shared/Card";
 import FormInput from "atoms/FormInput";
 import MultiSelectFormField from "components/ui/multiselect";
 import LocationSvg from "assets/svgs/LocationSvg";
-import beneficiariesAPi from "services/projectsApi/beneficiariesApi";
-import { ChangeEvent, FormEvent, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ProjectsSummarySchema } from "definations/project-validator";
 import { z } from "zod";
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogTrigger,
-} from "components/ui/dialog";
 import FormTextArea from "atoms/FormTextArea";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "store/index";
-import projectsAPi from "services/projectsApi/projectsApi";
 import { toast } from "sonner";
-import { closeDialog } from "store/ui";
 import { format } from "date-fns";
 import { cn } from "lib/utils";
 import { Calendar } from "components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import FundingSourceAPi from "services/projectsApi/funding-sourceApi";
-import { partnerActions } from "store/formData/project-values";
-import { objectivesActions } from "store/formData/project-objective";
-import FormSelect from "atoms/FormSelect";
 import { useGetUserQuery } from "services/users";
 import {
     useBeneficiariesQuery,
     useFundingSourcesQuery,
+    usePartnersQuery,
 } from "services/moduleProjects";
-
-interface InputValues {
-    title: string;
-}
+import {
+    addObjective,
+    clearObjectives,
+    removeObjective,
+} from "store/formData/project-objective";
+import { addPartners, clearPartners } from "store/formData/project-values";
+import useQuery from "hooks/useQuery";
+import {
+    useCreateProjectMutation,
+    useGetSingleProjectQuery,
+    useUpdateProjectMutation,
+} from "services/projectsApi/projectsApi";
+import { skipToken } from "@reduxjs/toolkit/query/react";
+import { FaTimes } from "react-icons/fa";
 
 const Summary = () => {
     const [startDate, setStartDate] = useState<Date>();
     const [endDate, setEndDate] = useState<Date>();
-    const dispatchPartner = useDispatch();
 
     const { data: beneficiaries } = useBeneficiariesQuery({
         no_paginate: false,
@@ -68,113 +63,152 @@ const Summary = () => {
         id: user.id,
     }));
 
-    const [projectsMutation, { isLoading }] =
-        projectsAPi.useCreateProjectMutation();
+    const query = useQuery();
 
-    const [inputValues, setInputValues] = useState<InputValues[]>([]);
+    const projectId = query.get("id");
 
-    const handleInputChange = (
-        e: ChangeEvent<HTMLTextAreaElement>,
-        index: number,
-        field: keyof InputValues
-    ) => {
-        const newInputValues = [...inputValues];
-        newInputValues[index][field] = e.target.value;
-        setInputValues(newInputValues);
-    };
+    const { data: project } = useGetSingleProjectQuery(projectId ?? skipToken);
 
-    const handleAddInput = (e: FormEvent) => {
-        e.preventDefault();
-        const newInputValues = [...inputValues, { title: "" }];
-        setInputValues(newInputValues);
-    };
+    const [addProject, { isLoading }] = useCreateProjectMutation();
 
-    const handleDeleteInput = (index: number) => {
-        const newInputValues = inputValues.filter((_, i) => i !== index);
-        setInputValues(newInputValues);
-    };
+    const [updateProject, { isLoading: isUpdateLoading }] =
+        useUpdateProjectMutation();
 
     const navigate = useNavigate();
 
+    const { data: partnersResult } = usePartnersQuery({
+        no_paginate: false,
+    });
+
+    const objectives = useAppSelector((state) => state.objectives);
+    const { partners } = useAppSelector((state) => state.partnerLocation);
+
+    const partnerItems = partnersResult?.data?.results
+        ?.filter((partner) => partners.includes(partner.id))
+        .map(({ id, name, state }) => ({
+            id,
+            name,
+            state,
+        }));
+
     const dispatch = useAppDispatch();
-
-    const location_partners = useSelector(
-        (state: RootState) => state.partnerLocation.items
-    );
-
-    const idsObj = location_partners?.map((partner: any) => partner.ids);
-
-    const objs = useSelector((state: RootState) => state.objectives.objectives);
 
     const form = useForm<z.infer<typeof ProjectsSummarySchema>>({
         resolver: zodResolver(ProjectsSummarySchema),
         defaultValues: {
             project_id: "",
-            title: "",
             goal: "",
             budget: 0,
-            project_funding_source: [],
-            project_manager: [],
-            objectives: "",
+            funding_sources: [],
+            project_managers: [],
             expected_results: "",
+            achievement_against_target: "",
             beneficiaries: [],
         },
     });
 
+    const { handleSubmit, reset } = form;
+
+    useEffect(() => {
+        if (project) {
+            const {
+                title,
+                project_id,
+                goal,
+                narrative,
+                budget_performance,
+                start_date,
+                end_date,
+                budget,
+                project_managers,
+                funding_sources,
+                expected_results,
+                achievement_against_target,
+                beneficiaries,
+                objectives,
+                partners,
+            } = project?.data;
+
+            const projectManagers = project_managers.map(
+                (manager) => manager.id
+            );
+
+            const fundingSources = funding_sources.map((source) => source.id);
+
+            const beneficiariesArr = beneficiaries.map((ben) => ben.id);
+
+            reset({
+                title,
+                project_id,
+                goal,
+                narrative: narrative || "",
+                budget_performance,
+                budget,
+                project_managers: projectManagers,
+                funding_sources: fundingSources,
+                expected_results,
+                achievement_against_target,
+                beneficiaries: beneficiariesArr,
+            });
+
+            objectives?.map((obj) => {
+                dispatch(addObjective(obj));
+            });
+
+            setStartDate(new Date(start_date));
+            setEndDate(new Date(end_date));
+
+            const partnerIds = partners.map((partner) => partner.id);
+
+            dispatch(addPartners(partnerIds));
+        }
+    }, [project, partnersResult]);
+
     const { pathname } = useLocation();
-
-    const { handleSubmit, watch } = form;
-    const objTitle = watch("objectives");
-
-    const addObjectivesHandler = () => {
-        const submittedValues = {
-            title: objTitle,
-            sub_objectives: inputValues,
-        };
-
-        dispatchPartner(objectivesActions.addObjectives(submittedValues));
-        dispatch(closeDialog());
-    };
 
     const onSubmit = async (data: z.infer<typeof ProjectsSummarySchema>) => {
         const formData = {
-            project_id: data.project_id,
-            objectives: [
-                {
-                    title: data.objectives,
-                    sub_objectives: inputValues,
-                },
-            ],
-            project_managers: data.project_manager,
-            location_partners: idsObj,
-            goal: data.goal,
-            expected_results: data.expected_results,
-            beneficiaries: data.beneficiaries,
-            funding_sources: data.project_funding_source,
             title: data.title,
+            project_id: data.project_id,
+            goal: data.goal,
+            narrative: data.narrative,
+            budget_performance: data.budget_performance,
+            start_date: format(startDate as Date, "yyyy-MM-dd"),
+            end_date: format(endDate as Date, "yyyy-MM-dd"),
+            project_managers: data.project_managers,
+            partners: partners,
+            funding_sources: data.funding_sources,
+            objectives: objectives.objectives,
+            expected_results: data.expected_results,
+            achievement_against_target: data.achievement_against_target,
+            beneficiaries: data.beneficiaries,
             budget: Number(data.budget),
-            start_date: startDate && format(startDate, "yyy-MM-dd"),
-            end_date: endDate && format(endDate, "yyy-MM-dd"),
         };
 
         try {
-            const res = await projectsMutation(formData).unwrap();
-            localStorage.setItem("projectID", res?.data.id);
+            let id;
+
+            if (projectId) {
+                await updateProject({ id: projectId, body: formData }).unwrap();
+            } else {
+                const res = await addProject(formData).unwrap();
+                id = res.data.id;
+            }
+
             toast.success("Project successfully added.");
 
             let path = pathname;
 
             path = path.substring(0, path.lastIndexOf("/"));
 
-            path += "/uploads";
+            path += `/uploads?id=${projectId || id}`;
             navigate(path);
-        } catch (error) {
-            toast.error("Something went wrong");
-            console.log(error);
+        } catch (error: any) {
+            toast.error(error.data.message);
         }
 
-        dispatchPartner(partnerActions.clearPartnerLocation());
-        dispatchPartner(objectivesActions.clearObjectives());
+        dispatch(clearObjectives());
+        dispatch(clearPartners());
     };
 
     return (
@@ -186,16 +220,21 @@ const Summary = () => {
                             <h4 className="text-lg font-semibold">
                                 Project Summary
                             </h4>
-                            <FormInput name="title" label="Project Name" />
+                            <FormInput name="title" label="Project Title" />
                             <FormInput name="project_id" label="Project ID" />
                             <FormTextArea
                                 name="goal"
                                 label="Goal of the project"
                             />
-                            <FormTextArea name="narrative" label="Narrative" />
+                            <FormTextArea
+                                name="narrative"
+                                label="Narrative"
+                                required
+                            />
                             <FormInput
                                 name="budget_performance"
                                 label="Budget Performance"
+                                required
                             />
 
                             <div className="flex gap-5">
@@ -273,13 +312,6 @@ const Summary = () => {
                                     type="number"
                                 />
 
-                                {/* <FormSelect
-                                    required
-                                    name="project_manager"
-                                    label="Project Manager"
-                                    options={userOptions}
-                                /> */}
-
                                 <div>
                                     <Label className="font-semibold">
                                         Project Manager
@@ -287,7 +319,7 @@ const Summary = () => {
 
                                     <FormField
                                         control={form.control}
-                                        name="project_manager"
+                                        name="project_managers"
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormControl>
@@ -313,11 +345,11 @@ const Summary = () => {
 
                             <div>
                                 <Label className="font-semibold">
-                                    Funding Source
+                                    Funding Sources
                                 </Label>
                                 <FormField
                                     control={form.control}
-                                    name="project_funding_source"
+                                    name="funding_sources"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormControl>
@@ -346,137 +378,87 @@ const Summary = () => {
                                     Objectives
                                 </Label>
                                 <div className="flex flex-wrap gap-3">
-                                    {objs?.map((option: any, index: number) => (
-                                        <div
-                                            key={index}
-                                            className="border px-7 py-4 space-y-3 rounded-lg"
-                                        >
-                                            <p className="text-sm font-semibold">
-                                                {option?.title}
-                                            </p>
-
-                                            {option?.sub_objectives && (
-                                                <ul className="space-y-2">
-                                                    {option?.sub_objectives.map(
-                                                        (
-                                                            obj: any,
-                                                            i: number
-                                                        ) => (
-                                                            <li
-                                                                key={i}
-                                                                className="text-sm text-gray-500 list-disc pl-5"
-                                                            >
-                                                                {obj?.title}
-                                                            </li>
-                                                        )
-                                                    )}
-                                                </ul>
-                                            )}
-                                        </div>
-                                    ))}
-                                    <div>
-                                        <Dialog>
-                                            <DialogTrigger>
-                                                <p className="text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm">
-                                                    Click to add objectives
+                                    {objectives.objectives.map(
+                                        (objective, index) => (
+                                            <div
+                                                key={index}
+                                                className="border px-7 py-4 space-y-3 rounded-lg relative "
+                                            >
+                                                <p className="text-sm font-semibold">
+                                                    {objective?.objective}
                                                 </p>
-                                            </DialogTrigger>
-                                            <DialogContent>
-                                                <div className="space-y-10">
-                                                    <h4 className="text-xl font-semibold">
-                                                        Add Objective
-                                                    </h4>
 
-                                                    <FormTextArea
-                                                        name="objectives"
-                                                        label="Objective"
-                                                    />
-
-                                                    <div className="space-y-3">
-                                                        <h4 className="text-xl font-semibold">
-                                                            Add Sub-Objective
-                                                        </h4>
-
-                                                        {inputValues.map(
-                                                            (value, index) => (
-                                                                <div
-                                                                    key={index}
-                                                                    className="flex items-center gap-2"
+                                                {objective?.sub_objectives && (
+                                                    <ul className="space-y-2">
+                                                        {objective?.sub_objectives.map(
+                                                            (
+                                                                obj: any,
+                                                                i: number
+                                                            ) => (
+                                                                <li
+                                                                    key={i}
+                                                                    className="text-sm text-gray-500 list-disc pl-5"
                                                                 >
-                                                                    <div className="w-[90%]">
-                                                                        <textarea
-                                                                            className="w-full border rounded-lg p-3"
-                                                                            rows={
-                                                                                3
-                                                                            }
-                                                                            onChange={(
-                                                                                e
-                                                                            ) =>
-                                                                                handleInputChange(
-                                                                                    e,
-                                                                                    index,
-                                                                                    "title"
-                                                                                )
-                                                                            }
-                                                                        />
-                                                                    </div>
-                                                                    <div>
-                                                                        <Button
-                                                                            onClick={() =>
-                                                                                handleDeleteInput(
-                                                                                    index
-                                                                                )
-                                                                            }
-                                                                            variant="ghost"
-                                                                            size="icon"
-                                                                            className="text-red-500"
-                                                                        >
-                                                                            <X />
-                                                                        </Button>
-                                                                    </div>
-                                                                </div>
+                                                                    {obj}
+                                                                </li>
                                                             )
                                                         )}
+                                                    </ul>
+                                                )}
 
-                                                        <Button
-                                                            onClick={
-                                                                handleAddInput
-                                                            }
-                                                            type="button"
-                                                            className="bg-[#FFF2F2] text-primary dark:text-gray-500"
-                                                        >
-                                                            Add
-                                                        </Button>
-                                                    </div>
+                                                <Button
+                                                    variant="ghost"
+                                                    type="button"
+                                                    className="absolute p-0 -right-2 -top-4 w-fit h-fit"
+                                                    onClick={() =>
+                                                        dispatch(
+                                                            removeObjective(
+                                                                objective.objective
+                                                            )
+                                                        )
+                                                    }
+                                                >
+                                                    <FaTimes
+                                                        color="red"
+                                                        size={16}
+                                                    />
+                                                </Button>
+                                            </div>
+                                        )
+                                    )}
 
-                                                    <div className="flex justify-end gap-5 mt-16">
-                                                        <Button
-                                                            type="button"
-                                                            className="bg-[#FFF2F2] text-primary dark:text-gray-500"
-                                                        >
-                                                            Cancel
-                                                        </Button>
-
-                                                        <DialogClose asChild>
-                                                            <Button
-                                                                onClick={
-                                                                    addObjectivesHandler
-                                                                }
-                                                            >
-                                                                Done
-                                                            </Button>
-                                                        </DialogClose>
-                                                    </div>
-                                                </div>
-                                            </DialogContent>
-                                        </Dialog>
+                                    <div>
+                                        <Button
+                                            variant="ghost"
+                                            type="button"
+                                            className="text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm"
+                                            onClick={() =>
+                                                dispatch(
+                                                    openDialog({
+                                                        type: DialogType.ProjectObjectiveModal,
+                                                        dialogProps: {
+                                                            ...mediumDailogScreen,
+                                                        },
+                                                    })
+                                                )
+                                            }
+                                        >
+                                            Click to add objectives
+                                        </Button>
                                     </div>
                                 </div>
                             </div>
 
                             <FormInput
-                                name="expected_results"
                                 label="Expected results"
+                                name="expected_results"
+                                required
+                            />
+
+                            <FormInput
+                                label="Achievement against target"
+                                name="achievement_against_target"
+                                required
                             />
 
                             <div className="space-y-1">
@@ -507,43 +489,28 @@ const Summary = () => {
                                 />
                             </div>
 
-                            {/* <FormInput name="population" label="Target population" /> */}
-
                             <div className="flex flex-col w-full mt-10 space-y-3">
                                 <Label className="font-semibold">
                                     Consortium partners
                                 </Label>
                                 <div className="flex flex-wrap gap-3">
-                                    {location_partners.map(
-                                        (option: any, index: number) => (
-                                            <div
-                                                key={index}
-                                                className="border px-7 py-4 space-y-3 rounded-lg"
-                                            >
-                                                <div className="flex gap-3 items-center">
-                                                    <LocationSvg />{" "}
-                                                    <h4 className="font-semibold">
-                                                        {option.obj.location}
-                                                    </h4>
-                                                </div>
-                                                <ul className="text-sm text-[#756D6D] space-y-2">
-                                                    {option.obj.partner_ids.map(
-                                                        (
-                                                            partner: any,
-                                                            index: number
-                                                        ) => (
-                                                            <li
-                                                                key={index}
-                                                                className=" list-disc"
-                                                            >
-                                                                {partner.name}
-                                                            </li>
-                                                        )
-                                                    )}
-                                                </ul>
+                                    {partnerItems?.map((partner) => (
+                                        <div
+                                            key={partner.id}
+                                            className="border p-5 space-y-3 rounded-lg"
+                                        >
+                                            <div className="flex gap-3 items-center">
+                                                <h4 className="font-semibold">
+                                                    {partner.name}
+                                                </h4>
                                             </div>
-                                        )
-                                    )}
+
+                                            <div className="flex items-cemter gap-2">
+                                                <LocationSvg />
+                                                {partner.state}
+                                            </div>
+                                        </div>
+                                    ))}
                                     <Button
                                         type="button"
                                         variant="outline"
@@ -554,13 +521,15 @@ const Summary = () => {
                                                     type: DialogType.ConsortiumModal,
                                                     dialogProps: {
                                                         width: "max-w-6xl",
+                                                        prevPartners: project
+                                                            ?.data
+                                                            .partners as unknown as string,
                                                     },
                                                 })
                                             );
                                         }}
                                     >
                                         Click to select consortium partners
-                                        based on location
                                     </Button>
                                 </div>
                             </div>
@@ -575,7 +544,7 @@ const Summary = () => {
                                 Cancel
                             </Button>
                             <FormButton
-                                loading={isLoading}
+                                loading={isLoading || isUpdateLoading}
                                 disabled={isLoading}
                                 type="submit"
                                 suffix={<ChevronRight size={14} />}

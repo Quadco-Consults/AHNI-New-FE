@@ -8,9 +8,10 @@ import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import TableAction from "atoms/TableAction";
+import { LoadingSpinner } from "components/shared/Loading";
 
 const AssetTypes = () => {
-    const { data } = useAssetTypesQuery({
+    const { data, isLoading } = useAssetTypesQuery({
         no_paginate: false,
     });
 
@@ -66,39 +67,40 @@ const AssetTypes = () => {
             </div>
             <div>
                 <div className="flex justify-between text-[#756D6D] font-semibold text-sm mb-10">
-                    <h1>Name</h1>
-                    <h1>Manufacturer</h1>
-                    <h1>Model</h1>
-                    <h1></h1>
+                    <h1 className="flex-1">Name</h1>
+                    <h1 className="flex-1">Manufacturer</h1>
+                    <h1 className="flex-1">Model</h1>
+                    <h1 className="flex-1"></h1>
                 </div>
-                <div>
-                    {data?.data?.results.map((item) => {
-                        return (
-                            <div
-                                key={item.id}
-                                className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
-                            >
-                                <div className="flex justify-between w-[53%] lg:w-[78%] ">
-                                    <p className="w-[25%]">{item.name}</p>
-                                    <p className="w-[31%]">
+
+                {isLoading ? (
+                    <LoadingSpinner />
+                ) : (
+                    <div>
+                        {data?.data?.results.map((item) => {
+                            return (
+                                <div
+                                    key={item.id}
+                                    className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
+                                >
+                                    <p className="flex-1">{item.name}</p>
+                                    <p className="flex-1">
                                         {item.manufacturer}
                                     </p>
-                                    <p className="w-[10%] mr-[1.2rem]">
-                                        {item.model}
-                                    </p>
+                                    <p className="flex-1">{item.model}</p>
+                                    <div className="flex-1">
+                                        <TableAction
+                                            update
+                                            removeView
+                                            action={() => onSubmit(item.id)}
+                                            updateAction={() => onUpdate(item)}
+                                        />
+                                    </div>
                                 </div>
-                                <div>
-                                    <TableAction
-                                        update
-                                        removeView
-                                        action={() => onSubmit(item.id)}
-                                        updateAction={() => onUpdate(item)}
-                                    />
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
+                            );
+                        })}
+                    </div>
+                )}
             </div>
         </div>
     );

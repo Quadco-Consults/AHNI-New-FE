@@ -4,87 +4,98 @@ import { invalidateTags, provideTags } from "utils/QueryUtils";
 import baseAPI from "..";
 import { z } from "zod";
 import {
-  RiskCategoriesResponse,
-  RiskCategoriesResultsData,
+    RiskCategoriesResponse,
+    RiskCategoriesResultsData,
 } from "definations/program-types/risk-categories";
 import { RiskCategoriesSchema } from "definations/program-validator";
+import { TBasePaginatedResponse } from "definations/auth";
 
-const BASE_URL = "/programs/risk-categories/";
+const BASE_URL = "/programs/risk-category/";
 
 const RiskCategoriesAPI = baseAPI.injectEndpoints({
-  endpoints: (builder) => ({
-    getRiskCategories: builder.query<RiskCategoriesResultsData[], {}>({
-      query: (config) => {
-        return {
-          url: `${BASE_URL}`,
-          ...config,
-        };
-      },
-      providesTags: (data, error) =>
-        !error ? provideTags("RISK_CATEGORIES", data) : [],
-    }),
+    endpoints: (builder) => ({
+        getRiskCategories: builder.query<
+            TBasePaginatedResponse<RiskCategoriesResultsData>,
+            {}
+        >({
+            query: (config) => {
+                return {
+                    url: `${BASE_URL}`,
+                    ...config,
+                };
+            },
+            providesTags: (data, error) =>
+                !error ? provideTags("RISK_CATEGORIES", data) : [],
+        }),
 
-    createRiskCategory: builder.mutation<
-      RiskCategoriesResponse,
-      z.infer<typeof RiskCategoriesSchema>
-    >({
-      query: (body) => ({
-        url: `${BASE_URL}`,
-        method: "POST",
-        body,
-      }),
-      invalidatesTags: (_, error, {}) =>
-        !error ? invalidateTags("RISK_CATEGORIES") : [],
-    }),
+        createRiskCategory: builder.mutation<
+            RiskCategoriesResponse,
+            z.infer<typeof RiskCategoriesSchema>
+        >({
+            query: (body) => ({
+                url: `${BASE_URL}`,
+                method: "POST",
+                body,
+            }),
+            invalidatesTags: (_, error, {}) =>
+                !error ? invalidateTags("RISK_CATEGORIES") : [],
+        }),
 
-    getRiskCategory: builder.query<
-      RiskCategoriesResultsData,
-      { path: { id: string } }
-    >({
-      query: ({ path }) => {
-        return {
-          url: `${BASE_URL}${path.id}/`,
-        };
-      },
-      providesTags: (data, error) =>
-        !error ? provideTags("RISK_CATEGORIES", data) : [],
-    }),
+        getRiskCategory: builder.query<
+            RiskCategoriesResultsData,
+            { path: { id: string } }
+        >({
+            query: ({ path }) => {
+                return {
+                    url: `${BASE_URL}${path.id}/`,
+                };
+            },
+            providesTags: (data, error) =>
+                !error ? provideTags("RISK_CATEGORIES", data) : [],
+        }),
 
-    updateRiskCategory: builder.mutation<
-      RiskCategoriesResponse,
-      { path: { id: string }; body: any }
-    >({
-      query: ({ path, body }) => ({
-        url: `${BASE_URL}${path.id}/`,
-        method: "PUT",
-        body,
-      }),
-      invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("RISK_CATEGORIES", { ids: [path.id] }) : [],
-    }),
+        updateRiskCategory: builder.mutation<
+            RiskCategoriesResponse,
+            { path: { id: string }; body: any }
+        >({
+            query: ({ path, body }) => ({
+                url: `${BASE_URL}${path.id}/`,
+                method: "PUT",
+                body,
+            }),
+            invalidatesTags: (_, error, { path }) =>
+                !error
+                    ? invalidateTags("RISK_CATEGORIES", { ids: [path.id] })
+                    : [],
+        }),
 
-    modifyRiskCategory: builder.mutation<
-      RiskCategoriesResponse,
-      { path: { id: string }; body: any }
-    >({
-      query: ({ path, body }) => ({
-        url: `${BASE_URL}${path.id}/`,
-        method: "PATCH",
-        body,
-      }),
-      invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("RISK_CATEGORIES", { ids: [path.id] }) : [],
-    }),
+        modifyRiskCategory: builder.mutation<
+            RiskCategoriesResponse,
+            { path: { id: string }; body: any }
+        >({
+            query: ({ path, body }) => ({
+                url: `${BASE_URL}${path.id}/`,
+                method: "PATCH",
+                body,
+            }),
+            invalidatesTags: (_, error, { path }) =>
+                !error
+                    ? invalidateTags("RISK_CATEGORIES", { ids: [path.id] })
+                    : [],
+        }),
 
-    deleteRiskCategory: builder.mutation<void, { path: { id: string } }>({
-      query: ({ path }) => ({
-        url: `${BASE_URL}${path.id}/`,
-        method: "DELETE",
-      }),
-      invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("RISK_CATEGORIES", { ids: [path.id] }) : [],
+        deleteRiskCategory: builder.mutation<void, { path: { id: string } }>({
+            query: ({ path }) => ({
+                url: `${BASE_URL}${path.id}/`,
+                method: "DELETE",
+            }),
+            invalidatesTags: (_, error, { path }) =>
+                !error
+                    ? invalidateTags("RISK_CATEGORIES", { ids: [path.id] })
+                    : [],
+        }),
     }),
-  }),
 });
 
 export default RiskCategoriesAPI;
+export const { useGetRiskCategoriesQuery } = RiskCategoriesAPI;

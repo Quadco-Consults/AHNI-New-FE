@@ -12,8 +12,6 @@ import EyeIcon from "components/icons/EyeIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
-import StakeholderManagementAPI from "services/programsApi/stakeholder-management";
-import { toast } from "sonner";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -22,91 +20,95 @@ import {
     BreadcrumbSeparator,
 } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
-import { StakeholderManagementProps } from "definations/program-types/stakeholder-management";
+import {
+    useDeleteStakeholderRegisterMutation,
+    useGetAllStakeholderRegisterQuery,
+} from "services/programsApi/stakeholder";
+import { TStakeholderRegisterResponse } from "definations/program-validator";
+import { toast } from "sonner";
 
 const Register = () => {
-    const { data, isLoading } =
-        StakeholderManagementAPI.useGetStakeholderManagementsQuery({});
+    const { data, isLoading } = useGetAllStakeholderRegisterQuery(null);
+    const [deleteStakeholderRegister, { isLoading: isDeleteLoading }] =
+        useDeleteStakeholderRegisterMutation();
 
-    const columns: ColumnDef<StakeholderManagementProps>[] = [
+    const columns: ColumnDef<TStakeholderRegisterResponse>[] = [
         {
             header: "Stakeholder Name",
-            id: "stakeholder_name",
-            accessorFn: (data) => `${data.stake_holder.stakeholder_name}`,
+            id: "name",
+            accessorFn: (data) => `${data.name}`,
             size: 250,
         },
         {
             header: "Physical Office Address",
-            id: "physical_office_address",
-            accessorFn: (data) =>
-                `${data.stake_holder.physical_office_address}`,
+            id: "office_address",
+            accessorFn: (data) => `${data.office_address}`,
             size: 250,
         },
         {
             header: "Institution/Organization",
-            id: "institution_organization",
-            accessorFn: (data) =>
-                `${data.stake_holder.institution_organization}`,
+            id: "organization",
+            accessorFn: (data) => `${data.organization}`,
             size: 300,
         },
         {
             header: "Designation",
             id: "designation",
-            accessorFn: (data) => `${data.stake_holder.designation}`,
+            accessorFn: (data) => `${data.designation}`,
         },
         {
             header: "State",
             id: "state",
-            accessorFn: (data) => `${data.stake_holder.state}`,
+            accessorFn: (data) => `${data.state}`,
             size: 150,
         },
         {
             header: "Phone Number",
             id: "phone_number",
-            accessorFn: (data) => `${data.stake_holder.phone_number}`,
+            accessorFn: (data) => `${data.phone_number}`,
             size: 150,
         },
         {
             header: "E-Mail",
             id: "email",
-            accessorFn: (data) => `${data.stake_holder.email}`,
+            accessorFn: (data) => `${data.email}`,
             size: 200,
         },
         {
             header: "Project Role",
             id: "project_role",
-            accessorFn: (data) => `${data.stake_holder.project_role}`,
+            accessorFn: (data) => `${data.project_role}`,
             size: 200,
         },
         {
             header: "Importance",
             id: "importance",
-            accessorFn: (data) => `${data.stake_holder.importance}`,
+            accessorFn: (data) => `${data.importance}`,
             size: 200,
         },
         {
             header: "Influence",
             id: "influence",
-            accessorFn: (data) => `${data.stake_holder.influence}`,
+            accessorFn: (data) => `${data.influence}`,
             size: 200,
         },
         {
             header: "Score",
             id: "score",
-            accessorFn: (data) => `${data.stake_holder.score}`,
+            accessorFn: (data) => `${data.score}`,
             size: 200,
         },
         {
             header: "Major Concerns",
             id: "major_concerns",
-            accessorFn: (data) => `${data.stake_holder.major_concerns}`,
+            accessorFn: (data) => `${data.major_concerns}`,
             size: 200,
         },
 
         {
             header: "Relationship Owner",
             id: "relationship_owner",
-            accessorFn: (data) => `${data.stake_holder.relationship_owner}`,
+            accessorFn: (data) => `${data.relationship_owner}`,
             size: 200,
         },
         {
@@ -117,20 +119,20 @@ const Register = () => {
         },
     ];
 
-    const ActionListAction = ({ data }: any) => {
-        const [stakeholderDeleteMutation] =
-            StakeholderManagementAPI.useDeleteStakeholderManagementMutation();
-        const deleteStakeholderHandler = async () => {
+    const ActionListAction = ({
+        data,
+    }: {
+        data: TStakeholderRegisterResponse;
+    }) => {
+        const handleDeleteStakeholderRegister = async () => {
             try {
-                await stakeholderDeleteMutation({
-                    path: { id: data?.id },
-                }).unwrap();
-                toast.success("Stakeholder deleted.");
+                await deleteStakeholderRegister(data?.id).unwrap();
+                toast.success("Stakeholder Register Deleted");
             } catch (error) {
-                console.log(error);
                 toast.error("Something went wrong");
             }
         };
+
         return (
             <div className="flex items-center gap-2">
                 <>
@@ -161,12 +163,11 @@ const Register = () => {
                                 </Link>
                                 <Link
                                     className="w-full"
-                                    to={generatePath(
-                                        RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER_EDIT,
-                                        {
-                                            id: data?.id,
-                                        }
-                                    )}
+                                    to={{
+                                        pathname:
+                                            RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER_CREATE,
+                                        search: `?id=${data?.id}`,
+                                    }}
                                 >
                                     <Button
                                         className="w-full flex items-center justify-start gap-2"
@@ -209,10 +210,10 @@ const Register = () => {
                                 <Button
                                     className="w-full flex items-center justify-start gap-2"
                                     variant="ghost"
-                                    onClick={deleteStakeholderHandler}
+                                    onClick={handleDeleteStakeholderRegister}
                                 >
                                     <DeleteIcon />
-                                    delete
+                                    Delete
                                 </Button>
                             </div>
                         </PopoverContent>
@@ -251,7 +252,7 @@ const Register = () => {
                 >
                     <Button className="flex gap-2 py-6">
                         <AddSquareIcon />
-                        New Stakeholder
+                        New Stakeholder Register
                     </Button>
                 </Link>
             </div>
@@ -272,9 +273,10 @@ const Register = () => {
                 </div>
 
                 <DataTable
-                    data={data?.results || []}
+                    data={data?.data.results || []}
+                    // @ts-ignore
                     columns={columns}
-                    isLoading={isLoading}
+                    isLoading={isLoading || isDeleteLoading}
                 />
             </Card>
         </div>

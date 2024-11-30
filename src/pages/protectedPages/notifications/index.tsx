@@ -11,15 +11,20 @@ import {
 } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
 import ArrowDownIcon from "components/icons/ArrowDownIcon";
-import { useGetNotificationsQuery } from "services/notification";
+import { TNotification, useGetNotificationsQuery } from "services/notification";
 import NotificationContent from "components/features/NotificationContent";
 import NotificationList from "components/features/NotificationList";
 import EmptyTodoIcon from "components/icons/EmptyTodoIcon";
+import { useState } from "react";
 
 export default function Notifications() {
     const { data, isLoading } = useGetNotificationsQuery(null);
+    const [activeNotification, setActiveNotification] =
+        useState<TNotification>();
 
-    const notifications = data?.results;
+    const handleSetActiveNotification = (notification: TNotification) => {
+        setActiveNotification(notification);
+    };
 
     return (
         <div className="space-y-5">
@@ -66,7 +71,7 @@ export default function Notifications() {
             <Card className="space-y-5 rounded-none">
                 {isLoading ? (
                     <h1>Loading</h1>
-                ) : notifications?.length === 0 ? (
+                ) : data?.results?.length === 0 ? (
                     <div className="flex flex-col items-center gap-2.5">
                         <EmptyTodoIcon />
                         <h3 className="font-bold text-md">
@@ -76,8 +81,25 @@ export default function Notifications() {
                     </div>
                 ) : (
                     <div className="flex">
-                        <NotificationList notifications={notifications} />
-                        <NotificationContent />
+                        <NotificationList
+                            notifications={data?.results}
+                            onSetActiveNotification={
+                                handleSetActiveNotification
+                            }
+                            activeNotification={activeNotification}
+                        />
+
+                        {activeNotification ? (
+                            <NotificationContent active={activeNotification} />
+                        ) : (
+                            <div className="flex flex-col items-center justify-center w-[65%]">
+                                <EmptyTodoIcon />
+                                <h3 className="text-md font-bold mt-2">
+                                    Kindly choose a notification to view its
+                                    details.
+                                </h3>
+                            </div>
+                        )}
                     </div>
                 )}
             </Card>

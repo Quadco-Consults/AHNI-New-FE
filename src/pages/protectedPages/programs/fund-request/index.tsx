@@ -22,10 +22,22 @@ import FundRequestAPI from "services/programsApi/fund-request";
 import { FundRequestResultsData } from "definations/program-types/fund-request";
 import BreadcrumbCard from "components/shared/Breadcrumb";
 
+const data = [
+    {
+        project__title: "Test Project Title",
+        state: "Abuja",
+        project_id: "123456",
+        month_year: "Jan 2025",
+        project__start_date: "12th Jan 2025",
+        project__end_date: "12th Jan 2025",
+        project__status: "PENDING",
+    },
+];
+
 const FundRequest = () => {
     const dispatch = useAppDispatch();
 
-    const { data, isLoading } =
+    const { data: dataaa, isLoading } =
         FundRequestAPI.useGetFundRequestByProjectQuery();
 
     const columns = useMemo<ColumnDef<FundRequestResultsData>[]>(
@@ -96,7 +108,6 @@ const FundRequest = () => {
     );
 
     const ActionListAction = ({ data }: any) => {
-        console.log(data);
         return (
             <div className="flex items-center gap-2">
                 <>
@@ -112,7 +123,7 @@ const FundRequest = () => {
                                     className="w-full"
                                     to={`/program/fund-request/${
                                         data?.project_id
-                                    }/${encodeURIComponent(data?.month_year)}`}
+                                    }/${encodeURIComponent(data?.project_id)}`}
                                 >
                                     <Button
                                         className="w-full flex items-center justify-start gap-2"
@@ -189,7 +200,8 @@ const FundRequest = () => {
                 </div>
 
                 <DataTable
-                    data={data?.results || []}
+                    // data={data?.results || []}
+                    data={data}
                     columns={columns}
                     isLoading={isLoading}
                 />

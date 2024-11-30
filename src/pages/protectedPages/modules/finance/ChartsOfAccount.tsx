@@ -9,11 +9,12 @@ import {
     useDeleteChartAccountMutation,
     useGetChartAccountQuery,
 } from "services/moduleFinance";
+import { LoadingSpinner } from "components/shared/Loading";
 
 const ChartsOfAccount = () => {
     const dispatch = useAppDispatch();
 
-    const { data } = useGetChartAccountQuery({ no_paginate: false });
+    const { data, isLoading } = useGetChartAccountQuery({ no_paginate: false });
     const [deleteChartAccount] = useDeleteChartAccountMutation();
 
     const onSubmit = async (id: string) => {
@@ -64,29 +65,36 @@ const ChartsOfAccount = () => {
             </div>
             <div>
                 <div className="flex justify-between text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4">
-                    <h1>Name</h1>
-                    <h1 className="ml-[8rem]">Description</h1>
-                    <h1 className="ml-[5rem]">Code</h1>
-                    <h1></h1>
+                    <h1 className="flex-1">Name</h1>
+                    <h1 className="flex-1">Description</h1>
+                    <h1 className="flex-1">Code</h1>
+                    <h1 className="flex-1"></h1>
                 </div>
-                <div>
-                    {data?.data?.results?.map((item) => (
-                        <div
-                            key={item.id}
-                            className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
-                        >
-                            <p className="w-[20%]">{item.name}</p>
-                            <p className="w-[25%]">{item.description}</p>
-                            <p className="w-[15%]">{item.code}</p>
-                            <TableAction
-                                update
-                                removeView
-                                action={() => onSubmit(item.id)}
-                                updateAction={() => onUpdate(item)}
-                            />
-                        </div>
-                    ))}
-                </div>
+
+                {isLoading ? (
+                    <LoadingSpinner />
+                ) : (
+                    <div>
+                        {data?.data?.results?.map((item) => (
+                            <div
+                                key={item.id}
+                                className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
+                            >
+                                <p className="flex-1">{item.name}</p>
+                                <p className="flex-1">{item.description}</p>
+                                <p className="flex-1">{item.code}</p>
+                                <div className="flex-1">
+                                    <TableAction
+                                        update
+                                        removeView
+                                        action={() => onSubmit(item.id)}
+                                        updateAction={() => onUpdate(item)}
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -30,6 +30,7 @@ const UsersList = () => {
             position: user?.department,
             mobile_number: user.mobile_number,
             lastLogin: new Date(user.last_login).toLocaleString(),
+            is_active: user?.is_active,
             roles: user.roles,
         }));
     }, [data?.data?.results]);
@@ -41,7 +42,7 @@ const UsersList = () => {
                 <Link to={RouteEnum.CREATE_USERS}>
                     <Button className="gap-x-2" size="sm">
                         <AddSquareIcon />
-                        Add Users
+                        Add User
                     </Button>
                 </Link>
             </div>

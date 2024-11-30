@@ -1,10 +1,12 @@
 import DashboardIcon from "components/icons/sidebar-icons/DashboardIcon";
 import { Separator } from "components/ui/separator";
 import NotificationItem from "components/features/NotificationItem";
-import { NotificationType } from "definations/notification-types";
+import { TNotification } from "services/notification";
 
 type PropsType = {
-    notifications: NotificationType[] | undefined;
+    notifications: TNotification[] | undefined;
+    onSetActiveNotification: (notification: TNotification) => void;
+    activeNotification: TNotification | undefined;
 };
 
 export default function NotificationList(props: PropsType) {
@@ -20,7 +22,14 @@ export default function NotificationList(props: PropsType) {
 
             <ul className="mt-6 px-2 space-y-4">
                 {props.notifications?.map((notification) => (
-                    <NotificationItem />
+                    <NotificationItem
+                        key={notification.id}
+                        notification={notification}
+                        onSetActiveNotification={props.onSetActiveNotification}
+                        active={
+                            props?.activeNotification?.id === notification.id
+                        }
+                    />
                 ))}
             </ul>
         </div>

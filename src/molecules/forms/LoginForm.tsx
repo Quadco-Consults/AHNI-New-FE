@@ -7,7 +7,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { loginSchema } from "definations/auth";
 import { z } from "zod";
-import { useLoginMutation } from "services/authAPI";
+import { useLoginMutation } from "services/auth";
 import { useAppDispatch } from "hooks/useStore";
 import { setAuth } from "store/auth/authSlice";
 import { toast } from "sonner";

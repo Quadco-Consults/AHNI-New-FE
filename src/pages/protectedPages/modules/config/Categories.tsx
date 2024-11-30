@@ -8,9 +8,10 @@ import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import TableAction from "atoms/TableAction";
+import { LoadingSpinner } from "components/shared/Loading";
 
 const Categories = () => {
-    const { data } = useCategoriesQuery({
+    const { data, isLoading } = useCategoriesQuery({
         no_paginate: false,
         page_size: 1,
     });
@@ -74,34 +75,33 @@ const Categories = () => {
                     <h1 className="flex-1">Job Category</h1>
                     <h1 className="flex-1"></h1>
                 </div>
-                <div>
-                    {data?.data?.results?.map((item) => (
-                        <div
-                            key={item.id}
-                            className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
-                        >
-                            <p className="flex-1">{item.name}</p>
-                            <p className="flex-1">
-                                {item.description}
-                            </p>
-                            <p className="flex-1">{item.code}</p>
-                            <p className="flex-1">
-                                {item.serial_number}
-                            </p>
-                            <p className="flex-1">
-                                {item.job_category}
-                            </p>
-                            <div className="flex-1">
-                                <TableAction
-                                    update
-                                    removeView
-                                    action={() => onSubmit(item.id)}
-                                    updateAction={() => onUpdate(item)}
-                                />
+
+                {isLoading ? (
+                    <LoadingSpinner />
+                ) : (
+                    <div>
+                        {data?.data?.results?.map((item) => (
+                            <div
+                                key={item.id}
+                                className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
+                            >
+                                <p className="flex-1">{item.name}</p>
+                                <p className="flex-1">{item.description}</p>
+                                <p className="flex-1">{item.code}</p>
+                                <p className="flex-1">{item.serial_number}</p>
+                                <p className="flex-1">{item.job_category}</p>
+                                <div className="flex-1">
+                                    <TableAction
+                                        update
+                                        removeView
+                                        action={() => onSubmit(item.id)}
+                                        updateAction={() => onUpdate(item)}
+                                    />
+                                </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );

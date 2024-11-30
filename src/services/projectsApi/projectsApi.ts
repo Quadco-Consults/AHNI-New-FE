@@ -1,5 +1,3 @@
-/* eslint-disable no-empty-pattern */
-/* eslint-disable no-unused-vars */
 import { invalidateTags, provideTags } from "utils/QueryUtils";
 import baseAPI from "..";
 import {
@@ -7,13 +5,16 @@ import {
     ProjectsResponse,
     ProjectsResultsData,
 } from "definations/project-types/projects";
-import { TBasePaginatedResponse } from "definations/auth";
+import { TBasePaginatedResponse, TRequest, TResponse } from "definations/auth";
 
 const BASE_URL = "/projects/";
 
 const projectsAPi = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
-        getProjects: builder.query<TBasePaginatedResponse<ProjectsData>, {}>({
+        getProjects: builder.query<
+            TBasePaginatedResponse<ProjectsResultsData>,
+            TRequest
+        >({
             query: (config) => {
                 return {
                     url: `${BASE_URL}`,
@@ -23,6 +24,7 @@ const projectsAPi = baseAPI.injectEndpoints({
             providesTags: (data, error) =>
                 !error ? provideTags("PROJECTS", data) : [],
         }),
+
         getProjectsParams: builder.query<ProjectsResultsData[], {}>({
             query: (config) => {
                 return {
@@ -44,43 +46,42 @@ const projectsAPi = baseAPI.injectEndpoints({
                 !error ? invalidateTags("PROJECTS") : [],
         }),
 
-        getProject: builder.query<
-            ProjectsResultsData,
-            { path: { id: string } }
-        >({
-            query: ({ path }) => {
-                return {
-                    url: `${BASE_URL}${path.id}/`,
-                };
-            },
-            providesTags: (data, error) =>
-                !error ? provideTags("PROJECTS", data) : [],
-        }),
+        getSingleProject: builder.query<TResponse<ProjectsResultsData>, string>(
+            {
+                query: (id) => {
+                    return {
+                        url: `${BASE_URL}${id}/`,
+                    };
+                },
+                providesTags: (data, error) =>
+                    !error ? provideTags("PROJECTS", data) : [],
+            }
+        ),
 
         updateProject: builder.mutation<
             ProjectsResponse,
-            { path: { id: string }; body: any }
+            { id: string; body: any }
         >({
-            query: ({ path, body }) => ({
-                url: `${BASE_URL}${path.id}/`,
+            query: ({ id, body }) => ({
+                url: `${BASE_URL}${id}/`,
                 method: "PUT",
                 body,
             }),
-            invalidatesTags: (_, error, { path }) =>
-                !error ? invalidateTags("PROJECTS", { ids: [path.id] }) : [],
+            invalidatesTags: (_, error, { id }) =>
+                !error ? invalidateTags("PROJECTS", { ids: [id] }) : [],
         }),
 
-        modifyProject: builder.mutation<
+        patchProject: builder.mutation<
             ProjectsResponse,
-            { path: { id: string }; body: any }
+            { id: string; body: { status: string } }
         >({
-            query: ({ path, body }) => ({
-                url: `${BASE_URL}${path.id}/`,
+            query: ({ id, body }) => ({
+                url: `${BASE_URL}${id}/`,
                 method: "PATCH",
                 body,
             }),
-            invalidatesTags: (_, error, { path }) =>
-                !error ? invalidateTags("PROJECTS", { ids: [path.id] }) : [],
+            invalidatesTags: (_, error, { id }) =>
+                !error ? invalidateTags("PROJECTS", { ids: [id] }) : [],
         }),
 
         deleteProject: builder.mutation<void, { path: { id: string } }>({
@@ -94,4 +95,12 @@ const projectsAPi = baseAPI.injectEndpoints({
     }),
 });
 
-export default projectsAPi;
+export const {
+    useCreateProjectMutation,
+    useUpdateProjectMutation,
+    usePatchProjectMutation,
+    useGetProjectsQuery,
+    useGetSingleProjectQuery,
+    useDeleteProjectMutation,
+    useGetProjectsParamsQuery,
+} = projectsAPi;
