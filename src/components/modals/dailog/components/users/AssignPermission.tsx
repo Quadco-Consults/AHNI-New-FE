@@ -1,14 +1,19 @@
 import FormButton from "atoms/FormButton";
+import EmptyTodoIcon from "components/icons/EmptyTodoIcon";
+import { LoadingSpinner } from "components/shared/Loading";
+import { Button } from "components/ui/button";
 import { Card, CardContent } from "components/ui/card";
 import { Checkbox } from "components/ui/checkbox";
 import { ScrollArea } from "components/ui/scroll-area";
-import useInfiniteScroll from "hooks/useInfiniteScroll";
+import { TPermission } from "definations/users";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { cn } from "lib/utils";
-import { FC, useCallback, useEffect, useState } from "react";
+import { capitalize } from "lodash";
+import { FC, useEffect, useState } from "react";
 import {
-    useAddPermissionToRoleMutation,
-    useLazyPermissionsQuery,
+    useGetSingleRoleQuery,
+    usePermissionsQuery,
+    useUpdateRoleMutation,
 } from "services/users";
 import { toast } from "sonner";
 import { closeDialog, dailogSelector } from "store/ui";
@@ -21,12 +26,12 @@ interface Permission {
 }
 
 type TPermissionSelector = {
-    // eslint-disable-next-line no-unused-vars
-    updateSelectedPermissions: (permissions: number[]) => void;
+    selectedPermissions: number[];
+    onSelectPermission: (permissionId: number) => void;
 };
 
 const PermissionCheckbox: FC<{
-    permission: Permission;
+    permission: TPermission;
     checked: boolean;
 
     // eslint-disable-next-line no-unused-vars
@@ -44,7 +49,6 @@ const PermissionCheckbox: FC<{
         >
             <Checkbox
                 checked={checked}
-                onCheckedChange={onChange}
                 className={cn(
                     "h-4 w-4 rounded-sm border-2",
                     checked ? "border-red-500 bg-red-500" : "border-gray-300"
@@ -56,83 +60,43 @@ const PermissionCheckbox: FC<{
 };
 
 const PermissionSelector: FC<TPermissionSelector> = ({
-    updateSelectedPermissions,
+    selectedPermissions,
+    onSelectPermission,
 }) => {
-    const [items, setItems] = useState<Permission[]>([]);
+    const { data: permissions, isLoading } = usePermissionsQuery({
+        no_paginate: false,
+    });
 
-    const [fetchItems, { isLoading }] = useLazyPermissionsQuery();
+    if (isLoading) return <LoadingSpinner />;
 
-    const fetchData = useCallback(
-        async (page: number) => {
-            const result = await fetchItems({
-                page,
-            }).unwrap();
-            if (result) {
-                setItems((prevItems) => [...prevItems, ...result]);
-            } else {
-                setItems((prevItems) => [...prevItems]);
-            }
-        },
-        [fetchItems]
-    );
-
-    const { lastItemRef } = useInfiniteScroll({ fetchData });
-
-    const { dialogProps } = useAppSelector(dailogSelector);
-
-    const userPermission = dialogProps?.permission as unknown as Permission[];
-
-    const [selectedPermissions, setSelectedPermissions] = useState<{
-        [key: number]: boolean;
-    }>({});
-
-    useEffect(() => {
-        if (items.length > 0) {
-            const allIds = userPermission.map((item) => item.id);
-            const initialSelectedPermissions = items.reduce(
-                (acc, permission) => {
-                    acc[permission.id] = allIds.includes(permission.id); // All permissions from data.results are initially selected
-                    return acc;
-                },
-                {} as { [key: number]: boolean }
-            );
-
-            setSelectedPermissions(initialSelectedPermissions);
-        }
-    }, [items, userPermission]);
-
-    useEffect(() => {
-        updateSelectedPermissions(
-            Object.entries(selectedPermissions)
-                .filter(([, checked]) => checked)
-                .map(([permissionId]) => parseInt(permissionId, 10))
+    if (permissions?.data?.length === 0)
+        return (
+            <div className="flex flex-col items-center gap-2.5">
+                <EmptyTodoIcon />
+                <h3 className="font-bold text-md">No permissions found.</h3>
+            </div>
         );
-    }, [selectedPermissions, updateSelectedPermissions]);
-
-    const handlePermissionChange =
-        (permissionId: number) => (checked: boolean) => {
-            setSelectedPermissions((prev) => ({
-                ...prev,
-                [permissionId]: checked,
-            }));
-        };
 
     return (
-        <div className="grid grid-cols-5 gap-2 pb-10 ">
-            {items?.map((permission, index) => (
-                <div
-                    key={index}
-                    ref={items.length === index + 1 ? lastItemRef : null}
-                >
-                    <PermissionCheckbox
-                        permission={permission}
-                        checked={selectedPermissions[permission.id]}
-                        onChange={handlePermissionChange(permission.id)}
-                    />
+        <>
+            {permissions?.data?.map((permission) => (
+                <div>
+                    <h3 className="font-bold text-lg">
+                        {capitalize(permission.module)}
+                    </h3>
+                    <div className="grid grid-cols-5 gap-2 pb-10 mt-1.5">
+                        {permission?.permissions?.map((item) => (
+                            <PermissionCheckbox
+                                key={item.id}
+                                permission={item}
+                                checked={selectedPermissions.includes(item.id)}
+                                onChange={() => onSelectPermission(item.id)}
+                            />
+                        ))}
+                    </div>
                 </div>
             ))}
-            {isLoading && <p className="text-lg text-center">Loading...</p>}
-        </div>
+        </>
     );
 };
 
@@ -142,22 +106,53 @@ const AssignPermission = () => {
     );
 
     const { dialogProps } = useAppSelector(dailogSelector);
+
+    const [updateRole, { isLoading }] = useUpdateRoleMutation({});
+
     const dispatch = useAppDispatch();
-    const id = dialogProps?.id;
-    const [addPermission, { isLoading }] = useAddPermissionToRoleMutation();
+
+    const roleId = dialogProps?.id as string;
+    const roleName = dialogProps?.name as string;
+
+    const { data: role } = useGetSingleRoleQuery(roleId);
+
+    useEffect(() => {
+        const prevPermissions = role?.data?.permissions
+            ?.map((permission) => permission)
+            .map((item) =>
+                item.permissions.map((_permission) => _permission.id)
+            );
+
+        if (prevPermissions) {
+            setSelectedPermissions([...prevPermissions.flat()]);
+        }
+    }, [role]);
+
+    const handleSelectPermission = (permissionId: number) => {
+        const isSelected = selectedPermissions.indexOf(permissionId);
+
+        if (isSelected > -1) {
+            setSelectedPermissions(
+                selectedPermissions.filter(
+                    (permission) => permission !== permissionId
+                )
+            );
+            return;
+        }
+
+        setSelectedPermissions([...selectedPermissions, permissionId]);
+    };
 
     const onSubmit = async () => {
         try {
-            await addPermission({
-                body: {
-                    items: selectedPermissions as unknown as string[],
-                },
-                id: String(id),
+            await updateRole({
+                roleId,
+                body: { name: roleName, permissions: selectedPermissions },
             }).unwrap();
             dispatch(closeDialog());
             toast.success("Permission added successfully");
-        } catch (err: any) {
-            // toast.error("Error adding permission" || err?.message);
+        } catch (error: any) {
+            toast.error(error.data.message || "Something went wrong");
         }
     };
 
@@ -181,17 +176,22 @@ const AssignPermission = () => {
                 <CardContent className="w-full p-4">
                     <ScrollArea className="h-[50vh]">
                         <PermissionSelector
-                            updateSelectedPermissions={setSelectedPermissions}
+                            selectedPermissions={selectedPermissions}
+                            onSelectPermission={handleSelectPermission}
                         />
                     </ScrollArea>
                 </CardContent>
             </Card>
-            <div className="flex items-center mt-7 px-7">
-                <div>
-                    <FormButton onClick={() => onSubmit()} loading={isLoading}>
-                        Save & Continue
-                    </FormButton>
-                </div>
+            <div className="flex items-center justify-end gap-4 mt-7 px-7">
+                <Button
+                    variant="outline"
+                    onClick={() => dispatch(closeDialog())}
+                >
+                    Cancel
+                </Button>
+                <FormButton onClick={() => onSubmit()} loading={isLoading}>
+                    Save & Continue
+                </FormButton>
             </div>
         </div>
     );

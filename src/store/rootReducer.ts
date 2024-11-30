@@ -9,11 +9,12 @@ import objectives from "./formData/project-objective";
 import ssp from "./formData/ssp-values";
 import vendors from "./formData/procurement-vendors";
 import assets from "./assets";
+import stakeholder from "./formData/stakeholders";
 
 const persistConfig = {
     storage,
     key: "ahni",
-    blacklist: [baseAPI.reducerPath], // Exclude RTK Query cache
+    blacklist: [baseAPI.reducerPath, "objectives", "partnerLocation"],
 };
 
 export const rootStore = combineReducers({
@@ -26,7 +27,7 @@ export const rootStore = combineReducers({
     ssp,
     vendors,
     assets,
+    stakeholder,
 });
 
 export const rootReducer = persistReducer(persistConfig, rootStore);
-// export const rootReducer = rootStore;

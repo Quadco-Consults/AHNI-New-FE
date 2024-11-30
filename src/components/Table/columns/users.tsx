@@ -1,4 +1,15 @@
 import { createColumnHelper } from "@tanstack/react-table";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "components/ui/alert-dialog";
 
 import {
     DropdownMenu,
@@ -19,6 +30,15 @@ import {
     largeDailogScreen,
     mediumDailogScreen,
 } from "constants/dailogs";
+import { useState } from "react";
+import {
+    useActivateUserMutation,
+    useDeactivateUserMutation,
+} from "services/users";
+import { toast } from "sonner";
+import { LoadingSpinner } from "components/shared/Loading";
+import { intlFormat } from "date-fns";
+import { Badge } from "components/ui/badge";
 
 // Action handlers (implement these in your component)
 
@@ -31,9 +51,17 @@ const ActionDropdown = ({
     designation,
     gender,
     email,
+    is_active,
     roles,
 }: TUser) => {
     const dispatch = useAppDispatch();
+
+    const [dialogOpen, setDialogOpen] = useState(false);
+
+    const [activateUser, { isLoading: isActivateLoading }] =
+        useActivateUserMutation();
+    const [deactivateUser, { isLoading: isDeactivateLoading }] =
+        useDeactivateUserMutation();
 
     const handleEdit = (id: string) => {
         dispatch(
@@ -69,43 +97,80 @@ const ActionDropdown = ({
         );
     };
 
-    const handleDeactivate = (id: string) => {
-        console.log("Deactivate user with id:", id);
+    const handleDeactivate = async () => {
+        try {
+            is_active
+                ? await deactivateUser(id).unwrap()
+                : await activateUser(id).unwrap();
+
+            toast.success("Action Successful");
+        } catch (error: any) {
+            toast.error(error.data.message);
+        } finally {
+            setDialogOpen(false);
+        }
     };
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="w-8 h-8 p-0">
-                    <span className="sr-only">Open menu</span>
-                    <MoreHorizontal className="w-4 h-4" />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                    className="cursor-pointer "
-                    onClick={() => handleEdit(id)}
-                >
-                    <Edit className="w-4 h-4 mr-2" />
-                    <span>Edit User</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                    className="cursor-pointer "
-                    onClick={() => handleUpdate(id)}
-                >
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    <span>Update Role</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                    className="cursor-pointer "
-                    onClick={() => handleDeactivate(id)}
-                >
-                    <UserMinus className="w-4 h-4 mr-2" />
-                    <span>Deactivate User</span>
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="w-8 h-8 p-0">
+                        <span className="sr-only">Open menu</span>
+                        <MoreHorizontal className="w-4 h-4" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                        className="cursor-pointer "
+                        onClick={() => handleEdit(id)}
+                    >
+                        <Edit className="w-4 h-4 mr-2" />
+                        <span>Edit User</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                        className="cursor-pointer "
+                        onClick={() => handleUpdate(id)}
+                    >
+                        <RefreshCw className="w-4 h-4 mr-2" />
+                        <span>Update Role</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => setDialogOpen(true)}
+                    >
+                        <UserMinus className="w-4 h-4 mr-2" />
+                        <span>
+                            {is_active ? "Deactivate User" : "Activate User"}
+                        </span>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+
+            <AlertDialog open={dialogOpen}>
+                <AlertDialogTrigger asChild></AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
+                            Are you certain you want to perform this action?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action is irreversible, but you will have the
+                            option to reactivate/deactivate them later.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setDialogOpen(false)}>
+                            Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDeactivate}>
+                            Continue
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </>
     );
 };
 
@@ -145,6 +210,17 @@ export const userColums = [
                 .map((role) => role)
                 .join(", "),
     }),
+
+    columnHelper.accessor("is_active", {
+        header: "Status",
+        cell: (info) =>
+            info.getValue() ? (
+                <Badge className="bg-green-500">Activated</Badge>
+            ) : (
+                <Badge className="bg-red-500">Deactivated</Badge>
+            ),
+    }),
+
     columnHelper.accessor("actions", {
         header: "",
         cell: ({ row }) => <ActionDropdown {...row.original} />, // This represents the actions column with the three dots

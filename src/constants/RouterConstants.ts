@@ -138,7 +138,9 @@ export const RouteEnum = {
     PROGRAM_WORK_PLAN: "/program/plan/work-plan",
     PROGRAM_WORK_PLAN_DETAILS:
         "/program/plan/work-plan/:partner_id/:project_id/:financial_year",
+
     PROGRAM_ACTIVITY: "/program/plan/activity",
+    PROGRAM_CREATE_ACTIVITY_PLAN: "/program/plan/create-activity-plan",
 
     PROGRAM_ACTIVITY_TRACKER: "/program/plan/activity-tracker",
     PROGRAM_ACTIVITY_TRACKER_CREATE:
@@ -194,8 +196,8 @@ export const RouteEnum = {
     PROJECTS_DETAILS: "/projects/:id",
     PROJECTS_CREATE_SUMMARY: "/projects/create-projects/summary",
     PROJECTS_CREATE_UPLOADS: "/projects/create-projects/uploads",
-    PROJECTS_EDIT_SUMMARY: "/projects/:id/edit-projects/summary",
-    PROJECTS_EDIT_UPLOADS: "/projects/:id/edit-projects/uploads",
+    PROJECTS_EDIT_SUMMARY: "/projects/:id/create-projects/summary",
+    PROJECTS_EDIT_UPLOADS: "/projects/:id/create-projects/uploads",
     // PROJECTS_CREATE_PERFORMANCE: "/projects/create-projects/performance",
 
     TRAINING: "/program/training-and-procurement",

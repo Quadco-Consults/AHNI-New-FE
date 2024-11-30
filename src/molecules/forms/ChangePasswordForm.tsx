@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import FormInput from "atoms/FormInput";
 import FormButton from "atoms/FormButton";
-import { useChangePasswordMutation } from "services/authAPI";
+import { useChangePasswordMutation } from "services/auth";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import Card from "components/shared/Card";

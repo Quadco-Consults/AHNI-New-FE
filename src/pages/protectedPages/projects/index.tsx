@@ -13,7 +13,6 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
 import DataTable from "components/Table/DataTable";
-import projectsAPi from "services/projectsApi/projectsApi";
 import { ProjectsResultsData } from "definations/project-types/projects";
 import {
     Breadcrumb,
@@ -23,9 +22,17 @@ import {
 } from "components/ui/breadcrumb";
 import { toast } from "sonner";
 import EditIcon from "components/icons/EditIcon";
+import {
+    useDeleteProjectMutation,
+    useGetProjectsQuery,
+} from "services/projectsApi/projectsApi";
+import PencilIcon from "components/icons/PencilIcon";
+import { useAppDispatch } from "hooks/useStore";
+import { openDialog } from "store/ui";
+import { DialogType, mediumDailogScreen } from "constants/dailogs";
 
 const FundRequest = () => {
-    const { data, isLoading } = projectsAPi.useGetProjectsQuery({});
+    const { data, isLoading } = useGetProjectsQuery({});
 
     const columns: ColumnDef<ProjectsResultsData>[] = [
         {
@@ -58,9 +65,9 @@ const FundRequest = () => {
                         variant="default"
                         className={cn(
                             "p-1 rounded-lg",
-                            getValue() === "APPROVED" &&
+                            getValue() === "IN_PROGRESS" &&
                                 "bg-green-200 text-green-500",
-                            getValue() === "Reject" &&
+                            getValue() === "CLOSED" &&
                                 "bg-red-200 text-red-500",
                             getValue() === "PENDING" &&
                                 "bg-yellow-200 text-yellow-500",
@@ -82,13 +89,15 @@ const FundRequest = () => {
         {
             header: "Funding Source",
             accessorKey: "funding_sources",
-            cell: ({ row }) => <ProjectFundingSource data={row.original.funding_sources} />,
+            cell: ({ row }) => (
+                <ProjectFundingSource data={row.original.funding_sources} />
+            ),
             size: 200,
         },
         {
             header: "Project Manager",
             accessorKey: "project_manager",
-            size: 120,
+            size: 200,
             cell: ({ row }) =>
                 row.original.project_managers
                     .map((el) => `${el.first_name} ${el.last_name}`)
@@ -103,6 +112,11 @@ const FundRequest = () => {
             header: "Budget Performance",
             accessorKey: "budget_performance",
             size: 200,
+        },
+        {
+            header: "Achievement Against Target",
+            accessorKey: "achievement_against_target",
+            size: 300,
         },
         {
             header: "Beneficiaries",
@@ -149,10 +163,13 @@ const FundRequest = () => {
     };
 
     const ActionListAction = ({ data }: any) => {
-        const [projectDeleteMutation] = projectsAPi.useDeleteProjectMutation();
+        const [deleteProject] = useDeleteProjectMutation();
+
+        const dispatch = useAppDispatch();
+
         const deleteProjectHandler = async () => {
             try {
-                await projectDeleteMutation({
+                await deleteProject({
                     path: { id: data?.id },
                 }).unwrap();
                 toast.success("Project deleted.");
@@ -192,12 +209,11 @@ const FundRequest = () => {
                                 </Link>
                                 <Link
                                     className="w-full"
-                                    to={generatePath(
-                                        RouteEnum.PROJECTS_EDIT_SUMMARY,
-                                        {
-                                            id: data?.id,
-                                        }
-                                    )}
+                                    to={{
+                                        pathname:
+                                            RouteEnum.PROJECTS_CREATE_SUMMARY,
+                                        search: `?id=${data?.id}`,
+                                    }}
                                 >
                                     <Button
                                         className="w-full flex items-center justify-start gap-2"
@@ -208,12 +224,30 @@ const FundRequest = () => {
                                     </Button>
                                 </Link>
                                 <Button
+                                    variant="ghost"
+                                    type="button"
+                                    onClick={() => {
+                                        dispatch(
+                                            openDialog({
+                                                type: DialogType.ChangeProjectStatusModal,
+                                                dialogProps: {
+                                                    ...mediumDailogScreen,
+                                                    id: data.id,
+                                                },
+                                            })
+                                        );
+                                    }}
+                                >
+                                    <PencilIcon />
+                                    Change Status
+                                </Button>
+                                <Button
                                     className="w-full flex items-center justify-start gap-2"
                                     variant="ghost"
                                     onClick={deleteProjectHandler}
                                 >
                                     <DeleteIcon />
-                                    delete
+                                    Delete
                                 </Button>
                             </div>
                         </PopoverContent>
@@ -245,12 +279,12 @@ const FundRequest = () => {
 
                 <Card className="space-y-5">
                     <div className="flex items-center justify-start gap-2">
-                        <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
+                        <span className="flex items-center px-2 py-2 border rounded-lg">
                             <SearchIcon />
                             <input
                                 placeholder="Search"
                                 type="text"
-                                className="ml-2 h-6 border-none bg-none focus:outline-none outline-none"
+                                className="ml-2 h-6 border-none bg-none focus:outline-none outline-none w-[350px]"
                             />
                         </span>
                         <Button className="shadow-sm" variant="ghost">

@@ -5,19 +5,11 @@ import FormSelect from "atoms/FormSelectField";
 import FormTextArea from "atoms/FormTextArea";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import Card from "components/shared/Card";
-import { LoadingSpinner } from "components/shared/Loading";
 import { Form } from "components/ui/form";
-import { SelectContent, SelectItem } from "components/ui/select";
 import { RouteEnum } from "constants/RouterConstants";
-import { StakeholderManagementSchema } from "definations/program-validator";
-import { PartnerResultsData } from "definations/project-types/partners";
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import StateAPI from "services/configs/state";
-import StakeholderManagementAPI from "services/programsApi/stakeholder-management";
-import partnersAPi from "services/projectsApi/partnersApi";
 import { toast } from "sonner";
-import { z } from "zod";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -26,34 +18,80 @@ import {
     BreadcrumbSeparator,
 } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
+import {
+    ActivityTrackerSchema,
+    TActivityTrackerFormValues,
+} from "definations/program-types/activity-tracker";
+import { useDepartmentsQuery, useLocationsQuery } from "services/moduleConfig";
+import { usePartnersQuery } from "services/moduleProjects";
+import { useCreateActivityTrackerMutation } from "services/programsApi/activity-tracker";
+
+const monthOptions = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+].map((month) => ({
+    label: month,
+    value: month,
+}));
+
+const statusOptions = ["PENDING", "APPROVED"].map((status) => ({
+    label: status,
+    value: status,
+}));
 
 export default function CreateActivityTracker() {
+    const { data: location } = useLocationsQuery({ no_paginate: false });
+    const { data: department } = useDepartmentsQuery({ no_paginate: false });
+    const { data: partner } = usePartnersQuery({ no_paginate: false });
+
+    const locationOptions = location?.data.results.map((loc) => ({
+        label: loc.name,
+        value: loc.id,
+    }));
+
+    const departmentOptions = department?.data.results.map((dept) => ({
+        label: dept.name,
+        value: dept.id,
+    }));
+
+    const partnerOptions = partner?.data.results.map((partner) => ({
+        label: partner.name,
+        value: partner.id,
+    }));
+
+    const [createActivityTracker, { isLoading: isCreateLoading }] =
+        useCreateActivityTrackerMutation();
+
     const navigate = useNavigate();
 
-    const stateResultQuery = StateAPI.useGetStatesQuery();
-    const states = stateResultQuery?.data;
-    const partnerResultQuery = partnersAPi.useGetPartnersQuery({});
-    const partners = partnerResultQuery?.data?.results;
-    const [createStakeholderManagementMutation, { isLoading }] =
-        StakeholderManagementAPI.useCreateStakeholderManagementMutation();
-
-    const form = useForm<z.infer<typeof StakeholderManagementSchema>>({
-        resolver: zodResolver(StakeholderManagementSchema),
+    const form = useForm<TActivityTrackerFormValues>({
+        resolver: zodResolver(ActivityTrackerSchema),
         defaultValues: {
-            stakeholder_name: "",
-            institution_organization: "",
-            physical_office_address: "",
-            state: "",
-            gender: "",
-            designation: "",
-            phone_number: "",
-            email: "",
-            project_role: "",
-            importance: "",
-            influence: "",
-            score: "",
-            major_concerns: "",
-            relationship_owner: "",
+            activity_name: "",
+            activity_reference_number: "",
+            month: "",
+            activity_plans: "",
+            objectives: "",
+            location: "",
+            ir: "",
+            activity_frequency: "",
+            planned_output: "",
+            output_description: "",
+            achievement_percentage: "",
+            total_amount_ngn: "",
+            total_amount_usd: "",
+            expended_amount_ngn: "",
+            implementation_usd_rate: "",
         },
     });
 
@@ -63,18 +101,15 @@ export default function CreateActivityTracker() {
         navigate(-1);
     };
 
-    const onSubmit = async (
-        data: z.infer<typeof StakeholderManagementSchema>
+    const onSubmit: SubmitHandler<TActivityTrackerFormValues> = async (
+        data
     ) => {
-        console.log(data);
-
         try {
-            await createStakeholderManagementMutation(data).unwrap();
-            toast.success("Stakeholder successfully created.");
-            navigate(RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER);
-        } catch (error) {
-            toast.error("Something went wrong");
-            console.log(error);
+            await createActivityTracker(data).unwrap();
+            toast.success("Activity Tracker Created");
+            navigate(RouteEnum.PROGRAM_ACTIVITY_TRACKER);
+        } catch (error: any) {
+            toast.error(error.data.message || "Something went wrong");
         }
     };
 
@@ -124,7 +159,7 @@ export default function CreateActivityTracker() {
 
                         <FormInput
                             label="Activity Reference Number (As in WP)"
-                            name=""
+                            name="activity_reference_number"
                             placeholder="Enter activity Ref. Number"
                             required
                         />
@@ -134,54 +169,53 @@ export default function CreateActivityTracker() {
                             name="month"
                             placeholder="Select Month"
                             required
-                        >
-                            <SelectContent>
-                                {partnerResultQuery?.isLoading ? (
-                                    <LoadingSpinner />
-                                ) : (
-                                    ["January", "Februray"]?.map(
-                                        (month: string) => (
-                                            <SelectItem
-                                                value={month}
-                                                key={month}
-                                            >
-                                                {month}
-                                            </SelectItem>
-                                        )
-                                    )
-                                )}
-                            </SelectContent>
-                        </FormSelect>
+                            options={monthOptions}
+                        />
 
                         <FormTextArea
                             label="Activities Plan for the Month"
-                            name=""
+                            name="activity_plans"
+                            placeholder="Enter Plan For Month"
+                            required
                         />
 
-                        <FormTextArea label="Objectives" name="" />
+                        <FormTextArea
+                            label="Objectives"
+                            name="objectives"
+                            placeholder="Enter Objectives"
+                            required
+                        />
 
                         <FormSelect
                             label="Location"
                             name="location"
                             placeholder="Select Location"
                             required
-                        >
-                            <SelectContent>
-                                {partnerResultQuery?.isLoading ? (
-                                    <LoadingSpinner />
-                                ) : (
-                                    ["Lagos", "Abuja"]?.map((month: string) => (
-                                        <SelectItem value={month} key={month}>
-                                            {month}
-                                        </SelectItem>
-                                    ))
-                                )}
-                            </SelectContent>
-                        </FormSelect>
+                            options={locationOptions}
+                        />
 
-                        <FormInput label="IR" name="" />
-                        <FormInput label="Lead Dept" name="" required />
-                        <FormInput label="Lead Partner" name="" required />
+                        <FormInput
+                            label="IR"
+                            name="ir"
+                            placeholder="Enter IR"
+                            required
+                        />
+
+                        <FormSelect
+                            label="Lead Dept"
+                            name="lead_dept"
+                            placeholder="Select Lead Dept"
+                            required
+                            options={departmentOptions}
+                        />
+
+                        <FormSelect
+                            label="Lead Partner"
+                            name="lead_partner"
+                            placeholder="Select Lead Partner"
+                            required
+                            options={partnerOptions}
+                        />
 
                         <div className="bg-red-100 py-5 px-2.5 rounded-md">
                             <h2 className="text-lg font-bold text-red-500">
@@ -189,33 +223,41 @@ export default function CreateActivityTracker() {
                             </h2>
                         </div>
 
-                        <FormInput label="Frq. of Activity" name="" />
-                        <FormInput label="Planned Output" name="" />
-                        <FormTextArea label="Description of Output" name="" />
-                        <FormInput label="Percentage of Achievement" name="" />
+                        <FormInput
+                            label="Frq. of Activity"
+                            name="activity_frequency"
+                            placeholder="Enter Frq. of Activity"
+                            required
+                        />
+
+                        <FormInput
+                            label="Planned Output"
+                            name="planned_output"
+                            placeholder="Enter Planned Output"
+                            required
+                        />
+
+                        <FormTextArea
+                            label="Description of Output"
+                            name="output_description"
+                            placeholder="Enter Output Description"
+                            required
+                        />
+
+                        <FormInput
+                            label="Percentage of Achievement"
+                            name="achievement_percentage"
+                            required
+                            placeholder="Enter Percentage of Achievement"
+                        />
+
                         <FormSelect
                             label="Status"
                             name="status"
                             placeholder="Select Status"
                             required
-                        >
-                            <SelectContent>
-                                {partnerResultQuery?.isLoading ? (
-                                    <LoadingSpinner />
-                                ) : (
-                                    ["Pending", "Approved"]?.map(
-                                        (month: string) => (
-                                            <SelectItem
-                                                value={month}
-                                                key={month}
-                                            >
-                                                {month}
-                                            </SelectItem>
-                                        )
-                                    )
-                                )}
-                            </SelectContent>
-                        </FormSelect>
+                            options={statusOptions}
+                        />
 
                         <div className="bg-red-100 py-5 px-2.5 rounded-md">
                             <h2 className="text-lg font-bold text-red-500">
@@ -223,12 +265,46 @@ export default function CreateActivityTracker() {
                             </h2>
                         </div>
 
-                        <FormInput label="Total NGN" name="" />
-                        <FormInput label="Total USD" name="" />
-                        <FormInput label="Amount Expended" name="" />
-                        <FormInput label="Implementation USD Rate" name="" />
-                        <FormInput label="Amount Expended USD" name="" />
-                        <FormInput label="Expenditure Rate NGN" name="" />
+                        <FormInput
+                            label="Total NGN"
+                            name="total_amount_ngn"
+                            required
+                            placeholder="Enter Total NGN"
+                        />
+
+                        <FormInput
+                            label="Total USD"
+                            name="total_amount_usd"
+                            placeholder="Enter Total USD"
+                            required
+                        />
+
+                        <FormInput
+                            label="Amount Expended NGN"
+                            name="expended_amount_ngn"
+                            placeholder="Enter Amount Expended NGN "
+                        />
+
+                        <FormInput
+                            label="Implementation USD Rate"
+                            name="implementation_usd_rate"
+                            placeholder="Enter Implementation USD Rate"
+                            required
+                        />
+
+                        <FormInput
+                            label="Amount Expended USD"
+                            name="amount_expended_usd"
+                            placeholder="Enter Amount Expended USD"
+                            required
+                        />
+
+                        <FormInput
+                            label="Expenditure Rate NGN"
+                            name="expenditure_rate_ngn"
+                            placeholder="Enter Amount Expenditure Rate NGN"
+                            required
+                        />
                     </Card>
 
                     <div className="flex justify-end gap-5 pt-10">
@@ -240,7 +316,10 @@ export default function CreateActivityTracker() {
                             Cancel
                         </FormButton>
 
-                        <FormButton loading={isLoading} disabled={isLoading}>
+                        <FormButton
+                            loading={isCreateLoading}
+                            disabled={isCreateLoading}
+                        >
                             Create
                         </FormButton>
                     </div>

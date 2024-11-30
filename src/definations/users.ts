@@ -36,15 +36,19 @@ export const updateUserSchema = z.object({
 export type TCreateUser = z.infer<typeof userSchema>;
 export type TUpdateUser = z.infer<typeof updateUserSchema>;
 interface Role {
-    id: number;
+    id: string;
     name: string;
 }
 
 export interface Permission {
+    module: string;
+    permissions: TPermission[];
+}
+
+export interface TPermission {
     id: number;
     name: string;
     codename: string;
-    module: string;
 }
 
 export interface TUser {
@@ -62,11 +66,12 @@ export interface TUser {
     action: string;
     department: string;
     position: string;
-    actions: string; //
+    actions: string;
+    is_active: boolean;
 }
 
 export interface TRole {
-    id: number;
+    id: string;
     name: string;
     permissions: Permission[];
 }

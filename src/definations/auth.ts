@@ -36,12 +36,11 @@ export interface TRequest {
     asset_type?: string;
 }
 
-// export interface TBasePaginatedResponse<T> {
-//     count: number;
-//     next: string;
-//     previous: string;
-//     results: T
-// }
+export interface TResponse<T> {
+    status: string;
+    message: string;
+    data: T;
+}
 
 export interface TBasePaginatedResponse<T> {
     status: boolean;

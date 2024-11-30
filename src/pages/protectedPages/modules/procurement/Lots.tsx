@@ -8,9 +8,10 @@ import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import TableAction from "atoms/TableAction";
+import { LoadingSpinner } from "components/shared/Loading";
 
 const Lots = () => {
-    const { data } = useLotsQuery({
+    const { data, isLoading } = useLotsQuery({
         no_paginate: false,
     });
 
@@ -39,7 +40,7 @@ const Lots = () => {
             })
         );
     };
-    
+
     return (
         <div>
             <div className="flex items-center justify-between py-6 mb-6">
@@ -65,27 +66,34 @@ const Lots = () => {
             </div>
             <div>
                 <div className="flex justify-between text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4">
-                    <h1>Name</h1>
-                    <h1 className="">Packet Number</h1>
-                    <h1></h1>
+                    <h1 className="flex-1">Name</h1>
+                    <h1 className="flex-1">Packet Number</h1>
+                    <h1 className="flex-1"></h1>
                 </div>
-                <div>
-                    {data?.data?.results.map((item) => (
-                        <div
-                            key={item.id}
-                            className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
-                        >
-                            <p className="w-[30%]">{item.name}</p>
-                            <p className="w-[25%]">{item.packet_number}</p>
-                            <TableAction
-                                update
-                                removeView
-                                action={() => onSubmit(item.id)}
-                                updateAction={() => onUpdate(item)}
-                            />
-                        </div>
-                    ))}
-                </div>
+
+                {isLoading ? (
+                    <LoadingSpinner />
+                ) : (
+                    <div>
+                        {data?.data?.results.map((item) => (
+                            <div
+                                key={item.id}
+                                className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
+                            >
+                                <p className="flex-1">{item.name}</p>
+                                <p className="flex-1">{item.packet_number}</p>
+                                <div className="flex-1">
+                                    <TableAction
+                                        update
+                                        removeView
+                                        action={() => onSubmit(item.id)}
+                                        updateAction={() => onUpdate(item)}
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );
