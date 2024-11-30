@@ -41,6 +41,7 @@ const WorkPlanDetail = () => {
   const goBack = () => {
     navigate(-1);
   };
+  
   return (
     <div className="space-y-6 relative min-h-screen">
       <Breadcrumb>
