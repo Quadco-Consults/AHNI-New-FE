@@ -602,19 +602,17 @@ const DEPARTMENTAL_LINKS = [
                 path: "/program/plan",
                 sublinks: [
                     { name: "Work Plan", path: RouteEnum.PROGRAM_WORK_PLAN },
-                    { name: "Activity Plan", path: RouteEnum.PROGRAM_ACTIVITY },
                     {
-                        name: "Activity Tracker",
+                        name: "Work Plan Tracker",
                         path: RouteEnum.PROGRAM_ACTIVITY_TRACKER,
                     },
+                    { name: "Activity Plan", path: RouteEnum.PROGRAM_ACTIVITY },
+
                     {
                         name: "Risk Management Plan",
                         path: RouteEnum.PROGRAM_RISK_MANAGEMENT,
                     },
-                    // {
-                    //   name: "Value Management Plan",
-                    //   path: RouteEnum.PROGRAM_RISK_MANAGEMENT,
-                    // },
+
                     {
                         name: "Supportive Supervision Plan",
                         path: RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION,
