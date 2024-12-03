@@ -14,7 +14,12 @@ import stakeholder from "./formData/stakeholders";
 const persistConfig = {
     storage,
     key: "ahni",
-    blacklist: [baseAPI.reducerPath, "objectives", "partnerLocation"],
+    blacklist: [
+        baseAPI.reducerPath,
+        "objectives",
+        "partnerLocation",
+        "stakeholder",
+    ],
 };
 
 export const rootStore = combineReducers({

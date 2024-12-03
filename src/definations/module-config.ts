@@ -31,6 +31,13 @@ export const locationsSchema = z.object({
     phone: z.string().optional(),
 });
 
+export const PositionSchema = z.object({
+    name: z.string().min(1, "Please enter a name"),
+    description: z.string().min(1, "Please enter a description"),
+});
+
+export type TPositionFormValues = z.infer<typeof PositionSchema>;
+
 export type TCategories = z.infer<typeof categorySchema>;
 export type TDepartments = z.infer<typeof departmentsSchema>;
 export type TFinancialYear = z.infer<typeof financialYearSchema>;
@@ -85,4 +92,12 @@ export interface Locations {
     state: string;
     email: string;
     phone: string;
+}
+
+export interface Position {
+    id: string;
+    created_datetime: string;
+    updated_datetime: string;
+    name: string;
+    description: string;
 }

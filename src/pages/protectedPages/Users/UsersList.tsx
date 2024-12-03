@@ -27,7 +27,7 @@ const UsersList = () => {
             email: user.email,
             gender: user?.gender,
             department: user?.department,
-            position: user?.department,
+            position: user?.position,
             mobile_number: user.mobile_number,
             lastLogin: new Date(user.last_login).toLocaleString(),
             is_active: user?.is_active,

@@ -207,36 +207,23 @@ export const StakeholderSchema = z.object({
     submitted_stakeholders: z.array(z.string().min(1, "Field is required")),
 });
 
-export const FundRequestDetailSchema = z.object({
+export const FundRequestSchema = z.object({
     project: z.string().min(1, "Field is required"),
     partner: z.string().min(1, "Field is required"),
-    year: z
-        .string()
-        .min(4, "Field is required")
-        .max(4, "Four characters required"),
     month: z
         .string()
         .min(2, "Field is required")
         .max(2, "Two characters required"),
+    year: z
+        .string()
+        .min(4, "Field is required")
+        .max(4, "Four characters required"),
+
     currency: z.string().min(1, "Field is required"),
     financial_year: z.string().min(1, "Field is required"),
     type: z.string().min(1, "Field is required"),
+    location: z.string().min(1, "Field is required"),
+    reviewer: z.string().min(1, "Field is required"),
 });
 
-export const FundRequestSchema = z.object({
-    line_items: z.array(
-        z.object({
-            amount: z.string().min(1, "Field is required"),
-            description: z.string().min(1, "Field is required"),
-            unit_cost: z.string().min(1, "Field is required"),
-            frequency: z.number().min(1, "Field is required"),
-            comments: z.string().min(1, "Field is required"),
-        })
-    ),
-    project: z.string().min(1, "Field is required"),
-    partner: z.string().min(1, "Field is required"),
-    month_year: z.string().min(4, "Field is required"),
-    currency: z.string().min(1, "Field is required"),
-    financial_year: z.string().min(1, "Field is required"),
-    type: z.string().min(1, "Field is required"),
-});
+export type TFundRequest = z.infer<typeof FundRequestSchema>;

@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unknown-property */
 import { Link, generatePath } from "react-router-dom";
 import Card from "components/shared/Card";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
@@ -11,116 +12,155 @@ import EyeIcon from "components/icons/EyeIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
-import StakeholderManagementAPI from "services/programsApi/stakeholder-management";
-import { StakeholderMgtProjectsData } from "definations/program-types/stakeholder-management";
-import BreadcrumbCard from "components/shared/Breadcrumb";
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "components/ui/breadcrumb";
+import { Icon } from "@iconify/react";
+import {
+    useDeleteStakeholderRegisterMutation,
+    useGetAllStakeholderRegisterQuery,
+} from "services/programsApi/stakeholder";
+import { TStakeholderRegisterResponse } from "definations/program-validator";
+import { toast } from "sonner";
 
-const AnalysisMapping = () => {
-  const { data, isLoading } =
-    StakeholderManagementAPI.useGetStakeholderMgtProjectsQuery({});
+const StakeholderAnalysisMapping = () => {
+    const { data, isLoading } = useGetAllStakeholderRegisterQuery({
+        no_paginate: false,
+    });
+    const [deleteStakeholderRegister, { isLoading: isDeleteLoading }] =
+        useDeleteStakeholderRegisterMutation();
 
-  const columns: ColumnDef<StakeholderMgtProjectsData>[] = [
-    {
-      header: "Project Name",
-      accessorKey: "title",
-      size: 200,
-    },
-    {
-      header: "Location",
-      accessorKey: "locations",
-      size: 200,
-    },
-    {
-      header: "Start Date",
-      accessorKey: "start_date",
-      size: 200,
-    },
-    {
-      header: "End Date",
-      accessorKey: "end_date",
-      size: 200,
-    },
-    {
-      header: "",
-      id: "actions",
-      size: 80,
-      cell: ({ row }) => <ActionListAction data={row.original} />,
-    },
-  ];
+    const columns: ColumnDef<TStakeholderRegisterResponse>[] = [
+        {
+            header: "Stakeholder Name",
+            id: "name",
+            accessorFn: (data) => `${data.name}`,
+            size: 250,
+        },
+        {
+            header: "Physical Office Address",
+            id: "office_address",
+            accessorFn: (data) => `${data.office_address}`,
+            size: 250,
+        },
+        {
+            header: "Institution/Organization",
+            id: "organization",
+            accessorFn: (data) => `${data.organization}`,
+            size: 300,
+        },
+        {
+            header: "Designation",
+            id: "designation",
+            accessorFn: (data) => `${data.designation}`,
+        },
+        {
+            header: "State",
+            id: "state",
+            accessorFn: (data) => `${data.state}`,
+            size: 150,
+        },
+        {
+            header: "Phone Number",
+            id: "phone_number",
+            accessorFn: (data) => `${data.phone_number}`,
+            size: 150,
+        },
+        {
+            header: "E-Mail",
+            id: "email",
+            accessorFn: (data) => `${data.email}`,
+            size: 200,
+        },
+        {
+            header: "Project Role",
+            id: "project_role",
+            accessorFn: (data) => `${data.project_role}`,
+            size: 200,
+        },
+        {
+            header: "Importance",
+            id: "importance",
+            accessorFn: (data) => `${data.importance}`,
+            size: 200,
+        },
+        {
+            header: "Influence",
+            id: "influence",
+            accessorFn: (data) => `${data.influence}`,
+            size: 200,
+        },
+        {
+            header: "Score",
+            id: "score",
+            accessorFn: (data) => `${data.score}`,
+            size: 200,
+        },
+        {
+            header: "Major Concerns",
+            id: "major_concerns",
+            accessorFn: (data) => `${data.major_concerns}`,
+            size: 200,
+        },
 
-  const ActionListAction = ({ data }: any) => {
+        {
+            header: "Relationship Owner",
+            id: "relationship_owner",
+            accessorFn: (data) => `${data.relationship_owner}`,
+            size: 200,
+        },
+    ];
+
     return (
-      <div className="flex items-center gap-2">
-        <>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="ghost" className="flex gap-2 py-6">
-                <MoreOptionsHorizontalIcon />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className=" w-fit">
-              <div className="flex flex-col items-start justify-between gap-1">
-                <Link
-                  className="w-full"
-                  to={generatePath(
-                    RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS_DETAILS,
-                    {
-                      id: data?.id,
-                    }
-                  )}
-                >
-                  <Button
-                    className="w-full flex items-center justify-start gap-2"
-                    variant="ghost"
-                  >
-                    <EyeIcon />
-                    View
-                  </Button>
-                </Link>
+        <div className="space-y-5">
+            <Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>Programs</BreadcrumbPage>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator>
+                        <Icon icon="iconoir:slash" />
+                    </BreadcrumbSeparator>
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>Stakeholder Management</BreadcrumbPage>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator>
+                        <Icon icon="iconoir:slash" />
+                    </BreadcrumbSeparator>
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>Analysis & Mapping</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
+            </Breadcrumb>
 
-                <Button
-                  className="w-full flex items-center justify-start gap-2"
-                  variant="ghost"
-                >
-                  <DeleteIcon />
-                  delete
-                </Button>
-              </div>
-            </PopoverContent>
-          </Popover>
-        </>
-      </div>
-    );
-  };
+            <Card className="space-y-5">
+                <div className="flex items-center justify-start gap-2">
+                    <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
+                        <SearchIcon />
+                        <input
+                            placeholder="Search"
+                            type="text"
+                            className="ml-2 h-6 w-[350px] border-none bg-none focus:outline-none outline-none"
+                        />
+                    </span>
+                    <Button className="shadow-sm" variant="ghost">
+                        <FilterIcon />
+                    </Button>
+                </div>
 
-  const breadcrumbs = [
-    { name: "Procurement", icon: true },
-    { name: "Stakeholder Management", icon: true },
-    { name: "Analysis & Mapping", icon: false },
-  ];
-
-  return (
-    <div className="space-y-10">
-      <BreadcrumbCard list={breadcrumbs} />
-      <Card className="space-y-5">
-        <div className="flex items-center justify-start gap-2">
-          <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
-            <SearchIcon />
-            <input
-              placeholder="Search"
-              type="text"
-              className="ml-2 h-6 border-none bg-none focus:outline-none outline-none"
-            />
-          </span>
-          <Button className="shadow-sm" variant="ghost">
-            <FilterIcon />
-          </Button>
+                <DataTable
+                    data={data?.data.results || []}
+                    // @ts-ignore
+                    columns={columns}
+                    isLoading={isLoading || isDeleteLoading}
+                />
+            </Card>
         </div>
-
-        <DataTable data={data || []} columns={columns} isLoading={isLoading} />
-      </Card>
-    </div>
-  );
+    );
 };
 
-export default AnalysisMapping;
+export default StakeholderAnalysisMapping;

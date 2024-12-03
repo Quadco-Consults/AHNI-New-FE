@@ -163,6 +163,7 @@ const projectsAPI = baseAPI.injectEndpoints({
                 url: "/config/states/",
             }),
         }),
+        
         location: builder.query<any, TRequest>({
             query: (params) => ({
                 url: "/config/locations/",

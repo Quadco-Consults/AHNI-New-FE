@@ -2,14 +2,14 @@ import { TBasePaginatedResponse, TRequest, TResponse } from "definations/auth";
 import baseAPI from "..";
 import {
     TEngagementPlanFormValue,
-    TEngagementPlanResponse,
+    TEngagementPlanPaginatedResponse,
+    TEngagementPlanSingleResponse,
 } from "definations/program-types/engagement-plan";
 
-// https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1/programs/stakeholders/engagement-plans/
 const EngagementPlanAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
         createEngagementPlan: builder.mutation<
-            TResponse<TEngagementPlanResponse>,
+            TResponse<TEngagementPlanSingleResponse>,
             TEngagementPlanFormValue
         >({
             query: (body) => ({
@@ -20,8 +20,8 @@ const EngagementPlanAPI = baseAPI.injectEndpoints({
         }),
 
         getAllEngagementPlans: builder.query<
-            TBasePaginatedResponse<TEngagementPlanResponse>,
-            {}
+            TBasePaginatedResponse<TEngagementPlanPaginatedResponse>,
+            TRequest
         >({
             query: () => ({
                 method: "GET",
@@ -30,7 +30,7 @@ const EngagementPlanAPI = baseAPI.injectEndpoints({
         }),
 
         getSingleEngagementPlan: builder.query<
-            TResponse<TEngagementPlanResponse>,
+            TResponse<TEngagementPlanSingleResponse>,
             string
         >({
             query: (id) => ({
@@ -40,7 +40,7 @@ const EngagementPlanAPI = baseAPI.injectEndpoints({
         }),
 
         updateEngagementPlan: builder.mutation<
-            TResponse<TEngagementPlanResponse>,
+            TResponse<TEngagementPlanSingleResponse>,
             { id: string; body: TEngagementPlanFormValue }
         >({
             query: ({ id, body }) => ({
@@ -51,7 +51,7 @@ const EngagementPlanAPI = baseAPI.injectEndpoints({
         }),
 
         deleteEngagementPlan: builder.mutation<
-            TResponse<TEngagementPlanResponse>,
+            TResponse<TEngagementPlanSingleResponse>,
             string
         >({
             query: (id) => ({

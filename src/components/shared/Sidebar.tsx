@@ -624,7 +624,7 @@ const DEPARTMENTAL_LINKS = [
                 path: "/program/stakeholder-management",
                 sublinks: [
                     {
-                        name: "Analysis/Mapping",
+                        name: "Analysis & Mapping",
                         path: RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS,
                     },
                     {

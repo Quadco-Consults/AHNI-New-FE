@@ -136,8 +136,7 @@ export const RouteEnum = {
 
     //program routes
     PROGRAM_WORK_PLAN: "/program/plan/work-plan",
-    PROGRAM_WORK_PLAN_DETAILS:
-        "/program/plan/work-plan/:partner_id/:project_id/:financial_year",
+    PROGRAM_WORK_PLAN_DETAILS: "/program/plan/work-plan/:id",
 
     PROGRAM_ACTIVITY: "/program/plan/activity",
     PROGRAM_CREATE_ACTIVITY_PLAN: "/program/plan/create-activity-plan",
@@ -185,7 +184,7 @@ export const RouteEnum = {
     PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN:
         "/program/stakeholder-management/engagement-plan",
     PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN_CREATE:
-        "/program/stakeholder-management/engagement-plan/create-stakeholder",
+        "/program/stakeholder-management/engagement-plan/create-engagement-plan",
     PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN_DETAILS:
         "/program/stakeholder-management/engagement-plan/:id",
     PROGRAM_REPORT: "/program/reports",

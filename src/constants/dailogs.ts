@@ -62,6 +62,7 @@ export const DialogType = {
     FundRequestBreakdown: "FundRequestBreakdown",
     ChangeRiskStatusModal: "ChangeRiskStatusModal",
     ChangeProjectStatusModal: "ChangeProjectStatusModal",
+    AddPosition: "AddPosition",
 };
 
 export const largeDailogScreen = {

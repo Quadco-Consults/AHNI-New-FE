@@ -1,111 +1,60 @@
-/* eslint-disable no-empty-pattern */
-/* eslint-disable no-unused-vars */
-import { invalidateTags, provideTags } from "utils/QueryUtils";
+import { TBasePaginatedResponse, TRequest, TResponse } from "definations/auth";
 import baseAPI from "..";
 import {
-  WorkPlanData,
-  WorkPlanDetails,
-  WorkPlanListData,
-  WorkPlanResponse,
-  WorkPlanResultsData,
-} from "definations/program-types/program-workplan";
+    TWorkPlanPaginatedResponse,
+    TWorkPlanSingleResponse,
+} from "definations/program-types/work-plan";
 
-const BASE_URL = "/programs/workplans/";
+const WorkPlanAPI = baseAPI.injectEndpoints({
+    endpoints: (builder) => ({
+        uploadWorkPlan: builder.mutation<null, { project: string; file: File }>(
+            {
+                query: (body) => ({
+                    method: "POST",
+                    url: "/programs/plans/works/sheet/upload/",
+                    body,
+                }),
+                invalidatesTags: ["WORK_PLAN"],
+            }
+        ),
 
-const WorkPlanAPi = baseAPI.injectEndpoints({
-  endpoints: (builder) => ({
-    getWorkPlans: builder.query<WorkPlanData, {}>({
-      query: (config) => {
-        return {
-          url: `${BASE_URL}`,
-          ...config,
-        };
-      },
-      providesTags: (data, error) =>
-        !error ? provideTags("WORK_PLANS", data) : [],
-    }),
-    getWorkPlanAll: builder.query<WorkPlanResultsData[], {}>({
-      query: (config) => {
-        return {
-          url: `${BASE_URL}`,
-          ...config,
-        };
-      },
-      providesTags: (data, error) =>
-        !error ? provideTags("WORK_PLANS", data) : [],
-    }),
-    getWorkPlansDetails: builder.query<WorkPlanDetails, {}>({
-      query: (config) => {
-        return {
-          url: `${BASE_URL}detail/`,
-          ...config,
-        };
-      },
-      providesTags: (data, error) =>
-        !error ? provideTags("WORK_PLANS", data) : [],
-    }),
-    getWorkPlansList: builder.query<WorkPlanListData, void>({
-      query: () => {
-        return {
-          url: `${BASE_URL}list/`,
-        };
-      },
-      providesTags: (data, error) =>
-        !error ? provideTags("WORK_PLANS", data) : [],
-    }),
+        getAllWorkPlan: builder.query<
+            TBasePaginatedResponse<TWorkPlanPaginatedResponse>,
+            TRequest
+        >({
+            query: () => ({
+                method: "GET",
+                url: "/programs/plans/works/",
+            }),
+            providesTags: ["WORK_PLAN"],
+        }),
 
-    createWorkPlan: builder.mutation<WorkPlanResponse, any>({
-      query: (body) => ({
-        url: `${BASE_URL}`,
-        method: "POST",
-        body,
-      }),
-      invalidatesTags: (_, error, {}) =>
-        !error ? invalidateTags("WORK_PLANS") : [],
-    }),
+        getSingleWorkPlan: builder.query<
+            TResponse<TWorkPlanSingleResponse>,
+            string
+        >({
+            query: (id) => ({
+                method: "GET",
+                url: `/programs/plans/works/${id}`,
+            }),
+        }),
 
-    createWorkPlanDocument: builder.mutation<any, any>({
-      query: (body) => ({
-        url: `${BASE_URL}upload/`,
-        method: "POST",
-        body,
-      }),
-      invalidatesTags: (_, error, {}) =>
-        !error ? invalidateTags("WORK_PLANS") : [],
+        deleteWorkPlan: builder.mutation<
+            TResponse<TWorkPlanSingleResponse>,
+            string
+        >({
+            query: (id) => ({
+                method: "DELETE",
+                url: `/programs/plans/works/${id}`,
+            }),
+            invalidatesTags: ["WORK_PLAN"],
+        }),
     }),
-
-    getWorkPlan: builder.query<WorkPlanResultsData, { path: { id: string } }>({
-      query: ({ path }) => {
-        return {
-          url: `${BASE_URL}${path.id}/`,
-        };
-      },
-      providesTags: (data, error) =>
-        !error ? provideTags("WORK_PLANS", data) : [],
-    }),
-
-    modifyWorkPlan: builder.mutation<
-      WorkPlanResponse,
-      { path: { id: string }; body: any }
-    >({
-      query: ({ path, body }) => ({
-        url: `${BASE_URL}${path.id}/`,
-        method: "PATCH",
-        body,
-      }),
-      invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("WORK_PLANS", { ids: [path.id] }) : [],
-    }),
-
-    deleteWorkPlan: builder.mutation<void, { path: { id: string } }>({
-      query: ({ path }) => ({
-        url: `${BASE_URL}${path.id}/`,
-        method: "DELETE",
-      }),
-      invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("WORK_PLANS", { ids: [path.id] }) : [],
-    }),
-  }),
 });
 
-export default WorkPlanAPi;
+export const {
+    useUploadWorkPlanMutation,
+    useGetAllWorkPlanQuery,
+    useGetSingleWorkPlanQuery,
+    useDeleteWorkPlanMutation,
+} = WorkPlanAPI;

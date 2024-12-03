@@ -1,4 +1,3 @@
-import { permissionColums } from "components/Table/columns/users";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { Permission } from "definations/users";

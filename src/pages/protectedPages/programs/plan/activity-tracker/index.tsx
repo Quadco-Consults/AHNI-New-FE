@@ -29,6 +29,7 @@ import { useGetAllActivityTrackerQuery } from "services/programsApi/activity-tra
 
 import { TActivityTrackerResult } from "definations/program-types/activity-tracker";
 import { Badge } from "components/ui/badge";
+import PencilIcon from "components/icons/PencilIcon";
 
 export default function ActivityTracker() {
     const dispatch = useAppDispatch();
@@ -246,15 +247,7 @@ export default function ActivityTracker() {
                         </PopoverTrigger>
                         <PopoverContent className=" w-fit">
                             <div className="flex flex-col items-start justify-between gap-1">
-                                <Link
-                                    className="w-full"
-                                    // to={`/program/plan/work-plan/${
-                                    //     data.partner_id
-                                    // }/${data.project_id}/${encodeURIComponent(
-                                    //     data.financial_year.id
-                                    // )}`}
-                                    to="/"
-                                >
+                                <Link className="w-full" to="/">
                                     <Button
                                         className="w-full flex items-center justify-start gap-2"
                                         variant="ghost"
@@ -263,6 +256,23 @@ export default function ActivityTracker() {
                                         View
                                     </Button>
                                 </Link>
+                                <Link
+                                    className="w-full"
+                                    to={{
+                                        pathname:
+                                            RouteEnum.PROGRAM_ACTIVITY_TRACKER_CREATE,
+                                        search: `?id=${data?.id}`,
+                                    }}
+                                >
+                                    <Button
+                                        className="w-full flex items-center justify-start gap-2"
+                                        variant="ghost"
+                                    >
+                                        <PencilIcon />
+                                        Edit
+                                    </Button>
+                                </Link>
+
                                 <Button
                                     className="w-full flex items-center justify-start gap-2"
                                     variant="ghost"
@@ -300,53 +310,6 @@ export default function ActivityTracker() {
                 </BreadcrumbList>
             </Breadcrumb>
 
-            <div className="flex justify-end">
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <Button className="flex gap-2 py-6">
-                            <AddSquareIcon />
-                            New Activity Tracker
-                            <ArrowDownIcon />
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-fit">
-                        <div className="flex flex-col items-start justify-between gap-1">
-                            <Button
-                                className="w-full flex items-center gap-2 justify-start"
-                                variant="ghost"
-                                onClick={() =>
-                                    dispatch(
-                                        openDialog({
-                                            type: DialogType.ActivityTrackerModal,
-                                            dialogProps: {
-                                                header: "Upload An Activity Tracker",
-                                                ...mediumDailogScreen,
-                                            },
-                                        })
-                                    )
-                                }
-                            >
-                                <UploadIcon /> Upload
-                            </Button>
-                            <Link
-                                className="w-full"
-                                to={generatePath(
-                                    RouteEnum.PROGRAM_ACTIVITY_TRACKER_CREATE
-                                )}
-                            >
-                                <Button
-                                    className="w-full flex items-center gap-2 justify-start"
-                                    variant="ghost"
-                                >
-                                    <AddSquareIcon fillColor="#FF0000" /> Create
-                                    manually
-                                </Button>
-                            </Link>
-                        </div>
-                    </PopoverContent>
-                </Popover>
-            </div>
-
             <Card className="space-y-5">
                 <div className="flex items-center justify-start gap-2">
                     <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
@@ -354,7 +317,7 @@ export default function ActivityTracker() {
                         <input
                             placeholder="Search"
                             type="text"
-                            className="ml-2 h-6 border-none bg-none focus:outline-none outline-none"
+                            className="ml-2 h-6 w-[350px] border-none bg-none focus:outline-none outline-none"
                         />
                     </span>
                     <Button className="shadow-sm" variant="ghost">

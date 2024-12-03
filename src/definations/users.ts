@@ -13,6 +13,7 @@ export const userSchema = z
         gender: z.enum(["MALE", "FEMALE", "Other"]),
         password: z.string().min(1, "Please enter a password").optional(),
         department: z.string().min(1, "Please select a department"),
+        position: z.string().min(1, "Please select position"),
         confirm_password: z
             .string()
             .min(1, "Please enter a password")

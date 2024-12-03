@@ -10,7 +10,10 @@ import { TCreateUser, userSchema } from "definations/users";
 
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { useDepartmentsQuery } from "services/moduleConfig";
+import {
+    useDepartmentsQuery,
+    useGetAllPositionsQuery,
+} from "services/moduleConfig";
 import { useCreateUserMutation } from "services/users";
 import { toast } from "sonner";
 
@@ -29,6 +32,7 @@ const CreateUsers = () => {
             email: "",
             mobile_number: "",
             password: "",
+            position: "",
             confirm_password: "",
         },
     });
@@ -37,6 +41,13 @@ const CreateUsers = () => {
     const departmentOptions = data?.data?.results?.map((dept) => ({
         label: dept.name,
         value: dept.id,
+    }));
+
+    const { data: position } = useGetAllPositionsQuery({ no_paginate: false });
+
+    const positionOptions = position?.data.results.map(({ name, id }) => ({
+        label: name,
+        value: id,
     }));
 
     const [createUser, { isLoading }] = useCreateUserMutation();
@@ -107,6 +118,15 @@ const CreateUsers = () => {
                                         name="department"
                                         required
                                         options={departmentOptions}
+                                    />
+                                </div>
+
+                                <div>
+                                    <FormSelect
+                                        label="Position"
+                                        name="position"
+                                        required
+                                        options={positionOptions}
                                     />
                                 </div>
 

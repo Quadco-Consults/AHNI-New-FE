@@ -4,21 +4,15 @@ import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelect";
 import { Form } from "components/ui/form";
-import {
-    TUpdateUser,
-    TUser,
-    updateUserSchema,
-    userSchema,
-} from "definations/users";
+import { TUser, userSchema } from "definations/users";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { useEffect, useState } from "react";
 
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useDepartmentsQuery } from "services/moduleConfig";
+import { useDepartmentsQuery, useGetAllPositionsQuery } from "services/moduleConfig";
 import { useUpdateUserMutation } from "services/users";
 import { toast } from "sonner";
 import { closeDialog, dailogSelector } from "store/ui";
-import { date } from "zod";
 
 const genderOptions = [
     { label: "Male", value: "MALE" },
@@ -40,6 +34,13 @@ const EditUser = () => {
         value: dept.id,
     }));
 
+    const { data: position } = useGetAllPositionsQuery({ no_paginate: false });
+
+    const positionOptions = position?.data.results.map(({ name, id }) => ({
+        label: name,
+        value: id,
+    }));
+
     const dispatch = useAppDispatch();
 
     const [id, setId] = useState("");
@@ -50,7 +51,6 @@ const EditUser = () => {
         if (dialogProps?.data) {
             const data = JSON.parse(dialogProps.data as string) as TUser;
             form.reset(data);
-            // setUser(data);
 
             setId(data.id);
         }
@@ -114,6 +114,15 @@ const EditUser = () => {
                                 name="department"
                                 required
                                 options={departmentOptions}
+                            />
+                        </div>
+
+                        <div>
+                            <FormSelect
+                                label="Position"
+                                name="position"
+                                required
+                                options={positionOptions}
                             />
                         </div>
 
