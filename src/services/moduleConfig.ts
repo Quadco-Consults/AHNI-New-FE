@@ -1,5 +1,5 @@
 import baseAPI from ".";
-import { TBasePaginatedResponse, TRequest } from "definations/auth";
+import { TBasePaginatedResponse, TRequest, TResponse } from "definations/auth";
 import {
     TCategories,
     Categories,
@@ -11,6 +11,8 @@ import {
     Items,
     TLocations,
     Locations,
+    TPositionFormValues,
+    Position,
 } from "definations/module-config";
 
 const projectsAPI = baseAPI.injectEndpoints({
@@ -183,12 +185,54 @@ const projectsAPI = baseAPI.injectEndpoints({
             }),
             invalidatesTags: ["Locations"],
         }),
+
         deleteLocations: builder.mutation<Locations, string>({
             query: (id) => ({
                 url: `/config/locations/${id}`,
                 method: "DELETE",
             }),
             invalidatesTags: ["Locations"],
+        }),
+
+        addPosition: builder.mutation<null, TPositionFormValues>({
+            query: (body) => ({
+                method: "POST",
+                url: `/config/position/`,
+                body,
+            }),
+            invalidatesTags: ["Position"],
+        }),
+
+        getAllPositions: builder.query<
+            TBasePaginatedResponse<Position>,
+            TRequest
+        >({
+            query: (params) => ({
+                method: "GET",
+                url: "/config/position/",
+                params,
+            }),
+            providesTags: ["Position"],
+        }),
+
+        updatePosition: builder.mutation<
+            TResponse<Position>,
+            { id: string; body: TPositionFormValues }
+        >({
+            query: ({ id, body }) => ({
+                method: "PUT",
+                url: `/config/position/${id}/`,
+                body,
+            }),
+            invalidatesTags: ["Position"],
+        }),
+
+        deletePosition: builder.mutation<TResponse<Position>, string>({
+            query: (id) => ({
+                method: "DELETE",
+                url: `/config/position/${id}/`,
+            }),
+            invalidatesTags: ["Position"],
         }),
     }),
 });
@@ -214,4 +258,8 @@ export const {
     useAddLocationsMutation,
     useUpdateLocationsMutation,
     useDeleteLocationsMutation,
+    useAddPositionMutation,
+    useGetAllPositionsQuery,
+    useUpdatePositionMutation,
+    useDeletePositionMutation,
 } = projectsAPI;

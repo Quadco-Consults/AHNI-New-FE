@@ -22,7 +22,7 @@ import {
 import { Button } from "components/ui/button";
 
 import { MoreHorizontal, Edit, RefreshCw, UserMinus } from "lucide-react";
-import { Permission, TUser } from "definations/users";
+import { TUser } from "definations/users";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import {
@@ -36,8 +36,6 @@ import {
     useDeactivateUserMutation,
 } from "services/users";
 import { toast } from "sonner";
-import { LoadingSpinner } from "components/shared/Loading";
-import { intlFormat } from "date-fns";
 import { Badge } from "components/ui/badge";
 
 // Action handlers (implement these in your component)
@@ -53,6 +51,7 @@ const ActionDropdown = ({
     email,
     is_active,
     roles,
+    position,
 }: TUser) => {
     const dispatch = useAppDispatch();
 
@@ -78,6 +77,7 @@ const ActionDropdown = ({
                         designation,
                         gender,
                         email,
+                        position,
                     }),
                 },
             })
@@ -181,22 +181,27 @@ export const userColums = [
         header: "Full Name",
         cell: (info) => info.getValue(),
     }),
+
     columnHelper.accessor("email", {
         header: "Email",
         cell: (info) => info.getValue(),
     }),
+
     columnHelper.accessor("gender", {
         header: "Gender",
         cell: (info) => info.getValue(),
     }),
+
     columnHelper.accessor("mobile_number", {
         header: "Phone Number",
         cell: (info) => info.getValue(),
     }),
+
     columnHelper.accessor("department", {
         header: "Department",
         cell: (info) => info.getValue(),
     }),
+
     columnHelper.accessor("position", {
         header: "Position",
         cell: (info) => info.getValue(),
@@ -227,19 +232,19 @@ export const userColums = [
     }),
 ];
 
-const permissionHelper = createColumnHelper<Permission>();
+// const permissionHelper = createColumnHelper<Permission>();
 
-export const permissionColums = [
-    permissionHelper.accessor("name", {
-        header: "Name",
-        cell: (info) => info.getValue(),
-    }),
-    permissionHelper.accessor("module", {
-        header: "Module",
-        cell: (info) => info.getValue(),
-    }),
-    permissionHelper.accessor("codename", {
-        header: "Code Name",
-        cell: (info) => info.getValue(),
-    }),
-];
+// export const permissionColums = [
+//     permissionHelper.accessor("name", {
+//         header: "Name",
+//         cell: (info) => info.getValue(),
+//     }),
+//     permissionHelper.accessor("module", {
+//         header: "Module",
+//         cell: (info) => info.getValue(),
+//     }),
+//     permissionHelper.accessor("codename", {
+//         header: "Code Name",
+//         cell: (info) => info.getValue(),
+//     }),
+// ];

@@ -1,224 +1,161 @@
 import { Button } from "components/ui/button";
-import { ChangeEvent, FormEvent, useMemo, useState } from "react";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "components/ui/select";
+import { ChangeEvent, useState } from "react";
+
 import { Input } from "components/ui/input";
 import { Upload as UploadFile } from "lucide-react";
-import { LoadingSpinner } from "components/shared/Loading";
-import WorkPlanAPi from "services/programsApi/work-plan";
+
 import { Label } from "components/ui/label";
-import { PartnerResultsData } from "definations/project-types/partners";
-import { toast } from "sonner";
 import FormButton from "atoms/FormButton";
-import { useAppDispatch } from "hooks/useStore";
 import { closeDialog } from "store/ui";
-import FinancialAPI from "services/configs/financial-year";
-import { FinancialYearResultsData } from "definations/configs/financial-year";
-import { useGetProjectsParamsQuery } from "services/projectsApi/projectsApi";
-import { useGetPartnersParamsQuery } from "services/projectsApi/partnersApi";
+import { z } from "zod";
+import FormSelect from "atoms/FormSelect";
+import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useAppDispatch } from "hooks/useStore";
+import { useGetProjectsQuery } from "services/projectsApi/projectsApi";
+import FormInput from "atoms/FormInput";
+import { toast } from "sonner";
+import { useUploadWorkPlanMutation } from "services/programsApi/work-plan";
+import { useFinancialYearQuery } from "services/moduleConfig";
+
+const FormSchema = z.object({
+    project: z.string().min(1, "This field is required"),
+    financial_year: z.string().min(1, "This field is required"),
+    // file: z.instanceof(File, { message: "A valid file is required" }),
+    // .refine(
+    //     (file) =>
+    //         [
+    //             "application/vnd.ms-excel",
+    //             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    //             "text/csv",
+    //         ].includes(file.type),
+    //     { message: "Only spreadsheet files (xls, xlsx, csv) are allowed" }
+    // ),
+});
+
+export type TFormValues = z.infer<typeof FormSchema>;
 
 const WorkPlanUploadModal = () => {
-    const [partnerValue, setPartnerValue] = useState("");
-    const [projectValue, setProjectValue] = useState("");
-    const [financialYearValue, setFinancialYearValue] = useState("");
-    const [file, setFile] = useState<File | null>(null);
     const dispatch = useAppDispatch();
 
-    const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files && event.target.files.length > 0) {
-            setFile(event.target.files[0]);
+    const { data, isLoading: isProjectLoading } = useGetProjectsQuery({
+        no_paginate: false,
+    });
+
+    const { data: financialYear } = useFinancialYearQuery({
+        no_paginate: false,
+    });
+
+    const financialYearOptions = financialYear?.data.results.map(
+        ({ year, id }) => ({
+            label: year,
+            value: id,
+        })
+    );
+
+    const [uploadWorkPlan, { isLoading: isUploadLoading }] =
+        useUploadWorkPlanMutation();
+
+    const [file, setFile] = useState<File>();
+
+    const projectOptions = data?.data.results.map(({ title, id }) => ({
+        label: title,
+        value: id,
+    }));
+
+    const handleChangeFile = (e: ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            setFile(e.target.files[0]);
         }
     };
 
-    const handlePartnerValue = (value: string) => {
-        setPartnerValue(value);
-    };
-    const handleProjectValue = (value: string) => {
-        setProjectValue(value);
-    };
-    const handleFinancialYear = (value: string) => {
-        setFinancialYearValue(value);
-    };
+    const form = useForm<TFormValues>({
+        resolver: zodResolver(FormSchema),
+        defaultValues: {
+            project: "",
+        },
+    });
 
-    const projectsQueryResult = useGetProjectsParamsQuery(
-        useMemo(
-            () => ({
-                params: {
-                    no_paginate: true,
-                },
-            }),
-            []
-        )
-    );
-    const partnersQueryResult = useGetPartnersParamsQuery(
-        useMemo(
-            () => ({
-                params: {
-                    project: projectValue,
-                    no_paginate: true,
-                },
-            }),
-            [projectValue]
-        )
-    );
-    const financialYearQueryResult = FinancialAPI.useGetFinancialYearsQuery(
-        useMemo(
-            () => ({
-                params: {
-                    no_paginate: true,
-                },
-            }),
-            []
-        )
-    );
+    const { handleSubmit } = form;
 
-    const projects = projectsQueryResult?.data;
-    const partners = partnersQueryResult?.data;
-    const financialYear = financialYearQueryResult?.data;
-
-    const [createWorkPlanMutation, { isLoading }] =
-        WorkPlanAPi.useCreateWorkPlanDocumentMutation();
-
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    const onSubmit: SubmitHandler<TFormValues> = async ({
+        project,
+        financial_year,
+    }) => {
         if (!file) {
-            toast.error("No file selected");
+            toast.error("Please choose a file to upload");
             return;
         }
 
-        const formData = new FormData();
-        formData.append("partner_id", partnerValue);
-        formData.append("project_id", projectValue);
-        formData.append("financial_year_id", financialYearValue);
-        formData.append("file", file);
-
         try {
-            await createWorkPlanMutation(formData).unwrap();
-            toast.success("Document upload successfully.");
-        } catch (error) {
-            console.log(error);
-            toast.error("Something went wrong");
-        }
+            const formData = new FormData();
+            formData.append("project", project);
+            formData.append("financial_year", financial_year);
+            formData.append("file", file);
 
-        setPartnerValue("");
-        setProjectValue("");
-        setFinancialYearValue("");
-        setFile(null);
+            await uploadWorkPlan(formData as any).unwrap();
+
+            toast.success("Work Plan Uploaded");
+
+            dispatch(closeDialog());
+        } catch (error: any) {
+            toast.error(error.data.message || "Something went wrong");
+        }
     };
 
     return (
         <div className="w-full">
-            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-                <div className="space-y-2">
-                    <Label>
-                        Name of Project <span className="text-red-500">*</span>
-                    </Label>
-                    <Select required onValueChange={handleProjectValue}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Select project" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {/* {projectsQueryResult?.isLoading ? (
-                <LoadingSpinner />
-              ) : (
-                projects?.map((doc: ProjectsResultsData) => (
-                  <SelectItem key={doc?.id} value={doc.id}>
-                    {doc.title}
-                  </SelectItem>
-                ))
-              )} */}
-                        </SelectContent>
-                    </Select>
-                </div>
+            <FormProvider {...form}>
+                <form
+                    onSubmit={handleSubmit(onSubmit)}
+                    className="flex flex-col gap-6"
+                >
+                    <FormSelect
+                        label="Project"
+                        name="project"
+                        required
+                        multiple={false}
+                        placeholder="Select Project"
+                        options={projectOptions}
+                    />
 
-                {projectValue && (
-                    <div className="space-y-2">
-                        <Label>
-                            Name of Project Partner{" "}
-                            <span className="text-red-500">*</span>
-                        </Label>
-                        <Select required onValueChange={handlePartnerValue}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select project partner" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {/* {partnersQueryResult?.isLoading ? (
-                                    <LoadingSpinner />
-                                ) : (
-                                    partners?.map((doc: PartnerResultsData) => (
-                                        <SelectItem
-                                            key={doc?.id}
-                                            value={doc.id}
-                                        >
-                                            {doc.name}
-                                        </SelectItem>
-                                    ))
-                                )} */}
-                            </SelectContent>
-                        </Select>
+                    <FormSelect
+                        label="Financial Year"
+                        name="financial_year"
+                        required
+                        placeholder="Select Financial Year"
+                        options={financialYearOptions}
+                    />
+
+                    <div className="w-full relative gap-x-3 h-[52px] rounded-[16.2px] border flex justify-center items-center">
+                        <UploadFile size={20} />
+                        <div>
+                            <Input
+                                type="file"
+                                onChange={handleChangeFile}
+                                className="bg-inherit border-none cursor-pointer "
+                            />
+                        </div>
                     </div>
-                )}
 
-                <div className="space-y-2">
-                    <Label>
-                        Financial Year <span className="text-red-500">*</span>
-                    </Label>
-                    <Select required onValueChange={handleFinancialYear}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Select project" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {/* {financialYearQueryResult?.isLoading ? (
-                                <LoadingSpinner />
-                            ) : (
-                                financialYear?.map(
-                                    (year: FinancialYearResultsData) => (
-                                        <SelectItem
-                                            key={year?.id}
-                                            value={year.id}
-                                        >
-                                            {year.year}
-                                        </SelectItem>
-                                    )
-                                )
-                            )} */}
-                        </SelectContent>
-                    </Select>
-                </div>
-
-                <div className="w-full relative gap-x-3 h-[52px] rounded-[16.2px] border flex justify-center items-center">
-                    <UploadFile size={20} />
-                    <div>
-                        <Input
-                            type="file"
-                            onChange={handleFileChange}
-                            className="bg-inherit border-none cursor-pointer "
-                        />
+                    <div className="flex justify-between gap-5 mt-16">
+                        <Button
+                            onClick={() => dispatch(closeDialog())}
+                            type="button"
+                            className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                        >
+                            Cancel
+                        </Button>
+                        <FormButton
+                            loading={isUploadLoading}
+                            type="submit"
+                            disabled={isUploadLoading}
+                        >
+                            Done
+                        </FormButton>
                     </div>
-                </div>
-
-                <div className="flex justify-between gap-5 mt-16">
-                    <Button
-                        onClick={() => dispatch(closeDialog())}
-                        type="button"
-                        className="bg-[#FFF2F2] text-primary dark:text-gray-500"
-                    >
-                        Cancel
-                    </Button>
-                    <FormButton
-                        loading={isLoading}
-                        type="submit"
-                        disabled={isLoading}
-                    >
-                        Done
-                    </FormButton>
-                </div>
-            </form>
+                </form>
+            </FormProvider>
         </div>
     );
 };

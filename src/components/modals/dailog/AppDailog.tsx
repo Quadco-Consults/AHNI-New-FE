@@ -66,6 +66,7 @@ import FundRequestBreakdown from "./components/FundRequestBreakdownModal";
 
 import ChangeRiskStatusModal from "./components/ChangeRiskStatusModal";
 import ChangeProjectStatusModal from "./components/ChangeProjectStatusModal";
+import AddPosition from "pages/protectedPages/modules/config/AddPosition";
 
 const sheets: Record<string, ReactNode> = {
     [DialogType.Categories]: <CategoriesModal />,
@@ -136,6 +137,8 @@ const sheets: Record<string, ReactNode> = {
     [DialogType.FundRequestBreakdown]: <FundRequestBreakdown />,
     [DialogType.ChangeRiskStatusModal]: <ChangeRiskStatusModal />,
     [DialogType.ChangeProjectStatusModal]: <ChangeProjectStatusModal />,
+
+    [DialogType.AddPosition]: <AddPosition />,
 };
 
 const AppDailog = () => {

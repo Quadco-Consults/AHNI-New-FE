@@ -1,40 +1,32 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { Form } from "components/ui/form";
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import FormSelect from "atoms/FormSelectField";
-import { ChevronRight } from "lucide-react";
 import FormButton from "atoms/FormButton";
 import { Button } from "components/ui/button";
 import Card from "components/shared/Card";
-import { Label } from "components/ui/label";
 import FundRequstLayout from "./FundRequstLayout";
-import { SelectContent, SelectItem } from "components/ui/select";
-
-import { LoadingSpinner } from "components/shared/Loading";
-import { ProjectsResultsData } from "definations/project-types/projects";
-import { PartnerResultsData } from "definations/project-types/partners";
-import { z } from "zod";
-import { FundRequestDetailSchema } from "definations/program-validator";
+import { FundRequestSchema, TFundRequest } from "definations/program-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FinancialYearResultsData } from "definations/configs/financial-year";
-import { useLocationQuery } from "services/moduleProjects";
 import _ from "lodash";
-import { useGetUserQuery } from "services/users";
-import { useFinancialYearQuery } from "services/moduleConfig";
-import { nigerianStates } from "lib/index";
 import { Separator } from "components/ui/separator";
-import { Dialog, DialogContent, DialogTrigger } from "components/ui/dialog";
-import { useDispatch } from "react-redux";
-import { openDialog } from "store/ui";
-import { DialogType, largeDailogScreen } from "constants/dailogs";
 import { useGetProjectsQuery } from "services/projectsApi/projectsApi";
+import { useLocationQuery, usePartnersQuery } from "services/moduleProjects";
+import {
+    useFinancialYearQuery,
+    useLocationsQuery,
+} from "services/moduleConfig";
+import { useGetUserQuery } from "services/users";
 
 const getYearOptions = () => {
     const currentYear = new Date().getFullYear();
-    const startYear = 2012;
+    const startYear = 2000;
     return new Array(currentYear - startYear + 1).fill(_).map((_, i) => {
-        const value = currentYear - i;
-        return `${value}`;
+        const value = String(currentYear - i);
+        return {
+            label: value,
+            value: value,
+        };
     });
 };
 
@@ -63,46 +55,71 @@ const getMonthOptions = () => {
 };
 
 const CreateFundRequest = () => {
-    const form = useForm<z.infer<typeof FundRequestDetailSchema>>({
-        resolver: zodResolver(FundRequestDetailSchema),
+    const form = useForm<TFundRequest>({
+        resolver: zodResolver(FundRequestSchema),
         defaultValues: {
             project: "",
-            partner: "",
-            year: "",
             month: "",
+            year: "",
+            partner: "",
             currency: "",
-            type: "",
             financial_year: "",
+            type: "",
+            location: "",
+            reviewer: "",
         },
     });
 
     const navigate = useNavigate();
-    const dispatch = useDispatch();
 
     const { pathname } = useLocation();
 
-    const { data: projects, isLoading: projectIsLoading } =
-        useGetProjectsQuery({});
+    const { data: project, isLoading: projectIsLoading } = useGetProjectsQuery({
+        no_paginate: false,
+    });
 
-    const stateOptions = nigerianStates.map((state) => ({
-        label: state,
-        value: state,
+    const projectOptions = project?.data.results.map(({ title, id }) => ({
+        label: title,
+        value: id,
     }));
+
+    const { data: partner } = usePartnersQuery({ no_paginate: false });
+
+    const partnerOptions = partner?.data.results.map(({ name, id }) => ({
+        label: name,
+        value: id,
+    }));
+
+    const { data: financialYear } = useFinancialYearQuery({
+        no_paginate: false,
+    });
+
+    const financialYearOptions = financialYear?.data.results.map(
+        ({ year, id }) => ({
+            label: year,
+            value: id,
+        })
+    );
+
+    const { data: location } = useLocationsQuery({ no_paginate: false });
+
+    const locationOptions = location?.data.results.map(({ name, id }) => ({
+        label: name,
+        value: id,
+    }));
+
+    const { data: user } = useGetUserQuery({ no_paginate: false });
+
+    const reviewerOptions = user?.data.results.map(
+        ({ first_name, last_name, id }) => ({
+            label: `${first_name} ${last_name}`,
+            value: id,
+        })
+    );
 
     const { handleSubmit } = form;
 
-    const handleOpenStateDialog = () => {
-        dispatch(
-            openDialog({
-                type: DialogType.StateModal,
-                dialogProps: {
-                    ...largeDailogScreen,
-                },
-            })
-        );
-    };
-
-    const onSubmit = (data: z.infer<typeof FundRequestDetailSchema>) => {
+    const onSubmit: SubmitHandler<TFundRequest> = (data) => {
         const formData = {
             project: data.project,
             partner: data.partner,
@@ -132,72 +149,92 @@ const CreateFundRequest = () => {
                             label="Project Name"
                             placeholder="Select Project"
                             required
-                        >
-                            <SelectContent>
-                                {projectIsLoading ? <LoadingSpinner /> : <></>}
-                            </SelectContent>
-                        </FormSelect>
+                            options={projectOptions}
+                        />
 
                         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                             <div className="-mt-2">
-                                <Label>Financial Month</Label>
                                 <div className="grid grid-cols-2 gap-3 items-center">
                                     <FormSelect
+                                        label="Month"
                                         name="month"
                                         placeholder="Select month"
-                                    >
-                                        <SelectContent>
-                                            {getMonthOptions().map(
-                                                ({ label, value }) => (
-                                                    <SelectItem
-                                                        key={value}
-                                                        value={value}
-                                                    >
-                                                        {label}
-                                                    </SelectItem>
-                                                )
-                                            )}
-                                        </SelectContent>
-                                    </FormSelect>
+                                        required
+                                        options={getMonthOptions()}
+                                    />
                                     <FormSelect
+                                        label="Year"
                                         name="year"
-                                        placeholder="Select year"
-                                    >
-                                        <SelectContent>
-                                            {getYearOptions().map((year) => (
-                                                <SelectItem
-                                                    key={year}
-                                                    value={year}
-                                                >
-                                                    {year}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </FormSelect>
+                                        placeholder="Select Financial Year"
+                                        required
+                                        options={getYearOptions()}
+                                    />
                                 </div>
                             </div>
 
                             <FormSelect
-                                name="state"
-                                label="State"
-                                placeholder="Select State"
+                                label="Partner"
+                                name="partner"
+                                placeholder="Select Partner"
                                 required
-                                options={stateOptions}
+                                options={partnerOptions}
                             />
                         </div>
 
                         <Separator />
 
-                        <div>
-                            <Label>State Offices Involved</Label>
-                            <Button
-                                variant="ghost"
-                                className="text-[#DEA004] block mt-1 font-medium border shadow-sm py-2 px-5 rounded-lg text-sm"
-                                onClick={handleOpenStateDialog}
-                            >
-                                Click to select states involved
-                            </Button>
+                        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                            <FormSelect
+                                label="Currency"
+                                name="currency"
+                                required
+                                options={[
+                                    { label: "NGN", value: "NGN" },
+                                    { label: "USD", value: "USD" },
+                                ]}
+                                placeholder="Select Currency"
+                            />
+
+                            <FormSelect
+                                label="Type"
+                                name="type"
+                                required
+                                options={[
+                                    { label: "Main", value: "main" },
+                                    {
+                                        label: "Supplementary",
+                                        value: "supplementary",
+                                    },
+                                ]}
+                                placeholder="Select Type"
+                            />
                         </div>
+
+                        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                            <FormSelect
+                                label="Financial Year"
+                                name="financial_year"
+                                required
+                                options={financialYearOptions}
+                                placeholder="Select Financial Year"
+                            />
+
+                            <FormSelect
+                                label="Location"
+                                name="location"
+                                required
+                                options={locationOptions}
+                                placeholder="Select Location"
+                            />
+                        </div>
+
+                        <FormSelect
+                            label="Reviewer"
+                            name="reviewer"
+                            required
+                            options={reviewerOptions}
+                            placeholder="Select Reviewer"
+                        />
                     </Card>
 
                     <div className="flex justify-end gap-5 mt-16">

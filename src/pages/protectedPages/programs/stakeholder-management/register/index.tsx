@@ -28,7 +28,9 @@ import { TStakeholderRegisterResponse } from "definations/program-validator";
 import { toast } from "sonner";
 
 const Register = () => {
-    const { data, isLoading } = useGetAllStakeholderRegisterQuery(null);
+    const { data, isLoading } = useGetAllStakeholderRegisterQuery({
+        no_paginate: false,
+    });
     const [deleteStakeholderRegister, { isLoading: isDeleteLoading }] =
         useDeleteStakeholderRegisterMutation();
 
@@ -228,13 +230,13 @@ const Register = () => {
             <Breadcrumb>
                 <BreadcrumbList>
                     <BreadcrumbItem>
-                        <BreadcrumbPage>Plans</BreadcrumbPage>
+                        <BreadcrumbPage>Programs</BreadcrumbPage>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator>
                         <Icon icon="iconoir:slash" />
                     </BreadcrumbSeparator>
                     <BreadcrumbItem>
-                        <BreadcrumbPage>Stakeholder</BreadcrumbPage>
+                        <BreadcrumbPage>Stakeholder Management</BreadcrumbPage>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator>
                         <Icon icon="iconoir:slash" />

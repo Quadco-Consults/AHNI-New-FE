@@ -75,7 +75,7 @@ const ActivityPlan = () => {
         () => [
             {
                 header: "Project",
-                accessorKey: "",
+                accessorKey: "project",
                 size: 150,
             },
             {

@@ -26,12 +26,10 @@ import { toast } from "sonner";
 import {
     useDeleteRiskManagementPlanMutation,
     useGetAllRiskManagementPlansQuery,
-    usePatchRiskManagementPlanMutation,
 } from "services/programsApi/risk-plans";
 import { TRiskPlanPlanManagementResponse } from "definations/program-validator";
 import EditIcon from "components/icons/EditIcon";
 import PencilIcon from "components/icons/PencilIcon";
-import { FormEvent, useState } from "react";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType, mediumDailogScreen } from "constants/dailogs";
@@ -219,8 +217,7 @@ const columns: ColumnDef<TRiskPlanPlanManagementResponse>[] = [
                         "p-1 rounded-lg",
                         getValue() === "OPEN" && "bg-[#1A9B3E] text-white",
                         getValue() === "CLOSED" && "bg-[#4D4545] text-white",
-                        getValue() === "MITIGATED" &&
-                            "bg-[#F97066] text-white"
+                        getValue() === "MITIGATED" && "bg-[#F97066] text-white"
                     )}
                 >
                     {getValue() as string}

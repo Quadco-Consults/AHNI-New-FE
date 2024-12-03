@@ -92,6 +92,8 @@ const baseAPI = createApi({
         "STAKEHOLDER_REGISTER",
         "RISK_PLAN",
         "ACTIVITY_PLAN",
+        "WORK_PLAN",
+        "Position",
     ],
     // keepUnusedDataFor: 5 * 60,
     keepUnusedDataFor: 0,

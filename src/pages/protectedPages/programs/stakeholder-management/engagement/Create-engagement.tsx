@@ -26,13 +26,22 @@ import {
 } from "definations/program-types/engagement-plan";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
-import { removeStakeholder } from "store/formData/stakeholders";
+import {
+    addStakeholders,
+    removeStakeholder,
+} from "store/formData/stakeholders";
 import { useGetProjectsQuery } from "services/projectsApi/projectsApi";
-import { useCreateEngagementPlanMutation } from "services/programsApi/engagement-plan";
+import {
+    useCreateEngagementPlanMutation,
+    useGetSingleEngagementPlanQuery,
+    useUpdateEngagementPlanMutation,
+} from "services/programsApi/engagement-plan";
 import { toast } from "sonner";
+import useQuery from "hooks/useQuery";
+import { skipToken } from "@reduxjs/toolkit/query/react";
 
 const breadcrumbs = [
-    { name: "Procurement", icon: true },
+    { name: "Programs", icon: true },
     { name: "Stakeholder Management", icon: true },
     { name: "Engagement Plan", icon: true },
     { name: "Create", icon: false },
@@ -72,9 +81,17 @@ const CreateEngagement = () => {
         },
     });
 
-    const { handleSubmit, control, setValue, getValues } = form;
+    const {
+        handleSubmit,
+        control,
+        setValue,
+        reset,
+        formState: { defaultValues },
+    } = form;
 
-    const { fields, update } = useFieldArray({
+    console.log({ defaultValues });
+
+    const { fields, remove } = useFieldArray({
         control,
         name: "stakeholders",
     });
@@ -93,32 +110,65 @@ const CreateEngagement = () => {
     const [createEngagementPlan, { isLoading: isCreateLoading }] =
         useCreateEngagementPlanMutation();
 
-    const handleUpdateStakeholder = () => {
-        // const currentValues = getValues("stakeholders");
-        // const index = row.original.index;
-        // const value = cell.column.id.toUpperCase();
-        // if (checkedValue) {
-        //     update(index, {
-        //         ...currentValues[index],
-        //         commitment_level: [...fields[index].commitment_level, value],
-        //     });
-        // } else {
-        //     update(index, {
-        //         ...currentValues[index],
-        //         commitment_level: fields[index].commitment_level.filter(
-        //             (level) => level !== value
-        //         ),
-        //     });
-        // }
-    };
+    const [updateEngagementPlan, { isLoading: isUpdateLoading }] =
+        useUpdateEngagementPlanMutation();
+
+    const query = useQuery();
+    const id = query.get("id");
+    const { data: engagementPlan } = useGetSingleEngagementPlanQuery(
+        id ?? skipToken
+    );
+
+    useEffect(() => {
+        if (engagementPlan) {
+            const {
+                project: { id },
+                project_deliverables,
+                start_date,
+                end_date,
+                stakeholders,
+            } = engagementPlan.data;
+
+            reset({
+                project: id,
+                project_deliverables,
+                start_date,
+                end_date,
+                stakeholders: stakeholders.map((stakeholder) => ({
+                    influence: influenceEnum.parse("LOW"),
+                    information_type: "Hello",
+                    decision_maker: "",
+                    frequency: "",
+                    type: "",
+                    commitment_level: commitmentLevelEnum.parse("UNAWARE"),
+                    stakeholder: stakeholder.id,
+                })),
+            });
+
+            const stakeholderData = stakeholders?.map(
+                ({ stakeholder }) => stakeholder
+            );
+
+            // @ts-ignore
+            // dispatch(addStakeholders(stakeholderData));
+        }
+    }, [engagementPlan]);
 
     const onSubmit: SubmitHandler<TEngagementPlanFormValue> = async (data) => {
+        console.log(data);
+        return;
+
         try {
-            await createEngagementPlan(data).unwrap();
-            toast.success("Engagement Plan Created");
+            if (id) {
+                await updateEngagementPlan(data).unwrap();
+                toast.success("Engagement Plan Updated");
+            } else {
+                await createEngagementPlan(data).unwrap();
+                toast.success("Engagement Plan Created");
+            }
             navigate(RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN);
         } catch (error: any) {
-            toast.error(error.data.message);
+            toast.error(error.data.message || "Something went wrong");
         }
     };
 
@@ -162,13 +212,6 @@ const CreateEngagement = () => {
                             name="project_deliverables"
                             label="Project Deliverables"
                             placeholder="Enter Project Deliverables"
-                            required
-                        />
-
-                        <FormInput
-                            name="project_manager"
-                            label="Project Manager"
-                            placeholder="Enter Project Manager"
                             required
                         />
 
@@ -309,6 +352,8 @@ const CreateEngagement = () => {
                                                                     field.stakeholder
                                                                 )
                                                             );
+
+                                                            remove(index);
                                                         }}
                                                     >
                                                         <DeleteIcon />
@@ -342,12 +387,6 @@ const CreateEngagement = () => {
                                 Click to add stakeholders
                             </Button>
                         </div>
-
-                        <hr />
-
-                        {/* <h4 className="font-semibold text-yellow-600">
-                            Commitment Level
-                        </h4> */}
                     </Card>
 
                     <div className="flex justify-end gap-5 pt-10">
@@ -370,86 +409,3 @@ const CreateEngagement = () => {
 };
 
 export default CreateEngagement;
-
-// type WorkPlanData = {
-//     name: string | undefined;
-//     unaware: boolean;
-//     against: boolean;
-//     neutral: boolean;
-//     supportive: boolean;
-//     leading: boolean;
-//     index: number;
-// };
-
-/*  const columns: ColumnDef<WorkPlanData>[] = [
-        {
-            header: "Stakeholder names",
-            accessorKey: "name",
-            size: 200,
-        },
-        {
-            header: "Unaware",
-            accessorKey: "unaware",
-            size: 200,
-            cell: ({ getValue, row, cell }) => (
-                <TableCheckbox getValue={getValue} row={row} cell={cell} />
-            ),
-        },
-        {
-            header: "Against",
-            accessorKey: "against",
-            size: 200,
-            cell: ({ getValue, row, cell }) => (
-                <TableCheckbox getValue={getValue} row={row} cell={cell} />
-            ),
-        },
-        {
-            header: "Neutral",
-            accessorKey: "neutral",
-            size: 200,
-            cell: ({ getValue, row, cell }) => (
-                <TableCheckbox getValue={getValue} row={row} cell={cell} />
-            ),
-        },
-        {
-            header: "Phone Supportive",
-            accessorKey: "supportive",
-            size: 200,
-            cell: ({ getValue, row, cell }) => (
-                <TableCheckbox getValue={getValue} row={row} cell={cell} />
-            ),
-        },
-        {
-            header: "Leading",
-            accessorKey: "leading",
-            size: 200,
-            cell: ({ getValue, row, cell }) => (
-                <TableCheckbox getValue={getValue} row={row} cell={cell} />
-            ),
-        },
-    ];
- */
-
-/* 
-    const TableCheckbox = ({
-        getValue,
-        row,
-        cell,
-    }: {
-        getValue: Getter<unknown>;
-        row: Row<WorkPlanData>;
-        cell: Cell<WorkPlanData, unknown>;
-    }) => {
-        return (
-            <div className="flex items-center w-full">
-                <Checkbox
-                    checked={getValue() as boolean}
-                    onCheckedChange={(value) =>
-                        handleUpdateStakeholder(value, row, cell)
-                    }
-                />
-            </div>
-        );
-    }; */
-
-// <DataTable data={data || []} columns={columns} />

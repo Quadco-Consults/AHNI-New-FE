@@ -2,6 +2,8 @@ import { Button } from "components/ui/button";
 import {
     useFinancialYearQuery,
     useDeleteFinancialYearMutation,
+    useGetAllPositionsQuery,
+    useDeletePositionMutation,
 } from "services/moduleConfig";
 import { toast } from "sonner";
 import { useAppDispatch } from "hooks/useStore";
@@ -10,18 +12,18 @@ import { DialogType } from "constants/dailogs";
 import TableAction from "atoms/TableAction";
 import { LoadingSpinner } from "components/shared/Loading";
 
-const FinancialYear = () => {
-    const { data, isLoading } = useFinancialYearQuery({
+const Position = () => {
+    const { data, isLoading } = useGetAllPositionsQuery({
         no_paginate: false,
     });
 
     const dispatch = useAppDispatch();
 
-    const [deleteFinancialYear] = useDeleteFinancialYearMutation();
+    const [deletePosition] = useDeletePositionMutation();
 
     const onSubmit = async (id: string) => {
         try {
-            await deleteFinancialYear(id).unwrap();
+            await deletePosition(id).unwrap();
             toast.success("Deleted Successfully");
         } catch (error) {
             toast.error("Error deleteing item");
@@ -31,9 +33,9 @@ const FinancialYear = () => {
     const onUpdate = (item: any) => {
         dispatch(
             openDialog({
-                type: DialogType.AddFinancialYear,
+                type: DialogType.AddPosition,
                 dialogProps: {
-                    header: "Update Financial Year",
+                    header: "Update Position",
                     data: item,
                     type: "update",
                 },
@@ -44,16 +46,16 @@ const FinancialYear = () => {
         <div>
             <div className="flex items-center justify-between py-6 mb-6">
                 <h1 className="text-[#D92D20] font-semibold text-sm">
-                    Financial Year
+                    Positions
                 </h1>
 
                 <Button
                     onClick={() =>
                         dispatch(
                             openDialog({
-                                type: DialogType.AddFinancialYear,
+                                type: DialogType.AddPosition,
                                 dialogProps: {
-                                    header: "Add Financial Year",
+                                    header: "Add Position",
                                 },
                             })
                         )
@@ -67,9 +69,8 @@ const FinancialYear = () => {
             </div>
             <div>
                 <div className="flex justify-between text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4">
-                    <h1 className="flex-1">Year</h1>
-                    <h1 className="flex-1">Dynamic Order</h1>
-                    <h1 className="flex-1">Current</h1>
+                    <h1 className="flex-1">Name</h1>
+                    <h1 className="flex-1">Description</h1>
                     <h1 className="flex-1"></h1>
                 </div>
 
@@ -82,9 +83,8 @@ const FinancialYear = () => {
                                 key={item.id}
                                 className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
                             >
-                                <p className="flex-1">{item.year}</p>
-                                <p className="flex-1">{item.dyanmic_order}</p>
-                                <p className="flex-1">{item.current}</p>
+                                <p className="flex-1">{item.name}</p>
+                                <p className="flex-1">{item.description}</p>
                                 <div className="flex-1">
                                     <TableAction
                                         update
@@ -104,4 +104,4 @@ const FinancialYear = () => {
     );
 };
 
-export default FinancialYear;
+export default Position;
