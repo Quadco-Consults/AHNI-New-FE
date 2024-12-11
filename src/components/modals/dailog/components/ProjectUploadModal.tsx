@@ -14,18 +14,19 @@ import FormButton from "atoms/FormButton";
 import { useDocumentTypesQuery } from "services/moduleProjects";
 import FormInput from "atoms/FormInput";
 import { closeDialog } from "store/ui";
-import { useAppDispatch } from "hooks/useStore";
+import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { useCreateProjectDocumentMutation } from "services/projectsApi/project-document";
 import useQuery from "hooks/useQuery";
 import FormSelect from "atoms/FormSelect";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useParams } from "react-router-dom";
 
 const ProjectUploadModal = () => {
     const [file, setFile] = useState<File | null>(null);
 
     const dispatch = useAppDispatch();
 
-    const [projectDocumentMutation, { isLoading }] =
+    const [createProjectDocument, { isLoading }] =
         useCreateProjectDocumentMutation();
 
     const { data: documentTypes, isLoading: isFetchLoading } =
@@ -47,6 +48,10 @@ const ProjectUploadModal = () => {
         },
     });
 
+    const { dialogProps } = useAppSelector((state) => state.ui.dailog);
+
+    const projectId = dialogProps?.projectId as string;
+
     const query = useQuery();
 
     const { handleSubmit, setValue } = form;
@@ -58,20 +63,24 @@ const ProjectUploadModal = () => {
         }
     };
 
+    console.log(useParams());
+
     const onSubmit: SubmitHandler<TProjectDocument> = async (data) => {
         const formData = new FormData();
         formData.append("title", data.title);
         formData.append("file", file as Blob);
         formData.append("document_type", data.document_type);
-        formData.append("project", query.get("id") as string);
+        formData.append(
+            "project",
+            (query.get("id") as string) || (projectId as string)
+        );
 
         try {
-            await projectDocumentMutation(formData as any).unwrap();
+            await createProjectDocument(formData as any).unwrap();
             toast.success("Document upload successfully.");
             dispatch(closeDialog());
-        } catch (error) {
-            console.log(error);
-            toast.error("Something went wrong");
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
         }
 
         setFile(null);
