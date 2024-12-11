@@ -19,6 +19,7 @@ import { useGetSingleProjectQuery } from "services/projectsApi/projectsApi";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import Performance from "./Performance";
 import Activity from "./Activity";
+import ProjectObligation from "./Obligation";
 
 const ProjectDetail = () => {
     const navigate = useNavigate();
@@ -66,6 +67,10 @@ const ProjectDetail = () => {
                 <TabsList className="ml-10">
                     <TabsTrigger value="summary">Project Summary</TabsTrigger>
 
+                    <TabsTrigger value="obligation">
+                        Project Obligation
+                    </TabsTrigger>
+
                     <TabsTrigger value="performance">
                         Project Performance
                     </TabsTrigger>
@@ -80,6 +85,12 @@ const ProjectDetail = () => {
                         <TabsContent value="summary">
                             <Card>
                                 <Summary {...project.data} />
+                            </Card>
+                        </TabsContent>
+
+                        <TabsContent value="obligation">
+                            <Card>
+                                <ProjectObligation {...project.data} />
                             </Card>
                         </TabsContent>
 

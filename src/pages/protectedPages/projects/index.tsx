@@ -30,9 +30,11 @@ import PencilIcon from "components/icons/PencilIcon";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType, mediumDailogScreen } from "constants/dailogs";
+import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
+import { useState } from "react";
 
 const FundRequest = () => {
-    const { data, isLoading } = useGetProjectsQuery({});
+    const { data, isLoading } = useGetProjectsQuery({ no_paginate: false });
 
     const columns: ColumnDef<ProjectsResultsData>[] = [
         {
@@ -41,7 +43,7 @@ const FundRequest = () => {
             size: 150,
         },
         {
-            header: "ProjectID",
+            header: "Project ID",
             accessorKey: "project_id",
             size: 100,
         },
@@ -82,9 +84,11 @@ const FundRequest = () => {
         },
         {
             header: "Budget",
-            accessorKey: "budget",
+            accessorFn: (data) => {
+                const currency = data.currency === "NGN" ? "₦" : "$";
+                return `${currency} ${data.budget}`;
+            },
             size: 120,
-            cell: ({ row }) => `$${row.original.budget}`,
         },
         {
             header: "Funding Source",
@@ -163,19 +167,19 @@ const FundRequest = () => {
     };
 
     const ActionListAction = ({ data }: any) => {
-        const [deleteProject] = useDeleteProjectMutation();
+        const [dialogOpen, setDialogOpen] = useState(false);
 
+        const [deleteProject, { isLoading }] = useDeleteProjectMutation();
         const dispatch = useAppDispatch();
 
-        const deleteProjectHandler = async () => {
+        const handleDeleteProject = async () => {
             try {
                 await deleteProject({
                     path: { id: data?.id },
                 }).unwrap();
                 toast.success("Project deleted.");
-            } catch (error) {
-                console.log(error);
-                toast.error("Something went wrong");
+            } catch (error: any) {
+                toast.error(error.data.message || "Something went wrong");
             }
         };
 
@@ -188,7 +192,7 @@ const FundRequest = () => {
                                 <MoreOptionsHorizontalIcon />
                             </Button>
                         </PopoverTrigger>
-                        <PopoverContent className=" w-fit">
+                        <PopoverContent className="w-fit">
                             <div className="flex flex-col items-start justify-between gap-1">
                                 <Link
                                     className="w-full"
@@ -244,7 +248,7 @@ const FundRequest = () => {
                                 <Button
                                     className="w-full flex items-center justify-start gap-2"
                                     variant="ghost"
-                                    onClick={deleteProjectHandler}
+                                    onClick={() => setDialogOpen(true)}
                                 >
                                     <DeleteIcon />
                                     Delete
@@ -253,6 +257,14 @@ const FundRequest = () => {
                         </PopoverContent>
                     </Popover>
                 </>
+
+                <ConfirmationDialog
+                    open={dialogOpen}
+                    title="Are you sure you want to delete this project?"
+                    loading={isLoading}
+                    onCancel={() => setDialogOpen(false)}
+                    onOk={handleDeleteProject}
+                />
             </div>
         );
     };

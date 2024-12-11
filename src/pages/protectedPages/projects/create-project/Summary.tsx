@@ -43,6 +43,7 @@ import {
 } from "services/projectsApi/projectsApi";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import { FaTimes } from "react-icons/fa";
+import FormSelect from "atoms/FormSelect";
 
 const Summary = () => {
     const [startDate, setStartDate] = useState<Date>();
@@ -102,8 +103,10 @@ const Summary = () => {
             funding_sources: [],
             project_managers: [],
             expected_results: "",
+            budget_performance: "0",
             achievement_against_target: "",
             beneficiaries: [],
+            currency: "",
         },
     });
 
@@ -127,6 +130,7 @@ const Summary = () => {
                 beneficiaries,
                 objectives,
                 partners,
+                currency,
             } = project?.data;
 
             const projectManagers = project_managers.map(
@@ -149,6 +153,7 @@ const Summary = () => {
                 expected_results,
                 achievement_against_target,
                 beneficiaries: beneficiariesArr,
+                currency,
             });
 
             objectives?.map((obj) => {
@@ -183,6 +188,7 @@ const Summary = () => {
             achievement_against_target: data.achievement_against_target,
             beneficiaries: data.beneficiaries,
             budget: Number(data.budget),
+            currency: data.currency,
         };
 
         try {
@@ -231,13 +237,27 @@ const Summary = () => {
                                 label="Narrative"
                                 required
                             />
-                            <FormInput
-                                name="budget_performance"
-                                label="Budget Performance"
+
+                            {projectId && (
+                                <FormInput
+                                    name="budget_performance"
+                                    label="Budget Performance"
+                                    required
+                                />
+                            )}
+
+                            <FormSelect
+                                label="Currency"
+                                name="currency"
                                 required
+                                placeholder="Select Currency"
+                                options={[
+                                    { label: "NGN", value: "NGN" },
+                                    { label: "USD", value: "USD" },
+                                ]}
                             />
 
-                            <div className="flex gap-5">
+                            <div className="grid grid-cols-2 gap-5">
                                 <div>
                                     <Label>Start Date</Label>
                                     <br />
@@ -246,7 +266,7 @@ const Summary = () => {
                                             <Button
                                                 variant={"outline"}
                                                 className={cn(
-                                                    "w-[280px] justify-start text-left font-normal",
+                                                    "w-full justify-start text-left font-normal",
                                                     !startDate &&
                                                         "text-muted-foreground"
                                                 )}
@@ -271,7 +291,7 @@ const Summary = () => {
                                             />
                                         </PopoverContent>
                                     </Popover>
-                                </div>{" "}
+                                </div>
                                 <div>
                                     <Label>End Date</Label>
                                     <br />
@@ -280,7 +300,7 @@ const Summary = () => {
                                             <Button
                                                 variant={"outline"}
                                                 className={cn(
-                                                    "w-[280px] justify-start text-left font-normal",
+                                                    "w-full justify-start text-left font-normal",
                                                     !endDate &&
                                                         "text-muted-foreground"
                                                 )}
@@ -308,7 +328,7 @@ const Summary = () => {
                             <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
                                 <FormInput
                                     name="budget"
-                                    label="Budget"
+                                    label="Budget  (Total Estimated Amount)"
                                     type="number"
                                 />
 

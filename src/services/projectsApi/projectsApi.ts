@@ -1,7 +1,5 @@
-import { invalidateTags, provideTags } from "utils/QueryUtils";
 import baseAPI from "..";
 import {
-    ProjectsData,
     ProjectsResponse,
     ProjectsResultsData,
 } from "definations/project-types/projects";
@@ -13,16 +11,15 @@ const projectsAPi = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
         getProjects: builder.query<
             TBasePaginatedResponse<ProjectsResultsData>,
-            TRequest
+            TRequest & { has_fund_requests?: boolean }
         >({
-            query: (config) => {
+            query: (params) => {
                 return {
                     url: `${BASE_URL}`,
-                    ...config,
+                    params,
                 };
             },
-            providesTags: (data, error) =>
-                !error ? provideTags("PROJECTS", data) : [],
+            providesTags: ["PROJECTS"],
         }),
 
         getProjectsParams: builder.query<ProjectsResultsData[], {}>({
@@ -32,8 +29,7 @@ const projectsAPi = baseAPI.injectEndpoints({
                     ...config,
                 };
             },
-            providesTags: (data, error) =>
-                !error ? provideTags("PROJECTS", data) : [],
+            providesTags: ["PROJECTS"],
         }),
 
         createProject: builder.mutation<ProjectsResponse, any>({
@@ -42,8 +38,7 @@ const projectsAPi = baseAPI.injectEndpoints({
                 method: "POST",
                 body,
             }),
-            invalidatesTags: (_, error, {}) =>
-                !error ? invalidateTags("PROJECTS") : [],
+            invalidatesTags: ["PROJECTS"],
         }),
 
         getSingleProject: builder.query<TResponse<ProjectsResultsData>, string>(
@@ -53,8 +48,7 @@ const projectsAPi = baseAPI.injectEndpoints({
                         url: `${BASE_URL}${id}/`,
                     };
                 },
-                providesTags: (data, error) =>
-                    !error ? provideTags("PROJECTS", data) : [],
+                providesTags: ["PROJECTS"],
             }
         ),
 
@@ -67,8 +61,7 @@ const projectsAPi = baseAPI.injectEndpoints({
                 method: "PUT",
                 body,
             }),
-            invalidatesTags: (_, error, { id }) =>
-                !error ? invalidateTags("PROJECTS", { ids: [id] }) : [],
+            invalidatesTags: ["PROJECTS"],
         }),
 
         patchProject: builder.mutation<
@@ -80,8 +73,7 @@ const projectsAPi = baseAPI.injectEndpoints({
                 method: "PATCH",
                 body,
             }),
-            invalidatesTags: (_, error, { id }) =>
-                !error ? invalidateTags("PROJECTS", { ids: [id] }) : [],
+            invalidatesTags: ["PROJECTS"],
         }),
 
         deleteProject: builder.mutation<void, { path: { id: string } }>({
@@ -89,8 +81,7 @@ const projectsAPi = baseAPI.injectEndpoints({
                 url: `${BASE_URL}${path.id}/`,
                 method: "DELETE",
             }),
-            invalidatesTags: (_, error, { path }) =>
-                !error ? invalidateTags("PROJECTS", { ids: [path.id] }) : [],
+            invalidatesTags: ["PROJECTS"],
         }),
     }),
 });

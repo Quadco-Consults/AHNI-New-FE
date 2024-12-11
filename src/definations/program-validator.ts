@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { CostCategory } from "./module-finance";
 
 const monthly_budget = z.object({
     month: z.string(),
@@ -209,21 +210,50 @@ export const StakeholderSchema = z.object({
 
 export const FundRequestSchema = z.object({
     project: z.string().min(1, "Field is required"),
-    partner: z.string().min(1, "Field is required"),
-    month: z
-        .string()
-        .min(2, "Field is required")
-        .max(2, "Two characters required"),
+    month: z.string().min(1, "Field is required"),
     year: z
         .string()
         .min(4, "Field is required")
         .max(4, "Four characters required"),
 
     currency: z.string().min(1, "Field is required"),
+    available_balance: z.string().min(1, "Field is required"),
     financial_year: z.string().min(1, "Field is required"),
     type: z.string().min(1, "Field is required"),
     location: z.string().min(1, "Field is required"),
     reviewer: z.string().min(1, "Field is required"),
+    uuid_code: z.string().min(1, "Field is required"),
 });
 
-export type TFundRequest = z.infer<typeof FundRequestSchema>;
+export type TFundRequestFormValues = z.infer<typeof FundRequestSchema>;
+
+export const FundRequestActivitySchema = z.object({
+    activities: z.array(
+        z.object({
+            activity_description: z.string().min(1, "Field Required"),
+            quantity: z.string().min(1, "Field Required"),
+            unit_cost: z.string().min(1, "Field Required"),
+            frequency: z.string().min(1, "Field Required"),
+            comment: z.string().min(1, "Field Required"),
+            category: z.string().min(1, "Field Required"),
+        })
+    ),
+});
+
+export type TFundRequestActivityFormValues = z.infer<
+    typeof FundRequestActivitySchema
+>;
+
+export interface TFundRequestActivity {
+    id: string;
+    category: CostCategory;
+    amount: string;
+    created_datetime: string;
+    updated_datetime: string;
+    activity_description: string;
+    unit_cost: string;
+    quantity: number;
+    frequency: 2;
+    comment: string;
+    fund_request: string;
+}

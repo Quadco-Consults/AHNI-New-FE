@@ -34,7 +34,7 @@ const BudgetTab = ({ data }: PropsType) => {
             {
                 header: "Unit Cost",
                 accessorKey: "unit_cost_ngn",
-                accessorFn: (data) => `$${data.unit_cost_ngn}`,
+                accessorFn: (data) => `${data.unit_cost_ngn}`,
                 size: 200,
             },
 
@@ -124,12 +124,13 @@ const BudgetTab = ({ data }: PropsType) => {
 
             {
                 header: "Total (NGN)",
-                accessorKey: "",
+                accessorKey: "total_amount_ngn",
+                accessorFn: (data) => `₦${data.total_amount_ngn}`,
                 size: 250,
             },
             {
                 header: "Total (USD)",
-                accessorKey: "usd",
+                accessorFn: (data) => `$${data.total_amount_usd}`,
                 size: 200,
             },
 

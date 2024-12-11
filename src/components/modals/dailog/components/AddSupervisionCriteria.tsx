@@ -7,26 +7,17 @@ import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import {
-    useAddSupervisionCategoryMutation,
     useAddSupervisionCriteriaMutation,
-    useUpdateSupervisionCategoryMutation,
+    useGetSupervisionCriteriaQuery,
+    useSupervisionCategoryQuery,
     useUpdateSupervisionCriteriaMutation,
 } from "services/module-programs";
 import {
     SupervisionCriteriaSchema,
-    TSupervisionCategory,
     TSupervisionCriteria,
-    supervisionCategorySchema,
 } from "definations/module-programs";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
-
-const jobCategoryOptions = [
-    { label: "Goods", value: "Goods" },
-    { label: "Service", value: "Service" },
-    { label: "Work", value: "Work" },
-    { label: "Others", value: "Others" },
-];
 
 const AddSupervisionCriteria = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
@@ -38,17 +29,28 @@ const AddSupervisionCriteria = () => {
         defaultValues: {
             name: data?.name ?? "",
             description: data?.description ?? "",
+            evaluation_category: data?.evaluation_category ?? "",
         },
     });
 
     const dispatch = useAppDispatch();
 
+    const { data: category } = useSupervisionCategoryQuery({
+        no_paginate: false,
+    });
+
+    const categoryOptions = category?.data.results.map(({ name, id }) => ({
+        label: name,
+        value: id,
+    }));
+
     const [addSupervisionCriteria, { isLoading }] =
         useAddSupervisionCriteriaMutation();
+
     const [updateSupervisionCriteria, { isLoading: updateSupervisionLoading }] =
         useUpdateSupervisionCriteriaMutation();
 
-    const onSubmit: SubmitHandler<TSupervisionCategory> = async (data) => {
+    const onSubmit: SubmitHandler<TSupervisionCriteria> = async (data) => {
         try {
             dialogProps?.type === "update"
                 ? await updateSupervisionCriteria({
@@ -87,6 +89,16 @@ const AddSupervisionCriteria = () => {
                             placeholder="Enter description"
                             name="description"
                             required
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-1">
+                        <FormSelect
+                            label="Supervision Evaluation Category"
+                            placeholder="Select Category"
+                            name="evaluation_category"
+                            required
+                            options={categoryOptions}
                         />
                     </div>
 

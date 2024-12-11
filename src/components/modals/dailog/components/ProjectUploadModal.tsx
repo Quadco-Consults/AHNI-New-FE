@@ -1,10 +1,3 @@
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "components/ui/select";
 import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";
 import {
@@ -16,8 +9,6 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { Input } from "components/ui/input";
 import { Upload as UploadFile } from "lucide-react";
 import { z } from "zod";
-import { LoadingSpinner } from "components/shared/Loading";
-import { ProjectDocumentTypesResultsData } from "definations/project-types/project-document-types";
 import { toast } from "sonner";
 import FormButton from "atoms/FormButton";
 import { useDocumentTypesQuery } from "services/moduleProjects";
@@ -71,13 +62,11 @@ const ProjectUploadModal = () => {
         const formData = new FormData();
         formData.append("title", data.title);
         formData.append("file", file as Blob);
-        // formData.append("document_type", data.document_type);
-        formData.append("document_type", "PDF");
+        formData.append("document_type", data.document_type);
         formData.append("project", query.get("id") as string);
 
         try {
-            // @ts-ignore
-            await projectDocumentMutation(formData).unwrap();
+            await projectDocumentMutation(formData as any).unwrap();
             toast.success("Document upload successfully.");
             dispatch(closeDialog());
         } catch (error) {

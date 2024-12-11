@@ -22,76 +22,87 @@ import {
     ActivityTrackerSchema,
     TActivityTrackerFormValues,
 } from "definations/program-types/activity-tracker";
-import { useDepartmentsQuery, useLocationsQuery } from "services/moduleConfig";
-import { usePartnersQuery } from "services/moduleProjects";
-import { useCreateActivityTrackerMutation } from "services/programsApi/activity-tracker";
-
-const monthOptions = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-].map((month) => ({
-    label: month,
-    value: month,
-}));
-
-const statusOptions = ["PENDING", "APPROVED"].map((status) => ({
-    label: status,
-    value: status,
-}));
+import {
+    useGetSingleActivityTrackerQuery,
+    useUpdateActivityTrackerMutation,
+} from "services/programsApi/activity-tracker";
+import useQuery from "hooks/useQuery";
+import { skipToken } from "@reduxjs/toolkit/query/react";
+import { useEffect } from "react";
 
 export default function CreateActivityTracker() {
-    const { data: location } = useLocationsQuery({ no_paginate: false });
-    const { data: department } = useDepartmentsQuery({ no_paginate: false });
-    const { data: partner } = usePartnersQuery({ no_paginate: false });
-
-    const locationOptions = location?.data.results.map((loc) => ({
-        label: loc.name,
-        value: loc.id,
-    }));
-
-    const departmentOptions = department?.data.results.map((dept) => ({
-        label: dept.name,
-        value: dept.id,
-    }));
-
-    const partnerOptions = partner?.data.results.map((partner) => ({
-        label: partner.name,
-        value: partner.id,
-    }));
-
-    const [createActivityTracker, { isLoading: isCreateLoading }] =
-        useCreateActivityTrackerMutation();
+    const [updateActivityTracker, { isLoading }] =
+        useUpdateActivityTrackerMutation();
 
     const navigate = useNavigate();
+
+    const query = useQuery();
+    const id = query.get("id");
+
+    const { data: workPlanTracker } = useGetSingleActivityTrackerQuery(
+        id ?? skipToken
+    );
+
+    useEffect(() => {
+        if (workPlanTracker) {
+            const {
+                output_description,
+                achieved_output,
+                achievement_percentage,
+                amount_expended_ngn,
+                amount_expended_usd,
+                implementation_usd_rate,
+                expenditure_usd_rate,
+                expenditure_ngn_rate,
+                variance_ngn,
+                variance_usd,
+                percentage_variance_ngn,
+                percentage_variance_usd,
+                efficiency_output_expenditure_ratio,
+                efficiency_output_expenditure_level,
+                comments,
+            } = workPlanTracker.data;
+
+            form.reset({
+                output_description,
+                achieved_output,
+                achievement_percentage,
+                amount_expended_ngn,
+                amount_expended_usd,
+                implementation_usd_rate,
+                expenditure_usd_rate,
+                expenditure_ngn_rate,
+                variance_ngn,
+                variance_usd,
+                percentage_variance_ngn,
+                percentage_variance_usd,
+                efficiency_output_expenditure_ratio,
+                efficiency_output_expenditure_level: String(
+                    efficiency_output_expenditure_level
+                ),
+                comments,
+            });
+        }
+    }, [workPlanTracker]);
 
     const form = useForm<TActivityTrackerFormValues>({
         resolver: zodResolver(ActivityTrackerSchema),
         defaultValues: {
-            activity_name: "",
-            activity_reference_number: "",
-            month: "",
-            activity_plans: "",
-            objectives: "",
-            location: "",
-            ir: "",
-            activity_frequency: "",
-            planned_output: "",
             output_description: "",
+            achieved_output: "",
             achievement_percentage: "",
-            total_amount_ngn: "",
-            total_amount_usd: "",
-            expended_amount_ngn: "",
+            amount_expended_ngn: "",
+            amount_expended_usd: "",
             implementation_usd_rate: "",
+            expenditure_usd_rate: "",
+            expenditure_ngn_rate: "",
+            variance_ngn: "",
+            variance_usd: "",
+            percentage_variance_ngn: "",
+            percentage_variance_usd: "",
+            efficiency_output_expenditure_ratio: "",
+            efficiency_output_expenditure_level: "",
+            comments: "",
         },
     });
 
@@ -105,8 +116,11 @@ export default function CreateActivityTracker() {
         data
     ) => {
         try {
-            await createActivityTracker(data).unwrap();
-            toast.success("Activity Tracker Created");
+            await updateActivityTracker({
+                id: id as string,
+                body: data,
+            }).unwrap();
+            toast.success("Activity Tracker Updated");
             navigate(RouteEnum.PROGRAM_ACTIVITY_TRACKER);
         } catch (error: any) {
             toast.error(error.data.message || "Something went wrong");
@@ -130,7 +144,7 @@ export default function CreateActivityTracker() {
                         <Icon icon="iconoir:slash" />
                     </BreadcrumbSeparator>
                     <BreadcrumbItem>
-                        <BreadcrumbPage>Activity Tracker</BreadcrumbPage>
+                        <BreadcrumbPage>Work Plan Tracker</BreadcrumbPage>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator>
                         <Icon icon="iconoir:slash" />
@@ -150,97 +164,23 @@ export default function CreateActivityTracker() {
             <Form {...form}>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <Card className="space-y-10 p-10">
-                        <FormInput
-                            label="Activity Name"
-                            name="activity_name"
-                            placeholder="Enter activity name"
-                            required
-                        />
-
-                        <FormInput
-                            label="Activity Reference Number (As in WP)"
-                            name="activity_reference_number"
-                            placeholder="Enter activity Ref. Number"
-                            required
-                        />
-
-                        <FormSelect
-                            label="Month"
-                            name="month"
-                            placeholder="Select Month"
-                            required
-                            options={monthOptions}
-                        />
-
-                        <FormTextArea
-                            label="Activities Plan for the Month"
-                            name="activity_plans"
-                            placeholder="Enter Plan For Month"
-                            required
-                        />
-
-                        <FormTextArea
-                            label="Objectives"
-                            name="objectives"
-                            placeholder="Enter Objectives"
-                            required
-                        />
-
-                        <FormSelect
-                            label="Location"
-                            name="location"
-                            placeholder="Select Location"
-                            required
-                            options={locationOptions}
-                        />
-
-                        <FormInput
-                            label="IR"
-                            name="ir"
-                            placeholder="Enter IR"
-                            required
-                        />
-
-                        <FormSelect
-                            label="Lead Dept"
-                            name="lead_dept"
-                            placeholder="Select Lead Dept"
-                            required
-                            options={departmentOptions}
-                        />
-
-                        <FormSelect
-                            label="Lead Partner"
-                            name="lead_partner"
-                            placeholder="Select Lead Partner"
-                            required
-                            options={partnerOptions}
-                        />
-
                         <div className="bg-red-100 py-5 px-2.5 rounded-md">
                             <h2 className="text-lg font-bold text-red-500">
-                                Activity Tracker
+                                Work Plan Tracker
                             </h2>
                         </div>
-
-                        <FormInput
-                            label="Frq. of Activity"
-                            name="activity_frequency"
-                            placeholder="Enter Frq. of Activity"
-                            required
-                        />
-
-                        <FormInput
-                            label="Planned Output"
-                            name="planned_output"
-                            placeholder="Enter Planned Output"
-                            required
-                        />
 
                         <FormTextArea
                             label="Description of Output"
                             name="output_description"
                             placeholder="Enter Output Description"
+                            required
+                        />
+
+                        <FormTextArea
+                            label="Achieved Output"
+                            name="achieved_output"
+                            placeholder="Enter Achieved Output"
                             required
                         />
 
@@ -251,14 +191,6 @@ export default function CreateActivityTracker() {
                             placeholder="Enter Percentage of Achievement"
                         />
 
-                        <FormSelect
-                            label="Status"
-                            name="status"
-                            placeholder="Select Status"
-                            required
-                            options={statusOptions}
-                        />
-
                         <div className="bg-red-100 py-5 px-2.5 rounded-md">
                             <h2 className="text-lg font-bold text-red-500">
                                 Variance Analysis
@@ -266,30 +198,9 @@ export default function CreateActivityTracker() {
                         </div>
 
                         <FormInput
-                            label="Total NGN"
-                            name="total_amount_ngn"
-                            required
-                            placeholder="Enter Total NGN"
-                        />
-
-                        <FormInput
-                            label="Total USD"
-                            name="total_amount_usd"
-                            placeholder="Enter Total USD"
-                            required
-                        />
-
-                        <FormInput
-                            label="Amount Expended NGN"
-                            name="expended_amount_ngn"
+                            label="Amount Expended (NGN)"
+                            name="amount_expended_ngn"
                             placeholder="Enter Amount Expended NGN "
-                        />
-
-                        <FormInput
-                            label="Implementation USD Rate"
-                            name="implementation_usd_rate"
-                            placeholder="Enter Implementation USD Rate"
-                            required
                         />
 
                         <FormInput
@@ -300,9 +211,70 @@ export default function CreateActivityTracker() {
                         />
 
                         <FormInput
+                            label="Implementation USD Rate"
+                            name="implementation_usd_rate"
+                            placeholder="Enter Implementation USD Rate"
+                            required
+                        />
+
+                        <FormInput
                             label="Expenditure Rate NGN"
-                            name="expenditure_rate_ngn"
+                            name="expenditure_ngn_rate"
                             placeholder="Enter Amount Expenditure Rate NGN"
+                            required
+                        />
+
+                        <FormInput
+                            label="Expenditure Rate USD"
+                            name="expenditure_usd_rate"
+                            placeholder="Enter Amount Expenditure Rate USD"
+                            required
+                        />
+
+                        <FormInput
+                            label="Variance NGN"
+                            name="variance_ngn"
+                            placeholder="Enter Variance NGN "
+                        />
+
+                        <FormInput
+                            label="Variance USD"
+                            name="variance_usd"
+                            placeholder="Enter Variance USD "
+                        />
+
+                        <FormInput
+                            label="Percentage Variance NGN"
+                            name="percentage_variance_ngn"
+                            placeholder="Enter Percentage Variance NGN"
+                            required
+                        />
+
+                        <FormInput
+                            label="Percentage Variance USD"
+                            name="percentage_variance_usd"
+                            placeholder="Enter Percentage Variance USD"
+                            required
+                        />
+
+                        <FormInput
+                            label="Efficiency Output vs Efficiency Ratio"
+                            name="efficiency_output_expenditure_ratio"
+                            placeholder="Enter Efficiency Output vs Efficiency Ratio"
+                            required
+                        />
+
+                        <FormInput
+                            label="Efficiency Output vs Efficiency Level"
+                            name="efficiency_output_expenditure_level"
+                            placeholder="Enter Efficiency Output vs Efficiency Level"
+                            required
+                        />
+
+                        <FormInput
+                            label="Comments"
+                            name="comments"
+                            placeholder="Enter Comments"
                             required
                         />
                     </Card>
@@ -316,11 +288,8 @@ export default function CreateActivityTracker() {
                             Cancel
                         </FormButton>
 
-                        <FormButton
-                            loading={isCreateLoading}
-                            disabled={isCreateLoading}
-                        >
-                            Create
+                        <FormButton loading={isLoading} disabled={isLoading}>
+                            Update
                         </FormButton>
                     </div>
                 </form>

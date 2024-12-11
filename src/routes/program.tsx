@@ -94,18 +94,21 @@ export const program = [
             () => import("pages/protectedPages/programs/plan/ssp/Checklist")
         ),
     },
+
     {
         path: RouteEnum.PROGRAM_FUND_REQUEST,
         element: lazy(
             () => import("pages/protectedPages/programs/fund-request/index")
         ),
     },
+
     {
         path: RouteEnum.PROGRAM_FUND_REQUEST_DETAILS,
         element: lazy(
             () => import("pages/protectedPages/programs/fund-request/id/index")
         ),
     },
+
     {
         path: RouteEnum.PROGRAM_FUND_REQUEST_CREATE,
         element: lazy(
@@ -115,6 +118,7 @@ export const program = [
                 )
         ),
     },
+
     {
         path: RouteEnum.PROGRAM_FUND_REQUEST_PREVIEW,
         element: lazy(
@@ -124,6 +128,7 @@ export const program = [
                 )
         ),
     },
+
     {
         path: RouteEnum.PROGRAM_FUND_REQUEST_FUND_SUMMARY,
         element: lazy(
@@ -133,6 +138,27 @@ export const program = [
                 )
         ),
     },
+
+    {
+        path: RouteEnum.PROGRAM_FUND_REQUEST_VIEW_ALL_FUND_REQUESTS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/programs/fund-request/id/AllFundRequestPreview"
+                )
+        ),
+    },
+
+    {
+        path: RouteEnum.PROGRAM_FUND_REQUEST_VIEW_ACTIVITY,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/programs/fund-request/id/ViewFundRequestActivity"
+                )
+        ),
+    },
+
     {
         path: RouteEnum.PROGRAM_RISK_MANAGEMENT,
         element: lazy(

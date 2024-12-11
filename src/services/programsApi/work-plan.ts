@@ -7,6 +7,14 @@ import {
 
 const WorkPlanAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
+        downloadWorkPlanTemplate: builder.query({
+            query: () => ({
+                method: "GET",
+                url: "/programs/plans/works/sheet/template/",
+                responseHandler: (response) => response.blob(),
+            }),
+        }),
+
         uploadWorkPlan: builder.mutation<null, { project: string; file: File }>(
             {
                 query: (body) => ({
@@ -53,6 +61,7 @@ const WorkPlanAPI = baseAPI.injectEndpoints({
 });
 
 export const {
+    useLazyDownloadWorkPlanTemplateQuery,
     useUploadWorkPlanMutation,
     useGetAllWorkPlanQuery,
     useGetSingleWorkPlanQuery,

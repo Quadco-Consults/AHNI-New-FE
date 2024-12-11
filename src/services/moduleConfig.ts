@@ -100,6 +100,7 @@ const projectsAPI = baseAPI.injectEndpoints({
             }),
             providesTags: ["FinancialYear"],
         }),
+
         addFinancialYear: builder.mutation<FinancialYear, TFinancialYear>({
             query: (body) => ({
                 url: "/config/financial-year/",
@@ -108,6 +109,16 @@ const projectsAPI = baseAPI.injectEndpoints({
             }),
             invalidatesTags: ["FinancialYear"],
         }),
+
+        getSingleFinancialYear: builder.query<TResponse<FinancialYear>, string>(
+            {
+                query: (id) => ({
+                    method: "GET",
+                    url: `/config/financial-year/${id}/`,
+                }),
+            }
+        ),
+
         updateFinancialYear: builder.mutation<
             FinancialYear,
             { id: string; body: TFinancialYear }
@@ -166,6 +177,14 @@ const projectsAPI = baseAPI.injectEndpoints({
             }),
             providesTags: ["Locations"],
         }),
+
+        getSingleLocation: builder.query<TResponse<Locations>, string>({
+            query: (id) => ({
+                method: "GET",
+                url: `/config/locations/${id}/`,
+            }),
+        }),
+
         addLocations: builder.mutation<Locations, TLocations>({
             query: (body) => ({
                 url: "/config/locations/",
@@ -174,6 +193,7 @@ const projectsAPI = baseAPI.injectEndpoints({
             }),
             invalidatesTags: ["Locations"],
         }),
+
         updateLocations: builder.mutation<
             Locations,
             { id: string; body: TLocations }
@@ -247,6 +267,7 @@ export const {
     useUpdateDepartmentsMutation,
     useDeleteDepartmentsMutation,
     useFinancialYearQuery,
+    useGetSingleFinancialYearQuery,
     useAddFinancialYearMutation,
     useUpdateFinancialYearMutation,
     useDeleteFinancialYearMutation,
@@ -255,6 +276,7 @@ export const {
     useUpdateItemsMutation,
     useDeleteItemsMutation,
     useLocationsQuery,
+    useGetSingleLocationQuery,
     useAddLocationsMutation,
     useUpdateLocationsMutation,
     useDeleteLocationsMutation,

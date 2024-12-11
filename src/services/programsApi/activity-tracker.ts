@@ -24,8 +24,9 @@ const ActivityTrackerAPI = baseAPI.injectEndpoints({
         >({
             query: () => ({
                 method: "GET",
-                url: "/programs/plans/activity-trackers/",
+                url: "/programs/plans/works/trackers/",
             }),
+            providesTags: ["ACTIVITY_TRACKER"],
         }),
 
         getSingleActivityTracker: builder.query<
@@ -34,7 +35,7 @@ const ActivityTrackerAPI = baseAPI.injectEndpoints({
         >({
             query: (id) => ({
                 method: "GET",
-                url: `/programs/plans/activity-trackers/${id}/`,
+                url: `/programs/plans/works/trackers/${id}/`,
             }),
         }),
 
@@ -44,9 +45,10 @@ const ActivityTrackerAPI = baseAPI.injectEndpoints({
         >({
             query: ({ id, body }) => ({
                 method: "PUT",
-                url: `/programs/plans/activity-trackers/${id}/`,
+                url: `/programs/plans/works/trackers/${id}/`,
                 body,
             }),
+            invalidatesTags: ["ACTIVITY_TRACKER"],
         }),
 
         deleteActivityTracker: builder.mutation<
@@ -55,8 +57,9 @@ const ActivityTrackerAPI = baseAPI.injectEndpoints({
         >({
             query: (id) => ({
                 method: "DELETE",
-                url: `/programs/plans/activity-trackers/${id}/`,
+                url: `/programs/plans/works/trackers/${id}/`,
             }),
+            invalidatesTags: ["ACTIVITY_TRACKER"],
         }),
     }),
 });

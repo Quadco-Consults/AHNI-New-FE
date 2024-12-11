@@ -7,6 +7,7 @@ export interface ProjectsResultsData {
     project_id: string;
     title: string;
     goal: string;
+    currency: string;
     expected_results: string;
     start_date: string;
     end_date: string;

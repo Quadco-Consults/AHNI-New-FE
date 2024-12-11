@@ -25,6 +25,7 @@ interface TableProps<TData> {
     onRowClick?: (row: any) => void;
     isLoading?: boolean;
     footer?: boolean;
+    pagination?: boolean;
 }
 
 function DataTable<TData>({
@@ -33,13 +34,14 @@ function DataTable<TData>({
     onRowClick,
     isLoading,
     footer = false,
+    pagination = true,
 }: TableProps<TData>) {
     const table = useReactTable<TData>({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
-        debugTable: true,
+        // debugTable: true,
         defaultColumn: {
             // size: 150,
             // minSize: 100,
@@ -149,28 +151,31 @@ function DataTable<TData>({
                     </TableFooter>
                 )}
             </ShadTable>
-            <div className="flex items-center justify-end my-4 gap-x-4 ">
-                <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
-                >
-                    <Icon icon="hugeicons:arrow-left-double" />
-                </Button>
-                <span>
-                    Page {table.getState().pagination.pageIndex + 1} of{" "}
-                    {table.getPageCount()}
-                </span>{" "}
-                <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
-                >
-                    <Icon icon="hugeicons:arrow-right-double" />
-                </Button>
-            </div>
+
+            {pagination && (
+                <div className="flex items-center justify-end my-4 gap-x-4 ">
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => table.previousPage()}
+                        disabled={!table.getCanPreviousPage()}
+                    >
+                        <Icon icon="hugeicons:arrow-left-double" />
+                    </Button>
+                    <span>
+                        Page {table.getState().pagination.pageIndex + 1} of{" "}
+                        {table.getPageCount()}
+                    </span>{" "}
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => table.nextPage()}
+                        disabled={!table.getCanNextPage()}
+                    >
+                        <Icon icon="hugeicons:arrow-right-double" />
+                    </Button>
+                </div>
+            )}
         </div>
     );
 }
