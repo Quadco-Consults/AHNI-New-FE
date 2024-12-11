@@ -45,7 +45,7 @@ const FundRequest = () => {
         {
             header: "Project ID",
             accessorKey: "project_id",
-            size: 100,
+            size: 200,
         },
         {
             header: "Start Date",
@@ -86,7 +86,7 @@ const FundRequest = () => {
             header: "Budget",
             accessorFn: (data) => {
                 const currency = data.currency === "NGN" ? "₦" : "$";
-                return `${currency} ${data.budget}`;
+                return `${currency}${data.budget}`;
             },
             size: 120,
         },
@@ -96,7 +96,7 @@ const FundRequest = () => {
             cell: ({ row }) => (
                 <ProjectFundingSource data={row.original.funding_sources} />
             ),
-            size: 200,
+            size: 300,
         },
         {
             header: "Project Manager",
@@ -127,7 +127,7 @@ const FundRequest = () => {
             cell: ({ row }) => (
                 <ProjectBeneficiaries data={row.original.beneficiaries} />
             ),
-            size: 200,
+            size: 300,
         },
         {
             header: "Action",

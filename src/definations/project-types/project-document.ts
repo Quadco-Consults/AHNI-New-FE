@@ -2,6 +2,7 @@ export type ProjectDocumentResultsData = {
     id: string;
     created_at: string;
     uploaded_at: string;
+    uploaded_datetime: string;
     title: string;
     document: string;
     project: string;

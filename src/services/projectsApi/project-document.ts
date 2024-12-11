@@ -1,14 +1,7 @@
-/* eslint-disable no-empty-pattern */
-/* eslint-disable no-unused-vars */
 import { invalidateTags, provideTags } from "utils/QueryUtils";
 import baseAPI from "..";
-import { z } from "zod";
+
 import {
-    ProjectDocumentSchema,
-    TProjectDocument,
-} from "definations/project-validator";
-import {
-    ProjectDocumentData,
     ProjectDocumentResponse,
     ProjectDocumentResultsData,
 } from "definations/project-types/project-document";
@@ -42,7 +35,7 @@ const projectDocumentAPi = baseAPI.injectEndpoints({
                 body,
             }),
             invalidatesTags: (_, error, {}) =>
-                !error ? invalidateTags("PROJECTS") : [],
+                !error ? invalidateTags("PROJECT_DOCUMENT") : [],
         }),
 
         getProjectDocument: builder.query<ProjectDocumentResultsData, string>({
@@ -55,32 +48,6 @@ const projectDocumentAPi = baseAPI.injectEndpoints({
                 !error ? provideTags("PROJECT_DOCUMENT", data) : [],
         }),
 
-        updateProjectDocument: builder.mutation<
-            ProjectDocumentResponse,
-            { path: { id: string }; body: any }
-        >({
-            query: ({ path, body }) => ({
-                url: `${BASE_URL}${path.id}/`,
-                method: "PUT",
-                body,
-            }),
-            invalidatesTags: (_, error, { path }) =>
-                !error ? invalidateTags("PROJECTS", { ids: [path.id] }) : [],
-        }),
-
-        modifyProjectDocument: builder.mutation<
-            ProjectDocumentResponse,
-            { path: { id: string }; body: any }
-        >({
-            query: ({ path, body }) => ({
-                url: `${BASE_URL}${path.id}/`,
-                method: "PATCH",
-                body,
-            }),
-            invalidatesTags: (_, error, { path }) =>
-                !error ? invalidateTags("PROJECTS", { ids: [path.id] }) : [],
-        }),
-
         deleteProjectDocument: builder.mutation<void, { path: { id: string } }>(
             {
                 query: ({ path }) => ({
@@ -89,7 +56,7 @@ const projectDocumentAPi = baseAPI.injectEndpoints({
                 }),
                 invalidatesTags: (_, error, { path }) =>
                     !error
-                        ? invalidateTags("PROJECTS", { ids: [path.id] })
+                        ? invalidateTags("PROJECT_DOCUMENT", { ids: [path.id] })
                         : [],
             }
         ),
