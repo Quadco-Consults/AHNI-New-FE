@@ -131,6 +131,7 @@ const projectsAPI = baseAPI.injectEndpoints({
             }),
             providesTags: ["Partners"],
         }),
+        
         addPartners: builder.mutation<Partners, TPartners>({
             query: (body) => ({
                 url: "/projects/partners/",
@@ -139,6 +140,7 @@ const projectsAPI = baseAPI.injectEndpoints({
             }),
             invalidatesTags: ["Partners"],
         }),
+
         updatePartners: builder.mutation<
             Partners,
             { id: string; body: TPartners }
@@ -150,6 +152,7 @@ const projectsAPI = baseAPI.injectEndpoints({
             }),
             invalidatesTags: ["Partners"],
         }),
+
         deletePartners: builder.mutation<Partners, string>({
             query: (id) => ({
                 url: `/projects/partners/${id}`,

@@ -33,6 +33,8 @@ import PencilIcon from "components/icons/PencilIcon";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType, mediumDailogScreen } from "constants/dailogs";
+import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
+import { useState } from "react";
 
 const RiskManagement = () => {
     const { data, isLoading } = useGetAllRiskManagementPlansQuery({
@@ -247,7 +249,10 @@ const columns: ColumnDef<TRiskPlanPlanManagementResponse>[] = [
 ];
 
 const ActionListAction = ({ data }: any) => {
-    const [deleteRiskManagementPlan] = useDeleteRiskManagementPlanMutation();
+    const [dialogOpen, setDialogOpen] = useState(false);
+
+    const [deleteRiskManagementPlan, { isLoading }] =
+        useDeleteRiskManagementPlanMutation();
 
     const dispatch = useAppDispatch();
 
@@ -308,7 +313,7 @@ const ActionListAction = ({ data }: any) => {
                             <Button
                                 className="w-full flex items-center justify-start gap-2"
                                 variant="ghost"
-                                onClick={handleDelete}
+                                onClick={() => setDialogOpen(true)}
                             >
                                 <DeleteIcon />
                                 Delete
@@ -317,6 +322,14 @@ const ActionListAction = ({ data }: any) => {
                     </PopoverContent>
                 </Popover>
             </>
+
+            <ConfirmationDialog
+                open={dialogOpen}
+                title="Are you sure you want to delete this risk management plan?"
+                loading={isLoading}
+                onCancel={() => setDialogOpen(false)}
+                onOk={handleDelete}
+            />
         </div>
     );
 };

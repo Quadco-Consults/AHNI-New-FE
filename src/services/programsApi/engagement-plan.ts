@@ -17,6 +17,7 @@ const EngagementPlanAPI = baseAPI.injectEndpoints({
                 url: "/programs/stakeholders/engagement-plans/",
                 body,
             }),
+            invalidatesTags: ["ENGAGEMENT_PLAN"],
         }),
 
         getAllEngagementPlans: builder.query<
@@ -27,6 +28,7 @@ const EngagementPlanAPI = baseAPI.injectEndpoints({
                 method: "GET",
                 url: "/programs/stakeholders/engagement-plans/",
             }),
+            providesTags: ["ENGAGEMENT_PLAN"],
         }),
 
         getSingleEngagementPlan: builder.query<
@@ -48,6 +50,7 @@ const EngagementPlanAPI = baseAPI.injectEndpoints({
                 url: `/programs/stakeholders/engagement-plans/${id}/`,
                 body,
             }),
+            invalidatesTags: ["ENGAGEMENT_PLAN"],
         }),
 
         deleteEngagementPlan: builder.mutation<
@@ -58,6 +61,7 @@ const EngagementPlanAPI = baseAPI.injectEndpoints({
                 method: "DELETE",
                 url: `/programs/stakeholders/engagement-plans/${id}/`,
             }),
+            invalidatesTags: ["ENGAGEMENT_PLAN"],
         }),
     }),
 });

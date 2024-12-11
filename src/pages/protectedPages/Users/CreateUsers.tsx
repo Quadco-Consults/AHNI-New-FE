@@ -61,9 +61,7 @@ const CreateUsers = () => {
             form.reset();
             navigate("/users");
         } catch (error: any) {
-            const keys = Object.keys(error.data);
-            const errMsg = error.data[keys[0]][0];
-            toast.error(errMsg || "Something went wrong");
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
     return (

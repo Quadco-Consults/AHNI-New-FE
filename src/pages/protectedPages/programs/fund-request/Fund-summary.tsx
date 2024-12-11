@@ -5,7 +5,7 @@ import { Button } from "components/ui/button";
 import FundRequstLayout from "./FundRequstLayout";
 import React, { useState } from "react";
 import { Input } from "components/ui/input";
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { Form } from "components/ui/form";
 import {
     Table,
@@ -18,29 +18,63 @@ import {
 import { openDialog } from "store/ui";
 import { DialogType, largeDailogScreen } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
+import { useCreateFundRequestMutation } from "services/programsApi/fund-request";
+import { toast } from "sonner";
+import {
+    FundRequestActivitySchema,
+    TFundRequestActivityFormValues,
+} from "definations/program-validator";
+import { zodResolver } from "@hookform/resolvers/zod";
+import FormInput from "atoms/FormInput";
+import FormSelect from "atoms/FormSelect";
+import { useGetCostCategoryQuery } from "services/moduleFinance";
 
 const FundSummary: React.FC = () => {
     const navigate = useNavigate();
     const { pathname } = useLocation();
 
-    const form = useForm();
+    const form = useForm<TFundRequestActivityFormValues>({
+        resolver: zodResolver(FundRequestActivitySchema),
+    });
 
-    const dispatch = useAppDispatch();
+    const { fields, append, remove } = useFieldArray({
+        control: form.control,
+        name: "activities",
+    });
+
+    const { data: costCategory } = useGetCostCategoryQuery({
+        no_paginate: false,
+    });
+
+    const costCategoryOptions = costCategory?.data.results.map(
+        ({ name, id }) => ({
+            label: name,
+            value: id,
+        })
+    );
 
     const { handleSubmit } = form;
 
-    const onSubmit = async () => {
-        const projectFundRequest = JSON.parse(
-            localStorage.getItem("projectFundRequest") as any
+    const onSubmit: SubmitHandler<TFundRequestActivityFormValues> = async ({
+        activities,
+    }) => {
+        const programFundRequest = JSON.parse(
+            localStorage.getItem("programFundRequest") || "{}"
         );
 
-        // localStorage.setItem("projectFundRequest", JSON.stringify(formData));
+        const payload = {
+            ...programFundRequest,
+            activities,
+        };
+
+        localStorage.setItem("programFundRequest", JSON.stringify(payload));
 
         let path = pathname;
 
         path = path.substring(0, path.lastIndexOf("/"));
 
         path += "/fund-request-preview";
+
         navigate(path);
     };
 
@@ -54,57 +88,64 @@ const FundSummary: React.FC = () => {
                                 <TableHead className="w-[300px]">
                                     Description of Activity
                                 </TableHead>
-                                <TableHead>
-                                    Fund Request for this period
-                                </TableHead>
-                                <TableHead>Unique Identifier Code</TableHead>
+                                <TableHead>Quantity</TableHead>
+                                <TableHead>Unit Cost</TableHead>
 
-                                <TableHead>Detailed Breakdown</TableHead>
+                                <TableHead>Frequency</TableHead>
+                                <TableHead>Cost Category</TableHead>
+                                <TableHead>Comment</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <TableRow>
-                                <TableCell>
-                                    <Input
-                                        id="description"
-                                        name="description"
-                                        placeholder=""
-                                    />
-                                </TableCell>
-                                <TableCell>
-                                    <Input
-                                        id="amount"
-                                        name="amount"
-                                        placeholder=""
-                                    />
-                                </TableCell>
-                                <TableCell>
-                                    <Input
-                                        id="unit_cost"
-                                        name="unit_cost"
-                                        placeholder=""
-                                    />
-                                </TableCell>
-                                <TableCell>
-                                    <Button
-                                        variant="ghost"
-                                        className="text-[#DEA004] w-full"
-                                        type="button"
-                                        onClick={() => {
-                                            dispatch(
-                                                openDialog({
-                                                    type: DialogType.FundRequestBreakdown,
-                                                    dialogProps: {
-                                                        ...largeDailogScreen,
-                                                    },
-                                                })
-                                            );
-                                        }}
-                                    >
-                                        Add
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
+                            {fields.map((field, index) => (
+                                <TableRow key={field.id}>
+                                    <TableCell>
+                                        <FormInput
+                                            id="activity_description"
+                                            name={`activities.${index}.activity_description`}
+                                            placeholder=""
+                                        />
+                                    </TableCell>
+
+                                    <TableCell>
+                                        <FormInput
+                                            id="unit_cost"
+                                            name={`activities.${index}.unit_cost`}
+                                            placeholder=""
+                                        />
+                                    </TableCell>
+
+                                    <TableCell>
+                                        <FormInput
+                                            id="frequency"
+                                            name={`activities.${index}.frequency`}
+                                            placeholder=""
+                                        />
+                                    </TableCell>
+                                    <TableCell>
+                                        <FormInput
+                                            id="quantity"
+                                            name={`activities.${index}.quantity`}
+                                            placeholder=""
+                                        />
+                                    </TableCell>
+                                    <TableCell>
+                                        <FormSelect
+                                            id="category"
+                                            name={`activities.${index}.category`}
+                                            placeholder="Select Cost Category"
+                                            options={costCategoryOptions}
+                                        />
+                                    </TableCell>
+                                    <TableCell>
+                                        <FormInput
+                                            id="comment"
+                                            name={`activities.${index}.comment`}
+                                            placeholder=""
+                                        />
+                                    </TableCell>
+                                </TableRow>
+                            ))}
                         </TableBody>
                     </Table>
 
@@ -112,6 +153,16 @@ const FundSummary: React.FC = () => {
                         type="button"
                         variant="outline"
                         className="text-[#DEA004] w-[250px] mt-5"
+                        onClick={() =>
+                            append({
+                                activity_description: "",
+                                quantity: "",
+                                unit_cost: "",
+                                frequency: "",
+                                comment: "",
+                                category: "",
+                            })
+                        }
                     >
                         Click to add another
                     </Button>
@@ -125,7 +176,7 @@ const FundSummary: React.FC = () => {
                             Back
                         </FormButton>
 
-                        <FormButton type="submit">Submit Request</FormButton>
+                        <FormButton type="submit">Next</FormButton>
                     </div>
                 </form>
             </Form>

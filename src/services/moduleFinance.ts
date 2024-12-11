@@ -1,4 +1,4 @@
-import { TBasePaginatedResponse, TRequest } from "definations/auth";
+import { TBasePaginatedResponse, TRequest, TResponse } from "definations/auth";
 import baseAPI from ".";
 import {
     BudgetLine,
@@ -27,6 +27,13 @@ const ModuleFinanceAPI = baseAPI.injectEndpoints({
                 params,
             }),
             providesTags: ["Cost_Category"],
+        }),
+
+        getSingleCostCategory: builder.query<TResponse<CostCategory>, string>({
+            query: (id) => ({
+                method: "GET",
+                url: `/finance/cost-categories/${id}/`,
+            }),
         }),
 
         addCostCategory: builder.mutation<CostCategory, TCostCategory>({
@@ -267,6 +274,7 @@ const ModuleFinanceAPI = baseAPI.injectEndpoints({
 
 export const {
     useGetCostCategoryQuery,
+    useGetSingleCostCategoryQuery,
     useAddCostCategoryMutation,
     useUpdateCostCategoryMutation,
     useDeleteCostCategoryMutation,

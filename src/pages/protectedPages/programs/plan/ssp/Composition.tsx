@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import SupportiveSupervisionPlanLayout from "./SupportiveSupervisionPlanLayout";
 import { Form, FormControl, FormField, FormItem } from "components/ui/form";
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelectField";
 import { ChevronRight } from "lucide-react";
@@ -16,12 +16,14 @@ import {
     useFacilitiesQuery,
     useLazyGetSingleFacilityQuery,
 } from "services/module-programs";
-import { SSPSchema, TSSSPFormValues } from "definations/program-types/ssp";
+import {
+    SSPCompositionSchema,
+    TSSPCompositionFormValues,
+} from "definations/program-types/ssp";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useGetUserQuery } from "services/users";
 import { toast } from "sonner";
 import Card from "components/shared/Card";
-import { useCreateSSPMutation } from "services/programsApi/ssp";
 
 const Composition = () => {
     const { data: facility, isLoading: isFacilityLoading } = useFacilitiesQuery(
@@ -35,16 +37,14 @@ const Composition = () => {
         { data: facilityData, isFetching: isSingleFacilityLoading },
     ] = useLazyGetSingleFacilityQuery();
 
-    const [createSSP, { isLoading: isCreateLoading }] = useCreateSSPMutation();
-
-    const form = useForm<TSSSPFormValues>({
-        resolver: zodResolver(SSPSchema),
+    const form = useForm<TSSPCompositionFormValues>({
+        resolver: zodResolver(SSPCompositionSchema),
         defaultValues: {
-            facility: "",
             month: "",
             year: "",
             visit_date: "",
-            status: "PENDING",
+            facility: "",
+            team_members: [],
         },
     });
 
@@ -58,13 +58,11 @@ const Composition = () => {
 
     const getFacilityData = async () => {
         try {
-            const response = await getSingleFacility(facilityId).unwrap();
+            await getSingleFacility(facilityId).unwrap();
         } catch (error: any) {
             toast.error(error.data.message || "Something went wrong");
         }
     };
-
-    let id = undefined;
 
     useEffect(() => {
         if (facilityId) {
@@ -72,30 +70,33 @@ const Composition = () => {
         }
     }, [facilityId]);
 
-    const onSubmit = async (data: any) => {
-        let response;
+    const onSubmit: SubmitHandler<TSSPCompositionFormValues> = async (
+        data: any
+    ) => {
+        localStorage.setItem("compositionData", JSON.stringify(data));
 
-        try {
-            if (id) {
-                // edit ssp
-                toast.success("Support Supervision Plan Updated");
-            } else {
-                const responseData = await createSSP(data).unwrap();
-                response = responseData;
-                toast.success("Support Supervision Plan Created");
-            }
+        let path = pathname;
 
-            localStorage.setItem("compositionData", JSON.stringify(response));
+        path = path.substring(0, path.lastIndexOf("/"));
 
-            let path = pathname;
+        path += "/evolution-checklist";
 
-            path = path.substring(0, path.lastIndexOf("/"));
+        navigate(path);
 
-            path += "/evolution-checklist";
-            navigate(path);
-        } catch (error: any) {
-            toast.error(error.data.message || "Something went wrong");
-        }
+        // try {
+        //     if (id) {
+        //         // edit ssp
+        //         toast.success("Support Supervision Plan Updated");
+        //     } else {
+        //         const responseData = await createSSP(data).unwrap();
+        //         response = responseData;
+        //         toast.success("Support Supervision Plan Created");
+        //     }
+
+        //
+        // } catch (error: any) {
+        //     toast.error(error.data.message || "Something went wrong");
+        // }
     };
 
     return (
@@ -260,13 +261,7 @@ const Composition = () => {
                                 >
                                     Cancel
                                 </Button>
-                                <FormButton
-                                    type="submit"
-                                    loading={isCreateLoading}
-                                    suffix={<ChevronRight size={14} />}
-                                >
-                                    Next
-                                </FormButton>
+                                <FormButton type="submit">Next</FormButton>
                             </div>
                         </form>
                     </Form>

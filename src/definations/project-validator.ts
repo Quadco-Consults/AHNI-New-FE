@@ -64,6 +64,7 @@ export const ProjectsSummarySchema = z.object({
     project_managers: z.array(z.string()),
     funding_sources: z.array(z.string()),
     // objectives: z.string(),
+    currency: z.string().min(1, "Field Required"),
     beneficiaries: z.array(z.any()),
     expected_results: z.string().min(1, "This field is required"),
     achievement_against_target: z.string().min(1, "This field is required"),

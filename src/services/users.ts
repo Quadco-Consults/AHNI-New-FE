@@ -97,7 +97,7 @@ const usersAPi = baseAPI.injectEndpoints({
 
         getSingleUser: builder.query<
             { status: string; message: string; data: TUser },
-            number
+            string
         >({
             query: (id) => ({
                 url: `/users/${id}/`,

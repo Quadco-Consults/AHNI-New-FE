@@ -4,7 +4,7 @@ import AddSquareIcon from "components/icons/AddSquareIcon";
 import SearchIcon from "components/icons/SearchIcon";
 import FilterIcon from "components/icons/FilterIcon";
 import { ColumnDef } from "@tanstack/react-table";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
@@ -36,6 +36,7 @@ import { DownloadIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
 import PencilIcon from "components/icons/PencilIcon";
+import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 
 const ActivityPlan = () => {
     const { data, isLoading } = useGetAllActivityPlansQuery({
@@ -166,7 +167,10 @@ const ActivityPlan = () => {
     );
 
     const TableAction = ({ data }: { data: TActivityPlanResponse }) => {
-        const [deleteActivityPlan] = useDeleteActivityPlanMutation();
+        const [dialogOpen, setDialogOpen] = useState(false);
+
+        const [deleteActivityPlan, { isLoading }] =
+            useDeleteActivityPlanMutation();
 
         const handleDelete = async () => {
             try {
@@ -207,7 +211,7 @@ const ActivityPlan = () => {
                                 <Button
                                     className="w-full flex items-center justify-start gap-2"
                                     variant="ghost"
-                                    onClick={handleDelete}
+                                    onClick={() => setDialogOpen(true)}
                                 >
                                     <DeleteIcon />
                                     Delete
@@ -216,6 +220,14 @@ const ActivityPlan = () => {
                         </PopoverContent>
                     </Popover>
                 </>
+
+                <ConfirmationDialog
+                    open={dialogOpen}
+                    title="Are you sure you want to delete this activity plan?"
+                    loading={isLoading}
+                    onCancel={() => setDialogOpen(false)}
+                    onOk={handleDelete}
+                />
             </div>
         );
     };

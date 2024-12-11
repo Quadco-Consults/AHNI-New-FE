@@ -43,8 +43,6 @@ const ConsortiumModal = () => {
         no_paginate: false,
     });
 
-    const { dailog } = useAppSelector((state) => state.ui);
-
     const { partners: partnerIds } = useAppSelector(
         (state) => state.partnerLocation
     );

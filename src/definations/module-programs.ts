@@ -71,6 +71,9 @@ export interface SupervisionCriteria {
 export const SupervisionCriteriaSchema = z.object({
     name: z.string().min(1, "Please enter a name"),
     description: z.string().min(1, "Please enter a description"),
+    evaluation_category: z
+        .string()
+        .min(1, "Please select an evaluation category"),
 });
 
 export type TSupervisionCriteria = z.infer<typeof SupervisionCriteriaSchema>;
