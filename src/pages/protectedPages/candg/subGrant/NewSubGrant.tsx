@@ -17,81 +17,6 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 const NewSubGrant = () => {
-    const { data: usersData } = usersAPI.useGetUsersQuery(
-        useMemo(
-            () => ({
-                params: {
-                    fields: "id,name",
-                    no_paginate: true,
-                    // page_size: pagination.pageSize,
-                    // page: pagination.pageIndex + 1,
-                },
-            }),
-            []
-        )
-    );
-    const users = useMemo(() => {
-        return usersData?.map((item: any) => {
-            return {
-                label: item?.first_name + " " + item?.last_name,
-                value: item?.id,
-            };
-        });
-    }, [usersData]);
-
-    const departmentQueryResults: any = DepartmentsAPI.useGetDepartmentsQuery({
-        params: { no_paginate: true, fields: "id,name" },
-    });
-    const departments = useMemo(() => {
-        return departmentQueryResults?.data?.map((item: any) => {
-            return {
-                label: item?.name,
-                value: item?.id,
-            };
-        });
-    }, [departmentQueryResults]);
-
-    const projectsQueryResult: any = useGetProjectsQuery(
-        useMemo(
-            () => ({
-                params: {
-                    fields: "id,title",
-                    no_paginate: true,
-                },
-            }),
-            []
-        )
-    );
-
-    const projects = useMemo(() => {
-        return projectsQueryResult?.data?.map((item: any) => {
-            return {
-                label: item?.title,
-                value: item?.id,
-            };
-        });
-    }, [projectsQueryResult]);
-
-    const fundingSourceQueryResults: any =
-        FundingSourceAPi.useGetFundingSourcesQuery(
-            useMemo(
-                () => ({
-                    params: {
-                        fields: "id,name",
-                        no_paginate: true,
-                    },
-                }),
-                []
-            )
-        );
-    const normalizedSelectFundingSources = useMemo(() => {
-        return fundingSourceQueryResults?.data?.map((item: any) => {
-            return {
-                label: item?.name,
-                value: item?.id,
-            };
-        });
-    }, [fundingSourceQueryResults]);
     const [addNewSubGrantMutation, addNewSubGrantMutationResults] =
         SubGrantApi.useAddSubGrantMutation();
     const [startDateDay, setStartDateDay] = useState<number>();
@@ -151,7 +76,7 @@ const NewSubGrant = () => {
                                 <FormSelect
                                     name="project_number"
                                     label="AHNI  Project Number"
-                                    options={projects}
+                                    // options={projects}
                                     required={true}
                                     placeholder="Malaria Control Program"
                                 />
@@ -160,7 +85,7 @@ const NewSubGrant = () => {
                                 <FormSelect
                                     name="grant_administrator"
                                     label="AHNI Grant Administrator"
-                                    options={users}
+                                    // options={users}
                                     required={true}
                                     placeholder="Veronica Daniels"
                                 />
@@ -170,7 +95,7 @@ const NewSubGrant = () => {
                                     name="country"
                                     label="Country of Performance"
                                     required={true}
-                                    options={Countries}
+                                    // options={Countries}
                                     placeholder="Nigeria"
                                 />
                             </div>
@@ -179,7 +104,7 @@ const NewSubGrant = () => {
                                     name="funding_source_id"
                                     label="AHNI Originating Funder / Funding Source"
                                     required={true}
-                                    options={normalizedSelectFundingSources}
+                                    // options={normalizedSelectFundingSources}
                                     placeholder="Global Fund"
                                 />
                             </div>
@@ -204,7 +129,7 @@ const NewSubGrant = () => {
                                     name="technical_staff"
                                     label="AHNI Program/Technical Staff Contact"
                                     required={true}
-                                    options={users}
+                                    // options={users}
                                     placeholder="Tine Woji, 08034509662"
                                 />
                             </div>
@@ -213,7 +138,7 @@ const NewSubGrant = () => {
                                     name="business_unit"
                                     label="Business Unit"
                                     required={true}
-                                    options={departments}
+                                    // options={departments}
                                     placeholder="Nigeria"
                                 />
                             </div>

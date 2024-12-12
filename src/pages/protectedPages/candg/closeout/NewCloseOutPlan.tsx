@@ -17,58 +17,6 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 const NewCloseOutPlan: React.FC = () => {
-    const departmentQueryResults: any = DepartmentsAPI.useGetDepartmentsQuery({
-        params: { no_paginate: true, fields: "id,name" },
-    });
-    const departments = useMemo(() => {
-        return departmentQueryResults?.data?.map((item: any) => {
-            return {
-                label: item?.name,
-                value: item?.id,
-            };
-        });
-    }, [departmentQueryResults]);
-
-    const projectsQueryResult: any = useGetProjectsQuery(
-        useMemo(
-            () => ({
-                params: {
-                    fields: "id,title",
-                    no_paginate: true,
-                },
-            }),
-            []
-        )
-    );
-
-    const projects = useMemo(() => {
-        return projectsQueryResult?.data?.map((item: any) => {
-            return {
-                label: item?.title,
-                value: item?.id,
-            };
-        });
-    }, [projectsQueryResult]);
-
-    const partnersQueryResult: any = useGetPartnersQuery(
-        useMemo(
-            () => ({
-                params: {
-                    fields: "id,name",
-                    no_paginate: true,
-                },
-            }),
-            []
-        )
-    );
-    const partners = useMemo(() => {
-        return partnersQueryResult?.data?.map((item: any) => {
-            return {
-                label: item?.name,
-                value: item?.id,
-            };
-        });
-    }, [partnersQueryResult]);
     const form = useForm<z.infer<typeof ClosuOutPlanSchema>>({
         resolver: zodResolver(ClosuOutPlanSchema),
         defaultValues: {
@@ -83,6 +31,7 @@ const NewCloseOutPlan: React.FC = () => {
             ],
         },
     });
+
     const options = [
         { value: "Pending", label: "Pending" },
         { value: "Approved", label: "Approved" },
@@ -139,21 +88,21 @@ const NewCloseOutPlan: React.FC = () => {
                             <FormSelect
                                 label="Project Title"
                                 name="project"
-                                options={projects}
+                                // options={projects}
                                 placeholder="Enter project title"
                                 required
                             />
                             <FormSelect
                                 label="Select Department"
                                 name="department"
-                                options={departments}
+                                // options={departments}
                                 placeholder="Program/Technical"
                                 required
                             />
                             <FormSelect
                                 label="Location"
                                 name="location"
-                                options={partners}
+                                // options={partners}
                                 placeholder="Abuja"
                                 required
                             />
