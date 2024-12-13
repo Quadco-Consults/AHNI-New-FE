@@ -1,8 +1,8 @@
 import { TabsContent } from "@radix-ui/react-tabs";
 import { Tabs, TabsList, TabsTrigger } from "components/ui/tabs";
 import { Card } from "components/ui/card";
-import AssetConditions from "./AssetConditions";
-import AssetTypes from "./AssetTypes";
+import AssetConditions from "./AllAssetCondition";
+import AssetTypes from "./AllAssetType";
 
 const Admin = () => {
     return (
