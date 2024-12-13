@@ -4,45 +4,47 @@ import FormInput from "atoms/FormInput";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import {
-    useAddBeneficiariesMutation,
-    useUpdateBeneficiariesMutation,
-} from "services/moduleProjects";
-import {
-    TBeneficiaries,
-    beneficiariesSchema,
-} from "definations/module-projects";
+import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
-import { toast } from "sonner";
+import {
+    DocumentTypeSchema,
+    TDocumentTypeData,
+    TDocumentTypeFormValues,
+} from "definations/modules/project/document-types";
+import {
+    useAddDocumentTypeMutation,
+    useUpdateDocumentTypeMutation,
+} from "services/modules/project/document-types";
 
-const AddBeneficiaries = () => {
+const AddDocumentTypes = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TBeneficiaries;
-    const form = useForm<TBeneficiaries>({
-        resolver: zodResolver(beneficiariesSchema),
+    const data = dialogProps?.data as unknown as TDocumentTypeData;
+
+    const form = useForm<TDocumentTypeFormValues>({
+        resolver: zodResolver(DocumentTypeSchema),
         defaultValues: {
             name: data?.name ?? "",
             description: data?.description ?? "",
         },
     });
 
-    const [beneficiary, { isLoading }] = useAddBeneficiariesMutation();
-    const [updateBeneficiary, { isLoading: updateBeneficiaryLoading }] =
-        useUpdateBeneficiariesMutation();
-
     const dispatch = useAppDispatch();
-    const onSubmit: SubmitHandler<TBeneficiaries> = async (data) => {
+    const [documentTypes, { isLoading }] = useAddDocumentTypeMutation();
+    const [updateDocumentTypes, { isLoading: updateDocumentLoading }] =
+        useUpdateDocumentTypeMutation();
+
+    const onSubmit: SubmitHandler<TDocumentTypeFormValues> = async (data) => {
         try {
             dialogProps?.type === "update"
-                ? await updateBeneficiary({
+                ? await updateDocumentTypes({
                       //@ts-ignore
                       id: String(dialogProps?.data?.id),
                       body: data,
                   }).unwrap()
-                : await beneficiary(data).unwrap();
-            toast.success("Beneficiary Added Succesfully");
+                : await documentTypes(data).unwrap();
+            toast.success("Document Type Added Succesfully");
             dispatch(closeDialog());
             form.reset();
         } catch (error: any) {
@@ -62,7 +64,7 @@ const AddBeneficiaries = () => {
                         <FormInput
                             label="Name"
                             name="name"
-                            placeholder="Enter name"
+                            placeholder="Enter Name"
                             required
                         />
                     </div>
@@ -70,13 +72,13 @@ const AddBeneficiaries = () => {
                         <FormInput
                             label="Description"
                             name="description"
-                            placeholder="Enter description"
+                            placeholder="Enter Description"
                             required
                         />
                     </div>
                     <div className="flex justify-start gap-4">
                         <FormButton
-                            loading={isLoading || updateBeneficiaryLoading}
+                            loading={isLoading || updateDocumentLoading}
                         >
                             Save
                         </FormButton>
@@ -87,4 +89,4 @@ const AddBeneficiaries = () => {
     );
 };
 
-export default AddBeneficiaries;
+export default AddDocumentTypes;

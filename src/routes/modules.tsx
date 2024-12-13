@@ -5,7 +5,7 @@ import { lazy } from "react";
 export const modules = [
   {
     path: RouteEnum.MODULES_PROJECTS,
-    element: lazy(() => import("pages/protectedPages/modules/projects/Projects")),
+    element: lazy(() => import("pages/protectedPages/modules/projects")),
   },
   {
     path: RouteEnum.MODULES_PROGRAMS,

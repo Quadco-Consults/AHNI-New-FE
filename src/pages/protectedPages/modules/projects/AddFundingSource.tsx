@@ -2,28 +2,28 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
 
-import {
-    TFundingSource,
-    fundingSourceSchema,
-} from "definations/module-projects";
-import {
-    useAddFundingSourceMutation,
-    useUpdateFundingSourceMutation,
-} from "services/moduleProjects";
-
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
+import {
+    FundingSourceSchema,
+    TFundingSourceFormValues,
+    TFundingSourceResponse,
+} from "definations/modules/project/funding-source";
+import {
+    useAddFundingSourceMutation,
+    useUpdateFundingSourceMutation,
+} from "services/modules/project/funding-source";
 
 const AddFundingSource = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TFundingSource;
+    const data = dialogProps?.data as unknown as TFundingSourceResponse;
 
-    const form = useForm<TFundingSource>({
-        resolver: zodResolver(fundingSourceSchema),
+    const form = useForm<TFundingSourceFormValues>({
+        resolver: zodResolver(FundingSourceSchema),
         defaultValues: {
             name: data?.name ?? "",
             description: data?.description ?? "",
@@ -36,7 +36,7 @@ const AddFundingSource = () => {
     const [updateFunding, { isLoading: updateFundingLoading }] =
         useUpdateFundingSourceMutation();
 
-    const onSubmit: SubmitHandler<TFundingSource> = async (data) => {
+    const onSubmit: SubmitHandler<TFundingSourceFormValues> = async (data) => {
         try {
             dialogProps?.type === "update"
                 ? await updateFunding({
@@ -64,7 +64,7 @@ const AddFundingSource = () => {
                     <FormInput
                         label="Name"
                         name="name"
-                        placeholder="Enter name"
+                        placeholder="Enter Name"
                         required
                     />
                 </div>
@@ -72,7 +72,7 @@ const AddFundingSource = () => {
                     <FormInput
                         label="Description"
                         name="description"
-                        placeholder="Enter description"
+                        placeholder="Enter Description"
                         required
                     />
                 </div>

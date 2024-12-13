@@ -1,50 +1,49 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
-import Card from "components/shared/Card";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import {
-    useAddDocumentTypesMutation,
-    useUpdateDocumentTypesMutation,
-} from "services/moduleProjects";
-import {
-    TDocumentTypes,
-    documentTypesSchema,
-} from "definations/module-projects";
-import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
+import { toast } from "sonner";
+import {
+    BeneficiarySchema,
+    TBeneficiaryData,
+    TBeneficiaryFormValues,
+} from "definations/modules/project/beneficiaries";
+import {
+    useAddBeneficiaryMutation,
+    useUpdateBeneficiaryMutation,
+} from "services/modules/project/beneficiaries";
 
-const AddDocumentTypes = () => {
+const AddBeneficiaries = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TDocumentTypes;
-
-    const form = useForm<TDocumentTypes>({
-        resolver: zodResolver(documentTypesSchema),
+    const data = dialogProps?.data as unknown as TBeneficiaryData;
+    const form = useForm<TBeneficiaryFormValues>({
+        resolver: zodResolver(BeneficiarySchema),
         defaultValues: {
             name: data?.name ?? "",
             description: data?.description ?? "",
         },
     });
 
-    const dispatch = useAppDispatch();
-    const [documentTypes, { isLoading }] = useAddDocumentTypesMutation();
-    const [updateDocumentTypes, { isLoading: updateDocumentLoading }] =
-        useUpdateDocumentTypesMutation();
+    const [beneficiary, { isLoading }] = useAddBeneficiaryMutation();
+    const [updateBeneficiary, { isLoading: updateBeneficiaryLoading }] =
+        useUpdateBeneficiaryMutation();
 
-    const onSubmit: SubmitHandler<TDocumentTypes> = async (data) => {
+    const dispatch = useAppDispatch();
+    const onSubmit: SubmitHandler<TBeneficiaryFormValues> = async (data) => {
         try {
             dialogProps?.type === "update"
-                ? await updateDocumentTypes({
+                ? await updateBeneficiary({
                       //@ts-ignore
                       id: String(dialogProps?.data?.id),
                       body: data,
                   }).unwrap()
-                : await documentTypes(data).unwrap();
-            toast.success("Document Type Added Succesfully");
+                : await beneficiary(data).unwrap();
+            toast.success("Beneficiary Added Succesfully");
             dispatch(closeDialog());
             form.reset();
         } catch (error: any) {
@@ -64,7 +63,7 @@ const AddDocumentTypes = () => {
                         <FormInput
                             label="Name"
                             name="name"
-                            placeholder="Enter name"
+                            placeholder="Enter Name"
                             required
                         />
                     </div>
@@ -72,13 +71,12 @@ const AddDocumentTypes = () => {
                         <FormInput
                             label="Description"
                             name="description"
-                            placeholder="Enter description"
-                            required
+                            placeholder="Enter Description"
                         />
                     </div>
                     <div className="flex justify-start gap-4">
                         <FormButton
-                            loading={isLoading || updateDocumentLoading}
+                            loading={isLoading || updateBeneficiaryLoading}
                         >
                             Save
                         </FormButton>
@@ -89,4 +87,4 @@ const AddDocumentTypes = () => {
     );
 };
 
-export default AddDocumentTypes;
+export default AddBeneficiaries;

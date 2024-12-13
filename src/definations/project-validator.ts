@@ -1,33 +1,5 @@
 import { z } from "zod";
 
-// Define individual schemas
-export const BeneficiarySchema = z.object({
-    created_at: z.string(),
-    updated_at: z.string(),
-    name: z.string(),
-    description: z.string(),
-});
-
-export const FundingSourceSchema = z.object({
-    created_at: z.string(),
-    updated_at: z.string(),
-    name: z.string(),
-    description: z.string(),
-});
-
-export const PartnerSchema = z.object({
-    created_at: z.string(),
-    updated_at: z.string(),
-    name: z.string(),
-    address: z.string(),
-    city: z.string(),
-    state: z.string(),
-    email: z.string(),
-    phone: z.string(),
-    website: z.string(),
-    logo: z.string(),
-});
-
 export const ProjectObjectiveSchema = z.object({
     created_at: z.string(),
     updated_at: z.string(),

@@ -11,7 +11,6 @@ import { Upload as UploadFile } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import FormButton from "atoms/FormButton";
-import { useDocumentTypesQuery } from "services/moduleProjects";
 import FormInput from "atoms/FormInput";
 import { closeDialog } from "store/ui";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
@@ -20,6 +19,7 @@ import useQuery from "hooks/useQuery";
 import FormSelect from "atoms/FormSelect";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams } from "react-router-dom";
+import { useGetAllDocumentTypeQuery } from "services/modules/project/document-types";
 
 const ProjectUploadModal = () => {
     const [file, setFile] = useState<File | null>(null);
@@ -30,8 +30,9 @@ const ProjectUploadModal = () => {
         useCreateProjectDocumentMutation();
 
     const { data: documentTypes, isLoading: isFetchLoading } =
-        useDocumentTypesQuery({
-            no_paginate: false,
+        useGetAllDocumentTypeQuery({
+            page: 1,
+            size: 2000000,
         });
 
     const documentTypeOptions = documentTypes?.data.results.map((doc) => ({

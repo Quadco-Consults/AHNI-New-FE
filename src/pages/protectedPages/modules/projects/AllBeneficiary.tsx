@@ -5,20 +5,31 @@ import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import TableAction from "atoms/TableAction";
-import {
-    useBeneficiariesQuery,
-    useDeleteBeneficiariesMutation,
-} from "services/moduleProjects";
-import { LoadingSpinner } from "components/shared/Loading";
 
-const Beneficiaries = () => {
-    const { data, isLoading } = useBeneficiariesQuery({
-        no_paginate: false,
+import { LoadingSpinner } from "components/shared/Loading";
+import {
+    useDeleteBeneficiaryMutation,
+    useGetAllBeneficiaryQuery,
+} from "services/modules/project/beneficiaries";
+import { useState } from "react";
+import Pagination from "components/shared/Pagination";
+
+export default function AllBeneficiary() {
+    const [page, setPage] = useState(1);
+
+    const { data: beneficiary, isFetching } = useGetAllBeneficiaryQuery({
+        page,
+        size: 20,
     });
 
+    const handleChangePagination = (page: number) => {
+        setPage(page);
+    };
+
     const dispatch = useAppDispatch();
+
     const [deleteBeneficiary, { isLoading: isDeleteLoading }] =
-        useDeleteBeneficiariesMutation();
+        useDeleteBeneficiaryMutation();
 
     const onSubmit = async (id: string) => {
         try {
@@ -72,17 +83,19 @@ const Beneficiaries = () => {
                     <div className="flex-1"></div>
                 </div>
 
-                {isLoading || isDeleteLoading ? (
+                {isFetching || isDeleteLoading ? (
                     <LoadingSpinner />
                 ) : (
                     <div>
-                        {data?.data?.results.map((item) => (
+                        {beneficiary?.data?.results.map((item) => (
                             <div
                                 key={item.id}
                                 className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
                             >
                                 <p className="flex-1">{item.name}</p>
-                                <p className="flex-1">{item.description}</p>
+                                <p className="flex-1">
+                                    {item.description || "N/A"}
+                                </p>
                                 <div className="flex-1">
                                     <TableAction
                                         update
@@ -95,9 +108,13 @@ const Beneficiaries = () => {
                         ))}
                     </div>
                 )}
+
+                <Pagination
+                    total={beneficiary?.data.pagination.count ?? 0}
+                    itemsPerPage={beneficiary?.data.pagination.page_size ?? 0}
+                    onChange={handleChangePagination}
+                />
             </div>
         </Card>
     );
-};
-
-export default Beneficiaries;
+}

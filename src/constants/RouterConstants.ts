@@ -53,9 +53,23 @@ export const AdminRoutes = {
     Insurance: "/admin/agrements/insurance",
     Ticketing: "/admin/agrements/ticketing",
     ViewAggrement: "/admin/agrements/View-Aggrement",
+
+    // ----------------------------------------
+    TravelExpensesReportHome: "/admin/travel-expenses-report",
 };
 
 export const RouteEnum = {
+    // MODULES
+    MODULES_PROJECTS: "/modules/project",
+
+
+
+    MODULES_PROGRAMS: "/modules-programs",
+    MODULES_ADMIN: "/modules-admin",
+    MODULES_CONFIG: "/modules-config",
+    MODULES_PROCUREMENT: "/modules-procurement",
+    MODULES_FINANCE: "/modules-finance",
+
     // procurement routes
     DASHBOARD: "/",
 
@@ -214,14 +228,6 @@ export const RouteEnum = {
     USERS: "/users",
     CREATE_USERS: "/users/create",
     AUTHORIZATION: "/authorization",
-
-    // modules
-    MODULES_PROJECTS: "/modules-projects",
-    MODULES_PROGRAMS: "/modules-programs",
-    MODULES_ADMIN: "/modules-admin",
-    MODULES_CONFIG: "/modules-config",
-    MODULES_PROCUREMENT: "/modules-procurement",
-    MODULES_FINANCE: "/modules-finance",
 
     // PROGRAM_OVERVIEW: "/program/overview",
     // PROGRAM_OVERVIEW: "/program/overview",

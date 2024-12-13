@@ -24,46 +24,6 @@ export interface LoginResponse {
     data: LoginData;
 }
 
-export interface TRequest {
-    page?: number;
-    page_size?: number;
-    no_paginate?: boolean;
-    fields?: string;
-    consumable?: string;
-    id?: string;
-    classification?: string;
-    vehicle?: string;
-    asset_type?: string;
-}
-
-export interface TResponse<T> {
-    status: string;
-    message: string;
-    data: T;
-}
-
-export interface TBasePaginatedResponse<T> {
-    status: boolean;
-    message: string;
-    data: {
-        pagination: {
-            count: number;
-            page: number;
-            page_size: number;
-            total_pages: number;
-            next_page_number: number | null;
-            previous: number | null;
-            previous_page_number: number | null;
-        };
-        results: T[];
-    };
-}
-
-export interface TBaseCreateResponse<T> {
-    message: string;
-    data: T;
-}
-
 export interface TFacilityResponse<T> {
     id: string;
     name: string;
@@ -71,6 +31,7 @@ export interface TFacilityResponse<T> {
     local_govt: string;
     facility_contacts: T;
 }
+
 export type TFacilityResponseArray<T> = TFacilityResponse<T>[];
 
 export interface TSupervisionCategoryResponse {

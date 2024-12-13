@@ -28,7 +28,7 @@ import {
     useBeneficiariesQuery,
     useFundingSourcesQuery,
     usePartnersQuery,
-} from "services/moduleProjects";
+} from "services/modules/project/moduleProjects";
 import {
     addObjective,
     clearObjectives,

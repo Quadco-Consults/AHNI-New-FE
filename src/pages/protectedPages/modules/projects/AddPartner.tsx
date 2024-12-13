@@ -6,34 +6,33 @@ import FormTextArea from "atoms/FormTextArea";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import {
-    useAddPartnersMutation,
-    useStatesQuery,
-    useUpdatePartnersMutation,
-} from "services/moduleProjects";
-import { TPartners, parternersSchema } from "definations/module-projects";
 import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
 import { nigerianStates } from "lib/index";
+import {
+    PartnerSchema,
+    TPartnerData,
+    TPartnerFormValues,
+} from "definations/modules/project/partners";
+import {
+    useAddPartnerMutation,
+    useUpdatePartnerMutation,
+} from "services/modules/project/partners";
 
 const AddPartners = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const result = dialogProps?.data as unknown as TPartners;
+    const result = dialogProps?.data as unknown as TPartnerData;
     console.log(result);
-
-    const { data } = useStatesQuery({
-        no_paginate: false,
-    });
 
     const stateOptions = nigerianStates?.map((state: string) => ({
         label: state,
         value: state,
     }));
 
-    const form = useForm<TPartners>({
-        resolver: zodResolver(parternersSchema),
+    const form = useForm<TPartnerFormValues>({
+        resolver: zodResolver(PartnerSchema),
         defaultValues: {
             name: result?.name ?? "",
             address: result?.address ?? "",
@@ -46,11 +45,11 @@ const AddPartners = () => {
     });
 
     const dispatch = useAppDispatch();
-    const [partners, { isLoading }] = useAddPartnersMutation();
+    const [partners, { isLoading }] = useAddPartnerMutation();
     const [updatePartners, { isLoading: updatePartnersLoading }] =
-        useUpdatePartnersMutation();
+        useUpdatePartnerMutation();
 
-    const onSubmit: SubmitHandler<TPartners> = async (data) => {
+    const onSubmit: SubmitHandler<TPartnerFormValues> = async (data) => {
         try {
             dialogProps?.type === "update"
                 ? await updatePartners({
@@ -75,26 +74,62 @@ const AddPartners = () => {
                     className="bg-white rounded-[2rem] flex flex-col gap-y-10 pb-[2rem]"
                 >
                     <div className="grid grid-cols-1">
-                        <FormInput label="Name" name="name" required />
+                        <FormInput
+                            label="Name"
+                            name="name"
+                            placeholder="Enter Name"
+                            required
+                        />
                     </div>
+
                     <div className="grid grid-cols-1">
-                        <FormTextArea name="address" label="Address" required />
+                        <FormTextArea
+                            name="address"
+                            label="Address"
+                            placeholder="Enter Address"
+                            required
+                        />
                     </div>
+
                     <div className="grid grid-cols-2 gap-x-7">
-                        <FormInput label="City" name="city" />
+                        <FormInput
+                            label="City"
+                            name="city"
+                            placeholder="Enter City"
+                            required
+                        />
+
                         <FormSelect
                             label="State"
                             name="state"
+                            placeholder="Select State"
                             required
                             options={stateOptions}
                         />
                     </div>
                     <div className="grid grid-cols-2 gap-x-7">
-                        <FormInput label="phone" name="phone" type="number" />
-                        <FormInput label="Email" name="email" type="email" />
+                        <FormInput
+                            label="Phone"
+                            name="phone"
+                            placeholder="Enter Phone"
+                            required
+                            type="number"
+                        />
+                        <FormInput
+                            label="Email"
+                            type="email"
+                            name="email"
+                            placeholder="Enter Email"
+                            required
+                        />
                     </div>
                     <div className="grid grid-cols-1">
-                        <FormInput label="Website" name="website" />
+                        <FormInput
+                            label="Website"
+                            name="website"
+                            placeholder="Enter Website"
+                            required
+                        />
                     </div>
                     <div className="flex justify-start gap-4">
                         <FormButton
