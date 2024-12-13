@@ -24,24 +24,3 @@ export interface LoginResponse {
     data: LoginData;
 }
 
-export interface TFacilityResponse<T> {
-    id: string;
-    name: string;
-    state: string;
-    local_govt: string;
-    facility_contacts: T;
-}
-
-export type TFacilityResponseArray<T> = TFacilityResponse<T>[];
-
-export interface TSupervisionCategoryResponse {
-    id: string;
-    code: string;
-    created_at: string;
-    updated_at: string;
-    name: string;
-    description: string;
-    serial_number: number;
-    job_category: string;
-}
-export type TSupervisionCategoryResponseArray = TSupervisionCategoryResponse[];

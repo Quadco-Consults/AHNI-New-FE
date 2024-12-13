@@ -5,29 +5,32 @@ import FormSelect from "atoms/FormSelect";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import {
-    useAddFacilitiesMutation,
-    useStatesQuery,
-    useUpdateFacilitiesMutation,
-} from "services/module-programs";
-import { TFacilities, facilitiesSchema } from "definations/module-programs";
 import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
 import { nigerianStates } from "lib/index";
+import {
+    FacilitySchema,
+    TFacilityData,
+    TFacilityFormValues,
+} from "definations/modules/program/facility";
+import {
+    useAddFacilityMutation,
+    useUpdateFacilityMutation,
+} from "services/modules/program/facility";
 
 const AddFacility = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const result = dialogProps?.data as unknown as TFacilities;
+    const result = dialogProps?.data as unknown as TFacilityData;
 
     const stateOptions = nigerianStates?.map((state: string) => ({
         label: state,
         value: state,
     }));
 
-    const form = useForm<TFacilities>({
-        resolver: zodResolver(facilitiesSchema),
+    const form = useForm<TFacilityFormValues>({
+        resolver: zodResolver(FacilitySchema),
         defaultValues: {
             name: result?.name ?? "",
             phone: result?.phone ?? "",
@@ -40,11 +43,11 @@ const AddFacility = () => {
     });
 
     const dispatch = useAppDispatch();
-    const [facilities, { isLoading }] = useAddFacilitiesMutation();
+    const [facilities, { isLoading }] = useAddFacilityMutation();
     const [updateFacilities, { isLoading: updateFacilityLoading }] =
-        useUpdateFacilitiesMutation();
+        useUpdateFacilityMutation();
 
-    const onSubmit: SubmitHandler<TFacilities> = async (data) => {
+    const onSubmit: SubmitHandler<TFacilityFormValues> = async (data) => {
         try {
             dialogProps?.type === "update"
                 ? await updateFacilities({
@@ -74,7 +77,7 @@ const AddFacility = () => {
                             label="Facility Name"
                             name="name"
                             required
-                            placeholder="Enter facility name"
+                            placeholder="Enter Facility Name"
                         />
                     </div>
                     <div className="grid grid-cols-2 gap-x-7">
@@ -82,13 +85,13 @@ const AddFacility = () => {
                             label="Phone Number"
                             name="phone"
                             required
-                            placeholder="Enter phone number"
+                            placeholder="Enter Phone Number"
                         />
                         <FormInput
                             label="Email"
                             name="email"
                             required
-                            placeholder="Enter email"
+                            placeholder="Enter Email"
                         />
                     </div>
 
@@ -96,14 +99,14 @@ const AddFacility = () => {
                         <FormInput
                             label="Contact Person"
                             name="contact_person"
-                            placeholder="Enter contact person"
+                            placeholder="Enter Contact Person"
                             required
                         />
                         <FormInput
                             label="Position"
                             name="postion"
                             required
-                            placeholder="Enter position"
+                            placeholder="Enter Position"
                         />
                     </div>
 
@@ -113,7 +116,7 @@ const AddFacility = () => {
                             name="state"
                             required
                             options={stateOptions}
-                            placeholder="Enter state"
+                            placeholder="Select State"
                         />
                         <FormInput
                             label="LGA"

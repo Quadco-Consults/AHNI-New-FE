@@ -1,29 +1,35 @@
 import { Button } from "components/ui/button";
-import {
-    useRiskCategoryQuery,
-    useDeleteRiskCategoryMutation,
-} from "services/module-programs";
 import { toast } from "sonner";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import TableAction from "atoms/TableAction";
 import { LoadingSpinner } from "components/shared/Loading";
+import {
+    useDeleteRiskCategoryMutation,
+    useGetAllRiskCategoryQuery,
+} from "services/modules/program/risk-category";
+import { useState } from "react";
+import Pagination from "components/shared/Pagination";
 
-const RiskCategory = () => {
-    const { data, isLoading } = useRiskCategoryQuery({
-        no_paginate: false,
+export default function AllRiskCategory() {
+    const [page, setPage] = useState(1);
+
+    const { data: riskCategory, isFetching } = useGetAllRiskCategoryQuery({
+        page,
+        size: 20,
     });
     const dispatch = useAppDispatch();
 
-    const [deleteRiskCategory] = useDeleteRiskCategoryMutation();
+    const [deleteRiskCategory, { isLoading: isDeleteLoading }] =
+        useDeleteRiskCategoryMutation();
 
     const onSubmit = async (id: string) => {
         try {
             await deleteRiskCategory(id).unwrap();
             toast.success("Deleted Successfully");
-        } catch (error) {
-            toast.error("Error deleteing item");
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
 
@@ -70,17 +76,19 @@ const RiskCategory = () => {
                     <h1 className="flex-1"></h1>
                 </div>
 
-                {isLoading ? (
+                {isFetching || isDeleteLoading ? (
                     <LoadingSpinner />
                 ) : (
-                    <div>
-                        {data?.data?.results.map((item) => (
+                    <>
+                        {riskCategory?.data?.results.map((item) => (
                             <div
                                 key={item.id}
                                 className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
                             >
                                 <p className="flex-1">{item.name}</p>
-                                <p className="flex-1">{item.description}</p>
+                                <p className="flex-1">
+                                    {item.description || "N/A"}
+                                </p>
                                 <div className="flex-1">
                                     <TableAction
                                         update
@@ -91,11 +99,15 @@ const RiskCategory = () => {
                                 </div>
                             </div>
                         ))}
-                    </div>
+                    </>
                 )}
+
+                <Pagination
+                    total={riskCategory?.data.pagination.count ?? 0}
+                    itemsPerPage={riskCategory?.data.pagination.page_size ?? 0}
+                    onChange={(page: number) => setPage(page)}
+                />
             </div>
         </div>
     );
-};
-
-export default RiskCategory;
+}
