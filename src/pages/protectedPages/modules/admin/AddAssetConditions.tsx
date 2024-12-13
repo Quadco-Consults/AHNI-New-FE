@@ -1,28 +1,29 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
-import {
-    TAssetConditions,
-    assetConditionsSchema,
-} from "definations/module-admin";
-import {
-    useAddAssetConditionsMutation,
-    useUpdateAssetConditionsMutation,
-} from "services/moduleAdmin";
 
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
+import {
+    useAddAssetConditionMutation,
+    useUpdateAssetConditionMutation,
+} from "services/modules/admin/asset-condition";
+import {
+    AssetConditionSchema,
+    TAssetConditionData,
+    TAssetConditionFormValues,
+} from "definations/modules/admin/asset-condition";
 
 const AddAssetConditions = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TAssetConditions;
+    const data = dialogProps?.data as unknown as TAssetConditionData;
 
-    const form = useForm<TAssetConditions>({
-        resolver: zodResolver(assetConditionsSchema),
+    const form = useForm<TAssetConditionFormValues>({
+        resolver: zodResolver(AssetConditionSchema),
         defaultValues: {
             name: data?.name ?? "",
             description: data?.description ?? "",
@@ -30,12 +31,12 @@ const AddAssetConditions = () => {
     });
 
     const dispatch = useAppDispatch();
-    const [assetConditions, { isLoading }] = useAddAssetConditionsMutation();
+    const [assetConditions, { isLoading }] = useAddAssetConditionMutation();
 
     const [updateAssetConditions, { isLoading: updateAssetConditionsLoading }] =
-        useUpdateAssetConditionsMutation();
+        useUpdateAssetConditionMutation();
 
-    const onSubmit: SubmitHandler<TAssetConditions> = async (data) => {
+    const onSubmit: SubmitHandler<TAssetConditionFormValues> = async (data) => {
         try {
             dialogProps?.type === "update"
                 ? await updateAssetConditions({
@@ -44,11 +45,11 @@ const AddAssetConditions = () => {
                       body: data,
                   }).unwrap()
                 : await assetConditions(data).unwrap();
-            toast.success("Asset Conditions Added Succesfully");
+            toast.success("Asset Condition Added Succesfully");
             dispatch(closeDialog());
             form.reset();
         } catch (error: any) {
-            toast.error(error.data.message || "Something went wrong");
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
     return (
@@ -62,7 +63,7 @@ const AddAssetConditions = () => {
                     <FormInput
                         label="Name"
                         name="name"
-                        placeholder="Enter name"
+                        placeholder="Enter Name"
                         required
                     />
                 </div>
@@ -70,8 +71,7 @@ const AddAssetConditions = () => {
                     <FormInput
                         label="Description"
                         name="description"
-                        placeholder="Enter description"
-                        required
+                        placeholder="Enter Description"
                     />
                 </div>
                 <div className="flex justify-start gap-4">

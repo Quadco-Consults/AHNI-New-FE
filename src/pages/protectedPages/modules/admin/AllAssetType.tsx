@@ -1,30 +1,36 @@
 import { Button } from "components/ui/button";
-import {
-    useAssetTypesQuery,
-    useDeleteAssetTypesMutation,
-} from "services/moduleAdmin";
 import { toast } from "sonner";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import TableAction from "atoms/TableAction";
 import { LoadingSpinner } from "components/shared/Loading";
+import {
+    useDeleteAssetTypeMutation,
+    useGetAllAssetTypeQuery,
+} from "services/modules/admin/asset-type";
+import { useState } from "react";
+import Pagination from "components/shared/Pagination";
 
 const AssetTypes = () => {
-    const { data, isLoading } = useAssetTypesQuery({
-        no_paginate: false,
+    const [page, setPage] = useState(1);
+
+    const { data: assetType, isFetching } = useGetAllAssetTypeQuery({
+        page,
+        size: 20,
     });
 
     const dispatch = useAppDispatch();
 
-    const [deleteAssetTypes] = useDeleteAssetTypesMutation();
+    const [deleteAssetTypes, { isLoading: isDeleteLoading }] =
+        useDeleteAssetTypeMutation();
 
     const onSubmit = async (id: string) => {
         try {
             await deleteAssetTypes(id).unwrap();
             toast.success("Deleted Successfully");
-        } catch (error) {
-            toast.error("Error deleteing item");
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
 
@@ -73,11 +79,11 @@ const AssetTypes = () => {
                     <h1 className="flex-1"></h1>
                 </div>
 
-                {isLoading ? (
+                {isFetching || isDeleteLoading ? (
                     <LoadingSpinner />
                 ) : (
                     <div>
-                        {data?.data?.results.map((item) => {
+                        {assetType?.data?.results.map((item) => {
                             return (
                                 <div
                                     key={item.id}
@@ -101,6 +107,12 @@ const AssetTypes = () => {
                         })}
                     </div>
                 )}
+
+                <Pagination
+                    total={assetType?.data.pagination.count ?? 0}
+                    itemsPerPage={assetType?.data.pagination.page_size ?? 0}
+                    onChange={(page: number) => setPage(page)}
+                />
             </div>
         </div>
     );

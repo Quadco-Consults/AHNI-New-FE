@@ -15,8 +15,9 @@ export const modules = [
   
   {
     path: RouteEnum.MODULES_ADMIN,
-    element: lazy(() => import("pages/protectedPages/modules/admin/Admin")),
+    element: lazy(() => import("pages/protectedPages/modules/admin")),
   },
+  
   {
     path: RouteEnum.MODULES_CONFIG,
     element: lazy(() => import("pages/protectedPages/modules/config/Config")),
