@@ -1,20 +1,33 @@
 import { Button } from "components/ui/button";
-import {
-    useDeleteSupervisionCriteriaMutation,
-    useGetSupervisionCriteriaQuery,
-} from "services/module-programs";
+
 import TableAction from "atoms/TableAction";
 import { toast } from "sonner";
 import { useAppDispatch } from "hooks/useStore";
 import { DialogType } from "constants/dailogs";
 import { openDialog } from "store/ui";
 import { LoadingSpinner } from "components/shared/Loading";
+import {
+    useDeleteSupervisionCriteriaMutation,
+    useGetAllSupervisionCriteriaQuery,
+} from "services/modules/program/supervision-criteria";
+import { useState } from "react";
+import Pagination from "components/shared/Pagination";
 
-const SupervisionCriteria = () => {
-    const { data, isLoading } = useGetSupervisionCriteriaQuery({
-        no_paginate: false,
-    });
-    const [deleteSupervisionCriteria] = useDeleteSupervisionCriteriaMutation();
+export default function AllSupervisionCriteria() {
+    const [page, setPage] = useState(1);
+
+    const { data: supervisionCriteria, isFetching } =
+        useGetAllSupervisionCriteriaQuery({
+            page,
+            size: 20,
+        });
+
+    const handleChangePagination = (page: number) => {
+        setPage(page);
+    };
+
+    const [deleteSupervisionCriteria, { isLoading: isDeleteLoading }] =
+        useDeleteSupervisionCriteriaMutation();
 
     const dispatch = useAppDispatch();
 
@@ -22,8 +35,8 @@ const SupervisionCriteria = () => {
         try {
             await deleteSupervisionCriteria(id).unwrap();
             toast.success("Deleted Successfully");
-        } catch (error) {
-            toast.error("Error deleteing item");
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
 
@@ -71,11 +84,11 @@ const SupervisionCriteria = () => {
                     <h1 className="flex-1">Description</h1>
                     <h1 className="flex-1"></h1>
                 </div>
-                {isLoading ? (
+                {isFetching || isDeleteLoading ? (
                     <LoadingSpinner />
                 ) : (
                     <div>
-                        {data?.data?.results.map((item) => (
+                        {supervisionCriteria?.data?.results.map((item) => (
                             <div
                                 key={item.id}
                                 className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
@@ -94,9 +107,14 @@ const SupervisionCriteria = () => {
                         ))}
                     </div>
                 )}
+                <Pagination
+                    total={supervisionCriteria?.data.pagination.count ?? 0}
+                    itemsPerPage={
+                        supervisionCriteria?.data.pagination.page_size ?? 0
+                    }
+                    onChange={handleChangePagination}
+                />
             </div>
         </div>
     );
-};
-
-export default SupervisionCriteria;
+}

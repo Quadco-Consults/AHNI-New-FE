@@ -61,10 +61,10 @@ export const AdminRoutes = {
 export const RouteEnum = {
     // MODULES
     MODULES_PROJECTS: "/modules/project",
+    MODULES_PROGRAMS: "/modules/program",
 
 
 
-    MODULES_PROGRAMS: "/modules-programs",
     MODULES_ADMIN: "/modules-admin",
     MODULES_CONFIG: "/modules-config",
     MODULES_PROCUREMENT: "/modules-procurement",

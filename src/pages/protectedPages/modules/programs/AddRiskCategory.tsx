@@ -4,22 +4,26 @@ import FormInput from "atoms/FormInput";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import {
-    useAddRiskCategoryMutation,
-    useUpdateRiskCategoryMutation,
-} from "services/module-programs";
-import { TRiskCategory, riskCategorySchema } from "definations/module-programs";
 import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
+import {
+    RiskCategorySchema,
+    TRiskCategoryData,
+    TRiskCategoryFormValues,
+} from "definations/modules/program/risk-category";
+import {
+    useAddRiskCategoryMutation,
+    useUpdateRiskCategoryMutation,
+} from "services/modules/program/risk-category";
 
 const AddRiskCategory = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TRiskCategory;
+    const data = dialogProps?.data as unknown as TRiskCategoryData;
 
-    const form = useForm<TRiskCategory>({
-        resolver: zodResolver(riskCategorySchema),
+    const form = useForm<TRiskCategoryFormValues>({
+        resolver: zodResolver(RiskCategorySchema),
         defaultValues: {
             name: data?.name ?? "",
             description: data?.description ?? "",
@@ -31,7 +35,7 @@ const AddRiskCategory = () => {
     const [updateRiskCategory, { isLoading: updateRiskLoading }] =
         useUpdateRiskCategoryMutation();
 
-    const onSubmit: SubmitHandler<TRiskCategory> = async (data) => {
+    const onSubmit: SubmitHandler<TRiskCategoryFormValues> = async (data) => {
         try {
             dialogProps?.type === "update"
                 ? await updateRiskCategory({
@@ -60,16 +64,15 @@ const AddRiskCategory = () => {
                         <FormInput
                             label="Name"
                             name="name"
-                            placeholder="Enter name"
+                            placeholder="Enter Name"
                             required
                         />
                     </div>
                     <div className="grid grid-cols-1 gap-y-7">
                         <FormInput
                             label="Description"
-                            placeholder="Enter description"
+                            placeholder="Enter Description"
                             name="description"
-                            required
                         />
                     </div>
                     <div className="flex justify-start gap-4">

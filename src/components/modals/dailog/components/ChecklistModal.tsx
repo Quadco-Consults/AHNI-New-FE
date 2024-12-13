@@ -5,9 +5,9 @@ import { Checkbox } from "components/ui/checkbox";
 import { useEffect, useState } from "react";
 import { LoadingSpinner } from "components/shared/Loading";
 import FormButton from "atoms/FormButton";
-import { useGetSupervisionCriteriaQuery } from "services/module-programs";
 import { useAppDispatch } from "hooks/useStore";
 import { closeDialog } from "store/ui";
+import { useGetAllSupervisionCriteriaQuery } from "services/modules/program/supervision-criteria";
 
 const ChecklistModal = () => {
     const [chosenCriterias, setChosenCriterias] = useState<
@@ -17,11 +17,10 @@ const ChecklistModal = () => {
         }[]
     >([]);
 
-
     const dispatch = useAppDispatch();
 
     const { data: criteria, isLoading: isCriteriaLoading } =
-        useGetSupervisionCriteriaQuery({ no_paginate: false });
+        useGetAllSupervisionCriteriaQuery({ page: 1, size: 2000000 });
 
     const handleChangeCheck = (
         checkedValue: boolean | string,
@@ -29,8 +28,7 @@ const ChecklistModal = () => {
         id: string
     ) => {
         console.log({ checkedValue, name, id });
-    console.log({chosenCriterias})
-
+        console.log({ chosenCriterias });
 
         if (checkedValue) {
             setChosenCriterias([...chosenCriterias, { id, name }]);

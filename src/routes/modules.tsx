@@ -7,10 +7,12 @@ export const modules = [
     path: RouteEnum.MODULES_PROJECTS,
     element: lazy(() => import("pages/protectedPages/modules/projects")),
   },
+
   {
     path: RouteEnum.MODULES_PROGRAMS,
-    element: lazy(() => import("pages/protectedPages/modules/programs/Programs")),
+    element: lazy(() => import("pages/protectedPages/modules/programs")),
   },
+  
   {
     path: RouteEnum.MODULES_ADMIN,
     element: lazy(() => import("pages/protectedPages/modules/admin/Admin")),

@@ -6,25 +6,26 @@ import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import {
-    useAddSupervisionCriteriaMutation,
-    useGetSupervisionCriteriaQuery,
-    useSupervisionCategoryQuery,
-    useUpdateSupervisionCriteriaMutation,
-} from "services/module-programs";
-import {
-    SupervisionCriteriaSchema,
-    TSupervisionCriteria,
-} from "definations/module-programs";
+
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
+import {
+    SupervisionCriteriaSchema,
+    TSupervisionCriteriaData,
+    TSupervisionCriteriaFormValues,
+} from "definations/modules/program/supervision-criteria";
+import {
+    useAddSupervisionCriteriaMutation,
+    useUpdateSupervisionCriteriaMutation,
+} from "services/modules/program/supervision-criteria";
+import { useGetAllSupervisionCategoryQuery } from "services/modules/program/supervision-category";
 
 const AddSupervisionCriteria = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TSupervisionCriteria;
+    const data = dialogProps?.data as unknown as TSupervisionCriteriaData;
 
-    const form = useForm<TSupervisionCriteria>({
+    const form = useForm<TSupervisionCriteriaFormValues>({
         resolver: zodResolver(SupervisionCriteriaSchema),
         defaultValues: {
             name: data?.name ?? "",
@@ -35,8 +36,9 @@ const AddSupervisionCriteria = () => {
 
     const dispatch = useAppDispatch();
 
-    const { data: category } = useSupervisionCategoryQuery({
-        no_paginate: false,
+    const { data: category } = useGetAllSupervisionCategoryQuery({
+        page: 1,
+        size: 2000000,
     });
 
     const categoryOptions = category?.data.results.map(({ name, id }) => ({
@@ -50,7 +52,9 @@ const AddSupervisionCriteria = () => {
     const [updateSupervisionCriteria, { isLoading: updateSupervisionLoading }] =
         useUpdateSupervisionCriteriaMutation();
 
-    const onSubmit: SubmitHandler<TSupervisionCriteria> = async (data) => {
+    const onSubmit: SubmitHandler<TSupervisionCriteriaFormValues> = async (
+        data
+    ) => {
         try {
             dialogProps?.type === "update"
                 ? await updateSupervisionCriteria({
@@ -79,23 +83,22 @@ const AddSupervisionCriteria = () => {
                         <FormInput
                             label="Name"
                             name="name"
-                            placeholder="Enter name"
+                            placeholder="Enter Name"
                             required
                         />
                     </div>
                     <div className="grid grid-cols-1">
                         <FormInput
                             label="Description"
-                            placeholder="Enter description"
+                            placeholder="Enter Description"
                             name="description"
-                            required
                         />
                     </div>
 
                     <div className="grid grid-cols-1">
                         <FormSelect
                             label="Supervision Evaluation Category"
-                            placeholder="Select Category"
+                            placeholder="Select Evaluation Category"
                             name="evaluation_category"
                             required
                             options={categoryOptions}
