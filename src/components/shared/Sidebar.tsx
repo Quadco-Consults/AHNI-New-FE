@@ -777,6 +777,11 @@ const DEPARTMENTAL_LINKS = [
                 name: "Expense Authorization",
                 path: AdminRoutes.EXPENSE_AUTHORIZATION,
             },
+
+            {
+                name: "Travel Expenses Report",
+                path: AdminRoutes.TravelExpensesReportHome,
+            },
         ],
     },
     {

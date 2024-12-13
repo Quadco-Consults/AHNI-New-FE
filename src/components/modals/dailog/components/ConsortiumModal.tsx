@@ -28,8 +28,8 @@ import { addPartners } from "store/formData/project-values";
 import { LoadingSpinner } from "components/shared/Loading";
 import { closeDialog } from "store/ui";
 import { nigerianStates } from "lib/index";
-import { usePartnersQuery } from "services/moduleProjects";
 import { useAppSelector } from "hooks/useStore";
+import { useGetAllPartnersQuery } from "services/modules/project/partners";
 
 const ConsortiumModal = () => {
     const [locationValue, setLocationValue] = useState("");
@@ -39,8 +39,9 @@ const ConsortiumModal = () => {
         setLocationValue(value);
     };
 
-    const { data: partners, isLoading } = usePartnersQuery({
-        no_paginate: false,
+    const { data: partners, isLoading } = useGetAllPartnersQuery({
+        page: 1,
+        size: 2000000,
     });
 
     const { partners: partnerIds } = useAppSelector(

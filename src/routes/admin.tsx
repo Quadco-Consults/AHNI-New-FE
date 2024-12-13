@@ -308,12 +308,24 @@ export const adminRoutes = [
                 )
         ),
     },
+
     {
         path: AdminRoutes.EXPENSE_AUTHORIZATION_DETAIL,
         element: lazy(
             () =>
                 import(
                     "pages/protectedPages/admin/ExpenseAuthorization/id/index"
+                )
+        ),
+    },
+
+    // ---------------------------------------
+    {
+        path: AdminRoutes.TravelExpensesReportHome,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/admin/travel-expenses-report/index"
                 )
         ),
     },

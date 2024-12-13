@@ -1,23 +1,33 @@
 import { Button } from "components/ui/button";
-import {
-    usePartnersQuery,
-    useDeletePartnersMutation,
-} from "services/moduleProjects";
 import { toast } from "sonner";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import TableAction from "atoms/TableAction";
 import { LoadingSpinner } from "components/shared/Loading";
+import {
+    useDeletePartnerMutation,
+    useGetAllPartnersQuery,
+} from "services/modules/project/partners";
+import { useState } from "react";
+import Pagination from "components/shared/Pagination";
 
-const Partners = () => {
-    const { data, isLoading } = usePartnersQuery({
-        no_paginate: false,
+export default function AllPartner() {
+    const [page, setPage] = useState(1);
+
+    const { data: partner, isLoading } = useGetAllPartnersQuery({
+        page,
+        size: 20,
     });
+
+    const handleChangePagination = (page: number) => {
+        setPage(page);
+    };
 
     const dispatch = useAppDispatch();
 
-    const [deletePartners] = useDeletePartnersMutation();
+    const [deletePartners, { isLoading: isDeleteLoading }] =
+        useDeletePartnerMutation();
 
     const onSubmit = async (id: string) => {
         try {
@@ -53,7 +63,7 @@ const Partners = () => {
                             openDialog({
                                 type: DialogType.AddPartners,
                                 dialogProps: {
-                                    header: "Add Partners",
+                                    header: "Add Partner",
                                 },
                             })
                         )
@@ -77,11 +87,11 @@ const Partners = () => {
                     <h1 className="flex-1"></h1>
                 </div>
 
-                {isLoading ? (
+                {isLoading || isDeleteLoading ? (
                     <LoadingSpinner />
                 ) : (
                     <div>
-                        {data?.data?.results.map((item) => (
+                        {partner?.data?.results.map((item) => (
                             <div
                                 key={item.id}
                                 className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs gap-x-5"
@@ -105,9 +115,13 @@ const Partners = () => {
                         ))}
                     </div>
                 )}
+
+                <Pagination
+                    total={partner?.data.pagination.count ?? 0}
+                    itemsPerPage={partner?.data.pagination.page_size ?? 0}
+                    onChange={handleChangePagination}
+                />
             </div>
         </div>
     );
-};
-
-export default Partners;
+}

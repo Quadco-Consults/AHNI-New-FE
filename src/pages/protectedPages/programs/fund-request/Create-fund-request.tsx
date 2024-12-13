@@ -14,7 +14,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import _ from "lodash";
 import { Separator } from "components/ui/separator";
 import { useGetProjectsQuery } from "services/projectsApi/projectsApi";
-import { useLocationQuery, usePartnersQuery } from "services/moduleProjects";
+import {
+    useLocationQuery,
+    usePartnersQuery,
+} from "services/modules/project/moduleProjects";
 import {
     useFinancialYearQuery,
     useLocationsQuery,

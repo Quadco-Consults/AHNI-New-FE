@@ -27,7 +27,7 @@ export const DialogType = {
     ExpenditureModal: "ExpenditureModal",
     ConsultancyApplicationSuccess: "ConsultancyApplicationSuccess",
     SubGrantDocumentUpload: "SubGrantDocumentUpload",
-    AddFunfingSource: "AddFunfingSource",
+    AddFundingSource: "AddFundingSource",
     AddBeneficiaries: "AddBeneficiaries",
     AddDocumentTypes: "AddDocumentTypes",
     AddPartners: "AddPartners",
