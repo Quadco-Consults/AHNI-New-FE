@@ -5,14 +5,18 @@ import FormSelect from "atoms/FormSelect";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import {
-    useAddCategoriesMutation,
-    useUpdateCategoriesMutation,
-} from "services/moduleConfig";
-import { TCategories, categorySchema } from "definations/module-config";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
 import { toast } from "sonner";
+import {
+    CategorySchema,
+    TCategoryData,
+    TCategoryFormValues,
+} from "definations/modules/config/category";
+import {
+    useAddCategoryMutation,
+    useUpdateCategoryMutation,
+} from "services/modules/config/category";
 
 const jobCategoryOptions = [
     { label: "Goods", value: "GOODS" },
@@ -24,24 +28,26 @@ const jobCategoryOptions = [
 const AddCategories = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TCategories;
-    const form = useForm<TCategories>({
-        resolver: zodResolver(categorySchema),
+    const data = dialogProps?.data as unknown as TCategoryData;
+    const form = useForm<TCategoryFormValues>({
+        resolver: zodResolver(CategorySchema),
         defaultValues: {
             name: data?.name ?? "",
             description: data?.description ?? "",
+            // @ts-ignore
             job_category: data?.job_category ?? undefined,
             serial_number: data?.serial_number ?? "",
             code: data?.code ?? "",
         },
     });
 
-    const [category, { isLoading }] = useAddCategoriesMutation();
+    const [category, { isLoading }] = useAddCategoryMutation();
+
     const [updateCategory, { isLoading: updateCategoryLoading }] =
-        useUpdateCategoriesMutation();
+        useUpdateCategoryMutation();
 
     const dispatch = useAppDispatch();
-    const onSubmit: SubmitHandler<TCategories> = async (data) => {
+    const onSubmit: SubmitHandler<TCategoryFormValues> = async (data) => {
         try {
             if (dialogProps?.type === "update") {
                 await updateCategory({
@@ -72,7 +78,7 @@ const AddCategories = () => {
                         <FormInput
                             label="Name"
                             name="name"
-                            placeholder="Enter category name"
+                            placeholder="Enter Name"
                             required
                         />
                     </div>
@@ -80,22 +86,28 @@ const AddCategories = () => {
                         <FormInput
                             label="Description"
                             name="description"
+                            placeholder="Enter Description"
+                        />
+                        <FormInput
+                            label="Code"
+                            name="code"
+                            placeholder="Enter Code"
                             required
                         />
-                        <FormInput label="Code" name="code" required />
                     </div>
                     <div className="grid grid-cols-2 gap-x-7">
                         <FormInput
                             label="Serial Number"
                             name="serial_number"
                             type="number"
+                            placeholder="Enter Serial Number"
                             required
                         />
                         <FormSelect
                             label="Job Category"
                             name="job_category"
                             required
-                            placeholder="Select job category"
+                            placeholder="Select Job Category"
                             options={jobCategoryOptions}
                         />
                     </div>

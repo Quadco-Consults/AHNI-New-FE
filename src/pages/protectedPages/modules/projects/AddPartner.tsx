@@ -24,7 +24,6 @@ const AddPartners = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
     const result = dialogProps?.data as unknown as TPartnerData;
-    console.log(result);
 
     const stateOptions = nigerianStates?.map((state: string) => ({
         label: state,
@@ -107,6 +106,7 @@ const AddPartners = () => {
                             options={stateOptions}
                         />
                     </div>
+
                     <div className="grid grid-cols-2 gap-x-7">
                         <FormInput
                             label="Phone"
@@ -123,6 +123,7 @@ const AddPartners = () => {
                             required
                         />
                     </div>
+
                     <div className="grid grid-cols-1">
                         <FormInput
                             label="Website"

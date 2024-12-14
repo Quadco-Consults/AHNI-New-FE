@@ -4,7 +4,6 @@ import { ChangeEvent, useState } from "react";
 import { Input } from "components/ui/input";
 import { Upload as UploadFile } from "lucide-react";
 
-import { Label } from "components/ui/label";
 import FormButton from "atoms/FormButton";
 import { closeDialog } from "store/ui";
 import { z } from "zod";
@@ -13,10 +12,9 @@ import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppDispatch } from "hooks/useStore";
 import { useGetProjectsQuery } from "services/projectsApi/projectsApi";
-import FormInput from "atoms/FormInput";
 import { toast } from "sonner";
 import { useUploadWorkPlanMutation } from "services/programsApi/work-plan";
-import { useFinancialYearQuery } from "services/moduleConfig";
+import { useGetAllFinancialYearsQuery } from "services/modules/config/financial-year";
 
 const FormSchema = z.object({
     project: z.string().min(1, "This field is required"),
@@ -42,8 +40,9 @@ const WorkPlanUploadModal = () => {
         no_paginate: false,
     });
 
-    const { data: financialYear } = useFinancialYearQuery({
-        no_paginate: false,
+    const { data: financialYear } = useGetAllFinancialYearsQuery({
+        page: 1,
+        size: 2000000,
     });
 
     const financialYearOptions = financialYear?.data.results.map(

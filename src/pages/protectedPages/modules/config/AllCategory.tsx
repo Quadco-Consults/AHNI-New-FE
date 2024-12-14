@@ -1,39 +1,45 @@
 import { Button } from "components/ui/button";
-import {
-    useFinancialYearQuery,
-    useDeleteFinancialYearMutation,
-} from "services/moduleConfig";
 import { toast } from "sonner";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import TableAction from "atoms/TableAction";
 import { LoadingSpinner } from "components/shared/Loading";
+import {
+    useDeleteCategoryMutation,
+    useGetAllCategoriesQuery,
+} from "services/modules/config/category";
+import { useState } from "react";
+import Pagination from "components/shared/Pagination";
 
-const FinancialYear = () => {
-    const { data, isLoading } = useFinancialYearQuery({
-        no_paginate: false,
+export default function AllCategory() {
+    const [page, setPage] = useState(1);
+
+    const { data: category, isFetching } = useGetAllCategoriesQuery({
+        page,
+        size: 20,
     });
 
     const dispatch = useAppDispatch();
 
-    const [deleteFinancialYear] = useDeleteFinancialYearMutation();
+    const [deleteCategory, { isLoading: isDeleteLoading }] =
+        useDeleteCategoryMutation();
 
     const onSubmit = async (id: string) => {
         try {
-            await deleteFinancialYear(id).unwrap();
+            await deleteCategory(id).unwrap();
             toast.success("Deleted Successfully");
-        } catch (error) {
-            toast.error("Error deleteing item");
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
 
     const onUpdate = (item: any) => {
         dispatch(
             openDialog({
-                type: DialogType.AddFinancialYear,
+                type: DialogType.AddCategories,
                 dialogProps: {
-                    header: "Update Financial Year",
+                    header: "Update Category",
                     data: item,
                     type: "update",
                 },
@@ -44,16 +50,16 @@ const FinancialYear = () => {
         <div>
             <div className="flex items-center justify-between py-6 mb-6">
                 <h1 className="text-[#D92D20] font-semibold text-sm">
-                    Financial Year
+                    Categories
                 </h1>
 
                 <Button
                     onClick={() =>
                         dispatch(
                             openDialog({
-                                type: DialogType.AddFinancialYear,
+                                type: DialogType.AddCategories,
                                 dialogProps: {
-                                    header: "Add Financial Year",
+                                    header: "Add Category",
                                 },
                             })
                         )
@@ -67,31 +73,35 @@ const FinancialYear = () => {
             </div>
             <div>
                 <div className="flex justify-between text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4">
-                    <h1 className="flex-1">Year</h1>
-                    <h1 className="flex-1">Dynamic Order</h1>
-                    <h1 className="flex-1">Current</h1>
+                    <h1 className="flex-1">Name</h1>
+                    <h1 className="flex-1">Description</h1>
+                    <h1 className="flex-1">Code</h1>
+                    <h1 className="flex-1">Serial Number</h1>
+                    <h1 className="flex-1">Job Category</h1>
                     <h1 className="flex-1"></h1>
                 </div>
 
-                {isLoading ? (
+                {isFetching || isDeleteLoading ? (
                     <LoadingSpinner />
                 ) : (
                     <div>
-                        {data?.data?.results?.map((item) => (
+                        {category?.data?.results?.map((item) => (
                             <div
                                 key={item.id}
                                 className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
                             >
-                                <p className="flex-1">{item.year}</p>
-                                <p className="flex-1">{item.dyanmic_order}</p>
-                                <p className="flex-1">{item.current}</p>
+                                <p className="flex-1">{item.name}</p>
+                                <p className="flex-1">
+                                    {item.description ?? "N/A"}
+                                </p>
+                                <p className="flex-1">{item.code}</p>
+                                <p className="flex-1">{item.serial_number}</p>
+                                <p className="flex-1">{item.job_category}</p>
                                 <div className="flex-1">
                                     <TableAction
                                         update
                                         removeView
-                                        action={() => {
-                                            onSubmit(item.id);
-                                        }}
+                                        action={() => onSubmit(item.id)}
                                         updateAction={() => onUpdate(item)}
                                     />
                                 </div>
@@ -99,9 +109,13 @@ const FinancialYear = () => {
                         ))}
                     </div>
                 )}
+
+                <Pagination
+                    total={category?.data.pagination.count ?? 0}
+                    itemsPerPage={category?.data.pagination.page_size ?? 0}
+                    onChange={(page: number) => setPage(page)}
+                />
             </div>
         </div>
     );
-};
-
-export default FinancialYear;
+}

@@ -1,39 +1,45 @@
 import { Button } from "components/ui/button";
-import {
-    useLocationsQuery,
-    useDeleteLocationsMutation,
-} from "services/moduleConfig";
 import { toast } from "sonner";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import TableAction from "atoms/TableAction";
-import { Loading, LoadingSpinner } from "components/shared/Loading";
+import { LoadingSpinner } from "components/shared/Loading";
+import {
+    useDeletePositionMutation,
+    useGetAllPositionsQuery,
+} from "services/modules/config/position";
+import { useState } from "react";
+import Pagination from "components/shared/Pagination";
 
-const Locations = () => {
-    const { data, isLoading } = useLocationsQuery({
-        no_paginate: false,
+export default function AllPositions() {
+    const [page, setPage] = useState(1);
+
+    const { data: position, isFetching } = useGetAllPositionsQuery({
+        page,
+        size: 20,
     });
 
     const dispatch = useAppDispatch();
 
-    const [deleteLocations] = useDeleteLocationsMutation();
+    const [deletePosition, { isLoading: isDeleteLoading }] =
+        useDeletePositionMutation();
 
     const onSubmit = async (id: string) => {
         try {
-            await deleteLocations(id).unwrap();
+            await deletePosition(id).unwrap();
             toast.success("Deleted Successfully");
-        } catch (error) {
-            toast.error("Error deleteing item");
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
 
     const onUpdate = (item: any) => {
         dispatch(
             openDialog({
-                type: DialogType.AddLocations,
+                type: DialogType.AddPosition,
                 dialogProps: {
-                    header: "Update Locations",
+                    header: "Update Position",
                     data: item,
                     type: "update",
                 },
@@ -42,17 +48,18 @@ const Locations = () => {
     };
     return (
         <div>
-            <div className="flex justify-between items-center py-6 mb-6">
+            <div className="flex items-center justify-between py-6 mb-6">
                 <h1 className="text-[#D92D20] font-semibold text-sm">
-                    Locations
+                    Positions
                 </h1>
+
                 <Button
                     onClick={() =>
                         dispatch(
                             openDialog({
-                                type: DialogType.AddLocations,
+                                type: DialogType.AddPosition,
                                 dialogProps: {
-                                    header: "Add Location",
+                                    header: "Add Position",
                                 },
                             })
                         )
@@ -65,36 +72,30 @@ const Locations = () => {
                 </Button>
             </div>
             <div>
-                <div className="flex text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4">
+                <div className="flex justify-between text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4">
                     <h1 className="flex-1">Name</h1>
-                    <h1 className="flex-1">Address</h1>
-                    <h1 className="flex-1">City</h1>
-                    <h1 className="flex-1">State</h1>
-                    <h1 className="flex-1">Email</h1>
-                    <h1 className="flex-1">Phone</h1>
+                    <h1 className="flex-1">Description</h1>
                     <h1 className="flex-1"></h1>
                 </div>
 
-                {isLoading ? (
+                {isFetching || isDeleteLoading ? (
                     <LoadingSpinner />
                 ) : (
                     <div>
-                        {data?.data?.results?.map((item) => (
+                        {position?.data?.results?.map((item) => (
                             <div
                                 key={item.id}
                                 className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
                             >
                                 <p className="flex-1">{item.name}</p>
-                                <p className="flex-1">{item.address}</p>
-                                <p className="flex-1">{item.city}</p>
-                                <p className="flex-1">{item.state}</p>
-                                <p className="flex-1">{item.email}</p>
-                                <p className="flex-1">{item.phone}</p>
+                                <p className="flex-1">{item.description}</p>
                                 <div className="flex-1">
                                     <TableAction
                                         update
                                         removeView
-                                        action={() => onSubmit(item.id)}
+                                        action={() => {
+                                            onSubmit(item.id);
+                                        }}
                                         updateAction={() => onUpdate(item)}
                                     />
                                 </div>
@@ -102,9 +103,13 @@ const Locations = () => {
                         ))}
                     </div>
                 )}
+
+                <Pagination
+                    total={position?.data.pagination.count ?? 0}
+                    itemsPerPage={position?.data.pagination.page_size ?? 0}
+                    onChange={(page: number) => setPage(page)}
+                />
             </div>
         </div>
     );
-};
-
-export default Locations;
+}

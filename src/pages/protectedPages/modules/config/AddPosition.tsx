@@ -1,26 +1,25 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
-import {
-    Position,
-    PositionSchema,
-    TPositionFormValues,
-} from "definations/module-config";
-import {
-    useAddPositionMutation,
-    useUpdateDepartmentsMutation,
-    useUpdatePositionMutation,
-} from "services/moduleConfig";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
+import {
+    PositionSchema,
+    TPositionData,
+    TPositionFormValues,
+} from "definations/modules/config/position";
+import {
+    useAddPositionMutation,
+    useUpdatePositionMutation,
+} from "services/modules/config/position";
 
 const AddPosition = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as Position;
+    const data = dialogProps?.data as unknown as TPositionData;
 
     console.log({ data });
 
@@ -69,7 +68,7 @@ const AddPosition = () => {
                     <FormInput
                         label="Name"
                         name="name"
-                        placeholder="Enter name"
+                        placeholder="Enter Name"
                         required
                     />
                 </div>
@@ -77,7 +76,7 @@ const AddPosition = () => {
                     <FormInput
                         label="Description"
                         name="description"
-                        placeholder="Enter description"
+                        placeholder="Enter Description"
                         required
                     />
                 </div>
