@@ -48,7 +48,8 @@ const Registration = () => {
       [categorySearchParams]
     )
   );
-  const categories = categoryQueryResult?.data;
+
+  const categories = categoryQueryResult?.data?.data?.results;
 
   const form = useForm<z.infer<typeof VendorsRegistrationSchema>>({
     resolver: zodResolver(VendorsRegistrationSchema),
@@ -98,16 +99,16 @@ const Registration = () => {
   };
   return (
     <VendorRegistationLayout>
-      <div className="px-3 ">
-        <h2 className="text-lg font-bold">Vendor Registration</h2>
-        <div className="mt-10">
+      <div className='px-3 '>
+        <h2 className='text-lg font-bold'>Vendor Registration</h2>
+        <div className='mt-10'>
           <Form {...form}>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <FormInput name="company_name" label="Company Name" required />
-              <div className="grid grid-cols-2 gap-6">
+            <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
+              <FormInput name='company_name' label='Company Name' required />
+              <div className='grid grid-cols-2 gap-6'>
                 <FormSelect
-                  name="type_of_business"
-                  label="Type of Business"
+                  name='type_of_business'
+                  label='Type of Business'
                   required
                 >
                   <SelectContent>
@@ -123,78 +124,78 @@ const Registration = () => {
                   </SelectContent>
                 </FormSelect>
                 <FormInput
-                  name="year_or_incorperation"
-                  label="Year of incorporation"
-                  type="number"
+                  name='year_or_incorperation'
+                  label='Year of incorporation'
+                  type='number'
                   required
                 />
-                <div className="grid grid-cols-2 col-span-3 gap-x-6 ">
+                <div className='grid grid-cols-2 col-span-3 gap-x-6 '>
                   <FormInput
-                    name="company_registration_number"
-                    label="Company Registration Number"
+                    name='company_registration_number'
+                    label='Company Registration Number'
                     required
                   />
                   <FormInput
-                    name="website"
-                    label="Company Website Address"
+                    name='website'
+                    label='Company Website Address'
                     required
                   />
                 </div>
-                <div className="grid grid-cols-2 col-span-3 gap-x-6 ">
-                  <FormInput name="email" label="Company Email" required />
+                <div className='grid grid-cols-2 col-span-3 gap-x-6 '>
+                  <FormInput name='email' label='Company Email' required />
                   <FormInput
-                    name="phone_numbers"
-                    label="Phone Number"
+                    name='phone_numbers'
+                    label='Phone Number'
                     required
-                    type="number"
+                    type='number'
                   />
                 </div>
               </div>
-              <div className="space-y-4">
+              <div className='space-y-4'>
                 <FormInput
-                  label="Nature of Business"
-                  name="nature_of_business"
+                  label='Nature of Business'
+                  name='nature_of_business'
                 />
-                <FormTextArea label="Company Address" name="company_address" />
+                <FormTextArea label='Company Address' name='company_address' />
 
                 <FormInput
-                  label="Company Chairman/Managing Director"
-                  name="company_chairman"
+                  label='Company Chairman/Managing Director'
+                  name='company_chairman'
                 />
                 {/* <FormInput label="Contact Telephone" name="contactTel" /> */}
 
-                <div className="grid grid-cols-2 gap-4 ">
-                  <FormInput label="Company's Bankers" name="bank_name" />
+                <div className='grid grid-cols-2 gap-4 '>
+                  <FormInput label="Company's Bankers" name='bank_name' />
                   <FormInput
                     label="Company's Bankers Address"
-                    name="bank_address"
+                    name='bank_address'
                   />
                   <FormInput
                     label="Company's Bankers Account Number"
-                    name="bank_account_number"
+                    name='bank_account_number'
                   />
                   <FormInput
-                    label="Date Submitted"
-                    name="date_submitted"
-                    type="date"
+                    label='Date Submitted'
+                    name='date_submitted'
+                    type='date'
                   />
                   <FormInput
-                    label="Number of permanent staff"
-                    name="number_of_permanent_staff"
-                    type="number"
+                    label='Number of permanent staff'
+                    name='number_of_permanent_staff'
+                    type='number'
                   />
                   <FormInput
                     label="Company's Tax Identification Number (TIN)"
-                    name="tin"
+                    name='tin'
                   />
                 </div>
               </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <div className="flex items-center gap-2 flex-wrap">
+              <div className='flex items-center gap-2 flex-wrap'>
+                <div className='flex items-center gap-2 flex-wrap'>
                   {matchedCategories?.map((category: CategoryResultsData) => (
                     <Badge
                       key={category?.id}
-                      className="py-2 rounded-lg bg-[#EBE8E1] text-black"
+                      className='py-2 rounded-lg bg-[#EBE8E1] text-black'
                     >
                       {category?.name}
                     </Badge>
@@ -203,61 +204,61 @@ const Registration = () => {
                 <div>
                   <Dialog>
                     <DialogTrigger>
-                      <div className="text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm">
+                      <div className='text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm'>
                         Click to select categories that applies
                       </div>
                     </DialogTrigger>
-                    <DialogContent className="max-w-6xl max-h-[700px] overflow-auto">
-                      <DialogHeader className="mt-10 space-y-5 text-center">
+                    <DialogContent className='max-w-6xl max-h-[700px] overflow-auto'>
+                      <DialogHeader className='mt-10 space-y-5 text-center'>
                         <img
                           src={logoPng}
-                          alt="logo"
-                          className="mx-auto"
+                          alt='logo'
+                          className='mx-auto'
                           width={150}
                         />
-                        <DialogTitle className="text-2xl text-center">
+                        <DialogTitle className='text-2xl text-center'>
                           Select your Category
                         </DialogTitle>
-                        <DialogDescription className="text-center">
+                        <DialogDescription className='text-center'>
                           Select all categories that applies to you, you can
                           also check other tabs for more categories
                         </DialogDescription>
                       </DialogHeader>
-                      <div className="flex justify-center">
-                        <div className="flex items-center w-1/2 px-4 py-2 border rounded-lg">
+                      <div className='flex justify-center'>
+                        <div className='flex items-center w-1/2 px-4 py-2 border rounded-lg'>
                           <Input
-                            placeholder="Search Category"
+                            placeholder='Search Category'
                             value={categorySearchParams}
                             onChange={(e) =>
                               setCategorySearchParams(e.target.value)
                             }
-                            type="search"
-                            className="h-6 border-none bg-none"
+                            type='search'
+                            className='h-6 border-none bg-none'
                           />
-                          <Icon icon="iconamoon:search-light" fontSize={25} />
+                          <Icon icon='iconamoon:search-light' fontSize={25} />
                         </div>
                       </div>
 
-                      <div className="space-y-5 ">
+                      <div className='space-y-5 '>
                         {categoryQueryResult?.isLoading ? (
                           <LoadingSpinner />
                         ) : (
                           <FormField
                             control={form.control}
-                            name="submitted_categories"
+                            name='submitted_categories'
                             render={() => (
-                              <FormItem className="grid grid-cols-2 gap-5 bg-gray-100 mt-10 p-5 rounded-lg shadow-inner md:grid-cols-4">
+                              <FormItem className='grid grid-cols-2 gap-5 bg-gray-100 mt-10 p-5 rounded-lg shadow-inner md:grid-cols-4'>
                                 {categories?.map(
                                   (category: CategoryResultsData) => (
                                     <FormField
                                       key={category?.id}
                                       control={form.control}
-                                      name="submitted_categories"
+                                      name='submitted_categories'
                                       render={({ field }) => {
                                         return (
                                           <FormItem
                                             key={category.id}
-                                            className="space-y-3 bg-white rounded-lg text-xs p-5"
+                                            className='space-y-3 bg-white rounded-lg text-xs p-5'
                                           >
                                             <FormControl>
                                               <Checkbox
@@ -281,7 +282,7 @@ const Registration = () => {
                                               />
                                             </FormControl>
                                             <h6>{category?.code}</h6>
-                                            <h2 className="text-sm font-medium">
+                                            <h2 className='text-sm font-medium'>
                                               {category.name}
                                             </h2>
                                             <h6>{category.description}</h6>
@@ -297,14 +298,14 @@ const Registration = () => {
                           />
                         )}
 
-                        <div className="flex justify-end">
-                          <div className="flex gap-4 items-center">
-                            <h6 className="text-primary">
+                        <div className='flex justify-end'>
+                          <div className='flex gap-4 items-center'>
+                            <h6 className='text-primary'>
                               {watch("submitted_categories")?.length} categories
                               Selected
                             </h6>
                             <DialogClose>
-                              <div className="flex items-center bg-primary text-primary-foreground rounded-md text-sm font-medium h-11 px-4 py-3 hover:opacity-60">
+                              <div className='flex items-center bg-primary text-primary-foreground rounded-md text-sm font-medium h-11 px-4 py-3 hover:opacity-60'>
                                 Save & Continue
                               </div>
                             </DialogClose>
@@ -315,18 +316,18 @@ const Registration = () => {
                   </Dialog>
                 </div>
               </div>
-              <div className="flex justify-between mt-16">
+              <div className='flex justify-between mt-16'>
                 <Button
-                  type="button"
+                  type='button'
                   onClick={() => navigate(-1)}
-                  className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                  className='bg-[#FFF2F2] text-primary dark:text-gray-500'
                 >
                   Cancel
                 </Button>
                 {/* <Button className="bg-primary">
                   Proceed <ChevronRight size={14} />{" "}
                 </Button> */}
-                <FormButton suffix={<ChevronRight size={14} type="submit" />}>
+                <FormButton suffix={<ChevronRight size={14} type='submit' />}>
                   Proceed
                 </FormButton>
               </div>

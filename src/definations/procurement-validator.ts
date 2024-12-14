@@ -107,6 +107,22 @@ export const VendorsQuestionnaireSchema = z.object({
   ),
 });
 
+export const VendorAttestationSchema = z.object({
+  attest: z.array(
+    z.object({
+      name: z.string().min(1, "Field is required"),
+      organisation_name: z.string().min(1, "Field is required"),
+      title: z.string().min(1, "Field is required"),
+    })
+  ),
+  sign: z.array(
+    z.object({
+      title: z.string().min(1, "Field is required"),
+      signature: z.string().min(1, "Field is required"),
+      date: z.string().min(1, "Field is required"),
+    })
+  ),
+});
 export const VendorsSchema = z.object({
   passport: z.string().min(1, "Field is required"),
   approved_categories: z.array(z.string()),
