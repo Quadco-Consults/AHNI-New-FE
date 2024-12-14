@@ -1,36 +1,45 @@
 import { Button } from "components/ui/button";
-import { useItemsQuery, useDeleteItemsMutation } from "services/moduleConfig";
 import { toast } from "sonner";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import TableAction from "atoms/TableAction";
 import { LoadingSpinner } from "components/shared/Loading";
+import { useState } from "react";
+import {
+    useDeleteLocationMutation,
+    useGetAllLocationsQuery,
+} from "services/modules/config/location";
+import Pagination from "components/shared/Pagination";
 
-const Items = () => {
-    const { data, isLoading } = useItemsQuery({
-        no_paginate: false,
+export default function AllLocations() {
+    const [page, setPage] = useState(1);
+
+    const { data: location, isFetching } = useGetAllLocationsQuery({
+        page,
+        size: 20,
     });
 
     const dispatch = useAppDispatch();
 
-    const [deleteItems] = useDeleteItemsMutation();
+    const [deleteLocation, { isLoading: isDeleteLoading }] =
+        useDeleteLocationMutation();
 
     const onSubmit = async (id: string) => {
         try {
-            await deleteItems(id).unwrap();
+            await deleteLocation(id).unwrap();
             toast.success("Deleted Successfully");
-        } catch (error) {
-            toast.error("Error deleteing item");
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
 
     const onUpdate = (item: any) => {
         dispatch(
             openDialog({
-                type: DialogType.AddItems,
+                type: DialogType.AddLocations,
                 dialogProps: {
-                    header: "Update Item",
+                    header: "Update Locations",
                     data: item,
                     type: "update",
                 },
@@ -39,16 +48,17 @@ const Items = () => {
     };
     return (
         <div>
-            <div className="flex items-center justify-between py-6 mb-6">
-                <h1 className="text-[#D92D20] font-semibold text-sm">Items</h1>
-
+            <div className="flex justify-between items-center py-6 mb-6">
+                <h1 className="text-[#D92D20] font-semibold text-sm">
+                    Locations
+                </h1>
                 <Button
                     onClick={() =>
                         dispatch(
                             openDialog({
-                                type: DialogType.AddItems,
+                                type: DialogType.AddLocations,
                                 dialogProps: {
-                                    header: "Add Item",
+                                    header: "Add Location",
                                 },
                             })
                         )
@@ -61,27 +71,31 @@ const Items = () => {
                 </Button>
             </div>
             <div>
-                <div className="flex justify-between text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4">
+                <div className="flex text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4">
                     <h1 className="flex-1">Name</h1>
-                    <h1 className="flex-1">Description</h1>
-                    <h1 className="flex-1">UOM</h1>
-                    <h1 className="flex-1">Category</h1>
+                    <h1 className="flex-1">Address</h1>
+                    <h1 className="flex-1">City</h1>
+                    <h1 className="flex-1">State</h1>
+                    <h1 className="flex-1">Email</h1>
+                    <h1 className="flex-1">Phone</h1>
                     <h1 className="flex-1"></h1>
                 </div>
 
-                {isLoading ? (
+                {isFetching || isDeleteLoading ? (
                     <LoadingSpinner />
                 ) : (
                     <div>
-                        {data?.data?.results?.map((item) => (
+                        {location?.data?.results?.map((item) => (
                             <div
                                 key={item.id}
                                 className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
                             >
                                 <p className="flex-1">{item.name}</p>
-                                <p className="flex-1">{item.description}</p>
-                                <p className="flex-1">{item.uom}</p>
-                                <p className="flex-1">{item.category}</p>
+                                <p className="flex-1">{item.address}</p>
+                                <p className="flex-1">{item.city}</p>
+                                <p className="flex-1">{item.state}</p>
+                                <p className="flex-1">{item.email}</p>
+                                <p className="flex-1">{item.phone}</p>
                                 <div className="flex-1">
                                     <TableAction
                                         update
@@ -94,9 +108,13 @@ const Items = () => {
                         ))}
                     </div>
                 )}
+
+                <Pagination
+                    total={location?.data.pagination.count ?? 0}
+                    itemsPerPage={location?.data.pagination.page_size ?? 0}
+                    onChange={(page: number) => setPage(page)}
+                />
             </div>
         </div>
     );
-};
-
-export default Items;
+}

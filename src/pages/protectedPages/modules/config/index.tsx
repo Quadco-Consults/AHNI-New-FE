@@ -1,12 +1,12 @@
 import { TabsContent } from "@radix-ui/react-tabs";
 import { Tabs, TabsList, TabsTrigger } from "components/ui/tabs";
 import { Card } from "components/ui/card";
-import Categories from "./Categories";
-import Departments from "./Departments";
-import FinancialYear from "./FinancialYear";
-import Items from "./Items";
-import Locations from "./Locations";
-import Position from "./Position";
+import Categories from "./AllCategory";
+import Departments from "./AllDepartments";
+import FinancialYear from "./AllFinancialYear";
+import Items from "./AllItems";
+import Locations from "./AllLocations";
+import Position from "./AllPositions";
 
 const Config = () => {
     return (

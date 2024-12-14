@@ -1,40 +1,46 @@
 import { Button } from "components/ui/button";
-import {
-    useCategoriesQuery,
-    useDeleteCategoriesMutation,
-} from "services/moduleConfig";
+
 import { toast } from "sonner";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import TableAction from "atoms/TableAction";
 import { LoadingSpinner } from "components/shared/Loading";
+import { useState } from "react";
+import {
+    useDeleteFinancialYearMutation,
+    useGetAllFinancialYearsQuery,
+} from "services/modules/config/financial-year";
+import Pagination from "components/shared/Pagination";
 
-const Categories = () => {
-    const { data, isLoading } = useCategoriesQuery({
-        no_paginate: false,
-        page_size: 1,
+export default function AllFinancialYear() {
+    const [page, setPage] = useState(1);
+
+    const { data: financialYear, isFetching } = useGetAllFinancialYearsQuery({
+        page,
+        size: 20,
     });
 
     const dispatch = useAppDispatch();
 
-    const [deleteCategories] = useDeleteCategoriesMutation();
+    const [deleteFinancialYear, { isLoading: isDeleteLoading }] =
+        useDeleteFinancialYearMutation();
 
     const onSubmit = async (id: string) => {
         try {
-            await deleteCategories(id).unwrap();
+            await deleteFinancialYear(id).unwrap();
             toast.success("Deleted Successfully");
-        } catch (error) {
-            toast.error("Error deleteing item");
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
 
     const onUpdate = (item: any) => {
         dispatch(
             openDialog({
-                type: DialogType.AddCategories,
+                type: DialogType.AddFinancialYear,
                 dialogProps: {
-                    header: "Update Category",
+                    header: "Update Financial Year",
                     data: item,
                     type: "update",
                 },
@@ -45,16 +51,16 @@ const Categories = () => {
         <div>
             <div className="flex items-center justify-between py-6 mb-6">
                 <h1 className="text-[#D92D20] font-semibold text-sm">
-                    Categories
+                    Financial Year
                 </h1>
 
                 <Button
                     onClick={() =>
                         dispatch(
                             openDialog({
-                                type: DialogType.AddCategories,
+                                type: DialogType.AddFinancialYear,
                                 dialogProps: {
-                                    header: "Add Category",
+                                    header: "Add Financial Year",
                                 },
                             })
                         )
@@ -68,33 +74,31 @@ const Categories = () => {
             </div>
             <div>
                 <div className="flex justify-between text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4">
-                    <h1 className="flex-1">Name</h1>
-                    <h1 className="flex-1">Description</h1>
-                    <h1 className="flex-1">Code</h1>
-                    <h1 className="flex-1">Serial Number</h1>
-                    <h1 className="flex-1">Job Category</h1>
+                    <h1 className="flex-1">Year</h1>
+                    <h1 className="flex-1">Dynamic Order</h1>
+                    <h1 className="flex-1">Current</h1>
                     <h1 className="flex-1"></h1>
                 </div>
 
-                {isLoading ? (
+                {isFetching || isDeleteLoading ? (
                     <LoadingSpinner />
                 ) : (
                     <div>
-                        {data?.data?.results?.map((item) => (
+                        {financialYear?.data?.results?.map((item) => (
                             <div
                                 key={item.id}
                                 className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
                             >
-                                <p className="flex-1">{item.name}</p>
-                                <p className="flex-1">{item.description}</p>
-                                <p className="flex-1">{item.code}</p>
-                                <p className="flex-1">{item.serial_number}</p>
-                                <p className="flex-1">{item.job_category}</p>
+                                <p className="flex-1">{item.year}</p>
+                                <p className="flex-1">{item.dyanmic_order}</p>
+                                <p className="flex-1">{item.current}</p>
                                 <div className="flex-1">
                                     <TableAction
                                         update
                                         removeView
-                                        action={() => onSubmit(item.id)}
+                                        action={() => {
+                                            onSubmit(item.id);
+                                        }}
                                         updateAction={() => onUpdate(item)}
                                     />
                                 </div>
@@ -102,9 +106,13 @@ const Categories = () => {
                         ))}
                     </div>
                 )}
+
+                <Pagination
+                    total={financialYear?.data.pagination.count ?? 0}
+                    itemsPerPage={financialYear?.data.pagination.page_size ?? 0}
+                    onChange={(page: number) => setPage(page)}
+                />
             </div>
         </div>
     );
-};
-
-export default Categories;
+}

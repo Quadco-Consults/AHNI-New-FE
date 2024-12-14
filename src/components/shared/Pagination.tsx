@@ -1,4 +1,5 @@
 import { cn } from "lib/utils";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import ReactPaginate from "react-paginate";
 
 type TProps = {
@@ -25,16 +26,23 @@ export default function Pagination({
     return (
         <div className={`flex ${placement === "right" && "justify-end"}`}>
             <ReactPaginate
-                className={cn(`flex items-center gap-3 mt-10`, className)}
+                className={cn(
+                    `flex items-center gap-5 mt-10 bg-gray-100 px-5 py-3`,
+                    className
+                )}
                 breakLabel="..."
-                nextLabel={nextLabel ?? ""}
-                previousLabel={previousLabel ?? ""}
+                nextLabel={
+                    nextLabel ?? <ChevronRight className="text-primary" />
+                }
+                previousLabel={
+                    previousLabel ?? <ChevronLeft className="text-primary" />
+                }
                 onPageChange={({ selected }) => onChange(selected + 1)}
                 pageRangeDisplayed={5}
                 pageCount={pageCount}
                 renderOnZeroPageCount={null}
-                pageClassName="bg-gray-100 px-2.5 py-1 text-center rounded-md"
-                activeClassName="bg-primary text-white"
+                pageClassName="text-primary font-bold text-center"
+                activeClassName="px-2.5 py-1 border-gray-500 rounded-md bg-primary text-white"
             />
         </div>
     );

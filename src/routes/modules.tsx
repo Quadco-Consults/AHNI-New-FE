@@ -20,8 +20,9 @@ export const modules = [
   
   {
     path: RouteEnum.MODULES_CONFIG,
-    element: lazy(() => import("pages/protectedPages/modules/config/Config")),
+    element: lazy(() => import("pages/protectedPages/modules/config")),
   },
+  
   {
     path: RouteEnum.MODULES_PROCUREMENT,
     element: lazy(() => import("pages/protectedPages/modules/procurement/Procurement")),

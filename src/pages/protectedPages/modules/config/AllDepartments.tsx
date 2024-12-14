@@ -1,30 +1,37 @@
 import { Button } from "components/ui/button";
-import {
-    useDepartmentsQuery,
-    useDeleteDepartmentsMutation,
-} from "services/moduleConfig";
+
 import { toast } from "sonner";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import TableAction from "atoms/TableAction";
 import { LoadingSpinner } from "components/shared/Loading";
+import {
+    useDeleteDepartmentMutation,
+    useGetAllDepartmentsQuery,
+} from "services/modules/config/department";
+import { useState } from "react";
+import Pagination from "components/shared/Pagination";
 
-const Departments = () => {
-    const { data, isLoading } = useDepartmentsQuery({
-        no_paginate: false,
+export default function AllDepartments() {
+    const [page, setPage] = useState(1);
+
+    const { data: department, isFetching } = useGetAllDepartmentsQuery({
+        page,
+        size: 20,
     });
 
     const dispatch = useAppDispatch();
 
-    const [deleteDepartments] = useDeleteDepartmentsMutation();
+    const [deleteDepartment, { isLoading: isDeleteLoading }] =
+        useDeleteDepartmentMutation();
 
     const onSubmit = async (id: string) => {
         try {
-            await deleteDepartments(id).unwrap();
+            await deleteDepartment(id).unwrap();
             toast.success("Deleted Successfully");
-        } catch (error) {
-            toast.error("Error deleteing item");
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
 
@@ -72,11 +79,11 @@ const Departments = () => {
                     <h1 className="flex-1"></h1>
                 </div>
 
-                {isLoading ? (
+                {isFetching || isDeleteLoading ? (
                     <LoadingSpinner />
                 ) : (
                     <div>
-                        {data?.data?.results.map((item) => {
+                        {department?.data?.results.map((item) => {
                             return (
                                 <div
                                     key={item.id}
@@ -84,7 +91,7 @@ const Departments = () => {
                                 >
                                     <p className="flex-1">{item.name}</p>
                                     <p className="flex-1">
-                                        {item.description}
+                                        {item.description || "N/A"}
                                     </p>
                                     <div className="flex-1">
                                         <TableAction
@@ -99,9 +106,13 @@ const Departments = () => {
                         })}
                     </div>
                 )}
+
+                <Pagination
+                    total={department?.data.pagination.count ?? 0}
+                    itemsPerPage={department?.data.pagination.page_size ?? 0}
+                    onChange={(page: number) => setPage(page)}
+                />
             </div>
         </div>
     );
-};
-
-export default Departments;
+}
