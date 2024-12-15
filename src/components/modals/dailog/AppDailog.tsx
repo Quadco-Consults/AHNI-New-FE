@@ -51,7 +51,7 @@ import AddFinancialYear from "pages/protectedPages/modules/config/AddFinancialYe
 import AddItems from "pages/protectedPages/modules/config/AddItems";
 import AddLocations from "pages/protectedPages/modules/config/AddLocations";
 import AddLots from "pages/protectedPages/modules/procurement/AddLots";
-import AddSolicitation from "pages/protectedPages/modules/procurement/AddSolicitation";
+import AddSolicitation from "pages/protectedPages/modules/procurement/AddSolicitationEvaluationCriteria";
 import AddPrequalificationCategory from "pages/protectedPages/modules/procurement/AddPrequalificationCategory";
 import AddPrequalificationCriteria from "pages/protectedPages/modules/procurement/AddPrequalificationCriteria";
 import AddQuestionairs from "pages/protectedPages/modules/procurement/AddQuestionairs";
