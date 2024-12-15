@@ -4,26 +4,25 @@ import FormInput from "atoms/FormInput";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import {
-    useAddCategoriesMutation,
-    useUpdateCategoriesMutation,
-} from "services/moduleConfig";
-import { TCategories } from "definations/module-config";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
 import { toast } from "sonner";
-import { FCONumberSchema, TFCONumber } from "definations/module-finance";
+import {
+    FCONumberSchema,
+    TFCONumberData,
+    TFCONumberFormValues,
+} from "definations/modules/finance/fco-number";
 import {
     useAddFCONumberMutation,
     useUpdateFCONumberMutation,
-} from "services/moduleFinance";
+} from "services/modules/finance/fco-number";
 
 const AddFcoNumber = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TFCONumber;
+    const data = dialogProps?.data as unknown as TFCONumberData;
 
-    const form = useForm<TFCONumber>({
+    const form = useForm<TFCONumberFormValues>({
         resolver: zodResolver(FCONumberSchema),
         defaultValues: {
             name: data?.name ?? "",
@@ -33,11 +32,13 @@ const AddFcoNumber = () => {
     });
 
     const [addFCONumber, { isLoading }] = useAddFCONumberMutation();
+
     const [updateFCONumber, { isLoading: isUpdateLoading }] =
         useUpdateFCONumberMutation();
 
     const dispatch = useAppDispatch();
-    const onSubmit: SubmitHandler<TFCONumber> = async (data) => {
+
+    const onSubmit: SubmitHandler<TFCONumberFormValues> = async (data) => {
         try {
             dialogProps?.type === "update"
                 ? await updateFCONumber({
@@ -65,7 +66,7 @@ const AddFcoNumber = () => {
                         <FormInput
                             label="Name"
                             name="name"
-                            placeholder="Enter name"
+                            placeholder="Enter Name"
                             required
                         />
                     </div>
@@ -73,14 +74,13 @@ const AddFcoNumber = () => {
                         <FormInput
                             label="Description"
                             name="description"
-                            placeholder="Enter description"
-                            required
+                            placeholder="Enter Description"
                         />
                         <FormInput
                             label="Code"
                             name="code"
                             required
-                            placeholder="Enter code"
+                            placeholder="Enter Code"
                         />
                     </div>
                     <div className="flex justify-start gap-4">

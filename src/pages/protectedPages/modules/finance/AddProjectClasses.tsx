@@ -4,25 +4,25 @@ import FormInput from "atoms/FormInput";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import {
-    useAddCategoriesMutation,
-    useUpdateCategoriesMutation,
-} from "services/moduleConfig";
-import { TCategories, categorySchema } from "definations/module-config";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
 import { toast } from "sonner";
-import { ProjectClassSchema, TProjectClass } from "definations/module-finance";
+import {
+    ProjectClassSchema,
+    TProjectClassData,
+    TProjectClassFormValues,
+} from "definations/modules/finance/project-class";
 import {
     useAddProjectClassMutation,
     useUpdateProjectClassMutation,
-} from "services/moduleFinance";
+} from "services/modules/finance/project-class";
 
 const AddProjectClasses = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TProjectClass;
-    const form = useForm<TProjectClass>({
+    const data = dialogProps?.data as unknown as TProjectClassData;
+
+    const form = useForm<TProjectClassFormValues>({
         resolver: zodResolver(ProjectClassSchema),
         defaultValues: {
             name: data?.name ?? "",
@@ -38,7 +38,7 @@ const AddProjectClasses = () => {
 
     const dispatch = useAppDispatch();
 
-    const onSubmit: SubmitHandler<TProjectClass> = async (data) => {
+    const onSubmit: SubmitHandler<TProjectClassFormValues> = async (data) => {
         try {
             dialogProps?.type === "update"
                 ? await updateProjectClass({
@@ -66,7 +66,7 @@ const AddProjectClasses = () => {
                         <FormInput
                             label="Title"
                             name="name"
-                            placeholder="Enter name"
+                            placeholder="Enter Name"
                             required
                         />
                     </div>
@@ -74,14 +74,13 @@ const AddProjectClasses = () => {
                         <FormInput
                             label="Description"
                             name="description"
-                            placeholder="Enter description"
-                            required
+                            placeholder="Enter Description"
                         />
                         <FormInput
                             label="Code"
                             name="code"
                             required
-                            placeholder="Enter code"
+                            placeholder="Enter Code"
                         />
                     </div>
                     <div className="flex justify-start gap-4">

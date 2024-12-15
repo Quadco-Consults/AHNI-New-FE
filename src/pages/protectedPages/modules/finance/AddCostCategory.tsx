@@ -4,25 +4,25 @@ import FormInput from "atoms/FormInput";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import {
-    useAddCategoriesMutation,
-    useUpdateCategoriesMutation,
-} from "services/moduleConfig";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { TCostCategory, CostCategorySchema } from "definations/module-finance";
 import { closeDialog, dailogSelector } from "store/ui";
 import { toast } from "sonner";
 import {
+    CostCategorySchema,
+    TCostCategoryData,
+    TCostCategoryFormValues,
+} from "definations/modules/finance/cost-category";
+import {
     useAddCostCategoryMutation,
     useUpdateCostCategoryMutation,
-} from "services/moduleFinance";
+} from "services/modules/finance/cost-category";
 
 const AddCostCategory = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TCostCategory;
+    const data = dialogProps?.data as unknown as TCostCategoryData;
 
-    const form = useForm<TCostCategory>({
+    const form = useForm<TCostCategoryFormValues>({
         resolver: zodResolver(CostCategorySchema),
         defaultValues: {
             name: data?.name ?? "",
@@ -37,7 +37,7 @@ const AddCostCategory = () => {
 
     const dispatch = useAppDispatch();
 
-    const onSubmit: SubmitHandler<TCostCategory> = async (data) => {
+    const onSubmit: SubmitHandler<TCostCategoryFormValues> = async (data) => {
         try {
             dialogProps?.type === "update"
                 ? await updateCostCategory({
@@ -59,30 +59,26 @@ const AddCostCategory = () => {
                 <form
                     action=""
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex flex-col gap-y-10"
+                    className="flex flex-col gap-y-5"
                 >
-                    <div className="grid grid-cols-1 gap-y-7">
-                        <FormInput
-                            label="Name"
-                            name="name"
-                            placeholder="e.g Travel: International Travel"
-                            required
-                        />
-                    </div>
-                    <div className="grid grid-cols-2 gap-x-1">
-                        <FormInput
-                            label="Description"
-                            name="description"
-                            placeholder="Enter description"
-                            required
-                        />
-                        <FormInput
-                            label="Code"
-                            name="code"
-                            required
-                            placeholder="Enter code"
-                        />
-                    </div>
+                    <FormInput
+                        label="Name"
+                        name="name"
+                        placeholder="Enter Name"
+                        required
+                    />
+                    <FormInput
+                        label="Description"
+                        name="description"
+                        placeholder="Enter Description"
+                    />
+
+                    <FormInput
+                        label="Code"
+                        name="code"
+                        required
+                        placeholder="Enter Code"
+                    />
                     <div className="flex justify-start gap-4">
                         <FormButton loading={isLoading || updateLoading}>
                             Save
