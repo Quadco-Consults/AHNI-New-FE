@@ -68,33 +68,31 @@ const AddFinancialYear = () => {
                 <form
                     action=""
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex flex-col gap-y-10"
+                    className="flex flex-col gap-y-7"
                 >
-                    <div className="grid grid-cols-1 gap-y-7">
-                        <FormInput
-                            label="Year"
-                            name="year"
-                            placeholder="Enter Year"
-                            required
-                        />
-                    </div>
-                    <div className="grid grid-cols-2 gap-x-5">
-                        <FormInput
-                            label="Dynamic Order"
-                            name="dyanmic_order"
-                            placeholder="Enter Dynamic Order"
-                            type="number"
-                            required
-                        />
+                    <FormInput
+                        label="Year"
+                        name="year"
+                        placeholder="Enter Year"
+                        required
+                    />
 
-                        <FormSelect
-                            label="Current"
-                            name="current"
-                            placeholder="Select Current Status"
-                            required
-                            options={isCurrent}
-                        />
-                    </div>
+                    <FormInput
+                        label="Dynamic Order"
+                        name="dyanmic_order"
+                        placeholder="Enter Dynamic Order"
+                        type="number"
+                        required
+                    />
+
+                    <FormSelect
+                        label="Current"
+                        name="current"
+                        placeholder="Select Current Status"
+                        required
+                        options={isCurrent}
+                    />
+
                     <div className="flex justify-start gap-4">
                         <FormButton
                             loading={isLoading || updateFinancialYearLoading}

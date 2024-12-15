@@ -4,7 +4,6 @@ import FormInput from "atoms/FormInput";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
 import { toast } from "sonner";
@@ -61,29 +60,28 @@ const AddChartsOfAccount = () => {
                 <form
                     action=""
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex flex-col gap-y-10"
+                    className="flex flex-col gap-y-7"
                 >
-                    <div className="grid grid-cols-1 gap-y-7">
-                        <FormInput
-                            label="Name"
-                            name="name"
-                            placeholder="Enter Name"
-                            required
-                        />
-                    </div>
-                    <div className="grid grid-cols-2 gap-x-1">
-                        <FormInput
-                            label="Description"
-                            name="description"
-                            placeholder="Enter Description"
-                        />
-                        <FormInput
-                            label="Code"
-                            name="code"
-                            placeholder="Enter Code"
-                            required
-                        />
-                    </div>
+                    <FormInput
+                        label="Name"
+                        name="name"
+                        placeholder="Enter Name"
+                        required
+                    />
+
+                    <FormInput
+                        label="Description"
+                        name="description"
+                        placeholder="Enter Description"
+                    />
+
+                    <FormInput
+                        label="Code"
+                        name="code"
+                        placeholder="Enter Code"
+                        required
+                    />
+
                     <div className="flex justify-start gap-4">
                         <FormButton loading={isLoading || isUpdateLoading}>
                             Save

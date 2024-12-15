@@ -70,62 +70,55 @@ const AddFacility = () => {
                 <form
                     action=""
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="bg-white rounded-[2rem] flex flex-col gap-y-10"
+                    className="bg-white rounded-[2rem] flex flex-col gap-y-7"
                 >
-                    <div className="grid grid-cols-1">
-                        <FormInput
-                            label="Facility Name"
-                            name="name"
-                            required
-                            placeholder="Enter Facility Name"
-                        />
-                    </div>
-                    <div className="grid grid-cols-2 gap-x-7">
-                        <FormInput
-                            label="Phone Number"
-                            name="phone"
-                            required
-                            placeholder="Enter Phone Number"
-                        />
-                        <FormInput
-                            label="Email"
-                            name="email"
-                            required
-                            placeholder="Enter Email"
-                        />
-                    </div>
+                    <FormInput
+                        label="Facility Name"
+                        name="name"
+                        required
+                        placeholder="Enter Facility Name"
+                    />
 
-                    <div className="grid grid-cols-2 gap-x-7">
-                        <FormInput
-                            label="Contact Person"
-                            name="contact_person"
-                            placeholder="Enter Contact Person"
-                            required
-                        />
-                        <FormInput
-                            label="Position"
-                            name="postion"
-                            required
-                            placeholder="Enter Position"
-                        />
-                    </div>
+                    <FormInput
+                        label="Phone Number"
+                        name="phone"
+                        required
+                        placeholder="Enter Phone Number"
+                    />
+                    <FormInput
+                        label="Email"
+                        name="email"
+                        required
+                        placeholder="Enter Email"
+                    />
 
-                    <div className="grid grid-cols-2 gap-x-7">
-                        <FormSelect
-                            label="State"
-                            name="state"
-                            required
-                            options={stateOptions}
-                            placeholder="Select State"
-                        />
-                        <FormInput
-                            label="LGA"
-                            name="lga"
-                            required
-                            placeholder="Enter LGA"
-                        />
-                    </div>
+                    <FormInput
+                        label="Contact Person"
+                        name="contact_person"
+                        placeholder="Enter Contact Person"
+                        required
+                    />
+                    <FormInput
+                        label="Position"
+                        name="postion"
+                        required
+                        placeholder="Enter Position"
+                    />
 
+                    <FormSelect
+                        label="State"
+                        name="state"
+                        required
+                        options={stateOptions}
+                        placeholder="Select State"
+                    />
+
+                    <FormInput
+                        label="LGA"
+                        name="lga"
+                        required
+                        placeholder="Enter LGA"
+                    />
                     <div className="flex justify-start gap-4">
                         <FormButton
                             loading={isLoading || updateFacilityLoading}
