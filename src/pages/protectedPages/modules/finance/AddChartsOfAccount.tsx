@@ -4,26 +4,26 @@ import FormInput from "atoms/FormInput";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import {
-    useAddCategoriesMutation,
-    useUpdateCategoriesMutation,
-} from "services/moduleConfig";
-import { TCategories, categorySchema } from "definations/module-config";
+
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
 import { toast } from "sonner";
-import { ChartAccountSchema, TChartAccount } from "definations/module-finance";
+import {
+    ChartAccountSchema,
+    TChartAccountData,
+    TChartAccountFormValues,
+} from "definations/modules/finance/chart-account";
 import {
     useAddChartAccountMutation,
     useUpdateChartAccountMutation,
-} from "services/moduleFinance";
+} from "services/modules/finance/chart-account";
 
 const AddChartsOfAccount = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TChartAccount;
+    const data = dialogProps?.data as unknown as TChartAccountData;
 
-    const form = useForm<TChartAccount>({
+    const form = useForm<TChartAccountFormValues>({
         resolver: zodResolver(ChartAccountSchema),
         defaultValues: {
             name: data?.name ?? "",
@@ -34,11 +34,12 @@ const AddChartsOfAccount = () => {
     });
 
     const [addChartAccount, { isLoading }] = useAddChartAccountMutation();
+
     const [updateChartAccount, { isLoading: isUpdateLoading }] =
         useUpdateChartAccountMutation();
 
     const dispatch = useAppDispatch();
-    const onSubmit: SubmitHandler<TChartAccount> = async (data) => {
+    const onSubmit: SubmitHandler<TChartAccountFormValues> = async (data) => {
         try {
             dialogProps?.type === "update"
                 ? await updateChartAccount({
@@ -66,7 +67,7 @@ const AddChartsOfAccount = () => {
                         <FormInput
                             label="Name"
                             name="name"
-                            placeholder="Enter name"
+                            placeholder="Enter Name"
                             required
                         />
                     </div>
@@ -74,13 +75,12 @@ const AddChartsOfAccount = () => {
                         <FormInput
                             label="Description"
                             name="description"
-                            placeholder="Enter description"
-                            required
+                            placeholder="Enter Description"
                         />
                         <FormInput
                             label="Code"
                             name="code"
-                            placeholder="Enter code"
+                            placeholder="Enter Code"
                             required
                         />
                     </div>

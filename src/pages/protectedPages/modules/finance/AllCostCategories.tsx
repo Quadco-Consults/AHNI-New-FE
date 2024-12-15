@@ -4,24 +4,33 @@ import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import TableAction from "atoms/TableAction";
+import { LoadingSpinner } from "components/shared/Loading";
+import { useState } from "react";
 import {
     useDeleteCostCategoryMutation,
-    useGetCostCategoryQuery,
-} from "services/moduleFinance";
-import { LoadingSpinner } from "components/shared/Loading";
+    useGetAllCostCategoriesQuery,
+} from "services/modules/finance/cost-category";
+import Pagination from "components/shared/Pagination";
 
-const CostCategories = () => {
+export default function AllCostCategories() {
+    const [page, setPage] = useState(1);
+
     const dispatch = useAppDispatch();
 
-    const { data, isLoading } = useGetCostCategoryQuery({ no_paginate: false });
-    const [deleteCostCategory] = useDeleteCostCategoryMutation();
+    const { data: costCategory, isFetching } = useGetAllCostCategoriesQuery({
+        page,
+        size: 20,
+    });
+
+    const [deleteCostCategory, { isLoading: isDeleteLoading }] =
+        useDeleteCostCategoryMutation();
 
     const onSubmit = async (id: string) => {
         try {
             await deleteCostCategory(id).unwrap();
             toast.success("Deleted Successfully");
-        } catch (error) {
-            toast.error("Error deleteing item");
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
 
@@ -70,17 +79,19 @@ const CostCategories = () => {
                     <h1 className="flex-1"></h1>
                 </div>
 
-                {isLoading ? (
+                {isFetching || isDeleteLoading ? (
                     <LoadingSpinner />
                 ) : (
                     <div>
-                        {data?.data?.results?.map((item) => (
+                        {costCategory?.data?.results?.map((item) => (
                             <div
                                 key={item.id}
                                 className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
                             >
                                 <p className="flex-1">{item.name}</p>
-                                <p className="flex-1">{item.description}</p>
+                                <p className="flex-1">
+                                    {item.description || "N/A"}
+                                </p>
                                 <p className="flex-1">{item.code}</p>
                                 <div className="flex-1">
                                     <TableAction
@@ -94,9 +105,13 @@ const CostCategories = () => {
                         ))}
                     </div>
                 )}
+
+                <Pagination
+                    total={costCategory?.data.pagination.count ?? 0}
+                    itemsPerPage={costCategory?.data.pagination.page_size ?? 0}
+                    onChange={(page: number) => setPage(page)}
+                />
             </div>
         </div>
     );
-};
-
-export default CostCategories;
+}

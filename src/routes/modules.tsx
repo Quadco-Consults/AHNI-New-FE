@@ -29,6 +29,6 @@ export const modules = [
   },
   {
     path: RouteEnum.MODULES_FINANCE,
-    element: lazy(() => import("pages/protectedPages/modules/finance/Finance")),
+    element: lazy(() => import("pages/protectedPages/modules/finance")),
   },
 ];

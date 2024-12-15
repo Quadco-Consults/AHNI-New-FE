@@ -4,33 +4,42 @@ import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import TableAction from "atoms/TableAction";
-import {
-    useDeleteBudgetLineMutation,
-    useGetBudgetLineQuery,
-} from "services/moduleFinance";
 import { LoadingSpinner } from "components/shared/Loading";
+import { useState } from "react";
+import {
+    useDeleteCostInputMutation,
+    useGetAllCostInputsQuery,
+} from "services/modules/finance/cost-input";
+import Pagination from "components/shared/Pagination";
 
-const BudgetLine = () => {
+export default function AllCostInputs() {
+    const [page, setPage] = useState(1);
+
+    const { data: costInput, isFetching } = useGetAllCostInputsQuery({
+        page,
+        size: 20,
+    });
+
+    const [deleteCostInput, { isLoading: isDeleteLoading }] =
+        useDeleteCostInputMutation();
+
     const dispatch = useAppDispatch();
-
-    const { data, isLoading } = useGetBudgetLineQuery({ no_paginate: false });
-    const [deleteBudgetLine] = useDeleteBudgetLineMutation();
 
     const onSubmit = async (id: string) => {
         try {
-            await deleteBudgetLine(id).unwrap();
+            await deleteCostInput(id).unwrap();
             toast.success("Deleted Successfully");
-        } catch (error) {
-            toast.error("Error deleteing item");
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
 
     const onUpdate = (item: any) => {
         dispatch(
             openDialog({
-                type: DialogType.AddBudgetLine,
+                type: DialogType.AddCostInput,
                 dialogProps: {
-                    header: "Update Budget Line",
+                    header: "Update Cost Input",
                     data: item,
                     type: "update",
                 },
@@ -41,16 +50,16 @@ const BudgetLine = () => {
         <div>
             <div className="flex items-center justify-between py-6 mb-6">
                 <h1 className="text-[#D92D20] font-semibold text-sm">
-                    Budget Line
+                    Cost Input
                 </h1>
 
                 <Button
                     onClick={() =>
                         dispatch(
                             openDialog({
-                                type: DialogType.AddBudgetLine,
+                                type: DialogType.AddCostInput,
                                 dialogProps: {
-                                    header: "Add Budget Line",
+                                    header: "Add Cost Input",
                                 },
                             })
                         )
@@ -70,17 +79,19 @@ const BudgetLine = () => {
                     <h1 className="flex-1"></h1>
                 </div>
 
-                {isLoading ? (
+                {isFetching || isDeleteLoading ? (
                     <LoadingSpinner />
                 ) : (
                     <div>
-                        {data?.data?.results?.map((item) => (
+                        {costInput?.data?.results?.map((item) => (
                             <div
                                 key={item.id}
                                 className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
                             >
                                 <p className="flex-1">{item.name}</p>
-                                <p className="flex-1">{item.description}</p>
+                                <p className="flex-1">
+                                    {item.description || "N/A"}
+                                </p>
                                 <p className="flex-1">{item.code}</p>
                                 <div className="flex-1">
                                     <TableAction
@@ -94,9 +105,13 @@ const BudgetLine = () => {
                         ))}
                     </div>
                 )}
+
+                <Pagination
+                    total={costInput?.data.pagination.count ?? 0}
+                    itemsPerPage={costInput?.data.pagination.page_size ?? 0}
+                    onChange={(page: number) => setPage(page)}
+                />
             </div>
         </div>
     );
-};
-
-export default BudgetLine;
+}

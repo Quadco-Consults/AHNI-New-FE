@@ -5,33 +5,43 @@ import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import TableAction from "atoms/TableAction";
-import {
-    useDeleteChartAccountMutation,
-    useGetChartAccountQuery,
-} from "services/moduleFinance";
-import { LoadingSpinner } from "components/shared/Loading";
 
-const ChartsOfAccount = () => {
+import { LoadingSpinner } from "components/shared/Loading";
+import { useState } from "react";
+import {
+    useDeleteProjectClassMutation,
+    useGetAllProjectClassesQuery,
+} from "services/modules/finance/project-class";
+import Pagination from "components/shared/Pagination";
+
+export default function AllProjectClasses() {
+    const [page, setPage] = useState(1);
+
     const dispatch = useAppDispatch();
 
-    const { data, isLoading } = useGetChartAccountQuery({ no_paginate: false });
-    const [deleteChartAccount] = useDeleteChartAccountMutation();
+    const { data: projectClass, isFetching } = useGetAllProjectClassesQuery({
+        page,
+        size: 20,
+    });
+
+    const [deleteProjectClass, { isLoading: isDeleteLoading }] =
+        useDeleteProjectClassMutation();
 
     const onSubmit = async (id: string) => {
         try {
-            await deleteChartAccount(id).unwrap();
+            await deleteProjectClass(id).unwrap();
             toast.success("Deleted Successfully");
-        } catch (error) {
-            toast.error("Error deleteing item");
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
 
     const onUpdate = (item: any) => {
         dispatch(
             openDialog({
-                type: DialogType.AddChartsOfAccounts,
+                type: DialogType.AddProjectClasses,
                 dialogProps: {
-                    header: "Update Charts of Account",
+                    header: "Update Project Classes",
                     data: item,
                     type: "update",
                 },
@@ -42,16 +52,16 @@ const ChartsOfAccount = () => {
         <div>
             <div className="flex items-center justify-between py-6 mb-6">
                 <h1 className="text-[#D92D20] font-semibold text-sm">
-                    Charts of Account
+                    Project Classes
                 </h1>
 
                 <Button
                     onClick={() =>
                         dispatch(
                             openDialog({
-                                type: DialogType.AddChartsOfAccounts,
+                                type: DialogType.AddProjectClasses,
                                 dialogProps: {
-                                    header: "Add Chart of Account",
+                                    header: "Add Project Classes",
                                 },
                             })
                         )
@@ -71,17 +81,19 @@ const ChartsOfAccount = () => {
                     <h1 className="flex-1"></h1>
                 </div>
 
-                {isLoading ? (
+                {isFetching || isDeleteLoading ? (
                     <LoadingSpinner />
                 ) : (
                     <div>
-                        {data?.data?.results?.map((item) => (
+                        {projectClass?.data?.results?.map((item) => (
                             <div
                                 key={item.id}
                                 className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
                             >
                                 <p className="flex-1">{item.name}</p>
-                                <p className="flex-1">{item.description}</p>
+                                <p className="flex-1">
+                                    {item.description || "N/A"}
+                                </p>
                                 <p className="flex-1">{item.code}</p>
                                 <div className="flex-1">
                                     <TableAction
@@ -95,9 +107,13 @@ const ChartsOfAccount = () => {
                         ))}
                     </div>
                 )}
+
+                <Pagination
+                    total={projectClass?.data.pagination.count ?? 0}
+                    itemsPerPage={projectClass?.data.pagination.page_size ?? 0}
+                    onChange={(page: number) => setPage(page)}
+                />
             </div>
         </div>
     );
-};
-
-export default ChartsOfAccount;
+}

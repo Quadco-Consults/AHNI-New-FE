@@ -1,38 +1,45 @@
 import { Button } from "components/ui/button";
-
 import { toast } from "sonner";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import TableAction from "atoms/TableAction";
-import {
-    useDeleteProjectClassMutation,
-    useGetProjectClassQuery,
-} from "services/moduleFinance";
 import { LoadingSpinner } from "components/shared/Loading";
+import { useState } from "react";
+import {
+    useDeleteFCONumberMutation,
+    useGetAllFCONumbersQuery,
+} from "services/modules/finance/fco-number";
+import Pagination from "components/shared/Pagination";
 
-const ProjectClasses = () => {
+export default function AllFCONumber() {
+    const [page, setPage] = useState(1);
+
+    const { data: FCONumber, isFetching } = useGetAllFCONumbersQuery({
+        page,
+        size: 20,
+    });
+
+    const [deleteFCONumber, { isLoading: isDeleteLoading }] =
+        useDeleteFCONumberMutation();
+
     const dispatch = useAppDispatch();
-
-    const { data, isLoading } = useGetProjectClassQuery({ no_paginate: false });
-
-    const [deleteProjectClass] = useDeleteProjectClassMutation();
 
     const onSubmit = async (id: string) => {
         try {
-            await deleteProjectClass(id).unwrap();
+            await deleteFCONumber(id).unwrap();
             toast.success("Deleted Successfully");
-        } catch (error) {
-            toast.error("Error deleting item");
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
 
     const onUpdate = (item: any) => {
         dispatch(
             openDialog({
-                type: DialogType.AddProjectClasses,
+                type: DialogType.AddFcoNumber,
                 dialogProps: {
-                    header: "Update Project Classes",
+                    header: "Update FCO Number",
                     data: item,
                     type: "update",
                 },
@@ -43,16 +50,16 @@ const ProjectClasses = () => {
         <div>
             <div className="flex items-center justify-between py-6 mb-6">
                 <h1 className="text-[#D92D20] font-semibold text-sm">
-                    Project Classes
+                    FCO Number
                 </h1>
 
                 <Button
                     onClick={() =>
                         dispatch(
                             openDialog({
-                                type: DialogType.AddProjectClasses,
+                                type: DialogType.AddFcoNumber,
                                 dialogProps: {
-                                    header: "Add Project Classes",
+                                    header: "Add FCO Number",
                                 },
                             })
                         )
@@ -72,17 +79,19 @@ const ProjectClasses = () => {
                     <h1 className="flex-1"></h1>
                 </div>
 
-                {isLoading ? (
+                {isFetching || isDeleteLoading ? (
                     <LoadingSpinner />
                 ) : (
                     <div>
-                        {data?.data?.results?.map((item) => (
+                        {FCONumber?.data?.results?.map((item) => (
                             <div
                                 key={item.id}
                                 className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
                             >
                                 <p className="flex-1">{item.name}</p>
-                                <p className="flex-1">{item.description}</p>
+                                <p className="flex-1">
+                                    {item.description || "N/A"}
+                                </p>
                                 <p className="flex-1">{item.code}</p>
                                 <div className="flex-1">
                                     <TableAction
@@ -96,9 +105,13 @@ const ProjectClasses = () => {
                         ))}
                     </div>
                 )}
+
+                <Pagination
+                    total={FCONumber?.data.pagination.count ?? 0}
+                    itemsPerPage={FCONumber?.data.pagination.page_size ?? 0}
+                    onChange={(page: number) => setPage(page)}
+                />
             </div>
         </div>
     );
-};
-
-export default ProjectClasses;
+}
