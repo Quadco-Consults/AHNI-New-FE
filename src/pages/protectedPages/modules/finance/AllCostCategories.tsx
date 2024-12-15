@@ -19,7 +19,7 @@ export default function AllCostCategories() {
 
     const { data: costCategory, isFetching } = useGetAllCostCategoriesQuery({
         page,
-        size: 20,
+        size: 1,
     });
 
     const [deleteCostCategory, { isLoading: isDeleteLoading }] =

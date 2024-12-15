@@ -27,21 +27,21 @@ export default function Pagination({
         <div className={`flex ${placement === "right" && "justify-end"}`}>
             <ReactPaginate
                 className={cn(
-                    `flex items-center gap-5 mt-10 bg-gray-100 px-5 py-3`,
+                    `flex items-center gap-5 mt-10 px-5 py-3`,
                     className
                 )}
                 breakLabel="..."
                 nextLabel={
-                    nextLabel ?? <ChevronRight className="text-primary" />
+                    nextLabel ?? <ChevronRight className="text-gray-500" />
                 }
                 previousLabel={
-                    previousLabel ?? <ChevronLeft className="text-primary" />
+                    previousLabel ?? <ChevronLeft className="text-gray-500" />
                 }
                 onPageChange={({ selected }) => onChange(selected + 1)}
                 pageRangeDisplayed={5}
                 pageCount={pageCount}
                 renderOnZeroPageCount={null}
-                pageClassName="text-primary font-bold text-center"
+                pageClassName="font-bold text-center bg-gray-100 px-2.5 py-1 rounded-md text-gray-500 cursor-pointer transition-all duration-150 hover:bg-primary hover:text-white"
                 activeClassName="px-2.5 py-1 border-gray-500 rounded-md bg-primary text-white"
             />
         </div>
