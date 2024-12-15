@@ -72,56 +72,53 @@ const AddLocations = () => {
             <Form {...form}>
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="bg-white rounded-[2rem] flex flex-col gap-y-10 pb-[2rem]"
+                    className="bg-white rounded-[2rem] flex flex-col gap-y-7 pb-[2rem]"
                 >
-                    <div className="grid grid-cols-1">
-                        <FormInput
-                            label="Name"
-                            name="name"
-                            required
-                            placeholder="Enter Name"
-                        />
-                    </div>
-                    <div className="grid grid-cols-1">
-                        <FormTextArea
-                            name="address"
-                            label="Address"
-                            required
-                            placeholder="Enter Address"
-                        />
-                    </div>
-                    <div className="grid grid-cols-2 gap-x-7">
-                        <FormInput
-                            label="City"
-                            name="city"
-                            required
-                            placeholder="Enter City"
-                        />
-                        <FormSelect
-                            label="State"
-                            name="state"
-                            required
-                            options={stateOptions}
-                            placeholder="Select State"
-                        />
-                    </div>
-                    <div className="grid grid-cols-2 gap-x-7">
-                        <FormInput
-                            label="Phone"
-                            name="phone"
-                            type="number"
-                            required
-                            placeholder="Enter Phone"
-                        />
+                    <FormInput
+                        label="Name"
+                        name="name"
+                        required
+                        placeholder="Enter Name"
+                    />
 
-                        <FormInput
-                            label="Email"
-                            name="email"
-                            type="email"
-                            required
-                            placeholder="Enter Email"
-                        />
-                    </div>
+                    <FormTextArea
+                        name="address"
+                        label="Address"
+                        required
+                        placeholder="Enter Address"
+                    />
+
+                    <FormInput
+                        label="City"
+                        name="city"
+                        required
+                        placeholder="Enter City"
+                    />
+
+                    <FormSelect
+                        label="State"
+                        name="state"
+                        required
+                        options={stateOptions}
+                        placeholder="Select State"
+                    />
+
+                    <FormInput
+                        label="Phone"
+                        name="phone"
+                        type="number"
+                        required
+                        placeholder="Enter Phone"
+                    />
+
+                    <FormInput
+                        label="Email"
+                        name="email"
+                        type="email"
+                        required
+                        placeholder="Enter Email"
+                    />
+
                     <div className="flex justify-start gap-4">
                         <FormButton
                             loading={isLoading || updateLocationsLoading}

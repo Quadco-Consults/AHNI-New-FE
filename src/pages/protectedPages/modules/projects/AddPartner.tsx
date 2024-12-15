@@ -70,68 +70,59 @@ const AddPartners = () => {
             <Form {...form}>
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="bg-white rounded-[2rem] flex flex-col gap-y-10 pb-[2rem]"
+                    className="bg-white rounded-[2rem] flex flex-col gap-y-7 pb-[2rem]"
                 >
-                    <div className="grid grid-cols-1">
-                        <FormInput
-                            label="Name"
-                            name="name"
-                            placeholder="Enter Name"
-                            required
-                        />
-                    </div>
+                    <FormInput
+                        label="Name"
+                        name="name"
+                        placeholder="Enter Name"
+                        required
+                    />
+                    <FormTextArea
+                        name="address"
+                        label="Address"
+                        placeholder="Enter Address"
+                        required
+                    />
 
-                    <div className="grid grid-cols-1">
-                        <FormTextArea
-                            name="address"
-                            label="Address"
-                            placeholder="Enter Address"
-                            required
-                        />
-                    </div>
+                    <FormInput
+                        label="City"
+                        name="city"
+                        placeholder="Enter City"
+                        required
+                    />
 
-                    <div className="grid grid-cols-2 gap-x-7">
-                        <FormInput
-                            label="City"
-                            name="city"
-                            placeholder="Enter City"
-                            required
-                        />
+                    <FormSelect
+                        label="State"
+                        name="state"
+                        placeholder="Select State"
+                        required
+                        options={stateOptions}
+                    />
 
-                        <FormSelect
-                            label="State"
-                            name="state"
-                            placeholder="Select State"
-                            required
-                            options={stateOptions}
-                        />
-                    </div>
+                    <FormInput
+                        label="Phone"
+                        name="phone"
+                        placeholder="Enter Phone"
+                        required
+                        type="number"
+                    />
 
-                    <div className="grid grid-cols-2 gap-x-7">
-                        <FormInput
-                            label="Phone"
-                            name="phone"
-                            placeholder="Enter Phone"
-                            required
-                            type="number"
-                        />
-                        <FormInput
-                            label="Email"
-                            type="email"
-                            name="email"
-                            placeholder="Enter Email"
-                            required
-                        />
-                    </div>
+                    <FormInput
+                        label="Email"
+                        type="email"
+                        name="email"
+                        placeholder="Enter Email"
+                        required
+                    />
 
-                    <div className="grid grid-cols-1">
-                        <FormInput
-                            label="Website"
-                            name="website"
-                            placeholder="Enter Website"
-                            required
-                        />
-                    </div>
+                    <FormInput
+                        label="Website"
+                        name="website"
+                        placeholder="Enter Website"
+                        required
+                    />
+
                     <div className="flex justify-start gap-4">
                         <FormButton
                             loading={isLoading || updatePartnersLoading}

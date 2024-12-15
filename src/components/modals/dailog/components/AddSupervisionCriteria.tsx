@@ -77,33 +77,28 @@ const AddSupervisionCriteria = () => {
                 <form
                     action=""
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex flex-col gap-y-10"
+                    className="flex flex-col gap-y-7"
                 >
-                    <div className="grid grid-cols-1 gap-y-7">
-                        <FormInput
-                            label="Name"
-                            name="name"
-                            placeholder="Enter Name"
-                            required
-                        />
-                    </div>
-                    <div className="grid grid-cols-1">
-                        <FormInput
-                            label="Description"
-                            placeholder="Enter Description"
-                            name="description"
-                        />
-                    </div>
+                    <FormInput
+                        label="Name"
+                        name="name"
+                        placeholder="Enter Name"
+                        required
+                    />
 
-                    <div className="grid grid-cols-1">
-                        <FormSelect
-                            label="Supervision Evaluation Category"
-                            placeholder="Select Evaluation Category"
-                            name="evaluation_category"
-                            required
-                            options={categoryOptions}
-                        />
-                    </div>
+                    <FormInput
+                        label="Description"
+                        placeholder="Enter Description"
+                        name="description"
+                    />
+
+                    <FormSelect
+                        label="Supervision Evaluation Category"
+                        placeholder="Select Evaluation Category"
+                        name="evaluation_category"
+                        required
+                        options={categoryOptions}
+                    />
 
                     <div className="flex justify-start gap-4">
                         <FormButton

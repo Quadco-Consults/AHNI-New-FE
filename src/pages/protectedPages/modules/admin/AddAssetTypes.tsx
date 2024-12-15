@@ -57,30 +57,28 @@ const AddAssetTypes = () => {
             <form
                 action=""
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="flex flex-col gap-y-10"
+                className="flex flex-col gap-y-7"
             >
-                <div className="grid grid-cols-1 gap-y-7">
-                    <FormInput
-                        label="Name"
-                        name="name"
-                        placeholder="Enter Name"
-                        required
-                    />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                    <FormInput
-                        label="Manufacturer"
-                        placeholder="Enter Manufacturer"
-                        name="manufacturer"
-                        required
-                    />
-                    <FormInput
-                        label="Model"
-                        name="model"
-                        placeholder="Enter Model"
-                        required
-                    />
-                </div>
+                <FormInput
+                    label="Name"
+                    name="name"
+                    placeholder="Enter Name"
+                    required
+                />
+
+                <FormInput
+                    label="Manufacturer"
+                    placeholder="Enter Manufacturer"
+                    name="manufacturer"
+                    required
+                />
+                <FormInput
+                    label="Model"
+                    name="model"
+                    placeholder="Enter Model"
+                    required
+                />
+
                 <div className="flex justify-start gap-4">
                     <FormButton loading={isLoading || updateAssetTypesLoading}>
                         Save

@@ -59,7 +59,7 @@ const AddCostCategory = () => {
                 <form
                     action=""
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex flex-col gap-y-5"
+                    className="flex flex-col gap-y-7"
                 >
                     <FormInput
                         label="Name"
@@ -79,7 +79,8 @@ const AddCostCategory = () => {
                         required
                         placeholder="Enter Code"
                     />
-                    <div className="flex justify-start gap-4">
+
+                    <div className="flex justify-start">
                         <FormButton loading={isLoading || updateLoading}>
                             Save
                         </FormButton>

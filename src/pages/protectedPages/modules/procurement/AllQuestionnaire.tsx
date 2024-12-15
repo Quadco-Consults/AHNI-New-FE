@@ -39,7 +39,7 @@ export default function AllQuestionnaire() {
             openDialog({
                 type: DialogType.AddQuestionairs,
                 dialogProps: {
-                    header: "Update Questionairs",
+                    header: "Update Questionnaires",
                     data: item,
                     type: "update",
                 },
@@ -58,7 +58,7 @@ export default function AllQuestionnaire() {
                             openDialog({
                                 type: DialogType.AddQuestionairs,
                                 dialogProps: {
-                                    header: "Add Questionairs",
+                                    header: "Add Questionnaires",
                                 },
                             })
                         )

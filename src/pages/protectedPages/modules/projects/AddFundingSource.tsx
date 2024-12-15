@@ -58,24 +58,20 @@ const AddFundingSource = () => {
             <form
                 action=""
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="flex flex-col gap-y-10"
+                className="flex flex-col gap-y-7"
             >
-                <div className="grid grid-cols-1 gap-y-7">
-                    <FormInput
-                        label="Name"
-                        name="name"
-                        placeholder="Enter Name"
-                        required
-                    />
-                </div>
-                <div className="grid grid-cols-1 gap-y-7">
-                    <FormInput
-                        label="Description"
-                        name="description"
-                        placeholder="Enter Description"
-                        required
-                    />
-                </div>
+                <FormInput
+                    label="Name"
+                    name="name"
+                    placeholder="Enter Name"
+                    required
+                />
+                <FormInput
+                    label="Description"
+                    name="description"
+                    placeholder="Enter Description"
+                    required
+                />
                 <div className="flex justify-start gap-4">
                     <FormButton loading={isLoading || updateFundingLoading}>
                         Save
