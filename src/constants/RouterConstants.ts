@@ -64,11 +64,8 @@ export const RouteEnum = {
     MODULES_PROGRAMS: "/modules/program",
     MODULES_ADMIN: "/modules/admin",
     MODULES_CONFIG: "/modules/config",
-
-
-
-    MODULES_PROCUREMENT: "/modules-procurement",
-    MODULES_FINANCE: "/modules-finance",
+    MODULES_PROCUREMENT: "/modules/procurement",
+    MODULES_FINANCE: "/modules/finance",
 
     // procurement routes
     DASHBOARD: "/",

@@ -107,7 +107,7 @@ const AddLocations = () => {
                     </div>
                     <div className="grid grid-cols-2 gap-x-7">
                         <FormInput
-                            label="phone"
+                            label="Phone"
                             name="phone"
                             type="number"
                             required

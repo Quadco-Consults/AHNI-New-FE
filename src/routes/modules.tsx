@@ -25,7 +25,7 @@ export const modules = [
   
   {
     path: RouteEnum.MODULES_PROCUREMENT,
-    element: lazy(() => import("pages/protectedPages/modules/procurement/Procurement")),
+    element: lazy(() => import("pages/protectedPages/modules/procurement")),
   },
   {
     path: RouteEnum.MODULES_FINANCE,

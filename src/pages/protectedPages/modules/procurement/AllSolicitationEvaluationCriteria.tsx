@@ -1,58 +1,65 @@
 import { Button } from "components/ui/button";
-import {
-    useLotsQuery,
-    useDeleteLotsMutation,
-} from "services/moduleProcurement";
 import { toast } from "sonner";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import TableAction from "atoms/TableAction";
 import { LoadingSpinner } from "components/shared/Loading";
+import { useState } from "react";
+import {
+    useDeleteSolicitationEvaluationCriteriaMutation,
+    useGetAllSolicitationEvaluationCriteriaQuery,
+} from "services/modules/procurement/solicitation-evaluation-criteria";
+import Pagination from "components/shared/Pagination";
 
-const Lots = () => {
-    const { data, isLoading } = useLotsQuery({
-        no_paginate: false,
-    });
+export default function AllSolicitationEvaluationCriteria() {
+    const [page, setPage] = useState(1);
+
+    const { data: solicitationCriteria, isFetching } =
+        useGetAllSolicitationEvaluationCriteriaQuery({
+            page,
+            size: 20,
+        });
 
     const dispatch = useAppDispatch();
 
-    const [deleteLots] = useDeleteLotsMutation();
+    const [deleteSolicitation, { isLoading: isDeleteLoading }] =
+        useDeleteSolicitationEvaluationCriteriaMutation();
 
     const onSubmit = async (id: string) => {
         try {
-            await deleteLots(id).unwrap();
+            await deleteSolicitation(id).unwrap();
             toast.success("Deleted Successfully");
-        } catch (error) {
-            toast.error("Error deleteing item");
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
 
     const onUpdate = (item: any) => {
         dispatch(
             openDialog({
-                type: DialogType.AddLots,
+                type: DialogType.AddSolicitation,
                 dialogProps: {
-                    header: "Update Lot",
+                    header: "Update Solicitation Evaluation Criteria",
                     data: item,
                     type: "update",
                 },
             })
         );
     };
-
     return (
         <div>
-            <div className="flex items-center justify-between py-6 mb-6">
-                <h1 className="text-[#D92D20] font-semibold text-sm">Lots</h1>
-
+            <div className="flex justify-between items-center py-6 mb-6">
+                <h1 className="text-[#D92D20] font-semibold text-sm">
+                    Solicitation
+                </h1>
                 <Button
                     onClick={() =>
                         dispatch(
                             openDialog({
-                                type: DialogType.AddLots,
+                                type: DialogType.AddSolicitation,
                                 dialogProps: {
-                                    header: "Add Lot",
+                                    header: "Add Solicitation Evaluation Criteria",
                                 },
                             })
                         )
@@ -65,23 +72,23 @@ const Lots = () => {
                 </Button>
             </div>
             <div>
-                <div className="flex justify-between text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4">
+                <div className="flex justify-between text-[#756D6D] font-semibold text-sm mb-10">
                     <h1 className="flex-1">Name</h1>
-                    <h1 className="flex-1">Packet Number</h1>
+                    <h1 className="flex-1">Description</h1>
                     <h1 className="flex-1"></h1>
                 </div>
 
-                {isLoading ? (
+                {isFetching || isDeleteLoading ? (
                     <LoadingSpinner />
                 ) : (
                     <div>
-                        {data?.data?.results.map((item) => (
+                        {solicitationCriteria?.data?.results.map((item) => (
                             <div
                                 key={item.id}
                                 className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
                             >
                                 <p className="flex-1">{item.name}</p>
-                                <p className="flex-1">{item.packet_number}</p>
+                                <p className="flex-1">{item.description}</p>
                                 <div className="flex-1">
                                     <TableAction
                                         update
@@ -94,9 +101,15 @@ const Lots = () => {
                         ))}
                     </div>
                 )}
+
+                <Pagination
+                    total={solicitationCriteria?.data.pagination.count ?? 0}
+                    itemsPerPage={
+                        solicitationCriteria?.data.pagination.page_size ?? 0
+                    }
+                    onChange={(page: number) => setPage(page)}
+                />
             </div>
         </div>
     );
-};
-
-export default Lots;
+}

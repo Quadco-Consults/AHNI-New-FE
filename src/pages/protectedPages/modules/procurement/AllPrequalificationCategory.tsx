@@ -1,40 +1,46 @@
 import { Button } from "components/ui/button";
-import {
-    usePrequalificationCriteriaQuery,
-    useDeletePrequalificationCriteriaMutation,
-} from "services/moduleProcurement";
 import { toast } from "sonner";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import TableAction from "atoms/TableAction";
 import { LoadingSpinner } from "components/shared/Loading";
+import { useState } from "react";
+import {
+    useDeletePrequalificationCategoryMutation,
+    useGetAllPrequalificationCategoryQuery,
+} from "services/modules/procurement/prequalification-category";
+import Pagination from "components/shared/Pagination";
 
-const PrequalificationCriteria = () => {
-    const { data, isLoading } = usePrequalificationCriteriaQuery({
-        no_paginate: false,
-    });
+export default function AllPrequalificationCategory() {
+    const [page, setPage] = useState(1);
+
+    const { data: prequalificationCategory, isFetching } =
+        useGetAllPrequalificationCategoryQuery({
+            page,
+            size: 20,
+        });
 
     const dispatch = useAppDispatch();
 
-    const [deletePrequalificationCriteria] =
-        useDeletePrequalificationCriteriaMutation();
+    const [deletePrequalificationCategory, { isLoading: isDeleteLoading }] =
+        useDeletePrequalificationCategoryMutation();
 
     const onSubmit = async (id: string) => {
         try {
-            await deletePrequalificationCriteria(id).unwrap();
+            await deletePrequalificationCategory(id).unwrap();
             toast.success("Deleted Successfully");
-        } catch (error) {
-            toast.error("Error deleteing item");
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
 
     const onUpdate = (item: any) => {
         dispatch(
             openDialog({
-                type: DialogType.AddPrequalificationCriteria,
+                type: DialogType.AddPrequalificationCategory,
                 dialogProps: {
-                    header: "Update Pre-qualification Criteria",
+                    header: "Update Pre-qualification Category",
                     data: item,
                     type: "update",
                 },
@@ -45,15 +51,15 @@ const PrequalificationCriteria = () => {
         <div>
             <div className="flex justify-between items-center py-6 mb-6">
                 <h1 className="text-[#D92D20] font-semibold text-sm">
-                    Pre-qualification Criteria
+                    Pre-qualification Category
                 </h1>
                 <Button
                     onClick={() =>
                         dispatch(
                             openDialog({
-                                type: DialogType.AddPrequalificationCriteria,
+                                type: DialogType.AddPrequalificationCategory,
                                 dialogProps: {
-                                    header: "Add Prequalification Criteria",
+                                    header: "Add Prequalification Category",
                                 },
                             })
                         )
@@ -69,22 +75,22 @@ const PrequalificationCriteria = () => {
                 <div className="flex justify-between text-[#756D6D] font-semibold text-sm mb-10">
                     <h1 className="flex-1">Name</h1>
                     <h1 className="flex-1">Description</h1>
-                    <h1 className="flex-1">Category</h1>
                     <h1 className="flex-1"></h1>
                 </div>
 
-                {isLoading ? (
+                {isFetching || isDeleteLoading ? (
                     <LoadingSpinner />
                 ) : (
                     <div>
-                        {data?.data?.results.map((item) => (
+                        {prequalificationCategory?.data?.results.map((item) => (
                             <div
                                 key={item.id}
                                 className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
                             >
                                 <p className="flex-1">{item.name}</p>
-                                <p className="flex-1">{item.description}</p>
-                                <p className="flex-1">{item.category}</p>
+                                <p className="flex-1">
+                                    {item.description || "N/A"}
+                                </p>
                                 <div className="flex-1">
                                     <TableAction
                                         update
@@ -97,9 +103,15 @@ const PrequalificationCriteria = () => {
                         ))}
                     </div>
                 )}
+
+                <Pagination
+                    total={prequalificationCategory?.data.pagination.count ?? 0}
+                    itemsPerPage={
+                        prequalificationCategory?.data.pagination.page_size ?? 0
+                    }
+                    onChange={(page: number) => setPage(page)}
+                />
             </div>
         </div>
     );
-};
-
-export default PrequalificationCriteria;
+}

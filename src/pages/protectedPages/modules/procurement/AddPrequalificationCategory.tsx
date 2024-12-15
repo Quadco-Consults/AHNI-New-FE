@@ -4,24 +4,25 @@ import FormInput from "atoms/FormInput";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import {
-    useAddPrequalificationCategoryMutation,
-    useUpdatePrequalificationCategoryMutation,
-} from "services/moduleProcurement";
-import {
-    TPrequalificationCategory,
-    prequalificationCategorySchema,
-} from "definations/module-procurement";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
 import { toast } from "sonner";
+import {
+    PrequalificationCategorySchema,
+    TPrequalificationCategoryData,
+    TPrequalificationCategoryFormValues,
+} from "definations/modules/procurement/prequalification-category";
+import {
+    useAddPrequalificationCategoryMutation,
+    useUpdatePrequalificationCategoryMutation,
+} from "services/modules/procurement/prequalification-category";
 
 const AddPrequalificationCategory = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TPrequalificationCategory;
-    const form = useForm<TPrequalificationCategory>({
-        resolver: zodResolver(prequalificationCategorySchema),
+    const data = dialogProps?.data as unknown as TPrequalificationCategoryData;
+    const form = useForm<TPrequalificationCategoryFormValues>({
+        resolver: zodResolver(PrequalificationCategorySchema),
         defaultValues: {
             name: data?.name ?? "",
             description: data?.description ?? "",
@@ -36,7 +37,9 @@ const AddPrequalificationCategory = () => {
     ] = useUpdatePrequalificationCategoryMutation();
 
     const dispatch = useAppDispatch();
-    const onSubmit: SubmitHandler<TPrequalificationCategory> = async (data) => {
+    const onSubmit: SubmitHandler<TPrequalificationCategoryFormValues> = async (
+        data
+    ) => {
         try {
             dialogProps?.type === "update"
                 ? await updatePrequalificationCategory({
@@ -64,7 +67,7 @@ const AddPrequalificationCategory = () => {
                         <FormInput
                             label="Name"
                             name="name"
-                            placeholder="Enter name"
+                            placeholder="Enter Name"
                             required
                         />
                     </div>
@@ -72,8 +75,7 @@ const AddPrequalificationCategory = () => {
                         <FormInput
                             label="Description"
                             name="description"
-                            placeholder="Enter description"
-                            required
+                            placeholder="Enter Description"
                         />
                     </div>
                     <div className="flex justify-start gap-4">
