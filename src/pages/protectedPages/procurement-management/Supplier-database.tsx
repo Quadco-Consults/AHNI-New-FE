@@ -17,19 +17,19 @@ const SupplierDatabase = () => {
   });
 
   return (
-    <div className="space-y-10">
+    <div className='space-y-10'>
       <div>
-        <h4 className="text-lg font-bold">Supplier Database</h4>
+        <h4 className='text-lg font-bold'>Supplier Database</h4>
         <h6>
           Procurement -{" "}
-          <span className="text-black font-medium dark:text-grey-dark">
+          <span className='text-black font-medium dark:text-grey-dark'>
             Supplier Database
           </span>
         </h6>
       </div>
 
-      <Card className="space-y-10">
-        <h4 className="text-lg font-bold">Supplier Database</h4>
+      <Card className='space-y-10'>
+        <h4 className='text-lg font-bold'>Supplier Database</h4>
 
         <DataTable
           data={data?.results || []}
@@ -75,24 +75,56 @@ const columns: ColumnDef<VendorsResultsData>[] = [
     cell: ({ row }) => <VendorAction data={row.original} />,
   },
   {
-    header: "Phone Number",
-    size: 200,
-    accessorKey: "phone_number",
-  },
-  {
-    header: "Email",
-    size: 200,
-    accessorKey: "email",
-  },
-  {
     header: "RC Number",
     size: 200,
     accessorKey: "rc_number",
   },
   {
-    header: "Tax ID",
+    header: "Tax ID Number",
     size: 200,
     accessorKey: "tax_id",
+  },
+  {
+    header: "Area of Specialization",
+    size: 200,
+    accessorKey: "area_of_specialization",
+  },
+  {
+    header: "Main Office Address",
+    size: 200,
+    accessorKey: "main_office_address",
+  },
+  {
+    header: "Other Opt.Addresses",
+    size: 200,
+    accessorKey: "other_opt_addresses",
+  },
+
+  {
+    header: "Point of Contact Person",
+    size: 200,
+    accessorKey: "point_of_contact_person",
+  },
+
+  {
+    header: "Company Email",
+    size: 200,
+    accessorKey: "company_email",
+  },
+  {
+    header: "Mobile Number 1",
+    size: 200,
+    accessorKey: "mobile_number_1",
+  },
+  {
+    header: "Mobile Number 2",
+    size: 200,
+    accessorKey: "mobile_number_2",
+  },
+  {
+    header: "Mobile Number 3",
+    size: 200,
+    accessorKey: "mobile_number_3",
   },
   {
     header: "Products/Services",
@@ -127,15 +159,15 @@ const columns: ColumnDef<VendorsResultsData>[] = [
 
 const ActionListAction = () => {
   return (
-    <div className="flex gap-1">
+    <div className='flex gap-1'>
       {/* <IconButton className="bg-[#F9F9F9] hover:text-primary">
         <Icon icon="solar:pen-bold-duotone" fontSize={15} />
       </IconButton> */}
-      <IconButton className="bg-[#F9F9F9] hover:text-primary">
-        <Icon icon="ph:eye-duotone" fontSize={15} />
+      <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+        <Icon icon='ph:eye-duotone' fontSize={15} />
       </IconButton>
-      <IconButton className="bg-[#F9F9F9] hover:text-primary">
-        <Icon icon="ant-design:delete-twotone" fontSize={15} />
+      <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+        <Icon icon='ant-design:delete-twotone' fontSize={15} />
       </IconButton>
     </div>
   );
@@ -143,7 +175,7 @@ const ActionListAction = () => {
 
 const VendorAction = ({ data }: any) => {
   return (
-    <div className="flex items-center gap-3">
+    <div className='flex items-center gap-3'>
       <div>
         <Avatar>
           <AvatarImage src={data?.vendor?.png} />
@@ -151,7 +183,7 @@ const VendorAction = ({ data }: any) => {
         </Avatar>
       </div>
       <div>
-        <h4 className="font-bold">{data?.company_name}</h4>
+        <h4 className='font-bold'>{data?.company_name}</h4>
         {/* <h6>{data?.company_address}</h6> */}
       </div>
     </div>
