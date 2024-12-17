@@ -1,16 +1,25 @@
+import { TProjectData, TProjectFormValues } from "definations/project";
 import baseAPI from "..";
-import {
-    ProjectsResponse,
-    ProjectsResultsData,
-} from "definations/project-types/projects";
-import { TBasePaginatedResponse, TRequest, TResponse } from "definations/auth";
+import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
 const BASE_URL = "/projects/";
 
-const projectsAPi = baseAPI.injectEndpoints({
+const ProjectAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
-        getProjects: builder.query<
-            TBasePaginatedResponse<ProjectsResultsData>,
+        addProject: builder.mutation<
+            TResponse<TProjectData>,
+            TProjectFormValues
+        >({
+            query: (body) => ({
+                url: `${BASE_URL}`,
+                method: "POST",
+                body,
+            }),
+            invalidatesTags: ["PROJECTS"],
+        }),
+
+        getAllProjects: builder.query<
+            TPaginatedResponse<TProjectData>,
             TRequest & { has_fund_requests?: boolean }
         >({
             query: (params) => {
@@ -22,38 +31,17 @@ const projectsAPi = baseAPI.injectEndpoints({
             providesTags: ["PROJECTS"],
         }),
 
-        getProjectsParams: builder.query<ProjectsResultsData[], {}>({
-            query: (config) => {
+        getSingleProject: builder.query<TResponse<TProjectData>, string>({
+            query: (id) => {
                 return {
-                    url: `${BASE_URL}`,
-                    ...config,
+                    url: `${BASE_URL}${id}/`,
                 };
             },
             providesTags: ["PROJECTS"],
         }),
 
-        createProject: builder.mutation<ProjectsResponse, any>({
-            query: (body) => ({
-                url: `${BASE_URL}`,
-                method: "POST",
-                body,
-            }),
-            invalidatesTags: ["PROJECTS"],
-        }),
-
-        getSingleProject: builder.query<TResponse<ProjectsResultsData>, string>(
-            {
-                query: (id) => {
-                    return {
-                        url: `${BASE_URL}${id}/`,
-                    };
-                },
-                providesTags: ["PROJECTS"],
-            }
-        ),
-
         updateProject: builder.mutation<
-            ProjectsResponse,
+            TResponse<TProjectData>,
             { id: string; body: any }
         >({
             query: ({ id, body }) => ({
@@ -65,7 +53,7 @@ const projectsAPi = baseAPI.injectEndpoints({
         }),
 
         patchProject: builder.mutation<
-            ProjectsResponse,
+            TResponse<TProjectData>,
             { id: string; body: { status: string } }
         >({
             query: ({ id, body }) => ({
@@ -76,7 +64,10 @@ const projectsAPi = baseAPI.injectEndpoints({
             invalidatesTags: ["PROJECTS"],
         }),
 
-        deleteProject: builder.mutation<void, { path: { id: string } }>({
+        deleteProject: builder.mutation<
+            TResponse<TProjectData>,
+            { path: { id: string } }
+        >({
             query: ({ path }) => ({
                 url: `${BASE_URL}${path.id}/`,
                 method: "DELETE",
@@ -87,11 +78,20 @@ const projectsAPi = baseAPI.injectEndpoints({
 });
 
 export const {
-    useCreateProjectMutation,
+    useAddProjectMutation,
+    useGetAllProjectsQuery,
+    useGetSingleProjectQuery,
     useUpdateProjectMutation,
     usePatchProjectMutation,
-    useGetProjectsQuery,
-    useGetSingleProjectQuery,
     useDeleteProjectMutation,
-    useGetProjectsParamsQuery,
-} = projectsAPi;
+} = ProjectAPI;
+
+// getProjectsParams: builder.query<ProjectsResultsData[], {}>({
+//     query: (config) => {
+//         return {
+//             url: `${BASE_URL}`,
+//             ...config,
+//         };
+//     },
+//     providesTags: ["PROJECTS"],
+// }),

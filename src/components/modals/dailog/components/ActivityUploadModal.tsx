@@ -1,31 +1,17 @@
 import { Button } from "components/ui/button";
-import { ChangeEvent, FormEvent, useMemo, useState } from "react";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "components/ui/select";
+import { ChangeEvent, useState } from "react";
 import { Input } from "components/ui/input";
 import { Upload as UploadFile } from "lucide-react";
-import { LoadingSpinner } from "components/shared/Loading";
-import { ProjectsResultsData } from "definations/project-types/projects";
-import { Label } from "components/ui/label";
 import { toast } from "sonner";
 import FormButton from "atoms/FormButton";
 import { useAppDispatch } from "hooks/useStore";
 import { closeDialog } from "store/ui";
-import WeeklyActivityAPI from "services/programsApi/weekly-activity";
-import {
-    useGetProjectsParamsQuery,
-    useGetProjectsQuery,
-} from "services/projectsApi/projectsApi";
 import FormSelect from "atoms/FormSelect";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useUploadActivityPlanMutation } from "services/programsApi/activity-plan";
+import { useGetAllProjectsQuery } from "services/project";
 
 const FormSchema = z.object({
     project: z.string().min(1, "This field is required"),
@@ -36,11 +22,12 @@ type TFormValues = z.infer<typeof FormSchema>;
 const ActivityUploadModal = () => {
     const [file, setFile] = useState<File>();
 
-    const { data: projects } = useGetProjectsQuery({
-        no_paginate: false,
+    const { data: project } = useGetAllProjectsQuery({
+        page: 1,
+        size: 2000000,
     });
 
-    const projectOptions = projects?.data.results.map((project) => ({
+    const projectOptions = project?.data.results.map((project) => ({
         label: project.title,
         value: project.id,
     }));

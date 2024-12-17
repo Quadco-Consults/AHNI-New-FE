@@ -7,7 +7,7 @@ import DataTable from "components/Table/DataTable";
 import { FundRequestPaginatedData } from "definations/program-types/fund-request";
 import { useParams } from "react-router-dom";
 import { useGetAllFundRequestsQuery } from "services/programsApi/fund-request";
-import { useGetSingleProjectQuery } from "services/projectsApi/projectsApi";
+import { useGetSingleProjectQuery } from "services/project";
 
 import {
     Table as ShadTable,

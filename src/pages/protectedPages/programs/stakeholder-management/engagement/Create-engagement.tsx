@@ -30,7 +30,7 @@ import {
     addStakeholders,
     removeStakeholder,
 } from "store/formData/stakeholders";
-import { useGetProjectsQuery } from "services/projectsApi/projectsApi";
+import { useGetProjectsQuery } from "services/project";
 import {
     useCreateEngagementPlanMutation,
     useGetSingleEngagementPlanQuery,

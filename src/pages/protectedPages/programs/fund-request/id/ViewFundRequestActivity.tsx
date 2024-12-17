@@ -9,7 +9,7 @@ import {
     useGetSingleLocationQuery,
 } from "services/moduleConfig";
 import { useGetSingleFundRequestQuery } from "services/programsApi/fund-request";
-import { useGetSingleProjectQuery } from "services/projectsApi/projectsApi";
+import { useGetSingleProjectQuery } from "services/project";
 import { useGetSingleUserQuery } from "services/users";
 import Card from "components/shared/Card";
 import React from "react";

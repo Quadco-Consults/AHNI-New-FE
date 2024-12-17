@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
 import ProjectLayout from "./ProjectLayout";
 import { Button } from "components/ui/button";
@@ -12,54 +12,58 @@ import { FormField, FormItem, Form, FormControl } from "components/ui/form";
 import Card from "components/shared/Card";
 import FormInput from "atoms/FormInput";
 import MultiSelectFormField from "components/ui/multiselect";
-import LocationSvg from "assets/svgs/LocationSvg";
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ProjectsSummarySchema } from "definations/project-validator";
-import { z } from "zod";
 import FormTextArea from "atoms/FormTextArea";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { cn } from "lib/utils";
 import { Calendar } from "components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { useGetUserQuery } from "services/users";
-import {
-    useBeneficiariesQuery,
-    useFundingSourcesQuery,
-    usePartnersQuery,
-} from "services/modules/project/moduleProjects";
+import { useGetAllUsersQuery } from "services/users";
 import {
     addObjective,
     clearObjectives,
     removeObjective,
 } from "store/formData/project-objective";
-import { addPartners, clearPartners } from "store/formData/project-values";
+import { addPartner, clearPartners } from "store/formData/project-values";
 import useQuery from "hooks/useQuery";
 import {
-    useCreateProjectMutation,
+    useAddProjectMutation,
     useGetSingleProjectQuery,
     useUpdateProjectMutation,
-} from "services/projectsApi/projectsApi";
+} from "services/project";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import { FaTimes } from "react-icons/fa";
 import FormSelect from "atoms/FormSelect";
+import { useGetAllBeneficiaryQuery } from "services/modules/project/beneficiaries";
+import { useUseGetAllFundingSourceQuery } from "services/modules/project/funding-source";
+import { useGetAllPartnersQuery } from "services/modules/project/partners";
+import { ProjectSchema, TProjectFormValues } from "definations/project";
+import ConsortiumPartners from "./ConsortiumPartners";
 
-const Summary = () => {
+export default function ProjectSummaryPage() {
     const [startDate, setStartDate] = useState<Date>();
     const [endDate, setEndDate] = useState<Date>();
 
-    const { data: beneficiaries } = useBeneficiariesQuery({
-        no_paginate: false,
+    const { data: beneficiary } = useGetAllBeneficiaryQuery({
+        page: 1,
+        size: 2000000,
     });
 
-    const { data: fundingSourceData } = useFundingSourcesQuery({
-        no_paginate: false,
+    const { data: fundingSource } = useUseGetAllFundingSourceQuery({
+        page: 1,
+        size: 2000000,
     });
 
-    const { data: users } = useGetUserQuery({ no_paginate: false });
+    const { data: user } = useGetAllUsersQuery({ page: 1, size: 2000000 });
 
-    const userOptions = users?.data?.results?.map((user) => ({
+    const { data: partner } = useGetAllPartnersQuery({
+        page: 1,
+        size: 2000000,
+    });
+
+    const userOptions = user?.data?.results?.map((user) => ({
         name: user.first_name + " " + user.last_name,
         id: user.id,
     }));
@@ -70,35 +74,24 @@ const Summary = () => {
 
     const { data: project } = useGetSingleProjectQuery(projectId ?? skipToken);
 
-    const [addProject, { isLoading }] = useCreateProjectMutation();
+    const [addProject, { isLoading }] = useAddProjectMutation();
 
     const [updateProject, { isLoading: isUpdateLoading }] =
         useUpdateProjectMutation();
 
     const navigate = useNavigate();
 
-    const { data: partnersResult } = usePartnersQuery({
-        no_paginate: false,
-    });
-
     const objectives = useAppSelector((state) => state.objectives);
-    const { partners } = useAppSelector((state) => state.partnerLocation);
-
-    const partnerItems = partnersResult?.data?.results
-        ?.filter((partner) => partners.includes(partner.id))
-        .map(({ id, name, state }) => ({
-            id,
-            name,
-            state,
-        }));
 
     const dispatch = useAppDispatch();
 
-    const form = useForm<z.infer<typeof ProjectsSummarySchema>>({
-        resolver: zodResolver(ProjectsSummarySchema),
+    const form = useForm<TProjectFormValues>({
+        resolver: zodResolver(ProjectSchema),
         defaultValues: {
+            title: "",
             project_id: "",
             goal: "",
+            narrative: "",
             budget: 0,
             funding_sources: [],
             project_managers: [],
@@ -160,35 +153,52 @@ const Summary = () => {
                 dispatch(addObjective(obj));
             });
 
+            dispatch(addPartner(partners));
+
             setStartDate(new Date(start_date));
             setEndDate(new Date(end_date));
-
-            const partnerIds = partners.map((partner) => partner.id);
-
-            dispatch(addPartners(partnerIds));
         }
-    }, [project, partnersResult]);
+    }, [project, partner]);
 
     const { pathname } = useLocation();
 
-    const onSubmit = async (data: z.infer<typeof ProjectsSummarySchema>) => {
+    const { consortiumPartners } = useAppSelector(
+        (state) => state.consortiumPartner
+    );
+
+    const onSubmit: SubmitHandler<TProjectFormValues> = async ({
+        title,
+        project_id,
+        goal,
+        narrative,
+        budget_performance,
+        project_managers,
+        funding_sources,
+        expected_results,
+        achievement_against_target,
+        beneficiaries,
+        budget,
+        currency,
+    }) => {
+        const partnersId = consortiumPartners.map((partner) => partner.id);
+
         const formData = {
-            title: data.title,
-            project_id: data.project_id,
-            goal: data.goal,
-            narrative: data.narrative,
-            budget_performance: data.budget_performance,
+            title: title,
+            project_id: project_id,
+            goal: goal,
+            narrative: narrative,
+            budget_performance: budget_performance,
             start_date: format(startDate as Date, "yyyy-MM-dd"),
             end_date: format(endDate as Date, "yyyy-MM-dd"),
-            project_managers: data.project_managers,
-            partners: partners,
-            funding_sources: data.funding_sources,
+            project_managers: project_managers,
+            partners: partnersId,
+            funding_sources: funding_sources,
             objectives: objectives.objectives,
-            expected_results: data.expected_results,
-            achievement_against_target: data.achievement_against_target,
-            beneficiaries: data.beneficiaries,
-            budget: Number(data.budget),
-            currency: data.currency,
+            expected_results: expected_results,
+            achievement_against_target: achievement_against_target,
+            beneficiaries: beneficiaries,
+            budget: Number(budget),
+            currency: currency,
         };
 
         try {
@@ -196,12 +206,12 @@ const Summary = () => {
 
             if (projectId) {
                 await updateProject({ id: projectId, body: formData }).unwrap();
+                toast.success("Project Updated Successfully.");
             } else {
                 const res = await addProject(formData).unwrap();
                 id = res.data.id;
+                toast.success("Project Added Successfully.");
             }
-
-            toast.success("Project successfully added.");
 
             let path = pathname;
 
@@ -231,6 +241,7 @@ const Summary = () => {
                             <FormTextArea
                                 name="goal"
                                 label="Goal of the project"
+                                required
                             />
                             <FormTextArea
                                 name="narrative"
@@ -375,7 +386,7 @@ const Summary = () => {
                                             <FormControl>
                                                 <MultiSelectFormField
                                                     options={
-                                                        fundingSourceData?.data
+                                                        fundingSource?.data
                                                             .results || []
                                                     }
                                                     defaultValue={field.value}
@@ -493,7 +504,7 @@ const Summary = () => {
                                             <FormControl>
                                                 <MultiSelectFormField
                                                     options={
-                                                        beneficiaries?.data
+                                                        beneficiary?.data
                                                             ?.results || []
                                                     }
                                                     defaultValue={field.value}
@@ -509,50 +520,7 @@ const Summary = () => {
                                 />
                             </div>
 
-                            <div className="flex flex-col w-full mt-10 space-y-3">
-                                <Label className="font-semibold">
-                                    Consortium partners
-                                </Label>
-                                <div className="flex flex-wrap gap-3">
-                                    {partnerItems?.map((partner) => (
-                                        <div
-                                            key={partner.id}
-                                            className="border p-5 space-y-3 rounded-lg"
-                                        >
-                                            <div className="flex gap-3 items-center">
-                                                <h4 className="font-semibold">
-                                                    {partner.name}
-                                                </h4>
-                                            </div>
-
-                                            <div className="flex items-cemter gap-2">
-                                                <LocationSvg />
-                                                {partner.state}
-                                            </div>
-                                        </div>
-                                    ))}
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        className="text-[#DEA004]"
-                                        onClick={() => {
-                                            dispatch(
-                                                openDialog({
-                                                    type: DialogType.ConsortiumModal,
-                                                    dialogProps: {
-                                                        width: "max-w-6xl",
-                                                        prevPartners: project
-                                                            ?.data
-                                                            .partners as unknown as string,
-                                                    },
-                                                })
-                                            );
-                                        }}
-                                    >
-                                        Click to select consortium partners
-                                    </Button>
-                                </div>
-                            </div>
+                            <ConsortiumPartners />
                         </Card>
 
                         <div className="flex justify-between gap-5 mt-16">
@@ -577,6 +545,4 @@ const Summary = () => {
             </div>
         </ProjectLayout>
     );
-};
-
-export default Summary;
+}

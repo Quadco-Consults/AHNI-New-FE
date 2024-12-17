@@ -1,7 +1,7 @@
 import Card from "components/shared/Card";
-import { ProjectsResultsData } from "definations/project-types/projects";
+import { TProjectData } from "definations/project";
 
-export default function Performance(props: ProjectsResultsData) {
+export default function Performance(props: TProjectData) {
     const { achievement_against_target, narrative, budget_performance } = props;
 
     return (

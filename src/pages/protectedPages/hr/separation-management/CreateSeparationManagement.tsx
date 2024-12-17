@@ -8,7 +8,7 @@ import { Form } from "components/ui/form";
 import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { useGetProjectsParamsQuery } from "services/projectsApi/projectsApi";
+import { useGetProjectsParamsQuery } from "services/project";
 
 const CreateSeparationManagement = () => {
     const navigate = useNavigate();

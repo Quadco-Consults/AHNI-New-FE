@@ -1,4 +1,3 @@
-import { Icon } from "@iconify/react";
 import {
     useReactTable,
     getCoreRowModel,
@@ -7,7 +6,7 @@ import {
     flexRender,
 } from "@tanstack/react-table";
 import { LoadingSpinner } from "components/shared/Loading";
-import { Button } from "components/ui/button";
+import Pagination from "components/shared/Pagination";
 
 import {
     Table as ShadTable,
@@ -18,23 +17,27 @@ import {
     TableRow,
 } from "components/ui/table";
 
+type TPagination = {
+    total: number;
+    pageSize: number;
+    onChange: (page: number) => void;
+};
 interface TableProps<TData> {
     data: TData[];
     columns: ColumnDef<TData, any>[];
-    // eslint-disable-next-line no-unused-vars
     onRowClick?: (row: any) => void;
     isLoading?: boolean;
     footer?: boolean;
-    pagination?: boolean;
+    pagination?: TPagination;
 }
 
-function DataTable<TData>({
+export default function DataTable<TData>({
     data,
     columns,
     onRowClick,
     isLoading,
     footer = false,
-    pagination = true,
+    pagination,
 }: TableProps<TData>) {
     const table = useReactTable<TData>({
         data,
@@ -153,7 +156,17 @@ function DataTable<TData>({
             </ShadTable>
 
             {pagination && (
-                <div className="flex items-center justify-end my-4 gap-x-4 ">
+                <Pagination
+                    total={pagination.total}
+                    itemsPerPage={pagination.pageSize}
+                    onChange={pagination.onChange}
+                />
+            )}
+        </div>
+    );
+}
+
+/*  <div className="flex items-center justify-end my-4 gap-x-4 ">
                     <Button
                         variant="outline"
                         size="icon"
@@ -174,10 +187,4 @@ function DataTable<TData>({
                     >
                         <Icon icon="hugeicons:arrow-right-double" />
                     </Button>
-                </div>
-            )}
-        </div>
-    );
-}
-
-export default DataTable;
+                </div> */

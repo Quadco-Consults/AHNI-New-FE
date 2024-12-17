@@ -15,7 +15,7 @@ import {
 } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
 import { RouteEnum } from "constants/RouterConstants";
-import { useGetSingleProjectQuery } from "services/projectsApi/projectsApi";
+import { useGetSingleProjectQuery } from "services/project";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import Performance from "./Performance";
 import Activity from "./Activity";
@@ -101,7 +101,7 @@ const ProjectDetail = () => {
                         </TabsContent>
 
                         <TabsContent value="uploads">
-                            <Uploads {...project.data} />
+                            <Uploads />
                         </TabsContent>
 
                         <TabsContent value="activity">

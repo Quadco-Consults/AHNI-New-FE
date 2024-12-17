@@ -1,25 +1,24 @@
 import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";
-import {
-    ProjectDocumentSchema,
-    TProjectDocument,
-} from "definations/project-validator";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Input } from "components/ui/input";
 import { Upload as UploadFile } from "lucide-react";
-import { z } from "zod";
 import { toast } from "sonner";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
 import { closeDialog } from "store/ui";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { useCreateProjectDocumentMutation } from "services/projectsApi/project-document";
+import { useCreateProjectDocumentMutation } from "services/project/document";
 import useQuery from "hooks/useQuery";
 import FormSelect from "atoms/FormSelect";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams } from "react-router-dom";
 import { useGetAllDocumentTypeQuery } from "services/modules/project/document-types";
+import {
+    ProjectDocumentSchema,
+    TProjectDocumentFormValues,
+} from "definations/project/document";
 
 const ProjectUploadModal = () => {
     const [file, setFile] = useState<File | null>(null);
@@ -29,18 +28,17 @@ const ProjectUploadModal = () => {
     const [createProjectDocument, { isLoading }] =
         useCreateProjectDocumentMutation();
 
-    const { data: documentTypes, isLoading: isFetchLoading } =
-        useGetAllDocumentTypeQuery({
-            page: 1,
-            size: 2000000,
-        });
+    const { data: documentTypes } = useGetAllDocumentTypeQuery({
+        page: 1,
+        size: 2000000,
+    });
 
     const documentTypeOptions = documentTypes?.data.results.map((doc) => ({
         label: doc.name,
         value: doc.id,
     }));
 
-    const form = useForm<z.infer<typeof ProjectDocumentSchema>>({
+    const form = useForm<TProjectDocumentFormValues>({
         resolver: zodResolver(ProjectDocumentSchema),
         defaultValues: {
             title: "",
@@ -66,7 +64,9 @@ const ProjectUploadModal = () => {
 
     console.log(useParams());
 
-    const onSubmit: SubmitHandler<TProjectDocument> = async (data) => {
+    const onSubmit: SubmitHandler<TProjectDocumentFormValues> = async (
+        data
+    ) => {
         const formData = new FormData();
         formData.append("title", data.title);
         formData.append("file", file as Blob);
@@ -97,14 +97,14 @@ const ProjectUploadModal = () => {
                     <FormInput
                         name="title"
                         label="Document Title"
-                        placeholder="Enter document title"
+                        placeholder="Enter Document Title"
                         required
                     />
 
                     <FormSelect
                         label="Document Type"
                         name="document_type"
-                        placeholder="Select document type"
+                        placeholder="Select Document Type"
                         required
                         options={documentTypeOptions}
                     />

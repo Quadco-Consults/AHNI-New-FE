@@ -67,6 +67,34 @@ export const RouteEnum = {
     MODULES_PROCUREMENT: "/modules/procurement",
     MODULES_FINANCE: "/modules/finance",
 
+
+
+    // ----------------------------
+     //projects routes
+     PROJECTS: "/projects",
+     PROJECTS_DETAILS: "/projects/:id",
+     PROJECTS_CREATE_SUMMARY: "/projects/create/summary",
+     PROJECTS_CREATE_UPLOADS: "/projects/create/uploads",
+     PROJECTS_EDIT_SUMMARY: "/projects/:id/create/summary",
+     PROJECTS_EDIT_UPLOADS: "/projects/:id/create/uploads",
+     // PROJECTS_CREATE_PERFORMANCE: "/projects/create/performance",
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /* -------------------------------------------- */
+
     // procurement routes
     DASHBOARD: "/",
 
@@ -208,15 +236,6 @@ export const RouteEnum = {
         "/program/stakeholder-management/engagement-plan/:id",
     PROGRAM_REPORT: "/program/reports",
     PROGRAM_PAYMENT_REQUEST: "/program/payment-request",
-
-    //projects routes
-    PROJECTS: "/projects",
-    PROJECTS_DETAILS: "/projects/:id",
-    PROJECTS_CREATE_SUMMARY: "/projects/create-projects/summary",
-    PROJECTS_CREATE_UPLOADS: "/projects/create-projects/uploads",
-    PROJECTS_EDIT_SUMMARY: "/projects/:id/create-projects/summary",
-    PROJECTS_EDIT_UPLOADS: "/projects/:id/create-projects/uploads",
-    // PROJECTS_CREATE_PERFORMANCE: "/projects/create-projects/performance",
 
     TRAINING: "/program/training-and-procurement",
     REPORT: "/procurement-management/report",

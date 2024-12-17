@@ -8,13 +8,13 @@ import {
 } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
 
-export interface TBreadcrumList {
+export interface TBreadcrumbList {
     name: string;
     icon: boolean;
 }
 
 type TProps = {
-    list: TBreadcrumList[];
+    list: TBreadcrumbList[];
 };
 
 export default function BreadcrumbCard({ list }: TProps) {

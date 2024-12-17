@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ProjectLayout from "./ProjectLayout";
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
@@ -10,7 +10,7 @@ import { useAppDispatch } from "hooks/useStore";
 import {
     useDeleteProjectDocumentMutation,
     useGetAllProjectDocumentsQuery,
-} from "services/projectsApi/project-document";
+} from "services/project/document";
 import { Loading } from "components/shared/Loading";
 import { useState } from "react";
 import { Document, Page } from "react-pdf";
@@ -49,16 +49,11 @@ const Uploads = () => {
     const dispatch = useAppDispatch();
 
     const query = useQuery();
-
     const projectId = query.get("id");
 
     const { data: documents, isLoading } = useGetAllProjectDocumentsQuery(
         projectId ?? skipToken
     );
-
-    const goBack = () => {
-        navigate(-1);
-    };
 
     const deleteDocHandler = async (id: string) => {
         try {
@@ -223,13 +218,19 @@ const Uploads = () => {
                     )}
                 </Card>
                 <div className="flex justify-between gap-5 mt-10">
-                    <Button
-                        onClick={goBack}
-                        type="button"
-                        className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                    <Link
+                        to={{
+                            pathname: RouteEnum.PROJECTS_CREATE_SUMMARY,
+                            search: `?id=${projectId}`,
+                        }}
                     >
-                        Previous
-                    </Button>
+                        <Button
+                            type="button"
+                            className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                        >
+                            Previous
+                        </Button>
+                    </Link>
                     <Button onClick={() => navigate(RouteEnum.PROJECTS)}>
                         Finish
                     </Button>

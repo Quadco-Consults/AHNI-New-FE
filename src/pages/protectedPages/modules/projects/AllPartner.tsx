@@ -20,10 +20,6 @@ export default function AllPartner() {
         size: 20,
     });
 
-    const handleChangePagination = (page: number) => {
-        setPage(page);
-    };
-
     const dispatch = useAppDispatch();
 
     const [deletePartners, { isLoading: isDeleteLoading }] =
@@ -119,7 +115,7 @@ export default function AllPartner() {
                 <Pagination
                     total={partner?.data.pagination.count ?? 0}
                     itemsPerPage={partner?.data.pagination.page_size ?? 0}
-                    onChange={handleChangePagination}
+                    onChange={(page: number) => setPage(page)}
                 />
             </div>
         </div>
