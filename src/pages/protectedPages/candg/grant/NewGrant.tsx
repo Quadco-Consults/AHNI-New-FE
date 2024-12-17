@@ -13,7 +13,7 @@ import DepartmentsAPI from "services/configs/departments";
 import beneficiariesAPi from "services/projectsApi/beneficiariesApi";
 import FundingSourceAPi from "services/projectsApi/funding-sourceApi";
 import { useGetPartnersQuery } from "services/projectsApi/partnersApi";
-import { useGetProjectsQuery } from "services/projectsApi/projectsApi";
+import { useGetProjectsQuery } from "services/project";
 import { toast } from "sonner";
 import { z } from "zod";
 

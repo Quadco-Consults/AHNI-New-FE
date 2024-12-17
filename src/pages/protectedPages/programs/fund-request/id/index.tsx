@@ -11,7 +11,7 @@ import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
 import { LoadingSpinner } from "components/shared/Loading";
 import { skipToken } from "@reduxjs/toolkit/query/react";
-import { useGetSingleProjectQuery } from "services/projectsApi/projectsApi";
+import { useGetSingleProjectQuery } from "services/project";
 import { RouteEnum } from "constants/RouterConstants";
 
 const FundRequestDetail = () => {

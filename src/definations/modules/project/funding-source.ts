@@ -7,7 +7,7 @@ export const FundingSourceSchema = z.object({
 
 export type TFundingSourceFormValues = z.infer<typeof FundingSourceSchema>;
 
-export interface TFundingSourceResponse {
+export interface TFundingSourceData {
     id: string;
     created_datetime: string;
     updated_datetime: string;

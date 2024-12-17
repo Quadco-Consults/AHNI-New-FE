@@ -12,7 +12,7 @@ import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { closeoutPlanAPis } from "services/cAndGApi/closeOutPlan";
 import DepartmentsAPI from "services/configs/departments";
 import { useGetPartnersQuery } from "services/projectsApi/partnersApi";
-import { useGetProjectsQuery } from "services/projectsApi/projectsApi";
+import { useGetProjectsQuery } from "services/project";
 import { toast } from "sonner";
 import { z } from "zod";
 

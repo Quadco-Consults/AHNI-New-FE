@@ -1,11 +1,10 @@
 import LocationSvg from "assets/svgs/LocationSvg";
 import { Badge } from "components/ui/badge";
-import { ProjectsResultsData } from "definations/project-types/projects";
+import { TProjectData } from "definations/project";
 
-const Summary = (props: ProjectsResultsData) => {
+export default function ProjectSummary(props: TProjectData) {
     const {
         title,
-        project_id,
         goal,
         start_date,
         end_date,
@@ -139,6 +138,4 @@ const Summary = (props: ProjectsResultsData) => {
             </div>
         </div>
     );
-};
-
-export default Summary;
+}

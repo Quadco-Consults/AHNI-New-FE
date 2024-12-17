@@ -9,7 +9,7 @@ import {
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { FormEvent, useState } from "react";
 import { usePatchRiskManagementPlanMutation } from "services/programsApi/risk-plans";
-import { usePatchProjectMutation } from "services/projectsApi/projectsApi";
+import { usePatchProjectMutation } from "services/project";
 import { toast } from "sonner";
 import { closeDialog } from "store/ui";
 

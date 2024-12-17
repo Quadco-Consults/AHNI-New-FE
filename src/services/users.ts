@@ -1,5 +1,5 @@
 import baseAPI from ".";
-import { TBasePaginatedResponse, TRequest, TResponse } from "definations/auth";
+import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 import { Permission, TCreateUser, TRole, TUser } from "definations/users";
 
 interface TRolePermission {
@@ -13,6 +13,14 @@ interface TRolePermission {
 
 const usersAPi = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
+        getAllUsers: builder.query<TPaginatedResponse<TUser>, TRequest>({
+            query: (params) => ({
+                url: "/users/",
+                params,
+            }),
+            providesTags: ["Users"],
+        }),
+
         getUserProfile: builder.query<TResponse<TUser>, null>({
             query: () => ({
                 method: "GET",
@@ -20,7 +28,7 @@ const usersAPi = baseAPI.injectEndpoints({
             }),
         }),
 
-        roles: builder.query<TBasePaginatedResponse<TRole>, TRequest>({
+        roles: builder.query<TPaginatedResponse<TRole>, TRequest>({
             query: (params) => ({
                 url: "/roles/",
                 params,
@@ -28,7 +36,7 @@ const usersAPi = baseAPI.injectEndpoints({
             providesTags: ["Roles"],
         }),
 
-        createRole: builder.mutation<null, { name: string }>({
+        createRole: builder.mutation<TResponse<TRole>, { name: string }>({
             query: (body) => ({
                 url: "/roles/",
                 method: "POST",
@@ -85,14 +93,6 @@ const usersAPi = baseAPI.injectEndpoints({
                 body: body,
             }),
             invalidatesTags: ["Users"],
-        }),
-
-        getUser: builder.query<TBasePaginatedResponse<TUser>, TRequest>({
-            query: (params) => ({
-                url: "/users/",
-                params,
-            }),
-            providesTags: ["Users"],
         }),
 
         getSingleUser: builder.query<
@@ -177,7 +177,7 @@ export const {
     useCreateRoleMutation,
     useGetSingleRoleQuery,
     useCreateUserMutation,
-    useGetUserQuery,
+    useGetAllUsersQuery,
     useUpdateUserMutation,
     useAddUserRoleMutation,
     usePermissionsQuery,

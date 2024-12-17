@@ -22,7 +22,7 @@ import { toast } from "sonner";
 import {
     useDeleteProjectDocumentMutation,
     useGetAllProjectDocumentsQuery,
-} from "services/projectsApi/project-document";
+} from "services/project/document";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import useQuery from "hooks/useQuery";
 import { useParams } from "react-router-dom";

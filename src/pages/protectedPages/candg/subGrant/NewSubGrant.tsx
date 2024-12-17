@@ -11,7 +11,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { SubGrantApi } from "services/cAndGApi/subGrant";
 import DepartmentsAPI from "services/configs/departments";
 import FundingSourceAPi from "services/projectsApi/funding-sourceApi";
-import { useGetProjectsQuery } from "services/projectsApi/projectsApi";
+import { useGetProjectsQuery } from "services/project";
 import usersAPI from "services/usersAPI";
 import { toast } from "sonner";
 import { z } from "zod";

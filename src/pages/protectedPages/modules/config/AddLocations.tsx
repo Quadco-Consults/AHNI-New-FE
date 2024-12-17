@@ -11,10 +11,10 @@ import { closeDialog, dailogSelector } from "store/ui";
 import { toast } from "sonner";
 import { nigerianStates } from "lib/index";
 import {
+    LocationSchema,
     TLocationData,
     TLocationFormValues,
 } from "definations/modules/config/location";
-import { LocationSchema } from "definations/project-validator";
 import {
     useAddLocationMutation,
     useUpdateLocationMutation,

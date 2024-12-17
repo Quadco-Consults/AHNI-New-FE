@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { RouteEnum } from "constants/RouterConstants";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { useGetSingleProjectQuery } from "services/projectsApi/projectsApi";
+import { useGetSingleProjectQuery } from "services/project";
 import {
     TFundRequestActivityFormValues,
     TFundRequestFormValues,

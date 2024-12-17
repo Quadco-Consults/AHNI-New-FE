@@ -9,8 +9,8 @@ import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
 import {
     FundingSourceSchema,
+    TFundingSourceData,
     TFundingSourceFormValues,
-    TFundingSourceResponse,
 } from "definations/modules/project/funding-source";
 import {
     useAddFundingSourceMutation,
@@ -20,7 +20,7 @@ import {
 const AddFundingSource = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TFundingSourceResponse;
+    const data = dialogProps?.data as unknown as TFundingSourceData;
 
     const form = useForm<TFundingSourceFormValues>({
         resolver: zodResolver(FundingSourceSchema),
@@ -70,7 +70,6 @@ const AddFundingSource = () => {
                     label="Description"
                     name="description"
                     placeholder="Enter Description"
-                    required
                 />
                 <div className="flex justify-start gap-4">
                     <FormButton loading={isLoading || updateFundingLoading}>

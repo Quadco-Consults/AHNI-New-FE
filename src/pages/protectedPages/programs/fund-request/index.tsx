@@ -25,7 +25,7 @@ import {
 } from "services/programsApi/fund-request";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 import { toast } from "sonner";
-import { useGetProjectsQuery } from "services/projectsApi/projectsApi";
+import { useGetProjectsQuery } from "services/project";
 import { ProjectsResultsData } from "definations/project-types/projects";
 
 const breadcrumbs = [

@@ -1,31 +1,14 @@
-import { invalidateTags, provideTags } from "utils/QueryUtils";
+import { TPaginatedResponse, TResponse } from "definations/index";
 import baseAPI from "..";
-
-import {
-    ProjectDocumentResponse,
-    ProjectDocumentResultsData,
-} from "definations/project-types/project-document";
-import { TBasePaginatedResponse } from "definations/auth";
+import { invalidateTags, provideTags } from "utils/QueryUtils";
+import { TProjectDocumentData } from "definations/project/document";
 
 const BASE_URL = "/projects/documents/";
 
-const projectDocumentAPi = baseAPI.injectEndpoints({
+const ProjectDocumentAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
-        getAllProjectDocuments: builder.query<
-            TBasePaginatedResponse<ProjectDocumentResultsData>,
-            string
-        >({
-            query: (projectId) => {
-                return {
-                    url: `${BASE_URL}`,
-                };
-            },
-            providesTags: (data, error) =>
-                !error ? provideTags("PROJECT_DOCUMENT", data) : [],
-        }),
-
         createProjectDocument: builder.mutation<
-            ProjectDocumentResponse,
+            TResponse<TProjectDocumentData>,
             { title: string; project: string; file: File }
         >({
             query: (body) => ({
@@ -38,10 +21,14 @@ const projectDocumentAPi = baseAPI.injectEndpoints({
                 !error ? invalidateTags("PROJECT_DOCUMENT") : [],
         }),
 
-        getProjectDocument: builder.query<ProjectDocumentResultsData, string>({
+        getAllProjectDocuments: builder.query<
+            TPaginatedResponse<TProjectDocumentData>,
+            string
+        >({
             query: (projectId) => {
                 return {
-                    url: `${BASE_URL}${projectId}/`,
+                    url: `${BASE_URL}`,
+                    params: { project: projectId },
                 };
             },
             providesTags: (data, error) =>
@@ -67,5 +54,7 @@ export const {
     useCreateProjectDocumentMutation,
     useGetAllProjectDocumentsQuery,
     useDeleteProjectDocumentMutation,
-    useGetProjectDocumentQuery,
-} = projectDocumentAPi;
+} = ProjectDocumentAPI;
+
+/*  invalidatesTags: (_, error, {}) =>
+                !error ? invalidateTags("PROJECT_DOCUMENT") : [], */

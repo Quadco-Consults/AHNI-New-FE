@@ -1,14 +1,14 @@
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
-import { ProjectsResultsData } from "definations/project-types/projects";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 import { useState } from "react";
+import { TProjectData } from "definations/project";
 
-export default function ProjectObligation({}: ProjectsResultsData) {
+export default function ProjectObligation({}: TProjectData) {
     return (
         <div>
             <h2 className="font-bold text-lg mb-4">Project Obligation</h2>
