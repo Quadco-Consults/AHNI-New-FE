@@ -48,7 +48,7 @@ const Registration = () => {
       [categorySearchParams]
     )
   );
-
+  // @ts-ignore
   const categories = categoryQueryResult?.data?.data?.results;
 
   const form = useForm<z.infer<typeof VendorsRegistrationSchema>>({
@@ -86,6 +86,8 @@ const Registration = () => {
     ) || [];
 
   const onSubmit = (data: z.infer<typeof VendorsRegistrationSchema>) => {
+    console.log({ data });
+
     dispatch(vendorsActions.addVendors({ ...data }));
 
     let path = pathname;
