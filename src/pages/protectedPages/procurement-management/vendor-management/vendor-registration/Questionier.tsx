@@ -47,12 +47,14 @@ const Questionier = () => {
   });
 
   const result = data?.data?.results?.map((questionair: QuestionairData) => ({
-    questionair: questionair.id,
+    questionaire: questionair.id,
     response: formData[questionair.id] || "",
   }));
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
+    console.log({ name, value });
+
     setFormData({
       ...formData,
       [name]: value,
@@ -111,7 +113,7 @@ const Questionier = () => {
       phone_number: mergedObject?.phone_numbers,
       production_equipments: mergedObject?.production_equipments,
       key_clients: mergedObject?.key_clients,
-      questionairs: mergedObject?.questionairs,
+      questionnaires: mergedObject?.questionairs,
       share_holders: mergedObject?.share_holders,
       submitted_categories: mergedObject?.submitted_categories,
       tin: mergedObject?.tin,
