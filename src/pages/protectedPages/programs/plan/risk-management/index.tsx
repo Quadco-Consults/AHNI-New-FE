@@ -13,21 +13,11 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
 import DataTable from "components/Table/DataTable";
-import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
-} from "components/ui/breadcrumb";
-import { Icon } from "@iconify/react";
 import { toast } from "sonner";
-
 import {
     useDeleteRiskManagementPlanMutation,
     useGetAllRiskManagementPlansQuery,
 } from "services/programsApi/risk-plans";
-import { TRiskPlanPlanManagementResponse } from "definations/program-validator";
 import EditIcon from "components/icons/EditIcon";
 import PencilIcon from "components/icons/PencilIcon";
 import { useAppDispatch } from "hooks/useStore";
@@ -35,33 +25,27 @@ import { openDialog } from "store/ui";
 import { DialogType, mediumDailogScreen } from "constants/dailogs";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 import { useState } from "react";
+import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
+import { TRiskManagementPlanData } from "definations/program-validator";
 
-const RiskManagement = () => {
-    const { data, isLoading } = useGetAllRiskManagementPlansQuery({
-        no_paginate: false,
-    });
+const breadcrumbs: TBreadcrumbList[] = [
+    { name: "Programs", icon: true },
+    { name: "Plans", icon: true },
+    { name: "Risk Management Plan", icon: false },
+];
+
+export default function RiskManagementPage() {
+    const [page, setPage] = useState(1);
+
+    const { data: riskManagementPlan, isFetching } =
+        useGetAllRiskManagementPlansQuery({
+            page: 1,
+            size: 10,
+        });
 
     return (
         <div className="space-y-5">
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Programs</BreadcrumbPage>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Icon icon="iconoir:slash" />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Plans</BreadcrumbPage>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Icon icon="iconoir:slash" />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Risk Management Plan</BreadcrumbPage>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
+            <BreadcrumbCard list={breadcrumbs} />
 
             <div className="flex justify-end">
                 <Link to={RouteEnum.PROGRAM_RISK_MANAGEMENT_CREATE}>
@@ -88,18 +72,22 @@ const RiskManagement = () => {
                 </div>
 
                 <DataTable
-                    data={data?.data.results || []}
+                    data={riskManagementPlan?.data.results || []}
                     columns={columns}
-                    isLoading={isLoading}
+                    isLoading={isFetching}
+                    pagination={{
+                        total: riskManagementPlan?.data.pagination.count ?? 0,
+                        pageSize:
+                            riskManagementPlan?.data.pagination.page_size ?? 0,
+                        onChange: (page: number) => setPage(page),
+                    }}
                 />
             </Card>
         </div>
     );
-};
+}
 
-export default RiskManagement;
-
-const columns: ColumnDef<TRiskPlanPlanManagementResponse>[] = [
+const columns: ColumnDef<TRiskManagementPlanData>[] = [
     {
         header: "Risk Number",
         accessorKey: "risk_number",

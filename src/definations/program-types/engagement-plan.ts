@@ -29,9 +29,9 @@ export const EngagementPlanSchema = z.object({
     ),
 });
 
-export type TEngagementPlanFormValue = z.infer<typeof EngagementPlanSchema>;
+export type TEngagementPlanFormValues = z.infer<typeof EngagementPlanSchema>;
 
-export type TEngagementPlanPaginatedResponse = {
+export type TEngagementPlanPaginatedData = {
     id: string;
     project: string;
     created_datetime: string;
@@ -42,7 +42,7 @@ export type TEngagementPlanPaginatedResponse = {
     end_date: string;
 };
 
-export type TEngagementPlanSingleResponse = {
+export type TEngagementPlanSingleData = {
     id: string;
     project: {
         project_managers: [

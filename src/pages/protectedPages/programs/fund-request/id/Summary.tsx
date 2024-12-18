@@ -1,8 +1,8 @@
 import { Badge } from "components/ui/badge";
-import { ProjectsResultsData } from "definations/project-types/projects";
+import { TProjectData } from "definations/project";
 
 type PropsType = {
-    data: ProjectsResultsData;
+    data: TProjectData;
 };
 
 const Summary = ({ data }: PropsType) => {

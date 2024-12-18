@@ -1,7 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
-import FormSelect from "atoms/FormSelectField";
 import FormTextArea from "atoms/FormTextArea";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import Card from "components/shared/Card";
@@ -11,24 +10,25 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
-} from "components/ui/breadcrumb";
-import { Icon } from "@iconify/react";
-import {
-    ActivityTrackerSchema,
-    TActivityTrackerFormValues,
-} from "definations/program-types/activity-tracker";
-import {
     useGetSingleActivityTrackerQuery,
     useUpdateActivityTrackerMutation,
 } from "services/programsApi/activity-tracker";
 import useQuery from "hooks/useQuery";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import { useEffect } from "react";
+import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
+import {
+    TWorkPlanTrackerData,
+    TWorkPlanTrackerFormValues,
+    WorkPlanTrackerSchema,
+} from "definations/program-types/activity-tracker";
+
+const breadcrumbs: TBreadcrumbList[] = [
+    { name: "Programs", icon: true },
+    { name: "Plans", icon: true },
+    { name: "Work Plan Tracker", icon: true },
+    { name: "Create", icon: false },
+];
 
 export default function CreateActivityTracker() {
     const [updateActivityTracker, { isLoading }] =
@@ -53,7 +53,6 @@ export default function CreateActivityTracker() {
                 amount_expended_usd,
                 implementation_usd_rate,
                 expenditure_usd_rate,
-                expenditure_ngn_rate,
                 variance_ngn,
                 variance_usd,
                 percentage_variance_ngn,
@@ -71,7 +70,6 @@ export default function CreateActivityTracker() {
                 amount_expended_usd,
                 implementation_usd_rate,
                 expenditure_usd_rate,
-                expenditure_ngn_rate,
                 variance_ngn,
                 variance_usd,
                 percentage_variance_ngn,
@@ -85,8 +83,8 @@ export default function CreateActivityTracker() {
         }
     }, [workPlanTracker]);
 
-    const form = useForm<TActivityTrackerFormValues>({
-        resolver: zodResolver(ActivityTrackerSchema),
+    const form = useForm<TWorkPlanTrackerFormValues>({
+        resolver: zodResolver(WorkPlanTrackerSchema),
         defaultValues: {
             output_description: "",
             achieved_output: "",
@@ -95,7 +93,6 @@ export default function CreateActivityTracker() {
             amount_expended_usd: "",
             implementation_usd_rate: "",
             expenditure_usd_rate: "",
-            expenditure_ngn_rate: "",
             variance_ngn: "",
             variance_usd: "",
             percentage_variance_ngn: "",
@@ -112,7 +109,7 @@ export default function CreateActivityTracker() {
         navigate(-1);
     };
 
-    const onSubmit: SubmitHandler<TActivityTrackerFormValues> = async (
+    const onSubmit: SubmitHandler<TWorkPlanTrackerFormValues> = async (
         data
     ) => {
         try {
@@ -123,37 +120,14 @@ export default function CreateActivityTracker() {
             toast.success("Activity Tracker Updated");
             navigate(RouteEnum.PROGRAM_ACTIVITY_TRACKER);
         } catch (error: any) {
-            toast.error(error.data.message || "Something went wrong");
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
 
     return (
         <div className="space-y-6 min-h-screen">
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Programs</BreadcrumbPage>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Icon icon="iconoir:slash" />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Plans</BreadcrumbPage>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Icon icon="iconoir:slash" />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Work Plan Tracker</BreadcrumbPage>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Icon icon="iconoir:slash" />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Create</BreadcrumbPage>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
+            <BreadcrumbCard list={breadcrumbs} />
+
             <button
                 onClick={goBack}
                 className="w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center"

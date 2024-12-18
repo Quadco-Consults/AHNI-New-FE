@@ -3,15 +3,6 @@ import { Button } from "components/ui/button";
 import { RouteEnum } from "constants/RouterConstants";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
-} from "components/ui/breadcrumb";
-import { Icon } from "@iconify/react";
 import SupportiveSupervisionAPI from "services/programsApi/suportive-supervision";
 import { Criteria } from "definations/program-types/supportive-supervision";
 import { Input } from "components/ui/input";
@@ -46,8 +37,6 @@ const CoreManagementSystems = () => {
     const { data: supervisionPlan } = useGetSingleSupervisionPlanQuery(
         id ?? skipToken
     );
-
-    // -----------------------------------------------------------------------
 
     const [formData, setFormData] = useState<FormData>({});
     const [page, setPage] = useState(0);

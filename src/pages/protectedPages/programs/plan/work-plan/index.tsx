@@ -9,7 +9,7 @@ import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIco
 import EyeIcon from "components/icons/EyeIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { ColumnDef } from "@tanstack/react-table";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
@@ -33,14 +33,24 @@ import { toast } from "sonner";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 import { DownloadIcon } from "lucide-react";
 import ArrowDownIcon from "components/icons/ArrowDownIcon";
+import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
+
+const breadcrumbs: TBreadcrumbList[] = [
+    { name: "Programs", icon: true },
+    { name: "Plans", icon: true },
+    { name: "Work Plan", icon: false },
+];
 
 export default function WorkPlan() {
+    const [page, setPage] = useState(1);
+
     const dispatch = useAppDispatch();
+    const [downloadTemplate] = useLazyDownloadWorkPlanTemplateQuery();
 
-    const [downloadTemplate, { isLoading: isDownloadLoading }] =
-        useLazyDownloadWorkPlanTemplateQuery();
-
-    const { data, isLoading } = useGetAllWorkPlanQuery({ no_paginate: false });
+    const { data: workPlan, isLoading } = useGetAllWorkPlanQuery({
+        page,
+        size: 10,
+    });
 
     const handleDownloadTemplate = async () => {
         try {
@@ -62,32 +72,13 @@ export default function WorkPlan() {
             document.body.removeChild(link);
             URL.revokeObjectURL(blobUrl);
         } catch (error: any) {
-            console.log(error);
-            toast.error(error.data.message || "Something went wrong");
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
 
     return (
         <div className="space-y-5">
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Programs</BreadcrumbPage>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Icon icon="iconoir:slash" />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Plans</BreadcrumbPage>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Icon icon="iconoir:slash" />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Work Plan</BreadcrumbPage>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
+            <BreadcrumbCard list={breadcrumbs} />
 
             <div className="flex justify-end">
                 <Popover>
@@ -148,9 +139,14 @@ export default function WorkPlan() {
                 </div>
 
                 <DataTable
-                    data={data?.data.results || []}
+                    data={workPlan?.data.results || []}
                     columns={columns}
                     isLoading={isLoading}
+                    pagination={{
+                        total: workPlan?.data.pagination.count ?? 0,
+                        pageSize: workPlan?.data.pagination.page_size ?? 0,
+                        onChange: (page: number) => setPage(page),
+                    }}
                 />
             </Card>
         </div>

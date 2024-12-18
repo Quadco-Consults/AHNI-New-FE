@@ -1,14 +1,14 @@
-import { TBasePaginatedResponse, TRequest, TResponse } from "definations/auth";
+import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 import baseAPI from "..";
 import {
+    TActivityPlanData,
     TActivityPlanFormValues,
-    TActivityPlanResponse,
 } from "definations/program-types/activity-plan";
 
 const ActivityPlanAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
         createActivityPlan: builder.mutation<
-            TActivityPlanResponse,
+            TActivityPlanData,
             TActivityPlanFormValues
         >({
             query: (body) => ({
@@ -40,18 +40,19 @@ const ActivityPlanAPI = baseAPI.injectEndpoints({
         }),
 
         getAllActivityPlans: builder.query<
-            TBasePaginatedResponse<TActivityPlanResponse>,
+            TPaginatedResponse<TActivityPlanData>,
             TRequest
         >({
-            query: () => ({
+            query: (params) => ({
                 method: "GET",
                 url: "/programs/plans/activity/",
+                params,
             }),
             providesTags: ["ACTIVITY_PLAN"],
         }),
 
         getSingleActivityPlan: builder.query<
-            TResponse<TActivityPlanResponse>,
+            TResponse<TActivityPlanData>,
             string
         >({
             query: (id) => ({
@@ -61,7 +62,7 @@ const ActivityPlanAPI = baseAPI.injectEndpoints({
         }),
 
         editActivityPlan: builder.mutation<
-            TResponse<TActivityPlanResponse>,
+            TResponse<TActivityPlanData>,
             { id: string; body: TActivityPlanFormValues }
         >({
             query: ({ id, body }) => ({
@@ -72,7 +73,7 @@ const ActivityPlanAPI = baseAPI.injectEndpoints({
         }),
 
         deleteActivityPlan: builder.mutation<
-            TResponse<TActivityPlanResponse>,
+            TResponse<TActivityPlanData>,
             string
         >({
             query: (id) => ({

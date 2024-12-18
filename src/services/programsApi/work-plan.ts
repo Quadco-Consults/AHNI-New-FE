@@ -1,4 +1,4 @@
-import { TBasePaginatedResponse, TRequest, TResponse } from "definations/auth";
+import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 import baseAPI from "..";
 import {
     TWorkPlanPaginatedResponse,
@@ -27,13 +27,15 @@ const WorkPlanAPI = baseAPI.injectEndpoints({
         ),
 
         getAllWorkPlan: builder.query<
-            TBasePaginatedResponse<TWorkPlanPaginatedResponse>,
+            TPaginatedResponse<TWorkPlanPaginatedResponse>,
             TRequest
         >({
-            query: () => ({
+            query: (params) => ({
                 method: "GET",
                 url: "/programs/plans/works/",
+                params,
             }),
+
             providesTags: ["WORK_PLAN"],
         }),
 

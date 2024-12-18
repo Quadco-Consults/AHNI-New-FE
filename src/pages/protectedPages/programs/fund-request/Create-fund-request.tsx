@@ -13,20 +13,13 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import _ from "lodash";
 import { Separator } from "components/ui/separator";
-import { useGetProjectsQuery } from "services/project";
-import {
-    useLocationQuery,
-    usePartnersQuery,
-} from "services/modules/project/moduleProjects";
-import {
-    useFinancialYearQuery,
-    useLocationsQuery,
-} from "services/moduleConfig";
-import { useGetUserQuery } from "services/users";
-import { useCreateFundRequestMutation } from "services/programsApi/fund-request";
-import { toast } from "sonner";
-import { RouteEnum } from "constants/RouterConstants";
+
 import FormInput from "atoms/FormInput";
+import { useGetAllProjectsQuery } from "services/project";
+import { useGetAllPartnersQuery } from "services/modules/project/partners";
+import { useGetAllFinancialYearsQuery } from "services/modules/config/financial-year";
+import { useGetAllLocationsQuery } from "services/modules/config/location";
+import { useGetAllUsersQuery } from "services/users";
 
 const getYearOptions = () => {
     const currentYear = new Date().getFullYear();
@@ -89,8 +82,9 @@ const CreateFundRequest = () => {
         navigate(-1);
     };
 
-    const { data: project, isLoading: isProjectLoading } = useGetProjectsQuery({
-        no_paginate: false,
+    const { data: project } = useGetAllProjectsQuery({
+        page: 1,
+        size: 2000000,
     });
 
     const projectOptions = project?.data.results.map(({ title, id }) => ({
@@ -98,10 +92,14 @@ const CreateFundRequest = () => {
         value: id,
     }));
 
-    const { data: partner } = usePartnersQuery({ no_paginate: false });
+    const { data: partner } = useGetAllPartnersQuery({
+        page: 1,
+        size: 2000000,
+    });
 
-    const { data: financialYear } = useFinancialYearQuery({
-        no_paginate: false,
+    const { data: financialYear } = useGetAllFinancialYearsQuery({
+        page: 1,
+        size: 2000000,
     });
 
     const financialYearOptions = financialYear?.data.results.map(
@@ -111,14 +109,17 @@ const CreateFundRequest = () => {
         })
     );
 
-    const { data: location } = useLocationsQuery({ no_paginate: false });
+    const { data: location } = useGetAllLocationsQuery({
+        page: 1,
+        size: 2000000,
+    });
 
     const locationOptions = location?.data.results.map(({ name, id }) => ({
         label: name,
         value: id,
     }));
 
-    const { data: user } = useGetUserQuery({ no_paginate: false });
+    const { data: user } = useGetAllUsersQuery({ page: 1, size: 2000000 });
 
     const reviewerOptions = user?.data.results.map(
         ({ first_name, last_name, id }) => ({

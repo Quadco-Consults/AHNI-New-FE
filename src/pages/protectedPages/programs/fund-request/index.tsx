@@ -8,9 +8,7 @@ import FilterIcon from "components/icons/FilterIcon";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import { RouteEnum } from "constants/RouterConstants";
 import EyeIcon from "components/icons/EyeIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
 import { ColumnDef } from "@tanstack/react-table";
-import { useState } from "react";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
 import ApproveIcon from "components/icons/ApproveIcon";
@@ -19,14 +17,9 @@ import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
 import BreadcrumbCard from "components/shared/Breadcrumb";
-import {
-    useDeleteFundRequestMutation,
-    useGetAllFundRequestsQuery,
-} from "services/programsApi/fund-request";
-import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
-import { toast } from "sonner";
-import { useGetProjectsQuery } from "services/project";
-import { ProjectsResultsData } from "definations/project-types/projects";
+import { useGetAllProjectsQuery } from "services/project";
+import { useState } from "react";
+import { TProjectData } from "definations/project";
 
 const breadcrumbs = [
     { name: "Programs", icon: true },
@@ -34,7 +27,11 @@ const breadcrumbs = [
 ];
 
 export default function FundRequest() {
-    const { data: project, isLoading } = useGetProjectsQuery({
+    const [page, setPage] = useState(1);
+
+    const { data: project, isFetching } = useGetAllProjectsQuery({
+        page,
+        size: 10,
         has_fund_requests: true,
     });
 
@@ -69,14 +66,19 @@ export default function FundRequest() {
                 <DataTable
                     data={project?.data.results || []}
                     columns={columns}
-                    isLoading={isLoading}
+                    isLoading={isFetching}
+                    pagination={{
+                        total: project?.data.pagination.count ?? 0,
+                        pageSize: project?.data.pagination.page_size ?? 0,
+                        onChange: (page: number) => setPage(page),
+                    }}
                 />
             </Card>
         </div>
     );
 }
 
-const columns: ColumnDef<ProjectsResultsData>[] = [
+const columns: ColumnDef<TProjectData>[] = [
     {
         header: "Project Title",
         accessorKey: "title",
@@ -130,20 +132,8 @@ const columns: ColumnDef<ProjectsResultsData>[] = [
     },
 ];
 
-const ActionListAction = ({ data }: { data: ProjectsResultsData }) => {
+const ActionListAction = ({ data }: { data: TProjectData }) => {
     const dispatch = useAppDispatch();
-
-    // const [deleteFundRequest, { isLoading }] = useDeleteFundRequestMutation();
-
-    // const handleDelete = async () => {
-    //     try {
-    //         await deleteFundRequest(data?.id).unwrap();
-    //         toast.success("Fund Request Deleted");
-    //         setDialogOpen(false);
-    //     } catch (error: any) {
-    //         toast.error(error.data.message || "Something went wrong");
-    //     }
-    // };
 
     return (
         <div className="flex items-center gap-2">

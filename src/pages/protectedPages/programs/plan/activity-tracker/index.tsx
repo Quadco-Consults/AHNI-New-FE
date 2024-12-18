@@ -1,25 +1,14 @@
-import { generatePath, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Card from "components/shared/Card";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
-import AddSquareIcon from "components/icons/AddSquareIcon";
 import SearchIcon from "components/icons/SearchIcon";
 import FilterIcon from "components/icons/FilterIcon";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import EyeIcon from "components/icons/EyeIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { ColumnDef } from "@tanstack/react-table";
-import { useMemo, useState } from "react";
-import { useAppDispatch } from "hooks/useStore";
+import { useState } from "react";
 import DataTable from "components/Table/DataTable";
-import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
-} from "components/ui/breadcrumb";
-import { Icon } from "@iconify/react";
 import { RouteEnum } from "constants/RouterConstants";
 
 import {
@@ -27,39 +16,32 @@ import {
     useGetAllActivityTrackerQuery,
 } from "services/programsApi/activity-tracker";
 
-import { TActivityTrackerResult } from "definations/program-types/activity-tracker";
 import { Badge } from "components/ui/badge";
 import PencilIcon from "components/icons/PencilIcon";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
-import { useDeleteActivityPlanMutation } from "services/programsApi/activity-plan";
 import { toast } from "sonner";
+import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
+import { TWorkPlanTrackerData } from "definations/program-types/activity-tracker";
+
+const breadcrumbs: TBreadcrumbList[] = [
+    { name: "Programs", icon: true },
+    { name: "Plans", icon: true },
+    { name: "Work Plan Tracker", icon: true },
+];
 
 export default function ActivityTracker() {
-    const { data, isLoading } = useGetAllActivityTrackerQuery({
-        no_paginate: false,
-    });
+    const [page, setPage] = useState(1);
+
+    const { data: workPlanTracker, isFetching } = useGetAllActivityTrackerQuery(
+        {
+            page,
+            size: 10,
+        }
+    );
 
     return (
         <div className="space-y-5">
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Programs</BreadcrumbPage>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Icon icon="iconoir:slash" />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Plans</BreadcrumbPage>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Icon icon="iconoir:slash" />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Activity Tracker</BreadcrumbPage>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
+            <BreadcrumbCard list={breadcrumbs} />
 
             <Card className="space-y-5">
                 <div className="flex items-center justify-start gap-2">
@@ -77,16 +59,22 @@ export default function ActivityTracker() {
                 </div>
 
                 <DataTable
-                    data={data?.data.results || []}
+                    data={workPlanTracker?.data.results || []}
                     columns={columns}
-                    isLoading={isLoading}
+                    isLoading={isFetching}
+                    pagination={{
+                        total: workPlanTracker?.data.pagination.count ?? 0,
+                        pageSize:
+                            workPlanTracker?.data.pagination.page_size ?? 0,
+                        onChange: (page: number) => setPage(page),
+                    }}
                 />
             </Card>
         </div>
     );
 }
 
-const columns: ColumnDef<TActivityTrackerResult>[] = [
+const columns: ColumnDef<TWorkPlanTrackerData>[] = [
     {
         header: "Activity Name",
         accessorKey: "activity_name",
@@ -269,7 +257,7 @@ const columns: ColumnDef<TActivityTrackerResult>[] = [
     },
 ];
 
-const ActionListAction = ({ data }: { data: TActivityTrackerResult }) => {
+const ActionListAction = ({ data }: { data: TWorkPlanTrackerData }) => {
     const [dialogOpen, setDialogOpen] = useState(false);
 
     const [deleteWorkPlanTracker, { isLoading }] =

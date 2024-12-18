@@ -1,14 +1,14 @@
+import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 import baseAPI from "..";
-import { TBasePaginatedResponse, TRequest, TResponse } from "definations/auth";
 import {
+    TRiskManagementPlanData,
     TRiskPlanManagementFormValues,
-    TRiskPlanPlanManagementResponse,
 } from "definations/program-validator";
 
 const RiskPlanManagementAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
         createRiskManagementPlan: builder.mutation<
-            TResponse<TRiskPlanPlanManagementResponse>,
+            TResponse<TRiskManagementPlanData>,
             TRiskPlanManagementFormValues
         >({
             query: (body) => ({
@@ -20,18 +20,19 @@ const RiskPlanManagementAPI = baseAPI.injectEndpoints({
         }),
 
         getAllRiskManagementPlans: builder.query<
-            TBasePaginatedResponse<TRiskPlanPlanManagementResponse>,
+            TPaginatedResponse<TRiskManagementPlanData>,
             TRequest
         >({
-            query: () => ({
+            query: (params) => ({
                 method: "GET",
                 url: "/programs/plans/risk-management/",
+                params,
             }),
             providesTags: ["RISK_PLAN"],
         }),
 
         getSingleRiskPlanManagement: builder.query<
-            TResponse<TRiskPlanPlanManagementResponse>,
+            TResponse<TRiskManagementPlanData>,
             string
         >({
             query: (id) => ({
@@ -41,7 +42,7 @@ const RiskPlanManagementAPI = baseAPI.injectEndpoints({
         }),
 
         updateRiskManagementPlan: builder.mutation<
-            TResponse<TRiskPlanPlanManagementResponse>,
+            TResponse<TRiskManagementPlanData>,
             { id: string; body: TRiskPlanManagementFormValues }
         >({
             query: ({ id, body }) => ({
@@ -53,7 +54,7 @@ const RiskPlanManagementAPI = baseAPI.injectEndpoints({
         }),
 
         patchRiskManagementPlan: builder.mutation<
-            TResponse<TRiskPlanPlanManagementResponse>,
+            TResponse<TRiskManagementPlanData>,
             { id: string; body: { risk_status: string } }
         >({
             query: ({ id, body }) => ({
@@ -65,7 +66,7 @@ const RiskPlanManagementAPI = baseAPI.injectEndpoints({
         }),
 
         deleteRiskManagementPlan: builder.mutation<
-            TResponse<TRiskPlanPlanManagementResponse>,
+            TResponse<TRiskManagementPlanData>,
             string
         >({
             query: (id) => ({

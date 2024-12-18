@@ -16,7 +16,6 @@ import {
     BreadcrumbSeparator,
 } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
-import { useGetProjectsQuery } from "services/project";
 import useQuery from "hooks/useQuery";
 import {
     useCreateActivityPlanMutation,
@@ -32,6 +31,7 @@ import {
 } from "definations/program-types/activity-plan";
 import { toast } from "sonner";
 import { RouteEnum } from "constants/RouterConstants";
+import { useGetAllProjectsQuery } from "services/project";
 
 const booleanOptions = ["TRUE", "FALSE"].map((value) => ({
     label: value,
@@ -39,7 +39,10 @@ const booleanOptions = ["TRUE", "FALSE"].map((value) => ({
 }));
 
 export default function CreateActivityPlan() {
-    const { data: project } = useGetProjectsQuery({ no_paginate: false });
+    const { data: project } = useGetAllProjectsQuery({
+        page: 1,
+        size: 2000000,
+    });
 
     const projectOptions = project?.data.results.map(({ title, id }) => ({
         label: title,

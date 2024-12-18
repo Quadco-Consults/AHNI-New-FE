@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CostCategory } from "./module-finance";
+import { TCostCategoryData } from "./modules/finance/cost-category";
 
 const monthly_budget = z.object({
     month: z.string(),
@@ -118,7 +118,7 @@ export const RiskPlanManagementSchema = z.object({
 export type TRiskPlanManagementFormValues = z.infer<
     typeof RiskPlanManagementSchema
 >;
-export type TRiskPlanPlanManagementResponse = Omit<
+export type TRiskManagementPlanData = Omit<
     TRiskPlanManagementFormValues,
     "risk_category" | "risk_owner"
 > & {
@@ -132,23 +132,6 @@ export type TRiskPlanPlanManagementResponse = Omit<
         name: string;
     };
 };
-
-export const WeeklyActivitySchema = z.object({
-    objectives: z.number(),
-    ir: z.string(),
-    activity_code: z.string(),
-    activity_description: z.string(),
-    start_date: z.string(),
-    end_date: z.string(),
-    responsible_person: z.string(),
-    resources_required: z.string(),
-    memo_required: z.string(),
-    ea_required: z.string(),
-    results_achieved: z.string(),
-    follow_up_action: z.string(),
-    comments: z.string(),
-    project: z.string(),
-});
 
 export const StakeholderRegisterSchema = z.object({
     name: z.string().min(1, "Field is required"),
@@ -166,10 +149,12 @@ export const StakeholderRegisterSchema = z.object({
     relationship_owner: z.string().min(1, "Field is required"),
 });
 
-export type TStakeholderRegister = z.infer<typeof StakeholderRegisterSchema>;
+export type TStakeholderRegisterFormValues = z.infer<
+    typeof StakeholderRegisterSchema
+>;
 
-export type TStakeholderRegisterResponse = Omit<
-    TStakeholderRegister,
+export type TStakeholderRegisterData = Omit<
+    TStakeholderRegisterForm,
     "importance" | "influence"
 > & {
     id: string;
@@ -246,7 +231,7 @@ export type TFundRequestActivityFormValues = z.infer<
 
 export interface TFundRequestActivity {
     id: string;
-    category: CostCategory;
+    category: TCostCategoryData;
     amount: string;
     created_datetime: string;
     updated_datetime: string;

@@ -1,9 +1,7 @@
 import { Button } from "components/ui/button";
 import { ChangeEvent, useState } from "react";
-
 import { Input } from "components/ui/input";
 import { Upload as UploadFile } from "lucide-react";
-
 import FormButton from "atoms/FormButton";
 import { closeDialog } from "store/ui";
 import { z } from "zod";
@@ -26,7 +24,7 @@ export type TFormValues = z.infer<typeof FormSchema>;
 const WorkPlanUploadModal = () => {
     const dispatch = useAppDispatch();
 
-    const { data, isLoading: isProjectLoading } = useGetAllProjectsQuery({
+    const { data: project } = useGetAllProjectsQuery({
         page: 1,
         size: 2000000,
     });
@@ -48,7 +46,7 @@ const WorkPlanUploadModal = () => {
 
     const [file, setFile] = useState<File>();
 
-    const projectOptions = data?.data.results.map(({ title, id }) => ({
+    const projectOptions = project?.data.results.map(({ title, id }) => ({
         label: title,
         value: id,
     }));

@@ -16,10 +16,10 @@ import {
     useDeleteEngagementPlanMutation,
     useGetAllEngagementPlansQuery,
 } from "services/programsApi/engagement-plan";
-import { TEngagementPlanPaginatedResponse } from "definations/program-types/engagement-plan";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 import { useState } from "react";
 import { toast } from "sonner";
+import { TEngagementPlanPaginatedData } from "definations/program-types/engagement-plan";
 
 const breadcrumbs = [
     { name: "Programs", icon: true },
@@ -28,9 +28,13 @@ const breadcrumbs = [
 ];
 
 export default function EngagementPlan() {
-    const { data, isLoading } = useGetAllEngagementPlansQuery({
-        no_paginate: false,
-    });
+    const [page, setPage] = useState(1);
+
+    const { data: stakeholderEngagement, isFetching } =
+        useGetAllEngagementPlansQuery({
+            page,
+            size: 10,
+        });
 
     return (
         <div className="space-y-5">
@@ -60,16 +64,24 @@ export default function EngagementPlan() {
                 </div>
 
                 <DataTable
-                    data={data?.data.results || []}
+                    data={stakeholderEngagement?.data.results || []}
                     columns={columns}
-                    isLoading={isLoading}
+                    isLoading={isFetching}
+                    pagination={{
+                        total:
+                            stakeholderEngagement?.data.pagination.count ?? 0,
+                        pageSize:
+                            stakeholderEngagement?.data.pagination.page_size ??
+                            0,
+                        onChange: (page: number) => setPage(page),
+                    }}
                 />
             </Card>
         </div>
     );
 }
 
-const columns: ColumnDef<TEngagementPlanPaginatedResponse>[] = [
+const columns: ColumnDef<TEngagementPlanPaginatedData>[] = [
     {
         header: "Project Name",
         accessorKey: "project",
@@ -104,11 +116,7 @@ const columns: ColumnDef<TEngagementPlanPaginatedResponse>[] = [
     },
 ];
 
-const ActionListAction = ({
-    data,
-}: {
-    data: TEngagementPlanPaginatedResponse;
-}) => {
+const ActionListAction = ({ data }: { data: TEngagementPlanPaginatedData }) => {
     const [dialogOpen, setDialogOpen] = useState(false);
 
     const [deleteEngagementPlan, { isLoading }] =

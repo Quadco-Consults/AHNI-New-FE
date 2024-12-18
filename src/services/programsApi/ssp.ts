@@ -1,4 +1,4 @@
-import { TBasePaginatedResponse, TRequest, TResponse } from "definations/auth";
+import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 import baseAPI from "..";
 import {
     TSupervisionPlanPaginatedData,
@@ -11,7 +11,7 @@ const BASE_URL = "/programs/plans/supportive-supervision/";
 const SSPAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
         createSupervisionPlan: builder.mutation<
-            TBasePaginatedResponse<TSupervisionPlanPaginatedData>,
+            TResponse<TSupervisionPlanPaginatedData>,
             TSSPCompositionFormValues
         >({
             query: (body) => ({
@@ -22,12 +22,13 @@ const SSPAPI = baseAPI.injectEndpoints({
         }),
 
         getAllSupervisionPlan: builder.query<
-            TBasePaginatedResponse<TSupervisionPlanPaginatedData>,
+            TPaginatedResponse<TSupervisionPlanPaginatedData>,
             TRequest
         >({
-            query: () => ({
+            query: (params) => ({
                 method: "GET",
                 url: BASE_URL,
+                params,
             }),
         }),
 
