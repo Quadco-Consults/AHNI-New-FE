@@ -8,14 +8,12 @@ import { RouteEnum } from "constants/RouterConstants";
 import { TUser } from "definations/users";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { useGetUserQuery } from "services/users";
+import { useGetAllUsersQuery } from "services/users";
 
 const UsersList = () => {
-    const { data, isLoading } = useGetUserQuery(
-        { no_paginate: false },
-        {
-            refetchOnMountOrArgChange: true,
-        }
+    const { data, isLoading } = useGetAllUsersQuery(
+        { page: 1, size: 2000000 },
+        { refetchOnMountOrArgChange: true }
     );
 
     const drivedData = useMemo(() => {

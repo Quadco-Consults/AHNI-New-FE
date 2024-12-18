@@ -5,25 +5,12 @@ import Card from "components/shared/Card";
 import GoBack from "components/shared/GoBack";
 import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";
-import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { useGetProjectsParamsQuery } from "services/project";
 
 const CreateSeparationManagement = () => {
     const navigate = useNavigate();
     const form = useForm();
-
-    const { data: projects } = useGetProjectsParamsQuery({
-        params: { no_paginate: true },
-    });
-
-    const projectData = useMemo(() => {
-        return projects?.map((item) => ({
-            label: item.title,
-            value: item.id,
-        }));
-    }, [projects]);
 
     return (
         <div className="space-y-4">
@@ -39,7 +26,7 @@ const CreateSeparationManagement = () => {
                         <FormSelect
                             name="project"
                             label="Project"
-                            options={projectData}
+                            options={[]}
                             required
                         />
                         <FormInput

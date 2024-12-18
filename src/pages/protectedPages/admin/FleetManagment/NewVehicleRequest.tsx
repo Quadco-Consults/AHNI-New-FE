@@ -13,10 +13,10 @@ import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType, largeDailogScreen } from "constants/dailogs";
 import { clearUser, userSelector } from "store/assets";
-import { useGetUserQuery } from "services/users";
-import { useLocationQuery } from "services/modules/project/moduleProjects";
 import { useMemo } from "react";
 import { toast } from "sonner";
+import { useGetAllUsersQuery } from "services/users";
+import { useGetAllLocationsQuery } from "services/modules/config/location";
 
 const vehicleRequestSchema = z.object({
     supervisor: z.string().min(1, "Supervisor is required"),
@@ -55,27 +55,12 @@ const NewVehicleRequest = () => {
 
     const dispatch = useAppDispatch();
 
-    const { data } = useGetUserQuery({});
+    const { data: user } = useGetAllUsersQuery({ page: 1, size: 2000000 });
 
-    const { data: location } = useLocationQuery({});
-
-    const drivedUsers = useMemo(() => {
-        return data?.results.map((userData) => {
-            return {
-                label: `${userData.first_name} ${userData.last_name}`,
-                value: userData.id,
-            };
-        });
-    }, [data?.results]);
-
-    const drivedLocation = useMemo(() => {
-        return location?.results.map((item: any) => {
-            return {
-                label: item.name,
-                value: item.id,
-            };
-        });
-    }, [location?.results]);
+    const { data: location } = useGetAllLocationsQuery({
+        page: 1,
+        size: 2000000,
+    });
 
     const users = useAppSelector(userSelector);
 
@@ -123,12 +108,12 @@ const NewVehicleRequest = () => {
                                     name="requesting_staff"
                                     label="Requesting Staff"
                                     required
-                                    options={drivedUsers}
+                                    options={[]}
                                 />
                                 <div className="grid grid-cols-6 gap-x-5">
                                     <div className="col-span-3">
                                         <FormSelect
-                                            options={drivedLocation}
+                                            options={[]}
                                             name="location"
                                             label="Location"
                                             required
@@ -177,7 +162,7 @@ const NewVehicleRequest = () => {
                                     <p className="my-2 font-semibold">
                                         Travel Team Members ({users?.length})
                                     </p>
-                                    <div className="grid grid-cols-4 gap-5 ">
+                                    {/* <div className="grid grid-cols-4 gap-5 ">
                                         {users?.length > 0
                                             ? users?.map((member) => {
                                                   return (
@@ -211,7 +196,7 @@ const NewVehicleRequest = () => {
                                                   );
                                               })
                                             : ""}
-                                    </div>
+                                    </div> */}
                                 </div>
 
                                 <Button

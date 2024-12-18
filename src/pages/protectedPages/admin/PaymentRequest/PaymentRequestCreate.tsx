@@ -11,7 +11,6 @@ import {
     TPaymentRequestPayload,
     useCreatePaymentRequestMutation,
 } from "services/adminApi/paymentRequest";
-import { useGetUserQuery } from "services/users";
 
 import * as z from "zod";
 import { toast } from "sonner";
@@ -56,17 +55,6 @@ const FormOne = ({ currentStep, setCurrentStep, setId }: StepsF) => {
 
     const [createPaymentRequest, { isLoading }] =
         useCreatePaymentRequestMutation();
-
-    const { data } = useGetUserQuery({});
-
-    const drivedData = useMemo(() => {
-        return data?.results.map((item) => {
-            return {
-                label: `${item.first_name} ${item.last_name}`,
-                value: item.id,
-            };
-        }, []);
-    }, [data?.results]);
 
     const onSubmit = async (data: TPaymentRequestPayload) => {
         try {
@@ -126,7 +114,7 @@ const FormOne = ({ currentStep, setCurrentStep, setId }: StepsF) => {
                                 />
                                 <FormInput label="Bank" name="bank" />
                                 <FormSelect
-                                    options={drivedData}
+                                    options={[]}
                                     label="Requested By"
                                     name="requested_by_id"
                                     required

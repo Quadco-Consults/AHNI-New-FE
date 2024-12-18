@@ -7,12 +7,10 @@ import FormTextArea from "atoms/FormTextArea";
 import { Button } from "components/ui/button";
 import { Card, CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
-import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { useCreateFacilityMutation } from "services/adminApi/faciityMaintenance";
 import DepartmentsAPI from "services/configs/departments";
 import LocationAPi from "services/configs/locationApi";
-import { useFacilitiesQuery } from "services/module-programs";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -34,36 +32,7 @@ const FacilitiesMaintanance = () => {
         resolver: zodResolver(formSchema),
     });
 
-    const { data } = useFacilitiesQuery({});
-    const { data: departments } = DepartmentsAPI.useGetDepartmentPaginateQuery({
-        params: { no_paginate: true },
-    });
-    const { data: locations } = LocationAPi.useGetLocationListQuery({
-        params: { no_paginate: true },
-    });
-
     const [createFacility, { isLoading }] = useCreateFacilityMutation();
-
-    // const drivedData = useMemo(() => {
-    //     return data?.map((item) => ({
-    //         label: item.name,
-    //         value: item.id,
-    //     }));
-    // }, [data]);
-
-    // const departmentData = useMemo(() => {
-    //     return departments?.map((item) => ({
-    //         label: item.name,
-    //         value: item.id,
-    //     }));
-    // }, [departments]);
-
-    // const locationData = useMemo(() => {
-    //     return locations?.map((item) => ({
-    //         label: item.name,
-    //         value: item.id,
-    //     }));
-    // }, [locations]);
 
     const onSubmit = async (data: FormValues) => {
         try {
