@@ -5,18 +5,14 @@ import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelectField";
 import { Form } from "components/ui/form";
 import { ChevronRight } from "lucide-react";
-import { useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import {
     useCreateAssetsMutation,
     useGetAssetConditionsQuery,
     useGetAssetTypeQuery,
 } from "services/adminApi/assetsApi";
-import {
-    useFundingSourcesQuery,
-    useLocationQuery,
-    useStatesQuery,
-} from "services/modules/project/moduleProjects";
+import { useGetAllLocationsQuery } from "services/modules/config/location";
+import { useUseGetAllFundingSourceQuery } from "services/modules/project/funding-source";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -85,60 +81,14 @@ const AddAssets = () => {
         page_size: 20,
     });
 
-    const { data: state } = useStatesQuery({});
-
-    const drivedState = useMemo(() => {
-        return state?.map((item: string) => {
-            return {
-                label: item,
-                value: item,
-            };
-        });
-    }, [state]);
-
-    const drivedAssetType = useMemo(() => {
-        return data?.results.map((item) => {
-            return {
-                label: item.name,
-                value: item.id,
-            };
-        });
-    }, [data?.results]);
-
-    const drivedConditions = useMemo(() => {
-        return conditions?.results.map((item) => {
-            return {
-                label: item.description,
-                value: item.id,
-            };
-        });
-    }, [conditions?.results]);
-
-    const { data: fundingSource } = useFundingSourcesQuery({
+    const { data: fundingSource } = useUseGetAllFundingSourceQuery({
         page: 1,
-        page_size: 100,
+        size: 200000,
     });
-    const { data: location } = useLocationQuery({
+    const { data: location } = useGetAllLocationsQuery({
         page: 1,
-        page_size: 100,
+        size: 2000000,
     });
-    const drivedFundingSource = useMemo(() => {
-        return fundingSource?.results.map((item) => {
-            return {
-                label: item.name,
-                value: item.id,
-            };
-        });
-    }, [fundingSource?.results]);
-
-    const drivedLocation = useMemo(() => {
-        return location?.results.map((item: any) => {
-            return {
-                label: item.name,
-                value: item.id,
-            };
-        });
-    }, [location?.results]);
 
     const onSubmit: SubmitHandler<z.infer<typeof schema>> = async (data) => {
         try {
@@ -163,7 +113,7 @@ const AddAssets = () => {
                             label="Asset"
                             name="asset_type"
                             required
-                            options={drivedAssetType}
+                            options={[]}
                         />
                         <FormInput label="Assignee" name="assignee" required />
                         <FormInput
@@ -176,7 +126,7 @@ const AddAssets = () => {
                                 label="Implementer"
                                 name="implementer"
                                 required
-                                options={drivedFundingSource}
+                                options={[]}
                             />
                             <FormInput
                                 label="Date of Acquisition"
@@ -188,21 +138,21 @@ const AddAssets = () => {
                                 label="Select State"
                                 name="state"
                                 required
-                                options={drivedState}
+                                options={[]}
                             />
                         </div>
                         <div className="grid grid-cols-3 gap-x-14">
                             <FormSelect
                                 label="Asset Condition"
                                 name="asset_condition"
-                                options={drivedConditions}
+                                options={[]}
                                 required
                             />
                             <FormSelect
                                 label="Location"
                                 name="location"
                                 required
-                                options={drivedLocation}
+                                options={[]}
                             />
                             <FormInput
                                 label="Estimated Life Span"

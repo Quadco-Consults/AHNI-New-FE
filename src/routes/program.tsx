@@ -186,24 +186,7 @@ export const program = [
                 )
         ),
     },
-    {
-        path: RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS_CREATE,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/programs/stakeholder-management/analysis-mapping/Create-analysis"
-                )
-        ),
-    },
-    {
-        path: RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS_DETAILS,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/programs/stakeholder-management/analysis-mapping/[id]/index"
-                )
-        ),
-    },
+
     {
         path: RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER,
         element: lazy(
