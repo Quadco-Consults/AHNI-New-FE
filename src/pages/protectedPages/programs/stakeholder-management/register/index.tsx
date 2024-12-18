@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unknown-property */
 import { Link, generatePath } from "react-router-dom";
 import Card from "components/shared/Card";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
@@ -13,48 +12,34 @@ import DeleteIcon from "components/icons/DeleteIcon";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
-} from "components/ui/breadcrumb";
-import { Icon } from "@iconify/react";
-import {
     useDeleteStakeholderRegisterMutation,
     useGetAllStakeholderRegisterQuery,
 } from "services/programsApi/stakeholder";
-import { TStakeholderRegisterResponse } from "definations/program-validator";
 import { toast } from "sonner";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 import { useState } from "react";
+import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
+import { TStakeholderRegisterData } from "definations/program-validator";
 
-const Register = () => {
-    const { data, isLoading } = useGetAllStakeholderRegisterQuery({
-        no_paginate: false,
-    });
+const breadcrumbs: TBreadcrumbList[] = [
+    { name: "Programs", icon: true },
+    { name: "Stakeholder Managament", icon: true },
+    { name: "Stakeholder Register", icon: false },
+];
+
+export default function StakeholderRegisterPage() {
+    const [page, setPage] = useState(1);
+
+    const { data: stakeholderRegister, isLoading } =
+        useGetAllStakeholderRegisterQuery({
+            page,
+            size: 10,
+        });
 
     return (
         <div className="space-y-5">
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Programs</BreadcrumbPage>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Icon icon="iconoir:slash" />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Stakeholder Management</BreadcrumbPage>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Icon icon="iconoir:slash" />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Stakeholder Register</BreadcrumbPage>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
+            <BreadcrumbCard list={breadcrumbs} />
+
             <div className="flex justify-end">
                 <Link
                     to={
@@ -84,106 +69,103 @@ const Register = () => {
                 </div>
 
                 <DataTable
-                    data={data?.data.results || []}
-                    // @ts-ignore
+                    data={stakeholderRegister?.data.results || []}
                     columns={columns}
                     isLoading={isLoading}
                 />
             </Card>
         </div>
     );
-};
+}
 
-export default Register;
-
-const columns: ColumnDef<TStakeholderRegisterResponse>[] = [
+const columns: ColumnDef<TStakeholderRegisterData>[] = [
     {
         header: "Stakeholder Name",
         id: "name",
-        accessorFn: (data) => `${data.name}`,
+        accessorFn: ({ name }) => `${name}`,
         size: 250,
     },
     {
         header: "Physical Office Address",
         id: "office_address",
-        accessorFn: (data) => `${data.office_address}`,
+        accessorFn: ({ office_address }) => `${office_address}`,
         size: 250,
     },
     {
         header: "Institution/Organization",
         id: "organization",
-        accessorFn: (data) => `${data.organization}`,
+        accessorFn: ({ organization }) => `${organization}`,
         size: 300,
     },
     {
         header: "Designation",
         id: "designation",
-        accessorFn: (data) => `${data.designation}`,
+        accessorFn: ({ designation }) => `${designation}`,
     },
     {
         header: "State",
         id: "state",
-        accessorFn: (data) => `${data.state}`,
+        accessorFn: ({ state }) => `${state}`,
         size: 150,
     },
     {
         header: "Phone Number",
         id: "phone_number",
-        accessorFn: (data) => `${data.phone_number}`,
+        accessorFn: ({ phone_number }) => `${phone_number}`,
         size: 150,
     },
     {
         header: "E-Mail",
         id: "email",
-        accessorFn: (data) => `${data.email}`,
+        accessorFn: ({ email }) => `${email}`,
         size: 200,
     },
     {
         header: "Project Role",
         id: "project_role",
-        accessorFn: (data) => `${data.project_role}`,
+        accessorFn: ({ project_role }) => `${project_role}`,
         size: 200,
     },
     {
         header: "Importance",
         id: "importance",
-        accessorFn: (data) => `${data.importance}`,
+        accessorFn: ({ importance }) => `${importance}`,
         size: 200,
     },
     {
         header: "Influence",
         id: "influence",
-        accessorFn: (data) => `${data.influence}`,
+        accessorFn: ({ influence }) => `${influence}`,
         size: 200,
     },
     {
         header: "Score",
         id: "score",
-        accessorFn: (data) => `${data.score}`,
+        accessorFn: ({ score }) => `${score}`,
         size: 200,
     },
     {
         header: "Major Concerns",
         id: "major_concerns",
-        accessorFn: (data) => `${data.major_concerns}`,
+        accessorFn: ({ major_concerns }) => `${major_concerns}`,
         size: 200,
     },
 
     {
         header: "Relationship Owner",
         id: "relationship_owner",
-        accessorFn: (data) => `${data.relationship_owner}`,
+        accessorFn: ({ relationship_owner }) => `${relationship_owner}`,
         size: 200,
     },
     {
         header: "",
         id: "actions",
         size: 80,
-        cell: ({ row }) => <ActionListAction data={row.original} />,
+        cell: ({ row }) => <TableAction data={row.original} />,
     },
 ];
 
-const ActionListAction = ({ data }: { data: TStakeholderRegisterResponse }) => {
+const TableAction = ({ data }: { data: TStakeholderRegisterData }) => {
     const [dialogOpen, setDialogOpen] = useState(false);
 
     const [deleteStakeholderRegister, { isLoading: isDeleteLoading }] =

@@ -1,10 +1,8 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import FormButton from "atoms/FormButton";
-import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "components/ui/button";
 import FundRequstLayout from "./FundRequstLayout";
 import React, { useState } from "react";
-import { Input } from "components/ui/input";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { Form } from "components/ui/form";
 import {
@@ -15,11 +13,6 @@ import {
     TableHeader,
     TableRow,
 } from "components/ui/table";
-import { openDialog } from "store/ui";
-import { DialogType, largeDailogScreen } from "constants/dailogs";
-import { useAppDispatch } from "hooks/useStore";
-import { useCreateFundRequestMutation } from "services/programsApi/fund-request";
-import { toast } from "sonner";
 import {
     FundRequestActivitySchema,
     TFundRequestActivityFormValues,
@@ -27,7 +20,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelect";
-import { useGetCostCategoryQuery } from "services/moduleFinance";
+import { useGetAllCostCategoriesQuery } from "services/modules/finance/cost-category";
 
 const FundSummary: React.FC = () => {
     const navigate = useNavigate();
@@ -42,8 +35,9 @@ const FundSummary: React.FC = () => {
         name: "activities",
     });
 
-    const { data: costCategory } = useGetCostCategoryQuery({
-        no_paginate: false,
+    const { data: costCategory } = useGetAllCostCategoriesQuery({
+        page: 1,
+        size: 2000000,
     });
 
     const costCategoryOptions = costCategory?.data.results.map(

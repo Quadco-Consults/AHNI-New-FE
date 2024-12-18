@@ -7,8 +7,6 @@ type PropsType = {
 
 export default function Summary({
     data: {
-        id,
-        budget_unit_cost_ngn,
         project: { objectives, partners, title, budget },
     },
 }: PropsType) {

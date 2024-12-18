@@ -26,85 +26,85 @@ const ChartTab = ({ data }: PropsType) => {
 
             {
                 header: "Oct",
-                accessorKey: "gant_chart",
-                accessorFn: (data) => `${data.gant_chart["Oct"]}`,
+                accessorFn: (data) =>
+                    `${data.gant_chart ? data?.gant_chart["Oct"] : "N/A"}`,
                 size: 100,
             },
 
             {
                 header: "Nov",
-                accessorKey: "gant_chart",
-                accessorFn: (data) => `${data.gant_chart["Nov"]}`,
+                accessorFn: (data) =>
+                    `${data.gant_chart ? data?.gant_chart["Nov"] : "N/A"}`,
                 size: 100,
             },
 
             {
                 header: "Dec",
-                accessorKey: "gant_chart",
-                accessorFn: (data) => `${data.gant_chart["Dec"]}`,
+                accessorFn: (data) =>
+                    `${data.gant_chart ? data?.gant_chart["Dec"] : "N/A"}`,
                 size: 100,
             },
 
             {
                 header: "Jan",
-                accessorKey: "gant_chart",
-                accessorFn: (data) => `${data.gant_chart["Jan"]}`,
+                accessorFn: (data) =>
+                    `${data.gant_chart ? data?.gant_chart["Jan"] : "N/A"}`,
                 size: 100,
             },
 
             {
                 header: "Feb",
-                accessorKey: "gant_chart",
-                accessorFn: (data) => `${data.gant_chart["Feb"]}`,
+                accessorFn: (data) =>
+                    `${data.gant_chart ? data?.gant_chart["Feb"] : "N/A"}`,
                 size: 100,
             },
 
             {
                 header: "Mar",
-                accessorKey: "gant_chart",
-                accessorFn: (data) => `${data.gant_chart["Mar"]}`,
+                accessorFn: (data) =>
+                    `${data.gant_chart ? data?.gant_chart["Mar"] : "N/A"}`,
                 size: 100,
             },
 
             {
                 header: "Apr",
-                accessorKey: "gant_chart",
-                accessorFn: (data) => `${data.gant_chart["Apr"]}`,
+                accessorFn: (data) =>
+                    `${data.gant_chart ? data?.gant_chart["Apr"] : "N/A"}`,
                 size: 100,
             },
 
             {
                 header: "May",
-                accessorKey: "gant_chart",
-                accessorFn: (data) => `${data.gant_chart["May"]}`,
+                accessorFn: (data) =>
+                    `${data.gant_chart ? data?.gant_chart["May"] : "N/A"}`,
                 size: 100,
             },
 
             {
                 header: "Jun",
-                accessorKey: "gant_chart",
-                accessorFn: (data) => `${data.gant_chart["Jun"]}`,
+                accessorFn: (data) =>
+                    `${data.gant_chart ? data?.gant_chart["Jun"] : "N/A"}`,
                 size: 100,
             },
 
             {
                 header: "Jul",
-                accessorKey: "gant_chart",
-                accessorFn: (data) => `${data.gant_chart["Jul"]}`,
+                accessorFn: (data) =>
+                    `${data.gant_chart ? data?.gant_chart["Jul"] : "N/A"}`,
                 size: 100,
             },
 
             {
                 header: "Aug",
-                accessorKey: "gant_chart",
-                accessorFn: (data) => `${data.gant_chart["Aug"]}`,
+                accessorFn: (data) =>
+                    `${data.gant_chart ? data?.gant_chart["Aug"] : "N/A"}`,
                 size: 100,
             },
 
             {
                 header: "Sep",
-                accessorKey: "gant_chart",
-                accessorFn: (data) => `${data.gant_chart["Sep"]}`,
+                accessorFn: (data) =>
+                    `${data.gant_chart ? data?.gant_chart["Sep"] : "N/A"}`,
                 size: 100,
             },
         ],

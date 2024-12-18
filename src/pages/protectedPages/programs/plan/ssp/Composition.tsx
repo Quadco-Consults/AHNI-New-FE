@@ -4,7 +4,6 @@ import { Form, FormControl, FormField, FormItem } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelectField";
-import { ChevronRight } from "lucide-react";
 import FormButton from "atoms/FormButton";
 import { Button } from "components/ui/button";
 import { Label } from "components/ui/label";
@@ -12,25 +11,25 @@ import { SelectContent, SelectItem } from "components/ui/select";
 import { LoadingSpinner } from "components/shared/Loading";
 import MultiSelectFormField from "components/ui/sspmultiselect";
 import { useEffect } from "react";
-import {
-    useFacilitiesQuery,
-    useLazyGetSingleFacilityQuery,
-} from "services/module-programs";
+
 import {
     SSPCompositionSchema,
     TSSPCompositionFormValues,
 } from "definations/program-types/ssp";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useGetUserQuery } from "services/users";
 import { toast } from "sonner";
 import Card from "components/shared/Card";
+import {
+    useGetAllFacilityQuery,
+    useLazyGetSingleFacilityQuery,
+} from "services/modules/program/facility";
+import { useGetAllUsersQuery } from "services/users";
 
 const Composition = () => {
-    const { data: facility, isLoading: isFacilityLoading } = useFacilitiesQuery(
-        { no_paginate: false }
-    );
+    const { data: facility, isLoading: isFacilityLoading } =
+        useGetAllFacilityQuery({ page: 1, size: 2000000 });
 
-    const { data: user } = useGetUserQuery({ no_paginate: false });
+    const { data: user } = useGetAllUsersQuery({ page: 1, size: 2000000 });
 
     const [
         getSingleFacility,
@@ -82,21 +81,6 @@ const Composition = () => {
         path += "/evolution-checklist";
 
         navigate(path);
-
-        // try {
-        //     if (id) {
-        //         // edit ssp
-        //         toast.success("Support Supervision Plan Updated");
-        //     } else {
-        //         const responseData = await createSSP(data).unwrap();
-        //         response = responseData;
-        //         toast.success("Support Supervision Plan Created");
-        //     }
-
-        //
-        // } catch (error: any) {
-        //     toast.error(error.data.message || "Something went wrong");
-        // }
     };
 
     return (
@@ -144,14 +128,14 @@ const Composition = () => {
                                                         State :
                                                     </h4>
                                                     <h4>
-                                                        {facilityData?.state}
+                                                        {facilityData?.data.state}
                                                     </h4>
                                                 </div>
                                                 <div className="flex items-center gap-5">
                                                     <h4 className="w-1/6 font-medium">
                                                         LGA :
                                                     </h4>
-                                                    <h4>{facilityData?.lga}</h4>
+                                                    <h4>{facilityData?.data.lga}</h4>
                                                 </div>
                                             </Card>
                                             <div className="space-y-1">
@@ -167,7 +151,7 @@ const Composition = () => {
                                                             </h4>
                                                             <h4>
                                                                 {
-                                                                    facilityData?.name
+                                                                    facilityData?.data.name
                                                                 }
                                                             </h4>
                                                         </div>
@@ -177,7 +161,7 @@ const Composition = () => {
                                                             </h4>
                                                             <h4>
                                                                 {
-                                                                    facilityData?.postion
+                                                                    facilityData?.data.postion
                                                                 }
                                                             </h4>
                                                         </div>
@@ -187,7 +171,7 @@ const Composition = () => {
                                                             </h4>
                                                             <h4>
                                                                 {
-                                                                    facilityData?.phone
+                                                                    facilityData?.data.phone
                                                                 }
                                                             </h4>
                                                         </div>

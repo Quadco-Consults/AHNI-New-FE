@@ -3,7 +3,6 @@ import {
     TFacilityData,
     TFacilityFormValues,
 } from "definations/modules/program/facility";
-import { FacilityData } from "definations/program-types/facilities";
 import baseAPI from "services/index";
 
 const FacilityAPI = baseAPI.injectEndpoints({
@@ -19,7 +18,7 @@ const FacilityAPI = baseAPI.injectEndpoints({
             providesTags: ["Facilities"],
         }),
 
-        getSingleFacility: builder.query<TResponse<FacilityData>, string>({
+        getSingleFacility: builder.query<TResponse<TFacilityData>, string>({
             query: (id) => ({
                 method: "GET",
                 url: `/programs/facility/${id}`,
@@ -27,7 +26,7 @@ const FacilityAPI = baseAPI.injectEndpoints({
         }),
 
         addFacility: builder.mutation<
-            TResponse<FacilityData>,
+            TResponse<TFacilityData>,
             TFacilityFormValues
         >({
             query: (body) => ({
@@ -39,7 +38,7 @@ const FacilityAPI = baseAPI.injectEndpoints({
         }),
 
         updateFacility: builder.mutation<
-            TResponse<FacilityData>,
+            TResponse<TFacilityData>,
             { id: string; body: TFacilityFormValues }
         >({
             query: ({ id, body }) => ({
@@ -50,7 +49,7 @@ const FacilityAPI = baseAPI.injectEndpoints({
             invalidatesTags: ["Facilities"],
         }),
 
-        deleteFacility: builder.mutation<TResponse<FacilityData>, string>({
+        deleteFacility: builder.mutation<TResponse<TFacilityData>, string>({
             query: (id) => ({
                 url: `/programs/facility/${id}`,
                 method: "DELETE",
@@ -63,6 +62,7 @@ const FacilityAPI = baseAPI.injectEndpoints({
 export const {
     useGetAllFacilityQuery,
     useGetSingleFacilityQuery,
+    useLazyGetSingleFacilityQuery,
     useAddFacilityMutation,
     useUpdateFacilityMutation,
     useDeleteFacilityMutation,

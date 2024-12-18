@@ -1,18 +1,9 @@
 import logoPng from "assets/imgs/logo.png";
 import { skipToken } from "@reduxjs/toolkit/query/react";
-import { ColumnDef } from "@tanstack/react-table";
-import DataTable from "components/Table/DataTable";
-import { TFundRequestActivity } from "definations/program-validator";
 import useQuery from "hooks/useQuery";
-import {
-    useGetSingleFinancialYearQuery,
-    useGetSingleLocationQuery,
-} from "services/moduleConfig";
 import { useGetSingleFundRequestQuery } from "services/programsApi/fund-request";
 import { useGetSingleProjectQuery } from "services/project";
-import { useGetSingleUserQuery } from "services/users";
 import Card from "components/shared/Card";
-import React from "react";
 import FundActivityTable from "./FundActivityTable";
 import { LoadingSpinner } from "components/shared/Loading";
 

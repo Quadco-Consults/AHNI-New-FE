@@ -23,8 +23,6 @@ import {
     RiskPlanManagementSchema,
     TRiskPlanManagementFormValues,
 } from "definations/program-validator";
-import { useGetRiskCategoriesQuery } from "services/programsApi/risk-categories";
-import { useDepartmentsQuery } from "services/moduleConfig";
 import {
     useCreateRiskManagementPlanMutation,
     useGetSingleRiskPlanManagementQuery,
@@ -34,6 +32,8 @@ import { toast } from "sonner";
 import useQuery from "hooks/useQuery";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import { useEffect } from "react";
+import { useGetAllRiskCategoryQuery } from "services/modules/program/risk-category";
+import { useGetAllDepartmentsQuery } from "services/modules/config/department";
 
 const levelOptions = ["VERY_LOW", "LOW", "MEDIUM", "HIGH", "VERY_HIGH"].map(
     (option) => ({
@@ -73,14 +73,20 @@ const CreateRickManagement = () => {
 
     const { handleSubmit, reset } = form;
 
-    const { data: riskCategories } = useGetRiskCategoriesQuery({});
+    const { data: riskCategory } = useGetAllRiskCategoryQuery({
+        page: 1,
+        size: 2000000,
+    });
 
-    const riskCategoryOptions = riskCategories?.data.results.map((cat) => ({
+    const riskCategoryOptions = riskCategory?.data.results.map((cat) => ({
         label: cat.name,
         value: cat.id,
     }));
 
-    const { data: departments } = useDepartmentsQuery({ no_paginate: false });
+    const { data: departments } = useGetAllDepartmentsQuery({
+        page: 1,
+        size: 2000000,
+    });
 
     const departmentOptions = departments?.data.results.map((dep) => ({
         label: dep.name,

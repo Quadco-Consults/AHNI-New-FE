@@ -4,18 +4,16 @@ import LongArrowLeft from "components/icons/LongArrowLeft";
 import Card from "components/shared/Card";
 import Summary from "./Summary";
 import Activity from "./activity";
-import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
-} from "components/ui/breadcrumb";
-import { Icon } from "@iconify/react";
-import { RouteEnum } from "constants/RouterConstants";
 import { useGetSingleWorkPlanQuery } from "services/programsApi/work-plan";
 import { skipToken } from "@reduxjs/toolkit/query/react";
+import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
+
+const breadcrumbs: TBreadcrumbList[] = [
+    { name: "Programs", icon: true },
+    { name: "Plans", icon: true },
+    { name: "Work Plan", icon: true },
+    { name: "Details", icon: false },
+];
 
 const WorkPlanDetail = () => {
     const navigate = useNavigate();
@@ -30,33 +28,8 @@ const WorkPlanDetail = () => {
 
     return (
         <div className="space-y-6 relative min-h-screen">
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Programs</BreadcrumbPage>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Icon icon="iconoir:slash" />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Plans</BreadcrumbPage>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Icon icon="iconoir:slash" />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href={RouteEnum.PROGRAM_WORK_PLAN}>
-                            Work Plan
-                        </BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Icon icon="iconoir:slash" />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Details</BreadcrumbPage>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
+            <BreadcrumbCard list={breadcrumbs} />
+
             <button
                 onClick={goBack}
                 className="w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center"

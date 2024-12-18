@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { useGetAllSupervisionPlanQuery } from "services/programsApi/ssp";
 import { TSupervisionPlanPaginatedData } from "definations/program-types/ssp";
 import BreadcrumbCard from "components/shared/Breadcrumb";
+import { useState } from "react";
 
 const breadcrumbs = [
     { name: "Programs", icon: true },
@@ -32,11 +33,13 @@ const breadcrumbs = [
     { name: "Supportive Supervision Plan", icon: false },
 ];
 export default function SupportiveSupervisionPlan() {
-    const dispatch = useAppDispatch();
+    const [page, setPage] = useState(1);
 
-    const { data: supervisionPlan, isLoading } = useGetAllSupervisionPlanQuery({
-        no_paginate: false,
-    });
+    const { data: supervisionPlan, isFetching } = useGetAllSupervisionPlanQuery(
+        { page, size: 10 }
+    );
+
+    const dispatch = useAppDispatch();
 
     return (
         <div className="space-y-5">
@@ -109,7 +112,13 @@ export default function SupportiveSupervisionPlan() {
                 <DataTable
                     data={supervisionPlan?.data.results || []}
                     columns={columns}
-                    isLoading={isLoading}
+                    isLoading={isFetching}
+                    pagination={{
+                        total: supervisionPlan?.data.pagination.count ?? 0,
+                        pageSize:
+                            supervisionPlan?.data.pagination.page_size ?? 0,
+                        onChange: (page: number) => setPage(page),
+                    }}
                 />
             </Card>
         </div>
@@ -126,29 +135,33 @@ const columns: ColumnDef<TSupervisionPlanPaginatedData>[] = [
     {
         header: "State",
         id: "state",
-        accessorKey: "sta",
+        accessorKey: "state",
         size: 150,
     },
     {
         header: "LGA",
         id: "lga",
+        accessorKey: "lga",
         size: 150,
     },
 
     {
         header: "Month",
+        id: "month",
         accessorKey: "month",
         size: 150,
     },
 
     {
         header: "Year",
+        id: "year",
         accessorKey: "year",
         size: 150,
     },
 
     {
         header: "Status",
+        id: "status",
         accessorKey: "status",
         size: 100,
         cell: ({ getValue }) => {
@@ -187,9 +200,8 @@ const ActionListAction = ({ data }: any) => {
                 path: { id: data?.id },
             }).unwrap();
             toast.success("Successfully deleted");
-        } catch (error) {
-            console.log(error);
-            toast.error("Something went wrong");
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
     return (
@@ -257,7 +269,7 @@ const ActionListAction = ({ data }: any) => {
                                 onClick={deleteHandler}
                             >
                                 <DeleteIcon />
-                                delete
+                                Delete
                             </Button>
                         </div>
                     </PopoverContent>

@@ -4,7 +4,10 @@ import logoPng from "assets/imgs/logo.png";
 import BackNavigation from "atoms/BackNavigation";
 import Card from "components/shared/Card";
 import DataTable from "components/Table/DataTable";
-import { FundRequestPaginatedData } from "definations/program-types/fund-request";
+import {
+    FundRequestPaginatedData,
+    TFundRequestResponseData,
+} from "definations/program-types/fund-request";
 import { useParams } from "react-router-dom";
 import { useGetAllFundRequestsQuery } from "services/programsApi/fund-request";
 import { useGetSingleProjectQuery } from "services/project";

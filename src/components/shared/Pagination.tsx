@@ -28,7 +28,7 @@ export default function Pagination({
             <div className={`flex ${placement === "right" && "justify-end"}`}>
                 <ReactPaginate
                     className={cn(
-                        `flex items-center gap-5 mt-10 px-5 py-3`,
+                        `flex items-center gap-4 mt-10 px-5 py-3`,
                         className
                     )}
                     breakLabel="..."
@@ -44,8 +44,9 @@ export default function Pagination({
                     pageRangeDisplayed={5}
                     pageCount={pageCount}
                     renderOnZeroPageCount={null}
-                    pageClassName="font-bold text-center bg-gray-100 px-2.5 py-1 rounded-md text-gray-500 cursor-pointer transition-all duration-150 hover:bg-primary hover:text-white"
-                    activeClassName="px-2.5 py-1 border-gray-500 rounded-md bg-primary text-white"
+                    pageClassName="font-bold text-center bg-gray-100 rounded-md text-gray-500 cursor-pointer transition-all duration-150 hover:bg-primary hover:text-white"
+                    activeClassName="border-gray-500 rounded-md bg-primary text-white"
+                    pageLinkClassName="inline-block px-2.5 py-1 w-full h-full"
                 />
             </div>
         );
