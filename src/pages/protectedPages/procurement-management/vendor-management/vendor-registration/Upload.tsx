@@ -241,22 +241,61 @@ const Upload = () => {
         : []),
     ];
 
+    console.log("I am here now, new check 2");
+
     // For each file, append it to FormData and handle loading/error states
     for (let { field, index, file } of allFiles) {
       if (!file.file) continue; // Skip if no file uploaded
+      const clonedFile = [file?.file];
+      console.log({ file });
+
+      // const convertFileToBinary = (file: File): Promise<string> => {
+      //   return new Promise((resolve, reject) => {
+      //     const reader = new FileReader();
+
+      //     reader.onload = () => {
+      //       const bytes = new Uint8Array(reader.result as ArrayBuffer);
+      //       let binaryString = "";
+
+      //       // Convert each byte to binary string
+      //       for (let i = 0; i < bytes.length; i++) {
+      //         binaryString += String.fromCharCode(bytes[i]);
+      //       }
+
+      //       resolve(binaryString);
+      //     };
+
+      //     reader.onerror = (error: ProgressEvent<FileReader>) => {
+      //       reject(error);
+      //     };
+
+      //     reader.readAsArrayBuffer(file);
+      //   });
+      // };
+
+      // const newFile = await convertFileToBinary(clonedFile);
+      console.log("I am here now, new check");
 
       try {
         setLoader(field, index, true); // Set loader for the current file
+        console.log("I am here now");
 
         // Prepare FormData object
         const formData = new FormData();
 
+        // Append all files
+        clonedFile.forEach((file) => {
+          formData.append("files", file); // The key "files" must match what the backend expects
+        });
+        // const newArray = ["hello"];
         // Append file and additional data to FormData
-        formData.append(`file`, file.file as Blob);
-        formData.append(`document_type`, file.document_type || "");
-        formData.append(`title`, file.title || "");
+        // @ts-ignore
+        // formData.append(`files`, file?.file);
+        // formData.append(`files`, clonedFile);
+        formData.append(`document_type`, "Other Documents" || "");
+        formData.append(`title`, "Mrs Justina_100750" || "");
         formData.append(`description`, file.description || "");
-        formData.append(`vendor`, vendor || "");
+        formData.append(`vendor`, "6c4e5c7c-1c10-4d38-9126-829eeaaa4cfd" || "");
 
         // Send the request
         await createVendorDocumentMutation(formData).unwrap();
