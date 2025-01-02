@@ -10,7 +10,7 @@ import {
 import { VendorsSchema } from "definations/procurement-validator";
 import { z } from "zod";
 
-const BASE_URL = "/procurement/vendors/";
+const BASE_URL = "/procurements/vendors/";
 
 const VendorsAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({

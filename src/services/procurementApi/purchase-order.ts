@@ -9,7 +9,7 @@ import {
   PurchaseOrderResultsData,
 } from "definations/procurement-types/purchase-order";
 
-const BASE_URL = "/procurement/purchase-orders/";
+const BASE_URL = "/procurements/purchase-orders/";
 
 const PurchaseOrderAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
