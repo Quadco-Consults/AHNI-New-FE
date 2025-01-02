@@ -8,21 +8,24 @@ import {
 } from "definations/procurement-types/questionairs";
 import { z } from "zod";
 import { QuestionairSchema } from "definations/procurement-validator";
+import { TBasePaginatedResponse } from "definations/auth";
 
-const BASE_URL = "/procurement/questionairs/";
+const BASE_URL = "/procurements/questionaire/";
 
 const QuestionairAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getQuestionairs: builder.query<QuestionairData[], {}>({
-      query: (config) => {
-        return {
-          url: `${BASE_URL}`,
-          ...config,
-        };
-      },
-      providesTags: (data, error) =>
-        !error ? provideTags("QUESTIONAIR", data) : [],
-    }),
+    getQuestionairs: builder.query<TBasePaginatedResponse<QuestionairData>, {}>(
+      {
+        query: (config) => {
+          return {
+            url: `${BASE_URL}`,
+            ...config,
+          };
+        },
+        providesTags: (data, error) =>
+          !error ? provideTags("QUESTIONAIR", data) : [],
+      }
+    ),
 
     createQuestionair: builder.mutation<
       QuestionairResponse,

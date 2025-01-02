@@ -13,7 +13,7 @@ import {
   SolicitationSubmissionData,
 } from "definations/procurement-types/solicitation";
 
-const BASE_URL = "/procurement/solicitations/";
+const BASE_URL = "/procurements/solicitations/";
 
 const SolicitationAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({

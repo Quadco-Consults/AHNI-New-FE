@@ -8,7 +8,7 @@ import {
   VendorsDocumentResultsData,
 } from "definations/procurement-types/vendors-document";
 
-const BASE_URL = "/procurement/vendor-documents/";
+const BASE_URL = "/procurements/vendor-documents/";
 
 const VendorsDocumentAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({

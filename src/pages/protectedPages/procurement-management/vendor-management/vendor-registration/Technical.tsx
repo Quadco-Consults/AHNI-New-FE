@@ -58,11 +58,11 @@ const Technical = () => {
   return (
     <VendorRegistationLayout>
       <div>
-        <h2 className="text-lg font-bold">Technical Capacity</h2>
+        <h2 className='text-lg font-bold'>Technical Capacity</h2>
         <Form {...form}>
-          <form className="mt-10" onSubmit={handleSubmit(onSubmit)}>
+          <form className='mt-10' onSubmit={handleSubmit(onSubmit)}>
             <div>
-              <Label className="text-red-500">
+              <Label className='text-red-500'>
                 Details of Production Equipment
               </Label>
               <div>
@@ -70,80 +70,80 @@ const Technical = () => {
                   const label = String.fromCharCode("a".charCodeAt(0) + index);
                   return (
                     <div
-                      className="flex items-center justify-between gap-x-3 "
+                      className='flex items-center justify-between gap-x-3 '
                       key={index}
                     >
-                      <div className="relative w-[97%] grid grid-cols-3 pl-8 mt-4 gap-x-4 ">
-                        <p className="absolute top-0 left-0 font-semibold ">
+                      <div className='relative w-[97%] grid grid-cols-3 pl-8 mt-4 gap-x-4 '>
+                        <p className='absolute top-0 left-0 font-semibold '>
                           ({label})
                         </p>
                         <FormInput
-                          label="Equipment Name"
+                          label='Equipment Name'
                           name={`production_equipments[${index}].name`}
                           defaultValue={field.name}
                           required
                         />
                         <FormInput
-                          label="Manufacturer"
+                          label='Manufacturer'
                           name={`production_equipments[${index}].manufacturer`}
                           defaultValue={field.manufacturer}
                           required
                         />
                         <FormInput
-                          label="Year"
+                          label='Year'
                           name={`production_equipments[${index}].year`}
                           defaultValue={field.year}
                           required
                         />
                       </div>
-                      <div className="flex items-center h-full ">
+                      <div className='flex items-center h-full '>
                         <MinusCircle
                           onClick={() => remove(index)}
-                          className="cursor-pointer text-primary"
+                          className='cursor-pointer text-primary'
                         />
                       </div>
                     </div>
                   );
                 })}
-                <div className="flex justify-end mt-2">
+                <div className='flex justify-end mt-2'>
                   <PlusCircle
                     onClick={() =>
                       append({ name: "", manufacturer: "", year: "" })
                     }
-                    className="cursor-pointer text-primary"
+                    className='cursor-pointer text-primary'
                   />
                 </div>
               </div>
             </div>
-            <Separator className="mt-8" />
-            <div className="mt-10">
-              <FormInput name="installed_capacity" label="Installed Capacity" />
+            <Separator className='mt-8' />
+            <div className='mt-10'>
+              <FormInput name='installed_capacity' label='Installed Capacity' />
             </div>
-            <div className="grid grid-cols-2 gap-6 mt-10">
+            <div className='grid grid-cols-2 gap-6 mt-10'>
               <FormInput
-                name="lagest_capacity_and_utilization"
-                label="Latest Capacity and Utilization"
+                name='lagest_capacity_and_utilization'
+                label='Latest Capacity and Utilization'
               />
               <FormInput
-                label="Number of operational work shifts"
-                type="number"
-                name="number_of_operational_work_shift"
+                label='Number of operational work shifts'
+                type='number'
+                name='number_of_operational_work_shift'
               />
               <FormInput
-                label="Provide Brief Details of Quality Control Procedures"
-                name="brief_of_quality_control"
+                label='Provide Brief Details of Quality Control Procedures'
+                name='brief_of_quality_control'
               />
               <FormInput
-                label="Provide brief details of sampling procedures"
-                name="brief_of_sampling"
+                label='Provide brief details of sampling procedures'
+                name='brief_of_sampling'
               />
             </div>
-            <div className="flex justify-between pt-24">
+            <div className='flex justify-between pt-24'>
               <FormButton
                 onClick={() => navigate(-1)}
                 preffix={<ArrowLeft size={14} />}
-                type="button"
-                className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                type='button'
+                className='bg-[#FFF2F2] text-primary dark:text-gray-500'
               >
                 Back
               </FormButton>
