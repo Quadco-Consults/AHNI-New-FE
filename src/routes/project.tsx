@@ -14,14 +14,14 @@ export const project = [
     {
         path: RouteEnum.PROJECTS_CREATE_SUMMARY,
         element: lazy(
-            () => import("pages/protectedPages/projects/create-project/Summary")
+            () => import("pages/protectedPages/projects/create/Summary")
         ),
     },
 
     {
         path: RouteEnum.PROJECTS_CREATE_UPLOADS,
         element: lazy(
-            () => import("pages/protectedPages/projects/create-project/Uploads")
+            () => import("pages/protectedPages/projects/create/Uploads")
         ),
     },
 ];

@@ -10,202 +10,128 @@ import {
     SelectTrigger,
     SelectValue,
 } from "components/ui/select";
-import { PartnerResultsData } from "definations/project-types/partners";
-import { useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormMessage,
-} from "components/ui/form";
-import { PartnersFormSchema } from "definations/project-validator";
 import { useDispatch } from "react-redux";
-import { addPartners } from "store/formData/project-values";
-import { LoadingSpinner } from "components/shared/Loading";
+import { addPartner } from "store/formData/project-values";
 import { closeDialog } from "store/ui";
 import { nigerianStates } from "lib/index";
-import { usePartnersQuery } from "services/moduleProjects";
+import { useGetAllPartnersQuery } from "services/modules/project/partners";
+import { useState } from "react";
+import { TPartnerData } from "definations/modules/project/partners";
 import { useAppSelector } from "hooks/useStore";
 
-const ConsortiumModal = () => {
-    const [locationValue, setLocationValue] = useState("");
-    const dispatch = useDispatch();
-
-    const handleLocation = (value: string) => {
-        setLocationValue(value);
-    };
-
-    const { data: partners, isLoading } = usePartnersQuery({
-        no_paginate: false,
-    });
-
-    const { dailog } = useAppSelector((state) => state.ui);
-
-    const { partners: partnerIds } = useAppSelector(
-        (state) => state.partnerLocation
+export default function ConsortiumPartnerModal() {
+    const { consortiumPartners } = useAppSelector(
+        (state) => state.consortiumPartner
     );
 
-    const form = useForm<z.infer<typeof PartnersFormSchema>>({
-        resolver: zodResolver(PartnersFormSchema),
-        defaultValues: {
-            items: partnerIds,
-        },
+    const [partners, setPartners] = useState<TPartnerData[]>([
+        ...consortiumPartners,
+    ]);
+
+    const handleTogglePartner = (value: boolean, partner: TPartnerData) => {
+        if (value) {
+            setPartners([...partners, partner]);
+        } else {
+            setPartners(
+                partners.filter((_partner) => _partner.id !== partner.id)
+            );
+        }
+    };
+
+    const dispatch = useDispatch();
+
+    const { data: partner, isLoading } = useGetAllPartnersQuery({
+        page: 1,
+        size: 2000000,
     });
 
-    const onSubmit = (data: z.infer<typeof PartnersFormSchema>) => {
-        dispatch(addPartners(data.items));
+    const onSubmit = () => {
+        dispatch(addPartner(partners));
 
         dispatch(closeDialog());
     };
 
     return (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-                <div className="flex flex-col mt-5 items-center justify-center w-full h-[80vh] ">
-                    <ScrollArea className="h-[90%] space-y-5 pb-5">
-                        <div className="flex flex-col items-center justify-between">
-                            <div>
-                                <img src={logoPng} alt="logo" width={150} />
-                            </div>
-                            <h4 className="mt-5 text-lg font-bold">
-                                Select Consortium partners
-                            </h4>
-                            <p className="mt-5 text-muted-foreground">
-                                You can search for partners based on their name
-                                and location
-                            </p>
+        <div className="flex flex-col mt-5 items-center justify-center w-full h-[80vh] ">
+            <ScrollArea className="h-[90%] space-y-5 pb-5">
+                <div className="flex flex-col items-center justify-between">
+                    <div>
+                        <img src={logoPng} alt="logo" width={150} />
+                    </div>
+                    <h4 className="mt-5 text-lg font-bold">
+                        Select Consortium partners
+                    </h4>
+                    <p className="mt-5 text-muted-foreground">
+                        You can search for partners based on their name and
+                        location
+                    </p>
 
-                            <div className="flex gap-2 mt-6 items-center w-full max-w-sm">
-                                <Select onValueChange={handleLocation}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Location" />
-                                    </SelectTrigger>
+                    <div className="flex gap-2 mt-6 items-center w-full max-w-sm">
+                        <Select>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Location" />
+                            </SelectTrigger>
 
-                                    <SelectContent>
-                                        {nigerianStates?.map(
-                                            (
-                                                partner: string,
-                                                index: number
-                                            ) => (
-                                                <SelectItem
-                                                    key={index}
-                                                    value={partner}
-                                                >
-                                                    {partner}
-                                                </SelectItem>
-                                            )
-                                        )}
-                                    </SelectContent>
-                                </Select>
-                                <Button>Search</Button>
-                            </div>
-                        </div>
-
-                        {isLoading ? (
-                            <LoadingSpinner />
-                        ) : (
-                            <FormField
-                                control={form.control}
-                                name="items"
-                                render={() => (
-                                    <FormItem className="grid grid-cols-2 gap-5 bg-gray-100 mt-10 p-5 rounded-lg shadow-inner md:grid-cols-3">
-                                        {partners?.data?.results?.map(
-                                            (item: PartnerResultsData) => (
-                                                <FormField
-                                                    key={item?.id}
-                                                    control={form.control}
-                                                    name="items"
-                                                    render={({ field }) => {
-                                                        return (
-                                                            <FormItem
-                                                                key={item.id}
-                                                                className="flex p-5 bg-white border rounded-lg gap-3 items-center "
-                                                            >
-                                                                <FormControl>
-                                                                    <Checkbox
-                                                                        checked={field.value?.includes(
-                                                                            item?.id
-                                                                        )}
-                                                                        onCheckedChange={(
-                                                                            checked
-                                                                        ) => {
-                                                                            return checked
-                                                                                ? field.onChange(
-                                                                                      [
-                                                                                          ...field.value,
-                                                                                          item?.id,
-                                                                                      ]
-                                                                                  )
-                                                                                : field.onChange(
-                                                                                      field.value?.filter(
-                                                                                          (
-                                                                                              value
-                                                                                          ) =>
-                                                                                              value !==
-                                                                                              item?.id
-                                                                                      )
-                                                                                  );
-                                                                        }}
-                                                                    />
-                                                                </FormControl>
-                                                                <div>
-                                                                    <img
-                                                                        src={
-                                                                            item.logo
-                                                                        }
-                                                                        alt=""
-                                                                        width={
-                                                                            80
-                                                                        }
-                                                                    />
-                                                                </div>
-                                                                <div className="text-sm space-y-1">
-                                                                    <h4>
-                                                                        {
-                                                                            item.name
-                                                                        }
-                                                                    </h4>
-                                                                    <p className="flex items-center gap-1">
-                                                                        <span>
-                                                                            <MapPin
-                                                                                size={
-                                                                                    15
-                                                                                }
-                                                                            />
-                                                                        </span>
-                                                                        {
-                                                                            item.state
-                                                                        }
-                                                                    </p>
-                                                                </div>
-                                                            </FormItem>
-                                                        );
-                                                    }}
-                                                />
-                                            )
-                                        )}
-                                        <FormMessage />
-                                    </FormItem>
+                            <SelectContent>
+                                {nigerianStates?.map(
+                                    (partner: string, index: number) => (
+                                        <SelectItem key={index} value={partner}>
+                                            {partner}
+                                        </SelectItem>
+                                    )
                                 )}
-                            />
-                        )}
-                    </ScrollArea>
-                    <div className="flex justify-end w-full my-5">
-                        <div className="flex items-center gap-x-4">
-                            <p className="text-sm font-medium text-primary">
-                                {form.watch("items").length} Criteria Selected
-                            </p>
-                            <Button type="submit">Save & Continue</Button>
-                        </div>
+                            </SelectContent>
+                        </Select>
+                        <Button>Search</Button>
                     </div>
                 </div>
-            </form>
-        </Form>
-    );
-};
 
-export default ConsortiumModal;
+                <div className="grid grid-cols-2 gap-5 bg-gray-100 mt-10 p-5 rounded-lg shadow-inner md:grid-cols-4">
+                    {partner?.data.results.map(
+                        ({ id, name, state, ...rest }) => {
+                            const checked = partners.findIndex(
+                                (item) => item.id === id
+                            );
+
+                            return (
+                                <div className="flex p-5 bg-white border rounded-lg gap-5 items-center ">
+                                    <Checkbox
+                                        checked={checked > -1 ? true : false}
+                                        onCheckedChange={(value: boolean) =>
+                                            handleTogglePartner(value, {
+                                                id,
+                                                name,
+                                                state,
+                                                ...rest,
+                                            })
+                                        }
+                                    />
+
+                                    <div className="text-sm space-y-1">
+                                        <h4>{name}</h4>
+                                        <p className="flex items-center gap-1">
+                                            <span>
+                                                <MapPin size={15} />
+                                            </span>
+                                            {state}
+                                        </p>
+                                    </div>
+                                </div>
+                            );
+                        }
+                    )}
+                </div>
+            </ScrollArea>
+            <div className="flex justify-end w-full my-5">
+                <div className="flex items-center gap-x-4">
+                    <p className="text-sm font-medium text-primary">
+                        {partners.length} Criteria Selected
+                    </p>
+                    <Button type="button" onClick={onSubmit}>
+                        Save & Continue
+                    </Button>
+                </div>
+            </div>
+        </div>
+    );
+}

@@ -53,9 +53,48 @@ export const AdminRoutes = {
     Insurance: "/admin/agrements/insurance",
     Ticketing: "/admin/agrements/ticketing",
     ViewAggrement: "/admin/agrements/View-Aggrement",
+
+    // ----------------------------------------
+    TravelExpensesReportHome: "/admin/travel-expenses-report",
 };
 
 export const RouteEnum = {
+    // MODULES
+    MODULES_PROJECTS: "/modules/project",
+    MODULES_PROGRAMS: "/modules/program",
+    MODULES_ADMIN: "/modules/admin",
+    MODULES_CONFIG: "/modules/config",
+    MODULES_PROCUREMENT: "/modules/procurement",
+    MODULES_FINANCE: "/modules/finance",
+
+
+
+    // ----------------------------
+     //projects routes
+     PROJECTS: "/projects",
+     PROJECTS_DETAILS: "/projects/:id",
+     PROJECTS_CREATE_SUMMARY: "/projects/create/summary",
+     PROJECTS_CREATE_UPLOADS: "/projects/create/uploads",
+     PROJECTS_EDIT_SUMMARY: "/projects/:id/create/summary",
+     PROJECTS_EDIT_UPLOADS: "/projects/:id/create/uploads",
+     // PROJECTS_CREATE_PERFORMANCE: "/projects/create/performance",
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /* -------------------------------------------- */
+
     // procurement routes
     DASHBOARD: "/",
 
@@ -160,13 +199,21 @@ export const RouteEnum = {
         "/program/plan/supportive-supervision-plan/create/facility&team-composition",
     PROGRAM_SUPPORTIVE_SUPERVISION_CHECKLIST:
         "/program/plan/supportive-supervision-plan/create/evolution-checklist",
+
     PROGRAM_FUND_REQUEST: "/program/fund-request",
-    PROGRAM_FUND_REQUEST_DETAILS: "/program/fund-request/:id/:month_year",
+    PROGRAM_FUND_REQUEST_DETAILS: "/program/fund-request/:id/",
     PROGRAM_FUND_REQUEST_CREATE: "/program/fund-request/create/project-details",
     PROGRAM_FUND_REQUEST_FUND_SUMMARY:
         "/program/fund-request/create/fund-request-summary",
     PROGRAM_FUND_REQUEST_PREVIEW:
         "/program/fund-request/create/fund-request-preview",
+
+    PROGRAM_FUND_REQUEST_VIEW_ACTIVITY:
+        "/program/fund-request/create/fund-request-preview/:id/fund-request-activity",
+
+    PROGRAM_FUND_REQUEST_VIEW_ALL_FUND_REQUESTS:
+        "/program/fund-request/create/fund-request-preview/:id/view-all-fund-request",
+
     PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS:
         "/program/stakeholder-management/analysis&mapping",
     PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS_DETAILS:
@@ -190,15 +237,6 @@ export const RouteEnum = {
     PROGRAM_REPORT: "/program/reports",
     PROGRAM_PAYMENT_REQUEST: "/program/payment-request",
 
-    //projects routes
-    PROJECTS: "/projects",
-    PROJECTS_DETAILS: "/projects/:id",
-    PROJECTS_CREATE_SUMMARY: "/projects/create-projects/summary",
-    PROJECTS_CREATE_UPLOADS: "/projects/create-projects/uploads",
-    PROJECTS_EDIT_SUMMARY: "/projects/:id/create-projects/summary",
-    PROJECTS_EDIT_UPLOADS: "/projects/:id/create-projects/uploads",
-    // PROJECTS_CREATE_PERFORMANCE: "/projects/create-projects/performance",
-
     TRAINING: "/program/training-and-procurement",
     REPORT: "/procurement-management/report",
 
@@ -206,14 +244,6 @@ export const RouteEnum = {
     USERS: "/users",
     CREATE_USERS: "/users/create",
     AUTHORIZATION: "/authorization",
-
-    // modules
-    MODULES_PROJECTS: "/modules-projects",
-    MODULES_PROGRAMS: "/modules-programs",
-    MODULES_ADMIN: "/modules-admin",
-    MODULES_CONFIG: "/modules-config",
-    MODULES_PROCUREMENT: "/modules-procurement",
-    MODULES_FINANCE: "/modules-finance",
 
     // PROGRAM_OVERVIEW: "/program/overview",
     // PROGRAM_OVERVIEW: "/program/overview",

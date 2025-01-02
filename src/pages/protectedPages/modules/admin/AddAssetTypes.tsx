@@ -1,25 +1,28 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
-import { TAssetTypes, assetTypesSchema } from "definations/module-admin";
-import {
-    useAddAssetTypesMutation,
-    useUpdateAssetTypesMutation,
-} from "services/moduleAdmin";
-
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
+import {
+    AssetTypeSchema,
+    TAssetTypeData,
+    TAssetTypeFormValues,
+} from "definations/modules/admin/asset-type";
+import {
+    useAddAssetTypeMutation,
+    useUpdateAssetTypeMutation,
+} from "services/modules/admin/asset-type";
 
 const AddAssetTypes = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TAssetTypes;
+    const data = dialogProps?.data as unknown as TAssetTypeData;
 
-    const form = useForm<TAssetTypes>({
-        resolver: zodResolver(assetTypesSchema),
+    const form = useForm<TAssetTypeFormValues>({
+        resolver: zodResolver(AssetTypeSchema),
         defaultValues: {
             name: data?.name ?? "",
             manufacturer: data?.manufacturer ?? "",
@@ -28,12 +31,12 @@ const AddAssetTypes = () => {
     });
 
     const dispatch = useAppDispatch();
-    const [assetTypes, { isLoading }] = useAddAssetTypesMutation();
+    const [assetTypes, { isLoading }] = useAddAssetTypeMutation();
 
     const [updateAssetTypes, { isLoading: updateAssetTypesLoading }] =
-        useUpdateAssetTypesMutation();
+        useUpdateAssetTypeMutation();
 
-    const onSubmit: SubmitHandler<TAssetTypes> = async (data) => {
+    const onSubmit: SubmitHandler<TAssetTypeFormValues> = async (data) => {
         try {
             dialogProps?.type === "update"
                 ? await updateAssetTypes({
@@ -54,30 +57,28 @@ const AddAssetTypes = () => {
             <form
                 action=""
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="flex flex-col gap-y-10"
+                className="flex flex-col gap-y-7"
             >
-                <div className="grid grid-cols-1 gap-y-7">
-                    <FormInput
-                        label="Name"
-                        name="name"
-                        placeholder="Enter name"
-                        required
-                    />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                    <FormInput
-                        label="Manufacturer"
-                        placeholder="Enter description"
-                        name="manufacturer"
-                        required
-                    />
-                    <FormInput
-                        label="model"
-                        name="model"
-                        placeholder="Enter model"
-                        required
-                    />
-                </div>
+                <FormInput
+                    label="Name"
+                    name="name"
+                    placeholder="Enter Name"
+                    required
+                />
+
+                <FormInput
+                    label="Manufacturer"
+                    placeholder="Enter Manufacturer"
+                    name="manufacturer"
+                    required
+                />
+                <FormInput
+                    label="Model"
+                    name="model"
+                    placeholder="Enter Model"
+                    required
+                />
+
                 <div className="flex justify-start gap-4">
                     <FormButton loading={isLoading || updateAssetTypesLoading}>
                         Save

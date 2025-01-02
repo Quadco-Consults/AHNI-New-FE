@@ -5,14 +5,18 @@ import FormSelect from "atoms/FormSelect";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import {
-    useAddFinancialYearMutation,
-    useUpdateFinancialYearMutation,
-} from "services/moduleConfig";
-import { TFinancialYear, financialYearSchema } from "definations/module-config";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
 import { toast } from "sonner";
+import {
+    FinancialYearSchema,
+    TFinancialYearData,
+    TFinancialYearFormValues,
+} from "definations/modules/config/financial-year";
+import {
+    useAddFinancialYearMutation,
+    useUpdateFinancialYearMutation,
+} from "services/modules/config/financial-year";
 
 const isCurrent = [
     { label: "True", value: "true" },
@@ -22,12 +26,13 @@ const isCurrent = [
 const AddFinancialYear = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TFinancialYear;
-    const form = useForm<TFinancialYear>({
-        resolver: zodResolver(financialYearSchema),
+    const data = dialogProps?.data as unknown as TFinancialYearData;
+    const form = useForm<TFinancialYearFormValues>({
+        resolver: zodResolver(FinancialYearSchema),
         defaultValues: {
             year: data?.year ?? "",
             dyanmic_order: data?.dyanmic_order ?? "",
+            // @ts-ignore
             current: data?.current ?? undefined,
         },
     });
@@ -38,7 +43,7 @@ const AddFinancialYear = () => {
 
     const dispatch = useAppDispatch();
 
-    const onSubmit: SubmitHandler<TFinancialYear> = async (data) => {
+    const onSubmit: SubmitHandler<TFinancialYearFormValues> = async (data) => {
         try {
             if (dialogProps?.type === "update") {
                 await updateFinancialYear({
@@ -63,31 +68,31 @@ const AddFinancialYear = () => {
                 <form
                     action=""
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex flex-col gap-y-10"
+                    className="flex flex-col gap-y-7"
                 >
-                    <div className="grid grid-cols-1 gap-y-7">
-                        <FormInput
-                            label="Year"
-                            name="year"
-                            placeholder="2020/2021"
-                            required
-                        />
-                    </div>
-                    <div className="grid grid-cols-2 gap-x-1">
-                        <FormInput
-                            label="Dynamic Order"
-                            name="dyanmic_order"
-                            type="number"
-                            required
-                        />
+                    <FormInput
+                        label="Year"
+                        name="year"
+                        placeholder="Enter Year"
+                        required
+                    />
 
-                        <FormSelect
-                            label="Current"
-                            name="current"
-                            required
-                            options={isCurrent}
-                        />
-                    </div>
+                    <FormInput
+                        label="Dynamic Order"
+                        name="dyanmic_order"
+                        placeholder="Enter Dynamic Order"
+                        type="number"
+                        required
+                    />
+
+                    <FormSelect
+                        label="Current"
+                        name="current"
+                        placeholder="Select Current Status"
+                        required
+                        options={isCurrent}
+                    />
+
                     <div className="flex justify-start gap-4">
                         <FormButton
                             loading={isLoading || updateFinancialYearLoading}

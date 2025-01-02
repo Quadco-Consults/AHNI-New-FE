@@ -1,141 +1,32 @@
-/* eslint-disable react/no-unknown-property */
-import { Link, generatePath } from "react-router-dom";
 import Card from "components/shared/Card";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
-import AddSquareIcon from "components/icons/AddSquareIcon";
 import SearchIcon from "components/icons/SearchIcon";
 import FilterIcon from "components/icons/FilterIcon";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import { RouteEnum } from "constants/RouterConstants";
-import EyeIcon from "components/icons/EyeIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
-import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
-} from "components/ui/breadcrumb";
-import { Icon } from "@iconify/react";
-import {
-    useDeleteStakeholderRegisterMutation,
-    useGetAllStakeholderRegisterQuery,
-} from "services/programsApi/stakeholder";
-import { TStakeholderRegisterResponse } from "definations/program-validator";
-import { toast } from "sonner";
+import { useGetAllStakeholderRegisterQuery } from "services/programsApi/stakeholder";
+import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
+import { useState } from "react";
+import { TStakeholderRegisterData } from "definations/program-validator";
 
-const StakeholderAnalysisMapping = () => {
-    const { data, isLoading } = useGetAllStakeholderRegisterQuery({
-        no_paginate: false,
-    });
-    const [deleteStakeholderRegister, { isLoading: isDeleteLoading }] =
-        useDeleteStakeholderRegisterMutation();
+const breadcrumbs: TBreadcrumbList[] = [
+    { name: "Programs", icon: true },
+    { name: "Stakeholder Management", icon: true },
+    { name: "Analysis & Mapping", icon: false },
+];
 
-    const columns: ColumnDef<TStakeholderRegisterResponse>[] = [
-        {
-            header: "Stakeholder Name",
-            id: "name",
-            accessorFn: (data) => `${data.name}`,
-            size: 250,
-        },
-        {
-            header: "Physical Office Address",
-            id: "office_address",
-            accessorFn: (data) => `${data.office_address}`,
-            size: 250,
-        },
-        {
-            header: "Institution/Organization",
-            id: "organization",
-            accessorFn: (data) => `${data.organization}`,
-            size: 300,
-        },
-        {
-            header: "Designation",
-            id: "designation",
-            accessorFn: (data) => `${data.designation}`,
-        },
-        {
-            header: "State",
-            id: "state",
-            accessorFn: (data) => `${data.state}`,
-            size: 150,
-        },
-        {
-            header: "Phone Number",
-            id: "phone_number",
-            accessorFn: (data) => `${data.phone_number}`,
-            size: 150,
-        },
-        {
-            header: "E-Mail",
-            id: "email",
-            accessorFn: (data) => `${data.email}`,
-            size: 200,
-        },
-        {
-            header: "Project Role",
-            id: "project_role",
-            accessorFn: (data) => `${data.project_role}`,
-            size: 200,
-        },
-        {
-            header: "Importance",
-            id: "importance",
-            accessorFn: (data) => `${data.importance}`,
-            size: 200,
-        },
-        {
-            header: "Influence",
-            id: "influence",
-            accessorFn: (data) => `${data.influence}`,
-            size: 200,
-        },
-        {
-            header: "Score",
-            id: "score",
-            accessorFn: (data) => `${data.score}`,
-            size: 200,
-        },
-        {
-            header: "Major Concerns",
-            id: "major_concerns",
-            accessorFn: (data) => `${data.major_concerns}`,
-            size: 200,
-        },
+export default function StakeholderAnalysisMappingPage() {
+    const [page, setPage] = useState(1);
 
-        {
-            header: "Relationship Owner",
-            id: "relationship_owner",
-            accessorFn: (data) => `${data.relationship_owner}`,
-            size: 200,
-        },
-    ];
+    const { data: stakeholderRegister, isLoading } =
+        useGetAllStakeholderRegisterQuery({
+            page,
+            size: 10,
+        });
 
     return (
         <div className="space-y-5">
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Programs</BreadcrumbPage>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Icon icon="iconoir:slash" />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Stakeholder Management</BreadcrumbPage>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Icon icon="iconoir:slash" />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Analysis & Mapping</BreadcrumbPage>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
+            <BreadcrumbCard list={breadcrumbs} />
 
             <Card className="space-y-5">
                 <div className="flex items-center justify-start gap-2">
@@ -153,14 +44,98 @@ const StakeholderAnalysisMapping = () => {
                 </div>
 
                 <DataTable
-                    data={data?.data.results || []}
-                    // @ts-ignore
+                    data={stakeholderRegister?.data.results || []}
                     columns={columns}
-                    isLoading={isLoading || isDeleteLoading}
+                    isLoading={isLoading}
+                    pagination={{
+                        total: stakeholderRegister?.data.pagination.count ?? 0,
+                        pageSize:
+                            stakeholderRegister?.data.pagination.page_size ?? 0,
+                        onChange: (page: number) => setPage(page),
+                    }}
                 />
             </Card>
         </div>
     );
-};
+}
 
-export default StakeholderAnalysisMapping;
+const columns: ColumnDef<TStakeholderRegisterData>[] = [
+    {
+        header: "Stakeholder Name",
+        id: "name",
+        accessorFn: (data) => `${data.name}`,
+        size: 250,
+    },
+    {
+        header: "Physical Office Address",
+        id: "office_address",
+        accessorFn: (data) => `${data.office_address}`,
+        size: 250,
+    },
+    {
+        header: "Institution/Organization",
+        id: "organization",
+        accessorFn: (data) => `${data.organization}`,
+        size: 300,
+    },
+    {
+        header: "Designation",
+        id: "designation",
+        accessorFn: (data) => `${data.designation}`,
+    },
+    {
+        header: "State",
+        id: "state",
+        accessorFn: (data) => `${data.state}`,
+        size: 150,
+    },
+    {
+        header: "Phone Number",
+        id: "phone_number",
+        accessorFn: (data) => `${data.phone_number}`,
+        size: 150,
+    },
+    {
+        header: "E-Mail",
+        id: "email",
+        accessorFn: (data) => `${data.email}`,
+        size: 200,
+    },
+    {
+        header: "Project Role",
+        id: "project_role",
+        accessorFn: (data) => `${data.project_role}`,
+        size: 200,
+    },
+    {
+        header: "Importance",
+        id: "importance",
+        accessorFn: (data) => `${data.importance}`,
+        size: 200,
+    },
+    {
+        header: "Influence",
+        id: "influence",
+        accessorFn: (data) => `${data.influence}`,
+        size: 200,
+    },
+    {
+        header: "Score",
+        id: "score",
+        accessorFn: (data) => `${data.score}`,
+        size: 200,
+    },
+    {
+        header: "Major Concerns",
+        id: "major_concerns",
+        accessorFn: (data) => `${data.major_concerns}`,
+        size: 200,
+    },
+
+    {
+        header: "Relationship Owner",
+        id: "relationship_owner",
+        accessorFn: (data) => `${data.relationship_owner}`,
+        size: 200,
+    },
+];

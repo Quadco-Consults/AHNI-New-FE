@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import FormSelect from "atoms/FormSelectField";
@@ -6,17 +6,20 @@ import FormButton from "atoms/FormButton";
 import { Button } from "components/ui/button";
 import Card from "components/shared/Card";
 import FundRequstLayout from "./FundRequstLayout";
-import { FundRequestSchema, TFundRequest } from "definations/program-validator";
+import {
+    FundRequestSchema,
+    TFundRequestFormValues,
+} from "definations/program-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import _ from "lodash";
 import { Separator } from "components/ui/separator";
-import { useGetProjectsQuery } from "services/projectsApi/projectsApi";
-import { useLocationQuery, usePartnersQuery } from "services/moduleProjects";
-import {
-    useFinancialYearQuery,
-    useLocationsQuery,
-} from "services/moduleConfig";
-import { useGetUserQuery } from "services/users";
+
+import FormInput from "atoms/FormInput";
+import { useGetAllProjectsQuery } from "services/project";
+import { useGetAllPartnersQuery } from "services/modules/project/partners";
+import { useGetAllFinancialYearsQuery } from "services/modules/config/financial-year";
+import { useGetAllLocationsQuery } from "services/modules/config/location";
+import { useGetAllUsersQuery } from "services/users";
 
 const getYearOptions = () => {
     const currentYear = new Date().getFullYear();
@@ -46,27 +49,28 @@ const getMonthOptions = () => {
         "December",
     ];
 
-    const months = monthsArr.map((month, index) => ({
+    const months = monthsArr.map((month) => ({
         label: month,
-        value: index < 9 ? `0${index + 1}` : `${index + 1}`,
+        value: month,
     }));
 
     return months;
 };
 
 const CreateFundRequest = () => {
-    const form = useForm<TFundRequest>({
+    const form = useForm<TFundRequestFormValues>({
         resolver: zodResolver(FundRequestSchema),
         defaultValues: {
             project: "",
             month: "",
             year: "",
-            partner: "",
+            available_balance: "",
             currency: "",
             financial_year: "",
             type: "",
             location: "",
             reviewer: "",
+            uuid_code: "",
         },
     });
 
@@ -74,8 +78,13 @@ const CreateFundRequest = () => {
 
     const { pathname } = useLocation();
 
-    const { data: project, isLoading: projectIsLoading } = useGetProjectsQuery({
-        no_paginate: false,
+    const goBack = () => {
+        navigate(-1);
+    };
+
+    const { data: project } = useGetAllProjectsQuery({
+        page: 1,
+        size: 2000000,
     });
 
     const projectOptions = project?.data.results.map(({ title, id }) => ({
@@ -83,15 +92,14 @@ const CreateFundRequest = () => {
         value: id,
     }));
 
-    const { data: partner } = usePartnersQuery({ no_paginate: false });
+    const { data: partner } = useGetAllPartnersQuery({
+        page: 1,
+        size: 2000000,
+    });
 
-    const partnerOptions = partner?.data.results.map(({ name, id }) => ({
-        label: name,
-        value: id,
-    }));
-
-    const { data: financialYear } = useFinancialYearQuery({
-        no_paginate: false,
+    const { data: financialYear } = useGetAllFinancialYearsQuery({
+        page: 1,
+        size: 2000000,
     });
 
     const financialYearOptions = financialYear?.data.results.map(
@@ -101,14 +109,17 @@ const CreateFundRequest = () => {
         })
     );
 
-    const { data: location } = useLocationsQuery({ no_paginate: false });
+    const { data: location } = useGetAllLocationsQuery({
+        page: 1,
+        size: 2000000,
+    });
 
     const locationOptions = location?.data.results.map(({ name, id }) => ({
         label: name,
         value: id,
     }));
 
-    const { data: user } = useGetUserQuery({ no_paginate: false });
+    const { data: user } = useGetAllUsersQuery({ page: 1, size: 2000000 });
 
     const reviewerOptions = user?.data.results.map(
         ({ first_name, last_name, id }) => ({
@@ -119,17 +130,8 @@ const CreateFundRequest = () => {
 
     const { handleSubmit } = form;
 
-    const onSubmit: SubmitHandler<TFundRequest> = (data) => {
-        const formData = {
-            project: data.project,
-            partner: data.partner,
-            month_year: `${data.month}/${data.year}`,
-            currency: data.currency,
-            type: data.type,
-            financial_year: data.financial_year,
-        };
-
-        localStorage.setItem("projectFundRequest", JSON.stringify(formData));
+    const onSubmit: SubmitHandler<TFundRequestFormValues> = async (data) => {
+        localStorage.setItem("programFundRequest", JSON.stringify(data));
 
         let path = pathname;
 
@@ -152,38 +154,33 @@ const CreateFundRequest = () => {
                             options={projectOptions}
                         />
 
-                        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                            <div className="-mt-2">
-                                <div className="grid grid-cols-2 gap-3 items-center">
-                                    <FormSelect
-                                        label="Month"
-                                        name="month"
-                                        placeholder="Select month"
-                                        required
-                                        options={getMonthOptions()}
-                                    />
-                                    <FormSelect
-                                        label="Year"
-                                        name="year"
-                                        placeholder="Select Financial Year"
-                                        required
-                                        options={getYearOptions()}
-                                    />
-                                </div>
-                            </div>
-
+                        <div className="grid grid-cols-2 gap-3 items-center">
                             <FormSelect
-                                label="Partner"
-                                name="partner"
-                                placeholder="Select Partner"
+                                label="Month"
+                                name="month"
+                                placeholder="Select Month"
                                 required
-                                options={partnerOptions}
+                                options={getMonthOptions()}
+                            />
+                            <FormSelect
+                                label="Year"
+                                name="year"
+                                placeholder="Select Year"
+                                required
+                                options={getYearOptions()}
                             />
                         </div>
 
                         <Separator />
 
                         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                            <FormInput
+                                label="Available Balance"
+                                name="available_balance"
+                                placeholder="Enter available balance"
+                                required
+                            />
+
                             <FormSelect
                                 label="Currency"
                                 name="currency"
@@ -193,20 +190,6 @@ const CreateFundRequest = () => {
                                     { label: "USD", value: "USD" },
                                 ]}
                                 placeholder="Select Currency"
-                            />
-
-                            <FormSelect
-                                label="Type"
-                                name="type"
-                                required
-                                options={[
-                                    { label: "Main", value: "main" },
-                                    {
-                                        label: "Supplementary",
-                                        value: "supplementary",
-                                    },
-                                ]}
-                                placeholder="Select Type"
                             />
                         </div>
 
@@ -228,12 +211,35 @@ const CreateFundRequest = () => {
                             />
                         </div>
 
+                        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                            <FormSelect
+                                label="Reviewer"
+                                name="reviewer"
+                                required
+                                options={reviewerOptions}
+                                placeholder="Select Reviewer"
+                            />
+
+                            <FormInput
+                                label="Unqiue Identifier Code"
+                                name="uuid_code"
+                                required
+                                placeholder="Enter Unique Identifier Code"
+                            />
+                        </div>
+
                         <FormSelect
-                            label="Reviewer"
-                            name="reviewer"
+                            label="Type"
+                            name="type"
                             required
-                            options={reviewerOptions}
-                            placeholder="Select Reviewer"
+                            options={[
+                                { label: "Main", value: "MAIN" },
+                                {
+                                    label: "Supplementary",
+                                    value: "SUPPLEMENTARY",
+                                },
+                            ]}
+                            placeholder="Select Type"
                         />
                     </Card>
 
@@ -241,6 +247,7 @@ const CreateFundRequest = () => {
                         <Button
                             type="button"
                             className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                            onClick={goBack}
                         >
                             Cancel
                         </Button>

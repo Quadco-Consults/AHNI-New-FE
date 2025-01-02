@@ -5,74 +5,122 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { openDialog } from "store/ui";
 import { DialogType, largeDailogScreen } from "constants/dailogs";
 import { Label } from "components/ui/label";
-import { useAppDispatch } from "hooks/useStore";
+import { useAppDispatch, useAppSelector, useAppStore } from "hooks/useStore";
 import { Button } from "components/ui/button";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { useCreateSupervisionPlanMutation } from "services/programsApi/ssp";
+import { TSSPCompositionFormValues } from "definations/program-types/ssp";
 
 const Checklist = () => {
-  const navigate = useNavigate();
+    const [chosenCriterias, setChosenCriterias] = useState<
+        { name: string; id: string }[]
+    >([]);
 
-  const dispatch = useAppDispatch();
+    const navigate = useNavigate();
 
-  const onSubmit = () => {
-    sessionStorage.removeItem("supportiveCompletedSteps");
-  };
-  return (
-    <SupportiveSupervisionPlanLayout>
-      <div className="px-3 ">
-        <h2 className="text-lg font-bold">Evaluation Checklist</h2>
+    const dispatch = useAppDispatch();
 
-        <div className="flex flex-col w-[299px] mt-10 space-y-3">
-          <Label className="text-lg text-red-500">Objectives</Label>
-          <Button
-            type="button"
-            variant="outline"
-            className="text-[#DEA004]"
-            onClick={() => {
-              dispatch(
+    const { isOpen } = useAppSelector((state) => state.ui.dailog);
+
+    useEffect(() => {
+        const prevFormData = JSON.parse(
+            localStorage.getItem("compositionData") || "{}"
+        );
+
+        setChosenCriterias(prevFormData.objectives);
+    }, [isOpen]);
+
+    const [createSupervisionPlan, { isLoading }] =
+        useCreateSupervisionPlanMutation();
+
+    const onSubmit = async () => {
+        const prevFormData = JSON.parse(
+            localStorage.getItem("compositionData") || "{}"
+        ) as TSSPCompositionFormValues & {
+            objectives: { name: string; id: string }[];
+        };
+
+        const formData = {
+            ...prevFormData,
+            objectives: prevFormData.objectives.map((obj) => obj.id),
+        };
+
+        try {
+            await createSupervisionPlan(formData).unwrap();
+            toast.success("Supportive Supervision Plan Created");
+            localStorage.removeItem("compositionData");
+
+            dispatch(
                 openDialog({
-                  type: DialogType.Checklist,
-                  dialogProps: {
-                    ...largeDailogScreen,
-                  },
-                })
-              );
-            }}
-          >
-            Click to select checklist criteria
-          </Button>
-        </div>
-        <div className="mt-10">
-          <div className="flex justify-end gap-5 pt-24">
-            <FormButton
-              onClick={() => navigate(-1)}
-              preffix={<ArrowLeft size={14} />}
-              type="button"
-              className="bg-[#FFF2F2] text-primary dark:text-gray-500"
-            >
-              Back
-            </FormButton>
-
-            <FormButton
-              onClick={() => {
-                onSubmit();
-                dispatch(
-                  openDialog({
                     type: DialogType.SuccessModal,
                     dialogProps: {
-                      width: "max-w-lg",
+                        width: "max-w-lg",
                     },
-                  })
-                );
-              }}
-              suffix={<ArrowRight size={14} />}
-            >
-              Finish
-            </FormButton>
-          </div>
-        </div>
-      </div>
-    </SupportiveSupervisionPlanLayout>
-  );
+                })
+            );
+        } catch (error: any) {
+            toast.error(error.data.message || "Something went wrong");
+        }
+    };
+
+    return (
+        <SupportiveSupervisionPlanLayout>
+            <div className="px-3 ">
+                <h2 className="text-lg font-bold">Evaluation Checklist</h2>
+
+                <div className="flex flex-col w-[299px] mt-10 space-y-3">
+                    <Label className="text-lg text-red-500">Objectives</Label>
+
+                    <div className="grid grid-cols-2 gap-5 bg-gray-100 p-5 w-[500px]">
+                        {chosenCriterias?.map(({ name, id }) => (
+                            <div key={id} className="bg-white p-5">
+                                <p>{name}</p>
+                            </div>
+                        ))}
+                    </div>
+
+                    <Button
+                        type="button"
+                        variant="outline"
+                        className="text-[#DEA004]"
+                        onClick={() => {
+                            dispatch(
+                                openDialog({
+                                    type: DialogType.Checklist,
+                                    dialogProps: {
+                                        ...largeDailogScreen,
+                                    },
+                                })
+                            );
+                        }}
+                    >
+                        Click to select checklist criteria
+                    </Button>
+                </div>
+                <div className="mt-10">
+                    <div className="flex justify-end gap-5 pt-24">
+                        <FormButton
+                            onClick={() => navigate(-1)}
+                            preffix={<ArrowLeft size={14} />}
+                            type="button"
+                            className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                        >
+                            Back
+                        </FormButton>
+
+                        <FormButton
+                            type="button"
+                            loading={isLoading}
+                            onClick={onSubmit}
+                        >
+                            Finish
+                        </FormButton>
+                    </div>
+                </div>
+            </div>
+        </SupportiveSupervisionPlanLayout>
+    );
 };
 
 export default Checklist;

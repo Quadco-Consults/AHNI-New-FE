@@ -9,7 +9,8 @@ import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { useEffect, useState } from "react";
 
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useDepartmentsQuery, useGetAllPositionsQuery } from "services/moduleConfig";
+import { useGetAllDepartmentsQuery } from "services/modules/config/department";
+import { useGetAllPositionsQuery } from "services/modules/config/position";
 import { useUpdateUserMutation } from "services/users";
 import { toast } from "sonner";
 import { closeDialog, dailogSelector } from "store/ui";
@@ -27,14 +28,17 @@ const EditUser = () => {
         resolver: zodResolver(userSchema),
     });
 
-    const { data } = useDepartmentsQuery({ page: 1, page_size: 100 });
+    const { data } = useGetAllDepartmentsQuery({ page: 1, size: 2000000 });
 
     const departmentOptions = data?.data?.results?.map((dept) => ({
         label: dept.name,
         value: dept.id,
     }));
 
-    const { data: position } = useGetAllPositionsQuery({ no_paginate: false });
+    const { data: position } = useGetAllPositionsQuery({
+        page: 1,
+        size: 2000000,
+    });
 
     const positionOptions = position?.data.results.map(({ name, id }) => ({
         label: name,

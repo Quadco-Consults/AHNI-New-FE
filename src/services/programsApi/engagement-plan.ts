@@ -1,36 +1,39 @@
-import { TBasePaginatedResponse, TRequest, TResponse } from "definations/auth";
+import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 import baseAPI from "..";
 import {
-    TEngagementPlanFormValue,
-    TEngagementPlanPaginatedResponse,
-    TEngagementPlanSingleResponse,
+    TEngagementPlanFormValues,
+    TEngagementPlanPaginatedData,
+    TEngagementPlanSingleData,
 } from "definations/program-types/engagement-plan";
 
 const EngagementPlanAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
         createEngagementPlan: builder.mutation<
-            TResponse<TEngagementPlanSingleResponse>,
-            TEngagementPlanFormValue
+            TResponse<TEngagementPlanSingleData>,
+            TEngagementPlanFormValues
         >({
             query: (body) => ({
                 method: "POST",
                 url: "/programs/stakeholders/engagement-plans/",
                 body,
             }),
+            invalidatesTags: ["ENGAGEMENT_PLAN"],
         }),
 
         getAllEngagementPlans: builder.query<
-            TBasePaginatedResponse<TEngagementPlanPaginatedResponse>,
+            TPaginatedResponse<TEngagementPlanPaginatedData>,
             TRequest
         >({
-            query: () => ({
+            query: (params) => ({
                 method: "GET",
                 url: "/programs/stakeholders/engagement-plans/",
+                params,
             }),
+            providesTags: ["ENGAGEMENT_PLAN"],
         }),
 
         getSingleEngagementPlan: builder.query<
-            TResponse<TEngagementPlanSingleResponse>,
+            TResponse<TEngagementPlanSingleData>,
             string
         >({
             query: (id) => ({
@@ -40,24 +43,26 @@ const EngagementPlanAPI = baseAPI.injectEndpoints({
         }),
 
         updateEngagementPlan: builder.mutation<
-            TResponse<TEngagementPlanSingleResponse>,
-            { id: string; body: TEngagementPlanFormValue }
+            TResponse<TEngagementPlanSingleData>,
+            { id: string; body: TEngagementPlanFormValues }
         >({
             query: ({ id, body }) => ({
                 method: "PUT",
                 url: `/programs/stakeholders/engagement-plans/${id}/`,
                 body,
             }),
+            invalidatesTags: ["ENGAGEMENT_PLAN"],
         }),
 
         deleteEngagementPlan: builder.mutation<
-            TResponse<TEngagementPlanSingleResponse>,
+            TResponse<TEngagementPlanSingleData>,
             string
         >({
             query: (id) => ({
                 method: "DELETE",
                 url: `/programs/stakeholders/engagement-plans/${id}/`,
             }),
+            invalidatesTags: ["ENGAGEMENT_PLAN"],
         }),
     }),
 });

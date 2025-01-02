@@ -4,25 +4,25 @@ import FormInput from "atoms/FormInput";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import {
-    useAddCategoriesMutation,
-    useUpdateCategoriesMutation,
-} from "services/moduleConfig";
-import { TCategories, categorySchema } from "definations/module-config";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
 import { toast } from "sonner";
-import { ProjectClassSchema, TProjectClass } from "definations/module-finance";
+import {
+    ProjectClassSchema,
+    TProjectClassData,
+    TProjectClassFormValues,
+} from "definations/modules/finance/project-class";
 import {
     useAddProjectClassMutation,
     useUpdateProjectClassMutation,
-} from "services/moduleFinance";
+} from "services/modules/finance/project-class";
 
 const AddProjectClasses = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TProjectClass;
-    const form = useForm<TProjectClass>({
+    const data = dialogProps?.data as unknown as TProjectClassData;
+
+    const form = useForm<TProjectClassFormValues>({
         resolver: zodResolver(ProjectClassSchema),
         defaultValues: {
             name: data?.name ?? "",
@@ -38,7 +38,7 @@ const AddProjectClasses = () => {
 
     const dispatch = useAppDispatch();
 
-    const onSubmit: SubmitHandler<TProjectClass> = async (data) => {
+    const onSubmit: SubmitHandler<TProjectClassFormValues> = async (data) => {
         try {
             dialogProps?.type === "update"
                 ? await updateProjectClass({
@@ -60,30 +60,28 @@ const AddProjectClasses = () => {
                 <form
                     action=""
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex flex-col gap-y-10"
+                    className="flex flex-col gap-y-7"
                 >
-                    <div className="grid grid-cols-1 gap-y-7">
-                        <FormInput
-                            label="Title"
-                            name="name"
-                            placeholder="Enter name"
-                            required
-                        />
-                    </div>
-                    <div className="grid grid-cols-2 gap-x-1">
-                        <FormInput
-                            label="Description"
-                            name="description"
-                            placeholder="Enter description"
-                            required
-                        />
-                        <FormInput
-                            label="Code"
-                            name="code"
-                            required
-                            placeholder="Enter code"
-                        />
-                    </div>
+                    <FormInput
+                        label="Title"
+                        name="name"
+                        placeholder="Enter Name"
+                        required
+                    />
+
+                    <FormInput
+                        label="Description"
+                        name="description"
+                        placeholder="Enter Description"
+                    />
+
+                    <FormInput
+                        label="Code"
+                        name="code"
+                        required
+                        placeholder="Enter Code"
+                    />
+
                     <div className="flex justify-start gap-4">
                         <FormButton loading={isLoading || isUpdateLoading}>
                             Save

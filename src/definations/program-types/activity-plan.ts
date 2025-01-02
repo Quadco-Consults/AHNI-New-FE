@@ -20,7 +20,7 @@ export const ActivityPlanSchema = z.object({
 
 export type TActivityPlanFormValues = z.infer<typeof ActivityPlanSchema>;
 
-export interface TActivityPlanResponse {
+export interface TActivityPlanData {
     id: string;
     project: {
         id: string;

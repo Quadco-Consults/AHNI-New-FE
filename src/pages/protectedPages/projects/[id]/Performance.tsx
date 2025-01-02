@@ -1,7 +1,7 @@
 import Card from "components/shared/Card";
-import { ProjectsResultsData } from "definations/project-types/projects";
+import { TProjectData } from "definations/project";
 
-export default function Performance(props: ProjectsResultsData) {
+export default function Performance(props: TProjectData) {
     const { achievement_against_target, narrative, budget_performance } = props;
 
     return (
@@ -25,7 +25,11 @@ export default function Performance(props: ProjectsResultsData) {
 
             <div className="space-y-3">
                 <h3 className="font-semibold">Budget performance</h3>
-                <p className="text-sm text-gray-500">${budget_performance}</p>
+                <p className="text-sm text-gray-500">
+                    {budget_performance === "0"
+                        ? "Null"
+                        : `$${budget_performance}`}
+                </p>
             </div>
         </Card>
     );

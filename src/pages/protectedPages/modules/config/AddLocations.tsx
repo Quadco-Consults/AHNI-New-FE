@@ -6,28 +6,32 @@ import FormTextArea from "atoms/FormTextArea";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import {
-    useAddLocationsMutation,
-    useUpdateLocationsMutation,
-} from "services/moduleConfig";
-import { TLocations, locationsSchema } from "definations/module-config";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
 import { toast } from "sonner";
 import { nigerianStates } from "lib/index";
+import {
+    LocationSchema,
+    TLocationData,
+    TLocationFormValues,
+} from "definations/modules/config/location";
+import {
+    useAddLocationMutation,
+    useUpdateLocationMutation,
+} from "services/modules/config/location";
 
 const AddLocations = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const result = dialogProps?.data as unknown as TLocations;
+    const result = dialogProps?.data as unknown as TLocationData;
 
     const stateOptions = nigerianStates?.map((state: string) => ({
         label: state,
         value: state,
     }));
 
-    const form = useForm<TLocations>({
-        resolver: zodResolver(locationsSchema),
+    const form = useForm<TLocationFormValues>({
+        resolver: zodResolver(LocationSchema),
         defaultValues: {
             name: result?.name ?? "",
             address: result?.address ?? "",
@@ -39,11 +43,11 @@ const AddLocations = () => {
     });
 
     const dispatch = useAppDispatch();
-    const [locations, { isLoading }] = useAddLocationsMutation();
+    const [locations, { isLoading }] = useAddLocationMutation();
     const [updateLocations, { isLoading: updateLocationsLoading }] =
-        useUpdateLocationsMutation();
+        useUpdateLocationMutation();
 
-    const onSubmit: SubmitHandler<TLocations> = async (data) => {
+    const onSubmit: SubmitHandler<TLocationFormValues> = async (data) => {
         try {
             if (dialogProps?.type === "update") {
                 await updateLocations({
@@ -68,27 +72,53 @@ const AddLocations = () => {
             <Form {...form}>
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="bg-white rounded-[2rem] flex flex-col gap-y-10 pb-[2rem]"
+                    className="bg-white rounded-[2rem] flex flex-col gap-y-7 pb-[2rem]"
                 >
-                    <div className="grid grid-cols-1">
-                        <FormInput label="Name" name="name" required />
-                    </div>
-                    <div className="grid grid-cols-1">
-                        <FormTextArea name="address" label="Address" required />
-                    </div>
-                    <div className="grid grid-cols-2 gap-x-7">
-                        <FormInput label="City" name="city" />
-                        <FormSelect
-                            label="State"
-                            name="state"
-                            required
-                            options={stateOptions}
-                        />
-                    </div>
-                    <div className="grid grid-cols-2 gap-x-7">
-                        <FormInput label="phone" name="phone" type="number" />
-                        <FormInput label="Email" name="email" type="email" />
-                    </div>
+                    <FormInput
+                        label="Name"
+                        name="name"
+                        required
+                        placeholder="Enter Name"
+                    />
+
+                    <FormTextArea
+                        name="address"
+                        label="Address"
+                        required
+                        placeholder="Enter Address"
+                    />
+
+                    <FormInput
+                        label="City"
+                        name="city"
+                        required
+                        placeholder="Enter City"
+                    />
+
+                    <FormSelect
+                        label="State"
+                        name="state"
+                        required
+                        options={stateOptions}
+                        placeholder="Select State"
+                    />
+
+                    <FormInput
+                        label="Phone"
+                        name="phone"
+                        type="number"
+                        required
+                        placeholder="Enter Phone"
+                    />
+
+                    <FormInput
+                        label="Email"
+                        name="email"
+                        type="email"
+                        required
+                        placeholder="Enter Email"
+                    />
+
                     <div className="flex justify-start gap-4">
                         <FormButton
                             loading={isLoading || updateLocationsLoading}

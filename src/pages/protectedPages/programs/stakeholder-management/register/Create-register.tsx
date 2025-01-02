@@ -10,18 +10,10 @@ import { RouteEnum } from "constants/RouterConstants";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
-} from "components/ui/breadcrumb";
-import { Icon } from "@iconify/react";
 import { nigerianStates } from "lib/index";
 import {
     StakeholderRegisterSchema,
-    TStakeholderRegister,
+    TStakeholderRegisterFormValues,
 } from "definations/program-validator";
 import {
     useCreateStakeholderRegisterMutation,
@@ -31,11 +23,19 @@ import {
 import { useEffect } from "react";
 import useQuery from "hooks/useQuery";
 import { skipToken } from "@reduxjs/toolkit/query/react";
+import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
 
 const importanceOptions = ["1", "2", "3", "4", "5"].map((option) => ({
     label: option,
     value: option,
 }));
+
+const breadcrumbs: TBreadcrumbList[] = [
+    { name: "Programs", icon: true },
+    { name: "Stakeholder Management", icon: true },
+    { name: "Stakeholder Stakeholder Register", icon: true },
+    { name: "Create", icon: false },
+];
 
 const CreateRegister = () => {
     const navigate = useNavigate();
@@ -58,7 +58,7 @@ const CreateRegister = () => {
         value: state,
     }));
 
-    const form = useForm<TStakeholderRegister>({
+    const form = useForm<TStakeholderRegisterFormValues>({
         resolver: zodResolver(StakeholderRegisterSchema),
         defaultValues: {
             name: "",
@@ -99,7 +99,9 @@ const CreateRegister = () => {
         setValue("score", String(importance * influence));
     }, [importance, influence]);
 
-    const onSubmit: SubmitHandler<TStakeholderRegister> = async (data) => {
+    const onSubmit: SubmitHandler<TStakeholderRegisterFormValues> = async (
+        data
+    ) => {
         try {
             if (id) {
                 await editStakeholderRegister({ id, body: data }).unwrap();
@@ -117,31 +119,7 @@ const CreateRegister = () => {
 
     return (
         <div className="space-y-6 min-h-screen">
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Plans</BreadcrumbPage>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Icon icon="iconoir:slash" />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Stakeholder</BreadcrumbPage>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Icon icon="iconoir:slash" />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Stakeholder Register</BreadcrumbPage>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Icon icon="iconoir:slash" />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Create</BreadcrumbPage>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
+            <BreadcrumbCard list={breadcrumbs} />
             <button
                 onClick={goBack}
                 className="w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center"

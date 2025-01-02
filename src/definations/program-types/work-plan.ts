@@ -70,6 +70,8 @@ export interface TActivity {
         Oct: number;
         Sep: number;
     };
+    total_amount_ngn: string;
+    total_amount_usd: string;
     expected_result: string;
     indicator: string;
     mov: string;

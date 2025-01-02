@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { Line_Items } from "definations/program-types/fund-request";
 import FundRequstLayout from "./FundRequstLayout";
 import DataTable from "components/Table/DataTable";
 import FormButton from "atoms/FormButton";
@@ -7,93 +6,58 @@ import { Button } from "components/ui/button";
 import { ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { RouteEnum } from "constants/RouterConstants";
-import FundRequestAPI from "services/programsApi/fund-request";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { useGetProjectsQuery } from "services/projectsApi/projectsApi";
+import { useGetSingleProjectQuery } from "services/project";
+import {
+    TFundRequestActivity,
+    TFundRequestActivityFormValues,
+    TFundRequestFormValues,
+} from "definations/program-validator";
+import { skipToken } from "@reduxjs/toolkit/query/react";
+import { useGetSingleUserQuery } from "services/users";
+import { useCreateFundRequestMutation } from "services/programsApi/fund-request";
+import { useGetSingleFinancialYearQuery } from "services/modules/config/financial-year";
+import { useGetSingleLocationQuery } from "services/modules/config/location";
 
-const columns: ColumnDef<Line_Items>[] = [
-    {
-        header: "S/N",
-        id: "description",
-        size: 80,
-        cell: ({ row, table }: any) =>
-            (table
-                .getSortedRowModel()
-                ?.flatRows?.findIndex(
-                    (flatRow: any) => flatRow.id === row.id
-                ) || 0) + 1,
-    },
-    {
-        header: "Description of Activity",
-        id: "description",
-        accessorFn: (data) => {
-            console.log(data.description);
-            return data.description;
-        },
-        size: 350,
-        footer: "GRAND TOTAL",
-    },
-    {
-        header: "Amount",
-        id: "amount",
-        accessorFn: (data) => data.amount,
-        size: 350,
-        footer: "GRAND TOTAL",
-    },
-    {
-        header: "Unit Cost",
-        id: "unit_cost",
-        accessorFn: (data) => data.unit_cost,
-        size: 350,
-        footer: "GRAND TOTAL",
-    },
-    {
-        header: "Frequency",
-        id: "frequency",
-        accessorFn: (data) => data.unit_cost,
-        size: 350,
-        footer: "GRAND TOTAL",
-    },
-    {
-        header: "Category",
-        //id: "comments",
-        accessorFn: () => "Travel: domestic",
-        size: 350,
-        footer: "GRAND TOTAL",
-    },
-    {
-        header: "Comments",
-        id: "comments",
-        accessorFn: (data) => data.comments,
-        size: 350,
-        footer: "GRAND TOTAL",
-    },
-];
-
-const Summary = () => {
-    const [createFundRequestMutation, { isLoading }] =
-        FundRequestAPI.useCreateFundRequestMutation();
+export default function Summary() {
     const navigate = useNavigate();
-    const projectFundRequest = JSON.parse(
-        localStorage.getItem("projectFundRequest") as any
+
+    const programFundRequest: TFundRequestFormValues &
+        TFundRequestActivityFormValues = JSON.parse(
+        localStorage.getItem("programFundRequest") || "{}"
     );
-    const projectQueryResult = useGetProjectsQuery({
-        path: { id: projectFundRequest.project as string },
-    });
+
+    const { data: project } = useGetSingleProjectQuery(
+        programFundRequest.project ?? skipToken
+    );
+
+    const { data: financialYear } = useGetSingleFinancialYearQuery(
+        programFundRequest.financial_year ?? skipToken
+    );
+
+    const { data: location } = useGetSingleLocationQuery(
+        programFundRequest.location ?? skipToken
+    );
+
+    const { data: reviewer } = useGetSingleUserQuery(
+        programFundRequest.reviewer ?? skipToken
+    );
+
+    const [createFundRequest, { isLoading: isCreateLoading }] =
+        useCreateFundRequestMutation();
 
     const handleSubmit = async () => {
         try {
-            await createFundRequestMutation(projectFundRequest).unwrap();
-            toast.success("Successfully created");
-            sessionStorage.removeItem("fundRequestCompletedSteps");
-            localStorage.removeItem("projectFundRequest");
+            await createFundRequest(programFundRequest).unwrap();
+            toast.success("Fund Request Created");
             navigate(RouteEnum.PROGRAM_FUND_REQUEST);
-        } catch (error) {
-            console.log(error);
-            toast.error("Something went wrong");
+            localStorage.removeItem("programFundRequest");
+        } catch (error: any) {
+            toast.error(error.data.message || "Something went wring");
         }
     };
+
     return (
         <FundRequstLayout>
             <div className="space-y-5">
@@ -108,48 +72,51 @@ const Summary = () => {
                     <div className="space-y-3">
                         <h3 className="font-semibold">Project ID</h3>
                         <p className="text-sm text-gray-500">
-                            {projectFundRequest?.type}
+                            {project?.data.project_id}
                         </p>
                     </div>
                     <div className="space-y-3">
                         <h3 className="font-semibold">Month</h3>
                         <p className="text-sm text-gray-500">
-                            {projectFundRequest?.month_year}
+                            {programFundRequest?.month}
                         </p>
                     </div>
                     <div className="space-y-3">
                         <h3 className="font-semibold">Project Start Date</h3>
                         <p className="text-sm text-gray-500">
-                            {/* {projectQueryResult.data?.start_date} */}
+                            {project?.data.start_date}
                         </p>
                     </div>
                     <div className="space-y-3">
                         <h3 className="font-semibold">Project End Date</h3>
                         <p className="text-sm text-gray-500">
-                            {/* {projectQueryResult.data?.end_date} */}
+                            {project?.data.end_date}
                         </p>
                     </div>
                     <div className="space-y-3">
                         <h3 className="font-semibold">Currency</h3>
                         <p className="text-sm text-gray-500">
-                            {projectFundRequest?.currency}
+                            {programFundRequest?.currency}
                         </p>
                     </div>
                     <div className="space-y-3">
                         <h3 className="font-semibold">Financial Year</h3>
                         <p className="text-sm text-gray-500">
-                            {projectFundRequest?.financial_year}
+                            {financialYear?.data.year}
                         </p>
                     </div>
                     <div className="space-y-3">
                         <h3 className="font-semibold">Location</h3>
                         <p className="text-sm text-gray-500">
-                            Kano State Office
+                            {location?.data.name}
                         </p>
                     </div>
                     <div className="space-y-3">
                         <h3 className="font-semibold">Reviewer</h3>
-                        <p className="text-sm text-gray-500">Musa Abdullahi</p>
+                        <p className="text-sm text-gray-500">
+                            {reviewer?.data.first_name}&nbsp;
+                            {reviewer?.data.last_name}
+                        </p>
                     </div>
                 </div>
 
@@ -159,8 +126,8 @@ const Summary = () => {
             </div>
 
             <DataTable
-                data={projectFundRequest?.line_items || []}
-                columns={columns}
+                data={programFundRequest?.activities || []}
+                columns={columns()}
                 isLoading={false}
             />
 
@@ -168,21 +135,79 @@ const Summary = () => {
                 <Button
                     type="button"
                     className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                    onClick={() => navigate(-1)}
                 >
-                    Cancel
+                    Back
                 </Button>
                 <FormButton
                     onClick={handleSubmit}
                     type="submit"
                     suffix={<ChevronRight size={14} />}
-                    loading={isLoading}
-                    disabled={isLoading}
+                    loading={isCreateLoading}
+                    disabled={isCreateLoading}
                 >
                     Submit Request
                 </FormButton>
             </div>
         </FundRequstLayout>
     );
-};
+}
 
-export default Summary;
+interface TableType {
+    activity_description: string;
+    amount: string;
+    unit_cost: string;
+    frequency: string;
+    comment: string;
+    category: string;
+}
+
+const columns = (): ColumnDef<TFundRequestActivity>[] => {
+    return [
+        {
+            header: "S/N",
+            accessorFn: (data, index) => `${index}`,
+            size: 80,
+        },
+
+        {
+            header: "Description of Activity",
+            id: "description",
+            accessorKey: "activity_description",
+            size: 200,
+            footer: "GRAND TOTAL",
+        },
+
+        {
+            header: "Amount",
+            id: "amount",
+            accessorKey: "amount",
+            size: 200,
+        },
+
+        {
+            header: "Unit Cost",
+            id: "unit_cost",
+            accessorKey: "unit_cost",
+            size: 200,
+        },
+        {
+            header: "Frequency",
+            id: "frequency",
+            accessorKey: "frequency",
+            size: 200,
+        },
+        {
+            header: "Cost Category",
+            accessorKey: "category",
+            size: 200,
+        },
+
+        {
+            header: "Comments",
+            id: "comments",
+            accessorKey: "comment",
+            size: 200,
+        },
+    ];
+};

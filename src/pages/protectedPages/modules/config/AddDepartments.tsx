@@ -1,24 +1,28 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
-import { TDepartments, departmentsSchema } from "definations/module-config";
-import {
-    useAddDepartmentsMutation,
-    useUpdateDepartmentsMutation,
-} from "services/moduleConfig";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
+import {
+    DepartmentSchema,
+    TDepartmentData,
+    TDepartmentFormValues,
+} from "definations/modules/config/department";
+import {
+    useAddDepartmentMutation,
+    useUpdateDepartmentMutation,
+} from "services/modules/config/department";
 
 const AddDepartments = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TDepartments;
+    const data = dialogProps?.data as unknown as TDepartmentData;
 
-    const form = useForm<TDepartments>({
-        resolver: zodResolver(departmentsSchema),
+    const form = useForm<TDepartmentFormValues>({
+        resolver: zodResolver(DepartmentSchema),
         defaultValues: {
             name: data?.name ?? "",
             description: data?.description ?? "",
@@ -26,12 +30,12 @@ const AddDepartments = () => {
     });
 
     const dispatch = useAppDispatch();
-    const [departments, { isLoading }] = useAddDepartmentsMutation();
+    const [departments, { isLoading }] = useAddDepartmentMutation();
 
     const [updateDepartments, { isLoading: updateDepartmentsLoading }] =
-        useUpdateDepartmentsMutation();
+        useUpdateDepartmentMutation();
 
-    const onSubmit: SubmitHandler<TDepartments> = async (data) => {
+    const onSubmit: SubmitHandler<TDepartmentFormValues> = async (data) => {
         try {
             if (dialogProps?.type === "update") {
                 await updateDepartments({
@@ -55,24 +59,22 @@ const AddDepartments = () => {
             <form
                 action=""
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="flex flex-col gap-y-10"
+                className="flex flex-col gap-y-7"
             >
-                <div className="grid grid-cols-1 gap-y-7">
-                    <FormInput
-                        label="Name"
-                        name="name"
-                        placeholder="Enter name"
-                        required
-                    />
-                </div>
-                <div className="grid grid-cols-1 gap-y-7">
-                    <FormInput
-                        label="Description"
-                        name="description"
-                        placeholder="Enter description"
-                        required
-                    />
-                </div>
+                <FormInput
+                    label="Name"
+                    name="name"
+                    placeholder="Enter Name"
+                    required
+                />
+
+                <FormInput
+                    label="Description"
+                    name="description"
+                    placeholder="Enter Description"
+                    required
+                />
+
                 <div className="flex justify-start gap-4">
                     <FormButton loading={isLoading || updateDepartmentsLoading}>
                         Save

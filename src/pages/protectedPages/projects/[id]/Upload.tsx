@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unknown-property */
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
 import AddSquareIcon from "components/icons/AddSquareIcon";
@@ -20,17 +19,31 @@ import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { toast } from "sonner";
-import { useDeleteProjectDocumentMutation } from "services/projectsApi/project-document";
+import {
+    useDeleteProjectDocumentMutation,
+    useGetAllProjectDocumentsQuery,
+} from "services/project/document";
+import { skipToken } from "@reduxjs/toolkit/query/react";
+import useQuery from "hooks/useQuery";
+import { useParams } from "react-router-dom";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
     "pdfjs-dist/build/pdf.worker.min.mjs",
     import.meta.url
 ).toString();
 
-const Uploads = (projects: any) => {
+const Uploads = () => {
     const [numPages, setNumPages] = useState<number>();
     const [pageNumber, setPageNumber] = useState<number>(1);
     const [deleteProjectDocumentMutation] = useDeleteProjectDocumentMutation();
+
+    const query = useQuery();
+
+    const projectId = query.get("id") || useParams().id;
+
+    const { data: documents, isLoading } = useGetAllProjectDocumentsQuery(
+        projectId ?? skipToken
+    );
 
     function onDocumentLoadSuccess({ numPages }: { numPages: number }): void {
         setNumPages(numPages);
@@ -39,11 +52,10 @@ const Uploads = (projects: any) => {
 
     const deleteDocHandler = async (id: string) => {
         try {
-            await deleteProjectDocumentMutation({ path: { id: id } }).unwrap;
-            toast.success("Document successfully deleted.");
-        } catch (error) {
-            toast.error("Something went wrong");
-            console.log(error);
+            await deleteProjectDocumentMutation({ path: { id: id } }).unwrap();
+            toast.success("Project Document Deleted.");
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
 
@@ -58,10 +70,11 @@ const Uploads = (projects: any) => {
                         onClick={() => {
                             dispatch(
                                 openDialog({
-                                    type: DialogType.ProjectDetailsUploadModal,
+                                    type: DialogType.ProjectUploadModal,
                                     dialogProps: {
                                         header: "Upload New Document",
                                         width: "max-w-md",
+                                        projectId: projectId ?? "",
                                     },
                                 })
                             );
@@ -77,7 +90,7 @@ const Uploads = (projects: any) => {
 
             <Card className="py-5 border-none">
                 <div className="grid grid-cols-1 items-center gap-5 md:grid-cols-2 lg:grid-cols-3">
-                    {projects?.documents?.map((doc: any) => (
+                    {documents?.data.results.map((doc) => (
                         <div
                             key={doc.id}
                             className="border space-y-4 rounded-2xl p-5 w-full overflow-hidden h-fit"
@@ -179,7 +192,10 @@ const Uploads = (projects: any) => {
                             <h6 className="text-sm">
                                 Last Updated:{" "}
                                 <span>
-                                    {format(doc?.updated_at, "MMM dd, yyy")}
+                                    {format(
+                                        doc.uploaded_datetime,
+                                        "MMM dd, yyy"
+                                    )}
                                 </span>
                             </h6>
                         </div>

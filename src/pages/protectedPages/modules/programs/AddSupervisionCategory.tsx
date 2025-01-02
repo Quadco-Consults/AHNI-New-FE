@@ -1,36 +1,29 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
-import FormSelect from "atoms/FormSelect";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { useAppDispatch, useAppSelector } from "hooks/useStore";
+import { closeDialog, dailogSelector } from "store/ui";
+import {
+    SupervisionCategorySchema,
+    TSupervisionCategoryData,
+    TSupervisionCategoryFormValues,
+} from "definations/modules/program/supervision-category";
 import {
     useAddSupervisionCategoryMutation,
     useUpdateSupervisionCategoryMutation,
-} from "services/module-programs";
-import {
-    TSupervisionCategory,
-    supervisionCategorySchema,
-} from "definations/module-programs";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { closeDialog, dailogSelector } from "store/ui";
-
-const jobCategoryOptions = [
-    { label: "Goods", value: "Goods" },
-    { label: "Service", value: "Service" },
-    { label: "Work", value: "Work" },
-    { label: "Others", value: "Others" },
-];
+} from "services/modules/program/supervision-category";
 
 const AddSupervisionCategory = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TSupervisionCategory;
+    const data = dialogProps?.data as unknown as TSupervisionCategoryData;
 
-    const form = useForm<TSupervisionCategory>({
-        resolver: zodResolver(supervisionCategorySchema),
+    const form = useForm<TSupervisionCategoryFormValues>({
+        resolver: zodResolver(SupervisionCategorySchema),
         defaultValues: {
             name: data?.name ?? "",
             description: data?.description ?? "",
@@ -44,7 +37,9 @@ const AddSupervisionCategory = () => {
     const [updateSupervisionCategory, { isLoading: updateSupervisionLoading }] =
         useUpdateSupervisionCategoryMutation();
 
-    const onSubmit: SubmitHandler<TSupervisionCategory> = async (data) => {
+    const onSubmit: SubmitHandler<TSupervisionCategoryFormValues> = async (
+        data
+    ) => {
         try {
             dialogProps?.type === "update"
                 ? await updateSupervisionCategory({
@@ -57,7 +52,7 @@ const AddSupervisionCategory = () => {
             dispatch(closeDialog());
             form.reset();
         } catch (error: any) {
-            toast.error(error.data.message || "Something went wrong");
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
 
@@ -67,39 +62,21 @@ const AddSupervisionCategory = () => {
                 <form
                     action=""
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex flex-col gap-y-10"
+                    className="flex flex-col gap-y-7"
                 >
-                    <div className="grid grid-cols-1 gap-y-7">
-                        <FormInput
-                            label="Name"
-                            name="name"
-                            placeholder="Enter name"
-                            required
-                        />
-                    </div>
-                    <div className="grid grid-cols-1">
-                        <FormInput
-                            label="Description"
-                            placeholder="Enter description"
-                            name="description"
-                            required
-                        />
-                        {/* <FormInput label="Code" name="code" required /> */}
-                    </div>
-                    {/* <div className="grid grid-cols-2 gap-x-7">
-              <FormInput
-                label="Serial Number"
-                name="serial_number"
-                type="number"
-                required
-              />
-              <FormSelect
-                label="Job Category"
-                name="job_category"
-                required
-                options={jobCategoryOptions}
-              />
-            </div> */}
+                    <FormInput
+                        label="Name"
+                        name="name"
+                        placeholder="Enter Name"
+                        required
+                    />
+
+                    <FormInput
+                        label="Description"
+                        placeholder="Enter Description"
+                        name="description"
+                    />
+
                     <div className="flex justify-start gap-4">
                         <FormButton
                             loading={isLoading || updateSupervisionLoading}

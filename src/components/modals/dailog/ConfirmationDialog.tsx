@@ -1,3 +1,4 @@
+import { LoadingSpinner } from "components/shared/Loading";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -7,35 +8,43 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger,
 } from "components/ui/alert-dialog";
 
 type PropsType = {
-    title: string;
-    message: string;
+    open: boolean;
+    title?: string;
+    message?: string;
+    loading?: boolean;
     onOk: () => void;
+    onCancel: () => void;
 };
 
-export default function ConfirmationDialog(props: PropsType) {
+export default function ConfirmationDialog({
+    open,
+    title,
+    message,
+    loading,
+    onOk,
+    onCancel,
+}: PropsType) {
     return (
-        <AlertDialog>
-            <AlertDialogTrigger className="flex items-center w-full gap-2 p-2 cursor-pointer hover:bg-primary hover:text-white">
-                Delete
-            </AlertDialogTrigger>
+        <AlertDialog open={open}>
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>
-                        Are you absolutely sure?
+                        {title ?? "  Are you absolutely sure?"}
                     </AlertDialogTitle>
                     <AlertDialogDescription>
-                        {desc ||
+                        {message ??
                             "This action cannot be undone. This will permanently delete this item and remove all associated data from our servers."}
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={action}>
-                        Continue
+                    <AlertDialogCancel onClick={onCancel}>
+                        Cancel
+                    </AlertDialogCancel>
+                    <AlertDialogAction onClick={onOk}>
+                        {loading ? "Please wait..." : "Continue"}
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>

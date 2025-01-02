@@ -7,13 +7,10 @@ import Card from "components/shared/Card";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { TCreateUser, userSchema } from "definations/users";
-
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import {
-    useDepartmentsQuery,
-    useGetAllPositionsQuery,
-} from "services/moduleConfig";
+import { useGetAllDepartmentsQuery } from "services/modules/config/department";
+import { useGetAllPositionsQuery } from "services/modules/config/position";
 import { useCreateUserMutation } from "services/users";
 import { toast } from "sonner";
 
@@ -36,14 +33,20 @@ const CreateUsers = () => {
             confirm_password: "",
         },
     });
-    const { data } = useDepartmentsQuery({ page: 1, page_size: 100 });
+    const { data: department } = useGetAllDepartmentsQuery({
+        page: 1,
+        size: 2000000,
+    });
 
-    const departmentOptions = data?.data?.results?.map((dept) => ({
+    const departmentOptions = department?.data?.results?.map((dept) => ({
         label: dept.name,
         value: dept.id,
     }));
 
-    const { data: position } = useGetAllPositionsQuery({ no_paginate: false });
+    const { data: position } = useGetAllPositionsQuery({
+        page: 1,
+        size: 2000000,
+    });
 
     const positionOptions = position?.data.results.map(({ name, id }) => ({
         label: name,
@@ -61,9 +64,7 @@ const CreateUsers = () => {
             form.reset();
             navigate("/users");
         } catch (error: any) {
-            const keys = Object.keys(error.data);
-            const errMsg = error.data[keys[0]][0];
-            toast.error(errMsg || "Something went wrong");
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
     return (

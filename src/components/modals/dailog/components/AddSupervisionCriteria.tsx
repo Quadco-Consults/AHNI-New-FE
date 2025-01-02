@@ -6,49 +6,55 @@ import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import {
-    useAddSupervisionCategoryMutation,
-    useAddSupervisionCriteriaMutation,
-    useUpdateSupervisionCategoryMutation,
-    useUpdateSupervisionCriteriaMutation,
-} from "services/module-programs";
-import {
-    SupervisionCriteriaSchema,
-    TSupervisionCategory,
-    TSupervisionCriteria,
-    supervisionCategorySchema,
-} from "definations/module-programs";
+
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
-
-const jobCategoryOptions = [
-    { label: "Goods", value: "Goods" },
-    { label: "Service", value: "Service" },
-    { label: "Work", value: "Work" },
-    { label: "Others", value: "Others" },
-];
+import {
+    SupervisionCriteriaSchema,
+    TSupervisionCriteriaData,
+    TSupervisionCriteriaFormValues,
+} from "definations/modules/program/supervision-criteria";
+import {
+    useAddSupervisionCriteriaMutation,
+    useUpdateSupervisionCriteriaMutation,
+} from "services/modules/program/supervision-criteria";
+import { useGetAllSupervisionCategoryQuery } from "services/modules/program/supervision-category";
 
 const AddSupervisionCriteria = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TSupervisionCriteria;
+    const data = dialogProps?.data as unknown as TSupervisionCriteriaData;
 
-    const form = useForm<TSupervisionCriteria>({
+    const form = useForm<TSupervisionCriteriaFormValues>({
         resolver: zodResolver(SupervisionCriteriaSchema),
         defaultValues: {
             name: data?.name ?? "",
             description: data?.description ?? "",
+            evaluation_category: data?.evaluation_category ?? "",
         },
     });
 
     const dispatch = useAppDispatch();
 
+    const { data: category } = useGetAllSupervisionCategoryQuery({
+        page: 1,
+        size: 2000000,
+    });
+
+    const categoryOptions = category?.data.results.map(({ name, id }) => ({
+        label: name,
+        value: id,
+    }));
+
     const [addSupervisionCriteria, { isLoading }] =
         useAddSupervisionCriteriaMutation();
+
     const [updateSupervisionCriteria, { isLoading: updateSupervisionLoading }] =
         useUpdateSupervisionCriteriaMutation();
 
-    const onSubmit: SubmitHandler<TSupervisionCategory> = async (data) => {
+    const onSubmit: SubmitHandler<TSupervisionCriteriaFormValues> = async (
+        data
+    ) => {
         try {
             dialogProps?.type === "update"
                 ? await updateSupervisionCriteria({
@@ -71,24 +77,28 @@ const AddSupervisionCriteria = () => {
                 <form
                     action=""
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex flex-col gap-y-10"
+                    className="flex flex-col gap-y-7"
                 >
-                    <div className="grid grid-cols-1 gap-y-7">
-                        <FormInput
-                            label="Name"
-                            name="name"
-                            placeholder="Enter name"
-                            required
-                        />
-                    </div>
-                    <div className="grid grid-cols-1">
-                        <FormInput
-                            label="Description"
-                            placeholder="Enter description"
-                            name="description"
-                            required
-                        />
-                    </div>
+                    <FormInput
+                        label="Name"
+                        name="name"
+                        placeholder="Enter Name"
+                        required
+                    />
+
+                    <FormInput
+                        label="Description"
+                        placeholder="Enter Description"
+                        name="description"
+                    />
+
+                    <FormSelect
+                        label="Supervision Evaluation Category"
+                        placeholder="Select Evaluation Category"
+                        name="evaluation_category"
+                        required
+                        options={categoryOptions}
+                    />
 
                     <div className="flex justify-start gap-4">
                         <FormButton

@@ -4,34 +4,40 @@ import FormInput from "atoms/FormInput";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import {
-    useAddLotsMutation,
-    useUpdateLotsMutation,
-} from "services/moduleProcurement";
-import { TLots, lotsSchema } from "definations/module-procurement";
+
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
 import { toast } from "sonner";
+import {
+    LotSchema,
+    TLotData,
+    TLotFormValues,
+} from "definations/modules/procurement/lot";
+import {
+    useAddLotMutation,
+    useUpdateLotMutation,
+} from "services/modules/procurement/lot";
 
 const AddLots = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TLots;
-    const form = useForm<TLots>({
-        resolver: zodResolver(lotsSchema),
+    const data = dialogProps?.data as unknown as TLotData;
+    const form = useForm<TLotFormValues>({
+        resolver: zodResolver(LotSchema),
         defaultValues: {
             name: data?.name ?? "",
+            // @ts-ignore
             packet_number: data?.packet_number ?? "",
         },
     });
 
-    const [lots, { isLoading }] = useAddLotsMutation();
+    const [lots, { isLoading }] = useAddLotMutation();
     const [updateLots, { isLoading: updateLotsLoading }] =
-        useUpdateLotsMutation();
+        useUpdateLotMutation();
 
     const dispatch = useAppDispatch();
-    
-    const onSubmit: SubmitHandler<TLots> = async (data) => {
+
+    const onSubmit: SubmitHandler<TLotFormValues> = async (data) => {
         try {
             dialogProps?.type === "update"
                 ? await updateLots({
@@ -53,24 +59,21 @@ const AddLots = () => {
                 <form
                     action=""
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex flex-col gap-y-10"
+                    className="flex flex-col gap-y-7"
                 >
-                    <div className="grid grid-cols-1 gap-y-7">
-                        <FormInput
-                            label="Name"
-                            name="name"
-                            placeholder="Enter name"
-                            required
-                        />
-                    </div>
-                    <div className="grid grid-cols-1 gap-y-7">
-                        <FormInput
-                            label="Packet Number"
-                            name="packet_number"
-                            placeholder="Enter packet number"
-                            required
-                        />
-                    </div>
+                    <FormInput
+                        label="Name"
+                        name="name"
+                        placeholder="Enter Name"
+                        required
+                    />
+
+                    <FormInput
+                        label="Packet Number"
+                        name="packet_number"
+                        placeholder="Enter Packet Number"
+                        required
+                    />
                     <div className="flex justify-start gap-4">
                         <FormButton loading={isLoading || updateLotsLoading}>
                             Save

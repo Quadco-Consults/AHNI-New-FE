@@ -18,7 +18,7 @@ import { LoadingSpinner } from "components/shared/Loading";
 import { ProjectDocumentTypesResultsData } from "definations/project-types/project-document-types";
 import { toast } from "sonner";
 import FormButton from "atoms/FormButton";
-import { useCreateProjectDocumentMutation } from "services/projectsApi/project-document";
+import { useCreateProjectDocumentMutation } from "services/project/document";
 
 const ProjectDetailsUploadModal = () => {
     const [locationValue, setLocationValue] = useState("");

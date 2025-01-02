@@ -1,15 +1,15 @@
-import { TBasePaginatedResponse, TRequest, TResponse } from "definations/auth";
-import baseAPI from "..";
 import {
-    TActivityTrackerFormValues,
-    TActivityTrackerResult,
+    TWorkPlanTrackerData,
+    TWorkPlanTrackerFormValues,
 } from "definations/program-types/activity-tracker";
+import baseAPI from "..";
+import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
 const ActivityTrackerAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
         createActivityTracker: builder.mutation<
-            null,
-            TActivityTrackerFormValues
+            TResponse<TWorkPlanTrackerData>,
+            TWorkPlanTrackerFormValues
         >({
             query: (body) => ({
                 method: "POST",
@@ -19,44 +19,48 @@ const ActivityTrackerAPI = baseAPI.injectEndpoints({
         }),
 
         getAllActivityTracker: builder.query<
-            TBasePaginatedResponse<TActivityTrackerResult>,
+            TPaginatedResponse<TWorkPlanTrackerData>,
             TRequest
         >({
-            query: () => ({
+            query: (params) => ({
                 method: "GET",
-                url: "/programs/plans/activity-trackers/",
+                url: "/programs/plans/works/trackers/",
+                params,
             }),
+            providesTags: ["ACTIVITY_TRACKER"],
         }),
 
         getSingleActivityTracker: builder.query<
-            TResponse<TActivityTrackerResult>,
+            TResponse<TWorkPlanTrackerData>,
             string
         >({
             query: (id) => ({
                 method: "GET",
-                url: `/programs/plans/activity-trackers/${id}/`,
+                url: `/programs/plans/works/trackers/${id}/`,
             }),
         }),
 
         updateActivityTracker: builder.mutation<
-            TResponse<TActivityTrackerResult>,
-            { id: string; body: TActivityTrackerFormValues }
+            TResponse<TWorkPlanTrackerData>,
+            { id: string; body: TWorkPlanTrackerFormValues }
         >({
             query: ({ id, body }) => ({
                 method: "PUT",
-                url: `/programs/plans/activity-trackers/${id}/`,
+                url: `/programs/plans/works/trackers/${id}/`,
                 body,
             }),
+            invalidatesTags: ["ACTIVITY_TRACKER"],
         }),
 
         deleteActivityTracker: builder.mutation<
-            TResponse<TActivityTrackerResult>,
+            TResponse<TWorkPlanTrackerData>,
             string
         >({
             query: (id) => ({
                 method: "DELETE",
-                url: `/programs/plans/activity-trackers/${id}/`,
+                url: `/programs/plans/works/trackers/${id}/`,
             }),
+            invalidatesTags: ["ACTIVITY_TRACKER"],
         }),
     }),
 });

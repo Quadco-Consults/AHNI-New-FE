@@ -1,15 +1,15 @@
+import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 import baseAPI from "..";
 import {
-    TStakeholderRegister,
-    TStakeholderRegisterResponse,
+    TStakeholderRegisterData,
+    TStakeholderRegisterFormValues,
 } from "definations/program-validator";
-import { TBasePaginatedResponse, TRequest, TResponse } from "definations/auth";
 
 const stakeholderAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
         createStakeholderRegister: builder.mutation<
-            TResponse<TStakeholderRegister>,
-            TStakeholderRegister
+            TResponse<TStakeholderRegisterData>,
+            TStakeholderRegisterFormValues
         >({
             query: (body) => ({
                 method: "POST",
@@ -20,18 +20,19 @@ const stakeholderAPI = baseAPI.injectEndpoints({
         }),
 
         getAllStakeholderRegister: builder.query<
-            TBasePaginatedResponse<TStakeholderRegisterResponse>,
+            TPaginatedResponse<TStakeholderRegisterData>,
             TRequest
         >({
-            query: () => ({
+            query: (params) => ({
                 method: "GET",
                 url: `/programs/stakeholders/`,
+                params,
             }),
             providesTags: ["STAKEHOLDER_REGISTER"],
         }),
 
         getSingleStakeholderRegister: builder.query<
-            TResponse<TStakeholderRegister>,
+            TResponse<TStakeholderRegisterData>,
             string
         >({
             query: (id) => ({
@@ -41,8 +42,8 @@ const stakeholderAPI = baseAPI.injectEndpoints({
         }),
 
         editStakeholderRegister: builder.mutation<
-            TResponse<TStakeholderRegisterResponse>,
-            { id: string; body: TStakeholderRegister }
+            TResponse<TStakeholderRegisterData>,
+            { id: string; body: TStakeholderRegisterFormValues }
         >({
             query: ({ id, body }) => ({
                 method: "PUT",
@@ -53,7 +54,7 @@ const stakeholderAPI = baseAPI.injectEndpoints({
         }),
 
         deleteStakeholderRegister: builder.mutation<
-            TResponse<TStakeholderRegisterResponse>,
+            TResponse<TStakeholderRegisterData>,
             string
         >({
             query: (id) => ({
