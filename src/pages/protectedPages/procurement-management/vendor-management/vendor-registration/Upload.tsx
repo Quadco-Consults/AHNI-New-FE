@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
-// import { useDispatch } from "react-redux";
 import { Form } from "components/ui/form";
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
@@ -10,19 +9,18 @@ import { Separator } from "components/ui/separator";
 import { Upload as UploadFile } from "lucide-react";
 import { motion } from "framer-motion";
 import VendorRegistationLayout from "./VendorRegistationLayout";
-// import { vendorsActions } from "store/formData/procurement-vendors";
-// import { RouteEnum } from "constants/RouterConstants";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import VendorsDocumentAPI from "services/procurementApi/vendors-document";
-import { Progress } from "components/ui/progress";
+
+import { Badge } from "components/ui/badge";
 
 const UploadSchema = z.object({
   files: z
     .array(
       z.object({
-        file: z.instanceof(File).nullable().optional(), // Optional file
+        file: z.array(z.instanceof(File)).nullable().optional(), // Optional array of File objects
         description: z.string().optional(), // Optional description
         document_type: z.string().optional(), // Optional document_type
         title: z.string().optional(), // Optional title
@@ -32,7 +30,7 @@ const UploadSchema = z.object({
   references: z
     .array(
       z.object({
-        file: z.instanceof(File).nullable().optional(), // Optional file
+        file: z.array(z.instanceof(File)).nullable().optional(), // Optional array of File objects
         description: z.string().optional(), // Optional description
         document_type: z.string().optional(), // Optional document_type
         title: z.string().optional(), // Optional title
@@ -41,7 +39,7 @@ const UploadSchema = z.object({
     .length(5),
   supportingDocument: z
     .object({
-      file: z.instanceof(File).nullable().optional(), // Optional file
+      file: z.array(z.instanceof(File)).nullable().optional(), // Optional array of File objects
       description: z.string().optional(), // Optional description
       document_type: z.string().optional(), // Optional document_type
       title: z.string().optional(), // Optional title
@@ -50,23 +48,13 @@ const UploadSchema = z.object({
 });
 
 const Upload = () => {
-  // const [formData, setFormData] = useState<FormData>({});
-
   const navigate = useNavigate();
-  // const dispatch = useDispatch();
+
   // eslint-disable-next-line no-unused-vars
   const { pathname } = useLocation();
-  const [
-    createVendorDocumentMutation,
-    // { isLoading: createVendorDocumentMutationLoading },
-  ] = VendorsDocumentAPI.useCreateVendorDocumentMutation();
+  const [createVendorDocumentMutation] =
+    VendorsDocumentAPI.useCreateVendorDocumentMutation();
 
-  // eslint-disable-next-line no-unused-vars
-  const [uploadedFiles, setUploadedFiles] = useState<(File | null)[]>(
-    Array(10).fill(null)
-  ); // Adjust initial size as needed
-
-  // const form = useForm();
   const form = useForm({
     resolver: zodResolver(UploadSchema),
     defaultValues: {
@@ -118,22 +106,17 @@ const Upload = () => {
   };
   const { handleSubmit } = form;
 
+  const currentValues = form.getValues();
+
   const handleFileChange = (
     field: string,
     index: number,
-    file: File | null,
-    document_type?: string,
-    title?: string
+    e: React.ChangeEvent<HTMLInputElement>,
+    document_type?: string
+    // eslint-disable-next-line no-unused-vars
   ) => {
-    const currentValues = form.getValues();
-
-    //     {
-    //   "file": "string",
-    //   "title": "string",
-    //   "document_type": "Tax Clearance Certificate",
-    //   "description": "string",
-    //   "vendor": "0389db27-b82e-4939-a6bf-21e751cacc66"
-    // }
+    const fileArray = Array.from(e?.target.files || []);
+    const file = e?.target.files?.[0]!;
 
     // @ts-ignore
     if (Array.isArray(currentValues[field])) {
@@ -142,14 +125,14 @@ const Upload = () => {
       const updatedFiles = [...currentValues[field]];
       updatedFiles[index] = {
         ...updatedFiles[index],
-        file,
+        file: fileArray,
         document_type,
         title: file?.name || "",
       };
 
       // @ts-ignore
-
       form.setValue(field, updatedFiles);
+      // Update uploadedFiles state for UI display
     } else {
       // For objects like "supportingDocument"
 
@@ -157,7 +140,7 @@ const Upload = () => {
       form.setValue(field, {
         // @ts-ignore
         ...currentValues[field],
-        file,
+        file: fileArray,
         document_type,
         title: file?.name || "",
       });
@@ -165,30 +148,6 @@ const Upload = () => {
   };
 
   const goBack = () => navigate(-1);
-
-  // const onSubmit = async (data: any) => {
-  //   console.log({ data });
-
-  //   try {
-  //     const res = await createVendorDocumentMutation(data).unwrap();
-  //     console.log({ res });
-
-  //     // localStorage.setItem("vendorID", res?.data?.id);
-  //     toast.success("Successfully created.");
-  //     let path = pathname;
-  //     path = path.substring(0, path.lastIndexOf("/"));
-  //     // path += "/attestation";
-  //     console.log({ path });
-  //   } catch (error) {
-  //     toast.error("Something went wrong");
-  //     console.log(error);
-  //   }
-
-  //   // sessionStorage.removeItem("completedSteps");
-  //   // localStorage.removeItem("vendorID");
-  //   // dispatch(vendorsActions.clearVendors());
-  //   // navigate(RouteEnum.VENDOR_MANAGEMENT);
-  // };
 
   const [fileStatuses, setFileStatuses] = useState<
     Record<string, Record<number, boolean>>
@@ -219,16 +178,18 @@ const Upload = () => {
 
   const vendor = localStorage.getItem("vendorID") as string;
 
-  console.log({ vendor });
-
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: {
+    files: any[];
+    references: any[];
+    supportingDocument: { file: any };
+  }) => {
     // Prepare all files and add them to FormData
     const allFiles = [
       ...data.files.map((file, index) => ({ field: "files", index, file })),
       ...data.references.map((file, index) => ({
         field: "references",
         index,
-        file,
+        file: file,
       })),
       ...(data.supportingDocument?.file
         ? [
@@ -241,73 +202,51 @@ const Upload = () => {
         : []),
     ];
 
-    console.log("I am here now, new check 2");
-
     // For each file, append it to FormData and handle loading/error states
     for (let { field, index, file } of allFiles) {
       if (!file.file) continue; // Skip if no file uploaded
-      const clonedFile = [file?.file];
-      console.log({ file });
 
-      // const convertFileToBinary = (file: File): Promise<string> => {
-      //   return new Promise((resolve, reject) => {
-      //     const reader = new FileReader();
-
-      //     reader.onload = () => {
-      //       const bytes = new Uint8Array(reader.result as ArrayBuffer);
-      //       let binaryString = "";
-
-      //       // Convert each byte to binary string
-      //       for (let i = 0; i < bytes.length; i++) {
-      //         binaryString += String.fromCharCode(bytes[i]);
-      //       }
-
-      //       resolve(binaryString);
-      //     };
-
-      //     reader.onerror = (error: ProgressEvent<FileReader>) => {
-      //       reject(error);
-      //     };
-
-      //     reader.readAsArrayBuffer(file);
-      //   });
-      // };
-
-      // const newFile = await convertFileToBinary(clonedFile);
-      console.log("I am here now, new check");
+      const clonedFile = file?.file;
 
       try {
         setLoader(field, index, true); // Set loader for the current file
-        console.log("I am here now");
 
         // Prepare FormData object
         const formData = new FormData();
 
         // Append all files
-        clonedFile.forEach((file) => {
+        clonedFile.forEach((file: string | Blob) => {
           formData.append("files", file); // The key "files" must match what the backend expects
         });
+
         // const newArray = ["hello"];
         // Append file and additional data to FormData
         // @ts-ignore
         // formData.append(`files`, file?.file);
         // formData.append(`files`, clonedFile);
-        formData.append(`document_type`, "Other Documents" || "");
-        formData.append(`title`, "Mrs Justina_100750" || "");
+        formData.append(`document_type`, file?.document_type || "");
+        formData.append(`title`, file?.title || "");
         formData.append(`description`, file.description || "");
-        formData.append(`vendor`, "6c4e5c7c-1c10-4d38-9126-829eeaaa4cfd" || "");
+        formData.append(`vendor`, vendor || "");
 
         // Send the request
         await createVendorDocumentMutation(formData).unwrap();
-        toast.success(`Successfully uploaded file in ${field}[${index}]`);
+        toast.success(`Successfully uploaded file`);
+        setError(field, index, false); // Mark the file as failed
       } catch (error) {
-        console.error(`Error uploading file in ${field}[${index}]`, error);
+        console.error(`Error uploading file`, error);
         setError(field, index, true); // Mark the file as failed
-        toast.error(`Failed to upload file in ${field}[${index}]`);
+        toast.error(`Failed to upload file`);
       } finally {
         setLoader(field, index, false); // Clear loader for the current file
       }
     }
+    let path = pathname;
+
+    path = path.substring(0, path.lastIndexOf("/"));
+
+    path += "/prequalification";
+    navigate(path);
   };
 
   const documentFields = [
@@ -322,7 +261,8 @@ const Upload = () => {
         "Company Profile; registered address(s), official/functional emails, telephone numbers and point of contact for the company",
     },
     {
-      doc_type: "Not Sure",
+      doc_type: "Company Profile",
+      // doc_type: "Not Sure",
       label:
         "Evidence of legal registration document of the company (CAC, FORM CO7 and FORM CO2)",
     },
@@ -348,61 +288,100 @@ const Upload = () => {
       doc_type: "Professional Membership",
       label:
         "Evidence of possession of experience in the line of business(s) you are applying for; prospecting Suppliers must provide at least 5 copies of completed Job Orders and Proof of Deliveries (Delivery Notes or Job Completion Notification in area(s) of business endevour",
+      multiple: true,
     },
   ];
 
   const renderFileUploadRow = (
+    // fileName: any,
     field: string,
     label: string,
     index: number,
     placeholder?: string,
     title?: string,
-    document_type?: string
+    document_type?: string,
+    multiple?: boolean
   ) => {
     const isLoading = fileStatuses[field]?.[index] || false;
     const hasError = fileErrors[field]?.[index] || false;
+    // const currentValues = formx.getValues();
+
+    // const fileName = currentValues[field]?.[index] || ""; // Get the file name for display
+
+    // @ts-ignore
+    const files = form.watch(field);
+
+    // @ts-ignore
+    const fileName = files?.[index]?.title || files?.title || "";
+    const fileNamex =
+      files?.[index]?.file?.map(
+        (
+          file: {
+            name:
+              | string
+              | number
+              | boolean
+              | React.ReactElement<
+                  any,
+                  string | React.JSXElementConstructor<any>
+                >
+              | Iterable<React.ReactNode>
+              | React.ReactPortal
+              | null
+              | undefined;
+          },
+          i: React.Key | null | undefined
+        ) => {
+          return (
+            <Badge key={i} className='py-2 rounded-lg bg-[#EBE8E1] text-black'>
+              {file.name}
+            </Badge>
+          );
+        }
+      ) ||
+      // @ts-ignore
+      files?.title ||
+      "";
 
     return (
       <div key={index} className='mb-4 w-full'>
         <h5 className='font-bold text-[12px] mb-2'>{label}</h5>
         <div className='flex items-center w-full gap-2 h-[50px]'>
           <div className='w-full max-w-[142px] h-[52px] rounded-[8px] border flex justify-center items-center text-gray-800'>
-            {uploadedFiles[index] ? (
-              <div className='overflow-hidden px-2'>
-                <p className='whitespace-nowrap'>
-                  {uploadedFiles[index]?.name}
-                </p>
-              </div>
-            ) : (
-              <>
-                <input
-                  // id={`fileInput-${index}`}
-                  id={`fileInput-${field}-${index}`}
-                  type='file'
-                  onChange={(e) =>
-                    handleFileChange(
-                      field,
-                      index,
-                      e.target.files?.[0] || null,
-                      document_type,
-                      title
-                    )
-                  }
-                  className='hidden'
-                  name={`fileInput-${field}-${index}`}
-                />
-                <motion.label
-                  htmlFor={`fileInput-${field}-${index}`}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  className='cursor-pointer flex gap-4 text-sm px-4 py-2 rounded'
-                >
-                  <UploadFile size={20} />
-                  Select File
-                </motion.label>
-              </>
-            )}
+            <>
+              <input
+                // id={`fileInput-${index}`}
+                id={`fileInput-${field}-${index}`}
+                type='file'
+                multiple={multiple}
+                onChange={(e) =>
+                  handleFileChange(field, index, e || null, document_type)
+                }
+                className='hidden'
+                name={`fileInput-${field}-${index}`}
+              />
+              <motion.label
+                htmlFor={`fileInput-${field}-${index}`}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className='cursor-pointer flex gap-4 text-sm px-1 py-2 rounded'
+              >
+                {fileName ? (
+                  <div className='overflow-hidden max-w-[120px]  w-full'>
+                    <span className=' ml-2 text-sm text-gray-500 whitespace-nowrap'>
+                      {fileName}
+                    </span>
+                  </div>
+                ) : (
+                  <div className='px-3 flex gap-4 w-full '>
+                    <UploadFile size={20} />
+                    Select File
+                  </div>
+                )}
+              </motion.label>
+            </>
           </div>
+
           <Input
             type='text'
             name={`${field}-${index}-description`}
@@ -411,10 +390,19 @@ const Upload = () => {
             className='h-[52px] rounded-[8px] bg-white relative top-[1px]'
             onChange={(e) => handleInputChange(field, index, e)}
           />
+
           {isLoading && <span className='loader'>Uploading...</span>}
-          {hasError && <span className='error'>Failed</span>}
+          {hasError && !isLoading && <span className='error'>Failed</span>}
         </div>
-        {isLoading && <Progress />}
+        {fileNamex && multiple && (
+          <div className='  w-full'>
+            {/* <span className=' ml-2 text-sm text-gray-500 whitespace-nowrap'> */}
+            <div className='flex items-center gap-2 flex-wrap mt-2'>
+              {fileNamex}
+            </div>
+            {/* </span> */}
+          </div>
+        )}
       </div>
     );
   };
@@ -426,18 +414,18 @@ const Upload = () => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <Card className='space-y-6 py-5'>
               <h4 className='text-lg font-semibold'>Uploads</h4>
-              {documentFields.map(
-                ({ label, doc_type }, index) =>
-                  renderFileUploadRow(
-                    "files",
-                    label,
-                    index,
-                    "",
-                    label,
-                    doc_type
-                  )
-                // renderFileUploadRow(label, index)
-              )}
+              {documentFields.map(({ label, doc_type, multiple }, index) => {
+                return renderFileUploadRow(
+                  // fileName,
+                  "files",
+                  label,
+                  index,
+                  "",
+                  label,
+                  doc_type,
+                  multiple
+                );
+              })}
 
               <Separator />
 
@@ -454,6 +442,7 @@ const Upload = () => {
                   <div className='flex items-center gap-2 w-full' key={i}>
                     {i + 1}.
                     {renderFileUploadRow(
+                      // fileName,
                       "references",
                       ``,
                       i,
@@ -474,13 +463,13 @@ const Upload = () => {
                 expression of interest.
               </h5>
               {renderFileUploadRow(
+                // form,
                 "supportingDocument",
                 "",
                 0,
-
                 "",
                 "label",
-                "label"
+                "Reference Letter"
               )}
             </Card>
 

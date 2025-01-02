@@ -10,7 +10,7 @@ import {
   PrequalificationStagesResultsData,
 } from "definations/procurement-types/prequalification-stages";
 
-const BASE_URL = "/procurement/config/prequalification-stages/";
+const BASE_URL = "/procurements/config/prequalification-stages/";
 
 const PrequalificationStagesAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({

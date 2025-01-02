@@ -10,7 +10,7 @@ import {
   LotsResultsData,
 } from "definations/procurement-types/lots";
 
-const BASE_URL = "/procurement/lots/";
+const BASE_URL = "/procurements/lots/";
 
 const LotsAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({

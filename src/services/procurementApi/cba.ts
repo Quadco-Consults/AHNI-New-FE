@@ -13,7 +13,7 @@ import {
   CbaSubmitPayload,
 } from "definations/procurement-types/cba";
 
-const BASE_URL = "/procurement/cba/";
+const BASE_URL = "/procurements/cba/";
 
 const CbaAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
