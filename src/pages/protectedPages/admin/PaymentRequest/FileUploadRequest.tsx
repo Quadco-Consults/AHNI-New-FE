@@ -7,7 +7,6 @@ import { AdminRoutes } from "constants/RouterConstants";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import sessionStorage from "redux-persist/es/storage/session";
-import { useUploadDocumentMutation } from "services/admin/paymentRequest";
 import { toast } from "sonner";
 
 type StepsF = {
@@ -19,31 +18,28 @@ type StepsF = {
 
 const FileUploadRequest = ({ currentStep, setCurrentStep, id }: StepsF) => {
     const [file, setFile] = useState<File>();
-    const [uploadDocument, { isLoading }] = useUploadDocumentMutation();
 
     const navigate = useNavigate();
 
     const onSubmit = async () => {
-        if (!file) {
-            toast.error("Please select a file");
-            return;
-        }
-        const formData = new FormData();
-        formData.append("document_name", file.name);
-        formData.append("document ", file.type);
-
-        try {
-            await uploadDocument({
-                body: formData,
-                id: String(id),
-            }).unwrap();
-
-            toast.success("Document uploaded successfully");
-            navigate(AdminRoutes.PaymentRequest);
-            sessionStorage.removeItem("paymentId");
-        } catch (error) {
-            toast.error("Error uploading document");
-        }
+        // if (!file) {
+        //     toast.error("Please select a file");
+        //     return;
+        // }
+        // const formData = new FormData();
+        // formData.append("document_name", file.name);
+        // formData.append("document ", file.type);
+        // try {
+        //     await uploadDocument({
+        //         body: formData,
+        //         id: String(id),
+        //     }).unwrap();
+        //     toast.success("Document uploaded successfully");
+        //     navigate(AdminRoutes.PaymentRequest);
+        //     sessionStorage.removeItem("paymentId");
+        // } catch (error) {
+        //     toast.error("Error uploading document");
+        // }
     };
     return (
         <div>
@@ -88,10 +84,7 @@ const FileUploadRequest = ({ currentStep, setCurrentStep, id }: StepsF) => {
                         >
                             Cancel
                         </Button>
-                        <FormButton
-                            loading={isLoading}
-                            onClick={() => onSubmit()}
-                        >
+                        <FormButton loading={false} onClick={() => onSubmit()}>
                             Submit
                         </FormButton>
                     </div>

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader } from "components/ui/card";
 import { Separator } from "components/ui/separator";
 import { cn } from "lib/utils";
 import { useSearchParams } from "react-router-dom";
-import { useGetAgreementQuery } from "services/admin/agreements";
+
 const AssetsItem = ({
     desc,
     heading,
@@ -25,16 +25,6 @@ const AssetsItem = ({
 };
 
 const ViewAgreement = () => {
-    const [searchParams] = useSearchParams();
-
-    const id = searchParams.get("to");
-
-    const { data } = useGetAgreementQuery(String(id), {
-        skip: !id,
-    });
-
-    console.log(data);
-
     return (
         <div>
             <Tabs defaultValue="details">
@@ -43,7 +33,7 @@ const ViewAgreement = () => {
                     <TabsTrigger value="details">Details</TabsTrigger>
                 </TabsList>
                 <TabsContent value="details">
-                    <Card>
+                    {/* <Card>
                         <CardHeader className="font-bold">
                             {data?.type} Details
                             <Separator className="mt-4" />
@@ -76,7 +66,7 @@ const ViewAgreement = () => {
                                 />
                             </div>
                         </CardContent>
-                    </Card>
+                    </Card> */}
                 </TabsContent>
             </Tabs>
         </div>

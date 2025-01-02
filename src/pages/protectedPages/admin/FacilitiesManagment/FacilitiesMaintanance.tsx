@@ -8,10 +8,6 @@ import { Button } from "components/ui/button";
 import { Card, CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { useForm } from "react-hook-form";
-import { useCreateFacilityMutation } from "services/admin/faciityMaintenance";
-import DepartmentsAPI from "services/configs/departments";
-import LocationAPi from "services/configs/locationApi";
-import { toast } from "sonner";
 import { z } from "zod";
 
 const formSchema = z.object({
@@ -32,17 +28,7 @@ const FacilitiesMaintanance = () => {
         resolver: zodResolver(formSchema),
     });
 
-    const [createFacility, { isLoading }] = useCreateFacilityMutation();
-
-    const onSubmit = async (data: FormValues) => {
-        try {
-            await createFacility(data).unwrap();
-            toast.success("Facility Maintenance Ticket Created");
-            form.reset();
-        } catch (error) {
-            toast.error("Failed to create facility maintenance ticket");
-        }
-    };
+    const onSubmit = async (data: FormValues) => {};
 
     return (
         <div className="flex flex-col gap-y-6">
@@ -230,7 +216,7 @@ const FacilitiesMaintanance = () => {
                             </Form>
 
                             <div className="flex justify-end">
-                                <FormButton loading={isLoading}>
+                                <FormButton loading={false}>
                                     Raise Request
                                 </FormButton>
                             </div>

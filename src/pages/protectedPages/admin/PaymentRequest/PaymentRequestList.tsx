@@ -8,24 +8,9 @@ import {
 } from "components/Table/columns/payment";
 import { AdminRoutes } from "constants/RouterConstants";
 import { Plus } from "lucide-react";
-import { useMemo } from "react";
 import { Link, generatePath } from "react-router-dom";
-import { useGetPaymentRequestsQuery } from "services/admin/paymentRequest";
 
 const PaymentRequestList = () => {
-    const { data, isLoading } = useGetPaymentRequestsQuery({});
-
-    const driveData = useMemo(() => {
-        return (
-            data?.results?.map((item) => ({
-                ...item,
-                requested_by:
-                    item.requested_by.first_name +
-                    " " +
-                    item.requested_by.last_name,
-            })) || []
-        );
-    }, [data?.results]);
     return (
         <div>
             <div className="flex items-center justify-between">
@@ -47,8 +32,8 @@ const PaymentRequestList = () => {
             <div className="mt-8">
                 <DataTable
                     columns={paymentColumns as ColumnDef<TPaymentRequest>[]}
-                    data={driveData as TPaymentRequest[]}
-                    isLoading={isLoading}
+                    data={[]}
+                    isLoading={false}
                 />
             </div>
         </div>

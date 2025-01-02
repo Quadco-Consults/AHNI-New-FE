@@ -3,7 +3,6 @@ import { Tabs, TabsList, TabsContent, TabsTrigger } from "components/ui/tabs";
 import { Card, CardContent, CardHeader } from "components/ui/card";
 import { Separator } from "components/ui/separator";
 import { cn } from "lib/utils";
-import { useGetOnePaymentRequestQuery } from "services/admin/paymentRequest";
 import { useSearchParams } from "react-router-dom";
 const AssetsItem = ({
     desc,
@@ -29,10 +28,6 @@ const AssetsItem = ({
 const PaymentView = () => {
     const [searchParams] = useSearchParams();
 
-    const { data } = useGetOnePaymentRequestQuery({
-        id: String(searchParams.get("to")),
-    });
-
     return (
         <div>
             <Tabs defaultValue="details">
@@ -47,7 +42,7 @@ const PaymentView = () => {
                             <Separator className="mt-4" />
                         </CardHeader>
                         <CardContent>
-                            <div className="flex flex-col w-10/12 gap-y-8 ">
+                            {/* <div className="flex flex-col w-10/12 gap-y-8 ">
                                 <AssetsItem
                                     heading="Requested By."
                                     className="flex justify-between "
@@ -109,7 +104,7 @@ const PaymentView = () => {
                                     desc="N/A"
                                     className2="flex justify-start  w-7/12"
                                 />
-                            </div>
+                            </div> */}
                         </CardContent>
                     </Card>
                 </TabsContent>

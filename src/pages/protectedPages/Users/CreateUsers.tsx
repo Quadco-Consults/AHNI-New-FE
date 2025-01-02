@@ -6,13 +6,13 @@ import FormSelect from "atoms/FormSelect";
 import Card from "components/shared/Card";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
-import { TCreateUser, userSchema } from "definations/auth/user";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useGetAllDepartmentsQuery } from "services/modules/config/department";
 import { useGetAllPositionsQuery } from "services/modules/config/position";
 import { useCreateUserMutation } from "services/auth/user";
 import { toast } from "sonner";
+import { CreateUserSchema, TCreateUserFormValues } from "definations/auth/user";
 
 const genderOptions = [
     { label: "Male", value: "MALE" },
@@ -21,8 +21,8 @@ const genderOptions = [
 ];
 
 const CreateUsers = () => {
-    const form = useForm<TCreateUser>({
-        resolver: zodResolver(userSchema),
+    const form = useForm<TCreateUserFormValues>({
+        resolver: zodResolver(CreateUserSchema),
         defaultValues: {
             first_name: "",
             last_name: "",
@@ -57,7 +57,7 @@ const CreateUsers = () => {
 
     const navigate = useNavigate();
 
-    const onSubmit: SubmitHandler<TCreateUser> = async (data) => {
+    const onSubmit: SubmitHandler<TCreateUserFormValues> = async (data) => {
         try {
             await createUser(data).unwrap();
             toast.success("User Created Succesfully");

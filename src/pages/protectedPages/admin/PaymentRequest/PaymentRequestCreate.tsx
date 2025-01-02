@@ -7,10 +7,6 @@ import { Form } from "components/ui/form";
 
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import {
-    TPaymentRequestPayload,
-    useCreatePaymentRequestMutation,
-} from "services/admin/paymentRequest";
 
 import * as z from "zod";
 import { toast } from "sonner";
@@ -48,29 +44,12 @@ type StepsF = {
 };
 
 const FormOne = ({ currentStep, setCurrentStep, setId }: StepsF) => {
-    const form = useForm<TPaymentRequestPayload>({
-        defaultValues: {},
-        resolver: zodResolver(paymentRequestSchema),
-    });
-
-    const [createPaymentRequest, { isLoading }] =
-        useCreatePaymentRequestMutation();
-
-    const onSubmit = async (data: TPaymentRequestPayload) => {
-        try {
-            const resp = await createPaymentRequest(data).unwrap();
-            toast.success("Payment request created successfully");
-            setCurrentStep(currentStep + 1);
-            setId(resp.id);
-        } catch (error) {
-            toast.error("Error creating payment request");
-        }
-    };
+    const onSubmit = async () => {};
     return (
         <div>
             <Card>
                 <CardContent>
-                    <Form {...form}>
+                    {/* <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)}>
                             <div className="grid grid-cols-3 mt-6 gap-8">
                                 <FormInput
@@ -169,7 +148,7 @@ const FormOne = ({ currentStep, setCurrentStep, setId }: StepsF) => {
                                 </FormButton>
                             </div>
                         </form>
-                    </Form>
+                    </Form> */}
                 </CardContent>
             </Card>
         </div>

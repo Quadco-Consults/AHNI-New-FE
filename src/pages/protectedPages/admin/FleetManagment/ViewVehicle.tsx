@@ -16,11 +16,6 @@ import { Form } from "components/ui/form";
 import { useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useSearchParams } from "react-router-dom";
-import { useGetAssetsQuery } from "services/admin/assetsApi";
-import {
-    useApproveRequestMutation,
-    useGetOneVehicleRequestsQuery,
-} from "services/admin/VehicleRequestApi";
 import { toast } from "sonner";
 import { APPROVAL_PROCESS } from "../FacilitiesManagment/FacilitiesMaintanance";
 import { useGetAllUsersQuery } from "services/auth/user";
@@ -55,20 +50,10 @@ const ViewVehicle = () => {
 
     const id = searchParams.get("id") as string;
 
-    const { data: oneVehicle } = useGetOneVehicleRequestsQuery({
-        id: String(VehicleId),
-    });
-
-    const { data } = useGetAssetsQuery({
-        classification: "Vehicle",
-    });
-
     const { data: user } = useGetAllUsersQuery({
         page: 1,
         size: 2000000,
     });
-
-    const [approveRequest, { isLoading }] = useApproveRequestMutation();
 
     const { control, handleSubmit } = form;
     const { fields, append, remove } = useFieldArray({
@@ -84,8 +69,6 @@ const ViewVehicle = () => {
             },
         };
         try {
-            await approveRequest(payload).unwrap();
-
             toast.success("Data was successfully submitted");
         } catch (error) {
             toast.error(" Error Submitting data ");
@@ -96,15 +79,10 @@ const ViewVehicle = () => {
         <div className="space-y-4">
             <BackNavigation />
             <Card className="p-6 mx-auto space-y-5 ">
-                <AssetsItem
-                    heading="Requesting Staff"
-                    desc={`${String(
-                        oneVehicle?.requesting_staff?.first_name
-                    )} ${String(oneVehicle?.requesting_staff?.last_name)}`}
-                />
+                {/* <AssetsItem heading="Requesting Staff" /> */}
 
                 <div className="grid grid-cols-3 gap-5 mb-6">
-                    <AssetsItem
+                    {/* <AssetsItem
                         heading="Location"
                         desc={String(oneVehicle?.location?.name)}
                     />
@@ -127,14 +105,14 @@ const ViewVehicle = () => {
                     <AssetsItem
                         heading="Point of Departure"
                         desc={String(oneVehicle?.point_of_departure)}
-                    />
+                    /> */}
                 </div>
 
                 <h3 className="mb-2 text-lg font-bold text-yellow-500">
-                    Travel Team Members ({oneVehicle?.team_members?.length})
+                    {/* Travel Team Members ({oneVehicle?.team_members?.length}) */}
                 </h3>
                 <div className="grid grid-cols-4 gap-4 mb-6">
-                    {oneVehicle?.team_members?.map((item, i) => (
+                    {/* {oneVehicle?.team_members?.map((item, i) => (
                         <Card key={i} className="p-2 space-y-3 bg-amber-50">
                             <p>
                                 <span className="font-bold">Name:</span>{" "}
@@ -149,7 +127,7 @@ const ViewVehicle = () => {
                                 {item.phone_number}
                             </p>
                         </Card>
-                    ))}
+                    ))} */}
                 </div>
 
                 <h3 className="text-lg font-bold">Approval</h3>
@@ -227,7 +205,7 @@ const ViewVehicle = () => {
                             />
                         </div>
                         <FormButton
-                            loading={isLoading}
+                            loading={false}
                             type="submit"
                             className="w-2/12 text-white bg-red-500"
                         >

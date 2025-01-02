@@ -3,27 +3,9 @@ import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { Button } from "components/ui/button";
 import { AdminRoutes } from "constants/RouterConstants";
-import { useMemo } from "react";
 import { Link } from "react-router-dom";
 
-import { useGetAssetMaintenanceRequestsQuery } from "services/admin/assetMaintenance";
-
 const AssetMaintenance = () => {
-    const { data } = useGetAssetMaintenanceRequestsQuery({
-        page: 1,
-        page_size: 10,
-    });
-
-    const drivedData = useMemo(() => {
-        return (
-            data?.results.map((item) => ({
-                ...item,
-                //   @ts-ignore
-                asset: item.asset.asset_type,
-            })) || []
-        );
-    }, [data?.results]);
-
     return (
         <div className="flex flex-col gap-y-7">
             <div className="flex items-center justify-end">
@@ -34,7 +16,7 @@ const AssetMaintenance = () => {
                 </Button>
             </div>
             <TableFilters>
-                <DataTable columns={assestMaintenanceColum} data={drivedData} />
+                <DataTable columns={assestMaintenanceColum} data={[]} />
             </TableFilters>
         </div>
     );
