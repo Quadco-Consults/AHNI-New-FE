@@ -1,4 +1,4 @@
-import { TBasePaginatedResponse, TRequest, TResponse } from "definations/auth";
+import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 import baseAPI from "..";
 import {
     TWorkPlanPaginatedResponse,
@@ -7,6 +7,14 @@ import {
 
 const WorkPlanAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
+        downloadWorkPlanTemplate: builder.query({
+            query: () => ({
+                method: "GET",
+                url: "/programs/plans/works/sheet/template/",
+                responseHandler: (response) => response.blob(),
+            }),
+        }),
+
         uploadWorkPlan: builder.mutation<null, { project: string; file: File }>(
             {
                 query: (body) => ({
@@ -19,13 +27,15 @@ const WorkPlanAPI = baseAPI.injectEndpoints({
         ),
 
         getAllWorkPlan: builder.query<
-            TBasePaginatedResponse<TWorkPlanPaginatedResponse>,
+            TPaginatedResponse<TWorkPlanPaginatedResponse>,
             TRequest
         >({
-            query: () => ({
+            query: (params) => ({
                 method: "GET",
                 url: "/programs/plans/works/",
+                params,
             }),
+
             providesTags: ["WORK_PLAN"],
         }),
 
@@ -53,6 +63,7 @@ const WorkPlanAPI = baseAPI.injectEndpoints({
 });
 
 export const {
+    useLazyDownloadWorkPlanTemplateQuery,
     useUploadWorkPlanMutation,
     useGetAllWorkPlanQuery,
     useGetSingleWorkPlanQuery,

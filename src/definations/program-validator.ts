@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TCostCategoryData } from "./modules/finance/cost-category";
 
 const monthly_budget = z.object({
     month: z.string(),
@@ -117,7 +118,7 @@ export const RiskPlanManagementSchema = z.object({
 export type TRiskPlanManagementFormValues = z.infer<
     typeof RiskPlanManagementSchema
 >;
-export type TRiskPlanPlanManagementResponse = Omit<
+export type TRiskManagementPlanData = Omit<
     TRiskPlanManagementFormValues,
     "risk_category" | "risk_owner"
 > & {
@@ -131,23 +132,6 @@ export type TRiskPlanPlanManagementResponse = Omit<
         name: string;
     };
 };
-
-export const WeeklyActivitySchema = z.object({
-    objectives: z.number(),
-    ir: z.string(),
-    activity_code: z.string(),
-    activity_description: z.string(),
-    start_date: z.string(),
-    end_date: z.string(),
-    responsible_person: z.string(),
-    resources_required: z.string(),
-    memo_required: z.string(),
-    ea_required: z.string(),
-    results_achieved: z.string(),
-    follow_up_action: z.string(),
-    comments: z.string(),
-    project: z.string(),
-});
 
 export const StakeholderRegisterSchema = z.object({
     name: z.string().min(1, "Field is required"),
@@ -165,10 +149,12 @@ export const StakeholderRegisterSchema = z.object({
     relationship_owner: z.string().min(1, "Field is required"),
 });
 
-export type TStakeholderRegister = z.infer<typeof StakeholderRegisterSchema>;
+export type TStakeholderRegisterFormValues = z.infer<
+    typeof StakeholderRegisterSchema
+>;
 
-export type TStakeholderRegisterResponse = Omit<
-    TStakeholderRegister,
+export type TStakeholderRegisterData = Omit<
+    TStakeholderRegisterForm,
     "importance" | "influence"
 > & {
     id: string;
@@ -209,21 +195,50 @@ export const StakeholderSchema = z.object({
 
 export const FundRequestSchema = z.object({
     project: z.string().min(1, "Field is required"),
-    partner: z.string().min(1, "Field is required"),
-    month: z
-        .string()
-        .min(2, "Field is required")
-        .max(2, "Two characters required"),
+    month: z.string().min(1, "Field is required"),
     year: z
         .string()
         .min(4, "Field is required")
         .max(4, "Four characters required"),
 
     currency: z.string().min(1, "Field is required"),
+    available_balance: z.string().min(1, "Field is required"),
     financial_year: z.string().min(1, "Field is required"),
     type: z.string().min(1, "Field is required"),
     location: z.string().min(1, "Field is required"),
     reviewer: z.string().min(1, "Field is required"),
+    uuid_code: z.string().min(1, "Field is required"),
 });
 
-export type TFundRequest = z.infer<typeof FundRequestSchema>;
+export type TFundRequestFormValues = z.infer<typeof FundRequestSchema>;
+
+export const FundRequestActivitySchema = z.object({
+    activities: z.array(
+        z.object({
+            activity_description: z.string().min(1, "Field Required"),
+            quantity: z.string().min(1, "Field Required"),
+            unit_cost: z.string().min(1, "Field Required"),
+            frequency: z.string().min(1, "Field Required"),
+            comment: z.string().min(1, "Field Required"),
+            category: z.string().min(1, "Field Required"),
+        })
+    ),
+});
+
+export type TFundRequestActivityFormValues = z.infer<
+    typeof FundRequestActivitySchema
+>;
+
+export interface TFundRequestActivity {
+    id: string;
+    category: TCostCategoryData;
+    amount: string;
+    created_datetime: string;
+    updated_datetime: string;
+    activity_description: string;
+    unit_cost: string;
+    quantity: number;
+    frequency: 2;
+    comment: string;
+    fund_request: string;
+}

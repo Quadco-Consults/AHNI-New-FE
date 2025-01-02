@@ -4,7 +4,7 @@ import baseAPI from "../services";
 import storage from "redux-persist/es/storage/session";
 import auth from "./auth/authSlice";
 import ui from "./ui";
-import partnerLocation from "./formData/project-values";
+import consortiumPartnerReducer from "./formData/project-values";
 import objectives from "./formData/project-objective";
 import ssp from "./formData/ssp-values";
 import vendors from "./formData/procurement-vendors";
@@ -19,6 +19,7 @@ const persistConfig = {
         "objectives",
         "partnerLocation",
         "stakeholder",
+        "consortiumPartner"
     ],
 };
 
@@ -27,7 +28,7 @@ export const rootStore = combineReducers({
     [baseAPI.reducerPath]: baseAPI.reducer,
     auth,
     ui,
-    partnerLocation,
+    consortiumPartner: consortiumPartnerReducer,
     objectives,
     ssp,
     vendors,

@@ -13,24 +13,16 @@ import FormInput from "atoms/FormInput";
 import DeleteIcon from "components/icons/DeleteIcon";
 import FormTextArea from "atoms/FormTextArea";
 import FormSelect from "atoms/FormSelectField";
-import { Cell, ColumnDef, Getter, Row } from "@tanstack/react-table";
-import DataTable from "components/Table/DataTable";
-import { Checkbox } from "components/ui/checkbox";
-import { RouteEnum } from "constants/RouterConstants";
 import BreadcrumbCard from "components/shared/Breadcrumb";
 import {
     commitmentLevelEnum,
     EngagementPlanSchema,
     influenceEnum,
-    TEngagementPlanFormValue,
+    TEngagementPlanFormValues,
 } from "definations/program-types/engagement-plan";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
-import {
-    addStakeholders,
-    removeStakeholder,
-} from "store/formData/stakeholders";
-import { useGetProjectsQuery } from "services/projectsApi/projectsApi";
+import { removeStakeholder } from "store/formData/stakeholders";
 import {
     useCreateEngagementPlanMutation,
     useGetSingleEngagementPlanQuery,
@@ -39,6 +31,8 @@ import {
 import { toast } from "sonner";
 import useQuery from "hooks/useQuery";
 import { skipToken } from "@reduxjs/toolkit/query/react";
+import { useGetAllProjectsQuery } from "services/project";
+import { RouteEnum } from "constants/RouterConstants";
 
 const breadcrumbs = [
     { name: "Programs", icon: true },
@@ -71,7 +65,7 @@ const CreateEngagement = () => {
         navigate(-1);
     };
 
-    const form = useForm<TEngagementPlanFormValue>({
+    const form = useForm<TEngagementPlanFormValues>({
         resolver: zodResolver(EngagementPlanSchema),
         defaultValues: {
             project: "",
@@ -81,24 +75,19 @@ const CreateEngagement = () => {
         },
     });
 
-    const {
-        handleSubmit,
-        control,
-        setValue,
-        reset,
-        formState: { defaultValues },
-    } = form;
-
-    console.log({ defaultValues });
+    const { handleSubmit, control, setValue, reset } = form;
 
     const { fields, remove } = useFieldArray({
         control,
         name: "stakeholders",
     });
 
-    const { data: projects } = useGetProjectsQuery({ no_paginate: false });
+    const { data: project } = useGetAllProjectsQuery({
+        page: 1,
+        size: 2000000,
+    });
 
-    const projectOptions = projects?.data.results.map((project) => ({
+    const projectOptions = project?.data.results.map((project) => ({
         label: project.title,
         value: project.id,
     }));
@@ -154,13 +143,10 @@ const CreateEngagement = () => {
         }
     }, [engagementPlan]);
 
-    const onSubmit: SubmitHandler<TEngagementPlanFormValue> = async (data) => {
-        console.log(data);
-        return;
-
+    const onSubmit: SubmitHandler<TEngagementPlanFormValues> = async (data) => {
         try {
             if (id) {
-                await updateEngagementPlan(data).unwrap();
+                await updateEngagementPlan({ id, body: data }).unwrap();
                 toast.success("Engagement Plan Updated");
             } else {
                 await createEngagementPlan(data).unwrap();
@@ -168,7 +154,7 @@ const CreateEngagement = () => {
             }
             navigate(RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN);
         } catch (error: any) {
-            toast.error(error.data.message || "Something went wrong");
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
 

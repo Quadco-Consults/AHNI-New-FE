@@ -1,6 +1,5 @@
 import CheckIcon from "assets/svgs/CheckIcon";
 import PendingIcon from "assets/svgs/PendingIcon";
-import { Button } from "components/ui/button";
 import { Checkbox } from "components/ui/checkbox";
 import { Separator } from "components/ui/separator";
 import { useState } from "react";

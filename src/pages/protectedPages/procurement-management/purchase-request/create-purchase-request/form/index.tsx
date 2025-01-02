@@ -12,22 +12,21 @@ import { RouteEnum } from "constants/RouterConstants";
 import { DepartmentsResultsData } from "definations/configs/departments";
 import { ItemsResultsData } from "definations/configs/itmes";
 import { PurchaseRequestSchema } from "definations/procurement-validator";
-import { PartnerResultsData } from "definations/project-types/partners";
 import { MinusCircle } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import DepartmentsAPI from "services/configs/departments";
 import ItemsAPI from "services/configs/items";
+import { useGetAllPartnersQuery } from "services/modules/project/partners";
 import PurchaseRequestAPI from "services/procurementApi/purchase-request";
-import { useGetPartnersQuery } from "services/projectsApi/partnersApi";
 import { toast } from "sonner";
 import { z } from "zod";
 
 const CreatePurchaseRequestForm = () => {
     const { data: departments, isLoading: departmentsIsLoading } =
         DepartmentsAPI.useGetDepartmentsQuery({});
-    const { data: partners, isLoading: partnersIsLoading } =
-        useGetPartnersQuery({});
+    const { data: partner, isLoading: partnersIsLoading } =
+        useGetAllPartnersQuery({ page: 1, size: 2000000 });
     const { data: items, isLoading: itemsIsLoading } =
         ItemsAPI.useGetItemsQuery({});
     const [createPurchaseRequestMutation, { isLoading }] =
@@ -128,16 +127,14 @@ const CreatePurchaseRequestForm = () => {
                                 {partnersIsLoading ? (
                                     <LoadingSpinner />
                                 ) : (
-                                    partners?.results?.map(
-                                        (partner: PartnerResultsData) => (
-                                            <SelectItem
-                                                key={partner?.id}
-                                                value={partner?.id}
-                                            >
-                                                {partner?.name}
-                                            </SelectItem>
-                                        )
-                                    )
+                                    partner?.data.results?.map((partner) => (
+                                        <SelectItem
+                                            key={partner?.id}
+                                            value={partner?.id}
+                                        >
+                                            {partner?.name}
+                                        </SelectItem>
+                                    ))
                                 )}
                             </SelectContent>
                         </FormSelect>

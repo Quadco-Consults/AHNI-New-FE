@@ -31,9 +31,9 @@ import ConsultancyApplicationSuccessModal from "./components/ConsultancyApplicat
 import AddStock from "./components/consumables/AddStock";
 import TeamMemberSelection from "./components/consumables/AddTeamMembers";
 import AddFundingSource from "pages/protectedPages/modules/projects/AddFundingSource";
-import AddBeneficiaries from "pages/protectedPages/modules/projects/AddBeneficiaries";
-import AddDocumentTypes from "pages/protectedPages/modules/projects/AddDocumentTypes";
-import AddPartners from "pages/protectedPages/modules/projects/AddPartners";
+import AddBeneficiaries from "pages/protectedPages/modules/projects/AddBeneficiary";
+import AddDocumentTypes from "pages/protectedPages/modules/projects/AddDocumentType";
+import AddPartners from "pages/protectedPages/modules/projects/AddPartner";
 import AddRiskCategory from "pages/protectedPages/modules/programs/AddRiskCategory";
 import AddSupervisionCategory from "pages/protectedPages/modules/programs/AddSupervisionCategory";
 import AddFacility from "pages/protectedPages/modules/programs/AddFacility";
@@ -51,7 +51,7 @@ import AddFinancialYear from "pages/protectedPages/modules/config/AddFinancialYe
 import AddItems from "pages/protectedPages/modules/config/AddItems";
 import AddLocations from "pages/protectedPages/modules/config/AddLocations";
 import AddLots from "pages/protectedPages/modules/procurement/AddLots";
-import AddSolicitation from "pages/protectedPages/modules/procurement/AddSolicitation";
+import AddSolicitation from "pages/protectedPages/modules/procurement/AddSolicitationEvaluationCriteria";
 import AddPrequalificationCategory from "pages/protectedPages/modules/procurement/AddPrequalificationCategory";
 import AddPrequalificationCriteria from "pages/protectedPages/modules/procurement/AddPrequalificationCriteria";
 import AddQuestionairs from "pages/protectedPages/modules/procurement/AddQuestionairs";
@@ -101,7 +101,7 @@ const sheets: Record<string, ReactNode> = {
 
     [DialogType.AddStock]: <AddStock />,
     [DialogType.AddTeamMenbers]: <TeamMemberSelection />,
-    [DialogType.AddFunfingSource]: <AddFundingSource />,
+    [DialogType.AddFundingSource]: <AddFundingSource />,
     [DialogType.AddBeneficiaries]: <AddBeneficiaries />,
     [DialogType.AddDocumentTypes]: <AddDocumentTypes />,
     [DialogType.AddPartners]: <AddPartners />,

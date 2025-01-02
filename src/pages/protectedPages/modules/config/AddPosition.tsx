@@ -1,26 +1,25 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
-import {
-    Position,
-    PositionSchema,
-    TPositionFormValues,
-} from "definations/module-config";
-import {
-    useAddPositionMutation,
-    useUpdateDepartmentsMutation,
-    useUpdatePositionMutation,
-} from "services/moduleConfig";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
+import {
+    PositionSchema,
+    TPositionData,
+    TPositionFormValues,
+} from "definations/modules/config/position";
+import {
+    useAddPositionMutation,
+    useUpdatePositionMutation,
+} from "services/modules/config/position";
 
 const AddPosition = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as Position;
+    const data = dialogProps?.data as unknown as TPositionData;
 
     console.log({ data });
 
@@ -63,24 +62,22 @@ const AddPosition = () => {
             <form
                 action=""
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="flex flex-col gap-y-10"
+                className="flex flex-col gap-y-7"
             >
-                <div className="grid grid-cols-1 gap-y-7">
-                    <FormInput
-                        label="Name"
-                        name="name"
-                        placeholder="Enter name"
-                        required
-                    />
-                </div>
-                <div className="grid grid-cols-1 gap-y-7">
-                    <FormInput
-                        label="Description"
-                        name="description"
-                        placeholder="Enter description"
-                        required
-                    />
-                </div>
+                <FormInput
+                    label="Name"
+                    name="name"
+                    placeholder="Enter Name"
+                    required
+                />
+
+                <FormInput
+                    label="Description"
+                    name="description"
+                    placeholder="Enter Description"
+                    required
+                />
+
                 <div className="flex justify-start gap-4">
                     <FormButton loading={isAddLoading || isUpdateLoading}>
                         Save

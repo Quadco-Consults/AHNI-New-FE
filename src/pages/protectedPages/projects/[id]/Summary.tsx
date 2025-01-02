@@ -1,12 +1,10 @@
 import LocationSvg from "assets/svgs/LocationSvg";
 import { Badge } from "components/ui/badge";
-import { ProjectsResultsData } from "definations/project-types/projects";
-import { MapPin } from "lucide-react";
+import { TProjectData } from "definations/project";
 
-const Summary = (props: ProjectsResultsData) => {
+export default function ProjectSummary(props: TProjectData) {
     const {
         title,
-        project_id,
         goal,
         start_date,
         end_date,
@@ -28,17 +26,17 @@ const Summary = (props: ProjectsResultsData) => {
                 <p className="text-sm text-gray-500">{title}</p>
             </div>
 
-            <div className="space-y-1">
-                <h3 className="font-semibold">Goal of the project</h3>
-                <p className="text-sm text-gray-500">{goal}</p>
-            </div>
-
-            {/* <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <div className="space-y-1">
-                    <h3 className="font-semibold">Project ID</h3>
-                    <p className="text-sm text-gray-500">{project_id}</p>
+                    <h3 className="font-semibold">Goal of the project</h3>
+                    <p className="text-sm text-gray-500">{goal}</p>
                 </div>
-            </div> */}
+
+                <div className="space-y-1">
+                    <h3 className="font-semibold">Total Obligation</h3>
+                    <p className="text-sm text-gray-500">N/A</p>
+                </div>
+            </div>
 
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <div className="space-y-1">
@@ -54,7 +52,9 @@ const Summary = (props: ProjectsResultsData) => {
 
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <div className="space-y-1">
-                    <h3 className="font-semibold">Budget</h3>
+                    <h3 className="font-semibold">
+                        Budget (Total Estimated Amount)
+                    </h3>
                     <p className="text-sm text-gray-500">${budget}</p>
                 </div>
 
@@ -138,6 +138,4 @@ const Summary = (props: ProjectsResultsData) => {
             </div>
         </div>
     );
-};
-
-export default Summary;
+}

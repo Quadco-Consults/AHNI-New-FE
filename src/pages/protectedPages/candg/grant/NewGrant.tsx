@@ -13,106 +13,11 @@ import DepartmentsAPI from "services/configs/departments";
 import beneficiariesAPi from "services/projectsApi/beneficiariesApi";
 import FundingSourceAPi from "services/projectsApi/funding-sourceApi";
 import { useGetPartnersQuery } from "services/projectsApi/partnersApi";
-import { useGetProjectsQuery } from "services/projectsApi/projectsApi";
+import { useGetProjectsQuery } from "services/project";
 import { toast } from "sonner";
 import { z } from "zod";
 
 const NewGrant: React.FC = () => {
-    const departmentQueryResults: any = DepartmentsAPI.useGetDepartmentsQuery({
-        params: { no_paginate: true, fields: "id,name" },
-    });
-    const departments = useMemo(() => {
-        return departmentQueryResults?.data?.map((item: any) => {
-            return {
-                label: item?.name,
-                value: item?.id,
-            };
-        });
-    }, [departmentQueryResults]);
-
-    const projectsQueryResult: any = useGetProjectsQuery(
-        useMemo(
-            () => ({
-                params: {
-                    fields: "id,title",
-                    no_paginate: true,
-                },
-            }),
-            []
-        )
-    );
-
-    const projects = useMemo(() => {
-        return projectsQueryResult?.data?.map((item: any) => {
-            return {
-                label: item?.title,
-                value: item?.id,
-            };
-        });
-    }, [projectsQueryResult]);
-
-    const partnersQueryResult: any = useGetPartnersQuery(
-        useMemo(
-            () => ({
-                params: {
-                    fields: "id,name",
-                    no_paginate: true,
-                },
-            }),
-            []
-        )
-    );
-    const partners = useMemo(() => {
-        return partnersQueryResult?.data?.map((item: any) => {
-            return {
-                label: item?.name,
-                value: item?.id,
-            };
-        });
-    }, [partnersQueryResult]);
-
-    const beneficiariesQueryResults = beneficiariesAPi.useGetBeneficiariesQuery(
-        useMemo(
-            () => ({
-                params: {
-                    fields: "id,name",
-                    no_paginate: true,
-                },
-            }),
-            []
-        )
-    );
-    const SelectArray: any = beneficiariesQueryResults?.data;
-    const normalizedSelectsBeneficiary = useMemo(() => {
-        return SelectArray?.map((item: any) => {
-            return {
-                label: item?.name,
-                value: item?.id,
-            };
-        });
-    }, [SelectArray]);
-
-    const fundingSourceQueryResults: any =
-        FundingSourceAPi.useGetFundingSourcesQuery(
-            useMemo(
-                () => ({
-                    params: {
-                        fields: "id,name",
-                        no_paginate: true,
-                    },
-                }),
-                []
-            )
-        );
-    const normalizedSelectFundingSources = useMemo(() => {
-        return fundingSourceQueryResults?.data?.map((item: any) => {
-            return {
-                label: item?.name,
-                value: item?.id,
-            };
-        });
-    }, [fundingSourceQueryResults]);
-
     const [adNewGrantMutation, adNewGrantMutationResults] =
         grantsApi.useAddNewGrantMutation();
     const form = useForm<z.infer<typeof CangGAddGrantsSchema>>({
@@ -155,7 +60,7 @@ const NewGrant: React.FC = () => {
                                 <FormSelect
                                     name="project"
                                     label="Project Name"
-                                    options={projects}
+                                    // options={projects}
                                     required={true}
                                     placeholder="Select Project"
                                 />
@@ -165,7 +70,7 @@ const NewGrant: React.FC = () => {
                                     name="grantor"
                                     label="Grantor"
                                     required={true}
-                                    options={normalizedSelectFundingSources}
+                                    // options={normalizedSelectFundingSources}
                                     placeholder="Select funding source"
                                 />
                             </div>
@@ -175,17 +80,14 @@ const NewGrant: React.FC = () => {
                                     label="Intervention Area"
                                     required={true}
                                     placeholder="Select Intervention Area"
-                                    options={normalizedSelectsBeneficiary}
-                                    defaultValue={
-                                        normalizedSelectsBeneficiary?.[0].value
-                                    }
+                                    // options={normalizedSelectsBeneficiary}
                                 />
                             </div>
                             <div className="w-[32%]">
                                 <FormSelect
                                     name="location"
                                     label="Project Location"
-                                    options={partners}
+                                    // options={partners}
                                     required={true}
                                     placeholder="Select Project Location"
                                 />
@@ -194,7 +96,7 @@ const NewGrant: React.FC = () => {
                                 <FormSelect
                                     name="department"
                                     label="Departments"
-                                    options={departments}
+                                    // options={departments}
                                     required={true}
                                     placeholder="Select departmetn"
                                 />

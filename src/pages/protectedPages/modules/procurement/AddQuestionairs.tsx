@@ -4,36 +4,37 @@ import FormInput from "atoms/FormInput";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import {
-    useAddQuestionairsMutation,
-    useUpdateQuestionairsMutation,
-} from "services/moduleProcurement";
-import {
-    TQuestionairs,
-    questionairsSchema,
-} from "definations/module-procurement";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
 import { toast } from "sonner";
+import {
+    QuestionnaireSchema,
+    TQuestionnaireData,
+    TQuestionnaireFormValues,
+} from "definations/modules/procurement/questionnaire";
+import {
+    useAddQuestionnaireMutation,
+    useUpdateQuestionnaireMutation,
+} from "services/modules/procurement/questionnaire";
 
 const AddQuestionairs = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TQuestionairs;
-    const form = useForm<TQuestionairs>({
-        resolver: zodResolver(questionairsSchema),
+    const data = dialogProps?.data as unknown as TQuestionnaireData;
+    const form = useForm<TQuestionnaireFormValues>({
+        resolver: zodResolver(QuestionnaireSchema),
         defaultValues: {
             name: data?.name ?? "",
             description: data?.description ?? "",
         },
     });
 
-    const [questionairs, { isLoading }] = useAddQuestionairsMutation();
+    const [questionairs, { isLoading }] = useAddQuestionnaireMutation();
     const [updateQuestionairs, { isLoading: updateQuestionairsLoading }] =
-        useUpdateQuestionairsMutation();
+        useUpdateQuestionnaireMutation();
 
     const dispatch = useAppDispatch();
-    const onSubmit: SubmitHandler<TQuestionairs> = async (data) => {
+    const onSubmit: SubmitHandler<TQuestionnaireFormValues> = async (data) => {
         try {
             dialogProps?.type === "update"
                 ? await updateQuestionairs({
@@ -55,25 +56,22 @@ const AddQuestionairs = () => {
                 <form
                     action=""
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex flex-col gap-y-10"
+                    className="flex flex-col gap-y-7"
                 >
-                    <div className="grid grid-cols-1 gap-y-7">
-                        <FormInput
-                            label="Name"
-                            name="name"
-                            placeholder="Enter name"
-                            required
-                        />
-                    </div>
-                    <div className="grid grid-cols-1 gap-y-7">
-                        <FormInput
-                            label="Description"
-                            placeholder="Enter description"
-                            name="description"
-                            required
-                        />
-                    </div>
-                    <div className="flex justify-start gap-4">
+                    <FormInput
+                        label="Name"
+                        name="name"
+                        placeholder="Enter Name"
+                        required
+                    />
+
+                    <FormInput
+                        label="Description"
+                        placeholder="Enter Description"
+                        name="description"
+                    />
+
+                    <div className="flex justify-start">
                         <FormButton
                             loading={isLoading || updateQuestionairsLoading}
                         >

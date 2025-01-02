@@ -4,26 +4,25 @@ import FormInput from "atoms/FormInput";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import {
-    useAddCategoriesMutation,
-    useUpdateCategoriesMutation,
-} from "services/moduleConfig";
-import { TCategories } from "definations/module-config";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
 import { toast } from "sonner";
-import { FCONumberSchema, TFCONumber } from "definations/module-finance";
+import {
+    FCONumberSchema,
+    TFCONumberData,
+    TFCONumberFormValues,
+} from "definations/modules/finance/fco-number";
 import {
     useAddFCONumberMutation,
     useUpdateFCONumberMutation,
-} from "services/moduleFinance";
+} from "services/modules/finance/fco-number";
 
 const AddFcoNumber = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TFCONumber;
+    const data = dialogProps?.data as unknown as TFCONumberData;
 
-    const form = useForm<TFCONumber>({
+    const form = useForm<TFCONumberFormValues>({
         resolver: zodResolver(FCONumberSchema),
         defaultValues: {
             name: data?.name ?? "",
@@ -33,11 +32,13 @@ const AddFcoNumber = () => {
     });
 
     const [addFCONumber, { isLoading }] = useAddFCONumberMutation();
+
     const [updateFCONumber, { isLoading: isUpdateLoading }] =
         useUpdateFCONumberMutation();
 
     const dispatch = useAppDispatch();
-    const onSubmit: SubmitHandler<TFCONumber> = async (data) => {
+
+    const onSubmit: SubmitHandler<TFCONumberFormValues> = async (data) => {
         try {
             dialogProps?.type === "update"
                 ? await updateFCONumber({
@@ -59,30 +60,28 @@ const AddFcoNumber = () => {
                 <form
                     action=""
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex flex-col gap-y-10"
+                    className="flex flex-col gap-y-7"
                 >
-                    <div className="grid grid-cols-1 gap-y-7">
-                        <FormInput
-                            label="Name"
-                            name="name"
-                            placeholder="Enter name"
-                            required
-                        />
-                    </div>
-                    <div className="grid grid-cols-2 gap-x-1">
-                        <FormInput
-                            label="Description"
-                            name="description"
-                            placeholder="Enter description"
-                            required
-                        />
-                        <FormInput
-                            label="Code"
-                            name="code"
-                            required
-                            placeholder="Enter code"
-                        />
-                    </div>
+                    <FormInput
+                        label="Name"
+                        name="name"
+                        placeholder="Enter Name"
+                        required
+                    />
+
+                    <FormInput
+                        label="Description"
+                        name="description"
+                        placeholder="Enter Description"
+                    />
+
+                    <FormInput
+                        label="Code"
+                        name="code"
+                        required
+                        placeholder="Enter Code"
+                    />
+
                     <div className="flex justify-start gap-4">
                         <FormButton loading={isLoading || isUpdateLoading}>
                             Save

@@ -1,20 +1,51 @@
-import { TBasePaginatedResponse } from "definations/auth";
+import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 import baseAPI from "..";
-import { TSSPResponse, TSSSPFormValues } from "definations/program-types/ssp";
+import {
+    TSupervisionPlanPaginatedData,
+    TSSPCompositionFormValues,
+    TSupervisionPlanSingleData,
+} from "definations/program-types/ssp";
+
+const BASE_URL = "/programs/plans/supportive-supervision/";
 
 const SSPAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
-        createSSP: builder.mutation<
-            TBasePaginatedResponse<TSSPResponse>,
-            TSSSPFormValues
+        createSupervisionPlan: builder.mutation<
+            TResponse<TSupervisionPlanPaginatedData>,
+            TSSPCompositionFormValues
         >({
             query: (body) => ({
                 method: "POST",
-                url: "/programs/plans/supportive-supervision/",
+                url: BASE_URL,
                 body,
+            }),
+        }),
+
+        getAllSupervisionPlan: builder.query<
+            TPaginatedResponse<TSupervisionPlanPaginatedData>,
+            TRequest
+        >({
+            query: (params) => ({
+                method: "GET",
+                url: BASE_URL,
+                params,
+            }),
+        }),
+
+        getSingleSupervisionPlan: builder.query<
+            TResponse<TSupervisionPlanSingleData>,
+            string
+        >({
+            query: (id) => ({
+                method: "GET",
+                url: `${BASE_URL}${id}`,
             }),
         }),
     }),
 });
 
-export const { useCreateSSPMutation } = SSPAPI;
+export const {
+    useCreateSupervisionPlanMutation,
+    useGetAllSupervisionPlanQuery,
+    useGetSingleSupervisionPlanQuery,
+} = SSPAPI;

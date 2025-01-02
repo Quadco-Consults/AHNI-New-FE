@@ -1,34 +1,28 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { TPartnerData } from "definations/modules/project/partners";
 
 type TInitialState = {
-    partners: string[];
+    consortiumPartners: TPartnerData[];
 };
 
 const initialState: TInitialState = {
-    partners: [],
+    consortiumPartners: [],
 };
 
 const partnerSlice = createSlice({
     name: "partner",
     initialState,
     reducers: {
-        addPartners: (state, { payload }: PayloadAction<string[]>) => {
-            state.partners = payload;
-        },
-
-        removePartner: (state, { payload }: PayloadAction<string>) => {
-            state.partners = state.partners.filter(
-                (partner) => partner !== payload
-            );
+        addPartner: (state, { payload }: PayloadAction<TPartnerData[]>) => {
+            state.consortiumPartners = payload;
         },
 
         clearPartners: (state) => {
-            state.partners = [];
+            state.consortiumPartners = [];
         },
     },
 });
 
-export const { addPartners, removePartner, clearPartners } =
-    partnerSlice.actions;
+export const { addPartner, clearPartners } = partnerSlice.actions;
 
 export default partnerSlice.reducer;

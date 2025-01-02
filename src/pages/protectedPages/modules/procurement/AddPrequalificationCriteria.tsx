@@ -4,24 +4,26 @@ import FormInput from "atoms/FormInput";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import {
-    useAddPrequalificationCriteriaMutation,
-    useUpdatePrequalificationCriteriaMutation,
-} from "services/moduleProcurement";
-import {
-    TPrequalificationCriteria,
-    prequalificationCriteriaSchema,
-} from "definations/module-procurement";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
 import { toast } from "sonner";
+import {
+    PrequalificationCriteriaSchema,
+    TPrequalificationCriteriaData,
+    TPrequalificationCriteriaFormValues,
+} from "definations/modules/procurement/prequalification-criteria";
+import {
+    useAddPrequalificationCriteriaMutation,
+    useUpdatePrequalificationCriteriaMutation,
+} from "services/modules/procurement/prequalification-criteria";
 
 const AddPrequalificationCriteria = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TPrequalificationCriteria;
-    const form = useForm<TPrequalificationCriteria>({
-        resolver: zodResolver(prequalificationCriteriaSchema),
+    const data = dialogProps?.data as unknown as TPrequalificationCriteriaData;
+
+    const form = useForm<TPrequalificationCriteriaFormValues>({
+        resolver: zodResolver(PrequalificationCriteriaSchema),
         defaultValues: {
             name: data?.name ?? "",
             description: data?.description ?? "",
@@ -37,7 +39,9 @@ const AddPrequalificationCriteria = () => {
     ] = useUpdatePrequalificationCriteriaMutation();
 
     const dispatch = useAppDispatch();
-    const onSubmit: SubmitHandler<TPrequalificationCriteria> = async (data) => {
+    const onSubmit: SubmitHandler<TPrequalificationCriteriaFormValues> = async (
+        data
+    ) => {
         try {
             dialogProps?.type === "update"
                 ? await updatePrequalificationCriteria({
@@ -59,31 +63,29 @@ const AddPrequalificationCriteria = () => {
                 <form
                     action=""
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex flex-col gap-y-10"
+                    className="flex flex-col gap-y-7"
                 >
-                    <div className="grid grid-cols-1 gap-y-7">
-                        <FormInput
-                            label="Name"
-                            name="name"
-                            placeholder="Enter name"
-                            required
-                        />
-                    </div>
-                    <div className="grid grid-cols-1 gap-y-7">
-                        <FormInput
-                            label="Description"
-                            placeholder="Enter description"
-                            name="description"
-                            required
-                        />
-                        <FormInput
-                            label="Category"
-                            name="category"
-                            placeholder="Enter category"
-                            required
-                        />
-                    </div>
-                    <div className="flex justify-start gap-4">
+                    <FormInput
+                        label="Name"
+                        name="name"
+                        placeholder="Enter Name"
+                        required
+                    />
+
+                    <FormInput
+                        label="Description"
+                        placeholder="Enter Description"
+                        name="description"
+                        required
+                    />
+                    <FormInput
+                        label="Category"
+                        name="category"
+                        placeholder="Enter Category"
+                        required
+                    />
+
+                    <div className="flex justify-start gap-5">
                         <FormButton
                             loading={
                                 isLoading ||
