@@ -9,7 +9,7 @@ import {
   VendorPrequalificationSchema,
 } from "definations/procurement-types/vendor-prequalification";
 
-const BASE_URL = "/procurement/vendor-prequalification/";
+const BASE_URL = "/procurements/vendor-prequalification/";
 
 const VendorPrequalificationAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({

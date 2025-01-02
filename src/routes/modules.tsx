@@ -5,11 +5,15 @@ import { lazy } from "react";
 export const modules = [
   {
     path: RouteEnum.MODULES_PROJECTS,
-    element: lazy(() => import("pages/protectedPages/modules/projects/Projects")),
+    element: lazy(
+      () => import("pages/protectedPages/modules/projects/Projects")
+    ),
   },
   {
     path: RouteEnum.MODULES_PROGRAMS,
-    element: lazy(() => import("pages/protectedPages/modules/programs/Programs")),
+    element: lazy(
+      () => import("pages/protectedPages/modules/programs/Programs")
+    ),
   },
   {
     path: RouteEnum.MODULES_ADMIN,
@@ -21,7 +25,9 @@ export const modules = [
   },
   {
     path: RouteEnum.MODULES_PROCUREMENT,
-    element: lazy(() => import("pages/protectedPages/modules/procurement/Procurement")),
+    element: lazy(
+      () => import("pages/protectedPages/modules/procurement/Procurement")
+    ),
   },
   {
     path: RouteEnum.MODULES_FINANCE,

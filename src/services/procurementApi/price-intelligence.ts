@@ -6,7 +6,7 @@ import {
   PriceIntelligenceList,
 } from "definations/procurement-types/price-intelligence";
 
-const BASE_URL = "/procurement/price-intelligence/";
+const BASE_URL = "/procurements/price-intelligence/";
 
 const PriceIntelligenceAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
