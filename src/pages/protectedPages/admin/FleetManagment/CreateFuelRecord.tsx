@@ -10,7 +10,6 @@ import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { useSearchParams } from "react-router-dom";
 
-import { useCreateVehicleFuelRecordMutation } from "services/admin/VehicleRequestApi";
 import LocationAPi from "services/configs/locationApi";
 import VendorsAPI from "services/procurementApi/vendors";
 import { toast } from "sonner";
@@ -79,9 +78,6 @@ const CreateFuelRecord = () => {
 
     const { data: user } = useGetAllUsersQuery({ page: 1, size: 2000000 });
 
-    const [createFuelRecord, { isLoading }] =
-        useCreateVehicleFuelRecordMutation();
-
     const { data: locations } = LocationAPi.useGetLocationListQuery({
         params: { no_paginate: true },
     });
@@ -90,16 +86,16 @@ const CreateFuelRecord = () => {
     });
 
     const onSubmit = async (values: FuelRecordForm) => {
-        try {
-            await createFuelRecord({
-                ...values,
-                vehicle: String(id),
-            }).unwrap();
-            toast.success("Fuel record created successfully");
-            form.reset();
-        } catch (error) {
-            toast.error("Failed to create fuel record");
-        }
+        // try {
+        //     await createFuelRecord({
+        //         ...values,
+        //         vehicle: String(id),
+        //     }).unwrap();
+        //     toast.success("Fuel record created successfully");
+        //     form.reset();
+        // } catch (error) {
+        //     toast.error("Failed to create fuel record");
+        // }
     };
     return (
         <div>
@@ -275,9 +271,7 @@ const CreateFuelRecord = () => {
                                 </form>
                             </Form>
                             <div className="flex justify-end">
-                                <FormButton loading={isLoading}>
-                                    Submit
-                                </FormButton>
+                                <FormButton loading={false}>Submit</FormButton>
                             </div>
                         </form>
                     </Form>

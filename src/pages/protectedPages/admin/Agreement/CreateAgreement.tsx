@@ -6,7 +6,6 @@ import FormInput from "atoms/FormInput";
 import BackNavigation from "atoms/BackNavigation";
 import FormSelect from "atoms/FormSelect";
 import { Card, CardContent } from "components/ui/card";
-import { useCreateAgreementMutation } from "services/admin/agreements";
 import { toast } from "sonner";
 import FormButton from "atoms/FormButton";
 
@@ -41,19 +40,7 @@ const CreateAgreement = () => {
         defaultValues,
     });
 
-    const [createagreement, { isLoading }] = useCreateAgreementMutation();
-
-    async function onSubmit(values: z.infer<typeof formSchema>) {
-        try {
-            await createagreement(values).unwrap();
-            toast.success("Agreement created successfully");
-            Object.keys(values).forEach((item) => {
-                form.setValue(item as keyof typeof defaultValues, " ");
-            });
-        } catch (error: any) {
-            toast.error(error.message || "Error creating agreement");
-        }
-    }
+    const onSubmit = (values: z.infer<typeof formSchema>) => {};
 
     return (
         <div className="space-y-6">
@@ -88,7 +75,7 @@ const CreateAgreement = () => {
                             </div>
                             {/* Add similar FormField components for service and type */}
                             {/* Add date inputs for start and end dates */}
-                            <FormButton loading={isLoading} type="submit">
+                            <FormButton loading={false} type="submit">
                                 Create
                             </FormButton>
                         </form>

@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader } from "components/ui/card";
 import { Separator } from "components/ui/separator";
 import { cn } from "lib/utils";
 import { useSearchParams } from "react-router-dom";
-import { useGetOneAssetMaintenanceRequestQuery } from "services/admin/assetMaintenance";
 import FormTextArea from "atoms/FormTextArea";
 import FormSelect from "atoms/FormSelect";
 import { APPROVAL_PROCESS } from "./FacilitiesManagment/FacilitiesMaintanance";
@@ -33,17 +32,9 @@ const AssetsItem = ({
 };
 
 const AssetMaintenanceView = () => {
-    const [searchParams] = useSearchParams();
-
-    const form = useForm();
-
-    const { data } = useGetOneAssetMaintenanceRequestQuery({
-        id: String(searchParams.get("to")),
-    });
-
     return (
         <div>
-            <Tabs defaultValue="details">
+            {/* <Tabs defaultValue="details">
                 <TabsList>
                     <BackNavigation />
                     <TabsTrigger value="details">Details</TabsTrigger>
@@ -146,7 +137,7 @@ const AssetMaintenanceView = () => {
                         </CardContent>
                     </Card>
                 </TabsContent>
-            </Tabs>
+            </Tabs> */}
         </div>
     );
 };

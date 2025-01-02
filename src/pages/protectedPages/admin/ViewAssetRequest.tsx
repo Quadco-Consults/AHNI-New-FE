@@ -1,12 +1,9 @@
 import BackNavigation from "atoms/BackNavigation";
 import { Button } from "components/ui/button";
 import { Card, CardContent, CardHeader } from "components/ui/card";
-
 import { Separator } from "components/ui/separator";
-
 import { Tabs, TabsList, TabsContent, TabsTrigger } from "components/ui/tabs";
 import { useSearchParams } from "react-router-dom";
-import { useGetOneAssetsRequestQuery } from "services/admin/assetsApi";
 import Assets from "./assets";
 
 const AssetsItem = ({
@@ -27,12 +24,6 @@ const AssetsItem = ({
 };
 
 const ViewAssetRequest = () => {
-    const [seachParams] = useSearchParams();
-
-    const id = seachParams.get("to") as string;
-
-    const { data } = useGetOneAssetsRequestQuery({ id });
-
     return (
         <div>
             <div className="">
@@ -51,7 +42,7 @@ const ViewAssetRequest = () => {
                             </CardHeader>
 
                             <CardContent className="grid grid-cols-3 gap-y-8 gap-x-4">
-                                <AssetsItem
+                                {/* <AssetsItem
                                     heading="Asset"
                                     desc={data?.assets?.join(" ")}
                                 />
@@ -77,15 +68,13 @@ const ViewAssetRequest = () => {
                                     heading="Recommendation"
                                     desc={data?.recommendation}
                                 />
-                                {/* 
-                <Separator className="my-4" /> */}
+
                                 <div className="col-span-3 ">
                                     <AssetsItem
                                         heading="Remark"
                                         desc={data?.remark}
                                     />
                                 </div>
-                                {/* <Separator className="my-4" /> */}
 
                                 <div className="space-y-2">
                                     <Button className="mt-2">
@@ -96,7 +85,7 @@ const ViewAssetRequest = () => {
                                     <Button className="mt-2">
                                         CCM Approval
                                     </Button>
-                                </div>
+                                </div> */}
                             </CardContent>
                         </Card>
                     </TabsContent>

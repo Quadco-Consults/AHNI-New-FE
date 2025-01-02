@@ -11,7 +11,6 @@ import { AdminRoutes } from "constants/RouterConstants";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { isEmpty } from "lodash";
-import { useGetOneAssetsQuery } from "services/admin/assetsApi";
 
 const AssetsItem = ({
     desc,
@@ -35,10 +34,6 @@ const AssetsItem = ({
 const ViewFuel = () => {
     const [searchParams] = useSearchParams();
     const [currentTab, setCurrentTab] = useState("");
-
-    const { data } = useGetOneAssetsQuery({
-        id: String(searchParams.get("to")),
-    });
 
     return (
         <div>
@@ -77,7 +72,7 @@ const ViewFuel = () => {
                             <Separator className="mt-4" />
                         </CardHeader>
                         <CardContent>
-                            {!isEmpty(data) && (
+                            {/* {!isEmpty(data) && (
                                 <div className="grid grid-cols-3 gap-x-4 gap-y-8">
                                     <AssetsItem
                                         heading="Asset"
@@ -166,12 +161,12 @@ const ViewFuel = () => {
                                         className2="flex justify-start  w-7/12"
                                     />
                                 </div>
-                            )}
+                            )} */}
                         </CardContent>
                     </Card>
                 </TabsContent>
                 <TabsContent value="cunsumption">
-                    <FuelTable vehicle={data?.id} />
+                    {/* <FuelTable vehicle={1} /> */}
                 </TabsContent>
             </Tabs>
         </div>
