@@ -15,6 +15,7 @@ import {
     useAddDepartmentMutation,
     useUpdateDepartmentMutation,
 } from "services/modules/config/department";
+import FormTextArea from "atoms/FormTextArea";
 
 const AddDepartments = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
@@ -68,7 +69,7 @@ const AddDepartments = () => {
                     required
                 />
 
-                <FormInput
+                <FormTextArea
                     label="Description"
                     name="description"
                     placeholder="Enter Description"

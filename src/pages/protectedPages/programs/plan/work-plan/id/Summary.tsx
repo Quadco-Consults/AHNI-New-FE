@@ -25,40 +25,46 @@ export default function Summary({
             <hr />
 
             <div className="space-y-3">
-                <h3 className="text-lg font-semibold text-[#FF0000]">
+                <h3 className="text-xl font-semibold text-[#FF0000]">
                     Project Objectives
                 </h3>
 
-                <div className="flex  gap-10">
-                    {objectives?.map((obj) => (
-                        <div key={obj.objective} className="space-y-2">
-                            <p className="text-sm text-gray-500">
-                                {obj?.objective}
-                            </p>
+                {objectives.length === 0 ? (
+                    <div>
+                        <p>No objectives found</p>
+                    </div>
+                ) : (
+                    <div className="flex gap-10">
+                        {objectives?.map((obj) => (
+                            <div key={obj.objective} className="space-y-2">
+                                <p className="text-sm text-gray-500">
+                                    {obj?.objective}
+                                </p>
 
-                            <p className="font-semibold text-sm">
-                                Sub-Objectives
-                            </p>
+                                <p className="font-semibold text-sm">
+                                    Sub-Objectives
+                                </p>
 
-                            <ol className="pl-5">
-                                {obj.sub_objectives?.map((obj: any) => (
-                                    <li
-                                        key={obj}
-                                        className="text-sm list-decimal text-gray-500"
-                                    >
-                                        {obj}
-                                    </li>
-                                ))}
-                            </ol>
-                        </div>
-                    ))}
-                </div>
+                                <ol className="pl-5">
+                                    {obj.sub_objectives?.map((obj: any) => (
+                                        <li
+                                            key={obj}
+                                            className="text-sm list-decimal text-gray-500"
+                                        >
+                                            {obj}
+                                        </li>
+                                    ))}
+                                </ol>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             <hr />
 
             <div className="space-y-3">
-                <h3 className="font-semibold text-lg">Financial Year</h3>
+                <h3 className="font-semibold text-xl">Financial Year</h3>
                 {/* {data?.workplans?.map((workplan: any) => (
                     <h6 key={workplan.id} className="text-sm text-gray-500">
                         {workplan.financial_year.year}

@@ -85,7 +85,12 @@ export const DepartmentsSchema = z.object({
 });
 
 export const RiskPlanManagementSchema = z.object({
-    risk_number: z.string().min(1, "This field is required"),
+    risk_number: z
+        .string()
+        .min(1, "This field is required")
+        .refine((value) => Number.isInteger(Number(value)), {
+            message: "Please enter a valid integer",
+        }),
     risk_description: z.string().min(1, "This field is required"),
     impact_description: z.string().min(1, "This field is required"),
     impact_level: z.enum(["VERY_LOW", "LOW", "MEDIUM", "HIGH", "VERY_HIGH"]),
@@ -154,7 +159,7 @@ export type TStakeholderRegisterFormValues = z.infer<
 >;
 
 export type TStakeholderRegisterData = Omit<
-    TStakeholderRegisterForm,
+    TStakeholderRegisterFormValues,
     "importance" | "influence"
 > & {
     id: string;

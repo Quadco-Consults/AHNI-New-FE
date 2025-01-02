@@ -14,59 +14,61 @@ export const adminRoutes = [
     },
     {
         path: AdminRoutes.CONSUMABLES,
-        element: lazy(() => import("pages/protectedPages/admin/Consumables")),
+        element: lazy(() => import("pages/protectedPages/admin/consumables")),
     },
     {
         path: AdminRoutes.ITEM_REQUISITION,
         element: lazy(
-            () => import("pages/protectedPages/admin/ItemRequisition/index")
+            () => import("pages/protectedPages/admin/item-requisition/index")
         ),
     },
     {
         path: AdminRoutes.ITEM_REQUISITION_DETAIL,
         element: lazy(
-            () => import("pages/protectedPages/admin/ItemRequisition/id/index")
+            () => import("pages/protectedPages/admin/item-requisition/id/index")
         ),
     },
     {
         path: AdminRoutes.CREATE_ITEM_REQUISITION,
         element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/admin/ItemRequisition/CreateItemRequisition"
-                )
+            () => import("pages/protectedPages/admin/item-requisition/create")
         ),
     },
     {
         path: AdminRoutes.ASSETS,
-        element: lazy(() => import("pages/protectedPages/admin/Assets")),
+        element: lazy(() => import("pages/protectedPages/admin/assets")),
     },
     {
-        path: AdminRoutes.CREateConsumables,
+        path: AdminRoutes.CREATE_CONSUMABLE,
         element: lazy(
-            () => import("pages/protectedPages/admin/CreateConsumables")
+            () =>
+                import(
+                    "pages/protectedPages/admin/consumables/create-consumable"
+                )
         ),
     },
     {
-        path: AdminRoutes.CONSUMABLES_VIEW,
+        path: AdminRoutes.VIEW_CONSUMABLE,
         element: lazy(
-            () => import("pages/protectedPages/admin/ViewConsumables")
+            () => import("pages/protectedPages/admin/consumables/view")
         ),
     },
     {
         path: AdminRoutes.CreateAssets,
-        element: lazy(() => import("pages/protectedPages/admin/AddAssets")),
+        element: lazy(() => import("pages/protectedPages/admin/assets/create")),
     },
     {
         path: AdminRoutes.ViewAssets,
-        element: lazy(() => import("pages/protectedPages/admin/ViewAssets")),
+        element: lazy(
+            () => import("pages/protectedPages/admin/assets/view")
+        ),
     },
     {
         path: AdminRoutes.VehicleRequest,
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/admin/FleetManagment/VehicleRequest"
+                    "pages/protectedPages/admin/FleetManagment/vehicle-request"
                 )
         ),
     },
@@ -126,7 +128,7 @@ export const adminRoutes = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/admin/FleetManagment/NewVehicleRequest"
+                    "pages/protectedPages/admin/FleetManagment/vehicle-request/create-vehicle-request"
                 )
         ),
     },
@@ -266,12 +268,12 @@ export const adminRoutes = [
     },
     {
         path: AdminRoutes.ASSETS_REQUEST,
-        element: lazy(() => import("pages/protectedPages/admin/AssestRequest")),
+        element: lazy(() => import("pages/protectedPages/admin/asset-requests")),
     },
     {
         path: AdminRoutes.ASSETS_REQUEST_CREATE,
         element: lazy(
-            () => import("pages/protectedPages/admin/AddAssetRequest")
+            () => import("pages/protectedPages/admin/asset-requests/create")
         ),
     },
     {

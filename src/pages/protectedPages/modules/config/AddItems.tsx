@@ -18,6 +18,7 @@ import {
     TItemData,
     TItemFormValues,
 } from "definations/modules/config/item";
+import FormTextArea from "atoms/FormTextArea";
 
 const AddItems = () => {
     const { data: categories } = useGetAllCategoriesQuery({
@@ -81,7 +82,7 @@ const AddItems = () => {
                         required
                     />
 
-                    <FormInput
+                    <FormTextArea
                         label="Description"
                         placeholder="Enter Item Description"
                         name="description"

@@ -12,7 +12,7 @@ import {
 import { useState } from "react";
 import Pagination from "components/shared/Pagination";
 
-const AssetTypes = () => {
+export default function AllAssetTypes() {
     const [page, setPage] = useState(1);
 
     const { data: assetType, isFetching } = useGetAllAssetTypeQuery({
@@ -116,6 +116,4 @@ const AssetTypes = () => {
             </div>
         </div>
     );
-};
-
-export default AssetTypes;
+}

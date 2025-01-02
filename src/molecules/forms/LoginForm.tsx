@@ -5,18 +5,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import { loginSchema } from "definations/auth";
 import { z } from "zod";
-import { useLoginMutation } from "services/auth";
 import { useAppDispatch } from "hooks/useStore";
 import { setAuth } from "store/auth/authSlice";
 import { toast } from "sonner";
 import { Checkbox } from "components/ui/checkbox";
 import Card from "components/shared/Card";
+import { LoginSchema, TLoginFormValues } from "definations/auth/auth";
+import { useLoginMutation } from "services/auth/auth";
 
 const LoginForm = () => {
-    const form = useForm<z.infer<typeof loginSchema>>({
-        resolver: zodResolver(loginSchema),
+    const form = useForm<TLoginFormValues>({
+        resolver: zodResolver(LoginSchema),
     });
 
     const navigate = useNavigate();
@@ -27,9 +27,7 @@ const LoginForm = () => {
 
     const { handleSubmit } = form;
 
-    const onSubmit: SubmitHandler<z.infer<typeof loginSchema>> = async (
-        data
-    ) => {
+    const onSubmit: SubmitHandler<TLoginFormValues> = async (data) => {
         try {
             const resp = await login(data).unwrap();
             if (resp) {

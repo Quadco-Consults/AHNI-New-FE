@@ -4,83 +4,83 @@ import { Card, CardContent, CardHeader } from "components/ui/card";
 import { Separator } from "components/ui/separator";
 import { cn } from "lib/utils";
 import { useSearchParams } from "react-router-dom";
-import { useGetAgreementQuery } from "services/adminApi/agreements";
+import { useGetAgreementQuery } from "services/admin/agreements";
 const AssetsItem = ({
-  desc,
-  heading,
-  className,
-  className2,
+    desc,
+    heading,
+    className,
+    className2,
 }: {
-  heading?: string;
-  desc?: string;
-  className?: string;
-  className2?: string;
+    heading?: string;
+    desc?: string;
+    className?: string;
+    className2?: string;
 }) => {
-  return (
-    <div className={className}>
-      <h4 className="text-base font-semibold ">{heading}</h4>
-      <p className={cn("text-[#4D4545] text-sm", className2)}>{desc}</p>
-    </div>
-  );
+    return (
+        <div className={className}>
+            <h4 className="text-base font-semibold ">{heading}</h4>
+            <p className={cn("text-[#4D4545] text-sm", className2)}>{desc}</p>
+        </div>
+    );
 };
 
 const ViewAgreement = () => {
-  const [searchParams] = useSearchParams();
+    const [searchParams] = useSearchParams();
 
-  const id = searchParams.get("to");
+    const id = searchParams.get("to");
 
-  const { data } = useGetAgreementQuery(String(id), {
-    skip: !id,
-  });
+    const { data } = useGetAgreementQuery(String(id), {
+        skip: !id,
+    });
 
-  console.log(data);
+    console.log(data);
 
-  return (
-    <div>
-      <Tabs defaultValue="details">
-        <TabsList>
-          <BackNavigation />
-          <TabsTrigger value="details">Details</TabsTrigger>
-        </TabsList>
-        <TabsContent value="details">
-          <Card>
-            <CardHeader className="font-bold">
-              {data?.type} Details
-              <Separator className="mt-4" />
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col w-10/12 gap-y-8 ">
-                <AssetsItem
-                  heading="Provider"
-                  className="flex justify-between "
-                  desc={data?.provider}
-                  className2="flex justify-start  w-7/12"
-                />
-                <AssetsItem
-                  heading="Service"
-                  className="flex justify-between "
-                  desc={data?.service}
-                  className2="flex justify-start  w-7/12"
-                />
-                <AssetsItem
-                  heading="Start Date"
-                  className="flex justify-between "
-                  desc={data?.start_date}
-                  className2="flex justify-start  w-7/12"
-                />
-                <AssetsItem
-                  heading="Status"
-                  className="flex justify-between "
-                  desc={data?.status}
-                  className2="flex justify-start  w-7/12"
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
-  );
+    return (
+        <div>
+            <Tabs defaultValue="details">
+                <TabsList>
+                    <BackNavigation />
+                    <TabsTrigger value="details">Details</TabsTrigger>
+                </TabsList>
+                <TabsContent value="details">
+                    <Card>
+                        <CardHeader className="font-bold">
+                            {data?.type} Details
+                            <Separator className="mt-4" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="flex flex-col w-10/12 gap-y-8 ">
+                                <AssetsItem
+                                    heading="Provider"
+                                    className="flex justify-between "
+                                    desc={data?.provider}
+                                    className2="flex justify-start  w-7/12"
+                                />
+                                <AssetsItem
+                                    heading="Service"
+                                    className="flex justify-between "
+                                    desc={data?.service}
+                                    className2="flex justify-start  w-7/12"
+                                />
+                                <AssetsItem
+                                    heading="Start Date"
+                                    className="flex justify-between "
+                                    desc={data?.start_date}
+                                    className2="flex justify-start  w-7/12"
+                                />
+                                <AssetsItem
+                                    heading="Status"
+                                    className="flex justify-between "
+                                    desc={data?.status}
+                                    className2="flex justify-start  w-7/12"
+                                />
+                            </div>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+            </Tabs>
+        </div>
+    );
 };
 
 export default ViewAgreement;

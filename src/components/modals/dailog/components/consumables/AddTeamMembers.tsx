@@ -3,11 +3,11 @@ import { Card } from "components/ui/card";
 import { Checkbox } from "components/ui/checkbox";
 import { Input } from "components/ui/input";
 import { ScrollArea } from "components/ui/scroll-area";
-import { TUser } from "definations/users";
+import { TUser } from "definations/auth/user";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useGetAllUsersQuery } from "services/users";
+import { useGetAllUsersQuery } from "services/auth/user";
 import { addUser, userSelector } from "store/assets";
 import { closeDialog } from "store/ui";
 

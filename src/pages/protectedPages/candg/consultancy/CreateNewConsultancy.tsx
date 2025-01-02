@@ -14,7 +14,7 @@ import { useMemo, useState } from "react";
 import { Label } from "components/ui/label";
 import { consultancyAPIs } from "services/cAndGApi/consultancy";
 import FormSelect from "atoms/FormSelect";
-import { useGetUserQuery } from "services/users";
+import { useGetUserQuery } from "services/auth/user";
 import { UploadFileSvg } from "assets/svgs/CAndGSvgs";
 import { toast } from "sonner";
 

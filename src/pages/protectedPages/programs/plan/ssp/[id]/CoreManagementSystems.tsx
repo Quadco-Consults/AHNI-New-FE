@@ -14,7 +14,7 @@ import { supportiveSupervisionActions } from "store/formData/ssp-values";
 import { Loading } from "components/shared/Loading";
 import { toast } from "sonner";
 import { RootState } from "store/index";
-import { useGetSingleSupervisionPlanQuery } from "services/programsApi/ssp";
+import { useGetSingleSupervisionPlanQuery } from "services/program/plan/supervision-plan";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import BreadcrumbCard from "components/shared/Breadcrumb";
 import BackNavigation from "atoms/BackNavigation";

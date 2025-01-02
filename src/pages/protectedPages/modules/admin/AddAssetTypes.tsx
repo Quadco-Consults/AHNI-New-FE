@@ -72,10 +72,18 @@ const AddAssetTypes = () => {
                     name="manufacturer"
                     required
                 />
+
                 <FormInput
                     label="Model"
                     name="model"
                     placeholder="Enter Model"
+                    required
+                />
+
+                <FormInput
+                    label="Serial Number"
+                    name="serial_number"
+                    placeholder="Enter Serial Number"
                     required
                 />
 

@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import SupportiveSupervisionPlanLayout from "./SupportiveSupervisionPlanLayout";
 import { Form, FormControl, FormField, FormItem } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -15,7 +15,7 @@ import { useEffect } from "react";
 import {
     SSPCompositionSchema,
     TSSPCompositionFormValues,
-} from "definations/program-types/ssp";
+} from "definations/program/plan/supervision-plan";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import Card from "components/shared/Card";
@@ -23,7 +23,8 @@ import {
     useGetAllFacilityQuery,
     useLazyGetSingleFacilityQuery,
 } from "services/modules/program/facility";
-import { useGetAllUsersQuery } from "services/users";
+import { useGetAllUsersQuery } from "services/auth/user";
+import { RouteEnum } from "constants/RouterConstants";
 
 const Composition = () => {
     const { data: facility, isLoading: isFacilityLoading } =
@@ -128,14 +129,19 @@ const Composition = () => {
                                                         State :
                                                     </h4>
                                                     <h4>
-                                                        {facilityData?.data.state}
+                                                        {
+                                                            facilityData?.data
+                                                                .state
+                                                        }
                                                     </h4>
                                                 </div>
                                                 <div className="flex items-center gap-5">
                                                     <h4 className="w-1/6 font-medium">
                                                         LGA :
                                                     </h4>
-                                                    <h4>{facilityData?.data.lga}</h4>
+                                                    <h4>
+                                                        {facilityData?.data.lga}
+                                                    </h4>
                                                 </div>
                                             </Card>
                                             <div className="space-y-1">
@@ -151,7 +157,9 @@ const Composition = () => {
                                                             </h4>
                                                             <h4>
                                                                 {
-                                                                    facilityData?.data.name
+                                                                    facilityData
+                                                                        ?.data
+                                                                        .name
                                                                 }
                                                             </h4>
                                                         </div>
@@ -161,7 +169,9 @@ const Composition = () => {
                                                             </h4>
                                                             <h4>
                                                                 {
-                                                                    facilityData?.data.postion
+                                                                    facilityData
+                                                                        ?.data
+                                                                        .postion
                                                                 }
                                                             </h4>
                                                         </div>
@@ -171,7 +181,9 @@ const Composition = () => {
                                                             </h4>
                                                             <h4>
                                                                 {
-                                                                    facilityData?.data.phone
+                                                                    facilityData
+                                                                        ?.data
+                                                                        .phone
                                                                 }
                                                             </h4>
                                                         </div>
@@ -239,12 +251,18 @@ const Composition = () => {
                             </div>
 
                             <div className="flex justify-end gap-5 mt-16">
-                                <Button
-                                    type="button"
-                                    className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                                <Link
+                                    to={
+                                        RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION
+                                    }
                                 >
-                                    Cancel
-                                </Button>
+                                    <Button
+                                        type="button"
+                                        className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                                    >
+                                        Cancel
+                                    </Button>
+                                </Link>
                                 <FormButton type="submit">Next</FormButton>
                             </div>
                         </form>

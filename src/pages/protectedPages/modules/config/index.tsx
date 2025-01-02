@@ -1,12 +1,12 @@
 import { TabsContent } from "@radix-ui/react-tabs";
 import { Tabs, TabsList, TabsTrigger } from "components/ui/tabs";
 import { Card } from "components/ui/card";
-import Categories from "./AllCategory";
-import Departments from "./AllDepartments";
-import FinancialYear from "./AllFinancialYear";
-import Items from "./AllItems";
-import Locations from "./AllLocations";
-import Position from "./AllPositions";
+import AllCategory from "./AllCategory";
+import AllDepartments from "./AllDepartments";
+import AllFinancialYear from "./AllFinancialYear";
+import AllItems from "./AllItems";
+import AllLocations from "./AllLocations";
+import AllPositions from "./AllPositions";
 
 const Config = () => {
     return (
@@ -19,38 +19,38 @@ const Config = () => {
                         <TabsTrigger value="financialYear">
                             Financial Year
                         </TabsTrigger>
-                        <TabsTrigger value="items">Items</TabsTrigger>
+                        {/* <TabsTrigger value="items">Items</TabsTrigger> */}
                         <TabsTrigger value="locations">Locations</TabsTrigger>
                         <TabsTrigger value="position">Positions</TabsTrigger>
                     </TabsList>
                     <TabsContent value="categories">
                         <Card className="mt-10 pb-8 px-6">
-                            <Categories />
+                            <AllCategory />
                         </Card>
                     </TabsContent>
                     <TabsContent value="department">
                         <Card className="mt-10 pb-8 px-6">
-                            <Departments />
+                            <AllDepartments />
                         </Card>
                     </TabsContent>
                     <TabsContent value="financialYear">
                         <Card className="mt-10 pb-8 px-6">
-                            <FinancialYear />
+                            <AllFinancialYear />
                         </Card>
                     </TabsContent>
-                    <TabsContent value="items">
+                    {/* <TabsContent value="items">
                         <Card className="mt-10 pb-8 px-6">
-                            <Items />
+                            <AllItems />
                         </Card>
-                    </TabsContent>
+                    </TabsContent> */}
                     <TabsContent value="locations">
                         <Card className="mt-10 pb-8 px-6">
-                            <Locations />
+                            <AllLocations />
                         </Card>
                     </TabsContent>
                     <TabsContent value="position">
                         <Card className="mt-10 pb-8 px-6">
-                            <Position />
+                            <AllPositions />
                         </Card>
                     </TabsContent>
                 </Tabs>

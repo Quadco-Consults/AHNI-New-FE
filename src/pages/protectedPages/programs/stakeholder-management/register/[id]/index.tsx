@@ -1,9 +1,17 @@
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import LongArrowLeft from "components/icons/LongArrowLeft";
+import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
 import Card from "components/shared/Card";
 import { LoadingSpinner } from "components/shared/Loading";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetSingleStakeholderRegisterQuery } from "services/programsApi/stakeholder";
+
+const breadcrumbs: TBreadcrumbList[] = [
+    { name: "Programs", icon: true },
+    { name: "Stakeholder Management", icon: true },
+    { name: "Stakeholder Register", icon: true },
+    { name: "Details", icon: false },
+];
 
 const RegisterDetails = () => {
     const navigate = useNavigate();
@@ -19,6 +27,8 @@ const RegisterDetails = () => {
 
     return (
         <div className="space-y-6 min-h-screen">
+            <BreadcrumbCard list={breadcrumbs} />
+
             <button
                 onClick={goBack}
                 className="w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center"

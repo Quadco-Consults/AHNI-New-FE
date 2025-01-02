@@ -1,4 +1,4 @@
-import { TBasePaginatedResponse } from "definations/auth";
+import { TBasePaginatedResponse } from "definations/auth/auth";
 import { CostCategory } from "definations/module-finance";
 import { TFundRequestActivity } from "definations/program-validator";
 

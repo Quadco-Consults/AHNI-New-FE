@@ -8,14 +8,6 @@ import Card from "components/shared/Card";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
-} from "components/ui/breadcrumb";
-import { Icon } from "@iconify/react";
 import useQuery from "hooks/useQuery";
 import {
     useCreateActivityPlanMutation,
@@ -26,17 +18,27 @@ import { skipToken } from "@reduxjs/toolkit/query/react";
 import { useEffect } from "react";
 import {
     ActivityPlanSchema,
-    BooleanEnum,
     TActivityPlanFormValues,
 } from "definations/program-types/activity-plan";
 import { toast } from "sonner";
 import { RouteEnum } from "constants/RouterConstants";
 import { useGetAllProjectsQuery } from "services/project";
+import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
 
-const booleanOptions = ["TRUE", "FALSE"].map((value) => ({
-    label: value,
-    value: value.toLowerCase(),
+const booleanOptions = [
+    { label: "YES", value: "true" },
+    { label: "NO", value: "false" },
+].map(({ label, value }) => ({
+    label,
+    value,
 }));
+
+const breadcrumbs: TBreadcrumbList[] = [
+    { name: "Programs", icon: true },
+    { name: "Plans", icon: true },
+    { name: "Activity Plans", icon: true },
+    { name: "Create", icon: false },
+];
 
 export default function CreateActivityPlan() {
     const { data: project } = useGetAllProjectsQuery({
@@ -73,6 +75,10 @@ export default function CreateActivityPlan() {
             start_date: "",
             end_date: "",
             responsible_person: "",
+            is_resources_requied: "",
+            is_memo_required: "",
+            is_ea_required: "",
+            is_results_achieved: "",
             follow_up_action: "",
             comments: "",
             project: "",
@@ -88,18 +94,10 @@ export default function CreateActivityPlan() {
             reset({
                 ...prevFields,
                 project: prevFields.project.id,
-                is_resources_requied: BooleanEnum.parse(
-                    String(prevFields.is_resources_requied)
-                ),
-                is_memo_required: BooleanEnum.parse(
-                    String(prevFields.is_memo_required)
-                ),
-                is_ea_required: BooleanEnum.parse(
-                    String(prevFields.is_ea_required)
-                ),
-                is_results_achieved: BooleanEnum.parse(
-                    String(prevFields.is_results_achieved)
-                ),
+                is_resources_requied: String(prevFields.is_resources_requied),
+                is_memo_required: String(prevFields.is_memo_required),
+                is_ea_required: String(prevFields.is_ea_required),
+                is_results_achieved: String(prevFields.is_resources_requied),
             });
         }
     }, [activityPlan]);
@@ -109,8 +107,6 @@ export default function CreateActivityPlan() {
     };
 
     const onSubmit: SubmitHandler<TActivityPlanFormValues> = async (data) => {
-        console.log("Hello");
-
         try {
             if (id) {
                 await editActivityPlan({ id, body: data }).unwrap();
@@ -128,33 +124,8 @@ export default function CreateActivityPlan() {
 
     return (
         <div className="space-y-6 min-h-screen">
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Programs</BreadcrumbPage>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Icon icon="iconoir:slash" />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Plans</BreadcrumbPage>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Icon icon="iconoir:slash" />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Activity Plan</BreadcrumbPage>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Icon icon="iconoir:slash" />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>
-                            {id ? "Edit" : "Create"}
-                        </BreadcrumbPage>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
+            <BreadcrumbCard list={breadcrumbs} />
+
             <button
                 onClick={goBack}
                 className="w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center"
@@ -277,7 +248,7 @@ export default function CreateActivityPlan() {
                             loading={isCreateLoading || isUpdateLoading}
                             disabled={isCreateLoading || isUpdateLoading}
                         >
-                            {id ? "Edit" : "Create"}
+                            {id ? "Update" : "Create"}
                         </FormButton>
                     </div>
                 </form>

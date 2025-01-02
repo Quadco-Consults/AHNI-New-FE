@@ -78,6 +78,7 @@ const AddPartners = () => {
                         placeholder="Enter Name"
                         required
                     />
+                    
                     <FormTextArea
                         name="address"
                         label="Address"

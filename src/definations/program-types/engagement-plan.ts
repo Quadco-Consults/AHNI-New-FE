@@ -1,29 +1,19 @@
+import { TStakeholderRegisterData } from "definations/program-validator";
 import { z } from "zod";
-
-export const influenceEnum = z.enum(["LOW", "MEDIUM", "HIGH"]);
-export const commitmentLevelEnum = z.enum([
-    "UNAWARE",
-    "AGAINST",
-    "NEUTRAL",
-    "PHONE_SUPPORT",
-    "LEADING",
-]);
 
 export const EngagementPlanSchema = z.object({
     project: z.string().min(1, "This field is required"),
     project_deliverables: z.string().min(1, "This field is required"),
-    project_manager: z.string().min(1, "This field is required"),
-
     start_date: z.string().min(1, "Ths field is required"),
     end_date: z.string().min(1, "Ths field is required"),
     stakeholders: z.array(
         z.object({
-            influence: influenceEnum,
+            influence: z.string().min(1, "This field is required"),
             information_type: z.string().min(1, "This field is required"),
             decision_maker: z.string().min(1, "This field is required"),
             frequency: z.string().min(1, "This field is required"),
             type: z.string().min(1, "This field is required"),
-            commitment_level: commitmentLevelEnum,
+            commitment_level: z.string().min(1, "This field is required"),
             stakeholder: z.string().min(1, "This field is required"),
         })
     ),
@@ -60,24 +50,7 @@ export type TEngagementPlanSingleData = {
     stakeholders: [
         {
             id: "d1293805-ae0f-4ca9-86c4-2c365b34901b";
-            stakeholder: {
-                id: "43ea4b4f-ef2c-4e39-98a0-629652e7081b";
-                created_datetime: "2024-11-27T21:14:40.606875Z";
-                updated_datetime: "2024-11-27T21:14:40.606889Z";
-                name: "Miracle Mudama";
-                organization: "Rexversity Limited";
-                office_address: "12 Mudama Street, Plateau State";
-                state: "Plateau";
-                designation: "Project Manager";
-                phone_number: "08104478624";
-                email: "miraclemudama@mail.com";
-                project_role: "Project Organizer";
-                importance: 3;
-                influence: 4;
-                score: 12;
-                major_concerns: "No major concerns";
-                relationship_owner: "Project Manager";
-            };
+            stakeholder: TStakeholderRegisterData;
             created_datetime: "2024-12-03T10:01:41.620310Z";
             updated_datetime: "2024-12-03T10:01:41.620319Z";
             influence: "LOW";

@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { useAppSelector } from "hooks/useStore";
 import { TNotification } from "services/notification";
-import { useGetUserProfileQuery } from "services/users";
+import { useGetUserProfileQuery } from "services/auth/user";
 
 type PropsType = {
     active: TNotification;

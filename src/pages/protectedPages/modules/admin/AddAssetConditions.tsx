@@ -16,6 +16,7 @@ import {
     TAssetConditionData,
     TAssetConditionFormValues,
 } from "definations/modules/admin/asset-condition";
+import FormTextArea from "atoms/FormTextArea";
 
 const AddAssetConditions = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
@@ -66,7 +67,7 @@ const AddAssetConditions = () => {
                     required
                 />
 
-                <FormInput
+                <FormTextArea
                     label="Description"
                     name="description"
                     placeholder="Enter Description"

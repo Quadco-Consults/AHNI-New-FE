@@ -16,6 +16,7 @@ import {
     useAddDocumentTypeMutation,
     useUpdateDocumentTypeMutation,
 } from "services/modules/project/document-types";
+import FormTextArea from "atoms/FormTextArea";
 
 const AddDocumentTypes = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
@@ -67,7 +68,7 @@ const AddDocumentTypes = () => {
                         required
                     />
 
-                    <FormInput
+                    <FormTextArea
                         label="Description"
                         name="description"
                         placeholder="Enter Description"

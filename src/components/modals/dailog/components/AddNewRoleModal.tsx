@@ -2,19 +2,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
 import { Button } from "components/ui/button";
+import { RoleSchema, TRoleFormValue } from "definations/auth/permission";
 import { useAppDispatch } from "hooks/useStore";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { useCreateRoleMutation } from "services/users";
+import { useCreateRoleMutation } from "services/auth/role";
+import { toast } from "sonner";
 import { closeDialog } from "store/ui";
-import { z } from "zod";
 
-const FormSchema = z.object({
-    role_name: z.string().min(1, "Please enter a role name"),
-});
-
-export default function AddNewRoleModal() {
-    const form = useForm<z.infer<typeof FormSchema>>({
-        resolver: zodResolver(FormSchema),
+export default function CreateRole() {
+    const form = useForm<TRoleFormValue>({
+        resolver: zodResolver(RoleSchema),
         defaultValues: {
             role_name: "",
         },
@@ -26,14 +23,12 @@ export default function AddNewRoleModal() {
 
     const [createRole, { isLoading }] = useCreateRoleMutation();
 
-    const onSubmit: SubmitHandler<z.infer<typeof FormSchema>> = async ({
-        role_name,
-    }) => {
+    const onSubmit: SubmitHandler<TRoleFormValue> = async ({ role_name }) => {
         try {
-            const response = await createRole({ name: role_name }).unwrap();
+            await createRole({ name: role_name }).unwrap();
             dispatch(closeDialog());
-        } catch (error) {
-            console.log(error);
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
 
@@ -53,7 +48,7 @@ export default function AddNewRoleModal() {
                         />
                     </div>
 
-                    <div className="flex justify-between gap-5 mt-16">
+                    <div className="flex justify-between gap-5">
                         <Button
                             onClick={() => dispatch(closeDialog())}
                             type="button"

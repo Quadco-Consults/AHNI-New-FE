@@ -18,7 +18,6 @@ import { skipToken } from "@reduxjs/toolkit/query/react";
 import { useEffect } from "react";
 import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
 import {
-    TWorkPlanTrackerData,
     TWorkPlanTrackerFormValues,
     WorkPlanTrackerSchema,
 } from "definations/program-types/activity-tracker";
@@ -27,7 +26,7 @@ const breadcrumbs: TBreadcrumbList[] = [
     { name: "Programs", icon: true },
     { name: "Plans", icon: true },
     { name: "Work Plan Tracker", icon: true },
-    { name: "Create", icon: false },
+    { name: "Edit", icon: false },
 ];
 
 export default function CreateActivityTracker() {

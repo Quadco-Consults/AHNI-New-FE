@@ -158,7 +158,9 @@ const FundSummary: React.FC = () => {
                             })
                         }
                     >
-                        Click to add another
+                        {fields.length > 0
+                            ? "Click to add another"
+                            : "Add summary"}
                     </Button>
 
                     <div className="flex justify-end gap-5 pt-24">

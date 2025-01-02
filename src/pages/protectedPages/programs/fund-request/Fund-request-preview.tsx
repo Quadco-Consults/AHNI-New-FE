@@ -15,7 +15,7 @@ import {
     TFundRequestFormValues,
 } from "definations/program-validator";
 import { skipToken } from "@reduxjs/toolkit/query/react";
-import { useGetSingleUserQuery } from "services/users";
+import { useGetSingleUserQuery } from "services/auth/user";
 import { useCreateFundRequestMutation } from "services/programsApi/fund-request";
 import { useGetSingleFinancialYearQuery } from "services/modules/config/financial-year";
 import { useGetSingleLocationQuery } from "services/modules/config/location";

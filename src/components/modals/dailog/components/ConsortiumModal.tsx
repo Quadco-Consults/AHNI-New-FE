@@ -18,6 +18,8 @@ import { useGetAllPartnersQuery } from "services/modules/project/partners";
 import { useState } from "react";
 import { TPartnerData } from "definations/modules/project/partners";
 import { useAppSelector } from "hooks/useStore";
+import Pagination from "components/shared/Pagination";
+import { LoadingSpinner } from "components/shared/Loading";
 
 export default function ConsortiumPartnerModal() {
     const { consortiumPartners } = useAppSelector(
@@ -40,9 +42,11 @@ export default function ConsortiumPartnerModal() {
 
     const dispatch = useDispatch();
 
+    const [page, setPage] = useState(1);
+
     const { data: partner, isLoading } = useGetAllPartnersQuery({
-        page: 1,
-        size: 2000000,
+        page,
+        size: 12,
     });
 
     const onSubmit = () => {
@@ -86,41 +90,66 @@ export default function ConsortiumPartnerModal() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-5 bg-gray-100 mt-10 p-5 rounded-lg shadow-inner md:grid-cols-4">
-                    {partner?.data.results.map(
-                        ({ id, name, state, ...rest }) => {
-                            const checked = partners.findIndex(
-                                (item) => item.id === id
-                            );
+                <div>
+                    {isLoading ? (
+                        <LoadingSpinner />
+                    ) : partner?.data.results.length === 0 ? (
+                        <div>
+                            <h3>No Partners Found</h3>
+                            <p>
+                                Lorem ipsum dolor sit amet, consectetur
+                                adipisicing elit. Cupiditate quia deserunt,
+                                facilis maiores hic aliquid.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 gap-5 bg-gray-100 mt-10 p-5 rounded-lg shadow-inner md:grid-cols-4">
+                            {partner?.data.results.map(
+                                ({ id, name, state, ...rest }) => {
+                                    const checked = partners.findIndex(
+                                        (item) => item.id === id
+                                    );
 
-                            return (
-                                <div className="flex p-5 bg-white border rounded-lg gap-5 items-center ">
-                                    <Checkbox
-                                        checked={checked > -1 ? true : false}
-                                        onCheckedChange={(value: boolean) =>
-                                            handleTogglePartner(value, {
-                                                id,
-                                                name,
-                                                state,
-                                                ...rest,
-                                            })
-                                        }
-                                    />
+                                    return (
+                                        <div className="flex p-5 bg-white border rounded-lg gap-5 items-center ">
+                                            <Checkbox
+                                                checked={
+                                                    checked > -1 ? true : false
+                                                }
+                                                onCheckedChange={(
+                                                    value: boolean
+                                                ) =>
+                                                    handleTogglePartner(value, {
+                                                        id,
+                                                        name,
+                                                        state,
+                                                        ...rest,
+                                                    })
+                                                }
+                                            />
 
-                                    <div className="text-sm space-y-1">
-                                        <h4>{name}</h4>
-                                        <p className="flex items-center gap-1">
-                                            <span>
-                                                <MapPin size={15} />
-                                            </span>
-                                            {state}
-                                        </p>
-                                    </div>
-                                </div>
-                            );
-                        }
+                                            <div className="text-sm space-y-1">
+                                                <h4>{name}</h4>
+                                                <p className="flex items-center gap-1">
+                                                    <span>
+                                                        <MapPin size={15} />
+                                                    </span>
+                                                    {state}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    );
+                                }
+                            )}
+                        </div>
                     )}
                 </div>
+
+                <Pagination
+                    total={partner?.data.pagination.total_pages ?? 0}
+                    itemsPerPage={partner?.data.pagination.page_size ?? 0}
+                    onChange={(page: number) => setPage(page)}
+                />
             </ScrollArea>
             <div className="flex justify-end w-full my-5">
                 <div className="flex items-center gap-x-4">

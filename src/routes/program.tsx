@@ -91,7 +91,10 @@ export const program = [
     {
         path: RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_CHECKLIST,
         element: lazy(
-            () => import("pages/protectedPages/programs/plan/ssp/Checklist")
+            () =>
+                import(
+                    "pages/protectedPages/programs/plan/ssp/EvaluationCheckList"
+                )
         ),
     },
 
@@ -173,7 +176,7 @@ export const program = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/programs/plan/risk-management/Create-risk-management"
+                    "pages/protectedPages/programs/plan/risk-management/create"
                 )
         ),
     },
@@ -201,7 +204,7 @@ export const program = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/programs/stakeholder-management/register/Create-register"
+                    "pages/protectedPages/programs/stakeholder-management/register/create"
                 )
         ),
     },
@@ -229,7 +232,7 @@ export const program = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/programs/stakeholder-management/engagement/Create-engagement"
+                    "pages/protectedPages/programs/stakeholder-management/engagement/create"
                 )
         ),
     },

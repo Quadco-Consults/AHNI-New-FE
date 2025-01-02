@@ -6,12 +6,12 @@ import FormSelect from "atoms/FormSelect";
 import Card from "components/shared/Card";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
-import { TCreateUser, userSchema } from "definations/users";
+import { TCreateUser, userSchema } from "definations/auth/user";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useGetAllDepartmentsQuery } from "services/modules/config/department";
 import { useGetAllPositionsQuery } from "services/modules/config/position";
-import { useCreateUserMutation } from "services/users";
+import { useCreateUserMutation } from "services/auth/user";
 import { toast } from "sonner";
 
 const genderOptions = [

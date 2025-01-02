@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { TStakeholderRegisterResponse } from "definations/program-validator";
+import { TStakeholderRegisterData } from "definations/program-validator";
 
 type TInitialState = {
-    selectedStakeholders: TStakeholderRegisterResponse[];
+    selectedStakeholders: TStakeholderRegisterData[];
 };
 
 const initialState: TInitialState = {
@@ -15,7 +15,7 @@ const stakeholderSlice = createSlice({
     reducers: {
         addStakeholders: (
             state,
-            { payload }: PayloadAction<TStakeholderRegisterResponse[]>
+            { payload }: PayloadAction<TStakeholderRegisterData[]>
         ) => {
             state.selectedStakeholders = payload;
         },

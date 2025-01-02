@@ -5,18 +5,14 @@ import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { X } from "lucide-react";
-import { useEffect } from "react";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
-import {
-    addObjective,
-    clearObjectives,
-} from "store/formData/project-objective";
+import { addObjective } from "store/formData/project-objective";
 import { closeDialog } from "store/ui";
 import { z } from "zod";
 
 const ProjectObjectiveSchema = z.object({
     objective: z.string().min(1, "Please enter an objective"),
-    sub_objectives: z.array(z.string().min(1, "Please enter sub-objective")),
+    sub_objectives: z.array(z.string().min(1, "Sub-objective cannot be empty")),
 });
 
 export type TProjectObjective = z.infer<typeof ProjectObjectiveSchema>;
@@ -24,13 +20,11 @@ export type TProjectObjective = z.infer<typeof ProjectObjectiveSchema>;
 const ProjectObjectiveModal = () => {
     const dispatch = useAppDispatch();
 
-    const { dailog } = useAppSelector((state) => state.ui);
-
     const form = useForm<TProjectObjective>({
         resolver: zodResolver(ProjectObjectiveSchema),
         defaultValues: {
             objective: "",
-            sub_objectives: [""],
+            sub_objectives: [],
         },
     });
 
@@ -39,12 +33,8 @@ const ProjectObjectiveModal = () => {
     const { fields, append, remove } = useFieldArray({
         // @ts-ignore
         name: "sub_objectives",
-        control,
+        control: control,
     });
-
-    // useEffect(() => {
-    //     dispatch(clearObjectives());
-    // }, []);
 
     const onSubmit: SubmitHandler<z.infer<typeof ProjectObjectiveSchema>> = (
         data

@@ -8,7 +8,7 @@ import { Button } from "components/ui/button";
 import { Card, CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { useForm } from "react-hook-form";
-import { useCreateFacilityMutation } from "services/adminApi/faciityMaintenance";
+import { useCreateFacilityMutation } from "services/admin/faciityMaintenance";
 import DepartmentsAPI from "services/configs/departments";
 import LocationAPi from "services/configs/locationApi";
 import { toast } from "sonner";

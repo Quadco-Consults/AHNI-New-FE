@@ -1,4 +1,4 @@
-import { createColumnHelper } from "@tanstack/react-table";
+import { ColumnDef } from "@tanstack/react-table";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -22,7 +22,6 @@ import {
 import { Button } from "components/ui/button";
 
 import { MoreHorizontal, Edit, RefreshCw, UserMinus } from "lucide-react";
-import { TUser } from "definations/users";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import {
@@ -34,14 +33,12 @@ import { useState } from "react";
 import {
     useActivateUserMutation,
     useDeactivateUserMutation,
-} from "services/users";
+} from "services/auth/user";
 import { toast } from "sonner";
 import { Badge } from "components/ui/badge";
+import { IUser } from "definations/auth/user";
 
-// Action handlers (implement these in your component)
-
-// eslint-disable-next-line react-refresh/only-export-components
-const ActionDropdown = ({
+const TableAction = ({
     id,
     first_name,
     last_name,
@@ -52,13 +49,15 @@ const ActionDropdown = ({
     is_active,
     roles,
     position,
-}: TUser) => {
+    department,
+}: IUser) => {
     const dispatch = useAppDispatch();
 
     const [dialogOpen, setDialogOpen] = useState(false);
 
     const [activateUser, { isLoading: isActivateLoading }] =
         useActivateUserMutation();
+
     const [deactivateUser, { isLoading: isDeactivateLoading }] =
         useDeactivateUserMutation();
 
@@ -69,7 +68,7 @@ const ActionDropdown = ({
                 dialogProps: {
                     ...mediumDailogScreen,
                     header: "Edit User",
-                    data: JSON.stringify({
+                    data: {
                         id,
                         first_name,
                         last_name,
@@ -78,7 +77,8 @@ const ActionDropdown = ({
                         gender,
                         email,
                         position,
-                    }),
+                        department,
+                    },
                 },
             })
         );
@@ -97,13 +97,15 @@ const ActionDropdown = ({
         );
     };
 
-    const handleDeactivate = async () => {
+    const handleToggleStatus = async () => {
         try {
-            is_active
-                ? await deactivateUser(id).unwrap()
-                : await activateUser(id).unwrap();
-
-            toast.success("Action Successful");
+            if (is_active) {
+                await deactivateUser(id).unwrap();
+                toast.success("User Deactivated");
+            } else {
+                await activateUser(id).unwrap();
+                toast.success("User Activated");
+            }
         } catch (error: any) {
             toast.error(error.data.message);
         } finally {
@@ -164,7 +166,7 @@ const ActionDropdown = ({
                         <AlertDialogCancel onClick={() => setDialogOpen(false)}>
                             Cancel
                         </AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDeactivate}>
+                        <AlertDialogAction onClick={handleToggleStatus}>
                             Continue
                         </AlertDialogAction>
                     </AlertDialogFooter>
@@ -174,77 +176,67 @@ const ActionDropdown = ({
     );
 };
 
-const columnHelper = createColumnHelper<TUser>();
-
-export const userColums = [
-    columnHelper.accessor("fullName", {
+export const userColumns: ColumnDef<IUser>[] = [
+    {
         header: "Full Name",
-        cell: (info) => info.getValue(),
-    }),
+        id: "full_name",
+        accessorFn: ({ first_name, last_name }) => `${first_name} ${last_name}`,
+    },
 
-    columnHelper.accessor("email", {
+    {
         header: "Email",
-        cell: (info) => info.getValue(),
-    }),
+        id: "email",
+        accessorKey: "email",
+    },
 
-    columnHelper.accessor("gender", {
-        header: "Gender",
-        cell: (info) => info.getValue(),
-    }),
-
-    columnHelper.accessor("mobile_number", {
+    {
         header: "Phone Number",
-        cell: (info) => info.getValue(),
-    }),
+        id: "mobile_number",
+        accessorKey: "mobile_number",
+    },
 
-    columnHelper.accessor("department", {
+    {
+        header: "Gender",
+        id: "gender",
+        accessorKey: "gender",
+    },
+
+    {
         header: "Department",
-        cell: (info) => info.getValue(),
-    }),
+        id: "department",
+        accessorKey: "department",
+    },
 
-    columnHelper.accessor("position", {
+    {
         header: "Position",
-        cell: (info) => info.getValue(),
-    }),
+        id: "position",
+        accessorKey: "position",
+    },
 
-    columnHelper.accessor("roles", {
+    {
         header: "Roles",
-        cell: (info) =>
-            info
-                .getValue()
-                .map((role) => role)
-                .join(", "),
-    }),
+        id: "roles",
+        accessorFn: ({ roles }) => roles.join(", "),
+    },
 
-    columnHelper.accessor("is_active", {
+    {
         header: "Status",
-        cell: (info) =>
-            info.getValue() ? (
-                <Badge className="bg-green-500">Activated</Badge>
-            ) : (
-                <Badge className="bg-red-500">Deactivated</Badge>
-            ),
-    }),
+        id: "is_active",
+        cell: ({
+            row: {
+                original: { is_active },
+            },
+        }) => {
+            const className = is_active ? "bg-green-500" : "bg-red-500";
+            const label = is_active ? "Activated" : "Deactivated";
 
-    columnHelper.accessor("actions", {
+            return <Badge className={className}>{label}</Badge>;
+        },
+    },
+
+    {
         header: "",
-        cell: ({ row }) => <ActionDropdown {...row.original} />, // This represents the actions column with the three dots
-    }),
+        id: "action",
+        cell: ({ row }) => <TableAction {...row.original} />,
+    },
 ];
-
-// const permissionHelper = createColumnHelper<Permission>();
-
-// export const permissionColums = [
-//     permissionHelper.accessor("name", {
-//         header: "Name",
-//         cell: (info) => info.getValue(),
-//     }),
-//     permissionHelper.accessor("module", {
-//         header: "Module",
-//         cell: (info) => info.getValue(),
-//     }),
-//     permissionHelper.accessor("codename", {
-//         header: "Code Name",
-//         cell: (info) => info.getValue(),
-//     }),
-// ];

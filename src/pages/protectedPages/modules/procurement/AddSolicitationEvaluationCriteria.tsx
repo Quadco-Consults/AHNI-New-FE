@@ -16,6 +16,7 @@ import {
     useAddSolicitationEvaluationCriteriaMutation,
     useUpdateSolicitationEvaluationCriteriaMutation,
 } from "services/modules/procurement/solicitation-evaluation-criteria";
+import FormTextArea from "atoms/FormTextArea";
 
 const AddSolicitationEvaluationCriteria = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
@@ -69,7 +70,7 @@ const AddSolicitationEvaluationCriteria = () => {
                         required
                     />
 
-                    <FormInput
+                    <FormTextArea
                         label="Description"
                         name="description"
                         placeholder="Enter Description"

@@ -10,7 +10,7 @@ import { useForm } from "react-hook-form";
 import {
     TPaymentRequestPayload,
     useCreatePaymentRequestMutation,
-} from "services/adminApi/paymentRequest";
+} from "services/admin/paymentRequest";
 
 import * as z from "zod";
 import { toast } from "sonner";

@@ -16,6 +16,7 @@ import {
     useAddBeneficiaryMutation,
     useUpdateBeneficiaryMutation,
 } from "services/modules/project/beneficiaries";
+import FormTextArea from "atoms/FormTextArea";
 
 const AddBeneficiaries = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
@@ -66,11 +67,12 @@ const AddBeneficiaries = () => {
                         required
                     />
 
-                    <FormInput
+                    <FormTextArea
                         label="Description"
                         name="description"
                         placeholder="Enter Description"
                     />
+
                     <div className="flex justify-start gap-4">
                         <FormButton
                             loading={isLoading || updateBeneficiaryLoading}

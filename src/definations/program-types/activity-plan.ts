@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-export const BooleanEnum = z.enum(["true", "false"]);
-
 export const ActivityPlanSchema = z.object({
     ir: z.string().min(1, "This field is required"),
     activity_code: z.string().min(1, "This field is required"),
@@ -9,10 +7,10 @@ export const ActivityPlanSchema = z.object({
     start_date: z.string().min(1, "This field is required"),
     end_date: z.string().min(1, "This field is required"),
     responsible_person: z.string().min(1, "This field is required"),
-    is_resources_requied: BooleanEnum,
-    is_memo_required: BooleanEnum,
-    is_ea_required: BooleanEnum,
-    is_results_achieved: BooleanEnum,
+    is_resources_requied: z.string().min(1, "This field is required"),
+    is_memo_required: z.string().min(1, "This field is required"),
+    is_ea_required: z.string().min(1, "This field is required"),
+    is_results_achieved: z.string().min(1, "This field is required"),
     follow_up_action: z.string().min(1, "This field is required"),
     comments: z.string().min(1, "This field is required"),
     project: z.string().min(1, "This field is required"),

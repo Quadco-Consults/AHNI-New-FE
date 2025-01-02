@@ -10,14 +10,14 @@ import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { useSearchParams } from "react-router-dom";
 
-import { useCreateVehicleFuelRecordMutation } from "services/adminApi/VehicleRequestApi";
+import { useCreateVehicleFuelRecordMutation } from "services/admin/VehicleRequestApi";
 import LocationAPi from "services/configs/locationApi";
 import VendorsAPI from "services/procurementApi/vendors";
 import { toast } from "sonner";
 import * as z from "zod";
 import { APPROVAL_PROCESS } from "../FacilitiesManagment/FacilitiesMaintanance";
 import { Button } from "components/ui/button";
-import { useGetAllUsersQuery } from "services/users";
+import { useGetAllUsersQuery } from "services/auth/user";
 
 const formSchema = z.object({
     date: z

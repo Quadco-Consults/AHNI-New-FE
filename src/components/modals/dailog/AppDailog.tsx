@@ -5,7 +5,7 @@ import { ReactNode } from "react";
 import { DialogType } from "constants/dailogs";
 import CategoriesModal from "./components/CategoriesModal";
 import PriceModal from "./components/PriceModal";
-import ChecklistModal from "./components/ChecklistModal";
+import ChecklistModal from "./components/EvaluationCriteriaModal";
 import WorkPlanUploadModal from "./components/WorkPlanUploadModal";
 import ActivityUploadModal from "./components/ActivityUploadModal";
 import SspUploadModal from "./components/SspUploadModal";
@@ -67,6 +67,8 @@ import FundRequestBreakdown from "./components/FundRequestBreakdownModal";
 import ChangeRiskStatusModal from "./components/ChangeRiskStatusModal";
 import ChangeProjectStatusModal from "./components/ChangeProjectStatusModal";
 import AddPosition from "pages/protectedPages/modules/config/AddPosition";
+import AddAssetClassification from "pages/protectedPages/modules/admin/AddAssetClassification";
+import ChangeWorkPlanStatusModal from "./ChangeWorkPlanTrackerStatusModal";
 
 const sheets: Record<string, ReactNode> = {
     [DialogType.Categories]: <CategoriesModal />,
@@ -139,6 +141,8 @@ const sheets: Record<string, ReactNode> = {
     [DialogType.ChangeProjectStatusModal]: <ChangeProjectStatusModal />,
 
     [DialogType.AddPosition]: <AddPosition />,
+    [DialogType.AddAssetClassification]: <AddAssetClassification />,
+    [DialogType.ChangeWorkPlanStatusModal]: <ChangeWorkPlanStatusModal />,
 };
 
 const AppDailog = () => {

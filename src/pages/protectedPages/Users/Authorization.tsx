@@ -2,24 +2,62 @@ import { TabsContent } from "@radix-ui/react-tabs";
 import BackNavigation from "atoms/BackNavigation";
 import { Tabs, TabsList, TabsTrigger } from "components/ui/tabs";
 import RoleList from "./RoleList";
-import AuthList from "./AuthList";
+import AuthList from "./AllPermissions";
+import { Button } from "components/ui/button";
+import { openDialog } from "store/ui";
+import AddSquareIcon from "components/icons/AddSquareIcon";
+import { DialogType } from "constants/dailogs";
+import { useAppDispatch } from "hooks/useStore";
+import { useState } from "react";
 
 const Authorization = () => {
+    const [tab, setTab] = useState("role");
+
+    const dispatch = useAppDispatch();
+
     return (
         <div>
-            <BackNavigation extraText="Authorization" />
+            <div className="flex items-center justify-between">
+                <BackNavigation extraText="Authorization" />
+
+                {tab === "role" && (
+                    <Button
+                        className="float-end"
+                        onClick={() =>
+                            dispatch(
+                                openDialog({
+                                    type: DialogType.AddNewRoleModal,
+                                    dialogProps: {
+                                        header: "Add New Role",
+                                        width: "max-w-md",
+                                        height: "max-h-[700px]",
+                                    },
+                                })
+                            )
+                        }
+                    >
+                        <AddSquareIcon />
+                        Add New Role
+                    </Button>
+                )}
+            </div>
             <div>
-                <Tabs defaultValue="roles">
+                <Tabs
+                    defaultValue="role"
+                    onValueChange={(value) => {
+                        setTab(value);
+                    }}
+                >
                     <TabsList>
-                        <TabsTrigger value="roles">Roles</TabsTrigger>
-                        <TabsTrigger value="authorization">
+                        <TabsTrigger value="role">Roles</TabsTrigger>
+                        <TabsTrigger value="permission">
                             Permissions
                         </TabsTrigger>
                     </TabsList>
-                    <TabsContent value="roles">
+                    <TabsContent value="role">
                         <RoleList />
                     </TabsContent>
-                    <TabsContent value="authorization">
+                    <TabsContent value="permission">
                         {/* <AuthList /> */}
                         <></>
                     </TabsContent>
