@@ -35,8 +35,10 @@ const StartPrequalification = () => {
 
   const { data: vendors, isLoading } =
     VendorPrequalificationAPI.useGetVendorPrequalificationsQuery({
-      params: { vendor: id as string },
+      params: { vendor_id: id as string },
     });
+  console.log({ vendors });
+
   const [createVendorPrequalificationMutation, { isLoading: loading }] =
     VendorPrequalificationAPI.useCreateVendorPrequalificationMutation();
 
@@ -90,20 +92,20 @@ const StartPrequalification = () => {
   };
 
   return (
-    <div className="space-y-5">
+    <div className='space-y-5'>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbPage>Procurement</BreadcrumbPage>
           </BreadcrumbItem>
           <BreadcrumbSeparator>
-            <Icon icon="iconoir:slash" />
+            <Icon icon='iconoir:slash' />
           </BreadcrumbSeparator>
           <BreadcrumbItem>
             <BreadcrumbItem>Prequalification</BreadcrumbItem>
           </BreadcrumbItem>
           <BreadcrumbSeparator>
-            <Icon icon="iconoir:slash" />
+            <Icon icon='iconoir:slash' />
           </BreadcrumbSeparator>
           <BreadcrumbItem>
             <BreadcrumbPage>Start Prequalification</BreadcrumbPage>
@@ -113,8 +115,8 @@ const StartPrequalification = () => {
 
       <Button
         onClick={() => navigate(-1)}
-        variant="outline"
-        className="gap-2 text-primary border-primary"
+        variant='outline'
+        className='gap-2 text-primary border-primary'
       >
         <span>
           <ArrowLeft size={15} />
@@ -127,41 +129,41 @@ const StartPrequalification = () => {
       {vendors?.categories?.map((category, index) => (
         <div
           key={index}
-          className="bg-white border shadow-sm rounded-2xl dark:bg-[hsl(15,13%,6%)]"
+          className='bg-white border shadow-sm rounded-2xl dark:bg-[hsl(15,13%,6%)]'
         >
-          <div className="p-5 ">
-            <h4 className="font-bold text-lg">{category.name}</h4>
+          <div className='p-5 '>
+            <h4 className='font-bold text-lg'>{category.name}</h4>
           </div>
 
           <hr />
 
-          <div className="p-5">
+          <div className='p-5'>
             {category.criteria.map((criteria) => (
-              <div key={criteria.id} className="py-2">
-                <Card className="border-yellow-darker flex gap-2 justify-between">
-                  <h2 className="font-semibold text-base">{criteria.name}</h2>
-                  <div className="flex gap-5 justify-between">
-                    <div className="flex items-center space-x-2">
+              <div key={criteria.id} className='py-2'>
+                <Card className='border-yellow-darker flex gap-2 justify-between'>
+                  <h2 className='font-semibold text-base'>{criteria.name}</h2>
+                  <div className='flex gap-5 justify-between'>
+                    <div className='flex items-center space-x-2'>
                       <input
-                        type="radio"
+                        type='radio'
                         id={criteria.id}
-                        value="true"
-                        className="accent-purple-500"
+                        value='true'
+                        className='accent-purple-500'
                         name={criteria.name}
                         onChange={handleInputChange}
                       />
-                      <label htmlFor="yes">Yes</label>
+                      <label htmlFor='yes'>Yes</label>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className='flex items-center space-x-2'>
                       <input
-                        type="radio"
+                        type='radio'
                         id={criteria.id}
-                        value="false"
+                        value='false'
                         name={criteria.name}
-                        className="accent-primary"
+                        className='accent-primary'
                         onChange={handleInputChange}
                       />
-                      <label htmlFor="no">No</label>
+                      <label htmlFor='no'>No</label>
                     </div>
                   </div>
                 </Card>
@@ -173,36 +175,36 @@ const StartPrequalification = () => {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="bg-white border shadow-sm rounded-2xl dark:bg-[hsl(15,13%,6%)]">
-            <div className="p-5 ">
-              <h4 className="font-bold text-lg">Selected Category</h4>
+          <div className='bg-white border shadow-sm rounded-2xl dark:bg-[hsl(15,13%,6%)]'>
+            <div className='p-5 '>
+              <h4 className='font-bold text-lg'>Selected Category</h4>
             </div>
 
             <hr />
 
-            <div className="p-5">
-              <Card className="space-y-5 border-yellow-darker">
+            <div className='p-5'>
+              <Card className='space-y-5 border-yellow-darker'>
                 <FormField
                   control={form.control}
-                  name="approved_categories"
+                  name='approved_categories'
                   render={() => (
-                    <FormItem className="space-y-6">
+                    <FormItem className='space-y-6'>
                       {vendors?.vendor.submitted_categories.map((category) => (
                         <FormField
                           key={category?.id}
                           control={form.control}
-                          name="approved_categories"
+                          name='approved_categories'
                           render={({ field }) => {
                             return (
                               <FormItem
                                 key={category?.id}
-                                className="flex gap-2 justify-between"
+                                className='flex gap-2 justify-between'
                               >
-                                <div className="space-y-2">
-                                  <h2 className="font-semibold">
+                                <div className='space-y-2'>
+                                  <h2 className='font-semibold'>
                                     {category.code}
                                   </h2>
-                                  <h6 className="font-light">
+                                  <h6 className='font-light'>
                                     {category.description}
                                   </h6>
                                 </div>
@@ -237,8 +239,8 @@ const StartPrequalification = () => {
             </div>
           </div>
 
-          <div className="flex mt-10 justify-end">
-            <FormButton loading={loading} disabled={loading} type="submit">
+          <div className='flex mt-10 justify-end'>
+            <FormButton loading={loading} disabled={loading} type='submit'>
               Finish
             </FormButton>
           </div>
