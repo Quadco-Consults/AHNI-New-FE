@@ -7,7 +7,7 @@ import {
   SolicitationCriteriaResultsData,
 } from "definations/procurement-types/solicitation-criteria";
 
-const BASE_URL = "/procurement/solicitation-evaluation-criteria/";
+const BASE_URL = "/procurements/solicitation-evaluation-criteria/";
 
 const SolicitationCriteriaAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
