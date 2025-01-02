@@ -4,6 +4,11 @@ export const AuthRoutes = {
 
 export const AdminRoutes = {
     OVERVIEW: "/admin/overview",
+    VIEW_CONSUMABLE: "/admin/inventory-management/consumables/:id",
+
+    // ---------------------
+
+
     EXPENSE_AUTHORIZATION: "/admin/expense-authorization",
     EXPENSE_AUTHORIZATION_CREATE: "/admin/expense-authorization/create",
     EXPENSE_AUTHORIZATION_DETAIL: "/admin/expense-authorization/:id",
@@ -15,7 +20,6 @@ export const AdminRoutes = {
     ITEM_REQUISITION_DETAIL: "/admin/inventory-management/item-requisition/:id",
     CREATE_ITEM_REQUISITION:
         "/admin/inventory-management/item-requisition/create",
-    CONSUMABLES_VIEW: "/admin/inventory-management/consumables/view",
     ASSETS: "/admin/inventory-management/assets",
     ASSETS_REQUEST: "/admin/inventory-management/assets-request",
     ASSETS_REQUEST_CREATE: "/admin/inventory-management/assets-request/create",
@@ -25,7 +29,7 @@ export const AdminRoutes = {
         "/admin/inventory-management/asset-maintenance-view",
     ASSET_MAINTENANCE_CREATE:
         "/admin/inventory-management/asset-maintenance-create",
-    CREateConsumables: "/admin/inventory-management/create-consumables",
+    CREATE_CONSUMABLE: "/admin/inventory-management/create-consumables",
     CreateAssets: "/admin/inventory-management/create-assets",
     ViewAssets: "/admin/inventory-management/view-assets",
     VehicleRequest: "/admin/fleet-management/vehichle-request",
@@ -67,31 +71,15 @@ export const RouteEnum = {
     MODULES_PROCUREMENT: "/modules/procurement",
     MODULES_FINANCE: "/modules/finance",
 
-
-
     // ----------------------------
-     //projects routes
-     PROJECTS: "/projects",
-     PROJECTS_DETAILS: "/projects/:id",
-     PROJECTS_CREATE_SUMMARY: "/projects/create/summary",
-     PROJECTS_CREATE_UPLOADS: "/projects/create/uploads",
-     PROJECTS_EDIT_SUMMARY: "/projects/:id/create/summary",
-     PROJECTS_EDIT_UPLOADS: "/projects/:id/create/uploads",
-     // PROJECTS_CREATE_PERFORMANCE: "/projects/create/performance",
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    //projects routes
+    PROJECTS: "/projects",
+    PROJECTS_DETAILS: "/projects/:id",
+    PROJECTS_CREATE_SUMMARY: "/projects/create/summary",
+    PROJECTS_CREATE_UPLOADS: "/projects/create/uploads",
+    PROJECTS_EDIT_SUMMARY: "/projects/:id/create/summary",
+    PROJECTS_EDIT_UPLOADS: "/projects/:id/create/uploads",
+    // PROJECTS_CREATE_PERFORMANCE: "/projects/create/performance",
 
     /* -------------------------------------------- */
 

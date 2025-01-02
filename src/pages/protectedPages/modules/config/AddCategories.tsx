@@ -17,6 +17,7 @@ import {
     useAddCategoryMutation,
     useUpdateCategoryMutation,
 } from "services/modules/config/category";
+import FormTextArea from "atoms/FormTextArea";
 
 const jobCategoryOptions = [
     { label: "Goods", value: "GOODS" },
@@ -81,7 +82,7 @@ const AddCategories = () => {
                         required
                     />
 
-                    <FormInput
+                    <FormTextArea
                         label="Description"
                         name="description"
                         placeholder="Enter Description"

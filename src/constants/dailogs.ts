@@ -63,6 +63,8 @@ export const DialogType = {
     ChangeRiskStatusModal: "ChangeRiskStatusModal",
     ChangeProjectStatusModal: "ChangeProjectStatusModal",
     AddPosition: "AddPosition",
+    AddAssetClassification: "AddAssetClassification",
+    ChangeWorkPlanStatusModal: "ChangeWorkPlanStatusModal",
 };
 
 export const largeDailogScreen = {

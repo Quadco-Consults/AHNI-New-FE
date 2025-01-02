@@ -16,6 +16,7 @@ import {
     useAddBudgetLineMutation,
     useUpdateBudgetLineMutation,
 } from "services/modules/finance/budget-line";
+import FormTextArea from "atoms/FormTextArea";
 
 const AddBudgetLine = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
@@ -67,7 +68,7 @@ const AddBudgetLine = () => {
                         required
                     />
 
-                    <FormInput
+                    <FormTextArea
                         label="Description"
                         placeholder="Enter Description"
                         name="description"

@@ -13,7 +13,6 @@ import { useCreateProjectDocumentMutation } from "services/project/document";
 import useQuery from "hooks/useQuery";
 import FormSelect from "atoms/FormSelect";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useParams } from "react-router-dom";
 import { useGetAllDocumentTypeQuery } from "services/modules/project/document-types";
 import {
     ProjectDocumentSchema,
@@ -51,8 +50,6 @@ const ProjectUploadModal = () => {
 
     const projectId = dialogProps?.projectId as string;
 
-    const query = useQuery();
-
     const { handleSubmit, setValue } = form;
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,8 +59,6 @@ const ProjectUploadModal = () => {
         }
     };
 
-    console.log(useParams());
-
     const onSubmit: SubmitHandler<TProjectDocumentFormValues> = async (
         data
     ) => {
@@ -71,10 +66,7 @@ const ProjectUploadModal = () => {
         formData.append("title", data.title);
         formData.append("file", file as Blob);
         formData.append("document_type", data.document_type);
-        formData.append(
-            "project",
-            (query.get("id") as string) || (projectId as string)
-        );
+        formData.append("project", projectId);
 
         try {
             await createProjectDocument(formData as any).unwrap();
@@ -135,7 +127,7 @@ const ProjectUploadModal = () => {
                             disabled={isLoading}
                             type="submit"
                         >
-                            Done
+                            Upload
                         </FormButton>
                     </div>
                 </form>

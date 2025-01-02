@@ -1,0 +1,151 @@
+import { skipToken } from "@reduxjs/toolkit/query/react";
+import { LoadingSpinner } from "components/shared/Loading";
+import { Card, CardContent, CardHeader } from "components/ui/card";
+import { useParams } from "react-router-dom";
+import { useGetSingleConsumableQuery } from "services/admin/inventory-management/consumable";
+
+export default function ConsumableDetails() {
+    const { id: consumableId } = useParams();
+
+    const { data: consumable, isLoading } = useGetSingleConsumableQuery(
+        consumableId ?? skipToken
+    );
+    return (
+        <div>
+            <Card className="px-3">
+                {isLoading ? (
+                    <LoadingSpinner />
+                ) : (
+                    <>
+                        <CardHeader className="border-b font-bold">
+                            {consumable?.data?.item.name}
+                        </CardHeader>
+                        <CardContent className="space-y-5">
+                            <div className="border-b py-2">
+                                {consumable?.data.item?.description}
+                            </div>
+                            <div className="grid grid-cols-3 gap-8 mt-6">
+                                <div className="space-y-2">
+                                    <h4 className="text-base font-semibold ">
+                                        Quantity
+                                    </h4>
+                                    <p className="text-[#4D4545] text-sm">
+                                        {consumable?.data.quantity}
+                                    </p>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <h4 className="text-base font-semibold ">
+                                        Stock Control Method
+                                    </h4>
+                                    <p className="text-[#4D4545] text-sm">
+                                        {consumable?.data.stock_control_method}
+                                    </p>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <h4 className="text-base font-semibold ">
+                                        Category
+                                    </h4>
+                                    <p className="text-[#4D4545] text-sm">
+                                        {consumable?.data.category.name}
+                                    </p>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <h4 className="text-base font-semibold ">
+                                        Expiry Date
+                                    </h4>
+                                    <p className="text-[#4D4545] text-sm">
+                                        {consumable?.data.expiry_date}
+                                    </p>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <h4 className="text-base font-semibold ">
+                                        Previous Quantity
+                                    </h4>
+                                    <p className="text-[#4D4545] text-sm">
+                                        {consumable?.data.previous_quantity}
+                                    </p>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <h4 className="text-base font-semibold ">
+                                        Re-order Level
+                                    </h4>
+                                    <p className="text-[#4D4545] text-sm">
+                                        {consumable?.data.re_order_level}
+                                    </p>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <h4 className="text-base font-semibold ">
+                                        Buffer Stock
+                                    </h4>
+                                    <p className="text-[#4D4545] text-sm">
+                                        {consumable?.data.buffer_stock}
+                                    </p>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <h4 className="text-base font-semibold ">
+                                        Max Stock
+                                    </h4>
+                                    <p className="text-[#4D4545] text-sm">
+                                        {consumable?.data.max_stock}
+                                    </p>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <h4 className="text-base font-semibold ">
+                                        Entry Date
+                                    </h4>
+                                    <p className="text-[#4D4545] text-sm">
+                                        {consumable?.data.entry_date}
+                                    </p>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <h4 className="text-base font-semibold ">
+                                        Available Quantity
+                                    </h4>
+                                    <p className="text-[#4D4545] text-sm">
+                                        {consumable?.data.available_quantity}
+                                    </p>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <h4 className="text-base font-semibold ">
+                                        Cost of Item
+                                    </h4>
+                                    <p className="text-[#4D4545] text-sm">
+                                        ${consumable?.data.item_cost}
+                                    </p>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <h4 className="text-base font-semibold ">
+                                        GRN Tracking Number
+                                    </h4>
+                                    <p className="text-[#4D4545] text-sm">
+                                        {consumable?.data.grn_tracking_number}
+                                    </p>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <h4 className="text-base font-semibold ">
+                                        Vendor
+                                    </h4>
+                                    <p className="text-[#4D4545] text-sm">
+                                        {consumable?.data.created_by}
+                                    </p>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </>
+                )}
+            </Card>
+        </div>
+    );
+}

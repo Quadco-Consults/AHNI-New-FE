@@ -5,16 +5,16 @@ import { Button } from "components/ui/button";
 import { Card, CardContent } from "components/ui/card";
 import { Checkbox } from "components/ui/checkbox";
 import { ScrollArea } from "components/ui/scroll-area";
-import { TPermission } from "definations/users";
+import { IPermission } from "definations/auth/permission";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { cn } from "lib/utils";
 import { capitalize } from "lodash";
 import { FC, useEffect, useState } from "react";
 import {
+    useGetAllPermissionsQuery,
     useGetSingleRoleQuery,
-    usePermissionsQuery,
     useUpdateRoleMutation,
-} from "services/users";
+} from "services/auth/role";
 import { toast } from "sonner";
 import { closeDialog, dailogSelector } from "store/ui";
 
@@ -31,7 +31,7 @@ type TPermissionSelector = {
 };
 
 const PermissionCheckbox: FC<{
-    permission: TPermission;
+    permission: IPermission;
     checked: boolean;
 
     // eslint-disable-next-line no-unused-vars
@@ -63,13 +63,14 @@ const PermissionSelector: FC<TPermissionSelector> = ({
     selectedPermissions,
     onSelectPermission,
 }) => {
-    const { data: permissions, isLoading } = usePermissionsQuery({
-        no_paginate: false,
+    const { data: permission, isLoading } = useGetAllPermissionsQuery({
+        page: 1,
+        size: 2000000,
     });
 
     if (isLoading) return <LoadingSpinner />;
 
-    if (permissions?.data?.length === 0)
+    if (permission?.data?.length === 0)
         return (
             <div className="flex flex-col items-center gap-2.5">
                 <EmptyTodoIcon />
@@ -79,7 +80,7 @@ const PermissionSelector: FC<TPermissionSelector> = ({
 
     return (
         <>
-            {permissions?.data?.map((permission) => (
+            {permission?.data?.map((permission) => (
                 <div>
                     <h3 className="font-bold text-lg">
                         {capitalize(permission.module)}

@@ -16,14 +16,14 @@ import { Form } from "components/ui/form";
 import { useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useSearchParams } from "react-router-dom";
-import { useGetAssetsQuery } from "services/adminApi/assetsApi";
+import { useGetAssetsQuery } from "services/admin/assetsApi";
 import {
     useApproveRequestMutation,
     useGetOneVehicleRequestsQuery,
-} from "services/adminApi/VehicleRequestApi";
+} from "services/admin/VehicleRequestApi";
 import { toast } from "sonner";
 import { APPROVAL_PROCESS } from "../FacilitiesManagment/FacilitiesMaintanance";
-import { useGetAllUsersQuery } from "services/users";
+import { useGetAllUsersQuery } from "services/auth/user";
 
 const AssetsItem = ({
     desc,

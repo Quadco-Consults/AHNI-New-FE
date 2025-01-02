@@ -1,37 +1,28 @@
-import { Link, generatePath } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Card from "components/shared/Card";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import SearchIcon from "components/icons/SearchIcon";
 import FilterIcon from "components/icons/FilterIcon";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import { RouteEnum } from "constants/RouterConstants";
-import EyeIcon from "components/icons/EyeIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
-import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "components/ui/badge";
-import { cn } from "lib/utils";
-import ApproveIcon from "components/icons/ApproveIcon";
-import ApprovalStatusIcon from "components/icons/ApprovalStatusIcon";
 import ArrowDownIcon from "components/icons/ArrowDownIcon";
 import { useAppDispatch } from "hooks/useStore";
 import { DialogType } from "constants/dailogs";
 import { openDialog } from "store/ui";
 import UploadIcon from "components/icons/UploadIcon";
 import DataTable from "components/Table/DataTable";
-import SupportiveSupervisionAPI from "services/programsApi/suportive-supervision";
-import { toast } from "sonner";
-import { useGetAllSupervisionPlanQuery } from "services/programsApi/ssp";
-import { TSupervisionPlanPaginatedData } from "definations/program-types/ssp";
+import { useGetAllSupervisionPlanQuery } from "services/program/plan/supervision-plan";
 import BreadcrumbCard from "components/shared/Breadcrumb";
 import { useState } from "react";
+import { supportiveSupervisionPlanColumns } from "components/Table/columns/program/plan/supportive-supervision-plan";
 
 const breadcrumbs = [
     { name: "Programs", icon: true },
     { name: "Plans", icon: true },
     { name: "Supportive Supervision Plan", icon: false },
 ];
+
 export default function SupportiveSupervisionPlan() {
     const [page, setPage] = useState(1);
 
@@ -111,7 +102,7 @@ export default function SupportiveSupervisionPlan() {
 
                 <DataTable
                     data={supervisionPlan?.data.results || []}
-                    columns={columns}
+                    columns={supportiveSupervisionPlanColumns}
                     isLoading={isFetching}
                     pagination={{
                         total: supervisionPlan?.data.pagination.count ?? 0,
@@ -124,157 +115,3 @@ export default function SupportiveSupervisionPlan() {
         </div>
     );
 }
-
-const columns: ColumnDef<TSupervisionPlanPaginatedData>[] = [
-    {
-        header: "Facility",
-        id: "facility",
-        accessorKey: "facility",
-        size: 300,
-    },
-    {
-        header: "State",
-        id: "state",
-        accessorKey: "state",
-        size: 150,
-    },
-    {
-        header: "LGA",
-        id: "lga",
-        accessorKey: "lga",
-        size: 150,
-    },
-
-    {
-        header: "Month",
-        id: "month",
-        accessorKey: "month",
-        size: 150,
-    },
-
-    {
-        header: "Year",
-        id: "year",
-        accessorKey: "year",
-        size: 150,
-    },
-
-    {
-        header: "Status",
-        id: "status",
-        accessorKey: "status",
-        size: 100,
-        cell: ({ getValue }) => {
-            return (
-                <Badge
-                    variant="default"
-                    className={cn(
-                        "p-1 rounded-lg",
-                        getValue() === "Approved" &&
-                            "bg-green-100 text-green-500",
-                        getValue() === "Reject" && "bg-red-100 text-red-500",
-                        getValue() === "Pending" &&
-                            "bg-yellow-100 text-yellow-500",
-                        getValue() === "On Hold" && "text-gray-100 bg-gray-500"
-                    )}
-                >
-                    {getValue() as string}
-                </Badge>
-            );
-        },
-    },
-    {
-        header: "",
-        id: "actions",
-        size: 80,
-        cell: ({ row }) => <ActionListAction data={row.original} />,
-    },
-];
-
-const ActionListAction = ({ data }: any) => {
-    const [deleteRiskPlanMutation] =
-        SupportiveSupervisionAPI.useDeleteSupportiveSupervisionMutation();
-    const deleteHandler = async () => {
-        try {
-            await deleteRiskPlanMutation({
-                path: { id: data?.id },
-            }).unwrap();
-            toast.success("Successfully deleted");
-        } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
-        }
-    };
-    return (
-        <div className="flex items-center gap-2">
-            <>
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <Button variant="ghost" className="flex gap-2 py-6">
-                            <MoreOptionsHorizontalIcon />
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className=" w-fit">
-                        <div className="flex flex-col items-start justify-between gap-1">
-                            <Link
-                                className="w-full"
-                                to={generatePath(
-                                    RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS,
-                                    {
-                                        id: data?.id,
-                                    }
-                                )}
-                            >
-                                <Button
-                                    className="w-full flex items-center justify-start gap-2"
-                                    variant="ghost"
-                                >
-                                    <EyeIcon />
-                                    View
-                                </Button>
-                            </Link>
-                            <Button
-                                className="w-full flex items-center justify-start gap-2"
-                                variant="ghost"
-                                // onClick={() => {
-                                //     dispatch(
-                                //         openDialog({
-                                //             type: DialogType.SspApproveModal,
-                                //             dialogProps: {
-                                //                 header: "Request Approval",
-                                //                 width: "max-w-2xl",
-                                //             },
-                                //         })
-                                //     );
-                                // }}
-                            >
-                                <ApproveIcon />
-                                Approve
-                            </Button>
-                            <Link
-                                to={
-                                    RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS_APPROVAL
-                                }
-                            >
-                                <Button
-                                    className="w-full flex items-center justify-start gap-2"
-                                    variant="ghost"
-                                >
-                                    <ApprovalStatusIcon />
-                                    Approval Status
-                                </Button>
-                            </Link>
-                            <Button
-                                className="w-full flex items-center justify-start gap-2"
-                                variant="ghost"
-                                onClick={deleteHandler}
-                            >
-                                <DeleteIcon />
-                                Delete
-                            </Button>
-                        </div>
-                    </PopoverContent>
-                </Popover>
-            </>
-        </div>
-    );
-};

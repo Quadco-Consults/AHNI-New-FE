@@ -16,6 +16,7 @@ import {
     useAddSupervisionCategoryMutation,
     useUpdateSupervisionCategoryMutation,
 } from "services/modules/program/supervision-category";
+import FormTextArea from "atoms/FormTextArea";
 
 const AddSupervisionCategory = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
@@ -71,7 +72,7 @@ const AddSupervisionCategory = () => {
                         required
                     />
 
-                    <FormInput
+                    <FormTextArea
                         label="Description"
                         placeholder="Enter Description"
                         name="description"

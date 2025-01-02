@@ -1,3 +1,4 @@
+import FormButton from "atoms/FormButton";
 import { Button } from "components/ui/button";
 import {
     Select,
@@ -18,15 +19,17 @@ const statusOptions = ["OPEN", "CLOSED", "MITIGATED"].map((option) => ({
 }));
 
 export default function ChangeRiskStatusModal() {
-    const [status, setStatus] = useState("OPEN");
-
     const { dailog } = useAppSelector((state) => state.ui);
 
     const id = dailog?.dialogProps?.id as string;
+    const prevStatus = dailog?.dialogProps?.status as string;
+
+    const [status, setStatus] = useState(prevStatus);
 
     const dispatch = useAppDispatch();
 
-    const [patchRiskManagementPlan] = usePatchRiskManagementPlanMutation();
+    const [patchRiskManagementPlan, { isLoading }] =
+        usePatchRiskManagementPlanMutation();
 
     const handleChangeStatus = (value: string) => {
         setStatus(value);
@@ -52,7 +55,11 @@ export default function ChangeRiskStatusModal() {
         <form onSubmit={onSubmit} className="w-full space-y-6">
             <h2 className="text-lg font-bold">Change Risk Status</h2>
 
-            <Select onValueChange={handleChangeStatus}>
+            <Select
+                defaultValue={status}
+                value={status}
+                onValueChange={handleChangeStatus}
+            >
                 <SelectTrigger>
                     <SelectValue placeholder="Select Risk Status" />
                 </SelectTrigger>
@@ -67,7 +74,9 @@ export default function ChangeRiskStatusModal() {
             </Select>
 
             <div className="flex justify-end">
-                <Button>Confirm</Button>
+                <FormButton type="submit" loading={isLoading}>
+                    Submit
+                </FormButton>
             </div>
         </form>
     );

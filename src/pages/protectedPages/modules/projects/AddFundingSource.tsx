@@ -16,6 +16,7 @@ import {
     useAddFundingSourceMutation,
     useUpdateFundingSourceMutation,
 } from "services/modules/project/funding-source";
+import FormTextArea from "atoms/FormTextArea";
 
 const AddFundingSource = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
@@ -66,11 +67,13 @@ const AddFundingSource = () => {
                     placeholder="Enter Name"
                     required
                 />
-                <FormInput
+
+                <FormTextArea
                     label="Description"
                     name="description"
                     placeholder="Enter Description"
                 />
+                
                 <div className="flex justify-start gap-4">
                     <FormButton loading={isLoading || updateFundingLoading}>
                         Save

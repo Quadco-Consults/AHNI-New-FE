@@ -4,50 +4,20 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import FormInput from "atoms/FormInput";
 import FormButton from "atoms/FormButton";
-import { useChangePasswordMutation } from "services/auth";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import Card from "components/shared/Card";
 import PasswordHint from "components/features/PasswordHint";
 import useQuery from "hooks/useQuery";
-
-const formSchema = z
-    .object({
-        new_password: z
-            .string()
-            .min(8, "Password must be at least 8 characters")
-            .trim()
-            .regex(
-                /[@$!%*?&]/,
-                "Password must contain at least one special character"
-            )
-            .regex(
-                /[A-Z]/,
-                "Password must contain at least one uppercase character"
-            )
-            .regex(/[0-9]/, "Password must contain at least one number"),
-        confirm_password: z
-            .string()
-            .min(8, "Password must be at least 8 characters")
-            .trim()
-            .regex(
-                /[@$!%*?&]/,
-                "Password must contain at least one special character"
-            )
-            .regex(
-                /[A-Z]/,
-                "Password must contain at least one uppercase character"
-            )
-            .regex(/[0-9]/, "Password must contain at least one number"),
-    })
-    .refine((data) => data.new_password === data.confirm_password, {
-        message: "Passwords don't match",
-        path: ["confirm_password"], // path of error
-    });
+import {
+    ChangePasswordSchema,
+    TChangePasswordFormValues,
+} from "definations/auth/auth";
+import { useChangePasswordMutation } from "services/auth/auth";
 
 const ChangePasswordForm = () => {
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+    const form = useForm<TChangePasswordFormValues>({
+        resolver: zodResolver(ChangePasswordSchema),
         defaultValues: {
             new_password: "",
             confirm_password: "",
@@ -63,7 +33,7 @@ const ChangePasswordForm = () => {
     const onSubmit = async ({
         new_password,
         confirm_password,
-    }: z.infer<typeof formSchema>) => {
+    }: TChangePasswordFormValues) => {
         const email = query.get("email");
         const token = JSON.parse(localStorage.getItem("authToken") || "{}");
 

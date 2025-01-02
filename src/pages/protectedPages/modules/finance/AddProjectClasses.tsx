@@ -16,6 +16,7 @@ import {
     useAddProjectClassMutation,
     useUpdateProjectClassMutation,
 } from "services/modules/finance/project-class";
+import FormTextArea from "atoms/FormTextArea";
 
 const AddProjectClasses = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
@@ -69,7 +70,7 @@ const AddProjectClasses = () => {
                         required
                     />
 
-                    <FormInput
+                    <FormTextArea
                         label="Description"
                         name="description"
                         placeholder="Enter Description"

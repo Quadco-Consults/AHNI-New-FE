@@ -16,6 +16,7 @@ import {
     useAddChartAccountMutation,
     useUpdateChartAccountMutation,
 } from "services/modules/finance/chart-account";
+import FormTextArea from "atoms/FormTextArea";
 
 const AddChartsOfAccount = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
@@ -69,7 +70,7 @@ const AddChartsOfAccount = () => {
                         required
                     />
 
-                    <FormInput
+                    <FormTextArea
                         label="Description"
                         name="description"
                         placeholder="Enter Description"

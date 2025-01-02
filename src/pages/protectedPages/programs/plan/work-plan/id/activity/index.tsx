@@ -19,7 +19,7 @@ export default function Activity({ data }: PropsType) {
                 <TabsList>
                     <TabsTrigger value="activities">Activities</TabsTrigger>
                     <TabsTrigger value="details">Details</TabsTrigger>
-                    <TabsTrigger value="gannt Chart">Gannt Chart</TabsTrigger>
+                    <TabsTrigger value="gantt">Gantt Chart</TabsTrigger>
                     <TabsTrigger value="measurement">Measurement</TabsTrigger>
                     <TabsTrigger value="budget">Budget</TabsTrigger>
                 </TabsList>
@@ -32,7 +32,7 @@ export default function Activity({ data }: PropsType) {
                 <TabsContent value="details">
                     <DetailTab data={data} />
                 </TabsContent>
-                <TabsContent value="gannt Chart">
+                <TabsContent value="gantt">
                     <ChartTab data={data} />
                 </TabsContent>
                 <TabsContent value="measurement">

@@ -7,7 +7,7 @@ import { AdminRoutes } from "constants/RouterConstants";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import sessionStorage from "redux-persist/es/storage/session";
-import { useUploadDocumentMutation } from "services/adminApi/paymentRequest";
+import { useUploadDocumentMutation } from "services/admin/paymentRequest";
 import { toast } from "sonner";
 
 type StepsF = {

@@ -22,11 +22,13 @@ import {
 import PencilIcon from "components/icons/PencilIcon";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
-import { DialogType, mediumDailogScreen } from "constants/dailogs";
+import { DialogType } from "constants/dailogs";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
 import { TProjectData } from "definations/project";
+import { clearPartners } from "store/formData/project-values";
+import { clearObjectives } from "store/formData/project-objective";
 
 const breadcrumbs: TBreadcrumbList[] = [{ name: "Projects", icon: false }];
 
@@ -37,6 +39,13 @@ export default function ProjectHomePage() {
         page,
         size: 10,
     });
+
+    const dispatch = useAppDispatch();
+
+    useEffect(() => {
+        dispatch(clearPartners());
+        dispatch(clearObjectives());
+    }, []);
 
     return (
         <section>
@@ -86,7 +95,7 @@ const columns: ColumnDef<TProjectData>[] = [
     {
         header: "Title",
         accessorKey: "title",
-        size: 150,
+        size: 250,
     },
     {
         header: "Project ID",
@@ -154,17 +163,17 @@ const columns: ColumnDef<TProjectData>[] = [
     {
         header: "Outcome/Impact",
         accessorKey: "goal",
-        size: 180,
+        size: 250,
     },
     {
         header: "Budget Performance",
         accessorKey: "budget_performance",
-        size: 200,
+        size: 250,
     },
     {
         header: "Achievement Against Target",
         accessorKey: "achievement_against_target",
-        size: 300,
+        size: 250,
     },
     {
         header: "Beneficiaries",
@@ -174,10 +183,9 @@ const columns: ColumnDef<TProjectData>[] = [
         size: 300,
     },
     {
-        header: "Action",
         id: "actions",
         size: 50,
-        cell: ({ row }) => <ActionListAction data={row.original} />,
+        cell: ({ row }) => <ActionListAction {...row.original} />,
     },
 ];
 
@@ -205,7 +213,7 @@ const ProjectFundingSource = ({ data }: any) => {
     );
 };
 
-const ActionListAction = ({ data }: any) => {
+const ActionListAction = ({ id, status }: TProjectData) => {
     const [dialogOpen, setDialogOpen] = useState(false);
 
     const [deleteProject, { isLoading }] = useDeleteProjectMutation();
@@ -214,7 +222,7 @@ const ActionListAction = ({ data }: any) => {
     const handleDeleteProject = async () => {
         try {
             await deleteProject({
-                path: { id: data?.id },
+                path: { id },
             }).unwrap();
             toast.success("Project deleted.");
         } catch (error: any) {
@@ -236,7 +244,7 @@ const ActionListAction = ({ data }: any) => {
                             <Link
                                 className="w-full"
                                 to={generatePath(RouteEnum.PROJECTS_DETAILS, {
-                                    id: data?.id,
+                                    id,
                                 })}
                             >
                                 <Button
@@ -251,7 +259,7 @@ const ActionListAction = ({ data }: any) => {
                                 className="w-full"
                                 to={{
                                     pathname: RouteEnum.PROJECTS_CREATE_SUMMARY,
-                                    search: `?id=${data?.id}`,
+                                    search: `?id=${id}`,
                                 }}
                             >
                                 <Button
@@ -270,8 +278,8 @@ const ActionListAction = ({ data }: any) => {
                                         openDialog({
                                             type: DialogType.ChangeProjectStatusModal,
                                             dialogProps: {
-                                                ...mediumDailogScreen,
-                                                id: data.id,
+                                                status,
+                                                id,
                                             },
                                         })
                                     );

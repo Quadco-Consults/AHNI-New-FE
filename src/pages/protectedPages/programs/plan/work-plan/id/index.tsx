@@ -7,6 +7,7 @@ import Activity from "./activity";
 import { useGetSingleWorkPlanQuery } from "services/programsApi/work-plan";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
+import { LoadingSpinner } from "components/shared/Loading";
 
 const breadcrumbs: TBreadcrumbList[] = [
     { name: "Programs", icon: true },
@@ -20,7 +21,7 @@ const WorkPlanDetail = () => {
 
     const { id } = useParams<{ id: string }>();
 
-    const { data } = useGetSingleWorkPlanQuery(id ?? skipToken);
+    const { data, isLoading } = useGetSingleWorkPlanQuery(id ?? skipToken);
 
     const goBack = () => {
         navigate(-1);
@@ -47,10 +48,18 @@ const WorkPlanDetail = () => {
                     </TabsList>
                 </div>
                 <TabsContent value="summary">
-                    <Card>{data && <Summary data={data.data} />}</Card>
+                    {isLoading ? (
+                        <LoadingSpinner />
+                    ) : (
+                        <Card>{data && <Summary data={data.data} />}</Card>
+                    )}
                 </TabsContent>
                 <TabsContent value="activity/report">
-                    {data && <Activity data={data.data} />}
+                    {isLoading ? (
+                        <LoadingSpinner />
+                    ) : (
+                        <Card>{data && <Activity data={data.data} />}</Card>
+                    )}
                 </TabsContent>
             </Tabs>
         </div>

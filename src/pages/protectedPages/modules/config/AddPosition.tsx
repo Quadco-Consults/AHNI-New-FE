@@ -15,13 +15,13 @@ import {
     useAddPositionMutation,
     useUpdatePositionMutation,
 } from "services/modules/config/position";
+import FormTextArea from "atoms/FormTextArea";
 
 const AddPosition = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
     const data = dialogProps?.data as unknown as TPositionData;
 
-    console.log({ data });
 
     const form = useForm<TPositionFormValues>({
         resolver: zodResolver(PositionSchema),
@@ -71,7 +71,7 @@ const AddPosition = () => {
                     required
                 />
 
-                <FormInput
+                <FormTextArea
                     label="Description"
                     name="description"
                     placeholder="Enter Description"

@@ -52,6 +52,18 @@ const ActivityTrackerAPI = baseAPI.injectEndpoints({
             invalidatesTags: ["ACTIVITY_TRACKER"],
         }),
 
+        patchWorkPlanTracker: builder.mutation<
+            TResponse<TWorkPlanTrackerData>,
+            { id: string; body: { status: string } }
+        >({
+            query: ({ id, body }) => ({
+                method: "PUT",
+                url: `/programs/plans/works/trackers/${id}/`,
+                body,
+            }),
+            invalidatesTags: ["ACTIVITY_TRACKER"],
+        }),
+
         deleteActivityTracker: builder.mutation<
             TResponse<TWorkPlanTrackerData>,
             string
@@ -70,5 +82,6 @@ export const {
     useGetAllActivityTrackerQuery,
     useGetSingleActivityTrackerQuery,
     useUpdateActivityTrackerMutation,
+    usePatchWorkPlanTrackerMutation,
     useDeleteActivityTrackerMutation,
 } = ActivityTrackerAPI;

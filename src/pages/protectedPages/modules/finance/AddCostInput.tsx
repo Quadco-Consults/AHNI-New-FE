@@ -16,6 +16,7 @@ import {
     useAddCostInputMutation,
     useUpdateCostInputMutation,
 } from "services/modules/finance/cost-input";
+import FormTextArea from "atoms/FormTextArea";
 
 const AddCostInput = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
@@ -67,7 +68,7 @@ const AddCostInput = () => {
                         required
                     />
 
-                    <FormInput
+                    <FormTextArea
                         label="Description"
                         name="description"
                         placeholder="Enter Description"

@@ -4,10 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import FormInput from "atoms/FormInput";
 import FormButton from "atoms/FormButton";
-import { useForgotPasswordMutation } from "services/auth";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
 import Card from "components/shared/Card";
+import { useForgotPasswordMutation } from "services/auth/auth";
 
 const emailSchema = z.object({
     email: z.string().email(),

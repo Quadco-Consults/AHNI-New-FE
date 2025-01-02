@@ -1,4 +1,4 @@
-import { Button } from "components/ui/button";
+import FormButton from "atoms/FormButton";
 import {
     Select,
     SelectContent,
@@ -8,7 +8,6 @@ import {
 } from "components/ui/select";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { FormEvent, useState } from "react";
-import { usePatchRiskManagementPlanMutation } from "services/programsApi/risk-plans";
 import { usePatchProjectMutation } from "services/project";
 import { toast } from "sonner";
 import { closeDialog } from "store/ui";
@@ -19,15 +18,16 @@ const statusOptions = ["PENDING", "IN_PROGRESS", "CLOSED"].map((option) => ({
 }));
 
 export default function ChangeProjectStatusModal() {
-    const [status, setStatus] = useState("PENDING");
-
     const { dailog } = useAppSelector((state) => state.ui);
 
     const id = dailog?.dialogProps?.id as string;
+    const prevStatus = dailog?.dialogProps?.status as string;
+
+    const [status, setStatus] = useState(prevStatus);
 
     const dispatch = useAppDispatch();
 
-    const [patchProject] = usePatchProjectMutation();
+    const [patchProject, { isLoading }] = usePatchProjectMutation();
 
     const handleChangeStatus = (value: string) => {
         setStatus(value);
@@ -45,15 +45,19 @@ export default function ChangeProjectStatusModal() {
             dispatch(closeDialog());
             toast.success("Updated Project Status");
         } catch (error: any) {
-            toast.error(error.data.message || "Something went wrong");
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
 
     return (
         <form onSubmit={onSubmit} className="w-full space-y-6">
-            <h2 className="text-lg font-bold">Change Risk Status</h2>
+            <h2 className="text-lg font-bold">Change Project Status</h2>
 
-            <Select onValueChange={handleChangeStatus}>
+            <Select
+                defaultValue={status}
+                value={status}
+                onValueChange={handleChangeStatus}
+            >
                 <SelectTrigger>
                     <SelectValue placeholder="Select Status" />
                 </SelectTrigger>
@@ -68,7 +72,9 @@ export default function ChangeProjectStatusModal() {
             </Select>
 
             <div className="flex justify-end">
-                <Button>Confirm</Button>
+                <FormButton type="submit" loading={isLoading}>
+                    Submit
+                </FormButton>
             </div>
         </form>
     );

@@ -16,6 +16,7 @@ import {
     useAddCostCategoryMutation,
     useUpdateCostCategoryMutation,
 } from "services/modules/finance/cost-category";
+import FormTextArea from "atoms/FormTextArea";
 
 const AddCostCategory = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
@@ -67,7 +68,8 @@ const AddCostCategory = () => {
                         placeholder="Enter Name"
                         required
                     />
-                    <FormInput
+                    
+                    <FormTextArea
                         label="Description"
                         name="description"
                         placeholder="Enter Description"

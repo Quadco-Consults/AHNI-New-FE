@@ -17,13 +17,6 @@ type projectData = {
     time: string;
 };
 
-const data: projectData[] = Array(10).fill({
-    date: "10/04/2023",
-    description: "Project is being suspended",
-    user: "Admin",
-    time: "12:00 AM",
-});
-
 const Activity = () => {
     const columns: ColumnDef<projectData>[] = [
         {
@@ -54,7 +47,6 @@ const Activity = () => {
     ];
 
     const ActionListAction = ({ data }: any) => {
-        console.log(data);
         return (
             <div className="flex items-center gap-2">
                 <>
@@ -94,10 +86,10 @@ const Activity = () => {
                 </span>
                 <Button className="shadow-sm" variant="ghost">
                     <FilterIcon />
-                </Button>
+            </Button>
             </div>
 
-            <DataTable data={data} columns={columns} isLoading={false} />
+            <DataTable data={[]} columns={columns} isLoading={false} />
         </Card>
     );
 };

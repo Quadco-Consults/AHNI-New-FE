@@ -19,7 +19,7 @@ import { useGetAllProjectsQuery } from "services/project";
 import { useGetAllPartnersQuery } from "services/modules/project/partners";
 import { useGetAllFinancialYearsQuery } from "services/modules/config/financial-year";
 import { useGetAllLocationsQuery } from "services/modules/config/location";
-import { useGetAllUsersQuery } from "services/users";
+import { useGetAllUsersQuery } from "services/auth/user";
 
 const getYearOptions = () => {
     const currentYear = new Date().getFullYear();

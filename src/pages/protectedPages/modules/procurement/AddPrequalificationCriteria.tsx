@@ -16,6 +16,7 @@ import {
     useAddPrequalificationCriteriaMutation,
     useUpdatePrequalificationCriteriaMutation,
 } from "services/modules/procurement/prequalification-criteria";
+import FormTextArea from "atoms/FormTextArea";
 
 const AddPrequalificationCriteria = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
@@ -72,12 +73,13 @@ const AddPrequalificationCriteria = () => {
                         required
                     />
 
-                    <FormInput
+                    <FormTextArea
                         label="Description"
                         placeholder="Enter Description"
                         name="description"
                         required
                     />
+                    
                     <FormInput
                         label="Category"
                         name="category"

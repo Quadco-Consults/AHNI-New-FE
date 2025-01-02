@@ -19,6 +19,7 @@ import {
     useUpdateSupervisionCriteriaMutation,
 } from "services/modules/program/supervision-criteria";
 import { useGetAllSupervisionCategoryQuery } from "services/modules/program/supervision-category";
+import FormTextArea from "atoms/FormTextArea";
 
 const AddSupervisionCriteria = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
@@ -86,7 +87,7 @@ const AddSupervisionCriteria = () => {
                         required
                     />
 
-                    <FormInput
+                    <FormTextArea
                         label="Description"
                         placeholder="Enter Description"
                         name="description"

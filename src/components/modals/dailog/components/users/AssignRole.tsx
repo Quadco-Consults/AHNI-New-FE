@@ -5,27 +5,18 @@ import { Card, CardContent } from "components/ui/card";
 import { Checkbox } from "components/ui/checkbox";
 import { Input } from "components/ui/input";
 import { ScrollArea } from "components/ui/scroll-area";
-import { TRole } from "definations/users";
+import { IRole } from "definations/auth/permission";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { cn } from "lib/utils";
 import { Search } from "lucide-react";
-
 import React, { useEffect, useState } from "react";
-import {
-    useAddUserRoleMutation,
-    useGetSingleUserQuery,
-    useRolesQuery,
-} from "services/users";
+import { useGetAllRolesQuery } from "services/auth/role";
+import { useAddUserToRoleMutation } from "services/auth/user";
 import { toast } from "sonner";
 import { closeDialog, dailogSelector } from "store/ui";
 
-interface Role {
-    id: number;
-    name: string;
-}
-
 const RoleCheckbox: React.FC<{
-    role: TRole;
+    role: IRole;
     checked: boolean;
     // eslint-disable-next-line no-unused-vars
     onChange: () => void;
@@ -54,7 +45,6 @@ const RoleCheckbox: React.FC<{
 
 type TRoleSelector = {
     selectedRoles: string[];
-    // eslint-disable-next-line no-unused-vars
     onSelectRole: (roleId: string) => void;
 };
 
@@ -62,7 +52,7 @@ const RoleSelector: React.FC<TRoleSelector> = ({
     selectedRoles,
     onSelectRole,
 }) => {
-    const { data } = useRolesQuery({ no_paginate: false });
+    const { data } = useGetAllRolesQuery({ page: 1, size: 2000000 });
 
     return (
         <div className="flex flex-wrap gap-2">
@@ -96,7 +86,7 @@ const AssignRole = () => {
 
     const { dialogProps } = useAppSelector(dailogSelector);
 
-    const [addUserRole, { isLoading }] = useAddUserRoleMutation();
+    const [addUserRole, { isLoading }] = useAddUserToRoleMutation();
 
     const dispatch = useAppDispatch();
 
@@ -106,6 +96,7 @@ const AssignRole = () => {
     const { data: user } = useGetSingleUserQuery(userId ?? skipToken);
 
     useEffect(() => {
+        // @ts-ignore
         const roles = user?.data?.roles?.map((role) => role.id);
 
         if (roles) {

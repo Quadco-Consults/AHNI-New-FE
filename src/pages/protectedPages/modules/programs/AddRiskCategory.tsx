@@ -16,6 +16,7 @@ import {
     useAddRiskCategoryMutation,
     useUpdateRiskCategoryMutation,
 } from "services/modules/program/risk-category";
+import FormTextArea from "atoms/FormTextArea";
 
 const AddRiskCategory = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
@@ -67,11 +68,12 @@ const AddRiskCategory = () => {
                         required
                     />
 
-                    <FormInput
+                    <FormTextArea
                         label="Description"
                         placeholder="Enter Description"
                         name="description"
                     />
+
                     <div className="flex justify-start gap-4">
                         <FormButton loading={isLoading || updateRiskLoading}>
                             Save

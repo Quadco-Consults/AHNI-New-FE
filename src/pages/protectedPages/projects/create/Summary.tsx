@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import ProjectLayout from "./ProjectLayout";
 import { Button } from "components/ui/button";
 import FormButton from "atoms/FormButton";
@@ -20,7 +20,7 @@ import { format } from "date-fns";
 import { cn } from "lib/utils";
 import { Calendar } from "components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { useGetAllUsersQuery } from "services/users";
+import { useGetAllUsersQuery } from "services/auth/user";
 import {
     addObjective,
     clearObjectives,
@@ -41,6 +41,15 @@ import { useUseGetAllFundingSourceQuery } from "services/modules/project/funding
 import { useGetAllPartnersQuery } from "services/modules/project/partners";
 import { ProjectSchema, TProjectFormValues } from "definations/project";
 import ConsortiumPartners from "./ConsortiumPartners";
+import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
+import LongArrowLeft from "components/icons/LongArrowLeft";
+import { RouteEnum } from "constants/RouterConstants";
+
+const breadcrumbs: TBreadcrumbList[] = [
+    { name: "Projects", icon: true },
+    { name: "Create", icon: true },
+    { name: "Summary", icon: false },
+];
 
 export default function ProjectSummaryPage() {
     const [startDate, setStartDate] = useState<Date>();
@@ -219,144 +228,209 @@ export default function ProjectSummaryPage() {
 
             path += `/uploads?id=${projectId || id}`;
             navigate(path);
-        } catch (error: any) {
-            toast.error(error.data.message);
-        }
 
-        dispatch(clearObjectives());
-        dispatch(clearPartners());
+            dispatch(clearObjectives());
+            dispatch(clearPartners());
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
+        }
     };
 
     return (
-        <ProjectLayout>
-            <div className="space-y-6">
-                <Form {...form}>
-                    <form onSubmit={handleSubmit(onSubmit)}>
-                        <Card className="space-y-6 py-5">
-                            <h4 className="text-lg font-semibold">
-                                Project Summary
-                            </h4>
-                            <FormInput name="title" label="Project Title" />
-                            <FormInput name="project_id" label="Project ID" />
-                            <FormTextArea
-                                name="goal"
-                                label="Goal of the project"
-                                required
-                            />
-                            <FormTextArea
-                                name="narrative"
-                                label="Narrative"
-                                required
-                            />
+        <div className="space-y-5">
+            <div className="flex items-center gap-5">
+                <Link
+                    to={RouteEnum.PROJECTS}
+                    className="w-[3rem] h-[3rem] rounded-full drop-shadow-md bg-white flex items-center justify-center"
+                >
+                    <LongArrowLeft />
+                </Link>
+                <BreadcrumbCard list={breadcrumbs} />
+            </div>
 
-                            {projectId && (
+            <ProjectLayout>
+                <div className="space-y-6">
+                    <Form {...form}>
+                        <form onSubmit={handleSubmit(onSubmit)}>
+                            <Card className="space-y-6 py-5">
+                                <h4 className="text-lg font-semibold">
+                                    Project Summary
+                                </h4>
+
                                 <FormInput
-                                    name="budget_performance"
-                                    label="Budget Performance"
+                                    label="Project Title"
+                                    name="title"
+                                    placeholder="Enter Title"
                                     required
                                 />
-                            )}
 
-                            <FormSelect
-                                label="Currency"
-                                name="currency"
-                                required
-                                placeholder="Select Currency"
-                                options={[
-                                    { label: "NGN", value: "NGN" },
-                                    { label: "USD", value: "USD" },
-                                ]}
-                            />
-
-                            <div className="grid grid-cols-2 gap-5">
-                                <div>
-                                    <Label>Start Date</Label>
-                                    <br />
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button
-                                                variant={"outline"}
-                                                className={cn(
-                                                    "w-full justify-start text-left font-normal",
-                                                    !startDate &&
-                                                        "text-muted-foreground"
-                                                )}
-                                            >
-                                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                                {startDate ? (
-                                                    format(
-                                                        startDate,
-                                                        "yyy-MM-dd"
-                                                    )
-                                                ) : (
-                                                    <span>Pick a date</span>
-                                                )}
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0">
-                                            <Calendar
-                                                mode="single"
-                                                selected={startDate}
-                                                onSelect={setStartDate}
-                                                initialFocus
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
-                                </div>
-                                <div>
-                                    <Label>End Date</Label>
-                                    <br />
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button
-                                                variant={"outline"}
-                                                className={cn(
-                                                    "w-full justify-start text-left font-normal",
-                                                    !endDate &&
-                                                        "text-muted-foreground"
-                                                )}
-                                            >
-                                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                                {endDate ? (
-                                                    format(endDate, "yyy-MM-dd")
-                                                ) : (
-                                                    <span>Pick a date</span>
-                                                )}
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0">
-                                            <Calendar
-                                                mode="single"
-                                                selected={endDate}
-                                                onSelect={setEndDate}
-                                                initialFocus
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
-                                </div>
-                            </div>
-
-                            <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
                                 <FormInput
-                                    name="budget"
-                                    label="Budget  (Total Estimated Amount)"
-                                    type="number"
+                                    label="Project ID"
+                                    name="project_id"
+                                    placeholder="Enter ID"
+                                    required
                                 />
+
+                                <FormTextArea
+                                    name="goal"
+                                    label="Goal of the project"
+                                    placeholder="Enter Goal"
+                                    required
+                                />
+
+                                <FormTextArea
+                                    name="narrative"
+                                    label="Narrative"
+                                    placeholder="Enter Narrative"
+                                    required
+                                />
+
+                                {projectId && (
+                                    <FormInput
+                                        name="budget_performance"
+                                        label="Budget Performance"
+                                        placeholder="Enter Budget Performance"
+                                        required
+                                    />
+                                )}
+
+                                <FormSelect
+                                    label="Currency"
+                                    name="currency"
+                                    required
+                                    placeholder="Select Currency"
+                                    options={[
+                                        { label: "NGN", value: "NGN" },
+                                        { label: "USD", value: "USD" },
+                                    ]}
+                                />
+
+                                <div className="grid grid-cols-2 gap-5">
+                                    <div>
+                                        <Label>Start Date</Label>
+                                        <br />
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    variant={"outline"}
+                                                    className={cn(
+                                                        "w-full justify-start text-left font-normal",
+                                                        !startDate &&
+                                                            "text-muted-foreground"
+                                                    )}
+                                                >
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    {startDate ? (
+                                                        format(
+                                                            startDate,
+                                                            "yyy-MM-dd"
+                                                        )
+                                                    ) : (
+                                                        <span>Pick a date</span>
+                                                    )}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0">
+                                                <Calendar
+                                                    mode="single"
+                                                    selected={startDate}
+                                                    onSelect={setStartDate}
+                                                    initialFocus
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
+                                    </div>
+                                    <div>
+                                        <Label>End Date</Label>
+                                        <br />
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    variant={"outline"}
+                                                    className={cn(
+                                                        "w-full justify-start text-left font-normal",
+                                                        !endDate &&
+                                                            "text-muted-foreground"
+                                                    )}
+                                                >
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    {endDate ? (
+                                                        format(
+                                                            endDate,
+                                                            "yyy-MM-dd"
+                                                        )
+                                                    ) : (
+                                                        <span>Pick a date</span>
+                                                    )}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0">
+                                                <Calendar
+                                                    mode="single"
+                                                    selected={endDate}
+                                                    onSelect={setEndDate}
+                                                    initialFocus
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
+                                    </div>
+                                </div>
+
+                                <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
+                                    <FormInput
+                                        type="number"
+                                        label="Budget (Total Estimated Amount)"
+                                        name="budget"
+                                        placeholder="Enter Budget"
+                                        required
+                                    />
+
+                                    <div>
+                                        <Label className="font-semibold">
+                                            Project Managers
+                                        </Label>
+
+                                        <FormField
+                                            control={form.control}
+                                            name="project_managers"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormControl>
+                                                        <MultiSelectFormField
+                                                            options={
+                                                                userOptions ||
+                                                                []
+                                                            }
+                                                            defaultValue={
+                                                                field.value
+                                                            }
+                                                            onValueChange={
+                                                                field.onChange
+                                                            }
+                                                            placeholder="Select options"
+                                                            variant="inverted"
+                                                        />
+                                                    </FormControl>
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                </div>
 
                                 <div>
                                     <Label className="font-semibold">
-                                        Project Manager
+                                        Funding Sources
                                     </Label>
-
                                     <FormField
                                         control={form.control}
-                                        name="project_managers"
+                                        name="funding_sources"
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormControl>
                                                     <MultiSelectFormField
                                                         options={
-                                                            userOptions || []
+                                                            fundingSource?.data
+                                                                .results || []
                                                         }
                                                         defaultValue={
                                                             field.value
@@ -364,7 +438,7 @@ export default function ProjectSummaryPage() {
                                                         onValueChange={
                                                             field.onChange
                                                         }
-                                                        placeholder="Select options"
+                                                        placeholder="Select Funding Sources"
                                                         variant="inverted"
                                                     />
                                                 </FormControl>
@@ -372,177 +446,153 @@ export default function ProjectSummaryPage() {
                                         )}
                                     />
                                 </div>
-                            </div>
 
-                            <div>
-                                <Label className="font-semibold">
-                                    Funding Sources
-                                </Label>
-                                <FormField
-                                    control={form.control}
-                                    name="funding_sources"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormControl>
-                                                <MultiSelectFormField
-                                                    options={
-                                                        fundingSource?.data
-                                                            .results || []
-                                                    }
-                                                    defaultValue={field.value}
-                                                    onValueChange={
-                                                        field.onChange
-                                                    }
-                                                    placeholder="Select options"
-                                                    variant="inverted"
-                                                />
-                                            </FormControl>
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
+                                <hr />
 
-                            <hr />
-
-                            <div className=" mt-10 space-y-3">
-                                <Label className="font-semibold text-red-600">
-                                    Objectives
-                                </Label>
-                                <div className="flex flex-wrap gap-3">
-                                    {objectives.objectives.map(
-                                        (objective, index) => (
-                                            <div
-                                                key={index}
-                                                className="border px-7 py-4 space-y-3 rounded-lg relative "
-                                            >
-                                                <p className="text-sm font-semibold">
-                                                    {objective?.objective}
-                                                </p>
-
-                                                {objective?.sub_objectives && (
-                                                    <ul className="space-y-2">
-                                                        {objective?.sub_objectives.map(
-                                                            (
-                                                                obj: any,
-                                                                i: number
-                                                            ) => (
-                                                                <li
-                                                                    key={i}
-                                                                    className="text-sm text-gray-500 list-disc pl-5"
-                                                                >
-                                                                    {obj}
-                                                                </li>
-                                                            )
-                                                        )}
-                                                    </ul>
-                                                )}
-
-                                                <Button
-                                                    variant="ghost"
-                                                    type="button"
-                                                    className="absolute p-0 -right-2 -top-4 w-fit h-fit"
-                                                    onClick={() =>
-                                                        dispatch(
-                                                            removeObjective(
-                                                                objective.objective
-                                                            )
-                                                        )
-                                                    }
+                                <div className=" mt-10 space-y-3">
+                                    <Label className="font-semibold text-red-600">
+                                        Objectives
+                                    </Label>
+                                    <div className="flex flex-wrap gap-3">
+                                        {objectives.objectives.map(
+                                            (objective, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="border px-7 py-4 space-y-3 rounded-lg relative "
                                                 >
-                                                    <FaTimes
-                                                        color="red"
-                                                        size={16}
-                                                    />
-                                                </Button>
-                                            </div>
-                                        )
-                                    )}
+                                                    <p className="text-sm font-semibold">
+                                                        {objective?.objective}
+                                                    </p>
 
-                                    <div>
-                                        <Button
-                                            variant="ghost"
-                                            type="button"
-                                            className="text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm"
-                                            onClick={() =>
-                                                dispatch(
-                                                    openDialog({
-                                                        type: DialogType.ProjectObjectiveModal,
-                                                        dialogProps: {
-                                                            ...mediumDailogScreen,
-                                                        },
-                                                    })
-                                                )
-                                            }
-                                        >
-                                            Click to add objectives
-                                        </Button>
+                                                    {objective?.sub_objectives && (
+                                                        <ul className="space-y-2">
+                                                            {objective?.sub_objectives.map(
+                                                                (
+                                                                    obj: any,
+                                                                    i: number
+                                                                ) => (
+                                                                    <li
+                                                                        key={i}
+                                                                        className="text-sm text-gray-500 list-disc pl-5"
+                                                                    >
+                                                                        {obj}
+                                                                    </li>
+                                                                )
+                                                            )}
+                                                        </ul>
+                                                    )}
+
+                                                    <Button
+                                                        variant="ghost"
+                                                        type="button"
+                                                        className="absolute p-0 -right-2 -top-4 w-fit h-fit"
+                                                        title="Delete Objective"
+                                                        onClick={() =>
+                                                            dispatch(
+                                                                removeObjective(
+                                                                    objective.objective
+                                                                )
+                                                            )
+                                                        }
+                                                    >
+                                                        <FaTimes
+                                                            color="red"
+                                                            size={16}
+                                                        />
+                                                    </Button>
+                                                </div>
+                                            )
+                                        )}
+
+                                        <div>
+                                            <Button
+                                                variant="ghost"
+                                                type="button"
+                                                className="text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm"
+                                                onClick={() =>
+                                                    dispatch(
+                                                        openDialog({
+                                                            type: DialogType.ProjectObjectiveModal,
+                                                            dialogProps: {
+                                                                ...mediumDailogScreen,
+                                                            },
+                                                        })
+                                                    )
+                                                }
+                                            >
+                                                Click to add objectives
+                                            </Button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <FormInput
-                                label="Expected results"
-                                name="expected_results"
-                                required
-                            />
-
-                            <FormInput
-                                label="Achievement against target"
-                                name="achievement_against_target"
-                                required
-                            />
-
-                            <div className="space-y-1">
-                                <Label className="font-semibold">
-                                    Target population
-                                </Label>
-                                <FormField
-                                    control={form.control}
-                                    name="beneficiaries"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormControl>
-                                                <MultiSelectFormField
-                                                    options={
-                                                        beneficiary?.data
-                                                            ?.results || []
-                                                    }
-                                                    defaultValue={field.value}
-                                                    onValueChange={
-                                                        field.onChange
-                                                    }
-                                                    placeholder="Select options"
-                                                    variant="inverted"
-                                                />
-                                            </FormControl>
-                                        </FormItem>
-                                    )}
+                                <FormInput
+                                    label="Expected results"
+                                    name="expected_results"
+                                    placeholder="Enter Expected Results"
+                                    required
                                 />
+
+                                <FormInput
+                                    label="Achievement against target"
+                                    name="achievement_against_target"
+                                    placeholder="Enter Achievement Against Target"
+                                    required
+                                />
+
+                                <div className="space-y-1">
+                                    <Label className="font-semibold">
+                                        Target population
+                                    </Label>
+                                    <FormField
+                                        control={form.control}
+                                        name="beneficiaries"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormControl>
+                                                    <MultiSelectFormField
+                                                        options={
+                                                            beneficiary?.data
+                                                                ?.results || []
+                                                        }
+                                                        defaultValue={
+                                                            field.value
+                                                        }
+                                                        onValueChange={
+                                                            field.onChange
+                                                        }
+                                                        placeholder="Select Target Population"
+                                                        variant="inverted"
+                                                    />
+                                                </FormControl>
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+
+                                <ConsortiumPartners />
+                            </Card>
+
+                            <div className="flex justify-between gap-5 mt-16">
+                                <Button
+                                    onClick={() => navigate(-1)}
+                                    type="button"
+                                    className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                                >
+                                    Cancel
+                                </Button>
+                                <FormButton
+                                    loading={isLoading || isUpdateLoading}
+                                    disabled={isLoading}
+                                    type="submit"
+                                >
+                                    Next
+                                </FormButton>
                             </div>
-
-                            <ConsortiumPartners />
-                        </Card>
-
-                        <div className="flex justify-between gap-5 mt-16">
-                            <Button
-                                onClick={() => navigate(-1)}
-                                type="button"
-                                className="bg-[#FFF2F2] text-primary dark:text-gray-500"
-                            >
-                                Cancel
-                            </Button>
-                            <FormButton
-                                loading={isLoading || isUpdateLoading}
-                                disabled={isLoading}
-                                type="submit"
-                                suffix={<ChevronRight size={14} />}
-                            >
-                                Next
-                            </FormButton>
-                        </div>
-                    </form>
-                </Form>
-            </div>
-        </ProjectLayout>
+                        </form>
+                    </Form>
+                </div>
+            </ProjectLayout>
+        </div>
     );
 }

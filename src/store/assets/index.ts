@@ -1,49 +1,51 @@
 import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "..";
-import { TUser } from "definations/users";
+import { TUser } from "definations/auth/user";
 
 interface AssetsState {
-  assets: string[];
-  users: TUser[];
+    assets: string[];
+    users: TUser[];
 }
 
 const initialState: AssetsState = {
-  assets: [],
-  users: [],
+    assets: [],
+    users: [],
 };
 
 const assetsSlice = createSlice({
-  name: "assets",
-  initialState,
-  reducers: {
-    addAsset: (state, action: PayloadAction<string>) => {
-      state.assets.push(action.payload);
+    name: "assets",
+    initialState,
+    reducers: {
+        addAsset: (state, action: PayloadAction<string>) => {
+            state.assets.push(action.payload);
+        },
+        removeAsset: (state, action: PayloadAction<string>) => {
+            state.assets = state.assets.filter(
+                (asset) => asset !== action.payload
+            );
+        },
+        clearAssets: (state) => {
+            state.assets = [];
+        },
+        addUser: (state, action: PayloadAction<TUser[]>) => {
+            state.users = action.payload;
+        },
+        removeUser: (state, action: PayloadAction<string>) => {
+            state.users = state.users.filter((m) => m.id !== action.payload);
+        },
+        clearUser: (state) => {
+            state.users = [];
+        },
     },
-    removeAsset: (state, action: PayloadAction<string>) => {
-      state.assets = state.assets.filter((asset) => asset !== action.payload);
-    },
-    clearAssets: (state) => {
-      state.assets = [];
-    },
-    addUser: (state, action: PayloadAction<TUser[]>) => {
-      state.users = action.payload;
-    },
-    removeUser: (state, action: PayloadAction<string>) => {
-      state.users = state.users.filter((m) => m.id !== action.payload);
-    },
-    clearUser: (state) => {
-      state.users = [];
-    },
-  },
 });
 
 export const {
-  addAsset,
-  removeAsset,
-  clearAssets,
-  addUser,
-  removeUser,
-  clearUser,
+    addAsset,
+    removeAsset,
+    clearAssets,
+    addUser,
+    removeUser,
+    clearUser,
 } = assetsSlice.actions;
 export default assetsSlice.reducer;
 

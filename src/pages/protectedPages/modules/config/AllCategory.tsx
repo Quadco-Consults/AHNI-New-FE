@@ -88,7 +88,7 @@ export default function AllCategory() {
                         {category?.data?.results?.map((item) => (
                             <div
                                 key={item.id}
-                                className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
+                                className="flex justify-between mt-6 gap-5 text-[#756D6D] font-normal text-xs"
                             >
                                 <p className="flex-1">{item.name}</p>
                                 <p className="flex-1">

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { TBeneficiaryData } from "definations/modules/project/beneficiaries";
 import { TFundingSourceData } from "definations/modules/project/funding-source";
 import { TPartnerData } from "definations/modules/project/partners";
-import { TUser } from "definations/users";
+import { TUser } from "definations/auth/user";
 
 export const ProjectSchema = z.object({
     title: z.string().min(1, "Title is required"),

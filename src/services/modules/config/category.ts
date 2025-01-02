@@ -7,17 +7,6 @@ import {
 
 const CategoryAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
-        getAllCategories: builder.query<
-            TPaginatedResponse<TCategoryData>,
-            TRequest
-        >({
-            query: (params) => ({
-                url: "/config/category/",
-                params,
-            }),
-            providesTags: ["Categories"],
-        }),
-
         addCategory: builder.mutation<
             TResponse<TCategoryData>,
             TCategoryFormValues
@@ -28,6 +17,17 @@ const CategoryAPI = baseAPI.injectEndpoints({
                 body: body,
             }),
             invalidatesTags: ["Categories"],
+        }),
+
+        getAllCategories: builder.query<
+            TPaginatedResponse<TCategoryData>,
+            TRequest
+        >({
+            query: (params) => ({
+                url: "/config/category/",
+                params,
+            }),
+            providesTags: ["Categories"],
         }),
 
         updateCategory: builder.mutation<

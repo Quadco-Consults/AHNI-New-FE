@@ -10,10 +10,9 @@ export type TProjectDocumentFormValues = z.infer<typeof ProjectDocumentSchema>;
 
 export type TProjectDocumentData = {
     id: string;
-    created_at: string;
-    uploaded_at: string;
-    uploaded_datetime: string;
-    title: string;
-    document: string;
     project: string;
+    title: string;
+    file: string;
+    uploaded_datetime: string;
+    document_type: string;
 };

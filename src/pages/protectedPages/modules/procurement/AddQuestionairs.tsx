@@ -16,6 +16,7 @@ import {
     useAddQuestionnaireMutation,
     useUpdateQuestionnaireMutation,
 } from "services/modules/procurement/questionnaire";
+import FormTextArea from "atoms/FormTextArea";
 
 const AddQuestionairs = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
@@ -65,7 +66,7 @@ const AddQuestionairs = () => {
                         required
                     />
 
-                    <FormInput
+                    <FormTextArea
                         label="Description"
                         placeholder="Enter Description"
                         name="description"

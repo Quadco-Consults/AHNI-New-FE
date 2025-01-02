@@ -16,6 +16,7 @@ import {
     useAddFCONumberMutation,
     useUpdateFCONumberMutation,
 } from "services/modules/finance/fco-number";
+import FormTextArea from "atoms/FormTextArea";
 
 const AddFcoNumber = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
@@ -69,7 +70,7 @@ const AddFcoNumber = () => {
                         required
                     />
 
-                    <FormInput
+                    <FormTextArea
                         label="Description"
                         name="description"
                         placeholder="Enter Description"
