@@ -9,7 +9,7 @@ import {
 } from "definations/procurement-types/procurementPlan";
 import { ProcurementPlanListSchema } from "definations/procurement-validator";
 
-const BASE_URL = "/procurement/procurement-plans/";
+const BASE_URL = "/procurements/procurement-plans/";
 
 const ProcurementPlanAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({

@@ -10,7 +10,7 @@ import {
 } from "definations/procurement-types/prequalification-criteria";
 import { PrequalificationCriteriaSchema } from "definations/procurement-validator";
 
-const BASE_URL = "/procurement/config/prequalification-criteria/";
+const BASE_URL = "/procurements/config/prequalification-criteria/";
 
 const PrequalificationCriteriaAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({

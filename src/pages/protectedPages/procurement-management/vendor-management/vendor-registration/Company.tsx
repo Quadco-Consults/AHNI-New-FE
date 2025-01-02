@@ -79,14 +79,14 @@ const Company = () => {
 
   return (
     <VendorRegistationLayout>
-      <div className="space-y-4">
-        <h2 className="text-lg font-bold">The Company</h2>
+      <div className='space-y-4'>
+        <h2 className='text-lg font-bold'>The Company</h2>
         <div>
           <Form {...form}>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            <form onSubmit={handleSubmit(onSubmit)} className='space-y-5'>
               {/* <Separator className="mt-8" /> */}
               <div>
-                <Label className="text-red-500">Branch Office(s) Address</Label>
+                <Label className='text-red-500'>Branch Office(s) Address</Label>
                 <div>
                   {fields.map((field, index) => {
                     const label = String.fromCharCode(
@@ -94,54 +94,54 @@ const Company = () => {
                     );
                     return (
                       <div
-                        className="flex items-center justify-between gap-x-3 "
+                        className='flex items-center justify-between gap-x-3 '
                         key={index}
                       >
-                        <div className="relative w-[97%] grid grid-cols-3 pl-8 mt-4 gap-x-4 ">
-                          <p className="absolute top-0 left-0 font-semibold ">
+                        <div className='relative w-[97%] grid grid-cols-3 pl-8 mt-4 gap-x-4 '>
+                          <p className='absolute top-0 left-0 font-semibold '>
                             ({label})
                           </p>
                           <FormInput
-                            label="Name"
+                            label='Name'
                             name={`branches[${index}].name`}
                             defaultValue={field.name}
                             required
                           />
                           <FormInput
-                            label="Address"
+                            label='Address'
                             name={`branches[${index}].address`}
                             defaultValue={field.address}
                             required
                           />
                           <FormInput
-                            label="Phone Number"
+                            label='Phone Number'
                             name={`branches[${index}].phone_number`}
                             defaultValue={field.phone_number}
                             required
                           />
                         </div>
-                        <div className="flex items-center h-full ">
+                        <div className='flex items-center h-full '>
                           <MinusCircle
                             onClick={() => remove(index)}
-                            className="cursor-pointer text-primary"
+                            className='cursor-pointer text-primary'
                           />
                         </div>
                       </div>
                     );
                   })}
-                  <div className="flex justify-end mt-2">
+                  <div className='flex justify-end mt-2'>
                     <PlusCircle
                       onClick={() =>
                         append({ name: "", address: "", phone_number: "" })
                       }
-                      className="cursor-pointer text-primary"
+                      className='cursor-pointer text-primary'
                     />
                   </div>
                 </div>
               </div>
-              <Separator className="mt-8" />
+              <Separator className='mt-8' />
               <div>
-                <Label className="text-red-500">
+                <Label className='text-red-500'>
                   Majority Shareholders & Directors{" "}
                 </Label>
                 <div>
@@ -151,42 +151,42 @@ const Company = () => {
                     );
                     return (
                       <div
-                        className="flex items-center justify-between gap-x-3 "
+                        className='flex items-center justify-between gap-x-3 '
                         key={index}
                       >
-                        <div className="relative w-[97%] grid grid-cols-3 pl-8 mt-4 gap-x-4 ">
-                          <p className="absolute top-0 left-0 font-semibold ">
+                        <div className='relative w-[97%] grid grid-cols-3 pl-8 mt-4 gap-x-4 '>
+                          <p className='absolute top-0 left-0 font-semibold '>
                             ({label})
                           </p>
                           <FormInput
-                            label="Name"
+                            label='Name'
                             name={`share_holders[${index}].name`}
                             defaultValue={field.name}
                             required
                           />
                           <FormInput
-                            label="Address"
+                            label='Address'
                             name={`share_holders[${index}].address`}
                             defaultValue={field.address}
                             required
                           />
                           <FormInput
-                            label="Phone Number"
+                            label='Phone Number'
                             name={`share_holders[${index}].phone_number`}
                             defaultValue={field.phone_number}
                             required
                           />
                         </div>
-                        <div className="flex items-center h-full ">
+                        <div className='flex items-center h-full '>
                           <MinusCircle
                             onClick={() => removeStakeholder(index)}
-                            className="cursor-pointer text-primary"
+                            className='cursor-pointer text-primary'
                           />
                         </div>
                       </div>
                     );
                   })}
-                  <div className="flex justify-end mt-2">
+                  <div className='flex justify-end mt-2'>
                     <PlusCircle
                       onClick={() =>
                         appendStakeholder({
@@ -195,14 +195,14 @@ const Company = () => {
                           phone_number: "",
                         })
                       }
-                      className="cursor-pointer text-primary"
+                      className='cursor-pointer text-primary'
                     />
                   </div>
                 </div>
               </div>
-              <Separator className="mt-8" />
+              <Separator className='mt-8' />
               <div>
-                <Label className="text-red-500">
+                <Label className='text-red-500'>
                   Names & Qualifications of Key Staff
                 </Label>
                 <div>
@@ -212,48 +212,48 @@ const Company = () => {
                     );
                     return (
                       <div
-                        className="flex items-center justify-between gap-x-3 "
+                        className='flex items-center justify-between gap-x-3 '
                         key={index}
                       >
-                        <div className="relative w-[97%] grid grid-cols-2 pl-8 mt-4 gap-4 ">
-                          <p className="absolute top-0 left-0 font-semibold ">
+                        <div className='relative w-[97%] grid grid-cols-2 pl-8 mt-4 gap-4 '>
+                          <p className='absolute top-0 left-0 font-semibold '>
                             ({label})
                           </p>
                           <FormInput
-                            label="Name"
+                            label='Name'
                             name={`key_staff[${index}].name`}
                             defaultValue={field.name}
                             required
                           />
                           <FormInput
-                            label="Qualification"
+                            label='Qualification'
                             name={`key_staff[${index}].qualification`}
                             defaultValue={field.qualification}
                             required
                           />
                           <FormInput
-                            label="Phone Number"
+                            label='Phone Number'
                             name={`key_staff[${index}].address`}
                             defaultValue={field.address}
                             required
                           />
                           <FormInput
-                            label="Address"
+                            label='Address'
                             name={`key_staff[${index}].phone_number`}
                             defaultValue={field.phone_number}
                             required
                           />
                         </div>
-                        <div className="flex items-center h-full ">
+                        <div className='flex items-center h-full '>
                           <MinusCircle
                             onClick={() => removeKeystaff(index)}
-                            className="cursor-pointer text-primary"
+                            className='cursor-pointer text-primary'
                           />
                         </div>
                       </div>
                     );
                   })}
-                  <div className="flex justify-end mt-2">
+                  <div className='flex justify-end mt-2'>
                     <PlusCircle
                       onClick={() =>
                         appendKeystaff({
@@ -263,14 +263,14 @@ const Company = () => {
                           address: "",
                         })
                       }
-                      className="cursor-pointer text-primary"
+                      className='cursor-pointer text-primary'
                     />
                   </div>
                 </div>
               </div>
-              <Separator className="mt-8" />
+              <Separator className='mt-8' />
               <div>
-                <Label className="text-red-500">
+                <Label className='text-red-500'>
                   Subsidiaries, Associates, Affiliates or Technical Partners
                 </Label>
                 <div>
@@ -280,33 +280,33 @@ const Company = () => {
                     );
                     return (
                       <div
-                        className="flex items-center justify-between gap-x-3 "
+                        className='flex items-center justify-between gap-x-3 '
                         key={index}
                       >
-                        <div className="relative w-[97%] grid grid-cols-2 pl-8 mt-4 gap-4 ">
-                          <p className="absolute top-0 left-0 font-semibold ">
+                        <div className='relative w-[97%] grid grid-cols-2 pl-8 mt-4 gap-4 '>
+                          <p className='absolute top-0 left-0 font-semibold '>
                             ({label})
                           </p>
                           <FormInput
-                            label="Name"
+                            label='Name'
                             name={`associated_entities[${index}].name`}
                             defaultValue={field.name}
                             required
                           />
                           <FormInput
-                            label="Address"
+                            label='Address'
                             name={`associated_entities[${index}].address`}
                             defaultValue={field.address}
                             required
                           />
                           <FormInput
-                            label="Phone Number"
+                            label='Phone Number'
                             name={`associated_entities[${index}].phone_number`}
                             defaultValue={field.phone_number}
                             required
                           />
                           <FormSelect
-                            label="Association Type"
+                            label='Association Type'
                             name={`associated_entities[${index}].entity_type`}
                             defaultValue={field.entity_type}
                             required
@@ -325,16 +325,16 @@ const Company = () => {
                             </SelectContent>
                           </FormSelect>
                         </div>
-                        <div className="flex items-center h-full ">
+                        <div className='flex items-center h-full '>
                           <MinusCircle
                             onClick={() => removeSubsidiary(index)}
-                            className="cursor-pointer text-primary"
+                            className='cursor-pointer text-primary'
                           />
                         </div>
                       </div>
                     );
                   })}
-                  <div className="flex justify-end mt-2">
+                  <div className='flex justify-end mt-2'>
                     <PlusCircle
                       onClick={() =>
                         appendSubsidiary({
@@ -344,17 +344,17 @@ const Company = () => {
                           entity_type: "",
                         })
                       }
-                      className="cursor-pointer text-primary"
+                      className='cursor-pointer text-primary'
                     />
                   </div>
                 </div>
               </div>
-              <div className="flex justify-between pt-5">
+              <div className='flex justify-between pt-5'>
                 <FormButton
                   onClick={() => navigate(-1)}
                   preffix={<ArrowLeft size={14} />}
-                  type="button"
-                  className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                  type='button'
+                  className='bg-[#FFF2F2] text-primary dark:text-gray-500'
                 >
                   Back
                 </FormButton>
