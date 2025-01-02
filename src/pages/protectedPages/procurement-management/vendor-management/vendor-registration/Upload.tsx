@@ -261,8 +261,7 @@ const Upload = () => {
         "Company Profile; registered address(s), official/functional emails, telephone numbers and point of contact for the company",
     },
     {
-      doc_type: "Company Profile",
-      // doc_type: "Not Sure",
+      doc_type: "CAC Registration Certificate",
       label:
         "Evidence of legal registration document of the company (CAC, FORM CO7 and FORM CO2)",
     },
@@ -280,12 +279,12 @@ const Upload = () => {
         "Bank Reference Letter duly addressed to AHNi Procurement Committee",
     },
     {
-      doc_type: "Not Sure",
+      doc_type: "Professional Membership",
       label:
         "Evidence of Registration with Professional Organizations, Regulatory Bodies, Manufacturers and/or Certificate of Authorized Dealership and Distributorship with Makes, Brands, Equipment, Machine and/or accessories as it relates to field of business endevour",
     },
     {
-      doc_type: "Professional Membership",
+      doc_type: "Authorized Dealership",
       label:
         "Evidence of possession of experience in the line of business(s) you are applying for; prospecting Suppliers must provide at least 5 copies of completed Job Orders and Proof of Deliveries (Delivery Notes or Job Completion Notification in area(s) of business endevour",
       multiple: true,
@@ -469,7 +468,7 @@ const Upload = () => {
                 0,
                 "",
                 "label",
-                "Reference Letter"
+                "Other Documents"
               )}
             </Card>
 
