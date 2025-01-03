@@ -4,6 +4,7 @@ import RoundBack from "assets/svgs/RoundBack";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelectField";
+import FormTextArea from "atoms/FormTextArea";
 import Card from "components/shared/Card";
 import { Form } from "components/ui/form";
 import { AdminRoutes } from "constants/RouterConstants";
@@ -38,17 +39,6 @@ export default function CreateConsumablePage() {
         consumableId ?? skipToken
     );
 
-    const { data: item } = useGetAllItemsQuery({ page: 1, size: 2000000 });
-
-    const itemOptions = useMemo(
-        () =>
-            item?.data.results.map(({ id, name }) => ({
-                label: name,
-                value: id,
-            })),
-        [item]
-    );
-
     const { data: category } = useGetAllCategoriesQuery({
         page: 1,
         size: 2000000,
@@ -66,7 +56,7 @@ export default function CreateConsumablePage() {
     const form = useForm<TConsumableFormValues>({
         resolver: zodResolver(ConsumableSchema),
         defaultValues: {
-            item: "",
+            name: "",
             quantity: "",
             stock_control_method: "",
             category: "",
@@ -85,7 +75,8 @@ export default function CreateConsumablePage() {
     useEffect(() => {
         if (consumableId) {
             form.reset({
-                item: consumable?.data.item.id,
+                name: consumable?.data.name,
+                description: consumable?.data.description,
                 quantity: String(consumable?.data.quantity ?? ""),
                 stock_control_method: consumable?.data.stock_control_method,
                 category: consumable?.data.category.id,
@@ -144,13 +135,20 @@ export default function CreateConsumablePage() {
                         className="flex flex-col gap-y-8"
                         action=""
                     >
-                        <FormSelect
-                            name="item"
-                            label="Item"
+                        <FormInput
+                            name="name"
+                            label="Item Name"
                             required
-                            placeholder="Select Item"
-                            options={itemOptions}
+                            placeholder="Enter Item Name"
                         />
+
+                        <FormTextArea
+                            label="Item Description"
+                            name="description"
+                            placeholder="Enter Item Description"
+                            required
+                        />
+
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                             <FormInput
                                 name="quantity"

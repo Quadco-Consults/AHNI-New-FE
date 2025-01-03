@@ -1,9 +1,9 @@
 import { TCategoryData } from "definations/modules/config/category";
-import { TItemData } from "definations/modules/config/item";
 import { z } from "zod";
 
 export const ConsumableSchema = z.object({
-    item: z.string().min(1, "Please select an item"),
+    name: z.string().min(1, "Please enter an item name"),
+    description: z.string().min(1, "Please enter a description"),
     quantity: z.string().min(1, "Please enter a quantity"),
     stock_control_method: z
         .string()
@@ -26,7 +26,8 @@ export type TConsumableFormValues = z.infer<typeof ConsumableSchema>;
 
 export interface TConsumablePaginatedData {
     id: string;
-    item: string;
+    name: string;
+    description: string;
     category: string;
     created_datetime: string;
     updated_datetime: string;
@@ -47,7 +48,8 @@ export interface TConsumablePaginatedData {
 
 export interface TConsumableSingleData {
     id: string;
-    item: TItemData;
+    name: string;
+    description: string;
     category: TCategoryData;
     created_datetime: string;
     updated_datetime: string;

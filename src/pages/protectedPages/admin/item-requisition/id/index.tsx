@@ -17,7 +17,7 @@ export default function ItemRequisitionDetailPage() {
     const requestorName = `${itemRequisition?.data.created_by.first_name} ${itemRequisition?.data.created_by.last_name}`;
 
     const itemsRequested = itemRequisition?.data.consummables
-        .map((con) => con.consummable.item)
+        .map((con) => con.consummable.name)
         .join(", ");
 
     const quantityRequested = itemRequisition?.data.consummables
@@ -47,7 +47,9 @@ export default function ItemRequisitionDetailPage() {
 
                             <DescriptionCard
                                 label="Department/Unit"
-                                description={itemRequisition?.data.department}
+                                description={
+                                    itemRequisition?.data.department.name
+                                }
                             />
 
                             <DescriptionCard
@@ -78,6 +80,7 @@ export default function ItemRequisitionDetailPage() {
                                     "yyyy-dd-MM"
                                 )}
                             />
+
                             <DescriptionCard
                                 label="Item Requested"
                                 description={itemsRequested}

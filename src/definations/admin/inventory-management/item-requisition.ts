@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { TConsumableSingleData } from "./consumable";
-import { TUser } from "definations/auth/user";
+import { TDepartmentData } from "definations/modules/config/department";
+import { IUser } from "definations/auth/user";
 
 export const ItemRequisitionSchema = z.object({
     consummables: z.array(
@@ -53,7 +54,7 @@ export interface TItemRequisitionSingleData {
     treated_by: string;
     rejected_by: string;
     approved_by: string;
-    created_by: TUser;
+    created_by: IUser;
     created_datetime: string;
     updated_datetime: string;
     expiry_date: string;
@@ -64,5 +65,5 @@ export interface TItemRequisitionSingleData {
     approved_datetime: string;
     rejected_datetime: string;
     updated_by: string;
-    department: string;
+    department: TDepartmentData;
 }

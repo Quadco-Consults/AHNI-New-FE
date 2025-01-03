@@ -25,7 +25,6 @@ import { Button } from "components/ui/button";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import { generatePath, Link } from "react-router-dom";
 import EyeIcon from "components/icons/EyeIcon";
-import PencilIcon from "components/icons/PencilIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import EditIcon from "components/icons/EditIcon";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
@@ -35,9 +34,9 @@ import { useDeleteConsumableMutation } from "services/admin/inventory-management
 
 export const consumableColums: ColumnDef<TConsumablePaginatedData>[] = [
     {
-        header: "Item",
-        id: "item",
-        accessorKey: "item",
+        header: "Name",
+        id: "name",
+        accessorKey: "name",
     },
     {
         header: "Quantity",

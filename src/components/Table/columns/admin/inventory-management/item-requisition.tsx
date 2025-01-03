@@ -13,6 +13,8 @@ import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 import { useState } from "react";
 import { useDeleteItemRequisitionMutation } from "services/admin/inventory-management/item-requisition";
 import { toast } from "sonner";
+import PencilIcon from "components/icons/PencilIcon";
+import EditIcon from "components/icons/EditIcon";
 
 export const itemRequisitionColumns: ColumnDef<TItemRequisitionPaginatedData>[] =
     [
@@ -87,10 +89,9 @@ const TableAction = ({ id }: TItemRequisitionPaginatedData) => {
                         <Link
                             to={generatePath(
                                 AdminRoutes.ITEM_REQUISITION_DETAIL,
-                                {
-                                    id,
-                                }
+                                { id }
                             )}
+                            className="block w-full"
                         >
                             <Button
                                 className="w-full flex items-center justify-start gap-2"
@@ -98,6 +99,21 @@ const TableAction = ({ id }: TItemRequisitionPaginatedData) => {
                             >
                                 <EyeIcon />
                                 View
+                            </Button>
+                        </Link>
+                        <Link
+                            to={{
+                                pathname: AdminRoutes.CREATE_ITEM_REQUISITION,
+                                search: `?id=${id}`,
+                            }}
+                            className="block w-full"
+                        >
+                            <Button
+                                className="w-full flex items-center justify-start gap-2"
+                                variant="ghost"
+                            >
+                                <PencilIcon />
+                                Edit
                             </Button>
                         </Link>
                         <Button
