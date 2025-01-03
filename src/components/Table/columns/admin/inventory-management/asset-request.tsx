@@ -9,46 +9,83 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { IAssetRequestPaginatedData } from "definations/admin/inventory-management/asset-request";
+import { Badge } from "components/ui/badge";
+import { cn } from "lib/utils";
+import { format } from "date-fns";
+import { AdminRoutes } from "constants/RouterConstants";
+import { useDeleteAssetRequestMutation } from "services/admin/inventory-management/asset-request";
+import { toast } from "sonner";
 
 export const assestRequestColum: ColumnDef<IAssetRequestPaginatedData>[] = [
     {
         header: "Asset Name",
-        id: "name",
-        accessorKey: "name",
+        id: "asset",
+        accessorKey: "asset",
+        size: 200,
     },
 
     {
         header: "Asset Code",
-        accessorKey: "remark",
+        accessorKey: "asset_code",
     },
 
     {
         header: "Asset Type",
-        accessorKey: "remark",
+        accessorKey: "asset_type",
     },
     {
         header: "Asset Condition",
         accessorKey: "asset_condition",
     },
     {
-        header: "Justification",
-        accessorKey: "justification_for_disposal",
+        header: "Disposal Justification",
+        accessorKey: "disposal_justification",
+        size: 200,
     },
     {
         header: "Status",
-        accessorKey: "life_span_at_report",
+        accessorKey: "status",
+        cell: ({ getValue }) => {
+            return (
+                <Badge
+                    variant="default"
+                    className={cn(
+                        "p-1 rounded-lg",
+                        getValue() === "REVIEWED" &&
+                            "bg-blue-200 text-blue-500",
+                        getValue() === "APPROVED" &&
+                            "bg-green-200 text-green-500",
+                        getValue() === "PENDING" &&
+                            "bg-yellow-200 text-yellow-500",
+                        getValue() === "AUTHORIZED" &&
+                            "text-green-200 bg-green-500"
+                    )}
+                >
+                    {getValue() as string}
+                </Badge>
+            );
+        },
     },
     {
         header: "Request Date",
-        accessorKey: "life_span_at_report",
+        accessorFn: ({ created_datetime }) =>
+            created_datetime && format(created_datetime, "MMM dd, yyyy"),
     },
+
+    {
+        header: "Description",
+        accessorKey: "description",
+    },
+
     {
         header: "Remark",
-        accessorKey: "remark",
+        accessorKey: "comments",
     },
+
     {
         header: "Recommendation",
         accessorKey: "recommendation",
+        size: 250,
     },
     {
         header: "",
@@ -60,10 +97,19 @@ export const assestRequestColum: ColumnDef<IAssetRequestPaginatedData>[] = [
     },
 ];
 
-const TableAction = ({}: IAssetRequestPaginatedData) => {
+const TableAction = ({ id }: IAssetRequestPaginatedData) => {
     const [isDialogOpen, setDialogOpen] = useState(false);
 
-    const onDelete = async () => {};
+    const [deleteAssetRequest, { isLoading }] = useDeleteAssetRequestMutation();
+
+    const onDelete = async () => {
+        try {
+            await deleteAssetRequest(id).unwrap();
+            toast.success("Asset Request Deleted");
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
+        }
+    };
 
     return (
         <div className="flex items-center gap-2">
@@ -75,7 +121,13 @@ const TableAction = ({}: IAssetRequestPaginatedData) => {
                 </PopoverTrigger>
                 <PopoverContent className=" w-fit">
                     <div className="flex flex-col items-start justify-between gap-1">
-                        <Link to="">
+                        <Link
+                            to={{
+                                pathname: AdminRoutes.ASSETS_REQUEST_VIEW,
+                                search: `?id=${id}`,
+                            }}
+                            className="block w-full"
+                        >
                             <Button
                                 className="w-full flex items-center justify-start gap-2"
                                 variant="ghost"
@@ -84,7 +136,13 @@ const TableAction = ({}: IAssetRequestPaginatedData) => {
                                 View
                             </Button>
                         </Link>
-                        <Link to="">
+                        <Link
+                            to={{
+                                pathname: AdminRoutes.ASSETS_REQUEST_CREATE,
+                                search: `?id=${id}`,
+                            }}
+                            className="block w-full"
+                        >
                             <Button
                                 className="w-full flex items-center justify-start gap-2"
                                 variant="ghost"
@@ -108,7 +166,7 @@ const TableAction = ({}: IAssetRequestPaginatedData) => {
             <ConfirmationDialog
                 open={isDialogOpen}
                 title="Are you sure you want to delete this asset request?"
-                loading={false}
+                loading={isLoading}
                 onCancel={() => setDialogOpen(false)}
                 onOk={onDelete}
             />

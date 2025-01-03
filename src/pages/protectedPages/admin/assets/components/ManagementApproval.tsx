@@ -41,19 +41,27 @@ export default function ManagementApproval() {
 
                             <DescriptionCard
                                 label="Manufacturer"
-                                description="N/A"
+                                description={
+                                    asset?.data?.asset_type?.manufacturer ||
+                                    "N/A"
+                                }
                                 className="px-5 py-3 border rounded-md"
                             />
 
                             <DescriptionCard
                                 label="Model"
-                                description="N/A"
+                                description={
+                                    asset?.data.asset_type.model || "N/A"
+                                }
                                 className="px-5 py-3 border rounded-md"
                             />
 
                             <DescriptionCard
                                 label="Serial Number"
-                                description="N/A"
+                                description={
+                                    asset?.data.asset_type.serial_number ||
+                                    "N/A"
+                                }
                                 className="px-5 py-3 border rounded-md"
                             />
                         </div>
@@ -91,12 +99,12 @@ export default function ManagementApproval() {
 
                             <DescriptionCard
                                 label="USD Cost"
-                                description={`${asset?.data.usd_cost}`}
+                                description={`$${asset?.data.usd_cost}`}
                             />
 
                             <DescriptionCard
                                 label="NGN Cost"
-                                description={`${asset?.data.ngn_cost}`}
+                                description={`₦${asset?.data.ngn_cost}`}
                             />
 
                             <DescriptionCard

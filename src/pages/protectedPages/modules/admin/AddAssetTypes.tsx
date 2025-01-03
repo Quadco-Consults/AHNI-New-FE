@@ -27,6 +27,7 @@ const AddAssetTypes = () => {
             name: data?.name ?? "",
             manufacturer: data?.manufacturer ?? "",
             model: data?.model ?? "",
+            serial_number: data?.serial_number ?? "",
         },
     });
 

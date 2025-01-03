@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TAssetSingleData } from "./asset";
 
 export const AssetRequestSchema = z.object({
     asset: z.string().min(1, "Please select an asset"),
@@ -15,6 +16,39 @@ export const AssetRequestSchema = z.object({
 
 export type TAssetRequestFormValues = z.infer<typeof AssetRequestSchema>;
 
-export interface IAssetRequestPaginatedData {}
+export interface IAssetRequestPaginatedData {
+    id: string;
+    asset: string;
+    created_datetime: string;
+    updated_datetime: string;
+    type: string;
+    status: string;
+    recommendation: string;
+    description: string;
+    disposal_justification: string;
+    comments: string | null;
+    created_by: string;
+    updated_by: string | null;
+}
 
-export interface IAssetRequestSingleSData {}
+export interface IAssetRequestSingleSData {
+    id: string;
+    asset: TAssetSingleData;
+    approvals: {
+        id: string;
+        created_datetime: string;
+        updated_datetime: string;
+        approval_level: string;
+        comments: null;
+    }[];
+    created_datetime: string;
+    updated_datetime: string;
+    type: string;
+    status: string;
+    recommendation: string;
+    description: string;
+    disposal_justification: string;
+    comments: string;
+    created_by: string;
+    updated_by: string;
+}
