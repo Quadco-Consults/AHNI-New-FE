@@ -41,10 +41,7 @@ export const adminRoutes = [
     {
         path: AdminRoutes.CREATE_CONSUMABLE,
         element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/admin/consumable/create"
-                )
+            () => import("pages/protectedPages/admin/consumable/create")
         ),
     },
     {
@@ -59,9 +56,7 @@ export const adminRoutes = [
     },
     {
         path: AdminRoutes.ViewAssets,
-        element: lazy(
-            () => import("pages/protectedPages/admin/assets/view")
-        ),
+        element: lazy(() => import("pages/protectedPages/admin/assets/view")),
     },
     {
         path: AdminRoutes.VehicleRequest,
@@ -268,7 +263,9 @@ export const adminRoutes = [
     },
     {
         path: AdminRoutes.ASSETS_REQUEST,
-        element: lazy(() => import("pages/protectedPages/admin/asset-requests")),
+        element: lazy(
+            () => import("pages/protectedPages/admin/asset-requests")
+        ),
     },
     {
         path: AdminRoutes.ASSETS_REQUEST_CREATE,
@@ -279,20 +276,23 @@ export const adminRoutes = [
     {
         path: AdminRoutes.ASSETS_REQUEST_VIEW,
         element: lazy(
-            () => import("pages/protectedPages/admin/ViewAssetRequest")
+            () =>
+                import(
+                    "pages/protectedPages/admin/asset-requests/view"
+                )
         ),
     },
     {
         path: AdminRoutes.GRN,
-        element: lazy(() => import("pages/protectedPages/admin/GRN/index")),
+        element: lazy(() => import("pages/protectedPages/admin/good-receive-note/index")),
     },
     {
         path: AdminRoutes.GRN_CREATE,
-        element: lazy(() => import("pages/protectedPages/admin/GRN/CreateGRN")),
+        element: lazy(() => import("pages/protectedPages/admin/good-receive-note/create")),
     },
     {
         path: AdminRoutes.GRN_DETAIL,
-        element: lazy(() => import("pages/protectedPages/admin/GRN/id/index")),
+        element: lazy(() => import("pages/protectedPages/admin/good-receive-note/id/view")),
     },
     {
         path: AdminRoutes.EXPENSE_AUTHORIZATION,

@@ -1,13 +1,20 @@
 import { IAssetClassificationData } from "definations/modules/admin/asset-classification";
 import { TAssetConditionData } from "definations/modules/admin/asset-condition";
 import { TLocationData } from "definations/modules/config/location";
-import { TUser } from "definations/auth/user";
+import { IUser } from "definations/auth/user";
 import { z } from "zod";
+import { TAssetTypeData } from "definations/modules/admin/asset-type";
+import { TProjectData } from "definations/project";
+import { TFundingSourceData } from "definations/modules/project/funding-source";
 
 export const AssetSchema = z.object({
     name: z.string().min(1, "Please enter a name"),
     assignee: z.string().min(1, "Please select an assignee"),
     asset_code: z.string().min(1, "Please enter an asset code"),
+    asset_type: z.string().min(1, "Please select an asset type"),
+    project: z.string().min(1, "Please select a project"),
+    donor: z.string().min(1, "Please select a donor"),
+    depreciation_rate: z.string().min(1, "Please enter depreciation rate"),
     acquisition_date: z.string().min(1, "Please enter an acquisition date"),
     state: z.string().min(1, "Please select a state"),
     asset_condition: z.string().min(1, "Please select an asset condition"),
@@ -21,6 +28,9 @@ export const AssetSchema = z.object({
     ngn_cost: z.string().min(1, "Please enter NGN cost"),
     unit: z.string().min(1, "Please enter a unit"),
     implementer: z.string().min(1, "Please select an implementer"),
+    insurance_duration: z
+        .string()
+        .min(1, "Please enter current insurance duration"),
 });
 
 export type TAssetFormValues = z.infer<typeof AssetSchema>;
@@ -48,10 +58,15 @@ export interface TAssetPaginatedData {
 
 export interface TAssetSingleData {
     id: string;
-    implementer: TUser;
+    implementer: IUser;
     asset_condition: TAssetConditionData;
     location: TLocationData;
+    project: TProjectData;
+    donor: TFundingSourceData;
+    depreciation_rate: string;
+    insurance_duration: string;
     classification: IAssetClassificationData;
+    asset_type: TAssetTypeData;
     created_datetime: string;
     updated_datetime: string;
     name: string;

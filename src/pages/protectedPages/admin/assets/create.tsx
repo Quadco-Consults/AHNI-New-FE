@@ -14,7 +14,7 @@ import useQuery from "hooks/useQuery";
 import { nigerianStates } from "lib/index";
 import { useEffect, useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
     useCreateAssetMutation,
     useEditAssetMutation,
@@ -27,12 +27,14 @@ import { useGetAllLocationsQuery } from "services/modules/config/location";
 import { useGetAllProjectsQuery } from "services/project";
 import { useGetAllUsersQuery } from "services/auth/user";
 import { toast } from "sonner";
+import { useUseGetAllFundingSourceQuery } from "services/modules/project/funding-source";
 
 export default function CreateAsset() {
     const form = useForm<TAssetFormValues>({
         resolver: zodResolver(AssetSchema),
         defaultValues: {
             name: "",
+            depreciation_rate: "",
             assignee: "",
             asset_code: "",
             acquisition_date: "",
@@ -45,6 +47,7 @@ export default function CreateAsset() {
             ngn_cost: "",
             unit: "",
             implementer: "",
+            insurance_duration: "",
         },
     });
 
@@ -141,6 +144,20 @@ export default function CreateAsset() {
         [assetClassification]
     );
 
+    const { data: fundingSource } = useUseGetAllFundingSourceQuery({
+        page: 1,
+        size: 200000,
+    });
+
+    const fundingSourceOptions = useMemo(
+        () =>
+            fundingSource?.data.results.map(({ name, id }) => ({
+                label: name,
+                value: id,
+            })),
+        [fundingSource]
+    );
+
     const query = useQuery();
     const assetId = query.get("id");
 
@@ -152,6 +169,10 @@ export default function CreateAsset() {
                 name: asset?.data.name,
                 assignee: asset?.data.assignee,
                 asset_code: asset?.data.asset_code,
+                project: asset?.data.project.id,
+                donor: asset?.data.donor.id,
+                depreciation_rate: asset?.data.depreciation_rate,
+                asset_type: asset?.data.asset_type.id,
                 acquisition_date: asset?.data.acquisition_date,
                 state: asset?.data.state,
                 asset_condition: asset?.data.asset_condition.id,
@@ -162,6 +183,7 @@ export default function CreateAsset() {
                 ngn_cost: asset?.data.ngn_cost,
                 unit: String(asset?.data.unit),
                 implementer: asset?.data.implementer.id,
+                insurance_duration: asset?.data.insurance_duration,
             });
         }
     }, [asset]);
@@ -242,7 +264,7 @@ export default function CreateAsset() {
                                 name="donor"
                                 placeholder="Select Donor"
                                 required
-                                options={[]}
+                                options={fundingSourceOptions}
                             />
 
                             <FormInput
@@ -255,14 +277,14 @@ export default function CreateAsset() {
 
                             <FormInput
                                 label="Current Insurance Duration"
-                                name=""
+                                name="insurance_duration"
                                 placeholder="Enter Current Insurance Duration"
                                 required
                             />
 
                             <FormInput
                                 label="Depreciation Rate"
-                                name=""
+                                name="depreciation_rate"
                                 placeholder="Enter Depreciation Rate"
                                 required
                             />

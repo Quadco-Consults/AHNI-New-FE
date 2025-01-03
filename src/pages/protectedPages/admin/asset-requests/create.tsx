@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { skipToken } from "@reduxjs/toolkit/query";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelect";
@@ -11,11 +12,15 @@ import {
     AssetRequestSchema,
     TAssetRequestFormValues,
 } from "definations/admin/inventory-management/asset-request";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useGetAllAssetsQuery } from "services/admin/inventory-management/asset";
-import { useCreateAssetRequestMutation } from "services/admin/inventory-management/asset-request";
+import {
+    useCreateAssetRequestMutation,
+    useEditAssetRequestMutation,
+    useGetSingleAssetRequestQuery,
+} from "services/admin/inventory-management/asset-request";
 import { useGetAllUsersQuery } from "services/auth/user";
 import { toast } from "sonner";
 
@@ -63,18 +68,46 @@ export default function CreateAssetRequest() {
         },
     });
 
+    const [searchParams] = useSearchParams();
+    const id = searchParams.get("id");
+
+    const { data: assetRequest } = useGetSingleAssetRequestQuery(
+        id ?? skipToken
+    );
+
+    const [editAssetRequest, { isLoading: isEditLoading }] =
+        useEditAssetRequestMutation();
+
     const [createAssetRequest, { isLoading: isCreateLoading }] =
         useCreateAssetRequestMutation();
 
     const onSubmit: SubmitHandler<TAssetRequestFormValues> = async (data) => {
         try {
-            await createAssetRequest(data).unwrap();
-            toast.success("Asset Request Created");
+            if (id) {
+                await editAssetRequest({ id, body: data }).unwrap();
+                toast.success("Asset Request Updated");
+            } else {
+                await createAssetRequest(data).unwrap();
+                toast.success("Asset Request Created");
+            }
             navigate(AdminRoutes.ASSETS_REQUEST);
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }
     };
+
+    useEffect(() => {
+        if (assetRequest) {
+            form.reset({
+                asset: assetRequest?.data.asset.id,
+                type: assetRequest?.data.type,
+                recommendation: assetRequest?.data.recommendation,
+                description: assetRequest?.data.description,
+                disposal_justification:
+                    assetRequest?.data.disposal_justification,
+            });
+        }
+    }, [assetRequest]);
 
     return (
         <div className="space-y-6">
@@ -153,8 +186,13 @@ export default function CreateAssetRequest() {
                         />
 
                         <div className="flex justify-end">
-                            <FormButton type="submit" loading={isCreateLoading}>
-                                Create Asset Request
+                            <FormButton
+                                type="submit"
+                                loading={isCreateLoading || isEditLoading}
+                            >
+                                {id
+                                    ? "Updated Asset Request"
+                                    : "Create Asset Request"}
                             </FormButton>
                         </div>
                     </form>

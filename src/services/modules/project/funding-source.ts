@@ -1,14 +1,14 @@
-import { TPaginatedResponse, TRequest } from "definations/index";
+import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 import baseAPI from "../..";
 import {
+    TFundingSourceData,
     TFundingSourceFormValues,
-    TFundingSourceResponse,
 } from "definations/modules/project/funding-source";
 
 const projectsAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
         useGetAllFundingSource: builder.query<
-            TPaginatedResponse<TFundingSourceResponse>,
+            TPaginatedResponse<TFundingSourceData>,
             TRequest
         >({
             query: (params) => ({
@@ -19,7 +19,7 @@ const projectsAPI = baseAPI.injectEndpoints({
         }),
 
         addFundingSource: builder.mutation<
-            TFundingSourceResponse,
+            TResponse<TFundingSourceData>,
             TFundingSourceFormValues
         >({
             query: (body) => ({
@@ -31,7 +31,7 @@ const projectsAPI = baseAPI.injectEndpoints({
         }),
 
         updateFundingSource: builder.mutation<
-            TFundingSourceResponse,
+            TResponse<TFundingSourceData>,
             { id: string; body: TFundingSourceFormValues }
         >({
             query: ({ id, body }) => ({
@@ -42,7 +42,10 @@ const projectsAPI = baseAPI.injectEndpoints({
             invalidatesTags: ["FundingSource"],
         }),
 
-        deleteFundingSource: builder.mutation<TFundingSourceResponse, string>({
+        deleteFundingSource: builder.mutation<
+            TResponse<TFundingSourceData>,
+            string
+        >({
             query: (id) => ({
                 url: `/projects/funding-sources/${id}`,
                 method: "DELETE",

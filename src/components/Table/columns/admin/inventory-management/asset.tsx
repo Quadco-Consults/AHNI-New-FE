@@ -66,6 +66,7 @@ export const assestColum: ColumnDef<TAssetPaginatedData>[] = [
         header: "Asset Classification",
         id: "classification",
         accessorKey: "classification",
+        size: 200,
     },
 
     {

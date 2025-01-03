@@ -76,6 +76,7 @@ export default function AllAssetTypes() {
                     <h1 className="flex-1">Name</h1>
                     <h1 className="flex-1">Manufacturer</h1>
                     <h1 className="flex-1">Model</h1>
+                    <h1 className="flex-1">Serial Number</h1>
                     <h1 className="flex-1"></h1>
                 </div>
 
@@ -94,6 +95,9 @@ export default function AllAssetTypes() {
                                         {item.manufacturer}
                                     </p>
                                     <p className="flex-1">{item.model}</p>
+                                    <p className="flex-1">
+                                        {item.serial_number}
+                                    </p>
                                     <div className="flex-1">
                                         <TableAction
                                             update
