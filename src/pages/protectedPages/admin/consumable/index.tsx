@@ -26,7 +26,7 @@ export default function ConsumablesHomePage() {
                         <Link to={generatePath(AdminRoutes.CREATE_CONSUMABLE)}>
                             <Button>
                                 <Plus size={20} />
-                                Add Item Details
+                                Add Consumable
                             </Button>
                         </Link>
                     </div>

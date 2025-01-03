@@ -1,11 +1,9 @@
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
-import FormSelect from "atoms/FormSelect";
 import FormTextArea from "atoms/FormTextArea";
 import Card from "components/shared/Card";
 import GoBack from "components/shared/GoBack";
 import { Form } from "components/ui/form";
-import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import VendorsAPI from "services/procurementApi/vendors";
 
@@ -13,13 +11,6 @@ const CreateGRN = () => {
     const { data: vendors } = VendorsAPI.useGetVendorListQuery({
         params: { no_paginate: true },
     });
-
-    const vendorData = useMemo(() => {
-        return vendors?.map((item) => ({
-            label: item.company_name,
-            value: item.id,
-        }));
-    }, [vendors]);
 
     const form = useForm();
 

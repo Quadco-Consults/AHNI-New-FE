@@ -18,11 +18,11 @@ export default function ConsumableDetails() {
                 ) : (
                     <>
                         <CardHeader className="border-b font-bold">
-                            {consumable?.data?.item.name}
+                            {consumable?.data?.name}
                         </CardHeader>
                         <CardContent className="space-y-5">
                             <div className="border-b py-2">
-                                {consumable?.data.item?.description}
+                                {consumable?.data.description}
                             </div>
                             <div className="grid grid-cols-3 gap-8 mt-6">
                                 <div className="space-y-2">

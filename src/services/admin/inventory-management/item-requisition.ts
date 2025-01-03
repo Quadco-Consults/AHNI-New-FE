@@ -51,7 +51,7 @@ const ItemRequisitionAPI = baseAPI.injectEndpoints({
         >({
             query: ({ id, body }) => ({
                 method: "PUT",
-                url: `${BASE_URL}${id}`,
+                url: `${BASE_URL}${id}/`,
                 body,
             }),
             invalidatesTags: ["ITEM_REQUISITION"],

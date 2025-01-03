@@ -76,5 +76,3 @@ export const {
     useEditConsumableMutation,
     useDeleteConsumableMutation,
 } = ConsumableAPI;
-
-// create validation tags

@@ -12,19 +12,24 @@ import {
     TItemRequisitionFormValues,
 } from "definations/admin/inventory-management/item-requisition";
 import { Minus } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import {
     FormProvider,
     SubmitHandler,
     useFieldArray,
     useForm,
 } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useGetAllConsumablesQuery } from "services/admin/inventory-management/consumable";
-import { useCreateItemRequisitionMutation } from "services/admin/inventory-management/item-requisition";
+import {
+    useCreateItemRequisitionMutation,
+    useEditItemRequisitionMutation,
+    useGetSingleItemRequisitionQuery,
+} from "services/admin/inventory-management/item-requisition";
 import { useGetAllDepartmentsQuery } from "services/modules/config/department";
 import { useGetAllUsersQuery } from "services/auth/user";
 import { toast } from "sonner";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 export default function CreateItemRequisition() {
     const { data: consumable } = useGetAllConsumablesQuery({
@@ -56,8 +61,8 @@ export default function CreateItemRequisition() {
 
     const consumableOptions = useMemo(
         () =>
-            consumable?.data.results.map(({ item, id }) => ({
-                label: item,
+            consumable?.data.results.map(({ name, id }) => ({
+                label: name,
                 value: id,
             })),
         [consumable]
@@ -71,6 +76,16 @@ export default function CreateItemRequisition() {
             })),
         [department]
     );
+
+    const [searchParams] = useSearchParams();
+    const id = searchParams.get("id");
+
+    const { data: itemRequisition } = useGetSingleItemRequisitionQuery(
+        id ?? skipToken
+    );
+
+    const [editItemRequisition, { isLoading: isEditLoading }] =
+        useEditItemRequisitionMutation();
 
     const navigate = useNavigate();
 
@@ -99,14 +114,35 @@ export default function CreateItemRequisition() {
                 ...rest,
             };
 
-            console.log(payload);
-            await createItemRequisition(payload).unwrap();
-            toast.success("Item Requisition Created");
+            if (id) {
+                await editItemRequisition({ id, body: payload }).unwrap();
+                toast.success("Item Requisition Updated");
+            } else {
+                await createItemRequisition(payload).unwrap();
+                toast.success("Item Requisition Created");
+            }
+
             navigate(AdminRoutes.ITEM_REQUISITION);
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }
     };
+
+    useEffect(() => {
+        if (itemRequisition) {
+            form.reset({
+                expiry_date: itemRequisition?.data.expiry_date,
+                department: itemRequisition?.data.department.id,
+                re_order_level: String(itemRequisition?.data.re_order_level),
+                consummables: itemRequisition?.data.consummables.map(
+                    ({ quantity, consummable: { id } }) => ({
+                        consummable: id,
+                        quantity: String(quantity),
+                    })
+                ),
+            });
+        }
+    }, [itemRequisition]);
 
     return (
         <div className="space-y-8">
@@ -208,8 +244,13 @@ export default function CreateItemRequisition() {
                             />
                         </div>
                         <div className="flex justify-end">
-                            <FormButton type="submit" loading={isCreateLoading}>
-                                Submit
+                            <FormButton
+                                type="submit"
+                                loading={isCreateLoading || isEditLoading}
+                            >
+                                {id
+                                    ? "Update Item Requisition"
+                                    : "Create Item Requisition"}
                             </FormButton>
                         </div>
                     </form>

@@ -14,7 +14,7 @@ export const adminRoutes = [
     },
     {
         path: AdminRoutes.CONSUMABLES,
-        element: lazy(() => import("pages/protectedPages/admin/consumables")),
+        element: lazy(() => import("pages/protectedPages/admin/consumable")),
     },
     {
         path: AdminRoutes.ITEM_REQUISITION,
@@ -43,14 +43,14 @@ export const adminRoutes = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/admin/consumables/create-consumable"
+                    "pages/protectedPages/admin/consumable/create"
                 )
         ),
     },
     {
         path: AdminRoutes.VIEW_CONSUMABLE,
         element: lazy(
-            () => import("pages/protectedPages/admin/consumables/view")
+            () => import("pages/protectedPages/admin/consumable/view")
         ),
     },
     {
