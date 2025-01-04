@@ -9,6 +9,38 @@ export const adminRoutes = [
         element: <Navigate to={RouteEnum.DASHBOARD} />,
     },
 
+    // CONSUMABLE
+    {
+        path: AdminRoutes.INDEX_CONSUMABLE,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/admin/inventory-management/consumable"
+                )
+        ),
+    },
+
+    {
+        path: AdminRoutes.CREATE_CONSUMABLE,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/admin/inventory-management/consumable/create"
+                )
+        ),
+    },
+
+    {
+        path: AdminRoutes.VIEW_CONSUMABLE,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/admin/inventory-management/consumable/id"
+                )
+        ),
+    },
+
+    // VEHICLE MAINTENANCE TICKET
     {
         path: AdminRoutes.INDEX_VEHICLE_MAINTENANCE,
         element: lazy(
@@ -33,10 +65,7 @@ export const adminRoutes = [
         path: AdminRoutes.OVERVIEW,
         element: lazy(() => import("pages/protectedPages/admin/Overview")),
     },
-    {
-        path: AdminRoutes.CONSUMABLES,
-        element: lazy(() => import("pages/protectedPages/admin/consumable")),
-    },
+
     {
         path: AdminRoutes.ITEM_REQUISITION,
         element: lazy(
@@ -59,18 +88,7 @@ export const adminRoutes = [
         path: AdminRoutes.ASSETS,
         element: lazy(() => import("pages/protectedPages/admin/assets")),
     },
-    {
-        path: AdminRoutes.CREATE_CONSUMABLE,
-        element: lazy(
-            () => import("pages/protectedPages/admin/consumable/create")
-        ),
-    },
-    {
-        path: AdminRoutes.VIEW_CONSUMABLE,
-        element: lazy(
-            () => import("pages/protectedPages/admin/consumable/view")
-        ),
-    },
+
     {
         path: AdminRoutes.CreateAssets,
         element: lazy(() => import("pages/protectedPages/admin/assets/create")),
