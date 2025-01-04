@@ -6,8 +6,13 @@ export const AdminRoutes = {
     OVERVIEW: "/admin/overview",
     VIEW_CONSUMABLE: "/admin/inventory-management/consumables/:id",
 
-    // ---------------------
+    // VEHICLE MAINTENANCE
+    INDEX_VEHICLE_MAINTENANCE: "/admin/fleet-management/vehicle-maintenance",
+    CREATE_VEHICLE_MAINTENANCE:
+        "/admin/fleet-management/vehicle-maintenance-create",
+    VIEW_VEHICLE_MAINTENANCE: "/admin/fleet-management/vehicle-maintenance/:id",
 
+    // ---------------------
 
     EXPENSE_AUTHORIZATION: "/admin/expense-authorization",
     EXPENSE_AUTHORIZATION_CREATE: "/admin/expense-authorization/create",
@@ -24,18 +29,12 @@ export const AdminRoutes = {
     ASSETS_REQUEST: "/admin/inventory-management/assets-request",
     ASSETS_REQUEST_CREATE: "/admin/inventory-management/assets-request/create",
     ASSETS_REQUEST_VIEW: "/admin/inventory-management/assets-request-view",
-    ASSET_MAINTENANCE: "/admin/inventory-management/asset-maintenance",
-    ASSET_MAINTENANCE_VIEW:
-        "/admin/inventory-management/asset-maintenance-view",
-    ASSET_MAINTENANCE_CREATE:
-        "/admin/inventory-management/asset-maintenance-create",
+
     CREATE_CONSUMABLE: "/admin/inventory-management/create-consumables",
     CreateAssets: "/admin/inventory-management/create-assets",
     ViewAssets: "/admin/inventory-management/view-assets",
     VehicleRequest: "/admin/fleet-management/vehichle-request",
-    VehicleMaitenanceCreate:
-        "/admin/fleet-management/vehicle-maintenance-create",
-    VehicleMaitenance: "/admin/fleet-management/vehicle-maintenance",
+
     FuelConsumptions: "/admin/fleet-management/fuel-request",
     FuelView: "/admin/fleet-management/fuel/View-Fuel",
     FuelViewDetail: "/admin/fleet-management/fuel/View-Fuel/:id",

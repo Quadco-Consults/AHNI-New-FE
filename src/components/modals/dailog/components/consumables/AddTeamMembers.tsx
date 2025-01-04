@@ -1,35 +1,32 @@
+import { LoadingSpinner } from "components/shared/Loading";
 import { Button } from "components/ui/button";
 import { Card } from "components/ui/card";
 import { Checkbox } from "components/ui/checkbox";
 import { Input } from "components/ui/input";
 import { ScrollArea } from "components/ui/scroll-area";
-import { TUser } from "definations/auth/user";
+import { IUser } from "definations/auth/user";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useGetAllUsersQuery } from "services/auth/user";
-import { addUser, userSelector } from "store/assets";
+import { addTeamMembers } from "store/admin/team-members";
 import { closeDialog } from "store/ui";
 
 export default function TeamMemberSelection() {
-    const [selectedMembers, setSelectedMembers] = useState<TUser[]>([]);
+    const { teamMembers } = useAppSelector((state) => state.teamMember);
+
+    const [selectedMembers, setSelectedMembers] =
+        useState<IUser[]>(teamMembers);
 
     const dispatch = useAppDispatch();
 
-    const { data: user } = useGetAllUsersQuery({ page: 1, size: 2000000 });
-
-    const users = useAppSelector(userSelector);
-
-    useEffect(() => {
-        if (users && users?.length > 0) {
-            setSelectedMembers(users);
-        }
-    }, [users]);
-
-    const teamMembers = user?.data.results || [];
+    const { data: user, isLoading } = useGetAllUsersQuery({
+        page: 1,
+        size: 2000000,
+    });
 
     const handleCheckboxChange = (
-        member: TUser,
+        member: IUser,
         isChecked: boolean | string
     ) => {
         setSelectedMembers((prev) =>
@@ -40,7 +37,7 @@ export default function TeamMemberSelection() {
     };
 
     const onSubmit = () => {
-        dispatch(addUser(selectedMembers));
+        dispatch(addTeamMembers(selectedMembers));
         dispatch(closeDialog());
     };
 
@@ -69,13 +66,14 @@ export default function TeamMemberSelection() {
 
             <ScrollArea className="h-[500px] my-4 border rounded-lg">
                 <div className="grid grid-cols-3 gap-4 p-4">
-                    {teamMembers.length === 0 ? (
+                    {isLoading ? (
+                        <LoadingSpinner />
+                    ) : user?.data.results.length === 0 ? (
                         <div className="flex items-center justify-center w-full">
-                            {" "}
-                            <p>No users </p>{" "}
+                            <p>No users </p>
                         </div>
                     ) : (
-                        teamMembers.map((member, index) => (
+                        user?.data.results.map((member, index) => (
                             <Card key={member.id} className="relative p-3 ">
                                 <Checkbox
                                     className="absolute top-4 left-2"
@@ -104,7 +102,7 @@ export default function TeamMemberSelection() {
                                         <span className="font-semibold">
                                             Tel:
                                         </span>{" "}
-                                        {member.phone_number}
+                                        {member.mobile_number}
                                     </p>
                                 </div>
                             </Card>

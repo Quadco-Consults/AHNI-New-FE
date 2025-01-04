@@ -1,17 +1,18 @@
 import { z } from "zod";
 
 export const VehicleRequestSchema = z.object({
-    created_by: z.string().min(1, "Please select a user"),
+    requesting_staff: z.string().min(1, "Please select a requesting staff"),
     location: z.string().min(1, "Please select a location"),
     travel_destination: z.string().min(1, "Please enter a travel destination"),
-    departure_date: z.string().min(1, "Please select a departure date"),
-    departure_point: z.string().min(1, "Please enter a departure point"),
-    return_date: z.string().min(1, "Please select a return date"),
+    departure_point: z.string().min(1, "Please enter point of departure"),
+    return_point: z.string().min(1, "Please enter point of return"),
+    departure_datetime: z.string().min(1, "Please select a departure date"),
+    return_datetime: z.string().min(1, "Please select date of return"),
     travel_team_members: z.array(
-        z.string().min(1, "Please select a supervisor")
+        z.string().min(1, "Please select a team member")
     ),
-    supervisor: z.string().min(1, "Please select a supervisor"),
-    reccomendations: z.string().min(1, "Please enter recommendations"),
+    supervisor: z.string().min(1, "Please select a supervisior"),
+    recommendations: z.string().min(1, "Please enter a recommendation"),
 });
 
 export type TVehicleRequestFormValues = z.infer<typeof VehicleRequestSchema>;

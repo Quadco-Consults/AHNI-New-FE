@@ -8,6 +8,27 @@ export const adminRoutes = [
         path: "*",
         element: <Navigate to={RouteEnum.DASHBOARD} />,
     },
+
+    {
+        path: AdminRoutes.INDEX_VEHICLE_MAINTENANCE,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/admin/fleet-management/vehicle-maintenance/index"
+                )
+        ),
+    },
+    {
+        path: AdminRoutes.CREATE_VEHICLE_MAINTENANCE,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/admin/fleet-management/vehicle-maintenance/create"
+                )
+        ),
+    },
+
+    // -----------------------------------------------------------------
     {
         path: AdminRoutes.OVERVIEW,
         element: lazy(() => import("pages/protectedPages/admin/Overview")),
@@ -63,28 +84,11 @@ export const adminRoutes = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/admin/FleetManagment/vehicle-request"
+                    "pages/protectedPages/admin/fleet-management/vehicle-request"
                 )
         ),
     },
-    {
-        path: AdminRoutes.VehicleMaitenance,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/admin/FleetManagment/VehicleMaintenanceTable"
-                )
-        ),
-    },
-    {
-        path: AdminRoutes.VehicleMaitenanceCreate,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/admin/FleetManagment/VehichleMaitanace"
-                )
-        ),
-    },
+
     {
         path: AdminRoutes.FuelConsumptions,
         element: lazy(
@@ -123,7 +127,7 @@ export const adminRoutes = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/admin/FleetManagment/vehicle-request/create-vehicle-request"
+                    "pages/protectedPages/admin/fleet-management/vehicle-request/create"
                 )
         ),
     },
@@ -131,7 +135,9 @@ export const adminRoutes = [
         path: AdminRoutes.ViewVehicleRequest,
         element: lazy(
             () =>
-                import("pages/protectedPages/admin/FleetManagment/ViewVehicle")
+                import(
+                    "pages/protectedPages/admin/fleet-management/vehicle-maintenance/id"
+                )
         ),
     },
     {
@@ -243,22 +249,23 @@ export const adminRoutes = [
             () => import("pages/protectedPages/admin/Agreement/ViewAgreement")
         ),
     },
+
     {
-        path: AdminRoutes.ASSET_MAINTENANCE,
+        path: AdminRoutes.VIEW_VEHICLE_MAINTENANCE,
         element: lazy(
-            () => import("pages/protectedPages/admin/AssetMaintenance")
+            () =>
+                import(
+                    "pages/protectedPages/admin/fleet-management/vehicle-maintenance/id"
+                )
         ),
     },
     {
-        path: AdminRoutes.ASSET_MAINTENANCE_VIEW,
+        path: AdminRoutes.CREATE_VEHICLE_MAINTENANCE,
         element: lazy(
-            () => import("pages/protectedPages/admin/AssetMaintenanceView")
-        ),
-    },
-    {
-        path: AdminRoutes.ASSET_MAINTENANCE_CREATE,
-        element: lazy(
-            () => import("pages/protectedPages/admin/AssetMaintenanceCreate")
+            () =>
+                import(
+                    "pages/protectedPages/admin/fleet-management/vehicle-maintenance/create"
+                )
         ),
     },
     {
@@ -276,23 +283,26 @@ export const adminRoutes = [
     {
         path: AdminRoutes.ASSETS_REQUEST_VIEW,
         element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/admin/asset-requests/view"
-                )
+            () => import("pages/protectedPages/admin/asset-requests/view")
         ),
     },
     {
         path: AdminRoutes.GRN,
-        element: lazy(() => import("pages/protectedPages/admin/good-receive-note/index")),
+        element: lazy(
+            () => import("pages/protectedPages/admin/good-receive-note/index")
+        ),
     },
     {
         path: AdminRoutes.GRN_CREATE,
-        element: lazy(() => import("pages/protectedPages/admin/good-receive-note/create")),
+        element: lazy(
+            () => import("pages/protectedPages/admin/good-receive-note/create")
+        ),
     },
     {
         path: AdminRoutes.GRN_DETAIL,
-        element: lazy(() => import("pages/protectedPages/admin/good-receive-note/id/view")),
+        element: lazy(
+            () => import("pages/protectedPages/admin/good-receive-note/id/view")
+        ),
     },
     {
         path: AdminRoutes.EXPENSE_AUTHORIZATION,

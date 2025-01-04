@@ -17,7 +17,7 @@ import { useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { APPROVAL_PROCESS } from "../FacilitiesManagment/FacilitiesMaintanance";
+import { APPROVAL_PROCESS } from "../../FacilitiesManagment/FacilitiesMaintanance";
 import { useGetAllUsersQuery } from "services/auth/user";
 
 const AssetsItem = ({
