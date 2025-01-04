@@ -4,6 +4,10 @@ export const AuthRoutes = {
 
 export const AdminRoutes = {
     OVERVIEW: "/admin/overview",
+
+    // CONSUMABLE
+    INDEX_CONSUMABLE: "/admin/inventory-management/consumables",
+    CREATE_CONSUMABLE: "/admin/inventory-management/create-consumables",
     VIEW_CONSUMABLE: "/admin/inventory-management/consumables/:id",
 
     // VEHICLE MAINTENANCE
@@ -17,7 +21,7 @@ export const AdminRoutes = {
     EXPENSE_AUTHORIZATION: "/admin/expense-authorization",
     EXPENSE_AUTHORIZATION_CREATE: "/admin/expense-authorization/create",
     EXPENSE_AUTHORIZATION_DETAIL: "/admin/expense-authorization/:id",
-    CONSUMABLES: "/admin/inventory-management/consumables",
+   
     GRN: "/admin/inventory-management/good-receive-note",
     GRN_CREATE: "/admin/inventory-management/good-receive-note/create",
     GRN_DETAIL: "/admin/inventory-management/good-receive-note/:id",
@@ -30,7 +34,6 @@ export const AdminRoutes = {
     ASSETS_REQUEST_CREATE: "/admin/inventory-management/assets-request/create",
     ASSETS_REQUEST_VIEW: "/admin/inventory-management/assets-request-view",
 
-    CREATE_CONSUMABLE: "/admin/inventory-management/create-consumables",
     CreateAssets: "/admin/inventory-management/create-assets",
     ViewAssets: "/admin/inventory-management/view-assets",
     VehicleRequest: "/admin/fleet-management/vehichle-request",

@@ -717,7 +717,7 @@ const DEPARTMENTAL_LINKS = [
                 name: "Inventory Management",
                 path: "/admin/inventory-managment",
                 sublinks: [
-                    { name: "Consumable", path: AdminRoutes.CONSUMABLES },
+                    { name: "Consumable", path: AdminRoutes.INDEX_CONSUMABLE },
                     {
                         name: "Item Requisition",
                         path: AdminRoutes.ITEM_REQUISITION,
