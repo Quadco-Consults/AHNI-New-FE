@@ -10,6 +10,7 @@ import ssp from "./formData/ssp-values";
 import vendors from "./formData/procurement-vendors";
 import assets from "./assets";
 import stakeholder from "./formData/stakeholders";
+import teamMember from "./admin/team-members";
 
 const persistConfig = {
     storage,
@@ -19,7 +20,8 @@ const persistConfig = {
         "objectives",
         "partnerLocation",
         "stakeholder",
-        "consortiumPartner"
+        "consortiumPartner",
+        "teamMember",
     ],
 };
 
@@ -34,6 +36,7 @@ export const rootStore = combineReducers({
     vendors,
     assets,
     stakeholder,
+    teamMember,
 });
 
 export const rootReducer = persistReducer(persistConfig, rootStore);

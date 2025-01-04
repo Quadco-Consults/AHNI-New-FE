@@ -1,4 +1,4 @@
-import { assestMaintenanceColum } from "components/Table/columns/assetmentainance";
+import { assestMaintenanceColum } from "components/Table/columns/admin/fleet-management/vehicle-maintenance";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { Button } from "components/ui/button";

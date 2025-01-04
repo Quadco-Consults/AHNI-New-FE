@@ -103,6 +103,7 @@ const baseAPI = createApi({
         "ASSET",
         "ASSET_REQUEST",
         "SUPERVISION_PLAN",
+        "VEHICLE_MAINTENANCE",
     ],
     // keepUnusedDataFor: 5 * 60,
     keepUnusedDataFor: 0,

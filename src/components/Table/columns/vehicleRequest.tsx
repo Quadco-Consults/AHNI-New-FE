@@ -32,6 +32,7 @@ const MoreAction = ({ row }: { row: IVehicleRequestPaginatedData }) => {
             toast.error("Error deleting vehicle");
         }
     };
+    
     return (
         <div className="flex items-center space-x-2">
             <Popover>
