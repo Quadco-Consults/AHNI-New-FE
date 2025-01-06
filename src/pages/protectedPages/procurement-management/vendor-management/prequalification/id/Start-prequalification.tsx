@@ -2,9 +2,8 @@ import Card from "components/shared/Card";
 import { LoadingSpinner } from "components/shared/Loading";
 import { Button } from "components/ui/button";
 import { Checkbox } from "components/ui/checkbox";
-import { RouteEnum } from "constants/RouterConstants";
 import { ArrowLeft } from "lucide-react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import VendorPrequalificationAPI from "services/procurementApi/vendor-prequalification";
 import { toast } from "sonner";
@@ -22,31 +21,60 @@ import { z } from "zod";
 import { VendorPrequalificationSchema } from "definations/procurement-types/vendor-prequalification";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "atoms/FormButton";
+import { useGetAllPrequalificationCriteriaQuery } from "services/modules/procurement/prequalification-criteria";
+import { RouteEnum } from "constants/RouterConstants";
 
 type FormData = {
-  [key: string]: string;
+  score: boolean;
+  criteria: string;
 };
 
 const StartPrequalification = () => {
-  const [formData, setFormData] = useState<FormData>({});
+  const [formData, setFormData] = useState<FormData[] | null>([]);
 
   const { id } = useParams();
   const navigate = useNavigate();
 
   const { data: vendors, isLoading } =
     VendorPrequalificationAPI.useGetVendorPrequalificationsQuery({
-      params: { vendor_id: id as string },
+      params: { vendor: id as string },
     });
-  console.log({ vendors });
+
+  const { data: prequalificationCriteria } =
+    useGetAllPrequalificationCriteriaQuery({
+      page: 1,
+      size: 20,
+    });
 
   const [createVendorPrequalificationMutation, { isLoading: loading }] =
     VendorPrequalificationAPI.useCreateVendorPrequalificationMutation();
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setFormData({
-      ...formData,
-      [name]: value,
+    const { id, value } = event.target;
+    // Convert value to boolean if it's a string representation of a boolean
+    const booleanValue = value === "true" ? true : false;
+
+    setFormData((prevData: FormData[] | null) => {
+      // Ensure prevData is an array, fallback to an empty array if null
+      const dataArray = prevData ?? [];
+
+      // Check if the criteria (id) already exists in the array
+      const existingIndex = dataArray?.findIndex(
+        (item) => item?.criteria === id
+      );
+
+      if (existingIndex !== -1) {
+        // Update the score for the existing criteria
+        const updatedData = [...dataArray];
+        updatedData[existingIndex] = {
+          ...updatedData[existingIndex],
+          score: booleanValue,
+        };
+        return updatedData;
+      } else {
+        // Add a new entry for the criteria
+        return [...dataArray, { score: booleanValue, criteria: id }];
+      }
     });
   };
 
@@ -61,23 +89,12 @@ const StartPrequalification = () => {
   const onSubmit = async (
     data: z.infer<typeof VendorPrequalificationSchema>
   ) => {
-    console.log(data);
-
     try {
       if (vendors) {
-        const result = vendors?.categories.map((category) =>
-          category.criteria.map((criteria) => ({
-            criteria: criteria.id,
-            score: formData[criteria.name] === "true" ? true : false,
-            remark: formData[criteria.remark] || "",
-          }))
-        );
-        const combinedArray = [].concat(...(result as any));
-
         const finalData = {
           vendor: data.vendor,
           financial_year: vendors?.financial_year_id,
-          prequalifications: combinedArray,
+          prequalifications: formData,
           approved_categories: data.approved_categories,
         };
 
@@ -126,33 +143,35 @@ const StartPrequalification = () => {
 
       {isLoading && <LoadingSpinner />}
 
-      {vendors?.categories?.map((category, index) => (
-        <div
-          key={index}
-          className='bg-white border shadow-sm rounded-2xl dark:bg-[hsl(15,13%,6%)]'
-        >
-          <div className='p-5 '>
-            <h4 className='font-bold text-lg'>{category.name}</h4>
-          </div>
+      {prequalificationCriteria?.data?.results?.map((criteria, index) => {
+        return (
+          <div
+            key={index}
+            className='bg-white border shadow-sm rounded-2xl dark:bg-[hsl(15,13%,6%)]'
+          >
+            <div className='p-5 '>
+              <h4 className='font-bold text-lg'>{criteria.name}</h4>
+            </div>
 
-          <hr />
+            <hr />
 
-          <div className='p-5'>
-            {category.criteria.map((criteria) => (
+            <div className='p-5'>
               <div key={criteria.id} className='py-2'>
                 <Card className='border-yellow-darker flex gap-2 justify-between'>
-                  <h2 className='font-semibold text-base'>{criteria.name}</h2>
+                  <h2 className='font-semibold text-base'>
+                    {criteria.description}
+                  </h2>
                   <div className='flex gap-5 justify-between'>
-                    <div className='flex items-center space-x-2'>
+                    <div className='flex items-center space-x-2 justify-center'>
                       <input
                         type='radio'
                         id={criteria.id}
                         value='true'
-                        className='accent-purple-500'
+                        className='accent-purple-500 top-auto'
                         name={criteria.name}
                         onChange={handleInputChange}
                       />
-                      <label htmlFor='yes'>Yes</label>
+                      <label htmlFor='yes'>Pass</label>
                     </div>
                     <div className='flex items-center space-x-2'>
                       <input
@@ -160,18 +179,18 @@ const StartPrequalification = () => {
                         id={criteria.id}
                         value='false'
                         name={criteria.name}
-                        className='accent-primary'
+                        className='accent-primary top-auto'
                         onChange={handleInputChange}
                       />
-                      <label htmlFor='no'>No</label>
+                      <label htmlFor='no'>Fail</label>
                     </div>
                   </div>
                 </Card>
               </div>
-            ))}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
