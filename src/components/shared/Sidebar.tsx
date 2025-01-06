@@ -751,11 +751,10 @@ const DEPARTMENTAL_LINKS = [
             {
                 name: "Facility Management",
                 sublinks: [
-                    { name: "Facilities", path: AdminRoutes.Facilities },
-                    // {
-                    //   name: "Facility  Maintenance Ticket",
-                    //   path: AdminRoutes.FacilitiesTicket,
-                    // },
+                    {
+                        name: "Facility Maintenance Ticket",
+                        path: AdminRoutes.INDEX_FACILITY_MAINTENANCE,
+                    },
                 ],
             },
             { name: "Payment Request", path: AdminRoutes.PaymentRequest },
