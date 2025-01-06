@@ -1,7 +1,11 @@
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
+import { FC } from "react";
 
-const FuelConsumption = () => {
+type FuelTableProps = {
+    vehicle?: string;
+};
+const FuelTable: FC<FuelTableProps> = ({ vehicle }) => {
     return (
         <div>
             <TableFilters>
@@ -11,4 +15,4 @@ const FuelConsumption = () => {
     );
 };
 
-export default FuelConsumption;
+export default FuelTable;

@@ -60,6 +60,48 @@ export const adminRoutes = [
         ),
     },
 
+    // FUEL CONSUMPTION RECORD
+    {
+        path: AdminRoutes.INDEX_FUEL_CONSUMPTION,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/admin/fleet-management/fuel-request"
+                )
+        ),
+    },
+
+    {
+        path: AdminRoutes.CREATE_FUEL_CONSUMPTION,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/admin/fleet-management/fuel-request/create"
+                )
+        ),
+    },
+
+    {
+        path: AdminRoutes.VIEW_FUEL_CONSUMPTION,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/admin/fleet-management/fuel-request/id"
+                )
+        ),
+    },
+
+    /* 
+    {
+        path: AdminRoutes.FuelViewDetail,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/admin/fleet-management/fuel-consumption/FuelTableDetail"
+                )
+        ),
+    }, */
+
     // -----------------------------------------------------------------
     {
         path: AdminRoutes.OVERVIEW,
@@ -107,39 +149,6 @@ export const adminRoutes = [
         ),
     },
 
-    {
-        path: AdminRoutes.FuelConsumptions,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/admin/FleetManagment/FuelConsumption"
-                )
-        ),
-    },
-    {
-        path: AdminRoutes.FuelCreate,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/admin/FleetManagment/CreateFuelRecord"
-                )
-        ),
-    },
-    {
-        path: AdminRoutes.FuelView,
-        element: lazy(
-            () => import("pages/protectedPages/admin/FleetManagment/ViewFuel")
-        ),
-    },
-    {
-        path: AdminRoutes.FuelViewDetail,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/admin/FleetManagment/FuelTableDetail"
-                )
-        ),
-    },
     {
         path: AdminRoutes.NewVehicleRequest,
         element: lazy(
