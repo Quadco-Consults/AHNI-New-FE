@@ -32,7 +32,7 @@ import { Link, generatePath } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
 import FormTextArea from "atoms/FormTextArea";
 import FormInput from "atoms/FormInput";
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Label } from "components/ui/label";
 import { Upload as UploadFile } from "lucide-react";
 import CategoryAPI from "services/configs/category";
@@ -81,6 +81,8 @@ const EOI = () => {
       [categorySearchParams]
     )
   );
+
+  // @ts-ignore
   const categories = categoryQueryResult?.data?.data?.results;
 
   const form = useForm<z.infer<typeof EOISchema>>({
@@ -257,6 +259,7 @@ const EOI = () => {
                               {financialYearLoading ? (
                                 <LoadingSpinner />
                               ) : (
+                                // @ts-ignore
                                 financialYear?.data?.results?.map(
                                   (value: FinancialYearResultsData) => (
                                     <SelectItem
