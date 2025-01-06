@@ -8,7 +8,7 @@ import {
   EOIResultsData,
 } from "definations/procurement-types/eoi";
 
-const BASE_URL = "/procurements/expression-of-interest/";
+const BASE_URL = "/procurements/eoi/";
 
 const EoiAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
