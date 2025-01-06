@@ -757,7 +757,10 @@ const DEPARTMENTAL_LINKS = [
                     },
                 ],
             },
-            { name: "Payment Request", path: AdminRoutes.PaymentRequest },
+            {
+                name: "Payment Request",
+                path: AdminRoutes.INDEX_PAYMENT_REQUEST,
+            },
             {
                 name: "Agreements",
                 path: AdminRoutes.Agrements,
@@ -771,7 +774,11 @@ const DEPARTMENTAL_LINKS = [
                 // ],
             },
 
-            { name: "Asset Maintenance", path: "" },
+            {
+                name: "Asset Maintenance",
+                path: AdminRoutes.INDEX_ASSET_MAINTENANCE,
+            },
+
             {
                 name: "Expense Authorization",
                 path: AdminRoutes.EXPENSE_AUTHORIZATION,

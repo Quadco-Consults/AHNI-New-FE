@@ -26,10 +26,24 @@ export const AdminRoutes = {
     CREATE_FUEL_CONSUMPTION: "/admin/fleet-management/fuel-request/create",
     VIEW_FUEL_CONSUMPTION: "/admin/fleet-management/fuel-request/:id",
 
-    // FACILITY
-    INDEX_FACILITY_MAINTENANCE: "/admin/facility-management",
-    CREATE_FACILITY_MAINTENANCE: "/admin/facility-management/create",
-    VIEW_FACILITY_MAINTENANCE: "/admin/facility-management/:id",
+    // FACILITY MAINTENANCE TICKET
+    INDEX_FACILITY_MAINTENANCE:
+        "/admin/facility-management/facility-maintenance",
+    CREATE_FACILITY_MAINTENANCE:
+        "/admin/facility-management/facility-maintenance/create",
+    VIEW_FACILITY_MAINTENANCE:
+        "/admin/facility-management/facility-maintenance/:id",
+
+    // PAYMENT REQUEST
+    INDEX_PAYMENT_REQUEST: "/admin/payment-request",
+    CREATE_PAYMENT_REQUEST: "/admin/payment-request/create",
+    // PaymentRequestUpload: "/admin/payment-request/file-updload",
+    VIEW_PAYMENT_REQUEST: "/admin/payment-request/:id",
+
+    // ASSET MAINTENANCE
+    INDEX_ASSET_MAINTENANCE: "/admin/asset-maintenance",
+    CREATE_ASSET_MAINTENANCE: "/admin/asset-maintenance/create",
+    VIEW_ASSET_MAINTENANCE: "/admin/asset-maintenance/:id",
 
     // ---------------------
 
@@ -52,10 +66,6 @@ export const AdminRoutes = {
     CreateAssets: "/admin/inventory-management/create-assets",
     ViewAssets: "/admin/inventory-management/view-assets",
 
-    PaymentRequest: "/admin/payment-request/payment-list",
-    PaymentRequestCreate: "/admin/payment-request/Create-Payment",
-    PaymentRequestUpload: "/admin/payment-request/file-updload",
-    PaymentRequestView: "/admin/payment-request/View-Payment",
     Agrements: "/admin/agrements",
     AgrementsCreeate: "/admin/agrements/create",
     HMO: "/admin/agrements/HM0",

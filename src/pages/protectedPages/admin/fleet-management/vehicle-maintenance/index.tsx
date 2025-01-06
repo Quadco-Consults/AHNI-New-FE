@@ -7,6 +7,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useGetAllVehicleMaintenanceQuery } from "services/admin/fleet-management/vehicle-maintenance";
 import { vehicleMaintenanceColumns } from "components/Table/columns/admin/fleet-management/vehicle-maintenance";
+import Card from "components/shared/Card";
 
 export default function VehicleMaintenanceHomePage() {
     const [page, setPage] = useState(1);
@@ -27,7 +28,7 @@ export default function VehicleMaintenanceHomePage() {
                     </Button>
                 </Link>
             </div>
-            <div>
+            <Card className="mt-10">
                 <TableFilters>
                     <DataTable
                         columns={vehicleMaintenanceColumns}
@@ -43,7 +44,7 @@ export default function VehicleMaintenanceHomePage() {
                         }}
                     />
                 </TableFilters>
-            </div>
+            </Card>
         </div>
     );
 }

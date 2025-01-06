@@ -1,7 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import TableAction from "atoms/TableAction";
 import { AdminRoutes } from "constants/RouterConstants";
-import { toast } from "sonner";
 
 export interface TPaymentRequest {
     id: string;
