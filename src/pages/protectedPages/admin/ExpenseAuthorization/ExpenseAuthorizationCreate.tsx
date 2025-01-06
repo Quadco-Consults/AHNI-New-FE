@@ -9,10 +9,7 @@ import GoBack from "components/shared/GoBack";
 import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";
 import { Label } from "components/ui/label";
-import { useMemo } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import DepartmentsAPI from "services/configs/departments";
-import { APPROVAL_PROCESS } from "../FacilitiesManagment/FacilitiesMaintanance";
 import FormRadio from "atoms/FormRadio";
 
 const ExpenseAuthorizationCreate = () => {
@@ -179,85 +176,6 @@ const ExpenseAuthorizationCreate = () => {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                            <div className="space-y-2">
-                                <FormTextArea
-                                    name=""
-                                    label="Justification for Disposal"
-                                    placeholder="This can be repaired and we donate it to CBOs"
-                                />
-                                <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                                    <FormSelect
-                                        name=""
-                                        placeholder="Select approval"
-                                        options={APPROVAL_PROCESS}
-                                    />
-                                    <FormSelect
-                                        name=""
-                                        placeholder="Select name"
-                                        options={APPROVAL_PROCESS}
-                                    />
-                                </div>
-                                <Button variant="custom" type="button">
-                                    Approve
-                                </Button>
-                            </div>
-                            <div className="space-y-2">
-                                <FormTextArea
-                                    name=""
-                                    label="GT CT Approval"
-                                    placeholder="This can be repaired and we donate it to CBOs"
-                                />
-                                <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                                    <FormSelect
-                                        name=""
-                                        placeholder="Select approval"
-                                        options={APPROVAL_PROCESS}
-                                    />
-                                    <FormSelect
-                                        name=""
-                                        placeholder="Select name"
-                                        options={APPROVAL_PROCESS}
-                                    />
-                                </div>
-                                <Button variant="custom" type="button">
-                                    Approve
-                                </Button>
-                            </div>
-                            <div className="space-y-2">
-                                <FormTextArea
-                                    name=""
-                                    label="CCM Approval"
-                                    placeholder="This can be repaired and we donate it to CBOs"
-                                />
-                                <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                                    <FormSelect
-                                        name=""
-                                        placeholder="Select approval"
-                                        options={APPROVAL_PROCESS}
-                                    />
-                                    <FormSelect
-                                        name=""
-                                        placeholder="Select name"
-                                        options={APPROVAL_PROCESS}
-                                    />
-                                </div>
-                                <Button variant="custom" type="button">
-                                    Approve
-                                </Button>
-                            </div>
-                            <div className="space-y-2">
-                                <FormTextArea name="" label="Remarks" />
-                                <FormSelect
-                                    name=""
-                                    placeholder="Select approval"
-                                    options={APPROVAL_PROCESS}
-                                />
-                                <Button variant="custom" type="button">
-                                    Approve
-                                </Button>
-                            </div>
-                        </div>
                         <div className="flex justify-end">
                             <FormButton>Submit</FormButton>
                         </div>

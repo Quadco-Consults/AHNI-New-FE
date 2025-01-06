@@ -26,6 +26,11 @@ export const AdminRoutes = {
     CREATE_FUEL_CONSUMPTION: "/admin/fleet-management/fuel-request/create",
     VIEW_FUEL_CONSUMPTION: "/admin/fleet-management/fuel-request/:id",
 
+    // FACILITY
+    INDEX_FACILITY_MAINTENANCE: "/admin/facility-management",
+    CREATE_FACILITY_MAINTENANCE: "/admin/facility-management/create",
+    VIEW_FACILITY_MAINTENANCE: "/admin/facility-management/:id",
+
     // ---------------------
 
     EXPENSE_AUTHORIZATION: "/admin/expense-authorization",
@@ -46,9 +51,7 @@ export const AdminRoutes = {
 
     CreateAssets: "/admin/inventory-management/create-assets",
     ViewAssets: "/admin/inventory-management/view-assets",
-    Facilities: "/admin/facilities/facilities-list",
-    FacilitiesTicket: "/admin/facilities/maintenance-ticket",
-    FacilitiesView: "/admin/facilities/facilities-view",
+
     PaymentRequest: "/admin/payment-request/payment-list",
     PaymentRequestCreate: "/admin/payment-request/Create-Payment",
     PaymentRequestUpload: "/admin/payment-request/file-updload",

@@ -49,7 +49,7 @@ const FormSelect: FC<SelectProps> = ({
                 return (
                     <FormItem className="flex flex-col w-full gap-0">
                         {label && (
-                            <FormLabel>
+                            <FormLabel className="mb-1.5">
                                 {label}
                                 {required && (
                                     <span

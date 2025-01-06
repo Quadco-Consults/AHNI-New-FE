@@ -1,0 +1,258 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import BackNavigation from "atoms/BackNavigation";
+import FormButton from "atoms/FormButton";
+import FormInput from "atoms/FormInput";
+import FormSelect from "atoms/FormSelectField";
+import FormTextArea from "atoms/FormTextArea";
+import { Card, CardContent } from "components/ui/card";
+import { Form } from "components/ui/form";
+import { AdminRoutes } from "constants/RouterConstants";
+import {
+    FacilityMaintenanceSchema,
+    TFacilityMaintenanceFormValues,
+} from "definations/admin/facility-management/facility-maintenance";
+import { useMemo } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { useCreateFacilityMaintenanceMutation } from "services/admin/facility-management/facility-maintenance";
+import { useGetAllUsersQuery } from "services/auth/user";
+import { useGetAllDepartmentsQuery } from "services/modules/config/department";
+import { useGetAllLocationsQuery } from "services/modules/config/location";
+import { useGetAllFacilityQuery } from "services/modules/program/facility";
+import { toast } from "sonner";
+
+const descOptions = [
+    {
+        label: "Complaints",
+        value: "Complaints",
+    },
+    {
+        label: "Diagnosis",
+        value: "Diagnosis",
+    },
+];
+
+export default function CreateFacilityManagementTicket() {
+    const form = useForm<TFacilityMaintenanceFormValues>({
+        resolver: zodResolver(FacilityMaintenanceSchema),
+        defaultValues: {
+            staff: "",
+            department: "",
+            location: "",
+            maintenance_datetime: "",
+            facility: "",
+            maintenance_type: "",
+            rate: "",
+            cost_estimate: "",
+            total_cost_estimate: "",
+            description: "",
+            problem_description: "",
+            reviewer: "",
+            authorizer: "",
+            approver: "",
+        },
+    });
+
+    const navigate = useNavigate();
+
+    const { data: user } = useGetAllUsersQuery({ page: 1, size: 2000000 });
+
+    const userOptions = useMemo(
+        () =>
+            user?.data.results.map(({ first_name, last_name, id }) => ({
+                label: `${first_name} ${last_name}`,
+                value: id,
+            })),
+        [user]
+    );
+
+    const { data: department } = useGetAllDepartmentsQuery({
+        page: 1,
+        size: 2000000,
+    });
+
+    const departmentOptions = useMemo(
+        () =>
+            department?.data.results.map(({ name, id }) => ({
+                label: name,
+                value: id,
+            })),
+        [department]
+    );
+
+    const { data: location } = useGetAllLocationsQuery({
+        page: 1,
+        size: 2000000,
+    });
+
+    const locationOptions = useMemo(
+        () =>
+            location?.data.results.map(({ name, id }) => ({
+                label: name,
+                value: id,
+            })),
+        [location]
+    );
+
+    const { data: facility } = useGetAllFacilityQuery({
+        page: 1,
+        size: 2000000,
+    });
+
+    const facilityOptions = useMemo(
+        () =>
+            facility?.data.results.map(({ name, id }) => ({
+                label: name,
+                value: id,
+            })),
+        [facility]
+    );
+
+    const [createFacilityMaintenance, { isLoading: isCreateLoading }] =
+        useCreateFacilityMaintenanceMutation();
+
+    const onSubmit: SubmitHandler<TFacilityMaintenanceFormValues> = async (
+        data
+    ) => {
+        try {
+            await createFacilityMaintenance(data).unwrap();
+            toast.success("Facility Maintenance Ticket Raised");
+            navigate(AdminRoutes.INDEX_FACILITY_MAINTENANCE);
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
+        }
+    };
+
+    return (
+        <div className="flex flex-col gap-y-6">
+            <BackNavigation extraText="Request Facility Maintenance" />
+            <Card>
+                <CardContent className="py-7">
+                    <Form {...form}>
+                        <form
+                            onSubmit={form.handleSubmit(onSubmit)}
+                            className="flex flex-col gap-y-6"
+                            action=""
+                        >
+                            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                                <FormSelect
+                                    label="Name of Staff"
+                                    name="staff"
+                                    placeholder="Select Staff"
+                                    required
+                                    options={userOptions}
+                                />
+
+                                <FormSelect
+                                    label="Department"
+                                    name="department"
+                                    placeholder="Select Department"
+                                    required
+                                    options={departmentOptions}
+                                />
+
+                                <FormSelect
+                                    label="Location"
+                                    name="location"
+                                    placeholder="Select Location"
+                                    required
+                                    options={locationOptions}
+                                />
+
+                                <FormInput
+                                    label="Date/Time"
+                                    name="maintenance_datetime"
+                                    type="date"
+                                    required
+                                />
+
+                                <FormSelect
+                                    label="Facility "
+                                    name="facility"
+                                    placeholder="Select Facility"
+                                    required
+                                    options={facilityOptions}
+                                />
+
+                                <FormInput
+                                    label="Maintenance Type "
+                                    name="maintenance_type"
+                                    placeholder="Enter Maintenance Type"
+                                    required
+                                />
+
+                                <FormInput
+                                    label="Rate"
+                                    name="rate"
+                                    placeholder="Enter Rate"
+                                    required
+                                />
+
+                                <FormInput
+                                    label="Cost Estimate"
+                                    name="cost_estimate"
+                                    placeholder="Enter Cost Estimate"
+                                    required
+                                />
+
+                                <FormInput
+                                    label="Total Cost Estimate"
+                                    name="total_cost_estimate"
+                                    placeholder="Enter Total Cost Estimate"
+                                    required
+                                />
+                            </div>
+
+                            <div className="space-y-2 max-w-md">
+                                <FormSelect
+                                    label="Description"
+                                    name="description"
+                                    placeholder="Select Description"
+                                    required
+                                    options={descOptions}
+                                />
+                            </div>
+
+                            <FormTextArea
+                                label="Description of Problem"
+                                name="problem_description"
+                                placeholder="Enter Problem Description"
+                                required
+                            />
+
+                            <FormSelect
+                                label="Reviewer"
+                                name="reviewer"
+                                placeholder="Select Reviewer"
+                                required
+                                options={userOptions}
+                            />
+
+                            <FormSelect
+                                label="Authorizer"
+                                name="authorizer"
+                                placeholder="Select Authorizer"
+                                required
+                                options={userOptions}
+                            />
+
+                            <FormSelect
+                                label="Approver"
+                                name="approver"
+                                placeholder="Select Approver"
+                                required
+                                options={userOptions}
+                            />
+
+                            <div className="flex justify-end">
+                                <FormButton loading={isCreateLoading}>
+                                    Submit
+                                </FormButton>
+                            </div>
+                        </form>
+                    </Form>
+                </CardContent>
+            </Card>
+        </div>
+    );
+}

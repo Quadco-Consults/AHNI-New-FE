@@ -121,6 +121,35 @@ export const adminRoutes = [
         ),
     },
 
+    // FACILITY MAINTENANCE
+    {
+        path: AdminRoutes.INDEX_FACILITY_MAINTENANCE,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/admin/facility-management/facility-maintenance"
+                )
+        ),
+    },
+    {
+        path: AdminRoutes.CREATE_FACILITY_MAINTENANCE,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/admin/facility-management/facility-maintenance/create"
+                )
+        ),
+    },
+    {
+        path: AdminRoutes.VIEW_FACILITY_MAINTENANCE,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/admin/facility-management/facility-maintenance/id"
+                )
+        ),
+    },
+
     // -----------------------------------------------------------------
     {
         path: AdminRoutes.OVERVIEW,
@@ -159,33 +188,6 @@ export const adminRoutes = [
         element: lazy(() => import("pages/protectedPages/admin/assets/view")),
     },
 
-    {
-        path: AdminRoutes.Facilities,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/admin/FacilitiesManagment/Facilties"
-                )
-        ),
-    },
-    {
-        path: AdminRoutes.FacilitiesTicket,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/admin/FacilitiesManagment/FacilitiesMaintanance"
-                )
-        ),
-    },
-    {
-        path: AdminRoutes.FacilitiesView,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/admin/FacilitiesManagment/FacilitiesView"
-                )
-        ),
-    },
     {
         path: AdminRoutes.PaymentRequest,
         element: lazy(
