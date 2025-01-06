@@ -41,6 +41,7 @@ export interface TAssetPaginatedData {
     asset_condition: string;
     location: string;
     classification: string;
+    asset_type: TAssetTypeData;
     created_datetime: string;
     updated_datetime: string;
     name: string;

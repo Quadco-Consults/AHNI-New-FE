@@ -724,7 +724,7 @@ const DEPARTMENTAL_LINKS = [
                     },
                     { name: "Assets", path: AdminRoutes.ASSETS },
                     {
-                        name: "Assets Request",
+                        name: "Asset Requests",
                         path: AdminRoutes.ASSETS_REQUEST,
                     },
                     { name: "Good Receive Note", path: AdminRoutes.GRN },
@@ -743,8 +743,8 @@ const DEPARTMENTAL_LINKS = [
                         path: AdminRoutes.INDEX_VEHICLE_MAINTENANCE,
                     },
                     {
-                        name: "Fuel Consumption Record",
-                        path: AdminRoutes.FuelConsumptions,
+                        name: "Fuel Request",
+                        path: AdminRoutes.INDEX_FUEL_CONSUMPTION,
                     },
                 ],
             },

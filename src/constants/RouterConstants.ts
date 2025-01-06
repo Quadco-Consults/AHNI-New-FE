@@ -16,12 +16,17 @@ export const AdminRoutes = {
         "/admin/fleet-management/vehicle-maintenance-create",
     VIEW_VEHICLE_MAINTENANCE: "/admin/fleet-management/vehicle-maintenance/:id",
 
+    // FUEL CONSUMPTION RECORD
+    INDEX_FUEL_CONSUMPTION: "/admin/fleet-management/fuel-request",
+    CREATE_FUEL_CONSUMPTION: "/admin/fleet-management/fuel-request/create",
+    VIEW_FUEL_CONSUMPTION: "/admin/fleet-management/fuel-request/:id",
+
     // ---------------------
 
     EXPENSE_AUTHORIZATION: "/admin/expense-authorization",
     EXPENSE_AUTHORIZATION_CREATE: "/admin/expense-authorization/create",
     EXPENSE_AUTHORIZATION_DETAIL: "/admin/expense-authorization/:id",
-   
+
     GRN: "/admin/inventory-management/good-receive-note",
     GRN_CREATE: "/admin/inventory-management/good-receive-note/create",
     GRN_DETAIL: "/admin/inventory-management/good-receive-note/:id",
@@ -38,10 +43,6 @@ export const AdminRoutes = {
     ViewAssets: "/admin/inventory-management/view-assets",
     VehicleRequest: "/admin/fleet-management/vehichle-request",
 
-    FuelConsumptions: "/admin/fleet-management/fuel-request",
-    FuelView: "/admin/fleet-management/fuel/View-Fuel",
-    FuelViewDetail: "/admin/fleet-management/fuel/View-Fuel/:id",
-    FuelCreate: "/admin/fleet-management/fuel-request/create",
     NewVehicleRequest: "/admin/fleet-management/new-vehicle-request",
     ViewVehicleRequest: "/admin/fleet-management/vehicle",
     Facilities: "/admin/facilities/facilities-list",
