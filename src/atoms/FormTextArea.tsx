@@ -27,42 +27,45 @@ const FormTextArea: FC<InputProps> = ({
     label2,
     rows,
     placeholder,
+    className,
     ...rest
 }) => {
     const { control } = useFormContext();
     const { required } = rest;
 
     return (
-        <FormField
-            control={control}
-            name={name}
-            render={({ field }) => (
-                <FormItem>
-                    <FormLabel className="font-semibold -mb-1">
-                        {label}
-                        {required && (
-                            <span className="text-red-500" title="required">
-                                *
-                            </span>
-                        )}
-                    </FormLabel>
-                    <div>
-                        <FormLabel className="text-sm text-[#756D6D]">
-                            {label2}
+        <div className={className}>
+            <FormField
+                control={control}
+                name={name}
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel className="font-semibold mb-1.5">
+                            {label}
+                            {required && (
+                                <span className="text-red-500" title="required">
+                                    *
+                                </span>
+                            )}
                         </FormLabel>
-                    </div>
-                    <FormControl>
-                        <Textarea
-                            rows={rows}
-                            placeholder={placeholder}
-                            className="resize-none font-medium bg-[#F9F9F9]"
-                            {...field}
-                        />
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-            )}
-        />
+                        <div>
+                            <FormLabel className="text-sm text-[#756D6D]">
+                                {label2}
+                            </FormLabel>
+                        </div>
+                        <FormControl>
+                            <Textarea
+                                rows={rows}
+                                placeholder={placeholder}
+                                className="resize-none font-medium bg-[#F9F9F9]"
+                                {...field}
+                            />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+        </div>
     );
 };
 

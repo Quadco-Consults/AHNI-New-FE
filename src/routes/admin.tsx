@@ -150,6 +150,56 @@ export const adminRoutes = [
         ),
     },
 
+    // PAYMENT REQUEST
+    {
+        path: AdminRoutes.INDEX_PAYMENT_REQUEST,
+        element: lazy(
+            () => import("pages/protectedPages/admin/payment-request")
+        ),
+    },
+
+    {
+        path: AdminRoutes.CREATE_PAYMENT_REQUEST,
+        element: lazy(
+            () => import("pages/protectedPages/admin/payment-request/create")
+        ),
+    },
+    // {
+    //     path: AdminRoutes.PaymentRequestUpload,
+    //     element: lazy(
+    //         () =>
+    //             import("pages/protectedPages/admin/payment-request/id/uploads")
+    //     ),
+    // },
+    {
+        path: AdminRoutes.VIEW_PAYMENT_REQUEST,
+        element: lazy(
+            () => import("pages/protectedPages/admin/payment-request/id")
+        ),
+    },
+
+    // ASSET MAINTENANCE
+    {
+        path: AdminRoutes.INDEX_ASSET_MAINTENANCE,
+        element: lazy(
+            () => import("pages/protectedPages/admin/asset-maintenance")
+        ),
+    },
+
+    {
+        path: AdminRoutes.CREATE_ASSET_MAINTENANCE,
+        element: lazy(
+            () => import("pages/protectedPages/admin/asset-maintenance/create")
+        ),
+    },
+
+    {
+        path: AdminRoutes.VIEW_ASSET_MAINTENANCE,
+        element: lazy(
+            () => import("pages/protectedPages/admin/asset-maintenance/id")
+        ),
+    },
+
     // -----------------------------------------------------------------
     {
         path: AdminRoutes.OVERVIEW,
@@ -188,40 +238,6 @@ export const adminRoutes = [
         element: lazy(() => import("pages/protectedPages/admin/assets/view")),
     },
 
-    {
-        path: AdminRoutes.PaymentRequest,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/admin/PaymentRequest/PaymentRequestList"
-                )
-        ),
-    },
-    {
-        path: AdminRoutes.PaymentRequestCreate,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/admin/PaymentRequest/PaymentRequestCreate"
-                )
-        ),
-    },
-    {
-        path: AdminRoutes.PaymentRequestUpload,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/admin/PaymentRequest/FileUploadRequest"
-                )
-        ),
-    },
-    {
-        path: AdminRoutes.PaymentRequestView,
-        element: lazy(
-            () =>
-                import("pages/protectedPages/admin/PaymentRequest/PaymentView")
-        ),
-    },
     {
         path: AdminRoutes.Agrements,
         element: lazy(
@@ -292,19 +308,19 @@ export const adminRoutes = [
     {
         path: AdminRoutes.ASSETS_REQUEST,
         element: lazy(
-            () => import("pages/protectedPages/admin/asset-requests")
+            () => import("pages/protectedPages/admin/asset-request")
         ),
     },
     {
         path: AdminRoutes.ASSETS_REQUEST_CREATE,
         element: lazy(
-            () => import("pages/protectedPages/admin/asset-requests/create")
+            () => import("pages/protectedPages/admin/asset-request/create")
         ),
     },
     {
         path: AdminRoutes.ASSETS_REQUEST_VIEW,
         element: lazy(
-            () => import("pages/protectedPages/admin/asset-requests/view")
+            () => import("pages/protectedPages/admin/asset-request/view")
         ),
     },
     {
