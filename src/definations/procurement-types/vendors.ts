@@ -37,6 +37,7 @@ export interface VendorsResultsData {
   key_clients: TVendors[];
   created_at: string;
   updated_at: string;
+  uploaded_datetime: string;
   company_name: string;
   company_chairman: string;
   number_of_permanent_staff: string;
