@@ -1,4 +1,6 @@
 export type VendorsDocumentResultsData = {
+  uploaded_datetime: any;
+  files: any;
   id: string;
   created_at: string;
   updated_at: string;
