@@ -22,29 +22,29 @@ import GoBack from "components/shared/GoBack";
 const PrequalificationDetails = () => {
   const { id } = useParams();
 
-  const { data, isLoading } = VendorsAPI.useGetVendorQuery({
+  const { data: vendorsData, isLoading } = VendorsAPI.useGetVendorQuery({
     path: { id: id as string },
   });
 
   if (isLoading) {
     return <LoadingSpinner />;
   }
-
+  const data = vendorsData?.data;
   return (
-    <div className="space-y-5">
+    <div className='space-y-5'>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbPage>Procurement</BreadcrumbPage>
           </BreadcrumbItem>
           <BreadcrumbSeparator>
-            <Icon icon="iconoir:slash" />
+            <Icon icon='iconoir:slash' />
           </BreadcrumbSeparator>
           <BreadcrumbItem>
             <BreadcrumbItem>Prequalification</BreadcrumbItem>
           </BreadcrumbItem>
           <BreadcrumbSeparator>
-            <Icon icon="iconoir:slash" />
+            <Icon icon='iconoir:slash' />
           </BreadcrumbSeparator>
           <BreadcrumbItem>
             <BreadcrumbPage>Details</BreadcrumbPage>
@@ -52,8 +52,8 @@ const PrequalificationDetails = () => {
         </BreadcrumbList>
       </Breadcrumb>
       <GoBack />
-      <div className="flex justify-between">
-        <h4 className="text-lg font-bold">Prequalification</h4>
+      <div className='flex justify-between'>
+        <h4 className='text-lg font-bold'>Prequalification</h4>
 
         <Link
           to={generatePath(RouteEnum.VENDOR_MANAGEMENT_START_PREQUALIFICATION, {
@@ -63,25 +63,25 @@ const PrequalificationDetails = () => {
           <Button>Start Prequalification</Button>
         </Link>
       </div>
-      <Tabs defaultValue="overview">
+      <Tabs defaultValue='overview'>
         <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="uploads">Uploads</TabsTrigger>
-          <TabsTrigger value="questionnaire">Questionnaire</TabsTrigger>
-          <TabsTrigger value="technical-capability">
+          <TabsTrigger value='overview'>Overview</TabsTrigger>
+          <TabsTrigger value='uploads'>Uploads</TabsTrigger>
+          <TabsTrigger value='questionnaire'>Questionnaire</TabsTrigger>
+          <TabsTrigger value='technical-capability'>
             Technical Capability
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="overview">
+        <TabsContent value='overview'>
           <Overview {...(data as VendorsResultsData)} />
         </TabsContent>
-        <TabsContent value="uploads">
+        <TabsContent value='uploads'>
           <Uploads {...(data as VendorsResultsData)} />
         </TabsContent>
-        <TabsContent value="questionnaire">
+        <TabsContent value='questionnaire'>
           <Questionnaire {...(data as VendorsResultsData)} />
         </TabsContent>
-        <TabsContent value="technical-capability">
+        <TabsContent value='technical-capability'>
           <TechnicalCapability {...(data as VendorsResultsData)} />
         </TabsContent>
       </Tabs>
