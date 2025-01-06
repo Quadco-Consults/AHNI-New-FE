@@ -3,7 +3,7 @@ import { z } from "zod";
 export const EOISchema = z.object({
   name: z.string().min(1, "Field is required"),
   description: z.string().min(1, "Field is required"),
-  status: z.string(),
+  // status: z.string(),
   financial_year: z.string().min(1, "Field is required"),
   categories: z.array(z.string()),
 });
