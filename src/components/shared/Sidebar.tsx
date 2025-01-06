@@ -736,7 +736,7 @@ const DEPARTMENTAL_LINKS = [
                 sublinks: [
                     {
                         name: "Vehicle Request",
-                        path: AdminRoutes.VehicleRequest,
+                        path: AdminRoutes.INDEX_VEHICLE_REQUEST,
                     },
                     {
                         name: "Vehicle Maintenance Ticket",

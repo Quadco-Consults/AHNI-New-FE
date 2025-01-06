@@ -1,3 +1,5 @@
+import { IUser } from "definations/auth/user";
+import { TLocationData } from "definations/modules/config/location";
 import { z } from "zod";
 
 export const VehicleRequestSchema = z.object({
@@ -17,6 +19,46 @@ export const VehicleRequestSchema = z.object({
 
 export type TVehicleRequestFormValues = z.infer<typeof VehicleRequestSchema>;
 
-export interface IVehicleRequestPaginatedData {}
+export interface IVehicleRequestPaginatedData {
+    id: string;
+    created_by: string;
+    location: string;
+    supervisor: string;
+    travel_team_members_names: string[];
+    created_datetime: string;
+    updated_datetime: string;
+    status: string;
+    travel_destination: string;
+    departure_datetime: string;
+    departure_point: string;
+    return_datetime: string;
+    return_point: string;
+    recommendations: string;
+    approved_datetime: null;
+    updated_by: null;
+    requesting_staff: string;
+    approved_by: null;
+    vehicles: [];
+}
 
-export interface IVehicleSingleData {}
+export interface IVehicleSingleData {
+    id: string;
+    travel_team_members: IUser[];
+    location: TLocationData;
+    created_by: IUser;
+    supervisor: IUser;
+    created_datetime: string;
+    updated_datetime: string;
+    status: string;
+    travel_destination: string;
+    departure_datetime: string;
+    departure_point: string;
+    return_datetime: string;
+    return_point: string;
+    recommendations: string;
+    approved_datetime: string | null;
+    updated_by: string | null;
+    requesting_staff: string;
+    approved_by: string | null;
+    vehicles: [];
+}

@@ -19,6 +19,7 @@ const VehicleRequestAPI = baseAPI.injectEndpoints({
                 url: `${BASE_URL}`,
                 body,
             }),
+            invalidatesTags: ["VEHICLE_REQUEST"],
         }),
 
         getAllVehicleRequest: builder.query<
@@ -30,6 +31,7 @@ const VehicleRequestAPI = baseAPI.injectEndpoints({
                 url: `${BASE_URL}`,
                 params,
             }),
+            providesTags: ["VEHICLE_REQUEST"],
         }),
 
         getSingleVehicleRequest: builder.query<
@@ -40,6 +42,7 @@ const VehicleRequestAPI = baseAPI.injectEndpoints({
                 method: "GET",
                 url: `${BASE_URL}${id}`,
             }),
+            providesTags: ["VEHICLE_REQUEST"],
         }),
 
         editVehicleRequest: builder.mutation<
@@ -51,6 +54,7 @@ const VehicleRequestAPI = baseAPI.injectEndpoints({
                 url: `${BASE_URL}${id}`,
                 body,
             }),
+            invalidatesTags: ["VEHICLE_REQUEST"],
         }),
 
         deleteVehicleRequest: builder.mutation<
@@ -61,6 +65,7 @@ const VehicleRequestAPI = baseAPI.injectEndpoints({
                 method: "DELETE",
                 url: `${BASE_URL}${id}`,
             }),
+            invalidatesTags: ["VEHICLE_REQUEST"],
         }),
     }),
 });
@@ -72,5 +77,3 @@ export const {
     useEditVehicleRequestMutation,
     useDeleteVehicleRequestMutation,
 } = VehicleRequestAPI;
-
-// create validation tags
