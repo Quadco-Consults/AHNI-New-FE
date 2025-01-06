@@ -40,6 +40,36 @@ export const adminRoutes = [
         ),
     },
 
+    // VEHICLE REQUEST
+    {
+        path: AdminRoutes.INDEX_VEHICLE_REQUEST,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/admin/fleet-management/vehicle-request"
+                )
+        ),
+    },
+
+    {
+        path: AdminRoutes.CREATE_VEHICLE_REQUEST,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/admin/fleet-management/vehicle-request/create"
+                )
+        ),
+    },
+    {
+        path: AdminRoutes.VIEW_VEHICLE_REQUEST,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/admin/fleet-management/vehicle-request/id"
+                )
+        ),
+    },
+
     // VEHICLE MAINTENANCE TICKET
     {
         path: AdminRoutes.INDEX_VEHICLE_MAINTENANCE,
@@ -91,17 +121,6 @@ export const adminRoutes = [
         ),
     },
 
-    /* 
-    {
-        path: AdminRoutes.FuelViewDetail,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/admin/fleet-management/fuel-consumption/FuelTableDetail"
-                )
-        ),
-    }, */
-
     // -----------------------------------------------------------------
     {
         path: AdminRoutes.OVERVIEW,
@@ -139,34 +158,7 @@ export const adminRoutes = [
         path: AdminRoutes.ViewAssets,
         element: lazy(() => import("pages/protectedPages/admin/assets/view")),
     },
-    {
-        path: AdminRoutes.VehicleRequest,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/admin/fleet-management/vehicle-request"
-                )
-        ),
-    },
 
-    {
-        path: AdminRoutes.NewVehicleRequest,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/admin/fleet-management/vehicle-request/create"
-                )
-        ),
-    },
-    {
-        path: AdminRoutes.ViewVehicleRequest,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/admin/fleet-management/vehicle-maintenance/id"
-                )
-        ),
-    },
     {
         path: AdminRoutes.Facilities,
         element: lazy(

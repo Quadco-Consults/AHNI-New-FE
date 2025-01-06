@@ -6,9 +6,14 @@ export const AdminRoutes = {
     OVERVIEW: "/admin/overview",
 
     // CONSUMABLE
-    INDEX_CONSUMABLE: "/admin/inventory-management/consumables",
-    CREATE_CONSUMABLE: "/admin/inventory-management/create-consumables",
+    INDEX_CONSUMABLE: "/admin/inventory-management/consumable",
+    CREATE_CONSUMABLE: "/admin/inventory-management/create",
     VIEW_CONSUMABLE: "/admin/inventory-management/consumables/:id",
+
+    // VEHICLE REQUEST
+    INDEX_VEHICLE_REQUEST: "/admin/fleet-management/vehicle-request",
+    CREATE_VEHICLE_REQUEST: "/admin/fleet-management/vehicle-request/create",
+    VIEW_VEHICLE_REQUEST: "/admin/fleet-management/vehicle-request/:id",
 
     // VEHICLE MAINTENANCE
     INDEX_VEHICLE_MAINTENANCE: "/admin/fleet-management/vehicle-maintenance",
@@ -41,10 +46,6 @@ export const AdminRoutes = {
 
     CreateAssets: "/admin/inventory-management/create-assets",
     ViewAssets: "/admin/inventory-management/view-assets",
-    VehicleRequest: "/admin/fleet-management/vehichle-request",
-
-    NewVehicleRequest: "/admin/fleet-management/new-vehicle-request",
-    ViewVehicleRequest: "/admin/fleet-management/vehicle",
     Facilities: "/admin/facilities/facilities-list",
     FacilitiesTicket: "/admin/facilities/maintenance-ticket",
     FacilitiesView: "/admin/facilities/facilities-view",

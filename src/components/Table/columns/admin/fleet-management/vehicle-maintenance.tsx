@@ -93,7 +93,7 @@ const TableMenu = ({ id }: IVehicleMaintenancePaginatedData) => {
                         <MoreOptionsHorizontalIcon />
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent className=" w-fit">
+                <PopoverContent className="w-fit">
                     <div className="flex flex-col items-start justify-between gap-1">
                         <Link
                             to={{

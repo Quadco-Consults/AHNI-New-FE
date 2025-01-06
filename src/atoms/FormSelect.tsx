@@ -33,59 +33,64 @@ const FormSelect: FC<SelectProps> = ({
     required,
     placeholder,
     options,
+    className,
 }) => {
     const { control } = useFormContext();
 
     useDisableNumberInputScroll();
 
     return (
-        <FormField
-            control={control}
-            name={name}
-            render={({ field }) => {
-                const { value, onChange } = field;
+        <div className={className}>
+            <FormField
+                control={control}
+                name={name}
+                render={({ field }) => {
+                    const { value, onChange } = field;
 
-                return (
-                    <FormItem className="flex flex-col gap-0">
-                        <FormLabel>
-                            {label}
-                            {required && (
-                                <span
-                                    className="text-red-500 "
-                                    title="required"
-                                >
-                                    *
-                                </span>
-                            )}
-                        </FormLabel>
-                        <Select
-                            onValueChange={onChange}
-                            value={value}
-                            defaultValue={value}
-                        >
-                            <FormControl>
-                                <SelectTrigger>
-                                    <SelectValue placeholder={placeholder} />
-                                </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                                {options?.map((item) => {
-                                    return (
-                                        <SelectItem
-                                            value={item.value as string}
-                                            key={item.value as string}
-                                        >
-                                            {item.label}
-                                        </SelectItem>
-                                    );
-                                })}
-                            </SelectContent>
-                        </Select>
-                        <FormMessage />
-                    </FormItem>
-                );
-            }}
-        />
+                    return (
+                        <FormItem className="flex flex-col gap-0">
+                            <FormLabel>
+                                {label}
+                                {required && (
+                                    <span
+                                        className="text-red-500 "
+                                        title="required"
+                                    >
+                                        *
+                                    </span>
+                                )}
+                            </FormLabel>
+                            <Select
+                                onValueChange={onChange}
+                                value={value}
+                                defaultValue={value}
+                            >
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue
+                                            placeholder={placeholder}
+                                        />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {options?.map((item) => {
+                                        return (
+                                            <SelectItem
+                                                value={item.value as string}
+                                                key={item.value as string}
+                                            >
+                                                {item.label}
+                                            </SelectItem>
+                                        );
+                                    })}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    );
+                }}
+            />
+        </div>
     );
 };
 

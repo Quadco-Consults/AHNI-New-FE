@@ -1,20 +1,29 @@
 import BackNavigation from "atoms/BackNavigation";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
-import { vehicleRequestColumns } from "components/Table/columns/vehicleRequest";
+import { vehicleRequestColumns } from "components/Table/columns/admin/fleet-management/vehicle-request";
+import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
 import { AdminRoutes } from "constants/RouterConstants";
 import { Plus } from "lucide-react";
+import { useState } from "react";
 import { Link, generatePath } from "react-router-dom";
+import { useGetAllVehicleRequestQuery } from "services/admin/fleet-management/vehicle-request";
 
 export default function VehicleRequestHomePage() {
+    const [page, setPage] = useState(1);
+
+    const { data, isFetching } = useGetAllVehicleRequestQuery({
+        page,
+        size: 10,
+    });
+
     return (
         <div className="flex flex-col gap-y-7">
             <div className="flex items-center justify-between">
                 <BackNavigation extraText="Vehicle Request" />
-                <div></div>
                 <div>
-                    <Link to={generatePath(AdminRoutes.NewVehicleRequest)}>
+                    <Link to={generatePath(AdminRoutes.CREATE_VEHICLE_REQUEST)}>
                         <Button>
                             <Plus size={20} />
                             New Vehicle Request
@@ -22,15 +31,20 @@ export default function VehicleRequestHomePage() {
                     </Link>
                 </div>
             </div>
-            <div>
+            <Card>
                 <TableFilters>
                     <DataTable
                         columns={vehicleRequestColumns}
-                        data={[]}
-                        isLoading={false}
+                        data={data?.data.results || []}
+                        isLoading={isFetching}
+                        pagination={{
+                            total: data?.data.pagination.count ?? 0,
+                            pageSize: data?.data.pagination.page_size ?? 0,
+                            onChange: (page: number) => setPage(page),
+                        }}
                     />
                 </TableFilters>
-            </div>
+            </Card>
         </div>
     );
 }
