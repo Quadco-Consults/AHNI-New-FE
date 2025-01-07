@@ -15,6 +15,7 @@ type TProps = {
     onLoadSuccess: (params: { numPages: number }) => void;
     pageNumber: number;
     uploadedDateTime: string;
+    showDeleteIcon?: boolean;
 };
 
 export default function DocumentCard({
@@ -24,6 +25,7 @@ export default function DocumentCard({
     onLoadSuccess,
     pageNumber,
     uploadedDateTime,
+    showDeleteIcon = true,
 }: TProps) {
     const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -48,7 +50,8 @@ export default function DocumentCard({
                         <PdfIcon />
                         <h2 className="line-clamp-1">{title}</h2>
                     </div>
-                    <div>
+
+                    {showDeleteIcon && (
                         <Button
                             type="button"
                             onClick={() => setDialogOpen(true)}
@@ -57,7 +60,7 @@ export default function DocumentCard({
                         >
                             <DeleteIcon />
                         </Button>
-                    </div>
+                    )}
                 </div>
                 <div className="bg-[#0000001A] py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden">
                     <Document file={file} onLoadSuccess={onLoadSuccess}>

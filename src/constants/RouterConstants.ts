@@ -36,8 +36,8 @@ export const AdminRoutes = {
 
     // PAYMENT REQUEST
     INDEX_PAYMENT_REQUEST: "/admin/payment-request",
-    CREATE_PAYMENT_REQUEST: "/admin/payment-request/create",
-    // PaymentRequestUpload: "/admin/payment-request/file-updload",
+    CREATE_PAYMENT_REQUEST_SUMMARY: "/admin/payment-request/create/summary",
+    CREATE_PAYMENT_REQUEST_UPLOADS: "/admin/payment-request/create/uploads",
     VIEW_PAYMENT_REQUEST: "/admin/payment-request/:id",
 
     // ASSET MAINTENANCE
