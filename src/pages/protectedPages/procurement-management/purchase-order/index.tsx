@@ -18,23 +18,13 @@ import {
 } from "components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
-import PurchaseOrderAPI from "services/procurementApi/purchase-order";
-import { PurchaseOrderResultsData } from "definations/procurement-types/purchase-order";
 import BreadcrumbCard from "components/shared/Breadcrumb";
+import { IPurchaseOrderPaginatedData } from "definations/procurement-types/purchase-order";
 
 const PurchaseOrder = () => {
-    const { data, isLoading } = PurchaseOrderAPI.useGetPurchaseOrdersQuery({});
-
     const breadcrumbs = [
         { name: "Procurement", icon: true },
         { name: "Purchase Order", icon: false },
-    ];
-
-    const dataSource: PurchaseOrderResultsData[] = [
-        {
-            order_id: "11",
-            title: "Whatever",
-        },
     ];
 
     return (
@@ -61,7 +51,7 @@ const PurchaseOrder = () => {
 
                 <DataTable
                     // data={data?.results || []}
-                    data={dataSource}
+                    data={[]}
                     columns={columns}
                     // isLoading={isLoading}
                 />
@@ -72,7 +62,7 @@ const PurchaseOrder = () => {
 
 export default PurchaseOrder;
 
-const columns: ColumnDef<PurchaseOrderResultsData>[] = [
+const columns: ColumnDef<IPurchaseOrderPaginatedData>[] = [
     {
         id: "select",
         size: 50,

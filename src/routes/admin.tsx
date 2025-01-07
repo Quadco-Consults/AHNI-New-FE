@@ -159,18 +159,22 @@ export const adminRoutes = [
     },
 
     {
-        path: AdminRoutes.CREATE_PAYMENT_REQUEST,
+        path: AdminRoutes.CREATE_PAYMENT_REQUEST_SUMMARY,
         element: lazy(
             () => import("pages/protectedPages/admin/payment-request/create")
         ),
     },
-    // {
-    //     path: AdminRoutes.PaymentRequestUpload,
-    //     element: lazy(
-    //         () =>
-    //             import("pages/protectedPages/admin/payment-request/id/uploads")
-    //     ),
-    // },
+
+    {
+        path: AdminRoutes.CREATE_PAYMENT_REQUEST_UPLOADS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/admin/payment-request/create/uploads"
+                )
+        ),
+    },
+
     {
         path: AdminRoutes.VIEW_PAYMENT_REQUEST,
         element: lazy(
@@ -307,9 +311,7 @@ export const adminRoutes = [
     },
     {
         path: AdminRoutes.ASSETS_REQUEST,
-        element: lazy(
-            () => import("pages/protectedPages/admin/asset-request")
-        ),
+        element: lazy(() => import("pages/protectedPages/admin/asset-request")),
     },
     {
         path: AdminRoutes.ASSETS_REQUEST_CREATE,
