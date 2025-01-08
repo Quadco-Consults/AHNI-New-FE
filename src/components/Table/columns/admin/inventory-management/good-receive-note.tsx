@@ -7,35 +7,51 @@ import DeleteIcon from "components/icons/DeleteIcon";
 import EyeIcon from "components/icons/EyeIcon";
 import { Button } from "components/ui/button";
 import { AdminRoutes } from "constants/RouterConstants";
+import { format } from "date-fns";
+import PencilIcon from "components/icons/PencilIcon";
+import { useDeleteGoodReceiveNoteMutation } from "services/admin/inventory-management/good-receive-note";
+import { toast } from "sonner";
+import { useState } from "react";
+import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 
 export const goodReceiveNoteColumns: ColumnDef<IGoodReceiveNotePaginatedData>[] =
     [
         {
-            header: "Vendor Name",
-            accessorKey: "name",
+            header: "Vendor  Name",
+            id: "vendor_name",
+            accessorKey: "vendor_name",
+            size: 200,
         },
         {
             header: "PO Number",
-            accessorKey: "item",
+            id: "purchase_order",
+            accessorKey: "purchase_order",
+            size: 150,
         },
 
         {
             header: "Invoice Number",
-            accessorKey: "quantity",
+            id: "invoice_number",
+            accessorKey: "invoice_number",
             size: 200,
         },
         {
             header: "Waybill Number",
-            accessorKey: "department",
+            id: "waybill_number",
+            accessorKey: "waybill_number",
+            size: 200,
         },
 
         {
             header: "Date Created",
-            accessorKey: "date",
+            id: "created_datetime",
+            accessorFn: ({ created_datetime }) =>
+                format(created_datetime, "dd-MMM-yyyy"),
         },
         {
-            header: "Remarks",
-            accessorKey: "date",
+            header: "Remark",
+            id: "remark",
+            accessorKey: "remark",
         },
         {
             header: "",
@@ -48,37 +64,79 @@ export const goodReceiveNoteColumns: ColumnDef<IGoodReceiveNotePaginatedData>[] 
     ];
 
 const TableMenu = ({ id }: IGoodReceiveNotePaginatedData) => {
+    const [isDialogOpen, setDialogOpen] = useState(false);
+
+    const [deleteGoodReceiveNote, { isLoading }] =
+        useDeleteGoodReceiveNoteMutation();
+
+    const handleDelete = async () => {
+        try {
+            await deleteGoodReceiveNote(id).unwrap();
+            toast.success("Deleted Good Receive Note");
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
+        }
+    };
+
     return (
-        <Popover>
-            <PopoverTrigger asChild>
-                <Button variant="ghost" className="flex gap-2 py-6">
-                    <MoreOptionsHorizontalIcon />
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-fit">
-                <div className="flex flex-col items-start justify-between gap-1">
-                    <Link
-                        to={generatePath(AdminRoutes.GRN_DETAIL, {
-                            id,
-                        })}
-                    >
+        <>
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button variant="ghost" className="flex gap-2 py-6">
+                        <MoreOptionsHorizontalIcon />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-fit">
+                    <div className="flex flex-col items-start justify-between gap-1">
+                        <Link
+                            to={generatePath(AdminRoutes.GRN_DETAIL, {
+                                id,
+                            })}
+                            className="block w-full"
+                        >
+                            <Button
+                                className="w-full flex items-center justify-start gap-2"
+                                variant="ghost"
+                            >
+                                <EyeIcon />
+                                View
+                            </Button>
+                        </Link>
+
+                        <Link
+                            to={{
+                                pathname: AdminRoutes.GRN_CREATE,
+                                search: `?id=${id}`,
+                            }}
+                            className="block w-full"
+                        >
+                            <Button
+                                className="w-full flex items-center justify-start gap-2"
+                                variant="ghost"
+                            >
+                                <PencilIcon />
+                                Edit
+                            </Button>
+                        </Link>
                         <Button
                             className="w-full flex items-center justify-start gap-2"
                             variant="ghost"
+                            onClick={() => setDialogOpen(true)}
                         >
-                            <EyeIcon />
-                            View
+                            <DeleteIcon />
+                            Delete
                         </Button>
-                    </Link>
-                    <Button
-                        className="w-full flex items-center justify-start gap-2"
-                        variant="ghost"
-                    >
-                        <DeleteIcon />
-                        Delete
-                    </Button>
-                </div>
-            </PopoverContent>
-        </Popover>
+                    </div>
+                </PopoverContent>
+            </Popover>
+
+            <ConfirmationDialog
+                open={isDialogOpen}
+                title="Are you sure you want to delete this GRN?"
+                loading={isLoading}
+                onCancel={() => setDialogOpen(false)}
+                onOk={handleDelete}
+            />
+        </>
     );
 };

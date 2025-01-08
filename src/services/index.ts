@@ -101,6 +101,7 @@ const baseAPI = createApi({
         "ITEM_REQUISITION",
         "ASSET",
         "ASSET_REQUEST",
+        "GOOD_RECEIVE_NOTE",
         "SUPERVISION_PLAN",
         "VEHICLE_MAINTENANCE",
         "FUEL_REQUEST",

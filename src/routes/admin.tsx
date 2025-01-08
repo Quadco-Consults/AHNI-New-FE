@@ -340,7 +340,7 @@ export const adminRoutes = [
     {
         path: AdminRoutes.GRN_DETAIL,
         element: lazy(
-            () => import("pages/protectedPages/admin/good-receive-note/id/view")
+            () => import("pages/protectedPages/admin/good-receive-note/id")
         ),
     },
     {
