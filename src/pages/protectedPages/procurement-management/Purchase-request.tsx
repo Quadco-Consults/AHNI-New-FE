@@ -55,34 +55,34 @@ const PurchaseRequest = () => {
   };
 
   return (
-    <div className="space-y-10">
+    <div className='space-y-10'>
       <div>
-        <h4 className="text-lg font-bold">Purchase Request</h4>
+        {/* <h4 className='text-lg font-bold'>Purchase Request</h4> */}
         <h6>
           Procurement -{" "}
-          <span className="font-medium text-black dark:text-grey-dark">
+          <span className='font-medium text-black dark:text-grey-dark'>
             Purchase Request
           </span>
         </h6>
       </div>
 
-      <Card className="space-y-10">
-        <div className="flex items-center justify-between">
-          <h4 className="text-base font-bold">Purchase Request</h4>
+      <Card className='space-y-10'>
+        <div className='flex items-center justify-between'>
+          <h4 className='text-base font-bold'>Purchase Request</h4>
 
           <div>
             <Dialog>
               <DialogTrigger>
-                <div className="flex items-center px-4 py-3 text-sm font-medium rounded-md bg-primary text-primary-foreground h-11 hover:bg-primary/90">
+                <div className='flex items-center px-4 py-3 text-sm font-medium rounded-md bg-primary text-primary-foreground h-11 hover:bg-primary/90'>
                   <span>
                     <Plus size={20} />
                   </span>
                   New RFQ
                 </div>
               </DialogTrigger>
-              <DialogContent className="max-w-4xl max-h-[650px]">
-                <div className="pb-5 space-y-5">
-                  <DialogTitle className="py-5 ">
+              <DialogContent className='max-w-4xl max-h-[650px]'>
+                <div className='pb-5 space-y-5'>
+                  <DialogTitle className='py-5 '>
                     New Purchase Requests
                   </DialogTitle>
 
@@ -90,12 +90,12 @@ const PurchaseRequest = () => {
                   <Form {...formHook}>
                     <form
                       onSubmit={formHook.handleSubmit(onSubmit)}
-                      className="space-y-5"
+                      className='space-y-5'
                     >
-                      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                      <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
                         <FormField
                           control={formHook.control}
-                          name="background"
+                          name='background'
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Requisition Name</FormLabel>
@@ -108,7 +108,7 @@ const PurchaseRequest = () => {
                         />
                         <FormField
                           control={formHook.control}
-                          name="background"
+                          name='background'
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Total</FormLabel>
@@ -121,10 +121,10 @@ const PurchaseRequest = () => {
                         />
                       </div>
 
-                      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                      <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
                         <FormField
                           control={formHook.control}
-                          name="reference"
+                          name='reference'
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Requested Project</FormLabel>
@@ -134,18 +134,18 @@ const PurchaseRequest = () => {
                               >
                                 <FormControl>
                                   <SelectTrigger>
-                                    <SelectValue placeholder="Select a Project" />
+                                    <SelectValue placeholder='Select a Project' />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
                                   <SelectGroup>
-                                    <SelectItem value="Single Source">
+                                    <SelectItem value='Single Source'>
                                       Project A
                                     </SelectItem>
-                                    <SelectItem value="Open Tender">
+                                    <SelectItem value='Open Tender'>
                                       Project B
                                     </SelectItem>
-                                    <SelectItem value="National Open Tender">
+                                    <SelectItem value='National Open Tender'>
                                       Project C
                                     </SelectItem>
                                   </SelectGroup>
@@ -156,7 +156,7 @@ const PurchaseRequest = () => {
                         />
                         <FormField
                           control={formHook.control}
-                          name="reference"
+                          name='reference'
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Status</FormLabel>
@@ -166,21 +166,21 @@ const PurchaseRequest = () => {
                               >
                                 <FormControl>
                                   <SelectTrigger>
-                                    <SelectValue placeholder="Select a Status" />
+                                    <SelectValue placeholder='Select a Status' />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
                                   <SelectGroup>
-                                    <SelectItem value="Single Source">
+                                    <SelectItem value='Single Source'>
                                       Approved
                                     </SelectItem>
-                                    <SelectItem value="Open Tender">
+                                    <SelectItem value='Open Tender'>
                                       Rejected
                                     </SelectItem>
-                                    <SelectItem value="National Open Tender">
+                                    <SelectItem value='National Open Tender'>
                                       Pending
                                     </SelectItem>
-                                    <SelectItem value="National Open Tender">
+                                    <SelectItem value='National Open Tender'>
                                       On Hold
                                     </SelectItem>
                                   </SelectGroup>
@@ -191,10 +191,10 @@ const PurchaseRequest = () => {
                         />
                       </div>
 
-                      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                      <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
                         <FormField
                           control={formHook.control}
-                          name="reference"
+                          name='reference'
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Unit</FormLabel>
@@ -204,22 +204,22 @@ const PurchaseRequest = () => {
                               >
                                 <FormControl>
                                   <SelectTrigger>
-                                    <SelectValue placeholder="Select a Department" />
+                                    <SelectValue placeholder='Select a Department' />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
                                   <SelectGroup>
-                                    <SelectItem value="Single Source">
+                                    <SelectItem value='Single Source'>
                                       Sales
                                     </SelectItem>
-                                    <SelectItem value="Open Tender">
+                                    <SelectItem value='Open Tender'>
                                       IT
                                     </SelectItem>
-                                    <SelectItem value="HR">HR</SelectItem>
-                                    <SelectItem value="Finance">
+                                    <SelectItem value='HR'>HR</SelectItem>
+                                    <SelectItem value='Finance'>
                                       Finance
                                     </SelectItem>
-                                    <SelectItem value="National Open Tender">
+                                    <SelectItem value='National Open Tender'>
                                       Operations
                                     </SelectItem>
                                   </SelectGroup>
@@ -230,7 +230,7 @@ const PurchaseRequest = () => {
                         />
                         <FormField
                           control={formHook.control}
-                          name="background"
+                          name='background'
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Specifications</FormLabel>
@@ -245,23 +245,23 @@ const PurchaseRequest = () => {
 
                       <FormField
                         control={formHook.control}
-                        name="background"
+                        name='background'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Upload Specification</FormLabel>
                             <FormControl>
-                              <Input {...field} type="file" />
+                              <Input {...field} type='file' />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
 
-                      <div className="flex justify-end gap-5">
+                      <div className='flex justify-end gap-5'>
                         <DialogClose asChild>
-                          <Button variant="ghost">Close</Button>
+                          <Button variant='ghost'>Close</Button>
                         </DialogClose>
-                        <Button type="submit">Save Changes</Button>
+                        <Button type='submit'>Save Changes</Button>
                       </div>
                     </form>
                   </Form>
@@ -404,33 +404,33 @@ const ActionListAction = ({ data }: any) => {
     console.log(data);
   };
   return (
-    <div className="flex items-center gap-2">
+    <div className='flex items-center gap-2'>
       <Dialog>
         <DialogTrigger>
-          <div className="rounded-lg px-2 py-2 bg-[#F9F9F9] hover:text-primary dark:text-black dark:hover:text-primary">
-            <Icon icon="solar:pen-bold-duotone" fontSize={15} />
+          <div className='rounded-lg px-2 py-2 bg-[#F9F9F9] hover:text-primary dark:text-black dark:hover:text-primary'>
+            <Icon icon='solar:pen-bold-duotone' fontSize={15} />
           </div>
         </DialogTrigger>
-        <DialogContent className="max-w-4xl max-h-[650px]">
-          <div className="pb-5 space-y-5">
-            <DialogTitle className="py-5 ">New Purchase Requests</DialogTitle>
+        <DialogContent className='max-w-4xl max-h-[650px]'>
+          <div className='pb-5 space-y-5'>
+            <DialogTitle className='py-5 '>New Purchase Requests</DialogTitle>
 
             <hr />
             <Form {...formHook}>
               <form
                 onSubmit={formHook.handleSubmit(onSubmit)}
-                className="space-y-5"
+                className='space-y-5'
               >
-                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
                   <FormField
                     control={formHook.control}
-                    name="vendor"
+                    name='vendor'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Requisition Name</FormLabel>
                         <FormControl>
                           <Input
-                            type="text"
+                            type='text'
                             // placeholder="Type your description here."
                             {...field}
                           />
@@ -441,12 +441,12 @@ const ActionListAction = ({ data }: any) => {
                   />
                   <FormField
                     control={formHook.control}
-                    name="description"
+                    name='description'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Total</FormLabel>
                         <FormControl>
-                          <Input type="number" {...field} />
+                          <Input type='number' {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -454,10 +454,10 @@ const ActionListAction = ({ data }: any) => {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
                   <FormField
                     control={formHook.control}
-                    name="tender_type"
+                    name='tender_type'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Requested Project</FormLabel>
@@ -467,18 +467,18 @@ const ActionListAction = ({ data }: any) => {
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select Project" />
+                              <SelectValue placeholder='Select Project' />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             <SelectGroup>
-                              <SelectItem value="Single Source">
+                              <SelectItem value='Single Source'>
                                 Project A
                               </SelectItem>
-                              <SelectItem value="Open Tender">
+                              <SelectItem value='Open Tender'>
                                 Project B
                               </SelectItem>
-                              <SelectItem value="National Open Tender">
+                              <SelectItem value='National Open Tender'>
                                 Project C
                               </SelectItem>
                             </SelectGroup>
@@ -489,7 +489,7 @@ const ActionListAction = ({ data }: any) => {
                   />
                   <FormField
                     control={formHook.control}
-                    name="tender_type"
+                    name='tender_type'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Status</FormLabel>
@@ -499,18 +499,18 @@ const ActionListAction = ({ data }: any) => {
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select Status" />
+                              <SelectValue placeholder='Select Status' />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             <SelectGroup>
-                              <SelectItem value="Single Source">
+                              <SelectItem value='Single Source'>
                                 Single Source
                               </SelectItem>
-                              <SelectItem value="Open Tender">
+                              <SelectItem value='Open Tender'>
                                 Open Tender
                               </SelectItem>
-                              <SelectItem value="National Open Tender">
+                              <SelectItem value='National Open Tender'>
                                 National Open Tender
                               </SelectItem>
                             </SelectGroup>
@@ -521,10 +521,10 @@ const ActionListAction = ({ data }: any) => {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
                   <FormField
                     control={formHook.control}
-                    name="tender_type"
+                    name='tender_type'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Unit</FormLabel>
@@ -534,18 +534,18 @@ const ActionListAction = ({ data }: any) => {
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select Unit" />
+                              <SelectValue placeholder='Select Unit' />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             <SelectGroup>
-                              <SelectItem value="Single Source">
+                              <SelectItem value='Single Source'>
                                 Project A
                               </SelectItem>
-                              <SelectItem value="Open Tender">
+                              <SelectItem value='Open Tender'>
                                 Project B
                               </SelectItem>
-                              <SelectItem value="National Open Tender">
+                              <SelectItem value='National Open Tender'>
                                 Project C
                               </SelectItem>
                             </SelectGroup>
@@ -556,13 +556,13 @@ const ActionListAction = ({ data }: any) => {
                   />
                   <FormField
                     control={formHook.control}
-                    name="description"
+                    name='description'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Specifications</FormLabel>
                         <FormControl>
                           <Input
-                            type="text"
+                            type='text'
                             // placeholder="Type your description here."
                             {...field}
                           />
@@ -575,13 +575,13 @@ const ActionListAction = ({ data }: any) => {
 
                 <FormField
                   control={formHook.control}
-                  name="vendor"
+                  name='vendor'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Upload Specification</FormLabel>
                       <FormControl>
                         <Input
-                          type="file"
+                          type='file'
                           // placeholder="Type your description here."
                           {...field}
                         />
@@ -591,19 +591,19 @@ const ActionListAction = ({ data }: any) => {
                   )}
                 />
 
-                <div className="flex justify-end gap-5">
+                <div className='flex justify-end gap-5'>
                   <DialogClose asChild>
-                    <Button variant="ghost">Close</Button>
+                    <Button variant='ghost'>Close</Button>
                   </DialogClose>
-                  <Button type="submit">Save Changes</Button>
+                  <Button type='submit'>Save Changes</Button>
                 </div>
               </form>
             </Form>
           </div>
         </DialogContent>
       </Dialog>
-      <IconButton className="bg-[#F9F9F9] hover:text-primary">
-        <Icon icon="ant-design:delete-twotone" fontSize={15} />
+      <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+        <Icon icon='ant-design:delete-twotone' fontSize={15} />
       </IconButton>
     </div>
   );
