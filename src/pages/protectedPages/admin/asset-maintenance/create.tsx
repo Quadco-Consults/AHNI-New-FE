@@ -15,6 +15,7 @@ import { useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useCreateAssetMaintenanceMutation } from "services/admin/asset-maintenance";
+import { useGetAllAssetsQuery } from "services/admin/inventory-management/asset";
 import { useGetAllUsersQuery } from "services/auth/user";
 import { useGetAllDepartmentsQuery } from "services/modules/config/department";
 import { useGetAllLocationsQuery } from "services/modules/config/location";
@@ -95,18 +96,18 @@ export default function CreateAssetMaintenance() {
         [location]
     );
 
-    const { data: facility } = useGetAllFacilityQuery({
+    const { data: asset } = useGetAllAssetsQuery({
         page: 1,
         size: 2000000,
     });
 
-    const facilityOptions = useMemo(
+    const assetOptions = useMemo(
         () =>
-            facility?.data.results.map(({ name, id }) => ({
+            asset?.data.results.map(({ name, id }) => ({
                 label: name,
                 value: id,
             })),
-        [facility]
+        [asset]
     );
 
     const [createAssetMaintenance, { isLoading: isCreateLoading }] =
@@ -166,11 +167,11 @@ export default function CreateAssetMaintenance() {
                                 />
 
                                 <FormSelect
-                                    label="Facility "
-                                    name="facility"
-                                    placeholder="Select Facility"
+                                    label="Asset "
+                                    name="asset"
+                                    placeholder="Select Asset"
                                     required
-                                    options={facilityOptions}
+                                    options={assetOptions}
                                 />
 
                                 <FormInput

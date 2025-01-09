@@ -17,13 +17,13 @@ export const assetMaintenanceColumn: ColumnDef<IAssetMaintenancePaginatedData>[]
     [
         {
             header: "Asset",
-            id: "facility",
-            accessorKey: "facility",
+            id: "asset",
+            accessorKey: "asset",
         },
         {
             header: "Classification",
-            id: "classficiation",
-            accessorKey: "classficiation",
+            id: "asset_classification",
+            accessorKey: "asset_classification",
         },
 
         {
@@ -36,6 +36,7 @@ export const assetMaintenanceColumn: ColumnDef<IAssetMaintenancePaginatedData>[]
             header: "Problem Description",
             id: "description",
             accessorKey: "description",
+            size: 250,
         },
 
         {
