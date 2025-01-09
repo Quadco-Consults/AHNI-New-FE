@@ -108,6 +108,7 @@ const baseAPI = createApi({
         "VEHICLE_REQUEST",
         "FACILITY_MAINTENANCE",
         "PAYMENT_REQUEST",
+        "ASSET_MAINTENANCE",
     ],
     // keepUnusedDataFor: 5 * 60,
     keepUnusedDataFor: 0,

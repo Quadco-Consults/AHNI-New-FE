@@ -1,144 +1,122 @@
+import { skipToken } from "@reduxjs/toolkit/query/react";
 import BackNavigation from "atoms/BackNavigation";
-import { Tabs, TabsList, TabsContent, TabsTrigger } from "components/ui/tabs";
-import { Card, CardContent, CardHeader } from "components/ui/card";
-import { Separator } from "components/ui/separator";
-import { cn } from "lib/utils";
-import { useSearchParams } from "react-router-dom";
+import FormButton from "atoms/FormButton";
 import FormTextArea from "atoms/FormTextArea";
-import FormSelect from "atoms/FormSelect";
-import { Button } from "components/ui/button";
-import { useForm } from "react-hook-form";
-import { Form } from "components/ui/form";
-const AssetsItem = ({
-    desc,
-    heading,
-    className,
-    className2,
-}: {
-    heading?: string;
-    desc?: string;
-    className?: string;
-    className2?: string;
-}) => {
-    return (
-        <div className={className}>
-            <h4 className="text-base font-semibold ">{heading}</h4>
-            <p className={cn("text-[#4D4545] text-sm capitalize", className2)}>
-                {desc}
-            </p>
-        </div>
-    );
-};
+import DescriptionCard from "components/shared/DescriptionCard";
+import { LoadingSpinner } from "components/shared/Loading";
+import { Card, CardContent } from "components/ui/card";
+import { format } from "date-fns";
+import { FormProvider, useForm } from "react-hook-form";
+import { useParams } from "react-router-dom";
+import { useGetSingleAssetMaintenanceQuery } from "services/admin/asset-maintenance";
 
-const AssetMaintenanceView = () => {
+export default function AssetMaintenanceDetailsPage() {
+    const { id } = useParams();
+
+    const { data, isLoading } = useGetSingleAssetMaintenanceQuery(
+        id ?? skipToken
+    );
+
+    const form = useForm();
+
     return (
         <div>
-            {/* <Tabs defaultValue="details">
-                <TabsList>
-                    <BackNavigation />
-                    <TabsTrigger value="details">Details</TabsTrigger>
-                </TabsList>
-                <TabsContent value="details">
-                    <Card>
-                        <CardHeader className="font-bold">
-                            Maintenance Request Details
-                            <Separator className="mt-4" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex flex-col w-10/12 gap-y-8 ">
-                                <AssetsItem
-                                    heading="Asset"
-                                    className="flex justify-between "
-                                    //   @ts-ignore
-                                    desc={data?.asset.asset_type}
-                                    className2="flex justify-start  w-7/12"
-                                />
-                                <AssetsItem
-                                    heading="Chassis Number"
-                                    className="flex justify-between "
-                                    desc="N/A"
-                                    className2="flex justify-start  w-7/12"
-                                />
-                                <AssetsItem
-                                    heading="Brand"
-                                    className="flex justify-between "
-                                    desc="N/A"
-                                    className2="flex justify-start  w-7/12"
-                                />
-                                <AssetsItem
-                                    heading="Year of Manufacture"
-                                    className="flex justify-between "
-                                    desc="N/A"
-                                    className2="flex justify-start  w-7/12"
-                                />
-                                <AssetsItem
-                                    heading="Plate Number"
-                                    className="flex justify-between "
-                                    desc="N/A"
-                                    className2="flex justify-start  w-7/12"
-                                />
-                                <AssetsItem
-                                    heading="Maintenance Type"
-                                    className="flex justify-between "
-                                    desc={data?.maintenance_type}
-                                    className2="flex justify-start  w-7/12"
+            <BackNavigation extraText="Asset Maintenance Ticket Details" />
+
+            <Card>
+                {isLoading ? (
+                    <LoadingSpinner />
+                ) : (
+                    data && (
+                        <CardContent className="mt-10">
+                            <div className="grid grid-cols-3 gap-5">
+                                <DescriptionCard
+                                    label="Name of Staff"
+                                    description={data?.data.staff_name}
+                                    // description={`${data?.data.staff_name.first_name} ${data?.data.staff_name.last_name}`}
                                 />
 
-                                <AssetsItem
-                                    heading="Problem"
-                                    className="flex justify-between "
-                                    desc={data?.description_of_problem}
-                                    className2="flex justify-start  w-7/12"
+                                <DescriptionCard
+                                    label="Department"
+                                    description={data?.data.department.name}
                                 />
-                                <AssetsItem
-                                    heading="Classification"
-                                    className="flex justify-between "
-                                    desc={data?.classification}
-                                    className2="flex justify-start  w-7/12"
+
+                                <DescriptionCard
+                                    label="Location"
+                                    description={data?.data.location.name}
                                 />
-                                <AssetsItem
-                                    heading="Status"
-                                    className="flex justify-between "
-                                    desc={data?.status}
-                                    className2="flex justify-start  w-7/12"
+
+                                <DescriptionCard
+                                    label="Date"
+                                    description={format(
+                                        data?.data.created_datetime,
+                                        "dd-MMM-yyyy"
+                                    )}
                                 />
-                                <AssetsItem
-                                    heading="Approved By"
-                                    className="flex justify-between "
-                                    desc={data?.approved_by}
-                                    className2="flex justify-start  w-7/12"
+
+                                <DescriptionCard
+                                    label="Facility"
+                                    description={data?.data.facility.name}
                                 />
-                                <Form {...form}>
-                                    <form className="space-y-2 max-w-2xl">
-                                        <FormTextArea
-                                            name=""
-                                            label="Comment"
-                                            placeholder="This can be repaired and we donate it to CBOs"
-                                        />
-                                        <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                                            <FormSelect
-                                                name=""
-                                                placeholder="Select approval"
-                                                options={APPROVAL_PROCESS}
-                                            />
-                                            <FormSelect
-                                                name=""
-                                                placeholder="Select name"
-                                                options={APPROVAL_PROCESS}
-                                            />
-                                        </div>
-                                        <Button variant="custom" type="button">
-                                            Approve
-                                        </Button>
-                                    </form>
-                                </Form>
+
+                                <DescriptionCard
+                                    label="Maintenance Type"
+                                    description={data?.data.maintenance_type}
+                                />
+
+                                <DescriptionCard
+                                    label="Rate"
+                                    description={data?.data.rate}
+                                />
+
+                                <DescriptionCard
+                                    label="Cost Estimate"
+                                    description={data?.data.cost_estimate}
+                                />
+
+                                <DescriptionCard
+                                    label="Total Cost Estimate"
+                                    description={data?.data.total_cost_estimate}
+                                />
+
+                                <DescriptionCard
+                                    label="Description Type"
+                                    description={data?.data.description_type}
+                                />
+
+                                <DescriptionCard
+                                    label="Justification for Disposal"
+                                    description={
+                                        data?.data.disposal_justification
+                                    }
+                                />
+
+                                <DescriptionCard
+                                    label="Description of Problem"
+                                    description={data?.data.description}
+                                />
                             </div>
+
+                            <FormProvider {...form}>
+                                <form className="space-y-6 mt-5">
+                                    <FormTextArea
+                                        label="Comment"
+                                        name="comment"
+                                        placeholder="Enter Comment"
+                                    />
+
+                                    <FormButton
+                                        size="lg"
+                                        className="bg-green-500"
+                                    >
+                                        Approve
+                                    </FormButton>
+                                </form>
+                            </FormProvider>
                         </CardContent>
-                    </Card>
-                </TabsContent>
-            </Tabs> */}
+                    )
+                )}
+            </Card>
         </div>
     );
-};
-
-export default AssetMaintenanceView;
+}
