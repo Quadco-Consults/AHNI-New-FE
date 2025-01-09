@@ -2,6 +2,7 @@ import { TDepartmentData } from "definations/modules/config/department";
 import { TLocationData } from "definations/modules/config/location";
 import { TFacilityData } from "definations/modules/program/facility";
 import { z } from "zod";
+import { TAssetSingleData } from "./inventory-management/asset";
 
 export const AssetMaintenanceSchema = z.object({
     staff_name: z.string().min(1, "Please select staff"),
@@ -52,7 +53,7 @@ export interface IAssetMaintenanceSingleData {
     id: string;
     department: TDepartmentData;
     location: TLocationData;
-    facility: TFacilityData;
+    asset: TAssetSingleData;
     created_datetime: string;
     updated_datetime: string;
     staff_name: string;

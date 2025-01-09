@@ -19,7 +19,6 @@ import { useGetAllAssetsQuery } from "services/admin/inventory-management/asset"
 import { useGetAllUsersQuery } from "services/auth/user";
 import { useGetAllDepartmentsQuery } from "services/modules/config/department";
 import { useGetAllLocationsQuery } from "services/modules/config/location";
-import { useGetAllFacilityQuery } from "services/modules/program/facility";
 import { toast } from "sonner";
 
 const descOptions = [
@@ -41,7 +40,7 @@ export default function CreateAssetMaintenance() {
             department: "",
             location: "",
             maintenance_datetime: "",
-            facility: "",
+            asset: "",
             maintenance_type: "",
             rate: "",
             cost_estimate: "",
