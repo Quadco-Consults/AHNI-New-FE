@@ -12,7 +12,7 @@ import { Separator } from "components/ui/separator";
 import { RouteEnum } from "constants/RouterConstants";
 import { DepartmentsResultsData } from "definations/configs/departments";
 import { ItemsResultsData } from "definations/configs/itmes";
-import { PurchaseRequestSchema } from "definations/procurement-validator";
+import { SampleMemoSchema } from "definations/procurement-validator";
 import { MinusCircle } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { generatePath, Link, useNavigate } from "react-router-dom";
@@ -23,7 +23,7 @@ import PurchaseRequestAPI from "services/procurementApi/purchase-request";
 import { toast } from "sonner";
 import { z } from "zod";
 
-const CreatePurchaseRequestForm = () => {
+const CreateActivityMemo = () => {
   const { data: departments, isLoading: departmentsIsLoading } =
     DepartmentsAPI.useGetDepartmentsQuery({});
   const { data: partner, isLoading: partnersIsLoading } =
@@ -34,23 +34,24 @@ const CreatePurchaseRequestForm = () => {
   const [createPurchaseRequestMutation, { isLoading }] =
     PurchaseRequestAPI.useCreatePurchaseRequestMutation();
 
-  const form = useForm<z.infer<typeof PurchaseRequestSchema>>({
-    resolver: zodResolver(PurchaseRequestSchema),
+  const form = useForm<z.infer<typeof SampleMemoSchema>>({
+    resolver: zodResolver(SampleMemoSchema),
     defaultValues: {
-      items: [
-        {
-          item_id: "",
-          category: "",
-          fco: "",
-          units: 0,
-          number_of_days: 0,
-          unit_cost: 0,
-        },
-      ],
-      request_date: "",
-      required_date: "",
-      requesting_department: "",
-      deliver_to: "",
+      activity: "",
+      location: "",
+      requested_date: "",
+      fconumber: [],
+      module: [],
+      inventory: [],
+      budget_line: [],
+      cost_grouping: [],
+      cost_input: [],
+      funding_source: [],
+      comment: "",
+      // reviewed_date: "",
+      // approved_date: "",
+      // program_areas: [],
+      // expenses: [],
     },
   });
 
@@ -63,7 +64,7 @@ const CreatePurchaseRequestForm = () => {
     name: "items",
   });
 
-  const onSubmit = async (data: z.infer<typeof PurchaseRequestSchema>) => {
+  const onSubmit = async (data: z.infer<typeof SampleMemoSchema>) => {
     try {
       await createPurchaseRequestMutation(data).unwrap();
       navigate(RouteEnum.PURCHASE_REQUEST);
@@ -89,21 +90,53 @@ const CreatePurchaseRequestForm = () => {
               type='date'
               placeholder='01/01/2024'
             />
-            <FormInput label='FCO' name='fco' type='text' />
+            <FormSelect label='FCO' name='fco' required>
+              <SelectContent>
+                {departmentsIsLoading ? (
+                  <LoadingSpinner />
+                ) : (
+                  departments?.results?.map(
+                    (department: DepartmentsResultsData) => (
+                      <SelectItem key={department?.id} value={department?.id}>
+                        {department?.name}
+                      </SelectItem>
+                    )
+                  )
+                )}
+              </SelectContent>
+            </FormSelect>{" "}
           </div>
           <div className='grid grid-cols-2 gap-5'>
-            <FormInput
-              label='Module'
-              name='module'
-              type='text'
-              placeholder='Program Management'
-            />
-            <FormInput
-              label='Inventory'
-              name='inventory'
-              type='text'
-              placeholder='Grant Management'
-            />
+            <FormSelect label='Module' name='module' required>
+              <SelectContent>
+                {departmentsIsLoading ? (
+                  <LoadingSpinner />
+                ) : (
+                  departments?.results?.map(
+                    (department: DepartmentsResultsData) => (
+                      <SelectItem key={department?.id} value={department?.id}>
+                        {department?.name}
+                      </SelectItem>
+                    )
+                  )
+                )}
+              </SelectContent>
+            </FormSelect>
+            <FormSelect label='Inventory' name='inventory' required>
+              <SelectContent>
+                {departmentsIsLoading ? (
+                  <LoadingSpinner />
+                ) : (
+                  departments?.results?.map(
+                    (department: DepartmentsResultsData) => (
+                      <SelectItem key={department?.id} value={department?.id}>
+                        {department?.name}
+                      </SelectItem>
+                    )
+                  )
+                )}
+              </SelectContent>
+            </FormSelect>
           </div>
           <div className='grid gap-5'>
             <FormSelect label=' Budget Line' name='budget_line' required>
@@ -136,18 +169,36 @@ const CreatePurchaseRequestForm = () => {
             </FormSelect>
           </div>
           <div className='grid grid-cols-2 gap-5'>
-            <FormInput
-              label='Cost Input'
-              name='cost_input'
-              type='text'
-              placeholder='Program Management'
-            />
-            <FormInput
-              label='Funding Source'
-              name='funding_source'
-              type='text'
-              placeholder='Global Fund'
-            />
+            <FormSelect label='Cost Input' name='cost_input' required>
+              <SelectContent>
+                {departmentsIsLoading ? (
+                  <LoadingSpinner />
+                ) : (
+                  departments?.results?.map(
+                    (department: DepartmentsResultsData) => (
+                      <SelectItem key={department?.id} value={department?.id}>
+                        {department?.name}
+                      </SelectItem>
+                    )
+                  )
+                )}
+              </SelectContent>
+            </FormSelect>{" "}
+            <FormSelect label='Funding Source' name='funding_source' required>
+              <SelectContent>
+                {departmentsIsLoading ? (
+                  <LoadingSpinner />
+                ) : (
+                  departments?.results?.map(
+                    (department: DepartmentsResultsData) => (
+                      <SelectItem key={department?.id} value={department?.id}>
+                        {department?.name}
+                      </SelectItem>
+                    )
+                  )
+                )}
+              </SelectContent>
+            </FormSelect>
           </div>
           <div className='grid gap-5'>
             <FormInput label='Comment' name='comment' type='text' />
@@ -232,4 +283,4 @@ const CreatePurchaseRequestForm = () => {
   );
 };
 
-export default CreatePurchaseRequestForm;
+export default CreateActivityMemo;
