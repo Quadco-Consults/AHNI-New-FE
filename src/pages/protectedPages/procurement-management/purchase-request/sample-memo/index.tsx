@@ -1,6 +1,6 @@
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import { useNavigate } from "react-router-dom";
-import CreatePurchaseRequestForm from "./form";
+import CreateActivityMemo from "./form";
 import BreadcrumbCard from "components/shared/Breadcrumb";
 
 // type Props = {};
@@ -29,7 +29,7 @@ function CreatePurchaseRequest() {
         <LongArrowLeft />
       </button>
 
-      <CreatePurchaseRequestForm />
+      <CreateActivityMemo />
     </section>
   );
 }

@@ -102,12 +102,13 @@ const Uploads = (data: VendorsResultsData) => {
             // return;
             return (
               <div
-                key={doc?.id}
+                // @ts-ignore
+                key={doc?.document_id}
                 className='border space-y-4 rounded-2xl p-5 w-full overflow-hidden h-fit'
               >
                 <div className='flex items-center justify-between gap-2'>
                   <div className='flex items-center gap-2'>
-                    {doc?.document?.endsWith("pdf") ? (
+                    {doc?.files[0]?.endsWith("pdf") ? (
                       <svg
                         width='24'
                         height='24'
@@ -157,7 +158,7 @@ const Uploads = (data: VendorsResultsData) => {
                     </Button>
                   </div>
                 </div>
-                {doc?.document?.endsWith("pdf") ? (
+                {doc?.files[0]?.file_url?.endsWith("pdf") ? (
                   <div className='bg-[#0000001A] py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden'>
                     <Dialog>
                       <DialogTrigger>
@@ -205,8 +206,9 @@ const Uploads = (data: VendorsResultsData) => {
                 )}
                 <h6 className='text-sm'>
                   Last Updated: {/* // @ts-ignore */}
-                  <span>{format(doc?.uploaded_datetime, "MMM dd, yyy")}</span>
-                  {/* <span>{format(doc?.updated_at, "MMM dd, yyy")}</span> */}
+                  {/* <span>{format(doc?.uploaded_datetime, "MMM dd, yyy")}</span> */}
+                  {/* @ts-ignore */}
+                  <span>{format(doc?.uploaded_date, "MMM dd, yyy")}</span>
                 </h6>
               </div>
             );
