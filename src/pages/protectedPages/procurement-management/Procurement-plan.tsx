@@ -52,7 +52,7 @@ const ProcurementPlan = () => {
   const onSubmit = (data: any) => {
     console.log(data);
   };
-  return;
+
   return (
     <div className='space-y-10'>
       <div>
