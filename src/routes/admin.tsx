@@ -204,6 +204,33 @@ export const adminRoutes = [
         ),
     },
 
+    {
+        path: AdminRoutes.EXPENSE_AUTHORIZATION,
+        element: lazy(
+            () =>
+                import("pages/protectedPages/admin/expense-authorization/index")
+        ),
+    },
+    {
+        path: AdminRoutes.EXPENSE_AUTHORIZATION_CREATE,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/admin/expense-authorization/create"
+                )
+        ),
+    },
+
+    {
+        path: AdminRoutes.EXPENSE_AUTHORIZATION_DETAIL,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/admin/expense-authorization/id"
+                )
+        ),
+    },
+
     // -----------------------------------------------------------------
     {
         path: AdminRoutes.OVERVIEW,
@@ -341,32 +368,6 @@ export const adminRoutes = [
         path: AdminRoutes.GRN_DETAIL,
         element: lazy(
             () => import("pages/protectedPages/admin/good-receive-note/id")
-        ),
-    },
-    {
-        path: AdminRoutes.EXPENSE_AUTHORIZATION,
-        element: lazy(
-            () =>
-                import("pages/protectedPages/admin/ExpenseAuthorization/index")
-        ),
-    },
-    {
-        path: AdminRoutes.EXPENSE_AUTHORIZATION_CREATE,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/admin/ExpenseAuthorization/ExpenseAuthorizationCreate"
-                )
-        ),
-    },
-
-    {
-        path: AdminRoutes.EXPENSE_AUTHORIZATION_DETAIL,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/admin/ExpenseAuthorization/id/index"
-                )
         ),
     },
 
