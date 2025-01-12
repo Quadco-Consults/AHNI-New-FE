@@ -6,18 +6,17 @@ import AddSquareIcon from "components/icons/AddSquareIcon";
 import ArrowDownIcon from "components/icons/ArrowDownIcon";
 import SearchIcon from "components/icons/SearchIcon";
 import FilterIcon from "components/icons/FilterIcon";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import { RouteEnum } from "constants/RouterConstants";
-import EyeIcon from "components/icons/EyeIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
+// import EyeIcon from "components/icons/EyeIcon";
+// import DeleteIcon from "components/icons/DeleteIcon";
 import { Column, ColumnDef, Row } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import BreadcrumbCard from "components/shared/Breadcrumb";
 import ProcurementPlanAPI from "services/procurementApi/procurement-plan";
-import { ProcurementPlanResultsData } from "definations/procurement-types/procurementPlan";
+// import { ProcurementPlanResultsData } from "definations/procurement-types/procurementPlan";
 import UploadIcon from "components/icons/UploadIcon";
-import { useAppDispatch } from "hooks/useStore";
-import { DialogType } from "constants/dailogs";
+// import { useAppDispatch } from "hooks/useStore";
+// import { DialogType } from "constants/dailogs";
 import { useState } from "react";
 import { Textarea } from "components/ui/textarea";
 import ProcurementPlanUploadModal from "./components/ProcurementPlanUploadModal";
@@ -25,11 +24,9 @@ import { MdDownload } from "react-icons/md";
 import * as XLSX from "xlsx";
 
 export default function ProcurementPlan() {
-  const dispatch = useAppDispatch();
+  // const dispatch = useAppDispatch();
 
-  const { data, isLoading } = ProcurementPlanAPI.useGetProcurementPlansQuery(
-    {}
-  );
+  const { isLoading } = ProcurementPlanAPI.useGetProcurementPlansQuery({});
 
   const [isModalOpen, setModalOpen] = useState(false);
 
@@ -87,30 +84,30 @@ export default function ProcurementPlan() {
   };
 
   const handleDownloadSheet = () => {
-    const data = [
-      { Name: "Alice", Age: 25, City: "New York" },
-      { Name: "Bob", Age: 30, City: "Los Angeles" },
-      { Name: "Charlie", Age: 35, City: "Chicago" },
-    ];
+    // const data = [
+    //   { Name: "Alice", Age: 25, City: "New York" },
+    //   { Name: "Bob", Age: 30, City: "Los Angeles" },
+    //   { Name: "Charlie", Age: 35, City: "Chicago" },
+    // ];
 
     if (dataSource) {
       // Convert the data to a worksheet
       const worksheet = XLSX.utils.json_to_sheet(dataSource);
 
       // Apply styles to the header row
-      const headerRow = (worksheet["A1"].s = {
-        font: {
-          bold: true,
-          sz: 14,
-          color: { rgb: "FFFFFF" },
-        },
-        fill: {
-          fgColor: { rgb: "4F81BD" },
-        },
-        alignment: {
-          horizontal: "center",
-        },
-      });
+      // const headerRow = (worksheet["A1"].s = {
+      //   font: {
+      //     bold: true,
+      //     sz: 14,
+      //     color: { rgb: "FFFFFF" },
+      //   },
+      //   fill: {
+      //     fgColor: { rgb: "4F81BD" },
+      //   },
+      //   alignment: {
+      //     horizontal: "center",
+      //   },
+      // });
 
       // Apply styles to the entire worksheet
       for (let cell in worksheet) {
@@ -211,6 +208,7 @@ export default function ProcurementPlan() {
 
         <DataTable
           data={dataSource || []}
+          // @ts-ignore
           columns={tableColumns(editCell)}
           isLoading={isLoading}
         />
@@ -263,7 +261,8 @@ interface ProcurementPlanTableType {
 }
 
 const tableColumns = (
-  editCell: (id: number, fieldName: string, value: string) => void
+  editCell: () => void
+  // editCell: (id: number, fieldName: string, value: string) => void
 ): ColumnDef<any>[] => [
   {
     header: " ",
@@ -327,7 +326,7 @@ const tableColumns = (
     header: "Budget allocation",
     columns: [
       {
-        header: "Year 1 (2021) USD",
+        header: "Year 1 USD",
         accessorKey: "yearOne",
         size: 150,
         cell: (cell) => (
@@ -340,7 +339,7 @@ const tableColumns = (
         ),
       },
       {
-        header: "Year 2 (2021) USD",
+        header: "Year 2 USD",
         accessorKey: "yearTwo",
         size: 150,
         cell: (cell) => (
@@ -354,7 +353,7 @@ const tableColumns = (
       },
 
       {
-        header: "Year 3 (2021) USD",
+        header: "Year 3 USD",
         accessorKey: "yearThree",
         size: 150,
         cell: (cell) => (
@@ -720,7 +719,9 @@ type PropsType = {
   value: string | number | unknown;
   row?: Row<ProcurementPlanTableType>;
   column?: Column<ProcurementPlanTableType>;
-  onEditCell?: (id: number, fieldName: string, value: string) => void;
+  onEditCell?: () => void;
+
+  // onEditCell?: (id: number, fieldName: string, value: string) => void;
 };
 
 const EditableCell = (props: PropsType) => {
@@ -735,6 +736,7 @@ const EditableCell = (props: PropsType) => {
 
   const handleBlurCell = () => {
     if (row?.original && onEditCell && column) {
+      // @ts-ignore
       onEditCell(row?.original.id, column?.id, inputValue as string);
     }
   };
@@ -757,43 +759,43 @@ const EditableCell = (props: PropsType) => {
     id: "actions",
     cell: ({ row }) => <ActionListAction data={row.original} />,
   }, */
-const ActionListAction = ({ data }: any) => {
-  return (
-    <div className='flex items-center gap-2'>
-      <>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant='ghost' className='flex gap-2 py-6'>
-              <MoreOptionsHorizontalIcon />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className=' w-fit'>
-            <div className='flex flex-col items-start justify-between gap-1'>
-              <Link
-                className='w-full'
-                to={generatePath(RouteEnum.PROCUREMENT_DETAILS, {
-                  id: data?.id,
-                })}
-              >
-                <Button
-                  className='w-full flex items-center justify-start gap-2'
-                  variant='ghost'
-                >
-                  <EyeIcon />
-                  View
-                </Button>
-              </Link>
-              <Button
-                className='w-full flex items-center justify-start gap-2'
-                variant='ghost'
-              >
-                <DeleteIcon />
-                delete
-              </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
-      </>
-    </div>
-  );
-};
+// const ActionListAction = ({ data }: any) => {
+//   return (
+//     <div className='flex items-center gap-2'>
+//       <>
+//         <Popover>
+//           <PopoverTrigger asChild>
+//             <Button variant='ghost' className='flex gap-2 py-6'>
+//               <MoreOptionsHorizontalIcon />
+//             </Button>
+//           </PopoverTrigger>
+//           <PopoverContent className=' w-fit'>
+//             <div className='flex flex-col items-start justify-between gap-1'>
+//               <Link
+//                 className='w-full'
+//                 to={generatePath(RouteEnum.PROCUREMENT_DETAILS, {
+//                   id: data?.id,
+//                 })}
+//               >
+//                 <Button
+//                   className='w-full flex items-center justify-start gap-2'
+//                   variant='ghost'
+//                 >
+//                   <EyeIcon />
+//                   View
+//                 </Button>
+//               </Link>
+//               <Button
+//                 className='w-full flex items-center justify-start gap-2'
+//                 variant='ghost'
+//               >
+//                 <DeleteIcon />
+//                 delete
+//               </Button>
+//             </div>
+//           </PopoverContent>
+//         </Popover>
+//       </>
+//     </div>
+//   );
+// };
