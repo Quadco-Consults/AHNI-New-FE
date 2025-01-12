@@ -447,10 +447,11 @@ const EOI = () => {
             </Dialog>
           </div>
         </div>
-
-        {data?.results && data?.results.length > 0 ? (
+        {/*  @ts-ignore */}
+        {data?.data?.results && data?.data?.results.length > 0 ? (
           <div className='grid grid-cols-2 gap-5 md:grid-cols-3'>
-            {data?.results?.map((eoi: EOIResultsData) => (
+            {/*  @ts-ignore */}
+            {data?.data?.results?.map((eoi: EOIResultsData) => (
               <Card
                 key={eoi.id}
                 className='space-y-4 flex flex-col justify-between'
