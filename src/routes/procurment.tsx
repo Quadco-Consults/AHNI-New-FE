@@ -362,4 +362,31 @@ export const procurment = [
         import("pages/protectedPages/procurement-management/Supplier-database")
     ),
   },
+  {
+    path: RouteEnum.VENDOR_PERFORMANCE_EVALUATION,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/vendor-performance/index"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.VENDOR_PERFORMANCE_EVALUATION_ID,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/vendor-performance/id/index"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.VENDOR_PERFORMANCE_EVALUATION_FORM,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/vendor-performance/form/index"
+        )
+    ),
+  },
 ];
