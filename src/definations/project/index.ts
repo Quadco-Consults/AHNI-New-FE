@@ -2,7 +2,7 @@ import { z } from "zod";
 import { TBeneficiaryData } from "definations/modules/project/beneficiaries";
 import { TFundingSourceData } from "definations/modules/project/funding-source";
 import { TPartnerData } from "definations/modules/project/partners";
-import { TUser } from "definations/auth/user";
+import { IUser } from "definations/auth/user";
 
 export const ProjectSchema = z.object({
     title: z.string().min(1, "Title is required"),
@@ -36,7 +36,7 @@ export interface TProjectData {
     status: string;
     narrative: string;
     budget_performance: string;
-    project_managers: TUser[];
+    project_managers: IUser[];
     beneficiaries: TBeneficiaryData[];
     funding_sources: TFundingSourceData[];
     achievement_against_target: string;
