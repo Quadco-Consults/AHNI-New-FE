@@ -86,8 +86,6 @@ const Registration = () => {
     ) || [];
 
   const onSubmit = (data: z.infer<typeof VendorsRegistrationSchema>) => {
-    console.log({ data });
-
     dispatch(vendorsActions.addVendors({ ...data }));
 
     let path = pathname;

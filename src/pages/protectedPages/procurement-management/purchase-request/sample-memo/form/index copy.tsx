@@ -51,7 +51,7 @@ const CreateActivityMemo = () => {
       // reviewed_date: "",
       // approved_date: "",
       // program_areas: [],
-      expenses: [],
+      // expenses: [],
     },
   });
 
@@ -61,7 +61,7 @@ const CreateActivityMemo = () => {
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "expenses",
+    name: "items",
   });
 
   const onSubmit = async (data: z.infer<typeof SampleMemoSchema>) => {
@@ -74,9 +74,6 @@ const CreateActivityMemo = () => {
       console.log(error);
     }
   };
-  const lon = form.getValues();
-
-  console.log({ lon });
 
   return (
     <div className='pt-5'>
@@ -210,85 +207,55 @@ const CreateActivityMemo = () => {
           <span className='block space-y-2'>
             <h3 className='font-semibold text-xl text-black'>Expenses</h3>
           </span>
-
-          <div>
-            {fields.map((field, index) => (
-              <>
-                <div key={field.id} className='grid grid-cols-2 gap-5 mt-5'>
-                  <FormInput
-                    label='Expenses item'
-                    name={`expenses.${index}.expenses_item`}
-                    type='text'
-                    required
-                  />
-                  <FormInput
-                    label='Quantity'
-                    name={`expenses.${index}.quantity`}
-                    type='text'
-                    required
-                  />
-                  <FormInput
-                    label='# of Days'
-                    name={`expenses.${index}.days`}
-                    type='text'
-                  />
-                  <FormInput
-                    label='# of Facility'
-                    name={`expenses.${index}.facility`}
-                    type='text'
-                  />
-                  <FormInput
-                    label='# Frequency'
-                    name={`expenses.${index}.frequency`}
-                    type='text'
-                  />
-                  <FormInput
-                    label='Unit Cost'
-                    name={`expenses.${index}.unit_cost`}
-                    type='text'
-                  />
-                </div>
-                <div className='mt-5 flex-col flex gap-5'>
-                  <FormInput
-                    label='Total Cost'
-                    name={`expenses.${index}.total_cost`}
-                    type='text'
-                    className='col-span-2'
-                  />
-                  <Button
-                    type='button'
-                    className='w-fit'
-                    onClick={() => remove(index)}
-                  >
-                    <MinusCircle className='mr-2' />
-                    Remove
-                  </Button>
-                </div>
-              </>
-            ))}
+          <div className='grid grid-cols-2 gap-5'>
+            <FormInput label='Expenses item' name='expenses_item' type='text' />
+            <FormInput label='Quantity' name='quantity' type='text' />
+          </div>{" "}
+          <div className='grid grid-cols-2 gap-5'>
+            <FormInput
+              label='# of Days'
+              name='days'
+              type='text'
+              placeholder=''
+            />
+            <FormInput
+              label='# of Facility'
+              name='facility'
+              type='text'
+              placeholder=''
+            />
+          </div>{" "}
+          <div className='grid grid-cols-2 gap-5'>
+            <FormInput
+              label='# Frequency'
+              name='frequency'
+              type='text'
+              placeholder=''
+            />
+            <FormInput
+              label='Unit Cost'
+              name='unit_cost'
+              type='text'
+              placeholder=''
+            />
           </div>
-          {/*  */}
+          <div className='grid gap-5'>
+            <FormInput
+              label='Total Cost'
+              name='total cost'
+              type='text'
+              placeholder=''
+            />
+          </div>
           <div className='flex items-center justify-end gap-3'>
             <FormButton
-              type='button'
+              loading={isLoading}
+              disabled={isLoading}
+              type='submit'
               className='flex items-center justify-center gap-2'
-              onClick={() =>
-                append({
-                  expenses_item: "",
-                  quantity: "",
-                  days: "",
-                  facility: "",
-                  frequency: "",
-                  unit_cost: "",
-                  total_cost: "",
-                })
-              }
             >
-              <AddSquareIcon className='mr-2' />
               Add new expenses item row
             </FormButton>
-
-            {/*  */}
             <Link className='w-fit' to={generatePath(RouteEnum.SAMPLE_PREVIEW)}>
               <FormButton
                 loading={isLoading}

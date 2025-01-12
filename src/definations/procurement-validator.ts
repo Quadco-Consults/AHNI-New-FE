@@ -132,6 +132,17 @@ export const SampleMemoSchema = z.object({
   cost_input: z.array(z.string().min(1, "Field is required")),
   funding_source: z.array(z.string().min(1, "Field is required")),
   comment: z.string().min(1, "Field is required"),
+  expenses: z.array(
+    z.object({
+      expenses_item: z.string().optional(),
+      quantity: z.string().optional(),
+      days: z.string().optional(),
+      facility: z.string().optional(),
+      frequency: z.string().optional(),
+      unit_cost: z.string().optional(),
+      total_cost: z.string().optional(),
+    })
+  ),
 });
 //
 
