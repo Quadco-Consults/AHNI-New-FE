@@ -45,11 +45,12 @@ export const AdminRoutes = {
     CREATE_ASSET_MAINTENANCE: "/admin/asset-maintenance/create",
     VIEW_ASSET_MAINTENANCE: "/admin/asset-maintenance/:id",
 
-    // ---------------------
-
+    // EXPENSE AUTHORIZATION
     EXPENSE_AUTHORIZATION: "/admin/expense-authorization",
     EXPENSE_AUTHORIZATION_CREATE: "/admin/expense-authorization/create",
     EXPENSE_AUTHORIZATION_DETAIL: "/admin/expense-authorization/:id",
+
+    // ---------------------
 
     GRN: "/admin/inventory-management/good-receive-note",
     GRN_CREATE: "/admin/inventory-management/good-receive-note/create",
