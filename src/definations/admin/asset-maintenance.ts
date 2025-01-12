@@ -2,13 +2,14 @@ import { TDepartmentData } from "definations/modules/config/department";
 import { TLocationData } from "definations/modules/config/location";
 import { TFacilityData } from "definations/modules/program/facility";
 import { z } from "zod";
+import { TAssetSingleData } from "./inventory-management/asset";
 
 export const AssetMaintenanceSchema = z.object({
     staff_name: z.string().min(1, "Please select staff"),
     department: z.string().min(1, "Please select department"),
     location: z.string().min(1, "Please select location"),
     maintenance_datetime: z.string().min(1, "Please select maintenance date"),
-    facility: z.string().min(1, "Please select facility"),
+    asset: z.string().min(1, "Please select asset"),
     maintenance_type: z.string().min(1, "Please enter maintenance type"),
     rate: z.string().min(1, "Please enter rate"),
     cost_estimate: z.string().min(1, "Please enter cost estimate"),
@@ -29,7 +30,8 @@ export interface IAssetMaintenancePaginatedData {
     id: string;
     department: string;
     location: string;
-    facility: string;
+    asset: string;
+    asset_classification: string;
     created_datetime: string;
     updated_datetime: string;
     staff_name: string;
@@ -51,7 +53,7 @@ export interface IAssetMaintenanceSingleData {
     id: string;
     department: TDepartmentData;
     location: TLocationData;
-    facility: TFacilityData;
+    asset: TAssetSingleData;
     created_datetime: string;
     updated_datetime: string;
     staff_name: string;

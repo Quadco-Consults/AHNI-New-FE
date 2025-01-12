@@ -55,8 +55,8 @@ export default function AssetMaintenanceDetailsPage() {
                                 />
 
                                 <DescriptionCard
-                                    label="Facility"
-                                    description={data?.data.facility.name}
+                                    label="Asset"
+                                    description={data?.data.asset.name}
                                 />
 
                                 <DescriptionCard
