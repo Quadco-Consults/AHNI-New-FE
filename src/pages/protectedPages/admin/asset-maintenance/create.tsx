@@ -134,7 +134,7 @@ export default function CreateAssetMaintenance() {
                             action=""
                         >
                             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                                <FormSelect
+                                {/* <FormSelect
                                     label="Name of Staff"
                                     name="staff_name"
                                     placeholder="Select Staff"
@@ -156,7 +156,7 @@ export default function CreateAssetMaintenance() {
                                     placeholder="Select Location"
                                     required
                                     options={locationOptions}
-                                />
+                                /> */}
 
                                 <FormInput
                                     label="Date/Time"
@@ -173,11 +173,21 @@ export default function CreateAssetMaintenance() {
                                     options={assetOptions}
                                 />
 
-                                <FormInput
+                                <FormSelect
                                     label="Maintenance Type "
                                     name="maintenance_type"
                                     placeholder="Enter Maintenance Type"
                                     required
+                                    options={[
+                                        {
+                                            label: "Corrective",
+                                            value: "CORRECTIVE",
+                                        },
+                                        {
+                                            label: "Preventive",
+                                            value: "PREVENTIVE",
+                                        },
+                                    ]}
                                 />
 
                                 <FormInput
@@ -218,13 +228,13 @@ export default function CreateAssetMaintenance() {
                                 placeholder="Enter Problem Description"
                                 required
                             />
-
+                            {/* 
                             <FormTextArea
                                 label="Justification for Disposal"
                                 name="disposal_justification"
                                 placeholder="Enter Justification"
                                 required
-                            />
+                            /> */}
 
                             <FormSelect
                                 label="Reviewer"

@@ -224,10 +224,34 @@ export const adminRoutes = [
     {
         path: AdminRoutes.EXPENSE_AUTHORIZATION_DETAIL,
         element: lazy(
+            () => import("pages/protectedPages/admin/expense-authorization/id")
+        ),
+    },
+
+    {
+        path: AdminRoutes.TRAVEL_EXPENSE_REPORT,
+        element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/admin/expense-authorization/id"
+                    "pages/protectedPages/admin/travel-expenses-report/index"
                 )
+        ),
+    },
+
+    {
+        path: AdminRoutes.TRAVEL_EXPENSE_REPORT_CREATE,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/admin/travel-expenses-report/create"
+                )
+        ),
+    },
+
+    {
+        path: AdminRoutes.TRAVEL_EXPENSE_REPORT_DETAIL,
+        element: lazy(
+            () => import("pages/protectedPages/admin/travel-expenses-report/id")
         ),
     },
 
@@ -368,17 +392,6 @@ export const adminRoutes = [
         path: AdminRoutes.GRN_DETAIL,
         element: lazy(
             () => import("pages/protectedPages/admin/good-receive-note/id")
-        ),
-    },
-
-    // ---------------------------------------
-    {
-        path: AdminRoutes.TravelExpensesReportHome,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/admin/travel-expenses-report/index"
-                )
         ),
     },
 ];

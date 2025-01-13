@@ -53,18 +53,6 @@ export default function ItemRequisitionDetailPage() {
                             />
 
                             <DescriptionCard
-                                label="Expiry Date"
-                                description={itemRequisition?.data.expiry_date}
-                            />
-
-                            <DescriptionCard
-                                label="Re-order Level"
-                                description={
-                                    itemRequisition.data.re_order_level
-                                }
-                            />
-
-                            <DescriptionCard
                                 label="Date Requested"
                                 description={format(
                                     itemRequisition?.data.created_datetime,

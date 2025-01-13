@@ -1,60 +1,87 @@
-import { ColumnDef, Row } from "@tanstack/react-table";
-import { Badge } from "components/ui/badge";
-import { toast } from "sonner";
-import { IFacilityMaintenancePaginatedData } from "definations/admin/facility-management/facility-maintenance";
-import { useDeleteFacilityMaintenanceMutation } from "services/admin/facility-management/facility-maintenance";
-import { useState } from "react";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import { generatePath, Link } from "react-router-dom";
-import { AdminRoutes } from "constants/RouterConstants";
 import EyeIcon from "components/icons/EyeIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
+import { ColumnDef } from "@tanstack/react-table";
+import { useState } from "react";
+import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import { AdminRoutes } from "constants/RouterConstants";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
+import { ITravelExpensePaginatedData } from "definations/admin/travel-expense";
+import { Button } from "components/ui/button";
+import { generatePath, Link } from "react-router-dom";
+import { formatDate } from "date-fns";
+import { Badge } from "components/ui/badge";
+import { cn } from "lib/utils";
 import PencilIcon from "components/icons/PencilIcon";
+import { toast } from "sonner";
+import { useDeleteTravelExpenseMutation } from "services/admin/travel-expense";
 
-export const facilityMaintenanceColumns: ColumnDef<IFacilityMaintenancePaginatedData>[] =
-    [
-        {
-            header: "Facility",
-            id: "facility",
-            accessorKey: "facility",
-        },
-        {
-            header: "Description",
-            id: "description",
-            accessorKey: "description",
-        },
+export const travelExpenseColumn: ColumnDef<ITravelExpensePaginatedData>[] = [
+    {
+        header: "Full Name",
+        id: "user",
+        accessorKey: "user",
+    },
 
-        {
-            header: "Maintenance Type",
-            id: "maintenance_type",
-            accessorKey: "maintenance_type",
-        },
+    {
+        header: "Staff ID No",
+        id: "staff_id",
+        accessorKey: "staff_id",
+    },
 
-        {
-            header: "Status",
-            accessorFn: () => "N/A",
-        },
+    {
+        header: "Purpose of Travel",
+        id: "travel_purpose",
+        accessorKey: "travel_purpose",
+    },
 
-        {
-            header: "",
-            accessorKey: "action",
-            cell: ({ row }) => <TableMenu {...row.original} />,
-        },
-    ];
+    {
+        header: "Date Submitted",
+        accessorFn: ({ created_datetime }) =>
+            formatDate(created_datetime, "dd-MMM-yyyy"),
+    },
 
-const TableMenu = ({ id, status }: IFacilityMaintenancePaginatedData) => {
+    {
+        header: "Status",
+        id: "status",
+        accessorKey: "status",
+        cell: ({ getValue }) => {
+            return (
+                <Badge
+                    variant="default"
+                    className={cn(
+                        "p-1 rounded-lg",
+                        getValue() === "IN_PROGRESS" &&
+                            "bg-green-200 text-green-500",
+                        getValue() === "CLOSED" && "bg-red-200 text-red-500",
+                        getValue() === "PENDING" &&
+                            "bg-yellow-200 text-yellow-500",
+                        getValue() === "On Hold" && "text-grey-200 bg-grey-500"
+                    )}
+                >
+                    {getValue() as string}
+                </Badge>
+            );
+        },
+    },
+
+    {
+        header: "",
+        size: 80,
+        id: "actions",
+        cell: ({ row }) => <TableAction {...row.original} />,
+    },
+];
+
+const TableAction = ({ id }: ITravelExpensePaginatedData) => {
     const [dialogOpen, setDialogOpen] = useState(false);
 
-    const [deleteFacilityMaintenance, { isLoading }] =
-        useDeleteFacilityMaintenanceMutation();
+    const [deleteTravelExpense, { isLoading }] =
+        useDeleteTravelExpenseMutation();
 
     const handleDelete = async () => {
         try {
-            await deleteFacilityMaintenance(id).unwrap();
-            toast.success("Facility Maintenance Ticket Deleted");
+            await deleteTravelExpense(id).unwrap();
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }
@@ -69,15 +96,13 @@ const TableMenu = ({ id, status }: IFacilityMaintenancePaginatedData) => {
                             <MoreOptionsHorizontalIcon />
                         </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-fit">
+                    <PopoverContent className=" w-fit">
                         <div className="flex flex-col items-start justify-between gap-1">
                             <Link
                                 className="w-full"
                                 to={generatePath(
-                                    AdminRoutes.VIEW_FACILITY_MAINTENANCE,
-                                    {
-                                        id,
-                                    }
+                                    AdminRoutes.TRAVEL_EXPENSE_REPORT_DETAIL,
+                                    { id }
                                 )}
                             >
                                 <Button
@@ -92,13 +117,14 @@ const TableMenu = ({ id, status }: IFacilityMaintenancePaginatedData) => {
                             <Link
                                 to={{
                                     pathname:
-                                        AdminRoutes.CREATE_FACILITY_MAINTENANCE,
+                                        AdminRoutes.TRAVEL_EXPENSE_REPORT_CREATE,
                                     search: `?id=${id}`,
                                 }}
                             >
                                 <Button
                                     className="w-full flex items-center justify-start gap-2"
                                     variant="ghost"
+                                    onClick={() => setDialogOpen(true)}
                                 >
                                     <PencilIcon />
                                     Edit
@@ -120,7 +146,7 @@ const TableMenu = ({ id, status }: IFacilityMaintenancePaginatedData) => {
 
             <ConfirmationDialog
                 open={dialogOpen}
-                title="Are you sure you want to delete this maintenance ticket?"
+                title="Are you sure you want to delete this travel expense report?"
                 loading={isLoading}
                 onCancel={() => setDialogOpen(false)}
                 onOk={handleDelete}

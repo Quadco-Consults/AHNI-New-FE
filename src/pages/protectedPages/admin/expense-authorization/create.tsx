@@ -258,7 +258,7 @@ export default function CreateExpenseAuthorization() {
                             />
 
                             <FormInput
-                                label="TA Number"
+                                label="EA Number"
                                 name="ta_number"
                                 placeholder="Enter TA Number"
                                 required
