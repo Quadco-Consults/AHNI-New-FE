@@ -7,7 +7,6 @@ export const FuelRequestSchema = z.object({
     vendor: z.string().min(1, "Please select vendor"),
     odometer: z.string().min(1, "Please enter odometer"),
     date: z.string().min(1, "Please select date"),
-    distance_covered: z.string().min(1, "Please enter distance covered"),
     price_per_litre: z.string().min(1, "Please enter price per litre"),
     quantity: z.string().min(1, "Please enter quantity"),
     amount: z.string().min(1, "Please enter amount"),

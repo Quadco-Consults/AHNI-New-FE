@@ -10,9 +10,7 @@ export const ItemRequisitionSchema = z.object({
             quantity: z.string().min(1, "Please enter a quantity"),
         })
     ),
-    expiry_date: z.string().min(1, "Please select an expiry date"),
     department: z.string().min(1, "Please select a department"),
-    re_order_level: z.string().min(1, "Please enter a reorder level"),
 });
 
 export type TItemRequisitionFormValues = z.infer<typeof ItemRequisitionSchema>;

@@ -50,6 +50,11 @@ export const AdminRoutes = {
     EXPENSE_AUTHORIZATION_CREATE: "/admin/expense-authorization/create",
     EXPENSE_AUTHORIZATION_DETAIL: "/admin/expense-authorization/:id",
 
+    // TRAVEL EXPENSE REPORT
+    TRAVEL_EXPENSE_REPORT: "/admin/travel-expenses-report",
+    TRAVEL_EXPENSE_REPORT_CREATE: "/admin/travel-expenses-report/create",
+    TRAVEL_EXPENSE_REPORT_DETAIL: "/admin/travel-expenses-report/:id",
+
     // ---------------------
 
     GRN: "/admin/inventory-management/good-receive-note",
@@ -75,9 +80,6 @@ export const AdminRoutes = {
     Insurance: "/admin/agrements/insurance",
     Ticketing: "/admin/agrements/ticketing",
     ViewAggrement: "/admin/agrements/View-Aggrement",
-
-    // ----------------------------------------
-    TravelExpensesReportHome: "/admin/travel-expenses-report",
 };
 
 export const RouteEnum = {

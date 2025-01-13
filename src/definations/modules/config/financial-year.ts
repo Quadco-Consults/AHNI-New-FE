@@ -2,8 +2,6 @@ import { z } from "zod";
 
 export const FinancialYearSchema = z.object({
     year: z.string().min(1, "Field Required"),
-    dyanmic_order: z.string().min(1, "Field Required"),
-    current: z.enum(["false", "true"]),
 });
 
 export type TFinancialYearFormValues = z.infer<typeof FinancialYearSchema>;

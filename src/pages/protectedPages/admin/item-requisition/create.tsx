@@ -92,9 +92,7 @@ export default function CreateItemRequisition() {
     const form = useForm<TItemRequisitionFormValues>({
         resolver: zodResolver(ItemRequisitionSchema),
         defaultValues: {
-            expiry_date: "",
             department: "",
-            re_order_level: "",
             consummables: [{ consummable: "", quantity: "0" }],
         },
     });
@@ -131,9 +129,7 @@ export default function CreateItemRequisition() {
     useEffect(() => {
         if (itemRequisition) {
             form.reset({
-                expiry_date: itemRequisition?.data.expiry_date,
                 department: itemRequisition?.data.department.id,
-                re_order_level: String(itemRequisition?.data.re_order_level),
                 consummables: itemRequisition?.data.consummables.map(
                     ({ quantity, consummable: { id } }) => ({
                         consummable: id,
@@ -198,24 +194,11 @@ export default function CreateItemRequisition() {
                             Add Item
                         </Button>
                         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                            <FormInput
-                                label="Expiry Date"
-                                name="expiry_date"
-                                type="date"
-                                required
-                            />
                             <FormSelect
                                 label="Department/Unit"
                                 name="department"
                                 placeholder="Select Department"
                                 options={departmentOptions}
-                                required
-                            />
-
-                            <FormInput
-                                label="Re-Order Level"
-                                name="re_order_level"
-                                placeholder="Enter Re-OrderLevel"
                                 required
                             />
 

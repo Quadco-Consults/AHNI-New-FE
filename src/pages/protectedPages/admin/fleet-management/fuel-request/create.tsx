@@ -31,7 +31,6 @@ export default function CreateFuelConsumption() {
             vendor: "",
             odometer: "",
             date: "",
-            distance_covered: "",
             price_per_litre: "",
             quantity: "",
             amount: "",
@@ -170,14 +169,6 @@ export default function CreateFuelConsumption() {
                                     label="Date"
                                     name="date"
                                     type="date"
-                                    required
-                                />
-
-                                <FormInput
-                                    label="Distance Covered"
-                                    name="distance_covered"
-                                    type="number"
-                                    placeholder="Enter Distance Covered"
                                     required
                                 />
 

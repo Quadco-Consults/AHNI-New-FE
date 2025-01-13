@@ -69,7 +69,7 @@ export default function ExpenseAuthorizationDetailsPage() {
                                 />
 
                                 <DescriptionCard
-                                    label="TA Number"
+                                    label="EA Number"
                                     description={data?.data.ta_number}
                                 />
 

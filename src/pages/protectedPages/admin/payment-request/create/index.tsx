@@ -155,13 +155,13 @@ export default function CreatePaymentRequest() {
                                     required
                                 />
 
-                                <FormSelect
+                                {/* <FormSelect
                                     label="Requested By"
                                     name="requested_by"
                                     placeholder="Select Requestor"
                                     required
                                     options={userOptions}
-                                />
+                                /> */}
                             </div>
 
                             <FormTextArea

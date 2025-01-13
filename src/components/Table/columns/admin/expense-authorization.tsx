@@ -50,7 +50,7 @@ export const expenseAuthorizationColumns: ColumnDef<IExpenseAuthorizationPaginat
         },
 
         {
-            header: "TA Number",
+            header: "EA Number",
             id: "ta_number",
             accessorKey: "ta_number",
         },
