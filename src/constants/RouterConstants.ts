@@ -181,6 +181,16 @@ export const RouteEnum = {
     SUPPLIER_DATABASE: "/procurement-management/supplier-database",
     SUPPLIER_DATABASE_DETAIL: "/procurement-management/supplier-database/:id",
 
+    // vendor performance evaluation
+    VENDOR_PERFORMANCE_EVALUATION:
+        "/procurement-management/vendor-performance-evaluation",
+
+    VENDOR_PERFORMANCE_EVALUATION_ID:
+        "/procurement-management/vendor-performance-evaluation/:id",
+
+    VENDOR_PERFORMANCE_EVALUATION_FORM:
+        "/procurement-management/vendor-performance-evaluation/form",
+
     //program routes
     PROGRAM_WORK_PLAN: "/program/plan/work-plan",
     PROGRAM_WORK_PLAN_DETAILS: "/program/plan/work-plan/:id",
