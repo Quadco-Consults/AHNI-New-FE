@@ -67,7 +67,7 @@ export const supportiveSupervisionPlanColumns: ColumnDef<TSupervisionPlanPaginat
                                 "bg-green-100 text-green-500",
                             getValue() === "Reject" &&
                                 "bg-red-100 text-red-500",
-                            getValue() === "Pending" &&
+                            getValue() === "PENDING" &&
                                 "bg-yellow-100 text-yellow-500",
                             getValue() === "On Hold" &&
                                 "text-gray-100 bg-gray-500"

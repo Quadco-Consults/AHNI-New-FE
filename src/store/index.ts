@@ -1,5 +1,4 @@
 import { configureStore } from "@reduxjs/toolkit";
-
 import { setupListeners } from "@reduxjs/toolkit/query";
 import { rootReducer } from "./rootReducer";
 
@@ -42,6 +41,7 @@ export const store = makeStore();
 export const persistor = persistStore(store);
 
 setupListeners(store.dispatch);
+
 // Infer the type of makeStore
 export type AppStore = ReturnType<typeof makeStore>;
 

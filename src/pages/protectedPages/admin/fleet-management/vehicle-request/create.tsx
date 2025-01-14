@@ -20,15 +20,20 @@ import {
 } from "definations/admin/fleet-management/vehicle-request";
 import { useEffect, useMemo } from "react";
 import FormTextArea from "atoms/FormTextArea";
-import { useCreateVehicleRequestMutation } from "services/admin/fleet-management/vehicle-request";
-import { useNavigate } from "react-router-dom";
+import {
+    useCreateVehicleRequestMutation,
+    useEditVehicleRequestMutation,
+    useGetSingleVehicleRequestQuery,
+} from "services/admin/fleet-management/vehicle-request";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { AdminRoutes } from "constants/RouterConstants";
+import { skipToken } from "@reduxjs/toolkit/query/react";
+import { addTeamMembers } from "store/admin/team-members";
 
 const NewVehicleRequest = () => {
     const form = useForm<TVehicleRequestFormValues>({
         resolver: zodResolver(VehicleRequestSchema),
         defaultValues: {
-            requesting_staff: "",
             location: "",
             travel_destination: "",
             departure_point: "",
@@ -42,6 +47,9 @@ const NewVehicleRequest = () => {
 
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
+
+    const [searchParams] = useSearchParams();
+    const id = searchParams.get("id");
 
     const { data: user } = useGetAllUsersQuery({ page: 1, size: 2000000 });
 
@@ -73,11 +81,20 @@ const NewVehicleRequest = () => {
     const [createVehicleRequest, { isLoading: isCreateLoading }] =
         useCreateVehicleRequestMutation();
 
+    const [editVehicleRequest, { isLoading: isEditLoading }] =
+        useEditVehicleRequestMutation();
+
     const onSubmit: SubmitHandler<TVehicleRequestFormValues> = async (data) => {
         try {
-            await createVehicleRequest(data).unwrap();
-            toast.success("Vehicle Request Submitted");
-            navigate(AdminRoutes.VehicleRequest);
+            if (id) {
+                await editVehicleRequest({ id, body: data }).unwrap();
+                toast.success("Updated Vehicle Request");
+            } else {
+                await createVehicleRequest(data).unwrap();
+                toast.success("Vehicle Request Submitted");
+            }
+
+            navigate(AdminRoutes.INDEX_VEHICLE_REQUEST);
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }
@@ -103,6 +120,39 @@ const NewVehicleRequest = () => {
         );
     }, [teamMembers]);
 
+    const { data: vehicleRequest } = useGetSingleVehicleRequestQuery(
+        id ?? skipToken
+    );
+
+    useEffect(() => {
+        if (vehicleRequest) {
+            const {
+                location,
+                travel_destination,
+                departure_point,
+                return_point,
+                departure_datetime,
+                return_datetime,
+                travel_team_members,
+                supervisor,
+                recommendations,
+            } = vehicleRequest.data;
+
+            form.reset({
+                location: location.id,
+                travel_destination,
+                departure_point,
+                return_point,
+                departure_datetime,
+                return_datetime,
+                supervisor: supervisor.id,
+                recommendations,
+            });
+
+            dispatch(addTeamMembers(travel_team_members));
+        }
+    }, [vehicleRequest]);
+
     return (
         <div>
             <BackNavigation extraText="Vehicle Request" />
@@ -114,14 +164,6 @@ const NewVehicleRequest = () => {
                                 onSubmit={form.handleSubmit(onSubmit)}
                                 className="flex flex-col gap-y-6"
                             >
-                                <FormSelect
-                                    label="Requesting Staff"
-                                    name="requesting_staff"
-                                    placeholder="Select Requesting Staff"
-                                    required
-                                    options={userOptions}
-                                />
-
                                 <FormSelect
                                     label="Location"
                                     name="location"
@@ -170,7 +212,8 @@ const NewVehicleRequest = () => {
                                 </div>
                                 <div>
                                     <p className="my-2 font-semibold">
-                                        Travel Team Members ({users?.length})
+                                        Travel Team Members (
+                                        {teamMembers?.length})
                                     </p>
 
                                     <div className="grid grid-cols-4 gap-5 ">
@@ -235,7 +278,9 @@ const NewVehicleRequest = () => {
 
                                 <div className="ml-auto">
                                     <FormButton
-                                        loading={isCreateLoading}
+                                        loading={
+                                            isCreateLoading || isEditLoading
+                                        }
                                         type="submit"
                                     >
                                         Submit
