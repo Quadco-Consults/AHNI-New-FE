@@ -3,7 +3,6 @@ import { TLocationData } from "definations/modules/config/location";
 import { z } from "zod";
 
 export const VehicleRequestSchema = z.object({
-    requesting_staff: z.string().min(1, "Please select a requesting staff"),
     location: z.string().min(1, "Please select a location"),
     travel_destination: z.string().min(1, "Please enter a travel destination"),
     departure_point: z.string().min(1, "Please enter point of departure"),

@@ -14,6 +14,7 @@ import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIco
 import { useDeleteVehicleRequestMutation } from "services/admin/fleet-management/vehicle-request";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 import { useState } from "react";
+import PencilIcon from "components/icons/PencilIcon";
 
 export const vehicleRequestColumns: ColumnDef<IVehicleRequestPaginatedData>[] =
     [
@@ -142,6 +143,18 @@ const TableMenu = ({ id }: IVehicleRequestPaginatedData) => {
                             <Button variant="ghost" className="w-full">
                                 <EyeIcon />
                                 View
+                            </Button>
+                        </Link>
+
+                        <Link
+                            to={{
+                                pathname: AdminRoutes.CREATE_VEHICLE_REQUEST,
+                                search: `?id=${id}`,
+                            }}
+                        >
+                            <Button variant="ghost" className="w-full">
+                                <PencilIcon />
+                                Edit
                             </Button>
                         </Link>
 

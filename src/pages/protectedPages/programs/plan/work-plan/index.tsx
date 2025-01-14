@@ -168,13 +168,11 @@ const columns: ColumnDef<TWorkPlanPaginatedResponse>[] = [
     {
         header: "Financial Year",
         accessorKey: "financial_year",
-        // accessorFn: (data) => `${data?.}`,
         size: 200,
     },
     {
-        header: "Budget ($)",
-        accessorKey: "budget_unit_cost_ngn",
-        accessorFn: (data) => `$${data.budget_unit_cost_ngn}`,
+        header: "Budget",
+        accessorKey: "budget",
         size: 150,
     },
     {

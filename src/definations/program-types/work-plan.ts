@@ -1,25 +1,13 @@
 export interface TWorkPlanPaginatedResponse {
     id: string;
     project: string;
-    project_partners: [];
+    project_partners: string[];
+    financial_year: string;
+    budget: number;
     created_datetime: string;
     updated_datetime: string;
-    financial_year: -2147483648;
-    activity_number: string;
-    activities: string;
-    activity_justification: string;
-    lead_dept: string;
-    lead_person: string;
-    gant_chart: null;
-    expected_result: string;
-    indicators: string;
-    mov: string;
-    budget_unit_cost_ngn: number;
-    location: string;
-    approved_ref_no: string;
-    comments: string;
     created_by: string;
-    updated_by: string;
+    updated_by: null;
 }
 
 export interface TWorkPlanSingleResponse {
