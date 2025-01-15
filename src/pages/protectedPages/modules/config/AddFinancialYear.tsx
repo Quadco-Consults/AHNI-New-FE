@@ -18,11 +18,6 @@ import {
     useUpdateFinancialYearMutation,
 } from "services/modules/config/financial-year";
 
-const isCurrent = [
-    { label: "True", value: "true" },
-    { label: "False", value: "false" },
-];
-
 const AddFinancialYear = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
@@ -31,9 +26,6 @@ const AddFinancialYear = () => {
         resolver: zodResolver(FinancialYearSchema),
         defaultValues: {
             year: data?.year ?? "",
-            dyanmic_order: data?.dyanmic_order ?? "",
-            // @ts-ignore
-            current: data?.current ?? undefined,
         },
     });
 
@@ -76,22 +68,22 @@ const AddFinancialYear = () => {
                         placeholder="Enter Year"
                         required
                     />
-
+                    {/* 
                     <FormInput
                         label="Dynamic Order"
                         name="dyanmic_order"
                         placeholder="Enter Dynamic Order"
                         type="number"
                         required
-                    />
+                    /> */}
 
-                    <FormSelect
+                    {/* <FormSelect
                         label="Current"
                         name="current"
                         placeholder="Select Current Status"
                         required
                         options={isCurrent}
-                    />
+                    /> */}
 
                     <div className="flex justify-start gap-4">
                         <FormButton

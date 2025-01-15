@@ -12,6 +12,7 @@ import { AdminRoutes } from "constants/RouterConstants";
 import EyeIcon from "components/icons/EyeIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
+import PencilIcon from "components/icons/PencilIcon";
 
 export const facilityMaintenanceColumns: ColumnDef<IFacilityMaintenancePaginatedData>[] =
     [
@@ -85,6 +86,22 @@ const TableMenu = ({ id, status }: IFacilityMaintenancePaginatedData) => {
                                 >
                                     <EyeIcon />
                                     View
+                                </Button>
+                            </Link>
+
+                            <Link
+                                to={{
+                                    pathname:
+                                        AdminRoutes.CREATE_FACILITY_MAINTENANCE,
+                                    search: `?id=${id}`,
+                                }}
+                            >
+                                <Button
+                                    className="w-full flex items-center justify-start gap-2"
+                                    variant="ghost"
+                                >
+                                    <PencilIcon />
+                                    Edit
                                 </Button>
                             </Link>
 

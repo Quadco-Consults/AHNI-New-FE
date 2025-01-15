@@ -11,23 +11,27 @@ const BASE_URL = `/admins/inventory/good-receive-notes/`;
 const GoodReceiveNoteAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
         createGoodReceiveNote: builder.mutation<
-            TResponse<IGoodReceiveNotePaginatedData>,
+            TResponse<IGoodReceiveNoteSingleData>,
             TGoodReceiveNoteFormValues
         >({
-            query: () => ({
+            query: (body) => ({
                 method: "POST",
                 url: BASE_URL,
+                body,
             }),
+            invalidatesTags: ["GOOD_RECEIVE_NOTE"],
         }),
 
         getAllGoodReceiveNote: builder.query<
             TPaginatedResponse<IGoodReceiveNotePaginatedData>,
             TRequest
         >({
-            query: () => ({
+            query: (params) => ({
                 method: "GET",
                 url: BASE_URL,
+                params,
             }),
+            providesTags: ["GOOD_RECEIVE_NOTE"],
         }),
 
         getSingleGoodReceiveNote: builder.query<
@@ -38,16 +42,19 @@ const GoodReceiveNoteAPI = baseAPI.injectEndpoints({
                 method: "GET",
                 url: `${BASE_URL}${id}/`,
             }),
+            providesTags: ["GOOD_RECEIVE_NOTE"],
         }),
 
-        editGoodReceiveNote: builder.mutation<
+        modifyGoodReceiveNote: builder.mutation<
             TResponse<IGoodReceiveNoteSingleData>,
-            string
+            { id: string; body: TGoodReceiveNoteFormValues }
         >({
-            query: (id) => ({
+            query: ({ id, body }) => ({
                 url: `${BASE_URL}${id}/`,
                 method: "PUT",
+                body,
             }),
+            invalidatesTags: ["GOOD_RECEIVE_NOTE"],
         }),
 
         deleteGoodReceiveNote: builder.mutation<
@@ -58,6 +65,7 @@ const GoodReceiveNoteAPI = baseAPI.injectEndpoints({
                 method: "DELETE",
                 url: `${BASE_URL}${id}/`,
             }),
+            invalidatesTags: ["GOOD_RECEIVE_NOTE"],
         }),
     }),
 });
@@ -66,6 +74,6 @@ export const {
     useCreateGoodReceiveNoteMutation,
     useGetAllGoodReceiveNoteQuery,
     useGetSingleGoodReceiveNoteQuery,
-    useEditGoodReceiveNoteMutation,
+    useModifyGoodReceiveNoteMutation,
     useDeleteGoodReceiveNoteMutation,
 } = GoodReceiveNoteAPI;

@@ -159,18 +159,22 @@ export const adminRoutes = [
     },
 
     {
-        path: AdminRoutes.CREATE_PAYMENT_REQUEST,
+        path: AdminRoutes.CREATE_PAYMENT_REQUEST_SUMMARY,
         element: lazy(
             () => import("pages/protectedPages/admin/payment-request/create")
         ),
     },
-    // {
-    //     path: AdminRoutes.PaymentRequestUpload,
-    //     element: lazy(
-    //         () =>
-    //             import("pages/protectedPages/admin/payment-request/id/uploads")
-    //     ),
-    // },
+
+    {
+        path: AdminRoutes.CREATE_PAYMENT_REQUEST_UPLOADS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/admin/payment-request/create/uploads"
+                )
+        ),
+    },
+
     {
         path: AdminRoutes.VIEW_PAYMENT_REQUEST,
         element: lazy(
@@ -197,6 +201,57 @@ export const adminRoutes = [
         path: AdminRoutes.VIEW_ASSET_MAINTENANCE,
         element: lazy(
             () => import("pages/protectedPages/admin/asset-maintenance/id")
+        ),
+    },
+
+    {
+        path: AdminRoutes.EXPENSE_AUTHORIZATION,
+        element: lazy(
+            () =>
+                import("pages/protectedPages/admin/expense-authorization/index")
+        ),
+    },
+    {
+        path: AdminRoutes.EXPENSE_AUTHORIZATION_CREATE,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/admin/expense-authorization/create"
+                )
+        ),
+    },
+
+    {
+        path: AdminRoutes.EXPENSE_AUTHORIZATION_DETAIL,
+        element: lazy(
+            () => import("pages/protectedPages/admin/expense-authorization/id")
+        ),
+    },
+
+    {
+        path: AdminRoutes.TRAVEL_EXPENSE_REPORT,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/admin/travel-expenses-report/index"
+                )
+        ),
+    },
+
+    {
+        path: AdminRoutes.TRAVEL_EXPENSE_REPORT_CREATE,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/admin/travel-expenses-report/create"
+                )
+        ),
+    },
+
+    {
+        path: AdminRoutes.TRAVEL_EXPENSE_REPORT_DETAIL,
+        element: lazy(
+            () => import("pages/protectedPages/admin/travel-expenses-report/id")
         ),
     },
 
@@ -307,9 +362,7 @@ export const adminRoutes = [
     },
     {
         path: AdminRoutes.ASSETS_REQUEST,
-        element: lazy(
-            () => import("pages/protectedPages/admin/asset-request")
-        ),
+        element: lazy(() => import("pages/protectedPages/admin/asset-request")),
     },
     {
         path: AdminRoutes.ASSETS_REQUEST_CREATE,
@@ -338,44 +391,7 @@ export const adminRoutes = [
     {
         path: AdminRoutes.GRN_DETAIL,
         element: lazy(
-            () => import("pages/protectedPages/admin/good-receive-note/id/view")
-        ),
-    },
-    {
-        path: AdminRoutes.EXPENSE_AUTHORIZATION,
-        element: lazy(
-            () =>
-                import("pages/protectedPages/admin/ExpenseAuthorization/index")
-        ),
-    },
-    {
-        path: AdminRoutes.EXPENSE_AUTHORIZATION_CREATE,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/admin/ExpenseAuthorization/ExpenseAuthorizationCreate"
-                )
-        ),
-    },
-
-    {
-        path: AdminRoutes.EXPENSE_AUTHORIZATION_DETAIL,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/admin/ExpenseAuthorization/id/index"
-                )
-        ),
-    },
-
-    // ---------------------------------------
-    {
-        path: AdminRoutes.TravelExpensesReportHome,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/admin/travel-expenses-report/index"
-                )
+            () => import("pages/protectedPages/admin/good-receive-note/id")
         ),
     },
 ];

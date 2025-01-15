@@ -57,6 +57,7 @@ export default function CreateConsumablePage() {
         resolver: zodResolver(ConsumableSchema),
         defaultValues: {
             name: "",
+            description: "",
             quantity: "",
             stock_control_method: "",
             category: "",
@@ -114,7 +115,7 @@ export default function CreateConsumablePage() {
                 await createConsumable(data).unwrap();
                 toast.success("Consumable Created");
             }
-            navigate(AdminRoutes.CONSUMABLES);
+            navigate(AdminRoutes.INDEX_CONSUMABLE);
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }
@@ -136,8 +137,8 @@ export default function CreateConsumablePage() {
                         action=""
                     >
                         <FormInput
-                            name="name"
                             label="Item Name"
+                            name="name"
                             required
                             placeholder="Enter Item Name"
                         />
@@ -149,91 +150,100 @@ export default function CreateConsumablePage() {
                             required
                         />
 
-                        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                            <FormInput
-                                name="quantity"
-                                label="Quantity"
-                                placeholder="Enter Quantity"
-                                required
-                            />
+                        <FormInput
+                            label="Unit of Measurement"
+                            name="uom"
+                            placeholder="Enter Unit Measurement"
+                            required
+                        />
 
-                            <FormSelect
-                                name="stock_control_method"
-                                label="Stock Control Method"
-                                placeholder="Select Stock Control Method"
-                                options={stockControlMethodOptions}
-                                required
-                            />
-                            <FormSelect
-                                name="category"
-                                label="Category"
-                                placeholder="Select Category"
-                                options={categoryOptions}
-                                required
-                            />
-                            <FormInput
-                                label="Expiry Date"
-                                name="expiry_date"
-                                type="date"
-                                placeholder="Select Expiry Date"
-                                required
-                            />
-                            <FormInput
-                                name="previous_quantity"
-                                label="Previous Quantity"
-                                placeholder="Enter Previous Quantity"
-                                required
-                            />
+                        {consumableId && (
+                            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                                <FormInput
+                                    name="quantity"
+                                    label="Quantity"
+                                    placeholder="Enter Quantity"
+                                    required
+                                />
 
-                            <FormInput
-                                name="re_order_level"
-                                placeholder="Enter Re-order Levek Stock"
-                                label="Re-order Level"
-                                required
-                            />
-                            <FormInput
-                                name="buffer_stock"
-                                label="Buffer Stock"
-                                placeholder="Enter Buffer Stock"
-                                required
-                            />
+                                <FormSelect
+                                    name="stock_control_method"
+                                    label="Stock Control Method"
+                                    placeholder="Select Stock Control Method"
+                                    options={stockControlMethodOptions}
+                                    required
+                                />
+                                <FormSelect
+                                    name="category"
+                                    label="Category"
+                                    placeholder="Select Category"
+                                    options={categoryOptions}
+                                    required
+                                />
+                                <FormInput
+                                    label="Expiry Date"
+                                    name="expiry_date"
+                                    type="date"
+                                    placeholder="Select Expiry Date"
+                                    required
+                                />
+                                <FormInput
+                                    name="previous_quantity"
+                                    label="Previous Quantity"
+                                    placeholder="Enter Previous Quantity"
+                                    required
+                                />
 
-                            <FormInput
-                                name="max_stock"
-                                label="Max Stock"
-                                placeholder="Enter Max Stock"
-                                required
-                            />
+                                <FormInput
+                                    name="re_order_level"
+                                    placeholder="Enter Re-order Levek Stock"
+                                    label="Re-order Level"
+                                    required
+                                />
+                                <FormInput
+                                    name="buffer_stock"
+                                    label="Buffer Stock"
+                                    placeholder="Enter Buffer Stock"
+                                    required
+                                />
 
-                            <FormInput
-                                name="entry_date"
-                                type="date"
-                                label="Entry Date"
-                                placeholder="Select Entry Date"
-                                required
-                            />
+                                <FormInput
+                                    name="max_stock"
+                                    label="Max Stock"
+                                    placeholder="Enter Max Stock"
+                                    required
+                                />
 
-                            <FormInput
-                                name="available_quantity"
-                                label="Available Quantity"
-                                placeholder="Enter Available Quantity"
-                                required
-                            />
+                                <FormInput
+                                    name="entry_date"
+                                    type="date"
+                                    label="Entry Date"
+                                    placeholder="Select Entry Date"
+                                    required
+                                />
 
-                            <FormInput
-                                name="item_cost"
-                                label="Cost of Item"
-                                placeholder="Enter Cost of Item"
-                                required
-                            />
+                                <FormInput
+                                    name="available_quantity"
+                                    label="Available Quantity"
+                                    placeholder="Enter Available Quantity"
+                                    required
+                                />
 
-                            <FormInput
-                                label="GRN Tracking Number"
-                                name="grn_tracking_number"
-                                placeholder="Enter GRN Tracking Number"
-                                required
-                            />
-                        </div>
+                                <FormInput
+                                    name="item_cost"
+                                    label="Cost of Item"
+                                    placeholder="Enter Cost of Item"
+                                    required
+                                />
+
+                                <FormInput
+                                    label="GRN Tracking Number"
+                                    name="grn_tracking_number"
+                                    placeholder="Enter GRN Tracking Number"
+                                    // required
+                                />
+                            </div>
+                        )}
 
                         <div className="ml-auto">
                             <FormButton

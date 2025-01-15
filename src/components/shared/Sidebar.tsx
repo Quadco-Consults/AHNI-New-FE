@@ -786,7 +786,7 @@ const DEPARTMENTAL_LINKS = [
 
             {
                 name: "Travel Expenses Report",
-                path: AdminRoutes.TravelExpensesReportHome,
+                path: AdminRoutes.TRAVEL_EXPENSE_REPORT,
             },
         ],
     },

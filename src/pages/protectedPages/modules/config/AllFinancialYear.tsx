@@ -75,8 +75,8 @@ export default function AllFinancialYear() {
             <div>
                 <div className="flex justify-between text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4">
                     <h1 className="flex-1">Year</h1>
-                    <h1 className="flex-1">Dynamic Order</h1>
-                    <h1 className="flex-1">Current</h1>
+                    {/* <h1 className="flex-1">Dynamic Order</h1> */}
+                    {/* <h1 className="flex-1">Current</h1> */}
                     <h1 className="flex-1"></h1>
                 </div>
 
@@ -90,8 +90,8 @@ export default function AllFinancialYear() {
                                 className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
                             >
                                 <p className="flex-1">{item.year}</p>
-                                <p className="flex-1">{item.dyanmic_order}</p>
-                                <p className="flex-1">{item.current}</p>
+                                {/* <p className="flex-1">{item.dyanmic_order}</p> */}
+                                {/* <p className="flex-1">{item.current}</p> */}
                                 <div className="flex-1">
                                     <TableAction
                                         update
