@@ -18,6 +18,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import FormButton from "atoms/FormButton";
+import { updateStepCompletion } from "store/stepTracker";
 
 const Salary = () => {
   const navigate = useNavigate();
@@ -52,6 +53,13 @@ const Salary = () => {
         path: { id: id as string },
         body: data,
       }).unwrap();
+
+      dispatch(
+        updateStepCompletion({
+          path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_SALARY,
+        })
+      );
+
       dispatch(
         openDialog({
           type: DialogType.HrSuccessModal,
@@ -67,48 +75,70 @@ const Salary = () => {
   };
 
   return (
-    <Card className="space-y-10 mt-6 max-w-4xl mx-auto">
-      <div>
-        <h4 className="font-semibold text-lg text-center">
-          Salary Account Details Form
-        </h4>
-        <p className="text-small text-center">
-          FORMS MUST BE AND COMPLETED IN UPPER CASE
-        </p>
-      </div>
-      <Form {...form}>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="card-wrapper space-y-6"
-        >
-          <h4 className="text-red-500 text-lg font-medium">
-            Bank Account Details
+    <>
+      <Card className='space-y-10 mt-6 max-w-4xl mx-auto'>
+        <div>
+          <h4 className='font-semibold text-lg text-center'>
+            Salary Account Details Form
           </h4>
-          <Separator />
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <FormInput name="bank_name" label="Bank Name" required />
-            <FormInput name="branch_name" label="Branch Name" required />
-            <FormInput name="account_name" label="Account Name" required />
-            <FormInput name="account_number" label="Account Number" required />
-            <FormInput name="sort_code" label="Sort Code" required />
-            <FormInput name="date_provided" label="Date" type="date" required />
-          </div>
-          <div className="flex gap-x-6 justify-end">
-            <FormButton
-              loading={isLoading}
-              disabled={isLoading}
-              variant="outline"
-            >
-              <Save size={20} /> Save
-            </FormButton>
-            <Button type="button" onClick={handleNext}>
-              Next
-              <ChevronRight size={20} />
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </Card>
+          <p className='text-small text-center'>
+            FORMS MUST BE AND COMPLETED IN UPPER CASE
+          </p>
+        </div>
+        <Form {...form}>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className='card-wrapper space-y-6'
+          >
+            <h4 className='text-red-500 text-lg font-medium'>
+              Bank Account Details
+            </h4>
+            <Separator />
+            <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+              <FormInput name='bank_name' label='Bank Name' required />
+              <FormInput name='branch_name' label='Branch Name' required />
+              <FormInput name='account_name' label='Account Name' required />
+              <FormInput
+                name='account_number'
+                label='Account Number'
+                required
+              />
+              <FormInput name='sort_code' label='Sort Code' required />
+              <FormInput
+                name='date_provided'
+                label='Date'
+                type='date'
+                required
+              />
+            </div>
+            <div className='flex gap-x-6 justify-end'>
+              <FormButton
+                loading={isLoading}
+                disabled={isLoading}
+                variant='outline'
+              >
+                <Save size={20} /> Save
+              </FormButton>
+              <Button type='button' onClick={handleNext}>
+                Next
+                <ChevronRight size={20} />
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </Card>
+      {/* <Button
+        onClick={() =>
+          dispatch(
+            updateStepCompletion({
+              path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_SALARY,
+            })
+          )
+        }
+      >
+        Hello
+      </Button> */}
+    </>
   );
 };
 
