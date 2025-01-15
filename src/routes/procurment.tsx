@@ -123,11 +123,59 @@ export const procurment = [
     ),
   },
   {
+    path: RouteEnum.CREATE_SAMPLE_MEMO,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/purchase-request/sample-memo/index"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.SAMPLE_PREVIEW,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/purchase-request/sample-memo/preview"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.PREVIEW_LETTER,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/purchase-request/sample-memo/preview-letter"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.FINAL_PREVIEW,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/purchase-request/sample-memo/final-preview"
+        )
+    ),
+  },
+
+  {
     path: RouteEnum.PURCHASE_REQUEST_DETAILS,
     element: lazy(
       () =>
         import(
           "pages/protectedPages/procurement-management/purchase-request/id/"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.PURCHASE_REQUEST_FORM,
+    element: lazy(
+      () =>
+        import(
+          // "pages/protectedPages/procurement-management/purchase-request/create-purchase-request/index"
+
+          "pages/protectedPages/procurement-management/purchase-request/create-purchase-request/request-form"
         )
     ),
   },

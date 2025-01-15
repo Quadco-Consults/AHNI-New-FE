@@ -13,8 +13,10 @@ import { VendorsResultsData } from "definations/procurement-types/vendors";
 
 const SupplierDatabase = () => {
   const { data, isLoading } = VendorsAPI.useGetVendorsQuery({
-    // params: { status: "APPROVED" },
+    params: { status: "Approved" },
   });
+
+  console.log({ data });
 
   return (
     <div className='space-y-10'>
@@ -32,7 +34,7 @@ const SupplierDatabase = () => {
         <h4 className='text-lg font-bold'>Supplier Database</h4>
 
         <DataTable
-          data={data?.results || []}
+          data={data?.data?.results || []}
           columns={columns}
           isLoading={isLoading}
         />
@@ -82,7 +84,7 @@ const columns: ColumnDef<VendorsResultsData>[] = [
   {
     header: "Tax ID Number",
     size: 200,
-    accessorKey: "tax_id",
+    accessorKey: "tin",
   },
   {
     header: "Area of Specialization",
@@ -109,7 +111,7 @@ const columns: ColumnDef<VendorsResultsData>[] = [
   {
     header: "Company Email",
     size: 200,
-    accessorKey: "company_email",
+    accessorKey: "email",
   },
   {
     header: "Mobile Number 1",
