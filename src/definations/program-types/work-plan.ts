@@ -1,3 +1,5 @@
+import { TFinancialYearData } from "definations/modules/config/financial-year";
+
 export interface TWorkPlanPaginatedResponse {
     id: string;
     project: string;
@@ -35,6 +37,7 @@ export interface TWorkPlanSingleResponse {
     };
     activities: TActivity[];
     budget_unit_cost_ngn: string;
+    financial_year: TFinancialYearData;
 }
 
 export interface TActivity {

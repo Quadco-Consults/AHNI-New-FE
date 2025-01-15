@@ -8,6 +8,7 @@ type PropsType = {
 export default function Summary({
     data: {
         project: { objectives, partners, title, budget },
+        financial_year,
     },
 }: PropsType) {
     return (
@@ -65,11 +66,7 @@ export default function Summary({
 
             <div className="space-y-3">
                 <h3 className="font-semibold text-xl">Financial Year</h3>
-                {/* {data?.workplans?.map((workplan: any) => (
-                    <h6 key={workplan.id} className="text-sm text-gray-500">
-                        {workplan.financial_year.year}
-                    </h6>
-                ))} */}
+                <p>{financial_year.year}</p>
 
                 <h3 className="font-semibold text-lg">Project Location</h3>
                 <div className="flex flex-wrap gap-3">
