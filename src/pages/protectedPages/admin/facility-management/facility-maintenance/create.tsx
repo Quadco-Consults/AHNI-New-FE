@@ -135,7 +135,7 @@ export default function CreateFacilityManagementTicket() {
                             action=""
                         >
                             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                                <FormSelect
+                                {/* <FormSelect
                                     label="Name of Staff"
                                     name="staff"
                                     placeholder="Select Staff"
@@ -157,7 +157,7 @@ export default function CreateFacilityManagementTicket() {
                                     placeholder="Select Location"
                                     required
                                     options={locationOptions}
-                                />
+                                /> */}
 
                                 <FormInput
                                     label="Date/Time"
@@ -174,11 +174,21 @@ export default function CreateFacilityManagementTicket() {
                                     options={facilityOptions}
                                 />
 
-                                <FormInput
+                                <FormSelect
                                     label="Maintenance Type "
                                     name="maintenance_type"
-                                    placeholder="Enter Maintenance Type"
+                                    placeholder="Select Maintenance Type"
                                     required
+                                    options={[
+                                        {
+                                            label: "Corrective",
+                                            value: "CORRECTIVE",
+                                        },
+                                        {
+                                            label: "Preventive",
+                                            value: "PREVENTIVE",
+                                        },
+                                    ]}
                                 />
 
                                 <FormInput

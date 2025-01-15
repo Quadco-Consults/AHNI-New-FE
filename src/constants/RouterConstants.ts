@@ -35,8 +35,8 @@ export const AdminRoutes = {
 
   // PAYMENT REQUEST
   INDEX_PAYMENT_REQUEST: "/admin/payment-request",
-  CREATE_PAYMENT_REQUEST: "/admin/payment-request/create",
-  // PaymentRequestUpload: "/admin/payment-request/file-updload",
+  CREATE_PAYMENT_REQUEST_SUMMARY: "/admin/payment-request/create/summary",
+  CREATE_PAYMENT_REQUEST_UPLOADS: "/admin/payment-request/create/uploads",
   VIEW_PAYMENT_REQUEST: "/admin/payment-request/:id",
 
   // ASSET MAINTENANCE
@@ -44,11 +44,17 @@ export const AdminRoutes = {
   CREATE_ASSET_MAINTENANCE: "/admin/asset-maintenance/create",
   VIEW_ASSET_MAINTENANCE: "/admin/asset-maintenance/:id",
 
-  // ---------------------
-
+  // EXPENSE AUTHORIZATION
   EXPENSE_AUTHORIZATION: "/admin/expense-authorization",
   EXPENSE_AUTHORIZATION_CREATE: "/admin/expense-authorization/create",
   EXPENSE_AUTHORIZATION_DETAIL: "/admin/expense-authorization/:id",
+
+  // TRAVEL EXPENSE REPORT
+  TRAVEL_EXPENSE_REPORT: "/admin/travel-expenses-report",
+  TRAVEL_EXPENSE_REPORT_CREATE: "/admin/travel-expenses-report/create",
+  TRAVEL_EXPENSE_REPORT_DETAIL: "/admin/travel-expenses-report/:id",
+
+  // ---------------------
 
   GRN: "/admin/inventory-management/good-receive-note",
   GRN_CREATE: "/admin/inventory-management/good-receive-note/create",
@@ -73,9 +79,6 @@ export const AdminRoutes = {
   Insurance: "/admin/agrements/insurance",
   Ticketing: "/admin/agrements/ticketing",
   ViewAggrement: "/admin/agrements/View-Aggrement",
-
-  // ----------------------------------------
-  TravelExpensesReportHome: "/admin/travel-expenses-report",
 };
 
 export const RouteEnum = {
@@ -179,6 +182,16 @@ export const RouteEnum = {
   //supplier database routes
   SUPPLIER_DATABASE: "/procurement-management/supplier-database",
   SUPPLIER_DATABASE_DETAIL: "/procurement-management/supplier-database/:id",
+
+  // vendor performance evaluation
+  VENDOR_PERFORMANCE_EVALUATION:
+    "/procurement-management/vendor-performance-evaluation",
+
+  VENDOR_PERFORMANCE_EVALUATION_ID:
+    "/procurement-management/vendor-performance-evaluation/:id",
+
+  VENDOR_PERFORMANCE_EVALUATION_FORM:
+    "/procurement-management/vendor-performance-evaluation/form",
 
   //program routes
   PROGRAM_WORK_PLAN: "/program/plan/work-plan",

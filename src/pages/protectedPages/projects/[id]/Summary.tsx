@@ -14,6 +14,7 @@ export default function ProjectSummary(props: TProjectData) {
         expected_results,
         beneficiaries,
         partners,
+        currency,
     } = props;
 
     return (
@@ -55,7 +56,10 @@ export default function ProjectSummary(props: TProjectData) {
                     <h3 className="font-semibold">
                         Budget (Total Estimated Amount)
                     </h3>
-                    <p className="text-sm text-gray-500">${budget}</p>
+                    <p className="text-sm text-gray-500">
+                        {currency === "NGN" ? "₦" : "$"}
+                        {budget}
+                    </p>
                 </div>
 
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2">

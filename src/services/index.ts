@@ -8,7 +8,7 @@ import {
 import { RootState } from "src/store";
 
 const baseQuery = fetchBaseQuery({
-    baseUrl: "https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1/",
+    baseUrl: "https://ahniprod-eec741554a5e.herokuapp.com/api/v1/",
     prepareHeaders: (headers, { getState }) => {
         const { auth } = getState() as RootState;
 
@@ -101,11 +101,16 @@ const baseAPI = createApi({
         "ITEM_REQUISITION",
         "ASSET",
         "ASSET_REQUEST",
+        "GOOD_RECEIVE_NOTE",
         "SUPERVISION_PLAN",
         "VEHICLE_MAINTENANCE",
         "FUEL_REQUEST",
         "VEHICLE_REQUEST",
         "FACILITY_MAINTENANCE",
+        "PAYMENT_REQUEST",
+        "ASSET_MAINTENANCE",
+        "EXPENSE_AUTHORIZATION",
+        "TRAVEL_EXPENSE",
     ],
     // keepUnusedDataFor: 5 * 60,
     keepUnusedDataFor: 0,

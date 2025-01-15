@@ -19,7 +19,7 @@ const Config = () => {
                         <TabsTrigger value="financialYear">
                             Financial Year
                         </TabsTrigger>
-                        {/* <TabsTrigger value="items">Items</TabsTrigger> */}
+                        <TabsTrigger value="items">Items</TabsTrigger>
                         <TabsTrigger value="locations">Locations</TabsTrigger>
                         <TabsTrigger value="position">Positions</TabsTrigger>
                     </TabsList>
@@ -38,11 +38,11 @@ const Config = () => {
                             <AllFinancialYear />
                         </Card>
                     </TabsContent>
-                    {/* <TabsContent value="items">
+                    <TabsContent value="items">
                         <Card className="mt-10 pb-8 px-6">
                             <AllItems />
                         </Card>
-                    </TabsContent> */}
+                    </TabsContent>
                     <TabsContent value="locations">
                         <Card className="mt-10 pb-8 px-6">
                             <AllLocations />

@@ -11,7 +11,10 @@ import { cn } from "lib/utils";
 import { Search } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useGetAllRolesQuery } from "services/auth/role";
-import { useAddUserToRoleMutation } from "services/auth/user";
+import {
+    useAddUserToRoleMutation,
+    useGetSingleUserQuery,
+} from "services/auth/user";
 import { toast } from "sonner";
 import { closeDialog, dailogSelector } from "store/ui";
 

@@ -1,7 +1,7 @@
 import Card from "components/shared/Card";
 import { CardContent } from "components/ui/card";
 import PaymentRequestLayout from "./Layout";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import {
     PaymentRequestSchema,
     TPaymentRequestFormData,
@@ -11,6 +11,13 @@ import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelect";
 import FormTextArea from "atoms/FormTextArea";
 import FormButton from "atoms/FormButton";
+import { useGetAllPurchaseOrdersQuery } from "services/procurementApi/purchase-order";
+import { useEffect, useMemo } from "react";
+
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useGetAllUsersQuery } from "services/auth/user";
+import { Button } from "components/ui/button";
+import { AdminRoutes } from "constants/RouterConstants";
 
 export default function CreatePaymentRequest() {
     const form = useForm<TPaymentRequestFormData>({
@@ -25,10 +32,62 @@ export default function CreatePaymentRequest() {
             account_number: "",
             bank_name: "",
             payment_reason: "",
+            reviewer: "",
+            authorizer: "",
+            approver: "",
         },
     });
 
-    const onSubmit = async () => {};
+    const { pathname } = useLocation();
+
+    const navigate = useNavigate();
+
+    const { data: purchaseOrder } = useGetAllPurchaseOrdersQuery({
+        page: 1,
+        size: 2000000,
+    });
+
+    const purchaseOrderOptions = useMemo(
+        () =>
+            purchaseOrder?.data.results.map(
+                ({ purchase_order_number, id }) => ({
+                    label: purchase_order_number,
+                    value: id,
+                })
+            ),
+        [purchaseOrder]
+    );
+
+    const { data: user } = useGetAllUsersQuery({ page: 1, size: 2000000 });
+
+    const userOptions = useMemo(
+        () =>
+            user?.data.results.map(({ first_name, last_name, id }) => ({
+                label: `${first_name} ${last_name}`,
+                value: id,
+            })),
+        [user]
+    );
+
+    const onSubmit: SubmitHandler<TPaymentRequestFormData> = (data) => {
+        sessionStorage.setItem("paymentRequestFormData", JSON.stringify(data));
+
+        let path = pathname;
+
+        path = path.substring(0, path.lastIndexOf("/"));
+
+        path += `/uploads`;
+
+        navigate(path);
+    };
+
+    useEffect(() => {
+        const data = JSON.parse(
+            sessionStorage.getItem("paymentRequestFormData") || "{}"
+        ) as TPaymentRequestFormData;
+
+        form.reset(data);
+    }, [purchaseOrder, user]);
 
     return (
         <PaymentRequestLayout>
@@ -49,7 +108,7 @@ export default function CreatePaymentRequest() {
                                     name="purchase_order"
                                     placeholder="Select Purchase Order"
                                     required
-                                    options={[]}
+                                    options={purchaseOrderOptions}
                                 />
 
                                 <FormInput
@@ -95,6 +154,14 @@ export default function CreatePaymentRequest() {
                                     placeholder="Enter Bank Name"
                                     required
                                 />
+
+                                {/* <FormSelect
+                                    label="Requested By"
+                                    name="requested_by"
+                                    placeholder="Select Requestor"
+                                    required
+                                    options={userOptions}
+                                /> */}
                             </div>
 
                             <FormTextArea
@@ -105,9 +172,44 @@ export default function CreatePaymentRequest() {
                                 className="mt-5"
                             />
 
-                            <div className="flex justify-end">
-                                <FormButton loading={false} className="mt-10">
-                                    Submit
+                            <div className="grid grid-cols-3 gap-5 mt-5">
+                                <FormSelect
+                                    label="Reviewer"
+                                    name="reviewer"
+                                    placeholder="Select Reviewer"
+                                    required
+                                    options={userOptions}
+                                />
+
+                                <FormSelect
+                                    label="Authorizer"
+                                    name="authorizer"
+                                    placeholder="Select Authorizer"
+                                    required
+                                    options={userOptions}
+                                />
+
+                                <FormSelect
+                                    label="Approver"
+                                    name="approver"
+                                    placeholder="Select Approver"
+                                    required
+                                    options={userOptions}
+                                />
+                            </div>
+
+                            <div className="flex items-center justify-end mt-10 gap-2">
+                                <Link to={AdminRoutes.INDEX_PAYMENT_REQUEST}>
+                                    <Button
+                                        variant="outline"
+                                        type="button"
+                                        size="lg"
+                                    >
+                                        Cancel
+                                    </Button>
+                                </Link>
+                                <FormButton loading={false} size="lg">
+                                    Next
                                 </FormButton>
                             </div>
                         </form>
@@ -117,10 +219,3 @@ export default function CreatePaymentRequest() {
         </PaymentRequestLayout>
     );
 }
-
-/*  <FormSelect
-                                    options={[]}
-                                    label="Requested By"
-                                    name="requested_by_id"
-                                    required
-                                /> */
