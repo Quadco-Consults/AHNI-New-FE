@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { skipToken } from "@reduxjs/toolkit/query/react";
 import BackNavigation from "atoms/BackNavigation";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
@@ -10,10 +11,14 @@ import {
     FuelRequestSchema,
     TFuelRequestFormValues,
 } from "definations/admin/fleet-management/fuel-request";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
-import { useCreateFuelRequestMutation } from "services/admin/fleet-management/fuel-request";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import {
+    useCreateFuelRequestMutation,
+    useGetSingleFuelRequestQuery,
+    useModifyFuelRequestMutation,
+} from "services/admin/fleet-management/fuel-request";
 import { useGetAllAssetsQuery } from "services/admin/inventory-management/asset";
 import { useGetAllUsersQuery } from "services/auth/user";
 import { useGetAllLocationsQuery } from "services/modules/config/location";
@@ -39,6 +44,8 @@ export default function CreateFuelConsumption() {
     });
 
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const id = searchParams.get("id");
 
     const { data: asset } = useGetAllAssetsQuery({ page: 1, size: 2000000 });
 
@@ -104,15 +111,60 @@ export default function CreateFuelConsumption() {
     const [createFuelRequest, { isLoading: isCreateLoading }] =
         useCreateFuelRequestMutation();
 
+    const [modifyFuelRequest, { isLoading: isModifyLoading }] =
+        useModifyFuelRequestMutation();
+
     const onSubmit: SubmitHandler<TFuelRequestFormValues> = async (data) => {
         try {
-            await createFuelRequest(data).unwrap();
-            toast.success("Fuel Request Created");
+            if (id) {
+                await modifyFuelRequest({
+                    id,
+                    body: { distance_covered: "100", ...data },
+                }).unwrap();
+                toast.success("Updated Fuel Request");
+            } else {
+                await createFuelRequest(data).unwrap();
+                toast.success("Fuel Request Created");
+            }
             navigate(AdminRoutes.INDEX_FUEL_CONSUMPTION);
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }
     };
+
+    const { data: fuelConsumption } = useGetSingleFuelRequestQuery(
+        id ?? skipToken
+    );
+
+    useEffect(() => {
+        if (fuelConsumption) {
+            const {
+                asset,
+                assigned_driver,
+                location,
+                vendor,
+                odometer,
+                date,
+                price_per_litre,
+                quantity,
+                amount,
+                fco,
+            } = fuelConsumption.data;
+
+            form.reset({
+                asset: asset.id,
+                assigned_driver: assigned_driver.id,
+                location: location.id,
+                vendor: vendor.id,
+                odometer: String(odometer),
+                date,
+                price_per_litre,
+                quantity: String(quantity),
+                amount,
+                fco: fco.id,
+            });
+        }
+    }, [fuelConsumption]);
 
     return (
         <div>
@@ -206,7 +258,9 @@ export default function CreateFuelConsumption() {
                             </div>
 
                             <div className="flex justify-end">
-                                <FormButton loading={isCreateLoading}>
+                                <FormButton
+                                    loading={isCreateLoading || isModifyLoading}
+                                >
                                     Submit
                                 </FormButton>
                             </div>

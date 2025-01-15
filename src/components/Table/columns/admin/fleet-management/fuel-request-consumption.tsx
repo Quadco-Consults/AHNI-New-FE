@@ -11,6 +11,7 @@ import { useState } from "react";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 import { toast } from "sonner";
 import { useDeleteFuelRequestMutation } from "services/admin/fleet-management/fuel-request";
+import PencilIcon from "components/icons/PencilIcon";
 
 export const fuelRequestConsumptionColumns: ColumnDef<IFuelRequestPaginatedData>[] =
     [
@@ -21,23 +22,9 @@ export const fuelRequestConsumptionColumns: ColumnDef<IFuelRequestPaginatedData>
         },
 
         {
-            header: "Previous Odometer Reading",
+            header: "Odometer Reading",
             id: "odometer",
             accessorKey: "odometer",
-            size: 200,
-        },
-
-        {
-            header: "Current Odometer Reading",
-            id: "odometer",
-            accessorKey: "odometer",
-            size: 200,
-        },
-
-        {
-            header: "Distance Covered",
-            id: "distance_covered",
-            accessorKey: "distance_covered",
             size: 200,
         },
 
@@ -129,9 +116,24 @@ const TableMenu = ({ id }: IFuelRequestPaginatedData) => {
                             </Button>
                         </Link>
 
+                        <Link
+                            to={{
+                                pathname: AdminRoutes.CREATE_FUEL_CONSUMPTION,
+                                search: `?id=${id}`,
+                            }}
+                        >
+                            <Button
+                                className="w-full flex items-center justify-start gap-2"
+                                variant="ghost"
+                            >
+                                <PencilIcon />
+                                Edit
+                            </Button>
+                        </Link>
+
                         <Button
                             variant="ghost"
-                            className="w-full"
+                            className="w-full flex items-center justify-start gap-2"
                             onClick={() => setDialogOpen(true)}
                         >
                             <DeleteIcon />
