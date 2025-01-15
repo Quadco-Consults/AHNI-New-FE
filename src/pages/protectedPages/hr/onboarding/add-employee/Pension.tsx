@@ -18,6 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import WorkforceAPI from "services/hrApi/workforce";
 import { toast } from "sonner";
 import FormButton from "atoms/FormButton";
+import { updateStepCompletion } from "store/stepTracker";
 
 const Pension = () => {
   const navigate = useNavigate();
@@ -52,6 +53,12 @@ const Pension = () => {
         body: data,
       }).unwrap();
       dispatch(
+        updateStepCompletion({
+          path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_PENSION,
+        })
+      );
+
+      dispatch(
         openDialog({
           type: DialogType.HrSuccessModal,
           dialogProps: {
@@ -66,39 +73,40 @@ const Pension = () => {
   };
 
   return (
-    <Card className="space-y-10 mt-6 max-w-4xl mx-auto">
-      <div>
-        <h4 className="font-semibold text-lg text-center">
-          Pension Scheme Enrolment Form
-        </h4>
-        <p className="text-small text-center">
-          FORMS MUST BE AND COMPLETED IN UPPER CASE
-        </p>
-      </div>
-      <Form {...form}>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="card-wrapper space-y-6"
-        >
-          <h4 className="text-red-500 text-lg font-medium">
-            Pension Fund Administration (PFA) selection
+    <>
+      <Card className='space-y-10 mt-6 max-w-4xl mx-auto'>
+        <div>
+          <h4 className='font-semibold text-lg text-center'>
+            Pension Scheme Enrolment Form
           </h4>
-          <Separator />
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <FormInput name="name" label="Name of selected PFA" required />
-            <FormInput name="rsa_number" label="RSA Number" required />
-            <FormInput
-              name="pfc_account_name"
-              label="PFC (Pension Fund Custodian) Account Name"
-              required
-            />
-            <FormInput
-              name="pfc_account_number"
-              label="PFC Account Number"
-              required
-            />
-          </div>
-          {/* <FormSelect
+          <p className='text-small text-center'>
+            FORMS MUST BE AND COMPLETED IN UPPER CASE
+          </p>
+        </div>
+        <Form {...form}>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className='card-wrapper space-y-6'
+          >
+            <h4 className='text-red-500 text-lg font-medium'>
+              Pension Fund Administration (PFA) selection
+            </h4>
+            <Separator />
+            <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+              <FormInput name='name' label='Name of selected PFA' required />
+              <FormInput name='rsa_number' label='RSA Number' required />
+              <FormInput
+                name='pfc_account_name'
+                label='PFC (Pension Fund Custodian) Account Name'
+                required
+              />
+              <FormInput
+                name='pfc_account_number'
+                label='PFC Account Number'
+                required
+              />
+            </div>
+            {/* <FormSelect
             options={[]}
             name="saving_account"
             label="Do you already have a Retirement Savings Account with any PFA?"
@@ -110,23 +118,35 @@ const Pension = () => {
             label="If you have an existing PFA, are the account details you have provided above for the existing PFA?"
             required
           /> */}
-          <FormInput name="date_provided" label="Date" type="date" required />
+            <FormInput name='date_provided' label='Date' type='date' required />
 
-          <div className="flex gap-x-6 justify-end">
-            <FormButton
-              loading={isLoading}
-              disabled={isLoading}
-              variant="outline"
-            >
-              <Save size={20} /> Save
-            </FormButton>
-            <Button type="button" onClick={handleNext}>
-              Submit
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </Card>
+            <div className='flex gap-x-6 justify-end'>
+              <FormButton
+                loading={isLoading}
+                disabled={isLoading}
+                variant='outline'
+              >
+                <Save size={20} /> Save
+              </FormButton>
+              <Button type='button' onClick={handleNext}>
+                Submit
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </Card>
+      {/* <Button
+        onClick={() =>
+          dispatch(
+            updateStepCompletion({
+              path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_PENSION,
+            })
+          )
+        }
+      >
+        Hello
+      </Button> */}
+    </>
   );
 };
 
