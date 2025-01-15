@@ -15,12 +15,12 @@ const EmployeeInformation = () => {
   };
 
   return (
-    <Card className="space-y-6 mt-6">
+    <Card className='space-y-6 mt-6'>
       <div>
-        <h4 className="font-semibold text-lg text-center">
+        <h4 className='font-semibold text-lg text-center'>
           Employee Information Form
         </h4>
-        <p className="text-small text-center">
+        <p className='text-small text-center'>
           Fill the form below, in a case where changes occur, please provide an
           updated form to Human Resources.
           <br /> Telephone numbers are released to supervisory staff for
@@ -28,25 +28,25 @@ const EmployeeInformation = () => {
         </p>
       </div>
 
-      <Tabs defaultValue="basic_information">
+      <Tabs defaultValue='basic_information'>
         <TabsList>
-          <TabsTrigger value="basic_information">Basic Information</TabsTrigger>
-          <TabsTrigger value="qualification">Qualification</TabsTrigger>
+          <TabsTrigger value='basic_information'>Basic Information</TabsTrigger>
+          <TabsTrigger value='qualification'>Qualification</TabsTrigger>
         </TabsList>
-        <TabsContent value="basic_information">
-          <Card className="px-6">
+        <TabsContent value='basic_information'>
+          <Card className='px-6'>
             <BasicInformation />
           </Card>
         </TabsContent>
-        <TabsContent value="qualification">
-          <Card className="px-6">
+        <TabsContent value='qualification'>
+          <Card className='px-6'>
             <Qualification />
           </Card>
         </TabsContent>
       </Tabs>
 
-      <div className="flex gap-x-6 justify-end">
-        <Button type="button" onClick={handleNext}>
+      <div className='flex gap-x-6 justify-end'>
+        <Button type='button' onClick={handleNext}>
           Next
           <ChevronRight size={20} />
         </Button>

@@ -21,6 +21,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import HrBeneficiaryAPI from "services/hrApi/hr-beneficiary";
 import { toast } from "sonner";
 import FormButton from "atoms/FormButton";
+import { updateStepCompletion } from "store/stepTracker";
 
 const Beneficiary = () => {
   const navigate = useNavigate();
@@ -76,6 +77,12 @@ const Beneficiary = () => {
     try {
       await createHrBeneficiaryMutation(data).unwrap();
       dispatch(
+        updateStepCompletion({
+          path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_BENEFICIARY,
+        })
+      );
+
+      dispatch(
         openDialog({
           type: DialogType.HrSuccessModal,
           dialogProps: {
@@ -90,92 +97,93 @@ const Beneficiary = () => {
   };
 
   return (
-    <Card className="space-y-6 mt-6 max-w-4xl mx-auto">
-      <div>
-        <h4 className="font-semibold text-lg text-center">
-          Beneficiary Designation Form
-        </h4>
-        <p className="text-small text-center">
-          To be used for all requests concerning the granting, amending &
-          removal of Network access
-        </p>
-      </div>
+    <>
+      <Card className='space-y-6 mt-6 max-w-4xl mx-auto'>
+        <div>
+          <h4 className='font-semibold text-lg text-center'>
+            Beneficiary Designation Form
+          </h4>
+          <p className='text-small text-center'>
+            To be used for all requests concerning the granting, amending &
+            removal of Network access
+          </p>
+        </div>
 
-      <Form {...beneficiaryForm}>
-        <form
-          onSubmit={beneficiaryForm.handleSubmit(onSubmit)}
-          className="space-y-6"
-        >
-          <div className="card-wrapper bg-gray-100">
-            <p className="text-small">
-              I designate the person(s) named below as my primary
-              beneficiary(ies) to receive payment under the policy in the event
-              of death.
-            </p>
-          </div>
-          <div className="card-wrapper space-y-6">
-            <h4 className="text-red-500 text-lg font-medium">
-              Primary Beneficiary(ies)
-            </h4>
-
-            <FormInput
-              name="name"
-              label="Beneficiary Names (Last, First)"
-              required
-            />
-            <FormInput name="percentage" label="% of Benefit" required />
-            <FormInput
-              name="relationship"
-              label="Relationship with Employee"
-              required
-            />
-            <FormInput name="phone_number" label="Phone Number" required />
-          </div>
-
-          <FormButton
-            loading={isLoading}
-            disabled={isLoading}
-            variant="outline"
+        <Form {...beneficiaryForm}>
+          <form
+            onSubmit={beneficiaryForm.handleSubmit(onSubmit)}
+            className='space-y-6'
           >
-            <Save size={20} /> Save
-          </FormButton>
-        </form>
-      </Form>
+            <div className='card-wrapper bg-gray-100'>
+              <p className='text-small'>
+                I designate the person(s) named below as my primary
+                beneficiary(ies) to receive payment under the policy in the
+                event of death.
+              </p>
+            </div>
+            <div className='card-wrapper space-y-6'>
+              <h4 className='text-red-500 text-lg font-medium'>
+                Primary Beneficiary(ies)
+              </h4>
 
-      <Form {...contingentBeneficiaryForm}>
-        <form
-          onSubmit={contingentBeneficiaryForm.handleSubmit(submitHandler)}
-          className="space-y-6"
-        >
-          {/* <div className="flex justify-end gap-x-4">
+              <FormInput
+                name='name'
+                label='Beneficiary Names (Last, First)'
+                required
+              />
+              <FormInput name='percentage' label='% of Benefit' required />
+              <FormInput
+                name='relationship'
+                label='Relationship with Employee'
+                required
+              />
+              <FormInput name='phone_number' label='Phone Number' required />
+            </div>
+
+            <FormButton
+              loading={isLoading}
+              disabled={isLoading}
+              variant='outline'
+            >
+              <Save size={20} /> Save
+            </FormButton>
+          </form>
+        </Form>
+
+        <Form {...contingentBeneficiaryForm}>
+          <form
+            onSubmit={contingentBeneficiaryForm.handleSubmit(submitHandler)}
+            className='space-y-6'
+          >
+            {/* <div className="flex justify-end gap-x-4">
             <FormCheckBox name="new" label="New" reverse />
             <FormCheckBox name="change" label="Change" reverse />
           </div> */}
 
-          <div className="card-wrapper space-y-6">
-            <h4 className="text-red-500 text-lg font-medium">
-              Contingent Beneficiary
-            </h4>
-            <p className="text-small">
-              (Used only if any of the above beneficiaries passes on before you.
-              The % allocated to the affected primary beneficiary will be
-              transferred to the contingent beneficiary in the order listed
-              below)
-            </p>
-            <Separator />
-            <FormInput
-              name="name"
-              label="Contingent Beneficiary Names (Last, First)"
-              required
-            />
-            <FormInput
-              name="relationship"
-              label="Relationship with Employee"
-              required
-            />
-            <FormInput name="phone_number" label="Phone Number" required />
-          </div>
-          {/* <Separator />
+            <div className='card-wrapper space-y-6'>
+              <h4 className='text-red-500 text-lg font-medium'>
+                Contingent Beneficiary
+              </h4>
+              <p className='text-small'>
+                (Used only if any of the above beneficiaries passes on before
+                you. The % allocated to the affected primary beneficiary will be
+                transferred to the contingent beneficiary in the order listed
+                below)
+              </p>
+              <Separator />
+              <FormInput
+                name='name'
+                label='Contingent Beneficiary Names (Last, First)'
+                required
+              />
+              <FormInput
+                name='relationship'
+                label='Relationship with Employee'
+                required
+              />
+              <FormInput name='phone_number' label='Phone Number' required />
+            </div>
+            {/* <Separator />
           <div className="card-wrapper space-y-6">
             <h4 className="text-red-500 text-lg font-medium">
               Authorization and Signatories
@@ -206,22 +214,34 @@ const Beneficiary = () => {
             />
           </div> */}
 
-          <FormButton
-            loading={isLoading}
-            disabled={isLoading}
-            variant="outline"
-          >
-            <Save size={20} /> Save
-          </FormButton>
-        </form>
-      </Form>
-      <div className="flex gap-x-6 justify-end">
-        <Button type="button" onClick={handleNext}>
-          Next
-          <ChevronRight size={20} />
-        </Button>
-      </div>
-    </Card>
+            <FormButton
+              loading={isLoading}
+              disabled={isLoading}
+              variant='outline'
+            >
+              <Save size={20} /> Save
+            </FormButton>
+          </form>
+        </Form>
+        <div className='flex gap-x-6 justify-end'>
+          <Button type='button' onClick={handleNext}>
+            Next
+            <ChevronRight size={20} />
+          </Button>
+        </div>
+      </Card>
+      {/* <Button
+        onClick={() =>
+          dispatch(
+            updateStepCompletion({
+              path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_ID_CARD,
+            })
+          )
+        }
+      >
+        Hello
+      </Button> */}
+    </>
   );
 };
 

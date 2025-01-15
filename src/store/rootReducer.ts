@@ -11,32 +11,34 @@ import vendors from "./formData/procurement-vendors";
 import assets from "./assets";
 import stakeholder from "./formData/stakeholders";
 import teamMember from "./admin/team-members";
+import steps from "./stepTracker";
 
 const persistConfig = {
-    storage,
-    key: "ahni",
-    blacklist: [
-        baseAPI.reducerPath,
-        "objectives",
-        "partnerLocation",
-        "stakeholder",
-        "consortiumPartner",
-        "teamMember",
-    ],
+  storage,
+  key: "ahni",
+  blacklist: [
+    baseAPI.reducerPath,
+    "objectives",
+    "partnerLocation",
+    "stakeholder",
+    "consortiumPartner",
+    "teamMember",
+  ],
 };
 
 export const rootStore = combineReducers({
-    // ...your reducers here
-    [baseAPI.reducerPath]: baseAPI.reducer,
-    auth,
-    ui,
-    consortiumPartner: consortiumPartnerReducer,
-    objectives,
-    ssp,
-    vendors,
-    assets,
-    stakeholder,
-    teamMember,
+  // ...your reducers here
+  [baseAPI.reducerPath]: baseAPI.reducer,
+  auth,
+  ui,
+  consortiumPartner: consortiumPartnerReducer,
+  objectives,
+  ssp,
+  vendors,
+  assets,
+  stakeholder,
+  teamMember,
+  steps,
 });
 
 export const rootReducer = persistReducer(persistConfig, rootStore);
