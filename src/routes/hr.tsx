@@ -28,6 +28,20 @@ export const hr = [
     ),
   },
   {
+    path: HrRoutes.ADVERTISEMENT_MANUAL_APPLICATION_SUBMISSION,
+    element: lazy(
+      () => import("pages/protectedPages/hr/advertisement/id/ApplicationForm")
+    ),
+  },
+
+  {
+    path: HrRoutes.ADVERTISEMENT_INTERVIEW_FORM,
+    element: lazy(
+      () => import("pages/protectedPages/hr/advertisement/id/InterviewForm")
+    ),
+  },
+
+  {
     path: HrRoutes.ONBOARDING,
     element: lazy(() => import("pages/protectedPages/hr/onboarding/index")),
   },

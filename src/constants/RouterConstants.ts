@@ -310,6 +310,10 @@ export const HrRoutes = {
   ADVERTISEMENT_DETAIL: "/hr/advertisement/:id",
   ADVERTISEMENT_DETAIL_SUB_APP:
     "/hr/advertisement/:id/submitted-applications/:appID",
+  ADVERTISEMENT_MANUAL_APPLICATION_SUBMISSION:
+    "/hr/advertisement/:id/application-form",
+
+  ADVERTISEMENT_INTERVIEW_FORM: "/hr/advertisement/:id/interview-form",
   ONBOARDING: "/hr/onboarding",
   ONBOARDING_START: "/hr/onboarding/start-onboarding",
   ONBOARDING_ADD_EMPLOYEE_INFO:

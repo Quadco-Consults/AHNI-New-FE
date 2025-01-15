@@ -1,15 +1,14 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "components/ui/badge";
 import { Checkbox } from "components/ui/checkbox";
-import { AdvertisementResults } from "definations/hr-types/advertisement";
-import { cn } from "lib/utils";
+import { InterviewResults } from "definations/hr-types/advertisement";
+
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import { generatePath, Link } from "react-router-dom";
 import { HrRoutes } from "constants/RouterConstants";
 import EyeIcon from "components/icons/EyeIcon";
-import ScanIcon from "components/icons/ScanIcon";
+
 import DeleteIcon from "components/icons/DeleteIcon";
 import DataTable from "components/Table/DataTable";
 import SearchIcon from "components/icons/SearchIcon";
@@ -17,21 +16,21 @@ import FilterIcon from "components/icons/FilterIcon";
 
 const InterviewTable = () => {
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-start gap-2">
-        <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
+    <div className='space-y-6'>
+      <div className='flex items-center justify-start gap-2'>
+        <span className='flex items-center w-1/3 px-2 py-2 border rounded-lg'>
           <SearchIcon />
           <input
-            placeholder="Search"
-            type="text"
-            className="ml-2 h-6 border-none bg-none focus:outline-none outline-none"
+            placeholder='Search'
+            type='text'
+            className='ml-2 h-6 border-none bg-none focus:outline-none outline-none'
           />
         </span>
-        <Button className="shadow-sm" variant="ghost">
+        <Button className='shadow-sm' variant='ghost'>
           <FilterIcon />
         </Button>
       </div>
-      <h4 className="text-lg font-medium">AVERAGE INTERVIEW SCORE ANALYSIS </h4>
+      <h4 className='text-lg font-medium'>AVERAGE INTERVIEW SCORE ANALYSIS </h4>
       <DataTable data={data} columns={columns} isLoading={false} />
     </div>
   );
@@ -42,21 +41,72 @@ export default InterviewTable;
 const data = [
   {
     name: "James Septimus",
-    position: "Technical Associate",
-    type: "Technical Associate",
-    status: "Applied",
-    email: "jamesseptimus@gmail.com",
+    appearance: 8,
+    communication: 7,
+    teamwork: 9,
+    ethics: 8,
+    analytical: 8,
+    technical: 9,
+    knowledge: 7,
+    experience: 6,
+    average: 7.7,
+    percentage: "77%",
   },
   {
-    name: "James Septimus",
-    position: "Technical Associate",
-    type: "Technical Associate",
-    status: "Shortlisted",
-    email: "jamesseptimus@gmail.com",
+    name: "Amelia Clarke",
+    appearance: 9,
+    communication: 8,
+    teamwork: 8,
+    ethics: 9,
+    analytical: 7,
+    technical: 8,
+    knowledge: 8,
+    experience: 7,
+    average: 8.0,
+    percentage: "80%",
+  },
+  {
+    name: "Michael Roberts",
+    appearance: 6,
+    communication: 7,
+    teamwork: 6,
+    ethics: 8,
+    analytical: 6,
+    technical: 7,
+    knowledge: 7,
+    experience: 6,
+    average: 6.7,
+    percentage: "67%",
+  },
+  {
+    name: "Sophia Bennett",
+    appearance: 9,
+    communication: 9,
+    teamwork: 10,
+    ethics: 9,
+    analytical: 9,
+    technical: 10,
+    knowledge: 9,
+    experience: 8,
+    average: 9.1,
+    percentage: "91%",
+  },
+  {
+    name: "Liam Carter",
+    appearance: 7,
+    communication: 6,
+    teamwork: 8,
+    ethics: 7,
+    analytical: 8,
+    technical: 7,
+    knowledge: 7,
+    experience: 6,
+    average: 7.1,
+    percentage: "71%",
   },
 ];
 
-const columns: ColumnDef<AdvertisementResults>[] = [
+const columns: ColumnDef<InterviewResults>[] = [
   {
     id: "select",
     size: 50,
@@ -87,36 +137,46 @@ const columns: ColumnDef<AdvertisementResults>[] = [
     size: 250,
   },
   {
-    header: "Position Applied",
-    accessorKey: "position",
+    header: "Appearance",
+    accessorKey: "appearance",
     size: 200,
   },
   {
-    header: "Employment type",
-    accessorKey: "type",
+    header: "Communication",
+    accessorKey: "communication",
     size: 250,
   },
   {
-    header: "Applicant Email",
-    accessorKey: "email",
+    header: "Teamwork",
+    accessorKey: "teamwork",
   },
   {
-    header: "Status",
-    accessorKey: "status",
-    cell: ({ getValue }) => {
-      return (
-        <Badge
-          className={cn(
-            "p-1 rounded-lg",
-            getValue() === "Applied"
-              ? "bg-green-50 text-green-500"
-              : "bg-yellow-50 text-yellow-500"
-          )}
-        >
-          {getValue() as string}
-        </Badge>
-      );
-    },
+    header: "Ethics",
+    accessorKey: "ethics",
+  },
+  {
+    header: "Analytical",
+    accessorKey: "analytical",
+  },
+  {
+    header: "Technical",
+    accessorKey: "technical",
+  },
+  {
+    header: "Knowledge",
+    accessorKey: "knowledge",
+  },
+  {
+    header: "Experience",
+    accessorKey: "experience",
+  },
+  {
+    header: "Average",
+    accessorKey: "average",
+  },
+  {
+    header: "Percentage",
+    accessorKey: "percentage",
   },
   {
     header: "Actions",
@@ -128,16 +188,16 @@ const columns: ColumnDef<AdvertisementResults>[] = [
 
 const ActionList = () => {
   return (
-    <div className="flex items-center gap-2">
+    <div className='flex items-center gap-2'>
       <>
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost" className="flex gap-2 py-6">
+            <Button variant='ghost' className='flex gap-2 py-6'>
               <MoreOptionsHorizontalIcon />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className=" w-fit">
-            <div className="flex flex-col items-start justify-between gap-1">
+          <PopoverContent className=' w-fit'>
+            <div className='flex flex-col items-start justify-between gap-1'>
               <Link
                 to={generatePath(HrRoutes.ADVERTISEMENT_DETAIL_SUB_APP, {
                   id: 1,
@@ -145,8 +205,8 @@ const ActionList = () => {
                 })}
               >
                 <Button
-                  className="w-full flex items-center justify-start gap-2"
-                  variant="ghost"
+                  className='w-full flex items-center justify-start gap-2'
+                  variant='ghost'
                 >
                   <EyeIcon />
                   View
@@ -154,16 +214,8 @@ const ActionList = () => {
               </Link>
 
               <Button
-                className="w-full flex items-center justify-start gap-2"
-                variant="ghost"
-              >
-                <ScanIcon />
-                Interview
-              </Button>
-
-              <Button
-                className="w-full flex items-center justify-start gap-2"
-                variant="ghost"
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
               >
                 <DeleteIcon />
                 delete

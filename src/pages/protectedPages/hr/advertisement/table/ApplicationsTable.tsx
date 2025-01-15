@@ -14,22 +14,46 @@ import DeleteIcon from "components/icons/DeleteIcon";
 import DataTable from "components/Table/DataTable";
 import SearchIcon from "components/icons/SearchIcon";
 import FilterIcon from "components/icons/FilterIcon";
+import AddSquareIcon from "components/icons/AddSquareIcon";
 
-const ApplicationsTable = () => {
+const ApplicationsTable = ({
+  href = "",
+  linkTitle,
+}: {
+  href?: string;
+  linkTitle?: string;
+}) => {
+  console.log({ href });
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-start gap-2">
-        <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
+    <div className='space-y-6'>
+      <div className='flex items-center justify-start gap-2'>
+        <span className='flex items-center w-1/3 px-2 py-2 border rounded-lg'>
           <SearchIcon />
           <input
-            placeholder="Search"
-            type="text"
-            className="ml-2 h-6 border-none bg-none focus:outline-none outline-none"
+            placeholder='Search'
+            type='text'
+            className='ml-2 h-6 border-none bg-none focus:outline-none outline-none'
           />
         </span>
-        <Button className="shadow-sm" variant="ghost">
+        <Button className='shadow-sm' variant='ghost'>
           <FilterIcon />
         </Button>
+        {linkTitle && (
+          <div className='ml-auto'>
+            <Link
+              className='w-full'
+              // to={generatePath(CandGRoutes.MANUAL_SUB_GRANT_SUBMISSION)}
+              to={href}
+              // to={""}
+            >
+              <Button className='flex gap-2 py-6' type='button'>
+                <AddSquareIcon />
+                <p>{linkTitle}</p>
+              </Button>
+            </Link>
+          </div>
+        )}
       </div>
       <DataTable data={data} columns={columns} isLoading={false} />
     </div>
@@ -127,16 +151,16 @@ const columns: ColumnDef<AdvertisementResults>[] = [
 
 const ActionList = () => {
   return (
-    <div className="flex items-center gap-2">
+    <div className='flex items-center gap-2'>
       <>
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost" className="flex gap-2 py-6">
+            <Button variant='ghost' className='flex gap-2 py-6'>
               <MoreOptionsHorizontalIcon />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className=" w-fit">
-            <div className="flex flex-col items-start justify-between gap-1">
+          <PopoverContent className=' w-fit'>
+            <div className='flex flex-col items-start justify-between gap-1'>
               <Link
                 to={generatePath(HrRoutes.ADVERTISEMENT_DETAIL_SUB_APP, {
                   id: 1,
@@ -144,25 +168,31 @@ const ActionList = () => {
                 })}
               >
                 <Button
-                  className="w-full flex items-center justify-start gap-2"
-                  variant="ghost"
+                  className='w-full flex items-center justify-start gap-2'
+                  variant='ghost'
                 >
                   <EyeIcon />
                   View
                 </Button>
               </Link>
-
-              <Button
-                className="w-full flex items-center justify-start gap-2"
-                variant="ghost"
+              <Link
+                to={generatePath(HrRoutes.ADVERTISEMENT_INTERVIEW_FORM, {
+                  id: 1,
+                  appID: 2,
+                })}
               >
-                <ScanIcon />
-                Interview
-              </Button>
+                <Button
+                  className='w-full flex items-center justify-start gap-2'
+                  variant='ghost'
+                >
+                  <ScanIcon />
+                  Interview
+                </Button>
+              </Link>
 
               <Button
-                className="w-full flex items-center justify-start gap-2"
-                variant="ghost"
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
               >
                 <DeleteIcon />
                 delete
