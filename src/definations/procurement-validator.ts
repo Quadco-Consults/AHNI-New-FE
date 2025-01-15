@@ -119,6 +119,33 @@ export const VendorsSchema = z.object({
   approved_categories: z.array(z.string()),
 });
 
+//
+export const SampleMemoSchema = z.object({
+  activity: z.string().min(1, "Field is required"),
+  location: z.string().min(1, "Field is required"),
+  requested_date: z.string().min(1, "Field is required"),
+  fconumber: z.array(z.string().min(1, "Field is required")),
+  module: z.array(z.string().min(1, "Field is required")),
+  inventory: z.array(z.string().min(1, "Field is required")),
+  budget_line: z.array(z.string().min(1, "Field is required")),
+  cost_grouping: z.array(z.string().min(1, "Field is required")),
+  cost_input: z.array(z.string().min(1, "Field is required")),
+  funding_source: z.array(z.string().min(1, "Field is required")),
+  comment: z.string().min(1, "Field is required"),
+  expenses: z.array(
+    z.object({
+      expenses_item: z.string().optional(),
+      quantity: z.string().optional(),
+      days: z.string().optional(),
+      facility: z.string().optional(),
+      frequency: z.string().optional(),
+      unit_cost: z.string().optional(),
+      total_cost: z.string().optional(),
+    })
+  ),
+});
+//
+
 export const PurchaseRequestSchema = z.object({
   items: z.array(
     z.object({

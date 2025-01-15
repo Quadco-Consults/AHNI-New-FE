@@ -11,41 +11,43 @@ const AddAdvertisement = () => {
   const form = useForm();
   const { handleSubmit } = form;
 
-  const onSubmit = () => {};
+  const onSubmit = (data: any) => {
+    console.log("Form Data:", data);
+  };
 
   return (
-    <div className="space-y-4">
+    <div className='space-y-4'>
       <GoBack />
       <Card>
         <Form {...form}>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <h4 className="font-medium text-lg pb-4">
+          <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
+            <h4 className='font-medium text-lg pb-4'>
               Initiate New Advertisement
             </h4>
 
-            <FormInput name="title" label="Title" required />
-            <FormInput name="grade_level" label="Grade Level" required />
-            <FormInput name="locations" label="Locations" required />
-            <FormInput name="duration" label="Duration" required />
+            <FormInput name='title' label='Title' required />
+            <FormInput name='grade_level' label='Grade Level' required />
+            <FormInput name='locations' label='Locations' required />
+            <FormInput name='duration' label='Duration' required />
             <FormInput
-              name="commencement_date"
-              label="Commencement Date"
+              name='commencement_date'
+              label='Commencement Date'
               required
             />
             <FormInput
-              name="number_of_consultants"
-              label="Number of Consultants"
+              name='number_of_consultants'
+              label='Number of Consultants'
               required
             />
-            <FormInput name="supervisor" label="Supervisor" required />
-            <FormInput name="info" label="Info" required />
-            <FormTextArea name="background" label="Background" required />
+            <FormInput name='supervisor' label='Supervisor' required />
+            <FormInput name='info' label='Info' required />
+            <FormTextArea name='background' label='Background' required />
             <FileUpload
-              name="document"
-              label="Upload Complete Advertisement Document"
+              name='document'
+              label='Upload Complete Advertisement Document'
             />
 
-            <div className="flex justify-end">
+            <div className='flex justify-end'>
               <Button>Create</Button>
             </div>
           </form>

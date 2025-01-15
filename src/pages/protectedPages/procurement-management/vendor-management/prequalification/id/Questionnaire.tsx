@@ -31,7 +31,7 @@ const Questionnaire = (data: VendorsResultsData) => {
             <h2 className='text-yellow-darker font-semibold'>
               Contact Telephone
             </h2>
-            <h6>{data?.phone_number}</h6>
+            <h6>{data?.phone_numbers}</h6>
           </div>
           <div className='space-y-2'>
             <h2 className='text-yellow-darker font-semibold'>
@@ -49,7 +49,7 @@ const Questionnaire = (data: VendorsResultsData) => {
             <h2 className='text-yellow-darker font-semibold'>
               Number of permanent staff:
             </h2>
-            <h6>{data?.number_of_permanent_staff}</h6>
+            <h6>{data?.key_staff?.length}</h6>
           </div>
           <div className='space-y-2'>
             <h2 className='text-yellow-darker font-semibold'>
