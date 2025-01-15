@@ -8,3 +8,17 @@ export type AdvertisementResults = {
   email: string;
   status: string;
 };
+
+export type InterviewResults = {
+  name: string;
+  appearance: number;
+  communication: number;
+  teamwork: number;
+  ethics: number;
+  analytical: number;
+  technical: number;
+  knowledge: number;
+  experience: number;
+  average: number;
+  percentage: string;
+};
