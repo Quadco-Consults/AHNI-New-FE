@@ -43,51 +43,28 @@ const GrievanceManagement: React.FC = () => {
       },
     },
     {
-      header: "Position",
-      accessorKey: "position",
+      header: "Title",
+      accessorKey: "title",
       size: 200,
       cell: ({ row }) => <p>{row?.original?.project?.title}</p>,
     },
     {
-      header: "Location",
-      accessorKey: "location",
+      header: "Description",
+      accessorKey: "description",
       size: 200,
       cell: ({ row }) => <p>{row?.original?.location?.name}</p>,
     },
     {
-      header: "Current Staff",
-      accessorKey: "current_staff",
+      header: "Submit Date",
+      accessorKey: "submit_date",
       size: 200,
       cell: ({ row }) => <p>{row?.original?.grantor?.name}</p>,
     },
     {
-      header: "Required Staff Based on WISN",
-      accessorKey: "required_staff_based",
-      size: 250,
-    },
-    {
-      header: "Shortage or excess",
-      accessorKey: "shortage_or_excess",
+      header: "Status",
+      accessorKey: "Status",
       size: 200,
-    },
-    {
-      header: "Workforce Problem",
-      accessorKey: "workforce_problem",
-      size: 200,
-      cell: ({ row }) => <p>{row?.original?.intervention_area?.name}</p>,
-    },
-    {
-      header: "WISN Ratio",
-      accessorKey: "wisn_ratio",
-      size: 200,
-      cell: ({ row }) => <p>{row?.original?.status || "-"}</p>,
-    },
-
-    {
-      header: "Workload Pressure",
-      accessorKey: "workload_pressure",
-      size: 200,
-      cell: ({ row }) => <p>{row?.original?.status || "-"}</p>,
+      cell: ({ row }) => <p>{row?.original?.location?.name}</p>,
     },
     {
       header: "Actions",
@@ -127,12 +104,12 @@ const GrievanceManagement: React.FC = () => {
         </div>
         <div className='flex items-center'>
           <FormButton
-          // onClick={() => {
-          //   navigate(HrRoutes.WORKFORCE_NEED_ANALYSIS_CREATE);
-          // }}
+            onClick={() => {
+              navigate(HrRoutes.GRIEVANCE_MANAGEMENT_CREATE);
+            }}
           >
             <AddSquareIcon />
-            <p>Create Workforce Need Analysis</p>
+            <p>Add New</p>
           </FormButton>
         </div>
       </div>
