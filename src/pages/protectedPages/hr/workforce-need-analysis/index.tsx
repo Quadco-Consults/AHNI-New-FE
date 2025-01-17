@@ -14,7 +14,7 @@ import { Checkbox } from "components/ui/checkbox";
 import IconButton from "components/shared/IconButton";
 import { Icon } from "@iconify/react";
 
-const Grant: React.FC = () => {
+const WFNA: React.FC = () => {
   const navigate = useNavigate();
 
   const columns: ColumnDef<any>[] = [
@@ -155,4 +155,4 @@ const Grant: React.FC = () => {
   );
 };
 
-export default Grant;
+export default WFNA;
