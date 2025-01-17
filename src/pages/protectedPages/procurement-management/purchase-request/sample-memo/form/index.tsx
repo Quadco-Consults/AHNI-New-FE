@@ -203,6 +203,36 @@ const CreateActivityMemo = () => {
               </SelectContent>
             </FormSelect>
           </div>
+          <div className='grid  grid-cols-2 gap-5'>
+            <FormSelect label=' Through' name='through' required>
+              <SelectContent>
+                {departmentsIsLoading ? (
+                  <LoadingSpinner />
+                ) : (
+                  departments?.results?.map(
+                    (department: DepartmentsResultsData) => (
+                      <SelectItem key={department?.id} value={department?.id}>
+                        {department?.name}
+                      </SelectItem>
+                    )
+                  )
+                )}
+              </SelectContent>
+            </FormSelect>
+            <FormSelect label='To' name='to' required>
+              <SelectContent>
+                {partnersIsLoading ? (
+                  <LoadingSpinner />
+                ) : (
+                  partner?.data.results?.map((partner) => (
+                    <SelectItem key={partner?.id} value={partner?.id}>
+                      {partner?.name}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </FormSelect>
+          </div>
           <div className='grid gap-5'>
             <FormInput label='Comment' name='comment' type='text' />
           </div>
