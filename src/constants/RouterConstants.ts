@@ -349,6 +349,8 @@ export const HrRoutes = {
   SEPARATION_MANAGEMENT_CREATE: "/hr/separation-management/create",
   SEPARATION_MANAGEMENT_DETAIL: "/hr/separation-management/:id",
   GRIEVANCE_MANAGEMENT: "/hr/grievance-management",
+  GRIEVANCE_MANAGEMENT_CREATE: "/hr/grievance-management/create",
+  GRIEVANCE_MANAGEMENT_DETAILS: "/hr/grievance-management/:id",
   LEAVE_MANAGEMENT: "/hr/leave-management",
   TIMESHEET_MANAGEMENT: "/hr/timesheet-management",
   TIMESHEET_MANAGEMENT_DETAIL: "/hr/timesheet-management/:id",

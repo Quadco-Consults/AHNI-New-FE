@@ -122,6 +122,18 @@ export const hr = [
     ),
   },
   {
+    path: HrRoutes.GRIEVANCE_MANAGEMENT_CREATE,
+    element: lazy(
+      () => import("pages/protectedPages/hr/grievance-management/form/index")
+    ),
+  },
+  {
+    path: HrRoutes.GRIEVANCE_MANAGEMENT_DETAILS,
+    element: lazy(
+      () => import("pages/protectedPages/hr/grievance-management/id/index")
+    ),
+  },
+  {
     path: HrRoutes.LEAVE_MANAGEMENT,
     element: lazy(
       () => import("pages/protectedPages/hr/leave-management/index")
