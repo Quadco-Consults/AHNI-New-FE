@@ -765,7 +765,7 @@ const DEPARTMENTAL_LINKS = [
         name: "Recruitment",
         sublinks: [
           { name: "Advertisement", path: HrRoutes.ADVERTISEMENT },
-          { name: "Selection", path: "/" },
+          { name: "Selection", path: HrRoutes.SELECTION },
           { name: "Onboarding", path: HrRoutes.ONBOARDING },
         ],
       },

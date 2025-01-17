@@ -40,7 +40,10 @@ export const hr = [
       () => import("pages/protectedPages/hr/advertisement/id/InterviewForm")
     ),
   },
-
+  {
+    path: HrRoutes.SELECTION,
+    element: lazy(() => import("pages/protectedPages/hr/selection/index")),
+  },
   {
     path: HrRoutes.ONBOARDING,
     element: lazy(() => import("pages/protectedPages/hr/onboarding/index")),
