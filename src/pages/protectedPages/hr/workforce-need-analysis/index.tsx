@@ -3,28 +3,19 @@ import { ColumnDef } from "@tanstack/react-table";
 import FormButton from "atoms/FormButton";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import DataTable from "components/Table/DataTable";
-import React, { useMemo } from "react";
+import React from "react";
 
 import FilterIcon2 from "assets/svgs/FilterIcon2";
 import { Button } from "components/ui/button";
 import { generatePath, Link, useNavigate } from "react-router-dom";
-import { CandGRoutes, RouteEnum } from "constants/RouterConstants";
+import { HrRoutes, RouteEnum } from "constants/RouterConstants";
 import SearchBar from "atoms/SearchBar";
 import { Checkbox } from "components/ui/checkbox";
-import { Badge } from "components/ui/badge";
-import { cn } from "lib/utils";
 import IconButton from "components/shared/IconButton";
 import { Icon } from "@iconify/react";
-import { grantsApi } from "services/cAndGApi/grants";
 
 const Grant: React.FC = () => {
   const navigate = useNavigate();
-  const getGrants = grantsApi.useGetGrantsQuery({});
-  // console.log(getGrants);
-
-  const grantsArray = useMemo(() => {
-    return getGrants?.data?.results || [];
-  }, [getGrants]);
 
   const columns: ColumnDef<any>[] = [
     {
@@ -51,25 +42,9 @@ const Grant: React.FC = () => {
         );
       },
     },
-    // {
-    //   header: ({ table }) => (
-    //     <Checkbox
-    //       checked={table.getIsAllRowsSelected()}
-    //       onCheckedChange={table.getToggleAllRowsSelectedHandler()}
-    //     />
-    //   ),
-    //   accessorKey: "isSelected",
-    //   size: 50,
-    //   cell: ({ row }) => (
-    //     <Checkbox
-    //       checked={row.getIsSelected()}
-    //       onCheckedChange={row.getToggleSelectedHandler()}
-    //     />
-    //   ),
-    // },
     {
-      header: "Project Name",
-      accessorKey: "project",
+      header: "Position",
+      accessorKey: "position",
       size: 200,
       cell: ({ row }) => <p>{row?.original?.project?.title}</p>,
     },
@@ -80,32 +55,45 @@ const Grant: React.FC = () => {
       cell: ({ row }) => <p>{row?.original?.location?.name}</p>,
     },
     {
-      header: "Funding source",
-      accessorKey: "grantor",
+      header: "Current Staff",
+      accessorKey: "current_staff",
       size: 200,
       cell: ({ row }) => <p>{row?.original?.grantor?.name}</p>,
     },
     {
-      header: "Award Amount",
-      accessorKey: "award_amount",
+      header: "Required Staff Based on WISN",
+      accessorKey: "required_staff_based",
+      size: 250,
+    },
+    {
+      header: "Shortage or excess",
+      accessorKey: "shortage_or_excess",
       size: 200,
     },
     {
-      header: "Monthly Spend",
-      accessorKey: "monthly_spend",
-      size: 200,
-    },
-    {
-      header: "Intervention",
-      accessorKey: "intervention_area",
+      header: "Workforce Problem",
+      accessorKey: "workforce_problem",
       size: 200,
       cell: ({ row }) => <p>{row?.original?.intervention_area?.name}</p>,
     },
     {
-      header: "Status",
-      accessorKey: "status",
+      header: "WISN Ratio",
+      accessorKey: "wisn_ratio",
       size: 200,
       cell: ({ row }) => <p>{row?.original?.status || "-"}</p>,
+    },
+
+    {
+      header: "Workload Pressure",
+      accessorKey: "workload_pressure",
+      size: 200,
+      cell: ({ row }) => <p>{row?.original?.status || "-"}</p>,
+    },
+    {
+      header: "Actions",
+      id: "actions",
+      size: 150,
+      cell: ({ row }) => <ActionListAction data={row} />,
     },
   ];
 
@@ -140,22 +128,27 @@ const Grant: React.FC = () => {
         <div className='flex items-center'>
           <FormButton
             onClick={() => {
-              navigate(CandGRoutes.NEW_GRANT);
+              navigate(HrRoutes.WORKFORCE_NEED_ANALYSIS_CREATE);
             }}
           >
             <AddSquareIcon />
-            <p>New Grant</p>
+            <p>Create Workforce Need Analysis</p>
           </FormButton>
         </div>
       </div>
       <div className='w-full'>
         <DataTable
           columns={columns}
-          onRowClick={(row) => {
-            navigate("/c-and-g/grant-details/" + row?.original?.id);
+          //   onRowClick={(row) => {
+          //     navigate("/c-and-g/grant-details/" + row?.original?.id);
+          //   }}
+          data={[]}
+          isLoading={true}
+          pagination={{
+            total: 10,
+            pageSize: 10,
+            onChange: (page: number) => {},
           }}
-          data={grantsArray}
-          isLoading={getGrants.isLoading}
         />
       </div>
     </div>

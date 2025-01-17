@@ -341,6 +341,8 @@ export const HrRoutes = {
     "/hr/onboarding/add-employee/salary-account-details",
   ONBOARDING_ADD_EMPLOYEE_PENSION:
     "/hr/onboarding/add-employee/pension-scheme-enrolment",
+  WORKFORCE_NEED_ANALYSIS: "/hr/workforce-need-analysis",
+  WORKFORCE_NEED_ANALYSIS_CREATE: "/hr/workforce-need-analysis/create",
   WORKFORCE_DATABASE: "/hr/workforce-database",
   WORKFORCE_DATABASE_DETAIL: "/hr/workforce-database/:id",
   PERFORMANCE_MANAGEMENT: "/hr/performance-management",

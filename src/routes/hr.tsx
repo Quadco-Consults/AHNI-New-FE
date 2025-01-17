@@ -98,6 +98,18 @@ export const hr = [
     ),
   },
   {
+    path: HrRoutes.WORKFORCE_NEED_ANALYSIS,
+    element: lazy(
+      () => import("pages/protectedPages/hr/workforce-need-analysis/index")
+    ),
+  },
+  {
+    path: HrRoutes.WORKFORCE_NEED_ANALYSIS_CREATE,
+    element: lazy(
+      () => import("pages/protectedPages/hr/workforce-need-analysis/form/index")
+    ),
+  },
+  {
     path: HrRoutes.WORKFORCE_DATABASE,
     element: lazy(
       () => import("pages/protectedPages/hr/workforce-database/index")
