@@ -8,7 +8,7 @@ import React, { useMemo } from "react";
 import FilterIcon2 from "assets/svgs/FilterIcon2";
 import { Button } from "components/ui/button";
 import { generatePath, Link, useNavigate } from "react-router-dom";
-import { CandGRoutes, RouteEnum } from "constants/RouterConstants";
+import { CG_GROUTES, RouteEnum } from "constants/RouterConstants";
 import SearchBar from "atoms/SearchBar";
 import { Checkbox } from "components/ui/checkbox";
 import { Badge } from "components/ui/badge";
@@ -140,7 +140,7 @@ const Grant: React.FC = () => {
         <div className='flex items-center'>
           <FormButton
             onClick={() => {
-              navigate(CandGRoutes.NEW_GRANT);
+              navigate(CG_GROUTES.GRANT_CREATE);
             }}
           >
             <AddSquareIcon />
