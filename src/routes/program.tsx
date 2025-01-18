@@ -30,7 +30,7 @@ export const program = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/programs/plan/activity-plan//CreateActivityPlan"
+                    "pages/protectedPages/programs/plan/activity-plan/create"
                 )
         ),
     },
