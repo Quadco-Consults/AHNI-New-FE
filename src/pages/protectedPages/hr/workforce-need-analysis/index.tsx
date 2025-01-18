@@ -14,7 +14,7 @@ import { Checkbox } from "components/ui/checkbox";
 import IconButton from "components/shared/IconButton";
 import { Icon } from "@iconify/react";
 
-const GrievanceManagement: React.FC = () => {
+const WFNA: React.FC = () => {
   const navigate = useNavigate();
 
   const columns: ColumnDef<any>[] = [
@@ -43,28 +43,51 @@ const GrievanceManagement: React.FC = () => {
       },
     },
     {
-      header: "Title",
-      accessorKey: "title",
+      header: "Position",
+      accessorKey: "position",
       size: 200,
       cell: ({ row }) => <p>{row?.original?.project?.title}</p>,
     },
     {
-      header: "Description",
-      accessorKey: "description",
+      header: "Location",
+      accessorKey: "location",
       size: 200,
       cell: ({ row }) => <p>{row?.original?.location?.name}</p>,
     },
     {
-      header: "Submit Date",
-      accessorKey: "submit_date",
+      header: "Current Staff",
+      accessorKey: "current_staff",
       size: 200,
       cell: ({ row }) => <p>{row?.original?.grantor?.name}</p>,
     },
     {
-      header: "Status",
-      accessorKey: "Status",
+      header: "Required Staff Based on WISN",
+      accessorKey: "required_staff_based",
+      size: 250,
+    },
+    {
+      header: "Shortage or excess",
+      accessorKey: "shortage_or_excess",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.location?.name}</p>,
+    },
+    {
+      header: "Workforce Problem",
+      accessorKey: "workforce_problem",
+      size: 200,
+      cell: ({ row }) => <p>{row?.original?.intervention_area?.name}</p>,
+    },
+    {
+      header: "WISN Ratio",
+      accessorKey: "wisn_ratio",
+      size: 200,
+      cell: ({ row }) => <p>{row?.original?.status || "-"}</p>,
+    },
+
+    {
+      header: "Workload Pressure",
+      accessorKey: "workload_pressure",
+      size: 200,
+      cell: ({ row }) => <p>{row?.original?.status || "-"}</p>,
     },
     {
       header: "Actions",
@@ -105,11 +128,11 @@ const GrievanceManagement: React.FC = () => {
         <div className='flex items-center'>
           <FormButton
             onClick={() => {
-              navigate(HrRoutes.GRIEVANCE_MANAGEMENT_CREATE);
+              navigate(HrRoutes.WORKFORCE_NEED_ANALYSIS_CREATE);
             }}
           >
             <AddSquareIcon />
-            <p>Add New</p>
+            <p>Create Workforce Need Analysis</p>
           </FormButton>
         </div>
       </div>
@@ -132,4 +155,4 @@ const GrievanceManagement: React.FC = () => {
   );
 };
 
-export default GrievanceManagement;
+export default WFNA;

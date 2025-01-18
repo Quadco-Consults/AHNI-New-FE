@@ -3,19 +3,28 @@ import { ColumnDef } from "@tanstack/react-table";
 import FormButton from "atoms/FormButton";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import DataTable from "components/Table/DataTable";
-import React from "react";
+import React, { useMemo } from "react";
 
 import FilterIcon2 from "assets/svgs/FilterIcon2";
 import { Button } from "components/ui/button";
 import { generatePath, Link, useNavigate } from "react-router-dom";
-import { HrRoutes, RouteEnum } from "constants/RouterConstants";
+import { CandGRoutes, RouteEnum } from "constants/RouterConstants";
 import SearchBar from "atoms/SearchBar";
 import { Checkbox } from "components/ui/checkbox";
+import { Badge } from "components/ui/badge";
+import { cn } from "lib/utils";
 import IconButton from "components/shared/IconButton";
 import { Icon } from "@iconify/react";
+import { grantsApi } from "services/cAndGApi/grants";
 
-const GrievanceManagement: React.FC = () => {
+const Grant: React.FC = () => {
   const navigate = useNavigate();
+  const getGrants = grantsApi.useGetGrantsQuery({});
+  // console.log(getGrants);
+
+  const grantsArray = useMemo(() => {
+    return getGrants?.data?.results || [];
+  }, [getGrants]);
 
   const columns: ColumnDef<any>[] = [
     {
@@ -42,35 +51,61 @@ const GrievanceManagement: React.FC = () => {
         );
       },
     },
+    // {
+    //   header: ({ table }) => (
+    //     <Checkbox
+    //       checked={table.getIsAllRowsSelected()}
+    //       onCheckedChange={table.getToggleAllRowsSelectedHandler()}
+    //     />
+    //   ),
+    //   accessorKey: "isSelected",
+    //   size: 50,
+    //   cell: ({ row }) => (
+    //     <Checkbox
+    //       checked={row.getIsSelected()}
+    //       onCheckedChange={row.getToggleSelectedHandler()}
+    //     />
+    //   ),
+    // },
     {
-      header: "Title",
-      accessorKey: "title",
+      header: "Project Name",
+      accessorKey: "project",
       size: 200,
       cell: ({ row }) => <p>{row?.original?.project?.title}</p>,
     },
     {
-      header: "Description",
-      accessorKey: "description",
+      header: "Location",
+      accessorKey: "location",
       size: 200,
       cell: ({ row }) => <p>{row?.original?.location?.name}</p>,
     },
     {
-      header: "Submit Date",
-      accessorKey: "submit_date",
+      header: "Funding source",
+      accessorKey: "grantor",
       size: 200,
       cell: ({ row }) => <p>{row?.original?.grantor?.name}</p>,
     },
     {
-      header: "Status",
-      accessorKey: "Status",
+      header: "Award Amount",
+      accessorKey: "award_amount",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.location?.name}</p>,
     },
     {
-      header: "Actions",
-      id: "actions",
-      size: 150,
-      cell: ({ row }) => <ActionListAction data={row} />,
+      header: "Monthly Spend",
+      accessorKey: "monthly_spend",
+      size: 200,
+    },
+    {
+      header: "Intervention",
+      accessorKey: "intervention_area",
+      size: 200,
+      cell: ({ row }) => <p>{row?.original?.intervention_area?.name}</p>,
+    },
+    {
+      header: "Status",
+      accessorKey: "status",
+      size: 200,
+      cell: ({ row }) => <p>{row?.original?.status || "-"}</p>,
     },
   ];
 
@@ -105,31 +140,26 @@ const GrievanceManagement: React.FC = () => {
         <div className='flex items-center'>
           <FormButton
             onClick={() => {
-              navigate(HrRoutes.GRIEVANCE_MANAGEMENT_CREATE);
+              navigate(CandGRoutes.NEW_GRANT);
             }}
           >
             <AddSquareIcon />
-            <p>Add New</p>
+            <p>New Grant</p>
           </FormButton>
         </div>
       </div>
       <div className='w-full'>
         <DataTable
           columns={columns}
-          //   onRowClick={(row) => {
-          //     navigate("/c-and-g/grant-details/" + row?.original?.id);
-          //   }}
-          data={[]}
-          isLoading={true}
-          pagination={{
-            total: 10,
-            pageSize: 10,
-            onChange: (page: number) => {},
+          onRowClick={(row) => {
+            navigate("/c-and-g/grant-details/" + row?.original?.id);
           }}
+          data={grantsArray}
+          isLoading={getGrants.isLoading}
         />
       </div>
     </div>
   );
 };
 
-export default GrievanceManagement;
+export default Grant;
