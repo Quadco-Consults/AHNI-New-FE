@@ -17,9 +17,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import FormTextArea from "atoms/FormTextArea";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { cn } from "lib/utils";
-import { Calendar } from "components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { useGetAllUsersQuery } from "services/auth/user";
 import {
     addObjective,
@@ -44,6 +41,7 @@ import ConsortiumPartners from "./ConsortiumPartners";
 import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import { RouteEnum } from "constants/RouterConstants";
+import DateInput from "components/shared/DateInput";
 
 const breadcrumbs: TBreadcrumbList[] = [
     { name: "Projects", icon: true },
@@ -52,9 +50,6 @@ const breadcrumbs: TBreadcrumbList[] = [
 ];
 
 export default function ProjectSummaryPage() {
-    const [startDate, setStartDate] = useState<Date>();
-    const [endDate, setEndDate] = useState<Date>();
-
     const { data: beneficiary } = useGetAllBeneficiaryQuery({
         page: 1,
         size: 2000000,
@@ -101,7 +96,7 @@ export default function ProjectSummaryPage() {
             project_id: "",
             goal: "",
             narrative: "",
-            budget: 0,
+            budget: "0",
             funding_sources: [],
             project_managers: [],
             expected_results: "",
@@ -109,10 +104,16 @@ export default function ProjectSummaryPage() {
             achievement_against_target: "",
             beneficiaries: [],
             currency: "",
+            start_date: "",
+            end_date: "",
         },
     });
 
-    const { handleSubmit, reset } = form;
+    const {
+        handleSubmit,
+        reset,
+        formState: { errors },
+    } = form;
 
     useEffect(() => {
         if (project) {
@@ -149,13 +150,15 @@ export default function ProjectSummaryPage() {
                 goal,
                 narrative: narrative || "",
                 budget_performance,
-                budget,
+                budget: String(budget),
                 project_managers: projectManagers,
                 funding_sources: fundingSources,
                 expected_results,
                 achievement_against_target,
                 beneficiaries: beneficiariesArr,
                 currency,
+                start_date,
+                end_date,
             });
 
             objectives?.map((obj) => {
@@ -163,9 +166,6 @@ export default function ProjectSummaryPage() {
             });
 
             dispatch(addPartner(partners));
-
-            setStartDate(new Date(start_date));
-            setEndDate(new Date(end_date));
         }
     }, [project, partner]);
 
@@ -188,6 +188,8 @@ export default function ProjectSummaryPage() {
         beneficiaries,
         budget,
         currency,
+        start_date,
+        end_date,
     }) => {
         const partnersId = consortiumPartners.map((partner) => partner.id);
 
@@ -197,8 +199,8 @@ export default function ProjectSummaryPage() {
             goal: goal,
             narrative: narrative,
             budget_performance: budget_performance,
-            start_date: format(startDate as Date, "yyyy-MM-dd"),
-            end_date: format(endDate as Date, "yyyy-MM-dd"),
+            start_date: new Date(start_date),
+            end_date: new Date (end_date),
             project_managers: project_managers,
             partners: partnersId,
             funding_sources: funding_sources,
@@ -206,7 +208,7 @@ export default function ProjectSummaryPage() {
             expected_results: expected_results,
             achievement_against_target: achievement_against_target,
             beneficiaries: beneficiaries,
-            budget: Number(budget),
+            budget: budget,
             currency: currency,
         };
 
@@ -217,7 +219,7 @@ export default function ProjectSummaryPage() {
                 await updateProject({ id: projectId, body: formData }).unwrap();
                 toast.success("Project Updated Successfully.");
             } else {
-                const res = await addProject(formData).unwrap();
+                const res = await addProject(formData as any).unwrap();
                 id = res.data.id;
                 toast.success("Project Added Successfully.");
             }
@@ -306,74 +308,15 @@ export default function ProjectSummaryPage() {
                                 />
 
                                 <div className="grid grid-cols-2 gap-5">
-                                    <div>
-                                        <Label>Start Date</Label>
-                                        <br />
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <Button
-                                                    variant={"outline"}
-                                                    className={cn(
-                                                        "w-full justify-start text-left font-normal",
-                                                        !startDate &&
-                                                            "text-muted-foreground"
-                                                    )}
-                                                >
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {startDate ? (
-                                                        format(
-                                                            startDate,
-                                                            "yyy-MM-dd"
-                                                        )
-                                                    ) : (
-                                                        <span>Pick a date</span>
-                                                    )}
-                                                </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0">
-                                                <Calendar
-                                                    mode="single"
-                                                    selected={startDate}
-                                                    onSelect={setStartDate}
-                                                    initialFocus
-                                                />
-                                            </PopoverContent>
-                                        </Popover>
-                                    </div>
-                                    <div>
-                                        <Label>End Date</Label>
-                                        <br />
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <Button
-                                                    variant={"outline"}
-                                                    className={cn(
-                                                        "w-full justify-start text-left font-normal",
-                                                        !endDate &&
-                                                            "text-muted-foreground"
-                                                    )}
-                                                >
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {endDate ? (
-                                                        format(
-                                                            endDate,
-                                                            "yyy-MM-dd"
-                                                        )
-                                                    ) : (
-                                                        <span>Pick a date</span>
-                                                    )}
-                                                </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0">
-                                                <Calendar
-                                                    mode="single"
-                                                    selected={endDate}
-                                                    onSelect={setEndDate}
-                                                    initialFocus
-                                                />
-                                            </PopoverContent>
-                                        </Popover>
-                                    </div>
+                                    <DateInput
+                                        label="Start Date"
+                                        name="start_date"
+                                    />
+
+                                    <DateInput
+                                        label="End Date"
+                                        name="end_date"
+                                    />
                                 </div>
 
                                 <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
@@ -414,6 +357,15 @@ export default function ProjectSummaryPage() {
                                                 </FormItem>
                                             )}
                                         />
+
+                                        {errors.project_managers && (
+                                            <span className="text-sm text-red-500 font-medium">
+                                                {
+                                                    errors.project_managers
+                                                        .message
+                                                }
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
 
@@ -445,6 +397,12 @@ export default function ProjectSummaryPage() {
                                             </FormItem>
                                         )}
                                     />
+
+                                    {errors.funding_sources && (
+                                        <span className="text-sm text-red-500 font-medium">
+                                            {errors.funding_sources.message}
+                                        </span>
+                                    )}
                                 </div>
 
                                 <hr />
@@ -524,6 +482,12 @@ export default function ProjectSummaryPage() {
                                             </Button>
                                         </div>
                                     </div>
+
+                                    {objectives.objectives.length === 0 && (
+                                        <span className="text-sm text-red-500 font-medium">
+                                            Please select objectives
+                                        </span>
+                                    )}
                                 </div>
 
                                 <FormInput
@@ -568,16 +532,23 @@ export default function ProjectSummaryPage() {
                                             </FormItem>
                                         )}
                                     />
+
+                                    {errors.beneficiaries && (
+                                        <span className="text-sm text-red-500 font-medium">
+                                            {errors.beneficiaries.message}
+                                        </span>
+                                    )}
                                 </div>
 
                                 <ConsortiumPartners />
                             </Card>
 
-                            <div className="flex justify-between gap-5 mt-16">
+                            <div className="flex justify-end gap-5 mt-16">
                                 <Button
                                     onClick={() => navigate(-1)}
                                     type="button"
                                     className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                                    size="lg"
                                 >
                                     Cancel
                                 </Button>
@@ -585,6 +556,7 @@ export default function ProjectSummaryPage() {
                                     loading={isLoading || isUpdateLoading}
                                     disabled={isLoading}
                                     type="submit"
+                                    size="lg"
                                 >
                                     Next
                                 </FormButton>
