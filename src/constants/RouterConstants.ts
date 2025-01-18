@@ -344,7 +344,11 @@ export const HrRoutes = {
   WORKFORCE_DATABASE: "/hr/workforce-database",
   WORKFORCE_DATABASE_DETAIL: "/hr/workforce-database/:id",
   PERFORMANCE_MANAGEMENT: "/hr/performance-management",
-  EMPLOYEE_BENEFITS: "/hr/employee_benefit",
+  EMPLOYEE_BENEFITS_COMPENSATION: "/hr/employee-benefit/compensation",
+  EMPLOYEE_BENEFITS_COMPENSATION_CREATE:
+    "/hr/employee-benefit/compensation/create",
+  EMPLOYEE_BENEFITS_PAY_ROLL: "/hr/employee-benefit/pay-roll",
+  EMPLOYEE_BENEFITS_PAY_GROUP: "/hr/employee-benefit/pay-group",
   SEPARATION_MANAGEMENT: "/hr/separation-management",
   SEPARATION_MANAGEMENT_CREATE: "/hr/separation-management/create",
   SEPARATION_MANAGEMENT_DETAIL: "/hr/separation-management/:id",
