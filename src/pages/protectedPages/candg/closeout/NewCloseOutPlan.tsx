@@ -7,13 +7,9 @@ import FormSelect from "atoms/FormSelect";
 import AddSquareIconFaded from "components/icons/AddSquareIconFaded";
 import { Form } from "components/ui/form";
 import { ClosuOutPlanSchema } from "definations/candg-validator";
-import React, { useMemo } from "react";
+import React from "react";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { closeoutPlanAPis } from "services/cAndGApi/closeOutPlan";
-import DepartmentsAPI from "services/configs/departments";
-import { useGetPartnersQuery } from "services/projectsApi/partnersApi";
-import { useGetProjectsQuery } from "services/project";
-import { toast } from "sonner";
 import { z } from "zod";
 
 const NewCloseOutPlan: React.FC = () => {
@@ -49,23 +45,7 @@ const NewCloseOutPlan: React.FC = () => {
 
     const onSubmit: SubmitHandler<z.infer<typeof ClosuOutPlanSchema>> = async (
         data
-    ) => {
-        try {
-            const result = await addCloseOutPlan({
-                ...data,
-                reference_number: "AGIF-0023",
-            }).unwrap();
-            if (result) {
-                toast.success("Grant added");
-                setTimeout(() => {
-                    window.location.reload();
-                }, 2000);
-            }
-        } catch (error: any) {
-            toast.error(error?.data?.errors?.[0]?.attr + " is required");
-            // console.log(error);
-        }
-    };
+    ) => {};
 
     return (
         <main className="w-full flex flex-col items-center justify-center gap-y-[1.875rem]">
