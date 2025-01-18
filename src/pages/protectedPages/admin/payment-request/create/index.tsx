@@ -14,10 +14,17 @@ import FormButton from "atoms/FormButton";
 import { useGetAllPurchaseOrdersQuery } from "services/procurementApi/purchase-order";
 import { useEffect, useMemo } from "react";
 
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+    Link,
+    useLocation,
+    useNavigate,
+    useSearchParams,
+} from "react-router-dom";
 import { useGetAllUsersQuery } from "services/auth/user";
 import { Button } from "components/ui/button";
 import { AdminRoutes } from "constants/RouterConstants";
+import { useGetSinglePaymentRequestQuery } from "services/admin/payment-request";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 export default function CreatePaymentRequest() {
     const form = useForm<TPaymentRequestFormData>({
@@ -41,6 +48,9 @@ export default function CreatePaymentRequest() {
     const { pathname } = useLocation();
 
     const navigate = useNavigate();
+
+    const [searchParams] = useSearchParams();
+    const id = searchParams.get("id");
 
     const { data: purchaseOrder } = useGetAllPurchaseOrdersQuery({
         page: 1,
@@ -76,18 +86,41 @@ export default function CreatePaymentRequest() {
 
         path = path.substring(0, path.lastIndexOf("/"));
 
-        path += `/uploads`;
+        path += `/uploads?id=${id ?? ""}`;
 
         navigate(path);
     };
+
+    const { data: paymentRequest } = useGetSinglePaymentRequestQuery(
+        id ?? skipToken
+    );
 
     useEffect(() => {
         const data = JSON.parse(
             sessionStorage.getItem("paymentRequestFormData") || "{}"
         ) as TPaymentRequestFormData;
 
+        if (paymentRequest) {
+            const { data } = paymentRequest;
+
+            return form.reset({
+                payment_date: data.payment_date,
+                purchase_order: data.purchase_order.id,
+                payment_to: data.payment_to,
+                tax_identification_number: data.tax_identification_number,
+                amount_in_figures: data.amount_in_figures,
+                amount_in_words: data.amount_in_words,
+                account_number: data.account_number,
+                bank_name: data.bank_name,
+                payment_reason: data.payment_reason,
+                reviewer: "",
+                authorizer: "",
+                approver: "",
+            });
+        }
+
         form.reset(data);
-    }, [purchaseOrder, user]);
+    }, [paymentRequest, user, purchaseOrder]);
 
     return (
         <PaymentRequestLayout>
@@ -95,7 +128,7 @@ export default function CreatePaymentRequest() {
                 <CardContent>
                     <FormProvider {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)}>
-                            <div className="grid grid-cols-3 mt-5 gap-5">
+                            <div className="grid grid-cols-3 mt-5 gap-8">
                                 <FormInput
                                     label="Date"
                                     name="payment_date"
@@ -154,14 +187,6 @@ export default function CreatePaymentRequest() {
                                     placeholder="Enter Bank Name"
                                     required
                                 />
-
-                                {/* <FormSelect
-                                    label="Requested By"
-                                    name="requested_by"
-                                    placeholder="Select Requestor"
-                                    required
-                                    options={userOptions}
-                                /> */}
                             </div>
 
                             <FormTextArea

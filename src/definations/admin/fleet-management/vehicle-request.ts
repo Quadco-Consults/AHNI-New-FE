@@ -57,7 +57,7 @@ export interface IVehicleSingleData {
     recommendations: string;
     approved_datetime: string | null;
     updated_by: string | null;
-    requesting_staff: string;
+    requesting_staff: IUser;
     approved_by: string | null;
     vehicles: [];
 }

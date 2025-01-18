@@ -7,7 +7,7 @@ import FormButton from "atoms/FormButton";
 import { Label } from "components/ui/label";
 import { openDialog } from "store/ui";
 import { DialogType, mediumDailogScreen } from "constants/dailogs";
-import { CalendarIcon, ChevronRight } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { FormField, FormItem, Form, FormControl } from "components/ui/form";
 import Card from "components/shared/Card";
 import FormInput from "atoms/FormInput";

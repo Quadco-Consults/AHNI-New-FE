@@ -1,5 +1,5 @@
 import FormButton from "atoms/FormButton";
-import { CandGRoutes } from "constants/RouterConstants";
+import { CG_GROUTES } from "constants/RouterConstants";
 import { useAppDispatch } from "hooks/useStore";
 import { useNavigate } from "react-router-dom";
 import { closeDialog } from "store/ui";
@@ -14,7 +14,7 @@ const ConsultancyApplicationSuccessModal = () => {
       <FormButton
         onClick={() => {
           dispatch(closeDialog());
-          navigate(CandGRoutes.CONSULTANCY);
+          navigate(CG_GROUTES.CONSULTANCY);
         }}
       >
         Done

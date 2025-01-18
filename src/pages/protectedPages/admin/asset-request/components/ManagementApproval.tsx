@@ -5,13 +5,22 @@ import { useSearchParams } from "react-router-dom";
 import { useGetSingleAssetQuery } from "services/admin/inventory-management/asset";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import { LoadingSpinner } from "components/shared/Loading";
+import { useGetSingleAssetRequestQuery } from "services/admin/inventory-management/asset-request";
+import { FormProvider, useForm } from "react-hook-form";
+import FormTextArea from "atoms/FormTextArea";
+import FormButton from "atoms/FormButton";
 
 export default function ManagementApproval() {
-    const [params] = useSearchParams();
-    const assetId = params.get("id");
+    const form = useForm();
 
-    const { data: asset, isLoading } = useGetSingleAssetQuery(
-        assetId ?? skipToken
+    const [searchParams] = useSearchParams();
+    const id = searchParams.get("id");
+
+    const { data: assetRequest, isLoading: isAssetRequestLoading } =
+        useGetSingleAssetRequestQuery(id ?? skipToken);
+
+    const { data: asset, isLoading: isAssetLoading } = useGetSingleAssetQuery(
+        assetRequest?.data.asset.id ?? skipToken
     );
 
     return (
@@ -21,7 +30,7 @@ export default function ManagementApproval() {
                 <Separator className="mt-4" />
             </CardHeader>
 
-            {isLoading ? (
+            {isAssetRequestLoading || isAssetLoading ? (
                 <LoadingSpinner />
             ) : (
                 asset && (
@@ -112,11 +121,28 @@ export default function ManagementApproval() {
                                 description={`${asset?.data.unit}`}
                             />
                         </div>
+
+                        <FormProvider {...form}>
+                            <form className="space-y-5">
+                                <FormTextArea
+                                    label="Comment"
+                                    name="comment"
+                                    placeholder="Enter Comment"
+                                    required
+                                />
+
+                                <FormButton
+                                    size="lg"
+                                    type="submit"
+                                    className="bg-green-500"
+                                >
+                                    Approve
+                                </FormButton>
+                            </form>
+                        </FormProvider>
                     </CardContent>
                 )
             )}
         </Card>
     );
 }
-
-// ADD CUSTOM APPROVAL COMPONENT

@@ -5,8 +5,6 @@ import { TFacilityData } from "definations/modules/program/facility";
 import { z } from "zod";
 
 export const FacilityMaintenanceSchema = z.object({
-    staff: z.string().min(1, "Please select staff"),
-    department: z.string().min(1, "Please select department"),
     location: z.string().min(1, "Please select location"),
     maintenance_datetime: z.string().min(1, "Please select maintenance date"),
     facility: z.string().min(1, "Please select facility"),
