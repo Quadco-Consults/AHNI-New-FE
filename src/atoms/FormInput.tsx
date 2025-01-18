@@ -90,7 +90,7 @@ const FormInput: FC<InputProps> = ({ name, label, ...rest }) => {
                                 )}
                             </div>
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="mt-1" />
                     </FormItem>
                 );
             }}
