@@ -1,4 +1,4 @@
-import { TProjectData, TProjectFormValues } from "definations/project";
+import { IProjectSingleData, TProjectFormValues } from "definations/project";
 import baseAPI from "..";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
@@ -7,7 +7,7 @@ const BASE_URL = "/projects/";
 const ProjectAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
         addProject: builder.mutation<
-            TResponse<TProjectData>,
+            TResponse<IProjectSingleData>,
             TProjectFormValues
         >({
             query: (body) => ({
@@ -19,7 +19,7 @@ const ProjectAPI = baseAPI.injectEndpoints({
         }),
 
         getAllProjects: builder.query<
-            TPaginatedResponse<TProjectData>,
+            TPaginatedResponse<IProjectSingleData>,
             TRequest & { has_fund_requests?: boolean }
         >({
             query: (params) => {
@@ -31,7 +31,7 @@ const ProjectAPI = baseAPI.injectEndpoints({
             providesTags: ["PROJECTS"],
         }),
 
-        getSingleProject: builder.query<TResponse<TProjectData>, string>({
+        getSingleProject: builder.query<TResponse<IProjectSingleData>, string>({
             query: (id) => {
                 return {
                     url: `${BASE_URL}${id}/`,
@@ -41,7 +41,7 @@ const ProjectAPI = baseAPI.injectEndpoints({
         }),
 
         updateProject: builder.mutation<
-            TResponse<TProjectData>,
+            TResponse<IProjectSingleData>,
             { id: string; body: any }
         >({
             query: ({ id, body }) => ({
@@ -53,7 +53,7 @@ const ProjectAPI = baseAPI.injectEndpoints({
         }),
 
         patchProject: builder.mutation<
-            TResponse<TProjectData>,
+            TResponse<IProjectSingleData>,
             { id: string; body: { status: string } }
         >({
             query: ({ id, body }) => ({
@@ -65,7 +65,7 @@ const ProjectAPI = baseAPI.injectEndpoints({
         }),
 
         deleteProject: builder.mutation<
-            TResponse<TProjectData>,
+            TResponse<IProjectSingleData>,
             { path: { id: string } }
         >({
             query: ({ path }) => ({
@@ -85,13 +85,3 @@ export const {
     usePatchProjectMutation,
     useDeleteProjectMutation,
 } = ProjectAPI;
-
-// getProjectsParams: builder.query<ProjectsResultsData[], {}>({
-//     query: (config) => {
-//         return {
-//             url: `${BASE_URL}`,
-//             ...config,
-//         };
-//     },
-//     providesTags: ["PROJECTS"],
-// }),

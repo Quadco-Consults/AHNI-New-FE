@@ -29,28 +29,29 @@ export const ProjectSchema = z.object({
 
 export type TProjectFormValues = z.infer<typeof ProjectSchema>;
 
-export interface TProjectData {
+export interface IProjectSingleData {
     id: string;
-    created_datetime: "string";
-    updated_datetime: string;
-    project_id: string;
-    title: string;
-    goal: string;
-    currency: string;
-    expected_results: string;
-    start_date: string;
-    end_date: string;
-    budget: number;
-    status: string;
-    narrative: string;
-    budget_performance: string;
     project_managers: IUser[];
     beneficiaries: TBeneficiaryData[];
     funding_sources: TFundingSourceData[];
-    achievement_against_target: string;
-    partners: TPartnerData[];
     objectives: {
         objective: string;
         sub_objectives: string[];
     }[];
+    partners: TPartnerData[];
+    documents: [];
+    created_datetime: string;
+    updated_datetime: string;
+    project_id: string;
+    title: string;
+    goal: string;
+    narrative: string;
+    expected_results: string;
+    achievement_against_target: string;
+    budget_performance: string;
+    start_date: string;
+    end_date: string;
+    budget: number;
+    currency: string;
+    status: string;
 }
