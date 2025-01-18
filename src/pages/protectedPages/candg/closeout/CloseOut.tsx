@@ -8,7 +8,7 @@ import DataTable from "components/Table/DataTable";
 import { Button } from "components/ui/button";
 import { Checkbox } from "components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { CandGRoutes } from "constants/RouterConstants";
+import { CG_GROUTES } from "constants/RouterConstants";
 import React, { useMemo } from "react";
 import { generatePath, Link, useNavigate } from "react-router-dom";
 import { closeoutPlanAPis } from "services/cAndGApi/closeOutPlan";
@@ -157,7 +157,7 @@ const CloseOut: React.FC = () => {
         <SearchBar onchange={() => ""} />
         <Button
           onClick={() => {
-            navigate(CandGRoutes.NEW_CLOSE_OUT_PLAN);
+            navigate(CG_GROUTES.NEW_CLOSE_OUT_PLAN);
           }}
         >
           <AddSquareIcon />
