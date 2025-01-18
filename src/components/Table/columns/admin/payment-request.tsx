@@ -15,6 +15,7 @@ import EditIcon from "components/icons/EditIcon";
 import { format } from "date-fns";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
+import PencilIcon from "components/icons/PencilIcon";
 
 export const paymentRequestColumns: ColumnDef<IPaymentRequestPaginatedData>[] =
     [
@@ -131,6 +132,23 @@ const TableMenu = ({ id, status }: IPaymentRequestPaginatedData) => {
                                 >
                                     <EyeIcon />
                                     View
+                                </Button>
+                            </Link>
+
+                            <Link
+                                className="w-full"
+                                to={{
+                                    pathname:
+                                        AdminRoutes.CREATE_PAYMENT_REQUEST_SUMMARY,
+                                    search: `?id=${id}`,
+                                }}
+                            >
+                                <Button
+                                    className="w-full flex items-center justify-start gap-2"
+                                    variant="ghost"
+                                >
+                                    <PencilIcon />
+                                    Edit
                                 </Button>
                             </Link>
 
