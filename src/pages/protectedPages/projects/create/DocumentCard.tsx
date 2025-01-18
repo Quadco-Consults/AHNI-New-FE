@@ -16,6 +16,7 @@ type TProps = {
     pageNumber: number;
     uploadedDateTime: string;
     showDeleteIcon?: boolean;
+    onDeleteDocument?: () => void;
 };
 
 export default function DocumentCard({
@@ -26,6 +27,7 @@ export default function DocumentCard({
     pageNumber,
     uploadedDateTime,
     showDeleteIcon = true,
+    onDeleteDocument,
 }: TProps) {
     const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -40,6 +42,16 @@ export default function DocumentCard({
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }
+    };
+
+    const handleDelete = () => {
+        if (onDeleteDocument) {
+            onDeleteDocument();
+        } else {
+            handleDeleteDocument();
+        }
+
+        setDialogOpen(false);
     };
 
     return (
@@ -82,7 +94,7 @@ export default function DocumentCard({
                 title="Are you sure you want to delete this document?"
                 loading={isLoading}
                 onCancel={() => setDialogOpen(false)}
-                onOk={handleDeleteDocument}
+                onOk={handleDelete}
             />
         </>
     );

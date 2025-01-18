@@ -1,7 +1,7 @@
 import React from "react";
 
 const Overview: React.FC = () => {
-  return <div className="w-full h-full bg-yellow-200">Overview</div>;
+    return <div className="w-full h-full">C and G Overview</div>;
 };
 
 export default Overview;

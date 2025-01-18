@@ -13,7 +13,7 @@ import { Link } from "react-router-dom";
 import { useDeleteAssetMutation } from "services/admin/inventory-management/asset";
 import { toast } from "sonner";
 
-export const assestColum: ColumnDef<TAssetPaginatedData>[] = [
+export const assetColumn: ColumnDef<TAssetPaginatedData>[] = [
     {
         header: "Asset Name",
         id: "name",
@@ -21,9 +21,10 @@ export const assestColum: ColumnDef<TAssetPaginatedData>[] = [
     },
 
     {
-        header: "Assignee",
-        id: "assignee",
-        accessorKey: "assignee",
+        header: "Classification",
+        id: "classification",
+        accessorKey: "classification",
+        size: 200,
     },
 
     {
@@ -33,15 +34,33 @@ export const assestColum: ColumnDef<TAssetPaginatedData>[] = [
     },
 
     {
-        header: "Acquisition Date",
-        id: "acquisition_date",
-        accessorKey: "acquisition_date",
+        header: "Model Number",
+        id: "model_number",
+        accessorKey: `asset_type.model`,
     },
 
     {
-        header: "State",
-        id: "state",
-        accessorKey: "state",
+        header: "Serial Number",
+        id: "serial_number",
+        accessorKey: "serial_number",
+    },
+
+    {
+        header: "Project",
+        id: "project",
+        accessorKey: "project",
+    },
+
+    {
+        header: "Donor",
+        id: "donor",
+        accessorKey: "donor",
+    },
+
+    {
+        header: "Assignee",
+        id: "assignee",
+        accessorKey: "assignee",
     },
 
     {
@@ -54,43 +73,6 @@ export const assestColum: ColumnDef<TAssetPaginatedData>[] = [
         header: "Location",
         id: "location",
         accessorKey: "location",
-    },
-
-    {
-        header: "Life of Project",
-        id: "estimated_life_span",
-        accessorKey: "estimated_life_span",
-    },
-
-    {
-        header: "Asset Classification",
-        id: "classification",
-        accessorKey: "classification",
-        size: 200,
-    },
-
-    {
-        header: "USD Cost",
-        id: "usd_cost",
-        accessorFn: ({ usd_cost }) => `$${usd_cost}`,
-    },
-
-    {
-        header: "NGN Cost",
-        id: "ngn_cost",
-        accessorFn: ({ ngn_cost }) => `₦${ngn_cost}`,
-    },
-
-    {
-        header: "Unit",
-        id: "unit",
-        accessorKey: "unit",
-    },
-
-    {
-        header: "Implementer",
-        id: "implementer",
-        accessorKey: "implementer",
     },
 
     {

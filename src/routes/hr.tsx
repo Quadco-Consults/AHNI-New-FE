@@ -40,7 +40,10 @@ export const hr = [
       () => import("pages/protectedPages/hr/advertisement/id/InterviewForm")
     ),
   },
-
+  {
+    path: HrRoutes.SELECTION,
+    element: lazy(() => import("pages/protectedPages/hr/selection/index")),
+  },
   {
     path: HrRoutes.ONBOARDING,
     element: lazy(() => import("pages/protectedPages/hr/onboarding/index")),
@@ -95,6 +98,18 @@ export const hr = [
     path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_PENSION,
     element: lazy(
       () => import("pages/protectedPages/hr/onboarding/add-employee/Pension")
+    ),
+  },
+  {
+    path: HrRoutes.WORKFORCE_NEED_ANALYSIS,
+    element: lazy(
+      () => import("pages/protectedPages/hr/workforce-need-analysis/index")
+    ),
+  },
+  {
+    path: HrRoutes.WORKFORCE_NEED_ANALYSIS_CREATE,
+    element: lazy(
+      () => import("pages/protectedPages/hr/workforce-need-analysis/form/index")
     ),
   },
   {

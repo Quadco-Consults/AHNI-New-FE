@@ -1,200 +1,218 @@
 import { lazy } from "react";
-import { CandGRoutes } from "constants/RouterConstants";
+import { CG_GROUTES } from "constants/RouterConstants";
 
 export const candg = [
-  {
-    path: CandGRoutes.OVERVIEW,
-    element: lazy(() => import("pages/protectedPages/candg/Overview")),
-  },
-  {
-    path: CandGRoutes.AGREEMENT,
-    element: lazy(
-      () => import("pages/protectedPages/candg/consultancy/Agreement")
-    ),
-  },
-  {
-    path: CandGRoutes.GRANT,
-    element: lazy(() => import("pages/protectedPages/candg/grant/Grant")),
-  },
-  {
-    path: CandGRoutes.NEW_GRANT,
-    element: lazy(() => import("pages/protectedPages/candg/grant/NewGrant")),
-  },
-  {
-    path: CandGRoutes.GRANT_DETAILS,
-    element: lazy(
-      () => import("pages/protectedPages/candg/grant/GrantDetails")
-    ),
-  },
+    {
+        path: CG_GROUTES.OVERVIEW,
+        element: lazy(() => import("pages/protectedPages/c&g")),
+    },
 
-  // sub grant
-  {
-    path: CandGRoutes.SUB_GRANT,
-    element: lazy(() => import("pages/protectedPages/candg/subGrant/SubGrant")),
-  },
-  {
-    path: CandGRoutes.NEW_SUB_GRANT,
-    element: lazy(
-      () => import("pages/protectedPages/candg/subGrant/NewSubGrant")
-    ),
-  },
-  {
-    path: CandGRoutes.SUB_GRANT_DETAILS,
-    element: lazy(
-      () => import("pages/protectedPages/candg/subGrant/SubGrantDetails")
-    ),
-  },
-  {
-    path: CandGRoutes.MANUAL_SUB_GRANT_SUBMISSION,
-    element: lazy(
-      () =>
-        import("pages/protectedPages/candg/subGrant/ManualSubGrantSubmission")
-    ),
-  },
-  {
-    path: CandGRoutes.MANUAL_SUB_GRANT_SUBMISSION_DOCS,
-    element: lazy(
-      () =>
-        import(
-          "pages/protectedPages/candg/subGrant/ManualSubmissionDocumentUpload"
-        )
-    ),
-  },
-  {
-    path: CandGRoutes.SUBMITTED_APPLICATIONS,
-    element: lazy(
-      () => import("pages/protectedPages/candg/subGrant/SubmittedApplications")
-    ),
-  },
-  //////pre awrd assessments
-  {
-    path: CandGRoutes.PRE_AWARD_ASSESSMENT,
-    element: lazy(
-      () =>
-        import(
-          "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessment"
-        )
-    ),
-  },
-  {
-    path: CandGRoutes.PRE_AWARD_ASSESSMENT_SINGLE,
-    element: lazy(
-      () =>
-        import(
-          "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentSingle"
-        )
-    ),
-  },
-  {
-    path: CandGRoutes.PRE_AWARD_ASSESSMENT_STEP_1,
-    element: lazy(
-      () =>
-        import(
-          "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep1"
-        )
-    ),
-  },
-  {
-    path: CandGRoutes.PRE_AWARD_ASSESSMENT_STEP_2,
-    element: lazy(
-      () =>
-        import(
-          "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep2"
-        )
-    ),
-  },
-  {
-    path: CandGRoutes.PRE_AWARD_ASSESSMENT_STEP_3,
-    element: lazy(
-      () =>
-        import(
-          "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep3"
-        )
-    ),
-  },
-  {
-    path: CandGRoutes.PRE_AWARD_ASSESSMENT_STEP_4,
-    element: lazy(
-      () =>
-        import(
-          "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep4"
-        )
-    ),
-  },
+    {
+        path: CG_GROUTES.GRANT,
+        element: lazy(() => import("pages/protectedPages/c&g/grant")),
+    },
 
-  // close out
-  {
-    path: CandGRoutes.CLOSE_OUT,
-    element: lazy(() => import("pages/protectedPages/candg/closeout/CloseOut")),
-  },
+    {
+        path: CG_GROUTES.GRANT_CREATE,
+        element: lazy(() => import("pages/protectedPages/c&g/grant/create")),
+    },
 
-  {
-    path: CandGRoutes.CLOSE_OUT_DETAILS,
-    element: lazy(
-      () => import("pages/protectedPages/candg/closeout/CloseOutDetails")
-    ),
-  },
-  {
-    path: CandGRoutes.NEW_CLOSE_OUT_PLAN,
-    element: lazy(
-      () => import("pages/protectedPages/candg/closeout/NewCloseOutPlan")
-    ),
-  },
-  {
-    path: CandGRoutes.CONSULTANCY,
-    element: lazy(
-      () => import("pages/protectedPages/candg/consultancy/Consultancy")
-    ),
-  },
-  {
-    path: CandGRoutes.NEW_CONSULTANCY,
-    element: lazy(
-      () =>
-        import("pages/protectedPages/candg/consultancy/CreateNewConsultancy")
-    ),
-  },
-  {
-    path: CandGRoutes.NEW_CONSULTANCY_SCOPE,
-    element: lazy(
-      () => import("pages/protectedPages/candg/consultancy/ScopeOfWork")
-    ),
-  },
-  {
-    path: CandGRoutes.CONSULTANCY_DETAILS,
-    element: lazy(
-      () => import("pages/protectedPages/candg/consultancy/ConsultancyDetails")
-    ),
-  },
-  {
-    path: CandGRoutes.ADD_CONSULTANCY_APPLICATION,
-    element: lazy(
-      () =>
-        import(
-          "pages/protectedPages/candg/consultancy/AddConsultancyApplication"
-        )
-    ),
-  },
-  {
-    path: CandGRoutes.CONSULTANCY_APPLICATION_DETAILS,
-    element: lazy(
-      () =>
-        import(
-          "pages/protectedPages/candg/consultancy/ConsultancyApplicationDetails"
-        )
-    ),
-  },
-  {
-    path: CandGRoutes.CONSULTANCY_SHORTLIST_METRIC,
-    element: lazy(
-      () =>
-        import(
-          "pages/protectedPages/candg/consultancy/ConsultancyShortlisMetric"
-        )
-    ),
-  },
-  // sla
-  {
-    path: CandGRoutes.CONSULTANCY_SLA,
-    element: lazy(() => import("pages/protectedPages/candg/sla/SLA")),
-  },
+    // -----------------------
+
+    {
+        path: CG_GROUTES.AGREEMENT,
+        element: lazy(
+            () => import("pages/protectedPages/candg/consultancy/Agreement")
+        ),
+    },
+
+    {
+        path: CG_GROUTES.GRANT_DETAILS,
+        element: lazy(() => import("pages/protectedPages/c&g/grant/id")),
+    },
+
+    // sub grant
+    {
+        path: CG_GROUTES.SUB_GRANT,
+        element: lazy(
+            () => import("pages/protectedPages/c&g/sub-grant/awards")
+        ),
+    },
+    {
+        path: CG_GROUTES.CREATE_SUBGRANT,
+        element: lazy(
+            () => import("pages/protectedPages/c&g/sub-grant/awards/create")
+        ),
+    },
+    {
+        path: CG_GROUTES.SUB_GRANT_DETAILS,
+        element: lazy(
+            () => import("pages/protectedPages/candg/subGrant/SubGrantDetails")
+        ),
+    },
+    {
+        path: CG_GROUTES.MANUAL_SUB_GRANT_SUBMISSION,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/candg/subGrant/ManualSubGrantSubmission"
+                )
+        ),
+    },
+    {
+        path: CG_GROUTES.MANUAL_SUB_GRANT_SUBMISSION_DOCS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/candg/subGrant/ManualSubmissionDocumentUpload"
+                )
+        ),
+    },
+    {
+        path: CG_GROUTES.SUBMITTED_APPLICATIONS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/candg/subGrant/SubmittedApplications"
+                )
+        ),
+    },
+    //////pre awrd assessments
+    {
+        path: CG_GROUTES.PRE_AWARD_ASSESSMENT,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessment"
+                )
+        ),
+    },
+    {
+        path: CG_GROUTES.PRE_AWARD_ASSESSMENT_SINGLE,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentSingle"
+                )
+        ),
+    },
+    {
+        path: CG_GROUTES.PRE_AWARD_ASSESSMENT_STEP_1,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep1"
+                )
+        ),
+    },
+    {
+        path: CG_GROUTES.PRE_AWARD_ASSESSMENT_STEP_2,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep2"
+                )
+        ),
+    },
+    {
+        path: CG_GROUTES.PRE_AWARD_ASSESSMENT_STEP_3,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep3"
+                )
+        ),
+    },
+    {
+        path: CG_GROUTES.PRE_AWARD_ASSESSMENT_STEP_4,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep4"
+                )
+        ),
+    },
+
+    // close out
+    {
+        path: CG_GROUTES.CLOSE_OUT,
+        element: lazy(
+            () => import("pages/protectedPages/candg/closeout/CloseOut")
+        ),
+    },
+
+    {
+        path: CG_GROUTES.CLOSE_OUT_DETAILS,
+        element: lazy(
+            () => import("pages/protectedPages/candg/closeout/CloseOutDetails")
+        ),
+    },
+    {
+        path: CG_GROUTES.NEW_CLOSE_OUT_PLAN,
+        element: lazy(
+            () => import("pages/protectedPages/candg/closeout/NewCloseOutPlan")
+        ),
+    },
+    {
+        path: CG_GROUTES.CONSULTANCY,
+        element: lazy(
+            () => import("pages/protectedPages/candg/consultancy/Consultancy")
+        ),
+    },
+    {
+        path: CG_GROUTES.NEW_CONSULTANCY,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/candg/consultancy/CreateNewConsultancy"
+                )
+        ),
+    },
+    {
+        path: CG_GROUTES.NEW_CONSULTANCY_SCOPE,
+        element: lazy(
+            () => import("pages/protectedPages/candg/consultancy/ScopeOfWork")
+        ),
+    },
+    {
+        path: CG_GROUTES.CONSULTANCY_DETAILS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/candg/consultancy/ConsultancyDetails"
+                )
+        ),
+    },
+    {
+        path: CG_GROUTES.ADD_CONSULTANCY_APPLICATION,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/candg/consultancy/AddConsultancyApplication"
+                )
+        ),
+    },
+    {
+        path: CG_GROUTES.CONSULTANCY_APPLICATION_DETAILS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/candg/consultancy/ConsultancyApplicationDetails"
+                )
+        ),
+    },
+    {
+        path: CG_GROUTES.CONSULTANCY_SHORTLIST_METRIC,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/candg/consultancy/ConsultancyShortlisMetric"
+                )
+        ),
+    },
+    // sla
+    {
+        path: CG_GROUTES.CONSULTANCY_SLA,
+        element: lazy(() => import("pages/protectedPages/candg/sla/SLA")),
+    },
 ];

@@ -59,7 +59,7 @@ export default function VehicleRequestDetails() {
                         <>
                             <DescriptionCard
                                 label="Requesting Staff"
-                                description={data?.data.requesting_staff}
+                                description={`${data?.data.requesting_staff.first_name} ${data?.data.requesting_staff.last_name}`}
                             />
 
                             <div className="grid grid-cols-3 gap-5 mb-6">

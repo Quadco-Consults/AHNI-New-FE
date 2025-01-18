@@ -9,6 +9,7 @@ import { LoadingSpinner } from "components/shared/Loading";
 import { useSearchParams } from "react-router-dom";
 import { useGetSingleAssetQuery } from "services/admin/inventory-management/asset";
 import { skipToken } from "@reduxjs/toolkit/query/react";
+import BackNavigation from "atoms/BackNavigation";
 
 export default function AssetDetails() {
     const [params] = useSearchParams();
@@ -19,98 +20,112 @@ export default function AssetDetails() {
     );
 
     return (
-        <Card>
-            <CardHeader className="font-bold">
-                Asset Details
-                <Separator className="mt-4" />
-            </CardHeader>
+        <>
+            <BackNavigation />
 
-            {isLoading ? (
-                <LoadingSpinner />
-            ) : (
-                asset && (
-                    <>
-                        <CardContent className="grid grid-cols-3 gap-y-8 gap-x-4">
-                            <DescriptionCard
-                                label="Asset Name"
-                                description={asset.data.name}
-                            />
+            <Card>
+                <CardHeader className="font-bold">
+                    Asset Details
+                    <Separator className="mt-4" />
+                </CardHeader>
 
-                            <DescriptionCard
-                                label="Assignee"
-                                description={asset.data.assignee}
-                            />
+                {isLoading ? (
+                    <LoadingSpinner />
+                ) : (
+                    asset && (
+                        <>
+                            <CardContent className="grid grid-cols-3 gap-y-8 gap-x-4">
+                                <DescriptionCard
+                                    label="Asset Name"
+                                    description={asset.data.name}
+                                />
 
-                            <DescriptionCard
-                                label="Asset Code"
-                                description={asset.data.asset_code}
-                            />
+                                <DescriptionCard
+                                    label="Assignee"
+                                    description={asset.data.assignee}
+                                />
 
-                            <DescriptionCard
-                                label="Acquisition Date"
-                                description={asset.data.acquisition_date}
-                            />
+                                <DescriptionCard
+                                    label="Asset Code"
+                                    description={asset.data.asset_code}
+                                />
 
-                            <DescriptionCard
-                                label="State"
-                                description={asset.data.state}
-                            />
+                                <DescriptionCard
+                                    label="Acquisition Date"
+                                    description={asset.data.acquisition_date}
+                                />
 
-                            <DescriptionCard
-                                label="Asset Condtion"
-                                description={asset.data.asset_condition.name}
-                            />
+                                <DescriptionCard
+                                    label="State"
+                                    description={asset.data.state}
+                                />
 
-                            <DescriptionCard
-                                label="Location"
-                                description={asset.data.location.name}
-                            />
+                                <DescriptionCard
+                                    label="Asset Condtion"
+                                    description={
+                                        asset.data.asset_condition.name
+                                    }
+                                />
 
-                            <DescriptionCard
-                                label="Life of Project"
-                                description={asset.data.estimated_life_span}
-                            />
+                                <DescriptionCard
+                                    label="Manufacturer"
+                                    description={
+                                        asset?.data?.asset_type?.manufacturer ||
+                                        "N/A"
+                                    }
+                                />
 
-                            <DescriptionCard
-                                label="Asset Classification"
-                                description={asset.data.classification.name}
-                            />
+                                <DescriptionCard
+                                    label="Location"
+                                    description={asset.data.location.name}
+                                />
 
-                            <DescriptionCard
-                                label="USD Cost"
-                                description={`$${asset.data.usd_cost}`}
-                            />
+                                <DescriptionCard
+                                    label="Life of Project"
+                                    description={asset.data.estimated_life_span}
+                                />
 
-                            <DescriptionCard
-                                label="NGN Cost"
-                                description={`₦${asset.data.ngn_cost}`}
-                            />
+                                <DescriptionCard
+                                    label="Asset Classification"
+                                    description={asset.data.classification.name}
+                                />
 
-                            <DescriptionCard
-                                label="Unit"
-                                description={asset.data.unit}
-                            />
+                                <DescriptionCard
+                                    label="USD Cost"
+                                    description={`$${asset.data.usd_cost}`}
+                                />
 
-                            <DescriptionCard
-                                label="Implementer"
-                                description={`${asset.data.implementer.last_name} ${asset.data.implementer.last_name}`}
-                            />
-                        </CardContent>
+                                <DescriptionCard
+                                    label="NGN Cost"
+                                    description={`₦${asset.data.ngn_cost}`}
+                                />
 
-                        <CardHeader className="font-bold text-lg">
-                            <Separator className="my-4" />
-                            Asset History Movement
-                        </CardHeader>
+                                <DescriptionCard
+                                    label="Unit"
+                                    description={asset.data.unit}
+                                />
 
-                        <div className="px-5">
-                            <TableFilters>
-                                <DataTable data={[]} columns={columns} />
-                            </TableFilters>
-                        </div>
-                    </>
-                )
-            )}
-        </Card>
+                                <DescriptionCard
+                                    label="Implementer"
+                                    description={`${asset.data.implementer.last_name} ${asset.data.implementer.last_name}`}
+                                />
+                            </CardContent>
+
+                            <CardHeader className="font-bold text-lg">
+                                <Separator className="my-4" />
+                                Asset History Movement
+                            </CardHeader>
+
+                            <div className="px-5">
+                                <TableFilters>
+                                    <DataTable data={[]} columns={columns} />
+                                </TableFilters>
+                            </div>
+                        </>
+                    )
+                )}
+            </Card>
+        </>
     );
 }
 

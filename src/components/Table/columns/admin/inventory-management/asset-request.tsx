@@ -27,15 +27,25 @@ export const assestRequestColum: ColumnDef<IAssetRequestPaginatedData>[] = [
     {
         header: "Asset Code",
         accessorKey: "asset_code",
+        size: 200,
     },
 
     {
         header: "Asset Type",
         accessorKey: "asset_type",
+        size: 200,
     },
+
+    {
+        header: "Request Type",
+        accessorKey: "type",
+        size: 200,
+    },
+
     {
         header: "Asset Condition",
         accessorKey: "asset_condition",
+        size: 200,
     },
     {
         header: "Disposal Justification",
