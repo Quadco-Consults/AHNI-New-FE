@@ -51,7 +51,7 @@ const FacilityMaintenanceAPI = baseAPI.injectEndpoints({
         >({
             query: ({ id, body }) => ({
                 method: "PUT",
-                url: `${BASE_URL}${id}`,
+                url: `${BASE_URL}${id}/`,
                 body,
             }),
             invalidatesTags: ["FACILITY_MAINTENANCE"],

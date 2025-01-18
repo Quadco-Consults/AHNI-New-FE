@@ -6,7 +6,7 @@ import { Bell, ChevronDown, Package, ScanEye } from "lucide-react";
 import {
     RouteEnum,
     AdminRoutes,
-    CandGRoutes,
+    CG_GROUTES,
     HrRoutes,
 } from "constants/RouterConstants";
 import { Icon } from "@iconify/react";
@@ -795,22 +795,22 @@ const DEPARTMENTAL_LINKS = [
         icon: <CGIcon />,
 
         link: [
-            { name: "Overview", path: CandGRoutes.OVERVIEW },
-            { name: "Grants", path: CandGRoutes.GRANT },
+            { name: "Overview", path: CG_GROUTES.OVERVIEW },
+            { name: "Grants", path: CG_GROUTES.GRANT },
             {
                 name: "Subgrants",
                 sublinks: [
-                    { name: "Awards", path: CandGRoutes.SUB_GRANT },
+                    { name: "Awards", path: CG_GROUTES.SUB_GRANT },
                     {
                         name: "Pre-award Assessment",
-                        path: CandGRoutes.PRE_AWARD_ASSESSMENT,
+                        path: CG_GROUTES.PRE_AWARD_ASSESSMENT,
                     },
                 ],
             },
             {
                 name: "Closeout",
                 sublinks: [
-                    { name: "Closeout Plan", path: CandGRoutes.CLOSE_OUT },
+                    { name: "Closeout Plan", path: CG_GROUTES.CLOSE_OUT },
                 ],
             },
             {
@@ -818,13 +818,13 @@ const DEPARTMENTAL_LINKS = [
                 sublinks: [
                     {
                         name: "Consultant management",
-                        path: CandGRoutes.CONSULTANCY,
+                        path: CG_GROUTES.CONSULTANCY,
                     },
                     { name: "Consultancy report", path: "/" },
                     { name: "Payment request", path: "/" },
-                    { name: "Agreement", path: CandGRoutes.AGREEMENT },
+                    { name: "Agreement", path: CG_GROUTES.AGREEMENT },
                     { name: "Facilitator management", path: "/" },
-                    { name: "SLA", path: CandGRoutes.CONSULTANCY_SLA },
+                    { name: "SLA", path: CG_GROUTES.CONSULTANCY_SLA },
                 ],
             },
             { name: "C&G Reports", path: "/" },
