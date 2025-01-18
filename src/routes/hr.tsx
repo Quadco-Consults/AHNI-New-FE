@@ -40,7 +40,10 @@ export const hr = [
       () => import("pages/protectedPages/hr/advertisement/id/InterviewForm")
     ),
   },
-
+  {
+    path: HrRoutes.SELECTION,
+    element: lazy(() => import("pages/protectedPages/hr/selection/index")),
+  },
   {
     path: HrRoutes.ONBOARDING,
     element: lazy(() => import("pages/protectedPages/hr/onboarding/index")),
@@ -98,6 +101,18 @@ export const hr = [
     ),
   },
   {
+    path: HrRoutes.WORKFORCE_NEED_ANALYSIS,
+    element: lazy(
+      () => import("pages/protectedPages/hr/workforce-need-analysis/index")
+    ),
+  },
+  {
+    path: HrRoutes.WORKFORCE_NEED_ANALYSIS_CREATE,
+    element: lazy(
+      () => import("pages/protectedPages/hr/workforce-need-analysis/form/index")
+    ),
+  },
+  {
     path: HrRoutes.WORKFORCE_DATABASE,
     element: lazy(
       () => import("pages/protectedPages/hr/workforce-database/index")
@@ -119,6 +134,18 @@ export const hr = [
     path: HrRoutes.GRIEVANCE_MANAGEMENT,
     element: lazy(
       () => import("pages/protectedPages/hr/grievance-management/index")
+    ),
+  },
+  {
+    path: HrRoutes.GRIEVANCE_MANAGEMENT_CREATE,
+    element: lazy(
+      () => import("pages/protectedPages/hr/grievance-management/form/index")
+    ),
+  },
+  {
+    path: HrRoutes.GRIEVANCE_MANAGEMENT_DETAILS,
+    element: lazy(
+      () => import("pages/protectedPages/hr/grievance-management/id/index")
     ),
   },
   {

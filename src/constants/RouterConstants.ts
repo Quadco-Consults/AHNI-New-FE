@@ -341,33 +341,38 @@ export const HrRoutes = {
     ADVERTISEMENT_MANUAL_APPLICATION_SUBMISSION:
         "/hr/advertisement/:id/application-form",
 
-    ADVERTISEMENT_INTERVIEW_FORM: "/hr/advertisement/:id/interview-form",
-    ONBOARDING: "/hr/onboarding",
-    ONBOARDING_START: "/hr/onboarding/start-onboarding",
-    ONBOARDING_ADD_EMPLOYEE_INFO:
-        "/hr/onboarding/add-employee/employee-information",
-    ONBOARDING_ADD_EMPLOYEE_ADD:
-        "/hr/onboarding/add-employee/additional-information",
-    ONBOARDING_ADD_EMPLOYEE_BENEFICIARY:
-        "/hr/onboarding/add-employee/beneficiary-designation",
-    ONBOARDING_ADD_EMPLOYEE_ID_CARD:
-        "/hr/onboarding/add-employee/id-card-information",
-    ONBOARDING_ADD_EMPLOYEE_SALARY:
-        "/hr/onboarding/add-employee/salary-account-details",
-    ONBOARDING_ADD_EMPLOYEE_PENSION:
-        "/hr/onboarding/add-employee/pension-scheme-enrolment",
-    WORKFORCE_DATABASE: "/hr/workforce-database",
-    WORKFORCE_DATABASE_DETAIL: "/hr/workforce-database/:id",
-    PERFORMANCE_MANAGEMENT: "/hr/performance-management",
-    EMPLOYEE_BENEFITS: "/hr/employee_benefit",
-    SEPARATION_MANAGEMENT: "/hr/separation-management",
-    SEPARATION_MANAGEMENT_CREATE: "/hr/separation-management/create",
-    SEPARATION_MANAGEMENT_DETAIL: "/hr/separation-management/:id",
-    GRIEVANCE_MANAGEMENT: "/hr/grievance-management",
-    LEAVE_MANAGEMENT: "/hr/leave-management",
-    TIMESHEET_MANAGEMENT: "/hr/timesheet-management",
-    TIMESHEET_MANAGEMENT_DETAIL: "/hr/timesheet-management/:id",
-    TIMESHEET_MANAGEMENT_DETAIL_CREATE: "/hr/timesheet-management/:id/create",
-    TIMESHEET_MANAGEMENT_CREATE:
-        "/hr/timesheet-management/create-timesheet-management",
+  ADVERTISEMENT_INTERVIEW_FORM: "/hr/advertisement/:id/interview-form",
+  SELECTION: "hr/selection",
+  ONBOARDING: "/hr/onboarding",
+  ONBOARDING_START: "/hr/onboarding/start-onboarding",
+  ONBOARDING_ADD_EMPLOYEE_INFO:
+    "/hr/onboarding/add-employee/employee-information",
+  ONBOARDING_ADD_EMPLOYEE_ADD:
+    "/hr/onboarding/add-employee/additional-information",
+  ONBOARDING_ADD_EMPLOYEE_BENEFICIARY:
+    "/hr/onboarding/add-employee/beneficiary-designation",
+  ONBOARDING_ADD_EMPLOYEE_ID_CARD:
+    "/hr/onboarding/add-employee/id-card-information",
+  ONBOARDING_ADD_EMPLOYEE_SALARY:
+    "/hr/onboarding/add-employee/salary-account-details",
+  ONBOARDING_ADD_EMPLOYEE_PENSION:
+    "/hr/onboarding/add-employee/pension-scheme-enrolment",
+  WORKFORCE_NEED_ANALYSIS: "/hr/workforce-need-analysis",
+  WORKFORCE_NEED_ANALYSIS_CREATE: "/hr/workforce-need-analysis/create",
+  WORKFORCE_DATABASE: "/hr/workforce-database",
+  WORKFORCE_DATABASE_DETAIL: "/hr/workforce-database/:id",
+  PERFORMANCE_MANAGEMENT: "/hr/performance-management",
+  EMPLOYEE_BENEFITS: "/hr/employee_benefit",
+  SEPARATION_MANAGEMENT: "/hr/separation-management",
+  SEPARATION_MANAGEMENT_CREATE: "/hr/separation-management/create",
+  SEPARATION_MANAGEMENT_DETAIL: "/hr/separation-management/:id",
+  GRIEVANCE_MANAGEMENT: "/hr/grievance-management",
+  GRIEVANCE_MANAGEMENT_CREATE: "/hr/grievance-management/create",
+  GRIEVANCE_MANAGEMENT_DETAILS: "/hr/grievance-management/:id",
+  LEAVE_MANAGEMENT: "/hr/leave-management",
+  TIMESHEET_MANAGEMENT: "/hr/timesheet-management",
+  TIMESHEET_MANAGEMENT_DETAIL: "/hr/timesheet-management/:id",
+  TIMESHEET_MANAGEMENT_DETAIL_CREATE: "/hr/timesheet-management/:id/create",
+  TIMESHEET_MANAGEMENT_CREATE:
+    "/hr/timesheet-management/create-timesheet-management",
 };
