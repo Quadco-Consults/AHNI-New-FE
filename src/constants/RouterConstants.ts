@@ -327,6 +327,7 @@ export const HrRoutes = {
     "/hr/advertisement/:id/application-form",
 
   ADVERTISEMENT_INTERVIEW_FORM: "/hr/advertisement/:id/interview-form",
+  SELECTION: "hr/selection",
   ONBOARDING: "/hr/onboarding",
   ONBOARDING_START: "/hr/onboarding/start-onboarding",
   ONBOARDING_ADD_EMPLOYEE_INFO:
