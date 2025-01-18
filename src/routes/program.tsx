@@ -39,7 +39,7 @@ export const program = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/programs/plan/activity-tracker/index"
+                    "pages/protectedPages/programs/plan/work-plan-tracker/index"
                 )
         ),
     },
@@ -48,7 +48,7 @@ export const program = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/programs/plan/activity-tracker/create-activity-tracker"
+                    "pages/protectedPages/programs/plan/work-plan-tracker/create"
                 )
         ),
     },

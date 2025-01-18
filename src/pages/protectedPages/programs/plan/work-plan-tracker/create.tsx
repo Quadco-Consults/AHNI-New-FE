@@ -52,6 +52,7 @@ export default function CreateActivityTracker() {
                 amount_expended_usd,
                 implementation_usd_rate,
                 expenditure_usd_rate,
+                expenditure_ngn_rate,
                 variance_ngn,
                 variance_usd,
                 percentage_variance_ngn,
@@ -62,22 +63,25 @@ export default function CreateActivityTracker() {
             } = workPlanTracker.data;
 
             form.reset({
-                output_description,
-                achieved_output,
-                achievement_percentage,
-                amount_expended_ngn,
-                amount_expended_usd,
-                implementation_usd_rate,
-                expenditure_usd_rate,
-                variance_ngn,
-                variance_usd,
-                percentage_variance_ngn,
-                percentage_variance_usd,
-                efficiency_output_expenditure_ratio,
+                output_description: String(output_description),
+                achieved_output: String(achieved_output),
+                achievement_percentage: String(achievement_percentage),
+                amount_expended_ngn: String(amount_expended_ngn),
+                amount_expended_usd: String(amount_expended_usd),
+                implementation_usd_rate: String(implementation_usd_rate),
+                expenditure_usd_rate: String(expenditure_usd_rate),
+                expenditure_ngn_rate: String(expenditure_ngn_rate),
+                variance_ngn: String(variance_ngn),
+                variance_usd: String(variance_usd),
+                percentage_variance_ngn: String(percentage_variance_ngn),
+                percentage_variance_usd: String(percentage_variance_usd),
+                efficiency_output_expenditure_ratio: String(
+                    efficiency_output_expenditure_ratio
+                ),
                 efficiency_output_expenditure_level: String(
                     efficiency_output_expenditure_level
                 ),
-                comments,
+                comments: String(comments),
             });
         }
     }, [workPlanTracker]);
@@ -92,6 +96,7 @@ export default function CreateActivityTracker() {
             amount_expended_usd: "",
             implementation_usd_rate: "",
             expenditure_usd_rate: "",
+            expenditure_ngn_rate: "",
             variance_ngn: "",
             variance_usd: "",
             percentage_variance_ngn: "",
@@ -158,6 +163,7 @@ export default function CreateActivityTracker() {
                         />
 
                         <FormInput
+                            type="number"
                             label="Percentage of Achievement"
                             name="achievement_percentage"
                             required
@@ -171,12 +177,15 @@ export default function CreateActivityTracker() {
                         </div>
 
                         <FormInput
+                            type="number"
                             label="Amount Expended (NGN)"
                             name="amount_expended_ngn"
                             placeholder="Enter Amount Expended NGN "
+                            required
                         />
 
                         <FormInput
+                            type="number"
                             label="Amount Expended USD"
                             name="amount_expended_usd"
                             placeholder="Enter Amount Expended USD"
@@ -184,6 +193,7 @@ export default function CreateActivityTracker() {
                         />
 
                         <FormInput
+                            type="number"
                             label="Implementation USD Rate"
                             name="implementation_usd_rate"
                             placeholder="Enter Implementation USD Rate"
@@ -191,6 +201,7 @@ export default function CreateActivityTracker() {
                         />
 
                         <FormInput
+                            type="number"
                             label="Expenditure Rate NGN"
                             name="expenditure_ngn_rate"
                             placeholder="Enter Amount Expenditure Rate NGN"
@@ -198,6 +209,7 @@ export default function CreateActivityTracker() {
                         />
 
                         <FormInput
+                            type="number"
                             label="Expenditure Rate USD"
                             name="expenditure_usd_rate"
                             placeholder="Enter Amount Expenditure Rate USD"
@@ -205,18 +217,21 @@ export default function CreateActivityTracker() {
                         />
 
                         <FormInput
+                            type="number"
                             label="Variance NGN"
                             name="variance_ngn"
                             placeholder="Enter Variance NGN "
                         />
 
                         <FormInput
+                            type="number"
                             label="Variance USD"
                             name="variance_usd"
                             placeholder="Enter Variance USD "
                         />
 
                         <FormInput
+                            type="number"
                             label="Percentage Variance NGN"
                             name="percentage_variance_ngn"
                             placeholder="Enter Percentage Variance NGN"
@@ -224,6 +239,7 @@ export default function CreateActivityTracker() {
                         />
 
                         <FormInput
+                            type="number"
                             label="Percentage Variance USD"
                             name="percentage_variance_usd"
                             placeholder="Enter Percentage Variance USD"
@@ -231,6 +247,7 @@ export default function CreateActivityTracker() {
                         />
 
                         <FormInput
+                            type="number"
                             label="Efficiency Output vs Efficiency Ratio"
                             name="efficiency_output_expenditure_ratio"
                             placeholder="Enter Efficiency Output vs Efficiency Ratio"
@@ -238,6 +255,7 @@ export default function CreateActivityTracker() {
                         />
 
                         <FormInput
+                            type="number"
                             label="Efficiency Output vs Efficiency Level"
                             name="efficiency_output_expenditure_level"
                             placeholder="Enter Efficiency Output vs Efficiency Level"
@@ -257,12 +275,17 @@ export default function CreateActivityTracker() {
                             onClick={goBack}
                             type="button"
                             className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                            size="lg"
                         >
                             Cancel
                         </FormButton>
 
-                        <FormButton loading={isLoading} disabled={isLoading}>
-                            Update
+                        <FormButton
+                            loading={isLoading}
+                            disabled={isLoading}
+                            size="lg"
+                        >
+                            Submit
                         </FormButton>
                     </div>
                 </form>
