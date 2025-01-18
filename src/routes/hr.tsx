@@ -127,7 +127,13 @@ export const hr = [
   {
     path: HrRoutes.EMPLOYEE_BENEFITS_PAY_ROLL,
     element: lazy(
-      () => import("pages/protectedPages/hr/employee-benefits/Payroll")
+      () => import("pages/protectedPages/hr/employee-benefits/Payroll/index")
+    ),
+  },
+  {
+    path: HrRoutes.EMPLOYEE_BENEFITS_PAY_ROLL_INFO,
+    element: lazy(
+      () => import("pages/protectedPages/hr/employee-benefits/Payroll/id/index")
     ),
   },
   {
