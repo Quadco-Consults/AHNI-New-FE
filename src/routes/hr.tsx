@@ -125,9 +125,28 @@ export const hr = [
     ),
   },
   {
-    path: HrRoutes.EMPLOYEE_BENEFITS,
+    path: HrRoutes.EMPLOYEE_BENEFITS_PAY_ROLL,
     element: lazy(
-      () => import("pages/protectedPages/hr/employee-benefits/index")
+      () => import("pages/protectedPages/hr/employee-benefits/Payroll")
+    ),
+  },
+  {
+    path: HrRoutes.EMPLOYEE_BENEFITS_PAY_GROUP,
+    element: lazy(
+      () => import("pages/protectedPages/hr/employee-benefits/PayGroup")
+    ),
+  },
+
+  {
+    path: HrRoutes.EMPLOYEE_BENEFITS_COMPENSATION,
+    element: lazy(
+      () => import("pages/protectedPages/hr/employee-benefits/Compensation")
+    ),
+  },
+  {
+    path: HrRoutes.EMPLOYEE_BENEFITS_COMPENSATION_CREATE,
+    element: lazy(
+      () => import("pages/protectedPages/hr/employee-benefits/NewCompensation")
     ),
   },
   {

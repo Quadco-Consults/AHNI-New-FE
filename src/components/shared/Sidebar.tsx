@@ -4,10 +4,10 @@ import logoSvg from "assets/svgs/logo-bg.svg";
 import { NavLink, useLocation } from "react-router-dom";
 import { Bell, ChevronDown, Package, ScanEye } from "lucide-react";
 import {
-    RouteEnum,
-    AdminRoutes,
-    CG_GROUTES,
-    HrRoutes,
+  RouteEnum,
+  AdminRoutes,
+  HrRoutes,
+  CG_GROUTES,
 } from "constants/RouterConstants";
 import { Icon } from "@iconify/react";
 import { cn } from "lib/utils";
@@ -644,6 +644,51 @@ const DEPARTMENTAL_LINKS = [
             path: AdminRoutes.ASSETS_REQUEST,
           },
           { name: "Good Receive Note", path: AdminRoutes.GRN },
+
+          {
+            name: "Procurement Tracker",
+            path: RouteEnum.PROCUREMENT_TRACKER,
+          },
+          { name: "Procurement Report", path: RouteEnum.REPORT },
+        ],
+      },
+
+      {
+        name: "C&G",
+        icon: <CGIcon />,
+
+        link: [
+          { name: "Overview", path: CG_GROUTES.OVERVIEW },
+          { name: "Grants", path: CG_GROUTES.GRANT },
+          {
+            name: "Subgrants",
+            sublinks: [
+              { name: "Awards", path: CG_GROUTES.SUB_GRANT },
+              {
+                name: "Pre-award Assessment",
+                path: CG_GROUTES.PRE_AWARD_ASSESSMENT,
+              },
+            ],
+          },
+          {
+            name: "Closeout",
+            sublinks: [{ name: "Closeout Plan", path: CG_GROUTES.CLOSE_OUT }],
+          },
+          {
+            name: "Contract Management",
+            sublinks: [
+              {
+                name: "Consultant management",
+                path: CG_GROUTES.CONSULTANCY,
+              },
+              { name: "Consultancy report", path: "/" },
+              { name: "Payment request", path: "/" },
+              { name: "Agreement", path: CG_GROUTES.AGREEMENT },
+              { name: "Facilitator management", path: "/" },
+              { name: "SLA", path: CG_GROUTES.CONSULTANCY_SLA },
+            ],
+          },
+          { name: "C&G Reports", path: "/" },
         ],
       },
       {
@@ -706,138 +751,112 @@ const DEPARTMENTAL_LINKS = [
       },
     ],
   },
-  {
-    name: "C&G",
-    icon: <CGIcon />,
 
-        link: [
-            { name: "Overview", path: CG_GROUTES.OVERVIEW },
-            { name: "Grants", path: CG_GROUTES.GRANT },
-            {
-                name: "Subgrants",
-                sublinks: [
-                    { name: "Awards", path: CG_GROUTES.SUB_GRANT },
-                    {
-                        name: "Pre-award Assessment",
-                        path: CG_GROUTES.PRE_AWARD_ASSESSMENT,
-                    },
-                ],
-            },
-            {
-                name: "Closeout",
-                sublinks: [
-                    { name: "Closeout Plan", path: CG_GROUTES.CLOSE_OUT },
-                ],
-            },
-            {
-                name: "Contract Management",
-                sublinks: [
-                    {
-                        name: "Consultant management",
-                        path: CG_GROUTES.CONSULTANCY,
-                    },
-                    { name: "Consultancy report", path: "/" },
-                    { name: "Payment request", path: "/" },
-                    { name: "Agreement", path: CG_GROUTES.AGREEMENT },
-                    { name: "Facilitator management", path: "/" },
-                    { name: "SLA", path: CG_GROUTES.CONSULTANCY_SLA },
-                ],
-            },
-            { name: "C&G Reports", path: "/" },
+  {
+    name: "HR",
+    icon: <HRIcon />,
+    link: [
+      {
+        name: "Overview",
+        sublinks: [
+          {
+            name: "Workforce Need Analysis",
+            path: "/",
+          },
+          {
+            name: "Workforce Database",
+            path: HrRoutes.WORKFORCE_DATABASE,
+          },
         ],
-    },
-    {
-        name: "HR",
-        icon: <HRIcon />,
-        link: [
-            {
-                name: "Overview",
-                sublinks: [
-                    {
-                        name: "Workforce Need Analysis",
-                        path: "/",
-                    },
-                    {
-                        name: "Workforce Database",
-                        path: HrRoutes.WORKFORCE_DATABASE,
-                    },
-                ],
-            },
-            {
-                name: "Recruitment",
-                sublinks: [
-                    { name: "Advertisement", path: HrRoutes.ADVERTISEMENT },
-                    { name: "Selection", path: "/" },
-                    { name: "Onboarding", path: HrRoutes.ONBOARDING },
-                ],
-            },
-            {
-                name: "Performance Management",
-                sublinks: [
-                    {
-                        name: "Timesheet Management",
-                        path: HrRoutes.TIMESHEET_MANAGEMENT,
-                    },
-                    {
-                        name: "Performance Appraisal",
-                        path: HrRoutes.PERFORMANCE_MANAGEMENT,
-                    },
-                ],
-            },
-            {
-                name: "Employee compensation & benefits",
-                path: HrRoutes.EMPLOYEE_BENEFITS,
-            },
-            // {
-            //   name: "Separation Management",
-            //   sublinks: [
-            //     { name: "Voluntary Separation", path: "/" },
-            //     { name: "End of Project", path: "/" },
-            //     { name: "Dismissal", path: "/" },
-            //     { name: "Exit", path: "/" },
-            //     { name: "Evaluation", path: "/" },
-            //     { name: "Feedback", path: "/" },
-            //   ],
-            // },
-            {
-                name: "Separation Management",
-                path: HrRoutes.SEPARATION_MANAGEMENT,
-            },
-            {
-                name: "Grievance Management",
-                path: HrRoutes.GRIEVANCE_MANAGEMENT,
-            },
-            { name: "Leave Management", path: HrRoutes.LEAVE_MANAGEMENT },
-            { name: "HR Reports", path: "/" },
+      },
+      {
+        name: "Recruitment",
+        sublinks: [
+          { name: "Advertisement", path: HrRoutes.ADVERTISEMENT },
+          { name: "Selection", path: "/" },
+          { name: "Onboarding", path: HrRoutes.ONBOARDING },
         ],
-    },
-    {
-        name: "Finance",
-        icon: <FinanceIcon />,
-        link: [
-            {
-                name: "Overview",
-                sublinks: [
-                    {
-                        name: "Documents Submitted to be Reviewed",
-                        path: "/",
-                    },
-                    { name: "Documents Awaiting Payment Vouchers", path: "/" },
-                    { name: "Documents Awaiting Final Approval", path: "/" },
-                ],
-            },
-            { name: "Employee Compensation & Benefits", path: "/" },
-            { name: "Payment Requests", path: "/" },
-            { name: "Payment Voucher", path: "/" },
-            { name: "General Leger", path: "/" },
-            { name: "Employee Compensation & Benefits", path: "/" },
-            { name: "Time Sheet Management", path: "/" },
-            { name: "Trial Balance", path: "/" },
-            { name: "Audit", path: "/" },
-            { name: "Budget", path: "/" },
-            { name: "Petty Cash Request", path: "/" },
-            { name: "Bank Reconciliation", path: "/" },
-            { name: "Invoice", path: "/" },
+      },
+      {
+        name: "Performance Management",
+        sublinks: [
+          {
+            name: "Timesheet Management",
+            path: HrRoutes.TIMESHEET_MANAGEMENT,
+          },
+          {
+            name: "Performance Appraisal",
+            path: HrRoutes.PERFORMANCE_MANAGEMENT,
+          },
         ],
-    },
+      },
+      {
+        name: "Employee compensation & benefits",
+        sublinks: [
+          {
+            name: "Pay Group",
+            path: HrRoutes.EMPLOYEE_BENEFITS_PAY_GROUP,
+          },
+          {
+            name: "Compensation",
+            path: HrRoutes.EMPLOYEE_BENEFITS_COMPENSATION,
+          },
+          {
+            name: "Payroll",
+            path: HrRoutes.EMPLOYEE_BENEFITS_PAY_ROLL,
+          },
+        ],
+      },
+      // {
+      //   name: "Separation Management",
+      //   sublinks: [
+      //     { name: "Voluntary Separation", path: "/" },
+      //     { name: "End of Project", path: "/" },
+      //     { name: "Dismissal", path: "/" },
+      //     { name: "Exit", path: "/" },
+      //     { name: "Evaluation", path: "/" },
+      //     { name: "Feedback", path: "/" },
+      //   ],
+      // },
+      {
+        name: "Separation Management",
+        path: HrRoutes.SEPARATION_MANAGEMENT,
+      },
+      {
+        name: "Grievance Management",
+        path: HrRoutes.GRIEVANCE_MANAGEMENT,
+      },
+      { name: "Leave Management", path: HrRoutes.LEAVE_MANAGEMENT },
+      { name: "HR Reports", path: "/" },
+    ],
+  },
+  {
+    name: "Finance",
+    icon: <FinanceIcon />,
+    link: [
+      {
+        name: "Overview",
+        sublinks: [
+          {
+            name: "Documents Submitted to be Reviewed",
+            path: "/",
+          },
+          { name: "Documents Awaiting Payment Vouchers", path: "/" },
+          { name: "Documents Awaiting Final Approval", path: "/" },
+        ],
+      },
+      { name: "Employee Compensation & Benefits", path: "/" },
+      { name: "Payment Requests", path: "/" },
+      { name: "Payment Voucher", path: "/" },
+      { name: "General Leger", path: "/" },
+      { name: "Employee Compensation & Benefits", path: "/" },
+      { name: "Time Sheet Management", path: "/" },
+      { name: "Trial Balance", path: "/" },
+      { name: "Audit", path: "/" },
+      { name: "Budget", path: "/" },
+      { name: "Petty Cash Request", path: "/" },
+      { name: "Bank Reconciliation", path: "/" },
+      { name: "Invoice", path: "/" },
+    ],
+  },
 ];
