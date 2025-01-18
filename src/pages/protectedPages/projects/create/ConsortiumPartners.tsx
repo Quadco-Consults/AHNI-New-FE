@@ -4,6 +4,7 @@ import LocationSvg from "assets/svgs/LocationSvg";
 import { Button } from "components/ui/button";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
+import { useFormContext } from "react-hook-form";
 
 export default function ConsortiumPartners() {
     const dispatch = useAppDispatch();
@@ -41,8 +42,6 @@ export default function ConsortiumPartners() {
                                 type: DialogType.ConsortiumModal,
                                 dialogProps: {
                                     width: "max-w-6xl",
-                                    // prevPartners: project?.data
-                                    //     .partners as unknown as string,
                                 },
                             })
                         );
@@ -51,6 +50,12 @@ export default function ConsortiumPartners() {
                     Click to select consortium partners
                 </Button>
             </div>
+
+            {consortiumPartners.length === 0 && (
+                <span className="text-sm text-red-500 font-medium">
+                    Please select partners
+                </span>
+            )}
         </div>
     );
 }
