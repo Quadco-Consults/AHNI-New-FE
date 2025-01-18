@@ -94,12 +94,14 @@ export default function ConsortiumPartnerModal() {
                     {isLoading ? (
                         <LoadingSpinner />
                     ) : partner?.data.results.length === 0 ? (
-                        <div>
-                            <h3>No Partners Found</h3>
-                            <p>
-                                Lorem ipsum dolor sit amet, consectetur
-                                adipisicing elit. Cupiditate quia deserunt,
-                                facilis maiores hic aliquid.
+                        <div className="space-y-3 mt-10 text-center">
+                            <h3 className="font-bold text-lg">
+                                No Partners Found
+                            </h3>
+                            <p className="text-gray-500">
+                                No partners found at the moment. When you create{" "}
+                                <br />
+                                and add partners, they will be displayed here.
                             </p>
                         </div>
                     ) : (
