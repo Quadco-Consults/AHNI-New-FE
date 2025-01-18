@@ -56,7 +56,7 @@ export const activityPlanColumns: ColumnDef<TActivityPlanData>[] = [
     {
         header: "Resources/Vehicle Required",
         accessorFn: (data) => ` ${data?.is_resources_requied ? "YES" : "NO"}`,
-        size: 200,
+        size: 250,
     },
     {
         header: "Memo Required",
