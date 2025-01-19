@@ -355,6 +355,8 @@ export const HrRoutes = {
   WORKFORCE_DATABASE: "/hr/workforce-database",
   WORKFORCE_DATABASE_DETAIL: "/hr/workforce-database/:id",
   PERFORMANCE_MANAGEMENT: "/hr/performance-management",
+  PERFORMANCE_MANAGEMENT_CREATE: "/hr/performance-management/create",
+  PERFORMANCE_MANAGEMENT_DETAIL: "/hr/performance-management/:id",
   EMPLOYEE_BENEFITS_COMPENSATION: "/hr/employee-benefit/compensation",
   EMPLOYEE_BENEFITS_COMPENSATION_CREATE:
     "/hr/employee-benefit/compensation/create",
