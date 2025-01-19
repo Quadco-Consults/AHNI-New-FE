@@ -26,6 +26,7 @@ import { LoadingSpinner } from "components/shared/Loading";
 import { Checkbox } from "components/ui/checkbox";
 import { StakeholderResultsData } from "definations/program-types/stakeholder";
 import FormButton from "atoms/FormButton";
+import { useEffect, useState } from "react";
 
 const CreateTimesheet = () => {
   // const [matchedStakeholdersData, setMatchedStakeholdersData] = useState<
@@ -97,42 +98,64 @@ const CreateTimesheet = () => {
                                             key={index}
                                             className="p-5 space-y-3 text-xs bg-[#F8F4EB] rounded-lg"
                                         >
-                                            <h6 className="text-base text-yellow-600">
-                                                {employee?.stakeholder_name}
+                                          <div className='flex items-center gap-4'>
+                                            <FormControl>
+                                              <Checkbox
+                                                checked={field.value?.includes(
+                                                  stakeholder?.id
+                                                )}
+                                                onCheckedChange={(checked) => {
+                                                  return checked
+                                                    ? field.onChange([
+                                                        ...field.value,
+                                                        stakeholder?.id,
+                                                      ])
+                                                    : field.onChange(
+                                                        field.value?.filter(
+                                                          (value) =>
+                                                            value !==
+                                                            stakeholder?.id
+                                                        )
+                                                      );
+                                                }}
+                                              />
+                                            </FormControl>
+                                            <h6 className='text-base text-yellow-600'>
+                                              {stakeholder?.stakeholder_name}
                                             </h6>
+                                          </div>
+                                          <div className='text-sm'>
+                                            <h4 className='font-semibold'>
+                                              Institution/Organization:
+                                            </h4>
+                                            <p>
+                                              {
+                                                stakeholder?.institution_organization
+                                              }
+                                            </p>
+                                          </div>
 
-                                            <div className="grid grid-cols-2 gap-3 text-xs">
-                                                <div>
-                                                    <h4 className="font-semibold">
-                                                        Gender:
-                                                    </h4>
-                                                    <p>{employee?.gender}</p>
-                                                </div>
-                                                <div>
-                                                    <h4 className="font-semibold">
-                                                        Designation:
-                                                    </h4>
-                                                    <p>
-                                                        {employee?.designation}
-                                                    </p>
-                                                </div>
+                                          <div className='grid grid-cols-2 gap-3 text-xs'>
+                                            <div>
+                                              <h4 className='font-semibold'>
+                                                Gender:
+                                              </h4>
+                                              <p>{stakeholder?.gender}</p>
                                             </div>
+                                            <div>
+                                              <h4 className='font-semibold'>
+                                                Designation:
+                                              </h4>
+                                              <p>{stakeholder?.designation}</p>
+                                            </div>
+                                          </div>
 
-                                            <div className="grid grid-cols-2 gap-3 text-xs">
-                                                <div>
-                                                    <h4 className="font-semibold">
-                                                        Phone Number:
-                                                    </h4>
-                                                    <p>
-                                                        {employee?.phone_number}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <h4 className="font-semibold">
-                                                        E-mail:
-                                                    </h4>
-                                                    <p>{employee?.email}</p>
-                                                </div>
+                                          <div className='grid grid-cols-2 gap-3 text-xs'>
+                                            <div>
+                                              <h4 className='font-semibold'>
+                                                Phone Number:
+                                              </h4>
+                                              <p>{stakeholder?.phone_number}</p>
                                             </div>
                                         </div>
                                     )
