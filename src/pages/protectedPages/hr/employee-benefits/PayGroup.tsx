@@ -8,7 +8,7 @@ import React from "react";
 import FilterIcon2 from "assets/svgs/FilterIcon2";
 import { Button } from "components/ui/button";
 import { generatePath, Link, useNavigate } from "react-router-dom";
-import { HrRoutes, RouteEnum } from "constants/RouterConstants";
+import { RouteEnum } from "constants/RouterConstants";
 import SearchBar from "atoms/SearchBar";
 import { Checkbox } from "components/ui/checkbox";
 import IconButton from "components/shared/IconButton";
@@ -78,7 +78,6 @@ const PayGroup: React.FC = () => {
   ];
 
   const ActionListAction = ({ data }: any) => {
-    console.log(data);
     return (
       <div className='flex gap-2'>
         <Link
