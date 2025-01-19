@@ -26,10 +26,10 @@ const RFQDetails = () => {
   ];
 
   return (
-    <div className="space-y-5">
+    <div className='space-y-5'>
       <BreadcrumbCard list={breadcrumbs} />
-      <div className="flex justify-between">
-        <h4 className="text-lg font-bold">{data?.name}</h4>
+      <div className='flex justify-between'>
+        <h4 className='text-lg font-bold'>{data?.name}</h4>
 
         <Link
           to={generatePath(RouteEnum.RFQ_CREATE_CBA, {
@@ -40,15 +40,15 @@ const RFQDetails = () => {
         </Link>
       </div>
 
-      <Tabs defaultValue="rfq-details">
+      <Tabs defaultValue='rfq-details'>
         <TabsList>
-          <TabsTrigger value="rfq-details">RFQ Details</TabsTrigger>
-          <TabsTrigger value="vendor-submission">Vendor Submission</TabsTrigger>
+          <TabsTrigger value='rfq-details'>RFQ Details</TabsTrigger>
+          <TabsTrigger value='vendor-submission'>Vendor Submission</TabsTrigger>
         </TabsList>
-        <TabsContent value="rfq-details">
+        <TabsContent value='rfq-details'>
           <DetailsContent {...(data as SolicitationResultsData)} />
         </TabsContent>
-        <TabsContent value="vendor-submission">
+        <TabsContent value='vendor-submission'>
           <VendorSubmission {...(data as SolicitationResultsData)} />
         </TabsContent>
       </Tabs>
