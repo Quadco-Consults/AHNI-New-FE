@@ -92,6 +92,7 @@ export const RouteEnum = {
   MODULES_CONFIG: "/modules/config",
   MODULES_PROCUREMENT: "/modules/procurement",
   MODULES_FINANCE: "/modules/finance",
+  MODULES_HR: "/modules/hr",
 
   // ----------------------------
   //projects routes
@@ -369,6 +370,9 @@ export const HrRoutes = {
   GRIEVANCE_MANAGEMENT_CREATE: "/hr/grievance-management/create",
   GRIEVANCE_MANAGEMENT_DETAILS: "/hr/grievance-management/:id",
   LEAVE_MANAGEMENT: "/hr/leave-management",
+  LEAVE_MANAGEMENT_DETAIL: "/hr/leave-management/:id",
+  LEAVE_MANAGEMENT_REQUEST: "/hr/leave-management/request",
+  LEAVE_MANAGEMENT_DETAIL_FORM: "/hr/leave-management/:id/leave-form",
   TIMESHEET_MANAGEMENT: "/hr/timesheet-management",
   TIMESHEET_MANAGEMENT_DETAIL: "/hr/timesheet-management/:id",
   TIMESHEET_MANAGEMENT_DETAIL_CREATE: "/hr/timesheet-management/:id/create",
