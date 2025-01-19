@@ -503,6 +503,10 @@ const MODULE_LINKS = [
         name: "Finance",
         path: RouteEnum.MODULES_FINANCE,
       },
+      {
+        name: "HR",
+        path: RouteEnum.MODULES_HR,
+      },
     ],
   },
 ];
@@ -826,7 +830,14 @@ const DEPARTMENTAL_LINKS = [
         name: "Grievance Management",
         path: HrRoutes.GRIEVANCE_MANAGEMENT,
       },
-      { name: "Leave Management", path: HrRoutes.LEAVE_MANAGEMENT },
+      {
+        name: "Leave Management",
+        sublinks: [
+          { name: "Leave Overview", path: HrRoutes.LEAVE_MANAGEMENT },
+          { name: "Leave Request", path: HrRoutes.LEAVE_MANAGEMENT_REQUEST },
+          // { name: "Leave Settings", path: HrRoutes.LEAVE_MANAGEMENT_REQUEST },
+        ],
+      },
       { name: "HR Reports", path: "/" },
     ],
   },
