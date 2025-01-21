@@ -7,7 +7,7 @@ import GoBack from "components/shared/GoBack";
 
 import { Form } from "components/ui/form";
 import { SelectContent } from "components/ui/select";
-import { Separator } from "components/ui/separator";
+
 import FormTextArea from "atoms/FormTextArea";
 import { HrRoutes } from "constants/RouterConstants";
 
@@ -15,7 +15,6 @@ import { UploadIcon } from "lucide-react";
 
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import FileUpload from "atoms/FileUpload";
 
 // import ItemsAPI from "services/configs/items";
 
@@ -23,7 +22,7 @@ import FileUpload from "atoms/FileUpload";
 // import { toast } from "sonner";
 // import { z } from "zod";
 
-const GrievanceManagementForm = () => {
+const LeaveForm = () => {
   const form = useForm<any>({
     // resolver: zodResolver(),
     defaultValues: {},
@@ -40,7 +39,7 @@ const GrievanceManagementForm = () => {
 
   const onSubmit = async (data: any) => {
     console.log({ data });
-    navigate(HrRoutes.GRIEVANCE_MANAGEMENT);
+    navigate(HrRoutes.LEAVE_MANAGEMENT);
   };
 
   return (
@@ -48,7 +47,7 @@ const GrievanceManagementForm = () => {
       <GoBack />
 
       <div className='pt-10'>
-        <h3 className='text-[18px] pb-10'>New Complaint Submission</h3>
+        <h3 className='text-[18px] pb-10'>New Leave Submission</h3>
 
         <Form {...form}>
           <form
@@ -56,7 +55,7 @@ const GrievanceManagementForm = () => {
             className='flex flex-col gap-6'
           >
             <div className='grid gap-5'>
-              <FormSelect label='Title' name='title' required>
+              <FormSelect label='Leave Type' name='type' required>
                 <SelectContent>
                   {/* {departmentsIsLoading ? (
                     <LoadingSpinner />
@@ -72,22 +71,28 @@ const GrievanceManagementForm = () => {
                 </SelectContent>
               </FormSelect>{" "}
               <div>
-                <FormTextArea label='Description' name='description' required />
+                <FormTextArea label='Reason' name='reason' required />
               </div>
               <div className='grid grid-cols-3 gap-5'>
-                <FormInput label='Date' name='date' type='date' required />
+                <FormInput label='From' name='from' type='date' required />
+                <FormInput label='To' name='to' type='date' required />
               </div>
             </div>
-            <FormInput
-              label='Name of Document'
-              name='name_of_document'
-              type='text'
-              required
-            />
-
-            <FileUpload name='document' label='' />
-
-            <Separator className='my-4' />
+            <FormSelect label='Nimber of days' name='days' required>
+              <SelectContent>
+                {/* {departmentsIsLoading ? (
+                    <LoadingSpinner />
+                  ) : (
+                    departments?.results?.map(
+                      (department: DepartmentsResultsData) => (
+                        <SelectItem key={department?.id} value={department?.id}>
+                          {department?.name}
+                        </SelectItem>
+                      )
+                    )
+                  )} */}
+              </SelectContent>
+            </FormSelect>{" "}
             <div className='flex justify-end gap-2'>
               <FormButton
                 // loading={isLoading}
@@ -115,4 +120,4 @@ const GrievanceManagementForm = () => {
   );
 };
 
-export default GrievanceManagementForm;
+export default LeaveForm;
