@@ -78,7 +78,7 @@ export default function FilePreview({
                         </Button>
                     )}
                 </div>
-                <Link to={file} target="_blank">
+                <Link to={file} target="_blank" title={file}>
                     <div className="bg-[#0000001A] py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden">
                         {Icon && <Icon size={100} />}
                     </div>
@@ -91,7 +91,6 @@ export default function FilePreview({
             <ConfirmationDialog
                 open={isDialogOpen}
                 title="Are you sure you want to delete this file?"
-                // loading={isDeleteLoading}
                 onCancel={() => setDialogOpen(false)}
                 onOk={onDelete}
             />
