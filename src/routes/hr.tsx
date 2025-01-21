@@ -180,6 +180,24 @@ export const hr = [
     ),
   },
   {
+    path: HrRoutes.LEAVE_MANAGEMENT_DETAIL,
+    element: lazy(
+      () => import("pages/protectedPages/hr/leave-management/id/index")
+    ),
+  },
+  {
+    path: HrRoutes.LEAVE_MANAGEMENT_REQUEST,
+    element: lazy(
+      () => import("pages/protectedPages/hr/leave-management/leaveRequest")
+    ),
+  },
+  {
+    path: HrRoutes.LEAVE_MANAGEMENT_DETAIL_FORM,
+    element: lazy(
+      () => import("pages/protectedPages/hr/leave-management/form/index")
+    ),
+  },
+  {
     path: HrRoutes.PERFORMANCE_MANAGEMENT,
     element: lazy(
       () => import("pages/protectedPages/hr/performance-management/index")
