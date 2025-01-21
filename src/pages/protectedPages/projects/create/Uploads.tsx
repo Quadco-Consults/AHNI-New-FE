@@ -6,7 +6,10 @@ import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import { useAppDispatch } from "hooks/useStore";
-import { useDeleteProjectDocumentMutation, useGetAllProjectDocumentsQuery } from "services/project/document";
+import {
+    useDeleteProjectDocumentMutation,
+    useGetAllProjectDocumentsQuery,
+} from "services/project/document";
 import { Loading } from "components/shared/Loading";
 import { useState } from "react";
 import { pdfjs } from "react-pdf";
@@ -19,7 +22,7 @@ import DocumentCard from "./DocumentCard";
 import Pagination from "components/shared/Pagination";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
-import FilePreview from "components/shared/FilePreview";
+import FilePreview from "components/shared/FileCard";
 import { toast } from "sonner";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
