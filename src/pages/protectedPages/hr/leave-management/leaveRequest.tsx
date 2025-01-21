@@ -14,6 +14,8 @@ import { Checkbox } from "components/ui/checkbox";
 import IconButton from "components/shared/IconButton";
 import { Icon } from "@iconify/react";
 import { CalendarHeart, CalendarMinus, CalendarPlus } from "lucide-react";
+import { Badge } from "components/ui/badge";
+import { cn } from "lib/utils";
 
 const LeaveManagement: React.FC = () => {
   const navigate = useNavigate();
@@ -50,35 +52,57 @@ const LeaveManagement: React.FC = () => {
       cell: ({ row }) => <p>{row?.original?.employee}</p>,
     },
     {
-      header: "Total",
-      accessorKey: "total",
+      header: "Reason",
+      accessorKey: "reason",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.total}</p>,
+      cell: ({ row }) => <p>{row?.original?.reason}</p>,
     },
     {
-      header: "Used",
-      accessorKey: "used",
+      header: "Leave Type",
+      accessorKey: "leave_type",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.used}</p>,
+      cell: ({ row }) => <p>{row?.original?.leave_type}</p>,
     },
     {
-      header: "Unused",
-      accessorKey: "un_used",
+      header: "From",
+      accessorKey: "from",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.un_used}</p>,
+      cell: ({ row }) => <p>{row?.original?.from}</p>,
     },
     {
-      header: "Expired",
-      accessorKey: "expired",
+      header: "To",
+      accessorKey: "to",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.expired}</p>,
+      cell: ({ row }) => <p>{row?.original?.to}</p>,
     },
     {
-      header: "Unplanned",
-      accessorKey: "unplanned",
+      header: "No of Days",
+      accessorKey: "days",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.unplanned}</p>,
+      cell: ({ row }) => <p>{row?.original?.days}</p>,
     },
+    {
+      header: "Status",
+      id: "status",
+      accessorKey: "status",
+      cell: ({ getValue }) => {
+        return (
+          <Badge
+            variant='default'
+            className={cn(
+              "p-1 rounded-lg",
+              getValue() === "Approved" && "bg-green-200 text-green-500",
+              getValue() === "Rejected" && "bg-red-200 text-red-500",
+              getValue() === "Pending" && "bg-yellow-200 text-yellow-500",
+              getValue() === "On Hold" && "text-grey-200 bg-grey-500"
+            )}
+          >
+            {getValue() as string}
+          </Badge>
+        );
+      },
+    },
+
     {
       header: "Actions",
       id: "actions",
@@ -105,42 +129,6 @@ const LeaveManagement: React.FC = () => {
 
   return (
     <div className='flex flex-col justify-center items-center gap-y-[1rem]'>
-      <div className='flex w-full gap-6 justify-between mb-6'>
-        {" "}
-        <div className='flex w-full p-6 justify-between bg-[#3E3574] rounded-md items-center  text-white'>
-          <div className='border border-white h-[30px] w-[35px] rounded-sm flex justify-center items-center p-2'>
-            <CalendarHeart />
-          </div>
-          <div className='text-xs leading-5'>
-            <p>Total Leave</p>
-            <p>
-              <span className='text-xl font-medium'>86</span> Days
-            </p>
-          </div>
-        </div>
-        <div className='flex w-full p-6 justify-between bg-[#B14F05] rounded-md items-center  text-white'>
-          <div className='border border-white h-[30px] w-[35px] rounded-sm flex justify-center items-center p-2'>
-            <CalendarMinus />
-          </div>
-          <div className='text-xs leading-5'>
-            <p>Used Leave</p>
-            <p>
-              <span className='text-xl font-medium'>20</span> Days
-            </p>
-          </div>
-        </div>{" "}
-        <div className='flex w-full p-6 justify-between bg-[#077373] rounded-md items-center  text-white'>
-          <div className='border border-white h-[30px] w-[35px] rounded-sm flex justify-center items-center p-2'>
-            <CalendarPlus />
-          </div>
-          <div className='text-xs leading-5'>
-            <p>Unused Leave</p>
-            <p>
-              <span className='text-xl font-medium'>46</span> Days
-            </p>
-          </div>
-        </div>{" "}
-      </div>
       <div className='w-full flex justify-between items-center'>
         <div className='flex items-center justify-center'>
           <SearchBar onchange={() => ""} />
@@ -185,49 +173,41 @@ const dummyData = [
   {
     id: 1,
     employee: "John Doe",
-    total: "20 Days",
-    used: "15 Days",
-    un_used: "5 Days",
-    expired: "2 Days",
-    unplanned: "1 Days",
-    project: { title: "Project A" },
-    location: { name: "Head Office" },
-    grantor: { name: "HR Department" },
+    reason: "Medical Leave",
+    leave_type: "Sick Leave",
+    from: "2025-01-10",
+    to: "2025-01-15",
+    days: 5,
+    status: "Approved",
   },
   {
     id: 2,
     employee: "Jane Smith",
-    total: 25,
-    used: 10,
-    un_used: 15,
-    expired: 5,
-    unplanned: 3,
-    project: { title: "Project B" },
-    location: { name: "Branch Office" },
-    grantor: { name: "Finance Department" },
+    reason: "Family Emergency",
+    leave_type: "Casual Leave",
+    from: "2025-02-01",
+    to: "2025-02-03",
+    days: 2,
+    status: "Pending",
   },
   {
     id: 3,
     employee: "Alice Johnson",
-    total: 30,
-    used: 20,
-    un_used: 10,
-    expired: 4,
-    unplanned: 2,
-    project: { title: "Project C" },
-    location: { name: "Regional Office" },
-    grantor: { name: "Admin Department" },
+    reason: "Vacation",
+    leave_type: "Annual Leave",
+    from: "2025-03-05",
+    to: "2025-03-12",
+    days: 7,
+    status: "Rejected",
   },
   {
     id: 4,
     employee: "Bob Brown",
-    total: 18,
-    used: 12,
-    un_used: 6,
-    expired: 1,
-    unplanned: 0,
-    project: { title: "Project D" },
-    location: { name: "Remote" },
-    grantor: { name: "Operations Department" },
+    reason: "Maternity/Paternity Leave",
+    leave_type: "Special Leave",
+    from: "2025-04-01",
+    to: "2025-04-15",
+    days: 14,
+    status: "On Hold",
   },
 ];
