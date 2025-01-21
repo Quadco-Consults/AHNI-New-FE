@@ -86,11 +86,12 @@ const Items = () => {
     const submittedData = { ...formData, ...data };
 
     try {
-      await createSolicitationMutation(submittedData).unwrap();
-      toast.success("Successfully created.");
-      sessionStorage.removeItem("rfqCompletedSteps");
-      localStorage.removeItem("rfqQuotation");
-      navigate(RouteEnum.RFQ);
+      // await createSolicitationMutation(submittedData).unwrap();
+      // toast.success("Successfully created.");
+      // sessionStorage.removeItem("rfqCompletedSteps");
+      // localStorage.removeItem("rfqQuotation");
+      // navigate(RouteEnum.RFQ);
+      navigate(RouteEnum.RFQ_CREATE_CBA);
     } catch (error) {
       toast.error("Something went wrong");
       console.log(error);
@@ -100,16 +101,16 @@ const Items = () => {
   return (
     <RfqLayout>
       <Form {...form}>
-        <form className="space-y-8 p-5" onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-5">
-            <h6 className="text-yellow-600">Items</h6>
+        <form className='space-y-8 p-5' onSubmit={handleSubmit(onSubmit)}>
+          <div className='space-y-5'>
+            <h6 className='text-yellow-600'>Items</h6>
 
             {fields?.map((field, index) => (
-              <div key={index} className="flex items-center gap-5 w-full">
-                <div className="grid grid-cols-1 gap-4 w-full md:grid-cols-3">
+              <div key={index} className='flex items-center gap-5 w-full'>
+                <div className='grid grid-cols-1 gap-4 w-full md:grid-cols-3'>
                   <FormSelect
                     name={`items.${index}.item`}
-                    label="Item"
+                    label='Item'
                     required
                   >
                     <SelectContent>
@@ -123,11 +124,11 @@ const Items = () => {
                   </FormSelect>
                   <FormInput
                     name={`items.${index}.quantity`}
-                    label="Quantity"
+                    label='Quantity'
                     required
                   />
 
-                  <FormSelect name={`items.${index}.lot`} label="Lot" required>
+                  <FormSelect name={`items.${index}.lot`} label='Lot' required>
                     <SelectContent>
                       {lotIsLoading && <LoadingSpinner />}
                       {lots?.map((lot: LotsResultsData) => (
@@ -142,18 +143,18 @@ const Items = () => {
                   </FormSelect>
                 </div>
 
-                <div className="flex items-center h-full ">
+                <div className='flex items-center h-full '>
                   <MinusCircle
                     onClick={() => remove(index)}
-                    className="cursor-pointer text-primary"
+                    className='cursor-pointer text-primary'
                   />
                 </div>
               </div>
             ))}
-            <div className="flex justify-end">
+            <div className='flex justify-end'>
               <Button
-                type="button"
-                className="text-primary bg-[#FFF2F2] mt-2 flex gap-2 items-center justify-center"
+                type='button'
+                className='text-primary bg-[#FFF2F2] mt-2 flex gap-2 items-center justify-center'
                 onClick={() =>
                   append({
                     quantity: 0,
@@ -169,10 +170,10 @@ const Items = () => {
           </div>
 
           <div>
-            <Label className="text-yellow-600">Evaluation Criteria</Label>
+            <Label className='text-yellow-600'>Evaluation Criteria</Label>
             <FormField
               control={control}
-              name="criteria"
+              name='criteria'
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
@@ -180,8 +181,8 @@ const Items = () => {
                       options={solicitationCriteria || []}
                       defaultValue={field.value}
                       onValueChange={field.onChange}
-                      placeholder="Select options"
-                      variant="inverted"
+                      placeholder='Select options'
+                      variant='inverted'
                     />
                   </FormControl>
                 </FormItem>
@@ -189,15 +190,15 @@ const Items = () => {
             />
           </div>
 
-          <div className="flex justify-between mt-16">
+          <div className='flex justify-between mt-16'>
             <Button
               onClick={() => navigate(-1)}
-              type="button"
-              className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+              type='button'
+              className='bg-[#FFF2F2] text-primary dark:text-gray-500'
             >
               Cancel
             </Button>
-            <FormButton loading={isLoading} disabled={isLoading} type="submit">
+            <FormButton loading={isLoading} disabled={isLoading} type='submit'>
               Save Changes
             </FormButton>
           </div>
