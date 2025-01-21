@@ -17,9 +17,9 @@ import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 import { useState } from "react";
-import { TProjectData } from "definations/project";
+import { IProjectSingleData } from "definations/project";
 
-export const projectColumns: ColumnDef<TProjectData>[] = [
+export const projectColumns: ColumnDef<IProjectSingleData>[] = [
     {
         header: "Title",
         accessorKey: "title",
@@ -141,7 +141,7 @@ const ProjectFundingSource = ({ data }: any) => {
     );
 };
 
-const TableMenu = ({ id, status }: TProjectData) => {
+const TableMenu = ({ id, status }: IProjectSingleData) => {
     const [dialogOpen, setDialogOpen] = useState(false);
 
     const [deleteProject, { isLoading }] = useDeleteProjectMutation();

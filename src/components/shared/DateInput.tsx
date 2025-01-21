@@ -10,6 +10,7 @@ import { Controller, useFormContext } from "react-hook-form";
 type TProps = {
     label?: string;
     name: string;
+    required?: boolean;
 };
 
 export default function DateInput({ label, name }: TProps) {
@@ -31,6 +32,7 @@ export default function DateInput({ label, name }: TProps) {
                                 <div className="space-y-1">
                                     <Button
                                         variant={"outline"}
+                                        type="button"
                                         className={cn(
                                             "w-full justify-start text-left font-normal",
                                             !value && "text-muted-foreground"
@@ -55,9 +57,9 @@ export default function DateInput({ label, name }: TProps) {
                                 <Calendar
                                     mode="single"
                                     selected={value}
-                                    onSelect={(value) =>
-                                        onChange(String(value))
-                                    }
+                                    onSelect={(value) => {
+                                        onChange(String(value));
+                                    }}
                                     initialFocus
                                 />
                             </PopoverContent>

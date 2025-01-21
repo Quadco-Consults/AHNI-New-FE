@@ -76,7 +76,12 @@ const CreateEngagement = () => {
         },
     });
 
-    const { handleSubmit, control, reset } = form;
+    const {
+        handleSubmit,
+        control,
+        reset,
+        formState: { errors },
+    } = form;
 
     const { fields, append, remove } = useFieldArray({
         control,
@@ -368,7 +373,7 @@ const CreateEngagement = () => {
                             </div>
                         </div>
 
-                        <div className=" w-[299px] mt-5">
+                        <div className="mt-5 flex flex-col items-start">
                             <Button
                                 type="button"
                                 variant="outline"
@@ -387,6 +392,12 @@ const CreateEngagement = () => {
                             >
                                 Click to add stakeholders
                             </Button>
+
+                            {errors["stakeholders"]?.message && (
+                                <span className="text-red-500 font-medium text-sm">
+                                    {errors["stakeholders"]?.message}
+                                </span>
+                            )}
                         </div>
                     </Card>
 
@@ -395,12 +406,17 @@ const CreateEngagement = () => {
                             onClick={goBack}
                             type="button"
                             className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                            size="lg"
                         >
                             Cancel
                         </FormButton>
 
-                        <FormButton type="submit" loading={isCreateLoading}>
-                            Create
+                        <FormButton
+                            type="submit"
+                            loading={isCreateLoading}
+                            size="lg"
+                        >
+                            Submit
                         </FormButton>
                     </div>
                 </form>

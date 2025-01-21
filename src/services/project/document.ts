@@ -1,6 +1,5 @@
 import baseAPI from "..";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
-import { invalidateTags, provideTags } from "utils/QueryUtils";
 import { TProjectDocumentData } from "definations/project/document";
 
 const BASE_URL = "/projects/documents/";
@@ -16,22 +15,20 @@ const ProjectDocumentAPI = baseAPI.injectEndpoints({
                 method: "POST",
                 body,
             }),
-            invalidatesTags: (_, error, {}) =>
-                !error ? invalidateTags("PROJECT_DOCUMENT") : [],
+            invalidatesTags: ["PROJECT_DOCUMENT"],
         }),
 
         getAllProjectDocuments: builder.query<
             TPaginatedResponse<TProjectDocumentData>,
-            TRequest & { id: string }
+            TRequest & { project: string }
         >({
-            query: ({ id, ...rest }) => {
+            query: (params) => {
                 return {
                     url: `${BASE_URL}`,
-                    params: { ...rest },
+                    params,
                 };
             },
-            providesTags: (data, error) =>
-                !error ? provideTags("PROJECT_DOCUMENT", data) : [],
+            providesTags: ["PROJECT_DOCUMENT"],
         }),
 
         deleteProjectDocument: builder.mutation<void, { path: { id: string } }>(
@@ -40,10 +37,7 @@ const ProjectDocumentAPI = baseAPI.injectEndpoints({
                     url: `${BASE_URL}${path.id}/`,
                     method: "DELETE",
                 }),
-                invalidatesTags: (_, error, { path }) =>
-                    !error
-                        ? invalidateTags("PROJECT_DOCUMENT", { ids: [path.id] })
-                        : [],
+                invalidatesTags: ["PROJECT_DOCUMENT"],
             }
         ),
     }),

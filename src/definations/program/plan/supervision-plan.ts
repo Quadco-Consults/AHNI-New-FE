@@ -1,3 +1,6 @@
+import { IUser } from "definations/auth/user";
+import { TSolicitationEvaluationCriteriaData } from "definations/modules/procurement/solicitation-evaluation-criteria";
+import { TFacilityData } from "definations/modules/program/facility";
 import { z } from "zod";
 
 export const SSPCompositionSchema = z.object({
@@ -25,30 +28,9 @@ export interface TSupervisionPlanPaginatedData {
 
 export interface TSupervisionPlanSingleData {
     id: string;
-    facility: {
-        id: string;
-        created_datetime: string;
-        updated_datetime: string;
-        name: string;
-        contact_person: string;
-        postion: string;
-        state: string;
-        email: string;
-        phone: string;
-        lga: string;
-    };
-    team_members: {
-        id: string;
-        email: string;
-        first_name: string;
-        last_name: string;
-    }[];
-    objectives: {
-        id: string;
-        name: string;
-        description: string;
-        evaluation_category: string | null;
-    }[];
+    facility: TFacilityData;
+    team_members: IUser[];
+    objectives: TSolicitationEvaluationCriteriaData[];
     month: string;
     year: string;
     visit_date: string;

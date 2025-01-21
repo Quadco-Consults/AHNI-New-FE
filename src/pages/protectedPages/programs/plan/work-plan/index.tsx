@@ -20,6 +20,7 @@ import ArrowDownIcon from "components/icons/ArrowDownIcon";
 import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
 import { workPlanColumns } from "components/Table/columns/program/plan/work-plan";
 import TableFilters from "components/Table/TableFilters";
+import { useDebounce } from "ahooks";
 
 const breadcrumbs: TBreadcrumbList[] = [
     { name: "Programs", icon: true },
@@ -29,13 +30,19 @@ const breadcrumbs: TBreadcrumbList[] = [
 
 export default function WorkPlan() {
     const [page, setPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState("");
+
+    const debouncedSearchQuery = useDebounce(searchQuery, {
+        wait: 1000,
+    });
 
     const dispatch = useAppDispatch();
     const [downloadTemplate] = useLazyDownloadWorkPlanTemplateQuery();
 
-    const { data: workPlan, isLoading } = useGetAllWorkPlanQuery({
+    const { data: workPlan, isFetching } = useGetAllWorkPlanQuery({
         page,
         size: 10,
+        project_title: debouncedSearchQuery,
     });
 
     const handleDownloadTemplate = async () => {
@@ -110,11 +117,13 @@ export default function WorkPlan() {
             </div>
 
             <Card>
-                <TableFilters>
+                <TableFilters
+                    onSearchChange={(e) => setSearchQuery(e.target.value)}
+                >
                     <DataTable
                         data={workPlan?.data.results || []}
                         columns={workPlanColumns}
-                        isLoading={isLoading}
+                        isLoading={isFetching}
                         pagination={{
                             total: workPlan?.data.pagination.count ?? 0,
                             pageSize: workPlan?.data.pagination.page_size ?? 0,

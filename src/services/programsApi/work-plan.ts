@@ -28,7 +28,7 @@ const WorkPlanAPI = baseAPI.injectEndpoints({
 
         getAllWorkPlan: builder.query<
             TPaginatedResponse<TWorkPlanPaginatedResponse>,
-            TRequest
+            TRequest & { project_title?: string }
         >({
             query: (params) => ({
                 method: "GET",

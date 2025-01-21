@@ -22,6 +22,8 @@ import Pagination from "components/shared/Pagination";
 import { LoadingSpinner } from "components/shared/Loading";
 
 export default function ConsortiumPartnerModal() {
+    const [state, setState] = useState("");
+
     const { consortiumPartners } = useAppSelector(
         (state) => state.consortiumPartner
     );
@@ -44,9 +46,10 @@ export default function ConsortiumPartnerModal() {
 
     const [page, setPage] = useState(1);
 
-    const { data: partner, isLoading } = useGetAllPartnersQuery({
+    const { data: partner, isFetching } = useGetAllPartnersQuery({
         page,
         size: 12,
+        state,
     });
 
     const onSubmit = () => {
@@ -71,9 +74,9 @@ export default function ConsortiumPartnerModal() {
                     </p>
 
                     <div className="flex gap-2 mt-6 items-center w-full max-w-sm">
-                        <Select>
+                        <Select onValueChange={(value) => setState(value)}>
                             <SelectTrigger>
-                                <SelectValue placeholder="Location" />
+                                <SelectValue placeholder="Select State" />
                             </SelectTrigger>
 
                             <SelectContent>
@@ -86,12 +89,14 @@ export default function ConsortiumPartnerModal() {
                                 )}
                             </SelectContent>
                         </Select>
-                        <Button>Search</Button>
+                        <Button variant="ghost" onClick={() => setState("")}>
+                            Clear Filter
+                        </Button>
                     </div>
                 </div>
 
                 <div>
-                    {isLoading ? (
+                    {isFetching ? (
                         <LoadingSpinner />
                     ) : partner?.data.results.length === 0 ? (
                         <div className="space-y-3 mt-10 text-center">
@@ -148,7 +153,7 @@ export default function ConsortiumPartnerModal() {
                 </div>
 
                 <Pagination
-                    total={partner?.data.pagination.total_pages ?? 0}
+                    total={partner?.data.pagination.count ?? 0}
                     itemsPerPage={partner?.data.pagination.page_size ?? 0}
                     onChange={(page: number) => setPage(page)}
                 />

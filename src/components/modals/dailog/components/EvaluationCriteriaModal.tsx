@@ -8,16 +8,21 @@ import {
     SelectValue,
 } from "components/ui/select";
 import { Checkbox } from "components/ui/checkbox";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { LoadingSpinner } from "components/shared/Loading";
 import FormButton from "atoms/FormButton";
-import { useAppDispatch } from "hooks/useStore";
+import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog } from "store/ui";
 import { useGetAllSupervisionCriteriaQuery } from "services/modules/program/supervision-criteria";
 import { useGetAllSupervisionCategoryQuery } from "services/modules/program/supervision-category";
 import { Button } from "components/ui/button";
+import Pagination from "components/shared/Pagination";
 
 export default function EvaluationCriteriaModal() {
+    const [page, setPage] = useState(1);
+
+    const dialogProps = useAppSelector((state) => state.ui.dailog.dialogProps);
+
     const { data: category, isLoading: isCategoryLoading } =
         useGetAllSupervisionCategoryQuery({
             page: 1,
@@ -33,10 +38,8 @@ export default function EvaluationCriteriaModal() {
         [category]
     );
 
-    const { data: criteria, isLoading: isCriteriaLoading } =
-        useGetAllSupervisionCriteriaQuery({ page: 1, size: 2000000 });
-
-    /* ----------------------------------------------------------------- */
+    const { data: criteria, isFetching: isCriteriaLoading } =
+        useGetAllSupervisionCriteriaQuery({ page, size: 12 });
 
     const [chosenCriterias, setChosenCriterias] = useState<
         {
@@ -52,9 +55,6 @@ export default function EvaluationCriteriaModal() {
         name: string,
         id: string
     ) => {
-        console.log({ checkedValue, name, id });
-        console.log({ chosenCriterias });
-
         if (checkedValue) {
             setChosenCriterias([...chosenCriterias, { id, name }]);
         } else {
@@ -64,21 +64,23 @@ export default function EvaluationCriteriaModal() {
         }
     };
 
-    // useEffect(() => {
-    //     const prevFormData = JSON.parse(
-    //         localStorage.getItem("compositionData") || "{}"
-    //     );
+    useEffect(() => {
+        const prevFormData = JSON.parse(
+            sessionStorage.getItem("compositionData") || "{}"
+        );
 
-    //     if (prevFormData) {
-    //         setChosenCriterias(prevFormData.objectives);
-    //     }
-    // }, []);
+        if (prevFormData) {
+            setChosenCriterias(
+                prevFormData.objectives || (dialogProps?.data as any)
+            );
+        }
+    }, []);
 
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         const prevFormData = JSON.parse(
-            localStorage.getItem("compositionData") || "{}"
+            sessionStorage.getItem("compositionData") || "{}"
         );
 
         const formData = {
@@ -86,7 +88,7 @@ export default function EvaluationCriteriaModal() {
             objectives: chosenCriterias,
         };
 
-        localStorage.setItem("compositionData", JSON.stringify(formData));
+        sessionStorage.setItem("compositionData", JSON.stringify(formData));
 
         dispatch(closeDialog());
     };
@@ -166,6 +168,13 @@ export default function EvaluationCriteriaModal() {
                         </div>
                     )}
                 </ScrollArea>
+
+                <Pagination
+                    total={criteria?.data.pagination.count ?? 0}
+                    itemsPerPage={criteria?.data.pagination.page_size ?? 0}
+                    onChange={(page: number) => setPage(page)}
+                />
+
                 <div className="flex justify-end w-full my-5">
                     <div className="flex items-center gap-x-4">
                         <p className="text-sm font-medium text-primary">
