@@ -186,6 +186,19 @@ export const hr = [
     ),
   },
   {
+    path: HrRoutes.PERFORMANCE_MANAGEMENT_DETAIL,
+    element: lazy(
+      () => import("pages/protectedPages/hr/performance-management/id/index")
+    ),
+  },
+
+  {
+    path: HrRoutes.PERFORMANCE_MANAGEMENT_CREATE,
+    element: lazy(
+      () => import("pages/protectedPages/hr/performance-management/form/index")
+    ),
+  },
+  {
     path: HrRoutes.SEPARATION_MANAGEMENT,
     element: lazy(
       () => import("pages/protectedPages/hr/separation-management/index")
