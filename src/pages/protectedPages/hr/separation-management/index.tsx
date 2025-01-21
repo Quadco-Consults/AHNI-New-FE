@@ -18,9 +18,9 @@ import { generatePath, Link } from "react-router-dom";
 
 const SeparationManagement = () => {
   return (
-    <div className="space-y-6">
-      <div className="flex-items">
-        <Button variant="custom" className="bg-[#FFF2F2] text-[#FF0000]">
+    <div className='space-y-6'>
+      <div className='flex-items'>
+        <Button variant='custom' className='bg-[#FFF2F2] text-[#FF0000]'>
           <p>Bulk Actions</p>
           <DownIcon />
         </Button>
@@ -32,17 +32,17 @@ const SeparationManagement = () => {
         </Link>
       </div>
 
-      <Card className="space-y-4">
-        <div className="flex items-center justify-start gap-2">
-          <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
+      <Card className='space-y-4'>
+        <div className='flex items-center justify-start gap-2'>
+          <span className='flex items-center w-1/3 px-2 py-2 border rounded-lg'>
             <SearchIcon />
             <input
-              placeholder="Search"
-              type="text"
-              className="ml-2 h-6 border-none bg-none focus:outline-none outline-none"
+              placeholder='Search'
+              type='text'
+              className='ml-2 h-6 border-none bg-none focus:outline-none outline-none'
             />
           </span>
-          <Button className="shadow-sm" variant="ghost">
+          <Button className='shadow-sm' variant='ghost'>
             <FilterIcon />
           </Button>
         </div>
@@ -144,7 +144,7 @@ const columns: ColumnDef<SeparationManagementResults>[] = [
     cell: ({ getValue }) => {
       return (
         <Badge
-          variant="default"
+          variant='default'
           className={cn(
             "p-1 rounded-lg",
             getValue() === "Completed"
@@ -167,24 +167,24 @@ const columns: ColumnDef<SeparationManagementResults>[] = [
 
 const ActionList = () => {
   return (
-    <div className="flex items-center gap-2">
+    <div className='flex items-center gap-2'>
       <>
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost" className="flex gap-2 py-6">
+            <Button variant='ghost' className='flex gap-2 py-6'>
               <MoreOptionsHorizontalIcon />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className=" w-fit">
-            <div className="flex flex-col items-start justify-between gap-1">
+          <PopoverContent className=' w-fit'>
+            <div className='flex flex-col items-start justify-between gap-1'>
               <Link
                 to={generatePath(HrRoutes.SEPARATION_MANAGEMENT_DETAIL, {
                   id: 1,
                 })}
               >
                 <Button
-                  className="w-full flex items-center justify-start gap-2"
-                  variant="ghost"
+                  className='w-full flex items-center justify-start gap-2'
+                  variant='ghost'
                 >
                   <EyeIcon />
                   View
@@ -192,8 +192,8 @@ const ActionList = () => {
               </Link>
 
               <Button
-                className="w-full flex items-center justify-start gap-2"
-                variant="ghost"
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
               >
                 <DeleteIcon />
                 delete
