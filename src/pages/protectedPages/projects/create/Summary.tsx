@@ -42,6 +42,7 @@ import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import { RouteEnum } from "constants/RouterConstants";
 import DateInput from "components/shared/DateInput";
+import { formatDate } from "utils/date";
 
 const breadcrumbs: TBreadcrumbList[] = [
     { name: "Projects", icon: true },
@@ -199,8 +200,8 @@ export default function ProjectSummaryPage() {
             goal: goal,
             narrative: narrative,
             budget_performance: budget_performance,
-            start_date: new Date(start_date),
-            end_date: new Date (end_date),
+            start_date: formatDate(start_date),
+            end_date: formatDate(end_date),
             project_managers: project_managers,
             partners: partnersId,
             funding_sources: funding_sources,

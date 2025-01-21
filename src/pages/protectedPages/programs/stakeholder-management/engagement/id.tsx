@@ -8,10 +8,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useGetSingleEngagementPlanQuery } from "services/programsApi/engagement-plan";
 
 const breadcrumbs = [
-    { name: "Procurement", icon: true },
+    { name: "Programs", icon: true },
     { name: "Stakeholder Management", icon: true },
     { name: "Engagement Plan", icon: true },
-    { name: "Detail", icon: false },
+    { name: "Details", icon: false },
 ];
 
 const EngagementDetails = () => {
@@ -46,7 +46,7 @@ const EngagementDetails = () => {
                             {engagementPlan?.data.project.title}
                         </p>
 
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-2 gap-10">
                             <div>
                                 <h4 className="font-semibold">
                                     Project Deliverables:
@@ -70,7 +70,7 @@ const EngagementDetails = () => {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-2 gap-10">
                             <div>
                                 <h4 className="font-semibold">Start Date:</h4>
                                 <p>{engagementPlan?.data.start_date}</p>

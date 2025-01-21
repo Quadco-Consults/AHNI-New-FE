@@ -241,7 +241,7 @@ export const program = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/programs/stakeholder-management/engagement/[id]/index"
+                    "pages/protectedPages/programs/stakeholder-management/engagement/id"
                 )
         ),
     },

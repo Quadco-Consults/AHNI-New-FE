@@ -11,6 +11,7 @@ import { useState } from "react";
 import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
 import { riskManagementPlanColumns } from "components/Table/columns/program/plan/risk-management-plan";
 import TableFilters from "components/Table/TableFilters";
+import { useDebounce } from "ahooks";
 
 const breadcrumbs: TBreadcrumbList[] = [
     { name: "Programs", icon: true },
@@ -20,11 +21,17 @@ const breadcrumbs: TBreadcrumbList[] = [
 
 export default function RiskManagementPage() {
     const [page, setPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState("");
+
+    const debouncedSearchQuery = useDebounce(searchQuery, {
+        wait: 1000,
+    });
 
     const { data: riskManagementPlan, isFetching } =
         useGetAllRiskManagementPlansQuery({
             page,
             size: 10,
+            search: debouncedSearchQuery,
         });
 
     return (
@@ -41,7 +48,9 @@ export default function RiskManagementPage() {
             </div>
 
             <Card>
-                <TableFilters>
+                <TableFilters
+                    onSearchChange={(e) => setSearchQuery(e.target.value)}
+                >
                     <DataTable
                         data={riskManagementPlan?.data.results || []}
                         columns={riskManagementPlanColumns}

@@ -9,7 +9,7 @@ const PartnerAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
         getAllPartners: builder.query<
             TPaginatedResponse<TPartnerData>,
-            TRequest
+            TRequest & { state?: string }
         >({
             query: (params) => ({
                 url: "/projects/partners/",

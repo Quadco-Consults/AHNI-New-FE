@@ -6,7 +6,7 @@ import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import { useAppDispatch } from "hooks/useStore";
-import { useGetAllProjectDocumentsQuery } from "services/project/document";
+import { useDeleteProjectDocumentMutation, useGetAllProjectDocumentsQuery } from "services/project/document";
 import { Loading } from "components/shared/Loading";
 import { useState } from "react";
 import { pdfjs } from "react-pdf";
@@ -19,6 +19,8 @@ import DocumentCard from "./DocumentCard";
 import Pagination from "components/shared/Pagination";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
+import FilePreview from "components/shared/FilePreview";
+import { toast } from "sonner";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
     "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -33,12 +35,6 @@ const breadcrumbs: TBreadcrumbList[] = [
 
 export default function ProjectUploads() {
     const [page, setPage] = useState(1);
-    const [numPages, setNumPages] = useState<number>();
-    const [pageNumber, setPageNumber] = useState<number>(1);
-
-    function onDocumentLoadSuccess({ numPages }: { numPages: number }): void {
-        setNumPages(numPages);
-    }
 
     const navigate = useNavigate();
 
@@ -48,8 +44,21 @@ export default function ProjectUploads() {
     const projectId = query.get("id");
 
     const { data: document, isFetching } = useGetAllProjectDocumentsQuery(
-        projectId ? { page, size: 9, id: projectId } : skipToken
+        projectId ? { page, size: 9, project: projectId } : skipToken
     );
+
+    const [deleteProjectDocumentMutation, { isLoading }] =
+        useDeleteProjectDocumentMutation();
+
+    const handleDeleteDocument = async (id: string) => {
+        try {
+            await deleteProjectDocumentMutation({ path: { id: id } }).unwrap();
+            sessionStorage.removeItem("projectsCompletedSteps");
+            toast.success("Project Document Deleted.");
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
+        }
+    };
 
     return (
         <div className="space-y-5">
@@ -107,14 +116,14 @@ export default function ProjectUploads() {
                         ) : (
                             <div className="grid grid-cols-1 items-center gap-5 md:grid-cols-2 lg:grid-cols-3">
                                 {document?.data?.results?.map((doc) => (
-                                    <DocumentCard
+                                    <FilePreview
                                         key={doc.id}
                                         id={doc.id}
-                                        title={doc.title}
+                                        name={doc.title}
+                                        timestamp={doc.uploaded_datetime}
                                         file={doc.file}
-                                        onLoadSuccess={onDocumentLoadSuccess}
-                                        pageNumber={pageNumber}
-                                        uploadedDateTime={doc.uploaded_datetime}
+                                        showDeleteIcon
+                                        onDeleteDocument={handleDeleteDocument}
                                     />
                                 ))}
 

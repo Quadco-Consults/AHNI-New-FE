@@ -16,6 +16,8 @@ import { useGetAllSupervisionPlanQuery } from "services/program/plan/supervision
 import BreadcrumbCard from "components/shared/Breadcrumb";
 import { useState } from "react";
 import { supportiveSupervisionPlanColumns } from "components/Table/columns/program/plan/supportive-supervision-plan";
+import TableFilters from "components/Table/TableFilters";
+import { useDebounce } from "ahooks";
 
 const breadcrumbs = [
     { name: "Programs", icon: true },
@@ -25,9 +27,14 @@ const breadcrumbs = [
 
 export default function SupportiveSupervisionPlan() {
     const [page, setPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState("");
+
+    const debouncedSearchQuery = useDebounce(searchQuery, {
+        wait: 1000,
+    });
 
     const { data: supervisionPlan, isFetching } = useGetAllSupervisionPlanQuery(
-        { page, size: 10 }
+        { page, size: 10, search: debouncedSearchQuery }
     );
 
     const dispatch = useAppDispatch();
@@ -85,32 +92,22 @@ export default function SupportiveSupervisionPlan() {
                 </Popover>
             </div>
 
-            <Card className="space-y-5">
-                <div className="flex items-center justify-start gap-2">
-                    <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
-                        <SearchIcon />
-                        <input
-                            placeholder="Search"
-                            type="text"
-                            className="ml-2 h-6 w-[350px] border-none bg-none focus:outline-none outline-none"
-                        />
-                    </span>
-                    <Button className="shadow-sm" variant="ghost">
-                        <FilterIcon />
-                    </Button>
-                </div>
-
-                <DataTable
-                    data={supervisionPlan?.data.results || []}
-                    columns={supportiveSupervisionPlanColumns}
-                    isLoading={isFetching}
-                    pagination={{
-                        total: supervisionPlan?.data.pagination.count ?? 0,
-                        pageSize:
-                            supervisionPlan?.data.pagination.page_size ?? 0,
-                        onChange: (page: number) => setPage(page),
-                    }}
-                />
+            <Card>
+                <TableFilters
+                    onSearchChange={(e) => setSearchQuery(e.target.value)}
+                >
+                    <DataTable
+                        data={supervisionPlan?.data.results || []}
+                        columns={supportiveSupervisionPlanColumns}
+                        isLoading={isFetching}
+                        pagination={{
+                            total: supervisionPlan?.data.pagination.count ?? 0,
+                            pageSize:
+                                supervisionPlan?.data.pagination.page_size ?? 0,
+                            onChange: (page: number) => setPage(page),
+                        }}
+                    />
+                </TableFilters>
             </Card>
         </div>
     );

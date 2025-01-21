@@ -22,6 +22,7 @@ import { RouteEnum } from "constants/RouterConstants";
 import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
 import { activityPlanColumns } from "components/Table/columns/program/plan/activity-plan";
 import TableFilters from "components/Table/TableFilters";
+import { useDebounce } from "ahooks";
 
 const breadcrumbs: TBreadcrumbList[] = [
     { name: "Programs", icon: true },
@@ -31,10 +32,16 @@ const breadcrumbs: TBreadcrumbList[] = [
 
 export default function ActivityPlan() {
     const [page, setPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState("");
+
+    const debouncedSearchQuery = useDebounce(searchQuery, {
+        wait: 1000,
+    });
 
     const { data: activityPlan, isFetching } = useGetAllActivityPlansQuery({
         page,
         size: 10,
+        search: debouncedSearchQuery,
     });
 
     const [downloadTemplate] = useLazyDownloadActivityPlanTemplateQuery();
@@ -125,7 +132,9 @@ export default function ActivityPlan() {
             </div>
 
             <Card>
-                <TableFilters>
+                <TableFilters
+                    onSearchChange={(e) => setSearchQuery(e.target.value)}
+                >
                     <DataTable
                         columns={activityPlanColumns}
                         data={activityPlan?.data.results || []}
