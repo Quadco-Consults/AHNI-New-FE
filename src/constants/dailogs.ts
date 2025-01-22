@@ -49,6 +49,7 @@ export const DialogType = {
   AddCostCategory: "AddCostCategories",
   AddBudgetLine: "AddBudgetLine",
   AddCostInput: "AddCostInput",
+  AddCostGrouping: "AddCostGrouping",
   AddFcoNumber: "AddFcoNumber",
   AddProjectClasses: "AddProjectClasses",
   AddChartsOfAccounts: "AddChartsOfAccounts",
