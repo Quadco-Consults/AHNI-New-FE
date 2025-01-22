@@ -57,3 +57,38 @@ export interface PurchaseRequestResponse {
   message: string;
   data: PurchaseRequestResultsData;
 }
+// New types
+
+// TypeScript Type Definition
+export interface Expense {
+  item: string;
+  quantity: number;
+  num_of_days: number;
+  num_of_facility: number;
+  frequency: number;
+  unit_cost: string;
+  total_cost: string;
+  purchase_request_memo: string;
+}
+
+export interface RequestPayload {
+  expenses: Expense[];
+  activity: string;
+  location: string;
+  module: string;
+  intervention: string;
+  requested_date: string;
+  comment: string;
+  created_date: string;
+  reviewed_date: string;
+  approved_date: string;
+  created_by: string;
+  reviewed_by: string;
+  approved_by: string;
+  budget_line: string[];
+  cost_grouping: string[];
+  fconumber: string[];
+  cost_input: string[];
+  program_areas: string[];
+  funding_source: string[];
+}
