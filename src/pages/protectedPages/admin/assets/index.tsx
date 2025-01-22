@@ -1,6 +1,5 @@
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
-import { assestColum } from "components/Table/columns/admin/inventory-management/asset";
 import { Button } from "components/ui/button";
 import { AdminRoutes } from "constants/RouterConstants";
 import { Plus } from "lucide-react";
@@ -8,6 +7,7 @@ import { Link, generatePath } from "react-router-dom";
 import Card from "components/shared/Card";
 import { useGetAllAssetsQuery } from "services/admin/inventory-management/asset";
 import { useState } from "react";
+import { assetColumn } from "components/Table/columns/admin/inventory-management/asset";
 
 export default function AssetHomePage() {
     const [page, setPage] = useState(1);
@@ -32,7 +32,7 @@ export default function AssetHomePage() {
                 <TableFilters>
                     <DataTable
                         data={asset?.data.results || []}
-                        columns={assestColum}
+                        columns={assetColumn}
                         isLoading={isFetching}
                         pagination={{
                             total: asset?.data.pagination.count ?? 0,

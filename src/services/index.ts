@@ -102,6 +102,7 @@ const baseAPI = createApi({
         "PROJECTS",
         "ASSET_CLASSIFICATION",
         "Consumable",
+        "PROJECT_DOCUMENT",
         "ITEM_REQUISITION",
         "ASSET",
         "ASSET_REQUEST",

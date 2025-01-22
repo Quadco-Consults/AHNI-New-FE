@@ -8,7 +8,7 @@ import React, { useMemo } from "react";
 import FilterIcon2 from "assets/svgs/FilterIcon2";
 import { Button } from "components/ui/button";
 import { generatePath, Link, useNavigate } from "react-router-dom";
-import { CandGRoutes, RouteEnum } from "constants/RouterConstants";
+import { CG_GROUTES, RouteEnum } from "constants/RouterConstants";
 import SearchBar from "atoms/SearchBar";
 import { Checkbox } from "components/ui/checkbox";
 import { Badge } from "components/ui/badge";
@@ -112,33 +112,35 @@ const Grant: React.FC = () => {
   const ActionListAction = ({ data }: any) => {
     console.log(data);
     return (
-      <div className="flex gap-2">
-        <Link to={generatePath(RouteEnum.VENDOR_MANAGEMENT_DETAILS, { id: "1" })}>
-          <IconButton className="bg-[#F9F9F9] hover:text-primary">
-            <Icon icon="ph:eye-duotone" fontSize={15} />
+      <div className='flex gap-2'>
+        <Link
+          to={generatePath(RouteEnum.VENDOR_MANAGEMENT_DETAILS, { id: "1" })}
+        >
+          <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+            <Icon icon='ph:eye-duotone' fontSize={15} />
           </IconButton>
         </Link>
-        <IconButton className="bg-[#F9F9F9] hover:text-primary">
-          <Icon icon="ant-design:delete-twotone" fontSize={15} />
+        <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+          <Icon icon='ant-design:delete-twotone' fontSize={15} />
         </IconButton>
       </div>
     );
   };
 
   return (
-    <div className="flex flex-col justify-center items-center gap-y-[1rem]">
-      <div className="w-full flex justify-between items-center">
-        <div className="flex items-center justify-center">
+    <div className='flex flex-col justify-center items-center gap-y-[1rem]'>
+      <div className='w-full flex justify-between items-center'>
+        <div className='flex items-center justify-center'>
           <SearchBar onchange={() => ""} />
 
-          <Button variant="ghost" className="">
+          <Button variant='ghost' className=''>
             <FilterIcon2 />
           </Button>
         </div>
-        <div className="flex items-center">
+        <div className='flex items-center'>
           <FormButton
             onClick={() => {
-              navigate(CandGRoutes.NEW_GRANT);
+              navigate(CG_GROUTES.GRANT_CREATE);
             }}
           >
             <AddSquareIcon />
@@ -146,7 +148,7 @@ const Grant: React.FC = () => {
           </FormButton>
         </div>
       </div>
-      <div className="w-full">
+      <div className='w-full'>
         <DataTable
           columns={columns}
           onRowClick={(row) => {

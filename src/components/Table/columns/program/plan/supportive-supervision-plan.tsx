@@ -16,6 +16,7 @@ import { RouteEnum } from "constants/RouterConstants";
 import { useDeleteSupervisionPlanMutation } from "services/program/plan/supervision-plan";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 import { useState } from "react";
+import PencilIcon from "components/icons/PencilIcon";
 
 export const supportiveSupervisionPlanColumns: ColumnDef<TSupervisionPlanPaginatedData>[] =
     [
@@ -127,6 +128,22 @@ const TableMenu = ({ id }: TSupervisionPlanPaginatedData) => {
                                     View
                                 </Button>
                             </Link>
+                            <Link
+                                className="w-full"
+                                to={{
+                                    pathname:
+                                        RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_COMPOSITION,
+                                    search: `?id=${id}`,
+                                }}
+                            >
+                                <Button
+                                    className="w-full flex items-center justify-start gap-2"
+                                    variant="ghost"
+                                >
+                                    <PencilIcon />
+                                    Edit
+                                </Button>
+                            </Link>
                             <Button
                                 className="w-full flex items-center justify-start gap-2"
                                 variant="ghost"
@@ -145,7 +162,7 @@ const TableMenu = ({ id }: TSupervisionPlanPaginatedData) => {
                                 <ApproveIcon />
                                 Approve
                             </Button>
-                            <Link
+                            {/* <Link
                                 to={
                                     RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS_APPROVAL
                                 }
@@ -157,7 +174,7 @@ const TableMenu = ({ id }: TSupervisionPlanPaginatedData) => {
                                     <ApprovalStatusIcon />
                                     Approval Status
                                 </Button>
-                            </Link>
+                            </Link> */}
                             <Button
                                 className="w-full flex items-center justify-start gap-2"
                                 variant="ghost"

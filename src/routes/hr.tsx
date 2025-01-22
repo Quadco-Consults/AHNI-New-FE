@@ -40,7 +40,10 @@ export const hr = [
       () => import("pages/protectedPages/hr/advertisement/id/InterviewForm")
     ),
   },
-
+  {
+    path: HrRoutes.SELECTION,
+    element: lazy(() => import("pages/protectedPages/hr/selection/index")),
+  },
   {
     path: HrRoutes.ONBOARDING,
     element: lazy(() => import("pages/protectedPages/hr/onboarding/index")),
@@ -98,6 +101,18 @@ export const hr = [
     ),
   },
   {
+    path: HrRoutes.WORKFORCE_NEED_ANALYSIS,
+    element: lazy(
+      () => import("pages/protectedPages/hr/workforce-need-analysis/index")
+    ),
+  },
+  {
+    path: HrRoutes.WORKFORCE_NEED_ANALYSIS_CREATE,
+    element: lazy(
+      () => import("pages/protectedPages/hr/workforce-need-analysis/form/index")
+    ),
+  },
+  {
     path: HrRoutes.WORKFORCE_DATABASE,
     element: lazy(
       () => import("pages/protectedPages/hr/workforce-database/index")
@@ -110,9 +125,34 @@ export const hr = [
     ),
   },
   {
-    path: HrRoutes.EMPLOYEE_BENEFITS,
+    path: HrRoutes.EMPLOYEE_BENEFITS_PAY_ROLL,
     element: lazy(
-      () => import("pages/protectedPages/hr/employee-benefits/index")
+      () => import("pages/protectedPages/hr/employee-benefits/Payroll/index")
+    ),
+  },
+  {
+    path: HrRoutes.EMPLOYEE_BENEFITS_PAY_ROLL_INFO,
+    element: lazy(
+      () => import("pages/protectedPages/hr/employee-benefits/Payroll/id/index")
+    ),
+  },
+  {
+    path: HrRoutes.EMPLOYEE_BENEFITS_PAY_GROUP,
+    element: lazy(
+      () => import("pages/protectedPages/hr/employee-benefits/PayGroup")
+    ),
+  },
+
+  {
+    path: HrRoutes.EMPLOYEE_BENEFITS_COMPENSATION,
+    element: lazy(
+      () => import("pages/protectedPages/hr/employee-benefits/Compensation")
+    ),
+  },
+  {
+    path: HrRoutes.EMPLOYEE_BENEFITS_COMPENSATION_CREATE,
+    element: lazy(
+      () => import("pages/protectedPages/hr/employee-benefits/NewCompensation")
     ),
   },
   {
@@ -122,15 +162,58 @@ export const hr = [
     ),
   },
   {
+    path: HrRoutes.GRIEVANCE_MANAGEMENT_CREATE,
+    element: lazy(
+      () => import("pages/protectedPages/hr/grievance-management/form/index")
+    ),
+  },
+  {
+    path: HrRoutes.GRIEVANCE_MANAGEMENT_DETAILS,
+    element: lazy(
+      () => import("pages/protectedPages/hr/grievance-management/id/index")
+    ),
+  },
+  {
     path: HrRoutes.LEAVE_MANAGEMENT,
     element: lazy(
       () => import("pages/protectedPages/hr/leave-management/index")
     ),
   },
   {
+    path: HrRoutes.LEAVE_MANAGEMENT_DETAIL,
+    element: lazy(
+      () => import("pages/protectedPages/hr/leave-management/id/index")
+    ),
+  },
+  {
+    path: HrRoutes.LEAVE_MANAGEMENT_REQUEST,
+    element: lazy(
+      () => import("pages/protectedPages/hr/leave-management/leaveRequest")
+    ),
+  },
+  {
+    path: HrRoutes.LEAVE_MANAGEMENT_DETAIL_FORM,
+    element: lazy(
+      () => import("pages/protectedPages/hr/leave-management/form/index")
+    ),
+  },
+  {
     path: HrRoutes.PERFORMANCE_MANAGEMENT,
     element: lazy(
       () => import("pages/protectedPages/hr/performance-management/index")
+    ),
+  },
+  {
+    path: HrRoutes.PERFORMANCE_MANAGEMENT_DETAIL,
+    element: lazy(
+      () => import("pages/protectedPages/hr/performance-management/id/index")
+    ),
+  },
+
+  {
+    path: HrRoutes.PERFORMANCE_MANAGEMENT_CREATE,
+    element: lazy(
+      () => import("pages/protectedPages/hr/performance-management/form/index")
     ),
   },
   {

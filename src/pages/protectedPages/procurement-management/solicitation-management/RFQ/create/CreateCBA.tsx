@@ -52,8 +52,9 @@ const CreateCBA = () => {
   const [createCbaMutation, { isLoading: createCbaIsLoading }] =
     CbaAPI.useCreateCbaMutation();
 
-  const form = useForm<z.infer<typeof CbaSchema>>({
-    resolver: zodResolver(CbaSchema),
+  //   const form = useForm<z.infer<typeof CbaSchema>>({
+  const form = useForm({
+    // resolver: zodResolver(CbaSchema),
     defaultValues: {
       cba_type: "",
       cba_date: "",
@@ -73,8 +74,8 @@ const CreateCBA = () => {
 
   const onSubmit = async (data: z.infer<typeof CbaSchema>) => {
     try {
-      await createCbaMutation(data).unwrap();
-      toast.success("Successfully created.");
+      //   await createCbaMutation(data).unwrap();
+      //   toast.success("Successfully created.");
       navigate(RouteEnum.RFQ);
     } catch (error) {
       toast.error("Something went wrong");
@@ -101,7 +102,7 @@ const CreateCBA = () => {
       <Form {...form}>
         <form className='space-y-8' onSubmit={handleSubmit(onSubmit)}>
           <div className='grid grid-cols-1 gap-4 w-full md:grid-cols-3'>
-            <FormSelect name='cba_type' label='CBA type' required>
+            <FormSelect name='cba_type' label='CBA type'>
               <SelectContent>
                 {["COMMITTEE", "NON COMMITTEE"].map(
                   (value: string, index: number) => (
@@ -113,7 +114,7 @@ const CreateCBA = () => {
               </SelectContent>
             </FormSelect>
 
-            <FormSelect name='lot' label='Lot' required>
+            <FormSelect name='lot' label='Lot'>
               <SelectContent>
                 {lotIsLoading && <LoadingSpinner />}
                 {lots?.map((lot: LotsResultsData) => (
@@ -124,7 +125,7 @@ const CreateCBA = () => {
               </SelectContent>
             </FormSelect>
 
-            <FormInput name='cba_date' type='date' label='CBA Date' required />
+            <FormInput name='cba_date' type='date' label='CBA Date' />
           </div>
 
           {watch("cba_type") === "COMMITTEE" && (
@@ -263,7 +264,7 @@ const CreateCBA = () => {
             </div>
           )}
 
-          <FormSelect name='assignee' label='Assignee' required>
+          <FormSelect name='assignee' label='Assignee'>
             <SelectContent>
               {isLoading && <LoadingSpinner />}
               {users?.map((user: TUser) => (

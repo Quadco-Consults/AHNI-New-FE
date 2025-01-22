@@ -9,7 +9,7 @@ import DataTable from "components/Table/DataTable";
 import { Button } from "components/ui/button";
 import { Checkbox } from "components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { CandGRoutes } from "constants/RouterConstants";
+import { CG_GROUTES } from "constants/RouterConstants";
 import { generatePath, Link } from "react-router-dom";
 import { SubGrantApplicationsApi } from "services/cAndGApi/subGrant";
 import { toast } from "sonner";
@@ -118,7 +118,7 @@ const PreAwardAssessment = () => {
               <div className="flex flex-col items-start justify-between gap-1">
                 <Link
                   className="w-full"
-                  to={generatePath(CandGRoutes.PRE_AWARD_ASSESSMENT_SINGLE, {
+                  to={generatePath(CG_GROUTES.PRE_AWARD_ASSESSMENT_SINGLE, {
                     id: data?.id,
                   })}
                 >
@@ -163,7 +163,7 @@ const PreAwardAssessment = () => {
         <div className="flex items-center">
           <FormButton
             onClick={() => {
-              // navigate(CandGRoutes.MANUAL_SUB_GRANT_SUBMISSION);
+              // navigate(CG_GROUTES.MANUAL_SUB_GRANT_SUBMISSION);
             }}
             variant={"custom"}
             className="bg-[#FFF2F2] text-[#FF0000]"

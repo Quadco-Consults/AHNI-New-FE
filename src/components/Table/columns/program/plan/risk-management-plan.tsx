@@ -121,7 +121,7 @@ export const riskManagementPlanColumns: ColumnDef<TRiskManagementPlanData>[] = [
     {
         header: "Implementation Timeline",
         accessorKey: "implementation_timeline",
-        size: 200,
+        size: 250,
         cell: ({ getValue }) => (
             <Badge className="bg-gray-500">{getValue() as string}</Badge>
         ),

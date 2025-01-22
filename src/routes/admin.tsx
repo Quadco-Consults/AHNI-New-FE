@@ -1,4 +1,4 @@
-import { AdminRoutes, RouteEnum } from "constants/RouterConstants";
+import { RouteEnum, AdminRoutes } from "constants/RouterConstants";
 
 import { lazy } from "react";
 import { Navigate } from "react-router-dom";
@@ -37,6 +37,33 @@ export const adminRoutes = [
                 import(
                     "pages/protectedPages/admin/inventory-management/consumable/id"
                 )
+        ),
+    },
+
+    // ASSET REQUEST
+    {
+        path: AdminRoutes.ASSETS_REQUEST,
+        element: lazy(() => import("pages/protectedPages/admin/asset-request")),
+    },
+    {
+        path: AdminRoutes.ASSETS_REQUEST_CREATE,
+        element: lazy(
+            () => import("pages/protectedPages/admin/asset-request/create")
+        ),
+    },
+    {
+        path: AdminRoutes.ASSETS_REQUEST_UPLOAD,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/admin/asset-request/create/uploads"
+                )
+        ),
+    },
+    {
+        path: AdminRoutes.ASSETS_REQUEST_VIEW,
+        element: lazy(
+            () => import("pages/protectedPages/admin/asset-request/id")
         ),
     },
 
@@ -290,56 +317,42 @@ export const adminRoutes = [
     },
     {
         path: AdminRoutes.ViewAssets,
-        element: lazy(() => import("pages/protectedPages/admin/assets/view")),
+        element: lazy(() => import("pages/protectedPages/admin/assets/id")),
     },
 
     {
         path: AdminRoutes.Agrements,
-        element: lazy(
-            () => import("pages/protectedPages/admin/Agreement/Lease")
-        ),
+        element: lazy(() => import("pages/protectedPages/admin/Agreement")),
     },
     {
         path: AdminRoutes.AgrementsCreeate,
         element: lazy(
-            () => import("pages/protectedPages/admin/Agreement/CreateAgreement")
+            () => import("pages/protectedPages/admin/Agreement/create")
         ),
     },
     {
         path: AdminRoutes.SLA,
-        element: lazy(
-            () => import("pages/protectedPages/admin/Agreement/Lease")
-        ),
+        element: lazy(() => import("pages/protectedPages/admin/Agreement")),
     },
     {
         path: AdminRoutes.HMO,
-        element: lazy(
-            () => import("pages/protectedPages/admin/Agreement/Lease")
-        ),
+        element: lazy(() => import("pages/protectedPages/admin/Agreement")),
     },
     {
         path: AdminRoutes.Insurance,
-        element: lazy(
-            () => import("pages/protectedPages/admin/Agreement/Lease")
-        ),
+        element: lazy(() => import("pages/protectedPages/admin/Agreement")),
     },
     {
         path: AdminRoutes.Security,
-        element: lazy(
-            () => import("pages/protectedPages/admin/Agreement/Lease")
-        ),
+        element: lazy(() => import("pages/protectedPages/admin/Agreement")),
     },
     {
         path: AdminRoutes.Ticketing,
-        element: lazy(
-            () => import("pages/protectedPages/admin/Agreement/Lease")
-        ),
+        element: lazy(() => import("pages/protectedPages/admin/Agreement")),
     },
     {
         path: AdminRoutes.ViewAggrement,
-        element: lazy(
-            () => import("pages/protectedPages/admin/Agreement/ViewAgreement")
-        ),
+        element: lazy(() => import("pages/protectedPages/admin/Agreement/id")),
     },
 
     {
@@ -360,22 +373,7 @@ export const adminRoutes = [
                 )
         ),
     },
-    {
-        path: AdminRoutes.ASSETS_REQUEST,
-        element: lazy(() => import("pages/protectedPages/admin/asset-request")),
-    },
-    {
-        path: AdminRoutes.ASSETS_REQUEST_CREATE,
-        element: lazy(
-            () => import("pages/protectedPages/admin/asset-request/create")
-        ),
-    },
-    {
-        path: AdminRoutes.ASSETS_REQUEST_VIEW,
-        element: lazy(
-            () => import("pages/protectedPages/admin/asset-request/view")
-        ),
-    },
+
     {
         path: AdminRoutes.GRN,
         element: lazy(

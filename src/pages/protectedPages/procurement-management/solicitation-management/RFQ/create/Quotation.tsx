@@ -52,8 +52,9 @@ const Quotation = () => {
     });
 
   // Initialize form state
-  const form = useForm<z.infer<typeof SolicitationQuotationSchema>>({
-    resolver: zodResolver(SolicitationQuotationSchema),
+  // const form = useForm<z.infer<typeof SolicitationQuotationSchema>>({
+  const form = useForm({
+    // resolver: zodResolver(SolicitationQuotationSchema),
     defaultValues: {
       name: "",
       description: "",
@@ -93,11 +94,11 @@ const Quotation = () => {
         </h4>
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)} className='space-y-5 mt-10'>
-            <FormInput name='name' label='RFQ Title/ID' required />
-            <FormTextArea name='description' label='Background' required />
+            <FormInput name='name' label='RFQ Title/ID' />
+            <FormTextArea name='description' label='Background' />
 
             <div className='grid grid-cols-2 gap-6'>
-              <FormSelect name='request_type' label='Request type' required>
+              <FormSelect name='request_type' label='Request type'>
                 <SelectContent>
                   {[
                     "INVITATION TO TENDER",
@@ -110,7 +111,7 @@ const Quotation = () => {
                   ))}
                 </SelectContent>
               </FormSelect>
-              <FormSelect name='tender_type' label='Tender Type' required>
+              <FormSelect name='tender_type' label='Tender Type'>
                 <SelectContent>
                   {[
                     "CLOSED SOURCE",
@@ -274,25 +275,15 @@ const Quotation = () => {
             )}
 
             <div className='grid grid-cols-2 gap-6'>
-              <FormInput
-                name='opening_date'
-                label='Opening Date'
-                type='date'
-                required
-              />
+              <FormInput name='opening_date' label='Opening Date' type='date' />
               <FormInput
                 name='closing_date'
                 label='Closing Date'
                 type='datetime-local'
-                required
               />
             </div>
 
-            <FormSelect
-              name='purchase_request'
-              label='Purchase Request'
-              required
-            >
+            <FormSelect name='purchase_request' label='Purchase Request'>
               <SelectContent>
                 {isLoading && <LoadingSpinner />}
                 {purchaseRequests?.map((value: PurchaseRequestResultsData) => (

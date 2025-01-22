@@ -1,8 +1,8 @@
 import LocationSvg from "assets/svgs/LocationSvg";
 import { Badge } from "components/ui/badge";
-import { TProjectData } from "definations/project";
+import { IProjectSingleData } from "definations/project";
 
-export default function ProjectSummary(props: TProjectData) {
+export default function ProjectSummary(props: IProjectSingleData) {
     const {
         title,
         goal,

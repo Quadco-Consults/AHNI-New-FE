@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { skipToken } from "@reduxjs/toolkit/query";
 import BackNavigation from "atoms/BackNavigation";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
@@ -11,10 +12,14 @@ import {
     FacilityMaintenanceSchema,
     TFacilityMaintenanceFormValues,
 } from "definations/admin/facility-management/facility-maintenance";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
-import { useCreateFacilityMaintenanceMutation } from "services/admin/facility-management/facility-maintenance";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import {
+    useCreateFacilityMaintenanceMutation,
+    useGetSingleFacilityMaintenanceQuery,
+    useModifyFacilityMaintenanceMutation,
+} from "services/admin/facility-management/facility-maintenance";
 import { useGetAllUsersQuery } from "services/auth/user";
 import { useGetAllDepartmentsQuery } from "services/modules/config/department";
 import { useGetAllLocationsQuery } from "services/modules/config/location";
@@ -32,13 +37,21 @@ const descOptions = [
     },
 ];
 
+const maintenanceTypeOptions = [
+    {
+        label: "Corrective",
+        value: "CORRECTIVE",
+    },
+    {
+        label: "Preventive",
+        value: "PREVENTIVE",
+    },
+];
+
 export default function CreateFacilityManagementTicket() {
     const form = useForm<TFacilityMaintenanceFormValues>({
         resolver: zodResolver(FacilityMaintenanceSchema),
         defaultValues: {
-            staff: "",
-            department: "",
-            location: "",
             maintenance_datetime: "",
             facility: "",
             maintenance_type: "",
@@ -55,6 +68,9 @@ export default function CreateFacilityManagementTicket() {
 
     const navigate = useNavigate();
 
+    const [searchParams] = useSearchParams();
+    const id = searchParams.get("id");
+
     const { data: user } = useGetAllUsersQuery({ page: 1, size: 2000000 });
 
     const userOptions = useMemo(
@@ -64,34 +80,6 @@ export default function CreateFacilityManagementTicket() {
                 value: id,
             })),
         [user]
-    );
-
-    const { data: department } = useGetAllDepartmentsQuery({
-        page: 1,
-        size: 2000000,
-    });
-
-    const departmentOptions = useMemo(
-        () =>
-            department?.data.results.map(({ name, id }) => ({
-                label: name,
-                value: id,
-            })),
-        [department]
-    );
-
-    const { data: location } = useGetAllLocationsQuery({
-        page: 1,
-        size: 2000000,
-    });
-
-    const locationOptions = useMemo(
-        () =>
-            location?.data.results.map(({ name, id }) => ({
-                label: name,
-                value: id,
-            })),
-        [location]
     );
 
     const { data: facility } = useGetAllFacilityQuery({
@@ -108,20 +96,72 @@ export default function CreateFacilityManagementTicket() {
         [facility]
     );
 
+    const { data: location } = useGetAllLocationsQuery({
+        page: 1,
+        size: 2000000,
+    });
+
+    const locationOptions = useMemo(
+        () =>
+            location?.data.results.map(({ name, id }) => ({
+                label: name,
+                value: id,
+            })),
+        [location]
+    );
+
     const [createFacilityMaintenance, { isLoading: isCreateLoading }] =
         useCreateFacilityMaintenanceMutation();
+
+    const [modifyFacilityMaintenance, { isLoading: isModifyLoading }] =
+        useModifyFacilityMaintenanceMutation();
 
     const onSubmit: SubmitHandler<TFacilityMaintenanceFormValues> = async (
         data
     ) => {
         try {
-            await createFacilityMaintenance(data).unwrap();
-            toast.success("Facility Maintenance Ticket Raised");
+            if (id) {
+                await modifyFacilityMaintenance({
+                    id,
+                    body: data,
+                }).unwrap();
+                toast.success("Facility Maintenance Ticket Updated");
+            } else {
+                await createFacilityMaintenance(data).unwrap();
+                toast.success("Facility Maintenance Ticket Raised");
+            }
             navigate(AdminRoutes.INDEX_FACILITY_MAINTENANCE);
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }
     };
+
+    const { data: facilityMaintenance } = useGetSingleFacilityMaintenanceQuery(
+        id ?? skipToken
+    );
+
+    useEffect(() => {
+        if (facilityMaintenance) {
+            const { data } = facilityMaintenance;
+
+            form.reset({
+                maintenance_datetime: data.maintenance_datetime,
+                facility: data.facility.id,
+                location: data.location.id,
+                maintenance_type: data.maintenance_type,
+                rate: data.rate,
+                cost_estimate: data.cost_estimate,
+                total_cost_estimate: data.total_cost_estimate,
+                description: data.description,
+                problem_description: data.problem_description,
+                reviewer: "",
+                authorizer: "",
+                approver: "",
+            });
+
+            // maintenance_type
+        }
+    }, [facilityMaintenance]);
 
     return (
         <div className="flex flex-col gap-y-6">
@@ -135,30 +175,6 @@ export default function CreateFacilityManagementTicket() {
                             action=""
                         >
                             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                                {/* <FormSelect
-                                    label="Name of Staff"
-                                    name="staff"
-                                    placeholder="Select Staff"
-                                    required
-                                    options={userOptions}
-                                />
-
-                                <FormSelect
-                                    label="Department"
-                                    name="department"
-                                    placeholder="Select Department"
-                                    required
-                                    options={departmentOptions}
-                                />
-
-                                <FormSelect
-                                    label="Location"
-                                    name="location"
-                                    placeholder="Select Location"
-                                    required
-                                    options={locationOptions}
-                                /> */}
-
                                 <FormInput
                                     label="Date/Time"
                                     name="maintenance_datetime"
@@ -175,20 +191,19 @@ export default function CreateFacilityManagementTicket() {
                                 />
 
                                 <FormSelect
+                                    label="Location"
+                                    name="location"
+                                    placeholder="Select Location"
+                                    required
+                                    options={locationOptions}
+                                />
+
+                                <FormSelect
                                     label="Maintenance Type "
                                     name="maintenance_type"
                                     placeholder="Select Maintenance Type"
                                     required
-                                    options={[
-                                        {
-                                            label: "Corrective",
-                                            value: "CORRECTIVE",
-                                        },
-                                        {
-                                            label: "Preventive",
-                                            value: "PREVENTIVE",
-                                        },
-                                    ]}
+                                    options={maintenanceTypeOptions}
                                 />
 
                                 <FormInput
@@ -255,7 +270,10 @@ export default function CreateFacilityManagementTicket() {
                             />
 
                             <div className="flex justify-end">
-                                <FormButton loading={isCreateLoading}>
+                                <FormButton
+                                    size="lg"
+                                    loading={isCreateLoading || isModifyLoading}
+                                >
                                     Submit
                                 </FormButton>
                             </div>

@@ -1,4 +1,9 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+    Link,
+    useLocation,
+    useNavigate,
+    useSearchParams,
+} from "react-router-dom";
 import SupportiveSupervisionPlanLayout from "./SupportiveSupervisionPlanLayout";
 import { Form, FormControl, FormField, FormItem } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -25,10 +30,16 @@ import {
 } from "services/modules/program/facility";
 import { useGetAllUsersQuery } from "services/auth/user";
 import { RouteEnum } from "constants/RouterConstants";
+import DateInput from "components/shared/DateInput";
+import { useGetSingleSupervisionPlanQuery } from "services/program/plan/supervision-plan";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 const Composition = () => {
     const { data: facility, isLoading: isFacilityLoading } =
         useGetAllFacilityQuery({ page: 1, size: 2000000 });
+
+    const [searchParams] = useSearchParams();
+    const id = searchParams.get("id");
 
     const { data: user } = useGetAllUsersQuery({ page: 1, size: 2000000 });
 
@@ -73,16 +84,34 @@ const Composition = () => {
     const onSubmit: SubmitHandler<TSSPCompositionFormValues> = async (
         data: any
     ) => {
-        localStorage.setItem("compositionData", JSON.stringify(data));
+        sessionStorage.setItem("compositionData", JSON.stringify(data));
 
         let path = pathname;
 
         path = path.substring(0, path.lastIndexOf("/"));
 
-        path += "/evolution-checklist";
+        path += `/evolution-checklist?id=${id ?? ""}`;
 
         navigate(path);
     };
+
+    const { data: supervisionPlan } = useGetSingleSupervisionPlanQuery(
+        id ?? skipToken
+    );
+
+    useEffect(() => {
+        if (supervisionPlan) {
+            form.reset({
+                month: supervisionPlan?.data.month,
+                year: supervisionPlan?.data.year,
+                visit_date: supervisionPlan?.data.visit_date,
+                facility: supervisionPlan?.data.facility.id,
+                team_members: supervisionPlan.data.team_members.map(
+                    (member) => member.id
+                ),
+            });
+        }
+    }, [supervisionPlan, facility]);
 
     return (
         <SupportiveSupervisionPlanLayout>
@@ -240,14 +269,11 @@ const Composition = () => {
 
                                 <hr />
 
-                                <div>
-                                    <FormInput
-                                        type="date"
-                                        label="Visit Date"
-                                        name="visit_date"
-                                        required
-                                    />
-                                </div>
+                                <DateInput
+                                    name="visit_date"
+                                    label="Visit Date"
+                                    required
+                                />
                             </div>
 
                             <div className="flex justify-end gap-5 mt-16">
@@ -259,11 +285,14 @@ const Composition = () => {
                                     <Button
                                         type="button"
                                         className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                                        size="lg"
                                     >
                                         Cancel
                                     </Button>
                                 </Link>
-                                <FormButton type="submit">Next</FormButton>
+                                <FormButton type="submit" size="lg">
+                                    Next
+                                </FormButton>
                             </div>
                         </form>
                     </Form>

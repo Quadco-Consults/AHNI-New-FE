@@ -18,7 +18,7 @@ import {
 import FormButton from "atoms/FormButton";
 import { objectToFormData } from "utils/utls";
 import { generatePath, useNavigate, useParams } from "react-router-dom";
-import { CandGRoutes } from "constants/RouterConstants";
+import { CG_GROUTES } from "constants/RouterConstants";
 
 interface Referee {
     name: string;
@@ -73,7 +73,7 @@ const AddNewConsultant = () => {
                         const result = await addDocument(formData).unwrap();
                         toast.success(result?.message);
                         navigate(
-                            generatePath(CandGRoutes.CONSULTANCY_DETAILS, {
+                            generatePath(CG_GROUTES.CONSULTANCY_DETAILS, {
                                 id: params.id,
                             })
                         );

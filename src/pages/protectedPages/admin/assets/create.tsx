@@ -28,6 +28,7 @@ import { useGetAllProjectsQuery } from "services/project";
 import { useGetAllUsersQuery } from "services/auth/user";
 import { toast } from "sonner";
 import { useUseGetAllFundingSourceQuery } from "services/modules/project/funding-source";
+import { useGetAllPartnersQuery } from "services/modules/project/partners";
 
 export default function CreateAsset() {
     const form = useForm<TAssetFormValues>({
@@ -91,6 +92,20 @@ export default function CreateAsset() {
                 value: id,
             })),
         [user]
+    );
+
+    const { data: partner } = useGetAllPartnersQuery({
+        page: 1,
+        size: 2000000,
+    });
+
+    const partnerOptions = useMemo(
+        () =>
+            partner?.data.results.map(({ name, id }) => ({
+                label: name,
+                value: id,
+            })),
+        [partner]
     );
 
     const stateOptions = useMemo(
@@ -287,6 +302,7 @@ export default function CreateAsset() {
                                 name="depreciation_rate"
                                 placeholder="Enter Depreciation Rate"
                                 required
+                                type="number"
                             />
 
                             <FormSelect
@@ -333,12 +349,14 @@ export default function CreateAsset() {
                                 name="usd_cost"
                                 placeholder="Enter USD Cost"
                                 required
+                                type="number"
                             />
                             <FormInput
                                 label="Cost in NGN"
                                 name="ngn_cost"
                                 placeholder="Enter NGN Cost"
                                 required
+                                type="number"
                             />
 
                             <FormInput
@@ -346,6 +364,7 @@ export default function CreateAsset() {
                                 name="unit"
                                 placeholder="Enter Unit"
                                 required
+                                type="number"
                             />
 
                             <FormSelect
@@ -353,15 +372,16 @@ export default function CreateAsset() {
                                 name="implementer"
                                 placeholder="Select Implementer"
                                 required
-                                options={userOptions}
+                                options={partnerOptions}
                             />
                         </div>
 
                         <FormButton
                             loading={isCreateLoading || isEditLoading}
                             className="ml-auto"
+                            size="lg"
                         >
-                            {assetId ? "Update" : "Create"}&nbsp;Asset
+                            Submit
                         </FormButton>
                     </form>
                 </Form>

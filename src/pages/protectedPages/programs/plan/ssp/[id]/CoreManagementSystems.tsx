@@ -38,110 +38,6 @@ const CoreManagementSystems = () => {
         id ?? skipToken
     );
 
-    const [formData, setFormData] = useState<FormData>({});
-    const [page, setPage] = useState(0);
-    const [file, setFile] = useState<File | null>(null);
-    const responses = useSelector((state: RootState) => state.ssp.items);
-    const combinedArray = [].concat(...responses);
-
-    const [
-        uploadSupportiveSupervisionResponseDocumentMutation,
-        { isLoading: loading },
-    ] =
-        SupportiveSupervisionAPI.useCreateSupportiveSupervisionResponseDocumentMutation();
-    const [
-        createSupportiveSupervisionResponseDataMutation,
-        { isLoading: load },
-    ] =
-        SupportiveSupervisionAPI.useCreateSupportiveSupervisionResponseDataMutation();
-
-    const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files && event.target.files.length > 0) {
-            setFile(event.target.files[0]);
-        }
-    };
-
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-
-    const handleUploads = async (response_id: string) => {
-        if (!file) {
-            console.error("No file selected");
-            return;
-        }
-
-        const uploadData = new FormData();
-        uploadData.append("supporting_document", file);
-
-        try {
-            await uploadSupportiveSupervisionResponseDocumentMutation({
-                path: { id: response_id },
-                body: uploadData,
-            }).unwrap();
-            toast.success("Document upload successfully.");
-        } catch (error) {
-            console.log(error);
-            toast.error("Something went wrong");
-        }
-        setFile(null);
-    };
-
-    const { data, isLoading } =
-        SupportiveSupervisionAPI.useGetSupportiveSupervisionCriteriaQuery({
-            path: { id: id as string },
-        });
-
-    const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = event.target;
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
-    };
-    const prevPage = () => {
-        setPage((prev) => (prev === 0 ? 0 : prev - 1));
-    };
-
-    const handleSubmit = async (event: FormEvent) => {
-        event.preventDefault();
-        // Process data to form an array of objects
-        if (data) {
-            const result = data[page]?.criteria?.map((criterion: Criteria) => ({
-                response_id: criterion.response_id,
-                comments: formData[criterion.response_id] || "",
-                supervision_response: formData[criterion.name] || "",
-            }));
-
-            dispatch(
-                supportiveSupervisionActions.addSupportiveSupervision(result)
-            );
-            console.log(result);
-
-            setPage((prev) =>
-                prev === data?.length - 1 ? data?.length - 1 : prev + 1
-            );
-        }
-    };
-
-    const onSubmit = async () => {
-        console.log(combinedArray);
-        try {
-            await createSupportiveSupervisionResponseDataMutation({
-                responses: combinedArray,
-            }).unwrap();
-            toast.success("Document upload successfully.");
-            dispatch(supportiveSupervisionActions.clearSupportiveSupervision());
-            navigate(RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION);
-        } catch (error) {
-            console.log(error);
-            toast.error("Something went wrong");
-        }
-    };
-
-    if (isLoading) {
-        return <Loading />;
-    }
-
     return (
         <div className="space-y-5">
             <BreadcrumbCard list={breadcrumbs} />
@@ -150,7 +46,7 @@ const CoreManagementSystems = () => {
 
             <div className="flex justify-end">
                 <div className="py-2 px-4 rounded-lg border text-green-500 border-green-500 bg-green-50">
-                    Page {page + 1}/{data?.length}
+                    {/* Page {page + 1}/{data?.length} */}
                 </div>
             </div>
 
@@ -190,7 +86,7 @@ const CoreManagementSystems = () => {
                                             // id={criteria.response_id}
                                             value="yes"
                                             // name={criteria.name}
-                                            onChange={handleInputChange}
+                                            // onChange={handleInputChange}
                                         />
                                         <label htmlFor="yes">Yes</label>
                                     </div>
@@ -224,14 +120,14 @@ const CoreManagementSystems = () => {
                                     <div>
                                         <Input
                                             type="file"
-                                            onChange={handleFileChange}
+                                            // onChange={handleFileChange}
                                             className="bg-inherit border-none cursor-pointer "
                                         />
                                     </div>
                                 </div>
                                 <FormButton
-                                    loading={loading}
-                                    disabled={loading}
+                                    // loading={loading}
+                                    // disabled={loading}
                                     type="button"
                                     // onClick={() =>
                                     //     handleUploads(criteria?.response_id)
@@ -247,7 +143,7 @@ const CoreManagementSystems = () => {
                 </form>
             </Card>
 
-            <div className="flex justify-between">
+            {/* <div className="flex justify-between">
                 {data && page > 0 ? (
                     <Button
                         onClick={prevPage}
@@ -274,7 +170,7 @@ const CoreManagementSystems = () => {
                         Submit
                     </FormButton>
                 )}
-            </div>
+            </div> */}
         </div>
     );
 };

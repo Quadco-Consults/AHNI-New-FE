@@ -7,12 +7,11 @@ import { Checkbox } from "components/ui/checkbox";
 import { useGetAllStakeholderRegisterQuery } from "services/programsApi/stakeholder";
 import { LoadingSpinner } from "components/shared/Loading";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import _, { values } from "lodash";
 import { addStakeholders } from "store/formData/stakeholders";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { useState } from "react";
 import { closeDialog } from "store/ui";
-import { TStakeholderRegisterResponse } from "definations/program-validator";
+import { TStakeholderRegisterData } from "definations/program-validator";
 
 const StakeholderModal = () => {
     const { selectedStakeholders } = useAppSelector(
@@ -20,17 +19,18 @@ const StakeholderModal = () => {
     );
 
     const [stakeholders, setStakeholders] =
-        useState<TStakeholderRegisterResponse[]>(selectedStakeholders);
+        useState<TStakeholderRegisterData[]>(selectedStakeholders);
 
     const { data, isLoading } = useGetAllStakeholderRegisterQuery({
-        no_paginate: false,
+        page: 1,
+        size: 2000000,
     });
 
     const dispatch = useAppDispatch();
 
     const handleCheckChange = (
         value: CheckedState,
-        stakeholder: TStakeholderRegisterResponse
+        stakeholder: TStakeholderRegisterData
     ) => {
         if (value) {
             setStakeholders([...stakeholders, stakeholder]);

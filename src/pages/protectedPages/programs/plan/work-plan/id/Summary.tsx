@@ -7,7 +7,7 @@ type PropsType = {
 
 export default function Summary({
     data: {
-        project: { objectives, partners, title, budget },
+        project: { objectives, partners, title, budget, currency },
         financial_year,
     },
 }: PropsType) {
@@ -20,7 +20,10 @@ export default function Summary({
 
                 <h3 className="font-semibold text-lg">Budget</h3>
 
-                <p className="text-sm text-gray-500">${budget}</p>
+                <p className="text-sm text-gray-500">
+                    {currency === "NGN" ? "₦" : "$"}
+                    {budget}
+                </p>
             </div>
 
             <hr />
