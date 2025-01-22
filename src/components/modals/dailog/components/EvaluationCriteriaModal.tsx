@@ -50,6 +50,8 @@ export default function EvaluationCriteriaModal() {
 
     const dispatch = useAppDispatch();
 
+    console.log(chosenCriterias);
+
     const handleChangeCheck = (
         checkedValue: boolean | string,
         name: string,
@@ -71,7 +73,7 @@ export default function EvaluationCriteriaModal() {
 
         if (prevFormData) {
             setChosenCriterias(
-                prevFormData.objectives || (dialogProps?.data as any)
+                prevFormData.objectives || (dialogProps?.data as any) || []
             );
         }
     }, []);
