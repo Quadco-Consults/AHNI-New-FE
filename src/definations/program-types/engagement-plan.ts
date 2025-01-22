@@ -2,21 +2,31 @@ import { TStakeholderRegisterData } from "definations/program-validator";
 import { z } from "zod";
 
 export const EngagementPlanSchema = z.object({
-    project: z.string().min(1, "This field is required"),
-    project_deliverables: z.string().min(1, "This field is required"),
-    start_date: z.string().min(1, "Ths field is required"),
-    end_date: z.string().min(1, "Ths field is required"),
-    stakeholders: z.array(
-        z.object({
-            influence: z.string().min(1, "This field is required"),
-            information_type: z.string().min(1, "This field is required"),
-            decision_maker: z.string().min(1, "This field is required"),
-            frequency: z.string().min(1, "This field is required"),
-            type: z.string().min(1, "This field is required"),
-            commitment_level: z.string().min(1, "This field is required"),
-            stakeholder: z.string().min(1, "This field is required"),
-        })
-    ),
+    project: z.string().min(1, "Please select project"),
+    project_deliverables: z
+        .string()
+        .min(1, "Please enter project deliverables"),
+    start_date: z.string().min(1, "Please select start date"),
+    end_date: z.string().min(1, "Please select end date"),
+    stakeholders: z
+        .array(
+            z.object({
+                influence: z.string().min(1, "Please select influence"),
+                information_type: z
+                    .string()
+                    .min(1, "Please enter information type"),
+                decision_maker: z
+                    .string()
+                    .min(1, "Please enter decision maker"),
+                frequency: z.string().min(1, "Please enter frequency"),
+                type: z.string().min(1, "Please enter type"),
+                commitment_level: z
+                    .string()
+                    .min(1, "Please select commitment level"),
+                stakeholder: z.string().min(1, "Please select stakeholder"),
+            })
+        )
+        .nonempty("Please select at least one stakeholder"),
 });
 
 export type TEngagementPlanFormValues = z.infer<typeof EngagementPlanSchema>;

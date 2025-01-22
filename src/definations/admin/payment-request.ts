@@ -12,7 +12,6 @@ export const PaymentRequestSchema = z.object({
     amount_in_words: z.string().min(1, "Please enter amount in words"),
     account_number: z.string().min(1, "Please enter account number"),
     bank_name: z.string().min(1, "Please enter bank name"),
-    requested_by: z.string().min(1, "Please select requestor"),
     payment_reason: z.string().min(1, "Please enter payment reason"),
     reviewer: z.string().min(1, "Please select reviewer"),
     authorizer: z.string().min(1, "Please select authorizer"),
@@ -44,6 +43,7 @@ export interface IPaymentRequestPaginatedData {
 export interface IPaymentRequestSingleData {
     id: string;
     purchase_order: {
+        id: string;
         purchase_order_number: string;
     };
     requested_by: IUser;

@@ -1,10 +1,13 @@
 import { TFinancialYearData } from "definations/modules/config/financial-year";
+import { TPartnerData } from "definations/modules/project/partners";
+import { IProjectSingleData } from "definations/project";
 
 export interface TWorkPlanPaginatedResponse {
     id: string;
     project: string;
     project_partners: string[];
     financial_year: string;
+    currency: string;
     budget: number;
     created_datetime: string;
     updated_datetime: string;
@@ -14,27 +17,7 @@ export interface TWorkPlanPaginatedResponse {
 
 export interface TWorkPlanSingleResponse {
     id: string;
-    project: {
-        title: string;
-        budget: number;
-        objectives: {
-            objective: string;
-            sub_objectives: string[];
-        }[];
-
-        partners: {
-            id: string;
-            created_datetime: string;
-            updated_datetime: string;
-            name: string;
-            address: string;
-            city: string;
-            state: string;
-            email: string;
-            phone: string;
-            website: string;
-        }[];
-    };
+    project: IProjectSingleData;
     activities: TActivity[];
     budget_unit_cost_ngn: string;
     financial_year: TFinancialYearData;

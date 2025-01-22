@@ -45,6 +45,18 @@ const SupervisionPlanAPI = baseAPI.injectEndpoints({
             providesTags: ["SUPERVISION_PLAN"],
         }),
 
+        modifySupervisionPlan: builder.mutation<
+            TResponse<TSupervisionPlanSingleData>,
+            { id: string; body: TSSPCompositionFormValues }
+        >({
+            query: ({ id, body }) => ({
+                method: "PUT",
+                url: `${BASE_URL}${id}/`,
+                body,
+            }),
+            invalidatesTags: ["SUPERVISION_PLAN"],
+        }),
+
         deleteSupervisionPlan: builder.mutation<
             TResponse<TSupervisionPlanSingleData>,
             string
@@ -62,5 +74,6 @@ export const {
     useCreateSupervisionPlanMutation,
     useGetAllSupervisionPlanQuery,
     useGetSingleSupervisionPlanQuery,
+    useModifySupervisionPlanMutation,
     useDeleteSupervisionPlanMutation,
 } = SupervisionPlanAPI;

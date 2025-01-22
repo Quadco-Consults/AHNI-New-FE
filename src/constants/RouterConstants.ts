@@ -10,6 +10,12 @@ export const AdminRoutes = {
   CREATE_CONSUMABLE: "/admin/inventory-management/create",
   VIEW_CONSUMABLE: "/admin/inventory-management/consumables/:id",
 
+  // ASSET REQUEST
+  ASSETS_REQUEST: "/admin/inventory-management/asset-request",
+  ASSETS_REQUEST_CREATE: "/admin/inventory-management/asset-request/summary",
+  ASSETS_REQUEST_UPLOAD: "/admin/inventory-management/asset-request/uploads",
+  ASSETS_REQUEST_VIEW: "/admin/inventory-management/asset-request/:id",
+
   // VEHICLE REQUEST
   INDEX_VEHICLE_REQUEST: "/admin/fleet-management/vehicle-request",
   CREATE_VEHICLE_REQUEST: "/admin/fleet-management/vehicle-request/create",
@@ -64,9 +70,6 @@ export const AdminRoutes = {
   CREATE_ITEM_REQUISITION:
     "/admin/inventory-management/item-requisition/create",
   ASSETS: "/admin/inventory-management/assets",
-  ASSETS_REQUEST: "/admin/inventory-management/assets-request",
-  ASSETS_REQUEST_CREATE: "/admin/inventory-management/assets-request/create",
-  ASSETS_REQUEST_VIEW: "/admin/inventory-management/assets-request-view",
 
   CreateAssets: "/admin/inventory-management/create-assets",
   ViewAssets: "/admin/inventory-management/view-assets",
@@ -89,6 +92,7 @@ export const RouteEnum = {
   MODULES_CONFIG: "/modules/config",
   MODULES_PROCUREMENT: "/modules/procurement",
   MODULES_FINANCE: "/modules/finance",
+  MODULES_HR: "/modules/hr",
 
   // ----------------------------
   //projects routes
@@ -137,7 +141,7 @@ export const RouteEnum = {
     "/procurement-management/solicitation/rfq/create/quotation",
   RFQ_CREATE_ITEMS: "/procurement-management/solicitation/rfq/create/items",
   RFQ_DETAILS: "/procurement-management/solicitation/rfq/:id",
-  RFQ_CREATE_CBA: "/procurement-management/solicitation/rfq/:id/create-cba",
+  RFQ_CREATE_CBA: "/procurement-management/solicitation/rfq/create/create-cba",
   RFQ_COMPETITIVE_BID_ANALYSIS:
     "/procurement-management/solicitation/rfq/competitive-bid-analysis/:id",
   RFQ_DETAILS_BID_SUBMISSION:
@@ -271,15 +275,20 @@ export const RouteEnum = {
   NOTIFICATIONS: "/notifications",
 };
 
-export const CandGRoutes = {
+export const CG_GROUTES = {
   OVERVIEW: "/c-and-g/overview",
   GRANT: "/c-and-g/grant",
+  GRANT_CREATE: "/c-and-g/create-grant",
+  // ---
+
   AGREEMENT: "/c-and-g/agreement",
-  NEW_GRANT: "/c-and-g/new-grant",
   GRANT_DETAILS: "/c-and-g/grant-details/:id",
-  // sub grant
+
+  // ------
   SUB_GRANT: "/c-and-g/sub-grant",
-  NEW_SUB_GRANT: "/c-and-g/sub-grant/new",
+  CREATE_SUBGRANT: "/c-and-g/sub-grant/create-sub-grant",
+
+  // sub grant
   SUB_GRANT_DETAILS: "/c-and-g/sub-grant-details/:id",
   MANUAL_SUB_GRANT_SUBMISSION:
     "/c-and-g/sub-grant/manual-submission/organization-details/:id",
@@ -327,6 +336,7 @@ export const HrRoutes = {
     "/hr/advertisement/:id/application-form",
 
   ADVERTISEMENT_INTERVIEW_FORM: "/hr/advertisement/:id/interview-form",
+  SELECTION: "hr/selection",
   ONBOARDING: "/hr/onboarding",
   ONBOARDING_START: "/hr/onboarding/start-onboarding",
   ONBOARDING_ADD_EMPLOYEE_INFO:
@@ -341,15 +351,30 @@ export const HrRoutes = {
     "/hr/onboarding/add-employee/salary-account-details",
   ONBOARDING_ADD_EMPLOYEE_PENSION:
     "/hr/onboarding/add-employee/pension-scheme-enrolment",
+  WORKFORCE_NEED_ANALYSIS: "/hr/workforce-need-analysis",
+  WORKFORCE_NEED_ANALYSIS_CREATE: "/hr/workforce-need-analysis/create",
   WORKFORCE_DATABASE: "/hr/workforce-database",
   WORKFORCE_DATABASE_DETAIL: "/hr/workforce-database/:id",
   PERFORMANCE_MANAGEMENT: "/hr/performance-management",
-  EMPLOYEE_BENEFITS: "/hr/employee_benefit",
+  PERFORMANCE_MANAGEMENT_CREATE: "/hr/performance-management/create",
+  PERFORMANCE_MANAGEMENT_DETAIL: "/hr/performance-management/:id",
+  EMPLOYEE_BENEFITS_COMPENSATION: "/hr/employee-benefit/compensation",
+  EMPLOYEE_BENEFITS_COMPENSATION_CREATE:
+    "/hr/employee-benefit/compensation/create",
+  EMPLOYEE_BENEFITS_PAY_ROLL: "/hr/employee-benefit/pay-roll",
+  EMPLOYEE_BENEFITS_PAY_ROLL_INFO: "/hr/employee-benefit/pay-roll/:id",
+  EMPLOYEE_BENEFITS_PAY_ROLL_CREATE: "/hr/employee-benefit/pay-roll/create",
+  EMPLOYEE_BENEFITS_PAY_GROUP: "/hr/employee-benefit/pay-group",
   SEPARATION_MANAGEMENT: "/hr/separation-management",
   SEPARATION_MANAGEMENT_CREATE: "/hr/separation-management/create",
   SEPARATION_MANAGEMENT_DETAIL: "/hr/separation-management/:id",
   GRIEVANCE_MANAGEMENT: "/hr/grievance-management",
+  GRIEVANCE_MANAGEMENT_CREATE: "/hr/grievance-management/create",
+  GRIEVANCE_MANAGEMENT_DETAILS: "/hr/grievance-management/:id",
   LEAVE_MANAGEMENT: "/hr/leave-management",
+  LEAVE_MANAGEMENT_DETAIL: "/hr/leave-management/:id",
+  LEAVE_MANAGEMENT_REQUEST: "/hr/leave-management/request",
+  LEAVE_MANAGEMENT_DETAIL_FORM: "/hr/leave-management/:id/leave-form",
   TIMESHEET_MANAGEMENT: "/hr/timesheet-management",
   TIMESHEET_MANAGEMENT_DETAIL: "/hr/timesheet-management/:id",
   TIMESHEET_MANAGEMENT_DETAIL_CREATE: "/hr/timesheet-management/:id/create",

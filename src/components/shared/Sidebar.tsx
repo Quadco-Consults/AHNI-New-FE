@@ -6,8 +6,8 @@ import { Bell, ChevronDown, Package, ScanEye } from "lucide-react";
 import {
     RouteEnum,
     AdminRoutes,
-    CandGRoutes,
     HrRoutes,
+    CG_GROUTES,
 } from "constants/RouterConstants";
 import { Icon } from "@iconify/react";
 import { cn } from "lib/utils";
@@ -708,6 +708,7 @@ const DEPARTMENTAL_LINKS = [
             { name: "Procurement Report", path: RouteEnum.REPORT },
         ],
     },
+
     {
         name: "Admin",
         icon: <AdminIcon />,
@@ -728,8 +729,15 @@ const DEPARTMENTAL_LINKS = [
                         path: AdminRoutes.ASSETS_REQUEST,
                     },
                     { name: "Good Receive Note", path: AdminRoutes.GRN },
+
+                    {
+                        name: "Procurement Tracker",
+                        path: RouteEnum.PROCUREMENT_TRACKER,
+                    },
+                    { name: "Procurement Report", path: RouteEnum.REPORT },
                 ],
             },
+
             {
                 name: "Fleet Management",
                 path: "/admin/fleet-management",
@@ -790,46 +798,7 @@ const DEPARTMENTAL_LINKS = [
             },
         ],
     },
-    {
-        name: "C&G",
-        icon: <CGIcon />,
 
-        link: [
-            { name: "Overview", path: CandGRoutes.OVERVIEW },
-            { name: "Grants", path: CandGRoutes.GRANT },
-            {
-                name: "Subgrants",
-                sublinks: [
-                    { name: "Awards", path: CandGRoutes.SUB_GRANT },
-                    {
-                        name: "Pre-award Assessment",
-                        path: CandGRoutes.PRE_AWARD_ASSESSMENT,
-                    },
-                ],
-            },
-            {
-                name: "Closeout",
-                sublinks: [
-                    { name: "Closeout Plan", path: CandGRoutes.CLOSE_OUT },
-                ],
-            },
-            {
-                name: "Contract Management",
-                sublinks: [
-                    {
-                        name: "Consultant management",
-                        path: CandGRoutes.CONSULTANCY,
-                    },
-                    { name: "Consultancy report", path: "/" },
-                    { name: "Payment request", path: "/" },
-                    { name: "Agreement", path: CandGRoutes.AGREEMENT },
-                    { name: "Facilitator management", path: "/" },
-                    { name: "SLA", path: CandGRoutes.CONSULTANCY_SLA },
-                ],
-            },
-            { name: "C&G Reports", path: "/" },
-        ],
-    },
     {
         name: "HR",
         icon: <HRIcon />,
@@ -870,7 +839,20 @@ const DEPARTMENTAL_LINKS = [
             },
             {
                 name: "Employee compensation & benefits",
-                path: HrRoutes.EMPLOYEE_BENEFITS,
+                sublinks: [
+                    {
+                        name: "Pay Group",
+                        path: HrRoutes.EMPLOYEE_BENEFITS_PAY_GROUP,
+                    },
+                    {
+                        name: "Compensation",
+                        path: HrRoutes.EMPLOYEE_BENEFITS_COMPENSATION,
+                    },
+                    {
+                        name: "Payroll",
+                        path: HrRoutes.EMPLOYEE_BENEFITS_PAY_ROLL,
+                    },
+                ],
             },
             // {
             //   name: "Separation Management",
@@ -893,6 +875,46 @@ const DEPARTMENTAL_LINKS = [
             },
             { name: "Leave Management", path: HrRoutes.LEAVE_MANAGEMENT },
             { name: "HR Reports", path: "/" },
+        ],
+    },
+    {
+        name: "C&G",
+        icon: <CGIcon />,
+
+        link: [
+            { name: "Overview", path: CG_GROUTES.OVERVIEW },
+            { name: "Grants", path: CG_GROUTES.GRANT },
+            {
+                name: "Subgrants",
+                sublinks: [
+                    { name: "Awards", path: CG_GROUTES.SUB_GRANT },
+                    {
+                        name: "Pre-award Assessment",
+                        path: CG_GROUTES.PRE_AWARD_ASSESSMENT,
+                    },
+                ],
+            },
+            {
+                name: "Closeout",
+                sublinks: [
+                    { name: "Closeout Plan", path: CG_GROUTES.CLOSE_OUT },
+                ],
+            },
+            {
+                name: "Contract Management",
+                sublinks: [
+                    {
+                        name: "Consultant management",
+                        path: CG_GROUTES.CONSULTANCY,
+                    },
+                    { name: "Consultancy report", path: "/" },
+                    { name: "Payment request", path: "/" },
+                    { name: "Agreement", path: CG_GROUTES.AGREEMENT },
+                    { name: "Facilitator management", path: "/" },
+                    { name: "SLA", path: CG_GROUTES.CONSULTANCY_SLA },
+                ],
+            },
+            { name: "C&G Reports", path: "/" },
         ],
     },
     {

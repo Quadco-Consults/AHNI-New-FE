@@ -6,7 +6,7 @@ import { uiSchema } from "definations/schema";
 type intialState = z.infer<typeof uiSchema>;
 
 type Sheet = { type: string; sheetProps?: Record<string, string | Object> };
-type Dailog = { type: string; dialogProps?: Record<string, string | string[]> };
+type Dailog = { type: string; dialogProps?: any };
 
 const initialState: intialState = {
     dailog: {

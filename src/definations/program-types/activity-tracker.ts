@@ -1,25 +1,35 @@
 import { z } from "zod";
 
 export const WorkPlanTrackerSchema = z.object({
-    output_description: z.string().min(1, "This field is required"),
-    achieved_output: z.string().min(1, "This field is required"),
-    achievement_percentage: z.string().min(1, "This field is required"),
-    amount_expended_ngn: z.string().min(1, "This field is required"),
-    amount_expended_usd: z.string().min(1, "This field is required"),
-    implementation_usd_rate: z.string().min(1, "This field is required"),
-    expenditure_usd_rate: z.string().min(1, "This field is required"),
-    expenditure_ngn_rate: z.string().min(1, "This field is required"),
-    variance_ngn: z.string().min(1, "This field is required"),
-    variance_usd: z.string().min(1, "This field is required"),
-    percentage_variance_ngn: z.string().min(1, "This field is required"),
-    percentage_variance_usd: z.string().min(1, "This field is required"),
+    output_description: z.string().min(1, "Please enter output description"),
+    achieved_output: z.string().min(1, "Please enter achieved output"),
+    achievement_percentage: z
+        .string()
+        .min(1, "Please enter achievement percentage"),
+    amount_expended_ngn: z.string().min(1, "Please enter amount expended NGN"),
+    amount_expended_usd: z.string().min(1, "Please enter amount expended USD"),
+    implementation_usd_rate: z
+        .string()
+        .min(1, "Please enter implementation rate USD"),
+    expenditure_usd_rate: z
+        .string()
+        .min(1, "Please enter expenditure rate USD"),
+    expenditure_ngn_rate: z
+        .string()
+        .min(1, "Please enter expenditure rate NGN"),
+    variance_ngn: z.string().min(1, "Please enter variance NGN"),
+    variance_usd: z.string().min(1, "Please enter variance USD"),
+    percentage_variance_ngn: z
+        .string()
+        .min(1, "Please enter percentage variance NGN"),
+    percentage_variance_usd: z.string().min(1, "Please enter variance USD"),
     efficiency_output_expenditure_ratio: z
         .string()
-        .min(1, "This field is required"),
+        .min(1, "Please enter efficiency output expenditure ratio"),
     efficiency_output_expenditure_level: z
         .string()
-        .min(1, "This field is required"),
-    comments: z.string().min(1, "Field Required"),
+        .min(1, "Please enter efficiency output expenditure level"),
+    comments: z.string().min(1, "Please enter comment"),
 });
 
 export type TWorkPlanTrackerFormValues = z.infer<typeof WorkPlanTrackerSchema>;
@@ -55,6 +65,7 @@ export interface TWorkPlanTrackerData {
     implementation_usd_rate: string;
     amount_expended_usd: string;
     expenditure_usd_rate: string;
+    expenditure_ngn_rate: string;
     variance_ngn: string;
     variance_usd: string;
     percentage_variance_ngn: string;

@@ -5,7 +5,7 @@ import FormSelect from "atoms/FormSelect";
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";
-import { CandGRoutes } from "constants/RouterConstants";
+import { CG_GROUTES } from "constants/RouterConstants";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { generatePath, useNavigate, useParams } from "react-router-dom";
@@ -34,7 +34,7 @@ const PreAwardAssessmentStep3 = () => {
     try {
       await postPreAwardStep2Mutation({ body: { ...data, recommendation: recommendationButtons[0] }, id: params.id }).unwrap();
       toast.success("step 3 completed");
-      navigate(generatePath(CandGRoutes.PRE_AWARD_ASSESSMENT_STEP_4, { id: params.id }));
+      navigate(generatePath(CG_GROUTES.PRE_AWARD_ASSESSMENT_STEP_4, { id: params.id }));
     } catch (error: any) {
       console.log(error);
       toast.error(error?.data?.message);
@@ -45,7 +45,7 @@ const PreAwardAssessmentStep3 = () => {
     try {
       await postPreAwardStep2Mutation({ body: { recommendation: recommendationButtons[1] }, id: params.id }).unwrap();
       toast.success("step 3 completed");
-      navigate(generatePath(CandGRoutes.PRE_AWARD_ASSESSMENT_STEP_4, { id: params.id }));
+      navigate(generatePath(CG_GROUTES.PRE_AWARD_ASSESSMENT_STEP_4, { id: params.id }));
     } catch (error: any) {
       console.log(error);
       toast.error(error?.data?.message);
@@ -114,7 +114,7 @@ const PreAwardAssessmentStep3 = () => {
                   name="award_condition"
                 />
                 <div className="flex justify-between items-center w-full">
-                  <Button variant={"ghost"} onClick={() => navigate(generatePath(CandGRoutes.PRE_AWARD_ASSESSMENT_STEP_2, { id: params.id }))}>
+                  <Button variant={"ghost"} onClick={() => navigate(generatePath(CG_GROUTES.PRE_AWARD_ASSESSMENT_STEP_2, { id: params.id }))}>
                     <p>Cancel</p>
                   </Button>
                   <FormButton loading={postPreAwardStep2MutationResults.isLoading}>
@@ -126,7 +126,7 @@ const PreAwardAssessmentStep3 = () => {
           )}
           {recommendationState === 1 && (
             <div className="flex justify-between items-center w-full">
-              <Button variant={"ghost"} onClick={() => navigate(generatePath(CandGRoutes.PRE_AWARD_ASSESSMENT_STEP_2, { id: params.id }))}>
+              <Button variant={"ghost"} onClick={() => navigate(generatePath(CG_GROUTES.PRE_AWARD_ASSESSMENT_STEP_2, { id: params.id }))}>
                 <p>Cancel</p>
               </Button>
               <FormButton type="button" onClick={HandleSumbit}>

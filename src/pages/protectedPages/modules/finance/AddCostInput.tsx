@@ -8,88 +8,86 @@ import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
 import { toast } from "sonner";
 import {
-    CostInputSchema,
-    TCostInputData,
-    TCostInputFormValues,
+  CostInputSchema,
+  TCostInputData,
+  TCostInputFormValues,
 } from "definations/modules/finance/cost-input";
 import {
-    useAddCostInputMutation,
-    useUpdateCostInputMutation,
+  useAddCostInputMutation,
+  useUpdateCostInputMutation,
 } from "services/modules/finance/cost-input";
 import FormTextArea from "atoms/FormTextArea";
 
 const AddCostInput = () => {
-    const { dialogProps } = useAppSelector(dailogSelector);
+  const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TCostInputData;
+  const data = dialogProps?.data as unknown as TCostInputData;
 
-    const form = useForm<TCostInputFormValues>({
-        resolver: zodResolver(CostInputSchema),
-        defaultValues: {
-            name: data?.name ?? "",
-            description: data?.description ?? "",
-            code: data?.code ?? "",
-        },
-    });
+  const form = useForm<TCostInputFormValues>({
+    resolver: zodResolver(CostInputSchema),
+    defaultValues: {
+      name: data?.name ?? "",
+      description: data?.description ?? "",
+      code: data?.code ?? "",
+    },
+  });
 
-    const [addCostInput, { isLoading }] = useAddCostInputMutation();
-    const [updateCostInput, { isLoading: isUpdateLoading }] =
-        useUpdateCostInputMutation();
+  const [addCostInput, { isLoading }] = useAddCostInputMutation();
+  const [updateCostInput, { isLoading: isUpdateLoading }] =
+    useUpdateCostInputMutation();
 
-    const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
 
-    const onSubmit: SubmitHandler<TCostInputFormValues> = async (data) => {
-        try {
-            dialogProps?.type === "update"
-                ? await updateCostInput({
-                      //@ts-ignore
-                      id: String(dialogProps?.data?.id),
-                      body: data,
-                  }).unwrap()
-                : await addCostInput(data).unwrap();
-            toast.success("Category Added Succesfully");
-            dispatch(closeDialog());
-            form.reset();
-        } catch (error: any) {
-            toast.error(error.data.message || "Something went wrong");
-        }
-    };
-    return (
-        <CardContent>
-            <Form {...form}>
-                <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex flex-col gap-y-7"
-                >
-                    <FormInput
-                        label="Name"
-                        name="name"
-                        placeholder="Enter Name"
-                        required
-                    />
+  const onSubmit: SubmitHandler<TCostInputFormValues> = async (data) => {
+    try {
+      dialogProps?.type === "update"
+        ? await updateCostInput({
+            //@ts-ignore
+            id: String(dialogProps?.data?.id),
+            body: data,
+          }).unwrap()
+        : await addCostInput(data).unwrap();
+      toast.success("Category Added Succesfully");
+      dispatch(closeDialog());
+      form.reset();
+    } catch (error: any) {
+      toast.error(error.data.message || "Something went wrong");
+    }
+  };
+  return (
+    <CardContent>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className='flex flex-col gap-y-7'
+        >
+          <FormInput
+            label='Name'
+            name='name'
+            placeholder='Enter Name'
+            required
+          />
 
-                    <FormTextArea
-                        label="Description"
-                        name="description"
-                        placeholder="Enter Description"
-                    />
+          <FormTextArea
+            label='Description'
+            name='description'
+            placeholder='Enter Description'
+          />
 
-                    <FormInput
-                        label="Code"
-                        name="code"
-                        required
-                        placeholder="Enter Code"
-                    />
+          <FormInput
+            label='Code'
+            name='code'
+            required
+            placeholder='Enter Code'
+          />
 
-                    <div className="flex justify-start gap-4">
-                        <FormButton loading={isLoading || isUpdateLoading}>
-                            Save
-                        </FormButton>
-                    </div>
-                </form>
-            </Form>
-        </CardContent>
-    );
+          <div className='flex justify-start gap-4'>
+            <FormButton loading={isLoading || isUpdateLoading}>Save</FormButton>
+          </div>
+        </form>
+      </Form>
+    </CardContent>
+  );
 };
 
 export default AddCostInput;
