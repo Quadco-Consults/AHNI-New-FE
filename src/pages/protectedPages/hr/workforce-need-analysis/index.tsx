@@ -98,7 +98,7 @@ const WFNA: React.FC = () => {
   ];
 
   const ActionListAction = ({ data }: any) => {
-    console.log(data);
+    console.log({ data });
     return (
       <div className='flex gap-2'>
         <Link
