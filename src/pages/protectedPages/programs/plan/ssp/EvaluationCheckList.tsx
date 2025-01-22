@@ -84,7 +84,7 @@ export default function EvaluationCheckList() {
     };
 
     useEffect(() => {
-        if (supervisionPlan) {
+        if (id && supervisionPlan) {
             const prevFormData = JSON.parse(
                 sessionStorage.getItem("compositionData") || "{}"
             ) as TSSPCompositionFormValues & {
@@ -107,7 +107,7 @@ export default function EvaluationCheckList() {
                 }))
             );
         }
-    }, [supervisionPlan]);
+    }, [id, supervisionPlan]);
 
     return (
         <SupportiveSupervisionPlanLayout>

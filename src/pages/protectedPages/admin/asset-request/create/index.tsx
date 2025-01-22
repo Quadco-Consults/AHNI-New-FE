@@ -173,9 +173,9 @@ export default function CreateAssetRequestDetails() {
                             />
 
                             <FormInput
-                                label="Disposal Justification"
+                                label="Justification"
                                 name="disposal_justification"
-                                placeholder="Enter Disposal Justification"
+                                placeholder="Enter Justification"
                                 required
                             />
 

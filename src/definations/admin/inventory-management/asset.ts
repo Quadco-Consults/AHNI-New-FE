@@ -4,8 +4,8 @@ import { TLocationData } from "definations/modules/config/location";
 import { IUser } from "definations/auth/user";
 import { z } from "zod";
 import { TAssetTypeData } from "definations/modules/admin/asset-type";
-import { TProjectData } from "definations/project";
 import { TFundingSourceData } from "definations/modules/project/funding-source";
+import { IProjectSingleData } from "definations/project";
 
 export const AssetSchema = z.object({
     name: z.string().min(1, "Please enter a name"),
@@ -62,7 +62,7 @@ export interface TAssetSingleData {
     implementer: IUser;
     asset_condition: TAssetConditionData;
     location: TLocationData;
-    project: TProjectData;
+    project: IProjectSingleData;
     donor: TFundingSourceData;
     depreciation_rate: string;
     insurance_duration: string;
@@ -71,7 +71,7 @@ export interface TAssetSingleData {
     created_datetime: string;
     updated_datetime: string;
     name: string;
-    assignee: string;
+    assignee: IUser;
     asset_code: string;
     acquisition_date: string;
     state: string;
