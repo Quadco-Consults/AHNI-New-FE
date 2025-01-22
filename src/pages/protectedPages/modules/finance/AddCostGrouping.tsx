@@ -18,7 +18,7 @@ import {
 } from "services/modules/finance/cost-input";
 import FormTextArea from "atoms/FormTextArea";
 
-const AddCostInput = () => {
+const AddCostGrouping = () => {
   const { dialogProps } = useAppSelector(dailogSelector);
 
   const data = dialogProps?.data as unknown as TCostInputData;
@@ -68,11 +68,11 @@ const AddCostInput = () => {
             required
           />
 
-          <FormTextArea
+          {/* <FormTextArea
             label='Description'
             name='description'
             placeholder='Enter Description'
-          />
+          /> */}
 
           <FormInput
             label='Code'
@@ -90,4 +90,4 @@ const AddCostInput = () => {
   );
 };
 
-export default AddCostInput;
+export default AddCostGrouping;
