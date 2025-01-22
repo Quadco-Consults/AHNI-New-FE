@@ -70,7 +70,7 @@ const Quotation = () => {
   const { handleSubmit, watch } = form;
 
   const matchedUsers =
-    vendors?.filter((vendor: VendorsResultsData) =>
+    vendors?.data?.results?.filter((vendor: VendorsResultsData) =>
       form.watch("limited_vendors").includes(vendor?.id)
     ) || [];
 

@@ -19,17 +19,17 @@ function CreatePurchaseRequest({}: Props) {
   ];
 
   return (
-    <section className="space-y-6">
+    <section className='space-y-6'>
       <BreadcrumbCard list={breadcrumbs} />
 
       <button
         onClick={goBack}
-        className="w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center"
+        className='w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center'
       >
         <LongArrowLeft />
       </button>
-      <span className="block space-y-2">
-        <h3 className="font-semibold text-xl text-black">
+      <span className='block space-y-2'>
+        <h3 className='font-semibold text-xl text-black'>
           Purchase Request Form
         </h3>
       </span>
