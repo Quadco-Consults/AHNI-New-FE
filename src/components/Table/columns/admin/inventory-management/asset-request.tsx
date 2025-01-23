@@ -48,7 +48,7 @@ export const assestRequestColum: ColumnDef<IAssetRequestPaginatedData>[] = [
         size: 200,
     },
     {
-        header: "Disposal Justification",
+        header: "Justification",
         accessorKey: "disposal_justification",
         size: 200,
     },

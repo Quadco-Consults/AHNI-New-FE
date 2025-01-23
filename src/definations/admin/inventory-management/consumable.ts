@@ -4,20 +4,19 @@ import { z } from "zod";
 export const ConsumableSchema = z.object({
     name: z.string().min(1, "Please enter an item name"),
     description: z.string().min(1, "Please enter a description"),
-    // quantity: z.string().min(1, "Please enter a quantity"),
-    // stock_control_method: z
-    //     .string()
-    //     .min(1, "Please select a stock control method"),
-    // category: z.string().min(1, "Please select a category"),
-    // expiry_date: z.string().min(1, "Please select an expiry date"),
-    // previous_quantity: z.string().min(1, "Please enter a previous quantity"),
-    // re_order_level: z.string().min(1, "Please enter a reorder level"),
-    // buffer_stock: z.string().min(1, "Please enter a buffer stock"),
-    // max_stock: z.string().min(1, "Please enter a max stock"),
-    // entry_date: z.string().min(1, "Please select an entry date"),
-    // available_quantity: z.string().min(1, "Please enter an available quantity"),
-    // item_cost: z.string().min(1, "Please enter an item cost"),
-    // grn_tracking_number: z.string(),
+
+    // quantity: z.string(),
+    // stock_control_method: z.string(),
+    // category: z.string(),
+    // expiry_date: z.string(),
+    // previous_quantity: z.string(),
+    // re_order_level: z.string(),
+    // buffer_stock: z.string(),
+    // max_stock: z.string(),
+    // entry_date: z.string(),
+    // available_quantity: z.string(),
+    // item_cost: z.string(),
+    // grn_tracking_number: z.string().optional(),
 });
 
 export type TConsumableFormValues = z.infer<typeof ConsumableSchema>;

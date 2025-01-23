@@ -1,4 +1,5 @@
 import { IUser } from "definations/auth/user";
+import { TPrequalificationCategoryData } from "definations/modules/procurement/prequalification-category";
 import { TSolicitationEvaluationCriteriaData } from "definations/modules/procurement/solicitation-evaluation-criteria";
 import { TFacilityData } from "definations/modules/program/facility";
 import { z } from "zod";
@@ -26,11 +27,15 @@ export interface TSupervisionPlanPaginatedData {
     objectives: string[];
 }
 
+export type TSupervisionPlanObjective = (TSolicitationEvaluationCriteriaData & {
+    evaluation_category: TPrequalificationCategoryData;
+})[];
+
 export interface TSupervisionPlanSingleData {
     id: string;
     facility: TFacilityData;
     team_members: IUser[];
-    objectives: TSolicitationEvaluationCriteriaData[];
+    objectives: TSupervisionPlanObjective[];
     month: string;
     year: string;
     visit_date: string;

@@ -24,6 +24,7 @@ import {
 import { useGetAllCategoriesQuery } from "services/modules/config/category";
 import { useGetAllItemsQuery } from "services/modules/config/item";
 import { toast } from "sonner";
+import { formatDate } from "utils/date";
 
 const stockControlMethodOptions = [
     { label: "Stock Level", value: "STOCK_LEVEL" },
@@ -58,18 +59,18 @@ export default function CreateConsumablePage() {
         defaultValues: {
             name: "",
             description: "",
-            quantity: "",
-            stock_control_method: "",
-            category: "",
-            expiry_date: "",
-            previous_quantity: "",
-            re_order_level: "",
-            buffer_stock: "",
-            max_stock: "",
-            entry_date: "",
-            available_quantity: "",
-            item_cost: "",
-            grn_tracking_number: "",
+            // quantity: "",
+            // stock_control_method: "STOCK_LEVEL",
+            // category: "",
+            // expiry_date: formatDate(String(new Date())),
+            // previous_quantity: "",
+            // re_order_level: "",
+            // buffer_stock: "",
+            // max_stock: "",
+            // entry_date: "",
+            // available_quantity: "",
+            // item_cost: "",
+            // grn_tracking_number: "",
         },
     });
 
@@ -78,22 +79,22 @@ export default function CreateConsumablePage() {
             form.reset({
                 name: consumable?.data.name,
                 description: consumable?.data.description,
-                quantity: String(consumable?.data.quantity ?? ""),
-                stock_control_method: consumable?.data.stock_control_method,
-                category: consumable?.data.category.id,
-                expiry_date: consumable?.data.expiry_date,
-                previous_quantity: String(
-                    consumable?.data.previous_quantity ?? ""
-                ),
-                re_order_level: String(consumable?.data.re_order_level ?? ""),
-                buffer_stock: String(consumable?.data.buffer_stock ?? ""),
-                max_stock: String(consumable?.data.max_stock ?? ""),
-                entry_date: consumable?.data.entry_date,
-                available_quantity: String(
-                    consumable?.data.available_quantity ?? ""
-                ),
-                item_cost: consumable?.data.item_cost,
-                grn_tracking_number: consumable?.data.grn_tracking_number,
+                // quantity: String(consumable?.data.quantity ?? ""),
+                // stock_control_method: consumable?.data.stock_control_method,
+                // category: consumable?.data?.category?.id,
+                // expiry_date: consumable?.data.expiry_date,
+                // previous_quantity: String(
+                //     consumable?.data.previous_quantity ?? ""
+                // ),
+                // re_order_level: String(consumable?.data.re_order_level ?? ""),
+                // buffer_stock: String(consumable?.data.buffer_stock ?? ""),
+                // max_stock: String(consumable?.data.max_stock ?? ""),
+                // entry_date: consumable?.data.entry_date,
+                // available_quantity: String(
+                //     consumable?.data.available_quantity ?? ""
+                // ),
+                // item_cost: consumable?.data.item_cost,
+                // grn_tracking_number: consumable?.data.grn_tracking_number,
             });
         }
     }, [consumableId, consumable]);
