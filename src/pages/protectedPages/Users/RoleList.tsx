@@ -42,10 +42,9 @@ export default function AllRoles() {
 
     const onDeleteRole = async () => {
         try {
-            console.log(roleId);
-            // await deleteRole(roleId).unwrap();
+            await deleteRole(roleId).unwrap();
             toast.success("Role Deleted");
-            setDialogOpen(false);
+            setRoleId("");
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }
@@ -93,9 +92,9 @@ export default function AllRoles() {
                                             <Button
                                                 variant="ghost"
                                                 title="Delete Role"
-                                                onClick={() =>
-                                                    setDialogOpen(true)
-                                                }
+                                                onClick={() => {
+                                                    setRoleId(id);
+                                                }}
                                             >
                                                 <DeleteIcon />
                                             </Button>
@@ -103,12 +102,11 @@ export default function AllRoles() {
                                     </div>
 
                                     <ConfirmationDialog
-                                        open={dialogOpen}
+                                        open={Boolean(roleId)}
                                         title="Are you sure you want to delete this role?"
                                         loading={isDeleteLoading}
                                         onCancel={() => {
-                                            setRoleId(id);
-                                            // setDialogOpen(false);
+                                            setRoleId("");
                                         }}
                                         onOk={onDeleteRole}
                                     />
