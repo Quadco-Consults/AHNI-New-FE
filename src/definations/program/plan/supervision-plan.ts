@@ -31,11 +31,26 @@ export type TSupervisionPlanObjective = (TSolicitationEvaluationCriteriaData & {
     evaluation_category: TPrequalificationCategoryData;
 })[];
 
+export interface IObjective {
+    id: string;
+    created_datetime: string;
+    updated_datetime: string;
+    name: string;
+    description: string;
+    evaluation_category: {
+        id: string;
+        created_datetime: string;
+        updated_datetime: string;
+        name: string;
+        description: string;
+    };
+}
+
 export interface TSupervisionPlanSingleData {
     id: string;
     facility: TFacilityData;
     team_members: IUser[];
-    objectives: TSupervisionPlanObjective[];
+    objectives: IObjective[];
     month: string;
     year: string;
     visit_date: string;

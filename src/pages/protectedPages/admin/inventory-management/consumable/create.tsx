@@ -10,6 +10,7 @@ import { Form } from "components/ui/form";
 import { AdminRoutes } from "constants/RouterConstants";
 import {
     ConsumableSchema,
+    EditConsumableSchema,
     TConsumableFormValues,
 } from "definations/admin/inventory-management/consumable";
 import useQuery from "hooks/useQuery";
@@ -54,24 +55,36 @@ export default function CreateConsumablePage() {
         [category]
     );
 
+    const Schema = consumableId ? EditConsumableSchema : ConsumableSchema;
+
+    const defaultValues = useMemo(() => {
+        return consumableId
+            ? {
+                  name: "",
+                  description: "",
+
+                  quantity: "",
+                  stock_control_method: "STOCK_LEVEL",
+                  category: "",
+                  expiry_date: formatDate(String(new Date())),
+                  previous_quantity: "",
+                  re_order_level: "",
+                  buffer_stock: "",
+                  max_stock: "",
+                  entry_date: "",
+                  available_quantity: "",
+                  item_cost: "",
+                  grn_tracking_number: "",
+              }
+            : {
+                  name: "",
+                  description: "",
+              };
+    }, [consumableId]);
+
     const form = useForm<TConsumableFormValues>({
-        resolver: zodResolver(ConsumableSchema),
-        defaultValues: {
-            name: "",
-            description: "",
-            // quantity: "",
-            // stock_control_method: "STOCK_LEVEL",
-            // category: "",
-            // expiry_date: formatDate(String(new Date())),
-            // previous_quantity: "",
-            // re_order_level: "",
-            // buffer_stock: "",
-            // max_stock: "",
-            // entry_date: "",
-            // available_quantity: "",
-            // item_cost: "",
-            // grn_tracking_number: "",
-        },
+        resolver: zodResolver(Schema),
+        defaultValues,
     });
 
     useEffect(() => {
@@ -79,22 +92,23 @@ export default function CreateConsumablePage() {
             form.reset({
                 name: consumable?.data.name,
                 description: consumable?.data.description,
-                // quantity: String(consumable?.data.quantity ?? ""),
-                // stock_control_method: consumable?.data.stock_control_method,
-                // category: consumable?.data?.category?.id,
-                // expiry_date: consumable?.data.expiry_date,
-                // previous_quantity: String(
-                //     consumable?.data.previous_quantity ?? ""
-                // ),
-                // re_order_level: String(consumable?.data.re_order_level ?? ""),
-                // buffer_stock: String(consumable?.data.buffer_stock ?? ""),
-                // max_stock: String(consumable?.data.max_stock ?? ""),
-                // entry_date: consumable?.data.entry_date,
-                // available_quantity: String(
-                //     consumable?.data.available_quantity ?? ""
-                // ),
-                // item_cost: consumable?.data.item_cost,
-                // grn_tracking_number: consumable?.data.grn_tracking_number,
+                // @ts-ignore
+                quantity: String(consumable?.data.quantity),
+                stock_control_method: consumable?.data.stock_control_method,
+                category: consumable?.data?.category?.id,
+                expiry_date: consumable?.data.expiry_date,
+                previous_quantity: String(
+                    consumable?.data.previous_quantity ?? ""
+                ),
+                re_order_level: String(consumable?.data.re_order_level ?? ""),
+                buffer_stock: String(consumable?.data.buffer_stock ?? ""),
+                max_stock: String(consumable?.data.max_stock ?? ""),
+                entry_date: consumable?.data.entry_date,
+                available_quantity: String(
+                    consumable?.data.available_quantity ?? ""
+                ),
+                item_cost: consumable?.data.item_cost,
+                grn_tracking_number: consumable?.data.grn_tracking_number,
             });
         }
     }, [consumableId, consumable]);
