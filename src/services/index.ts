@@ -11,7 +11,7 @@ import { RootState } from "src/store";
 // https://ahniprod-eec741554a5e.herokuapp.com/api/v1/
 
 const baseQuery = fetchBaseQuery({
-    baseUrl: "https://ahniprod-eec741554a5e.herokuapp.com/api/v1/",
+    baseUrl: "https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1/",
     prepareHeaders: (headers, { getState }) => {
         const { auth } = getState() as RootState;
 

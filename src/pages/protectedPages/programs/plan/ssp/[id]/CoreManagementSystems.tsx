@@ -19,10 +19,9 @@ import { skipToken } from "@reduxjs/toolkit/query/react";
 import BreadcrumbCard from "components/shared/Breadcrumb";
 import BackNavigation from "atoms/BackNavigation";
 import {
+    IObjective,
     TSupervisionPlanObjective,
-    TSupervisionPlanSingleData,
 } from "definations/program/plan/supervision-plan";
-import { entries } from "lodash";
 
 type FormData = {
     [key: string]: string;
@@ -37,12 +36,10 @@ const breadcrumbs = [
 ];
 
 type GroupedData = {
-    [categoryName: string]: TSupervisionPlanObjective[];
+    [categoryName: string]: IObjective[];
 };
 
-const groupByCategoryName = (
-    array: TSupervisionPlanObjective[]
-): GroupedData => {
+const groupByCategoryName = (array: IObjective[]): GroupedData => {
     return array?.reduce((acc, item) => {
         // @ts-ignore
         const categoryName = item.evaluation_category.name;
@@ -56,6 +53,13 @@ const groupByCategoryName = (
     }, {} as GroupedData);
 };
 
+interface IReview {
+    is_selected: boolean;
+    comment: string;
+    supportive_supervision_review: string;
+    objective: string;
+}
+
 const CoreManagementSystems = () => {
     const { id } = useParams();
 
@@ -64,6 +68,8 @@ const CoreManagementSystems = () => {
     const { data: supervisionPlan } = useGetSingleSupervisionPlanQuery(
         id ?? skipToken
     );
+
+    const [reviews, setReviews] = useState<IReview[]>([]);
 
     const [groupedCriteria, setGroupedCriteria] = useState<GroupedData>();
 
@@ -75,10 +81,45 @@ const CoreManagementSystems = () => {
         }
     }, [supervisionPlan]);
 
-    // console.log(page);
+    const handlePrev = () => {
+        if (page > 1) {
+            setPage(page - 1);
+        }
+    };
 
-    // console.log(groupedCriteria && groupedCriteria['Core Management Systems']);
-    console.log(Object.entries(groupedCriteria || {}).slice());
+    const handleNext = () => {
+        setPage(page + 1);
+    };
+
+    const handleCheckboxChange = (
+        checkedValue: string,
+        criteria: IObjective
+    ) => {
+        if (reviews.find((review) => review.objective === criteria.id)) {
+            // update
+            return;
+        }
+
+        const newReview = {
+            is_selected: Boolean(checkedValue),
+            comment: "",
+            supportive_supervision_review: "",
+            objective: criteria.id,
+        };
+
+        setReviews([...reviews, newReview]);
+    };
+
+    console.log(reviews);
+
+    const handleSubmit = async () => {
+        try {
+            // create the review
+            console.log("Review Submitted");
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
+        }
+    };
 
     return (
         <div className="space-y-5">
@@ -116,15 +157,15 @@ const CoreManagementSystems = () => {
                                         {items.map((criteria) => (
                                             <Card className="space-y-3 border-yellow-600">
                                                 <h4 className="text-semibold text-yellow-600">
-                                                {/* @ts-ignore */}
                                                     {criteria.name}
                                                 </h4>
 
                                                 <div className="flex justify-between pb-3 gap-5">
                                                     <div className="">
                                                         <h2>
-                                                            {/* @ts-ignore */}
-                                                            {criteria.description}
+                                                            {
+                                                                criteria.description
+                                                            }
                                                         </h2>
                                                     </div>
                                                     <div className="flex gap-5 justify-between">
@@ -132,11 +173,19 @@ const CoreManagementSystems = () => {
                                                             <input
                                                                 type="radio"
                                                                 className="border-green-500"
+                                                                onChange={(
+                                                                    e
+                                                                ) => {
+                                                                    handleCheckboxChange(
+                                                                        e.target
+                                                                            .value,
+                                                                        criteria
+                                                                    );
+                                                                }}
                                                                 name={
-                                                                    // @ts-ignore
                                                                     criteria.name
                                                                 }
-                                                                value="yes"
+                                                                value="true"
                                                             />
                                                             <label
                                                                 htmlFor="yes"
@@ -148,12 +197,21 @@ const CoreManagementSystems = () => {
                                                         <div className="flex items-stretch space-x-2">
                                                             <input
                                                                 type="radio"
-                                                                value="no"
+                                                                value="false"
                                                                 name={
                                                                     // @ts-ignore
                                                                     criteria.name
                                                                 }
                                                                 className="border-primary"
+                                                                onChange={(
+                                                                    e
+                                                                ) => {
+                                                                    handleCheckboxChange(
+                                                                        e.target
+                                                                            .value,
+                                                                        criteria
+                                                                    );
+                                                                }}
                                                             />
                                                             <label
                                                                 htmlFor="no"
@@ -211,15 +269,17 @@ const CoreManagementSystems = () => {
                 <Button
                     variant="outline"
                     className="flex gap-4 items-center text-primary border-primary hover:bg-red-50 hover:text-red-500"
-                    onClick={() => setPage(page - 1)}
+                    onClick={handlePrev}
                 >
                     <ArrowLeft size={15} /> Back
                 </Button>
 
                 {page === Object.keys(groupedCriteria || {}).length + 1 ? (
-                    <Button className="px-8">Finish</Button>
+                    <Button className="px-8" onClick={handleSubmit}>
+                        Finish
+                    </Button>
                 ) : (
-                    <Button className="px-8" onClick={() => setPage(page + 1)}>
+                    <Button className="px-8" onClick={handleNext}>
                         Next
                     </Button>
                 )}
