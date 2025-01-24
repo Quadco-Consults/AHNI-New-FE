@@ -117,7 +117,7 @@ const CreateCBA = () => {
             <FormSelect name='lot' label='Lot'>
               <SelectContent>
                 {lotIsLoading && <LoadingSpinner />}
-                {lots?.map((lot: LotsResultsData) => (
+                {lots?.data?.results?.map((lot: LotsResultsData) => (
                   <SelectItem key={lot?.id} value={String(lot?.packet_number)}>
                     {lot?.name}
                   </SelectItem>
