@@ -8,6 +8,7 @@ import consortiumPartnerReducer from "./formData/project-values";
 import objectives from "./formData/project-objective";
 import ssp from "./formData/ssp-values";
 import vendors from "./formData/procurement-vendors";
+import activity from "./formData/activity-memo";
 import assets from "./assets";
 import stakeholder from "./formData/stakeholders";
 import teamMember from "./admin/team-members";
@@ -35,6 +36,7 @@ export const rootStore = combineReducers({
   objectives,
   ssp,
   vendors,
+  activity,
   assets,
   stakeholder,
   teamMember,

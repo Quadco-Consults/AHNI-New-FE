@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, Form } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Separator } from "components/ui/separator";
@@ -9,7 +9,7 @@ import { Save } from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "store/index";
 import { useGetAllBeneficiaryQuery } from "services/modules/project/beneficiaries";
-import { toast } from "sonner";
+
 import PurchaseRequestAPI from "services/procurementApi/purchase-sample-request ";
 import { useGetAllProjectsQuery } from "services/project";
 import { useGetAllActivityPlansQuery } from "services/programsApi/activity-plan";
@@ -20,10 +20,6 @@ import {
   TableHeader,
   TableRow,
 } from "components/ui/table";
-import FormInput from "atoms/FormInput";
-import { Form } from "components/ui/form";
-import { generatePath, Link } from "react-router-dom";
-import { RouteEnum } from "constants/RouterConstants";
 
 // Sample Checkbox component
 // eslint-disable-next-line react/display-name
@@ -121,36 +117,36 @@ const CheckboxForm = () => {
     PurchaseRequestAPI.useCreateActivityMemoMutation();
 
   // const dispatch = useDispatch();
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = (data: FormData) => {
     // dispatch(activityActions.clearActivity());
 
     console.log("Form Data:", { data });
-    // Define your programAreas array
-    // const programAreas = []; // Example IDs of program areas
+    // // Define your programAreas array
+    // // const programAreas = []; // Example IDs of program areas
 
-    // Filter the beneficiaries based on selected and IDs in programAreas
-    const filteredBeneficiaries = data?.beneficiaries?.filter(
-      (beneficiary) => beneficiary.selected
-    );
-    const program_areas = filteredBeneficiaries.map((fb) => fb.id);
-    console.log(
-      "Filtered Beneficiaries:",
-      filteredBeneficiaries,
-      program_areas
-    );
-    console.log("Form Data:", data);
-    console.log(mergedObject);
-    const payload = { ...mergedObject, program_areas };
-    console.log({ payload });
+    // // Filter the beneficiaries based on selected and IDs in programAreas
+    // const filteredBeneficiaries = data?.beneficiaries?.filter(
+    //   (beneficiary) => beneficiary.selected
+    // );
+    // const program_areas = filteredBeneficiaries.map((fb) => fb.id);
+    // console.log(
+    //   "Filtered Beneficiaries:",
+    //   filteredBeneficiaries,
+    //   program_areas
+    // );
+    // console.log("Form Data:", data);
+    // console.log(mergedObject);
+    // const payload = { ...mergedObject, program_areas };
+    // console.log({ payload });
 
-    try {
-      await createActivityMemoMutation(payload).unwrap();
-      // navigate(RouteEnum.SAMPLE_PREVIEW);
-      toast.success("Successfully created.");
-    } catch (error) {
-      toast.error("Something went wrong");
-      console.log(error);
-    }
+    // try {
+    //   await createActivityMemoMutation(payload).unwrap();
+    //   // navigate(RouteEnum.SAMPLE_PREVIEW);
+    //   toast.success("Successfully created.");
+    // } catch (error) {
+    //   toast.error("Something went wrong");
+    //   console.log(error);
+    // }
   };
 
   return (
@@ -367,15 +363,13 @@ const CheckboxForm = () => {
           </Table>
         </div>
         <div className='w-full px-4'>
-          <Link className='w-fit' to={generatePath(RouteEnum.PREVIEW_LETTER)}>
-            <Button
-              type='submit'
-              className='mt-4 px-4 py-2 bg-alternate text-primary rounded w-full'
-            >
-              <Save size={20} />
-              Save
-            </Button>
-          </Link>
+          <Button
+            type='submit'
+            className='mt-4 px-4 py-2 bg-alternate text-primary rounded w-full'
+          >
+            <Save size={20} />
+            Save
+          </Button>
         </div>
       </form>
     </Form>
