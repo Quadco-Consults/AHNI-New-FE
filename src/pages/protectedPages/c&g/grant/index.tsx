@@ -12,7 +12,7 @@ export default function GrantHomePage() {
             <div className="flex justify-end">
                 <Link to={CG_GROUTES.GRANT_CREATE}>
                     <Button>
-                        <Plus size={20} /> New Grantt
+                        <Plus size={20} /> New Grant
                     </Button>
                 </Link>
             </div>

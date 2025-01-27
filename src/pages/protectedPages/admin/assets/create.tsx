@@ -182,7 +182,7 @@ export default function CreateAsset() {
         if (asset) {
             form.reset({
                 name: asset?.data.name,
-                assignee: asset?.data.assignee,
+                assignee: asset?.data.assignee.id,
                 asset_code: asset?.data.asset_code,
                 project: asset?.data.project.id,
                 donor: asset?.data.donor.id,

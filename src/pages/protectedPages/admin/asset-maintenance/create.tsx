@@ -36,9 +36,6 @@ export default function CreateAssetMaintenance() {
     const form = useForm<TAssetMaintenanceFormData>({
         resolver: zodResolver(AssetMaintenanceSchema),
         defaultValues: {
-            staff_name: "",
-            department: "",
-            location: "",
             maintenance_datetime: "",
             asset: "",
             maintenance_type: "",
@@ -47,12 +44,13 @@ export default function CreateAssetMaintenance() {
             total_cost_estimate: "",
             description: "",
             description_type: "",
-            disposal_justification: "",
             reviewer: "",
             authorizer: "",
             approver: "",
         },
     });
+
+    console.log(form.formState.errors);
 
     const navigate = useNavigate();
 
@@ -134,30 +132,6 @@ export default function CreateAssetMaintenance() {
                             action=""
                         >
                             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                                {/* <FormSelect
-                                    label="Name of Staff"
-                                    name="staff_name"
-                                    placeholder="Select Staff"
-                                    required
-                                    options={userOptions}
-                                />
-
-                                <FormSelect
-                                    label="Department"
-                                    name="department"
-                                    placeholder="Select Department"
-                                    required
-                                    options={departmentOptions}
-                                />
-
-                                <FormSelect
-                                    label="Location"
-                                    name="location"
-                                    placeholder="Select Location"
-                                    required
-                                    options={locationOptions}
-                                /> */}
-
                                 <FormInput
                                     label="Date/Time"
                                     name="maintenance_datetime"
@@ -180,11 +154,11 @@ export default function CreateAssetMaintenance() {
                                     required
                                     options={[
                                         {
-                                            label: "Corrective",
+                                            label: "CORRECTIVE",
                                             value: "CORRECTIVE",
                                         },
                                         {
-                                            label: "Preventive",
+                                            label: "PREVENTIVE",
                                             value: "PREVENTIVE",
                                         },
                                     ]}

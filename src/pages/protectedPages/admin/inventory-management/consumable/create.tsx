@@ -10,6 +10,7 @@ import { Form } from "components/ui/form";
 import { AdminRoutes } from "constants/RouterConstants";
 import {
     ConsumableSchema,
+    EditConsumableSchema,
     TConsumableFormValues,
 } from "definations/admin/inventory-management/consumable";
 import useQuery from "hooks/useQuery";
@@ -24,6 +25,7 @@ import {
 import { useGetAllCategoriesQuery } from "services/modules/config/category";
 import { useGetAllItemsQuery } from "services/modules/config/item";
 import { toast } from "sonner";
+import { formatDate } from "utils/date";
 
 const stockControlMethodOptions = [
     { label: "Stock Level", value: "STOCK_LEVEL" },
@@ -53,24 +55,36 @@ export default function CreateConsumablePage() {
         [category]
     );
 
+    const Schema = consumableId ? EditConsumableSchema : ConsumableSchema;
+
+    const defaultValues = useMemo(() => {
+        return consumableId
+            ? {
+                  name: "",
+                  description: "",
+
+                  quantity: "",
+                  stock_control_method: "STOCK_LEVEL",
+                  category: "",
+                  expiry_date: formatDate(String(new Date())),
+                  previous_quantity: "",
+                  re_order_level: "",
+                  buffer_stock: "",
+                  max_stock: "",
+                  entry_date: "",
+                  available_quantity: "",
+                  item_cost: "",
+                  grn_tracking_number: "",
+              }
+            : {
+                  name: "",
+                  description: "",
+              };
+    }, [consumableId]);
+
     const form = useForm<TConsumableFormValues>({
-        resolver: zodResolver(ConsumableSchema),
-        defaultValues: {
-            name: "",
-            description: "",
-            quantity: "",
-            stock_control_method: "",
-            category: "",
-            expiry_date: "",
-            previous_quantity: "",
-            re_order_level: "",
-            buffer_stock: "",
-            max_stock: "",
-            entry_date: "",
-            available_quantity: "",
-            item_cost: "",
-            grn_tracking_number: "",
-        },
+        resolver: zodResolver(Schema),
+        defaultValues,
     });
 
     useEffect(() => {
@@ -78,9 +92,10 @@ export default function CreateConsumablePage() {
             form.reset({
                 name: consumable?.data.name,
                 description: consumable?.data.description,
-                quantity: String(consumable?.data.quantity ?? ""),
+                // @ts-ignore
+                quantity: String(consumable?.data.quantity),
                 stock_control_method: consumable?.data.stock_control_method,
-                category: consumable?.data.category.id,
+                category: consumable?.data?.category?.id,
                 expiry_date: consumable?.data.expiry_date,
                 previous_quantity: String(
                     consumable?.data.previous_quantity ?? ""

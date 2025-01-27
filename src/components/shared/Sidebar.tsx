@@ -619,12 +619,12 @@ const DEPARTMENTAL_LINKS = [
         // ],
       },
       { name: "Purchase Order", path: RouteEnum.PURCHASE_ORDER },
-      //   { name: "Payment Request", path: RouteEnum.PAYMENT_REQUEST },
+      // { name: "Payment Request", path: RouteEnum.PAYMENT_REQUEST },
 
-      {
-        name: "Procurement Tracker",
-        path: RouteEnum.PROCUREMENT_TRACKER,
-      },
+      // {
+      //     name: "Procurement Tracker",
+      //     path: RouteEnum.PROCUREMENT_TRACKER,
+      // },
       { name: "Procurement Report", path: RouteEnum.REPORT },
     ],
   },
@@ -797,27 +797,32 @@ const DEPARTMENTAL_LINKS = [
       { name: "HR Reports", path: "/" },
     ],
   },
+
   {
     name: "C&G",
     icon: <CGIcon />,
 
     link: [
       { name: "Overview", path: CG_GROUTES.OVERVIEW },
+
       { name: "Grants", path: CG_GROUTES.GRANT },
+
       {
-        name: "Subgrants",
+        name: "Sub Grants",
         sublinks: [
-          { name: "Awards", path: CG_GROUTES.SUB_GRANT },
+          { name: "Awards", path: CG_GROUTES.SUBGRANT },
           {
             name: "Pre-award Assessment",
             path: CG_GROUTES.PRE_AWARD_ASSESSMENT,
           },
         ],
       },
+
       {
         name: "Closeout",
         sublinks: [{ name: "Closeout Plan", path: CG_GROUTES.CLOSE_OUT }],
       },
+
       {
         name: "Contract Management",
         sublinks: [
@@ -832,6 +837,7 @@ const DEPARTMENTAL_LINKS = [
           { name: "SLA", path: CG_GROUTES.CONSULTANCY_SLA },
         ],
       },
+
       { name: "C&G Reports", path: "/" },
     ],
   },

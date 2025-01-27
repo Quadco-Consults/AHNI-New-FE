@@ -2,7 +2,6 @@ import { ColumnDef } from "@tanstack/react-table";
 import DeleteIcon from "components/icons/DeleteIcon";
 import EyeIcon from "components/icons/EyeIcon";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import Card from "components/shared/Card";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { Button } from "components/ui/button";
@@ -11,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { CG_GROUTES } from "constants/RouterConstants";
 import { generatePath, Link } from "react-router-dom";
 
-const PreAwardAssessment = () => {
+const SubGrantSubmissionDetails = () => {
     const columns: ColumnDef<any>[] = [
         {
             id: "select",
@@ -26,6 +25,7 @@ const PreAwardAssessment = () => {
                     />
                 );
             },
+
             cell: ({ row }) => {
                 return (
                     <Checkbox
@@ -60,14 +60,8 @@ const PreAwardAssessment = () => {
             accessorKey: "email",
             size: 200,
         },
-
         {
-            header: "Score",
-            accessorKey: "score",
-            size: 200,
-        },
-        {
-            header: "Actions",
+            header: "Action",
             id: "actions",
             size: 50,
             cell: ({ row }) => <ActionListAction data={row.original} />,
@@ -89,7 +83,7 @@ const PreAwardAssessment = () => {
                                 <Link
                                     className="w-full"
                                     to={generatePath(
-                                        CG_GROUTES.PRE_AWARD_ASSESSMENT_SINGLE,
+                                        CG_GROUTES.SUBMITTED_APPLICATIONS,
                                         {
                                             id: data?.id,
                                         }
@@ -120,12 +114,10 @@ const PreAwardAssessment = () => {
     };
 
     return (
-        <Card>
-            <TableFilters>
-                <DataTable columns={columns} data={[]} isLoading={false} />
-            </TableFilters>
-        </Card>
+        <TableFilters>
+            <DataTable columns={columns} data={[]} isLoading={false} />
+        </TableFilters>
     );
 };
 
-export default PreAwardAssessment;
+export default SubGrantSubmissionDetails;

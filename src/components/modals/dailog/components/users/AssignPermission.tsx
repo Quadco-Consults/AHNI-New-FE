@@ -28,6 +28,7 @@ interface Permission {
 type TPermissionSelector = {
     selectedPermissions: number[];
     onSelectPermission: (permissionId: number) => void;
+    onCheckAllPermissions: () => void;
 };
 
 const PermissionCheckbox: FC<{
@@ -62,11 +63,41 @@ const PermissionCheckbox: FC<{
 const PermissionSelector: FC<TPermissionSelector> = ({
     selectedPermissions,
     onSelectPermission,
+    onCheckAllPermissions,
 }) => {
     const { data: permission, isLoading } = useGetAllPermissionsQuery({
         page: 1,
         size: 2000000,
     });
+
+    const handleCheckAllPermissions = (module: string, checked: boolean) => {
+        const modulePermission = permission?.data.find(
+            (permission) => permission.module === module
+        )?.permissions;
+
+        const modulePermissionIds = modulePermission?.map(
+            (permission) => permission.id
+        );
+
+        if (checked) {
+            // @ts-ignore
+            onCheckAllPermissions([
+                // @ts-ignore
+                ...selectedPermissions,
+                // @ts-ignore
+                ...modulePermissionIds,
+            ]);
+        } else {
+            const deletedPermissions = selectedPermissions.filter(
+                (permission) => !modulePermissionIds?.includes(permission)
+            );
+
+            console.log(deletedPermissions);
+
+            // @ts-ignore
+            onCheckAllPermissions(deletedPermissions);
+        }
+    };
 
     if (isLoading) return <LoadingSpinner />;
 
@@ -82,9 +113,26 @@ const PermissionSelector: FC<TPermissionSelector> = ({
         <>
             {permission?.data?.map((permission) => (
                 <div>
-                    <h3 className="font-bold text-lg">
-                        {capitalize(permission.module)}
-                    </h3>
+                    <div className="flex items-center justify-between">
+                        <h3 className="font-bold text-lg">
+                            {capitalize(permission.module)}
+                        </h3>
+
+                        <div className="space-x-1 mr-3">
+                            <label className="text-sm text-gray-500">
+                                Select all
+                            </label>
+                            <input
+                                type="checkbox"
+                                onChange={(e) =>
+                                    handleCheckAllPermissions(
+                                        permission.module,
+                                        e.target.checked
+                                    )
+                                }
+                            />
+                        </div>
+                    </div>
                     <div className="grid grid-cols-5 gap-2 pb-10 mt-1.5">
                         {permission?.permissions?.map((item) => (
                             <PermissionCheckbox
@@ -179,6 +227,10 @@ const AssignPermission = () => {
                         <PermissionSelector
                             selectedPermissions={selectedPermissions}
                             onSelectPermission={handleSelectPermission}
+                            // @ts-ignore
+                            onCheckAllPermissions={(permissions: number[]) =>
+                                setSelectedPermissions(permissions)
+                            }
                         />
                     </ScrollArea>
                 </CardContent>
