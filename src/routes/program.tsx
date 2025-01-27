@@ -69,7 +69,7 @@ export const program = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/programs/plan/ssp/[id]/CoreManagementSystems"
+                    "pages/protectedPages/programs/plan/ssp/[id]/EvaluationProcess"
                 )
         ),
     },

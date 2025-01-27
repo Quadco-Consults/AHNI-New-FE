@@ -883,44 +883,44 @@ const DEPARTMENTAL_LINKS = [
         icon: <CGIcon />,
 
         link: [
-            // { name: "Overview", path: CG_GROUTES.OVERVIEW },
+            { name: "Overview", path: CG_GROUTES.OVERVIEW },
 
-            // { name: "Grants", path: CG_GROUTES.GRANT },
+            { name: "Grants", path: CG_GROUTES.GRANT },
 
-            // {
-            //     name: "Subgrants",
-            //     sublinks: [
-            //         { name: "Awards", path: CG_GROUTES.SUB_GRANT },
-            //         {
-            //             name: "Pre-award Assessment",
-            //             path: CG_GROUTES.PRE_AWARD_ASSESSMENT,
-            //         },
-            //     ],
-            // },
+            {
+                name: "Sub Grants",
+                sublinks: [
+                    { name: "Awards", path: CG_GROUTES.SUBGRANT },
+                    {
+                        name: "Pre-award Assessment",
+                        path: CG_GROUTES.PRE_AWARD_ASSESSMENT,
+                    },
+                ],
+            },
 
-            // {
-            //     name: "Closeout",
-            //     sublinks: [
-            //         { name: "Closeout Plan", path: CG_GROUTES.CLOSE_OUT },
-            //     ],
-            // },
+            {
+                name: "Closeout",
+                sublinks: [
+                    { name: "Closeout Plan", path: CG_GROUTES.CLOSE_OUT },
+                ],
+            },
 
-            // {
-            //     name: "Contract Management",
-            //     sublinks: [
-            //         {
-            //             name: "Consultant management",
-            //             path: CG_GROUTES.CONSULTANCY,
-            //         },
-            //         { name: "Consultancy report", path: "/" },
-            //         { name: "Payment request", path: "/" },
-            //         { name: "Agreement", path: CG_GROUTES.AGREEMENT },
-            //         { name: "Facilitator management", path: "/" },
-            //         { name: "SLA", path: CG_GROUTES.CONSULTANCY_SLA },
-            //     ],
-            // },
+            {
+                name: "Contract Management",
+                sublinks: [
+                    {
+                        name: "Consultant management",
+                        path: CG_GROUTES.CONSULTANCY,
+                    },
+                    { name: "Consultancy report", path: "/" },
+                    { name: "Payment request", path: "/" },
+                    { name: "Agreement", path: CG_GROUTES.AGREEMENT },
+                    { name: "Facilitator management", path: "/" },
+                    { name: "SLA", path: CG_GROUTES.CONSULTANCY_SLA },
+                ],
+            },
 
-            // { name: "C&G Reports", path: "/" },
+            { name: "C&G Reports", path: "/" },
         ],
     },
     {

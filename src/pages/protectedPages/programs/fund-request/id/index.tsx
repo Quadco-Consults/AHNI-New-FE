@@ -4,7 +4,7 @@ import LongArrowLeft from "components/icons/LongArrowLeft";
 import Card from "components/shared/Card";
 import Summary from "./Summary";
 import { Button } from "components/ui/button";
-import FundSummary from "./Fund-summary";
+import FundSummary from "./FundRequestSummary";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
