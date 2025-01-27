@@ -14,7 +14,6 @@ import { useState } from "react";
 import { useDeleteItemRequisitionMutation } from "services/admin/inventory-management/item-requisition";
 import { toast } from "sonner";
 import PencilIcon from "components/icons/PencilIcon";
-import EditIcon from "components/icons/EditIcon";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
 
@@ -59,7 +58,8 @@ export const itemRequisitionColumns: ColumnDef<TItemRequisitionPaginatedData>[] 
         },
         {
             header: "Approved by",
-            accessorKey: "approval",
+            id: "approved_by",
+            accessorFn: ({ approved_by }) => `${approved_by ?? "N/A"}`,
         },
         {
             header: "Date Requested",

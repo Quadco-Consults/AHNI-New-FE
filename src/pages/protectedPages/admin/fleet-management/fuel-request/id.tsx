@@ -5,7 +5,7 @@ import { fuelRequestConsumptionColumns } from "components/Table/columns/admin/fl
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { useGetAllFuelRequestsQuery } from "services/admin/fleet-management/fuel-request";
 
 export default function ViewVehicleFuelConsumption() {
@@ -13,12 +13,17 @@ export default function ViewVehicleFuelConsumption() {
 
     const { id } = useParams();
 
+    const [searchParams] = useSearchParams();
+    const type = searchParams.get("type");
+
+    const filter = type === "vehicle" ? { asset: id } : { vendor: id };
+
     const { data, isFetching } = useGetAllFuelRequestsQuery(
         id
             ? {
                   page,
                   size: 10,
-                  asset: id,
+                  ...filter,
               }
             : skipToken
     );

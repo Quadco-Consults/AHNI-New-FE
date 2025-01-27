@@ -19,8 +19,8 @@ import { toast } from "sonner";
 export const expenseAuthorizationColumns: ColumnDef<IExpenseAuthorizationPaginatedData>[] =
     [
         {
-            header: "Project Number",
-            accessorKey: "project_number",
+            header: "Project",
+            accessorKey: "project",
         },
 
         {

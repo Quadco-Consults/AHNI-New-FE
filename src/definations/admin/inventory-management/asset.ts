@@ -11,6 +11,7 @@ export const AssetSchema = z.object({
     name: z.string().min(1, "Please enter a name"),
     assignee: z.string().min(1, "Please select an assignee"),
     asset_code: z.string().min(1, "Please enter an asset code"),
+    plate_number: z.string().min(1, "Please enter plate number"),
     asset_type: z.string().min(1, "Please select an asset type"),
     project: z.string().min(1, "Please select a project"),
     donor: z.string().min(1, "Please select a donor"),
