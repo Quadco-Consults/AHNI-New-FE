@@ -12,6 +12,7 @@ import {
 import { RouteEnum } from "constants/RouterConstants";
 import React, { useEffect, useState } from "react";
 import { generatePath, Link } from "react-router-dom";
+import logoPng from "assets/svgs/logo-bg.svg";
 
 const PurchaseRequestForm = () => {
   const [rows, setRows] = useState([]);
@@ -77,6 +78,10 @@ const PurchaseRequestForm = () => {
   );
   return (
     <section className='min-h-screen space-y-8'>
+      <div className='flex justify-center items-center flex-col'>
+        <img src={logoPng} alt='logo' width={200} />
+        <h1>Achieving Health Nigeria Initiative (AHNI)</h1>
+      </div>
       <h2 className='text-center'>PURCHASE REQUEST FORM</h2>
       <div>
         {" "}

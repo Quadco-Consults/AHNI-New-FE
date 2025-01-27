@@ -3,13 +3,14 @@ import AddSquareIcon from "components/icons/AddSquareIcon";
 import { Button } from "components/ui/button";
 import TabState from "components/ui/TabState";
 import { useState } from "react";
-import SubGrantAwardDetails from "../../c&g/sub-grant/awards/id/SubGrantAwardDetails";
-import SubGrantSubmissionDetails from "../../c&g/sub-grant/awards/id/SubGrantSubmissionDetails";
-import { generatePath, Link, useParams } from "react-router-dom";
 import { CG_GROUTES } from "constants/RouterConstants";
+import SubGrantAwardDetails from "./SubGrantAwardDetails";
+import SubGrantSubmissionDetails from "./SubGrantSubmissionDetails";
+import { generatePath, Link, useParams } from "react-router-dom";
 
 const SubGrantDetails = () => {
     const params = useParams();
+
     const tabDetails = [
         {
             id: 1,
@@ -49,7 +50,7 @@ const SubGrantDetails = () => {
                         <Link
                             className="w-full"
                             to={generatePath(
-                                CG_GROUTES.MANUAL_SUB_GRANT_SUBMISSION,
+                                CG_GROUTES.CREATE_SUBGRANT_SUBMISSION_DETAILS,
                                 {
                                     id: params?.id,
                                 }
@@ -57,7 +58,7 @@ const SubGrantDetails = () => {
                         >
                             <Button className="flex gap-2 py-6" type="button">
                                 <AddSquareIcon />
-                                <p>Manual Submission</p>
+                                Manual Submission
                             </Button>
                         </Link>
                     )}

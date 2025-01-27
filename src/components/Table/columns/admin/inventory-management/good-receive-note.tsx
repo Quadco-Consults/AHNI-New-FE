@@ -18,10 +18,11 @@ export const goodReceiveNoteColumns: ColumnDef<IGoodReceiveNotePaginatedData>[] 
     [
         {
             header: "Vendor  Name",
-            id: "vendor_name",
-            accessorKey: "vendor_name",
+            id: "vendor",
+            accessorKey: "vendor",
             size: 200,
         },
+        
         {
             header: "PO Number",
             id: "purchase_order",

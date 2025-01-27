@@ -42,7 +42,7 @@ export default function AssetDetails() {
 
                                 <DescriptionCard
                                     label="Assignee"
-                                    description={asset.data.assignee}
+                                    description={`${asset.data.assignee.first_name} ${asset.data.assignee.last_name}`}
                                 />
 
                                 <DescriptionCard

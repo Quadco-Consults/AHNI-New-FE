@@ -3,7 +3,6 @@ import { Button } from "components/ui/button";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { IoMdClose } from "react-icons/io";
-import { DocumentPayload } from "../subGrant/ManualSubmissionDocumentUpload";
 import { createPortal } from "react-dom";
 import SubGrantManualDocsModal from "components/modals/dailog/components/SubGrantManualDocsModal";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,7 +32,7 @@ const AddNewConsultant = () => {
     const [addDocument, addDocumentResults] =
         ConsultancyApplicationsDocsApi.useAddConsultancyApplicationDocsMutation();
     const [refereeArray, setRefereeArray] = useState<Referee[]>([]);
-    const [documentArray, setDocumentArray] = useState<DocumentPayload[]>([]);
+    const [documentArray, setDocumentArray] = useState<[]>([]);
     const [uploadDocument, setUploadDocument] = useState(false);
     const form = useForm<typeof ConsultancyApplication>({
         resolver: zodResolver(ConsultancyApplication),

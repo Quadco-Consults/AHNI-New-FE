@@ -12,7 +12,7 @@ const DescriptionCard = ({ label, description, aside, className }: TProps) => {
         <>
             {aside ? (
                 <div className="flex items-center">
-                    <p className="font-medium basis-1/4">{label}</p>
+                    <p className="font-semibold basis-1/4">{label}</p>
                     <p className="flex-1">{description}</p>
                 </div>
             ) : (

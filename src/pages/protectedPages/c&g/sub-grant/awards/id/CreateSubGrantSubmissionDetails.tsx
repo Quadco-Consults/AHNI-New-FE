@@ -1,5 +1,5 @@
 import { SubmitHandler, useForm } from "react-hook-form";
-import ManualSubGrantStepWrapper from "./ManualSubGrantStepWrapper";
+import ManualSubGrantStepWrapper from "./CreateSubGrantSubmissionWrapper";
 import { z } from "zod";
 import { Form } from "components/ui/form";
 import FormInput from "atoms/FormInput";
@@ -37,7 +37,7 @@ const ManualSubGrantSubmission = () => {
             form.reset();
             if (result?.data?.id) {
                 navigate(
-                    generatePath(CG_GROUTES.MANUAL_SUB_GRANT_SUBMISSION_DOCS, {
+                    generatePath(CG_GROUTES.CREATE_SUBGRANT_SUBMISSION_UPLOADS, {
                         id: result?.data?.id,
                     })
                 );

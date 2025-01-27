@@ -12,6 +12,7 @@ export type TGoodReceiveNoteFormValues = z.infer<typeof GoodReceiveNoteSchema>;
 export interface IGoodReceiveNotePaginatedData {
     id: string;
     purchase_order: string;
+    vendor: string;
     created_datetime: string;
     updated_datetime: string;
     invoice_number: string;

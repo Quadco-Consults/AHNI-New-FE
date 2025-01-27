@@ -619,12 +619,12 @@ const DEPARTMENTAL_LINKS = [
         // ],
       },
       { name: "Purchase Order", path: RouteEnum.PURCHASE_ORDER },
-      { name: "Payment Request", path: RouteEnum.PAYMENT_REQUEST },
+      // { name: "Payment Request", path: RouteEnum.PAYMENT_REQUEST },
 
-      {
-        name: "Procurement Tracker",
-        path: RouteEnum.PROCUREMENT_TRACKER,
-      },
+      // {
+      //     name: "Procurement Tracker",
+      //     path: RouteEnum.PROCUREMENT_TRACKER,
+      // },
       { name: "Procurement Report", path: RouteEnum.REPORT },
     ],
   },
@@ -728,7 +728,7 @@ const DEPARTMENTAL_LINKS = [
         sublinks: [
           {
             name: "Workforce Need Analysis",
-            path: "/",
+            path: HrRoutes.WORKFORCE_NEED_ANALYSIS,
           },
           {
             name: "Workforce Database",
@@ -740,7 +740,7 @@ const DEPARTMENTAL_LINKS = [
         name: "Recruitment",
         sublinks: [
           { name: "Advertisement", path: HrRoutes.ADVERTISEMENT },
-          { name: "Selection", path: "/" },
+          { name: "Selection", path: HrRoutes.SELECTION },
           { name: "Onboarding", path: HrRoutes.ONBOARDING },
         ],
       },
@@ -803,11 +803,13 @@ const DEPARTMENTAL_LINKS = [
 
     link: [
       { name: "Overview", path: CG_GROUTES.OVERVIEW },
+
       { name: "Grants", path: CG_GROUTES.GRANT },
+
       {
-        name: "Subgrants",
+        name: "Sub Grants",
         sublinks: [
-          { name: "Awards", path: CG_GROUTES.SUB_GRANT },
+          { name: "Awards", path: CG_GROUTES.SUBGRANT },
           {
             name: "Pre-award Assessment",
             path: CG_GROUTES.PRE_AWARD_ASSESSMENT,

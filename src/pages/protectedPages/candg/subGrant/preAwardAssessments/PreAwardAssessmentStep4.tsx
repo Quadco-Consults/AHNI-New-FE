@@ -5,7 +5,6 @@ import { Button } from "components/ui/button";
 import { CG_GROUTES } from "constants/RouterConstants";
 import { useState } from "react";
 import { generatePath, useNavigate, useParams } from "react-router-dom";
-import { DocumentPayload } from "../ManualSubmissionDocumentUpload";
 import { toast } from "sonner";
 import { objectToFormData } from "utils/utls";
 import AddSquareIcon from "components/icons/AddSquareIcon";
@@ -20,9 +19,7 @@ import { SubGrantPreAwardsApi } from "services/cAndGApi/subGrant";
 const PreAwardAssessmentStep4 = () => {
     const navigate = useNavigate();
     const params = useParams();
-    const [uploadedDocuments, setUploadedDocuments] = useState<
-        DocumentPayload[]
-    >([]);
+    const [uploadedDocuments, setUploadedDocuments] = useState<[]>([]);
     const [uploadModal, setUploadModal] = useState(false);
     const [numPages, setNumPages] = useState<number>();
 
@@ -70,16 +67,11 @@ const PreAwardAssessmentStep4 = () => {
         setNumPages(numPages);
     }
 
+
+    // SHOW RECOMMENDATION STATEMENT RIGHT AFTER THE SCORE
     return (
         <main className="w-full flex flex-col items-center justify-center gap-y-[1.875rem] text-[#1A0000]">
-            <section className="w-full flex items-center justify-between">
-                <div className="w-auto flex gap-x-[1.25rem] items-center justify-start">
-                    <BackNavigation />
-                </div>
-                <div>
-                    <p className="text-[#FF0000] font-semibold">Step 3/4</p>
-                </div>
-            </section>
+            <section className="w-full flex items-center justify-between"></section>
             <section className="w-full flex flex-col gap-y-[1.25rem]">
                 <Card className="w-full flex flex-col gap-y-[1.25rem]">
                     <div className="w-full flex flex-col gap-y-[1.25rem]">
@@ -183,8 +175,9 @@ const PreAwardAssessmentStep4 = () => {
                         <FormButton
                             loading={postSubGrantDocsMutationResults.isLoading}
                             onClick={HandleSubmitDocuments}
+                            size="lg"
                         >
-                            <p>Finish</p>
+                            Award Contract
                         </FormButton>
                     </div>
                 </Card>

@@ -32,17 +32,19 @@ export default function ViewFacilityMaintenance() {
                             <div className="grid grid-cols-3 gap-5">
                                 <DescriptionCard
                                     label="Name of Staff"
-                                    description={`${data?.data.staff.first_name} ${data?.data.staff.last_name}`}
+                                    description={`${data?.data?.staff?.first_name} ${data?.data?.staff?.last_name}`}
                                 />
 
                                 <DescriptionCard
                                     label="Department"
-                                    description={data?.data.department.name}
+                                    description={
+                                        data?.data.department?.name || "N/A"
+                                    }
                                 />
 
                                 <DescriptionCard
                                     label="Location"
-                                    description={data?.data.location.name}
+                                    description={data?.data.location?.name}
                                 />
 
                                 <DescriptionCard

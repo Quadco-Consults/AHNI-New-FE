@@ -13,6 +13,7 @@ import EyeIcon from "components/icons/EyeIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 import PencilIcon from "components/icons/PencilIcon";
+import { cn } from "lib/utils";
 
 export const facilityMaintenanceColumns: ColumnDef<IFacilityMaintenancePaginatedData>[] =
     [
@@ -35,7 +36,20 @@ export const facilityMaintenanceColumns: ColumnDef<IFacilityMaintenancePaginated
 
         {
             header: "Status",
-            accessorFn: () => "N/A",
+            cell: ({ getValue }) => {
+                const status = "PENDING";
+
+                return (
+                    <Badge
+                        variant="default"
+                        className={cn(
+                            "p-1 rounded-lg bg-yellow-200 text-yellow-500"
+                        )}
+                    >
+                        {status}
+                    </Badge>
+                );
+            },
         },
 
         {
