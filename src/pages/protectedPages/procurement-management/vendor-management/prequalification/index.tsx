@@ -205,6 +205,18 @@ const ActionListAction = ({ data }: any) => {
   return (
     <div className='flex gap-2'>
       <Link
+        className='w-full'
+        to={{
+          pathname: RouteEnum.VENDOR_REGISTRATION,
+          search: `?id=${data?.id}`,
+        }}
+      >
+        <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+          <Icon icon='solar:pen-bold-duotone' fontSize={15} />
+        </IconButton>
+      </Link>
+
+      <Link
         to={generatePath(RouteEnum.VENDOR_MANAGEMENT_DETAILS, { id: data.id })}
       >
         <IconButton className='bg-[#F9F9F9] hover:text-primary'>
