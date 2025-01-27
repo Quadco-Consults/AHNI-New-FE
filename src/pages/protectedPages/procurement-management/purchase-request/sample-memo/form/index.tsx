@@ -113,7 +113,7 @@ const CreateActivityMemo = () => {
       location: "",
       requested_date: "",
       fconumber: [],
-      intervention: [],
+      intervention_areas: [],
       budget_line: [],
       cost_categories: [],
       cost_input: [],
@@ -227,7 +227,7 @@ const CreateActivityMemo = () => {
               <Label className='font-semibold'>Intervention Areas</Label>
               <FormField
                 control={form.control}
-                name='intervention'
+                name='intervention_areas'
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>

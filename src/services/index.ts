@@ -56,6 +56,7 @@ const baseAPI = createApi({
     "Stock",
     "FUND_REQUEST",
     "PURCHASE_REQUEST",
+    "SAMPLE_MEMO",
     "ITEMS",
     "PURCHASE_ORDER",
     "SOLICITATION",
