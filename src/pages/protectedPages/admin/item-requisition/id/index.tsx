@@ -1,10 +1,13 @@
 import { skipToken } from "@reduxjs/toolkit/query/react";
+import FormButton from "atoms/FormButton";
+import FormTextArea from "atoms/FormTextArea";
 import Card from "components/shared/Card";
 import DescriptionCard from "components/shared/DescriptionCard";
 import GoBack from "components/shared/GoBack";
 import { LoadingSpinner } from "components/shared/Loading";
 import { Separator } from "components/ui/separator";
 import { format } from "date-fns";
+import { FormProvider, useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import { useGetSingleItemRequisitionQuery } from "services/admin/inventory-management/item-requisition";
 
@@ -25,6 +28,8 @@ export default function ItemRequisitionDetailPage() {
         .reduce((accumulator, value) => {
             return accumulator + value;
         }, 0);
+
+    const form = useForm();
 
     return (
         <div className="space-y-6">
@@ -89,6 +94,25 @@ export default function ItemRequisitionDetailPage() {
                         </div>
                     )
                 )}
+
+                <FormProvider {...form}>
+                    <form className="space-y-5">
+                        <FormTextArea
+                            label="Comment"
+                            name="comment"
+                            placeholder="Enter Comment"
+                            required
+                        />
+
+                        <FormButton
+                            size="lg"
+                            type="submit"
+                            className="bg-green-500"
+                        >
+                            Approve
+                        </FormButton>
+                    </form>
+                </FormProvider>
             </Card>
         </div>
     );

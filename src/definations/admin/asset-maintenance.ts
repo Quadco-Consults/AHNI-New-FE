@@ -5,9 +5,9 @@ import { z } from "zod";
 import { TAssetSingleData } from "./inventory-management/asset";
 
 export const AssetMaintenanceSchema = z.object({
-    staff_name: z.string().min(1, "Please select staff"),
-    department: z.string().min(1, "Please select department"),
-    location: z.string().min(1, "Please select location"),
+    // staff_name: z.string().min(1, "Please select staff"),
+    // department: z.string().min(1, "Please select department"),
+    // location: z.string().min(1, "Please select location"),
     maintenance_datetime: z.string().min(1, "Please select maintenance date"),
     asset: z.string().min(1, "Please select asset"),
     maintenance_type: z.string().min(1, "Please enter maintenance type"),
@@ -15,9 +15,6 @@ export const AssetMaintenanceSchema = z.object({
     cost_estimate: z.string().min(1, "Please enter cost estimate"),
     total_cost_estimate: z.string().min(1, "Please enter total cost estimate"),
     description_type: z.string().min(1, "Please select description"),
-    disposal_justification: z
-        .string()
-        .min(1, "Please enter disposal justification"),
     description: z.string().min(1, "Please enter problem description"),
     reviewer: z.string().min(1, "Please select reviewer"),
     authorizer: z.string().min(1, "Please select authorizer"),

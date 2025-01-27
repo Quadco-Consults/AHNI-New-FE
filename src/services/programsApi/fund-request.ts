@@ -1,9 +1,9 @@
+import { TRequest, TResponse } from "definations/index";
 import baseAPI from "..";
 import {
     TFundRequestPaginatedResponse,
     TFundRequestResponseData,
 } from "definations/program-types/fund-request";
-import { TRequest, TResponse } from "definations/auth/auth";
 import { TFundRequestFormValues } from "definations/program-validator";
 
 const BASE_URL = "/programs/fund-requests/";

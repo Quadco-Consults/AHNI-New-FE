@@ -125,14 +125,8 @@ const CreateNewConsultancy = () => {
                             placeholder=""
                             required
                         />
-                        <FormSelect
-                            name={`status`}
-                            label="Status"
-                            options={options}
-                            required={true}
-                            placeholder="Select status"
-                        />
-                        <FormSelect
+
+                        {/* <FormSelect
                             label="Supervisor"
                             name="supervisor"
                             // options={userData}
@@ -156,7 +150,7 @@ const CreateNewConsultancy = () => {
                             name="evaluation_comments"
                             placeholder=""
                             required
-                        />
+                        /> */}
                         <div className="flex flex-col gap-y-[1rem]">
                             <Label className="font-semibold">
                                 {" "}

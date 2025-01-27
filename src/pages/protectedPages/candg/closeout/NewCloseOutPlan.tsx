@@ -2,14 +2,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import BackNavigation from "atoms/BackNavigation";
 import FadedButton from "atoms/FadedButton";
 import FormButton from "atoms/FormButton";
-import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelect";
-import AddSquareIconFaded from "components/icons/AddSquareIconFaded";
 import { Form } from "components/ui/form";
 import { ClosuOutPlanSchema } from "definations/candg-validator";
 import React from "react";
-import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
-import { closeoutPlanAPis } from "services/cAndGApi/closeOutPlan";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 
 const NewCloseOutPlan: React.FC = () => {
@@ -27,21 +24,6 @@ const NewCloseOutPlan: React.FC = () => {
             ],
         },
     });
-
-    const options = [
-        { value: "Pending", label: "Pending" },
-        { value: "Approved", label: "Approved" },
-        { value: "Rejected", label: "Rejected" },
-    ];
-
-    const { control } = form;
-    const { fields, append, remove } = useFieldArray({
-        control,
-        name: "tasks",
-    });
-
-    const [addCloseOutPlan, addCloseOutPlanResults] =
-        closeoutPlanAPis.useAddCloseOutPlanMutation();
 
     const onSubmit: SubmitHandler<z.infer<typeof ClosuOutPlanSchema>> = async (
         data
@@ -66,121 +48,12 @@ const NewCloseOutPlan: React.FC = () => {
                             onSubmit={form.handleSubmit(onSubmit)}
                         >
                             <FormSelect
-                                label="Project Title"
+                                label="Project "
                                 name="project"
-                                // options={projects}
-                                placeholder="Enter project title"
+                                placeholder="Select Project"
                                 required
                             />
-                            <FormSelect
-                                label="Select Department"
-                                name="department"
-                                // options={departments}
-                                placeholder="Program/Technical"
-                                required
-                            />
-                            <FormSelect
-                                label="Location"
-                                name="location"
-                                // options={partners}
-                                placeholder="Abuja"
-                                required
-                            />
-                            <FormInput
-                                label="Key Task"
-                                name="key_task"
-                                placeholder="Key task"
-                                required
-                            />
-                            <div className="flex flex-col gap-y-[1.25rem]">
-                                <div className="">
-                                    {fields.map((item, index) => (
-                                        <div
-                                            key={item.id}
-                                            className="flex relative flex-wrap gap-y-[2rem] py-[2rem] justify-between"
-                                        >
-                                            <div className="w-[49%]">
-                                                <FormInput
-                                                    name={`tasks.${index}.designation`}
-                                                    label="Designation"
-                                                    required={true}
-                                                    placeholder="Enter designation"
-                                                />
-                                            </div>
-                                            <div className="w-[49%]">
-                                                <FormInput
-                                                    name={`tasks.${index}.remarks`}
-                                                    label="Remarks"
-                                                    required={true}
-                                                    placeholder="Enter remarks"
-                                                />
-                                            </div>
-                                            <div className="w-full">
-                                                <FormSelect
-                                                    name={`tasks.${index}.status`}
-                                                    label="Status"
-                                                    options={options}
-                                                    required={true}
-                                                    placeholder="Select status"
-                                                />{" "}
-                                            </div>
-                                            <div className="w-[49%]">
-                                                <FormInput
-                                                    name={`tasks.${index}.start_date`}
-                                                    min={`${new Date()}`}
-                                                    label="Start Date"
-                                                    required={true}
-                                                    placeholder="Enter start date"
-                                                    type="date"
-                                                />
-                                            </div>
-                                            <div className="w-[49%]">
-                                                <FormInput
-                                                    name={`tasks.${index}.end_date`}
-                                                    min={`${new Date()}`}
-                                                    label="End Date"
-                                                    required={true}
-                                                    placeholder="Enter end date"
-                                                    type="date"
-                                                />
-                                            </div>
-                                            {/* <Controller control={control} name={`tasks.${index}.status`} render={({ field }) => } /> */}
-                                            {index !== 0 && (
-                                                <button
-                                                    className="absolute top-0 right-0 z-[9999]"
-                                                    type="button"
-                                                    onClick={() =>
-                                                        remove(index)
-                                                    }
-                                                >
-                                                    Remove Task
-                                                </button>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
 
-                                <div className="w-fit">
-                                    <FadedButton
-                                        type="button"
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            append({
-                                                designation: "",
-                                                start_date: "",
-                                                end_date: "",
-                                                status: "Pending",
-                                                remarks: "",
-                                            });
-                                        }}
-                                    >
-                                        <div className="flex p-2 gap-x-[.625rem] text-primary font-semibold text-sm w-fit">
-                                            <AddSquareIconFaded />
-                                            <p>Click to Add More Task</p>
-                                        </div>
-                                    </FadedButton>
-                                </div>
-                            </div>
                             <div className="flex justify-end items-center gap-x-[1rem]">
                                 <div>
                                     <FadedButton type="button">
@@ -188,12 +61,8 @@ const NewCloseOutPlan: React.FC = () => {
                                     </FadedButton>
                                 </div>
                                 <div>
-                                    <FormButton
-                                        loading={
-                                            addCloseOutPlanResults.isLoading
-                                        }
-                                    >
-                                        <p>Finish</p>
+                                    <FormButton loading={false}>
+                                        Finish
                                     </FormButton>
                                 </div>
                             </div>

@@ -19,7 +19,7 @@ import { useAppDispatch } from "hooks/useStore";
 import BreadcrumbCard from "components/shared/Breadcrumb";
 import { useGetAllProjectsQuery } from "services/project";
 import { useState } from "react";
-import { TProjectData } from "definations/project";
+import { IProjectSingleData } from "definations/project";
 
 const breadcrumbs = [
     { name: "Programs", icon: true },
@@ -78,7 +78,7 @@ export default function FundRequest() {
     );
 }
 
-const columns: ColumnDef<TProjectData>[] = [
+const columns: ColumnDef<IProjectSingleData>[] = [
     {
         header: "Project Title",
         accessorKey: "title",
@@ -132,7 +132,7 @@ const columns: ColumnDef<TProjectData>[] = [
     },
 ];
 
-const ActionListAction = ({ data }: { data: TProjectData }) => {
+const ActionListAction = ({ data }: { data: IProjectSingleData }) => {
     const dispatch = useAppDispatch();
 
     return (
