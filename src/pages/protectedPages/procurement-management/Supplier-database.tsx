@@ -10,9 +10,13 @@ import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import VendorsAPI from "services/procurementApi/vendors";
 import { VendorsResultsData } from "definations/procurement-types/vendors";
+import { generatePath, Link } from "react-router-dom";
+import { RouteEnum } from "constants/RouterConstants";
+import { toast } from "sonner";
 
 const SupplierDatabase = () => {
   const { data, isLoading } = VendorsAPI.useGetVendorsQuery({
+    // @ts-ignore
     params: { status: "Approved" },
   });
 
@@ -155,20 +159,47 @@ const columns: ColumnDef<VendorsResultsData>[] = [
   {
     header: "Actions",
     id: "actions",
-    cell: () => <ActionListAction />,
+    cell: ({ row }) => <ActionListAction data={row.original} />,
   },
 ];
 
-const ActionListAction = () => {
+const ActionListAction = ({ data }: any) => {
+  const [deleteVendorMutation] = VendorsAPI.useDeleteVendorMutation();
+
+  const deleteVendorHandler = async (id: string) => {
+    try {
+      await deleteVendorMutation({ path: { id: id } }).unwrap;
+      toast.success("Document successfully deleted.");
+    } catch (error) {
+      toast.error("Something went wrong");
+      console.log(error);
+    }
+  };
   return (
     <div className='flex gap-1'>
-      {/* <IconButton className="bg-[#F9F9F9] hover:text-primary">
-        <Icon icon="solar:pen-bold-duotone" fontSize={15} />
-      </IconButton> */}
-      <IconButton className='bg-[#F9F9F9] hover:text-primary'>
-        <Icon icon='ph:eye-duotone' fontSize={15} />
-      </IconButton>
-      <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+      <Link
+        className='w-full'
+        to={{
+          pathname: RouteEnum.VENDOR_REGISTRATION,
+          search: `?id=${data?.id}`,
+        }}
+      >
+        <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+          <Icon icon='solar:pen-bold-duotone' fontSize={15} />
+        </IconButton>
+      </Link>
+
+      <Link
+        to={generatePath(RouteEnum.VENDOR_MANAGEMENT_DETAILS, { id: data.id })}
+      >
+        <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+          <Icon icon='ph:eye-duotone' fontSize={15} />
+        </IconButton>
+      </Link>
+      <IconButton
+        onClick={() => deleteVendorHandler(data.id)}
+        className='bg-[#F9F9F9] hover:text-primary'
+      >
         <Icon icon='ant-design:delete-twotone' fontSize={15} />
       </IconButton>
     </div>
