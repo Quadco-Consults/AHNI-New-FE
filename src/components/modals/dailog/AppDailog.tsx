@@ -72,6 +72,7 @@ import ChangeWorkPlanStatusModal from "./ChangeWorkPlanTrackerStatusModal";
 import EditValue from "pages/protectedPages/modules/hr/EditValue";
 import NewLeaveForm from "pages/protectedPages/modules/hr/NewLeaveForm";
 import AddCostGrouping from "pages/protectedPages/modules/finance/AddCostGrouping";
+import AddInterventionArea from "pages/protectedPages/modules/programs/AddInterventionArea";
 
 const sheets: Record<string, ReactNode> = {
   [DialogType.Categories]: <CategoriesModal />,

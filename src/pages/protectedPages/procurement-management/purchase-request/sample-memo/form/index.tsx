@@ -21,7 +21,10 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 // import { useGetAllConsumablesQuery } from "services/admin/inventory-management/consumable";
-import { useGetAllUsersQuery } from "services/auth/user";
+import {
+  useGetAllUsersQuery,
+  useGetUserProfileQuery,
+} from "services/auth/user";
 import { useGetAllBudgetLinesQuery } from "services/modules/finance/budget-line";
 import { useGetAllCostCategoriesQuery } from "services/modules/finance/cost-category";
 import { useGetAllCostInputsQuery } from "services/modules/finance/cost-input";
@@ -34,6 +37,7 @@ import { activityActions } from "store/formData/activity-memo";
 import { z } from "zod";
 import ExpensesForm from "./ExpensesForm";
 import { useGetAllActivityPlansQuery } from "services/programsApi/activity-plan";
+import { useEffect } from "react";
 
 const CreateActivityMemo = () => {
   const dispatch = useDispatch();
@@ -78,6 +82,8 @@ const CreateActivityMemo = () => {
     page: 1,
     size: 20000,
   });
+
+  const { data: profile } = useGetUserProfileQuery(null);
 
   const usersOptions = users?.data.results.map(
     ({ first_name, last_name, id }) => ({
@@ -133,6 +139,7 @@ const CreateActivityMemo = () => {
     if (profile) {
       form.reset({
         created_by: profile?.data.id,
+        // @ts-ignore
         approved_date: "11/11/11",
       });
 
