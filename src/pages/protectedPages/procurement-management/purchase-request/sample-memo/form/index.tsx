@@ -1,38 +1,104 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
-import FormSelect from "atoms/FormSelectField";
+import FormSelect from "atoms/FormSelect";
+import FormTextArea from "atoms/FormTextArea";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import LongArrowRight from "components/icons/LongArrowRight";
-import { LoadingSpinner } from "components/shared/Loading";
-import { Button } from "components/ui/button";
-import { Form } from "components/ui/form";
-import { SelectContent, SelectItem } from "components/ui/select";
+
+// import { Button } from "components/ui/button";
+import { Form, FormControl, FormField, FormItem } from "components/ui/form";
+import { Label } from "components/ui/label";
+import MultiSelectFormField from "components/ui/multiselect";
+
 import { Separator } from "components/ui/separator";
 import { RouteEnum } from "constants/RouterConstants";
-import { DepartmentsResultsData } from "definations/configs/departments";
-import { ItemsResultsData } from "definations/configs/itmes";
+
 import { SampleMemoSchema } from "definations/procurement-validator";
-import { MinusCircle } from "lucide-react";
+
+// import { MinusCircle } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { generatePath, Link, useNavigate } from "react-router-dom";
-import DepartmentsAPI from "services/configs/departments";
-import ItemsAPI from "services/configs/items";
-import { useGetAllPartnersQuery } from "services/modules/project/partners";
-import PurchaseRequestAPI from "services/procurementApi/purchase-request";
-import { toast } from "sonner";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+// import { useGetAllConsumablesQuery } from "services/admin/inventory-management/consumable";
+import { useGetAllUsersQuery } from "services/auth/user";
+import { useGetAllBudgetLinesQuery } from "services/modules/finance/budget-line";
+import { useGetAllCostCategoriesQuery } from "services/modules/finance/cost-category";
+import { useGetAllCostInputsQuery } from "services/modules/finance/cost-input";
+import { useGetAllFCONumbersQuery } from "services/modules/finance/fco-number";
+import { useGetAllInterventionAreaQuery } from "services/modules/program/interventions";
+
+import { useUseGetAllFundingSourceQuery } from "services/modules/project/funding-source";
+
+import { activityActions } from "store/formData/activity-memo";
 import { z } from "zod";
+import ExpensesForm from "./ExpensesForm";
+import { useGetAllActivityPlansQuery } from "services/programsApi/activity-plan";
 
 const CreateActivityMemo = () => {
-  const { data: departments, isLoading: departmentsIsLoading } =
-    DepartmentsAPI.useGetDepartmentsQuery({});
-  const { data: partner, isLoading: partnersIsLoading } =
-    useGetAllPartnersQuery({ page: 1, size: 2000000 });
-  const { data: items, isLoading: itemsIsLoading } = ItemsAPI.useGetItemsQuery(
-    {}
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const { data: fundingSource } = useUseGetAllFundingSourceQuery({
+    page: 1,
+    size: 2000000,
+  });
+
+  const { data: activites } = useGetAllActivityPlansQuery({
+    page: 1,
+    size: 2000000,
+  });
+
+  const { data: users } = useGetAllUsersQuery({
+    page: 1,
+    size: 2000000,
+  });
+
+  const costInput = useGetAllCostInputsQuery({
+    page: 1,
+    size: 2000000,
+  });
+
+  const costCategories = useGetAllCostCategoriesQuery({
+    page: 1,
+    size: 2000000,
+  });
+
+  const budgetLines = useGetAllBudgetLinesQuery({
+    page: 1,
+    size: 2000000,
+  });
+
+  const fco = useGetAllFCONumbersQuery({
+    page: 1,
+    size: 2000000,
+  });
+
+  const { data: interventions } = useGetAllInterventionAreaQuery({
+    page: 1,
+    size: 20000,
+  });
+
+  const usersOptions = users?.data.results.map(
+    ({ first_name, last_name, id }) => ({
+      label: `${first_name} ${last_name}`,
+      value: id,
+    })
   );
-  const [createPurchaseRequestMutation, { isLoading }] =
-    PurchaseRequestAPI.useCreatePurchaseRequestMutation();
+
+  const activitiesOptions = activites?.data.results.map(
+    ({ activity_code, activity_description, id }) => ({
+      label: `Activity code: ${activity_code},  Activity description: ${activity_description}`,
+      value: id,
+    })
+  );
+
+  const interventionsOptions = interventions?.data.results.map(
+    ({ code, id }) => ({
+      id,
+      name: code,
+    })
+  );
 
   const form = useForm<z.infer<typeof SampleMemoSchema>>({
     resolver: zodResolver(SampleMemoSchema),
@@ -41,23 +107,26 @@ const CreateActivityMemo = () => {
       location: "",
       requested_date: "",
       fconumber: [],
-      module: [],
-      inventory: [],
+      intervention: [],
       budget_line: [],
-      cost_grouping: [],
+      cost_categories: [],
       cost_input: [],
       funding_source: [],
       comment: "",
-      // reviewed_date: "",
-      // approved_date: "",
-      // program_areas: [],
+      approved_by: "",
+      reviewed_by: "",
+      created_by: "333",
       expenses: [],
     },
   });
 
-  const navigate = useNavigate();
-
-  const { control, handleSubmit, watch } = form;
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+  } = form;
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -65,25 +134,40 @@ const CreateActivityMemo = () => {
   });
 
   const onSubmit = async (data: z.infer<typeof SampleMemoSchema>) => {
-    try {
-      await createPurchaseRequestMutation(data).unwrap();
-      navigate(RouteEnum.PURCHASE_REQUEST);
-      toast.success("Successfully created.");
-    } catch (error) {
-      toast.error("Something went wrong");
-      console.log(error);
-    }
-  };
-  const lon = form.getValues();
+    console.log({ data });
 
-  console.log({ lon });
+    const selectedActivity = activites?.data?.results.find(
+      (activity) => activity.id === data?.activity
+    );
+    const selectedCostCategory = costCategories?.data?.data?.results.find(
+      (costCategory) => costCategory.id === data?.cost_categories[0]
+    );
+    console.log({ selectedActivity });
+
+    dispatch(
+      activityActions.addActivity({
+        ...data,
+        selectedActivity: selectedActivity,
+        selectedCostCategory: selectedCostCategory,
+      })
+    );
+
+    navigate(RouteEnum.SAMPLE_PREVIEW);
+  };
 
   return (
     <div className='pt-5'>
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-6'>
           <div className='grid gap-5'>
-            <FormInput label='Activity' name='activity' type='text' required />
+            {activitiesOptions && (
+              <FormSelect
+                label='Activity'
+                name='activity'
+                required
+                options={activitiesOptions}
+              />
+            )}
             <FormInput label='Location' name='location' type='text' required />
           </div>
           <div className='grid grid-cols-2 gap-5'>
@@ -93,180 +177,201 @@ const CreateActivityMemo = () => {
               type='date'
               placeholder='01/01/2024'
             />
-            <FormSelect label='FCO' name='fco' required>
-              <SelectContent>
-                {departmentsIsLoading ? (
-                  <LoadingSpinner />
-                ) : (
-                  departments?.results?.map(
-                    (department: DepartmentsResultsData) => (
-                      <SelectItem key={department?.id} value={department?.id}>
-                        {department?.name}
-                      </SelectItem>
-                    )
-                  )
+            <div>
+              <Label className='font-semibold'>FCO</Label>
+              <FormField
+                control={form.control}
+                name='fconumber'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <MultiSelectFormField
+                        options={fco?.data?.data?.results || []}
+                        defaultValue={field.value}
+                        onValueChange={field.onChange}
+                        placeholder='Select fcos'
+                        variant='inverted'
+                      />
+                    </FormControl>
+                  </FormItem>
                 )}
-              </SelectContent>
-            </FormSelect>{" "}
-          </div>
-          <div className='grid grid-cols-2 gap-5'>
-            <FormSelect label='Module' name='module' required>
-              <SelectContent>
-                {departmentsIsLoading ? (
-                  <LoadingSpinner />
-                ) : (
-                  departments?.results?.map(
-                    (department: DepartmentsResultsData) => (
-                      <SelectItem key={department?.id} value={department?.id}>
-                        {department?.name}
-                      </SelectItem>
-                    )
-                  )
-                )}
-              </SelectContent>
-            </FormSelect>
-            <FormSelect label='Inventory' name='inventory' required>
-              <SelectContent>
-                {departmentsIsLoading ? (
-                  <LoadingSpinner />
-                ) : (
-                  departments?.results?.map(
-                    (department: DepartmentsResultsData) => (
-                      <SelectItem key={department?.id} value={department?.id}>
-                        {department?.name}
-                      </SelectItem>
-                    )
-                  )
-                )}
-              </SelectContent>
-            </FormSelect>
+              />
+
+              {errors.fconumber && (
+                <span className='text-sm text-red-500 font-medium'>
+                  {errors.fconumber.message}
+                </span>
+              )}
+            </div>{" "}
           </div>
           <div className='grid gap-5'>
-            <FormSelect label=' Budget Line' name='budget_line' required>
-              <SelectContent>
-                {departmentsIsLoading ? (
-                  <LoadingSpinner />
-                ) : (
-                  departments?.results?.map(
-                    (department: DepartmentsResultsData) => (
-                      <SelectItem key={department?.id} value={department?.id}>
-                        {department?.name}
-                      </SelectItem>
-                    )
-                  )
+            <div>
+              <Label className='font-semibold'>Intervention Areas</Label>
+              <FormField
+                control={form.control}
+                name='intervention'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <MultiSelectFormField
+                        options={interventionsOptions || []}
+                        defaultValue={field.value}
+                        onValueChange={field.onChange}
+                        placeholder='Select Intervention Areas'
+                        variant='inverted'
+                      />
+                    </FormControl>
+                  </FormItem>
                 )}
-              </SelectContent>
-            </FormSelect>
-            <FormSelect label='Cost Grouping' name='cost_grouping' required>
-              <SelectContent>
-                {partnersIsLoading ? (
-                  <LoadingSpinner />
-                ) : (
-                  partner?.data.results?.map((partner) => (
-                    <SelectItem key={partner?.id} value={partner?.id}>
-                      {partner?.name}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </FormSelect>
-          </div>
-          <div className='grid grid-cols-2 gap-5'>
-            <FormSelect label='Cost Input' name='cost_input' required>
-              <SelectContent>
-                {departmentsIsLoading ? (
-                  <LoadingSpinner />
-                ) : (
-                  departments?.results?.map(
-                    (department: DepartmentsResultsData) => (
-                      <SelectItem key={department?.id} value={department?.id}>
-                        {department?.name}
-                      </SelectItem>
-                    )
-                  )
-                )}
-              </SelectContent>
-            </FormSelect>{" "}
-            <FormSelect label='Funding Source' name='funding_source' required>
-              <SelectContent>
-                {departmentsIsLoading ? (
-                  <LoadingSpinner />
-                ) : (
-                  departments?.results?.map(
-                    (department: DepartmentsResultsData) => (
-                      <SelectItem key={department?.id} value={department?.id}>
-                        {department?.name}
-                      </SelectItem>
-                    )
-                  )
-                )}
-              </SelectContent>
-            </FormSelect>
+              />
+
+              {errors.fconumber && (
+                <span className='text-sm text-red-500 font-medium'>
+                  {errors.fconumber.message}
+                </span>
+              )}
+            </div>{" "}
           </div>
           <div className='grid gap-5'>
-            <FormInput label='Comment' name='comment' type='text' />
+            <div>
+              <Label className='font-semibold'>Budget Line</Label>
+              <FormField
+                control={form.control}
+                name='budget_line'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <MultiSelectFormField
+                        options={budgetLines?.data?.data?.results || []}
+                        defaultValue={field.value}
+                        onValueChange={field.onChange}
+                        placeholder='Select Budget Lines'
+                        variant='inverted'
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              {errors.budget_line && (
+                <span className='text-sm text-red-500 font-medium'>
+                  {errors.budget_line.message}
+                </span>
+              )}
+            </div>{" "}
+            <div>
+              <Label className='font-semibold'>Cost Categories</Label>
+              <FormField
+                control={form.control}
+                name='cost_categories'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <MultiSelectFormField
+                        options={costCategories?.data?.data?.results || []}
+                        defaultValue={field.value}
+                        onValueChange={field.onChange}
+                        placeholder='Select Cost Categories'
+                        variant='inverted'
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              {errors.cost_categories && (
+                <span className='text-sm text-red-500 font-medium'>
+                  {errors.cost_categories.message}
+                </span>
+              )}
+            </div>{" "}
+          </div>
+          <div className='grid grid-cols-2 gap-5'>
+            <div>
+              <Label className='font-semibold'>Cost Input</Label>
+              <FormField
+                control={form.control}
+                name='cost_input'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <MultiSelectFormField
+                        options={costInput?.data?.data?.results || []}
+                        defaultValue={field.value}
+                        onValueChange={field.onChange}
+                        placeholder='Select Cost Inputs'
+                        variant='inverted'
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              {errors.cost_input && (
+                <span className='text-sm text-red-500 font-medium'>
+                  {errors.cost_input.message}
+                </span>
+              )}
+            </div>{" "}
+            <div>
+              <Label className='font-semibold'>Funding Sources</Label>
+              <FormField
+                control={form.control}
+                name='funding_source'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <MultiSelectFormField
+                        options={fundingSource?.data.results || []}
+                        defaultValue={field.value}
+                        onValueChange={field.onChange}
+                        placeholder='Select Funding Sources'
+                        variant='inverted'
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              {errors.funding_source && (
+                <span className='text-sm text-red-500 font-medium'>
+                  {errors.funding_source.message}
+                </span>
+              )}
+            </div>
+          </div>
+          <div className='grid  gap-5'>
+            {usersOptions && (
+              <FormSelect
+                label='To (approved_by)'
+                name='approved_by'
+                required
+                options={usersOptions}
+              />
+            )}
+
+            {usersOptions && (
+              <FormSelect
+                label='Through (reviewed_by)'
+                name='reviewed_by'
+                required
+                options={usersOptions}
+              />
+            )}
+          </div>
+          <div className='grid gap-5'>
+            <FormTextArea label='Comment' name='comment' type='text' />
           </div>
           <Separator className='my-4' />
           <span className='block space-y-2'>
             <h3 className='font-semibold text-xl text-black'>Expenses</h3>
           </span>
-
-          <div>
-            {fields.map((field, index) => (
-              <>
-                <div key={field.id} className='grid grid-cols-2 gap-5 mt-5'>
-                  <FormInput
-                    label='Expenses item'
-                    name={`expenses.${index}.expenses_item`}
-                    type='text'
-                    required
-                  />
-                  <FormInput
-                    label='Quantity'
-                    name={`expenses.${index}.quantity`}
-                    type='text'
-                    required
-                  />
-                  <FormInput
-                    label='# of Days'
-                    name={`expenses.${index}.days`}
-                    type='text'
-                  />
-                  <FormInput
-                    label='# of Facility'
-                    name={`expenses.${index}.facility`}
-                    type='text'
-                  />
-                  <FormInput
-                    label='# Frequency'
-                    name={`expenses.${index}.frequency`}
-                    type='text'
-                  />
-                  <FormInput
-                    label='Unit Cost'
-                    name={`expenses.${index}.unit_cost`}
-                    type='text'
-                  />
-                </div>
-                <div className='mt-5 flex-col flex gap-5'>
-                  <FormInput
-                    label='Total Cost'
-                    name={`expenses.${index}.total_cost`}
-                    type='text'
-                    className='col-span-2'
-                  />
-                  <Button
-                    type='button'
-                    className='w-fit'
-                    onClick={() => remove(index)}
-                  >
-                    <MinusCircle className='mr-2' />
-                    Remove
-                  </Button>
-                </div>
-              </>
-            ))}
-          </div>
+          <ExpensesForm
+            fields={fields}
+            remove={remove}
+            watch={watch}
+            setValue={setValue}
+          />
           {/*  */}
           <div className='flex items-center justify-end gap-3'>
             <FormButton
@@ -274,36 +379,36 @@ const CreateActivityMemo = () => {
               className='flex items-center justify-center gap-2'
               onClick={() =>
                 append({
-                  expenses_item: "",
+                  item: "",
                   quantity: "",
                   days: "",
                   facility: "",
                   frequency: "",
                   unit_cost: "",
-                  total_cost: "",
+                  total_cost: 0,
                 })
               }
             >
-              <AddSquareIcon className='mr-2' />
+              <AddSquareIcon />
               Add new expenses item row
             </FormButton>
 
             {/*  */}
-            <Link className='w-fit' to={generatePath(RouteEnum.SAMPLE_PREVIEW)}>
-              <FormButton
-                loading={isLoading}
-                disabled={isLoading}
-                type='submit'
-                className='flex items-center justify-center gap-2'
-              >
-                <LongArrowRight />
-                Next
-              </FormButton>
-            </Link>
+            {/* <Link className='w-fit' to={generatePath(RouteEnum.SAMPLE_PREVIEW)}> */}
+            <FormButton
+              // loading={isLoading}
+              // disabled={isLoading}
+              type='submit'
+              className='flex items-center justify-center gap-2'
+            >
+              <LongArrowRight />
+              Next
+            </FormButton>
+            {/* </Link> */}
           </div>
           <FormButton
-            loading={isLoading}
-            disabled={isLoading}
+            // loading={isLoading}
+            // disabled={isLoading}
             type='submit'
             className='flex items-center justify-center gap-2'
           >

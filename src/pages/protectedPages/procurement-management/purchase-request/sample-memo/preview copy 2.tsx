@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, Form } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Separator } from "components/ui/separator";
@@ -21,7 +21,6 @@ import {
   TableRow,
 } from "components/ui/table";
 import FormInput from "atoms/FormInput";
-import { Form } from "components/ui/form";
 
 // Sample Checkbox component
 // eslint-disable-next-line react/display-name
@@ -44,7 +43,6 @@ const UploadSchema = z.object({
   integratedTraining: z.string().nonempty(),
   budgeted: z.string().optional(),
   expended: z.string().optional(),
-  balance: z.string().optional(),
 });
 
 type FormData = z.infer<typeof UploadSchema>;
@@ -293,7 +291,7 @@ const CheckboxForm = () => {
                     </TableHeader>
                     <TableBody>
                       <TableRow>
-                        <TableCell className='p-2 rounded-none h-2'>
+                        <TableCell>
                           {" "}
                           {/* <FormInput
                             label='Budgeted'
@@ -308,13 +306,17 @@ const CheckboxForm = () => {
                               <>
                                 <input
                                   type='text'
-                                  className='w-full h-full border-none rounded-none p-2'
+                                  // value='false'
+                                  className='accent-primary top-auto'
+                                  // checked={field.value === "false"}
+                                  // onChange={() => field.onChange("false")}
                                 />
+                                <label htmlFor=''>Budgeted</label>
                               </>
                             )}
                           />
                         </TableCell>
-                        <TableCell className='p-2 rounded-none h-2'>
+                        <TableCell>
                           {" "}
                           {/* <FormInput
                             label='Expended'
@@ -329,16 +331,16 @@ const CheckboxForm = () => {
                                 <input
                                   type='text'
                                   // value='false'
-                                  className='w-full h-full border-none rounded-none p-2'
-
+                                  className='accent-primary top-auto'
                                   // checked={field.value === "false"}
                                   // onChange={() => field.onChange("false")}
                                 />
+                                <label htmlFor=''>Expended</label>
                               </>
                             )}
                           />
                         </TableCell>
-                        <TableCell className='p-2 rounded-none h-2'>
+                        <TableCell>
                           <Controller
                             name='balance'
                             control={control}
@@ -347,11 +349,11 @@ const CheckboxForm = () => {
                                 <input
                                   type='text'
                                   // value='false'
-                                  className='w-full h-full border-none rounded-none p-2'
-
+                                  className='accent-primary top-auto'
                                   // checked={field.value === "false"}
                                   // onChange={() => field.onChange("false")}
                                 />
+                                <label htmlFor=''>Balance</label>
                               </>
                             )}
                           />
