@@ -808,7 +808,7 @@ const DEPARTMENTAL_LINKS = [
                 sublinks: [
                     {
                         name: "Workforce Need Analysis",
-                        path: "/",
+                        path: HrRoutes.WORKFORCE_NEED_ANALYSIS
                     },
                     {
                         name: "Workforce Database",

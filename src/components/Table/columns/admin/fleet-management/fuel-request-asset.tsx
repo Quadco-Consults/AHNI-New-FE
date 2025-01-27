@@ -28,8 +28,8 @@ export const fuelRequestAssetColumns: ColumnDef<TAssetPaginatedData>[] = [
 
     {
         header: "Plate Number",
-        id: "_",
-        accessorKey: "_",
+        id: "plate_number",
+        accessorKey: "plate_number",
     },
 
     {

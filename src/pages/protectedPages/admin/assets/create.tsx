@@ -35,9 +35,13 @@ export default function CreateAsset() {
         resolver: zodResolver(AssetSchema),
         defaultValues: {
             name: "",
-            depreciation_rate: "",
+            asset_type: "",
+            project: "",
             assignee: "",
             asset_code: "",
+            plate_number: "",
+            donor: "",
+            depreciation_rate: "",
             acquisition_date: "",
             state: "",
             asset_condition: "",
@@ -271,6 +275,13 @@ export default function CreateAsset() {
                                 label="Asset Code"
                                 name="asset_code"
                                 placeholder="Enter Asset Code"
+                                required
+                            />
+
+                            <FormInput
+                                label="Plate Number"
+                                name="plate_number"
+                                placeholder="Enter Plate Number"
                                 required
                             />
 

@@ -35,6 +35,7 @@ export interface TItemRequisitionPaginatedData {
     status: string;
     note: null;
     treatment_datetime: string;
+    approved_by: string | null,
     approved_datetime: string;
     rejected_datetime: string;
     updated_by: string;
