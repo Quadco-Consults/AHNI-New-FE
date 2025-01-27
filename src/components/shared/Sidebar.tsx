@@ -797,7 +797,6 @@ const DEPARTMENTAL_LINKS = [
       { name: "HR Reports", path: "/" },
     ],
   },
-
   {
     name: "C&G",
     icon: <CGIcon />,
@@ -817,12 +816,10 @@ const DEPARTMENTAL_LINKS = [
           },
         ],
       },
-
       {
         name: "Closeout",
         sublinks: [{ name: "Closeout Plan", path: CG_GROUTES.CLOSE_OUT }],
       },
-
       {
         name: "Contract Management",
         sublinks: [
@@ -837,7 +834,6 @@ const DEPARTMENTAL_LINKS = [
           { name: "SLA", path: CG_GROUTES.CONSULTANCY_SLA },
         ],
       },
-
       { name: "C&G Reports", path: "/" },
     ],
   },

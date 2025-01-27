@@ -12,11 +12,11 @@ import {
   TCostInputData,
   TCostInputFormValues,
 } from "definations/modules/finance/cost-input";
+
 import {
-  useAddCostInputMutation,
-  useUpdateCostInputMutation,
-} from "services/modules/finance/cost-input";
-import FormTextArea from "atoms/FormTextArea";
+  useAddCostGroupingMutation,
+  useUpdateCostGroupingMutation,
+} from "services/modules/finance/cost-grouping";
 
 const AddCostGrouping = () => {
   const { dialogProps } = useAppSelector(dailogSelector);
@@ -32,21 +32,21 @@ const AddCostGrouping = () => {
     },
   });
 
-  const [addCostInput, { isLoading }] = useAddCostInputMutation();
-  const [updateCostInput, { isLoading: isUpdateLoading }] =
-    useUpdateCostInputMutation();
+  const [addCostGrouping, { isLoading }] = useAddCostGroupingMutation();
+  const [updateCostGrouping, { isLoading: isUpdateLoading }] =
+    useUpdateCostGroupingMutation();
 
   const dispatch = useAppDispatch();
 
   const onSubmit: SubmitHandler<TCostInputFormValues> = async (data) => {
     try {
       dialogProps?.type === "update"
-        ? await updateCostInput({
+        ? await updateCostGrouping({
             //@ts-ignore
             id: String(dialogProps?.data?.id),
             body: data,
           }).unwrap()
-        : await addCostInput(data).unwrap();
+        : await addCostGrouping(data).unwrap();
       toast.success("Category Added Succesfully");
       dispatch(closeDialog());
       form.reset();
@@ -67,12 +67,6 @@ const AddCostGrouping = () => {
             placeholder='Enter Name'
             required
           />
-
-          {/* <FormTextArea
-            label='Description'
-            name='description'
-            placeholder='Enter Description'
-          /> */}
 
           <FormInput
             label='Code'
