@@ -117,6 +117,7 @@ const CreateActivityMemo = () => {
       reviewed_by: "",
       created_by: "333",
       expenses: [],
+      // created_by: profile?.data.id,
     },
   });
 
@@ -128,6 +129,16 @@ const CreateActivityMemo = () => {
     watch,
   } = form;
 
+  useEffect(() => {
+    if (profile) {
+      form.reset({
+        created_by: profile?.data.id,
+        approved_date: "11/11/11",
+      });
+
+      // maintenance_type
+    }
+  }, [profile]);
   const { fields, append, remove } = useFieldArray({
     control,
     name: "expenses",

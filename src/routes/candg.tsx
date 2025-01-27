@@ -17,6 +17,26 @@ export const candg = [
         element: lazy(() => import("pages/protectedPages/c&g/grant/create")),
     },
 
+    {
+        path: CG_GROUTES.CREATE_SUBGRANT_SUBMISSION_DETAILS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/sub-grant/awards/id/CreateSubGrantSubmissionDetails"
+                )
+        ),
+    },
+
+    {
+        path: CG_GROUTES.CREATE_SUBGRANT_SUBMISSION_UPLOADS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/sub-grant/awards/id/CreateSubGrantSubmissionUploads"
+                )
+        ),
+    },
+
     // -----------------------
 
     {
@@ -33,41 +53,24 @@ export const candg = [
 
     // sub grant
     {
-        path: CG_GROUTES.SUB_GRANT,
+        path: CG_GROUTES.SUBGRANT,
         element: lazy(
             () => import("pages/protectedPages/c&g/sub-grant/awards")
         ),
     },
     {
-        path: CG_GROUTES.CREATE_SUBGRANT,
+        path: CG_GROUTES.CREATE_SUBGRANT_AWARD,
         element: lazy(
             () => import("pages/protectedPages/c&g/sub-grant/awards/create")
         ),
     },
     {
-        path: CG_GROUTES.SUB_GRANT_DETAILS,
+        path: CG_GROUTES.SUBGRANT_AWARD_DETAILS,
         element: lazy(
-            () => import("pages/protectedPages/candg/subGrant/SubGrantDetails")
+            () => import("pages/protectedPages/c&g/sub-grant/awards/id")
         ),
     },
-    {
-        path: CG_GROUTES.MANUAL_SUB_GRANT_SUBMISSION,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/candg/subGrant/ManualSubGrantSubmission"
-                )
-        ),
-    },
-    {
-        path: CG_GROUTES.MANUAL_SUB_GRANT_SUBMISSION_DOCS,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/candg/subGrant/ManualSubmissionDocumentUpload"
-                )
-        ),
-    },
+
     {
         path: CG_GROUTES.SUBMITTED_APPLICATIONS,
         element: lazy(

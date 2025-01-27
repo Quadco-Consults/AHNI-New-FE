@@ -9,6 +9,7 @@ import EyeIcon from "components/icons/EyeIcon";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import { ChevronDown } from "lucide-react";
+import TableFilters from "components/Table/TableFilters";
 
 type projectData = {
     date: string;
@@ -74,22 +75,10 @@ const Activity = () => {
     };
 
     return (
-        <Card className="space-y-5">
-            <div className="flex items-center justify-start gap-2">
-                <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
-                    <SearchIcon />
-                    <input
-                        placeholder="Search"
-                        type="text"
-                        className="ml-2 h-6 border-none w-[350px] bg-none focus:outline-none outline-none"
-                    />
-                </span>
-                <Button className="shadow-sm" variant="ghost">
-                    <FilterIcon />
-            </Button>
-            </div>
-
-            <DataTable data={[]} columns={columns} isLoading={false} />
+        <Card>
+            <TableFilters>
+                <DataTable data={[]} columns={columns} isLoading={false} />
+            </TableFilters>
         </Card>
     );
 };

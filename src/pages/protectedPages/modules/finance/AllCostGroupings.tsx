@@ -18,8 +18,6 @@ export default function AllCostGroupings() {
     size: 20,
   });
 
-  console.log({ costGrouping });
-
   const [deleteCostInput, { isLoading: isDeleteLoading }] =
     useDeleteCostInputMutation();
 

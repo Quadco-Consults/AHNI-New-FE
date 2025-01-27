@@ -3,15 +3,31 @@ import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelect";
 import Card from "components/shared/Card";
+import { Button } from "components/ui/button";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
+import {
+    DialogType,
+    largeDailogScreen,
+    mediumDailogScreen,
+} from "constants/dailogs";
+import { useAppDispatch } from "hooks/useStore";
 import { useForm } from "react-hook-form";
+import { openDialog } from "store/ui";
+
+const tenderTypeOptions = [
+    { label: "CLOSED SOURCE", value: "CLOSED_SOURCE" },
+    { label: "LIMITED SOLICITATION", value: "LIMITED_SOLICITATION" },
+    { label: "NATIONAL OPEN TENDER", value: "NATIONAL_OPEN_TENDER" },
+];
 
 export default function CreateSubGrant() {
     const form = useForm();
 
     const onSubmit = async (data: any) => {};
-    
+
+    const dispatch = useAppDispatch();
+
     return (
         <Card>
             <BackNavigation />
@@ -29,22 +45,22 @@ export default function CreateSubGrant() {
                             options={[]}
                         />
 
-                        <FormSelect
+                        {/* <FormSelect
                             label="Partner"
                             name="grant"
                             placeholder="Select Partner"
                             required
                             options={[]}
+                        /> */}
+
+                        <FormInput
+                            name="project_title"
+                            label="Project Title"
+                            required={true}
+                            placeholder="Enter Subgrant Title"
                         />
 
-                        <div className="grid grid-cols-3 gap-8">
-                            <FormInput
-                                name="project_title"
-                                label="Project Title"
-                                required={true}
-                                placeholder="Enter Subgrant Title"
-                            />
-
+                        <div className="grid grid-cols-2 gap-8">
                             <FormSelect
                                 name="grant_administrator"
                                 label="AHNI Grant Administrator"
@@ -98,7 +114,53 @@ export default function CreateSubGrant() {
                                 type="date"
                                 required
                             />
+
+                            <FormInput
+                                label="Opening Date"
+                                name="start_date"
+                                type="date"
+                                required
+                            />
+
+                            <FormInput
+                                label="Closing Date"
+                                name="end_date"
+                                type="date"
+                                required
+                            />
+
+                            <FormSelect
+                                label="Tender Type"
+                                options={tenderTypeOptions}
+                                name="end_date"
+                                required
+                            />
+
+                            <FormInput
+                                label="Assessment Date"
+                                name="end_date"
+                                type="date"
+                                required
+                            />
                         </div>
+
+                        <Button
+                            variant="ghost"
+                            type="button"
+                            className="text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm"
+                            onClick={() =>
+                                dispatch(
+                                    openDialog({
+                                        type: DialogType.AddTeamMenbers,
+                                        dialogProps: {
+                                            ...largeDailogScreen,
+                                        },
+                                    })
+                                )
+                            }
+                        >
+                            Click to select committe memebers
+                        </Button>
                         <div className="flex justify-end">
                             <FormButton loading={false}>Submit</FormButton>
                         </div>

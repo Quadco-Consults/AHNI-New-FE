@@ -1,5 +1,4 @@
 // import { useState } from "react";
-import ManualSubGrantStepWrapper from "./ManualSubGrantStepWrapper";
 import Card from "components/shared/Card";
 import FadedButton from "atoms/FadedButton";
 import AddSquareIcon from "components/icons/AddSquareIcon";
@@ -15,6 +14,7 @@ import { toast } from "sonner";
 import { objectToFormData } from "utils/utls";
 import FormButton from "atoms/FormButton";
 import { CG_GROUTES } from "constants/RouterConstants";
+import ManualSubGrantStepWrapper from "./CreateSubGrantSubmissionWrapper";
 
 export interface DocumentPayload {
     document_name: string;
@@ -53,7 +53,7 @@ const ManualSubmissionDocumentUpload = () => {
             }
         }
         setTimeout(() => {
-            navigate(generatePath(CG_GROUTES.SUB_GRANT));
+            navigate(generatePath(CG_GROUTES.SUBGRANT));
             sessionStorage.removeItem("newManualSubgrantSteps");
         }, 1500);
     };

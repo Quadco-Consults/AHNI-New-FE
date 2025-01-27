@@ -53,7 +53,7 @@ function PurchaseRequest() {
       size: 150,
     },
     {
-      header: "",
+      header: "Actions",
       id: "actions",
       cell: ({ row }) => <ActionListAction data={row.original} />,
     },

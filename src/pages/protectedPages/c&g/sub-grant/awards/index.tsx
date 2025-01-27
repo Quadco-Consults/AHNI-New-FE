@@ -10,7 +10,7 @@ export default function SubGrant() {
     return (
         <section>
             <div className="flex justify-end">
-                <Link to={CG_GROUTES.CREATE_SUBGRANT}>
+                <Link to={CG_GROUTES.CREATE_SUBGRANT_AWARD}>
                     <Button>
                         <AddSquareIcon />
                         New Sub Grant

@@ -17,6 +17,9 @@ import { useDeleteSupervisionPlanMutation } from "services/program/plan/supervis
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 import { useState } from "react";
 import PencilIcon from "components/icons/PencilIcon";
+import { useAppDispatch } from "hooks/useStore";
+import { openDialog } from "store/ui";
+import { DialogType } from "constants/dailogs";
 
 export const supportiveSupervisionPlanColumns: ColumnDef<TSupervisionPlanPaginatedData>[] =
     [
@@ -90,6 +93,8 @@ export const supportiveSupervisionPlanColumns: ColumnDef<TSupervisionPlanPaginat
 const TableMenu = ({ id }: TSupervisionPlanPaginatedData) => {
     const [dialogOpen, setDialogOpen] = useState(false);
 
+    const dispatch = useAppDispatch();
+
     const [deleteSupervisionPlan, { isLoading }] =
         useDeleteSupervisionPlanMutation();
 
@@ -147,22 +152,22 @@ const TableMenu = ({ id }: TSupervisionPlanPaginatedData) => {
                             <Button
                                 className="w-full flex items-center justify-start gap-2"
                                 variant="ghost"
-                                // onClick={() => {
-                                //     dispatch(
-                                //         openDialog({
-                                //             type: DialogType.SspApproveModal,
-                                //             dialogProps: {
-                                //                 header: "Request Approval",
-                                //                 width: "max-w-2xl",
-                                //             },
-                                //         })
-                                //     );
-                                // }}
+                                onClick={() => {
+                                    dispatch(
+                                        openDialog({
+                                            type: DialogType.SspApproveModal,
+                                            dialogProps: {
+                                                header: "Approve Supportive Supervision Plan",
+                                                width: "max-w-2xl",
+                                            },
+                                        })
+                                    );
+                                }}
                             >
                                 <ApproveIcon />
                                 Approve
                             </Button>
-                            {/* <Link
+                            <Link
                                 to={
                                     RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS_APPROVAL
                                 }
@@ -174,7 +179,7 @@ const TableMenu = ({ id }: TSupervisionPlanPaginatedData) => {
                                     <ApprovalStatusIcon />
                                     Approval Status
                                 </Button>
-                            </Link> */}
+                            </Link>
                             <Button
                                 className="w-full flex items-center justify-start gap-2"
                                 variant="ghost"

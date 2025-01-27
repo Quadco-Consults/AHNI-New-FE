@@ -1,8 +1,8 @@
 import BackNavigation from "atoms/BackNavigation";
 import TabState from "components/ui/TabState";
 import React, { useState } from "react";
-import GrantDetailsCard from "../../../candg/grant/GrantDetailsCard";
-import ExpenditureHistory from "../../../candg/grant/ExpenditureHistory";
+import GrantDetailsCard from "../../candg/grant/GrantDetailsCard";
+import ExpenditureHistory from "../../candg/grant/ExpenditureHistory";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import { Button } from "components/ui/button";
 import { openDialog } from "store/ui";

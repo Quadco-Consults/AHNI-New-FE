@@ -15,6 +15,8 @@ import { useDeleteItemRequisitionMutation } from "services/admin/inventory-manag
 import { toast } from "sonner";
 import PencilIcon from "components/icons/PencilIcon";
 import EditIcon from "components/icons/EditIcon";
+import { Badge } from "components/ui/badge";
+import { cn } from "lib/utils";
 
 export const itemRequisitionColumns: ColumnDef<TItemRequisitionPaginatedData>[] =
     [
@@ -40,6 +42,20 @@ export const itemRequisitionColumns: ColumnDef<TItemRequisitionPaginatedData>[] 
         {
             header: "Status",
             accessorKey: "status",
+            cell: ({ getValue }) => {
+                const status = "PENDING";
+
+                return (
+                    <Badge
+                        variant="default"
+                        className={cn(
+                            "p-1 rounded-lg bg-yellow-200 text-yellow-500"
+                        )}
+                    >
+                        {status}
+                    </Badge>
+                );
+            },
         },
         {
             header: "Approved by",
