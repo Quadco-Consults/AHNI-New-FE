@@ -125,7 +125,7 @@ export const SampleMemoSchema = z.object({
   location: z.string().min(1, "Field is required"),
   requested_date: z.string().min(1, "Field is required"),
   fconumber: z.array(z.string().min(1, "Field is required")),
-  intervention: z.array(z.string().min(1, "Field is required")),
+  intervention_areas: z.array(z.string().min(1, "Field is required")),
   budget_line: z.array(z.string().min(1, "Field is required")),
   cost_categories: z.array(z.string().min(1, "Field is required")),
   cost_input: z.array(z.string().min(1, "Field is required")),

@@ -232,9 +232,119 @@ const CreatePurchaseRequestForm = () => {
             <h3 className='mb-4'>Requested By</h3>
             <div className='flex flex-col gap-6'>
               <div className='grid grid-cols-2 gap-5'>
-                <FormInput label='Name' name='name' type='text' />
-                <FormInput label='Role' name='role' type='text' />
+                <FormSelect label='Name' name='name' required>
+                  <SelectContent>
+                    {departmentsIsLoading ? (
+                      <LoadingSpinner />
+                    ) : (
+                      departments?.results?.map(
+                        (department: DepartmentsResultsData) => (
+                          <SelectItem
+                            key={department?.id}
+                            value={department?.id}
+                          >
+                            {department?.name}
+                          </SelectItem>
+                        )
+                      )
+                    )}
+                  </SelectContent>
+                </FormSelect>
+                <FormSelect label='Role' name='role' required>
+                  <SelectContent>
+                    {partnersIsLoading ? (
+                      <LoadingSpinner />
+                    ) : (
+                      partner?.data.results?.map((partner) => (
+                        <SelectItem key={partner?.id} value={partner?.id}>
+                          {partner?.name}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </FormSelect>
               </div>
+            </div>
+          </div>
+          <div className='my-2'>
+            <h3 className='mb-4'>Reviewed By</h3>
+            <div className='flex flex-col gap-6'>
+              <div className='grid grid-cols-2 gap-5'>
+                <FormSelect label='Name' name='name' required>
+                  <SelectContent>
+                    {departmentsIsLoading ? (
+                      <LoadingSpinner />
+                    ) : (
+                      departments?.results?.map(
+                        (department: DepartmentsResultsData) => (
+                          <SelectItem
+                            key={department?.id}
+                            value={department?.id}
+                          >
+                            {department?.name}
+                          </SelectItem>
+                        )
+                      )
+                    )}
+                  </SelectContent>
+                </FormSelect>
+                <FormSelect label='Role' name='role' required>
+                  <SelectContent>
+                    {partnersIsLoading ? (
+                      <LoadingSpinner />
+                    ) : (
+                      partner?.data.results?.map((partner) => (
+                        <SelectItem key={partner?.id} value={partner?.id}>
+                          {partner?.name}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </FormSelect>
+              </div>
+            </div>
+          </div>
+          <div className='my-2'>
+            <h3 className='mb-4'>Approved By</h3>
+            <div className='flex flex-col gap-6'>
+              <div className='grid grid-cols-2 gap-5'>
+                <FormSelect label='Name' name='name' required>
+                  <SelectContent>
+                    {departmentsIsLoading ? (
+                      <LoadingSpinner />
+                    ) : (
+                      departments?.results?.map(
+                        (department: DepartmentsResultsData) => (
+                          <SelectItem
+                            key={department?.id}
+                            value={department?.id}
+                          >
+                            {department?.name}
+                          </SelectItem>
+                        )
+                      )
+                    )}
+                  </SelectContent>
+                </FormSelect>
+                <FormSelect label='Role' name='role' required>
+                  <SelectContent>
+                    {partnersIsLoading ? (
+                      <LoadingSpinner />
+                    ) : (
+                      partner?.data.results?.map((partner) => (
+                        <SelectItem key={partner?.id} value={partner?.id}>
+                          {partner?.name}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </FormSelect>
+              </div>
+            </div>
+          </div>
+          <div className='my-2'>
+            <h3 className='mb-4'>Authorized By</h3>
+            <div className='flex flex-col gap-6'>
               <div className='grid grid-cols-2 gap-5'>
                 <FormSelect label='Name' name='name' required>
                   <SelectContent>

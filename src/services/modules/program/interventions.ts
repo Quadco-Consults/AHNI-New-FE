@@ -21,6 +21,16 @@ const InterventionAreaAPI = baseAPI.injectEndpoints({
       providesTags: ["InterventionArea"],
     }),
 
+    getSingleInterventionArea: builder.query<
+      TResponse<TInterventionAreaData>,
+      string
+    >({
+      query: (id) => ({
+        method: "GET",
+        url: `${BASE_URL}${id}/`,
+      }),
+      providesTags: ["InterventionArea"],
+    }),
     addInterventionArea: builder.mutation<
       TResponse<TInterventionAreaData>,
       TInterventionAreaFormValues
@@ -63,4 +73,5 @@ export const {
   useAddInterventionAreaMutation,
   useUpdateInterventionAreaMutation,
   useDeleteInterventionAreaMutation,
+  useGetSingleInterventionAreaQuery,
 } = InterventionAreaAPI;

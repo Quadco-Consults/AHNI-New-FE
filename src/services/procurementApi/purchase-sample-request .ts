@@ -5,6 +5,7 @@
 //   PurchaseRequestResponse,
 //   PurchaseRequestResultsData,
 // } from "definations/procurement-types/purchase-request";
+import { PurchaseRequestResultsData } from "definations/procurement-types/purchase-request";
 import baseAPI from "..";
 import { z } from "zod";
 // import { PurchaseRequestSchema } from "definations/procurement-validator";
@@ -38,20 +39,20 @@ const PurchaseRequestAPI = baseAPI.injectEndpoints({
         method: "POST",
         body,
       }),
-      // invalidatesTags: ["PURCHASE_REQUEST"],
+      invalidatesTags: ["SAMPLE_MEMO"],
     }),
 
-    // getPurchaseRequest: builder.query<
-    //   PurchaseRequestResultsData,
-    //   { path: { id: string } }
-    // >({
-    //   query: ({ path }) => {
-    //     return {
-    //       url: `${BASE_URL}${path.id}/`,
-    //     };
-    //   },
-    //   providesTags: ["PURCHASE_REQUEST"],
-    // }),
+    getActivityMemo: builder.query<
+      PurchaseRequestResultsData,
+      { path: { id: string } }
+    >({
+      query: ({ path }) => {
+        return {
+          url: `${BASE_URL}${path.id}/`,
+        };
+      },
+      providesTags: ["SAMPLE_MEMO"],
+    }),
 
     // updatePurchaseRequest: builder.mutation<
     //   PurchaseRequestResponse,
