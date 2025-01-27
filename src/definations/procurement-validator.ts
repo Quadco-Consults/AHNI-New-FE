@@ -125,10 +125,9 @@ export const SampleMemoSchema = z.object({
   location: z.string().min(1, "Field is required"),
   requested_date: z.string().min(1, "Field is required"),
   fconumber: z.array(z.string().min(1, "Field is required")),
-  module: z.string().min(1, "Field is required"),
-  intervention: z.string().min(1, "Field is required"),
+  intervention: z.array(z.string().min(1, "Field is required")),
   budget_line: z.array(z.string().min(1, "Field is required")),
-  cost_grouping: z.array(z.string().min(1, "Field is required")),
+  cost_categories: z.array(z.string().min(1, "Field is required")),
   cost_input: z.array(z.string().min(1, "Field is required")),
   funding_source: z.array(z.string().min(1, "Field is required")),
   comment: z.string().min(1, "Field is required"),
@@ -137,13 +136,13 @@ export const SampleMemoSchema = z.object({
   created_by: z.string().min(1, "Field is required"),
   expenses: z.array(
     z.object({
-      expenses_item: z.string().optional(),
+      item: z.string().optional(),
       quantity: z.string().optional(),
       days: z.string().optional(),
       facility: z.string().optional(),
       frequency: z.string().optional(),
       unit_cost: z.string().optional(),
-      total_cost: z.string().optional(),
+      total_cost: z.number().optional(),
     })
   ),
 });

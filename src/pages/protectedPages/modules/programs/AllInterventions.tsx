@@ -6,26 +6,27 @@ import { DialogType } from "constants/dailogs";
 import TableAction from "atoms/TableAction";
 import { LoadingSpinner } from "components/shared/Loading";
 import { useState } from "react";
-import { useDeleteCostInputMutation } from "services/modules/finance/cost-input";
 import Pagination from "components/shared/Pagination";
-import { useGetAllCostGroupingsQuery } from "services/modules/finance/cost-grouping";
+import {
+  useDeleteInterventionAreaMutation,
+  useGetAllInterventionAreaQuery,
+} from "services/modules/program/interventions";
 
-export default function AllCostGroupings() {
+export default function AllInterventions() {
   const [page, setPage] = useState(1);
 
-  const { data: costGrouping, isFetching } = useGetAllCostGroupingsQuery({
+  const { data: interventions, isFetching } = useGetAllInterventionAreaQuery({
     page,
     size: 20,
   });
-
-  const [deleteCostInput, { isLoading: isDeleteLoading }] =
-    useDeleteCostInputMutation();
-
   const dispatch = useAppDispatch();
+
+  const [deleteIntervention, { isLoading: isDeleteLoading }] =
+    useDeleteInterventionAreaMutation();
 
   const onSubmit = async (id: string) => {
     try {
-      await deleteCostInput(id).unwrap();
+      await deleteIntervention(id).unwrap();
       toast.success("Deleted Successfully");
     } catch (error: any) {
       toast.error(error.data.message ?? "Something went wrong");
@@ -35,9 +36,9 @@ export default function AllCostGroupings() {
   const onUpdate = (item: any) => {
     dispatch(
       openDialog({
-        type: DialogType.AddCostInput,
+        type: DialogType.AddInterventionArea,
         dialogProps: {
-          header: "Update Cost Input",
+          header: "Update Risk Category",
           data: item,
           type: "update",
         },
@@ -46,16 +47,17 @@ export default function AllCostGroupings() {
   };
   return (
     <div>
-      <div className='flex items-center justify-between py-6 mb-6'>
-        <h1 className='text-[#D92D20] font-semibold text-sm'>Cost Input</h1>
-
+      <div className='flex justify-between items-center py-6 mb-6'>
+        <h1 className='text-[#D92D20] font-semibold text-sm'>
+          Intervention Areas
+        </h1>
         <Button
           onClick={() =>
             dispatch(
               openDialog({
-                type: DialogType.AddCostGrouping,
+                type: DialogType.AddInterventionArea,
                 dialogProps: {
-                  header: "Add Cost Grouping",
+                  header: "Add Intervention Area",
                 },
               })
             )
@@ -68,25 +70,23 @@ export default function AllCostGroupings() {
         </Button>
       </div>
       <div>
-        <div className='flex justify-between text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4'>
-          <h1 className='flex-1'>Name</h1>
-          <h1 className='flex-1'>Description</h1>
+        <div className='flex text-[#756D6D] font-semibold text-sm mb-10'>
           <h1 className='flex-1'>Code</h1>
+          <h1 className='flex-1'>Description</h1>
           <h1 className='flex-1'></h1>
         </div>
 
         {isFetching || isDeleteLoading ? (
           <LoadingSpinner />
         ) : (
-          <div>
-            {costGrouping?.data?.results?.map((item) => (
+          <>
+            {interventions?.data?.results.map((item) => (
               <div
                 key={item.id}
                 className='flex justify-between mt-6 text-[#756D6D] font-normal text-xs'
               >
-                <p className='flex-1'>{item.name}</p>
-                <p className='flex-1'>{item.description || "N/A"}</p>
                 <p className='flex-1'>{item.code}</p>
+                <p className='flex-1'>{item.description || "N/A"}</p>
                 <div className='flex-1'>
                   <TableAction
                     update
@@ -97,12 +97,12 @@ export default function AllCostGroupings() {
                 </div>
               </div>
             ))}
-          </div>
+          </>
         )}
 
         <Pagination
-          total={costGrouping?.data.pagination.count ?? 0}
-          itemsPerPage={costGrouping?.data.pagination.page_size ?? 0}
+          total={interventions?.data.pagination.count ?? 0}
+          itemsPerPage={interventions?.data.pagination.page_size ?? 0}
           onChange={(page: number) => setPage(page)}
         />
       </div>
