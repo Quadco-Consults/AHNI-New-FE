@@ -20,9 +20,9 @@ import {
   TableHeader,
   TableRow,
 } from "components/ui/table";
-import FormInput from "atoms/FormInput";
+// import FormInput from "atoms/FormInput";
 import { Form } from "components/ui/form";
-import { generatePath, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
 
 // Sample Checkbox component
@@ -44,14 +44,16 @@ const UploadSchema = z.object({
     )
     .nonempty(),
   integratedTraining: z.string().nonempty(),
-  budgeted: z.string().optional(),
-  expended: z.string().optional(),
+  activity_budget: z.string().optional(),
+  budget_expended: z.string().optional(),
   balance: z.string().optional(),
 });
 
 type FormData = z.infer<typeof UploadSchema>;
 
 const CheckboxForm = () => {
+  const navigate = useNavigate();
+
   const activity = useSelector((state: RootState) => state.activity.activity);
   const mergedObject = activity.reduce((acc: any, obj: any) => {
     return { ...acc, ...obj };
@@ -108,14 +110,14 @@ const CheckboxForm = () => {
         "beneficiaries",
         // @ts-ignore
 
-        beneficiaries?.data?.results.map(({ name, id }) => ({
+        projects?.data?.results.map(({ name, id }) => ({
           name,
           selected: false,
           id,
         }))
       );
     }
-  }, [integratedTraining, beneficiaries, setValue]);
+  }, [integratedTraining, projects, setValue]);
 
   const [createActivityMemoMutation] =
     PurchaseRequestAPI.useCreateActivityMemoMutation();
@@ -132,20 +134,34 @@ const CheckboxForm = () => {
     const filteredBeneficiaries = data?.beneficiaries?.filter(
       (beneficiary) => beneficiary.selected
     );
-    const program_areas = filteredBeneficiaries.map((fb) => fb.id);
-    console.log(
-      "Filtered Beneficiaries:",
-      filteredBeneficiaries,
-      program_areas
-    );
+    const program_area = filteredBeneficiaries.map((fb) => fb.id);
+    console.log("Filtered Beneficiaries:", filteredBeneficiaries, program_area);
     console.log("Form Data:", data);
     console.log(mergedObject);
-    const payload = { ...mergedObject, program_areas };
-    console.log({ payload });
+    const payload = {
+      activity: mergedObject.activity,
+      activity_budget: data.activity_budget,
+      approved_by: mergedObject.approved_by,
+      balance: data.balance,
+      budget_line: mergedObject.budget_line,
+      comment: mergedObject.comment,
+      cost_categories: mergedObject.cost_categories,
+      cost_input: mergedObject.cost_input,
+      created_by: mergedObject.created_by,
+      expenses: mergedObject.expenses,
+      fconumber: mergedObject.fcnumber,
+      funding_source: mergedObject.funding_source,
+      intervention_areas: mergedObject.intervention_areas,
+      location: mergedObject.location,
+      requested_date: mergedObject.requested_date,
+      reviewed_by: mergedObject.reviewed_by,
+      program_area: program_area[0],
+      budget_expended: data.budget_expended,
+    };
 
     try {
       await createActivityMemoMutation(payload).unwrap();
-      // navigate(RouteEnum.SAMPLE_PREVIEW);
+      navigate(RouteEnum.SAMPLE_PREVIEW);
       toast.success("Successfully created.");
     } catch (error) {
       toast.error("Something went wrong");
@@ -157,11 +173,11 @@ const CheckboxForm = () => {
     <Form {...form}>
       <form onSubmit={handleSubmit(onSubmit)} className='space-y-10'>
         <Card className='border-yellow-darker flex flex-col gap-2 justify-between'>
-          <h2 className='font-semibold text-base'>Program Areas</h2>
+          <h2 className='font-semibold text-base'>Project Area(s)</h2>
           <div className='flex justify-between gap-2'>
             <p>
               Is the training an integrated training (contains more than one
-              program area)?
+              project area)?
             </p>
             <div className='flex gap-5 justify-between'>
               <div className='flex items-center space-x-2 justify-center'>
@@ -207,7 +223,7 @@ const CheckboxForm = () => {
               <Separator className='my-4' />
               <div className='flex flex-col gap-5'>
                 <h2 className='font-semibold text-base'>
-                  Please select Program Area(s):
+                  Please select Project Area(s):
                 </h2>
                 <div>
                   <h2 className='font-semibold text-base my-3'>Projects</h2>
@@ -251,7 +267,7 @@ const CheckboxForm = () => {
             <TableHeader>
               <TableRow>
                 <TableCell className='text-center'>
-                  To be completed by Programs
+                  To be completed by Projects
                 </TableCell>
                 <TableCell className='text-center'>
                   {" "}
@@ -299,18 +315,19 @@ const CheckboxForm = () => {
                           {" "}
                           {/* <FormInput
                             label='Budgeted'
-                            // name='budgeted'
+                            // name='activity_budget'
                             type='text'
                           />
                            */}
                           <Controller
-                            name='budgeted'
+                            name='activity_budget'
                             control={control}
                             render={({ field }) => (
                               <>
                                 <input
                                   type='text'
                                   className='w-full h-full border-none rounded-none p-2'
+                                  {...field}
                                 />
                               </>
                             )}
@@ -320,11 +337,11 @@ const CheckboxForm = () => {
                           {" "}
                           {/* <FormInput
                             label='Expended'
-                            // name='expended'
+                            // name='budget_expended'
                             type='text'
                           /> */}
                           <Controller
-                            name='expended'
+                            name='budget_expended'
                             control={control}
                             render={({ field }) => (
                               <>
@@ -332,7 +349,7 @@ const CheckboxForm = () => {
                                   type='text'
                                   // value='false'
                                   className='w-full h-full border-none rounded-none p-2'
-
+                                  {...field}
                                   // checked={field.value === "false"}
                                   // onChange={() => field.onChange("false")}
                                 />
@@ -350,7 +367,7 @@ const CheckboxForm = () => {
                                   type='text'
                                   // value='false'
                                   className='w-full h-full border-none rounded-none p-2'
-
+                                  {...field}
                                   // checked={field.value === "false"}
                                   // onChange={() => field.onChange("false")}
                                 />
@@ -367,15 +384,15 @@ const CheckboxForm = () => {
           </Table>
         </div>
         <div className='w-full px-4'>
-          <Link className='w-fit' to={generatePath(RouteEnum.PREVIEW_LETTER)}>
-            <Button
-              type='submit'
-              className='mt-4 px-4 py-2 bg-alternate text-primary rounded w-full'
-            >
-              <Save size={20} />
-              Save
-            </Button>
-          </Link>
+          {/* <Link className='w-fit' to={generatePath(RouteEnum.PREVIEW_LETTER)}> */}
+          <Button
+            type='submit'
+            className='mt-4 px-4 py-2 bg-alternate text-primary rounded w-full'
+          >
+            <Save size={20} />
+            Save
+          </Button>
+          {/* </Link> */}
         </div>
       </form>
     </Form>
