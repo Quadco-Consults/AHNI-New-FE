@@ -4,8 +4,50 @@ import { RouteEnum } from "constants/RouterConstants";
 import logoPng from "assets/svgs/logo-bg.svg";
 
 import { generatePath, Link } from "react-router-dom";
+import PurchaseRequestAPI from "services/procurementApi/purchase-sample-request ";
+import { useMemo } from "react";
+import { useGetSingleBudgetLineQuery } from "services/modules/finance/budget-line";
+
+// import { useGetSingleFCONumberQuery } from "services/modules/finance/fco-number";
+import { useGetSingleInterventionAreaQuery } from "services/modules/program/interventions";
+import { useGetSingleCostCategoryQuery } from "services/modules/finance/cost-category";
+import { useGetSingleCostInputQuery } from "services/modules/finance/cost-input";
+import { useGetSingleFCONumberQuery } from "services/modules/finance/fco-number";
 
 const Preview = () => {
+  const { data: requestsDetails, isLoading: requestsDetailsIsLoading } =
+    PurchaseRequestAPI.useGetActivityMemoQuery(
+      useMemo(
+        () => ({
+          path: { id: "14700b16-9a76-46a3-ad06-4371b3dc96a6" as string },
+        }),
+        ["14700b16-9a76-46a3-ad06-4371b3dc96a6"]
+      )
+    );
+
+  console.log({ requestsDetails, requestsDetailsIsLoading });
+
+  const { data: budgetLine } =
+    // @ts-ignore
+    useGetSingleBudgetLineQuery(requestsDetails?.budget_line[0]);
+
+  const { data: interventionArea } =
+    // @ts-ignore
+    useGetSingleInterventionAreaQuery(requestsDetails?.intervention_areas[0]);
+
+  const { data: costCategory } =
+    // @ts-ignore
+    useGetSingleCostCategoryQuery(requestsDetails?.cost_categories[0]);
+
+  const { data: costInput } =
+    // @ts-ignore
+    useGetSingleCostInputQuery(requestsDetails?.cost_input[0]);
+
+  const { data: fcoNumber } = useGetSingleFCONumberQuery(
+    // @ts-ignore
+    requestsDetails?.fconumber[0]
+  );
+
   return (
     <div className='bg-white p-8'>
       <div className='flex justify-center items-center flex-col'>
@@ -15,46 +57,51 @@ const Preview = () => {
       </div>
 
       <div>
-        <h2>To:</h2>
-        <h2 className='my-8'>THROUGH:</h2>
-        <h2>FROM:</h2>
+        {/* @ts-ignore */}
+
+        <h2>To: {requestsDetails?.approved_by?.name}</h2>
+        {/* @ts-ignore */}
+
+        <h2 className='my-8'>THROUGH: {requestsDetails?.reviewed_by?.name}</h2>
+        {/* @ts-ignore */}
+        <h2>FROM: {requestsDetails?.created_by?.name}</h2>
 
         <div className='mt-8'>
-          <div className='flex'>
-            <p>Budget Line #: 916</p>
-            <p>FCO#: N-THRIP </p>
+          <div className='flex gap-8'>
+            <p>
+              <strong>Budget Line #: </strong>
+              {budgetLine && budgetLine?.data?.name}
+            </p>
+            <p>
+              <strong>FCO#: </strong>
+              {fcoNumber && fcoNumber?.data?.name}
+            </p>
           </div>
-          <p>Module: Program management </p>
-          <p>Intervention: Grant management </p>
-          <div className='flex'>
-            <p>Cost Grouping #: 11.0</p>
-            <p>Cost Input #: 11.1</p>
-          </div>
-          <p className='mt-8'>Date: 15/07/2024</p>
 
+          <p>
+            <strong>Intervention: </strong>
+            {interventionArea && interventionArea?.data?.code}{" "}
+          </p>
+          <div className='flex gap-4'>
+            <p>
+              <strong>Cost Category#: </strong>
+              {costCategory && costCategory?.data?.code}{" "}
+            </p>
+            <p>
+              <strong>Cost Input #:</strong>
+              {costCategory && costInput?.data?.name}{" "}
+            </p>
+          </div>
+          {/* @ts-ignore */}
+          <p className='mt-8'>Date: {requestsDetails?.requested_date}</p>
           <p className='my-8'>
-            Subject: 9.2.2 Anambra State Office Admin Cost Q3(July - September
-            2024)
+            <strong>Subject:</strong>
           </p>
         </div>
 
         <div className=''>
-          <p>
-            To ensure smooth, efficient, and uninterrupted service
-            delivery/program implementation at the Anambra State Surge Office on
-            the Global Fund N-THRIP, the State Office is requesting approval to
-            implement operational Cost items as approved in BL916 of the state
-            workplan for Quarter 3(July– September 2024). The expense head as
-            per the attached list is considered necessary and immediately
-            required for the daily running and maintenance of the Anambra State
-            office. This is therefore a request to approve the sum of Eight
-            Million, Five Hundred and Seven Thousand, Four Hundred and
-            Fifty-three Naira (₦8,507,453.00 ) only to be charged to BL916 for
-            immediate purchase of listed items/execution of maintenance for
-            effective operations in the state Site for Quarter 3(July– September
-            2024). Please, attached is the activity budget for your review and
-            approval.{" "}
-          </p>
+          {/* @ts-ignore */}
+          <p>{requestsDetails?.comment}</p>
           <p className='mt-8'>Thank you</p>
         </div>
         <div className='w-full px-4 justify-end flex'>
