@@ -9,72 +9,104 @@ import {
   TableRow,
 } from "components/ui/table";
 import { RouteEnum } from "constants/RouterConstants";
-import React, { useEffect, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { generatePath, Link } from "react-router-dom";
 import logoPng from "assets/svgs/logo-bg.svg";
+import PurchaseRequestAPI from "services/procurementApi/purchase-sample-request ";
+import { useGetSingleBudgetLineQuery } from "services/modules/finance/budget-line";
+import { useGetSingleCostCategoryQuery } from "services/modules/finance/cost-category";
+import { useGetSingleCostInputQuery } from "services/modules/finance/cost-input";
+// import { useGetSingleFundingSourceQuery } from "services/modules/project/funding-source";
 
 const Preview = () => {
-  const [rows, setRows] = useState([]);
+  const { data: requestsDetails } = PurchaseRequestAPI.useGetActivityMemoQuery(
+    useMemo(
+      () => ({
+        path: { id: "14700b16-9a76-46a3-ad06-4371b3dc96a6" as string },
+      }),
+      ["14700b16-9a76-46a3-ad06-4371b3dc96a6"]
+    )
+  );
+
+  console.log({ requestsDetails });
+
+  // const [rows, setRows] = useState([]);
 
   // Simulating fetching data
   useEffect(() => {
     const fetchData = async () => {
-      const data = [
-        {
-          item: "Stationery",
-          quantity: 10,
-          days: 2,
-          facility: 3,
-          frequency: 1,
-          unitCost: 5,
-        },
-        {
-          item: "Transport",
-          quantity: 5,
-          days: 1,
-          facility: 2,
-          frequency: 2,
-          unitCost: 15,
-        },
-        {
-          item: "Meals",
-          quantity: 20,
-          days: 5,
-          facility: 1,
-          frequency: 3,
-          unitCost: 10,
-        },
-      ];
-      setRows(data);
+      // const data = [
+      //   {
+      //     item: "Stationery",
+      //     quantity: 10,
+      //     days: 2,
+      //     facility: 3,
+      //     frequency: 1,
+      //     unitCost: 5,
+      //   },
+      //   {
+      //     item: "Transport",
+      //     quantity: 5,
+      //     days: 1,
+      //     facility: 2,
+      //     frequency: 2,
+      //     unitCost: 15,
+      //   },
+      //   {
+      //     item: "Meals",
+      //     quantity: 20,
+      //     days: 5,
+      //     facility: 1,
+      //     frequency: 3,
+      //     unitCost: 10,
+      //   },
+      // ];
+      // setRows(data);
     };
 
     fetchData();
   }, []);
 
-  const calculateTotalCost = (row) =>
-    row.quantity * row.days * row.facility * row.frequency * row.unitCost;
+  // const totals = rows.reduce(
+  //   (acc, row) => {
+  //     const totalCost = calculateTotalCost(row);
+  //     return {
+  //       quantity: acc.quantity + row.quantity,
+  //       days: acc.days + row.days,
+  //       facility: acc.facility + row.facility,
+  //       frequency: acc.frequency + row.frequency,
+  //       unitCost: acc.unitCost + row.unitCost,
+  //       totalCost: acc.totalCost + totalCost,
+  //     };
+  //   },
+  //   {
+  //     quantity: 0,
+  //     days: 0,
+  //     facility: 0,
+  //     frequency: 0,
+  //     unitCost: 0,
+  //     totalCost: 0,
+  //   }
+  // );
 
-  const totals = rows.reduce(
-    (acc, row) => {
-      const totalCost = calculateTotalCost(row);
-      return {
-        quantity: acc.quantity + row.quantity,
-        days: acc.days + row.days,
-        facility: acc.facility + row.facility,
-        frequency: acc.frequency + row.frequency,
-        unitCost: acc.unitCost + row.unitCost,
-        totalCost: acc.totalCost + totalCost,
-      };
-    },
-    {
-      quantity: 0,
-      days: 0,
-      facility: 0,
-      frequency: 0,
-      unitCost: 0,
-      totalCost: 0,
-    }
+  const { data: budgetLine } = useGetSingleBudgetLineQuery(
+    requestsDetails?.budget_line[0]
   );
+
+  // const { data: fundingSource } = useGetSingleFundingSourceQuery(
+  //   requestsDetails?.funding_source[0]
+  // );
+
+  const { data: costCategory } =
+    // @ts-ignore
+    useGetSingleCostCategoryQuery(requestsDetails?.cost_categories[0]);
+
+  const { data: costInput } =
+    // @ts-ignore
+    useGetSingleCostInputQuery(requestsDetails?.cost_input[0]);
+
+  // console.log({ fundingSource });
+
   return (
     <div className='bg-white p-8'>
       <section className='min-h-screen space-y-8'>
@@ -103,47 +135,58 @@ const Preview = () => {
             <div className=' border-r border-gray-200 w-full max-w-[321px] p-3'>
               Request Date:
             </div>
-            <div className='w-full max-w-[490px] p-3'>15/07/2024</div>
+            <div className='w-full max-w-[490px] p-3'>
+              {requestsDetails?.requested_date}
+            </div>
           </div>
           <div className='flex border-gray-200 border max-w-[800px] w-full'>
             <div className=' border-r border-gray-200 w-full max-w-[321px] p-3'>
               Location:
             </div>
-            <div className='w-full max-w-[490px] p-3'>Anambra</div>
+            <div className='w-full max-w-[490px] p-3'>
+              {" "}
+              {requestsDetails?.location}
+            </div>
           </div>{" "}
-          <div className='flex border-gray-200 border max-w-[800px] w-full'>
+          {/* <div className='flex border-gray-200 border max-w-[800px] w-full'>
             <div className=' border-r border-gray-200 w-full max-w-[321px] p-3'>
               Duration:
             </div>
             <div className='w-full max-w-[490px] p-3'>
               Q3 (July - September 2024)
             </div>
-          </div>{" "}
+          </div>{" "} */}
           <div className='flex border-gray-200 border max-w-[800px] w-full'>
             <div className=' border-r border-gray-200 w-full max-w-[321px] p-3'>
               FCO #:{" "}
             </div>
-            <div className='w-full max-w-[490px] p-3'>N-THRIP</div>
+            <div className='w-full max-w-[490px] p-3'>
+              {requestsDetails?.fconumber}
+            </div>
           </div>
         </div>
         <div className=' my-3'>
-          <div className='flex border-gray-200 border max-w-[800px] w-full'>
-            <div className=' border-r border-gray-200 w-full max-w-[321px] p-3'>
-              Module: Program Management{" "}
-            </div>
-            <div className='w-full max-w-[490px] p-3'>
-              Inventory: Grant Management
+          <div className='flex border-gray-200 border w-full'>
+            <div className='w-full  p-3'>
+              <strong>Intervention Areas: </strong>
+              {requestsDetails?.intervention_areas[0]}
             </div>
           </div>
           <div className='flex border-gray-200 border max-w-[800px] w-full'>
             <div className=' border-r border-gray-200 w-full max-w-[321px] p-3'>
-              Budget Line #: 916
+              <strong>Budget Line #: </strong>
+              {budgetLine && budgetLine?.data?.name}
             </div>
-            <div className='w-full max-w-[490px] p-3'>Cost Grouping #: 11</div>
+            <div className='w-full max-w-[490px] p-3'>
+              {" "}
+              <strong>Cost Category#: </strong>
+              {costCategory && costCategory?.data?.code}{" "}
+            </div>
           </div>{" "}
           <div className='flex border-gray-200 border max-w-[800px] w-full'>
             <div className=' border-r border-gray-200 w-full max-w-[321px] p-3'>
-              Cost input #: 11.1
+              <strong>Cost Input #:</strong>
+              {costCategory && costInput?.data?.name}{" "}
             </div>
             <div className='w-full max-w-[490px] p-3'>
               Funding Source #: Global Fund
@@ -164,18 +207,19 @@ const Preview = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map((row, index) => (
+              {requestsDetails?.expenses.map((row, index) => (
                 <TableRow key={index}>
+                  {/* expenses item name */}
                   <TableCell>{row.item}</TableCell>
                   <TableCell>{row.quantity}</TableCell>
-                  <TableCell>{row.days}</TableCell>
-                  <TableCell>{row.facility}</TableCell>
+                  <TableCell>{row.num_of_days}</TableCell>
+                  <TableCell>{row.num_of_facility}</TableCell>
                   <TableCell>{row.frequency}</TableCell>
-                  <TableCell>{row.unitCost.toFixed(2)}</TableCell>
-                  <TableCell>{calculateTotalCost(row).toFixed(2)}</TableCell>
+                  <TableCell>{Number(row.unit_cost).toFixed(2)}</TableCell>
+                  <TableCell>{Number(row.total_cost).toFixed(2)}</TableCell>
                 </TableRow>
               ))}
-              <TableRow>
+              {/* <TableRow>
                 <TableCell>
                   <strong>Totals</strong>
                 </TableCell>
@@ -197,7 +241,7 @@ const Preview = () => {
                 <TableCell>
                   <strong>{totals.totalCost.toFixed(2)}</strong>
                 </TableCell>
-              </TableRow>
+              </TableRow> */}
             </TableBody>
           </Table>
         </div>
@@ -209,40 +253,54 @@ const Preview = () => {
                 {" "}
                 <div className='flex items-center gap-5'>
                   <h4 className='w-full max-w-[151px] font-medium text-[14px]'>
-                    Signature
+                    Signature:
+                  </h4>
+                  <h4 className='text-[14px] whitespace-nowrap'>
+                    {requestsDetails?.created_by?.name}
                   </h4>
                 </div>
                 <div className='flex items-center gap-5'>
                   <h4 className='w-full max-w-[151px] font-medium text-[14px]'>
                     Prepared By:
                   </h4>
-                  <h4 className='text-[14px] whitespace-nowrap'>Onyeka Uwgu</h4>
+                  <h4 className='text-[14px] whitespace-nowrap'>
+                    {requestsDetails?.created_by?.name}
+                  </h4>
                 </div>
                 <div className='flex items-center gap-5'>
                   <h4 className='w-full max-w-[151px] font-medium text-[14px]'>
                     Date
                   </h4>
-                  <h4>15/7/2024</h4>
+                  <h4 className='text-[14px] whitespace-nowrap'>
+                    {requestsDetails?.requested_date}
+                  </h4>
                 </div>
               </div>{" "}
               <div className='flex flex-col gap-3'>
                 {" "}
                 <div className='flex items-center gap-5'>
                   <h4 className='w-full max-w-[151px] font-medium text-[14px]'>
-                    Signature
+                    Signature:
+                  </h4>
+                  <h4 className='text-[14px] whitespace-nowrap'>
+                    {requestsDetails?.reviewed_by?.name}
                   </h4>
                 </div>
                 <div className='flex items-center gap-5'>
                   <h4 className='w-full max-w-[151px] font-medium text-[14px]'>
                     Reviewed By:
                   </h4>
-                  <h4 className='text-[14px] whitespace-nowrap'>Tine Woji</h4>
+                  <h4 className='text-[14px] whitespace-nowrap'>
+                    {requestsDetails?.reviewed_by?.name}
+                  </h4>
                 </div>
                 <div className='flex items-center gap-5'>
                   <h4 className='w-full max-w-[151px] font-medium text-[14px]'>
                     Date
                   </h4>
-                  <h4>15/7/2024</h4>
+                  <h4 className='text-[14px] whitespace-nowrap'>
+                    {requestsDetails?.reviewed_date}
+                  </h4>
                 </div>
               </div>
               <div className='flex flex-col gap-3'>
@@ -257,14 +315,16 @@ const Preview = () => {
                     Approved By:
                   </h4>
                   <h4 className='text-[14px] whitespace-nowrap'>
-                    Dr. Umar Adamu
+                    {requestsDetails?.approved_by?.name}
                   </h4>
                 </div>
                 <div className='flex items-center gap-5'>
                   <h4 className='w-full max-w-[151px] font-medium text-[14px]'>
                     Date
                   </h4>
-                  <h4>15/7/2024</h4>
+                  <h4 className='text-[14px] whitespace-nowrap'>
+                    {requestsDetails?.approved_date}
+                  </h4>
                 </div>
               </div>
             </div>

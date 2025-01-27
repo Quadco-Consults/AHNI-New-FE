@@ -8,6 +8,7 @@
 import { PurchaseRequestResultsData } from "definations/procurement-types/purchase-request";
 import baseAPI from "..";
 import { z } from "zod";
+import { SampleMemoResultsData } from "definations/procurement-types/sample-memo";
 // import { PurchaseRequestSchema } from "definations/procurement-validator";
 
 const BASE_URL = "/procurements/purchase-request-memo/";
@@ -43,7 +44,7 @@ const PurchaseRequestAPI = baseAPI.injectEndpoints({
     }),
 
     getActivityMemo: builder.query<
-      PurchaseRequestResultsData,
+      SampleMemoResultsData,
       { path: { id: string } }
     >({
       query: ({ path }) => {
