@@ -71,6 +71,8 @@ import AddAssetClassification from "pages/protectedPages/modules/admin/AddAssetC
 import ChangeWorkPlanStatusModal from "./ChangeWorkPlanTrackerStatusModal";
 import EditValue from "pages/protectedPages/modules/hr/EditValue";
 import NewLeaveForm from "pages/protectedPages/modules/hr/NewLeaveForm";
+import AddCostGrouping from "pages/protectedPages/modules/finance/AddCostGrouping";
+import AddInterventionArea from "pages/protectedPages/modules/programs/AddInterventionArea";
 
 const sheets: Record<string, ReactNode> = {
   [DialogType.Categories]: <CategoriesModal />,
@@ -110,6 +112,7 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.AddDocumentTypes]: <AddDocumentTypes />,
   [DialogType.AddPartners]: <AddPartners />,
   [DialogType.AddRiskCategory]: <AddRiskCategory />,
+  [DialogType.AddInterventionArea]: <AddInterventionArea />,
   [DialogType.AddSupervisionCategory]: <AddSupervisionCategory />,
   [DialogType.AddFacility]: <AddFacility />,
   [DialogType.AddAssetConditions]: <AddAssetConditions />,
@@ -127,6 +130,7 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.AddCostCategory]: <AddCostCategory />,
   [DialogType.AddBudgetLine]: <AddBudgetLine />,
   [DialogType.AddCostInput]: <AddCostInput />,
+  [DialogType.AddCostGrouping]: <AddCostGrouping />,
   [DialogType.AddFcoNumber]: <AddFcoNumber />,
   [DialogType.AddProjectClasses]: <AddProjectClasses />,
   [DialogType.AddChartsOfAccounts]: <AddChartsOfAccount />,
