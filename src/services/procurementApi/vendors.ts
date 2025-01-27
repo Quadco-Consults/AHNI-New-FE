@@ -4,7 +4,7 @@ import {
   VendorsResponse,
   VendorsResultsData,
 } from "definations/procurement-types/vendors";
-import { TPaginatedResponse, TRequest } from "definations/index";
+import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
 const BASE_URL = "/procurements/vendors/";
 
@@ -45,7 +45,10 @@ const VendorsAPI = baseAPI.injectEndpoints({
         !error ? invalidateTags("VENDOR") : [],
     }),
 
-    getVendor: builder.query<VendorsResultsData, { path: { id: string } }>({
+    getVendor: builder.query<
+      TResponse<VendorsResultsData>,
+      { path: { id: string } }
+    >({
       query: ({ path }) => {
         return {
           url: `${BASE_URL}${path.id}/`,

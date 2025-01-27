@@ -23,7 +23,7 @@ import {
   DialogDescription,
   DialogClose,
 } from "components/ui/dialog";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import CategoryAPI from "services/configs/category";
 import logoPng from "assets/imgs/logo.png";
 import { Input } from "components/ui/input";
@@ -38,8 +38,30 @@ import { vendorsActions } from "store/formData/procurement-vendors";
 import { useDispatch } from "react-redux";
 import { SelectContent, SelectItem } from "components/ui/select";
 import { Badge } from "components/ui/badge";
+import useQuery from "hooks/useQuery";
+import VendorsAPI from "services/procurementApi/vendors";
+// import { skipToken } from "@reduxjs/toolkit/query";
 
 const Registration = () => {
+  const query = useQuery();
+  const vendorId = query.get("id");
+
+  // Use the hook correctly
+  const {
+    data: vendor,
+    isLoading,
+    error,
+    // @ts-ignore
+  } = VendorsAPI.useGetVendorQuery({ path: { id: vendorId } });
+
+  if (isLoading) {
+    console.log("Loading...");
+  }
+
+  if (error) {
+    console.error("Error fetching vendor:", error);
+  }
+
   const [categorySearchParams, setCategorySearchParams] = useState("");
 
   const categoryQueryResult = CategoryAPI.useGetCategoriesQuery(
@@ -71,6 +93,28 @@ const Registration = () => {
       submitted_categories: [],
     },
   });
+
+  useEffect(() => {
+    if (vendorId) {
+      form.reset({
+        company_name: vendor?.data?.company_name,
+        type_of_business: vendor?.data?.type_of_business,
+        year_or_incorperation: vendor?.data?.year_or_incorperation,
+        company_registration_number: vendor?.data?.company_registration_number,
+        website: vendor?.data?.website,
+        email: vendor?.data?.email,
+        phone_numbers: vendor?.data?.phone_number,
+        nature_of_business: vendor?.data?.nature_of_business,
+        company_address: vendor?.data?.company_address,
+        tin: vendor?.data?.tin,
+        number_of_permanent_staff: vendor?.data?.number_of_permanent_staff,
+        company_chairman: vendor?.data?.company_chairman,
+        bank_address: vendor?.data?.bank_address,
+        bank_name: vendor?.data?.bank_name,
+        submitted_categories: [],
+      });
+    }
+  }, [vendorId, vendor]);
 
   const dispatch = useDispatch();
 
