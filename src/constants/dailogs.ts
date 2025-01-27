@@ -32,6 +32,7 @@ export const DialogType = {
   AddDocumentTypes: "AddDocumentTypes",
   AddPartners: "AddPartners",
   AddRiskCategory: "AddRiskCategory",
+  AddInterventionArea: "AddInterventionArea",
   AddSupervisionCategory: "AddSupervisionCategory",
   AddFacility: "AddFacility",
   AddAssetConditions: "AddAssetConditions",
