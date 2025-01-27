@@ -22,6 +22,8 @@ import {
 } from "components/ui/table";
 import FormInput from "atoms/FormInput";
 import { Form } from "components/ui/form";
+import { generatePath, Link } from "react-router-dom";
+import { RouteEnum } from "constants/RouterConstants";
 
 // Sample Checkbox component
 // eslint-disable-next-line react/display-name
@@ -365,13 +367,15 @@ const CheckboxForm = () => {
           </Table>
         </div>
         <div className='w-full px-4'>
-          <Button
-            type='submit'
-            className='mt-4 px-4 py-2 bg-alternate text-primary rounded w-full'
-          >
-            <Save size={20} />
-            Save
-          </Button>
+          <Link className='w-fit' to={generatePath(RouteEnum.PREVIEW_LETTER)}>
+            <Button
+              type='submit'
+              className='mt-4 px-4 py-2 bg-alternate text-primary rounded w-full'
+            >
+              <Save size={20} />
+              Save
+            </Button>
+          </Link>
         </div>
       </form>
     </Form>
