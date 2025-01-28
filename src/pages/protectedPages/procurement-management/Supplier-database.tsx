@@ -20,8 +20,6 @@ const SupplierDatabase = () => {
     params: { status: "Approved" },
   });
 
-  console.log({ data });
-
   return (
     <div className='space-y-10'>
       <div>
