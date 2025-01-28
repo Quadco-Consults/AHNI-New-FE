@@ -6,9 +6,9 @@ import {
 } from "definations/procurement-types/vendors";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
-const BASE_URL = "/procurements/vendors/";
+const BASE_URL = "/procurements/vendor-evaluation/";
 
-const VendorsAPI = baseAPI.injectEndpoints({
+const VendorsEvaluaionAndPerformanceAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     getVendors: builder.query<TPaginatedResponse<VendorsResultsData>, TRequest>(
       {
@@ -20,7 +20,7 @@ const VendorsAPI = baseAPI.injectEndpoints({
           };
         },
         providesTags: (data, error) =>
-          !error ? provideTags("VENDOR", data) : [],
+          !error ? provideTags("VENDOR_EVALUATION", data) : [],
       }
     ),
 
@@ -32,7 +32,7 @@ const VendorsAPI = baseAPI.injectEndpoints({
         };
       },
       providesTags: (data, error) =>
-        !error ? provideTags("VENDOR", data) : [],
+        !error ? provideTags("VENDOR_EVALUATION", data) : [],
     }),
 
     createVendor: builder.mutation<VendorsResponse, any>({
@@ -41,7 +41,8 @@ const VendorsAPI = baseAPI.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: (_, error) => (!error ? invalidateTags("VENDOR") : []),
+      invalidatesTags: (_, error) =>
+        !error ? invalidateTags("VENDOR_EVALUATION") : [],
     }),
 
     getVendor: builder.query<
@@ -54,7 +55,7 @@ const VendorsAPI = baseAPI.injectEndpoints({
         };
       },
       providesTags: (data, error) =>
-        !error ? provideTags("VENDOR", data) : [],
+        !error ? provideTags("VENDOR_EVALUATION", data) : [],
     }),
 
     updateVendor: builder.mutation<
@@ -67,7 +68,7 @@ const VendorsAPI = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("VENDOR", { ids: [path.id] }) : [],
+        !error ? invalidateTags("VENDOR_EVALUATION", { ids: [path.id] }) : [],
     }),
 
     modifyVendor: builder.mutation<
@@ -80,7 +81,7 @@ const VendorsAPI = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("VENDOR", { ids: [path.id] }) : [],
+        !error ? invalidateTags("VENDOR_EVALUATION", { ids: [path.id] }) : [],
     }),
 
     deleteVendor: builder.mutation<void, { path: { id: string } }>({
@@ -89,9 +90,9 @@ const VendorsAPI = baseAPI.injectEndpoints({
         method: "DELETE",
       }),
       invalidatesTags: (_, error, { path }) =>
-        !error ? invalidateTags("VENDOR", { ids: [path.id] }) : [],
+        !error ? invalidateTags("VENDOR_EVALUATION", { ids: [path.id] }) : [],
     }),
   }),
 });
 
-export default VendorsAPI;
+export default VendorsEvaluaionAndPerformanceAPI;
