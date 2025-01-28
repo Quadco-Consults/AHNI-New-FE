@@ -9,7 +9,7 @@ import baseAPI from "..";
 import { z } from "zod";
 import { PurchaseRequestSchema } from "definations/procurement-validator";
 
-const BASE_URL = "/procurements/purchase-requests/";
+const BASE_URL = "/procurements/purchase-request/";
 
 const PurchaseRequestAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
