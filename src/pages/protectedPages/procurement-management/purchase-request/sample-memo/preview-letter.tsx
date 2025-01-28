@@ -24,6 +24,8 @@ const Preview = () => {
     )
   );
 
+  console.log({ requestsDetails });
+
   const { data: budgetLine } = useGetSingleBudgetLineQuery(
     requestsDetails?.budget_line[0]
   );
