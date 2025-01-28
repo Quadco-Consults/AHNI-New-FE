@@ -121,7 +121,7 @@ const CreateActivityMemo = () => {
       comment: "",
       approved_by: "",
       reviewed_by: "",
-      created_by: "333",
+      created_by: "",
       expenses: [],
       // created_by: profile?.data.id,
     },
@@ -158,7 +158,6 @@ const CreateActivityMemo = () => {
     const selectedCostCategory = costCategories?.data?.data?.results.find(
       (costCategory) => costCategory.id === data?.cost_categories[0]
     );
-    console.log({ selectedActivity });
 
     dispatch(
       activityActions.addActivity({
