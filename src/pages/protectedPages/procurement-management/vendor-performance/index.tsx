@@ -14,11 +14,17 @@ import { RouteEnum } from "constants/RouterConstants";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import GoBack from "components/shared/GoBack";
+import VendorsEvaluaionAndPerformanceAPI from "services/procurementApi/vendors-evaluation-performance";
 // import VendorsAPI from "services/procurementApi/vendors";
 // import { VendorsResultsData } from "definations/procurement-types/vendors";
 // import { toast } from "sonner";
 
 const VendorPerformance = () => {
+  const { data, isLoading } =
+    VendorsEvaluaionAndPerformanceAPI.useGetVendorsQuery({});
+
+  console.log({ data });
+
   return (
     <div className='space-y-10'>
       <GoBack />
@@ -108,7 +114,7 @@ const VendorPerformance = () => {
           // @ts-ignore
           // data={data?.data?.results || []}
           data={[]}
-          // isLoading={isLoading}
+          isLoading={isLoading}
         />
       </Card>
     </div>
