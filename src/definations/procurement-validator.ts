@@ -151,28 +151,42 @@ export const SampleMemoSchema = z.object({
 export const PurchaseRequestSchema = z.object({
   items: z.array(
     z.object({
-      id: z.string().optional(),
-      item_id: z.string().min(1, "Field is required"),
-      category: z.string().min(1, "Field is required"),
-      fco: z.string().min(1, "Field is required"),
-      units: z.union([
-        z.string().min(1, "Field is required"),
-        z.number().min(1, "Field is required"),
-      ]),
-      number_of_days: z.union([
-        z.string().min(1, "Field is required"),
-        z.number().min(1, "Field is required"),
-      ]),
+      item: z.string().min(1, "Field is required"),
+      // category: z.string().min(1, "Field is required"),
       unit_cost: z.union([
         z.string().min(1, "Field is required"),
         z.number().min(1, "Field is required"),
       ]),
+      fco_number: z.string().min(1, "Field is required"),
+      quantity: z.union([
+        z.string().min(1, "Field is required"),
+        z.number().min(1, "Field is required"),
+      ]),
+      amount: z.union([
+        z.string().min(1, "Field is required"),
+        z.number().min(1, "Field is required"),
+      ]),
+      // number_of_days: z.union([
+      //   z.string().min(1, "Field is required"),
+      //   z.number().min(1, "Field is required"),
+      // ]),
     })
   ),
-  request_date: z.string().min(1, "Field is required"),
-  required_date: z.string().min(1, "Field is required"),
+  request_memo: z.string().min(1, "Field is required").nullable(),
+  ref_number: z.string().min(1, "Field is required").nullable(),
+  date_of_request: z.string().min(1, "Field is required"),
+  date_required: z.string().min(1, "Field is required"),
   requesting_department: z.string().min(1, "Field is required"),
   deliver_to: z.string().min(1, "Field is required"),
+  special_instruction: z.string().min(1, "Field is required").nullable(),
+  reviewed_by: z.string().min(1, "Field is required"),
+  role_reviewed_by: z.string().min(1, "Field is required"),
+  requested_by: z.string().min(1, "Field is required"),
+  role_requested_by: z.string().min(1, "Field is required"),
+  approved_by: z.string().min(1, "Field is required"),
+  role_approved_by: z.string().min(1, "Field is required"),
+  authorised_by: z.string().min(1, "Field is required"),
+  role_authorised_by: z.string().min(1, "Field is required"),
 });
 
 export const PurchaseOrderSchema = z.object({

@@ -49,7 +49,6 @@ const BudgetLineAPI = baseAPI.injectEndpoints({
       }),
       providesTags: ["BudgetLine"],
     }),
-
     deleteBudgetLine: builder.mutation<TResponse<TBudgetLineData>, string>({
       query: (id) => ({
         method: "DELETE",
