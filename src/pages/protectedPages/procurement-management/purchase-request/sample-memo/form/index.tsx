@@ -152,8 +152,6 @@ const CreateActivityMemo = () => {
   });
 
   const onSubmit = async (data: z.infer<typeof SampleMemoSchema>) => {
-    console.log({ data });
-
     const selectedActivity = activites?.data?.results.find(
       (activity) => activity.id === data?.activity
     );
