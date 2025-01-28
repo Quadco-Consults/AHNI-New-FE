@@ -13,7 +13,7 @@ const PriceIntelligenceAPI = baseAPI.injectEndpoints({
     getPriceIntelligences: builder.query<PriceIntelligenceList[], {}>({
       query: (config) => {
         return {
-          url: `${BASE_URL}list/`,
+          url: `${BASE_URL}`,
           ...config,
         };
       },
