@@ -9,8 +9,13 @@ import { RouteEnum } from "constants/RouterConstants";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { useGetAllUsersQuery } from "services/auth/user";
+import {
+  useGetAllUsersQuery,
+  useGetUserProfileQuery,
+} from "services/auth/user";
 import VendorsAPI from "services/procurementApi/vendors";
+import VendorsEvaluaionAndPerformanceAPI from "services/procurementApi/vendors-evaluation-performance";
+import { toast } from "sonner";
 
 const CreateVendorEvaluation = () => {
   const navigate = useNavigate();
@@ -20,21 +25,29 @@ const CreateVendorEvaluation = () => {
     // @ts-ignore
   } = VendorsAPI.useGetVendorsQuery({});
 
+  const [
+    createVendorEvaluationMutation,
+    { isLoading: createVendorEvaluationMutationLoading },
+  ] = VendorsEvaluaionAndPerformanceAPI.useCreateVendorEvaluationMutation();
+  // VendorsEvaluaionAndPerformanceAPI.useGetVendorsQuery({});
+
   const { data: users } = useGetAllUsersQuery({
     page: 1,
     size: 2000000,
   });
 
+  const { data: profile } = useGetUserProfileQuery(null);
+
   const form = useForm<any>({
     // resolver: zodResolver(),
     defaultValues: {
-      evaluators: [],
-      supervisors: [],
-      vendor_name: "",
-      service: [],
-      location_of_service: [],
-      reviewed_period_start: [],
-      reviewed_period_end: [],
+      evaluators: profile?.data.id,
+      supervisors: "",
+      vendor: "",
+      vendor_service: "",
+      location_of_service: "",
+      reviewed_period_start: "",
+      reviewed_period_end: "",
       comments: "",
     },
   });
@@ -42,7 +55,7 @@ const CreateVendorEvaluation = () => {
   const { handleSubmit, watch, setValue } = form;
 
   // Watch the selected vendor
-  const selectedVendorId = watch("vendor_name");
+  const selectedVendorId = watch("vendor");
 
   const vendorsOptions = vendor?.data.results.map(({ company_name, id }) => ({
     label: company_name,
@@ -55,8 +68,6 @@ const CreateVendorEvaluation = () => {
       value: id,
     })
   );
-
-  console.log({ usersOptions });
 
   const ratingOptions = [
     { label: "Excellent", value: "5" },
@@ -72,27 +83,62 @@ const CreateVendorEvaluation = () => {
       const selectedVendor = vendor.data.results.find(
         (v) => v.id === selectedVendorId
       );
+
       if (selectedVendor) {
         setValue("location_of_service", selectedVendor.company_address || "");
       }
     }
+    setValue("evaluators", profile?.data.id || "");
   }, [selectedVendorId, vendor, setValue]);
 
   const onSubmit = async (data: any) => {
-    console.log({ data });
-    navigate(RouteEnum.VENDOR_PERFORMANCE_EVALUATION_ID);
+    const payload = {
+      evaluators: [data.evaluators],
+      supervisors: [data.supervisors],
+      criteria_scores: [
+        {
+          criteria: "delivery_leadtime",
+          value: data.delivery_leadtime,
+          evaluation: "",
+        },
+        {
+          criteria: "competitive_pricing",
+          value: data?.competitive_pricing,
+          evaluation: "",
+        },
+        {
+          criteria: "professionalism",
+          value: data?.professionalism,
+          evaluation: "",
+        },
+        {
+          criteria: "responsiveness",
+          value: data?.responsiveness,
+          evaluation: "",
+        },
+        {
+          criteria: "post_delivery_after_sales_report",
+          value: data?.post_delivery_after_sales_report,
+          evaluation: "",
+        },
+      ],
 
-    // try {
-    //   await createPurchaseRequestMutation(data).unwrap();
-    //   toast.success("Successfully created.");
-    // } catch (error) {
-    //   toast.error("Something went wrong");
-    //   console.log(error);
-    // }
+      vendor: data?.vendor,
+      service: data?.vendor_service,
+      location_of_service: data?.location_of_service,
+      reviewed_period_start: data?.reviewed_period_start,
+      reviewed_period_end: data?.reviewed_period_end,
+      comments: data?.comments,
+    };
+
+    try {
+      await createVendorEvaluationMutation(payload).unwrap();
+      toast.success("Successfully created.");
+      navigate(RouteEnum.VENDOR_PERFORMANCE_EVALUATION);
+    } catch (error) {
+      toast.error("Something went wrong");
+    }
   };
-  const lon = form.getValues();
-
-  console.log({ lon, vendorsOptions, selectedVendorId });
 
   return (
     <div className=''>
@@ -108,7 +154,7 @@ const CreateVendorEvaluation = () => {
               {vendorsOptions && (
                 <FormSelect
                   label='Vendor Name'
-                  name='vendor_name'
+                  name='vendor'
                   required
                   options={vendorsOptions}
                 />
@@ -177,6 +223,14 @@ const CreateVendorEvaluation = () => {
               />
             </div>
             <div className='grid grid-cols-2 gap-5'>
+              {usersOptions && (
+                <FormSelect
+                  label='Supervisor'
+                  name='supervisors'
+                  required
+                  options={usersOptions}
+                />
+              )}
               <FormSelect
                 label='Responsiveness'
                 name='responsiveness'
@@ -185,8 +239,8 @@ const CreateVendorEvaluation = () => {
               />
             </div>
             <FormButton
-              // loading={isLoading}
-              // disabled={isLoading}
+              loading={createVendorEvaluationMutationLoading}
+              disabled={createVendorEvaluationMutationLoading}
               type='submit'
               className='flex items-center justify-center gap-2'
             >
