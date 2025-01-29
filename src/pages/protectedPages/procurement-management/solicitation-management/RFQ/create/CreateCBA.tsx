@@ -39,13 +39,22 @@ import { RouteEnum } from "constants/RouterConstants";
 import { Badge } from "components/ui/badge";
 import LotsAPI from "services/procurementApi/lots";
 import { LotsResultsData } from "definations/procurement-types/lots";
+import { useGetAllUsersQuery } from "services/auth/user";
+import useQuery from "hooks/useQuery";
 
 const CreateCBA = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { data: users, isLoading } = usersAPI.useGetUsersQuery({
-    params: { no_paginate: true },
+  const query = useQuery();
+  const rfqId = query.get("id");
+
+  console.log({ rfqId, id, query });
+
+  const { data: users, isLoading } = useGetAllUsersQuery({
+    page: 1,
+    size: 2000000,
   });
+
   const { data: lots, isLoading: lotIsLoading } = LotsAPI.useGetLotListQuery({
     params: { no_paginate: true },
   });
@@ -56,11 +65,10 @@ const CreateCBA = () => {
   const form = useForm({
     // resolver: zodResolver(CbaSchema),
     defaultValues: {
-      cba_type: "",
-      cba_date: "",
-      remarks: "",
       solicitation: id,
       lot: "",
+      cba_type: "",
+      cba_date: "",
       assignee: "",
       committee_members: [],
     },
@@ -68,14 +76,26 @@ const CreateCBA = () => {
   const { handleSubmit, watch } = form;
 
   const matchedUsers =
-    users?.filter((user: TUser) =>
+    users?.data?.results?.filter((user: TUser) =>
       form.watch("committee_members").includes(user?.id)
     ) || [];
 
   const onSubmit = async (data: z.infer<typeof CbaSchema>) => {
+    console.log({ data });
+
+    const payload = {
+      committee_members: data.committee_members,
+      cba_type: data?.cba_type,
+      cba_date: data?.cba_date,
+      assignee: data?.assignee,
+      status: "PENDING",
+      solicitation: rfqId,
+      lot: data.lot,
+    };
+
     try {
-      //   await createCbaMutation(data).unwrap();
-      //   toast.success("Successfully created.");
+      await createCbaMutation(payload).unwrap();
+      toast.success("Successfully created.");
       navigate(RouteEnum.RFQ);
     } catch (error) {
       toast.error("Something went wrong");
@@ -90,6 +110,7 @@ const CreateCBA = () => {
     { name: "Detail", icon: true },
     { name: "Create CBA", icon: false },
   ];
+  console.log({ lots });
 
   return (
     <div className='space-y-5'>
@@ -118,7 +139,7 @@ const CreateCBA = () => {
               <SelectContent>
                 {lotIsLoading && <LoadingSpinner />}
                 {lots?.data?.results?.map((lot: LotsResultsData) => (
-                  <SelectItem key={lot?.id} value={String(lot?.packet_number)}>
+                  <SelectItem key={lot?.id} value={String(lot?.id)}>
                     {lot?.name}
                   </SelectItem>
                 ))}
@@ -185,7 +206,7 @@ const CreateCBA = () => {
                           name='committee_members'
                           render={() => (
                             <FormItem className='grid grid-cols-2 gap-5 bg-gray-100 mt-10 p-5 rounded-lg shadow-inner md:grid-cols-4'>
-                              {users?.map((user: TUser) => (
+                              {users?.data?.results?.map((user: TUser) => (
                                 <FormField
                                   key={user?.id}
                                   control={form.control}
@@ -267,7 +288,7 @@ const CreateCBA = () => {
           <FormSelect name='assignee' label='Assignee'>
             <SelectContent>
               {isLoading && <LoadingSpinner />}
-              {users?.map((user: TUser) => (
+              {users?.data?.results?.map((user: TUser) => (
                 <SelectItem key={user?.id} value={user?.id}>
                   {user?.first_name} {user?.last_name}
                 </SelectItem>
