@@ -1,12 +1,6 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import RfqLayout from "./RfqLayout";
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormMessage,
-} from "components/ui/form";
+import { Form } from "components/ui/form";
 import FormSelect from "atoms/FormSelectField";
 import { SelectContent, SelectItem } from "components/ui/select";
 import FormInput from "atoms/FormInput";
@@ -14,34 +8,14 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "components/ui/button";
 import FormButton from "atoms/FormButton";
-import {
-    Dialog,
-    DialogContent,
-    DialogTitle,
-    DialogTrigger,
-    DialogHeader,
-    DialogDescription,
-    DialogClose,
-} from "components/ui/dialog";
-import logoPng from "assets/imgs/logo.png";
 import { LoadingSpinner } from "components/shared/Loading";
-import { Checkbox } from "components/ui/checkbox";
-import FormTextArea from "atoms/FormTextArea";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import PurchaseRequestAPI from "services/procurementApi/purchase-request";
-import { PurchaseRequestResultsData } from "definations/procurement-types/purchase-request";
-import { Input } from "components/ui/input";
-import { Icon } from "@iconify/react";
-import VendorsAPI from "services/procurementApi/vendors";
-import { VendorsResultsData } from "definations/procurement-types/vendors";
-import { Badge } from "components/ui/badge";
 import {
     SolicitationQuotationSchema,
     TSolicitationQuotationFormData,
 } from "definations/procurement-validator";
-import { toast } from "sonner";
-import SolicitationAPI from "services/procurementApi/solicitation";
+import FormTextArea from "atoms/FormTextArea";
 
 const Quotation = () => {
     const { pathname } = useLocation();
@@ -59,40 +33,20 @@ const Quotation = () => {
         [purchaseRequest]
     );
 
-    // const { data: vendors, isLoading: vendorIsLoading } =
-    //     VendorsAPI.useGetVendorListQuery({
-    //         params: { no_paginate: true },
-    //     });
-
-    const form = useForm({
+    const form = useForm<TSolicitationQuotationFormData>({
         resolver: zodResolver(SolicitationQuotationSchema),
         defaultValues: {
             title: "",
+            rfq_id: "",
             background: "",
             request_type: "",
             tender_type: "",
-            opening_date: "",
-            closing_date: "",
             purchase_request: "",
+            procurement_type: "",
         },
     });
 
-    const { handleSubmit, watch } = form;
-
-    const [createSolicitation, { isLoading: isCreateLoading }] =
-        SolicitationAPI.useCreateSolicitationMutation();
-
-    // const matchedUsers =
-    //     vendors?.data?.results?.filter((vendor: VendorsResultsData) =>
-    //         form.watch("limited_vendors").includes(vendor?.id)
-    //     ) || [];
-
     const onSubmit: SubmitHandler<TSolicitationQuotationFormData> = (data) => {
-        // try {
-        // } catch (error: any) {
-        //     toast.error(error.data.message ?? "Something went wrong");
-        // }
-
         sessionStorage.setItem("rfqQuotationFormData", JSON.stringify(data));
         let path = pathname;
 
@@ -104,6 +58,8 @@ const Quotation = () => {
         navigate(path);
     };
 
+    console.log(form.formState.errors);
+
     return (
         <RfqLayout>
             <div className="p-5">
@@ -112,16 +68,39 @@ const Quotation = () => {
                 </h4>
                 <Form {...form}>
                     <form
-                        onSubmit={handleSubmit(onSubmit)}
+                        onSubmit={form.handleSubmit(onSubmit)}
                         className="space-y-5 mt-10"
                     >
-                        <FormInput name="title" label="RFQ Title/ID" required />
+                        <div className="grid grid-cols-2 gap-5">
+                            <FormInput
+                                name="title"
+                                label="RFQ Title"
+                                required
+                            />
+
+                            <FormInput name="rfq_id" label="RFQ ID" required />
+                        </div>
 
                         <FormTextArea
                             name="background"
                             label="Background"
                             required
                         />
+
+                        <FormSelect name="tender_type" label="Tender Type">
+                            <SelectContent>
+                                {[
+                                    "CLOSED SOURCE",
+                                    "OPENED SOURCE",
+                                    "LIMITED SOLICITATION",
+                                    "NATIONAL OPEN TENDER",
+                                ].map((value: string, index: number) => (
+                                    <SelectItem key={index} value={value}>
+                                        {value}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </FormSelect>
 
                         <div className="grid grid-cols-2 gap-6">
                             <FormSelect
@@ -130,9 +109,9 @@ const Quotation = () => {
                             >
                                 <SelectContent>
                                     {[
-                                        "INVITATION TO TENDER",
-                                        "REQUEST FOR PROPOSAL",
                                         "REQUEST FOR QUOTATION",
+                                        "REQUEST FOR PROPOSAL",
+                                        "INVITATION TO TENDER",
                                     ].map((value: string, index: number) => (
                                         <SelectItem key={index} value={value}>
                                             {value}
@@ -140,20 +119,35 @@ const Quotation = () => {
                                     ))}
                                 </SelectContent>
                             </FormSelect>
-                            <FormSelect name="tender_type" label="Tender Type">
+
+                            <FormSelect
+                                name="purchase_request"
+                                label="Purchase Request"
+                            >
                                 <SelectContent>
-                                    {[
-                                        "CLOSED SOURCE",
-                                        "LIMITED SOLICITATION",
-                                        "NATIONAL OPEN TENDER",
-                                    ].map((value: string, index: number) => (
-                                        <SelectItem key={index} value={value}>
-                                            {value}
-                                        </SelectItem>
-                                    ))}
+                                    {isPurchaseRequestLoading && (
+                                        <LoadingSpinner />
+                                    )}
+
+                                    {purchaseRequestOptions?.map(
+                                        ({ label, value }) => (
+                                            <SelectItem
+                                                key={value}
+                                                value={value}
+                                            >
+                                                {label}
+                                            </SelectItem>
+                                        )
+                                    )}
                                 </SelectContent>
                             </FormSelect>
                         </div>
+
+                        <FormInput
+                            label="Procurement Type"
+                            name="procurement_type"
+                            required
+                        />
 
                         {/* {watch("tender_type") === "LIMITED SOLICITATION" && (
                             <div className="flex items-center gap-2 flex-wrap">
@@ -344,36 +338,6 @@ const Quotation = () => {
                                 </div>
                             </div>
                         )} */}
-
-                        <div className="grid grid-cols-2 gap-6">
-                            <FormInput
-                                name="opening_date"
-                                label="Opening Date"
-                                type="date"
-                            />
-                            <FormInput
-                                name="closing_date"
-                                label="Closing Date"
-                                type="datetime-local"
-                            />
-                        </div>
-
-                        <FormSelect
-                            name="purchase_request"
-                            label="Purchase Request"
-                        >
-                            <SelectContent>
-                                {isPurchaseRequestLoading && <LoadingSpinner />}
-
-                                {purchaseRequestOptions?.map(
-                                    ({ label, value }) => (
-                                        <SelectItem key={value} value={value}>
-                                            {label}
-                                        </SelectItem>
-                                    )
-                                )}
-                            </SelectContent>
-                        </FormSelect>
 
                         <div className="flex justify-between mt-16">
                             <Button

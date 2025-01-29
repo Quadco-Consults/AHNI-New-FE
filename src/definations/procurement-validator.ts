@@ -235,24 +235,17 @@ export const SolicitationItemsSchema = z.object({
 
 export const SolicitationQuotationSchema = z.object({
     title: z.string().min(1, "Please enter title"),
+    rfq_id: z.string().min(1, "Please enter rfq id"),
     background: z.string().min(1, "Please enter background"),
     request_type: z.string().min(1, "Please select request type"),
     tender_type: z.string().min(1, "Please select tender type"),
-    opening_date: z.string().min(1, "Please select opening date"),
-    closing_date: z.string().min(1, "Please select closing date"),
     purchase_request: z.string().min(1, "Please select purchase request"),
+    procurement_type: z.string().min(1, "Please select purchase request"),
 });
 
 export type TSolicitationQuotationFormData = z.infer<
     typeof SolicitationQuotationSchema
 >;
-
-/* 
-"reference": "string",
-"status": "string",
-"document": "string",
-"limited_vendors": null,
-"criteria": null, */
 
 export const SolicitationSchema = z.object({
     items: z.array(

@@ -1,6 +1,6 @@
+import { TAssetSingleData } from "definations/admin/inventory-management/asset";
 import { LocationResultsData } from "definations/configs/location";
 import { z } from "zod";
-
 
 export type SolicitationItems = {
     id: string;
@@ -72,4 +72,35 @@ export interface SolicitationSubmissionData {
     number_of_pages: number;
     previous: string;
     results: SolicitationSubmissionResultsData[];
+}
+
+// -------------------------------
+export interface ISolicitationRFQData {
+    id: string;
+    rfq_id: string | null;
+    purchase_request: string;
+    title: string;
+    background: string;
+    status: string;
+    opening_date: string;
+    closing_date: string;
+    tender_type: string;
+    request_type: string;
+    procurement_type: null;
+    items: [
+        {
+            id: string;
+            item: TAssetSingleData;
+            lot: string;
+            quantity: number;
+        }
+    ];
+    solicitation_evaluations: [
+        {
+            id: string;
+            criteria: string;
+            title: string;
+            description: string;
+        }
+    ];
 }
