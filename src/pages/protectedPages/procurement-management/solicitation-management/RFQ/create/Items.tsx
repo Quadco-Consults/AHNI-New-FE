@@ -6,7 +6,7 @@ import { SelectContent, SelectItem } from "components/ui/select";
 import { Button } from "components/ui/button";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import { Form, FormControl, FormField, FormItem } from "components/ui/form";
-import { useFieldArray, useForm } from "react-hook-form";
+import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import FormButton from "atoms/FormButton";
 import { useNavigate } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
@@ -24,20 +24,53 @@ import PurchaseRequestAPI from "services/procurementApi/purchase-request";
 import ItemsAPI from "services/configs/items";
 import { ItemsResultsData } from "definations/configs/itmes";
 import { toast } from "sonner";
-import SolicitationAPI from "services/procurementApi/solicitation";
 import { useGetAllAssetsQuery } from "services/admin/inventory-management/asset";
+import { useGetAllLotsQuery } from "services/modules/procurement/lot";
+import { useGetAllSolicitationEvaluationCriteriaQuery } from "services/modules/procurement/solicitation-evaluation-criteria";
+import { useCreateSolicitationMutation } from "services/procurementApi/solicitation";
+
+const ItemSchema = z.object({
+    solicitation_evaluations: z.array(
+        z.object({
+            criteria: z.string().min(1, "Please select a category"),
+            title: z.string().min(1, "Please enter a title"),
+            description: z.string().min(1, "Please enter a descripion"),
+        })
+    ),
+    items: z.array(
+        z.object({
+            item: z.string().min(1, "Please select an item"),
+            lot: z.string().min(1, "Please select a lot"),
+            quantity: z.string().min(1, "Please enter quantity"),
+        })
+    ),
+});
 
 const Items = () => {
     const navigate = useNavigate();
     const formData = JSON.parse(localStorage.getItem("rfqQuotation") as any);
 
-    const form = useForm();
-
-    const { control, setValue, watch } = form;
+    const form = useForm<z.infer<typeof ItemSchema>>({
+        defaultValues: {
+            solicitation_evaluations: [
+                { criteria: "", title: "", description: "" },
+            ],
+            items: [{ item: "", lot: "", quantity: "0" }],
+        },
+    });
 
     const { fields, append, remove } = useFieldArray({
-        control,
+        control: form.control,
         name: "items",
+    });
+
+    const {
+        fields: criteriaFields,
+        append: appendCriteria,
+        remove: removeCriteria,
+    } = useFieldArray({
+        control: form.control,
+        name: "solicitation_evaluations",
     });
 
     const { data: asset, isLoading: isAssetLoading } = useGetAllAssetsQuery({
@@ -54,19 +87,58 @@ const Items = () => {
         [asset]
     );
 
-    const onSubmit = async (data) => {
-        const submittedData = { ...formData, ...data };
+    const { data: lot, isLoading: isLotLoading } = useGetAllLotsQuery({
+        page: 1,
+        size: 2000000,
+    });
+
+    const lotOptions = useMemo(
+        () =>
+            lot?.data.results.map(({ name, id }) => ({
+                label: name,
+                value: id,
+            })),
+        [asset]
+    );
+
+    const { data: solicitationCriteria } =
+        useGetAllSolicitationEvaluationCriteriaQuery({
+            page: 1,
+            size: 2000000,
+        });
+
+    const solicitationCriteriaOptions = useMemo(
+        () =>
+            solicitationCriteria?.data.results.map(({ name, id }) => ({
+                label: name,
+                value: id,
+            })),
+        [solicitationCriteria]
+    );
+
+    console.log(assetOptions);
+
+    const [createSolicitation, { isLoading: isCreateLoading }] =
+        useCreateSolicitationMutation();
+
+    const onSubmit: SubmitHandler<z.infer<typeof ItemSchema>> = async (
+        data
+    ) => {
+        const quotationData = JSON.parse(
+            sessionStorage.getItem("rfqQuotationFormData") || "{}"
+        );
+
+        const payload = { ...quotationData, ...data };
+
+        console.log(payload);
 
         try {
-            // await createSolicitationMutation(submittedData).unwrap();
-            // toast.success("Successfully created.");
-            // sessionStorage.removeItem("rfqCompletedSteps");
-            // localStorage.removeItem("rfqQuotation");
-            // navigate(RouteEnum.RFQ);
-            navigate(RouteEnum.RFQ_CREATE_CBA);
-        } catch (error) {
-            toast.error("Something went wrong");
-            console.log(error);
+            await createSolicitation(payload).unwrap();
+            sessionStorage.removeItem("rfqQuotationFormData");
+            toast.success("Solicitation Created Successfully");
+            navigate(RouteEnum.RFQ);
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
 
@@ -90,21 +162,8 @@ const Items = () => {
                                         name={`items.${index}.item`}
                                         label="Item"
                                         required
-                                    >
-                                        <SelectContent>
-                                            {isAssetLoading && <Loading />}
-                                            {assetOptions?.map(
-                                                ({ label, value }) => (
-                                                    <SelectItem
-                                                        key={value}
-                                                        value={label}
-                                                    >
-                                                        {label}
-                                                    </SelectItem>
-                                                )
-                                            )}
-                                        </SelectContent>
-                                    </FormSelect>
+                                        options={assetOptions}
+                                    />
                                     <FormInput
                                         name={`items.${index}.quantity`}
                                         label="Quantity"
@@ -117,16 +176,14 @@ const Items = () => {
                                         required
                                     >
                                         <SelectContent>
-                                            {lotIsLoading && <LoadingSpinner />}
-                                            {lots?.map(
-                                                (lot: LotsResultsData) => (
+                                            {isLotLoading && <LoadingSpinner />}
+                                            {lotOptions?.map(
+                                                ({ label, value }) => (
                                                     <SelectItem
-                                                        key={lot?.id}
-                                                        value={String(
-                                                            lot?.packet_number
-                                                        )}
+                                                        key={value}
+                                                        value={value}
                                                     >
-                                                        {lot?.name}
+                                                        {label}
                                                     </SelectItem>
                                                 )
                                             )}
@@ -148,7 +205,7 @@ const Items = () => {
                                 className="text-primary bg-[#FFF2F2] mt-2 flex gap-2 items-center justify-center"
                                 onClick={() =>
                                     append({
-                                        quantity: 0,
+                                        quantity: "",
                                         item: "",
                                         lot: "",
                                     })
@@ -160,28 +217,63 @@ const Items = () => {
                         </div>
                     </div>
 
-                    {/* <div>
+                    <div>
                         <Label className="text-yellow-600">
                             Evaluation Criteria
                         </Label>
-                        <FormField
-                            control={control}
-                            name="criteria"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormControl>
-                                        <MultiSelectFormField
-                                            options={solicitationCriteria || []}
-                                            defaultValue={field.value}
-                                            onValueChange={field.onChange}
-                                            placeholder="Select options"
-                                            variant="inverted"
-                                        />
-                                    </FormControl>
-                                </FormItem>
-                            )}
-                        />
-                    </div> */}
+
+                        {criteriaFields.map((field, index) => (
+                            <div
+                                key={index}
+                                className="flex items-center gap-5 w-full"
+                            >
+                                <div className="grid grid-cols-1 gap-4 w-full md:grid-cols-3">
+                                    <FormSelect
+                                        label="Category"
+                                        name={`solicitation_evaluations.${index}.criteria`}
+                                        required
+                                        options={solicitationCriteriaOptions}
+                                    />
+
+                                    <FormInput
+                                        label="Title"
+                                        name={`solicitation_evaluations.${index}.title`}
+                                        required
+                                    />
+
+                                    <FormInput
+                                        label="Description"
+                                        name={`solicitation_evaluations.${index}.description`}
+                                        required
+                                    />
+                                </div>
+
+                                <div className="flex items-center h-full ">
+                                    <MinusCircle
+                                        onClick={() => removeCriteria(index)}
+                                        className="cursor-pointer text-primary"
+                                    />
+                                </div>
+                            </div>
+                        ))}
+
+                        <div className="flex justify-end">
+                            <Button
+                                type="button"
+                                className="text-primary bg-[#FFF2F2] mt-2 flex gap-2 items-center justify-center"
+                                onClick={() =>
+                                    appendCriteria({
+                                        criteria: "",
+                                        title: "",
+                                        description: "",
+                                    })
+                                }
+                            >
+                                <AddSquareIcon />
+                                Add
+                            </Button>
+                        </div>
+                    </div>
 
                     <div className="flex justify-between mt-16">
                         <Button
@@ -192,8 +284,8 @@ const Items = () => {
                             Cancel
                         </Button>
                         <FormButton
-                            loading={false}
-                            disabled={false}
+                            loading={isCreateLoading}
+                            disabled={isCreateLoading}
                             type="submit"
                         >
                             Save Changes

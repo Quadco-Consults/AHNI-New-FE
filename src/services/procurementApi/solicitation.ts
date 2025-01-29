@@ -1,5 +1,3 @@
-/* eslint-disable no-empty-pattern */
-/* eslint-disable no-unused-vars */
 import baseAPI from "..";
 import { z } from "zod";
 import {
@@ -8,11 +6,13 @@ import {
     TSolicitationQuotationFormData,
 } from "definations/procurement-validator";
 import {
+    ISolicitationRFQData,
     SolicitationData,
     SolicitationResponse,
     SolicitationResultsData,
     SolicitationSubmissionData,
 } from "definations/procurement-types/solicitation";
+import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
 const BASE_URL = "/procurements/solicitations/";
 
@@ -30,39 +30,28 @@ const SolicitationAPI = baseAPI.injectEndpoints({
             invalidatesTags: ["SOLICITATION"],
         }),
 
-        // getSolicitations: builder.query<SolicitationData, {}>({
-        //     query: (config) => {
-        //         return {
-        //             url: `${BASE_URL}`,
-        //             ...config,
-        //         };
-        //     },
-        //     providesTags: ["SOLICITATION"],
-        // }),
+        getAllSolicitations: builder.query<
+            TPaginatedResponse<ISolicitationRFQData>,
+            TRequest
+        >({
+            query: (params) => ({
+                method: "GET",
+                url: `${BASE_URL}`,
+                params,
+            }),
+            providesTags: ["SOLICITATION"],
+        }),
 
-        // createSolicitationBid: builder.mutation<
-        //     SolicitationResponse,
-        //     z.infer<typeof SolicitationSubmissionSchema>
-        // >({
-        //     query: (body) => ({
-        //         url: `${BASE_URL}submit_bid/`,
-        //         method: "POST",
-        //         body,
-        //     }),
-        //     invalidatesTags: ["SOLICITATION"],
-        // }),
-
-        // getSolicitation: builder.query<
-        //     SolicitationResultsData,
-        //     { path: { id: string } }
-        // >({
-        //     query: ({ path }) => {
-        //         return {
-        //             url: `${BASE_URL}${path.id}/`,
-        //         };
-        //     },
-        //     providesTags: ["SOLICITATION"],
-        // }),
+        getSingleSolicitation: builder.query<
+            TResponse<ISolicitationRFQData>,
+            string
+        >({
+            query: (id) => ({
+                method: "GET",
+                url: `${BASE_URL}${id}`,
+            }),
+            providesTags: ["SOLICITATION"],
+        }),
 
         // getSolicitationSubmission: builder.query<
         //     SolicitationSubmissionData,
@@ -110,4 +99,8 @@ const SolicitationAPI = baseAPI.injectEndpoints({
     }),
 });
 
-export default SolicitationAPI;
+export const {
+    useCreateSolicitationMutation,
+    useGetAllSolicitationsQuery,
+    useGetSingleSolicitationQuery,
+} = SolicitationAPI;
