@@ -17,7 +17,16 @@ const projectsAPI = baseAPI.injectEndpoints({
       }),
       providesTags: ["FundingSource"],
     }),
-
+    getSingleFundingSource: builder.query<
+      TResponse<TFundingSourceData>,
+      string
+    >({
+      query: (id) => ({
+        method: "GET",
+        url: `/finance/funding-sources/${id}/`,
+      }),
+      providesTags: ["FundingSource"],
+    }),
     addFundingSource: builder.mutation<
       TResponse<TFundingSourceData>,
       TFundingSourceFormValues
@@ -60,4 +69,5 @@ export const {
   useAddFundingSourceMutation,
   useDeleteFundingSourceMutation,
   useUpdateFundingSourceMutation,
+  useGetSingleFundingSourceQuery,
 } = projectsAPI;

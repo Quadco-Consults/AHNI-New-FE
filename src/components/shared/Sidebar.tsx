@@ -576,6 +576,10 @@ const DEPARTMENTAL_LINKS = [
             path: RouteEnum.VENDOR_MANAGEMENT,
           },
           { name: "EOI", path: RouteEnum.EOI },
+          {
+            name: "Vendor Evaluation",
+            path: RouteEnum.VENDOR_PERFORMANCE_EVALUATION,
+          },
           // { name: "Vendor Selection", path: RouteEnum.EOI_VENDOR },
         ],
       },
@@ -654,7 +658,7 @@ const DEPARTMENTAL_LINKS = [
             name: "Procurement Tracker",
             path: RouteEnum.PROCUREMENT_TRACKER,
           },
-          { name: "Procurement Report", path: RouteEnum.REPORT },
+          // { name: "Procurement Report", path: RouteEnum.REPORT },
         ],
       },
 
