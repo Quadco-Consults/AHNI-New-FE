@@ -291,6 +291,15 @@ export const procurment = [
     ),
   },
   {
+    path: RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_FINANCIAL_BID_OPENING,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/FinancialBiding"
+        )
+    ),
+  },
+  {
     path: RouteEnum.VENDOR_MANAGEMENT,
     element: lazy(
       () =>

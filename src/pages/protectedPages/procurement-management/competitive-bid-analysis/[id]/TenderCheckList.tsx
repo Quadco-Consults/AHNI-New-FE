@@ -1,44 +1,21 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Controller, useForm } from "react-hook-form";
+import { Controller } from "react-hook-form";
 import DataTable from "components/Table/DataTable";
 
-const criteriaData = [
-  {
-    stage: 1,
-    criteria: "COMPLETENESS AND CONFORMITY TO TENDER REQUIREMENT",
-    description_1:
-      "If Tender submission CONFORMS to tender requirement, this includes submission of Technical Documentation, Financial Quotation as well as Tender Registration (Tick PASS)",
-    description_2:
-      "If Tender submission DO NOT CONFIRM to tender requirement, this includes submission of Technical Documentations, Financial Quotation as well as Tender Registration (Tick FAIL)",
-  },
-  {
-    stage: 2,
-    criteria: "ESSENTIAL AND LEGAL REGISTRATION DOCUMENT",
-    description_1:
-      "If provided with Company Profile, CAC or Business Name Registration, FORM C02, FORM C07,Office Address, Functional Telephone and Emails (Tick PASS)",
-    description_2:
-      "If this important legal registration information is not provided (Tick FAIL)",
-  },
-];
+const TenderChecklist = ({
+  control,
+  criteriaData,
+}: {
+  control: any;
+  criteriaData: any;
+}) => {
+  //   const { handleSubmit, control } = useForm();
 
-const TenderChecklist = () => {
-  const { handleSubmit, control } = useForm();
+  //   const onSubmit = (data: any) => {
+  //     console.log("Submitted Data:", data);
+  //   };
 
-  const onSubmit = (data: any) => {
-    console.log("Submitted Data:", data);
-  };
-
-  return (
-    <form onSubmit={handleSubmit(onSubmit)} className='mx-auto p-5'>
-      <h2 className='text-xl font-bold mb-4'>Tender Evaluation Checklist</h2>
-
-      <DataTable columns={columns(control)} data={criteriaData || []} />
-
-      <button type='submit' className='mt-4 p-2 bg-blue-500 text-white rounded'>
-        Submit
-      </button>
-    </form>
-  );
+  return <DataTable columns={columns(control)} data={criteriaData || []} />;
 };
 
 export default TenderChecklist;
