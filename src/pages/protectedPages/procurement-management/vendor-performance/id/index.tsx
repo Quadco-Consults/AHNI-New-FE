@@ -9,15 +9,8 @@ import {
 import { useEffect, useState } from "react";
 import logoPng from "assets/svgs/logo-bg.svg";
 import GoBack from "components/shared/GoBack";
-
-interface CompetencyData {
-  competencyAreas: string;
-  low: number;
-  fair: number;
-  satisfactorily: number;
-  good: number;
-  excellent: number;
-}
+import { useParams } from "react-router-dom";
+import VendorsEvaluaionAndPerformanceAPI from "services/procurementApi/vendors-evaluation-performance";
 
 interface Recommendation {
   recommendation: string;
@@ -34,56 +27,28 @@ interface Recommendation {
 }
 
 const VendorPerformance = () => {
-  const [rows, setRows] = useState<CompetencyData[]>([]);
+  const { id } = useParams();
+
+  const { data: vendorEvaluationData } =
+    VendorsEvaluaionAndPerformanceAPI.useGetVendorEvaluationQuery({
+      path: { id: id as string },
+    });
+
   const [data, setData] = useState<Recommendation[]>([]);
+
+  // @ts-ignore
+  const totals = vendorEvaluationData?.data?.criteria_scores.reduce(
+    // @ts-ignore
+
+    (sum, item) => sum + item.value,
+    0
+  );
+  // Summing up the `value` field
+  // const totalValue = criteria_scores.reduce((sum, item) => sum + item.value, 0);
 
   // Simulating fetching data
   useEffect(() => {
     const fetchData = async () => {
-      const competencyData: CompetencyData[] = [
-        {
-          competencyAreas: "Delivery leadtime",
-          low: 0,
-          fair: 0,
-          satisfactorily: 0,
-          good: 4,
-          excellent: 0,
-        },
-        {
-          competencyAreas: "Competitive Pricing",
-          low: 0,
-          fair: 0,
-          satisfactorily: 0,
-          good: 4,
-          excellent: 0,
-        },
-        {
-          competencyAreas: "Post-delivery after sales report",
-          low: 0,
-          fair: 0,
-          satisfactorily: 3,
-          good: 0,
-          excellent: 0,
-        },
-        {
-          competencyAreas: "Professionalism",
-          low: 0,
-          fair: 0,
-          satisfactorily: 3,
-          good: 0,
-          excellent: 0,
-        },
-        {
-          competencyAreas:
-            "Responsiveness as well as satisfaction surveys among requesting departments and user department",
-          low: 0,
-          fair: 0,
-          satisfactorily: 0,
-          good: 4,
-          excellent: 0,
-        },
-      ];
-
       const recommendations: Recommendation[] = [
         {
           recommendation: "On Probation",
@@ -114,37 +79,10 @@ const VendorPerformance = () => {
       ];
 
       setData(recommendations);
-      setRows(competencyData);
     };
 
     fetchData();
   }, []);
-
-  const calculateTotalCost = (row: CompetencyData) =>
-    row.low * row.fair * row.satisfactorily * row.good * row.excellent;
-
-  const totals = rows.reduce(
-    (acc, row) => {
-      const totalCost = calculateTotalCost(row);
-
-      return {
-        low: acc.low + row.low,
-        fair: acc.fair + row.fair,
-        satisfactorily: acc.satisfactorily + row.satisfactorily,
-        good: acc.good + row.good,
-        excellent: acc.excellent + row.excellent,
-        totalCost: acc.totalCost + totalCost,
-      };
-    },
-    {
-      low: 0,
-      fair: 0,
-      satisfactorily: 0,
-      good: 0,
-      excellent: 0,
-      totalCost: 0,
-    }
-  );
 
   return (
     <div className='bg-white p-8'>
@@ -157,33 +95,43 @@ const VendorPerformance = () => {
       <div className='mt-8'>
         <Card className='border-primary flex flex-col gap-[17px]'>
           <div className='flex items-center gap-[30px]'>
-            <h2 className='min-w-[206px] text-[18px] font-semibold text-gray-900'>
+            <h2 className='w-[240px] text-[18px] font-semibold text-gray-900'>
               Vendor Performance:
             </h2>
             <p className='text-[18px] font-normal text-gray-900'>
-              Car Hire Service
+              {/* @ts-ignore */}
+
+              {vendorEvaluationData?.data?.vendor?.name}
             </p>
           </div>
           <div className='flex items-center gap-[30px]'>
-            <h2 className='min-w-[206px] text-[18px] font-semibold text-gray-900'>
+            <h2 className='w-[240px] text-[18px] font-semibold text-gray-900'>
               LOCATION OF SERVICE:
             </h2>
             <p className='text-[18px] font-normal text-gray-900'>
-              Adamawa State
+              {/* @ts-ignore */}
+
+              {vendorEvaluationData?.data?.location_of_service}
             </p>
           </div>
           <div className='flex items-center gap-[30px]'>
-            <h2 className='min-w-[206px] text-[18px] font-semibold text-gray-900'>
-              DATE:
-            </h2>
-            <p className='text-[18px] font-normal text-gray-900'>27-Jan-2023</p>
-          </div>
-          <div className='flex items-center gap-[30px]'>
-            <h2 className='min-w-[206px] text-[18px] font-semibold text-gray-900'>
-              REVIEWED PERIOD:
+            <h2 className='w-[240px] text-[18px] font-semibold text-gray-900'>
+              REVIEWED START PERIOD:
             </h2>
             <p className='text-[18px] font-normal text-gray-900'>
-              Feb 1, 2022 - Jan 31, 2023
+              {/* @ts-ignore */}
+
+              {vendorEvaluationData?.data?.reviewed_period_start}
+            </p>
+          </div>
+          <div className='flex items-center gap-[30px]'>
+            <h2 className='w-[240px] text-[18px] font-semibold text-gray-900'>
+              REVIEWED END PERIOD:
+            </h2>
+            <p className='text-[18px] font-normal text-gray-900'>
+              {/* @ts-ignore */}
+
+              {vendorEvaluationData?.data?.reviewed_period_end}
             </p>
           </div>
         </Card>
@@ -207,36 +155,44 @@ const VendorPerformance = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map((row, index) => (
-                <TableRow className='text-start' key={index}>
-                  <TableCell className='max-w-[400px]'>
-                    {row.competencyAreas}
-                  </TableCell>
-                  <TableCell>{row.low}</TableCell>
-                  <TableCell>{row.fair}</TableCell>
-                  <TableCell>{row.satisfactorily}</TableCell>
-                  <TableCell>{row.good}</TableCell>
-                  <TableCell>{row.excellent}</TableCell>
-                </TableRow>
-              ))}
+              {/* @ts-ignore */}
+              {vendorEvaluationData?.data?.criteria_scores?.map(
+                // @ts-ignore
+                (row, index) => {
+                  return (
+                    <TableRow className='text-start' key={index}>
+                      <TableCell className='max-w-[400px]'>
+                        {row.criteria}
+                      </TableCell>
+                      <TableCell>
+                        {row?.value == 1 ? row?.value : "-"}
+                      </TableCell>
+                      <TableCell>
+                        {row?.value == 2 ? row?.value : "-"}
+                      </TableCell>
+                      <TableCell>
+                        {row?.value == 3 ? row?.value : "-"}
+                      </TableCell>
+                      <TableCell>
+                        {row?.value == 4 ? row?.value : "-"}
+                      </TableCell>
+                      <TableCell>
+                        {row?.value == 5 ? row?.value : "-"}
+                      </TableCell>
+                    </TableRow>
+                  );
+                }
+              )}
               <TableRow className='text-start'>
                 <TableCell>
                   <strong>Totals</strong>
                 </TableCell>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
                 <TableCell>
-                  <strong>{totals.low}</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>{totals.fair}</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>{totals.satisfactorily}</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>{totals.good}</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>{totals.excellent}</strong>
+                  <strong>{totals}</strong>
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -263,23 +219,39 @@ const VendorPerformance = () => {
               <TableRow className='border-b-white'>
                 <TableCell className='pl-6 font-semibold'></TableCell>
                 <TableCell className='pl-6 font-semibold'>Name</TableCell>
-                {data.map((item, index) => (
-                  <TableCell key={index}>{item.evaluator.name}</TableCell>
-                ))}
+                <TableCell>
+                  {vendorEvaluationData?.data?.evaluator_recommendation !==
+                    "BARRED" && vendorEvaluationData?.data?.evaluators[0].name}
+                </TableCell>
+                <TableCell>
+                  {vendorEvaluationData?.data?.evaluator_recommendation ===
+                    "BARRED" && vendorEvaluationData?.data?.evaluators[0].name}
+                </TableCell>
               </TableRow>
               <TableRow className='border-b-white'>
                 <TableCell className='pl-6 font-semibold'>Evaluators</TableCell>
                 <TableCell className='pl-6 font-semibold'>Date</TableCell>
-                {data.map((item, index) => (
-                  <TableCell key={index}>{item.evaluator.date}</TableCell>
-                ))}
+                <TableCell className='pl-6'>
+                  {vendorEvaluationData?.data?.evaluator_recommendation !==
+                    "BARRED" && vendorEvaluationData?.data?.evaluation_date}
+                </TableCell>
+
+                <TableCell className='pl-6'>
+                  {vendorEvaluationData?.data?.evaluator_recommendation ===
+                    "BARRED" && vendorEvaluationData?.data?.evaluation_date}
+                </TableCell>
               </TableRow>
               <TableRow className='border-b-gray-300 border-t-white'>
                 <TableCell className='pl-6 font-semibold'></TableCell>
                 <TableCell className='pl-6 font-semibold'>Signature</TableCell>
-                {data.map((item, index) => (
-                  <TableCell key={index}>{item.evaluator.signature}</TableCell>
-                ))}
+                <TableCell>
+                  {vendorEvaluationData?.data?.evaluator_recommendation !==
+                    "BARRED" && vendorEvaluationData?.data?.evaluators[0].name}
+                </TableCell>
+                <TableCell>
+                  {vendorEvaluationData?.data?.evaluator_recommendation ===
+                    "BARRED" && vendorEvaluationData?.data?.evaluators[0].name}
+                </TableCell>{" "}
               </TableRow>
 
               {/* Supervisors Header */}
@@ -287,25 +259,41 @@ const VendorPerformance = () => {
               <TableRow className='border-b-white'>
                 <TableCell className='pl-6 font-semibold'></TableCell>
                 <TableCell className='pl-6 font-semibold'>Name</TableCell>
-                {data.map((item, index) => (
-                  <TableCell key={index}>{item.supervisor.name}</TableCell>
-                ))}
+                <TableCell>
+                  {vendorEvaluationData?.data?.supervisor_recommendation !==
+                    "BARRED" && vendorEvaluationData?.data?.supervisors[0].name}
+                </TableCell>
+                <TableCell>
+                  {vendorEvaluationData?.data?.supervisor_recommendation ===
+                    "BARRED" && vendorEvaluationData?.data?.supervisors[0].name}
+                </TableCell>{" "}
               </TableRow>
               <TableRow className='border-b-white'>
                 <TableCell className='pl-6 font-semibold'>
                   Supervisors
                 </TableCell>
                 <TableCell className='pl-6 font-semibold'>Date</TableCell>
-                {data.map((item, index) => (
-                  <TableCell key={index}>{item.supervisor.date}</TableCell>
-                ))}
+                <TableCell className='pl-6'>
+                  {vendorEvaluationData?.data?.supervisor_recommendation !==
+                    "BARRED" && vendorEvaluationData?.data?.supervision_date}
+                </TableCell>
+
+                <TableCell className='pl-6'>
+                  {vendorEvaluationData?.data?.supervisor_recommendation ===
+                    "BARRED" && vendorEvaluationData?.data?.supervision_date}
+                </TableCell>
               </TableRow>
               <TableRow className='border-t-white'>
                 <TableCell className='pl-6 font-semibold'></TableCell>
                 <TableCell className='pl-6 font-semibold'>Signature</TableCell>
-                {data.map((item, index) => (
-                  <TableCell key={index}>{item.supervisor.signature}</TableCell>
-                ))}
+                <TableCell>
+                  {vendorEvaluationData?.data?.supervisor_recommendation !==
+                    "BARRED" && vendorEvaluationData?.data?.supervisors[0].name}
+                </TableCell>
+                <TableCell>
+                  {vendorEvaluationData?.data?.supervisor_recommendation ===
+                    "BARRED" && vendorEvaluationData?.data?.supervisors[0].name}
+                </TableCell>{" "}
               </TableRow>
             </TableBody>
           </Table>
