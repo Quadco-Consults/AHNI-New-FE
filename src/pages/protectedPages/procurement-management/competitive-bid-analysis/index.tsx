@@ -51,7 +51,8 @@ const CompetitiveAnalysis = () => {
         </div>
 
         <DataTable
-          data={data?.results || []}
+          // @ts-ignore
+          data={data?.data?.results || []}
           columns={columns}
           isLoading={isLoading}
         />

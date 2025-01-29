@@ -46,8 +46,6 @@ const CreateCBA = () => {
   const query = useQuery();
   const rfqId = query.get("id");
 
-  console.log({ rfqId, id, query });
-
   const { data: users, isLoading } = useGetAllUsersQuery({
     page: 1,
     size: 2000000,
@@ -80,8 +78,6 @@ const CreateCBA = () => {
     ) || [];
 
   const onSubmit = async (data: z.infer<typeof CbaSchema>) => {
-    console.log({ data });
-
     const payload = {
       committee_members: data.committee_members,
       cba_type: data?.cba_type,
