@@ -1,40 +1,27 @@
 import { ColumnDef } from "@tanstack/react-table";
 import logoPng from "assets/svgs/logo-bg.svg";
-import Card from "components/shared/Card";
 import DataTable from "components/Table/DataTable";
 import { Button } from "components/ui/button";
-import { Separator } from "components/ui/separator";
+
 import { ChevronRight } from "lucide-react";
 import TenderChecklist from "./TenderCheckList";
 import { Controller, useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
-import { RouteEnum } from "constants/RouterConstants";
 
 const criteriaData = [
   {
     stage: 1,
-    criteria: "COMPLETENESS AND CONFORMITY TO TENDER REQUIREMENT",
+    criteria:
+      "A)  FINANCIAL BID OPENING TO ASSESS CONFORMITY TO FINANCIAL QUOTATION LISTED 8",
     description_1:
-      "If Tender submission CONFORMS to tender requirement, this includes submission of Technical Documentation, Financial Quotation as well as Tender Registration (Tick PASS)",
-    description_2:
-      "If Tender submission DO NOT CONFIRM to tender requirement, this includes submission of Technical Documentations, Financial Quotation as well as Tender Registration (Tick FAIL)",
-  },
-  {
-    stage: 2,
-    criteria: "ESSENTIAL AND LEGAL REGISTRATION DOCUMENT",
-    description_1:
-      "If provided with Company Profile, CAC or Business Name Registration, FORM C02, FORM C07,Office Address, Functional Telephone and Emails (Tick PASS)",
-    description_2:
-      "If this important legal registration information is not provided (Tick FAIL)",
+      "If Tender submission CONFORMS to Financial Quotation (8) by providing for the following: i)   Quotation, ii)  Comprehensive Specification of Product of Interest including Brands, iii) Clear Delivery Leadtime,  iv) Clear Validity of Quotation, v)  Clear Post Delivery Warranty, vi) All relevant Installation Accessories, vii) Delivery Workplan (Schedule of Installation)",
+    description_2: "If such is not clearly provided (Tick FAIL)",
   },
 ];
-const TPS = () => {
+const FinancialBid = () => {
   const { handleSubmit, control } = useForm();
-  const navigate = useNavigate();
 
   const onSubmit = (data: any) => {
     console.log("Submitted Data:", data);
-    navigate(RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_FINANCIAL_BID_OPENING);
   };
 
   return (
@@ -44,54 +31,23 @@ const TPS = () => {
           <div className='flex justify-center items-center flex-col'>
             <img src={logoPng} alt='logo' width={200} />
           </div>
-          <div className='p-4 w-full h-[70px] flex justify-between items-center text-xl'>
-            <h3 className='w-[250px] whitespace-nowrap text-primary'>
-              STAGE 1 & 2
+          <div className='p-4 w-full h-[70px] flex justify-between items-center text-lg'>
+            <h3 className='w-[200px] whitespace-nowrap text-primary'>
+              STAGE 3
             </h3>
-            <div className='flex w-full items-center justify-start ml-6'>
-              <p className='font-semibold'>TECHNICAL PREQUALIFICATION SHEET</p>
-            </div>
-          </div>
-          <Separator />
-          <div className='p-4 w-full h-[70px] flex justify-between items-center'>
-            <h3 className='w-[250px] whitespace-nowrap'>Project Title</h3>
-            <div className='flex w-full items-center justify-start ml-6'>
-              <p>
-                SUPPLY AND INSTALLATION OF SOLAR AND INVERTER
-                SYSTEMS-GF-RFQ-AHNi-09-2023
+            <div className='flex w-full items-center justify-start'>
+              <p className='font-semibold'>
+                FINANCIAL BID OPENING & ASSESSMENT OF CONFORMITY TO FINANCIAL
+                QUOTATION
               </p>
             </div>
-          </div>{" "}
-          <Separator />
-          <div className='p-4 w-full h-[70px] flex justify-between items-center'>
-            <h3 className='w-[250px] whitespace-nowrap'>Company Accessed</h3>
-            <div className='flex w-full items-center justify-start ml-6'>
-              <p>Vendor 1</p>
-            </div>
           </div>
+
           <TenderChecklist control={control} criteriaData={criteriaData} />
         </div>
-        <div className=''>
-          <Card className='border-yellow-darker space-y-3'>
-            <p>
-              <strong>Note:</strong>
-            </p>
-            <p>
-              BIDDER MUST
-              <span className='text-primary mx-1'>
-                PASS Criteria 1-6(summarized as stages 1&2)
-              </span>
-              which formed the Technical Prequalification before consideration
-              for stage 3. Once a bidder failed to
-              <span className='text-primary mx-1'>Pass Stages 1&2</span>, such
-              must not be graduated to
-              <span className='text-primary mx-1'>Stage 3</span>
-              of this exercise.
-            </p>
-          </Card>
-        </div>
+
         <div className='  px-8 my-8'>
-          <p className='mb-4'> STAGE 1 & 2 ASSESSMENT:</p>
+          <p className='mb-4'> STAGE 3 ASSESSMENT:</p>
           <div className='flex gap-5  w-full justify-between'>
             <Controller
               name={"stage_1_and_2"}
@@ -152,7 +108,7 @@ const TPS = () => {
   );
 };
 
-export default TPS;
+export default FinancialBid;
 
 const columns: ColumnDef<any>[] = [
   {

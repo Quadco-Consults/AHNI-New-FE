@@ -126,7 +126,6 @@ const CheckboxForm = () => {
   const onSubmit = async (data: FormData) => {
     // dispatch(activityActions.clearActivity());
 
-    console.log("Form Data:", { data });
     // Define your programAreas array
     // const programAreas = []; // Example IDs of program areas
 
@@ -135,9 +134,9 @@ const CheckboxForm = () => {
       (beneficiary) => beneficiary.selected
     );
     const program_area = filteredBeneficiaries.map((fb) => fb.id);
-    console.log("Filtered Beneficiaries:", filteredBeneficiaries, program_area);
-    console.log("Form Data:", data);
-    console.log(mergedObject);
+    // console.log("Filtered Beneficiaries:", filteredBeneficiaries, program_area);
+    // console.log("Form Data:", data);
+    // console.log(mergedObject);
     const payload = {
       activity: mergedObject.activity,
       activity_budget: data.activity_budget,
