@@ -84,22 +84,6 @@ const VendorPerformance = () => {
     fetchData();
   }, []);
 
-  const evaluators = vendorEvaluationData?.data?.evaluators.map(
-    // @ts-ignore
-
-    (item, index) => {
-      return <TableCell key={index}>{item.name}</TableCell>;
-    }
-  );
-
-  const supervisors = vendorEvaluationData?.data?.supervisors.map(
-    // @ts-ignore
-
-    (item, index) => {
-      return <TableCell key={index}>{item.name}</TableCell>;
-    }
-  );
-
   return (
     <div className='bg-white p-8'>
       <GoBack />
@@ -235,38 +219,39 @@ const VendorPerformance = () => {
               <TableRow className='border-b-white'>
                 <TableCell className='pl-6 font-semibold'></TableCell>
                 <TableCell className='pl-6 font-semibold'>Name</TableCell>
-
-                {vendorEvaluationData?.data?.evaluator_recommendation !==
-                  "BARRED" && evaluators[0]}
-
-                {vendorEvaluationData?.data?.evaluator_recommendation ===
-                  "BARRED" && evaluators[0]}
+                <TableCell>
+                  {vendorEvaluationData?.data?.evaluator_recommendation !==
+                    "BARRED" && vendorEvaluationData?.data?.evaluators[0].name}
+                </TableCell>
+                <TableCell>
+                  {vendorEvaluationData?.data?.evaluator_recommendation ===
+                    "BARRED" && vendorEvaluationData?.data?.evaluators[0].name}
+                </TableCell>
               </TableRow>
               <TableRow className='border-b-white'>
                 <TableCell className='pl-6 font-semibold'>Evaluators</TableCell>
                 <TableCell className='pl-6 font-semibold'>Date</TableCell>
-                {vendorEvaluationData?.data?.evaluator_recommendation !==
-                  "BARRED" && (
-                  <TableCell className='pl-6'>
-                    {vendorEvaluationData?.data?.evaluation_date}
-                  </TableCell>
-                )}
+                <TableCell className='pl-6'>
+                  {vendorEvaluationData?.data?.evaluator_recommendation !==
+                    "BARRED" && vendorEvaluationData?.data?.evaluation_date}
+                </TableCell>
 
-                {vendorEvaluationData?.data?.evaluator_recommendation ===
-                  "BARRED" && (
-                  <TableCell className='pl-6'>
-                    {vendorEvaluationData?.data?.evaluation_date}
-                  </TableCell>
-                )}
+                <TableCell className='pl-6'>
+                  {vendorEvaluationData?.data?.evaluator_recommendation ===
+                    "BARRED" && vendorEvaluationData?.data?.evaluation_date}
+                </TableCell>
               </TableRow>
               <TableRow className='border-b-gray-300 border-t-white'>
                 <TableCell className='pl-6 font-semibold'></TableCell>
                 <TableCell className='pl-6 font-semibold'>Signature</TableCell>
-                {vendorEvaluationData?.data?.evaluator_recommendation !==
-                  "BARRED" && evaluators[0]}
-
-                {vendorEvaluationData?.data?.evaluator_recommendation ===
-                  "BARRED" && evaluators[0]}
+                <TableCell>
+                  {vendorEvaluationData?.data?.evaluator_recommendation !==
+                    "BARRED" && vendorEvaluationData?.data?.evaluators[0].name}
+                </TableCell>
+                <TableCell>
+                  {vendorEvaluationData?.data?.evaluator_recommendation ===
+                    "BARRED" && vendorEvaluationData?.data?.evaluators[0].name}
+                </TableCell>{" "}
               </TableRow>
 
               {/* Supervisors Header */}
@@ -274,39 +259,41 @@ const VendorPerformance = () => {
               <TableRow className='border-b-white'>
                 <TableCell className='pl-6 font-semibold'></TableCell>
                 <TableCell className='pl-6 font-semibold'>Name</TableCell>
-                {vendorEvaluationData?.data?.supervisor_recommendation !==
-                  "BARRED" && supervisors[0]}
-
-                {vendorEvaluationData?.data?.supervisor_recommendation ===
-                  "BARRED" && supervisors[0]}
+                <TableCell>
+                  {vendorEvaluationData?.data?.supervisor_recommendation !==
+                    "BARRED" && vendorEvaluationData?.data?.supervisors[0].name}
+                </TableCell>
+                <TableCell>
+                  {vendorEvaluationData?.data?.supervisor_recommendation ===
+                    "BARRED" && vendorEvaluationData?.data?.supervisors[0].name}
+                </TableCell>{" "}
               </TableRow>
               <TableRow className='border-b-white'>
                 <TableCell className='pl-6 font-semibold'>
                   Supervisors
                 </TableCell>
                 <TableCell className='pl-6 font-semibold'>Date</TableCell>
-                {vendorEvaluationData?.data?.supervisor_recommendation !==
-                  "BARRED" && (
-                  <TableCell className='pl-6'>
-                    {vendorEvaluationData?.data?.supervision_date}
-                  </TableCell>
-                )}
+                <TableCell className='pl-6'>
+                  {vendorEvaluationData?.data?.supervisor_recommendation !==
+                    "BARRED" && vendorEvaluationData?.data?.supervision_date}
+                </TableCell>
 
-                {vendorEvaluationData?.data?.supervisor_recommendation ===
-                  "BARRED" && (
-                  <TableCell className='pl-6'>
-                    {vendorEvaluationData?.data?.supervision_date}
-                  </TableCell>
-                )}
+                <TableCell className='pl-6'>
+                  {vendorEvaluationData?.data?.supervisor_recommendation ===
+                    "BARRED" && vendorEvaluationData?.data?.supervision_date}
+                </TableCell>
               </TableRow>
               <TableRow className='border-t-white'>
                 <TableCell className='pl-6 font-semibold'></TableCell>
                 <TableCell className='pl-6 font-semibold'>Signature</TableCell>
-                {vendorEvaluationData?.data?.supervisor_recommendation !==
-                  "BARRED" && supervisors[0]}
-
-                {vendorEvaluationData?.data?.supervisor_recommendation ===
-                  "BARRED" && supervisors[0]}
+                <TableCell>
+                  {vendorEvaluationData?.data?.supervisor_recommendation !==
+                    "BARRED" && vendorEvaluationData?.data?.supervisors[0].name}
+                </TableCell>
+                <TableCell>
+                  {vendorEvaluationData?.data?.supervisor_recommendation ===
+                    "BARRED" && vendorEvaluationData?.data?.supervisors[0].name}
+                </TableCell>{" "}
               </TableRow>
             </TableBody>
           </Table>
