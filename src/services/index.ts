@@ -118,6 +118,7 @@ const baseAPI = createApi({
     "ASSET_MAINTENANCE",
     "EXPENSE_AUTHORIZATION",
     "TRAVEL_EXPENSE",
+    "VENDOR_EVALUATION",
   ],
   // keepUnusedDataFor: 5 * 60,
   keepUnusedDataFor: 0,

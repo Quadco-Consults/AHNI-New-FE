@@ -24,7 +24,7 @@ function PurchaseRequest() {
   const columns: ColumnDef<PurchaseRequestResultsData>[] = [
     {
       header: "Purchase Request Number",
-      accessorKey: "purchase_request_number",
+      accessorKey: "ref_number",
       size: 250,
     },
     {
@@ -34,12 +34,12 @@ function PurchaseRequest() {
     },
     {
       header: "Date of Request",
-      accessorKey: "request_date",
+      accessorKey: "date_of_request",
       size: 150,
     },
     {
       header: "Required Date",
-      accessorKey: "required_date",
+      accessorKey: "date_required",
       size: 150,
     },
     {
@@ -49,7 +49,7 @@ function PurchaseRequest() {
     },
     {
       header: "Total Amount",
-      accessorKey: "total_amount",
+      accessorKey: "total_cost",
       size: 150,
     },
     {
@@ -145,7 +145,8 @@ function PurchaseRequest() {
           </Button>
         </div>
         <DataTable
-          data={data?.results || []}
+          // @ts-ignore
+          data={data?.data?.results || []}
           columns={columns}
           isLoading={isLoading}
         />

@@ -15,21 +15,20 @@ import { useGetSingleCostInputQuery } from "services/modules/finance/cost-input"
 import { useGetSingleFCONumberQuery } from "services/modules/finance/fco-number";
 
 const Preview = () => {
-  const { data: requestsDetails, isLoading: requestsDetailsIsLoading } =
-    PurchaseRequestAPI.useGetActivityMemoQuery(
-      useMemo(
-        () => ({
-          path: { id: "14700b16-9a76-46a3-ad06-4371b3dc96a6" as string },
-        }),
-        ["14700b16-9a76-46a3-ad06-4371b3dc96a6"]
-      )
-    );
+  const { data: requestsDetails } = PurchaseRequestAPI.useGetActivityMemoQuery(
+    useMemo(
+      () => ({
+        path: { id: "14700b16-9a76-46a3-ad06-4371b3dc96a6" as string },
+      }),
+      ["14700b16-9a76-46a3-ad06-4371b3dc96a6"]
+    )
+  );
 
-  console.log({ requestsDetails, requestsDetailsIsLoading });
+  console.log({ requestsDetails });
 
-  const { data: budgetLine } =
-    // @ts-ignore
-    useGetSingleBudgetLineQuery(requestsDetails?.budget_line[0]);
+  const { data: budgetLine } = useGetSingleBudgetLineQuery(
+    requestsDetails?.budget_line[0]
+  );
 
   const { data: interventionArea } =
     // @ts-ignore
@@ -57,13 +56,8 @@ const Preview = () => {
       </div>
 
       <div>
-        {/* @ts-ignore */}
-
         <h2>To: {requestsDetails?.approved_by?.name}</h2>
-        {/* @ts-ignore */}
-
         <h2 className='my-8'>THROUGH: {requestsDetails?.reviewed_by?.name}</h2>
-        {/* @ts-ignore */}
         <h2>FROM: {requestsDetails?.created_by?.name}</h2>
 
         <div className='mt-8'>

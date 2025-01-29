@@ -121,7 +121,7 @@ const CreateActivityMemo = () => {
       comment: "",
       approved_by: "",
       reviewed_by: "",
-      created_by: "333",
+      created_by: "",
       expenses: [],
       // created_by: profile?.data.id,
     },
@@ -152,15 +152,12 @@ const CreateActivityMemo = () => {
   });
 
   const onSubmit = async (data: z.infer<typeof SampleMemoSchema>) => {
-    console.log({ data });
-
     const selectedActivity = activites?.data?.results.find(
       (activity) => activity.id === data?.activity
     );
     const selectedCostCategory = costCategories?.data?.data?.results.find(
       (costCategory) => costCategory.id === data?.cost_categories[0]
     );
-    console.log({ selectedActivity });
 
     dispatch(
       activityActions.addActivity({

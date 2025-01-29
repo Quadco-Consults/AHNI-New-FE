@@ -14,9 +14,12 @@ import { ItemsResultsData } from "definations/configs/itmes";
 import { PurchaseRequestSchema } from "definations/procurement-validator";
 import { MinusCircle } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { generatePath, Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useGetAllUsersQuery } from "services/auth/user";
 import DepartmentsAPI from "services/configs/departments";
 import ItemsAPI from "services/configs/items";
+import { useGetAllPositionsQuery } from "services/modules/config/position";
+import { useGetAllFCONumbersQuery } from "services/modules/finance/fco-number";
 import { useGetAllPartnersQuery } from "services/modules/project/partners";
 import PurchaseRequestAPI from "services/procurementApi/purchase-request";
 import { toast } from "sonner";
@@ -33,38 +36,105 @@ const CreatePurchaseRequestForm = () => {
   const [createPurchaseRequestMutation, { isLoading }] =
     PurchaseRequestAPI.useCreatePurchaseRequestMutation();
 
+  const fco = useGetAllFCONumbersQuery({
+    page: 1,
+    size: 2000000,
+  });
+  const { data: position, isFetching: positionLoading } =
+    useGetAllPositionsQuery({
+      page: 1,
+      size: 20000,
+    });
+
+  const { data: users } = useGetAllUsersQuery({
+    page: 1,
+    size: 2000000,
+  });
+  console.log({ items, position });
+
   const form = useForm<z.infer<typeof PurchaseRequestSchema>>({
     resolver: zodResolver(PurchaseRequestSchema),
     defaultValues: {
-      items: [
-        {
-          item_id: "",
-          category: "",
-          fco: "",
-          units: 0,
-          number_of_days: 0,
-          unit_cost: 0,
-        },
-      ],
-      request_date: "",
-      required_date: "",
+      request_memo: "14700b16-9a76-46a3-ad06-4371b3dc96a6",
+      ref_number: "wewew",
+      date_of_request: "",
+      date_required: "",
       requesting_department: "",
       deliver_to: "",
+      special_instruction: "ewecd",
+      reviewed_by: "",
+      role_reviewed_by: "",
+      requested_by: "",
+      role_requested_by: "",
+      approved_by: "",
+      role_approved_by: "",
+      authorised_by: "",
+      role_authorised_by: "",
+      items: [
+        {
+          item: "",
+          unit_cost: 0,
+          quantity: 0,
+          fco_number: "",
+          amount: 0,
+        },
+      ],
     },
   });
 
   const navigate = useNavigate();
 
-  const { control, handleSubmit, watch } = form;
+  const { control, handleSubmit, getValues } = form;
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: "items",
   });
 
+  const lon = getValues();
+  console.log({ lon });
+
+  const usersOptions = users?.data.results.map(
+    ({ first_name, last_name, id }) => ({
+      label: `${first_name} ${last_name}`,
+      value: id,
+    })
+  );
+
   const onSubmit = async (data: z.infer<typeof PurchaseRequestSchema>) => {
+    const payload = {
+      items: data.items,
+      requested_by: { user_id: data.requested_by },
+      reviewed_by: {
+        user_id: data.reviewed_by,
+      },
+      authorised_by: {
+        user_id: data.authorised_by,
+      },
+      approved_by: {
+        user_id: data.approved_by,
+      },
+      ref_number: data.ref_number,
+      date_of_request: data.date_of_request,
+      date_required: data.date_required,
+      special_instruction: data.special_instruction,
+      request_id: "string",
+      status: "Pending",
+      reviewed_date: null,
+      authorised_date: null,
+      approved_date: null,
+      request_memo: data.request_memo,
+      requesting_department: data.requesting_department,
+      deliver_to: data.deliver_to,
+      role_requested_by: data.role_requested_by,
+      role_reviewed_by: data.role_reviewed_by,
+      role_authorised_by: data.role_authorised_by,
+      role_approved_by: data.role_approved_by,
+    };
+
     try {
-      await createPurchaseRequestMutation(data).unwrap();
+      // @ts-ignore
+      await createPurchaseRequestMutation(payload).unwrap();
       navigate(RouteEnum.PURCHASE_REQUEST);
       toast.success("Successfully created.");
     } catch (error) {
@@ -80,13 +150,13 @@ const CreatePurchaseRequestForm = () => {
           <div className='grid grid-cols-2 gap-5'>
             <FormInput
               label='Date of Request'
-              name='request_date'
+              name='date_of_request'
               type='date'
               placeholder='01/01/2024'
             />
             <FormInput
               label='Required Date'
-              name='required_date'
+              name='date_required'
               type='date'
               placeholder='01/01/2024'
             />
@@ -101,7 +171,8 @@ const CreatePurchaseRequestForm = () => {
                 {departmentsIsLoading ? (
                   <LoadingSpinner />
                 ) : (
-                  departments?.results?.map(
+                  // @ts-ignore
+                  departments?.data?.results?.map(
                     (department: DepartmentsResultsData) => (
                       <SelectItem key={department?.id} value={department?.id}>
                         {department?.name}
@@ -150,23 +221,44 @@ const CreatePurchaseRequestForm = () => {
                         </span>
                       </td>
                       <td className='w-fit p-2 text-center'>
-                        <FormSelect label='' name={`items.[${index}].item_id`}>
+                        <FormSelect label='' name={`items.[${index}].item`}>
                           <SelectContent>
                             {itemsIsLoading ? (
                               <LoadingSpinner />
                             ) : (
-                              items?.results?.map((item: ItemsResultsData) => (
-                                <SelectItem key={item?.id} value={item?.id}>
-                                  {item?.name}
-                                </SelectItem>
-                              ))
+                              // @ts-ignore
+                              items?.data?.results?.map(
+                                (item: ItemsResultsData) => (
+                                  <SelectItem key={item?.id} value={item?.id}>
+                                    {item?.name}
+                                  </SelectItem>
+                                )
+                              )
                             )}
                           </SelectContent>
                         </FormSelect>
                       </td>
 
                       <td className='w-fit p-2 text-center'>
-                        <FormInput label='' name={`items.[${index}].fco`} />
+                        <FormSelect
+                          label=''
+                          name={`items.[${index}].fco_number`}
+                        >
+                          <SelectContent>
+                            {itemsIsLoading ? (
+                              <LoadingSpinner />
+                            ) : (
+                              // @ts-ignore
+                              fco?.data?.data?.results?.map((item) => {
+                                return (
+                                  <SelectItem key={item?.id} value={item?.id}>
+                                    {item?.name}
+                                  </SelectItem>
+                                );
+                              })
+                            )}
+                          </SelectContent>
+                        </FormSelect>
                       </td>
                       <td className='w-fit p-2 text-center'>
                         <FormInput
@@ -185,7 +277,7 @@ const CreatePurchaseRequestForm = () => {
                         />
                       </td>
                       <td className='w-fit p-2 text-center'>
-                        <FormInput label='' name={`items.[${index}].total`} />
+                        <FormInput label='' name={`items.[${index}].amount`} />
                       </td>
                       <td className='flex items-center justify-center py-5'>
                         <Button variant='ghost' size='icon'>
@@ -206,11 +298,10 @@ const CreatePurchaseRequestForm = () => {
                 className='text-primary bg-[#FFF2F2] flex gap-2 items-center justify-center'
                 onClick={() =>
                   append({
-                    item_id: "",
-                    category: "",
-                    fco: "",
-                    units: 0,
-                    number_of_days: 0,
+                    item: "",
+                    fco_number: "",
+                    amount: 0,
+                    // number_of_days: 0,
                     unit_cost: 0,
                   })
                 }
@@ -232,32 +323,22 @@ const CreatePurchaseRequestForm = () => {
             <h3 className='mb-4'>Requested By</h3>
             <div className='flex flex-col gap-6'>
               <div className='grid grid-cols-2 gap-5'>
-                <FormSelect label='Name' name='name' required>
+                {usersOptions && (
+                  <FormSelect
+                    label='Name'
+                    name='requested_by'
+                    required
+                    options={usersOptions}
+                  />
+                )}
+                <FormSelect label='Role' name='role_requested_by' required>
                   <SelectContent>
-                    {departmentsIsLoading ? (
+                    {positionLoading ? (
                       <LoadingSpinner />
                     ) : (
-                      departments?.results?.map(
-                        (department: DepartmentsResultsData) => (
-                          <SelectItem
-                            key={department?.id}
-                            value={department?.id}
-                          >
-                            {department?.name}
-                          </SelectItem>
-                        )
-                      )
-                    )}
-                  </SelectContent>
-                </FormSelect>
-                <FormSelect label='Role' name='role' required>
-                  <SelectContent>
-                    {partnersIsLoading ? (
-                      <LoadingSpinner />
-                    ) : (
-                      partner?.data.results?.map((partner) => (
-                        <SelectItem key={partner?.id} value={partner?.id}>
-                          {partner?.name}
+                      position?.data.results?.map((p) => (
+                        <SelectItem key={p?.id} value={p?.id}>
+                          {p?.name}
                         </SelectItem>
                       ))
                     )}
@@ -270,32 +351,22 @@ const CreatePurchaseRequestForm = () => {
             <h3 className='mb-4'>Reviewed By</h3>
             <div className='flex flex-col gap-6'>
               <div className='grid grid-cols-2 gap-5'>
-                <FormSelect label='Name' name='name' required>
+                {usersOptions && (
+                  <FormSelect
+                    label='Name'
+                    name='reviewed_by'
+                    required
+                    options={usersOptions}
+                  />
+                )}
+                <FormSelect label='Role' name='role_reviewed_by' required>
                   <SelectContent>
-                    {departmentsIsLoading ? (
+                    {positionLoading ? (
                       <LoadingSpinner />
                     ) : (
-                      departments?.results?.map(
-                        (department: DepartmentsResultsData) => (
-                          <SelectItem
-                            key={department?.id}
-                            value={department?.id}
-                          >
-                            {department?.name}
-                          </SelectItem>
-                        )
-                      )
-                    )}
-                  </SelectContent>
-                </FormSelect>
-                <FormSelect label='Role' name='role' required>
-                  <SelectContent>
-                    {partnersIsLoading ? (
-                      <LoadingSpinner />
-                    ) : (
-                      partner?.data.results?.map((partner) => (
-                        <SelectItem key={partner?.id} value={partner?.id}>
-                          {partner?.name}
+                      position?.data.results?.map((p) => (
+                        <SelectItem key={p?.id} value={p?.id}>
+                          {p?.name}
                         </SelectItem>
                       ))
                     )}
@@ -308,32 +379,22 @@ const CreatePurchaseRequestForm = () => {
             <h3 className='mb-4'>Approved By</h3>
             <div className='flex flex-col gap-6'>
               <div className='grid grid-cols-2 gap-5'>
-                <FormSelect label='Name' name='name' required>
+                {usersOptions && (
+                  <FormSelect
+                    label='Name'
+                    name='approved_by'
+                    required
+                    options={usersOptions}
+                  />
+                )}
+                <FormSelect label='Role' name='role_approved_by' required>
                   <SelectContent>
-                    {departmentsIsLoading ? (
+                    {positionLoading ? (
                       <LoadingSpinner />
                     ) : (
-                      departments?.results?.map(
-                        (department: DepartmentsResultsData) => (
-                          <SelectItem
-                            key={department?.id}
-                            value={department?.id}
-                          >
-                            {department?.name}
-                          </SelectItem>
-                        )
-                      )
-                    )}
-                  </SelectContent>
-                </FormSelect>
-                <FormSelect label='Role' name='role' required>
-                  <SelectContent>
-                    {partnersIsLoading ? (
-                      <LoadingSpinner />
-                    ) : (
-                      partner?.data.results?.map((partner) => (
-                        <SelectItem key={partner?.id} value={partner?.id}>
-                          {partner?.name}
+                      position?.data.results?.map((p) => (
+                        <SelectItem key={p?.id} value={p?.id}>
+                          {p?.name}
                         </SelectItem>
                       ))
                     )}
@@ -346,32 +407,22 @@ const CreatePurchaseRequestForm = () => {
             <h3 className='mb-4'>Authorized By</h3>
             <div className='flex flex-col gap-6'>
               <div className='grid grid-cols-2 gap-5'>
-                <FormSelect label='Name' name='name' required>
+                {usersOptions && (
+                  <FormSelect
+                    label='Name'
+                    name='authorised_by'
+                    required
+                    options={usersOptions}
+                  />
+                )}
+                <FormSelect label='Role' name='role_authorised_by' required>
                   <SelectContent>
-                    {departmentsIsLoading ? (
+                    {positionLoading ? (
                       <LoadingSpinner />
                     ) : (
-                      departments?.results?.map(
-                        (department: DepartmentsResultsData) => (
-                          <SelectItem
-                            key={department?.id}
-                            value={department?.id}
-                          >
-                            {department?.name}
-                          </SelectItem>
-                        )
-                      )
-                    )}
-                  </SelectContent>
-                </FormSelect>
-                <FormSelect label='Role' name='role' required>
-                  <SelectContent>
-                    {partnersIsLoading ? (
-                      <LoadingSpinner />
-                    ) : (
-                      partner?.data.results?.map((partner) => (
-                        <SelectItem key={partner?.id} value={partner?.id}>
-                          {partner?.name}
+                      position?.data.results?.map((p) => (
+                        <SelectItem key={p?.id} value={p?.id}>
+                          {p?.name}
                         </SelectItem>
                       ))
                     )}
@@ -381,7 +432,7 @@ const CreatePurchaseRequestForm = () => {
             </div>
           </div>
           <div className='flex items-center justify-end'>
-            {/* <FormButton
+            <FormButton
               loading={isLoading}
               disabled={isLoading}
               type='submit'
@@ -389,16 +440,16 @@ const CreatePurchaseRequestForm = () => {
             >
               Submit
               <LongArrowRight />
-            </FormButton> */}
-            <Link
+            </FormButton>
+            {/* <Link
               className='w-fit'
               to={generatePath(RouteEnum.PURCHASE_REQUEST_FORM)}
-            >
-              <Button className='flex gap-2 py-6'>
-                Submit
-                <LongArrowRight />
-              </Button>
-            </Link>
+            > */}
+            {/* <Button className='flex gap-2 py-6'>
+              Submit
+              <LongArrowRight />
+            </Button> */}
+            {/* </Link> */}
           </div>
         </form>
       </Form>
