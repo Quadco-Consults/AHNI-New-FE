@@ -156,7 +156,8 @@ export const RouteEnum = {
     "/procurement-management/competitive-bid-analysis/:id/start",
   COMPETITIVE_BID_ANALYSIS_DETAILS_FINANCIAL_BID_OPENING:
     "/procurement-management/competitive-bid-analysis/:id/financial-bid-opening",
-
+  SUMMARY_OF_TECHNICAL_PREQUALIFICATION:
+    "/procurement-management/competitive-bid-analysis/:id/summary-of-technical-prequalification",
   //eoi routes
   EOI: "/procurement-management/vendor-management/eoi",
   EOI_VIEW: "/procurement-management/vendor-management/eoi/:id",

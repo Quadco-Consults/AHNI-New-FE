@@ -6,6 +6,8 @@ import { Button } from "components/ui/button";
 import { ChevronRight } from "lucide-react";
 import TenderChecklist from "./TenderCheckList";
 import { Controller, useForm } from "react-hook-form";
+import { RouteEnum } from "constants/RouterConstants";
+import { useNavigate } from "react-router-dom";
 
 const criteriaData = [
   {
@@ -19,9 +21,11 @@ const criteriaData = [
 ];
 const FinancialBid = () => {
   const { handleSubmit, control } = useForm();
+  const navigate = useNavigate();
 
   const onSubmit = (data: any) => {
     console.log("Submitted Data:", data);
+    navigate(RouteEnum.SUMMARY_OF_TECHNICAL_PREQUALIFICATION);
   };
 
   return (

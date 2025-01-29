@@ -300,6 +300,15 @@ export const procurment = [
     ),
   },
   {
+    path: RouteEnum.SUMMARY_OF_TECHNICAL_PREQUALIFICATION,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/SummaryOfTechnicalPrequalification"
+        )
+    ),
+  },
+  {
     path: RouteEnum.VENDOR_MANAGEMENT,
     element: lazy(
       () =>
