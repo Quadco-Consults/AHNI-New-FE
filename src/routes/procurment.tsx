@@ -286,7 +286,7 @@ export const procurment = [
     element: lazy(
       () =>
         import(
-          "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/start-competitiveBidAnalysis"
+          "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/technicalPrequalificationSheet"
         )
     ),
   },
