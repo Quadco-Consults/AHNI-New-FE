@@ -152,6 +152,8 @@ export const RouteEnum = {
   COMPETITIVE_BID_ANALYSIS: "/procurement-management/competitive-bid-analysis",
   COMPETITIVE_BID_ANALYSIS_DETAILS:
     "/procurement-management/competitive-bid-analysis/:id",
+  COMPETITIVE_BID_ANALYSIS_DETAILS_APPROVAL_CHECK:
+    "/procurement-management/competitive-bid-analysis/:id/check-approval",
   COMPETITIVE_BID_ANALYSIS_DETAILS_START:
     "/procurement-management/competitive-bid-analysis/:id/start",
   COMPETITIVE_BID_ANALYSIS_DETAILS_FINANCIAL_BID_OPENING:
