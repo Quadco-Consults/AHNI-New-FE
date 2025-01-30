@@ -282,6 +282,16 @@ export const procurment = [
     ),
   },
   {
+    path: RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_APPROVAL_CHECK,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/CheckApproval"
+        )
+    ),
+  },
+
+  {
     path: RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_START,
     element: lazy(
       () =>
