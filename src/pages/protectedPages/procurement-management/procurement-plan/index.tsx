@@ -162,7 +162,7 @@ export default function ProcurementPlan() {
           </PopoverTrigger>
           <PopoverContent className=' w-fit'>
             <div className='flex flex-col items-start justify-between gap-1'>
-              <Link
+              {/* <Link
                 className='w-full'
                 to={generatePath(RouteEnum.CREATE_PROCUREMENT)}
               >
@@ -172,7 +172,7 @@ export default function ProcurementPlan() {
                 >
                   <AddSquareIcon fillColor='#FF0000' /> Create from scratch
                 </Button>
-              </Link>
+              </Link> */}
               <Button
                 className='w-full flex items-center gap-2 justify-start'
                 variant='ghost'

@@ -51,7 +51,6 @@ const Uploads = (data: VendorsResultsData) => {
 
   // @ts-ignore
   const vendorDocuments = vendorDocumentsQueryResult?.data?.data?.results;
-  console.log({ vendorDocumentsQueryResult, vendorDocuments });
 
   const [deleteVendorDocumentMutation] =
     VendorsDocumentAPI.useDeleteVendorDocumentMutation();
@@ -97,8 +96,6 @@ const Uploads = (data: VendorsResultsData) => {
       ) : vendorDocuments && vendorDocuments?.length > 0 ? (
         <div className='grid grid-cols-1 items-center p-5 gap-5 md:grid-cols-2 lg:grid-cols-3'>
           {vendorDocuments?.map((doc: VendorsDocumentResultsData) => {
-            console.log({ doc });
-
             // return;
             return (
               <div
@@ -158,7 +155,7 @@ const Uploads = (data: VendorsResultsData) => {
                     </Button>
                   </div>
                 </div>
-                {doc?.files[0]?.file_url?.endsWith("pdf") ? (
+                {doc?.files[0]?.endsWith("pdf") ? (
                   <div className='bg-[#0000001A] py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden'>
                     <Dialog>
                       <DialogTrigger>
@@ -198,7 +195,7 @@ const Uploads = (data: VendorsResultsData) => {
                 ) : (
                   <div className='h-56 overflow-hidden'>
                     <img
-                      src={doc?.files[0]?.file_url}
+                      src={doc?.files[0]}
                       alt={doc?.document_type}
                       className=' object-contain h-48 w-96'
                     />
