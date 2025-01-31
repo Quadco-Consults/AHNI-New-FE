@@ -1,97 +1,97 @@
 import BackNavigation from "atoms/BackNavigation";
-import TabState from "components/ui/TabState";
 import React, { useState } from "react";
-import GrantDetailsCard from "../../candg/grant/GrantDetailsCard";
-import ExpenditureHistory from "../../candg/grant/ExpenditureHistory";
+import GrantDetailsCard from "./_components/GrantDetailsCard";
+import ExpenditureHistory from "./_components/ExpenditureHistory";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import { Button } from "components/ui/button";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
-import { grantsApi } from "services/cAndGApi/grants";
 import { useParams } from "react-router-dom";
-import { Loading } from "components/shared/Loading";
+import { LoadingSpinner } from "components/shared/Loading";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { useGetSingleGrantQuery } from "services/c&g/grant";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 const GrantDetails: React.FC = () => {
-    const params = useParams();
+    const [tabValue, setTabValue] = useState("details");
 
-    const getGrant = grantsApi.useGetGrantByIdQuery(params.id);
+    const { id } = useParams();
+
+    const { data, isLoading } = useGetSingleGrantQuery(id ?? skipToken);
 
     const dispatch = useAppDispatch();
-    const tabDetails = [
-        {
-            id: 1,
-            state: "details",
-            name: "details",
-            tabComponent: <GrantDetailsCard grantDetails={getGrant?.data} />,
-        },
-        {
-            id: 2,
-            state: "expenditure-history",
-            name: "expenditure history",
-            tabComponent: <ExpenditureHistory grantDetails={getGrant?.data} />,
-        },
 
-        {
-            id: 2,
-            state: "expenditure-history",
-            name: "Obligations",
-            tabComponent: <ExpenditureHistory grantDetails={getGrant?.data} />,
-            // add obligation table from projects with add button
-        },
-    ];
-    const [tabState, setTabState] = useState<string | number>(
-        tabDetails[0].state
-    );
+    console.log(tabValue);
 
     return (
-        <main className="w-full flex flex-col items-center justify-center gap-y-[1.875rem]">
-            <section className="w-full flex items-center justify-between">
-                <div className="w-auto flex gap-x-[1.25rem] items-center justify-start">
-                    <BackNavigation />
-                    <TabState
-                        tabArray={tabDetails}
-                        setState={setTabState}
-                        tabState={tabState}
-                    />
-                </div>
-                <div>
-                    {tabState === tabDetails[1].state && (
-                        <Button
-                            className="flex gap-2 py-6"
-                            type="button"
-                            onClick={() => {
-                                dispatch(
-                                    openDialog({
-                                        type: DialogType.ExpenditureModal,
-                                        dialogProps: {
-                                            header: "Add Expenditure",
-                                            width: "max-w-lg",
-                                        },
-                                    })
-                                );
-                            }}
-                        >
-                            <AddSquareIcon />
-                            <p>Add Expenditure</p>
-                        </Button>
-                    )}
-                </div>
-            </section>
-            {getGrant.isLoading ? (
-                <Loading />
+        <section className="space-y-5">
+            <div className="flex items-center justify-between">
+                <BackNavigation />
+
+                {(tabValue === "expenditure-history" ||
+                    tabValue === "obligations") && (
+                    <Button
+                        className="flex gap-2 py-6"
+                        type="button"
+                        onClick={() => {
+                            dispatch(
+                                openDialog({
+                                    type:
+                                        tabValue === "expenditure-history"
+                                            ? DialogType.ExpenditureModal
+                                            : DialogType.ActivityUpload,
+                                    dialogProps: {
+                                        header:
+                                            tabValue === "expenditure-history"
+                                                ? "Add Expenditure"
+                                                : "Add Obligation",
+                                        width: "max-w-lg",
+                                        grantId: id,
+                                    },
+                                })
+                            );
+                        }}
+                    >
+                        <AddSquareIcon />
+                        {tabValue === "expenditure-history"
+                            ? "Add Expenditure"
+                            : "Add Obligation"}
+                    </Button>
+                )}
+            </div>
+
+            {isLoading ? (
+                <LoadingSpinner />
             ) : (
-                <section className="w-full">
-                    {tabDetails.map((item, index) => {
-                        return (
-                            tabState === item.state && (
-                                <div key={index}>{item.tabComponent}</div>
-                            )
-                        );
-                    })}
-                </section>
+                <Tabs
+                    defaultValue={tabValue}
+                    value={tabValue}
+                    onValueChange={(value) => setTabValue(value)}
+                    className="space-y-5"
+                >
+                    <TabsList className="ml-10">
+                        <TabsTrigger value="details">Details</TabsTrigger>
+
+                        <TabsTrigger value="expenditure-history">
+                            Expenditure History
+                        </TabsTrigger>
+
+                        <TabsTrigger value="obligations">
+                            Obligations
+                        </TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="details">
+                        {data && <GrantDetailsCard {...data?.data} />}
+                    </TabsContent>
+
+                    <TabsContent value="expenditure-history">
+                        {data && <ExpenditureHistory {...data?.data} />}
+                    </TabsContent>
+                </Tabs>
             )}
-        </main>
+        </section>
     );
 };
 
