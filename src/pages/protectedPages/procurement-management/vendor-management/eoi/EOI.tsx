@@ -90,6 +90,7 @@ const EOI = () => {
     defaultValues: {
       name: "",
       description: "",
+      eoi_number: "",
       // status: "",
       categories: [],
     },
@@ -116,6 +117,7 @@ const EOI = () => {
     formData.append("opening_date", opening_date);
     formData.append("closing_date", closing_date);
     formData.append("document", file);
+    formData.append("eoi_number", data.eoi_number);
     data.categories.forEach((item) => formData.append("categories", item));
 
     try {
@@ -142,8 +144,6 @@ const EOI = () => {
   if (isLoading) {
     return <Loading />;
   }
-
-  // console.log({ categories, matchedCategories, data, financialYear });
 
   return (
     <div className='space-y-10'>
@@ -181,7 +181,10 @@ const EOI = () => {
                       onSubmit={form.handleSubmit(onSubmit)}
                       className='space-y-5'
                     >
-                      <FormInput name='name' label='Title' />
+                      <div className='grid grid-cols-1 gap-5 items-center md:grid-cols-2'>
+                        <FormInput name='name' label='Title' />
+                        <FormInput name='eoi_number' label='EOI' />
+                      </div>
                       <FormTextArea
                         name='description'
                         label='Background'

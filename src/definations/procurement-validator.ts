@@ -6,6 +6,7 @@ export const EOISchema = z.object({
   // status: z.string(),
   financial_year: z.string().min(1, "Field is required"),
   categories: z.array(z.string()),
+  eoi_number: z.string().min(1, "Field is required"),
 });
 
 export const PrequalificationCriteriaSchema = z.object({
@@ -122,7 +123,7 @@ export const VendorsSchema = z.object({
 //
 export const SampleMemoSchema = z.object({
   activity: z.string().min(1, "Field is required"),
-  location: z.string().min(1, "Field is required"),
+  subject: z.string().min(1, "Field is required"),
   requested_date: z.string().min(1, "Field is required"),
   fconumber: z.array(z.string().min(1, "Field is required")),
   intervention_areas: z.array(z.string().min(1, "Field is required")),
@@ -131,16 +132,15 @@ export const SampleMemoSchema = z.object({
   cost_input: z.array(z.string().min(1, "Field is required")),
   funding_source: z.array(z.string().min(1, "Field is required")),
   comment: z.string().min(1, "Field is required"),
-  reviewed_by: z.string().min(1, "Field is required"),
-  approved_by: z.string().min(1, "Field is required"),
+  reviewed_by: z.array(z.string().min(1, "Field is required")),
+  copy: z.array(z.string().min(1, "Field is required")),
+  approved_by: z.array(z.string().min(1, "Field is required")),
   created_by: z.string().min(1, "Field is required"),
   expenses: z.array(
     z.object({
       item: z.string().optional(),
       quantity: z.string().optional(),
       days: z.string().optional(),
-      facility: z.string().optional(),
-      frequency: z.string().optional(),
       unit_cost: z.string().optional(),
       total_cost: z.number().optional(),
     })
