@@ -87,8 +87,8 @@ const CreateActivityMemo = () => {
 
   const usersOptions = users?.data.results.map(
     ({ first_name, last_name, id }) => ({
-      label: `${first_name} ${last_name}`,
-      value: id,
+      name: `${first_name} ${last_name}`,
+      id,
     })
   );
 
@@ -110,7 +110,7 @@ const CreateActivityMemo = () => {
     resolver: zodResolver(SampleMemoSchema),
     defaultValues: {
       activity: "",
-      location: "",
+      subject: "",
       requested_date: "",
       fconumber: [],
       intervention_areas: [],
@@ -119,8 +119,9 @@ const CreateActivityMemo = () => {
       cost_input: [],
       funding_source: [],
       comment: "",
-      approved_by: "",
-      reviewed_by: "",
+      approved_by: [],
+      copy: [],
+      reviewed_by: [],
       created_by: "",
       expenses: [],
       // created_by: profile?.data.id,
@@ -174,6 +175,88 @@ const CreateActivityMemo = () => {
     <div className='pt-5'>
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-6'>
+          <div className='grid grid-cols-2 gap-5'>
+            <div>
+              <Label className='font-semibold'>To</Label>
+              <FormField
+                control={form.control}
+                name='approved_by'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <MultiSelectFormField
+                        options={usersOptions || []}
+                        defaultValue={field.value}
+                        onValueChange={field.onChange}
+                        placeholder='Please Select'
+                        variant='inverted'
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              {errors.approved_by && (
+                <span className='text-sm text-red-500 font-medium'>
+                  {errors.approved_by.message}
+                </span>
+              )}
+            </div>{" "}
+            <div>
+              <Label className='font-semibold'>Through</Label>
+              <FormField
+                control={form.control}
+                name='reviewed_by'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <MultiSelectFormField
+                        options={usersOptions || []}
+                        defaultValue={field.value}
+                        onValueChange={field.onChange}
+                        placeholder='Please Select'
+                        variant='inverted'
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              {errors.reviewed_by && (
+                <span className='text-sm text-red-500 font-medium'>
+                  {errors.reviewed_by.message}
+                </span>
+              )}
+            </div>{" "}
+          </div>
+          <div className='grid grid-cols-2 gap-5'>
+            <div>
+              <Label className='font-semibold'>Copy</Label>
+              <FormField
+                control={form.control}
+                name='copy'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <MultiSelectFormField
+                        options={usersOptions || []}
+                        defaultValue={field.value}
+                        onValueChange={field.onChange}
+                        placeholder='Please Select'
+                        variant='inverted'
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              {errors.copy && (
+                <span className='text-sm text-red-500 font-medium'>
+                  {errors.copy.message}
+                </span>
+              )}
+            </div>{" "}
+          </div>
           <div className='grid gap-5'>
             {activitiesOptions && (
               <FormSelect
@@ -183,7 +266,6 @@ const CreateActivityMemo = () => {
                 options={activitiesOptions}
               />
             )}
-            <FormInput label='Location' name='location' type='text' required />
           </div>
           <div className='grid grid-cols-2 gap-5'>
             <FormInput
@@ -355,27 +437,12 @@ const CreateActivityMemo = () => {
               )}
             </div>
           </div>
-          <div className='grid  gap-5'>
-            {usersOptions && (
-              <FormSelect
-                label='To (approved_by)'
-                name='approved_by'
-                required
-                options={usersOptions}
-              />
-            )}
 
-            {usersOptions && (
-              <FormSelect
-                label='Through (reviewed_by)'
-                name='reviewed_by'
-                required
-                options={usersOptions}
-              />
-            )}
+          <div className='grid gap-5'>
+            <FormInput label='Subject' name='subject' type='text' />
           </div>
           <div className='grid gap-5'>
-            <FormTextArea label='Comment' name='comment' type='text' />
+            <FormTextArea label='Memo content' name='comment' type='text' />
           </div>
           <Separator className='my-4' />
           <span className='block space-y-2'>
@@ -397,8 +464,6 @@ const CreateActivityMemo = () => {
                   item: "",
                   quantity: "",
                   days: "",
-                  facility: "",
-                  frequency: "",
                   unit_cost: "",
                   total_cost: 0,
                 })

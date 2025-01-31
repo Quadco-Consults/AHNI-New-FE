@@ -12,7 +12,6 @@ import { useGetAllBeneficiaryQuery } from "services/modules/project/beneficiarie
 import { toast } from "sonner";
 import PurchaseRequestAPI from "services/procurementApi/purchase-sample-request ";
 import { useGetAllProjectsQuery } from "services/project";
-import { useGetAllActivityPlansQuery } from "services/programsApi/activity-plan";
 import {
   Table,
   TableBody,
@@ -68,13 +67,6 @@ const CheckboxForm = () => {
     size: 2000000,
   });
 
-  const { data: activites } = useGetAllActivityPlansQuery({
-    page: 1,
-    size: 2000000,
-  });
-
-  console.log({ beneficiaries, mergedObject, projects, activites });
-
   const form = useForm<FormData>({
     resolver: zodResolver(UploadSchema),
     defaultValues: {
@@ -86,6 +78,7 @@ const CheckboxForm = () => {
   const { control, handleSubmit, setValue, watch } = form;
 
   const integratedTraining = watch("integratedTraining");
+  const beneficiary = watch("beneficiaries");
 
   // Update default values when beneficiaries data is available
   useEffect(() => {
@@ -126,7 +119,6 @@ const CheckboxForm = () => {
   const onSubmit = async (data: FormData) => {
     // dispatch(activityActions.clearActivity());
 
-    console.log("Form Data:", { data });
     // Define your programAreas array
     // const programAreas = []; // Example IDs of program areas
 
@@ -135,24 +127,24 @@ const CheckboxForm = () => {
       (beneficiary) => beneficiary.selected
     );
     const program_area = filteredBeneficiaries.map((fb) => fb.id);
-    console.log("Filtered Beneficiaries:", filteredBeneficiaries, program_area);
-    console.log("Form Data:", data);
-    console.log(mergedObject);
+
     const payload = {
       activity: mergedObject.activity,
       activity_budget: data.activity_budget,
       approved_by: mergedObject.approved_by,
       balance: data.balance,
+      location: "south park",
+      // copy: mergedObject.copy,
+      // subject: mergedObject.subject,
       budget_line: mergedObject.budget_line,
       comment: mergedObject.comment,
       cost_categories: mergedObject.cost_categories,
       cost_input: mergedObject.cost_input,
       created_by: mergedObject.created_by,
       expenses: mergedObject.expenses,
-      fconumber: mergedObject.fcnumber,
+      fconumber: mergedObject.fconumber,
       funding_source: mergedObject.funding_source,
       intervention_areas: mergedObject.intervention_areas,
-      location: mergedObject.location,
       requested_date: mergedObject.requested_date,
       reviewed_by: mergedObject.reviewed_by,
       program_area: program_area[0],
@@ -168,6 +160,10 @@ const CheckboxForm = () => {
       console.log(error);
     }
   };
+
+  const filteredBeneficiaries = beneficiary?.filter(
+    (beneficiary) => beneficiary.selected
+  );
 
   return (
     <Form {...form}>
@@ -312,13 +308,6 @@ const CheckboxForm = () => {
                     <TableBody>
                       <TableRow>
                         <TableCell className='p-2 rounded-none h-2'>
-                          {" "}
-                          {/* <FormInput
-                            label='Budgeted'
-                            // name='activity_budget'
-                            type='text'
-                          />
-                           */}
                           <Controller
                             name='activity_budget'
                             control={control}
@@ -334,12 +323,6 @@ const CheckboxForm = () => {
                           />
                         </TableCell>
                         <TableCell className='p-2 rounded-none h-2'>
-                          {" "}
-                          {/* <FormInput
-                            label='Expended'
-                            // name='budget_expended'
-                            type='text'
-                          /> */}
                           <Controller
                             name='budget_expended'
                             control={control}
@@ -347,11 +330,8 @@ const CheckboxForm = () => {
                               <>
                                 <input
                                   type='text'
-                                  // value='false'
                                   className='w-full h-full border-none rounded-none p-2'
                                   {...field}
-                                  // checked={field.value === "false"}
-                                  // onChange={() => field.onChange("false")}
                                 />
                               </>
                             )}
@@ -365,17 +345,121 @@ const CheckboxForm = () => {
                               <>
                                 <input
                                   type='text'
-                                  // value='false'
                                   className='w-full h-full border-none rounded-none p-2'
                                   {...field}
-                                  // checked={field.value === "false"}
-                                  // onChange={() => field.onChange("false")}
                                 />
                               </>
                             )}
                           />
                         </TableCell>
                       </TableRow>
+                    </TableBody>
+                  </Table>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
+        <div className=''>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableCell className='text-center'>
+                  To be completed by Projects
+                </TableCell>
+                <TableCell className='text-center'>
+                  {" "}
+                  To be completed by Finance
+                </TableCell>
+              </TableRow>
+            </TableHeader>
+
+            <TableBody>
+              <TableRow>
+                <TableCell className='p-0'>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableCell className='w-[300px]'>Award ID</TableCell>
+                        <TableCell className='w-[150px]'>% Charged</TableCell>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredBeneficiaries.map(({ id }) => (
+                        <TableRow key={id} className='h-[80px]'>
+                          <TableCell>Award ID: {id}</TableCell>
+                          <TableCell>100 % </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableCell>
+
+                <TableCell className='p-0'>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableCell className='w-[280px]'>
+                          Budgeted for this activity (N)
+                        </TableCell>
+
+                        <TableCell className='w-[300px]'>
+                          Expended (N) for this activity
+                        </TableCell>
+                        <TableCell className='w-[280px]'>Balance</TableCell>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredBeneficiaries.map(({ id }) => (
+                        <TableRow key={id} className='h-[80px]'>
+                          <TableCell>
+                            {" "}
+                            <Controller
+                              name='activity_budget'
+                              control={control}
+                              render={({ field }) => (
+                                <>
+                                  <input
+                                    type='text'
+                                    className='w-full h-full border-none rounded-none p-2'
+                                    {...field}
+                                  />
+                                </>
+                              )}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Controller
+                              name='budget_expended'
+                              control={control}
+                              render={({ field }) => (
+                                <>
+                                  <input
+                                    type='text'
+                                    className='w-full h-full border-none rounded-none p-2'
+                                    {...field}
+                                  />
+                                </>
+                              )}
+                            />{" "}
+                          </TableCell>
+                          <TableCell className='p-2 rounded-none h-2'>
+                            <Controller
+                              name='balance'
+                              control={control}
+                              render={({ field }) => (
+                                <>
+                                  <input
+                                    type='text'
+                                    className='w-full h-full border-none rounded-none p-2'
+                                    {...field}
+                                  />
+                                </>
+                              )}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))}
                     </TableBody>
                   </Table>
                 </TableCell>
