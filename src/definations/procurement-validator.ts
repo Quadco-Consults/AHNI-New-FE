@@ -151,42 +151,28 @@ export const SampleMemoSchema = z.object({
 export const PurchaseRequestSchema = z.object({
   items: z.array(
     z.object({
-      item: z.string().min(1, "Field is required"),
-      // category: z.string().min(1, "Field is required"),
+      id: z.string().optional(),
+      item_id: z.string().min(1, "Field is required"),
+      category: z.string().min(1, "Field is required"),
+      fco: z.string().min(1, "Field is required"),
+      units: z.union([
+        z.string().min(1, "Field is required"),
+        z.number().min(1, "Field is required"),
+      ]),
+      number_of_days: z.union([
+        z.string().min(1, "Field is required"),
+        z.number().min(1, "Field is required"),
+      ]),
       unit_cost: z.union([
         z.string().min(1, "Field is required"),
         z.number().min(1, "Field is required"),
       ]),
-      fco_number: z.string().min(1, "Field is required"),
-      quantity: z.union([
-        z.string().min(1, "Field is required"),
-        z.number().min(1, "Field is required"),
-      ]),
-      amount: z.union([
-        z.string().min(1, "Field is required"),
-        z.number().min(1, "Field is required"),
-      ]),
-      // number_of_days: z.union([
-      //   z.string().min(1, "Field is required"),
-      //   z.number().min(1, "Field is required"),
-      // ]),
     })
   ),
-  request_memo: z.string().min(1, "Field is required").nullable(),
-  ref_number: z.string().min(1, "Field is required").nullable(),
-  date_of_request: z.string().min(1, "Field is required"),
-  date_required: z.string().min(1, "Field is required"),
+  request_date: z.string().min(1, "Field is required"),
+  required_date: z.string().min(1, "Field is required"),
   requesting_department: z.string().min(1, "Field is required"),
   deliver_to: z.string().min(1, "Field is required"),
-  special_instruction: z.string().min(1, "Field is required").nullable(),
-  reviewed_by: z.string().min(1, "Field is required"),
-  role_reviewed_by: z.string().min(1, "Field is required"),
-  requested_by: z.string().min(1, "Field is required"),
-  role_requested_by: z.string().min(1, "Field is required"),
-  approved_by: z.string().min(1, "Field is required"),
-  role_approved_by: z.string().min(1, "Field is required"),
-  authorised_by: z.string().min(1, "Field is required"),
-  role_authorised_by: z.string().min(1, "Field is required"),
 });
 
 export const PurchaseOrderSchema = z.object({
@@ -248,15 +234,18 @@ export const SolicitationItemsSchema = z.object({
 });
 
 export const SolicitationQuotationSchema = z.object({
-  name: z.string().min(1, "Field is required"),
-  description: z.string().min(1, "Field is required"),
-  opening_date: z.string().min(1, "Field is required"),
-  closing_date: z.string().min(1, "Field is required"),
-  tender_type: z.string().min(1, "Field is required"),
-  request_type: z.string().min(1, "Field is required"),
-  limited_vendors: z.array(z.string()),
-  purchase_request: z.string().min(1, "Field is required"),
+  title: z.string().min(1, "Please enter title"),
+  rfq_id: z.string().min(1, "Please enter rfq id"),
+  background: z.string().min(1, "Please enter background"),
+  request_type: z.string().min(1, "Please select request type"),
+  tender_type: z.string().min(1, "Please select tender type"),
+  purchase_request: z.string().min(1, "Please select purchase request"),
+  procurement_type: z.string().min(1, "Please select purchase request"),
 });
+
+export type TSolicitationQuotationFormData = z.infer<
+  typeof SolicitationQuotationSchema
+>;
 
 export const SolicitationSchema = z.object({
   items: z.array(
