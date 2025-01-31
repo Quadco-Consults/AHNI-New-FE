@@ -81,7 +81,7 @@ const columns: ColumnDef<VendorsResultsData>[] = [
   {
     header: "RC Number",
     size: 200,
-    accessorKey: "rc_number",
+    accessorKey: "company_registration_number",
   },
   {
     header: "Tax ID Number",
@@ -96,7 +96,7 @@ const columns: ColumnDef<VendorsResultsData>[] = [
   {
     header: "Main Office Address",
     size: 200,
-    accessorKey: "main_office_address",
+    accessorKey: "company_address",
   },
   {
     header: "Other Opt.Addresses",
@@ -170,7 +170,7 @@ const ActionListAction = ({ data }: any) => {
       toast.success("Document successfully deleted.");
     } catch (error) {
       toast.error("Something went wrong");
-      console.log(error);
+      // console.log(error);
     }
   };
   return (
