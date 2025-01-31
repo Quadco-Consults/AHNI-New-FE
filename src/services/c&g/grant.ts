@@ -1,0 +1,74 @@
+import {
+    IGrantPaginatedData,
+    IGrantSingleData,
+    TGrantFormData,
+} from "definations/c&g/grants";
+import baseAPI from "../";
+import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
+
+const BASE_URL = "/contract-grants/grants/";
+
+const GrantAPI = baseAPI.injectEndpoints({
+    endpoints: (builder) => ({
+        createGrant: builder.mutation<
+            TResponse<IGrantSingleData>,
+            TGrantFormData
+        >({
+            query: (body) => ({
+                method: "POST",
+                url: `${BASE_URL}`,
+                body,
+            }),
+            invalidatesTags: ["GRANT"],
+        }),
+
+        getAllGrants: builder.query<
+            TPaginatedResponse<IGrantPaginatedData>,
+            TRequest
+        >({
+            query: (params) => ({
+                method: "GET",
+                url: `${BASE_URL}`,
+                params,
+            }),
+            providesTags: ["GRANT"],
+        }),
+
+        getSingleGrant: builder.query<TResponse<IGrantSingleData>, string>({
+            query: (id) => ({
+                method: "GET",
+                url: `${BASE_URL}${id}`,
+            }),
+        }),
+
+        modifyGrant: builder.mutation<
+            TResponse<IGrantSingleData>,
+            { id: string; body: TGrantFormData }
+        >({
+            query: ({ id, body }) => ({
+                method: "PUT",
+                url: `${BASE_URL}${id}/`,
+                body,
+            }),
+            invalidatesTags: ["GRANT"],
+        }),
+
+        // deletePaymentRequest: builder.mutation<
+        //     TResponse<IPaymentRequestSingleData>,
+        //     string
+        // >({
+        //     query: (id) => ({
+        //         method: "DELETE",
+        //         url: `${BASE_URL}${id}`,
+        //     }),
+        //     invalidatesTags: ["GRANT"],
+        // }),
+    }),
+});
+
+export const {
+    useCreateGrantMutation,
+    useGetAllGrantsQuery,
+    useGetSingleGrantQuery,
+    useModifyGrantMutation,
+} = GrantAPI;
