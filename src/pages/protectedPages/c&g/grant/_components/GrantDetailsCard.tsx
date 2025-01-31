@@ -1,56 +1,72 @@
 import Card from "components/shared/Card";
 import DescriptionCard from "components/shared/DescriptionCard";
+import { IGrantSingleData } from "definations/c&g/grants";
 import { useMemo } from "react";
 
-const GrantDetailsCard = ({ grantDetails }: { grantDetails: any }) => {
+const GrantDetailsCard = ({
+    project: { title, funding_sources },
+    award_type,
+    award_amount,
+    reference_number,
+}: IGrantSingleData) => {
     const CardDetails = useMemo(() => {
         return [
             {
                 id: 1,
                 label: "Project Name",
-                value: grantDetails?.project?.title || "-",
+                value: title,
             },
+
             {
-                id: 1,
+                id: 2,
                 label: "Funding Source",
-                value: grantDetails?.grantor?.name || "-",
+                value: funding_sources.map((source) => source.name).join(", "),
             },
+
             {
-                id: 1,
+                id: 3,
                 label: "Intervention",
-                value: grantDetails?.intervention_area?.name || "-",
+                value: "N/A",
             },
+
             {
-                id: 1,
+                id: 4,
                 label: "Project Location",
-                value: grantDetails?.location?.address || "-",
+                value: "",
             },
+
             {
-                id: 1,
+                id: 5,
                 label: "Award Type",
-                value: grantDetails?.award_type || "-",
+                value: award_type,
             },
+
             {
-                id: 1,
+                id: 5,
+                label: "Award Amount",
+                value: `$${award_amount}`,
+            },
+
+            {
+                id: 6,
                 label: "Reference No",
-                value: grantDetails?.reference_number || "-",
+                value: reference_number,
             },
         ];
-    }, [grantDetails]);
+    }, []);
+
     return (
         <div className="w-full bg-white px-[2.5rem] py-[1.25rem] rounded-2xl flex flex-col gap-y-[1.25rem]">
-            <p className="text-xl font-semibold">Grantee Details</p>
+            <h3 className="text-xl font-bold">Grant Details</h3>
             <Card>
-                <div className="w-full flex flex-wrap items-start justify-between p-3 gap-y-[1.25rem]">
+                <div className="grid grid-cols-3 gap-10">
                     {CardDetails.map((item, index) => {
                         return (
-                            <div
-                                className="w-[30%] space-y-[1.25rem] text-[#1A0000]"
+                            <DescriptionCard
                                 key={index}
-                            >
-                                <p className="font-semibold">{item?.label}</p>
-                                <p>{item?.value}</p>
-                            </div>
+                                label={item.label}
+                                description={item.value}
+                            />
                         );
                     })}
                 </div>
@@ -79,9 +95,12 @@ const GrantDetailsCard = ({ grantDetails }: { grantDetails: any }) => {
                 <h3>Grant Analytics</h3>
 
                 <div className="grid grid-cols-2 gap-5 mt-5">
-                    <DescriptionCard label="Pipeline" />
-                    <DescriptionCard label="Burn Rate" />
-                    <DescriptionCard label="Money Month Remaining" />
+                    <DescriptionCard label="Pipeline" description="N/A" />
+                    <DescriptionCard label="Burn Rate" description="N/A" />
+                    <DescriptionCard
+                        label="Money Month Remaining"
+                        description="N/A"
+                    />
                 </div>
             </Card>
         </div>

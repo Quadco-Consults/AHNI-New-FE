@@ -277,6 +277,7 @@ const CoreManagementSystems = () => {
                                                     Yes
                                                 </label>
                                             </div>
+
                                             <div className="flex items-stretch space-x-2">
                                                 <input
                                                     type="radio"
