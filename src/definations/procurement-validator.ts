@@ -239,7 +239,10 @@ export const SolicitationQuotationSchema = z.object({
   background: z.string().min(1, "Please enter background"),
   request_type: z.string().min(1, "Please select request type"),
   tender_type: z.string().min(1, "Please select tender type"),
-  purchase_request: z.string().min(1, "Please select purchase request"),
+  purchase_request: z
+    .string()
+    .min(1, "Please select purchase request")
+    .nullable(),
   procurement_type: z.string().min(1, "Please select purchase request"),
 });
 

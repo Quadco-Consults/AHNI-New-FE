@@ -1,17 +1,35 @@
 import baseAPI from "..";
-import { TSolicitationQuotationFormData } from "definations/procurement-validator";
+import { z } from "zod";
+import {
+  SolicitationSchema,
+  SolicitationSubmissionSchema,
+  TSolicitationQuotationFormData,
+} from "definations/procurement-validator";
 import {
   ISolicitationRFQData,
+  SolicitationData,
   SolicitationResponse,
+  SolicitationResultsData,
   SolicitationSubmissionData,
 } from "definations/procurement-types/solicitation";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
-const BASE_URL = "/procurements/solicitations/";
+const BASE_URL = "/procurements/vendor-bid-submissions/";
 
-const SolicitationAPI = baseAPI.injectEndpoints({
+const VendorBidSubmissionAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    createSolicitation: builder.mutation<
+    getSolicitationSubmission: builder.query<
+      SolicitationSubmissionData,
+      { path: { id: string } }
+    >({
+      query: ({ path }) => {
+        return {
+          url: `${BASE_URL}${path.id}/submissions/`,
+        };
+      },
+      // providesTags: ["SOLICITATION"],
+    }),
+    createSolicitationSubmission: builder.mutation<
       SolicitationResponse,
       TSolicitationQuotationFormData
     >({
@@ -22,42 +40,6 @@ const SolicitationAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["SOLICITATION"],
     }),
-
-    getAllSolicitations: builder.query<
-      TPaginatedResponse<ISolicitationRFQData>,
-      TRequest
-    >({
-      query: (params) => ({
-        method: "GET",
-        url: `${BASE_URL}`,
-        params,
-      }),
-      providesTags: ["SOLICITATION"],
-    }),
-
-    getSingleSolicitation: builder.query<
-      TResponse<ISolicitationRFQData>,
-      string
-    >({
-      query: (id) => ({
-        method: "GET",
-        url: `${BASE_URL}${id}`,
-      }),
-      providesTags: ["SOLICITATION"],
-    }),
-
-    getSolicitationSubmission: builder.query<
-      SolicitationSubmissionData,
-      { path: { id: string } }
-    >({
-      query: ({ path }) => {
-        return {
-          url: `${BASE_URL}${path.id}/submissions/`,
-        };
-      },
-      providesTags: ["SOLICITATION"],
-    }),
-
     // updateSolicitation: builder.mutation<
     //     SolicitationResponse,
     //     { path: { id: string }; body: any }
@@ -94,7 +76,5 @@ const SolicitationAPI = baseAPI.injectEndpoints({
 
 export const {
   useGetSolicitationSubmissionQuery,
-  useCreateSolicitationMutation,
-  useGetAllSolicitationsQuery,
-  useGetSingleSolicitationQuery,
-} = SolicitationAPI;
+  useCreateSolicitationSubmissionMutation,
+} = VendorBidSubmissionAPI;
