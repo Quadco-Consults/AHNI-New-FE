@@ -121,7 +121,7 @@ export const RouteEnum = {
   PURCHASE_REQUEST_DETAILS: "/procurement-management/purchase-request/:id",
   PURCHASE_REQUEST_FORM: "/procurement-management/purchase-request/form",
   CREATE_PURCHASE_REQUEST: "/procurement-management/create-purchase-request",
-  CREATE_SAMPLE_MEMO: "/procurement-management/purchase-request/sample-memo",
+  CREATE_SAMPLE_MEMO: "/procurement-management/purchase-request/activity-memo",
   SAMPLE_PREVIEW: "/procurement-management/purchase-request/sample-preview",
   PREVIEW_LETTER: "/procurement-management/purchase-request/preview-letter",
   FINAL_PREVIEW: "/procurement-management/purchase-request/final-preview",
@@ -183,6 +183,7 @@ export const RouteEnum = {
 
   //purchase order routes
   PURCHASE_ORDER: "/procurement-management/purchase-order",
+  PURCHASE_ORDER_ID: "/procurement-management/purchase-order/:id",
   PURCHASE_ORDER_NEW: "/procurement-management/purchase-order-new",
 
   SUBMISSION_OF_BIDS: "/procurement-management/submission-of-bids",

@@ -21,7 +21,6 @@ const RFQ = () => {
   if (isLoading) {
     return <LoadingSpinner />;
   }
-  console.log({ data });
 
   return (
     <div className='space-y-10'>
