@@ -30,26 +30,27 @@ const EoIDetails = (data: EOIResultsData) => {
   function onDocumentLoadSuccess({ numPages }: { numPages: number }): void {
     setNumPages(numPages);
   }
-  return (
-    <div className="p-5">
-      <Card className="space-y-8 p-10">
-        <h4 className="text-base font-medium">{data.name}</h4>
 
-        <div className="flex items-center flex-wrap gap-x-10 gap-y-5">
-          <div className="flex gap-3 items-center">
-            <Icon icon="ooui:reference" fontSize={18} />
+  return (
+    <div className='p-5'>
+      <Card className='space-y-8 p-10'>
+        <h4 className='text-base font-medium'>{data.name}</h4>
+
+        <div className='flex items-center flex-wrap gap-x-10 gap-y-5'>
+          <div className='flex gap-3 items-center'>
+            <Icon icon='ooui:reference' fontSize={18} />
             <h6>GF-RFQ-AHNi-10-2023</h6>
           </div>
-          <div className="flex gap-3 items-center">
-            <Icon icon="iconamoon:location-pin-duotone" fontSize={18} />
+          {/* <div className='flex gap-3 items-center'>
+            <Icon icon='iconamoon:location-pin-duotone' fontSize={18} />
             <h6>Head Office, Abuja</h6>
           </div>
-          <div className="flex gap-3 items-center">
-            <Icon icon="solar:case-minimalistic-bold-duotone" fontSize={18} />
+          <div className='flex gap-3 items-center'>
+            <Icon icon='solar:case-minimalistic-bold-duotone' fontSize={18} />
             <h6>Single Sourcing</h6>
-          </div>
-          <div className="flex gap-3 items-center">
-            <Icon icon="pajamas:status-neutral" fontSize={18} />
+          </div> */}
+          <div className='flex gap-3 items-center'>
+            <Icon icon='pajamas:status-neutral' fontSize={18} />
             <Badge
               className={cn(
                 "px-3",
@@ -63,40 +64,40 @@ const EoIDetails = (data: EOIResultsData) => {
           </div>
         </div>
 
-        <div className="space-y-2">
-          <h2 className="font-medium text-base">Background</h2>
-          <h4 className=" text-gray-500">{data.description}</h4>
+        <div className='space-y-2'>
+          <h2 className='font-medium text-base'>Background</h2>
+          <h4 className=' text-gray-500'>{data.description}</h4>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div className="space-y-2">
-            <h2 className="font-medium text-base">Opening Date</h2>
-            <Badge className="px-3 bg-gray-300 text-gray-600">
+        <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
+          <div className='space-y-2'>
+            <h2 className='font-medium text-base'>Opening Date</h2>
+            <Badge className='px-3 bg-gray-300 text-gray-600'>
               {data.opening_date}
             </Badge>
           </div>
-          <div className="space-y-2">
-            <h2 className="font-medium text-base">Closing Date</h2>
-            <Badge className="px-3 bg-gray-300 text-gray-600">
+          <div className='space-y-2'>
+            <h2 className='font-medium text-base'>Closing Date</h2>
+            <Badge className='px-3 bg-gray-300 text-gray-600'>
               {data.closing_date}
             </Badge>
           </div>
 
-          <div className="space-y-2">
-            <h2 className="font-medium text-base">Financial Year</h2>
-            <Badge className="px-3 bg-gray-300 text-gray-600">
+          <div className='space-y-2'>
+            <h2 className='font-medium text-base'>Financial Year</h2>
+            <Badge className='px-3 bg-gray-300 text-gray-600'>
               {data.financial_year.year || "null"}
             </Badge>
           </div>
         </div>
 
-        <div className="space-y-2">
-          <h2 className="font-medium text-[#DEA004]  text-base">Categories</h2>
+        <div className='space-y-2'>
+          <h2 className='font-medium text-[#DEA004]  text-base'>Categories</h2>
 
-          <div className="flex flex-wrap gap-x-2 gap-y-4">
+          <div className='flex flex-wrap gap-x-2 gap-y-4'>
             {data.categories.map((category: CategoryResultsData) => (
               <Label
-                className="bg-[#EBE8E1] py-2 px-4 rounded"
+                className='bg-[#EBE8E1] py-2 px-4 rounded'
                 key={category.id}
               >
                 {category.name}
@@ -105,10 +106,10 @@ const EoIDetails = (data: EOIResultsData) => {
           </div>
         </div>
 
-        <div className="space-y-2">
-          <h2 className="font-medium text-base">Document</h2>
+        <div className='space-y-2'>
+          <h2 className='font-medium text-base'>Document</h2>
 
-          <div className="bg-[#0000001A] py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden">
+          <div className='bg-[#0000001A] py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden'>
             <Dialog>
               <DialogTrigger>
                 <Document
@@ -118,10 +119,10 @@ const EoIDetails = (data: EOIResultsData) => {
                   <Page pageNumber={pageNumber} width={200} height={100} />
                 </Document>
               </DialogTrigger>
-              <DialogContent className="min-w-[60%]">
+              <DialogContent className='min-w-[60%]'>
                 <DialogHeader>
                   <DialogTitle>{data.name}</DialogTitle>
-                  <div className="flex pt-5 justify-center">
+                  <div className='flex pt-5 justify-center'>
                     <Document
                       file={data.document}
                       onLoadSuccess={onDocumentLoadSuccess}

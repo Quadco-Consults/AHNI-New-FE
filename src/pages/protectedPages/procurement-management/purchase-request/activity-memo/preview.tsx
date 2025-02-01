@@ -1,18 +1,17 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Separator } from "components/ui/separator";
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
-import { Save } from "lucide-react";
+import { ChevronRight, Save } from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "store/index";
-import { useGetAllBeneficiaryQuery } from "services/modules/project/beneficiaries";
+
 import { toast } from "sonner";
 import PurchaseRequestAPI from "services/procurementApi/purchase-sample-request ";
 import { useGetAllProjectsQuery } from "services/project";
-import { useGetAllActivityPlansQuery } from "services/programsApi/activity-plan";
 import {
   Table,
   TableBody,
@@ -22,8 +21,9 @@ import {
 } from "components/ui/table";
 // import FormInput from "atoms/FormInput";
 import { Form } from "components/ui/form";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
+import useQuery from "hooks/useQuery";
 
 // Sample Checkbox component
 // eslint-disable-next-line react/display-name
@@ -52,6 +52,10 @@ const UploadSchema = z.object({
 type FormData = z.infer<typeof UploadSchema>;
 
 const CheckboxForm = () => {
+  const query = useQuery();
+  const id = query.get("id");
+  const request = query.get("request");
+
   const navigate = useNavigate();
 
   const activity = useSelector((state: RootState) => state.activity.activity);
@@ -59,21 +63,19 @@ const CheckboxForm = () => {
     return { ...acc, ...obj };
   }, {});
 
-  const { data: beneficiaries } = useGetAllBeneficiaryQuery({
-    page: 1,
-    size: 2000000,
-  });
   const { data: projects } = useGetAllProjectsQuery({
     page: 1,
     size: 2000000,
   });
 
-  const { data: activites } = useGetAllActivityPlansQuery({
-    page: 1,
-    size: 2000000,
-  });
-
-  console.log({ beneficiaries, mergedObject, projects, activites });
+  const { data: requestsDetails } = PurchaseRequestAPI.useGetActivityMemoQuery(
+    useMemo(
+      () => ({
+        path: { id: id as string },
+      }),
+      [id]
+    )
+  );
 
   const form = useForm<FormData>({
     resolver: zodResolver(UploadSchema),
@@ -86,10 +88,11 @@ const CheckboxForm = () => {
   const { control, handleSubmit, setValue, watch } = form;
 
   const integratedTraining = watch("integratedTraining");
+  const beneficiary = watch("beneficiaries");
 
   // Update default values when beneficiaries data is available
   useEffect(() => {
-    if (beneficiaries?.data?.results) {
+    if (projects?.data?.results) {
       setValue(
         "beneficiaries",
         // @ts-ignore
@@ -102,6 +105,29 @@ const CheckboxForm = () => {
       );
     }
   }, [projects, setValue]);
+
+  useEffect(() => {
+    if (requestsDetails) {
+      setValue(
+        "activity_budget",
+        // @ts-ignore
+
+        requestsDetails.activity_budget
+      );
+      setValue(
+        "budget_expended",
+        // @ts-ignore
+
+        requestsDetails.budget_expended
+      );
+      setValue(
+        "balance",
+        // @ts-ignore
+
+        requestsDetails.balance
+      );
+    }
+  }, [requestsDetails, setValue]);
 
   // Reset beneficiaries when integratedTraining is "false"
   useEffect(() => {
@@ -134,24 +160,23 @@ const CheckboxForm = () => {
       (beneficiary) => beneficiary.selected
     );
     const program_area = filteredBeneficiaries.map((fb) => fb.id);
-    // console.log("Filtered Beneficiaries:", filteredBeneficiaries, program_area);
-    // console.log("Form Data:", data);
-    // console.log(mergedObject);
     const payload = {
       activity: mergedObject.activity,
       activity_budget: data.activity_budget,
       approved_by: mergedObject.approved_by,
       balance: data.balance,
+      location: "south park",
+      // copy: mergedObject.copy,
+      // subject: mergedObject.subject,
       budget_line: mergedObject.budget_line,
       comment: mergedObject.comment,
       cost_categories: mergedObject.cost_categories,
       cost_input: mergedObject.cost_input,
       created_by: mergedObject.created_by,
       expenses: mergedObject.expenses,
-      fconumber: mergedObject.fcnumber,
+      fconumber: mergedObject.fconumber,
       funding_source: mergedObject.funding_source,
       intervention_areas: mergedObject.intervention_areas,
-      location: mergedObject.location,
       requested_date: mergedObject.requested_date,
       reviewed_by: mergedObject.reviewed_by,
       program_area: program_area[0],
@@ -167,6 +192,10 @@ const CheckboxForm = () => {
       console.log(error);
     }
   };
+
+  const filteredBeneficiaries = beneficiary?.filter(
+    (beneficiary) => beneficiary.selected
+  );
 
   return (
     <Form {...form}>
@@ -288,10 +317,13 @@ const CheckboxForm = () => {
                     <TableBody>
                       <TableRow>
                         <TableCell>
-                          {mergedObject?.selectedActivity?.activity_code}
+                          {mergedObject?.selectedActivity?.activity_code ||
+                            requestsDetails?.activity}
                         </TableCell>
                         <TableCell>
-                          {mergedObject?.selectedCostCategory?.name}
+                          {mergedObject?.selectedCostCategory?.name ||
+                            // @ts-ignore
+                            requestsDetails?.cost_categories[0]}
                         </TableCell>
                       </TableRow>
                     </TableBody>
@@ -311,13 +343,6 @@ const CheckboxForm = () => {
                     <TableBody>
                       <TableRow>
                         <TableCell className='p-2 rounded-none h-2'>
-                          {" "}
-                          {/* <FormInput
-                            label='Budgeted'
-                            // name='activity_budget'
-                            type='text'
-                          />
-                           */}
                           <Controller
                             name='activity_budget'
                             control={control}
@@ -333,12 +358,6 @@ const CheckboxForm = () => {
                           />
                         </TableCell>
                         <TableCell className='p-2 rounded-none h-2'>
-                          {" "}
-                          {/* <FormInput
-                            label='Expended'
-                            // name='budget_expended'
-                            type='text'
-                          /> */}
                           <Controller
                             name='budget_expended'
                             control={control}
@@ -346,11 +365,8 @@ const CheckboxForm = () => {
                               <>
                                 <input
                                   type='text'
-                                  // value='false'
                                   className='w-full h-full border-none rounded-none p-2'
                                   {...field}
-                                  // checked={field.value === "false"}
-                                  // onChange={() => field.onChange("false")}
                                 />
                               </>
                             )}
@@ -364,11 +380,8 @@ const CheckboxForm = () => {
                               <>
                                 <input
                                   type='text'
-                                  // value='false'
                                   className='w-full h-full border-none rounded-none p-2'
                                   {...field}
-                                  // checked={field.value === "false"}
-                                  // onChange={() => field.onChange("false")}
                                 />
                               </>
                             )}
@@ -382,16 +395,138 @@ const CheckboxForm = () => {
             </TableBody>
           </Table>
         </div>
+        <div className=''>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableCell className='text-center'>
+                  To be completed by Projects
+                </TableCell>
+                <TableCell className='text-center'>
+                  {" "}
+                  To be completed by Finance
+                </TableCell>
+              </TableRow>
+            </TableHeader>
+
+            <TableBody>
+              <TableRow>
+                <TableCell className='p-0'>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableCell className='w-[300px]'>Award ID</TableCell>
+                        <TableCell className='w-[150px]'>% Charged</TableCell>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredBeneficiaries.map(({ id }) => (
+                        <TableRow key={id} className='h-[80px]'>
+                          <TableCell>Award ID: {id}</TableCell>
+                          <TableCell>100 % </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableCell>
+
+                <TableCell className='p-0'>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableCell className='w-[280px]'>
+                          Budgeted for this activity (N)
+                        </TableCell>
+
+                        <TableCell className='w-[300px]'>
+                          Expended (N) for this activity
+                        </TableCell>
+                        <TableCell className='w-[280px]'>Balance</TableCell>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredBeneficiaries.map(({ id }) => (
+                        <TableRow key={id} className='h-[80px]'>
+                          <TableCell>
+                            {" "}
+                            <Controller
+                              name='activity_budget'
+                              control={control}
+                              render={({ field }) => (
+                                <>
+                                  <input
+                                    type='text'
+                                    className='w-full h-full border-none rounded-none p-2'
+                                    {...field}
+                                  />
+                                </>
+                              )}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Controller
+                              name='budget_expended'
+                              control={control}
+                              render={({ field }) => (
+                                <>
+                                  <input
+                                    type='text'
+                                    className='w-full h-full border-none rounded-none p-2'
+                                    {...field}
+                                  />
+                                </>
+                              )}
+                            />{" "}
+                          </TableCell>
+                          <TableCell className='p-2 rounded-none h-2'>
+                            <Controller
+                              name='balance'
+                              control={control}
+                              render={({ field }) => (
+                                <>
+                                  <input
+                                    type='text'
+                                    className='w-full h-full border-none rounded-none p-2'
+                                    {...field}
+                                  />
+                                </>
+                              )}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
         <div className='w-full px-4'>
-          {/* <Link className='w-fit' to={generatePath(RouteEnum.PREVIEW_LETTER)}> */}
-          <Button
-            type='submit'
-            className='mt-4 px-4 py-2 bg-alternate text-primary rounded w-full'
-          >
-            <Save size={20} />
-            Save
-          </Button>
-          {/* </Link> */}
+          {!requestsDetails && (
+            <Button
+              type='submit'
+              className='mt-4 px-4 py-2 bg-alternate text-primary rounded w-full'
+            >
+              <Save size={20} />
+              Save
+            </Button>
+          )}
+
+          {requestsDetails && (
+            <Link
+              className='w-fit'
+              to={{
+                pathname: RouteEnum.FINAL_PREVIEW,
+                search: `?id=${id}&request=${request}`,
+              }}
+            >
+              <Button className='mt-4 px-4 py-2 rounded w-full'>
+                <ChevronRight size={20} />
+                Next
+              </Button>
+            </Link>
+          )}
         </div>
       </form>
     </Form>

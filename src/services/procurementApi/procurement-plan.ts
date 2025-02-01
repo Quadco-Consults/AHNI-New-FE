@@ -10,6 +10,7 @@ import {
 import { ProcurementPlanListSchema } from "definations/procurement-validator";
 
 const BASE_URL = "/procurements/procurement-plans/";
+// https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1/procurements/procurement-plans/upload/
 
 const ProcurementPlanAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
@@ -28,7 +29,7 @@ const ProcurementPlanAPI = baseAPI.injectEndpoints({
       z.infer<typeof ProcurementPlanListSchema>
     >({
       query: (body) => ({
-        url: `${BASE_URL}`,
+        url: `${BASE_URL}upload/`,
         method: "POST",
         body,
       }),

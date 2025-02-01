@@ -26,7 +26,8 @@ import * as XLSX from "xlsx";
 export default function ProcurementPlan() {
   // const dispatch = useAppDispatch();
 
-  const { isLoading } = ProcurementPlanAPI.useGetProcurementPlansQuery({});
+  const { data: procurementData, isLoading } =
+    ProcurementPlanAPI.useGetProcurementPlansQuery({});
 
   const [isModalOpen, setModalOpen] = useState(false);
 
@@ -161,7 +162,7 @@ export default function ProcurementPlan() {
           </PopoverTrigger>
           <PopoverContent className=' w-fit'>
             <div className='flex flex-col items-start justify-between gap-1'>
-              <Link
+              {/* <Link
                 className='w-full'
                 to={generatePath(RouteEnum.CREATE_PROCUREMENT)}
               >
@@ -171,7 +172,7 @@ export default function ProcurementPlan() {
                 >
                   <AddSquareIcon fillColor='#FF0000' /> Create from scratch
                 </Button>
-              </Link>
+              </Link> */}
               <Button
                 className='w-full flex items-center gap-2 justify-start'
                 variant='ghost'
@@ -207,7 +208,8 @@ export default function ProcurementPlan() {
         </div>
 
         <DataTable
-          data={dataSource || []}
+          // @ts-ignore
+          data={procurementData?.data?.results || []}
           // @ts-ignore
           columns={tableColumns(editCell)}
           isLoading={isLoading}
@@ -216,12 +218,469 @@ export default function ProcurementPlan() {
         <ProcurementPlanUploadModal
           isOpen={isModalOpen}
           onCancel={() => setModalOpen(false)}
+          // @ts-ignore
           onOk={(data: any) => formatRawData(data)}
         />
       </Card>
     </section>
   );
 }
+
+const tableColumns = (
+  editCell: () => void
+  // editCell: (id: number, fieldName: string, value: string) => void
+): ColumnDef<any>[] => [
+  {
+    header: " ",
+    columns: [
+      {
+        header: "SN",
+        accessorKey: "sn",
+        size: 120,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+      {
+        header: "Budget Line",
+        accessorKey: "budget_line",
+        size: 120,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+      {
+        header: "Implementer (Owner)",
+        accessorKey: "implementer",
+        size: 200,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+      {
+        header: "Work Plan Activity Reference",
+        accessorKey: "workplan_activity_reference",
+        size: 250,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+    ],
+  },
+
+  {
+    header: "Budget allocation",
+    columns: [
+      {
+        header: "Year 1 USD",
+        accessorKey: "year1_usd",
+        size: 150,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+      {
+        header: "Year 2 USD",
+        accessorKey: "year2_usd",
+        size: 150,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+
+      {
+        header: "Year 3 USD",
+        accessorKey: "year3_usd",
+
+        size: 150,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+      {
+        header: "Approved Budget Amount - USD",
+        accessorKey: "approved_budget_amount_usd",
+        size: 200,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+      {
+        header: "Year 1 Targets",
+        accessorKey: "year1_targets",
+        size: 140,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+
+      {
+        header: "Year 2 Targets",
+        accessorKey: "year2_targets",
+        size: 140,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+
+      {
+        header: "Year 3 Targets",
+        accessorKey: "year3_targets",
+        size: 140,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+
+      {
+        header: "Total Quantity (1-3 Years)",
+        accessorKey: "total_quantity",
+        size: 140,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+    ],
+  },
+
+  {
+    header: " ",
+    columns: [
+      {
+        header: "Description of Procurement Activities",
+        accessorKey: "description",
+        size: 300,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+      {
+        header: "Approved Budget ($)",
+        accessorKey: "approved_budget_amount_usd",
+        size: 200,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+      {
+        header: "Responsible PR Staff",
+        accessorKey: "responsible_pr_staff",
+        size: 200,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+      {
+        header: "PPM",
+        accessorKey: "ppm",
+        size: 120,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+
+      {
+        header: "Non-PPM",
+        accessorKey: "non_ppm",
+        size: 120,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+      {
+        header: "Mode of Procurement",
+        accessorKey: "mode_of_procurement",
+        size: 200,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+      {
+        header:
+          "PROCUREMENT PROCESS (EOI, RFP, RFQ, Minimum Quotes, Open or Limited Bidding etc. as per organizational Procurement Policy, refer relevant section)",
+        accessorKey: "procurement_process",
+        size: 605,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+      {
+        header: "Start Date (at least week of the month)",
+        accessorKey: "start_date",
+        size: 200,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+    ],
+  },
+
+  {
+    header: "Procurement Milestones",
+    columns: [
+      {
+        header: "Bid Document Finalization ",
+        accessorKey: "bid_document_finalization",
+        size: 0,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+
+      {
+        header:
+          "Advertise Bid (national dailies, short-listed vendors, website etc.)",
+        accessorKey: "advertise_bid",
+        size: 300,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+
+      {
+        header: "Evaluation ",
+        accessorKey: "evaluation_date",
+        size: 120,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+
+      {
+        header: "Negotiation",
+        accessorKey: "negotiation_date",
+        size: 120,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+
+      {
+        header: "Signing/ Final Order",
+        accessorKey: "signing_final_order_date",
+        size: 150,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+    ],
+  },
+
+  {
+    header: " ",
+    columns: [
+      {
+        header: "Selected Supplier",
+        accessorKey: "selected_supplier",
+        size: 280,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+
+      {
+        header: "Expected Delivery Date 1",
+        accessorKey: "expected_delivery_date_1",
+        size: 180,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+
+      {
+        header: "Expected Delivery Date 2",
+        accessorKey: "expected_delivery_date_2",
+        size: 180,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+
+      {
+        header:
+          "DELIVERY TO (Central warehouse, State warehouse, treatment site, SR)",
+        accessorKey: "delivery_to",
+        size: 330,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+
+      {
+        header: "Donor Remarks",
+        accessorKey: "donor_remarks",
+        size: 150,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+
+      {
+        header: "Implementer Remarks",
+        accessorKey: "implementer_remarks",
+        size: 150,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+    ],
+  },
+];
 
 interface ProcurementPlanTableType {
   id: number;
@@ -259,461 +718,6 @@ interface ProcurementPlanTableType {
   procurementMilestoneFour: string;
   procurementMilestoneFive: string;
 }
-
-const tableColumns = (
-  editCell: () => void
-  // editCell: (id: number, fieldName: string, value: string) => void
-): ColumnDef<any>[] => [
-  {
-    header: " ",
-    columns: [
-      {
-        header: "SN",
-        accessorKey: "sn",
-        size: 120,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-      {
-        header: "Budget Line",
-        accessorKey: "budgetLine",
-        size: 120,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-      {
-        header: "Implementer (Owner)",
-        accessorKey: "owner",
-        size: 200,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-      {
-        header: "Work Plan Activity Reference",
-        accessorKey: "activityReference",
-        size: 250,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-    ],
-  },
-
-  {
-    header: "Budget allocation",
-    columns: [
-      {
-        header: "Year 1 USD",
-        accessorKey: "yearOne",
-        size: 150,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-      {
-        header: "Year 2 USD",
-        accessorKey: "yearTwo",
-        size: 150,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-
-      {
-        header: "Year 3 USD",
-        accessorKey: "yearThree",
-        size: 150,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-      {
-        header: "Approved Budget Amount - USD",
-        accessorKey: "approvedBudget",
-        size: 200,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-      {
-        header: "Year 1 Targets",
-        accessorKey: "yearOneTargets",
-        size: 140,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-
-      {
-        header: "Year 2 Targets",
-        accessorKey: "yearTwoTargets",
-        size: 140,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-
-      {
-        header: "Year 3 Targets",
-        accessorKey: "yearThreeTargets",
-        size: 140,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-
-      {
-        header: "Total Quantity (1-3 Years)",
-        accessorKey: "totalQuantity",
-        size: 140,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-    ],
-  },
-
-  {
-    header: " ",
-    columns: [
-      {
-        header: "Description of Procurement Activities",
-        accessorKey: "description",
-        size: 300,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-      {
-        header: "Approved Budget ($)",
-        accessorKey: "approvedBudget",
-        size: 200,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-      {
-        header: "Responsible PR Staff",
-        accessorKey: "responsibleStaff",
-        size: 200,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-      {
-        header: "PPM",
-        accessorKey: "ppm",
-        size: 120,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-
-      {
-        header: "Non-PPM",
-        accessorKey: "nonPpm",
-        size: 120,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-      {
-        header: "Mode of Procurement",
-        accessorKey: "modeOfProcurement",
-        size: 200,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-      {
-        header:
-          "PROCUREMENT PROCESS (EOI, RFP, RFQ, Minimum Quotes, Open or Limited Bidding etc. as per organizational Procurement Policy, refer relevant section)",
-        accessorKey: "procumentProcess",
-        size: 605,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-      {
-        header: "Start Date (at least week of the month)",
-        accessorKey: "startDate",
-        size: 200,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-    ],
-  },
-
-  {
-    header: "Procurement Milestones",
-    columns: [
-      {
-        header: "Bid Document Finalization ",
-        accessorKey: "bidDocumentFinalization ",
-        size: 120,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-
-      {
-        header:
-          "Advertise Bid (national dailies, short-listed vendors, website etc.)",
-        accessorKey: "advertiseBid",
-        size: 300,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-
-      {
-        header: "Evaluation ",
-        accessorKey: "evaluation",
-        size: 120,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-
-      {
-        header: "Negotiation",
-        accessorKey: "negotiation",
-        size: 120,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-
-      {
-        header: "Signing/ Final Order",
-        accessorKey: "signing",
-        size: 150,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-    ],
-  },
-
-  {
-    header: " ",
-    columns: [
-      {
-        header: "Selected Supplier",
-        accessorKey: "selectedSupplier",
-        size: 280,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-
-      {
-        header: "Expected Delivery Date 1",
-        accessorKey: "expectedDeliveryDateOne",
-        size: 180,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-
-      {
-        header: "Expected Delivery Date 2",
-        accessorKey: "expectedDeliveryDateTwo",
-        size: 180,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-
-      {
-        header:
-          "DELIVERY TO (Central warehouse, State warehouse, treatment site, SR)",
-        accessorKey: "deliveryTo",
-        size: 330,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-
-      {
-        header: "Donor Remarks",
-        accessorKey: "donorRemarks",
-        size: 150,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-
-      {
-        header: "Implementer Remarks",
-        accessorKey: "implementerRemarks",
-        size: 150,
-        cell: (cell) => (
-          <EditableCell
-            value={cell.getValue()}
-            row={cell.row}
-            column={cell.column}
-            onEditCell={editCell}
-          />
-        ),
-      },
-    ],
-  },
-];
 
 type PropsType = {
   value: string | number | unknown;

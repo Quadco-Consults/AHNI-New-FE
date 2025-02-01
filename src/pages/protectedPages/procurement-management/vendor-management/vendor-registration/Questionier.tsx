@@ -53,7 +53,6 @@ const Questionier = () => {
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
-    console.log({ name, value });
 
     setFormData({
       ...formData,
@@ -110,9 +109,9 @@ const Questionier = () => {
       number_of_permanent_staff: Number(
         mergedObject?.number_of_permanent_staff
       ),
-      phone_number: mergedObject?.phone_numbers,
+      phone_numbers: mergedObject?.phone_numbers,
       production_equipments: mergedObject?.production_equipments,
-      key_clients: mergedObject?.key_clients,
+      key_client: mergedObject?.key_clients,
       questionnaires: mergedObject?.questionairs,
       share_holders: mergedObject?.share_holders,
       submitted_categories: mergedObject?.submitted_categories,

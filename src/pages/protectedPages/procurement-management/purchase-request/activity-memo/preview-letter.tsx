@@ -13,18 +13,21 @@ import { useGetSingleInterventionAreaQuery } from "services/modules/program/inte
 import { useGetSingleCostCategoryQuery } from "services/modules/finance/cost-category";
 import { useGetSingleCostInputQuery } from "services/modules/finance/cost-input";
 import { useGetSingleFCONumberQuery } from "services/modules/finance/fco-number";
+import useQuery from "hooks/useQuery";
 
 const Preview = () => {
+  const query = useQuery();
+  const id = query.get("id");
+  const request = query.get("request");
+
   const { data: requestsDetails } = PurchaseRequestAPI.useGetActivityMemoQuery(
     useMemo(
       () => ({
-        path: { id: "14700b16-9a76-46a3-ad06-4371b3dc96a6" as string },
+        path: { id: id as string },
       }),
-      ["14700b16-9a76-46a3-ad06-4371b3dc96a6"]
+      [id]
     )
   );
-
-  console.log({ requestsDetails });
 
   const { data: budgetLine } = useGetSingleBudgetLineQuery(
     requestsDetails?.budget_line[0]
@@ -99,15 +102,34 @@ const Preview = () => {
           <p className='mt-8'>Thank you</p>
         </div>
         <div className='w-full px-4 justify-end flex'>
-          <Link className='w-fit' to={generatePath(RouteEnum.FINAL_PREVIEW)}>
-            <Button
-              type='submit'
-              className='mt-4 px-4 py-2 bg-primary text-white rounded'
+          {!id && (
+            <Link className='w-fit' to={generatePath(RouteEnum.FINAL_PREVIEW)}>
+              <Button
+                type='submit'
+                className='mt-4 px-4 py-2 bg-primary text-white rounded'
+              >
+                <LongArrowRight />
+                Next
+              </Button>
+            </Link>
+          )}
+          {id && (
+            <Link
+              className='w-fit'
+              to={{
+                pathname: RouteEnum.SAMPLE_PREVIEW,
+                search: `?id=${id}&request=${request}`,
+              }}
             >
-              <LongArrowRight />
-              Next
-            </Button>
-          </Link>
+              <Button
+                type='submit'
+                className='mt-4 px-4 py-2 bg-primary text-white rounded'
+              >
+                <LongArrowRight />
+                Next
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
     </div>

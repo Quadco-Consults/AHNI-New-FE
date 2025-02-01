@@ -9,93 +9,33 @@ import {
   TableRow,
 } from "components/ui/table";
 import { RouteEnum } from "constants/RouterConstants";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { generatePath, Link } from "react-router-dom";
 import logoPng from "assets/svgs/logo-bg.svg";
 import PurchaseRequestAPI from "services/procurementApi/purchase-sample-request ";
 import { useGetSingleBudgetLineQuery } from "services/modules/finance/budget-line";
 import { useGetSingleCostCategoryQuery } from "services/modules/finance/cost-category";
 import { useGetSingleCostInputQuery } from "services/modules/finance/cost-input";
-// import { useGetSingleFundingSourceQuery } from "services/modules/project/funding-source";
+import { useGetSingleActivityPlanQuery } from "services/programsApi/activity-plan";
+import useQuery from "hooks/useQuery";
 
 const Preview = () => {
+  const query = useQuery();
+  const id = query.get("id");
+  const request = query.get("request");
+
   const { data: requestsDetails } = PurchaseRequestAPI.useGetActivityMemoQuery(
     useMemo(
       () => ({
-        path: { id: "14700b16-9a76-46a3-ad06-4371b3dc96a6" as string },
+        path: { id: id as string },
       }),
-      ["14700b16-9a76-46a3-ad06-4371b3dc96a6"]
+      [id]
     )
   );
-
-  console.log({ requestsDetails });
-
-  // const [rows, setRows] = useState([]);
-
-  // Simulating fetching data
-  useEffect(() => {
-    const fetchData = async () => {
-      // const data = [
-      //   {
-      //     item: "Stationery",
-      //     quantity: 10,
-      //     days: 2,
-      //     facility: 3,
-      //     frequency: 1,
-      //     unitCost: 5,
-      //   },
-      //   {
-      //     item: "Transport",
-      //     quantity: 5,
-      //     days: 1,
-      //     facility: 2,
-      //     frequency: 2,
-      //     unitCost: 15,
-      //   },
-      //   {
-      //     item: "Meals",
-      //     quantity: 20,
-      //     days: 5,
-      //     facility: 1,
-      //     frequency: 3,
-      //     unitCost: 10,
-      //   },
-      // ];
-      // setRows(data);
-    };
-
-    fetchData();
-  }, []);
-
-  // const totals = rows.reduce(
-  //   (acc, row) => {
-  //     const totalCost = calculateTotalCost(row);
-  //     return {
-  //       quantity: acc.quantity + row.quantity,
-  //       days: acc.days + row.days,
-  //       facility: acc.facility + row.facility,
-  //       frequency: acc.frequency + row.frequency,
-  //       unitCost: acc.unitCost + row.unitCost,
-  //       totalCost: acc.totalCost + totalCost,
-  //     };
-  //   },
-  //   {
-  //     quantity: 0,
-  //     days: 0,
-  //     facility: 0,
-  //     frequency: 0,
-  //     unitCost: 0,
-  //     totalCost: 0,
-  //   }
-  // );
 
   const { data: budgetLine } = useGetSingleBudgetLineQuery(
     requestsDetails?.budget_line[0]
   );
-
-  // const { data: fundingSource } = useGetSingleFundingSourceQuery(
-  //   requestsDetails?.funding_source[0]
-  // );
 
   const { data: costCategory } =
     // @ts-ignore
@@ -105,21 +45,39 @@ const Preview = () => {
     // @ts-ignore
     useGetSingleCostInputQuery(requestsDetails?.cost_input[0]);
 
-  // console.log({ fundingSource });
+  const { data: activityPlan } = useGetSingleActivityPlanQuery(
+    // @ts-ignore
+    requestsDetails?.activity
+  );
 
   return (
     <div className='bg-white p-8'>
       <section className='min-h-screen space-y-8'>
         <div className='flex w-full items-center justify-end gap-4'>
-          <Link
-            className='w-fit'
-            to={generatePath(RouteEnum.CREATE_PURCHASE_REQUEST)}
-          >
-            <Button className='flex gap-2 py-6'>
-              <AddSquareIcon />
-              New Purchase Request
-            </Button>
-          </Link>
+          {!id && (
+            <Link
+              className='w-fit'
+              to={generatePath(RouteEnum.CREATE_PURCHASE_REQUEST)}
+            >
+              <Button className='flex gap-2 py-6'>
+                <AddSquareIcon />
+                New Purchase Request
+              </Button>
+            </Link>
+          )}{" "}
+          {id && (
+            <Link
+              className='w-fit'
+              to={generatePath(RouteEnum.PURCHASE_REQUEST_DETAILS, {
+                id: request,
+              })}
+            >
+              <Button className='flex gap-2 py-6'>
+                <AddSquareIcon />
+                View Purchase Request
+              </Button>
+            </Link>
+          )}{" "}
         </div>
 
         <div className='flex justify-center items-center flex-col'>
@@ -127,8 +85,7 @@ const Preview = () => {
           <h1>Achieving Health Nigeria Initiative (AHNI)</h1>
         </div>
         <div className='bg-alternate text-primary px-6 py-3 my-2'>
-          Activity: 9.2.2 Anambra State Office Admin Cost Q3 (July - September
-          2024)
+          Activity: {activityPlan?.data?.activity_code}
         </div>
         <div className=' my-3'>
           <div className='flex border-gray-200 border max-w-[800px] w-full'>
@@ -139,15 +96,6 @@ const Preview = () => {
               {requestsDetails?.requested_date}
             </div>
           </div>
-          <div className='flex border-gray-200 border max-w-[800px] w-full'>
-            <div className=' border-r border-gray-200 w-full max-w-[321px] p-3'>
-              Location:
-            </div>
-            <div className='w-full max-w-[490px] p-3'>
-              {" "}
-              {requestsDetails?.location}
-            </div>
-          </div>{" "}
           {/* <div className='flex border-gray-200 border max-w-[800px] w-full'>
             <div className=' border-r border-gray-200 w-full max-w-[321px] p-3'>
               Duration:
@@ -187,9 +135,6 @@ const Preview = () => {
             <div className=' border-r border-gray-200 w-full max-w-[321px] p-3'>
               <strong>Cost Input #:</strong>
               {costCategory && costInput?.data?.name}{" "}
-            </div>
-            <div className='w-full max-w-[490px] p-3'>
-              Funding Source #: Global Fund
             </div>
           </div>{" "}
         </div>
