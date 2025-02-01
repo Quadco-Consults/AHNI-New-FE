@@ -1,14 +1,14 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Separator } from "components/ui/separator";
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
-import { Save } from "lucide-react";
+import { ChevronRight, Save } from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "store/index";
-import { useGetAllBeneficiaryQuery } from "services/modules/project/beneficiaries";
+
 import { toast } from "sonner";
 import PurchaseRequestAPI from "services/procurementApi/purchase-sample-request ";
 import { useGetAllProjectsQuery } from "services/project";
@@ -21,8 +21,9 @@ import {
 } from "components/ui/table";
 // import FormInput from "atoms/FormInput";
 import { Form } from "components/ui/form";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
+import useQuery from "hooks/useQuery";
 
 // Sample Checkbox component
 // eslint-disable-next-line react/display-name
@@ -51,6 +52,10 @@ const UploadSchema = z.object({
 type FormData = z.infer<typeof UploadSchema>;
 
 const CheckboxForm = () => {
+  const query = useQuery();
+  const id = query.get("id");
+  const request = query.get("request");
+
   const navigate = useNavigate();
 
   const activity = useSelector((state: RootState) => state.activity.activity);
@@ -58,14 +63,19 @@ const CheckboxForm = () => {
     return { ...acc, ...obj };
   }, {});
 
-  const { data: beneficiaries } = useGetAllBeneficiaryQuery({
-    page: 1,
-    size: 2000000,
-  });
   const { data: projects } = useGetAllProjectsQuery({
     page: 1,
     size: 2000000,
   });
+
+  const { data: requestsDetails } = PurchaseRequestAPI.useGetActivityMemoQuery(
+    useMemo(
+      () => ({
+        path: { id: id as string },
+      }),
+      [id]
+    )
+  );
 
   const form = useForm<FormData>({
     resolver: zodResolver(UploadSchema),
@@ -82,7 +92,7 @@ const CheckboxForm = () => {
 
   // Update default values when beneficiaries data is available
   useEffect(() => {
-    if (beneficiaries?.data?.results) {
+    if (projects?.data?.results) {
       setValue(
         "beneficiaries",
         // @ts-ignore
@@ -95,6 +105,29 @@ const CheckboxForm = () => {
       );
     }
   }, [projects, setValue]);
+
+  useEffect(() => {
+    if (requestsDetails) {
+      setValue(
+        "activity_budget",
+        // @ts-ignore
+
+        requestsDetails.activity_budget
+      );
+      setValue(
+        "budget_expended",
+        // @ts-ignore
+
+        requestsDetails.budget_expended
+      );
+      setValue(
+        "balance",
+        // @ts-ignore
+
+        requestsDetails.balance
+      );
+    }
+  }, [requestsDetails, setValue]);
 
   // Reset beneficiaries when integratedTraining is "false"
   useEffect(() => {
@@ -285,10 +318,13 @@ const CheckboxForm = () => {
                     <TableBody>
                       <TableRow>
                         <TableCell>
-                          {mergedObject?.selectedActivity?.activity_code}
+                          {mergedObject?.selectedActivity?.activity_code ||
+                            requestsDetails?.activity}
                         </TableCell>
                         <TableCell>
-                          {mergedObject?.selectedCostCategory?.name}
+                          {mergedObject?.selectedCostCategory?.name ||
+                            // @ts-ignore
+                            requestsDetails?.cost_categories[0]}
                         </TableCell>
                       </TableRow>
                     </TableBody>
@@ -468,15 +504,30 @@ const CheckboxForm = () => {
           </Table>
         </div>
         <div className='w-full px-4'>
-          {/* <Link className='w-fit' to={generatePath(RouteEnum.PREVIEW_LETTER)}> */}
-          <Button
-            type='submit'
-            className='mt-4 px-4 py-2 bg-alternate text-primary rounded w-full'
-          >
-            <Save size={20} />
-            Save
-          </Button>
-          {/* </Link> */}
+          {!requestsDetails && (
+            <Button
+              type='submit'
+              className='mt-4 px-4 py-2 bg-alternate text-primary rounded w-full'
+            >
+              <Save size={20} />
+              Save
+            </Button>
+          )}
+
+          {requestsDetails && (
+            <Link
+              className='w-fit'
+              to={{
+                pathname: RouteEnum.FINAL_PREVIEW,
+                search: `?id=${id}&request=${request}`,
+              }}
+            >
+              <Button className='mt-4 px-4 py-2 rounded w-full'>
+                <ChevronRight size={20} />
+                Next
+              </Button>
+            </Link>
+          )}
         </div>
       </form>
     </Form>
