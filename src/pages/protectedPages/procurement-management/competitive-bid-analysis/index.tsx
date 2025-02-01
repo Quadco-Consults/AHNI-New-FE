@@ -21,30 +21,31 @@ import SendIcon from "components/icons/SendIcon";
 
 const CompetitiveAnalysis = () => {
   const { data, isLoading } = CbaAPI.useGetCbaListQuery({});
+  console.log({ data });
 
   return (
-    <div className="space-y-10">
+    <div className='space-y-10'>
       <div>
-        <h4 className="text-lg font-bold">Competitive Bid Analysis</h4>
+        <h4 className='text-lg font-bold'>Competitive Bid Analysis</h4>
         <h6>
           Procurement -{" "}
-          <span className="text-black font-medium dark:text-grey-dark">
+          <span className='text-black font-medium dark:text-grey-dark'>
             Competitive Bid Analysis
           </span>
         </h6>
       </div>
 
-      <Card className="space-y-10">
-        <div className="flex items-center justify-start gap-2">
-          <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
+      <Card className='space-y-10'>
+        <div className='flex items-center justify-start gap-2'>
+          <span className='flex items-center w-1/3 px-2 py-2 border rounded-lg'>
             <SearchIcon />
             <input
-              placeholder="Search"
-              type="text"
-              className="ml-2 h-6 border-none bg-none focus:outline-none outline-none"
+              placeholder='Search'
+              type='text'
+              className='ml-2 h-6 border-none bg-none focus:outline-none outline-none'
             />
           </span>
-          <Button className="shadow-sm" variant="ghost">
+          <Button className='shadow-sm' variant='ghost'>
             <FilterIcon />
           </Button>
         </div>
@@ -87,7 +88,7 @@ const columns: ColumnDef<CbaResultsData>[] = [
     },
   },
   {
-    header: "RFQ",
+    header: "RFQ nO",
     accessorKey: "title",
     size: 300,
   },
@@ -128,32 +129,32 @@ const columns: ColumnDef<CbaResultsData>[] = [
 
 const ActionListAction = ({ data }: any) => {
   return (
-    <div className="flex items-center gap-2">
+    <div className='flex items-center gap-2'>
       <>
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost" className="flex gap-2 py-6">
+            <Button variant='ghost' className='flex gap-2 py-6'>
               <MoreOptionsHorizontalIcon />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className=" w-fit">
-            <div className="flex flex-col items-start justify-between gap-1">
+          <PopoverContent className=' w-fit'>
+            <div className='flex flex-col items-start justify-between gap-1'>
               <Link
-                className="w-full"
+                className='w-full'
                 to={generatePath(RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS, {
                   id: data?.id,
                 })}
               >
                 <Button
-                  className="w-full flex items-center justify-start gap-2"
-                  variant="ghost"
+                  className='w-full flex items-center justify-start gap-2'
+                  variant='ghost'
                 >
                   <EyeIcon />
                   View
                 </Button>
               </Link>
               <Link
-                className="w-full"
+                className='w-full'
                 to={generatePath(
                   RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_START,
                   {
@@ -162,23 +163,23 @@ const ActionListAction = ({ data }: any) => {
                 )}
               >
                 <Button
-                  className="w-full flex items-center justify-start gap-2"
-                  variant="ghost"
+                  className='w-full flex items-center justify-start gap-2'
+                  variant='ghost'
                 >
                   <SendIcon />
                   Start CBA
                 </Button>
               </Link>
               <Button
-                className="w-full flex items-center justify-start gap-2"
-                variant="ghost"
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
               >
                 <PrinterIcon />
                 Get Purchase Order
               </Button>
               <Button
-                className="w-full flex items-center justify-start gap-2"
-                variant="ghost"
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
               >
                 <DeleteIcon />
                 delete
