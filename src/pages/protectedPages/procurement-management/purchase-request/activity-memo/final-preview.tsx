@@ -17,14 +17,19 @@ import { useGetSingleBudgetLineQuery } from "services/modules/finance/budget-lin
 import { useGetSingleCostCategoryQuery } from "services/modules/finance/cost-category";
 import { useGetSingleCostInputQuery } from "services/modules/finance/cost-input";
 import { useGetSingleActivityPlanQuery } from "services/programsApi/activity-plan";
+import useQuery from "hooks/useQuery";
 
 const Preview = () => {
+  const query = useQuery();
+  const id = query.get("id");
+  const request = query.get("request");
+
   const { data: requestsDetails } = PurchaseRequestAPI.useGetActivityMemoQuery(
     useMemo(
       () => ({
-        path: { id: "14700b16-9a76-46a3-ad06-4371b3dc96a6" as string },
+        path: { id: id as string },
       }),
-      ["14700b16-9a76-46a3-ad06-4371b3dc96a6"]
+      [id]
     )
   );
 
@@ -41,22 +46,38 @@ const Preview = () => {
     useGetSingleCostInputQuery(requestsDetails?.cost_input[0]);
 
   const { data: activityPlan } = useGetSingleActivityPlanQuery(
-    requestsDetails!.activity
+    // @ts-ignore
+    requestsDetails?.activity
   );
 
   return (
     <div className='bg-white p-8'>
       <section className='min-h-screen space-y-8'>
         <div className='flex w-full items-center justify-end gap-4'>
-          <Link
-            className='w-fit'
-            to={generatePath(RouteEnum.CREATE_PURCHASE_REQUEST)}
-          >
-            <Button className='flex gap-2 py-6'>
-              <AddSquareIcon />
-              New Purchase Request
-            </Button>
-          </Link>
+          {!id && (
+            <Link
+              className='w-fit'
+              to={generatePath(RouteEnum.CREATE_PURCHASE_REQUEST)}
+            >
+              <Button className='flex gap-2 py-6'>
+                <AddSquareIcon />
+                New Purchase Request
+              </Button>
+            </Link>
+          )}{" "}
+          {id && (
+            <Link
+              className='w-fit'
+              to={generatePath(RouteEnum.PURCHASE_REQUEST_DETAILS, {
+                id: request,
+              })}
+            >
+              <Button className='flex gap-2 py-6'>
+                <AddSquareIcon />
+                View Purchase Request
+              </Button>
+            </Link>
+          )}{" "}
         </div>
 
         <div className='flex justify-center items-center flex-col'>

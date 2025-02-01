@@ -56,7 +56,7 @@ const CreatePurchaseRequestForm = () => {
     resolver: zodResolver(PurchaseRequestSchema),
     defaultValues: {
       request_memo: "14700b16-9a76-46a3-ad06-4371b3dc96a6",
-      ref_number: "wewew",
+      ref_number: "",
       date_of_request: "",
       date_required: "",
       requesting_department: "",
@@ -84,15 +84,12 @@ const CreatePurchaseRequestForm = () => {
 
   const navigate = useNavigate();
 
-  const { control, handleSubmit, getValues } = form;
+  const { control, handleSubmit } = form;
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: "items",
   });
-
-  const lon = getValues();
-  console.log({ lon });
 
   const usersOptions = users?.data.results.map(
     ({ first_name, last_name, id }) => ({
@@ -147,6 +144,14 @@ const CreatePurchaseRequestForm = () => {
     <div className='pt-5'>
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-6'>
+          <div className='grid  gap-5'>
+            <FormInput
+              label='Ref'
+              name='ref_number'
+              type='text'
+              placeholder=''
+            />
+          </div>
           <div className='grid grid-cols-2 gap-5'>
             <FormInput
               label='Date of Request'

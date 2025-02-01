@@ -86,9 +86,13 @@ function PurchaseRequest() {
               <div className='flex flex-col items-start justify-between gap-1'>
                 <Link
                   className='w-full'
-                  to={generatePath(RouteEnum.PURCHASE_REQUEST_DETAILS, {
-                    id: data?.id,
-                  })}
+                  // to={generatePath(RouteEnum.PURCHASE_REQUEST_DETAILS, {
+                  //   id: data?.id,
+                  // })}
+                  to={{
+                    pathname: RouteEnum.PREVIEW_LETTER,
+                    search: `?id=${data?.request_memo}&request=${data?.id}`,
+                  }}
                 >
                   <Button
                     className='flex w-full items-center justify-start gap-2'
