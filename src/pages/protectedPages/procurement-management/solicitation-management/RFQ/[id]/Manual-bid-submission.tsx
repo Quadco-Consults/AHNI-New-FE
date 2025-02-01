@@ -125,7 +125,7 @@ const ManualBidSubmission = () => {
 
       <div>
         <h4 className='text-lg font-bold'>Manual Bid Submission Form</h4>
-        <h6>LOT 1 SUPPLY OF IT AND NETWORKING EQUIPMENT FOR _ACEBAY PROJECT</h6>
+        <h6>{singleSolicitation?.data?.title}</h6>
       </div>
 
       <Form {...form}>

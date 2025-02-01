@@ -388,6 +388,15 @@ export const procurment = [
     ),
   },
   {
+    path: RouteEnum.PURCHASE_ORDER_ID,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/purchase-order/[id]/index"
+        )
+    ),
+  },
+  {
     path: RouteEnum.PURCHASE_ORDER_NEW,
     element: lazy(
       () =>
