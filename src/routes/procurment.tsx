@@ -282,11 +282,39 @@ export const procurment = [
     ),
   },
   {
+    path: RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_APPROVAL_CHECK,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/CheckApproval"
+        )
+    ),
+  },
+
+  {
     path: RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_START,
     element: lazy(
       () =>
         import(
-          "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/start-competitiveBidAnalysis"
+          "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/technicalPrequalificationSheet"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_FINANCIAL_BID_OPENING,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/FinancialBiding"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.SUMMARY_OF_TECHNICAL_PREQUALIFICATION,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/SummaryOfTechnicalPrequalification"
         )
     ),
   },

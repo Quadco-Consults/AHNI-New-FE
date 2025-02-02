@@ -10,6 +10,7 @@ export type EOIResultsData = {
   opening_date: string;
   closing_date: string;
   document: string;
+  eoi_number: string;
   financial_year: {
     year: string;
     is_current: boolean;

@@ -293,7 +293,6 @@ export const SolicitationSubmissionSchema = z.object({
 export const CbaSchema = z.object({
   cba_type: z.string().min(1, "Field is required"),
   cba_date: z.string().min(1, "Field is required"),
-  remarks: z.string(),
   solicitation: z.string().min(1, "Field is required"),
   lot: z.string().min(1, "Field is required"),
   assignee: z.string().min(1, "Field is required"),

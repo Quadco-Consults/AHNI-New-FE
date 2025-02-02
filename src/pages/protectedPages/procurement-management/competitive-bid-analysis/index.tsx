@@ -51,7 +51,8 @@ const CompetitiveAnalysis = () => {
         </div>
 
         <DataTable
-          data={data?.results || []}
+          // @ts-ignore
+          data={data?.data?.results || []}
           columns={columns}
           isLoading={isLoading}
         />
@@ -168,6 +169,23 @@ const ActionListAction = ({ data }: any) => {
                 >
                   <SendIcon />
                   Start CBA
+                </Button>
+              </Link>
+              <Link
+                className='w-full'
+                to={generatePath(
+                  RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_APPROVAL_CHECK,
+                  {
+                    id: data?.id,
+                  }
+                )}
+              >
+                <Button
+                  className='w-full flex items-center justify-start gap-2'
+                  variant='ghost'
+                >
+                  <SendIcon />
+                  Check Approval
                 </Button>
               </Link>
               <Button
