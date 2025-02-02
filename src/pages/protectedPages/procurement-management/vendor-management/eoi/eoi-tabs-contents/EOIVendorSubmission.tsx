@@ -7,7 +7,7 @@ import { Checkbox } from "components/ui/checkbox";
 import { cn } from "lib/utils";
 import { Button } from "components/ui/button";
 import { Input } from "components/ui/input";
-import { Link, generatePath, useParams } from "react-router-dom";
+import { Link, generatePath } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
@@ -25,10 +25,7 @@ type Data = {
 };
 
 const EOIVendorSubmission = () => {
-  const { id } = useParams();
-  const { data: vendorData, isLoading } = VendorsAPI.useGetVendorsQuery({});
-
-  console.log({ id, vendorData: vendorData?.data?.results });
+  const { data: vendorData } = VendorsAPI.useGetVendorsQuery({});
 
   return (
     <div className='space-y-10'>
@@ -54,6 +51,7 @@ const EOIVendorSubmission = () => {
         </div>
 
         <DataTable
+          // @ts-ignore
           columns={columns}
           data={vendorData?.data?.results || []}
           isLoading={false}
@@ -115,7 +113,7 @@ const columns: ColumnDef<Data>[] = [
             "px-3 py-2 rounded-lg",
             getValue() === "Approved" && "bg-green-50 text-green-500",
             getValue() === "Fail" && "bg-red-50 text-red-500",
-            getValue() === "Unreviewed" && "bg-yellow-50 text-yellow-500"
+            getValue() === "Pending" && "bg-yellow-50 text-yellow-500"
           )}
         >
           {getValue() as string}
@@ -133,7 +131,8 @@ const columns: ColumnDef<Data>[] = [
             "px-3 py-2 rounded-lg",
             getValue() === "Pass" && "bg-green-50 text-green-500",
             getValue() === "Fail" && "bg-red-50 text-red-500",
-            getValue() === "Unreviewed" && "bg-yellow-50 text-yellow-500"
+            getValue() === "Unreviewed" && "bg-yellow-50 text-yellow-500",
+            getValue() === null && "bg-yellow-50 text-yellow-500"
           )}
         >
           {getValue() as string}
@@ -181,60 +180,3 @@ const ActionListAction = ({ data }: any) => {
 //     </div>
 //   );
 // };
-
-const data: Data[] = [
-  {
-    name: "Medical Supplies Ltd.",
-    number: +2348071234567,
-    email: "contact@medsupplies.com.ng",
-    products: "MEDICAL EQUIPMENT, SURGICAL TOOLS",
-    status: "Pass",
-    prequalification: "Pass",
-    isSelected: false,
-  },
-  {
-    name: "Naija Labs & Co.",
-    number: +2348092345678,
-    email: "info@naijalabs.com.ng",
-    products: "Diagnostic kits, laboratory equipment",
-    status: "Unreviewed",
-    prequalification: "Pass",
-    isSelected: false,
-  },
-  {
-    name: "HealthTech Nigeria",
-    number: +2348063456789,
-    email: "support@healthtechnigeria.com.ng",
-    products: "Healthcare software, patient management systems",
-    status: "Pass",
-    prequalification: "Pass",
-    isSelected: false,
-  },
-  {
-    name: "Medical Supplies Ltd.",
-    number: +2348071234567,
-    email: "contact@medsupplies.com.ng",
-    products: "MEDICAL EQUIPMENT, SURGICAL TOOLS",
-    status: "Fail",
-    prequalification: "Pass",
-    isSelected: false,
-  },
-  {
-    name: "Naija Labs & Co.",
-    number: +2348092345678,
-    email: "info@naijalabs.com.ng",
-    products: "Diagnostic kits, laboratory equipment",
-    status: "Unreviewed",
-    prequalification: "Pass",
-    isSelected: false,
-  },
-  {
-    name: "HealthTech Nigeria",
-    number: +2348063456789,
-    email: "support@healthtechnigeria.com.ng",
-    products: "Healthcare software, patient management systems",
-    status: "Pass",
-    prequalification: "Pass",
-    isSelected: false,
-  },
-];

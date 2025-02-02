@@ -47,7 +47,7 @@ const ExpensesForm = ({
       value: id,
     })
   );
-
+  // optimization for number spliting is required use: .toLocaleString()
   return (
     <div>
       {/* @ts-ignore */}

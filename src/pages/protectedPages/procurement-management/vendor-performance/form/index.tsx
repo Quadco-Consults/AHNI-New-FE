@@ -86,10 +86,14 @@ const CreateVendorEvaluation = () => {
 
       if (selectedVendor) {
         setValue("location_of_service", selectedVendor.company_address || "");
+        setValue(
+          "vendor_service",
+          selectedVendor?.approved_categories_details[0]?.name || ""
+        );
       }
     }
     setValue("evaluators", profile?.data.id || "");
-  }, [selectedVendorId, vendor, setValue]);
+  }, [selectedVendorId, vendor, setValue, profile?.data.id]);
 
   const onSubmit = async (data: any) => {
     const payload = {
