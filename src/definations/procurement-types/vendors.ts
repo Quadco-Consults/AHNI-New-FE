@@ -29,6 +29,7 @@ export interface Questionairs {
 
 export interface VendorsResultsData {
   id: string;
+  approved_categories_details: any[];
   branches: TVendors[];
   share_holders: TVendors[];
   key_staff: KeyStaff[];

@@ -21,7 +21,7 @@ import {
   DialogClose,
 } from "components/ui/dialog";
 import { useForm } from "react-hook-form";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import logoPng from "assets/imgs/logo.png";
 import { Input } from "components/ui/input";
 import { Icon } from "@iconify/react";
@@ -30,9 +30,7 @@ import { Checkbox } from "components/ui/checkbox";
 import BreadcrumbCard from "components/shared/Breadcrumb";
 import { z } from "zod";
 import { CbaSchema } from "definations/procurement-validator";
-import { zodResolver } from "@hookform/resolvers/zod";
-import usersAPI from "services/usersAPI";
-import { TUser } from "definations/auth/user";
+// import { TUser } from "definations/auth/user";
 import CbaAPI from "services/procurementApi/cba";
 import { toast } from "sonner";
 import { RouteEnum } from "constants/RouterConstants";
@@ -41,14 +39,13 @@ import LotsAPI from "services/procurementApi/lots";
 import { LotsResultsData } from "definations/procurement-types/lots";
 import { useGetAllUsersQuery } from "services/auth/user";
 import useQuery from "hooks/useQuery";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const CreateCBA = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
+
   const query = useQuery();
   const rfqId = query.get("id");
-
-  console.log({ rfqId, id, query });
 
   const { data: users, isLoading } = useGetAllUsersQuery({
     page: 1,
@@ -61,11 +58,10 @@ const CreateCBA = () => {
   const [createCbaMutation, { isLoading: createCbaIsLoading }] =
     CbaAPI.useCreateCbaMutation();
 
-  //   const form = useForm<z.infer<typeof CbaSchema>>({
-  const form = useForm({
-    // resolver: zodResolver(CbaSchema),
+  const form = useForm<z.infer<typeof CbaSchema>>({
+    resolver: zodResolver(CbaSchema),
     defaultValues: {
-      solicitation: id,
+      solicitation: rfqId!,
       lot: "",
       cba_type: "",
       cba_date: "",
@@ -76,13 +72,12 @@ const CreateCBA = () => {
   const { handleSubmit, watch } = form;
 
   const matchedUsers =
-    users?.data?.results?.filter((user: TUser) =>
+    users?.data?.results?.filter((user) =>
+      // @ts-ignore
       form.watch("committee_members").includes(user?.id)
     ) || [];
 
   const onSubmit = async (data: z.infer<typeof CbaSchema>) => {
-    console.log({ data });
-
     const payload = {
       committee_members: data.committee_members,
       cba_type: data?.cba_type,
@@ -94,6 +89,7 @@ const CreateCBA = () => {
     };
 
     try {
+      // @ts-ignore
       await createCbaMutation(payload).unwrap();
       toast.success("Successfully created.");
       navigate(RouteEnum.RFQ);
@@ -110,7 +106,6 @@ const CreateCBA = () => {
     { name: "Detail", icon: true },
     { name: "Create CBA", icon: false },
   ];
-  console.log({ lots });
 
   return (
     <div className='space-y-5'>
@@ -121,6 +116,7 @@ const CreateCBA = () => {
       <h4 className='font-semibold text-lg pb-5'>Create CBA</h4>
 
       <Form {...form}>
+        {/* @ts-ignore */}
         <form className='space-y-8' onSubmit={handleSubmit(onSubmit)}>
           <div className='grid grid-cols-1 gap-4 w-full md:grid-cols-3'>
             <FormSelect name='cba_type' label='CBA type'>
@@ -138,6 +134,7 @@ const CreateCBA = () => {
             <FormSelect name='lot' label='Lot'>
               <SelectContent>
                 {lotIsLoading && <LoadingSpinner />}
+                {/* @ts-ignore */}
                 {lots?.data?.results?.map((lot: LotsResultsData) => (
                   <SelectItem key={lot?.id} value={String(lot?.id)}>
                     {lot?.name}
@@ -152,7 +149,7 @@ const CreateCBA = () => {
           {watch("cba_type") === "COMMITTEE" && (
             <div className='flex items-center gap-2 flex-wrap'>
               <div className='flex items-center gap-2 flex-wrap'>
-                {matchedUsers?.map((user: TUser) => (
+                {matchedUsers?.map((user) => (
                   <Badge
                     key={user?.id}
                     className='py-2 rounded-lg bg-[#EBE8E1] text-black'
@@ -206,7 +203,7 @@ const CreateCBA = () => {
                           name='committee_members'
                           render={() => (
                             <FormItem className='grid grid-cols-2 gap-5 bg-gray-100 mt-10 p-5 rounded-lg shadow-inner md:grid-cols-4'>
-                              {users?.data?.results?.map((user: TUser) => (
+                              {users?.data?.results?.map((user) => (
                                 <FormField
                                   key={user?.id}
                                   control={form.control}
@@ -220,6 +217,7 @@ const CreateCBA = () => {
                                         <FormControl>
                                           <Checkbox
                                             checked={field.value?.includes(
+                                              // @ts-ignore
                                               user?.id
                                             )}
                                             onCheckedChange={(checked) => {
@@ -251,6 +249,7 @@ const CreateCBA = () => {
                                           </div>
                                           <div className='flex items-center'>
                                             <h6 className='w-24'>Tel:</h6>
+                                            {/* @ts-ignore */}
                                             <h6>{user?.phone_number}</h6>
                                           </div>
                                         </div>
@@ -288,7 +287,7 @@ const CreateCBA = () => {
           <FormSelect name='assignee' label='Assignee'>
             <SelectContent>
               {isLoading && <LoadingSpinner />}
-              {users?.data?.results?.map((user: TUser) => (
+              {users?.data?.results?.map((user) => (
                 <SelectItem key={user?.id} value={user?.id}>
                   {user?.first_name} {user?.last_name}
                 </SelectItem>
