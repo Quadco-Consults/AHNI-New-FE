@@ -31,6 +31,11 @@ function PurchaseRequest() {
       header: "Requesting dept",
       accessorKey: "requesting_department",
       size: 250,
+      cell: ({ row }) => (
+        <div className=''>
+          <p>{row.original.requesting_department_detail.name}</p>
+        </div>
+      ),
     },
     {
       header: "Date of Request",
@@ -46,6 +51,11 @@ function PurchaseRequest() {
       header: "Deliver to",
       accessorKey: "deliver_to",
       size: 250,
+      cell: ({ row }) => (
+        <div className=''>
+          <p>{row.original.deliver_to_detail.name}</p>
+        </div>
+      ),
     },
     {
       header: "Total Amount",

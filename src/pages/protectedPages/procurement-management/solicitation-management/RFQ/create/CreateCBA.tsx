@@ -21,7 +21,7 @@ import {
   DialogClose,
 } from "components/ui/dialog";
 import { useForm } from "react-hook-form";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import logoPng from "assets/imgs/logo.png";
 import { Input } from "components/ui/input";
 import { Icon } from "@iconify/react";
@@ -39,10 +39,11 @@ import LotsAPI from "services/procurementApi/lots";
 import { LotsResultsData } from "definations/procurement-types/lots";
 import { useGetAllUsersQuery } from "services/auth/user";
 import useQuery from "hooks/useQuery";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const CreateCBA = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
+
   const query = useQuery();
   const rfqId = query.get("id");
 
@@ -57,11 +58,10 @@ const CreateCBA = () => {
   const [createCbaMutation, { isLoading: createCbaIsLoading }] =
     CbaAPI.useCreateCbaMutation();
 
-  //   const form = useForm<z.infer<typeof CbaSchema>>({
-  const form = useForm({
-    // resolver: zodResolver(CbaSchema),
+  const form = useForm<z.infer<typeof CbaSchema>>({
+    resolver: zodResolver(CbaSchema),
     defaultValues: {
-      solicitation: id,
+      solicitation: rfqId!,
       lot: "",
       cba_type: "",
       cba_date: "",

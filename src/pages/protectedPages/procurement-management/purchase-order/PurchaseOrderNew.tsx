@@ -27,12 +27,16 @@ import LongArrowRight from "components/icons/LongArrowRight";
 // import { toast } from "sonner";
 import { RouteEnum } from "constants/RouterConstants";
 import BreadcrumbCard from "components/shared/Breadcrumb";
+import DepartmentsAPI from "services/configs/departments";
 
 const PurchaseOrderNew = () => {
   const [open, setOpen] = useState(false);
   const [opens, setOpens] = useState(false);
+  const [opensPurchase, setOpensPurchase] = useState(false);
   const [vendorValue, setVendorValue] = useState("");
   const [requestValue, setRequestValue] = useState("");
+  const [purchaseValue, setPurchaseValue] = useState("");
+
   const navigate = useNavigate();
   const goBack = () => {
     navigate(-1);
@@ -46,11 +50,15 @@ const PurchaseOrderNew = () => {
     PurchaseRequestAPI.useGetPurchaseRequestQuery(
       useMemo(
         () => ({
-          path: { id: requestValue as string },
+          path: { id: purchaseValue as string },
         }),
-        [requestValue]
+        [purchaseValue]
       )
     );
+
+  const { data: departments, isLoading: departmentsIsLoading } =
+    DepartmentsAPI.useGetDepartmentsQuery({});
+
   console.log({ vendors, requests, requestsDetails, requestValue });
 
   const form = useForm<z.infer<typeof PurchaseOrderListSchema>>({
@@ -77,10 +85,10 @@ const PurchaseOrderNew = () => {
     if (data) {
       setValue("items", data);
     }
-    if (requestValue) {
-      setValue("purchase_request", requestValue);
+    if (purchaseValue) {
+      setValue("purchase_request", purchaseValue);
     }
-  }, [data, setValue, requestValue]);
+  }, [data, setValue, purchaseValue]);
 
   useEffect(() => {
     if (vendorValue) {
@@ -125,6 +133,10 @@ const PurchaseOrderNew = () => {
     { name: "Purchase Order", icon: true },
     { name: "Create", icon: false },
   ];
+
+  const lon = form.getValues();
+
+  console.log({ lon });
 
   return (
     <div className='space-y-5'>
@@ -197,21 +209,21 @@ const PurchaseOrderNew = () => {
             </div>
             <div>
               <Label className='font-semibold'>
-                Requesting Unit/Dept
+                Purchase Request
                 <span className='text-red-500'>*</span>
               </Label>
               <div>
-                <Popover open={opens} onOpenChange={setOpens}>
+                <Popover open={opensPurchase} onOpenChange={setOpensPurchase}>
                   <PopoverTrigger asChild>
                     <Button
                       variant='outline'
                       role='combobox'
-                      aria-expanded={opens}
+                      aria-expanded={opensPurchase}
                       className='w-full justify-between'
                     >
-                      {requestValue
+                      {purchaseValue
                         ? requests?.data?.results?.find(
-                            (vendor) => vendor?.id === requestValue
+                            (vendor) => vendor?.id === purchaseValue
                           )?.ref_number
                         : "Select vendor..."}
                       <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
@@ -231,6 +243,62 @@ const PurchaseOrderNew = () => {
                               key={request?.id}
                               value={request?.id}
                               onSelect={(currentValue) => {
+                                setPurchaseValue(currentValue);
+                                setOpensPurchase(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  purchaseValue === request?.id
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                              {request?.ref_number}
+                            </CommandItem>
+                          );
+                        })}
+                      </CommandGroup>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+            <div>
+              <Label className='font-semibold'>
+                Requesting Unit/Dept
+                <span className='text-red-500'>*</span>
+              </Label>
+              <div>
+                <Popover open={opens} onOpenChange={setOpens}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant='outline'
+                      role='combobox'
+                      aria-expanded={opens}
+                      className='w-full justify-between'
+                    >
+                      {requestValue
+                        ? departments?.data?.results?.find(
+                            (vendor) => vendor?.id === requestValue
+                          )?.name
+                        : "Select vendor..."}
+                      <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className='w-full p-0'>
+                    <Command>
+                      <CommandInput placeholder='Search vendor...' />
+                      <CommandEmpty>No Vendor found.</CommandEmpty>
+                      <CommandGroup>
+                        {departmentsIsLoading && <LoadingSpinner />}
+                        {departments?.data?.results?.map((request) => {
+                          return (
+                            <CommandItem
+                              key={request?.id}
+                              value={request?.id}
+                              onSelect={(currentValue) => {
                                 setRequestValue(currentValue);
                                 setOpens(false);
                               }}
@@ -243,7 +311,7 @@ const PurchaseOrderNew = () => {
                                     : "opacity-0"
                                 )}
                               />
-                              {request?.ref_number}
+                              {request?.name}
                             </CommandItem>
                           );
                         })}
@@ -349,27 +417,22 @@ const PurchaseOrderNew = () => {
                   uom: "",
                 })
               }
+              className='bg-alternate border border-primary text-primary'
             >
-              <PlusCircle className='mr-2' />
+              <PlusCircle className='mr-1' />
               Add More
             </Button>
           </div>
           <div className='flex items-center justify-end'>
-            <Link
-              to={generatePath(RouteEnum.PURCHASE_ORDER_ID, {
-                id: 1,
-              })}
+            <FormButton
+              loading={false}
+              disabled={false}
+              type='submit'
+              className='flex items-center justify-center gap-2'
             >
-              <FormButton
-                loading={false}
-                disabled={false}
-                type='submit'
-                className='flex items-center justify-center gap-2'
-              >
-                Submit
-                <LongArrowRight />
-              </FormButton>
-            </Link>
+              Submit
+              <LongArrowRight />
+            </FormButton>
           </div>
         </form>
       </Form>

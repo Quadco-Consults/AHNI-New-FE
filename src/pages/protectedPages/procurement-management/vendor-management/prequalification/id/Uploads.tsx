@@ -160,7 +160,7 @@ const Uploads = (data: VendorsResultsData) => {
                     <Dialog>
                       <DialogTrigger>
                         <Document
-                          file={doc?.document}
+                          file={doc?.files[0]}
                           onLoadSuccess={onDocumentLoadSuccess}
                         >
                           <Page
@@ -175,7 +175,7 @@ const Uploads = (data: VendorsResultsData) => {
                           <DialogTitle>{doc?.document_type}</DialogTitle>
                           <div className='flex pt-5 justify-center'>
                             <Document
-                              file={doc?.document}
+                              file={doc?.files[0]}
                               onLoadSuccess={onDocumentLoadSuccess}
                             >
                               {Array.from(new Array(numPages), (el, index) => (

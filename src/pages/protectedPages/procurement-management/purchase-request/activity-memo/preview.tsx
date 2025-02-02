@@ -165,9 +165,9 @@ const CheckboxForm = () => {
       activity_budget: data.activity_budget,
       approved_by: mergedObject.approved_by,
       balance: data.balance,
-      location: "south park",
-      // copy: mergedObject.copy,
-      // subject: mergedObject.subject,
+      // location: "south park",
+      copy: mergedObject.copy,
+      subject: mergedObject.subject,
       budget_line: mergedObject.budget_line,
       comment: mergedObject.comment,
       cost_categories: mergedObject.cost_categories,
@@ -196,6 +196,8 @@ const CheckboxForm = () => {
   const filteredBeneficiaries = beneficiary?.filter(
     (beneficiary) => beneficiary.selected
   );
+
+  console.log({ requestsDetails });
 
   return (
     <Form {...form}>
@@ -503,7 +505,7 @@ const CheckboxForm = () => {
           </Table>
         </div>
         <div className='w-full px-4'>
-          {!requestsDetails && (
+          {!requestsDetails?.data && (
             <Button
               type='submit'
               className='mt-4 px-4 py-2 bg-alternate text-primary rounded w-full'
@@ -513,7 +515,7 @@ const CheckboxForm = () => {
             </Button>
           )}
 
-          {requestsDetails && (
+          {requestsDetails?.data && (
             <Link
               className='w-fit'
               to={{

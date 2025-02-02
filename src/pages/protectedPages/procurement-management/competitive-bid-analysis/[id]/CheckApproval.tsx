@@ -1,208 +1,363 @@
-import { useState, useEffect } from "react";
-import Card from "components/shared/Card";
-import GoBack from "components/shared/GoBack";
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableCell,
-  TableFooter,
-} from "components/ui/table";
-import { Checkbox } from "components/ui/checkbox";
-import clsx from "clsx";
+import { Button } from "components/ui/button";
+import { Textarea } from "components/ui/textarea";
+import { useState } from "react";
 
-const CheckApproval = () => {
-  const [selectedCompanies, setSelectedCompanies] = useState({});
-  const [companyNames, setCompanyNames] = useState([]);
-  const [dummyData, setDummyData] = useState([]);
-  const [extraData, setExtraData] = useState([]);
+const TableComponent = () => {
+  // State for brand inputs
+  const [brandInputs, setBrandInputs] = useState<Record<string, string>>(
+    () =>
+      data.companies.reduce((acc, company) => {
+        acc[company] = ""; // Initialize empty values for brand inputs
+        return acc;
+      }, {} as Record<string, string>) // Provide type to the accumulator
+  );
 
-  useEffect(() => {
-    const data = {
-      companies: ["Sunok", "Southgate", "TechX"],
-      items: [
-        {
-          id: 1,
-          title: "Laptop",
-          qty: 5,
-          Sunok: { unitPrice: 500, total: 2500 },
-          Southgate: { unitPrice: 520, total: 2600 },
-          TechX: { unitPrice: 510, total: 2550 },
+  const grandTotal = data.companies.reduce((totals, company) => {
+    totals[company] = data.items.reduce(
+      (sum, item) =>
+        sum + (item[company as keyof ItemData] as CompanyData).total,
+      0
+    );
+    return totals;
+  }, {} as Record<string, number>);
+
+  const overallGrandTotal = data.companies.reduce(
+    (sum, company) => sum + grandTotal[company],
+    0
+  );
+
+  const [checkedItems, setCheckedItems] = useState(() =>
+    data.items.reduce((acc, item) => {
+      acc[item.id] = data.companies.reduce((companyAcc, company) => {
+        companyAcc[company] = false;
+        return companyAcc;
+      }, {});
+      return acc;
+    }, {})
+  );
+
+  const [headerChecked, setHeaderChecked] = useState(() =>
+    data.companies.reduce((acc, company) => {
+      acc[company] = false;
+      return acc;
+    }, {})
+  );
+
+  const handleCheckboxChange = (itemId, company, checked) => {
+    setCheckedItems((prevCheckedItems) => {
+      const updatedCheckedItems = {
+        ...prevCheckedItems,
+        [itemId]: {
+          ...prevCheckedItems[itemId],
+          [company]: checked,
         },
-        {
-          id: 2,
-          title: "Projector",
-          qty: 2,
-          Sunok: { unitPrice: 800, total: 1600 },
-          Southgate: { unitPrice: 820, total: 1640 },
-          TechX: { unitPrice: 810, total: 1620 },
-        },
-        {
-          id: 3,
-          title: "Printer",
-          qty: 3,
-          Sunok: { unitPrice: 300, total: 900 },
-          Southgate: { unitPrice: 320, total: 960 },
-          TechX: { unitPrice: 310, total: 930 },
-        },
-      ],
-    };
+      };
 
-    const extraData = [
-      {
-        id: 4,
-        title: "Delivery Timeframe",
-        qty: 4,
-        Sunok: "2-3 Weeks",
-        Southgate: "2-3 Weeks",
-        TechX: "2-3 Weeks",
-      },
-    ];
+      const allChecked = data.items.every((item) => {
+        return updatedCheckedItems[item.id]?.[company] || false;
+      });
 
-    setDummyData(data.items);
-    setExtraData(extraData);
-    setCompanyNames(data.companies);
+      setHeaderChecked((prevHeaderChecked) => ({
+        ...prevHeaderChecked,
+        [company]: allChecked,
+      }));
 
-    const initialSelections = {};
-    data.companies.forEach((company) => {
-      initialSelections[company] = {};
+      return updatedCheckedItems;
     });
-    setSelectedCompanies(initialSelections);
-  }, []);
+  };
 
-  const toggleRowSelection = (company, id, value) => {
-    setSelectedCompanies((prev) => ({
-      ...prev,
-      [company]: { ...prev[company], [id]: value },
+  const handleHeaderCheckboxChange = (company, checked) => {
+    setCheckedItems((prevCheckedItems) => {
+      const updatedCheckedItems = { ...prevCheckedItems };
+      data.items.forEach((item) => {
+        updatedCheckedItems[item.id] = {
+          ...updatedCheckedItems[item.id],
+          [company]: checked,
+        };
+      });
+      return updatedCheckedItems;
+    });
+
+    setHeaderChecked((prevHeaderChecked) => ({
+      ...prevHeaderChecked,
+      [company]: checked,
     }));
   };
 
-  const toggleSelectAll = (company, value) => {
-    const allIds = [
-      ...dummyData.map((row) => row.id),
-      ...extraData.map((row) => row.id),
-    ];
-    const newState = Object.fromEntries(allIds.map((id) => [id, value]));
-    setSelectedCompanies((prev) => ({ ...prev, [company]: newState }));
+  const handleInputChange = (company, value) => {
+    setBrandInputs((prevInputs) => ({
+      ...prevInputs,
+      [company]: value,
+    }));
   };
-
-  const calculateTotals = () => {
-    let grandTotal = 0;
-    const combinedData = [...dummyData, ...extraData];
-    companyNames.forEach((company) => {
-      combinedData.forEach((row) => {
-        grandTotal += row[company]?.total || 0;
-      });
-    });
-    return grandTotal;
-  };
-
-  const grandTotal = calculateTotals();
-  const combinedData = [...dummyData, ...extraData];
 
   return (
-    <div>
-      <div className='flex justify-between items-center'>
-        <GoBack />
+    <div className=' bg-white p-6'>
+      <div className='flex w-full justify-end mb-5'>
+        <Button>Check Approval</Button>
       </div>
-      <div className='my-8'>
-        <Card>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableCell colSpan={3}></TableCell>
-                {companyNames.map((company) => (
-                  <TableCell
-                    colSpan={3}
-                    className='text-center font-bold'
-                    key={company}
+      <div className=' overflow-x-auto bg-white'>
+        {" "}
+        {/* Add overflow-x-auto for horizontal scrolling */}
+        <table className='min-w-full border-collapse border border-gray-300 rounded-sm p-10'>
+          <thead className='bg-gray-100'>
+            <tr>
+              <td colSpan={3} className=''></td>
+              {data.companies.map((company, index) => (
+                <td key={index} colSpan={3} className=' text-center border-l'>
+                  {company.toUpperCase()}
+                </td>
+              ))}
+            </tr>
+            <tr className='border-b'>
+              <td className='p-3 min-w-[50px]'>S/N</td>
+              <td className='p-3 min-w-[420px]'>Items Description</td>
+              <td className='p-3 min-w-[50px]'>Qty</td>
+              {data.companies.map((company, index) => (
+                <>
+                  <td
+                    key={`che-${index}`}
+                    className='p-3 min-w-[50px] border-l '
                   >
-                    {company.toUpperCase()}
-                  </TableCell>
-                ))}
-              </TableRow>
-              <TableRow>
-                <TableCell className='font-bold'>S/N</TableCell>
-                <TableCell className='font-bold'>Items Description</TableCell>
-                <TableCell className='font-bold'>Qty</TableCell>
-                {companyNames.map((company) => (
+                    <input
+                      type='checkbox'
+                      checked={headerChecked[company]}
+                      onChange={(e) =>
+                        handleHeaderCheckboxChange(company, e.target.checked)
+                      }
+                    />
+                  </td>
+                  <td key={`unit-price-${index}`} className='p-3 min-w-[190px]'>
+                    unit price
+                  </td>
+                  <td key={`total-${index}`} className='p-3 min-w-[190px]'>
+                    Total
+                  </td>
+                </>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {data.items.map((item, index) => (
+              <tr key={item.id} className='border-b'>
+                <td className='p-3'>{index + 1}</td>
+                <td className='p-3'>{item.title}</td>
+                <td className='p-3'>{item.qty}</td>
+
+                {data.companies.map((company, idx) => (
                   <>
-                    <TableCell className='font-bold'>
-                      <Checkbox
-                        checked={Object.values(
-                          selectedCompanies[company] || {}
-                        ).every(Boolean)}
-                        onCheckedChange={(value) =>
-                          toggleSelectAll(company, !!value)
+                    <td
+                      key={`che-${item.id}-${idx}`}
+                      className={
+                        checkedItems[item.id]?.[company]
+                          ? "bg-green-100 rounded-md border-green-600 p-3 border border-r-0"
+                          : " p-3 border-l"
+                      }
+                    >
+                      <input
+                        type='checkbox'
+                        checked={checkedItems[item.id]?.[company] || false}
+                        onChange={(e) =>
+                          handleCheckboxChange(
+                            item.id,
+                            company,
+                            e.target.checked
+                          )
                         }
                       />
-                    </TableCell>
-                    <TableCell className='font-bold'>Unit Price</TableCell>
-                    <TableCell className='font-bold'>Total</TableCell>
+                    </td>
+                    <td
+                      key={`unit-price-${item.id}-${idx}`}
+                      className={
+                        checkedItems[item.id]?.[company]
+                          ? "bg-green-100 rounded-md border-green-600  p-3 border-y"
+                          : " p-3"
+                      }
+                    >
+                      {item[company].unitPrice}
+                    </td>
+                    <td
+                      key={`total-${item.id}-${idx}`}
+                      className={
+                        checkedItems[item.id]?.[company]
+                          ? "bg-green-100 rounded-md border-green-600  p-3  border border-l-0"
+                          : " p-3"
+                      }
+                    >
+                      {item[company].total}
+                    </td>
                   </>
                 ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {combinedData.map((row, index) => (
-                <TableRow key={row.id}>
-                  <TableCell>{index + 1}</TableCell>
-                  <TableCell>{row.title}</TableCell>
-                  <TableCell>{row.qty}</TableCell>
-                  {companyNames.map((company) => (
-                    <>
-                      <TableCell>
-                        <Checkbox
-                          checked={!!selectedCompanies[company]?.[row.id]}
-                          onCheckedChange={(value) =>
-                            toggleRowSelection(company, row.id, !!value)
-                          }
-                        />
-                      </TableCell>
-                      <TableCell
-                        className={clsx(
-                          "p-2",
-                          selectedCompanies[company]?.[row.id] && "bg-blue-200"
-                        )}
-                      >
-                        {row[company]?.unitPrice || "-"}
-                      </TableCell>
-                      <TableCell
-                        className={clsx(
-                          "p-2",
-                          selectedCompanies[company]?.[row.id] && "bg-blue-200"
-                        )}
-                      >
-                        {row[company]?.total || "-"}
-                      </TableCell>
-                    </>
-                  ))}
-                </TableRow>
-              ))}
-            </TableBody>
-            <TableFooter>
-              <TableRow>
-                <TableCell colSpan={3} className='font-bold'>
+              </tr>
+            ))}
+            <tr className='border-b'>
+              <td colSpan={3} className='p-3'>
+                <div className=' border border-green-600 max-w-[326px] p-4 rounded-md ml-auto text-green-600 flex justify-between'>
                   Grand Total:
-                </TableCell>
-                {companyNames.map((company) => (
-                  <TableCell colSpan={3} key={company}></TableCell>
-                ))}
-              </TableRow>
-            </TableFooter>
-          </Table>
-        </Card>
+                  <span>{overallGrandTotal}</span>
+                </div>
+              </td>
+              {data.companies.map((company, index) => (
+                <td key={index} colSpan={3} className='p-3 border-l'>
+                  <div className=' border border-red-600 max-w-[326px] p-4 rounded-md ml-auto text-red-600 flex justify-between'>
+                    Total:
+                    <span>{grandTotal[company]}</span>
+                  </div>
+                </td>
+              ))}
+            </tr>
+
+            {/* Brand Input Row */}
+            <tr className='border-b'>
+              <td colSpan={3} className='p-3 '>
+                Brand
+              </td>
+              {data.companies.map((company, idx) => (
+                <td
+                  key={`${company}-${idx}`}
+                  colSpan={3}
+                  className='border-l p-3'
+                >
+                  <Textarea
+                    value={brandInputs[company] || ""}
+                    onChange={(e) => handleInputChange(company, e.target.value)}
+                    className='w-full border p-3'
+                    placeholder='Enter list of brands'
+                  />
+                </td>
+              ))}
+            </tr>
+
+            {extraData.map((extra) => {
+              return (
+                <tr key={extra.id} className='border-b'>
+                  <td colSpan={3} className='p-3'>
+                    {extra.title}
+                  </td>
+                  {data.companies.map((company, idx) => (
+                    <td
+                      key={`extra-${extra.id}-${company}-${idx}`}
+                      colSpan={3}
+                      className={`p-3 border-l`}
+                    >
+                      {extra[company].text}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
-      <div className='mt-4'>
-        <div>
-          <strong>Grand Total: </strong>
-          {grandTotal}
-        </div>
+      <div className='flex my-4 px-8 max-w-[900px]  justify-between items-center'>
+        <p className='text-[14px]'>RECOMMENDATION NOTES :</p>
+        <Textarea
+          className='border rounded-md p-3 max-w-[400px]'
+          placeholder='Enter recommendation here'
+        />
       </div>
-      Approval
+      <div className='flex w-full justify-end'>
+        <Button>Submit Analysis</Button>
+      </div>
     </div>
   );
 };
 
-export default CheckApproval;
+export default TableComponent;
+
+const data: Data = {
+  companies: ["Sunok", "Southgate", "TechX", "Alpha", "Beta", "Gamma"],
+  items: [
+    {
+      id: 1,
+      title: "Laptop",
+      qty: 5,
+      Sunok: { unitPrice: 500, total: 2500 },
+      Southgate: { unitPrice: 520, total: 2600 },
+      TechX: { unitPrice: 510, total: 2550 },
+      Alpha: { unitPrice: 530, total: 2650 },
+      Beta: { unitPrice: 550, total: 2750 },
+      Gamma: { unitPrice: 540, total: 2700 },
+    },
+    {
+      id: 2,
+      title: "Projector",
+      qty: 2,
+      Sunok: { unitPrice: 800, total: 1600 },
+      Southgate: { unitPrice: 820, total: 1640 },
+      TechX: { unitPrice: 810, total: 1620 },
+      Alpha: { unitPrice: 830, total: 1660 },
+      Beta: { unitPrice: 850, total: 1700 },
+      Gamma: { unitPrice: 840, total: 1680 },
+    },
+    {
+      id: 3,
+      title: "Printer",
+      qty: 3,
+      Sunok: { unitPrice: 300, total: 900 },
+      Southgate: { unitPrice: 320, total: 960 },
+      TechX: { unitPrice: 310, total: 930 },
+      Alpha: { unitPrice: 330, total: 990 },
+      Beta: { unitPrice: 350, total: 1050 },
+      Gamma: { unitPrice: 340, total: 1020 },
+    },
+  ],
+};
+
+const extraData = [
+  {
+    id: 4,
+    title: "Delivery Timeframe",
+    Sunok: { text: "2-3 Weeks", bgColor: "bg-purple-100" },
+    Southgate: { text: "2-3 Weeks", bgColor: "bg-purple-400" },
+    TechX: { text: "2-3 Weeks", bgColor: "bg-purple-300" },
+    Alpha: { text: "1-2 Weeks", bgColor: "bg-purple-500" },
+    Beta: { text: "1-2 Weeks", bgColor: "bg-purple-600" },
+    Gamma: { text: "3-4 Weeks", bgColor: "bg-purple-700" },
+    isExtra: true,
+  },
+  {
+    id: 5,
+    title: "Bank Account",
+    Sunok: { text: "YES", bgColor: "bg-purple-300" },
+    Southgate: { text: "No", bgColor: "bg-purple-200" },
+    TechX: { text: "YES", bgColor: "bg-purple-600" },
+    Alpha: { text: "YES", bgColor: "bg-purple-500" },
+    Beta: { text: "No", bgColor: "bg-purple-700" },
+    Gamma: { text: "YES", bgColor: "bg-purple-800" },
+    isExtra: true,
+  },
+  {
+    id: 6,
+    title: "Registration with C.A.C.",
+    Sunok: { text: "YES", bgColor: "bg-green-300" },
+    Southgate: { text: "No", bgColor: "bg-green-200" },
+    TechX: { text: "YES", bgColor: "bg-green-600" },
+    Alpha: { text: "YES", bgColor: "bg-green-500" },
+    Beta: { text: "No", bgColor: "bg-green-600" },
+    Gamma: { text: "YES", bgColor: "bg-green-800" },
+    isExtra: true,
+  },
+];
+
+type CompanyData = {
+  unitPrice: number;
+  total: number;
+};
+
+type ItemData = {
+  id: number;
+  title: string;
+  qty: number;
+  Sunok: CompanyData;
+  Southgate: CompanyData;
+  TechX: CompanyData;
+  Alpha: CompanyData;
+  Beta: CompanyData;
+  Gamma: CompanyData;
+};
+
+type Data = {
+  companies: string[];
+  items: ItemData[];
+};

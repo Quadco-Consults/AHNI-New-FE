@@ -39,7 +39,7 @@ const EoIDetails = (data: EOIResultsData) => {
         <div className='flex items-center flex-wrap gap-x-10 gap-y-5'>
           <div className='flex gap-3 items-center'>
             <Icon icon='ooui:reference' fontSize={18} />
-            <h6>GF-RFQ-AHNi-10-2023</h6>
+            <h6>{data?.eoi_number}</h6>
           </div>
           {/* <div className='flex gap-3 items-center'>
             <Icon icon='iconamoon:location-pin-duotone' fontSize={18} />
