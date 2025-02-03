@@ -21,7 +21,7 @@ import {
   DialogClose,
 } from "components/ui/dialog";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import logoPng from "assets/imgs/logo.png";
 import { Input } from "components/ui/input";
 import { Icon } from "@iconify/react";
@@ -40,12 +40,18 @@ import { LotsResultsData } from "definations/procurement-types/lots";
 import { useGetAllUsersQuery } from "services/auth/user";
 import useQuery from "hooks/useQuery";
 import { zodResolver } from "@hookform/resolvers/zod";
+import RfqLayout from "./RfqLayout";
 
 const CreateCBA = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const rfqId = searchParams.get("id");
+  const name = searchParams.get("name");
 
-  const query = useQuery();
-  const rfqId = query.get("id");
+  console.log({ rfqId, name });
+
+  // const query = useQuery();
+  // const rfqId = query.get("id");
 
   const { data: users, isLoading } = useGetAllUsersQuery({
     page: 1,
@@ -108,11 +114,7 @@ const CreateCBA = () => {
   ];
 
   return (
-    <div className='space-y-5'>
-      <BreadcrumbCard list={breadcrumbs} />
-
-      <GoBack />
-
+    <RfqLayout>
       <h4 className='font-semibold text-lg pb-5'>Create CBA</h4>
 
       <Form {...form}>
@@ -313,7 +315,7 @@ const CreateCBA = () => {
           </div>
         </form>
       </Form>
-    </div>
+    </RfqLayout>
   );
 };
 

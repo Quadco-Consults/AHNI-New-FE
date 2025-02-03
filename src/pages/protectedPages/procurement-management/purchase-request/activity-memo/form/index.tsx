@@ -92,6 +92,13 @@ const CreateActivityMemo = () => {
     })
   );
 
+  const usersOptionsFn = users?.data.results.map(
+    ({ first_name, last_name, id }) => ({
+      label: `${first_name} ${last_name}`,
+      value: id,
+    })
+  );
+
   const activitiesOptions = activites?.data.results.map(
     ({ activity_code, activity_description, id }) => ({
       label: `Activity code: ${activity_code},  Activity description: ${activity_description}`,
@@ -119,10 +126,12 @@ const CreateActivityMemo = () => {
       cost_input: [],
       funding_source: [],
       comment: "",
-      approved_by: [],
       copy: [],
-      reviewed_by: [],
+      approved_by: "",
+      reviewed_by: "",
       created_by: "",
+      authorized_by: "",
+      through: [],
       expenses: [],
       // created_by: profile?.data.id,
     },
@@ -176,58 +185,32 @@ const CreateActivityMemo = () => {
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-6'>
           <div className='grid grid-cols-2 gap-5'>
-            <div>
-              <Label className='font-semibold'>To</Label>
-              <FormField
-                control={form.control}
+            {usersOptionsFn && (
+              <FormSelect
+                label='Approve by'
                 name='approved_by'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <MultiSelectFormField
-                        options={usersOptions || []}
-                        defaultValue={field.value}
-                        onValueChange={field.onChange}
-                        placeholder='Please Select'
-                        variant='inverted'
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
+                required
+                options={usersOptionsFn}
               />
-
-              {errors.approved_by && (
-                <span className='text-sm text-red-500 font-medium'>
-                  {errors.approved_by.message}
-                </span>
-              )}
-            </div>{" "}
-            <div>
-              <Label className='font-semibold'>Through</Label>
-              <FormField
-                control={form.control}
+            )}
+            {usersOptionsFn && (
+              <FormSelect
+                label='Review by'
                 name='reviewed_by'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <MultiSelectFormField
-                        options={usersOptions || []}
-                        defaultValue={field.value}
-                        onValueChange={field.onChange}
-                        placeholder='Please Select'
-                        variant='inverted'
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
+                required
+                options={usersOptionsFn}
               />
-
-              {errors.reviewed_by && (
-                <span className='text-sm text-red-500 font-medium'>
-                  {errors.reviewed_by.message}
-                </span>
-              )}
-            </div>{" "}
+            )}
+          </div>
+          <div className='grid grid-cols-2 gap-5'>
+            {usersOptionsFn && (
+              <FormSelect
+                label='Authorized by'
+                name='authorized_by'
+                required
+                options={usersOptionsFn}
+              />
+            )}
           </div>
           <div className='grid grid-cols-2 gap-5'>
             <div>
@@ -235,6 +218,32 @@ const CreateActivityMemo = () => {
               <FormField
                 control={form.control}
                 name='copy'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <MultiSelectFormField
+                        options={usersOptions || []}
+                        defaultValue={field.value}
+                        onValueChange={field.onChange}
+                        placeholder='Please Select'
+                        variant='inverted'
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              {errors.copy && (
+                <span className='text-sm text-red-500 font-medium'>
+                  {errors.copy.message}
+                </span>
+              )}
+            </div>{" "}
+            <div>
+              <Label className='font-semibold'>Through</Label>
+              <FormField
+                control={form.control}
+                name='through'
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>

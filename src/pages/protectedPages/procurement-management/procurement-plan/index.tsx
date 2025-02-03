@@ -33,10 +33,12 @@ import {
 import FinancialAPI from "services/configs/financial-year";
 
 export default function ProcurementPlan() {
-  // const dispatch = useAppDispatch();
+  const [selectedFinancialYear, setSelectedFinancialYear] = useState("");
 
   const { data: procurementData, isLoading } =
-    ProcurementPlanAPI.useGetProcurementPlansQuery({});
+    ProcurementPlanAPI.useGetProcurementPlansQuery({
+      params: { financial_year: "2023/2024" },
+    });
 
   const [isModalOpen, setModalOpen] = useState(false);
 
@@ -51,6 +53,8 @@ export default function ProcurementPlan() {
       value: id,
     })
   );
+
+  // console.log({ selectedFinancialYear });
 
   const breadcrumbs = [
     { name: "Procurement", icon: true },
@@ -233,7 +237,11 @@ export default function ProcurementPlan() {
                   <SelectGroup>
                     {financialYearOptions?.map(({ label, value }, idx) => {
                       return (
-                        <SelectItem value={value} key={idx}>
+                        <SelectItem
+                          value={value}
+                          key={idx}
+                          onChange={(e) => setSelectedFinancialYear(e)}
+                        >
                           {label}
                         </SelectItem>
                       );

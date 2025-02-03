@@ -120,7 +120,7 @@ const PurchaseOrderNew = () => {
     // };
 
     // try {
-    //   navigate(RouteEnum.PURCHASE_ORDER);
+    navigate(RouteEnum.PURCHASE_ORDER);
     //   toast.success("Successfully created.");
     // } catch (error) {
     //   toast.error("Something went wrong");
@@ -424,15 +424,17 @@ const PurchaseOrderNew = () => {
             </Button>
           </div>
           <div className='flex items-center justify-end'>
-            <FormButton
-              loading={false}
-              disabled={false}
-              type='submit'
-              className='flex items-center justify-center gap-2'
-            >
-              Submit
-              <LongArrowRight />
-            </FormButton>
+            <Link to={generatePath(RouteEnum.PURCHASE_ORDER)}>
+              <FormButton
+                loading={false}
+                disabled={false}
+                type='submit'
+                className='flex items-center justify-center gap-2'
+              >
+                Submit
+                <LongArrowRight />
+              </FormButton>
+            </Link>
           </div>
         </form>
       </Form>
