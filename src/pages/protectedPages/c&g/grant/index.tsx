@@ -8,11 +8,22 @@ import { CG_GROUTES } from "constants/RouterConstants";
 import { useGetAllGrantsQuery } from "services/c&g/grant";
 import { useState } from "react";
 import Card from "components/shared/Card";
+import { useDebounce } from "ahooks";
 
 export default function GrantHomePage() {
     const [page, setPage] = useState(1);
 
-    const { data, isFetching } = useGetAllGrantsQuery({ page, size: 10 });
+    const [searchQuery, setSearchQuery] = useState("");
+
+    const debouncedSearchQuery = useDebounce(searchQuery, {
+        wait: 500,
+    });
+
+    const { data, isFetching } = useGetAllGrantsQuery({
+        page,
+        size: 10,
+        search: debouncedSearchQuery,
+    });
 
     return (
         <section className="space-y-5">
@@ -24,11 +35,18 @@ export default function GrantHomePage() {
                 </Link>
             </div>
             <Card>
-                <TableFilters>
+                <TableFilters
+                    onSearchChange={(e) => setSearchQuery(e.target.value)}
+                >
                     <DataTable
                         columns={grantColumns}
                         data={data?.data.results || []}
                         isLoading={isFetching}
+                        pagination={{
+                            total: data?.data.pagination.count ?? 0,
+                            pageSize: data?.data.pagination.page_size ?? 0,
+                            onChange: (page: number) => setPage(page),
+                        }}
                     />
                 </TableFilters>
             </Card>

@@ -1,3 +1,4 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import BackNavigation from "atoms/BackNavigation";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
@@ -5,14 +6,22 @@ import FormSelect from "atoms/FormSelect";
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
 import { CardContent } from "components/ui/card";
-import { Form } from "components/ui/form";
-import {
-    DialogType,
-    largeDailogScreen,
-    mediumDailogScreen,
-} from "constants/dailogs";
-import { useAppDispatch } from "hooks/useStore";
-import { useForm } from "react-hook-form";
+import { Form, FormControl, FormField, FormItem } from "components/ui/form";
+import { Label } from "components/ui/label";
+import MultiSelectFormField from "components/ui/multiselect";
+import { DialogType, largeDailogScreen } from "constants/dailogs";
+import { CG_GROUTES } from "constants/RouterConstants";
+import { SubGrantSchema, TSubGrantFormData } from "definations/c&g/sub-grant";
+import { useAppDispatch, useAppSelector } from "hooks/useStore";
+import { useEffect, useMemo } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { useGetAllUsersQuery } from "services/auth/user";
+import { useGetAllGrantsQuery } from "services/c&g/grant";
+import { useCreateSubGrantMutation } from "services/c&g/sub-grant";
+import { useGetAllPartnersQuery } from "services/modules/project/partners";
+import { toast } from "sonner";
+import { clearTeamMembers } from "store/admin/team-members";
 import { openDialog } from "store/ui";
 
 const tenderTypeOptions = [
@@ -21,12 +30,93 @@ const tenderTypeOptions = [
     { label: "NATIONAL OPEN TENDER", value: "NATIONAL_OPEN_TENDER" },
 ];
 
-export default function CreateSubGrant() {
-    const form = useForm();
+const subawardTypeOptions = ["STANDARD", "REIMBURSEMENT", "ADVANCE", "IN-KIND"];
 
-    const onSubmit = async (data: any) => {};
+export default function CreateSubGrant() {
+    const form = useForm<TSubGrantFormData>({
+        resolver: zodResolver(SubGrantSchema),
+        defaultValues: {
+            grant: "",
+            partners: [],
+            title: "",
+            sub_grant_administrator: "",
+            award_type: "",
+            technical_staff: "",
+            business_unit: "",
+            amount_usd: "",
+            amount_ngn: "",
+            start_date: "",
+            end_date: "",
+            submission_start_date: "",
+            submission_end_date: "",
+            tender_type: "",
+            assessment_date: "",
+            evaluation_applicants: [],
+        },
+    });
+
+    const {
+        formState: { errors },
+    } = form;
+
+    const navigate = useNavigate();
+
+    const { teamMembers } = useAppSelector((state) => state.teamMember);
 
     const dispatch = useAppDispatch();
+
+    const { data: partner } = useGetAllPartnersQuery({
+        page: 1,
+        size: 20000000,
+    });
+
+    const partnerOptions = useMemo(
+        () => partner?.data.results.map((partner) => partner),
+        [partner]
+    );
+
+    const { data: grant } = useGetAllGrantsQuery({ page: 1, size: 2000000 });
+
+    const grantOptions = useMemo(
+        () =>
+            grant?.data.results.map(({ reference_number, id }) => ({
+                label: reference_number,
+                value: id,
+            })),
+        [grant]
+    );
+
+    const { data: user } = useGetAllUsersQuery({ page: 1, size: 2000000 });
+
+    const userOptions = useMemo(
+        () =>
+            user?.data.results.map(({ first_name, last_name, id }) => ({
+                label: `${first_name} ${last_name}`,
+                value: id,
+            })),
+        [user]
+    );
+
+    useEffect(() => {
+        if (teamMembers.length > 0) {
+            const memberIds = teamMembers.map((member) => member.id);
+            form.setValue("evaluation_applicants", memberIds as unknown as any);
+        }
+    }, [teamMembers]);
+
+    const [createSubGrant, { isLoading: isCreateLoading }] =
+        useCreateSubGrantMutation();
+
+    const onSubmit: SubmitHandler<TSubGrantFormData> = async (data) => {
+        try {
+            await createSubGrant(data).unwrap();
+            toast.success("Sub Grant Created");
+            dispatch(clearTeamMembers());
+            navigate(CG_GROUTES.SUBGRANT);
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
+        }
+    };
 
     return (
         <Card>
@@ -42,127 +132,195 @@ export default function CreateSubGrant() {
                             name="grant"
                             placeholder="Select Grant"
                             required
-                            options={[]}
+                            options={grantOptions}
                         />
 
-                        {/* <FormSelect
-                            label="Partner"
-                            name="grant"
-                            placeholder="Select Partner"
-                            required
-                            options={[]}
-                        /> */}
+                        <div>
+                            <Label className="font-semibold">
+                                Consortium Partners
+                            </Label>
+                            <FormField
+                                control={form.control}
+                                name="partners"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormControl>
+                                            <MultiSelectFormField
+                                                options={partnerOptions || []}
+                                                defaultValue={field.value}
+                                                onValueChange={field.onChange}
+                                                placeholder="Select Partners"
+                                                variant="inverted"
+                                            />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+
+                            {errors.partners && (
+                                <span className="text-sm text-red-500 font-medium">
+                                    {errors.partners.message}
+                                </span>
+                            )}
+                        </div>
 
                         <FormInput
-                            name="project_title"
                             label="Project Title"
-                            required={true}
+                            name="title"
                             placeholder="Enter Subgrant Title"
+                            required
                         />
 
                         <div className="grid grid-cols-2 gap-8">
                             <FormSelect
-                                name="grant_administrator"
                                 label="AHNI Grant Administrator"
-                                required={true}
-                                placeholder="Veronica Daniels"
+                                name="sub_grant_administrator"
+                                placeholder="Select Administrator"
+                                required
+                                options={userOptions}
                             />
+
                             <FormSelect
-                                name="sub_award_type"
                                 label="Subaward Type (Proposed)"
-                                required={true}
-                                placeholder="Cooperative Agreement"
+                                name="award_type"
+                                placeholder="Select Subaward Type"
+                                required
+                                options={subawardTypeOptions.map((option) => ({
+                                    label: option,
+                                    value: option,
+                                }))}
                             />
+
                             <FormSelect
-                                name="technical_staff"
                                 label="AHNI Program/Technical Staff Contact"
-                                required={true}
-                                placeholder="Tine Woji, 08034509662"
+                                name="technical_staff"
+                                placeholder="Select Technical Staff"
+                                required
+                                options={userOptions}
                             />
-                            <FormSelect
-                                name="business_unit"
+
+                            <FormInput
                                 label="Business Unit"
-                                required={true}
-                                // options={departments}
-                                placeholder="Nigeria"
+                                name="business_unit"
+                                placeholder="Enter Business Unit"
+                                required
                             />
+
                             <FormInput
-                                name="project_value_usd"
+                                type="number"
                                 label="Subaward Life of Project Value (USD)"
-                                required={true}
-                                type="number"
-                                placeholder="Estimated sub-grant amount in USD"
+                                name="amount_usd"
+                                placeholder="Enter USD Amount"
+                                required
                             />
+
                             <FormInput
-                                name="project_value_local_currency"
                                 label="Subaward Life of Project Value (Local Currency)"
-                                required={true}
                                 type="number"
-                                placeholder="Estimated sub-grant amount in Local Currency"
+                                name="amount_ngn"
+                                placeholder="Enter NGN Amount"
+                                required
                             />
 
                             <FormInput
                                 label="Start Date"
-                                name="start_date"
                                 type="date"
+                                name="start_date"
                                 required
                             />
 
                             <FormInput
                                 label="End Date"
-                                name="end_date"
                                 type="date"
+                                name="end_date"
                                 required
                             />
 
                             <FormInput
                                 label="Opening Date"
-                                name="start_date"
                                 type="date"
+                                name="submission_start_date"
                                 required
                             />
 
                             <FormInput
                                 label="Closing Date"
-                                name="end_date"
                                 type="date"
+                                name="submission_end_date"
                                 required
                             />
 
                             <FormSelect
                                 label="Tender Type"
                                 options={tenderTypeOptions}
-                                name="end_date"
+                                name="tender_type"
+                                placeholder="Select Tender Type"
                                 required
                             />
 
                             <FormInput
                                 label="Assessment Date"
-                                name="end_date"
                                 type="date"
+                                name="assessment_date"
                                 required
                             />
                         </div>
 
-                        <Button
-                            variant="ghost"
-                            type="button"
-                            className="text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm"
-                            onClick={() =>
-                                dispatch(
-                                    openDialog({
-                                        type: DialogType.AddTeamMenbers,
-                                        dialogProps: {
-                                            ...largeDailogScreen,
-                                        },
-                                    })
-                                )
-                            }
-                        >
-                            Click to select committe memebers
-                        </Button>
+                        <section className="space-y-5">
+                            <div className="grid grid-cols-2 gap-5">
+                                {teamMembers?.map((team) => (
+                                    <div className="grid grid-cols-2 gap-3 bg-gray-100 rounded-lg p-4">
+                                        <h3 className="font-bold">Name</h3>
+                                        <p>
+                                            {team.first_name} {team.last_name}
+                                        </p>
+
+                                        <h3 className="font-bold">Email</h3>
+                                        <p>{team.email}</p>
+
+                                        <h3 className="font-bold">
+                                            Phone Number
+                                        </h3>
+
+                                        <p>{team.mobile_number || "N/A"}</p>
+
+                                        <h3 className="font-bold">
+                                            Department
+                                        </h3>
+                                        <p>{team.department || "N/A"}</p>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="flex flex-col gap-2 items-start">
+                                <Button
+                                    variant="ghost"
+                                    type="button"
+                                    className="text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm"
+                                    onClick={() =>
+                                        dispatch(
+                                            openDialog({
+                                                type: DialogType.AddTeamMenbers,
+                                                dialogProps: {
+                                                    ...largeDailogScreen,
+                                                },
+                                            })
+                                        )
+                                    }
+                                >
+                                    Click to select committe members
+                                </Button>
+                                {errors.evaluation_applicants && (
+                                    <span className="text-sm text-red-500 font-medium">
+                                        {errors.evaluation_applicants.message}
+                                    </span>
+                                )}
+                            </div>
+                        </section>
+
                         <div className="flex justify-end">
-                            <FormButton loading={false}>Submit</FormButton>
+                            <FormButton loading={isCreateLoading} size="lg">
+                                Submit
+                            </FormButton>
                         </div>
                     </form>
                 </Form>

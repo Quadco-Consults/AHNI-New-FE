@@ -1,38 +1,38 @@
 import React, { useMemo, useState } from "react";
 import { TotalExpenditureSvg, TotalIncomeSvg } from "assets/svgs/CAndGSvgs";
 import DataTable from "components/Table/DataTable";
-import { expenditureColumns } from "components/Table/columns/c&g/grant/expenditure";
 import { IGrantSingleData } from "definations/c&g/grants";
-import { useGetAllExpendituresQuery } from "services/c&g/expenditure";
 import { useParams } from "react-router-dom";
 import { skipToken } from "@reduxjs/toolkit/query";
+import { obligationColumns } from "components/Table/columns/c&g/grant/obligation";
+import { useGetAllObligationsQuery } from "services/c&g/obligation";
 
-const ExpenditureHistory: React.FC<any> = ({
-    total_expenditure_amount,
+const ObligationHistory: React.FC<any> = ({
     total_obligation_amount,
+    total_expenditure_amount,
 }: IGrantSingleData) => {
     const StatsCard = useMemo(() => {
         return [
             {
                 id: 1,
                 name: "Total Obligation",
-                stat: `${total_obligation_amount ?? 0}`,
+                stat: total_obligation_amount ?? 0,
                 icon: <TotalIncomeSvg />,
             },
             {
                 id: 2,
                 name: "Total Expenditure",
-                stat: `${total_expenditure_amount ?? 0}`,
+                stat: total_expenditure_amount ?? 0,
                 icon: <TotalExpenditureSvg />,
             },
         ];
-    }, [total_expenditure_amount, total_obligation_amount]);
+    }, [total_obligation_amount, total_expenditure_amount]);
 
     const [page, setPage] = useState(1);
 
     const { id } = useParams();
 
-    const { data, isFetching } = useGetAllExpendituresQuery(
+    const { data, isFetching } = useGetAllObligationsQuery(
         id ? { grantId: id, page, size: 10 } : skipToken
     );
 
@@ -62,7 +62,7 @@ const ExpenditureHistory: React.FC<any> = ({
             </div>
             <div className="w-full bg-white border rounded-lg p-2">
                 <DataTable
-                    columns={expenditureColumns}
+                    columns={obligationColumns}
                     data={data?.data.results || []}
                     isLoading={isFetching}
                     pagination={{
@@ -76,4 +76,4 @@ const ExpenditureHistory: React.FC<any> = ({
     );
 };
 
-export default ExpenditureHistory;
+export default ObligationHistory;

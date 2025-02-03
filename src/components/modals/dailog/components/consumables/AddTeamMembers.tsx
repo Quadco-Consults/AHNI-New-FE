@@ -94,6 +94,12 @@ export default function TeamMemberSelection() {
                                     </p>
                                     <p>
                                         <span className="font-semibold">
+                                            Department:
+                                        </span>{" "}
+                                        {member.department}
+                                    </p>
+                                    <p>
+                                        <span className="font-semibold">
                                             Position:
                                         </span>{" "}
                                         {member.designation}

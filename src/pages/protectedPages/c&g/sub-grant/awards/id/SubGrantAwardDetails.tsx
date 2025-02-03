@@ -1,123 +1,120 @@
 import Card from "components/shared/Card";
-import { LoadingSpinner } from "components/shared/Loading";
+import DescriptionCard from "components/shared/DescriptionCard";
+import { ISubGrantSingleData } from "definations/c&g/sub-grant";
 import { useMemo } from "react";
-import { useParams } from "react-router-dom";
-import { SubGrantApi } from "services/cAndGApi/subGrant";
 
-const SubGrantAwardDetails = () => {
-    const params = useParams();
-    const getSubGrantDetails = SubGrantApi.useGetSingleSubGrantsQuery({
-        id: params.id,
-    });
-    const Data = getSubGrantDetails?.data;
-
-    const DetailsData = useMemo(() => {
+const SubGrantAwardDetails = ({
+    title,
+    sub_grant_administrator,
+    award_type,
+    technical_staff,
+    business_unit,
+    amount_usd,
+    amount_ngn,
+    start_date,
+    end_date,
+    submission_start_date,
+    submission_end_date,
+    evaluation_applicants,
+}: ISubGrantSingleData) => {
+    const details = useMemo(() => {
         return [
             {
                 id: 1,
                 label: "Project Title",
-                value: `${Data?.project_title ?? ""}`,
+                value: `${title}`,
             },
-            {
-                id: 1,
-                label: "AHNI  Project Number",
-                value: `${Data?.project_number ?? ""}`,
-            },
-            {
-                id: 1,
-                label: "AHNI Grant Administrator",
-                value: `${
-                    Data?.grant_administrator?.first_name +
-                    " " +
-                    Data?.grant_administrator?.last_name
-                }`,
-            },
-            {
-                id: 1,
-                label: "Country of Performance",
-                value: `${Data?.country ?? ""}`,
-            },
-            {
-                id: 1,
-                label: "AHNI Originating Funder / Funding Source",
-                value: `${Data?.funding_source?.name ?? ""}`,
-            },
-            {
-                id: 1,
-                label: "AHNI Originating Award Type",
-                value: `${Data?.award_type ?? ""}`,
-            },
-            {
-                id: 1,
-                label: "Subaward Type (Proposed)",
-                value: `${Data?.sub_award_type ?? ""}`,
-            },
-            {
-                id: 1,
-                label: "AHNI Program/Technical Staff Contact",
-                value: `${
-                    Data?.technical_staff?.first_name +
-                    " " +
-                    Data?.technical_staff?.last_name
-                }`,
-            },
-            {
-                id: 1,
-                label: "Business Unit",
-                value: `${Data?.business_unit?.name}`,
-            },
-            {
-                id: 1,
-                label: "Subaward Life of Project Value (USD)",
-                value: "$" + Data?.project_value_usd || 0,
-            },
-            {
-                id: 1,
-                label: "Subaward Life of Project Value (Local Currency)",
-                value: "N" + Data?.project_value_local_currency || 0,
-            },
-            { id: 1, label: "Start Date", value: `${Data?.start_date}` },
-            { id: 1, label: "End Date", value: `${Data?.end_date}` },
-            {
-                id: 1,
-                label: "Submission Start Date",
-                value: `${Data?.start_date}`,
-            },
-            { id: 1, label: "Submission End Date", value: `${Data?.end_date}` },
-            { id: 1, label: "Commitees", value: `` },
-        ];
-    }, [Data]);
-    //
 
-    return getSubGrantDetails.isLoading ? (
-        <LoadingSpinner />
-    ) : (
-        <div className="w-full flex flex-col text-[#1A0000] justify-center items-center">
-            <div className="w-full bg-white rounded-2xl flex flex-col gap-y-[1.25rem] py-5 px-10">
-                <p className="text-xl font-semibold">Award Details</p>
-                <Card className="flex flex-col gap-y-[1.25rem] pb-[10rem]">
-                    <p></p>
-                    <div className="flex flex-wrap justify-between gap-y-[1.25rem]">
-                        {DetailsData.map((item, index) => {
-                            return (
-                                <div
-                                    className={`${
-                                        index === 0
-                                            ? "w-full"
-                                            : "md:w-[45%] w-full"
-                                    } flex flex-col gap-y-[1.25rem]`}
-                                    key={index}
-                                >
-                                    <p className="font-semibold">
-                                        {item.label}
-                                    </p>
-                                    <p className="text-sm">{item.value}</p>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </Card>
-            </div>
+            {
+                id: 2,
+                label: "AHNI  Project Number",
+                value: "N/A",
+            },
+
+            {
+                id: 3,
+                label: "AHNI Grant Administrator",
+                value: `${sub_grant_administrator.first_name} ${sub_grant_administrator.last_name}`,
+            },
+
+            {
+                id: 4,
+                label: "Country of Performance",
+                value: "Nigeria",
+            },
+
+            {
+                id: 5,
+                label: "AHNI Originating Funder / Funding Source",
+                value: "N/A",
+            },
+
+            {
+                id: 6,
+                label: "Subaward Type (Proposed)",
+                value: award_type,
+            },
+
+            {
+                id: 7,
+                label: "AHNI Program/Technical Staff Contact",
+                value: `${technical_staff.first_name} ${technical_staff.last_name}`,
+            },
+
+            {
+                id: 8,
+                label: "Business Unit",
+                value: business_unit,
+            },
+            {
+                id: 9,
+                label: "Subaward Life of Project Value (USD)",
+                value: `$${amount_usd}`,
+            },
+            {
+                id: 10,
+                label: "Subaward Life of Project Value (Local Currency)",
+                value: `$${amount_ngn}`,
+            },
+
+            { id: 11, label: "Start Date", value: start_date },
+
+            { id: 12, label: "End Date", value: end_date },
+
+            {
+                id: 3,
+                label: "Submission Start Date",
+                value: submission_start_date,
+            },
+
+            {
+                id: 14,
+                label: "Submission End Date",
+                value: submission_end_date,
+            },
+
+            {
+                id: 15,
+                label: "Commitees",
+                value: evaluation_applicants
+                    .map((member) => `${member.first_name} ${member.last_name}`)
+                    .join(", "),
+            },
+        ];
+    }, []);
+
+    return (
+        <div className="bg-white rounded-2xl flex flex-col gap-y-[1.25rem] py-5 px-10">
+            <h3 className="text-xl font-bold">Award Details</h3>
+            <Card className="grid grid-cols-2 gap-8">
+                {details.map(({ label, value }, index) => (
+                    <DescriptionCard
+                        key={index}
+                        label={label}
+                        description={value}
+                    />
+                ))}
+            </Card>
         </div>
     );
 };
