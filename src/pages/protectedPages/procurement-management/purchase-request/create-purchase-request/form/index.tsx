@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { useGetAllUsersQuery } from "services/auth/user";
 import DepartmentsAPI from "services/configs/departments";
 import ItemsAPI from "services/configs/items";
+import LocationAPi from "services/configs/locationApi";
 import { useGetAllPositionsQuery } from "services/modules/config/position";
 import { useGetAllFCONumbersQuery } from "services/modules/finance/fco-number";
 import { useGetAllPartnersQuery } from "services/modules/project/partners";
@@ -28,8 +29,10 @@ import { z } from "zod";
 const CreatePurchaseRequestForm = () => {
   const { data: departments, isLoading: departmentsIsLoading } =
     DepartmentsAPI.useGetDepartmentsQuery({});
-  const { data: partner, isLoading: partnersIsLoading } =
-    useGetAllPartnersQuery({ page: 1, size: 2000000 });
+  const { isLoading: partnersIsLoading } = useGetAllPartnersQuery({
+    page: 1,
+    size: 2000000,
+  });
   const { data: items, isLoading: itemsIsLoading } = ItemsAPI.useGetItemsQuery(
     {}
   );
@@ -52,31 +55,45 @@ const CreatePurchaseRequestForm = () => {
   });
   console.log({ items, position });
 
+  const { data: locations } = LocationAPi.useGetLocationListQuery({
+    params: { no_paginate: true },
+  });
+
+  console.log({ locations });
+
   const form = useForm<z.infer<typeof PurchaseRequestSchema>>({
+    // const form = useForm({
     resolver: zodResolver(PurchaseRequestSchema),
     defaultValues: {
-      request_memo: "14700b16-9a76-46a3-ad06-4371b3dc96a6",
+      reviewed_by: "",
+      authorised_by: "",
+      approved_by: "",
+      requested_by: "",
+      requesting_department: "",
+      deliver_to: "",
       ref_number: "",
       date_of_request: "",
       date_required: "",
-      requesting_department: "",
-      deliver_to: "",
+      // total cost
       special_instruction: "ewecd",
-      reviewed_by: "",
-      role_reviewed_by: "",
-      requested_by: "",
+      // request_id
+      // status
+      // reviewed_date
+      // authorized_date
+      // approved_date
+      request_memo: "14700b16-9a76-46a3-ad06-4371b3dc96a6",
+      // location
       role_requested_by: "",
-      approved_by: "",
-      role_approved_by: "",
-      authorised_by: "",
+      role_reviewed_by: "",
       role_authorised_by: "",
+      role_approved_by: "",
       items: [
         {
-          item: "",
-          unit_cost: 0,
           quantity: 0,
-          fco_number: "",
+          unit_cost: 0,
           amount: 0,
+          item: "",
+          fco_number: "",
         },
       ],
     },
@@ -101,16 +118,13 @@ const CreatePurchaseRequestForm = () => {
   const onSubmit = async (data: z.infer<typeof PurchaseRequestSchema>) => {
     const payload = {
       items: data.items,
-      requested_by: { user_id: data.requested_by },
-      reviewed_by: {
-        user_id: data.reviewed_by,
-      },
-      authorised_by: {
-        user_id: data.authorised_by,
-      },
-      approved_by: {
-        user_id: data.approved_by,
-      },
+      requested_by: data.requested_by,
+      reviewed_by: data.reviewed_by,
+
+      authorised_by: data.authorised_by,
+
+      approved_by: data.approved_by,
+
       ref_number: data.ref_number,
       date_of_request: data.date_of_request,
       date_required: data.date_required,
@@ -122,7 +136,7 @@ const CreatePurchaseRequestForm = () => {
       approved_date: null,
       request_memo: data.request_memo,
       requesting_department: data.requesting_department,
-      deliver_to: data.deliver_to,
+      location: data.deliver_to,
       role_requested_by: data.role_requested_by,
       role_reviewed_by: data.role_reviewed_by,
       role_authorised_by: data.role_authorised_by,
@@ -139,6 +153,9 @@ const CreatePurchaseRequestForm = () => {
       console.log(error);
     }
   };
+
+  const lon = form.getValues();
+  console.log({ lon });
 
   return (
     <div className='pt-5'>
@@ -192,9 +209,9 @@ const CreatePurchaseRequestForm = () => {
                 {partnersIsLoading ? (
                   <LoadingSpinner />
                 ) : (
-                  partner?.data.results?.map((partner) => (
-                    <SelectItem key={partner?.id} value={partner?.id}>
-                      {partner?.name}
+                  locations?.data.results?.map((location) => (
+                    <SelectItem key={location?.id} value={location?.id}>
+                      {location?.name}
                     </SelectItem>
                   ))
                 )}

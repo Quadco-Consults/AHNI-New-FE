@@ -41,7 +41,7 @@ export type PurchaseRequestResultsData = {
     id: string;
   };
   requesting_department: string;
-  deliver_to: string;
+  location_detail: { name: string };
   ref_number: string;
   requested_by: {
     id: string;
