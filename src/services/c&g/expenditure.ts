@@ -19,7 +19,7 @@ const ExpenditureAPI = baseAPI.injectEndpoints({
                 url: `/contract-grants/grants/${grantId}/expenditures/`,
                 body,
             }),
-            invalidatesTags: ["EXPENDITURE"],
+            invalidatesTags: ["EXPENDITURE", "GRANT"],
         }),
 
         getAllExpenditures: builder.query<
@@ -34,18 +34,38 @@ const ExpenditureAPI = baseAPI.injectEndpoints({
             providesTags: ["EXPENDITURE"],
         }),
 
-        // deleteExpenditure: builder.mutation<
-        //     TResponse<IExpenditurePaginatedData>,
-        //     {}
-        // >({
-        //     query: (id) => ({
-        //         method: "DELETE",
-        //         url: `/contract-grants/grants/${grantId}/expenditures/`,
-        //     }),
-        //     invalidatesTags: ["EXPENDITURE"],
-        // }),
+        modifyExpenditure: builder.mutation<
+            TPaginatedResponse<IExpenditurePaginatedData>,
+            {
+                grantId: string;
+                expenditureId: string;
+                body: TExpenditureFormData;
+            }
+        >({
+            query: ({ grantId, expenditureId, body }) => ({
+                method: "PUT",
+                url: `/contract-grants/grants/${grantId}/expenditures/${expenditureId}/`,
+                body,
+            }),
+            invalidatesTags: ["EXPENDITURE", "GRANT"],
+        }),
+
+        deleteExpenditure: builder.mutation<
+            TResponse<IExpenditurePaginatedData>,
+            { grantId: string; expenditureId: string }
+        >({
+            query: ({ grantId, expenditureId }) => ({
+                method: "DELETE",
+                url: `/contract-grants/grants/${grantId}/expenditures/${expenditureId}/`,
+            }),
+            invalidatesTags: ["EXPENDITURE", "GRANT"],
+        }),
     }),
 });
 
-export const { useCreateExpenditureMutation, useGetAllExpendituresQuery } =
-    ExpenditureAPI;
+export const {
+    useCreateExpenditureMutation,
+    useGetAllExpendituresQuery,
+    useModifyExpenditureMutation,
+    useDeleteExpenditureMutation,
+} = ExpenditureAPI;

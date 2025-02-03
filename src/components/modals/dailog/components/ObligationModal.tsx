@@ -4,66 +4,63 @@ import FormInput from "atoms/FormInput";
 import FormTextArea from "atoms/FormTextArea";
 import { Form } from "components/ui/form";
 import {
-    ExpenditureSchema,
-    IExpenditurePaginatedData,
-    TExpenditureFormData,
+    IObligationPaginatedData,
+    ObligationSchema,
+    TObligationFormData,
 } from "definations/c&g/grants";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { SubmitHandler, useForm } from "react-hook-form";
 import {
-    useCreateExpenditureMutation,
-    useModifyExpenditureMutation,
-} from "services/c&g/expenditure";
+    useCreateObligationMutation,
+    useModifyObligationMutation,
+} from "services/c&g/obligation";
 import { toast } from "sonner";
 import { closeDialog } from "store/ui";
 
-export default function ExpenditureModal() {
+export default function AObligationModal() {
     const { dialogProps } = useAppSelector((state) => state.ui.dailog);
 
-    const expenditure =
-        dialogProps?.expenditure as unknown as IExpenditurePaginatedData;
+    const obligation =
+        dialogProps?.obligation as unknown as IObligationPaginatedData;
 
-    const form = useForm<TExpenditureFormData>({
-        resolver: zodResolver(ExpenditureSchema),
+    const form = useForm<TObligationFormData>({
+        resolver: zodResolver(ObligationSchema),
         defaultValues: {
-            amount: expenditure?.amount ?? "",
-            description: expenditure?.description ?? "",
+            amount: obligation?.amount ?? "",
+            description: obligation?.description ?? "",
         },
     });
-
-    console.log(expenditure);
 
     const dispatch = useAppDispatch();
 
     const grantId = dialogProps?.grantId as string;
 
-    const [createExpenditure, { isLoading: isCreateLoading }] =
-        useCreateExpenditureMutation();
+    const [createObligation, { isLoading: isCreateLoading }] =
+        useCreateObligationMutation();
 
-    const [modifyExpenditure, { isLoading: isModifyLoading }] =
-        useModifyExpenditureMutation();
+    const [modifyObligation, { isLoading: isModifyLoading }] =
+        useModifyObligationMutation();
 
-    const onSubmit: SubmitHandler<TExpenditureFormData> = async (data) => {
+    const onSubmit: SubmitHandler<TObligationFormData> = async (data) => {
         try {
-            if (expenditure?.id) {
-                await modifyExpenditure({
+            if (obligation?.id) {
+                await modifyObligation({
                     grantId,
-                    expenditureId: expenditure?.id,
+                    obligationId: obligation?.id,
                     body: data,
                 }).unwrap();
-                toast.success("Expenditure Updated");
             } else {
-                await createExpenditure({
+                await createObligation({
                     grantId,
                     body: data,
                 }).unwrap();
-                toast.success("Expenditure Created");
+
+                toast.success("Obligation Created");
             }
 
             dispatch(closeDialog());
         } catch (error: any) {
-            console.log(error);
-            toast.error(error.data?.message ?? "Something went wrong");
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
 

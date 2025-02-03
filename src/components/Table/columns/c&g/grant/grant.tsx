@@ -11,6 +11,7 @@ import DeleteIcon from "components/icons/DeleteIcon";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useDeleteGrantMutation } from "services/c&g/grant";
 
 export const grantColumns: ColumnDef<IGrantPaginatedData>[] = [
     {
@@ -26,11 +27,13 @@ export const grantColumns: ColumnDef<IGrantPaginatedData>[] = [
     },
     {
         header: "Funding source",
-        accessorKey: "grantor",
+        id: "funding_sources",
+        accessorFn: ({ funding_sources }) => funding_sources?.join(", "),
         size: 200,
     },
     {
         header: "Award Amount",
+        id: "award_amount",
         accessorKey: "award_amount",
         size: 200,
     },
@@ -43,28 +46,44 @@ export const grantColumns: ColumnDef<IGrantPaginatedData>[] = [
     },
     {
         header: "Monthly Spend",
-        accessorKey: "monthly_spend",
+        id: "monthly_spend",
+        accessorFn: ({ current_month_expenditure_amount }) =>
+            current_month_expenditure_amount ?? "N/A",
         size: 200,
     },
     {
         header: "Total Obligations",
-        accessorKey: "_",
+        id: "total_obligation_amount",
+        accessorFn: ({ total_obligation_amount }) =>
+            total_obligation_amount ?? "N/A",
         size: 200,
     },
+
+    {
+        header: "Total Expenditure",
+        id: "total_expenditure_amount",
+        accessorFn: ({ total_expenditure_amount }) =>
+            total_expenditure_amount ?? "N/A",
+        size: 200,
+    },
+
     {
         header: "Intervention",
-        accessorKey: "intervention_area",
+        id: "beneficiaries",
+        accessorFn: ({ beneficiaries }) => beneficiaries.join(", "),
         size: 200,
     },
+
     {
         header: "Status",
+        id: "status",
         accessorKey: "status",
         size: 200,
     },
 
     {
-        id: "actions",
         header: "",
+        id: "action",
         cell: ({ row }) => <TableMenu {...row.original} />,
     },
 ];
@@ -72,9 +91,12 @@ export const grantColumns: ColumnDef<IGrantPaginatedData>[] = [
 const TableMenu = ({ id }: IGrantPaginatedData) => {
     const [isDialogOpen, setDialogOpen] = useState(false);
 
+    const [deleteGrant, { isLoading }] = useDeleteGrantMutation();
+
     const handleDelete = async () => {
         try {
-            // handle delete
+            await deleteGrant(id).unwrap();
+            toast.success("Grant Deleted");
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }
@@ -138,7 +160,7 @@ const TableMenu = ({ id }: IGrantPaginatedData) => {
             <ConfirmationDialog
                 open={isDialogOpen}
                 title="Are you sure you want to delete this grant?"
-                loading={false}
+                loading={isLoading}
                 onCancel={() => setDialogOpen(false)}
                 onOk={handleDelete}
             />

@@ -1,58 +1,58 @@
 import BackNavigation from "atoms/BackNavigation";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import { Button } from "components/ui/button";
-import TabState from "components/ui/TabState";
-import { useState } from "react";
 import { CG_GROUTES } from "constants/RouterConstants";
 import SubGrantAwardDetails from "./SubGrantAwardDetails";
 import SubGrantSubmissionDetails from "./SubGrantSubmissionDetails";
 import { generatePath, Link, useParams } from "react-router-dom";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { useGetSingleSubGrantQuery } from "services/c&g/sub-grant";
+import { skipToken } from "@reduxjs/toolkit/query";
+import { LoadingSpinner } from "components/shared/Loading";
+import { useState } from "react";
+import { useDebounce } from "ahooks";
 
 const SubGrantDetails = () => {
-    const params = useParams();
+    const [tabValue, setTabValue] = useState("details");
 
-    const tabDetails = [
-        {
-            id: 1,
-            state: "details",
-            name: "details",
-            tabComponent: <SubGrantAwardDetails />,
-        },
-        {
-            id: 2,
-            state: "submissions",
-            name: "Submissions",
-            tabComponent: <SubGrantSubmissionDetails />,
-        },
-        {
-            id: 2,
-            state: "awarded-beneficiaries",
-            name: "Awarded Beneficiaries",
-            tabComponent: <></>,
-        },
-    ];
-    const [tabState, setTabState] = useState<string | number>(
-        tabDetails[0].state
-    );
+    const { id } = useParams();
+
+    const { data, isLoading } = useGetSingleSubGrantQuery(id ?? skipToken);
+
+    if (isLoading) {
+        return <LoadingSpinner />;
+    }
+
     return (
-        <main className="w-full flex flex-col items-center justify-center gap-y-[1.875rem]">
-            <section className="w-full flex items-center justify-between">
-                <div className="w-auto flex gap-x-[1.25rem] items-center justify-start">
+        <Tabs
+            defaultValue="details"
+            value={tabValue}
+            onValueChange={(value) => setTabValue(value)}
+        >
+            <section className="flex items-center justify-between">
+                <div className="flex items-center gap-5">
                     <BackNavigation />
-                    <TabState
-                        tabArray={tabDetails}
-                        setState={setTabState}
-                        tabState={tabState}
-                    />
+
+                    <TabsList>
+                        <TabsTrigger value="details">Details</TabsTrigger>
+
+                        <TabsTrigger value="submissions">
+                            Submissions
+                        </TabsTrigger>
+
+                        <TabsTrigger value="beneficiaries">
+                            Awarded Beneficiaries
+                        </TabsTrigger>
+                    </TabsList>
                 </div>
-                <div>
-                    {tabState === tabDetails[1].state && (
+                {tabValue === "submissions" && (
+                    <div>
                         <Link
                             className="w-full"
                             to={generatePath(
                                 CG_GROUTES.CREATE_SUBGRANT_SUBMISSION_DETAILS,
                                 {
-                                    id: params?.id,
+                                    id,
                                 }
                             )}
                         >
@@ -61,19 +61,26 @@ const SubGrantDetails = () => {
                                 Manual Submission
                             </Button>
                         </Link>
-                    )}
-                </div>
+                    </div>
+                )}
             </section>
-            <section className="w-full">
-                {tabDetails.map((item, index) => {
-                    return (
-                        tabState === item.state && (
-                            <div key={index}>{item.tabComponent}</div>
-                        )
-                    );
-                })}
+            <section>
+                {data && (
+                    <>
+                        <TabsContent value="details">
+                            <SubGrantAwardDetails {...data?.data} />
+                        </TabsContent>
+                        <TabsContent value="submissions">
+                            <SubGrantSubmissionDetails {...data?.data} />
+                        </TabsContent>
+
+                        <TabsContent value="beneficiaries">
+                            <></>
+                        </TabsContent>
+                    </>
+                )}
             </section>
-        </main>
+        </Tabs>
     );
 };
 
