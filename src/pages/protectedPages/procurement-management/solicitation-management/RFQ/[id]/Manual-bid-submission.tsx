@@ -25,6 +25,23 @@ const ManualBidSubmission = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+<<<<<<< HEAD
+    const { data: vendors, isLoading: vendorsIsLoading } =
+        VendorsAPI.useGetVendorListQuery({
+            params: { no_paginate: true },
+        });
+
+    // @ts-ignore
+    const { data: items, isLoading } = SolicitationAPI.useGetSolicitationQuery({
+        path: { id: id as string },
+    });
+
+    const [
+        createSolicitationBidMutation,
+        { isLoading: solicitationBidIsLoading },
+        // @ts-ignore
+    ] = SolicitationAPI.useCreateSolicitationBidMutation();
+=======
   const { data: vendors, isLoading: vendorsIsLoading } =
     VendorsAPI.useGetVendorListQuery({
       params: { no_paginate: true },
@@ -32,6 +49,7 @@ const ManualBidSubmission = () => {
 
   const [createSolicitationSubmission, { isLoading: isCreateLoading }] =
     useCreateSolicitationSubmissionMutation();
+>>>>>>> 70ec8705b5c229311fae28085fd091e77570fa56
 
   const { data: singleSolicitation } = useGetSingleSolicitationQuery(
     id as string
@@ -59,6 +77,24 @@ const ManualBidSubmission = () => {
 
   const { control, handleSubmit, setValue, watch } = form;
 
+<<<<<<< HEAD
+    const data = useMemo(() => {
+        // @ts-ignore
+        return items?.items?.map((data) => ({
+            solicitation_item: data?.id,
+            quantity: data?.quantity || 0,
+            unit_price: "",
+        }));
+    }, [items]);
+
+    const dataVal = useMemo(() => {
+        // @ts-ignore
+        return items?.criteria?.map((data) => ({
+            response: "",
+            solicitation_criteria: data?.solicitation_criteria,
+        }));
+    }, [items]);
+=======
   const { fields } = useFieldArray({
     control,
     name: "items",
@@ -68,6 +104,7 @@ const ManualBidSubmission = () => {
     control,
     name: "responses",
   });
+>>>>>>> 70ec8705b5c229311fae28085fd091e77570fa56
 
   const data = useMemo(() => {
     return singleSolicitation?.data.items.map((data) => ({

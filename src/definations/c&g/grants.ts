@@ -13,6 +13,12 @@ export type TGrantFormData = z.infer<typeof GrantSchema>;
 export interface IGrantPaginatedData {
     id: string;
     project: string;
+    funding_sources: string[];
+    beneficiaries: string[];
+    current_month_expenditure_amount: string | null;
+    current_month_obligation_amount: string | null;
+    total_obligation_amount: string;
+    total_expenditure_amount: string;
     created_datetime: string;
     updated_datetime: string;
     award_type: string;
@@ -32,6 +38,8 @@ export interface IGrantSingleData {
     reference_number: string;
     created_by: string;
     updated_by: null;
+    total_obligation_amount: string | null;
+    total_expenditure_amount: string | null;
 }
 
 export const ExpenditureSchema = z.object({
@@ -53,3 +61,23 @@ export interface IExpenditurePaginatedData {
 }
 
 export interface IExpenditureSingleData {}
+
+export const ObligationSchema = z.object({
+    amount: z.string().min(1, "Please enter amount"),
+    description: z.string().min(1, "Please enter description"),
+});
+
+export type TObligationFormData = z.infer<typeof ObligationSchema>;
+
+export interface IObligationPaginatedData {
+    id: string;
+    created_datetime: string;
+    updated_datetime: string;
+    description: string;
+    amount: string;
+    created_by: null;
+    updated_by: null;
+    grant: string;
+}
+
+export interface IObligationSingleData {}

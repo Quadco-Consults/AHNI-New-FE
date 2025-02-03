@@ -12,6 +12,7 @@ import { LoadingSpinner } from "components/shared/Loading";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { useGetSingleGrantQuery } from "services/c&g/grant";
 import { skipToken } from "@reduxjs/toolkit/query";
+import ObligationHistory from "./_components/ObligationHistory";
 
 const GrantDetails: React.FC = () => {
     const [tabValue, setTabValue] = useState("details");
@@ -22,15 +23,12 @@ const GrantDetails: React.FC = () => {
 
     const dispatch = useAppDispatch();
 
-    console.log(tabValue);
-
     return (
         <section className="space-y-5">
             <div className="flex items-center justify-between">
                 <BackNavigation />
 
-                {(tabValue === "expenditure-history" ||
-                    tabValue === "obligations") && (
+                {(tabValue === "expenditure" || tabValue === "obligation") && (
                     <Button
                         className="flex gap-2 py-6"
                         type="button"
@@ -38,12 +36,12 @@ const GrantDetails: React.FC = () => {
                             dispatch(
                                 openDialog({
                                     type:
-                                        tabValue === "expenditure-history"
+                                        tabValue === "expenditure"
                                             ? DialogType.ExpenditureModal
-                                            : DialogType.ActivityUpload,
+                                            : DialogType.ADD_OBLIGATION_MODAL,
                                     dialogProps: {
                                         header:
-                                            tabValue === "expenditure-history"
+                                            tabValue === "expenditure"
                                                 ? "Add Expenditure"
                                                 : "Add Obligation",
                                         width: "max-w-lg",
@@ -54,7 +52,7 @@ const GrantDetails: React.FC = () => {
                         }}
                     >
                         <AddSquareIcon />
-                        {tabValue === "expenditure-history"
+                        {tabValue === "expenditure"
                             ? "Add Expenditure"
                             : "Add Obligation"}
                     </Button>
@@ -73,11 +71,11 @@ const GrantDetails: React.FC = () => {
                     <TabsList className="ml-10">
                         <TabsTrigger value="details">Details</TabsTrigger>
 
-                        <TabsTrigger value="expenditure-history">
+                        <TabsTrigger value="expenditure">
                             Expenditure History
                         </TabsTrigger>
 
-                        <TabsTrigger value="obligations">
+                        <TabsTrigger value="obligation">
                             Obligations
                         </TabsTrigger>
                     </TabsList>
@@ -86,8 +84,12 @@ const GrantDetails: React.FC = () => {
                         {data && <GrantDetailsCard {...data?.data} />}
                     </TabsContent>
 
-                    <TabsContent value="expenditure-history">
+                    <TabsContent value="expenditure">
                         {data && <ExpenditureHistory {...data?.data} />}
+                    </TabsContent>
+
+                    <TabsContent value="obligation">
+                        {data && <ObligationHistory {...data?.data} />}
                     </TabsContent>
                 </Tabs>
             )}

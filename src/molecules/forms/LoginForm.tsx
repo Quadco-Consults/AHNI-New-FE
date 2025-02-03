@@ -36,7 +36,7 @@ const LoginForm = () => {
                 toast.success(resp.message);
             }
         } catch (error: any) {
-            toast.error(error.data.message || "Something went wrong");
+            toast.error(error.data.message ?? "Something went wrong");
         }
     };
     return (

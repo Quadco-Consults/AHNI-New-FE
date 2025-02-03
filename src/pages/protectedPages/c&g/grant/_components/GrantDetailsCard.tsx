@@ -73,7 +73,7 @@ const GrantDetailsCard = ({
             </Card>
             <Card>
                 <div className="w-full flex flex-col items-start justify-between p-3 gap-y-[1.25rem] text-[#1A0000]">
-                    <p className="font-semibold">Project Overview</p>
+                    <h3 className="font-semibold">Project Overview</h3>
                     <p>
                         Malaria Control Program focused on delivering,
                         monitoring, and evaluating interventions at the
@@ -92,7 +92,7 @@ const GrantDetailsCard = ({
             </Card>
 
             <Card>
-                <h3>Grant Analytics</h3>
+                <h3 className="font-semibold">Grant Analytics</h3>
 
                 <div className="grid grid-cols-2 gap-5 mt-5">
                     <DescriptionCard label="Pipeline" description="N/A" />

@@ -122,6 +122,8 @@ const baseAPI = createApi({
         "VENDOR_EVALUATION",
         "GRANT",
         "EXPENDITURE",
+        "OBLIGATION",
+        "SUB_GRANT",
     ],
     // keepUnusedDataFor: 5 * 60,
     keepUnusedDataFor: 0,
