@@ -205,7 +205,7 @@ const Questionnaire = (data: VendorsResultsData) => {
           {data?.questionnaires?.map((question: Questionairs) => (
             <div key={question.questionaire} className='space-y-2'>
               <h2 className='text-yellow-darker font-semibold'>
-                {question.question}
+                {question.name}
               </h2>
               <h6>{question.response}</h6>
             </div>

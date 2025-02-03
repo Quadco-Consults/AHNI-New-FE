@@ -40,6 +40,7 @@ const UploadSchema = z.object({
         name: z.string(),
         selected: z.boolean(),
         id: z.string(), // Ensure 'id' is part of the schema
+        project_id: z.string(),
       })
     )
     .nonempty(),
@@ -97,14 +98,17 @@ const CheckboxForm = () => {
         "beneficiaries",
         // @ts-ignore
 
-        projects?.data?.results.map(({ title, id }) => ({
+        projects?.data?.results.map(({ title, id, project_id }) => ({
           name: title,
           selected: false,
           id,
+          project_id,
         }))
       );
     }
   }, [projects, setValue]);
+
+  console.log({ projects });
 
   useEffect(() => {
     if (requestsDetails) {
@@ -163,22 +167,24 @@ const CheckboxForm = () => {
     const payload = {
       activity: mergedObject.activity,
       activity_budget: data.activity_budget,
+      created_by: mergedObject.created_by,
       approved_by: mergedObject.approved_by,
+      reviewed_by: mergedObject.reviewed_by,
+      authorized_by: mergedObject.authorized_by,
+      copy: mergedObject.copy,
+      through: mergedObject.through,
       balance: data.balance,
       // location: "south park",
-      copy: mergedObject.copy,
       subject: mergedObject.subject,
       budget_line: mergedObject.budget_line,
       comment: mergedObject.comment,
       cost_categories: mergedObject.cost_categories,
       cost_input: mergedObject.cost_input,
-      created_by: mergedObject.created_by,
       expenses: mergedObject.expenses,
       fconumber: mergedObject.fconumber,
       funding_source: mergedObject.funding_source,
       intervention_areas: mergedObject.intervention_areas,
       requested_date: mergedObject.requested_date,
-      reviewed_by: mergedObject.reviewed_by,
       program_area: program_area[0],
       budget_expended: data.budget_expended,
     };
@@ -422,12 +428,16 @@ const CheckboxForm = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredBeneficiaries.map(({ id }) => (
-                        <TableRow key={id} className='h-[80px]'>
-                          <TableCell>Award ID: {id}</TableCell>
-                          <TableCell>100 % </TableCell>
-                        </TableRow>
-                      ))}
+                      {filteredBeneficiaries.map((data) => {
+                        console.log({ data });
+
+                        return (
+                          <TableRow key={data?.id} className='h-[80px]'>
+                            <TableCell>Award ID: {data?.project_id}</TableCell>
+                            <TableCell>100 % </TableCell>
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 </TableCell>
