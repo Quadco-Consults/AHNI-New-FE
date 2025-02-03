@@ -39,6 +39,7 @@ const GrantAPI = baseAPI.injectEndpoints({
                 method: "GET",
                 url: `${BASE_URL}${id}`,
             }),
+            providesTags: (result, error, id) => [{ type: "GRANT", id }],
         }),
 
         modifyGrant: builder.mutation<
@@ -53,16 +54,13 @@ const GrantAPI = baseAPI.injectEndpoints({
             invalidatesTags: ["GRANT"],
         }),
 
-        // deletePaymentRequest: builder.mutation<
-        //     TResponse<IPaymentRequestSingleData>,
-        //     string
-        // >({
-        //     query: (id) => ({
-        //         method: "DELETE",
-        //         url: `${BASE_URL}${id}`,
-        //     }),
-        //     invalidatesTags: ["GRANT"],
-        // }),
+        deleteGrant: builder.mutation<TResponse<IGrantSingleData>, string>({
+            query: (id) => ({
+                method: "DELETE",
+                url: `${BASE_URL}${id}`,
+            }),
+            invalidatesTags: ["GRANT"],
+        }),
     }),
 });
 
@@ -71,4 +69,5 @@ export const {
     useGetAllGrantsQuery,
     useGetSingleGrantQuery,
     useModifyGrantMutation,
+    useDeleteGrantMutation,
 } = GrantAPI;
