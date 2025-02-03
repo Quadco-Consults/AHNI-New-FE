@@ -18,6 +18,8 @@ import { useGetSingleCostCategoryQuery } from "services/modules/finance/cost-cat
 import { useGetSingleCostInputQuery } from "services/modules/finance/cost-input";
 import { useGetSingleActivityPlanQuery } from "services/programsApi/activity-plan";
 import useQuery from "hooks/useQuery";
+import { useGetSingleFCONumberQuery } from "services/modules/finance/fco-number";
+import { useGetSingleInterventionAreaQuery } from "services/modules/program/interventions";
 
 const Preview = () => {
   const query = useQuery();
@@ -50,6 +52,14 @@ const Preview = () => {
     // @ts-ignore
     requestsDetails?.activity
   );
+
+  const { data: fcoNumber } = useGetSingleFCONumberQuery(
+    // @ts-ignore
+    requestsDetails?.fconumber[0]
+  );
+  const { data: interventionArea } =
+    // @ts-ignore
+    useGetSingleInterventionAreaQuery(requestsDetails?.intervention_areas[0]);
 
   return (
     <div className='bg-white p-8'>
@@ -110,7 +120,7 @@ const Preview = () => {
               FCO #:{" "}
             </div>
             <div className='w-full max-w-[490px] p-3'>
-              {requestsDetails?.fconumber}
+              {fcoNumber && fcoNumber?.data?.name}
             </div>
           </div>
         </div>
@@ -118,7 +128,7 @@ const Preview = () => {
           <div className='flex border-gray-200 border w-full'>
             <div className='w-full  p-3'>
               <strong>Intervention Areas: </strong>
-              {requestsDetails?.intervention_areas[0]}
+              {interventionArea && interventionArea?.data?.code}{" "}
             </div>
           </div>
           <div className='flex border-gray-200 border max-w-[800px] w-full'>
