@@ -47,18 +47,17 @@ const ExpensesForm = ({
       value: id,
     })
   );
-
+  // optimization for number spliting is required use: .toLocaleString()
   return (
     <div>
       {/* @ts-ignore */}
       {fields.map((field, index) => {
         const quantity = watch(`expenses.${index}.quantity`) || 0;
         const days = watch(`expenses.${index}.days`) || 0;
-        const frequency = watch(`expenses.${index}.frequency`) || 0;
         const unitCost = watch(`expenses.${index}.unit_cost`) || 0;
 
         // Calculate total cost dynamically
-        const totalCost = quantity * days * frequency * unitCost;
+        const totalCost = quantity * days * unitCost;
 
         setValue(`expenses.${index}.total_cost`, totalCost || 0);
 
@@ -136,16 +135,7 @@ const ExpensesForm = ({
               name={`expenses.${index}.days`}
               type='text'
             />
-            <FormInput
-              label='# of Facility'
-              name={`expenses.${index}.facility`}
-              type='text'
-            />
-            <FormInput
-              label='# Frequency'
-              name={`expenses.${index}.frequency`}
-              type='text'
-            />
+
             <FormInput
               label='Unit Cost'
               name={`expenses.${index}.unit_cost`}

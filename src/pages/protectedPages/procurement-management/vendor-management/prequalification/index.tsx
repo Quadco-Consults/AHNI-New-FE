@@ -6,7 +6,7 @@ import { Badge } from "components/ui/badge";
 import { Checkbox } from "components/ui/checkbox";
 import { cn } from "lib/utils";
 import { Button } from "components/ui/button";
-import { Plus } from "lucide-react";
+// import { Plus } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Input } from "components/ui/input";
 import { Link, generatePath } from "react-router-dom";
@@ -101,14 +101,14 @@ const VendorManagement = () => {
                 </PopoverContent>
               </Popover>
             </div>
-            <Link to={generatePath(RouteEnum.VENDOR_REGISTRATION)}>
+            {/* <Link to={generatePath(RouteEnum.VENDOR_REGISTRATION)}>
               <Button>
                 <span>
                   <Plus size={20} />
                 </span>
                 Add Vendor
               </Button>
-            </Link>
+            </Link> */}
           </div>
         </div>
 

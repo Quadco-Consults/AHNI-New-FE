@@ -127,7 +127,7 @@ export const procurment = [
     element: lazy(
       () =>
         import(
-          "pages/protectedPages/procurement-management/purchase-request/sample-memo/index"
+          "pages/protectedPages/procurement-management/purchase-request/activity-memo/index"
         )
     ),
   },
@@ -136,7 +136,7 @@ export const procurment = [
     element: lazy(
       () =>
         import(
-          "pages/protectedPages/procurement-management/purchase-request/sample-memo/preview"
+          "pages/protectedPages/procurement-management/purchase-request/activity-memo/preview"
         )
     ),
   },
@@ -145,7 +145,7 @@ export const procurment = [
     element: lazy(
       () =>
         import(
-          "pages/protectedPages/procurement-management/purchase-request/sample-memo/preview-letter"
+          "pages/protectedPages/procurement-management/purchase-request/activity-memo/preview-letter"
         )
     ),
   },
@@ -154,7 +154,7 @@ export const procurment = [
     element: lazy(
       () =>
         import(
-          "pages/protectedPages/procurement-management/purchase-request/sample-memo/final-preview"
+          "pages/protectedPages/procurement-management/purchase-request/activity-memo/final-preview"
         )
     ),
   },
@@ -282,11 +282,39 @@ export const procurment = [
     ),
   },
   {
+    path: RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_APPROVAL_CHECK,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/CheckApproval"
+        )
+    ),
+  },
+
+  {
     path: RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_START,
     element: lazy(
       () =>
         import(
-          "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/start-competitiveBidAnalysis"
+          "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/technicalPrequalificationSheet"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_FINANCIAL_BID_OPENING,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/FinancialBiding"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.SUMMARY_OF_TECHNICAL_PREQUALIFICATION,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/SummaryOfTechnicalPrequalification"
         )
     ),
   },
@@ -384,6 +412,15 @@ export const procurment = [
       () =>
         import(
           "pages/protectedPages/procurement-management/purchase-order/index"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.PURCHASE_ORDER_ID,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/purchase-order/[id]/index"
         )
     ),
   },

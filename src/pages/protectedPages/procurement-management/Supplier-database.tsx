@@ -81,7 +81,7 @@ const columns: ColumnDef<VendorsResultsData>[] = [
   {
     header: "RC Number",
     size: 200,
-    accessorKey: "rc_number",
+    accessorKey: "company_registration_number",
   },
   {
     header: "Tax ID Number",
@@ -90,24 +90,49 @@ const columns: ColumnDef<VendorsResultsData>[] = [
   },
   {
     header: "Area of Specialization",
-    size: 200,
+    size: 300,
     accessorKey: "area_of_specialization",
+    cell: ({ row }) => (
+      <div className='space-y-2'>
+        {row.original.approved_categories_details.map(({ name }, idx) => {
+          return (
+            <div className='' key={idx}>
+              {idx + 1}. {name}
+            </div>
+          );
+        })}
+      </div>
+    ),
   },
   {
     header: "Main Office Address",
-    size: 200,
-    accessorKey: "main_office_address",
+    size: 240,
+    accessorKey: "company_address",
   },
   {
     header: "Other Opt.Addresses",
-    size: 200,
+    size: 240,
     accessorKey: "other_opt_addresses",
+    cell: ({ row }) => (
+      <div className='space-y-2'>
+        {row.original.branches.map(({ address }, idx) => {
+          return (
+            <div className='' key={idx}>
+              {idx + 1}. {address}
+            </div>
+          );
+        })}
+      </div>
+    ),
   },
 
   {
     header: "Point of Contact Person",
     size: 200,
     accessorKey: "point_of_contact_person",
+    cell: ({ row }) => (
+      <div className='space-y-2'>{row.original.key_staff[0].name}</div>
+    ),
   },
 
   {
@@ -119,16 +144,37 @@ const columns: ColumnDef<VendorsResultsData>[] = [
     header: "Mobile Number 1",
     size: 200,
     accessorKey: "mobile_number_1",
+    cell: ({ row }) => (
+      <div className='space-y-2'>
+        {(row.original.key_staff.length > 0 &&
+          row.original.key_staff[0].phone_number) ||
+          "-"}
+      </div>
+    ),
   },
   {
     header: "Mobile Number 2",
     size: 200,
     accessorKey: "mobile_number_2",
+    cell: ({ row }) => (
+      <div className='space-y-2'>
+        {(row.original.key_staff.length > 1 &&
+          row.original.key_staff[1].phone_number) ||
+          "-"}
+      </div>
+    ),
   },
   {
     header: "Mobile Number 3",
     size: 200,
     accessorKey: "mobile_number_3",
+    cell: ({ row }) => (
+      <div className='space-y-2'>
+        {(row.original.key_staff.length > 2 &&
+          row.original.key_staff[2].phone_number) ||
+          "-"}
+      </div>
+    ),
   },
   {
     header: "Products/Services",
@@ -170,7 +216,7 @@ const ActionListAction = ({ data }: any) => {
       toast.success("Document successfully deleted.");
     } catch (error) {
       toast.error("Something went wrong");
-      console.log(error);
+      // console.log(error);
     }
   };
   return (
