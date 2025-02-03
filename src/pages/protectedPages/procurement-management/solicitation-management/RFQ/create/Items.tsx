@@ -30,271 +30,227 @@ import { useGetAllSolicitationEvaluationCriteriaQuery } from "services/modules/p
 import { useCreateSolicitationMutation } from "services/procurementApi/solicitation";
 
 const ItemSchema = z.object({
-    solicitation_evaluations: z.array(
-        z.object({
-            criteria: z.string().min(1, "Please select a category"),
-            title: z.string().min(1, "Please enter a title"),
-            description: z.string().min(1, "Please enter a descripion"),
-        })
-    ),
-    items: z.array(
-        z.object({
-            item: z.string().min(1, "Please select an item"),
-            lot: z.string().min(1, "Please select a lot"),
-            quantity: z.string().min(1, "Please enter quantity"),
-        })
-    ),
+  solicitation_evaluations: z.array(
+    z.object({
+      criteria: z.string().min(1, "Please select a category"),
+    })
+  ),
+  items: z.array(
+    z.object({
+      item: z.string().min(1, "Please select an item"),
+      lot: z.string().min(1, "Please select a lot"),
+      quantity: z.string().min(1, "Please enter quantity"),
+    })
+  ),
 });
 
 const Items = () => {
-    const navigate = useNavigate();
-    const formData = JSON.parse(localStorage.getItem("rfqQuotation") as any);
+  const navigate = useNavigate();
+  const formData = JSON.parse(localStorage.getItem("rfqQuotation") as any);
 
-    const form = useForm<z.infer<typeof ItemSchema>>({
-        defaultValues: {
-            solicitation_evaluations: [
-                { criteria: "", title: "", description: "" },
-            ],
-            items: [{ item: "", lot: "", quantity: "0" }],
-        },
+  const form = useForm<z.infer<typeof ItemSchema>>({
+    defaultValues: {
+      solicitation_evaluations: [{ criteria: "" }],
+      items: [{ item: "", lot: "", quantity: "0" }],
+    },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "items",
+  });
+
+  const {
+    fields: criteriaFields,
+    append: appendCriteria,
+    remove: removeCriteria,
+  } = useFieldArray({
+    control: form.control,
+    name: "solicitation_evaluations",
+  });
+
+  const { data: asset, isLoading: isAssetLoading } = useGetAllAssetsQuery({
+    page: 1,
+    size: 2000000,
+  });
+
+  const assetOptions = useMemo(
+    () =>
+      asset?.data.results.map(({ name, id }) => ({
+        label: name,
+        value: id,
+      })),
+    [asset]
+  );
+
+  const { data: lot, isLoading: isLotLoading } = useGetAllLotsQuery({
+    page: 1,
+    size: 2000000,
+  });
+
+  const lotOptions = useMemo(
+    () =>
+      lot?.data.results.map(({ name, id }) => ({
+        label: name,
+        value: id,
+      })),
+    [asset]
+  );
+
+  const { data: solicitationCriteria } =
+    useGetAllSolicitationEvaluationCriteriaQuery({
+      page: 1,
+      size: 2000000,
     });
 
-    const { fields, append, remove } = useFieldArray({
-        control: form.control,
-        name: "items",
-    });
+  const solicitationCriteriaOptions = useMemo(
+    () =>
+      solicitationCriteria?.data.results.map(({ name, id }) => ({
+        label: name,
+        value: id,
+      })),
+    [solicitationCriteria]
+  );
 
-    const {
-        fields: criteriaFields,
-        append: appendCriteria,
-        remove: removeCriteria,
-    } = useFieldArray({
-        control: form.control,
-        name: "solicitation_evaluations",
-    });
+  const [createSolicitation, { isLoading: isCreateLoading }] =
+    useCreateSolicitationMutation();
 
-    const { data: asset, isLoading: isAssetLoading } = useGetAllAssetsQuery({
-        page: 1,
-        size: 2000000,
-    });
-
-    const assetOptions = useMemo(
-        () =>
-            asset?.data.results.map(({ name, id }) => ({
-                label: name,
-                value: id,
-            })),
-        [asset]
+  const onSubmit: SubmitHandler<z.infer<typeof ItemSchema>> = async (data) => {
+    const quotationData = JSON.parse(
+      sessionStorage.getItem("rfqQuotationFormData") || "{}"
     );
 
-    const { data: lot, isLoading: isLotLoading } = useGetAllLotsQuery({
-        page: 1,
-        size: 2000000,
-    });
+    const payload = { ...quotationData, ...data };
 
-    const lotOptions = useMemo(
-        () =>
-            lot?.data.results.map(({ name, id }) => ({
-                label: name,
-                value: id,
-            })),
-        [asset]
-    );
+    try {
+      await createSolicitation(payload).unwrap();
+      sessionStorage.removeItem("rfqQuotationFormData");
+      toast.success("Solicitation Created Successfully");
+      navigate(RouteEnum.RFQ);
+    } catch (error: any) {
+      toast.error(error.data.message ?? "Something went wrong");
+    }
+  };
 
-    const { data: solicitationCriteria } =
-        useGetAllSolicitationEvaluationCriteriaQuery({
-            page: 1,
-            size: 2000000,
-        });
+  return (
+    <RfqLayout>
+      <Form {...form}>
+        <form className='space-y-8 p-5' onSubmit={form.handleSubmit(onSubmit)}>
+          <div className='space-y-5'>
+            <h6 className='text-yellow-600'>Items</h6>
 
-    const solicitationCriteriaOptions = useMemo(
-        () =>
-            solicitationCriteria?.data.results.map(({ name, id }) => ({
-                label: name,
-                value: id,
-            })),
-        [solicitationCriteria]
-    );
+            {fields?.map((field, index) => (
+              <div key={index} className='flex items-center gap-5 w-full'>
+                <div className='grid grid-cols-1 gap-4 w-full md:grid-cols-3'>
+                  <FormSelect
+                    name={`items.${index}.item`}
+                    label='Item'
+                    required
+                    options={assetOptions}
+                  />
+                  <FormInput
+                    name={`items.${index}.quantity`}
+                    label='Quantity'
+                    required
+                  />
 
-    console.log(assetOptions);
+                  <FormSelect name={`items.${index}.lot`} label='Lot' required>
+                    <SelectContent>
+                      {isLotLoading && <LoadingSpinner />}
+                      {lotOptions?.map(({ label, value }) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </FormSelect>
+                </div>
 
-    const [createSolicitation, { isLoading: isCreateLoading }] =
-        useCreateSolicitationMutation();
+                <div className='flex items-center h-full '>
+                  <MinusCircle
+                    onClick={() => remove(index)}
+                    className='cursor-pointer text-primary'
+                  />
+                </div>
+              </div>
+            ))}
+            <div className='flex justify-end'>
+              <Button
+                type='button'
+                className='text-primary bg-[#FFF2F2] mt-2 flex gap-2 items-center justify-center'
+                onClick={() =>
+                  append({
+                    quantity: "",
+                    item: "",
+                    lot: "",
+                  })
+                }
+              >
+                <AddSquareIcon />
+                Add
+              </Button>
+            </div>
+          </div>
 
-    const onSubmit: SubmitHandler<z.infer<typeof ItemSchema>> = async (
-        data
-    ) => {
-        const quotationData = JSON.parse(
-            sessionStorage.getItem("rfqQuotationFormData") || "{}"
-        );
+          <div className='space-y-5'>
+            <Label className='text-yellow-600'>Evaluation Criteria</Label>
 
-        const payload = { ...quotationData, ...data };
+            {criteriaFields.map((field, index) => (
+              <div key={index} className='flex items-center gap-5 w-full'>
+                <div className='grid grid-cols-1 gap-4 w-full md:grid-cols-3'>
+                  <FormSelect
+                    label='Category'
+                    name={`solicitation_evaluations.${index}.criteria`}
+                    required
+                    options={solicitationCriteriaOptions}
+                  />
+                </div>
 
-        console.log(payload);
+                <div className='flex items-center h-full '>
+                  <MinusCircle
+                    onClick={() => removeCriteria(index)}
+                    className='cursor-pointer text-primary'
+                  />
+                </div>
+              </div>
+            ))}
 
-        try {
-            await createSolicitation(payload).unwrap();
-            sessionStorage.removeItem("rfqQuotationFormData");
-            toast.success("Solicitation Created Successfully");
-            navigate(RouteEnum.RFQ);
-        } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
-        }
-    };
+            <div className='flex justify-end'>
+              <Button
+                type='button'
+                className='text-primary bg-[#FFF2F2] mt-2 flex gap-2 items-center justify-center'
+                onClick={() =>
+                  appendCriteria({
+                    criteria: "",
+                  })
+                }
+              >
+                <AddSquareIcon />
+                Add
+              </Button>
+            </div>
+          </div>
 
-    return (
-        <RfqLayout>
-            <Form {...form}>
-                <form
-                    className="space-y-8 p-5"
-                    onSubmit={form.handleSubmit(onSubmit)}
-                >
-                    <div className="space-y-5">
-                        <h6 className="text-yellow-600">Items</h6>
-
-                        {fields?.map((field, index) => (
-                            <div
-                                key={index}
-                                className="flex items-center gap-5 w-full"
-                            >
-                                <div className="grid grid-cols-1 gap-4 w-full md:grid-cols-3">
-                                    <FormSelect
-                                        name={`items.${index}.item`}
-                                        label="Item"
-                                        required
-                                        options={assetOptions}
-                                    />
-                                    <FormInput
-                                        name={`items.${index}.quantity`}
-                                        label="Quantity"
-                                        required
-                                    />
-
-                                    <FormSelect
-                                        name={`items.${index}.lot`}
-                                        label="Lot"
-                                        required
-                                    >
-                                        <SelectContent>
-                                            {isLotLoading && <LoadingSpinner />}
-                                            {lotOptions?.map(
-                                                ({ label, value }) => (
-                                                    <SelectItem
-                                                        key={value}
-                                                        value={value}
-                                                    >
-                                                        {label}
-                                                    </SelectItem>
-                                                )
-                                            )}
-                                        </SelectContent>
-                                    </FormSelect>
-                                </div>
-
-                                <div className="flex items-center h-full ">
-                                    <MinusCircle
-                                        onClick={() => remove(index)}
-                                        className="cursor-pointer text-primary"
-                                    />
-                                </div>
-                            </div>
-                        ))}
-                        <div className="flex justify-end">
-                            <Button
-                                type="button"
-                                className="text-primary bg-[#FFF2F2] mt-2 flex gap-2 items-center justify-center"
-                                onClick={() =>
-                                    append({
-                                        quantity: "",
-                                        item: "",
-                                        lot: "",
-                                    })
-                                }
-                            >
-                                <AddSquareIcon />
-                                Add
-                            </Button>
-                        </div>
-                    </div>
-
-                    <div>
-                        <Label className="text-yellow-600">
-                            Evaluation Criteria
-                        </Label>
-
-                        {criteriaFields.map((field, index) => (
-                            <div
-                                key={index}
-                                className="flex items-center gap-5 w-full"
-                            >
-                                <div className="grid grid-cols-1 gap-4 w-full md:grid-cols-3">
-                                    <FormSelect
-                                        label="Category"
-                                        name={`solicitation_evaluations.${index}.criteria`}
-                                        required
-                                        options={solicitationCriteriaOptions}
-                                    />
-
-                                    <FormInput
-                                        label="Title"
-                                        name={`solicitation_evaluations.${index}.title`}
-                                        required
-                                    />
-
-                                    <FormInput
-                                        label="Description"
-                                        name={`solicitation_evaluations.${index}.description`}
-                                        required
-                                    />
-                                </div>
-
-                                <div className="flex items-center h-full ">
-                                    <MinusCircle
-                                        onClick={() => removeCriteria(index)}
-                                        className="cursor-pointer text-primary"
-                                    />
-                                </div>
-                            </div>
-                        ))}
-
-                        <div className="flex justify-end">
-                            <Button
-                                type="button"
-                                className="text-primary bg-[#FFF2F2] mt-2 flex gap-2 items-center justify-center"
-                                onClick={() =>
-                                    appendCriteria({
-                                        criteria: "",
-                                        title: "",
-                                        description: "",
-                                    })
-                                }
-                            >
-                                <AddSquareIcon />
-                                Add
-                            </Button>
-                        </div>
-                    </div>
-
-                    <div className="flex justify-between mt-16">
-                        <Button
-                            onClick={() => navigate(-1)}
-                            type="button"
-                            className="bg-[#FFF2F2] text-primary dark:text-gray-500"
-                        >
-                            Cancel
-                        </Button>
-                        <FormButton
-                            loading={isCreateLoading}
-                            disabled={isCreateLoading}
-                            type="submit"
-                        >
-                            Save Changes
-                        </FormButton>
-                    </div>
-                </form>
-            </Form>
-        </RfqLayout>
-    );
+          <div className='flex justify-between mt-16'>
+            <Button
+              onClick={() => navigate(-1)}
+              type='button'
+              className='bg-[#FFF2F2] text-primary dark:text-gray-500'
+            >
+              Cancel
+            </Button>
+            <FormButton
+              loading={isCreateLoading}
+              disabled={isCreateLoading}
+              type='submit'
+            >
+              Save Changes
+            </FormButton>
+          </div>
+        </form>
+      </Form>
+    </RfqLayout>
+  );
 };
 
 export default Items;

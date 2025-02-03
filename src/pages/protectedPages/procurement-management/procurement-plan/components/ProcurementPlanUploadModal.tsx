@@ -13,6 +13,9 @@ import { Input } from "components/ui/input";
 import Modal from "react-modal";
 import ProcurementPlanAPI from "services/procurementApi/procurement-plan";
 import { toast } from "sonner";
+import FinancialAPI from "services/configs/financial-year";
+import { closeDialog } from "store/ui";
+import { useDispatch } from "react-redux";
 
 type PropsType = {
   isOpen: boolean;
@@ -32,22 +35,33 @@ const customStyles = {
 };
 
 const FormSchema = z.object({
-  startYear: z.string().min(1, "Please select a start year"),
-  endYear: z.string().min(1, "Please select an end year"),
+  financial_year: z.string().min(1, "Please select a file to upload"),
   file: z.string().min(1, "Please select a file to upload"),
 });
 
 const ProcurementPlanUploadModal = (props: PropsType) => {
+  const dispatch = useDispatch();
+
   const [file, setFile] = useState<File | Blob | null>(null);
 
   const [createProcurementPlanMutation] =
     ProcurementPlanAPI.useCreateProcurementPlanMutation();
 
+  const { data: financialYear } = FinancialAPI.useGetFinancialYearsQuery({
+    params: { no_paginate: true },
+  });
+
+  const financialYearOptions = financialYear?.data.results.map(
+    ({ year, id }) => ({
+      label: year,
+      value: id,
+    })
+  );
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      startYear: "1",
-      endYear: "1",
+      financial_year: "",
       file: "1",
     },
   });
@@ -61,14 +75,16 @@ const ProcurementPlanUploadModal = (props: PropsType) => {
   };
   console.log({ file });
 
-  const onSubmit = async () => {
+  const onSubmit = async (data) => {
     const formData = new FormData();
+    console.log({ data });
 
     formData.append("file", file as Blob);
+    formData.append("financial_year", data?.financial_year);
     try {
       await createProcurementPlanMutation(formData as any).unwrap();
-
-      //   dispatch(closeDialog());
+      props.onCancel();
+      dispatch(closeDialog());
     } catch (error: any) {
       toast.error(error.data.message);
     }
@@ -104,16 +120,10 @@ const ProcurementPlanUploadModal = (props: PropsType) => {
           <div className='mt-5 flex flex-col gap-5'>
             <div className='flex items-center gap-2'>
               <FormSelect
-                label='Start Year'
-                name='startYear'
+                label='Financial Year'
+                name='financial_year'
                 required
-                placeholder='2023'
-              />
-              <FormSelect
-                label='End Year'
-                name='endYear'
-                required
-                placeholder='2024'
+                options={financialYearOptions}
               />
             </div>
             <div className='w-full relative gap-x-3 h-[52px] rounded-[16.2px] border flex justify-center items-center px-5'>

@@ -22,6 +22,15 @@ import { Textarea } from "components/ui/textarea";
 import ProcurementPlanUploadModal from "./components/ProcurementPlanUploadModal";
 import { MdDownload } from "react-icons/md";
 import * as XLSX from "xlsx";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "components/ui/select";
+import FinancialAPI from "services/configs/financial-year";
 
 export default function ProcurementPlan() {
   // const dispatch = useAppDispatch();
@@ -32,6 +41,16 @@ export default function ProcurementPlan() {
   const [isModalOpen, setModalOpen] = useState(false);
 
   const [dataSource, setDataSource] = useState<ProcurementPlanTableType[]>();
+  const { data: financialYear } = FinancialAPI.useGetFinancialYearsQuery({
+    params: { no_paginate: true },
+  });
+
+  const financialYearOptions = financialYear?.data.results.map(
+    ({ year, id }) => ({
+      label: year,
+      value: id,
+    })
+  );
 
   const breadcrumbs = [
     { name: "Procurement", icon: true },
@@ -162,7 +181,7 @@ export default function ProcurementPlan() {
           </PopoverTrigger>
           <PopoverContent className=' w-fit'>
             <div className='flex flex-col items-start justify-between gap-1'>
-              <Link
+              {/* <Link
                 className='w-full'
                 to={generatePath(RouteEnum.CREATE_PROCUREMENT)}
               >
@@ -172,7 +191,7 @@ export default function ProcurementPlan() {
                 >
                   <AddSquareIcon fillColor='#FF0000' /> Create from scratch
                 </Button>
-              </Link>
+              </Link> */}
               <Button
                 className='w-full flex items-center gap-2 justify-start'
                 variant='ghost'
@@ -193,7 +212,7 @@ export default function ProcurementPlan() {
         </Popover>
       </div>
       <Card className='space-y-5'>
-        <div className='flex items-center justify-start gap-2'>
+        <div className='flex items-center justify-between gap-2'>
           <div className='flex items-center w-1/3 px-2 py-2 border rounded-lg'>
             <SearchIcon />
             <input
@@ -202,9 +221,28 @@ export default function ProcurementPlan() {
               className='ml-2 h-full w-full border-none bg-none focus:outline-none outline-none'
             />
           </div>
-          <Button className='shadow-sm' variant='ghost'>
-            <FilterIcon />
-          </Button>
+          <div className='flex items-center gap-4'>
+            <h6>Financial year</h6>
+            <div>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder='Select Year' />
+                </SelectTrigger>
+
+                <SelectContent>
+                  <SelectGroup>
+                    {financialYearOptions?.map(({ label, value }, idx) => {
+                      return (
+                        <SelectItem value={value} key={idx}>
+                          {label}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
 
         <DataTable

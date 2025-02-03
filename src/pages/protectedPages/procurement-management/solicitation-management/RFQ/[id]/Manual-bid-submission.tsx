@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { Button } from "components/ui/button";
-import { RouteEnum } from "constants/RouterConstants";
+// import { RouteEnum } from "constants/RouterConstants";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { SelectContent, SelectItem } from "components/ui/select";
@@ -17,11 +17,15 @@ import { SolicitationSubmissionSchema } from "definations/procurement-validator"
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import FormButton from "atoms/FormButton";
+import { useCreateSolicitationSubmissionMutation } from "services/procurementApi/vendor-bid-submissions";
+import { useGetSingleSolicitationQuery } from "services/procurementApi/solicitation";
+import { useGetAllSolicitationEvaluationCriteriaQuery } from "services/modules/procurement/solicitation-evaluation-criteria";
 
 const ManualBidSubmission = () => {
-    const { id } = useParams();
-    const navigate = useNavigate();
+  const { id } = useParams();
+  const navigate = useNavigate();
 
+<<<<<<< HEAD
     const { data: vendors, isLoading: vendorsIsLoading } =
         VendorsAPI.useGetVendorListQuery({
             params: { no_paginate: true },
@@ -37,27 +41,43 @@ const ManualBidSubmission = () => {
         { isLoading: solicitationBidIsLoading },
         // @ts-ignore
     ] = SolicitationAPI.useCreateSolicitationBidMutation();
-
-    const form = useForm<z.infer<typeof SolicitationSubmissionSchema>>({
-        resolver: zodResolver(SolicitationSubmissionSchema),
-        defaultValues: {
-            solicitation_id: id,
-            vendor_id: "",
-        },
+=======
+  const { data: vendors, isLoading: vendorsIsLoading } =
+    VendorsAPI.useGetVendorListQuery({
+      params: { no_paginate: true },
     });
 
-    const { control, handleSubmit, setValue, watch } = form;
+  const [createSolicitationSubmission, { isLoading: isCreateLoading }] =
+    useCreateSolicitationSubmissionMutation();
+>>>>>>> 70ec8705b5c229311fae28085fd091e77570fa56
 
-    const { fields } = useFieldArray({
-        control,
-        name: "items",
+  const { data: singleSolicitation } = useGetSingleSolicitationQuery(
+    id as string
+  );
+
+  const { data: solicitationCriteria } =
+    useGetAllSolicitationEvaluationCriteriaQuery({
+      page: 1,
+      size: 2000000,
     });
 
-    const { fields: FieldItems } = useFieldArray({
-        control,
-        name: "responses",
-    });
+  //   const [
+  //     createSolicitationBidMutation,
+  //     { isLoading: solicitationBidIsLoading },
+  //   ] = SolicitationAPI.useCreateSolicitationBidMutation();
 
+  const form = useForm<z.infer<typeof SolicitationSubmissionSchema>>({
+    resolver: zodResolver(SolicitationSubmissionSchema),
+    defaultValues: {
+      solicitation_id: id,
+      vendor_id: "",
+      items: [],
+    },
+  });
+
+  const { control, handleSubmit, setValue, watch } = form;
+
+<<<<<<< HEAD
     const data = useMemo(() => {
         // @ts-ignore
         return items?.items?.map((data) => ({
@@ -74,361 +94,218 @@ const ManualBidSubmission = () => {
             solicitation_criteria: data?.solicitation_criteria,
         }));
     }, [items]);
+=======
+  const { fields } = useFieldArray({
+    control,
+    name: "items",
+  });
 
-    useEffect(() => {
-        if (data) {
-            setValue("items", data);
-        }
-    }, [data, setValue]);
+  const { fields: responseField } = useFieldArray({
+    control,
+    name: "responses",
+  });
+>>>>>>> 70ec8705b5c229311fae28085fd091e77570fa56
 
-    useEffect(() => {
-        if (dataVal) {
-            setValue("responses", dataVal);
-        }
-    }, [dataVal, setValue]);
+  const data = useMemo(() => {
+    return singleSolicitation?.data.items.map((data) => ({
+      solicitation_item: data?.id,
+      quantity: data?.quantity || 0,
+      unit_price: "",
+    }));
+  }, [singleSolicitation]);
 
-    const itemsWatchData = watch("items");
-    console.log(watch());
+  const dataVal = useMemo(() => {
+    return solicitationCriteria?.data.results?.map((data) => ({
+      response: "",
+      solicitation_criteria: data?.id,
+    }));
+  }, [solicitationCriteria]);
 
-    const onSubmit = async (
-        data: z.infer<typeof SolicitationSubmissionSchema>
-    ) => {
-        console.log(data);
-        try {
-            await createSolicitationBidMutation(data).unwrap();
-            toast.success("Successfully created.");
-            navigate(RouteEnum.RFQ);
-        } catch (error) {
-            toast.error("Something went wrong");
-            console.log(error);
-        }
-    };
+  useEffect(() => {
+    if (data) {
+      setValue("items", data);
+    }
+  }, [data, setValue, singleSolicitation]);
 
-    return (
-        <div className="space-y-10">
-            <Button
-                onClick={() => navigate(-1)}
-                variant="outline"
-                className="gap-2 text-primary border-primary"
-            >
-                <ArrowLeft size={15} />
-            </Button>
+  useEffect(() => {
+    if (dataVal) {
+      setValue("responses", dataVal);
+    }
+  }, [dataVal, setValue]);
 
-            <div>
-                <h4 className="text-lg font-bold">
-                    Manual Bid Submission Form
-                </h4>
-                <h6>
-                    LOT 1 SUPPLY OF IT AND NETWORKING EQUIPMENT FOR _ACEBAY
-                    PROJECT
-                </h6>
-            </div>
+  const itemsWatchData = watch("items");
 
-            <Form {...form}>
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
-                    <FormSelect name="vendor_id" label="Vendor" required>
-                        <SelectContent>
-                            {vendorsIsLoading && <LoadingSpinner />}
-                            {vendors?.map((vendor: VendorsResultsData) => (
-                                <SelectItem
-                                    key={vendor?.id}
-                                    value={String(vendor?.id)}
-                                >
-                                    {vendor?.company_name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </FormSelect>
+  const onSubmit = async (
+    data: z.infer<typeof SolicitationSubmissionSchema>
+  ) => {
+    try {
+      // @ts-ignore
+      await createSolicitationSubmission(data).unwrap();
 
-                    <div className="space-y-1">
-                        <h4 className="text-base font-bold">Items Quotation</h4>
+      toast.success("Successfully created.");
+      //   navigate(RouteEnum.RFQ);
+    } catch (error) {
+      toast.error("Something went wrong");
+      console.log(error);
+    }
+  };
+
+  return (
+    <div className='space-y-10'>
+      <Button
+        onClick={() => navigate(-1)}
+        variant='outline'
+        className='gap-2 text-primary border-primary'
+      >
+        <ArrowLeft size={15} />
+      </Button>
+
+      <div>
+        <h4 className='text-lg font-bold'>Manual Bid Submission Form</h4>
+        <h6>{singleSolicitation?.data?.title}</h6>
+      </div>
+
+      <Form {...form}>
+        <form onSubmit={handleSubmit(onSubmit)} className='space-y-10'>
+          <FormSelect name='vendor_id' label='Vendor' required>
+            <SelectContent>
+              {vendorsIsLoading && <LoadingSpinner />}
+              {/* @ts-ignore */}
+              {vendors?.data?.results?.map((vendor: VendorsResultsData) => (
+                <SelectItem key={vendor?.id} value={String(vendor?.id)}>
+                  {vendor?.company_name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </FormSelect>
+
+          <div className='space-y-1'>
+            <h4 className='text-base font-bold'>Items Quotation</h4>
+            <h6>Please provide your quotation for the following Items</h6>
+          </div>
+
+          <div>
+            <table className='w-full border mt-10'>
+              <thead>
+                <tr className='text-amber-500 whitespace-nowrap border-b-2 text-sm font-semibold'>
+                  <th className='px-2 py-5'>S/N</th>
+                  <th className='px-2 py-5'>Items Description</th>
+                  <th className='px-2 py-5'>Qty</th>
+                  <th className='px-2 py-5'> Unit price</th>
+                  <th className='px-2 py-5'>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {fields.map((field, index) => {
+                  return (
+                    <tr key={index} className='w-full'>
+                      <td className='w-fit p-2 text-center '>
+                        <span className='p-2 px-4 text-xs bg-black text-white rounded'>
+                          {index + 1}.
+                        </span>
+                      </td>
+                      <td className='w-fit p-2 text-center'>
+                        <div className='space-y-2'>
+                          <h2 className='font-semibold'>
+                            {singleSolicitation?.data.items[index]?.item?.name}
+                          </h2>
+                          <h6>
+                            {
+                              singleSolicitation?.data.items[index]?.item
+                                ?.description
+                            }
+                          </h6>
+                        </div>
+                      </td>
+                      <td className='w-fit p-2 text-center'>
+                        <FormInput
+                          label=''
+                          name={`items.[${index}].quantity`}
+                          type='number'
+                          className='w-24'
+                        />
+                      </td>
+                      <td className='w-fit p-2 text-center'>
+                        <FormInput
+                          label=''
+                          type='number'
+                          name={`items.[${index}].unit_price`}
+                          className='w-24'
+                        />
+                      </td>
+                      <td className='w-fit p-2 text-center'>
                         <h6>
-                            Please provide your quotation for the following
-                            Items
+                          ₦
+                          {Number(
+                            Number(itemsWatchData[index]?.quantity) *
+                              Number(itemsWatchData[index]?.unit_price)
+                          ).toLocaleString()}
                         </h6>
-                    </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            <div className=''>
+              {/* Calculate total */}
+              <div className='flex items-center justify-center w-1/6 gap-20 px-5 py-3 border rounded-lg border-primary text-primary ml-auto mt-6'>
+                <h4>Total:</h4>
+                <h4>₦0.00</h4>
+              </div>
+            </div>
+          </div>
 
-                    <div>
-                        <table className="w-full border mt-10">
-                            <thead>
-                                <tr className="text-amber-500 whitespace-nowrap border-b-2 text-sm font-semibold">
-                                    <th className="px-2 py-5">S/N</th>
-                                    <th className="px-2 py-5">
-                                        Items Description
-                                    </th>
-                                    <th className="px-2 py-5">Qty</th>
-                                    <th className="px-2 py-5">
-                                        {" "}
-                                        Unit of Measure(UoM)
-                                    </th>
-                                    <th className="px-2 py-5"> Unit price</th>
-                                    <th className="px-2 py-5">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {fields.map((field, index) => {
-                                    return (
-                                        <tr key={index} className="w-full">
-                                            <td className="w-fit p-2 text-center ">
-                                                <span className="p-2 px-4 text-xs bg-black text-white rounded">
-                                                    {index + 1}.
-                                                </span>
-                                            </td>
-                                            <td className="w-fit p-2 text-center">
-                                                <div className="space-y-2">
-                                                    <h2 className="font-semibold">
-                                                        {
-                                                            items?.items[index]
-                                                                ?.item?.name
-                                                        }
-                                                    </h2>
-                                                    <h6>
-                                                        {
-                                                            items?.items[index]
-                                                                ?.item
-                                                                ?.description
-                                                        }
-                                                    </h6>
-                                                </div>
-                                            </td>
-                                            <td className="w-fit p-2 text-center">
-                                                <FormInput
-                                                    label=""
-                                                    name={`items.[${index}].quantity`}
-                                                    type="number"
-                                                    className="w-24"
-                                                />
-                                            </td>
-                                            <td className="w-fit p-2 text-center">
-                                                <h6>
-                                                    {" "}
-                                                    {
-                                                        items?.items[index]
-                                                            ?.item?.uom
-                                                    }
-                                                </h6>
-                                            </td>
-                                            <td className="w-fit p-2 text-center">
-                                                <FormInput
-                                                    label=""
-                                                    type="number"
-                                                    name={`items.[${index}].unit_price`}
-                                                    className="w-24"
-                                                />
-                                            </td>
-                                            <td className="w-fit p-2 text-center">
-                                                <h6>
-                                                    ₦
-                                                    {Number(
-                                                        Number(
-                                                            itemsWatchData[
-                                                                index
-                                                            ]?.quantity
-                                                        ) *
-                                                            Number(
-                                                                itemsWatchData[
-                                                                    index
-                                                                ]?.unit_price
-                                                            )
-                                                    ).toLocaleString()}
-                                                </h6>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
+          {/* <div className='grid grid-cols-3 gap-5'>
+            {solicitationCriteria?.data.results?.map((s, index) => {
+              const formatToSnakeCase = (str) => {
+                return str
+                  ?.toLowerCase() // Convert to lowercase
+                  ?.replace(/[^a-z0-9\s]/g, "") // Remove special characters
+                  ?.replace(/\s+/g, "_"); // Replace spaces with underscores
+              };
 
-                        {/* <div className="flex items-center justify-center w-1/6 gap-20 px-5 py-3 mx-auto border rounded-lg border-primary text-primary">
-              <h4>Total:</h4>
-              <h4>₦0.00</h4>
-            </div> */}
-                    </div>
+              const formattedString = formatToSnakeCase(s.name);
 
-                    <table className="w-full border mt-10">
-                        <thead>
-                            <tr className="text-amber-500 whitespace-nowrap border-b-2 text-sm font-semibold">
-                                <th className="px-2 py-5">Criteria</th>
-                                <th className="px-2 py-5">Vendor Response</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {FieldItems.map((field, index) => {
-                                return (
-                                    <tr key={index} className="w-full">
-                                        <td className="w-fit p-2">
-                                            <h6>
-                                                {items?.criteria[index]?.name}
-                                            </h6>
-                                        </td>
-                                        <td className="w-fit p-2 text-center">
-                                            <FormInput
-                                                label=""
-                                                name={`responses.[${index}].response`}
-                                                className="w-full"
-                                            />
-                                        </td>
-                                    </tr>
-                                );
-                            })}
+              return (
+                <div className='' key={index}>
+                  <FormInput
+                    label={s?.name}
+                    name={formattedString}
+                    type='text'
+                  />
+                </div>
+              );
+            })}
+          </div> */}
 
-                            <tr className="w-full">
-                                <td className="w-fit p-2">
-                                    <h6>Remarks</h6>
-                                </td>
-                                <td className="w-fit p-2 text-center">
-                                    <FormInput
-                                        label=""
-                                        name=""
-                                        className="w-full"
-                                    />
-                                </td>
-                            </tr>
+          <div className='grid grid-cols-3 gap-5'>
+            {responseField.map((field, index) => {
+              return (
+                <tr key={index} className='w-full'>
+                  <FormInput
+                    label={solicitationCriteria?.data.results[index]?.name}
+                    name={`responses.[${index}].response`}
+                    className='w-full'
+                  />
+                </tr>
+              );
+            })}
+          </div>
 
-                            <tr className="w-full">
-                                <td className="w-fit p-2">
-                                    <h6>Variance</h6>
-                                </td>
-                                <td className="w-fit p-2 text-center">
-                                    <FormInput
-                                        label=""
-                                        name=""
-                                        className="w-full"
-                                    />
-                                </td>
-                            </tr>
-
-                            <tr className="w-full">
-                                <td className="w-fit p-2">
-                                    <h6>Previous work experience with AHNI?</h6>
-                                </td>
-                                <td className="w-fit p-2 text-center">
-                                    <FormInput
-                                        label=""
-                                        name=""
-                                        className="w-full"
-                                    />
-                                </td>
-                            </tr>
-
-                            <tr className="w-full">
-                                <td className="w-fit p-2">
-                                    <h6>Currency for payment</h6>
-                                </td>
-                                <td className="w-fit p-2 text-center">
-                                    <FormInput
-                                        label=""
-                                        name=""
-                                        className="w-full"
-                                    />
-                                </td>
-                            </tr>
-
-                            <tr className="w-full">
-                                <td className="w-fit p-2">
-                                    <h6>Warranty</h6>
-                                </td>
-                                <td className="w-fit p-2 text-center">
-                                    <FormInput
-                                        label=""
-                                        name=""
-                                        className="w-full"
-                                    />
-                                </td>
-                            </tr>
-
-                            <tr className="w-full">
-                                <td className="w-fit p-2">
-                                    <h6>Recommendation notes</h6>
-                                </td>
-                                <td className="w-fit p-2 text-center">
-                                    <FormInput
-                                        label=""
-                                        name=""
-                                        className="w-full"
-                                    />
-                                </td>
-                            </tr>
-
-                            <tr className="w-full">
-                                <td className="w-fit p-2">
-                                    <h6>Prepared by</h6>
-                                </td>
-                                <td className="w-fit p-2 text-center">
-                                    <FormInput
-                                        label=""
-                                        name=""
-                                        className="w-full"
-                                    />
-                                </td>
-                            </tr>
-
-                            <tr className="w-full">
-                                <td className="w-fit p-2">
-                                    <h6>Reviewed by</h6>
-                                </td>
-                                <td className="w-fit p-2 text-center">
-                                    <FormInput
-                                        label=""
-                                        name=""
-                                        className="w-full"
-                                    />
-                                </td>
-                            </tr>
-
-                            <tr className="w-full">
-                                <td className="w-fit p-2">
-                                    <h6>Procurement Committee</h6>
-                                </td>
-                                <td className="w-fit p-2 text-center">
-                                    <FormInput
-                                        label=""
-                                        name=""
-                                        className="w-full"
-                                    />
-                                </td>
-                            </tr>
-
-                            <tr className="w-full">
-                                <td className="w-fit p-2">
-                                    <h6>Procurement Committee</h6>
-                                </td>
-                                <td className="w-fit p-2 text-center">
-                                    <FormInput
-                                        label=""
-                                        name=""
-                                        className="w-full"
-                                    />
-                                </td>
-                            </tr>
-
-                            <tr className="w-full">
-                                <td className="w-fit p-2">
-                                    <h6>Procurement Committee</h6>
-                                </td>
-                                <td className="w-fit p-2 text-center">
-                                    <FormInput
-                                        label=""
-                                        name=""
-                                        className="w-full"
-                                    />
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div className="flex justify-end">
-                        <FormButton
-                            loading={solicitationBidIsLoading}
-                            disabled={solicitationBidIsLoading}
-                            type="submit"
-                        >
-                            Create
-                        </FormButton>
-                    </div>
-                </form>
-            </Form>
-        </div>
-    );
+          <div className='flex justify-end'>
+            <FormButton
+              loading={isCreateLoading}
+              disabled={isCreateLoading}
+              type='submit'
+            >
+              Submit
+            </FormButton>
+          </div>
+        </form>
+      </Form>
+    </div>
+  );
 };
 
 export default ManualBidSubmission;

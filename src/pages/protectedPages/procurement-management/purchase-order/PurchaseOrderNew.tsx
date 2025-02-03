@@ -1,7 +1,7 @@
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import { Label } from "components/ui/label";
-import { useNavigate } from "react-router-dom";
-import { Check, ChevronsUpDown, MinusCircle } from "lucide-react";
+import { generatePath, Link, useNavigate } from "react-router-dom";
+import { Check, ChevronsUpDown, MinusCircle, PlusCircle } from "lucide-react";
 import { cn } from "lib/utils";
 import { Button } from "components/ui/button";
 import {
@@ -24,15 +24,19 @@ import FormInput from "atoms/FormInput";
 import { Form } from "components/ui/form";
 import FormButton from "atoms/FormButton";
 import LongArrowRight from "components/icons/LongArrowRight";
-import { toast } from "sonner";
+// import { toast } from "sonner";
 import { RouteEnum } from "constants/RouterConstants";
 import BreadcrumbCard from "components/shared/Breadcrumb";
+import DepartmentsAPI from "services/configs/departments";
 
 const PurchaseOrderNew = () => {
   const [open, setOpen] = useState(false);
   const [opens, setOpens] = useState(false);
+  const [opensPurchase, setOpensPurchase] = useState(false);
   const [vendorValue, setVendorValue] = useState("");
   const [requestValue, setRequestValue] = useState("");
+  const [purchaseValue, setPurchaseValue] = useState("");
+
   const navigate = useNavigate();
   const goBack = () => {
     navigate(-1);
@@ -42,15 +46,20 @@ const PurchaseOrderNew = () => {
     VendorsAPI.useGetVendorsQuery({});
   const { data: requests, isLoading: requestsIsLoading } =
     PurchaseRequestAPI.useGetPurchaseRequestsQuery({});
-  const { data: requestsDetails, isLoading: requestsDetailsIsLoading } =
+  const { data: requestsDetails } =
     PurchaseRequestAPI.useGetPurchaseRequestQuery(
       useMemo(
         () => ({
-          path: { id: requestValue as string },
+          path: { id: purchaseValue as string },
         }),
-        [requestValue]
+        [purchaseValue]
       )
     );
+
+  const { data: departments, isLoading: departmentsIsLoading } =
+    DepartmentsAPI.useGetDepartmentsQuery({});
+
+  console.log({ vendors, requests, requestsDetails, requestValue });
 
   const form = useForm<z.infer<typeof PurchaseOrderListSchema>>({
     resolver: zodResolver(PurchaseOrderListSchema),
@@ -60,7 +69,8 @@ const PurchaseOrderNew = () => {
   const { setValue, control, handleSubmit } = form;
 
   const data = useMemo(() => {
-    return requestsDetails?.items.map((data) => ({
+    // @ts-ignore
+    return requestsDetails?.data?.items.map((data) => ({
       item_id: data?.item?.id || "",
       fco: data?.fco || "",
       quantity: data?.quantity || 0,
@@ -75,10 +85,10 @@ const PurchaseOrderNew = () => {
     if (data) {
       setValue("items", data);
     }
-    if (requestValue) {
-      setValue("purchase_request", requestValue);
+    if (purchaseValue) {
+      setValue("purchase_request", purchaseValue);
     }
-  }, [data, setValue, requestValue]);
+  }, [data, setValue, purchaseValue]);
 
   useEffect(() => {
     if (vendorValue) {
@@ -86,7 +96,7 @@ const PurchaseOrderNew = () => {
     }
   }, [setValue, vendorValue]);
 
-  const { fields, remove } = useFieldArray({
+  const { fields, remove, append } = useFieldArray({
     control,
     name: "items",
   });
@@ -96,24 +106,26 @@ const PurchaseOrderNew = () => {
   }, []);
 
   const onSubmit = async (data: z.infer<typeof PurchaseOrderListSchema>) => {
-    const formData = {
-      purchase_request: data?.purchase_request,
-      vendor: data?.vendor,
-      items: data?.items.map((item) => ({
-        item_id: item?.item_id,
-        quantity: item?.quantity,
-        unit_cost: item?.unit_cost,
-        fco: item?.fco,
-      })),
-    };
+    console.log({ data });
 
-    try {
-      navigate(RouteEnum.PURCHASE_ORDER);
-      toast.success("Successfully created.");
-    } catch (error) {
-      toast.error("Something went wrong");
-      console.log(error);
-    }
+    // const formData = {
+    //   purchase_request: data?.purchase_request,
+    //   vendor: data?.vendor,
+    //   items: data?.items.map((item) => ({
+    //     item_id: item?.item_id,
+    //     quantity: item?.quantity,
+    //     unit_cost: item?.unit_cost,
+    //     fco: item?.fco,
+    //   })),
+    // };
+
+    // try {
+    //   navigate(RouteEnum.PURCHASE_ORDER);
+    //   toast.success("Successfully created.");
+    // } catch (error) {
+    //   toast.error("Something went wrong");
+    //   console.log(error);
+    // }
   };
 
   const breadcrumbs = [
@@ -121,6 +133,10 @@ const PurchaseOrderNew = () => {
     { name: "Purchase Order", icon: true },
     { name: "Create", icon: false },
   ];
+
+  const lon = form.getValues();
+
+  console.log({ lon });
 
   return (
     <div className='space-y-5'>
@@ -137,7 +153,7 @@ const PurchaseOrderNew = () => {
 
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-5'>
-          <div className='grid grid-cols-1 pt-5 gap-5'>
+          <div className='grid grid-cols-2 pt-5 gap-5'>
             <div>
               <Label className='font-semibold'>
                 Vendor <span className='text-red-500'>*</span>
@@ -151,11 +167,11 @@ const PurchaseOrderNew = () => {
                       aria-expanded={open}
                       className='w-full justify-between'
                     >
-                      {/* {vendorValue
-                        ? vendors?.results?.find(
+                      {vendorValue
+                        ? vendors?.data?.results?.find(
                             (vendor) => vendor?.id === vendorValue
                           )?.company_name
-                        : "Select vendor..."} */}
+                        : "Select vendor..."}
                       <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
                     </Button>
                   </PopoverTrigger>
@@ -163,17 +179,17 @@ const PurchaseOrderNew = () => {
                     <Command>
                       <CommandInput placeholder='Search vendor...' />
                       <CommandEmpty>No Vendor found.</CommandEmpty>
-                      {/* <CommandGroup>
+                      <CommandGroup>
                         {vendorsIsLoading && <LoadingSpinner />}
-                        {vendors?.results?.map((vendor) => (
-                          // <CommandItem
-                          //   key={vendor?.id}
-                          //   value={vendor?.id}
-                          //   onSelect={(currentValue) => {
-                          //     setVendorValue(currentValue);
-                          //     setOpen(false);
-                          //   }}
-                          // >
+                        {vendors?.data?.results?.map((vendor) => (
+                          <CommandItem
+                            key={vendor?.id}
+                            value={vendor?.id}
+                            onSelect={(currentValue) => {
+                              setVendorValue(currentValue);
+                              setOpen(false);
+                            }}
+                          >
                             <Check
                               className={cn(
                                 "mr-2 h-4 w-4",
@@ -185,7 +201,7 @@ const PurchaseOrderNew = () => {
                             {vendor?.company_name}
                           </CommandItem>
                         ))}
-                      </CommandGroup> */}
+                      </CommandGroup>
                     </Command>
                   </PopoverContent>
                 </Popover>
@@ -194,6 +210,64 @@ const PurchaseOrderNew = () => {
             <div>
               <Label className='font-semibold'>
                 Purchase Request
+                <span className='text-red-500'>*</span>
+              </Label>
+              <div>
+                <Popover open={opensPurchase} onOpenChange={setOpensPurchase}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant='outline'
+                      role='combobox'
+                      aria-expanded={opensPurchase}
+                      className='w-full justify-between'
+                    >
+                      {purchaseValue
+                        ? requests?.data?.results?.find(
+                            (vendor) => vendor?.id === purchaseValue
+                          )?.ref_number
+                        : "Select vendor..."}
+                      <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className='w-full p-0'>
+                    <Command>
+                      <CommandInput placeholder='Search vendor...' />
+                      <CommandEmpty>No Vendor found.</CommandEmpty>
+                      <CommandGroup>
+                        {requestsIsLoading && <LoadingSpinner />}
+                        {requests?.data?.results?.map((request) => {
+                          console.log({ request: request?.ref_number });
+
+                          return (
+                            <CommandItem
+                              key={request?.id}
+                              value={request?.id}
+                              onSelect={(currentValue) => {
+                                setPurchaseValue(currentValue);
+                                setOpensPurchase(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  purchaseValue === request?.id
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                              {request?.ref_number}
+                            </CommandItem>
+                          );
+                        })}
+                      </CommandGroup>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+            <div>
+              <Label className='font-semibold'>
+                Requesting Unit/Dept
                 <span className='text-red-500'>*</span>
               </Label>
               <div>
@@ -206,9 +280,9 @@ const PurchaseOrderNew = () => {
                       className='w-full justify-between'
                     >
                       {requestValue
-                        ? requests?.results?.find(
+                        ? departments?.data?.results?.find(
                             (vendor) => vendor?.id === requestValue
-                          )?.title
+                          )?.name
                         : "Select vendor..."}
                       <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
                     </Button>
@@ -218,27 +292,29 @@ const PurchaseOrderNew = () => {
                       <CommandInput placeholder='Search vendor...' />
                       <CommandEmpty>No Vendor found.</CommandEmpty>
                       <CommandGroup>
-                        {requestsIsLoading && <LoadingSpinner />}
-                        {requests?.results?.map((request) => (
-                          <CommandItem
-                            key={request?.id}
-                            value={request?.id}
-                            onSelect={(currentValue) => {
-                              setRequestValue(currentValue);
-                              setOpens(false);
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                requestValue === request?.id
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              )}
-                            />
-                            {request?.title}
-                          </CommandItem>
-                        ))}
+                        {departmentsIsLoading && <LoadingSpinner />}
+                        {departments?.data?.results?.map((request) => {
+                          return (
+                            <CommandItem
+                              key={request?.id}
+                              value={request?.id}
+                              onSelect={(currentValue) => {
+                                setRequestValue(currentValue);
+                                setOpens(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  requestValue === request?.id
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                              {request?.name}
+                            </CommandItem>
+                          );
+                        })}
                       </CommandGroup>
                     </Command>
                   </PopoverContent>
@@ -325,7 +401,28 @@ const PurchaseOrderNew = () => {
               })}
             </tbody>
           </table>
-
+          {/* Add More Button */}
+          <div className='flex justify-end mt-4'>
+            <Button
+              type='button'
+              variant='outline'
+              onClick={() =>
+                append({
+                  description: "",
+                  fco: "",
+                  item_id: "",
+                  quantity: "",
+                  total: "",
+                  unit_cost: "",
+                  uom: "",
+                })
+              }
+              className='bg-alternate border border-primary text-primary'
+            >
+              <PlusCircle className='mr-1' />
+              Add More
+            </Button>
+          </div>
           <div className='flex items-center justify-end'>
             <FormButton
               loading={false}

@@ -14,16 +14,6 @@ import VendorsEvaluaionAndPerformanceAPI from "services/procurementApi/vendors-e
 
 interface Recommendation {
   recommendation: string;
-  evaluator: {
-    name: string;
-    date: string;
-    signature: string;
-  };
-  supervisor: {
-    name: string;
-    date: string;
-    signature: string;
-  };
 }
 
 const VendorPerformance = () => {
@@ -43,8 +33,6 @@ const VendorPerformance = () => {
     (sum, item) => sum + item.value,
     0
   );
-  // Summing up the `value` field
-  // const totalValue = criteria_scores.reduce((sum, item) => sum + item.value, 0);
 
   // Simulating fetching data
   useEffect(() => {
@@ -52,29 +40,9 @@ const VendorPerformance = () => {
       const recommendations: Recommendation[] = [
         {
           recommendation: "On Probation",
-          evaluator: {
-            name: "Evaluator A",
-            date: "01-Jan-2023",
-            signature: "Signature A",
-          },
-          supervisor: {
-            name: "Supervisor X",
-            date: "02-Jan-2023",
-            signature: "Signature X",
-          },
         },
         {
           recommendation: "Barred",
-          evaluator: {
-            name: "Evaluator B",
-            date: "01-Feb-2023",
-            signature: "Signature B",
-          },
-          supervisor: {
-            name: "Supervisor Y",
-            date: "02-Feb-2023",
-            signature: "Signature Y",
-          },
         },
       ];
 
