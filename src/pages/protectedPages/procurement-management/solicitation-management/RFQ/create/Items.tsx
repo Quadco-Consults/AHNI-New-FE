@@ -8,7 +8,7 @@ import AddSquareIcon from "components/icons/AddSquareIcon";
 import { Form, FormControl, FormField, FormItem } from "components/ui/form";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import FormButton from "atoms/FormButton";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
 import { z } from "zod";
 import { SolicitationItemsSchema } from "definations/procurement-validator";
@@ -121,12 +121,16 @@ const Items = () => {
     );
 
     const payload = { ...quotationData, ...data };
+    // navigate(RouteEnum.RFQ_CREATE_CBA, {   });
+    // navigate(`${RouteEnum.RFQ_CREATE_CBA}?id=${res?.data?.id}`);
 
     try {
-      await createSolicitation(payload).unwrap();
+      const res = await createSolicitation(payload).unwrap();
+      console.log({ res, id: res?.data?.id });
+
       sessionStorage.removeItem("rfqQuotationFormData");
       toast.success("Solicitation Created Successfully");
-      navigate(RouteEnum.RFQ);
+      navigate(`${RouteEnum.RFQ_CREATE_CBA}?id=${res?.data?.id}`);
     } catch (error: any) {
       toast.error(error.data.message ?? "Something went wrong");
     }
@@ -239,6 +243,7 @@ const Items = () => {
             >
               Cancel
             </Button>
+            {/* <Link to={{ pathname: RouteEnum.RFQ_CREATE_CBA }}> */}
             <FormButton
               loading={isCreateLoading}
               disabled={isCreateLoading}
@@ -246,6 +251,7 @@ const Items = () => {
             >
               Save Changes
             </FormButton>
+            {/* </Link> */}
           </div>
         </form>
       </Form>
