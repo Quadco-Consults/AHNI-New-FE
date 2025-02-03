@@ -184,6 +184,8 @@ export const RouteEnum = {
   //purchase order routes
   PURCHASE_ORDER: "/procurement-management/purchase-order",
   PURCHASE_ORDER_ID: "/procurement-management/purchase-order/:id",
+  PURCHASE_ORDER_ID_TERMS:
+    "/procurement-management/purchase-order/:id/terms-and-conditions",
   PURCHASE_ORDER_NEW: "/procurement-management/purchase-order-new",
 
   SUBMISSION_OF_BIDS: "/procurement-management/submission-of-bids",

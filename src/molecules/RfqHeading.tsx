@@ -18,6 +18,7 @@ const steps: Step[] = [
     route: "quotation",
   },
   { step: 2, stepName: "Items", route: "items" },
+  { step: 3, stepName: "CBA creation", route: "cba" },
 ];
 
 const RfqHeading = () => {
@@ -58,18 +59,18 @@ const RfqHeading = () => {
   ];
 
   return (
-    <section className="space-y-5">
+    <section className='space-y-5'>
       <BreadcrumbCard list={breadcrumbs} />
 
-      <div className="grid justify-between w-1/2 grid-cols-2 px-4 py-2 gap-y-4">
+      <div className='grid justify-between w-1/2 grid-cols-3 px-4 py-2 gap-y-4'>
         {steps.map((item, i) => {
           return (
-            <div className="flex items-center" key={i}>
+            <div className='flex items-center' key={i}>
               {completedSteps[i] ? <CheckIcon /> : <PendingIcon />}
 
               {i !== steps.length - 1 && (
-                <div className="flex items-center justify-center w-full text-center ">
-                  <Separator className="w-[70%] text-center h-[2px] bg-[#756D6D] " />
+                <div className='flex items-center justify-center w-full text-center '>
+                  <Separator className='w-[70%] text-center h-[2px] bg-[#756D6D] ' />
                 </div>
               )}
             </div>
@@ -77,11 +78,11 @@ const RfqHeading = () => {
         })}
         {steps.map((step, index) => {
           return (
-            <div className="flex items-center " key={index}>
-              <div className="text-sm ">
-                <div className="space-y-1">
-                  <div className="text-xs">STEP {step.step}</div>
-                  <div className="text-sm font-semibold">{step.stepName}</div>
+            <div className='flex items-center ' key={index}>
+              <div className='text-sm '>
+                <div className='space-y-1'>
+                  <div className='text-xs'>STEP {step.step}</div>
+                  <div className='text-sm font-semibold'>{step.stepName}</div>
                 </div>
               </div>
             </div>

@@ -586,6 +586,7 @@ const DEPARTMENTAL_LINKS = [
       { name: "Supplier Database", path: RouteEnum.SUPPLIER_DATABASE },
       { name: "Price Intelligence", path: RouteEnum.PRICE_INTELLIGENCE },
       { name: "Procurement Plan", path: RouteEnum.PROCUREMENT_PLAN },
+      { name: "Procurement Tracker", path: RouteEnum.PROCUREMENT_TRACKER },
       { name: "Purchase Requests", path: RouteEnum.PURCHASE_REQUEST },
       {
         name: "Solicitation Management",
