@@ -23,6 +23,7 @@ const Preview = () => {
   const query = useQuery();
   const id = query.get("id");
   const request = query.get("request");
+  const created = query.get("created");
 
   const { data: requestsDetails } = PurchaseRequestAPI.useGetActivityMemoQuery(
     useMemo(
@@ -54,7 +55,7 @@ const Preview = () => {
     <div className='bg-white p-8'>
       <section className='min-h-screen space-y-8'>
         <div className='flex w-full items-center justify-end gap-4'>
-          {!id && (
+          {created === "true" && (
             <Link
               className='w-fit'
               to={generatePath(RouteEnum.CREATE_PURCHASE_REQUEST)}
@@ -65,7 +66,7 @@ const Preview = () => {
               </Button>
             </Link>
           )}{" "}
-          {id && (
+          {created !== "true" && (
             <Link
               className='w-fit'
               to={generatePath(RouteEnum.PURCHASE_REQUEST_DETAILS, {

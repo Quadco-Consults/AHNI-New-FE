@@ -24,6 +24,7 @@ import { Form } from "components/ui/form";
 import { Link, useNavigate } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
 import useQuery from "hooks/useQuery";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 // Sample Checkbox component
 // eslint-disable-next-line react/display-name
@@ -69,14 +70,19 @@ const CheckboxForm = () => {
     size: 2000000,
   });
 
+  // const { data: requestsDetails } = PurchaseRequestAPI.useGetActivityMemoQuery(
+  //   useMemo(
+  //     () => ({
+  //       path: { id: id as string },
+  //     }),
+  //     [id]
+  //   )
+  // );
   const { data: requestsDetails } = PurchaseRequestAPI.useGetActivityMemoQuery(
-    useMemo(
-      () => ({
-        path: { id: id as string },
-      }),
-      [id]
-    )
+    useMemo(() => (id ? { path: { id: id as string } } : skipToken), [id])
   );
+
+  console.log({ requestsDetails });
 
   const form = useForm<FormData>({
     resolver: zodResolver(UploadSchema),
@@ -190,8 +196,12 @@ const CheckboxForm = () => {
     };
 
     try {
-      await createActivityMemoMutation(payload).unwrap();
-      navigate(RouteEnum.SAMPLE_PREVIEW);
+      const res = await createActivityMemoMutation(payload).unwrap();
+      console.log({ res });
+
+      // navigate(RouteEnum.PREVIEW_LETTER);
+      navigate(`${RouteEnum.PREVIEW_LETTER}?id=${res?.id}&created=${"true"}`);
+
       toast.success("Successfully created.");
     } catch (error) {
       toast.error("Something went wrong");
