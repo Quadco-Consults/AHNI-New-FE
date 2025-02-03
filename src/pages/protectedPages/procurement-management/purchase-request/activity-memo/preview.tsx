@@ -96,6 +96,8 @@ const CheckboxForm = () => {
 
   const integratedTraining = watch("integratedTraining");
   const beneficiary = watch("beneficiaries");
+  const budgets = watch("budget_expended");
+  const activityBudget = watch("activity_budget");
 
   // Update default values when beneficiaries data is available
   useEffect(() => {
@@ -138,6 +140,11 @@ const CheckboxForm = () => {
       );
     }
   }, [requestsDetails, setValue]);
+
+  useEffect(() => {
+    const balance = Number(activityBudget) - Number(budgets) || 0;
+    setValue("balance", balance);
+  }, [setValue, activityBudget, budgets]);
 
   // Reset beneficiaries when integratedTraining is "false"
   useEffect(() => {
