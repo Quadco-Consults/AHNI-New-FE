@@ -18,6 +18,7 @@ import useQuery from "hooks/useQuery";
 const Preview = () => {
   const query = useQuery();
   const id = query.get("id");
+  const created = query.get("created");
   const request = query.get("request");
 
   const { data: requestsDetails } = PurchaseRequestAPI.useGetActivityMemoQuery(
@@ -102,8 +103,14 @@ const Preview = () => {
           <p className='mt-8'>Thank you</p>
         </div>
         <div className='w-full px-4 justify-end flex'>
-          {!id && (
-            <Link className='w-fit' to={generatePath(RouteEnum.FINAL_PREVIEW)}>
+          {created === "true" && (
+            <Link
+              className='w-fit'
+              to={{
+                pathname: RouteEnum.FINAL_PREVIEW,
+                search: `?id=${id}&created=${"true"}`,
+              }}
+            >
               <Button
                 type='submit'
                 className='mt-4 px-4 py-2 bg-primary text-white rounded'
@@ -113,7 +120,7 @@ const Preview = () => {
               </Button>
             </Link>
           )}
-          {id && (
+          {created !== "true" && (
             <Link
               className='w-fit'
               to={{
