@@ -33,7 +33,7 @@ function PurchaseRequest() {
       size: 250,
       cell: ({ row }) => (
         <div className=''>
-          <p>{row.original.requesting_department_detail.name}</p>
+          <p>{row.original?.requesting_department_detail?.name}</p>
         </div>
       ),
     },
@@ -49,11 +49,11 @@ function PurchaseRequest() {
     },
     {
       header: "Deliver to",
-      accessorKey: "deliver_to",
+      accessorKey: "location",
       size: 250,
       cell: ({ row }) => (
         <div className=''>
-          <p>{row.original.deliver_to_detail.name}</p>
+          <p>{row.original?.location_detail?.name}</p>
         </div>
       ),
     },

@@ -425,6 +425,15 @@ export const procurment = [
     ),
   },
   {
+    path: RouteEnum.PURCHASE_ORDER_ID_TERMS,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/purchase-order/[id]/TermsAndConditions"
+        )
+    ),
+  },
+  {
     path: RouteEnum.PURCHASE_ORDER_NEW,
     element: lazy(
       () =>
