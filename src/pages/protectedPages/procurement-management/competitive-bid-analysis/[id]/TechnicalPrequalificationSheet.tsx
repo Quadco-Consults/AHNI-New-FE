@@ -7,8 +7,8 @@ import { Separator } from "components/ui/separator";
 import { ChevronRight } from "lucide-react";
 import TenderChecklist from "./TenderCheckList";
 import { Controller, useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
-import { RouteEnum } from "constants/RouterConstants";
+// import { useNavigate } from "react-router-dom";
+// import { RouteEnum } from "constants/RouterConstants";
 
 const criteriaData = [
   {
@@ -30,11 +30,11 @@ const criteriaData = [
 ];
 const TPS = () => {
   const { handleSubmit, control } = useForm();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const onSubmit = (data: any) => {
     console.log("Submitted Data:", data);
-    navigate(RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_FINANCIAL_BID_OPENING);
+    // navigate(RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_FINANCIAL_BID_OPENING);
   };
 
   return (
