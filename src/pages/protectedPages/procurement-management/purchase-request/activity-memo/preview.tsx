@@ -114,7 +114,7 @@ const CheckboxForm = () => {
     }
   }, [projects, setValue]);
 
-  console.log({ projects });
+  console.log({ projects, requestsDetails });
 
   useEffect(() => {
     if (requestsDetails) {
@@ -177,8 +177,9 @@ const CheckboxForm = () => {
       approved_by: mergedObject.approved_by,
       reviewed_by: mergedObject.reviewed_by,
       authorized_by: mergedObject.authorized_by,
-      copy: mergedObject.copy,
+      copied: mergedObject.copy,
       through: mergedObject.through,
+      is_program: true,
       balance: data.balance,
       // location: "south park",
       subject: mergedObject.subject,
@@ -191,13 +192,12 @@ const CheckboxForm = () => {
       funding_source: mergedObject.funding_source,
       intervention_areas: mergedObject.intervention_areas,
       requested_date: mergedObject.requested_date,
-      program_area: program_area[0],
+      project_area: program_area[0],
       budget_expended: data.budget_expended,
     };
 
     try {
       const res = await createActivityMemoMutation(payload).unwrap();
-      console.log({ res });
 
       // navigate(RouteEnum.PREVIEW_LETTER);
       navigate(`${RouteEnum.PREVIEW_LETTER}?id=${res?.id}&created=${"true"}`);
@@ -212,8 +212,6 @@ const CheckboxForm = () => {
   const filteredBeneficiaries = beneficiary?.filter(
     (beneficiary) => beneficiary.selected
   );
-
-  console.log({ requestsDetails });
 
   return (
     <Form {...form}>
@@ -525,7 +523,7 @@ const CheckboxForm = () => {
           </Table>
         </div>
         <div className='w-full px-4'>
-          {!requestsDetails?.data && (
+          {!request && (
             <Button
               type='submit'
               className='mt-4 px-4 py-2 bg-alternate text-primary rounded w-full'
@@ -535,7 +533,7 @@ const CheckboxForm = () => {
             </Button>
           )}
 
-          {requestsDetails?.data && (
+          {request && (
             <Link
               className='w-fit'
               to={{
