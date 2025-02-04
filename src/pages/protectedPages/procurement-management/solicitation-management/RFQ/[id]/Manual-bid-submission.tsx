@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
 import { Button } from "components/ui/button";
-// import { RouteEnum } from "constants/RouterConstants";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { SelectContent, SelectItem } from "components/ui/select";
@@ -20,6 +19,7 @@ import FormButton from "atoms/FormButton";
 import { useCreateSolicitationSubmissionMutation } from "services/procurementApi/vendor-bid-submissions";
 import { useGetSingleSolicitationQuery } from "services/procurementApi/solicitation";
 import { useGetAllSolicitationEvaluationCriteriaQuery } from "services/modules/procurement/solicitation-evaluation-criteria";
+import { RouteEnum } from "constants/RouterConstants";
 
 const ManualBidSubmission = () => {
   const { id } = useParams();
@@ -51,9 +51,9 @@ const ManualBidSubmission = () => {
   const form = useForm<z.infer<typeof SolicitationSubmissionSchema>>({
     resolver: zodResolver(SolicitationSubmissionSchema),
     defaultValues: {
-      solicitation_id: id,
-      vendor_id: "",
-      items: [],
+      solicitation: id,
+      vendor: "",
+      bid_items: [],
     },
   });
 
@@ -61,42 +61,44 @@ const ManualBidSubmission = () => {
 
   const { fields } = useFieldArray({
     control,
-    name: "items",
+    name: "bid_items",
   });
 
   const { fields: responseField } = useFieldArray({
     control,
-    name: "responses",
+    name: "evaluations",
   });
 
+  // const data = [];
   const data = useMemo(() => {
-    return singleSolicitation?.data.items.map((data) => ({
+    return singleSolicitation?.data?.items.map((data) => ({
       solicitation_item: data?.id,
       quantity: data?.quantity || 0,
+      name: data?.item_detail?.name,
       unit_price: "",
     }));
   }, [singleSolicitation]);
 
   const dataVal = useMemo(() => {
-    return solicitationCriteria?.data.results?.map((data) => ({
+    return solicitationCriteria?.data?.results?.map((data) => ({
       response: "",
-      solicitation_criteria: data?.id,
+      evaluation_criteria: data?.id,
     }));
   }, [solicitationCriteria]);
 
   useEffect(() => {
     if (data) {
-      setValue("items", data);
+      setValue("bid_items", data);
     }
   }, [data, setValue, singleSolicitation]);
 
   useEffect(() => {
     if (dataVal) {
-      setValue("responses", dataVal);
+      setValue("evaluations", dataVal);
     }
   }, [dataVal, setValue]);
 
-  const itemsWatchData = watch("items");
+  const itemsWatchData = watch("bid_items");
 
   const onSubmit = async (
     data: z.infer<typeof SolicitationSubmissionSchema>
@@ -106,7 +108,7 @@ const ManualBidSubmission = () => {
       await createSolicitationSubmission(data).unwrap();
 
       toast.success("Successfully created.");
-      //   navigate(RouteEnum.RFQ);
+      navigate(RouteEnum.RFQ);
     } catch (error) {
       toast.error("Something went wrong");
       console.log(error);
@@ -130,7 +132,7 @@ const ManualBidSubmission = () => {
 
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-10'>
-          <FormSelect name='vendor_id' label='Vendor' required>
+          <FormSelect name='vendor' label='Vendor' required>
             <SelectContent>
               {vendorsIsLoading && <LoadingSpinner />}
               {/* @ts-ignore */}
@@ -151,52 +153,58 @@ const ManualBidSubmission = () => {
             <table className='w-full border mt-10'>
               <thead>
                 <tr className='text-amber-500 whitespace-nowrap border-b-2 text-sm font-semibold'>
-                  <th className='px-2 py-5'>S/N</th>
-                  <th className='px-2 py-5'>Items Description</th>
-                  <th className='px-2 py-5'>Qty</th>
-                  <th className='px-2 py-5'> Unit price</th>
-                  <th className='px-2 py-5'>Total</th>
+                  <th className='px-2 py-5 w-[50px]'>S/N</th>
+                  <th className='px-2 py-5 w-[300px]'>Items Description</th>
+                  <th className='px-2 py-5 w-[150px]'>Qty</th>
+                  <th className='px-2 py-5 w-[150px]'> Unit price</th>
+                  <th className='px-2 py-5 w-[150px]'>Total</th>
                 </tr>
               </thead>
               <tbody>
                 {fields.map((field, index) => {
+                  console.log({
+                    field,
+                    quantity: Number(itemsWatchData[index]?.quantity),
+                    unit: Number(itemsWatchData[index]?.unit_price),
+                    itemsWatchData,
+                  });
+
                   return (
                     <tr key={index} className='w-full'>
-                      <td className='w-fit p-2 text-center '>
+                      <td className='w-[50px] p-2 text-center '>
                         <span className='p-2 px-4 text-xs bg-black text-white rounded'>
                           {index + 1}.
                         </span>
                       </td>
-                      <td className='w-fit p-2 text-center'>
+                      <td className=' p-2 text-center w-[400px]'>
                         <div className='space-y-2'>
                           <h2 className='font-semibold'>
-                            {singleSolicitation?.data.items[index]?.item?.name}
+                            {/* {singleSolicitation?.data.items[index]?.item?.name} */}
+                            {/* @ts-ignore */}
+                            {field?.name}
                           </h2>
-                          <h6>
-                            {
-                              singleSolicitation?.data.items[index]?.item
-                                ?.description
-                            }
-                          </h6>
+                          {/* @ts-ignore */}
+                          <h6>{field?.description} </h6>
                         </div>
                       </td>
-                      <td className='w-fit p-2 text-center'>
+                      <td className='w-[100px] flex items-center p-2 text-center mx-auto'>
                         <FormInput
                           label=''
-                          name={`items.[${index}].quantity`}
+                          name={`bid_items.[${index}].quantity`}
                           type='number'
-                          className='w-24'
+                          className='w-full'
                         />
                       </td>
-                      <td className='w-fit p-2 text-center'>
+                      <td className='w-[100px] p-2 text-center mx-auto'>
                         <FormInput
                           label=''
                           type='number'
-                          name={`items.[${index}].unit_price`}
-                          className='w-24'
+                          name={`bid_items.[${index}].unit_price`}
+                          className='w-full'
                         />
                       </td>
-                      <td className='w-fit p-2 text-center'>
+
+                      <td className='w-[100px] p-2 text-center'>
                         <h6>
                           ₦
                           {Number(
@@ -212,43 +220,28 @@ const ManualBidSubmission = () => {
             </table>
             <div className=''>
               {/* Calculate total */}
-              <div className='flex items-center justify-center w-1/6 gap-20 px-5 py-3 border rounded-lg border-primary text-primary ml-auto mt-6'>
+              <div className='flex items-center justify-center w-fit gap-20 px-5 py-3 border rounded-lg border-primary text-primary ml-auto mt-6'>
                 <h4>Total:</h4>
-                <h4>₦0.00</h4>
+                <span>
+                  ₦
+                  {itemsWatchData
+                    .reduce((acc, item) => {
+                      const quantity = Number(item?.quantity) || 0;
+                      const unitPrice = Number(item?.unit_price) || 0;
+                      return acc + quantity * unitPrice;
+                    }, 0)
+                    .toLocaleString()}
+                </span>
               </div>
             </div>
           </div>
-
-          {/* <div className='grid grid-cols-3 gap-5'>
-            {solicitationCriteria?.data.results?.map((s, index) => {
-              const formatToSnakeCase = (str) => {
-                return str
-                  ?.toLowerCase() // Convert to lowercase
-                  ?.replace(/[^a-z0-9\s]/g, "") // Remove special characters
-                  ?.replace(/\s+/g, "_"); // Replace spaces with underscores
-              };
-
-              const formattedString = formatToSnakeCase(s.name);
-
-              return (
-                <div className='' key={index}>
-                  <FormInput
-                    label={s?.name}
-                    name={formattedString}
-                    type='text'
-                  />
-                </div>
-              );
-            })}
-          </div> */}
-
           <div className='grid grid-cols-3 gap-5'>
             {responseField.map((field, index) => {
               return (
                 <tr key={index} className='w-full'>
                   <FormInput
                     label={solicitationCriteria?.data.results[index]?.name}
-                    name={`responses.[${index}].response`}
+                    name={`evaluations.[${index}].response`}
                     className='w-full'
                   />
                 </tr>
