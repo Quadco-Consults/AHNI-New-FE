@@ -284,19 +284,18 @@ export const SolicitationSchema = z.object({
 });
 
 export const SolicitationSubmissionSchema = z.object({
-  solicitation_id: z.string().min(1, "Field is required"),
-  vendor_id: z.string().min(1, "Field is required"),
-  items: z.array(
+  solicitation: z.string().min(1, "Field is required"),
+  vendor: z.string().min(1, "Field is required"),
+  bid_items: z.array(
     z.object({
-      quantity: z.number().min(1, "Field is required"),
       unit_price: z.string().min(1, "Field is required"),
       solicitation_item: z.string().min(1, "Field is required"),
     })
   ),
-  responses: z.array(
+  evaluations: z.array(
     z.object({
       response: z.string().min(1, "Field is required"),
-      solicitation_criteria: z.string().min(1, "Field is required"),
+      evaluation_criteria: z.string().min(1, "Field is required"),
     })
   ),
 });

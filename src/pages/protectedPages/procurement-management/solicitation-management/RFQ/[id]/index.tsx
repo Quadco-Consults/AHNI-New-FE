@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { Button } from "components/ui/button";
-import { generatePath, Link, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
 import { LoadingSpinner } from "components/shared/Loading";
 // import { SolicitationResultsData } from "definations/procurement-types/solicitation";
@@ -14,8 +14,6 @@ const RFQDetails = () => {
   const { id } = useParams();
 
   const { data, isLoading } = useGetSingleSolicitationQuery(id ?? skipToken);
-
-  console.log({ data, id });
 
   if (isLoading) return <LoadingSpinner />;
 
@@ -51,6 +49,7 @@ const RFQDetails = () => {
           {data && <DetailsContent {...data?.data} />}
         </TabsContent>
         <TabsContent value='vendor-submission'>
+          {/* @ts-ignore */}
           {data && <VendorSubmission {...data?.data} />}
         </TabsContent>
       </Tabs>
