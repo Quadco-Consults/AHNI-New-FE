@@ -14,7 +14,7 @@ import {
 } from "definations/procurement-types/solicitation";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
-const BASE_URL = "/procurements/vendor-bid-submissions/";
+const BASE_URL = "/procurements/manaul-bid/";
 
 const VendorBidSubmissionAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
@@ -24,7 +24,7 @@ const VendorBidSubmissionAPI = baseAPI.injectEndpoints({
     >({
       query: ({ path }) => {
         return {
-          url: `${BASE_URL}${path.id}/submissions/`,
+          url: `${BASE_URL}by-solicitation/${path.id}/`,
         };
       },
       // providesTags: ["SOLICITATION"],
