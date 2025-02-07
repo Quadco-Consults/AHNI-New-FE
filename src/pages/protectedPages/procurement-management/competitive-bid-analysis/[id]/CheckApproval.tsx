@@ -1,7 +1,8 @@
 import GoBack from "components/shared/GoBack";
+import { Loading } from "components/shared/Loading";
 import { Button } from "components/ui/button";
 import { Textarea } from "components/ui/textarea";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ManualBidCbaPrequalificationAPI from "services/procurementApi/manual-bid-cba-prequalification";
 
 const TableComponent = () => {
@@ -14,45 +15,71 @@ const TableComponent = () => {
 
   console.log({ summaryData, isLoading });
 
-  // State for brand inputs
-  const [brandInputs, setBrandInputs] = useState<Record<string, string>>(
-    () =>
-      data.companies.reduce((acc, company) => {
-        acc[company] = ""; // Initialize empty values for brand inputs
-        return acc;
-      }, {} as Record<string, string>) // Provide type to the accumulator
-  );
+  function formatBidData(inputData) {
+    console.log({ inputData });
 
-  const grandTotal = data.companies.reduce((totals, company) => {
-    totals[company] = data.items.reduce(
-      (sum, item) =>
-        sum + (item[company as keyof ItemData] as CompanyData).total,
-      0
-    );
-    return totals;
-  }, {} as Record<string, number>);
+    if (inputData) {
+      const companies = [
+        ...new Set(
+          inputData.results.map((result) => result.vendor.company_name)
+        ),
+      ];
+      console.log({ companies });
 
-  const overallGrandTotal = data.companies.reduce(
-    (sum, company) => sum + grandTotal[company],
-    0
-  );
+      const itemsMap = new Map();
+      const extraDataMap = new Map();
 
-  const [checkedItems, setCheckedItems] = useState(() =>
-    data.items.reduce((acc, item) => {
-      acc[item.id] = data.companies.reduce((companyAcc, company) => {
-        companyAcc[company] = false;
-        return companyAcc;
-      }, {});
-      return acc;
-    }, {})
-  );
+      inputData.results.forEach((result) => {
+        const companyName = result.vendor.company_name;
 
-  const [headerChecked, setHeaderChecked] = useState(() =>
-    data.companies.reduce((acc, company) => {
-      acc[company] = false;
-      return acc;
-    }, {})
-  );
+        result.bid_details.bidsubmissionitems.forEach((item) => {
+          if (!itemsMap.has(item.solicitation_item)) {
+            itemsMap.set(item.solicitation_item, {
+              id: itemsMap.size + 1,
+              title: `Item ${itemsMap.size + 1}`, // Adjust title as needed
+              qty: 1,
+            });
+          }
+          itemsMap.get(item.solicitation_item)[companyName] = {
+            unitPrice: parseFloat(item.unit_price),
+            total: parseFloat(item.total_price),
+          };
+        });
+
+        result.bid_details.bid_evaluation_criteria.forEach((criteria) => {
+          const criteriaName = criteria.evaluation_criteria.name;
+          if (!extraDataMap.has(criteriaName)) {
+            extraDataMap.set(criteriaName, {
+              id: extraDataMap.size + 1,
+              title: criteriaName,
+              isExtra: true,
+            });
+          }
+          extraDataMap.get(criteriaName)[companyName] = {
+            text: criteria.response,
+            bgColor: "bg-purple-100", // Customize as needed
+          };
+        });
+      });
+
+      return {
+        data: {
+          companies,
+          items: Array.from(itemsMap.values()),
+        },
+        extraData: Array.from(extraDataMap.values()),
+      };
+    }
+  }
+
+  // Example usage:
+  const formattedData = formatBidData(summaryData?.data);
+  console.log({ formattedData });
+
+  const [checkedItems, setCheckedItems] = useState({});
+
+  const [headerChecked, setHeaderChecked] = useState({});
+  console.log({ headerChecked, checkedItems });
 
   const handleCheckboxChange = (itemId, company, checked) => {
     setCheckedItems((prevCheckedItems) => {
@@ -64,7 +91,7 @@ const TableComponent = () => {
         },
       };
 
-      const allChecked = data.items.every((item) => {
+      const allChecked = formattedData?.data?.items?.every((item) => {
         return updatedCheckedItems[item.id]?.[company] || false;
       });
 
@@ -80,7 +107,7 @@ const TableComponent = () => {
   const handleHeaderCheckboxChange = (company, checked) => {
     setCheckedItems((prevCheckedItems) => {
       const updatedCheckedItems = { ...prevCheckedItems };
-      data.items.forEach((item) => {
+      formattedData?.data?.items?.forEach((item) => {
         updatedCheckedItems[item.id] = {
           ...updatedCheckedItems[item.id],
           [company]: checked,
@@ -95,20 +122,54 @@ const TableComponent = () => {
     }));
   };
 
-  const handleInputChange = (company, value) => {
-    setBrandInputs((prevInputs) => ({
-      ...prevInputs,
-      [company]: value,
-    }));
+  useEffect(() => {
+    setHeaderChecked(
+      formattedData?.data?.companies?.reduce((acc, company) => {
+        acc[company] = false;
+        return acc;
+      }, {})
+    );
+    setCheckedItems(
+      formattedData?.data?.items?.reduce((acc, item) => {
+        acc[item.id] = formattedData?.data?.companies?.reduce(
+          (companyAcc, company) => {
+            companyAcc[company] = false;
+            return companyAcc;
+          },
+          {}
+        );
+        return acc;
+      }, {})
+    );
+  }, [summaryData]);
+
+  const calculateCheckedGrandTotal = () => {
+    return formattedData?.data?.companies.reduce((totals, company) => {
+      totals[company] = formattedData?.data?.items.reduce((sum, item) => {
+        if (checkedItems !== undefined && checkedItems[item.id]?.[company]) {
+          return sum + (item[company]?.total || 0);
+        }
+        return sum;
+      }, 0);
+      return totals;
+    }, {} as Record<string, number>);
   };
+
+  const checkedGrandTotal = calculateCheckedGrandTotal();
+  console.log({ checkedGrandTotal });
+
+  const checkedOverallGrandTotal =
+    checkedGrandTotal &&
+    Object.values(checkedGrandTotal!)?.reduce((sum, total) => sum + total, 0);
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <>
       <GoBack />
       <div className=' bg-white p-6 mt-8'>
-        <div className='flex w-full justify-end mb-5'>
-          <Button>Check Approval</Button>
-        </div>
         <div className=' overflow-x-auto bg-white'>
           {" "}
           {/* Add overflow-x-auto for horizontal scrolling */}
@@ -116,7 +177,7 @@ const TableComponent = () => {
             <thead className='bg-gray-100'>
               <tr>
                 <td colSpan={3} className=''></td>
-                {data.companies.map((company, index) => (
+                {formattedData?.data.companies.map((company, index) => (
                   <td key={index} colSpan={3} className=' text-center border-l'>
                     {company.toUpperCase()}
                   </td>
@@ -126,139 +187,136 @@ const TableComponent = () => {
                 <td className='p-3 min-w-[50px]'>S/N</td>
                 <td className='p-3 min-w-[420px]'>Items Description</td>
                 <td className='p-3 min-w-[50px]'>Qty</td>
-                {data.companies.map((company, index) => (
-                  <>
-                    <td
-                      key={`che-${index}`}
-                      className='p-3 min-w-[50px] border-l '
-                    >
-                      <input
-                        type='checkbox'
-                        checked={headerChecked[company]}
-                        onChange={(e) =>
-                          handleHeaderCheckboxChange(company, e.target.checked)
-                        }
-                      />
-                    </td>
-                    <td
-                      key={`unit-price-${index}`}
-                      className='p-3 min-w-[190px]'
-                    >
-                      unit price
-                    </td>
-                    <td key={`total-${index}`} className='p-3 min-w-[190px]'>
-                      Total
-                    </td>
-                  </>
-                ))}
+                {formattedData?.data?.companies.map((company, index) => {
+                  console.log({ company });
+
+                  return (
+                    <>
+                      <td
+                        key={`che-${index}`}
+                        className='p-3 min-w-[50px] border-l '
+                      >
+                        {headerChecked !== undefined && (
+                          <input
+                            type='checkbox'
+                            checked={headerChecked[company]}
+                            onChange={(e) =>
+                              handleHeaderCheckboxChange(
+                                company,
+                                e.target.checked
+                              )
+                            }
+                          />
+                        )}
+                      </td>
+                      <td
+                        key={`unit-price-${index}`}
+                        className='p-3 min-w-[190px]'
+                      >
+                        unit price
+                      </td>
+                      <td key={`total-${index}`} className='p-3 min-w-[190px]'>
+                        Total
+                      </td>
+                    </>
+                  );
+                })}
               </tr>
             </thead>
             <tbody>
-              {data.items.map((item, index) => (
+              {formattedData?.data?.items?.map((item, index) => (
                 <tr key={item.id} className='border-b'>
                   <td className='p-3'>{index + 1}</td>
                   <td className='p-3'>{item.title}</td>
                   <td className='p-3'>{item.qty}</td>
 
-                  {data.companies.map((company, idx) => (
-                    <>
-                      <td
-                        key={`che-${item.id}-${idx}`}
-                        className={
-                          checkedItems[item.id]?.[company]
-                            ? "bg-green-100 rounded-md border-green-600 p-3 border border-r-0"
-                            : " p-3 border-l"
-                        }
-                      >
-                        <input
-                          type='checkbox'
-                          checked={checkedItems[item.id]?.[company] || false}
-                          onChange={(e) =>
-                            handleCheckboxChange(
-                              item.id,
-                              company,
-                              e.target.checked
-                            )
-                          }
-                        />
-                      </td>
-                      <td
-                        key={`unit-price-${item.id}-${idx}`}
-                        className={
-                          checkedItems[item.id]?.[company]
-                            ? "bg-green-100 rounded-md border-green-600  p-3 border-y"
-                            : " p-3"
-                        }
-                      >
-                        {item[company].unitPrice}
-                      </td>
-                      <td
-                        key={`total-${item.id}-${idx}`}
-                        className={
-                          checkedItems[item.id]?.[company]
-                            ? "bg-green-100 rounded-md border-green-600  p-3  border border-l-0"
-                            : " p-3"
-                        }
-                      >
-                        {item[company].total}
-                      </td>
-                    </>
-                  ))}
+                  {formattedData?.data?.companies.map((company, idx) => {
+                    console.log({ company });
+                    // checkedItems !== undefined &&
+
+                    if (checkedItems !== undefined) {
+                      return (
+                        <>
+                          <td
+                            key={`che-${item.id}-${idx}`}
+                            className={
+                              checkedItems[item.id]?.[company]
+                                ? "bg-green-100 rounded-md border-green-600 p-3 border border-r-0"
+                                : " p-3 border-l"
+                            }
+                          >
+                            {checkedItems !== undefined && (
+                              <input
+                                type='checkbox'
+                                checked={
+                                  checkedItems[item.id]?.[company] || false
+                                }
+                                onChange={(e) =>
+                                  handleCheckboxChange(
+                                    item.id,
+                                    company,
+                                    e.target.checked
+                                  )
+                                }
+                              />
+                            )}
+                          </td>
+                          <td
+                            key={`unit-price-${item.id}-${idx}`}
+                            className={
+                              checkedItems[item.id]?.[company]
+                                ? "bg-green-100 rounded-md border-green-600  p-3 border-y"
+                                : " p-3"
+                            }
+                          >
+                            {item[company].unitPrice}
+                          </td>
+                          <td
+                            key={`total-${item.id}-${idx}`}
+                            className={
+                              checkedItems[item.id]?.[company]
+                                ? "bg-green-100 rounded-md border-green-600  p-3  border border-l-0"
+                                : " p-3"
+                            }
+                          >
+                            {item[company].total}
+                          </td>
+                        </>
+                      );
+                    }
+                  })}
                 </tr>
               ))}
               <tr className='border-b'>
                 <td colSpan={3} className='p-3'>
                   <div className=' border border-green-600 max-w-[326px] p-4 rounded-md ml-auto text-green-600 flex justify-between'>
                     Grand Total:
-                    <span>{overallGrandTotal}</span>
+                    <span>{checkedOverallGrandTotal}</span>
                   </div>
                 </td>
-                {data.companies.map((company, index) => (
+                {formattedData?.data?.companies?.map((company, index) => (
                   <td key={index} colSpan={3} className='p-3 border-l'>
                     <div className=' border border-red-600 max-w-[326px] p-4 rounded-md ml-auto text-red-600 flex justify-between'>
                       Total:
-                      <span>{grandTotal[company]}</span>
+                      <span>{checkedGrandTotal[company]}</span>
                     </div>
                   </td>
                 ))}
               </tr>
 
-              {/* Brand Input Row */}
-              <tr className='border-b'>
-                <td colSpan={3} className='p-3 '>
-                  Brand
-                </td>
-                {data.companies.map((company, idx) => (
-                  <td
-                    key={`${company}-${idx}`}
-                    colSpan={3}
-                    className='border-l p-3'
-                  >
-                    <Textarea
-                      value={brandInputs[company] || ""}
-                      onChange={(e) =>
-                        handleInputChange(company, e.target.value)
-                      }
-                      className='w-full border p-3'
-                      placeholder='Enter list of brands'
-                    />
-                  </td>
-                ))}
-              </tr>
-
-              {extraData.map((extra) => {
+              {formattedData?.extraData?.map((extra) => {
                 return (
-                  <tr key={extra.id} className='border-b'>
+                  <tr key={extra?.id} className='border-b'>
                     <td colSpan={3} className='p-3'>
-                      {extra.title}
+                      {extra?.title}
                     </td>
-                    {data.companies.map((company, idx) => (
+                    {formattedData?.data.companies.map((company, idx) => (
                       <td
-                        key={`extra-${extra.id}-${company}-${idx}`}
+                        key={`extra-${extra?.id}-${company}-${idx}`}
                         colSpan={3}
                         className={`p-3 border-l`}
                       >
-                        {extra[company].text}
+                        {extra[company]?.text}
                       </td>
                     ))}
                   </tr>
@@ -283,81 +341,6 @@ const TableComponent = () => {
 };
 
 export default TableComponent;
-
-const data: Data = {
-  companies: ["Sunok", "Southgate", "TechX", "Alpha", "Beta", "Gamma"],
-  items: [
-    {
-      id: 1,
-      title: "Laptop",
-      qty: 5,
-      Sunok: { unitPrice: 500, total: 2500 },
-      Southgate: { unitPrice: 520, total: 2600 },
-      TechX: { unitPrice: 510, total: 2550 },
-      Alpha: { unitPrice: 530, total: 2650 },
-      Beta: { unitPrice: 550, total: 2750 },
-      Gamma: { unitPrice: 540, total: 2700 },
-    },
-    {
-      id: 2,
-      title: "Projector",
-      qty: 2,
-      Sunok: { unitPrice: 800, total: 1600 },
-      Southgate: { unitPrice: 820, total: 1640 },
-      TechX: { unitPrice: 810, total: 1620 },
-      Alpha: { unitPrice: 830, total: 1660 },
-      Beta: { unitPrice: 850, total: 1700 },
-      Gamma: { unitPrice: 840, total: 1680 },
-    },
-    {
-      id: 3,
-      title: "Printer",
-      qty: 3,
-      Sunok: { unitPrice: 300, total: 900 },
-      Southgate: { unitPrice: 320, total: 960 },
-      TechX: { unitPrice: 310, total: 930 },
-      Alpha: { unitPrice: 330, total: 990 },
-      Beta: { unitPrice: 350, total: 1050 },
-      Gamma: { unitPrice: 340, total: 1020 },
-    },
-  ],
-};
-
-const extraData = [
-  {
-    id: 4,
-    title: "Delivery Timeframe",
-    Sunok: { text: "2-3 Weeks", bgColor: "bg-purple-100" },
-    Southgate: { text: "2-3 Weeks", bgColor: "bg-purple-400" },
-    TechX: { text: "2-3 Weeks", bgColor: "bg-purple-300" },
-    Alpha: { text: "1-2 Weeks", bgColor: "bg-purple-500" },
-    Beta: { text: "1-2 Weeks", bgColor: "bg-purple-600" },
-    Gamma: { text: "3-4 Weeks", bgColor: "bg-purple-700" },
-    isExtra: true,
-  },
-  {
-    id: 5,
-    title: "Bank Account",
-    Sunok: { text: "YES", bgColor: "bg-purple-300" },
-    Southgate: { text: "No", bgColor: "bg-purple-200" },
-    TechX: { text: "YES", bgColor: "bg-purple-600" },
-    Alpha: { text: "YES", bgColor: "bg-purple-500" },
-    Beta: { text: "No", bgColor: "bg-purple-700" },
-    Gamma: { text: "YES", bgColor: "bg-purple-800" },
-    isExtra: true,
-  },
-  {
-    id: 6,
-    title: "Registration with C.A.C.",
-    Sunok: { text: "YES", bgColor: "bg-green-300" },
-    Southgate: { text: "No", bgColor: "bg-green-200" },
-    TechX: { text: "YES", bgColor: "bg-green-600" },
-    Alpha: { text: "YES", bgColor: "bg-green-500" },
-    Beta: { text: "No", bgColor: "bg-green-600" },
-    Gamma: { text: "YES", bgColor: "bg-green-800" },
-    isExtra: true,
-  },
-];
 
 type CompanyData = {
   unitPrice: number;
