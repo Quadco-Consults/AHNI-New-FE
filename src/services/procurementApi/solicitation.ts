@@ -52,47 +52,28 @@ const SolicitationAPI = baseAPI.injectEndpoints({
     >({
       query: ({ path }) => {
         return {
-          url: `${BASE_URL}${path.id}/submissions/`,
+          url: `/by-solicitation/${path.id}/submissions/`,
         };
       },
       providesTags: ["SOLICITATION"],
     }),
 
-    // updateSolicitation: builder.mutation<
-    //     SolicitationResponse,
-    //     { path: { id: string }; body: any }
-    // >({
-    //     query: ({ path, body }) => ({
-    //         url: `${BASE_URL}${path.id}/`,
-    //         method: "PUT",
-    //         body,
-    //     }),
-    //     invalidatesTags: ["SOLICITATION"],
-    // }),
-
-    // modifySolicitation: builder.mutation<
-    //     SolicitationResponse,
-    //     { path: { id: string }; body: any }
-    // >({
-    //     query: ({ path, body }) => ({
-    //         url: `${BASE_URL}${path.id}/`,
-    //         method: "PATCH",
-    //         body,
-    //     }),
-    //     invalidatesTags: ["SOLICITATION"],
-    // }),
-
-    // deleteSolicitation: builder.mutation<void, { path: { id: string } }>({
-    //     query: ({ path }) => ({
-    //         url: `${BASE_URL}${path.id}/`,
-    //         method: "DELETE",
-    //     }),
-    //     invalidatesTags: ["SOLICITATION"],
-    // }),
+    getPassedSolicitation: builder.query<
+      SolicitationSubmissionData,
+      { path: { id: string } }
+    >({
+      query: ({ path }) => {
+        return {
+          url: `/by-solicitation/${path.id}/?status=PASSED`,
+        };
+      },
+      providesTags: ["SOLICITATION"],
+    }),
   }),
 });
 
 export const {
+  useGetPassedSolicitationQuery,
   useGetSolicitationSubmissionQuery,
   useCreateSolicitationMutation,
   useGetAllSolicitationsQuery,

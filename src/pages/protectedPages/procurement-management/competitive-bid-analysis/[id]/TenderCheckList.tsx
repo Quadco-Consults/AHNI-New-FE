@@ -5,9 +5,13 @@ import DataTable from "components/Table/DataTable";
 const TenderChecklist = ({
   control,
   criteriaData,
+  setValue,
+  getValues,
 }: {
   control: any;
   criteriaData: any;
+  setValue: any;
+  getValues: any;
 }) => {
   //   const { handleSubmit, control } = useForm();
 
@@ -15,12 +19,21 @@ const TenderChecklist = ({
   //     console.log("Submitted Data:", data);
   //   };
 
-  return <DataTable columns={columns(control)} data={criteriaData || []} />;
+  return (
+    <DataTable
+      columns={columns(control, setValue, getValues)}
+      data={criteriaData || []}
+    />
+  );
 };
 
 export default TenderChecklist;
 
-const columns = (control: any): ColumnDef<any>[] => [
+const columns = (
+  control: any,
+  setValue: any,
+  getValues: any
+): ColumnDef<any>[] => [
   {
     header: "Stages",
     accessorKey: "stage",
@@ -51,12 +64,45 @@ const columns = (control: any): ColumnDef<any>[] => [
     size: 210,
     id: "actions",
     cell: ({ row }) => (
-      <ActionListAction control={control} data={row.original} />
+      <ActionListAction
+        control={control}
+        data={row.original}
+        setValue={setValue}
+        getValues={getValues}
+      />
     ),
   },
 ];
 
-const ActionListAction = ({ control, data }: { control: any; data: any }) => {
+const ActionListAction = ({
+  control,
+  data,
+  setValue,
+  getValues,
+}: {
+  control: any;
+  data: any;
+  setValue: any;
+  getValues: any;
+}) => {
+  const updateCriteriaDataStatus = (
+    data: any,
+    status: string,
+    setValue: any,
+    getValues: any
+  ) => {
+    const currentStatus = getValues("criteriaDataStatus") || [];
+    const updatedStatus = currentStatus.filter(
+      (item: any) => item.stage !== data.stage
+    );
+    console.log({ data });
+
+    setValue("criteriaDataStatus", [
+      ...updatedStatus,
+      { stage: data.stage, status, criteria: data.criteria },
+    ]);
+  };
+
   return (
     <div className='flex gap-5'>
       <Controller
@@ -72,6 +118,10 @@ const ActionListAction = ({ control, data }: { control: any; data: any }) => {
                 value='PASS'
                 checked={field.value === "PASS"}
                 className='accent-purple-500'
+                onChange={() => {
+                  field.onChange("PASS");
+                  updateCriteriaDataStatus(data, "PASS", setValue, getValues);
+                }}
               />
               <label>PASS</label>
             </div>
@@ -82,6 +132,10 @@ const ActionListAction = ({ control, data }: { control: any; data: any }) => {
                 value='FAIL'
                 checked={field.value === "FAIL"}
                 className='accent-purple-500'
+                onChange={() => {
+                  field.onChange("FAIL");
+                  updateCriteriaDataStatus(data, "FAIL", setValue, getValues);
+                }}
               />
               <label>FAIL</label>
             </div>

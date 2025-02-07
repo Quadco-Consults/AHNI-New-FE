@@ -18,10 +18,17 @@ import CbaAPI from "services/procurementApi/cba";
 import { CbaResultsData } from "definations/procurement-types/cba";
 import PrinterIcon from "components/icons/PrinterIcon";
 import SendIcon from "components/icons/SendIcon";
+import { useState } from "react";
+import { Loading } from "components/shared/Loading";
 
 const CompetitiveAnalysis = () => {
+  const [page, setPage] = useState(1);
   const { data, isLoading } = CbaAPI.useGetCbaListQuery({});
-  console.log({ data });
+  console.log({ page });
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <div className='space-y-10'>
@@ -42,7 +49,7 @@ const CompetitiveAnalysis = () => {
             <input
               placeholder='Search'
               type='text'
-              className='ml-2 h-6 border-none bg-none focus:outline-none outline-none'
+              className='ml-2 h-6 border-none bg-none focus:outline-none outline-none w-full rounded-none'
             />
           </span>
           <Button className='shadow-sm' variant='ghost'>
@@ -52,9 +59,18 @@ const CompetitiveAnalysis = () => {
 
         <DataTable
           // @ts-ignore
+
           data={data?.data?.results || []}
           columns={columns}
           isLoading={isLoading}
+          pagination={{
+            // @ts-ignore
+            total: data?.data.pagination.count ?? 0,
+            // @ts-ignore
+            pageSize: data?.data.pagination.page_size ?? 0,
+            // @ts-ignore
+            onChange: (page: number) => setPage(page),
+          }}
         />
       </Card>
     </div>
@@ -92,6 +108,16 @@ const columns: ColumnDef<CbaResultsData>[] = [
     header: "RFQ nO",
     accessorKey: "title",
     size: 300,
+    cell: ({ row }) => {
+      console.log({ row });
+
+      return (
+        <p className='text-center'>
+          {/* @ts-ignore */}
+          {row?.original?.solicitation?.rfq_id || "N/A"}
+        </p>
+      );
+    },
   },
   {
     header: "Type",
@@ -124,7 +150,7 @@ const columns: ColumnDef<CbaResultsData>[] = [
   {
     header: "Actions",
     id: "actions",
-    cell: ({ row }) => <ActionListAction data={row.original} />,
+    cell: ({ row }) => <ActionListAction data={row?.original} />,
   },
 ];
 

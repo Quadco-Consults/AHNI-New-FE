@@ -1,8 +1,19 @@
+import GoBack from "components/shared/GoBack";
 import { Button } from "components/ui/button";
 import { Textarea } from "components/ui/textarea";
 import { useState } from "react";
+import ManualBidCbaPrequalificationAPI from "services/procurementApi/manual-bid-cba-prequalification";
 
 const TableComponent = () => {
+  const { data: summaryData, isLoading } =
+    ManualBidCbaPrequalificationAPI.useGetManualBidPrequalificationsQuery({
+      path: {
+        id: "437df88e-1e38-40f1-9b71-bc471b34dc6f",
+      },
+    });
+
+  console.log({ summaryData, isLoading });
+
   // State for brand inputs
   const [brandInputs, setBrandInputs] = useState<Record<string, string>>(
     () =>
@@ -92,174 +103,182 @@ const TableComponent = () => {
   };
 
   return (
-    <div className=' bg-white p-6'>
-      <div className='flex w-full justify-end mb-5'>
-        <Button>Check Approval</Button>
-      </div>
-      <div className=' overflow-x-auto bg-white'>
-        {" "}
-        {/* Add overflow-x-auto for horizontal scrolling */}
-        <table className='min-w-full border-collapse border border-gray-300 rounded-sm p-10'>
-          <thead className='bg-gray-100'>
-            <tr>
-              <td colSpan={3} className=''></td>
-              {data.companies.map((company, index) => (
-                <td key={index} colSpan={3} className=' text-center border-l'>
-                  {company.toUpperCase()}
-                </td>
-              ))}
-            </tr>
-            <tr className='border-b'>
-              <td className='p-3 min-w-[50px]'>S/N</td>
-              <td className='p-3 min-w-[420px]'>Items Description</td>
-              <td className='p-3 min-w-[50px]'>Qty</td>
-              {data.companies.map((company, index) => (
-                <>
-                  <td
-                    key={`che-${index}`}
-                    className='p-3 min-w-[50px] border-l '
-                  >
-                    <input
-                      type='checkbox'
-                      checked={headerChecked[company]}
-                      onChange={(e) =>
-                        handleHeaderCheckboxChange(company, e.target.checked)
-                      }
-                    />
+    <>
+      <GoBack />
+      <div className=' bg-white p-6 mt-8'>
+        <div className='flex w-full justify-end mb-5'>
+          <Button>Check Approval</Button>
+        </div>
+        <div className=' overflow-x-auto bg-white'>
+          {" "}
+          {/* Add overflow-x-auto for horizontal scrolling */}
+          <table className='min-w-full border-collapse border border-gray-300 rounded-sm p-10'>
+            <thead className='bg-gray-100'>
+              <tr>
+                <td colSpan={3} className=''></td>
+                {data.companies.map((company, index) => (
+                  <td key={index} colSpan={3} className=' text-center border-l'>
+                    {company.toUpperCase()}
                   </td>
-                  <td key={`unit-price-${index}`} className='p-3 min-w-[190px]'>
-                    unit price
-                  </td>
-                  <td key={`total-${index}`} className='p-3 min-w-[190px]'>
-                    Total
-                  </td>
-                </>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {data.items.map((item, index) => (
-              <tr key={item.id} className='border-b'>
-                <td className='p-3'>{index + 1}</td>
-                <td className='p-3'>{item.title}</td>
-                <td className='p-3'>{item.qty}</td>
-
-                {data.companies.map((company, idx) => (
+                ))}
+              </tr>
+              <tr className='border-b'>
+                <td className='p-3 min-w-[50px]'>S/N</td>
+                <td className='p-3 min-w-[420px]'>Items Description</td>
+                <td className='p-3 min-w-[50px]'>Qty</td>
+                {data.companies.map((company, index) => (
                   <>
                     <td
-                      key={`che-${item.id}-${idx}`}
-                      className={
-                        checkedItems[item.id]?.[company]
-                          ? "bg-green-100 rounded-md border-green-600 p-3 border border-r-0"
-                          : " p-3 border-l"
-                      }
+                      key={`che-${index}`}
+                      className='p-3 min-w-[50px] border-l '
                     >
                       <input
                         type='checkbox'
-                        checked={checkedItems[item.id]?.[company] || false}
+                        checked={headerChecked[company]}
                         onChange={(e) =>
-                          handleCheckboxChange(
-                            item.id,
-                            company,
-                            e.target.checked
-                          )
+                          handleHeaderCheckboxChange(company, e.target.checked)
                         }
                       />
                     </td>
                     <td
-                      key={`unit-price-${item.id}-${idx}`}
-                      className={
-                        checkedItems[item.id]?.[company]
-                          ? "bg-green-100 rounded-md border-green-600  p-3 border-y"
-                          : " p-3"
-                      }
+                      key={`unit-price-${index}`}
+                      className='p-3 min-w-[190px]'
                     >
-                      {item[company].unitPrice}
+                      unit price
                     </td>
-                    <td
-                      key={`total-${item.id}-${idx}`}
-                      className={
-                        checkedItems[item.id]?.[company]
-                          ? "bg-green-100 rounded-md border-green-600  p-3  border border-l-0"
-                          : " p-3"
-                      }
-                    >
-                      {item[company].total}
+                    <td key={`total-${index}`} className='p-3 min-w-[190px]'>
+                      Total
                     </td>
                   </>
                 ))}
               </tr>
-            ))}
-            <tr className='border-b'>
-              <td colSpan={3} className='p-3'>
-                <div className=' border border-green-600 max-w-[326px] p-4 rounded-md ml-auto text-green-600 flex justify-between'>
-                  Grand Total:
-                  <span>{overallGrandTotal}</span>
-                </div>
-              </td>
-              {data.companies.map((company, index) => (
-                <td key={index} colSpan={3} className='p-3 border-l'>
-                  <div className=' border border-red-600 max-w-[326px] p-4 rounded-md ml-auto text-red-600 flex justify-between'>
-                    Total:
-                    <span>{grandTotal[company]}</span>
-                  </div>
-                </td>
-              ))}
-            </tr>
+            </thead>
+            <tbody>
+              {data.items.map((item, index) => (
+                <tr key={item.id} className='border-b'>
+                  <td className='p-3'>{index + 1}</td>
+                  <td className='p-3'>{item.title}</td>
+                  <td className='p-3'>{item.qty}</td>
 
-            {/* Brand Input Row */}
-            <tr className='border-b'>
-              <td colSpan={3} className='p-3 '>
-                Brand
-              </td>
-              {data.companies.map((company, idx) => (
-                <td
-                  key={`${company}-${idx}`}
-                  colSpan={3}
-                  className='border-l p-3'
-                >
-                  <Textarea
-                    value={brandInputs[company] || ""}
-                    onChange={(e) => handleInputChange(company, e.target.value)}
-                    className='w-full border p-3'
-                    placeholder='Enter list of brands'
-                  />
-                </td>
-              ))}
-            </tr>
-
-            {extraData.map((extra) => {
-              return (
-                <tr key={extra.id} className='border-b'>
-                  <td colSpan={3} className='p-3'>
-                    {extra.title}
-                  </td>
                   {data.companies.map((company, idx) => (
-                    <td
-                      key={`extra-${extra.id}-${company}-${idx}`}
-                      colSpan={3}
-                      className={`p-3 border-l`}
-                    >
-                      {extra[company].text}
-                    </td>
+                    <>
+                      <td
+                        key={`che-${item.id}-${idx}`}
+                        className={
+                          checkedItems[item.id]?.[company]
+                            ? "bg-green-100 rounded-md border-green-600 p-3 border border-r-0"
+                            : " p-3 border-l"
+                        }
+                      >
+                        <input
+                          type='checkbox'
+                          checked={checkedItems[item.id]?.[company] || false}
+                          onChange={(e) =>
+                            handleCheckboxChange(
+                              item.id,
+                              company,
+                              e.target.checked
+                            )
+                          }
+                        />
+                      </td>
+                      <td
+                        key={`unit-price-${item.id}-${idx}`}
+                        className={
+                          checkedItems[item.id]?.[company]
+                            ? "bg-green-100 rounded-md border-green-600  p-3 border-y"
+                            : " p-3"
+                        }
+                      >
+                        {item[company].unitPrice}
+                      </td>
+                      <td
+                        key={`total-${item.id}-${idx}`}
+                        className={
+                          checkedItems[item.id]?.[company]
+                            ? "bg-green-100 rounded-md border-green-600  p-3  border border-l-0"
+                            : " p-3"
+                        }
+                      >
+                        {item[company].total}
+                      </td>
+                    </>
                   ))}
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              ))}
+              <tr className='border-b'>
+                <td colSpan={3} className='p-3'>
+                  <div className=' border border-green-600 max-w-[326px] p-4 rounded-md ml-auto text-green-600 flex justify-between'>
+                    Grand Total:
+                    <span>{overallGrandTotal}</span>
+                  </div>
+                </td>
+                {data.companies.map((company, index) => (
+                  <td key={index} colSpan={3} className='p-3 border-l'>
+                    <div className=' border border-red-600 max-w-[326px] p-4 rounded-md ml-auto text-red-600 flex justify-between'>
+                      Total:
+                      <span>{grandTotal[company]}</span>
+                    </div>
+                  </td>
+                ))}
+              </tr>
+
+              {/* Brand Input Row */}
+              <tr className='border-b'>
+                <td colSpan={3} className='p-3 '>
+                  Brand
+                </td>
+                {data.companies.map((company, idx) => (
+                  <td
+                    key={`${company}-${idx}`}
+                    colSpan={3}
+                    className='border-l p-3'
+                  >
+                    <Textarea
+                      value={brandInputs[company] || ""}
+                      onChange={(e) =>
+                        handleInputChange(company, e.target.value)
+                      }
+                      className='w-full border p-3'
+                      placeholder='Enter list of brands'
+                    />
+                  </td>
+                ))}
+              </tr>
+
+              {extraData.map((extra) => {
+                return (
+                  <tr key={extra.id} className='border-b'>
+                    <td colSpan={3} className='p-3'>
+                      {extra.title}
+                    </td>
+                    {data.companies.map((company, idx) => (
+                      <td
+                        key={`extra-${extra.id}-${company}-${idx}`}
+                        colSpan={3}
+                        className={`p-3 border-l`}
+                      >
+                        {extra[company].text}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <div className='flex my-4 px-8 max-w-[900px]  justify-between items-center'>
+          <p className='text-[14px]'>RECOMMENDATION NOTES :</p>
+          <Textarea
+            className='border rounded-md p-3 max-w-[400px]'
+            placeholder='Enter recommendation here'
+          />
+        </div>
+        <div className='flex w-full justify-end'>
+          <Button>Submit Analysis</Button>
+        </div>
       </div>
-      <div className='flex my-4 px-8 max-w-[900px]  justify-between items-center'>
-        <p className='text-[14px]'>RECOMMENDATION NOTES :</p>
-        <Textarea
-          className='border rounded-md p-3 max-w-[400px]'
-          placeholder='Enter recommendation here'
-        />
-      </div>
-      <div className='flex w-full justify-end'>
-        <Button>Submit Analysis</Button>
-      </div>
-    </div>
+    </>
   );
 };
 
