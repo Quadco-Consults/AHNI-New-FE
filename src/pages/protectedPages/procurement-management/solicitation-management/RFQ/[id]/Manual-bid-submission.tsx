@@ -20,6 +20,7 @@ import { useCreateSolicitationSubmissionMutation } from "services/procurementApi
 import { useGetSingleSolicitationQuery } from "services/procurementApi/solicitation";
 import { useGetAllSolicitationEvaluationCriteriaQuery } from "services/modules/procurement/solicitation-evaluation-criteria";
 import { RouteEnum } from "constants/RouterConstants";
+import GoBack from "components/shared/GoBack";
 
 const ManualBidSubmission = () => {
   const { id } = useParams();
@@ -117,14 +118,7 @@ const ManualBidSubmission = () => {
 
   return (
     <div className='space-y-10'>
-      <Button
-        onClick={() => navigate(-1)}
-        variant='outline'
-        className='gap-2 text-primary border-primary'
-      >
-        <ArrowLeft size={15} />
-      </Button>
-
+      <GoBack />
       <div>
         <h4 className='text-lg font-bold'>Manual Bid Submission Form</h4>
         <h6>{singleSolicitation?.data?.title}</h6>

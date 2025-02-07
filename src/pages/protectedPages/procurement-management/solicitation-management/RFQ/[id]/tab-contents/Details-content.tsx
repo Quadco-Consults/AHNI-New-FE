@@ -35,10 +35,10 @@ const DetailsContent = ({
             <Icon icon='ooui:reference' fontSize={18} />
             <h6>{rfq_id}</h6>
           </div>
-          <div className='flex gap-3 items-center'>
+          {/* <div className='flex gap-3 items-center'>
             <Icon icon='iconamoon:location-pin-duotone' fontSize={18} />
             <h6>HEAD OFFICE ABUJA</h6>
-          </div>
+          </div> */}
           <div className='flex gap-3 items-center'>
             <Icon icon='solar:case-minimalistic-bold-duotone' fontSize={18} />
             <h6>{tender_type}</h6>
@@ -58,7 +58,7 @@ const DetailsContent = ({
               <Card key={item?.id} className='border-yellow-darker space-y-3'>
                 <div className='flex items-center gap-5'>
                   <h4 className='w-1/4 font-medium'>Item:</h4>
-                  <h4>{item?.item?.name}</h4>
+                  <h4>{item?.item_detail?.name}</h4>
                 </div>
                 <div className='flex items-center gap-5'>
                   <h4 className='w-1/4 font-medium'>Quantity:</h4>
