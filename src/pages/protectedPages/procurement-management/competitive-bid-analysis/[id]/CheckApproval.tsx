@@ -1,23 +1,25 @@
+import { skipToken } from "@reduxjs/toolkit/query";
 import GoBack from "components/shared/GoBack";
 import { Loading } from "components/shared/Loading";
 import { Button } from "components/ui/button";
 import { Textarea } from "components/ui/textarea";
+import useQuery from "hooks/useQuery";
 import { useEffect, useState } from "react";
 import ManualBidCbaPrequalificationAPI from "services/procurementApi/manual-bid-cba-prequalification";
 
 const TableComponent = () => {
+  const query = useQuery();
+  const id = query.get("id");
+  const cba = query.get("cba");
+
   const { data: summaryData, isLoading } =
     ManualBidCbaPrequalificationAPI.useGetManualBidPrequalificationsQuery({
       path: {
-        id: "437df88e-1e38-40f1-9b71-bc471b34dc6f",
+        id: id ?? skipToken,
       },
     });
 
-  console.log({ summaryData, isLoading });
-
   function formatBidData(inputData) {
-    console.log({ inputData });
-
     if (inputData) {
       const companies = [
         ...new Set(
@@ -156,11 +158,57 @@ const TableComponent = () => {
   };
 
   const checkedGrandTotal = calculateCheckedGrandTotal();
-  console.log({ checkedGrandTotal });
 
   const checkedOverallGrandTotal =
     checkedGrandTotal &&
     Object.values(checkedGrandTotal!)?.reduce((sum, total) => sum + total, 0);
+
+  const [recommendationNote, setRecommendationNote] = useState("");
+
+  // Function to format selected items per vendor
+  const getSelectedItemsForVendor = (vendor) => {
+    return formattedData?.data?.items
+      .filter((item) => checkedItems[item.id]?.[vendor]) // Only include checked items
+      .map((item) => ({
+        property1: item.id, // Replace with actual properties
+        property2: item.title,
+      }));
+  };
+
+  const handleSubmitAnalysis = async () => {
+    if (!cba || !id) return alert("Missing required IDs");
+
+    const selectedVendors = formattedData?.data?.companies.filter((vendor) =>
+      Object.values(checkedItems).some((item) => item[vendor])
+    );
+    console.log({ selectedVendors });
+
+    if (!selectedVendors.length) {
+      return alert("No vendors selected.");
+    }
+
+    try {
+      const apiCalls = selectedVendors.map((vendor) => {
+        const payload = {
+          cba_id: cba,
+          vendor_id: vendor, // Assuming `vendor` is the vendor ID
+          recommendation_note: recommendationNote,
+          selected_items: getSelectedItemsForVendor(vendor),
+        };
+        console.log({ payload });
+
+        // return ManualBidCbaPrequalificationAPI.useSubmitAnalysisMutation({
+        //   body: payload,
+        // }).unwrap();
+      });
+
+      await Promise.all(apiCalls);
+      alert("Analysis submitted successfully!");
+    } catch (error) {
+      console.error("Error submitting analysis:", error);
+      alert("Failed to submit analysis.");
+    }
+  };
 
   if (isLoading) {
     return <Loading />;
@@ -279,7 +327,7 @@ const TableComponent = () => {
                                 : " p-3"
                             }
                           >
-                            {item[company].total}
+                            {Number(item[company].total).toLocaleString()}
                           </td>
                         </>
                       );
@@ -291,14 +339,18 @@ const TableComponent = () => {
                 <td colSpan={3} className='p-3'>
                   <div className=' border border-green-600 max-w-[326px] p-4 rounded-md ml-auto text-green-600 flex justify-between'>
                     Grand Total:
-                    <span>{checkedOverallGrandTotal}</span>
+                    <span>
+                      {Number(checkedOverallGrandTotal).toLocaleString()}
+                    </span>
                   </div>
                 </td>
                 {formattedData?.data?.companies?.map((company, index) => (
                   <td key={index} colSpan={3} className='p-3 border-l'>
                     <div className=' border border-red-600 max-w-[326px] p-4 rounded-md ml-auto text-red-600 flex justify-between'>
                       Total:
-                      <span>{checkedGrandTotal[company]}</span>
+                      <span>
+                        {Number(checkedGrandTotal[company]).toLocaleString()}
+                      </span>
                     </div>
                   </td>
                 ))}
@@ -333,7 +385,7 @@ const TableComponent = () => {
           />
         </div>
         <div className='flex w-full justify-end'>
-          <Button>Submit Analysis</Button>
+          <Button onClick={handleSubmitAnalysis}>Submit Analysis</Button>
         </div>
       </div>
     </>
@@ -341,25 +393,3 @@ const TableComponent = () => {
 };
 
 export default TableComponent;
-
-type CompanyData = {
-  unitPrice: number;
-  total: number;
-};
-
-type ItemData = {
-  id: number;
-  title: string;
-  qty: number;
-  Sunok: CompanyData;
-  Southgate: CompanyData;
-  TechX: CompanyData;
-  Alpha: CompanyData;
-  Beta: CompanyData;
-  Gamma: CompanyData;
-};
-
-type Data = {
-  companies: string[];
-  items: ItemData[];
-};

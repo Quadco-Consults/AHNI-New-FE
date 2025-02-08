@@ -35,8 +35,8 @@ const ManualBidCbaPrequalificationAPI = baseAPI.injectEndpoints({
       ManualBidCbaPrequalificationData,
       { path: { id: string } }
     >({
-      query: (path) => ({
-        url: `${testURL}6e7483a7-eea8-497b-898d-e74dc8a87d39/?status=PASSED`,
+      query: ({ path }) => ({
+        url: `${testURL}${path.id}/?status=PASSED`,
       }),
       providesTags: (data, error) =>
         !error ? provideTags("MANUAL_BID_CBA_PREQUALIFICATION", data) : [],

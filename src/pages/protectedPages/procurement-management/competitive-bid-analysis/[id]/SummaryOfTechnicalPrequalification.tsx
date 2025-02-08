@@ -9,16 +9,22 @@ import logoPng from "assets/svgs/logo-bg.svg";
 import VendorBidPrequalificationAPI from "services/procurementApi/manual-bid-cba-prequalification-fn";
 import GoBack from "components/shared/GoBack";
 import { Loading } from "components/shared/Loading";
-import { generatePath, Link } from "react-router-dom";
+import { generatePath, Link, useLocation } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
 import { Button } from "components/ui/button";
 import SendIcon from "components/icons/SendIcon";
 
 const SummaryOfTechnicalPrequalification = () => {
+  const location = useLocation();
+  const { cba, bid_submission, solicitation } = location.state || {}; // Handle undefined state
+
+  console.log("CBA:", cba);
+  console.log("Bid Submission:", bid_submission, solicitation);
+
   const { data: summaryData, isLoading } =
     VendorBidPrequalificationAPI.useGetVendorBidPrequalificationQuery({
       path: {
-        id: "437df88e-1e38-40f1-9b71-bc471b34dc6f",
+        id: cba,
       },
     });
 
@@ -181,14 +187,16 @@ const SummaryOfTechnicalPrequalification = () => {
             <Link
               className='w-full'
               // to={generatePath(
-              //   RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_APPROVAL_CHECK
-              //   )}
-              to={generatePath(
-                RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_APPROVAL_CHECK,
-                {
-                  id: 1,
-                }
-              )}
+              //   RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_APPROVAL_CHECK,
+              //   {
+              //     id: solicitation,
+              //   }
+              // )}
+              to={{
+                pathname:
+                  RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_APPROVAL_CHECK,
+                search: `?id=${solicitation}&cba=${cba}`,
+              }}
             >
               <Button
                 className='w-full flex items-center justify-start gap-2'
