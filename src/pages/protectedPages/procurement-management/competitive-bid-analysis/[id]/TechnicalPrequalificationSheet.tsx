@@ -17,6 +17,7 @@ import ManualBidCbaPrequalificationAPI from "services/procurementApi/manual-bid-
 import { RouteEnum } from "constants/RouterConstants";
 import { toast } from "sonner";
 import { Loading } from "components/shared/Loading";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 // import { useNavigate } from "react-router-dom";
 // import { RouteEnum } from "constants/RouterConstants";
@@ -33,8 +34,10 @@ const TPS = () => {
 
   const { data } = useGetSolicitationSubmissionQuery({
     // @ts-ignore
-    path: { id: cbaData?.data?.solicitation?.id },
+    path: { id: cbaData?.data?.solicitation?.id ?? skipToken },
   });
+
+  console.log({ cbaData });
 
   const [createManualBidCBAPrequalification] =
     ManualBidCbaPrequalificationAPI.useCreateManualBidCbaPrequalificationMutation();
@@ -91,7 +94,11 @@ const TPS = () => {
       console.error("Error submitting data:", error);
     }
     navigate(RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_FINANCIAL_BID_OPENING, {
-      state: { cba: data.cba, bid_submission: data.bid_submission },
+      state: {
+        cba: data.cba,
+        bid_submission: data.bid_submission,
+        solicitation: cbaData?.data?.solicitation?.id,
+      },
     });
   };
 
@@ -207,7 +214,10 @@ const TPS = () => {
               Review Conducted, Scores Awarded as agreed by the Procurement
               Committee Members:
             </h3>
-            <DataTable columns={columns} data={[]} />
+            <DataTable
+              columns={columns}
+              data={cbaData?.data?.committee_members || []}
+            />
           </div>
           <div className='w-full'>
             <Button

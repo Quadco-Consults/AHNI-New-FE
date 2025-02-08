@@ -11,6 +11,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import ManualBidCbaPrequalificationAPI from "services/procurementApi/manual-bid-cba-prequalification";
 import { toast } from "sonner";
 import GoBack from "components/shared/GoBack";
+import CbaAPI from "services/procurementApi/cba";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 const criteriaData = [
   {
@@ -24,10 +26,10 @@ const criteriaData = [
 ];
 const FinancialBid = () => {
   const location = useLocation();
-  const { cba, bid_submission } = location.state || {}; // Handle undefined state
+  const { cba, bid_submission, solicitation } = location.state || {}; // Handle undefined state
 
   console.log("CBA:", cba);
-  console.log("Bid Submission:", bid_submission);
+  console.log("Bid Submission:", bid_submission, solicitation);
   const form = useForm({
     defaultValues: {
       cba: cba,
@@ -37,6 +39,13 @@ const FinancialBid = () => {
     },
   });
   const { handleSubmit, control, getValues, setValue } = form;
+
+  const { data: cbaData } = CbaAPI.useGetCbaQuery({
+    path: {
+      // @ts-ignore
+      id: cba ?? skipToken,
+    },
+  });
 
   const [createManualBidCBAPrequalification] =
     ManualBidCbaPrequalificationAPI.useCreateManualBidCbaPrequalificationMutation();
@@ -67,7 +76,14 @@ const FinancialBid = () => {
     } catch (error) {
       console.error("Error submitting data:", error);
     }
-    navigate(RouteEnum.SUMMARY_OF_TECHNICAL_PREQUALIFICATION);
+
+    navigate(RouteEnum.SUMMARY_OF_TECHNICAL_PREQUALIFICATION, {
+      state: {
+        cba: data.cba,
+        bid_submission: data.bid_submission,
+        solicitation,
+      },
+    });
   };
 
   return (
@@ -145,7 +161,10 @@ const FinancialBid = () => {
               Review Conducted, Scores Awarded as agreed by the Procurement
               Committee Members:
             </h3>
-            <DataTable columns={columns} data={[]} />
+            <DataTable
+              columns={columns}
+              data={cbaData?.data?.committee_members || []}
+            />
           </div>
           <div className='w-full'>
             <Button

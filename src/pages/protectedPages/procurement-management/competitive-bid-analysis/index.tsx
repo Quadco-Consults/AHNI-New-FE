@@ -23,8 +23,11 @@ import { Loading } from "components/shared/Loading";
 
 const CompetitiveAnalysis = () => {
   const [page, setPage] = useState(1);
-  const { data, isLoading } = CbaAPI.useGetCbaListQuery({});
-  console.log({ page });
+  const { data, isLoading } = CbaAPI.useGetCbaListQuery({
+    page,
+    size: 10,
+  });
+  console.log({ page, data });
 
   if (isLoading) {
     return <Loading />;
@@ -61,12 +64,14 @@ const CompetitiveAnalysis = () => {
           // @ts-ignore
 
           data={data?.data?.results || []}
+          // @ts-ignore
           columns={columns}
           isLoading={isLoading}
           pagination={{
             // @ts-ignore
             total: data?.data.pagination.count ?? 0,
             // @ts-ignore
+            // pageSize: 10 ?? 0,
             pageSize: data?.data.pagination.page_size ?? 0,
             // @ts-ignore
             onChange: (page: number) => setPage(page),
