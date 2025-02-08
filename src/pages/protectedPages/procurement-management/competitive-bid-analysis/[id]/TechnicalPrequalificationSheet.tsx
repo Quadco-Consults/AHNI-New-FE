@@ -6,7 +6,7 @@ import { Button } from "components/ui/button";
 import { Separator } from "components/ui/separator";
 import { ChevronRight } from "lucide-react";
 import TenderChecklist from "./TenderCheckList";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import GoBack from "components/shared/GoBack";
 import { useNavigate, useParams } from "react-router-dom";
 import CbaAPI from "services/procurementApi/cba";
@@ -18,9 +18,6 @@ import { RouteEnum } from "constants/RouterConstants";
 import { toast } from "sonner";
 import { Loading } from "components/shared/Loading";
 import { skipToken } from "@reduxjs/toolkit/query";
-
-// import { useNavigate } from "react-router-dom";
-// import { RouteEnum } from "constants/RouterConstants";
 
 const TPS = () => {
   const navigate = useNavigate();
@@ -75,6 +72,8 @@ const TPS = () => {
     }
 
     try {
+      let failedCount = 0; // Counter for failed responses
+
       for (let criteria of data.criteriaDataStatus) {
         const payload = {
           cba: data.cba,
@@ -85,7 +84,18 @@ const TPS = () => {
         };
 
         // @ts-ignore
-        await createManualBidCBAPrequalification(payload).unwrap();
+        const response = await createManualBidCBAPrequalification(
+          payload
+        ).unwrap();
+        console.log({ response: response?.passed });
+
+        if (!response?.passed) {
+          failedCount++;
+          if (failedCount > 1) {
+            toast.error("Multiple criteria have failed. Stopping submission.");
+            return; // Stop further API calls
+          }
+        }
       }
       toast.success("Successfully created.");
 
@@ -141,7 +151,6 @@ const TPS = () => {
                 />
               </div>
             </div>
-            {/* <TenderChecklist control={control} criteriaData={criteriaData} /> */}
             <TenderChecklist
               control={control}
               criteriaData={criteriaData}
@@ -168,7 +177,7 @@ const TPS = () => {
               </p>
             </Card>
           </div>
-          <div className='  px-8 my-8'>
+          {/* <div className='  px-8 my-8'>
             <p className='mb-4'> STAGE 1 & 2 ASSESSMENT:</p>
             <div className='flex gap-5  w-full justify-between'>
               <Controller
@@ -208,7 +217,7 @@ const TPS = () => {
                 )}
               />
             </div>
-          </div>
+          </div> */}
           <div className=' flex-col justify-center  items-center w-full p-2'>
             <h3 className='underline font-semibold'>
               Review Conducted, Scores Awarded as agreed by the Procurement

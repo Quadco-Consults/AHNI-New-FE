@@ -27,7 +27,6 @@ const CompetitiveAnalysis = () => {
     page,
     size: 10,
   });
-  console.log({ page, data });
 
   if (isLoading) {
     return <Loading />;
@@ -114,8 +113,6 @@ const columns: ColumnDef<CbaResultsData>[] = [
     accessorKey: "title",
     size: 300,
     cell: ({ row }) => {
-      console.log({ row });
-
       return (
         <p className='text-center'>
           {/* @ts-ignore */}
@@ -171,7 +168,7 @@ const ActionListAction = ({ data }: any) => {
           </PopoverTrigger>
           <PopoverContent className=' w-fit'>
             <div className='flex flex-col items-start justify-between gap-1'>
-              <Link
+              {/* <Link
                 className='w-full'
                 to={generatePath(RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS, {
                   id: data?.id,
@@ -184,7 +181,7 @@ const ActionListAction = ({ data }: any) => {
                   <EyeIcon />
                   View
                 </Button>
-              </Link>
+              </Link> */}
               <Link
                 className='w-full'
                 to={generatePath(
@@ -204,12 +201,11 @@ const ActionListAction = ({ data }: any) => {
               </Link>
               <Link
                 className='w-full'
-                to={generatePath(
-                  RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_APPROVAL_CHECK,
-                  {
-                    id: data?.id,
-                  }
-                )}
+                to={{
+                  pathname:
+                    RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_APPROVAL_CHECK,
+                  search: `?id=${data?.solicitation?.id}&cba=${data?.id}`,
+                }}
               >
                 <Button
                   className='w-full flex items-center justify-start gap-2'

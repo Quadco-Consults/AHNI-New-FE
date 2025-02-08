@@ -50,7 +50,7 @@ const Preview = () => {
     // @ts-ignore
     requestsDetails?.fconumber[0]
   );
-  console.log({ fcoNumber });
+  console.log({ requestsDetails, fcoNumber });
 
   return (
     <div className='bg-white p-8'>
