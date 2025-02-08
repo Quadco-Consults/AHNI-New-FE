@@ -9,17 +9,14 @@ import logoPng from "assets/svgs/logo-bg.svg";
 import VendorBidPrequalificationAPI from "services/procurementApi/manual-bid-cba-prequalification-fn";
 import GoBack from "components/shared/GoBack";
 import { Loading } from "components/shared/Loading";
-import { generatePath, Link, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
 import { Button } from "components/ui/button";
 import SendIcon from "components/icons/SendIcon";
 
 const SummaryOfTechnicalPrequalification = () => {
   const location = useLocation();
-  const { cba, bid_submission, solicitation } = location.state || {}; // Handle undefined state
-
-  console.log("CBA:", cba);
-  console.log("Bid Submission:", bid_submission, solicitation);
+  const { cba, solicitation } = location.state || {}; // Handle undefined state
 
   const { data: summaryData, isLoading } =
     VendorBidPrequalificationAPI.useGetVendorBidPrequalificationQuery({
@@ -28,7 +25,6 @@ const SummaryOfTechnicalPrequalification = () => {
       },
     });
 
-  console.log({ summaryData });
   if (isLoading) {
     return <Loading />;
   }
@@ -70,8 +66,6 @@ const SummaryOfTechnicalPrequalification = () => {
               {summaryData?.data?.results?.map(
                 // @ts-ignore
                 (submission, index) => {
-                  console.log({ submission });
-
                   const didCriteriaPass = (criteriaName: string) => {
                     return submission?.prequalification?.TECHNICAL?.some(
                       // @ts-ignore

@@ -22,14 +22,6 @@ const VendorBidPrequalificationAPI = baseAPI.injectEndpoints({
       },
       providesTags: ["CBA"],
     }),
-    // >({
-    //   query: (config) => ({
-    //     url: `${BASE_URL}`,
-    //     ...config,
-    //   }),
-    //   providesTags: (data, error) =>
-    //     !error ? provideTags("VENDOR_BID_PREQUALIFICATION", data) : [],
-    // }),
 
     getVendorBidPrequalification: builder.query<
       ManualBidCbaPrequalificationResultsData,

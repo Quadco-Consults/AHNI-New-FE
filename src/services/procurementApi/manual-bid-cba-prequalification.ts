@@ -15,8 +15,7 @@ import {
 const BASE_URL = "/procurements/manaul-bid-cba-prequalification/";
 
 const testURL = "/procurements/manaul-bid/by-solicitation/";
-// const testURLf = "/procurement/manual-bid/by-solicitation/?status=PASSED";
-
+// const https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1/procurements/vendor-bid-analysis/
 const ManualBidCbaPrequalificationAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     getManualBidCbaPrequalifications: builder.query<
@@ -48,6 +47,19 @@ const ManualBidCbaPrequalificationAPI = baseAPI.injectEndpoints({
     >({
       query: (body) => ({
         url: `${BASE_URL}`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: (_, error, {}) =>
+        !error ? invalidateTags("MANUAL_BID_CBA_PREQUALIFICATION") : [],
+    }),
+
+    createVendorBidAnalysis: builder.mutation<
+      ManualBidCbaPrequalificationResponse,
+      z.infer<typeof ManualBidCbaPrequalificationSchema>
+    >({
+      query: (body) => ({
+        url: `procurements/vendor-bid-analysis/`,
         method: "POST",
         body,
       }),
