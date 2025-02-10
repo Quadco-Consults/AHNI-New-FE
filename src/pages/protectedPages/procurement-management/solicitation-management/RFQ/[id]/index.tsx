@@ -9,6 +9,7 @@ import VendorSubmission from "./tab-contents/Vendor-submission";
 import BreadcrumbCard from "components/shared/Breadcrumb";
 import { useGetSingleSolicitationQuery } from "services/procurementApi/solicitation";
 import { skipToken } from "@reduxjs/toolkit/query/react";
+import GoBack from "components/shared/GoBack";
 
 const RFQDetails = () => {
   const { id } = useParams();
@@ -26,6 +27,7 @@ const RFQDetails = () => {
 
   return (
     <div className='space-y-5'>
+      <GoBack />
       <BreadcrumbCard list={breadcrumbs} />
       <div className='flex justify-between'>
         <h4 className='text-lg font-bold'>{data?.data.title}</h4>

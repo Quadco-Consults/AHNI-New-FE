@@ -229,7 +229,7 @@ export const PurchaseOrderListSchema = z.object({
     })
   ),
   purchase_request: z.string().min(1, "Field is required"),
-  vendor: z.string().min(1, "Field is required"),
+  // vendor: z.string().min(1, "Field is required"),
 });
 
 export const SolicitationItemsSchema = z.object({
@@ -370,3 +370,41 @@ export const ProcurementPlanListSchema = z.object({
   milestone_name: z.string().min(1, "Field is required"),
   milestone_description: z.string().min(1, "Field is required"),
 });
+
+// Manual Bid Submission
+
+// Define UUID validation
+const uuidSchema = z.string().uuid();
+
+// Define bid item schema
+const bidItemSchema = z.object({
+  bid_submission: uuidSchema,
+  solicitation_item: uuidSchema,
+  unit_price: z
+    .string()
+    .or(z.number()) // Accepts both string and number formats
+    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
+      message: "unit_price must be a valid positive number",
+    }),
+});
+
+// Define evaluation schema
+const evaluationSchema = z.object({
+  bid_submission: uuidSchema,
+  evaluation_criteria: uuidSchema,
+  response: z.string().min(1, "Response is required"),
+});
+
+// Main schema
+export const ManualBidCbaPrequalificationSchema = z.object({
+  vendor: uuidSchema,
+  solicitation: uuidSchema,
+  bid_items: z
+    .array(bidItemSchema)
+    .nonempty("At least one bid item is required"),
+  evaluations: z
+    .array(evaluationSchema)
+    .nonempty("At least one evaluation is required"),
+});
+
+// Manual Bid Submission end

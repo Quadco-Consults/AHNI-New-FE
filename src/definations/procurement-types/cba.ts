@@ -29,22 +29,24 @@ export type VendorSubmissionData = {
 };
 
 export type CbaResultsData = {
-  id: string;
-  created_at: string;
-  updated_at: string;
-  vendor_submissions: VendorSubmissionData[];
-  vendor_responses: {};
-  cba_type: string;
-  cba_date: string;
-  remarks: string;
-  status: string;
-  solicitation: string;
-  solicitation_name: string;
-  title: string;
-  items: SolicitationItems[];
-  lot: number;
-  assignee: CommitteeMemberData;
-  committee_members: CommitteeMemberData[];
+  data: {
+    id: string;
+    created_at: string;
+    updated_at: string;
+    vendor_submissions: VendorSubmissionData[];
+    vendor_responses: {};
+    cba_type: string;
+    cba_date: string;
+    remarks: string;
+    status: string;
+    solicitation: { rfq_id: string };
+    solicitation_name: string;
+    title: string;
+    items: SolicitationItems[];
+    lot: number;
+    assignee: CommitteeMemberData;
+    committee_members: CommitteeMemberData[];
+  };
 };
 
 export interface CbaData {

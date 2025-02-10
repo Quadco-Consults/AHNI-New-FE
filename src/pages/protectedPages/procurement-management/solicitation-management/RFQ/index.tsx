@@ -5,7 +5,7 @@ import Card from "components/shared/Card";
 import { Icon } from "@iconify/react";
 import { Link, generatePath } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
-import { LoadingSpinner } from "components/shared/Loading";
+import { Loading } from "components/shared/Loading";
 import { useGetAllSolicitationsQuery } from "services/procurementApi/solicitation";
 import Pagination from "components/shared/Pagination";
 import { useState } from "react";
@@ -19,7 +19,7 @@ const RFQ = () => {
   });
 
   if (isLoading) {
-    return <LoadingSpinner />;
+    return <Loading />;
   }
 
   return (

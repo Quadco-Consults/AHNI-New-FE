@@ -153,13 +153,13 @@ export const RouteEnum = {
   COMPETITIVE_BID_ANALYSIS_DETAILS:
     "/procurement-management/competitive-bid-analysis/:id",
   COMPETITIVE_BID_ANALYSIS_DETAILS_APPROVAL_CHECK:
-    "/procurement-management/competitive-bid-analysis/:id/check-approval",
+    "/procurement-management/competitive-bid-analysis/check-approval",
   COMPETITIVE_BID_ANALYSIS_DETAILS_START:
     "/procurement-management/competitive-bid-analysis/:id/start",
   COMPETITIVE_BID_ANALYSIS_DETAILS_FINANCIAL_BID_OPENING:
-    "/procurement-management/competitive-bid-analysis/:id/financial-bid-opening",
+    "/procurement-management/competitive-bid-analysis/financial-bid-opening",
   SUMMARY_OF_TECHNICAL_PREQUALIFICATION:
-    "/procurement-management/competitive-bid-analysis/:id/summary-of-technical-prequalification",
+    "/procurement-management/competitive-bid-analysis/summary-of-technical-prequalification",
   //eoi routes
   EOI: "/procurement-management/vendor-management/eoi",
   EOI_VIEW: "/procurement-management/vendor-management/eoi/:id",
