@@ -28,6 +28,8 @@ import LongArrowRight from "components/icons/LongArrowRight";
 import { RouteEnum } from "constants/RouterConstants";
 import BreadcrumbCard from "components/shared/Breadcrumb";
 import DepartmentsAPI from "services/configs/departments";
+import { toast } from "sonner";
+import { useCreatePurchaseOrderMutation } from "services/procurementApi/purchase-order";
 
 const PurchaseOrderNew = () => {
   const [open, setOpen] = useState(false);
@@ -59,7 +61,12 @@ const PurchaseOrderNew = () => {
   const { data: departments, isLoading: departmentsIsLoading } =
     DepartmentsAPI.useGetDepartmentsQuery({});
 
-  console.log({ vendors, requests, requestsDetails, requestValue });
+  const [
+    createPurchcaseOrderMutation,
+    { isLoading: createPurchaseOrderLoading },
+  ] = useCreatePurchaseOrderMutation();
+
+  console.log({ createPurchcaseOrderMutation, createPurchaseOrderLoading });
 
   const form = useForm<z.infer<typeof PurchaseOrderListSchema>>({
     resolver: zodResolver(PurchaseOrderListSchema),
@@ -68,10 +75,12 @@ const PurchaseOrderNew = () => {
 
   const { setValue, control, handleSubmit } = form;
 
+  console.log({ crank: requestsDetails?.data });
+
   const data = useMemo(() => {
     // @ts-ignore
     return requestsDetails?.data?.items.map((data) => ({
-      item_id: data?.item?.id || "",
+      item_id: data?.item || "",
       fco: data?.fco || "",
       quantity: data?.quantity || 0,
       unit_cost: data?.unit_cost || 0,
@@ -108,24 +117,25 @@ const PurchaseOrderNew = () => {
   const onSubmit = async (data: z.infer<typeof PurchaseOrderListSchema>) => {
     console.log({ data });
 
-    // const formData = {
-    //   purchase_request: data?.purchase_request,
-    //   vendor: data?.vendor,
-    //   items: data?.items.map((item) => ({
-    //     item_id: item?.item_id,
-    //     quantity: item?.quantity,
-    //     unit_cost: item?.unit_cost,
-    //     fco: item?.fco,
-    //   })),
-    // };
+    const formData = {
+      purchase_request: data?.purchase_request,
+      vendor: data?.vendor,
+      items: data?.items.map((item) => ({
+        item_id: item?.item_id,
+        quantity: item?.quantity,
+        unit_cost: item?.unit_cost,
+        fco: item?.fco,
+      })),
+    };
 
-    // try {
-    navigate(RouteEnum.PURCHASE_ORDER);
-    //   toast.success("Successfully created.");
-    // } catch (error) {
-    //   toast.error("Something went wrong");
-    //   console.log(error);
-    // }
+    try {
+      createPurchcaseOrderMutation(formData).unwrap();
+      // navigate(RouteEnum.PURCHASE_ORDER);
+      toast.success("Successfully created.");
+    } catch (error) {
+      toast.error("Something went wrong");
+      console.log(error);
+    }
   };
 
   const breadcrumbs = [
@@ -424,17 +434,17 @@ const PurchaseOrderNew = () => {
             </Button>
           </div>
           <div className='flex items-center justify-end'>
-            <Link to={generatePath(RouteEnum.PURCHASE_ORDER)}>
-              <FormButton
-                loading={false}
-                disabled={false}
-                type='submit'
-                className='flex items-center justify-center gap-2'
-              >
-                Submit
-                <LongArrowRight />
-              </FormButton>
-            </Link>
+            {/* <Link to={generatePath(RouteEnum.PURCHASE_ORDER)}> */}
+            <FormButton
+              loading={false}
+              disabled={false}
+              type='submit'
+              className='flex items-center justify-center gap-2'
+            >
+              Submit
+              <LongArrowRight />
+            </FormButton>
+            {/* </Link> */}
           </div>
         </form>
       </Form>

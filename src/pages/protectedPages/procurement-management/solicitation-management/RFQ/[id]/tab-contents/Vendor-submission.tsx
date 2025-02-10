@@ -171,9 +171,9 @@ const columns: ColumnDef<SolicitationSubmissionResultsData>[] = [
         <Badge
           className={cn(
             "px-3 py-2 rounded-lg",
-            status === "Approved" && "bg-green-200 text-green-500",
-            status === "Fail" && "bg-red-200 text-red-500",
-            status === "Pending" && "bg-yellow-200 text-yellow-500"
+            status === "PASSED" && "bg-green-200 text-green-500",
+            status === "FAIL" && "bg-red-200 text-red-500",
+            status === "PENDING" && "bg-yellow-200 text-yellow-500"
           )}
         >
           {status}
