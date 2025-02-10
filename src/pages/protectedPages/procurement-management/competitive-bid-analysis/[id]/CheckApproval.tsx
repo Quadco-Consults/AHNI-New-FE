@@ -3,8 +3,10 @@ import GoBack from "components/shared/GoBack";
 import { Loading } from "components/shared/Loading";
 import { Button } from "components/ui/button";
 import { Textarea } from "components/ui/textarea";
+import { RouteEnum } from "constants/RouterConstants";
 import useQuery from "hooks/useQuery";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ManualBidCbaPrequalificationAPI from "services/procurementApi/manual-bid-cba-prequalification";
 import { toast } from "sonner";
 
@@ -13,6 +15,8 @@ const TableComponent = () => {
   const id = query.get("id");
   const cba = query.get("cba");
 
+  const navigate = useNavigate();
+
   const { data: summaryData, isLoading } =
     ManualBidCbaPrequalificationAPI.useGetManualBidPrequalificationsQuery({
       path: {
@@ -20,11 +24,10 @@ const TableComponent = () => {
       },
     });
 
-  console.log({ summaryData });
-
   const [createVendorBidAnalysis] =
     ManualBidCbaPrequalificationAPI.useCreateVendorBidAnalysisMutation();
 
+  const [recommendationNote, setRecommendationNote] = useState("");
   function formatBidData(inputData) {
     if (inputData) {
       const companies = [
@@ -48,7 +51,7 @@ const TableComponent = () => {
 
           if (!itemsMap.has(item.solicitation_item_id)) {
             itemsMap.set(item.solicitation_item_id, {
-              id: item?.id,
+              id: item?.solicitation_item_id,
               title: item.solicitation_item_name, // Adjust title as needed
               qty: 1,
             });
@@ -87,7 +90,6 @@ const TableComponent = () => {
 
   // Example usage:
   const formattedData = formatBidData(summaryData?.data);
-  console.log({ formattedData });
 
   const [checkedItems, setCheckedItems] = useState({});
 
@@ -177,8 +179,6 @@ const TableComponent = () => {
     checkedGrandTotal &&
     Object.values(checkedGrandTotal!)?.reduce((sum, total) => sum + total, 0);
 
-  const [recommendationNote, setRecommendationNote] = useState("");
-
   // Function to format selected items per vendor
   const getSelectedItemsForVendor = (vendor) => {
     const selectedItems = formattedData?.data?.items
@@ -213,6 +213,8 @@ const TableComponent = () => {
       });
 
       await Promise.all(apiCalls);
+      navigate(`${RouteEnum.COMPETITIVE_BID_ANALYSIS}`);
+
       toast.success("Analysis submitted successfully!");
     } catch (error) {
       console.error("Error submitting analysis:", error);
@@ -246,8 +248,6 @@ const TableComponent = () => {
                 <td className='p-3 min-w-[420px]'>Items Description</td>
                 <td className='p-3 min-w-[50px]'>Qty</td>
                 {formattedData?.data?.companies.map((company, index) => {
-                  console.log({ company });
-
                   return (
                     <>
                       <td
@@ -394,6 +394,7 @@ const TableComponent = () => {
           <Textarea
             className='border rounded-md p-3 max-w-[400px]'
             placeholder='Enter recommendation here'
+            onChange={(e) => setRecommendationNote(e.target.value)}
           />
         </div>
         <div className='flex w-full justify-end'>
