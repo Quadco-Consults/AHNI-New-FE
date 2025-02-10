@@ -262,12 +262,21 @@ const PriceTrendChart = (data: PriceIntelligenceDetail) => {
       date: format(history?.date, "dd, MMM"),
     };
   });
+  const dummyData = [
+    { date: "2024-02-01", price: 100 },
+    { date: "2024-02-02", price: 120 },
+    { date: "2024-02-03", price: 90 },
+    { date: "2024-02-04", price: 130 },
+    { date: "2024-02-05", price: 110 },
+    { date: "2024-02-06", price: 150 },
+    { date: "2024-02-07", price: 140 },
+  ];
 
   return (
     <div className='p-4'>
       <ResponsiveContainer width='100%' height={300}>
         <AreaChart
-          data={formattedData}
+          data={formattedData || dummyData}
           margin={{
             top: 20,
             right: 30,
