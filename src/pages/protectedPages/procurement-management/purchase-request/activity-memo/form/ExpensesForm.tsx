@@ -17,7 +17,7 @@ import {
 } from "components/ui/select";
 import { MinusCircle } from "lucide-react";
 import { useFormContext } from "react-hook-form";
-import { useGetAllConsumablesQuery } from "services/admin/inventory-management/consumable";
+import { useGetAllAssetsQuery } from "services/admin/inventory-management/asset";
 
 const ExpensesForm = ({
   fields,
@@ -30,7 +30,7 @@ const ExpensesForm = ({
   watch: any;
   setValue: any;
 }) => {
-  const consumables = useGetAllConsumablesQuery({
+  const { data: asset } = useGetAllAssetsQuery({
     page: 1,
     size: 2000000,
   });
@@ -41,12 +41,10 @@ const ExpensesForm = ({
   //   const { fields, remove } = useFieldArray({ control, name: "expenses" });
 
   //   // Map consumables data to options
-  const consumablesOptions = consumables?.data?.data?.results.map(
-    ({ name, id }) => ({
-      label: name,
-      value: id,
-    })
-  );
+  const assetsOptions = asset?.data?.results?.map(({ name, id }) => ({
+    label: name,
+    value: id,
+  }));
   // optimization for number spliting is required use: .toLocaleString()
   return (
     <div>
@@ -63,7 +61,7 @@ const ExpensesForm = ({
 
         return (
           <div key={field.id} className='grid grid-cols-2 gap-5 mt-5'>
-            {consumablesOptions && (
+            {assetsOptions && (
               <>
                 <FormField
                   control={control}
@@ -82,16 +80,17 @@ const ExpensesForm = ({
                         <Select
                           onValueChange={(selectedValue) => {
                             onChange(selectedValue); // Update the selected item value
-                            const selectedItem =
-                              consumables?.data?.data?.results.find(
-                                (item) => item.id === selectedValue
-                              );
+                            const selectedItem = asset?.data?.results?.find(
+                              (item) => item.id === selectedValue
+                            );
+
+                            console.log({ selectedItem });
 
                             if (selectedItem) {
                               // Update the unit cost field
                               setValue(
                                 `expenses.${index}.unit_cost`,
-                                selectedItem.item_cost || 0
+                                selectedItem.ngn_cost || 0
                               );
                             }
                           }}
@@ -104,7 +103,7 @@ const ExpensesForm = ({
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {consumablesOptions?.map((item) => {
+                            {assetsOptions?.map((item) => {
                               return (
                                 <SelectItem
                                   value={item.value as string}
