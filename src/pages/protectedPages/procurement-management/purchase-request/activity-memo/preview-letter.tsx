@@ -3,7 +3,7 @@ import { Button } from "components/ui/button";
 import { RouteEnum } from "constants/RouterConstants";
 import logoPng from "assets/svgs/logo-bg.svg";
 
-import { generatePath, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import PurchaseRequestAPI from "services/procurementApi/purchase-sample-request ";
 import { useMemo } from "react";
 import { useGetSingleBudgetLineQuery } from "services/modules/finance/budget-line";
@@ -14,6 +14,7 @@ import { useGetSingleCostCategoryQuery } from "services/modules/finance/cost-cat
 import { useGetSingleCostInputQuery } from "services/modules/finance/cost-input";
 import { useGetSingleFCONumberQuery } from "services/modules/finance/fco-number";
 import useQuery from "hooks/useQuery";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 const Preview = () => {
   const query = useQuery();
@@ -31,24 +32,27 @@ const Preview = () => {
   );
 
   const { data: budgetLine } = useGetSingleBudgetLineQuery(
-    requestsDetails?.budget_line[0]
+    requestsDetails?.budget_line[0] ?? skipToken
   );
 
   const { data: interventionArea } =
     // @ts-ignore
-    useGetSingleInterventionAreaQuery(requestsDetails?.intervention_areas[0]);
+    useGetSingleInterventionAreaQuery(
+      requestsDetails?.intervention_areas[0] ?? skipToken
+    );
 
-  const { data: costCategory } =
+  const { data: costCategory } = useGetSingleCostCategoryQuery(
     // @ts-ignore
-    useGetSingleCostCategoryQuery(requestsDetails?.cost_categories[0]);
+    requestsDetails?.cost_categories[0] ?? skipToken
+  );
 
   const { data: costInput } =
     // @ts-ignore
-    useGetSingleCostInputQuery(requestsDetails?.cost_input[0]);
+    useGetSingleCostInputQuery(requestsDetails?.cost_input[0] ?? skipToken);
 
   const { data: fcoNumber } = useGetSingleFCONumberQuery(
     // @ts-ignore
-    requestsDetails?.fconumber[0]
+    requestsDetails?.fconumber[0] ?? skipToken
   );
   console.log({ requestsDetails, fcoNumber });
 
@@ -61,9 +65,21 @@ const Preview = () => {
       </div>
 
       <div>
-        <h2>To: {requestsDetails?.approved_by?.name}</h2>
-        <h2 className='my-8'>THROUGH: {requestsDetails?.reviewed_by?.name}</h2>
-        <h2>FROM: {requestsDetails?.created_by?.name}</h2>
+        <h2>To: {requestsDetails?.approved_by_details?.name}</h2>
+        <h2 className='my-8'>
+          THROUGH:{"  "}
+          {requestsDetails?.reviewed_by_details?.map(({ name }, idx) => {
+            return (
+              <span key={idx} className='mr-1'>
+                {name}
+                {idx + 1 < requestsDetails?.reviewed_by_details.length
+                  ? ","
+                  : ""}
+              </span>
+            );
+          })}
+        </h2>
+        <h2>FROM: {requestsDetails?.created_by_details?.name}</h2>
 
         <div className='mt-8'>
           <div className='flex gap-8'>
@@ -94,7 +110,8 @@ const Preview = () => {
           {/* @ts-ignore */}
           <p className='mt-8'>Date: {requestsDetails?.requested_date}</p>
           <p className='my-8'>
-            <strong>Subject:</strong>
+            <strong>Subject: </strong>
+            {requestsDetails?.subject}
           </p>
         </div>
 

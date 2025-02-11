@@ -135,8 +135,8 @@ export const SampleMemoSchema = z.object({
   copy: z.array(z.string().min(1, "Field is required")),
   created_by: z.string().min(1, "Field is required"),
   approved_by: z.string().min(1, "Field is required"),
-  reviewed_by: z.string().min(1, "Field is required"),
-  authorized_by: z.string().min(1, "Field is required"),
+  // reviewed_by: z.string().min(1, "Field is required"),
+  // authorized_by: z.string().min(1, "Field is required"),
   through: z.array(z.string().min(1, "Field is required")),
   expenses: z.array(
     z.object({

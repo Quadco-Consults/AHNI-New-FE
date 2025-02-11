@@ -128,9 +128,9 @@ const CreateActivityMemo = () => {
       comment: "",
       copy: [],
       approved_by: "",
-      reviewed_by: "",
+      // reviewed_by: "",
       created_by: "",
-      authorized_by: "",
+      // authorized_by: "",
       through: [],
       expenses: [],
       // created_by: profile?.data.id,
@@ -180,65 +180,15 @@ const CreateActivityMemo = () => {
     navigate(RouteEnum.SAMPLE_PREVIEW);
   };
 
+  const lom = form.getValues();
+
+  console.log({ lom });
+
   return (
     <div className='pt-5'>
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-6'>
           <div className='grid grid-cols-2 gap-5'>
-            {usersOptionsFn && (
-              <FormSelect
-                label='Approve by'
-                name='approved_by'
-                required
-                options={usersOptionsFn}
-              />
-            )}
-            {usersOptionsFn && (
-              <FormSelect
-                label='Review by'
-                name='reviewed_by'
-                required
-                options={usersOptionsFn}
-              />
-            )}
-          </div>
-          <div className='grid grid-cols-2 gap-5'>
-            {usersOptionsFn && (
-              <FormSelect
-                label='Authorized by'
-                name='authorized_by'
-                required
-                options={usersOptionsFn}
-              />
-            )}
-          </div>
-          <div className='grid grid-cols-2 gap-5'>
-            <div>
-              <Label className='font-semibold'>Copy</Label>
-              <FormField
-                control={form.control}
-                name='copy'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <MultiSelectFormField
-                        options={usersOptions || []}
-                        defaultValue={field.value}
-                        onValueChange={field.onChange}
-                        placeholder='Please Select'
-                        variant='inverted'
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              {errors.copy && (
-                <span className='text-sm text-red-500 font-medium'>
-                  {errors.copy.message}
-                </span>
-              )}
-            </div>{" "}
             <div>
               <Label className='font-semibold'>Through</Label>
               <FormField
@@ -265,6 +215,43 @@ const CreateActivityMemo = () => {
                 </span>
               )}
             </div>{" "}
+            <div>
+              <Label className='font-semibold'>CC</Label>
+              <FormField
+                control={form.control}
+                name='copy'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <MultiSelectFormField
+                        options={usersOptions || []}
+                        defaultValue={field.value}
+                        onValueChange={field.onChange}
+                        placeholder='Please Select'
+                        variant='inverted'
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              {errors.copy && (
+                <span className='text-sm text-red-500 font-medium'>
+                  {errors.copy.message}
+                </span>
+              )}
+            </div>{" "}
+          </div>
+
+          <div className='grid grid-cols-2 gap-5'>
+            {usersOptionsFn && (
+              <FormSelect
+                label='To'
+                name='approved_by'
+                required
+                options={usersOptionsFn}
+              />
+            )}
           </div>
           <div className='grid gap-5'>
             {activitiesOptions && (
