@@ -13,6 +13,7 @@ import { DepartmentsResultsData } from "definations/configs/departments";
 import { ItemsResultsData } from "definations/configs/itmes";
 import { PurchaseRequestSchema } from "definations/procurement-validator";
 import { MinusCircle } from "lucide-react";
+import { useEffect, useMemo } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useGetAllUsersQuery } from "services/auth/user";
@@ -26,7 +27,7 @@ import PurchaseRequestAPI from "services/procurementApi/purchase-request";
 import { toast } from "sonner";
 import { z } from "zod";
 
-const CreatePurchaseRequestForm = () => {
+const CreatePurchaseRequestForm = ({ expenses }) => {
   const { data: departments, isLoading: departmentsIsLoading } =
     DepartmentsAPI.useGetDepartmentsQuery({});
   const { isLoading: partnersIsLoading } = useGetAllPartnersQuery({
@@ -53,7 +54,6 @@ const CreatePurchaseRequestForm = () => {
     page: 1,
     size: 2000000,
   });
-  console.log({ items, position });
 
   const { data: locations } = LocationAPi.useGetLocationListQuery({
     params: { no_paginate: true },
@@ -87,21 +87,12 @@ const CreatePurchaseRequestForm = () => {
       role_reviewed_by: "",
       role_authorised_by: "",
       role_approved_by: "",
-      items: [
-        {
-          quantity: 0,
-          unit_cost: 0,
-          amount: 0,
-          item: "",
-          fco_number: "",
-        },
-      ],
     },
   });
 
   const navigate = useNavigate();
 
-  const { control, handleSubmit } = form;
+  const { control, handleSubmit, setValue } = form;
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -154,8 +145,27 @@ const CreatePurchaseRequestForm = () => {
     }
   };
 
+  const expensesData = useMemo(() => {
+    //   // @ts-ignore
+    return expenses?.map((exp) => ({
+      quantity: exp?.quantity,
+      unit_cost: exp?.unit_cost,
+      amount: exp?.total_cost,
+      item: exp?.item,
+      fco_number: "",
+    }));
+  }, [expenses]);
+
+  console.log({ expenses, expensesData });
+
+  useEffect(() => {
+    if (expensesData) {
+      setValue("items", expensesData);
+    }
+  }, [expensesData, setValue]);
+
   const lon = form.getValues();
-  console.log({ lon });
+  console.log({ ln: lon?.items });
 
   return (
     <div className='pt-5'>
@@ -235,6 +245,8 @@ const CreatePurchaseRequestForm = () => {
               </thead>
               <tbody>
                 {fields.map((field, index) => {
+                  console.log({ field }, `items.[${index}].quantity`);
+
                   return (
                     <tr key={index} className='w-full'>
                       <td className='w-fit p-2 text-center '>
@@ -334,12 +346,12 @@ const CreatePurchaseRequestForm = () => {
             </div>
           </div>
 
-          <div className='flex items-center justify-end'>
+          {/* <div className='flex items-center justify-end'>
             <div className='text-primary border-primary flex items-center justify-start gap-2 rounded border-2 px-6 py-3 text-base font-semibold'>
               <span>Total:</span>
               <span>N0.00</span>
             </div>
-          </div>
+          </div> */}
 
           <div className='my-2'>
             <h3 className='mb-4'>Requested By</h3>

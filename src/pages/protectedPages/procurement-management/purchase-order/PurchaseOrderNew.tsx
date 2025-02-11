@@ -1,6 +1,6 @@
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import { Label } from "components/ui/label";
-import { generatePath, Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Check, ChevronsUpDown, MinusCircle, PlusCircle } from "lucide-react";
 import { cn } from "lib/utils";
 import { Button } from "components/ui/button";
@@ -25,7 +25,7 @@ import { Form } from "components/ui/form";
 import FormButton from "atoms/FormButton";
 import LongArrowRight from "components/icons/LongArrowRight";
 // import { toast } from "sonner";
-import { RouteEnum } from "constants/RouterConstants";
+
 import BreadcrumbCard from "components/shared/Breadcrumb";
 import DepartmentsAPI from "services/configs/departments";
 import { toast } from "sonner";
@@ -61,12 +61,7 @@ const PurchaseOrderNew = () => {
   const { data: departments, isLoading: departmentsIsLoading } =
     DepartmentsAPI.useGetDepartmentsQuery({});
 
-  const [
-    createPurchcaseOrderMutation,
-    { isLoading: createPurchaseOrderLoading },
-  ] = useCreatePurchaseOrderMutation();
-
-  console.log({ createPurchcaseOrderMutation, createPurchaseOrderLoading });
+  const [createPurchcaseOrderMutation] = useCreatePurchaseOrderMutation();
 
   const form = useForm<z.infer<typeof PurchaseOrderListSchema>>({
     resolver: zodResolver(PurchaseOrderListSchema),
@@ -74,8 +69,6 @@ const PurchaseOrderNew = () => {
   });
 
   const { setValue, control, handleSubmit } = form;
-
-  console.log({ crank: requestsDetails?.data });
 
   const data = useMemo(() => {
     // @ts-ignore
@@ -115,8 +108,6 @@ const PurchaseOrderNew = () => {
   }, []);
 
   const onSubmit = async (data: z.infer<typeof PurchaseOrderListSchema>) => {
-    console.log({ data });
-
     const formData = {
       purchase_request: data?.purchase_request,
       vendor: data?.vendor,
@@ -144,10 +135,6 @@ const PurchaseOrderNew = () => {
     { name: "Create", icon: false },
   ];
 
-  const lon = form.getValues();
-
-  console.log({ lon });
-
   return (
     <div className='space-y-5'>
       <BreadcrumbCard list={breadcrumbs} />
@@ -159,7 +146,7 @@ const PurchaseOrderNew = () => {
         <LongArrowLeft />
       </button>
 
-      <p className=' text-[24px] font-semibold'>Purchase Order Form</p>
+      <p className='text-[24px] font-semibold'>Purchase Order Form</p>
 
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-5'>
