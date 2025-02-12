@@ -5,13 +5,49 @@ import JobDetail from "./JobDetail";
 import SubmittedApplication from "./SubmittedApplication";
 import Shortlist from "./Shortlist";
 import InterviewAnalysis from "./InterviewAnalysis";
+import JobAdvertisementAPI from "services/hrApi/hr-job-advertisement";
+import { Loading } from "components/shared/Loading";
+import { useParams } from "react-router-dom";
 
 const AdvertisementDetail = () => {
+  const { id } = useParams();
+
+  const { data, isLoading } = JobAdvertisementAPI.useGetJobAdvertisementQuery({
+    id: id as string,
+  });
+
+  const TABS = [
+    {
+      label: "Job Details",
+      value: "job_details",
+      // @ts-ignore
+      children: <JobDetail {...data?.data} />,
+    },
+    {
+      label: "Submitted Applications",
+      value: "submitted_applications",
+      // @ts-ignore
+      children: <SubmittedApplication {...data?.data} />,
+    },
+    {
+      label: "Shortlist",
+      value: "shortlist",
+      children: <Shortlist />,
+    },
+    {
+      label: "Interview Analysis",
+      value: "interview_analysis",
+      children: <InterviewAnalysis />,
+    },
+  ];
+  if (isLoading) {
+    return <Loading />;
+  }
   return (
-    <div className="space-y-6">
+    <div className='space-y-6'>
       <GoBack />
 
-      <Tabs defaultValue="job_details">
+      <Tabs defaultValue='job_details'>
         <TabsList>
           {TABS.map((tab) => (
             <TabsTrigger key={tab.value} value={tab.value}>
@@ -22,7 +58,7 @@ const AdvertisementDetail = () => {
 
         {TABS.map((tab) => (
           <TabsContent key={tab.value} value={tab.value}>
-            <Card className="px-6">{tab.children}</Card>
+            <Card className='px-6'>{tab.children}</Card>
           </TabsContent>
         ))}
       </Tabs>
@@ -31,26 +67,3 @@ const AdvertisementDetail = () => {
 };
 
 export default AdvertisementDetail;
-
-const TABS = [
-  {
-    label: "Job Details",
-    value: "job_details",
-    children: <JobDetail />,
-  },
-  {
-    label: "Submitted Applications",
-    value: "submitted_applications",
-    children: <SubmittedApplication />,
-  },
-  {
-    label: "Shortlist",
-    value: "shortlist",
-    children: <Shortlist />,
-  },
-  {
-    label: "Interview Analysis",
-    value: "interview_analysis",
-    children: <InterviewAnalysis />,
-  },
-];

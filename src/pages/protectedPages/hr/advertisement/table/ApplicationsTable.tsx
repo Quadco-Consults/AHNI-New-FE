@@ -15,15 +15,28 @@ import DataTable from "components/Table/DataTable";
 import SearchIcon from "components/icons/SearchIcon";
 import FilterIcon from "components/icons/FilterIcon";
 import AddSquareIcon from "components/icons/AddSquareIcon";
+import JobApplicationAPI from "services/hrApi/hr-job-applications";
+import { Loading } from "components/shared/Loading";
 
 const ApplicationsTable = ({
-  href = "",
   linkTitle,
+  id,
+  status = "",
 }: {
   href?: string;
   linkTitle?: string;
+  id?: string;
+  status?: "shortlisted" | "";
 }) => {
-  console.log({ href });
+  // const { data, isLoading } = JobApplicationAPI.useGetJobApplicationsQuery();
+
+  const { data, isLoading } = JobApplicationAPI.useGetJobApplicationsQuery({
+    status: status,
+  });
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <div className='space-y-6'>
@@ -33,7 +46,7 @@ const ApplicationsTable = ({
           <input
             placeholder='Search'
             type='text'
-            className='ml-2 h-6 border-none bg-none focus:outline-none outline-none'
+            className='ml-2 h-6 w-full border-none bg-none focus:outline-none outline-none'
           />
         </span>
         <Button className='shadow-sm' variant='ghost'>
@@ -42,11 +55,14 @@ const ApplicationsTable = ({
         {linkTitle && (
           <div className='ml-auto'>
             <Link
-              className='w-full'
-              // to={generatePath(CandGRoutes.MANUAL_SUB_GRANT_SUBMISSION)}
-              to={href}
-              // to={""}
+              to={generatePath(
+                HrRoutes.ADVERTISEMENT_MANUAL_APPLICATION_SUBMISSION,
+                {
+                  id: id,
+                }
+              )}
             >
+              {" "}
               <Button className='flex gap-2 py-6' type='button'>
                 <AddSquareIcon />
                 <p>{linkTitle}</p>
@@ -55,29 +71,17 @@ const ApplicationsTable = ({
           </div>
         )}
       </div>
-      <DataTable data={data} columns={columns} isLoading={false} />
+      <DataTable
+        // @ts-ignore
+        data={data?.data?.results}
+        columns={columns}
+        isLoading={false}
+      />
     </div>
   );
 };
 
 export default ApplicationsTable;
-
-const data = [
-  {
-    name: "James Septimus",
-    position: "Technical Associate",
-    type: "Technical Associate",
-    status: "Applied",
-    email: "jamesseptimus@gmail.com",
-  },
-  {
-    name: "James Septimus",
-    position: "Technical Associate",
-    type: "Technical Associate",
-    status: "Shortlisted",
-    email: "jamesseptimus@gmail.com",
-  },
-];
 
 const columns: ColumnDef<AdvertisementResults>[] = [
   {
@@ -106,22 +110,22 @@ const columns: ColumnDef<AdvertisementResults>[] = [
   },
   {
     header: "Application Name",
-    accessorKey: "name",
+    accessorKey: "applicant_name",
     size: 250,
   },
   {
     header: "Position Applied",
-    accessorKey: "position",
+    accessorKey: "position_applied",
     size: 200,
   },
   {
     header: "Employment type",
-    accessorKey: "type",
+    accessorKey: "employment_type",
     size: 250,
   },
   {
     header: "Applicant Email",
-    accessorKey: "email",
+    accessorKey: "applicant_email",
   },
   {
     header: "Status",
@@ -130,10 +134,12 @@ const columns: ColumnDef<AdvertisementResults>[] = [
       return (
         <Badge
           className={cn(
-            "p-1 rounded-lg",
-            getValue() === "Applied"
+            "p-1 rounded-lg capitalize",
+            getValue() === "shortlisted"
               ? "bg-green-50 text-green-500"
-              : "bg-yellow-50 text-yellow-500"
+              : getValue() === "applied"
+              ? "bg-yellow-50 text-yellow-500"
+              : "bg-blue-50 text-blue-500"
           )}
         >
           {getValue() as string}
@@ -145,11 +151,11 @@ const columns: ColumnDef<AdvertisementResults>[] = [
     header: "Actions",
     id: "actions",
     size: 100,
-    cell: () => <ActionList />,
+    cell: ({ row }) => <ActionList data={row.original} />,
   },
 ];
 
-const ActionList = () => {
+const ActionList = ({ data }: any) => {
   return (
     <div className='flex items-center gap-2'>
       <>
@@ -163,8 +169,8 @@ const ActionList = () => {
             <div className='flex flex-col items-start justify-between gap-1'>
               <Link
                 to={generatePath(HrRoutes.ADVERTISEMENT_DETAIL_SUB_APP, {
-                  id: 1,
-                  appID: 2,
+                  id: data?.job,
+                  appID: data?.id,
                 })}
               >
                 <Button

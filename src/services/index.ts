@@ -86,6 +86,8 @@ const baseAPI = createApi({
     "Questionairs",
     "WORKFORCE",
     "HR_GRADE",
+    "JOB_ADVERTISEMENTS",
+    "JOB_APPLICATIONS",
     "HR_POSITION",
     "HR_BENEFICIARIES",
     "Cost_Category",
