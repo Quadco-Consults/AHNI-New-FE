@@ -12,6 +12,7 @@ import { RouteEnum } from "constants/RouterConstants";
 import { DepartmentsResultsData } from "definations/configs/departments";
 import { ItemsResultsData } from "definations/configs/itmes";
 import { PurchaseRequestSchema } from "definations/procurement-validator";
+import useQuery from "hooks/useQuery";
 import { MinusCircle } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -28,6 +29,8 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 const CreatePurchaseRequestForm = ({ expenses }) => {
+  const query = useQuery();
+  const request = query.get("request");
   const { data: departments, isLoading: departmentsIsLoading } =
     DepartmentsAPI.useGetDepartmentsQuery({});
   const { isLoading: partnersIsLoading } = useGetAllPartnersQuery({
@@ -81,7 +84,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
       // reviewed_date
       // authorized_date
       // approved_date
-      request_memo: "14700b16-9a76-46a3-ad06-4371b3dc96a6",
+      request_memo: request!,
       // location
       role_requested_by: "",
       role_reviewed_by: "",
@@ -134,6 +137,8 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
       role_approved_by: data.role_approved_by,
     };
 
+    console.log({ payload });
+
     try {
       // @ts-ignore
       await createPurchaseRequestMutation(payload).unwrap();
@@ -156,8 +161,6 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
     }));
   }, [expenses]);
 
-  console.log({ expenses, expensesData });
-
   useEffect(() => {
     if (expensesData) {
       setValue("items", expensesData);
@@ -165,7 +168,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
   }, [expensesData, setValue]);
 
   const lon = form.getValues();
-  console.log({ ln: lon?.items });
+  console.log({ ln: lon });
 
   return (
     <div className='pt-5'>

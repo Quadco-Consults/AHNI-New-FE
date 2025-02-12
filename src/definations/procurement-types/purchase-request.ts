@@ -19,6 +19,8 @@ export type PurchaseRequestItems = {
   quantity: number;
   sub_total_amount: number;
   purchase_request: string;
+  created_datetime: string;
+  amaount?: number | string;
 };
 
 export type PurchaseRequestResultsData = {
@@ -28,6 +30,7 @@ export type PurchaseRequestResultsData = {
   updated_at: string;
   request_date: string;
   required_date: string;
+  created_datetime: string;
   total_amount: number;
   request_id: string;
   title: string;

@@ -1,5 +1,16 @@
 export type SampleMemoResultsData = {
   requested_date: string;
+  reveiwed_by: string;
+  requested_by: string;
+  created_by: {
+    name: string;
+  };
+  reviewed_by: {
+    name: string;
+  };
+  approved_by: {
+    name: string;
+  };
   activity: string;
   activity_budget: string;
   approved_by_details: SampleUser;
