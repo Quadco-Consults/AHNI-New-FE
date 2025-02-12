@@ -15,25 +15,6 @@ const BASE_URL = "/procurements/purchase-request-memo/";
 
 const PurchaseRequestAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    // getPurchaseRequests: builder.query<PurchaseRequestData, {}>({
-    //   query: (config) => {
-    //     return {
-    //       url: `${BASE_URL}`,
-    //       ...config,
-    //     };
-    //   },
-    //   providesTags: ["PURCHASE_REQUEST"],
-    // }),
-    // getPurchaseRequestList: builder.query<PurchaseRequestResultsData[], {}>({
-    //   query: (config) => {
-    //     return {
-    //       url: `${BASE_URL}`,
-    //       ...config,
-    //     };
-    //   },
-    //   providesTags: ["PURCHASE_REQUEST"],
-    // }),
-
     createActivityMemo: builder.mutation({
       query: (body) => ({
         url: `${BASE_URL}`,
@@ -54,38 +35,6 @@ const PurchaseRequestAPI = baseAPI.injectEndpoints({
       },
       providesTags: ["SAMPLE_MEMO"],
     }),
-
-    // updatePurchaseRequest: builder.mutation<
-    //   PurchaseRequestResponse,
-    //   { path: { id: string }; body: any }
-    // >({
-    //   query: ({ path, body }) => ({
-    //     url: `${BASE_URL}${path.id}/`,
-    //     method: "PUT",
-    //     body,
-    //   }),
-    //   invalidatesTags: ["PURCHASE_REQUEST"],
-    // }),
-
-    // modifyPurchaseRequest: builder.mutation<
-    //   PurchaseRequestResponse,
-    //   { path: { id: string }; body: any }
-    // >({
-    //   query: ({ path, body }) => ({
-    //     url: `${BASE_URL}${path.id}/`,
-    //     method: "PATCH",
-    //     body,
-    //   }),
-    //   invalidatesTags: ["PURCHASE_REQUEST"],
-    // }),
-
-    // deletePurchaseRequest: builder.mutation<void, { path: { id: string } }>({
-    //   query: ({ path }) => ({
-    //     url: `${BASE_URL}${path.id}/`,
-    //     method: "DELETE",
-    //   }),
-    //   invalidatesTags: ["PURCHASE_REQUEST"],
-    // }),
   }),
 });
 

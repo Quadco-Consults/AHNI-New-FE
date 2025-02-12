@@ -24,10 +24,11 @@ import PurchaseRequestAPI from "services/procurementApi/purchase-request";
 import ItemsAPI from "services/configs/items";
 import { ItemsResultsData } from "definations/configs/itmes";
 import { toast } from "sonner";
-import { useGetAllAssetsQuery } from "services/admin/inventory-management/asset";
+import { useGetAllAssetsQuery } from "services/admin/inventory-management/item";
 import { useGetAllLotsQuery } from "services/modules/procurement/lot";
 import { useGetAllSolicitationEvaluationCriteriaQuery } from "services/modules/procurement/solicitation-evaluation-criteria";
 import { useCreateSolicitationMutation } from "services/procurementApi/solicitation";
+import { useGetAllItemsQuery } from "services/modules/config/item";
 
 const ItemSchema = z.object({
   solicitation_evaluations: z.array(
@@ -35,7 +36,7 @@ const ItemSchema = z.object({
       criteria: z.string().min(1, "Please select a category"),
     })
   ),
-  items: z.array(
+  solicitation_items: z.array(
     z.object({
       item: z.string().min(1, "Please select an item"),
       lot: z.string().min(1, "Please select a lot"),
@@ -51,13 +52,13 @@ const Items = () => {
   const form = useForm<z.infer<typeof ItemSchema>>({
     defaultValues: {
       solicitation_evaluations: [{ criteria: "" }],
-      items: [{ item: "", lot: "", quantity: "0" }],
+      solicitation_items: [{ item: "", lot: "", quantity: "0" }],
     },
   });
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: "items",
+    name: "solicitation_items",
   });
 
   const {
@@ -69,18 +70,18 @@ const Items = () => {
     name: "solicitation_evaluations",
   });
 
-  const { data: asset, isLoading: isAssetLoading } = useGetAllAssetsQuery({
+  const { data: item } = useGetAllItemsQuery({
     page: 1,
     size: 2000000,
   });
 
-  const assetOptions = useMemo(
+  const itemOptions = useMemo(
     () =>
-      asset?.data.results.map(({ name, id }) => ({
+      item?.data.results.map(({ name, id }) => ({
         label: name,
         value: id,
       })),
-    [asset]
+    [item]
   );
 
   const { data: lot, isLoading: isLotLoading } = useGetAllLotsQuery({
@@ -94,7 +95,7 @@ const Items = () => {
         label: name,
         value: id,
       })),
-    [asset]
+    [lot]
   );
 
   const { data: solicitationCriteria } =
@@ -121,13 +122,11 @@ const Items = () => {
     );
 
     const payload = { ...quotationData, ...data };
-    // navigate(RouteEnum.RFQ_CREATE_CBA, {   });
-    // navigate(`${RouteEnum.RFQ_CREATE_CBA}?id=${res?.data?.id}`);
+    // console.log({ payload });
 
     try {
       const res = await createSolicitation(payload).unwrap();
       console.log({ res, id: res?.data?.id });
-
       sessionStorage.removeItem("rfqQuotationFormData");
       toast.success("Solicitation Created Successfully");
       navigate(`${RouteEnum.RFQ_CREATE_CBA}?id=${res?.data?.id}`);
@@ -147,18 +146,22 @@ const Items = () => {
               <div key={index} className='flex items-center gap-5 w-full'>
                 <div className='grid grid-cols-1 gap-4 w-full md:grid-cols-3'>
                   <FormSelect
-                    name={`items.${index}.item`}
+                    name={`solicitation_items.${index}.item`}
                     label='Item'
                     required
-                    options={assetOptions}
+                    options={itemOptions}
                   />
                   <FormInput
-                    name={`items.${index}.quantity`}
+                    name={`solicitation_items.${index}.quantity`}
                     label='Quantity'
                     required
                   />
 
-                  <FormSelect name={`items.${index}.lot`} label='Lot' required>
+                  <FormSelect
+                    name={`solicitation_items.${index}.lot`}
+                    label='Lot'
+                    required
+                  >
                     <SelectContent>
                       {isLotLoading && <LoadingSpinner />}
                       {lotOptions?.map(({ label, value }) => (
