@@ -36,7 +36,7 @@ const ItemSchema = z.object({
       criteria: z.string().min(1, "Please select a category"),
     })
   ),
-  items: z.array(
+  solicitation_items: z.array(
     z.object({
       item: z.string().min(1, "Please select an item"),
       lot: z.string().min(1, "Please select a lot"),
@@ -52,13 +52,13 @@ const Items = () => {
   const form = useForm<z.infer<typeof ItemSchema>>({
     defaultValues: {
       solicitation_evaluations: [{ criteria: "" }],
-      items: [{ item: "", lot: "", quantity: "0" }],
+      solicitation_items: [{ item: "", lot: "", quantity: "0" }],
     },
   });
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: "items",
+    name: "solicitation_items",
   });
 
   const {
@@ -122,13 +122,11 @@ const Items = () => {
     );
 
     const payload = { ...quotationData, ...data };
-    // navigate(RouteEnum.RFQ_CREATE_CBA, {   });
-    // navigate(`${RouteEnum.RFQ_CREATE_CBA}?id=${res?.data?.id}`);
+    // console.log({ payload });
 
     try {
       const res = await createSolicitation(payload).unwrap();
       console.log({ res, id: res?.data?.id });
-
       sessionStorage.removeItem("rfqQuotationFormData");
       toast.success("Solicitation Created Successfully");
       navigate(`${RouteEnum.RFQ_CREATE_CBA}?id=${res?.data?.id}`);
@@ -148,18 +146,22 @@ const Items = () => {
               <div key={index} className='flex items-center gap-5 w-full'>
                 <div className='grid grid-cols-1 gap-4 w-full md:grid-cols-3'>
                   <FormSelect
-                    name={`items.${index}.item`}
+                    name={`solicitation_items.${index}.item`}
                     label='Item'
                     required
                     options={itemOptions}
                   />
                   <FormInput
-                    name={`items.${index}.quantity`}
+                    name={`solicitation_items.${index}.quantity`}
                     label='Quantity'
                     required
                   />
 
-                  <FormSelect name={`items.${index}.lot`} label='Lot' required>
+                  <FormSelect
+                    name={`solicitation_items.${index}.lot`}
+                    label='Lot'
+                    required
+                  >
                     <SelectContent>
                       {isLotLoading && <LoadingSpinner />}
                       {lotOptions?.map(({ label, value }) => (
