@@ -257,8 +257,6 @@ const CheckboxForm = () => {
   const filteredBeneficiaries = beneficiary?.filter(
     (beneficiary) => beneficiary.selected
   );
-  // const log = form.getValues();
-  console.log({ project_area: requestsDetails?.project_area, request });
 
   return (
     <Form {...form}>
