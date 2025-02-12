@@ -30,11 +30,10 @@ const ExpensesForm = ({
   watch: any;
   setValue: any;
 }) => {
-  const { data: item, isFetching } = useGetAllItemsQuery({
+  const { data: item } = useGetAllItemsQuery({
     page: 1,
     size: 2000000,
   });
-  console.log({ item, isFetching });
 
   const { control } = useFormContext();
 
