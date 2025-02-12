@@ -38,13 +38,12 @@ const PurchaseOrderAPI = baseAPI.injectEndpoints({
 
     getSinglePurchaseOrder: builder.query<
       TResponse<IPurchaseOrderSingleData>,
-      { path: { id: string } }
+      string
     >({
-      query: ({ path }) => {
-        return {
-          url: `${BASE_URL}${path.id}/`,
-        };
-      },
+      query: (id) => ({
+        method: "GET",
+        url: `${BASE_URL}${id}`,
+      }),
       providesTags: ["PURCHASE_ORDER"],
     }),
 
@@ -82,5 +81,8 @@ const PurchaseOrderAPI = baseAPI.injectEndpoints({
   }),
 });
 
-export const { useGetAllPurchaseOrdersQuery, useCreatePurchaseOrderMutation } =
-  PurchaseOrderAPI;
+export const {
+  useGetAllPurchaseOrdersQuery,
+  useGetSinglePurchaseOrderQuery,
+  useCreatePurchaseOrderMutation,
+} = PurchaseOrderAPI;

@@ -1,6 +1,7 @@
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
-import { DownloadIcon, EyeIcon, PlusIcon, PrinterIcon } from "lucide-react";
+import { EyeIcon, PlusIcon } from "lucide-react";
+// import { DownloadIcon, EyeIcon, PlusIcon, PrinterIcon } from "lucide-react";
 import { Checkbox } from "components/ui/checkbox";
 
 import { Input } from "components/ui/input";
@@ -29,8 +30,6 @@ const PurchaseOrder = () => {
   ];
 
   const { data } = useGetAllPurchaseOrdersQuery({});
-
-  //   console.log({ data });
 
   return (
     <div className='space-y-10'>
@@ -98,11 +97,19 @@ const columns: ColumnDef<IPurchaseOrderPaginatedData>[] = [
     header: "Vendor Name",
     accessorKey: "vendor_name",
     size: 250,
+    cell: ({ row }) => {
+      // @ts-ignore
+      return <div>{row?.original?.vendor_detail?.company_name}</div>;
+    },
   },
   {
     header: "RFQ",
     accessorKey: "rfq",
     size: 200,
+    cell: ({ row }) => {
+      // @ts-ignore
+      return <div>{row?.original?.solicitation_detail?.title}</div>;
+    },
   },
   {
     header: "Date Generated",
@@ -120,7 +127,6 @@ const columns: ColumnDef<IPurchaseOrderPaginatedData>[] = [
   },
 ];
 const ActionListAction = ({ data }: any) => {
-  console.log(data);
   return (
     <div className='flex gap-2'>
       <DropdownMenu>
@@ -131,15 +137,21 @@ const ActionListAction = ({ data }: any) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuItem key='print' className='flex gap-2'>
-            <EyeIcon /> View
+            <Link
+              to={generatePath(RouteEnum.PURCHASE_ORDER_ID, {
+                id: data.id,
+              })}
+            >
+              <EyeIcon /> View
+            </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem key='print' className='flex gap-2'>
+          {/* <DropdownMenuItem key='print' className='flex gap-2'>
             <PrinterIcon />
             Print
           </DropdownMenuItem>
           <DropdownMenuItem key='print' className='flex gap-2'>
             <DownloadIcon /> Download
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
 
           {/* {data?.items?.map((item: any) => (
             <DropdownMenuItem key={item?.id}>
