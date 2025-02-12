@@ -142,7 +142,7 @@ export const SampleMemoSchema = z.object({
     z.object({
       item: z.string().optional(),
       quantity: z.string().optional(),
-      days: z.string().optional(),
+      num_of_days: z.string().optional(),
       unit_cost: z.string().optional(),
       total_cost: z.number().optional(),
     })
@@ -252,8 +252,9 @@ export const SolicitationQuotationSchema = z.object({
   tender_type: z.string().min(1, "Please select tender type"),
   purchase_request: z
     .string()
-    .min(1, "Please select purchase request")
-    .nullable(),
+    // .min(1, "Please select purchase request")
+    .nullable()
+    .optional(),
   procurement_type: z.string().min(1, "Please select purchase request"),
 });
 

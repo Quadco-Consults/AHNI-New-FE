@@ -30,6 +30,7 @@ import BreadcrumbCard from "components/shared/Breadcrumb";
 import DepartmentsAPI from "services/configs/departments";
 import { toast } from "sonner";
 import { useCreatePurchaseOrderMutation } from "services/procurementApi/purchase-order";
+import { RouteEnum } from "constants/RouterConstants";
 
 const PurchaseOrderNew = () => {
   const [open, setOpen] = useState(false);
@@ -121,7 +122,7 @@ const PurchaseOrderNew = () => {
 
     try {
       createPurchcaseOrderMutation(formData).unwrap();
-      // navigate(RouteEnum.PURCHASE_ORDER);
+      navigate(RouteEnum.PURCHASE_ORDER);
       toast.success("Successfully created.");
     } catch (error) {
       toast.error("Something went wrong");
@@ -233,8 +234,6 @@ const PurchaseOrderNew = () => {
                       <CommandGroup>
                         {requestsIsLoading && <LoadingSpinner />}
                         {requests?.data?.results?.map((request) => {
-                          console.log({ request: request?.ref_number });
-
                           return (
                             <CommandItem
                               key={request?.id}
