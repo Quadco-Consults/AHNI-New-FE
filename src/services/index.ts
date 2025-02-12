@@ -88,6 +88,7 @@ const baseAPI = createApi({
     "HR_GRADE",
     "JOB_ADVERTISEMENTS",
     "JOB_APPLICATIONS",
+    "INTERVIEWS",
     "HR_POSITION",
     "HR_BENEFICIARIES",
     "Cost_Category",
