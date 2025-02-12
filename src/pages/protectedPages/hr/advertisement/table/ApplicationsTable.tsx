@@ -183,8 +183,8 @@ const ActionList = ({ data }: any) => {
               </Link>
               <Link
                 to={generatePath(HrRoutes.ADVERTISEMENT_INTERVIEW_FORM, {
-                  id: 1,
-                  appID: 2,
+                  id: data?.job,
+                  appID: data?.id,
                 })}
               >
                 <Button

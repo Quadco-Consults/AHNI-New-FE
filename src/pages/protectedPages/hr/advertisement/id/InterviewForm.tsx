@@ -1,5 +1,6 @@
 import Card from "components/shared/Card";
 import GoBack from "components/shared/GoBack";
+import { Loading } from "components/shared/Loading";
 import { Badge } from "components/ui/badge";
 import { Button } from "components/ui/button";
 import { Separator } from "components/ui/separator";
@@ -11,59 +12,40 @@ import {
   TableRow,
 } from "components/ui/table";
 import { Textarea } from "components/ui/textarea";
+import { formatDate } from "date-fns";
 import { useForm } from "react-hook-form";
+import { useNavigate, useParams } from "react-router-dom";
+import InterviewAPI from "services/hrApi/hr-interview";
+import JobApplicationAPI from "services/hrApi/hr-job-applications";
 
 const InterviewForm = () => {
+  const params = useParams();
+  const navigate = useNavigate();
+
+  const { data, isLoading } = JobApplicationAPI.useGetJobApplicationQuery({
+    id: params?.appID as string,
+  });
+
+  const [createInterview, { isLoading: createLoading }] =
+    InterviewAPI.useCreateInterviewMutation();
+
+  const form = useForm();
+
   const {
     register,
     handleSubmit,
     setValue,
     watch,
     formState: { errors },
-  } = useForm();
+  } = form;
 
   const onSubmit = (data: any) => {
     console.log("Submitted Data:", data);
   };
 
-  const ratingSections = [
-    {
-      title: "Appearance/Corporate Poise",
-      description:
-        "Appearance and composure in conformity with acceptable standards of the position",
-    },
-    {
-      title: "Oral Communication",
-      description:
-        "Ability to speak articulately and with clarity displaying good pronunciation and grammar",
-    },
-    {
-      title: "Supervisory Experience and/or Teamwork",
-      description: "Ability to supervise and/or work as a team member",
-    },
-    {
-      title: "Work Ethics",
-      description:
-        "Ability/tendency to maintain AHNI values (excellence, integrity, responsiveness, respect and dedication) and use judgment to execute duties and responsibilities.",
-    },
-    {
-      title: "Analytical thinking",
-      description:
-        "Capacity to examine and evaluate situations in a logical and rational approach",
-    },
-    {
-      title:
-        "Knowledge of international/regional NGO or local organization issues",
-      description:
-        "Displayed knowledge/understanding of political, social and ethical issues surrounding health related matters and knowledge of and experience with NGO’s interventions.",
-    },
-    {
-      title: "Quality/Relevance of Experience ",
-      description:
-        "Determined by the length, variety of positions held, quality of experience, industry type and size relevant to position.",
-    },
-  ];
-
+  if (isLoading) {
+    return <Loading />;
+  }
   return (
     <div className='flex flex-col gap-4'>
       <GoBack />
@@ -72,19 +54,19 @@ const InterviewForm = () => {
         <div className='grid grid-cols-2 gap-4'>
           <div className='flex flex-col gap-3'>
             <h2 className='font-semibold'>Name of Candidate</h2>
-            <p>James Septimus</p>
+            <p>{data?.data?.applicant_name}</p>
           </div>
           <div className='flex flex-col gap-3'>
             <h2 className='font-semibold'>Position Applied</h2>
-            <p>STO-PCT Borno</p>
+            <p> {data?.data?.position_applied}</p>
           </div>
           <div className='flex flex-col gap-3'>
             <h2 className='font-semibold'>Name of Interviewer</h2>
-            <p>Ali N. Pollock</p>
+            <p>{data?.data?.interviewer || "-"}</p>
           </div>
           <div className='flex flex-col gap-3'>
             <h2 className='font-semibold'>Date of Interview</h2>
-            <p>24th April, 2024</p>
+            <p>{formatDate(data?.data?.created_datetime, "dd, MMM, yyyy")}</p>
           </div>
         </div>
 
@@ -226,3 +208,41 @@ const getColor = (rating: number) => {
 };
 
 export default InterviewForm;
+
+const ratingSections = [
+  {
+    title: "Appearance/Corporate Poise",
+    description:
+      "Appearance and composure in conformity with acceptable standards of the position",
+  },
+  {
+    title: "Oral Communication",
+    description:
+      "Ability to speak articulately and with clarity displaying good pronunciation and grammar",
+  },
+  {
+    title: "Supervisory Experience and/or Teamwork",
+    description: "Ability to supervise and/or work as a team member",
+  },
+  {
+    title: "Work Ethics",
+    description:
+      "Ability/tendency to maintain AHNI values (excellence, integrity, responsiveness, respect and dedication) and use judgment to execute duties and responsibilities.",
+  },
+  {
+    title: "Analytical thinking",
+    description:
+      "Capacity to examine and evaluate situations in a logical and rational approach",
+  },
+  {
+    title:
+      "Knowledge of international/regional NGO or local organization issues",
+    description:
+      "Displayed knowledge/understanding of political, social and ethical issues surrounding health related matters and knowledge of and experience with NGO’s interventions.",
+  },
+  {
+    title: "Quality/Relevance of Experience ",
+    description:
+      "Determined by the length, variety of positions held, quality of experience, industry type and size relevant to position.",
+  },
+];
