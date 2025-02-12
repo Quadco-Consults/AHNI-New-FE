@@ -85,7 +85,7 @@ const CheckboxForm = () => {
   const form = useForm<FormData>({
     resolver: zodResolver(UploadSchema),
     defaultValues: {
-      beneficiaries: [],
+      // beneficiaries: [],
       // integratedTraining: "true",
     },
   });
@@ -96,29 +96,6 @@ const CheckboxForm = () => {
   const beneficiary = watch("beneficiaries");
   const budgets = watch("budget_expended");
   const activityBudget = watch("activity_budget");
-
-  useEffect(() => {
-    if (request) {
-      setValue(
-        "integratedTraining",
-        // @ts-ignore
-        "true"
-      );
-    }
-
-    if (requestsDetails?.project_area) {
-      setValue(
-        "beneficiaries",
-        // @ts-ignore
-        projects?.data?.results.map(({ title, id, project_id }) => ({
-          name: title,
-          selected: id === requestsDetails?.project_area ? true : false,
-          id,
-          project_id,
-        }))
-      );
-    }
-  }, [request, setValue, requestsDetails]);
 
   // Update default values when beneficiaries data is available
   useEffect(() => {
@@ -202,7 +179,7 @@ const CheckboxForm = () => {
         }))
       );
     }
-  }, [request, setValue, requestsDetails]);
+  }, [request, setValue]);
 
   const [createActivityMemoMutation] =
     PurchaseRequestAPI.useCreateActivityMemoMutation();
@@ -324,9 +301,9 @@ const CheckboxForm = () => {
                       control={control}
                       render={({ field }) =>
                         // @ts-ignore
-                        field.value.map((beneficiary, index) => (
+                        field?.value?.map((beneficiary, index) => (
                           <div
-                            key={beneficiary.id}
+                            key={beneficiary?.id}
                             className='flex items-center gap-2'
                           >
                             <Checkbox

@@ -44,6 +44,7 @@ const Preview = () => {
   const { data: costCategory } =
     // @ts-ignore
     useGetSingleCostCategoryQuery(
+      // @ts-ignore
       requestsDetails?.cost_categories[0] ?? skipToken
     );
 
@@ -174,7 +175,7 @@ const Preview = () => {
               {requestsDetails?.expenses.map((row, index) => (
                 <TableRow key={index}>
                   {/* expenses item name */}
-                  <TableCell>{row.item}</TableCell>
+                  <TableCell>{row?.item_detail?.name}</TableCell>
                   <TableCell>{row.quantity}</TableCell>
                   <TableCell>{row.num_of_days}</TableCell>
                   <TableCell>{row.num_of_facility}</TableCell>
@@ -183,29 +184,6 @@ const Preview = () => {
                   <TableCell>{Number(row.total_cost).toFixed(2)}</TableCell>
                 </TableRow>
               ))}
-              {/* <TableRow>
-                <TableCell>
-                  <strong>Totals</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>{totals.quantity}</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>{totals.days}</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>{totals.facility}</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>{totals.frequency}</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>{totals.unitCost.toFixed(2)}</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>{totals.totalCost.toFixed(2)}</strong>
-                </TableCell>
-              </TableRow> */}
             </TableBody>
           </Table>
         </div>

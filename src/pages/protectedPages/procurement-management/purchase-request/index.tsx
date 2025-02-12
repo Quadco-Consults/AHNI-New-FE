@@ -21,6 +21,16 @@ function PurchaseRequest() {
     {}
   );
 
+  console.log({ results: data?.data?.results });
+
+  const sortedResults = data?.data?.results
+    ?.slice()
+    .sort(
+      (a, b) =>
+        new Date(b.created_datetime).getTime() -
+        new Date(a.created_datetime).getTime()
+    );
+
   const columns: ColumnDef<PurchaseRequestResultsData>[] = [
     {
       header: "Purchase Request Number",
@@ -61,6 +71,14 @@ function PurchaseRequest() {
       header: "Total Amount",
       accessorKey: "total_cost",
       size: 150,
+      cell: ({ row }) => {
+        const totalAmount = row.original.items.reduce(
+          (sum, item) => sum + parseFloat(item.amount || "0"),
+          0
+        );
+
+        return <div>{totalAmount}</div>;
+      },
     },
     {
       header: "Actions",
@@ -160,7 +178,7 @@ function PurchaseRequest() {
         </div>
         <DataTable
           // @ts-ignore
-          data={data?.data?.results || []}
+          data={sortedResults || []}
           columns={columns}
           isLoading={isLoading}
         />
