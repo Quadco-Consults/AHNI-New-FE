@@ -166,7 +166,7 @@ export const PurchaseRequestSchema = z.object({
         z.number().min(1, "Field is required"),
       ]),
       item: z.string().min(1, "Field is required"),
-      fco_number: z.string().min(1, "Field is required"),
+      fco_number: z.array(z.string().min(1, "Field is required")),
     })
   ),
   request_memo: z.string().min(1, "Field is required"),

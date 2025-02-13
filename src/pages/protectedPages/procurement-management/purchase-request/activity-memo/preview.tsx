@@ -380,7 +380,7 @@ const CheckboxForm = () => {
                       <TableRow>
                         <TableCell>
                           {mergedObject?.selectedActivity?.activity_code ||
-                            requestsDetails?.activity_name ||
+                            requestsDetails?.activity_detail?.code ||
                             requestsDetails?.activity}
                         </TableCell>
                         <TableCell>
