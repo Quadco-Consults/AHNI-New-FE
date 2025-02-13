@@ -165,7 +165,6 @@ const Preview = () => {
                 <TableCell>Expense Item</TableCell>
                 <TableCell>Quantity</TableCell>
                 <TableCell># of Days</TableCell>
-                <TableCell># of Facility</TableCell>
                 <TableCell># Frequency</TableCell>
                 <TableCell>Unit Cost</TableCell>
                 <TableCell>Total Cost</TableCell>
@@ -178,10 +177,13 @@ const Preview = () => {
                   <TableCell>{row?.item_detail?.name}</TableCell>
                   <TableCell>{row.quantity}</TableCell>
                   <TableCell>{row.num_of_days}</TableCell>
-                  <TableCell>{row.num_of_facility}</TableCell>
                   <TableCell>{row.frequency}</TableCell>
-                  <TableCell>{Number(row.unit_cost).toFixed(2)}</TableCell>
-                  <TableCell>{Number(row.total_cost).toFixed(2)}</TableCell>
+                  <TableCell>
+                    ₦ {Number(row.unit_cost).toLocaleString()}.00
+                  </TableCell>
+                  <TableCell>
+                    ₦ {Number(row.total_cost).toLocaleString()}.00
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
