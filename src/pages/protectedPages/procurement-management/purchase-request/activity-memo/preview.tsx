@@ -257,6 +257,7 @@ const CheckboxForm = () => {
   const filteredBeneficiaries = beneficiary?.filter(
     (beneficiary) => beneficiary.selected
   );
+  console.log({ requestsDetails });
 
   return (
     <Form {...form}>
@@ -384,7 +385,8 @@ const CheckboxForm = () => {
                         <TableCell>
                           {mergedObject?.selectedCostCategory?.name ||
                             // @ts-ignore
-                            requestsDetails?.cost_categories[0]}
+                            requestsDetails?.cost_categories_details[0]
+                              ?.module_name}
                         </TableCell>
                       </TableRow>
                     </TableBody>
