@@ -28,7 +28,7 @@ const ManualBidSubmission = () => {
 
   const { data: vendors, isLoading: vendorsIsLoading } =
     VendorsAPI.useGetVendorListQuery({
-      params: { no_paginate: true },
+      params: { status: "Approved" },
     });
 
   const [createSolicitationSubmission, { isLoading: isCreateLoading }] =
