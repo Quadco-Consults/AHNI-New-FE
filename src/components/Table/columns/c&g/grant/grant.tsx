@@ -11,7 +11,7 @@ import DeleteIcon from "components/icons/DeleteIcon";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useDeleteGrantMutation } from "services/c&g/grant";
+import { useDeleteGrantMutation } from "services/c&g/grant/grant";
 
 export const grantColumns: ColumnDef<IGrantPaginatedData>[] = [
     {

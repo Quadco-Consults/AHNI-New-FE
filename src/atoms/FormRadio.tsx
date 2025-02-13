@@ -16,7 +16,7 @@ import { Card, CardContent } from "components/ui/card";
 type PageProps = {
     options: {
         label: string;
-        value: string;
+        value: string | boolean;
         description?: string;
     }[];
     size?: string;

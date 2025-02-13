@@ -22,7 +22,7 @@ export const candg = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/c&g/sub-grant/awards/id/CreateSubGrantSubmissionDetails"
+                    "pages/protectedPages/c&g/sub-grant/awards/id/CreatePartnerSubmissionDetails"
                 )
         ),
     },
@@ -32,7 +32,17 @@ export const candg = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/c&g/sub-grant/awards/id/CreateSubGrantSubmissionUploads"
+                    "pages/protectedPages/c&g/sub-grant/awards/id/CreatePartnerSubmissionUploads"
+                )
+        ),
+    },
+
+    {
+        path: CG_GROUTES.SUBGRANT_SUBMISSION_DETAILS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/sub-grant/awards/id/PartnerSubmissionDetailsWrapper"
                 )
         ),
     },
@@ -42,7 +52,18 @@ export const candg = [
     {
         path: CG_GROUTES.AGREEMENT,
         element: lazy(
-            () => import("pages/protectedPages/candg/consultancy/Agreement")
+            () =>
+                import("pages/protectedPages/c&g/contract-management/agreement")
+        ),
+    },
+
+    {
+        path: CG_GROUTES.CREATE_AGREEMENT,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/agreement/create"
+                )
         ),
     },
 
@@ -72,69 +93,59 @@ export const candg = [
     },
 
     {
-        path: CG_GROUTES.SUBMITTED_APPLICATIONS,
+        path: CG_GROUTES.PREAWARD_ASSESSMENT,
         element: lazy(
             () =>
-                import(
-                    "pages/protectedPages/candg/subGrant/SubmittedApplications"
-                )
+                import("pages/protectedPages/c&g/sub-grant/preaward-assessment")
         ),
     },
-    //////pre awrd assessments
-    {
-        path: CG_GROUTES.PRE_AWARD_ASSESSMENT,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessment"
-                )
-        ),
-    },
-    {
-        path: CG_GROUTES.PRE_AWARD_ASSESSMENT_SINGLE,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentSingle"
-                )
-        ),
-    },
-    {
-        path: CG_GROUTES.PRE_AWARD_ASSESSMENT_STEP_1,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep1"
-                )
-        ),
-    },
-    {
-        path: CG_GROUTES.PRE_AWARD_ASSESSMENT_STEP_2,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep2"
-                )
-        ),
-    },
-    {
-        path: CG_GROUTES.PRE_AWARD_ASSESSMENT_STEP_3,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep3"
-                )
-        ),
-    },
-    {
-        path: CG_GROUTES.PRE_AWARD_ASSESSMENT_STEP_4,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep4"
-                )
-        ),
-    },
+
+    // {
+    //     path: CG_GROUTES.PRE_AWARD_ASSESSMENT_SINGLE,
+    //     element: lazy(
+    //         () =>
+    //             import(
+    //                 "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentSingle"
+    //             )
+    //     ),
+    // },
+
+    // {
+    //     path: CG_GROUTES.PRE_AWARD_ASSESSMENT_STEP_1,
+    //     element: lazy(
+    //         () =>
+    //             import(
+    //                 "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep1"
+    //             )
+    //     ),
+    // },
+    // {
+    //     path: CG_GROUTES.PRE_AWARD_ASSESSMENT_STEP_2,
+    //     element: lazy(
+    //         () =>
+    //             import(
+    //                 "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep2"
+    //             )
+    //     ),
+    // },
+    // {
+    //     path: CG_GROUTES.PRE_AWARD_ASSESSMENT_STEP_3,
+    //     element: lazy(
+    //         () =>
+    //             import(
+    //                 "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep3"
+    //             )
+    //     ),
+    // },
+    // {
+    //     path: CG_GROUTES.PRE_AWARD_ASSESSMENT_STEP_4,
+    //     element: lazy(
+    //         () =>
+    //             import(
+    //                 "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep4"
+    //             )
+    //     ),
+    // },
 
     // close out
     {

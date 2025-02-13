@@ -8,7 +8,7 @@ import { Button } from "components/ui/button";
 import { CG_GROUTES } from "constants/RouterConstants";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useGetAllSubGrantsQuery } from "services/c&g/sub-grant";
+import { useGetAllSubGrantsQuery } from "services/c&g/subgrant/sub-grant";
 
 export default function SubGrant() {
     const [page, setPage] = useState(1);

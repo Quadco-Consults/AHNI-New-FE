@@ -72,6 +72,8 @@ export const DialogType = {
 
     // GRANTS
     ADD_OBLIGATION_MODAL: "ADD_OBLIGATION_MODAL",
+
+    SUBGRANT_MANUAL_SUB_UPLOAD: "SUBGRANT_MANUAL_SUB_UPLOAD",
 };
 
 export const largeDailogScreen = {

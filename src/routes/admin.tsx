@@ -321,15 +321,12 @@ export const adminRoutes = [
     },
 
     {
-        path: AdminRoutes.Agrements,
-        element: lazy(() => import("pages/protectedPages/admin/Agreement")),
-    },
-    {
-        path: AdminRoutes.AgrementsCreeate,
+        path: AdminRoutes.AGREEMENT,
         element: lazy(
-            () => import("pages/protectedPages/admin/Agreement/create")
+            () => import("pages/protectedPages/admin/Agreement/index")
         ),
     },
+
     {
         path: AdminRoutes.SLA,
         element: lazy(() => import("pages/protectedPages/admin/Agreement")),

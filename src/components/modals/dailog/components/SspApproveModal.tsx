@@ -1,5 +1,4 @@
 import FormButton from "atoms/FormButton";
-import FormInput from "atoms/FormInput";
 import { Form } from "components/ui/form";
 import { cn } from "lib/utils";
 import { Angry, Smile } from "lucide-react";

@@ -1,10 +1,10 @@
-import baseAPI from "../..";
+import baseAPI from "../../..";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 import {
     TSupervisionPlanPaginatedData,
     TSSPCompositionFormValues,
     TSupervisionPlanSingleData,
-} from "definations/program/plan/supervision-plan";
+} from "definations/program/plan/supervision-plan/supervision-plan";
 
 const BASE_URL = "/programs/plans/supportive-supervision/";
 

@@ -1,93 +1,88 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { ISubGrantPaginatedData } from "definations/c&g/sub-grant";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import { useAppDispatch } from "hooks/useStore";
-import PencilIcon from "components/icons/PencilIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
-import { useState } from "react";
-import { generatePath, Link } from "react-router-dom";
-import EyeIcon from "components/icons/EyeIcon";
-import { CG_GROUTES } from "constants/RouterConstants";
 import { toast } from "sonner";
-import { useDeleteSubGrantMutation } from "services/c&g/subgrant/sub-grant";
+import { useState } from "react";
+import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
+import DeleteIcon from "components/icons/DeleteIcon";
+import PencilIcon from "components/icons/PencilIcon";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
+import { Link, useLocation, useParams } from "react-router-dom";
+import { useAppDispatch } from "hooks/useStore";
+import { IAgreementPaginatedData } from "definations/c&g/contract-management/agreement";
+import { useDeleteAgreementMutation } from "services/c&g/contract-management/agreement";
+import { CG_GROUTES } from "constants/RouterConstants";
 
-export const subGrantAwardColumns: ColumnDef<ISubGrantPaginatedData>[] = [
+export const agreementColumns: ColumnDef<IAgreementPaginatedData>[] = [
     {
-        header: "Title",
-        id: "title",
-        accessorKey: "title",
+        header: "Provider",
+        id: "provider",
+        accessorKey: "provider",
         size: 200,
     },
 
     {
-        header: "Project",
-        id: "project",
-        accessorKey: "project",
+        header: "Service",
+        id: "service",
+        accessorKey: "service",
         size: 200,
     },
 
     {
-        header: "Business Unit",
-        id: "business_unit",
-        accessorKey: "business_unit",
-        size: 200,
-    },
-
-    {
-        header: "Award Amount (USD)",
-        id: "amount_usd",
-        accessorKey: "amount_usd",
-        size: 200,
-    },
-
-    {
-        header: "Award Amount (NGN)",
-        id: "amount_ngn",
-        accessorKey: "amount_ngn",
+        header: "Type",
+        id: "type",
+        accessorKey: "type",
         size: 200,
     },
 
     {
         header: "Start Date",
+        id: "start_date",
         accessorKey: "start_date",
         size: 200,
     },
+
     {
         header: "End Date",
+        id: "end_date",
         accessorKey: "end_date",
         size: 200,
     },
+
     {
         header: "Status",
+        id: "status",
         accessorKey: "status",
         size: 200,
     },
+
     {
         header: "",
-        id: "actions",
-        size: 50,
+        id: "action",
+        size: 80,
         cell: ({ row }) => <TableMenu {...row.original} />,
     },
 ];
 
-const TableMenu = ({ id }: ISubGrantPaginatedData) => {
+const TableMenu = ({ id }: IAgreementPaginatedData) => {
     const [isDialogOpen, setDialogOpen] = useState(false);
 
-    const [deleteSubGrant, { isLoading: isDeleteLoading }] =
-        useDeleteSubGrantMutation();
+    const { pathname } = useLocation();
+
+    console.log({ pathname });
+
+    const [deleteAgreement, { isLoading }] = useDeleteAgreementMutation();
 
     const handleDelete = async () => {
         try {
-            await deleteSubGrant(id).unwrap();
-            toast.success("Sub Grant Deleted");
-            setDialogOpen(false);
+            await deleteAgreement(id).unwrap();
+            toast.success("Agreement Deleted");
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }
     };
+
+    if (pathname === "/admin/agreements/") return null;
 
     return (
         <div className="flex items-center gap-2">
@@ -100,22 +95,8 @@ const TableMenu = ({ id }: ISubGrantPaginatedData) => {
                     </PopoverTrigger>
                     <PopoverContent className="w-fit">
                         <Link
-                            to={generatePath(
-                                CG_GROUTES.SUBGRANT_AWARD_DETAILS,
-                                { id }
-                            )}
-                        >
-                            <Button
-                                className="w-full flex items-center justify-start gap-2"
-                                variant="ghost"
-                            >
-                                <EyeIcon />
-                                View
-                            </Button>
-                        </Link>
-                        <Link
                             to={{
-                                pathname: CG_GROUTES.CREATE_SUBGRANT_AWARD,
+                                pathname: CG_GROUTES.CREATE_AGREEMENT,
                                 search: `?id=${id}`,
                             }}
                         >
@@ -141,8 +122,8 @@ const TableMenu = ({ id }: ISubGrantPaginatedData) => {
 
             <ConfirmationDialog
                 open={isDialogOpen}
-                title="Are you sure you want to delete this sub grant?"
-                loading={isDeleteLoading}
+                title="Are you sure you want to delete this expenditure?"
+                loading={isLoading}
                 onCancel={() => setDialogOpen(false)}
                 onOk={handleDelete}
             />
