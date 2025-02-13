@@ -54,6 +54,12 @@ const PurchaseRequesttDetails = () => {
   //     totalCost: 0,
   //   }
   // );
+
+  console.log({
+    requesting_department: data?.data?.requesting_department,
+    data,
+  });
+
   return (
     <section className='min-h-screen space-y-8'>
       <div className='flex justify-center items-center flex-col'>
@@ -108,7 +114,7 @@ const PurchaseRequesttDetails = () => {
                   Requesting Dept.{" "}
                 </h4>
                 {/* @ts-ignore */}
-                <h4>{data?.data?.requesting_department}</h4>
+                <h4>{data?.data?.requesting_department_detail?.name}</h4>
               </div>
             </div>{" "}
             <div className='flex flex-col gap-3'>
@@ -117,7 +123,7 @@ const PurchaseRequesttDetails = () => {
                   Deliver
                 </h4>
                 {/* @ts-ignore */}
-                <h4>{data?.data?.deliver_to}</h4>
+                <h4>{data?.data?.location_detail?.name}</h4>
               </div>
             </div>{" "}
           </div>
@@ -139,12 +145,19 @@ const PurchaseRequesttDetails = () => {
             {/* @ts-ignore */}
             {data?.data?.items.map((row, index) => (
               <TableRow className='text-center' key={index}>
-                <TableCell>{row.index}</TableCell>
-                <TableCell>{row.item}</TableCell>
-                <TableCell>{row.fco_number}</TableCell>
+                <TableCell>{index + 1}</TableCell>
+                <TableCell>{row.item_detail.name || row.item}</TableCell>
+                <TableCell>
+                  {row?.fco_number_detail?.name || row.fco_number}
+                </TableCell>
                 <TableCell>{row.quantity}</TableCell>
-                <TableCell>{row.unit_cost}</TableCell>
-                <TableCell>{row.amount}</TableCell>
+                <TableCell>
+                  ₦ {Number(row.unit_cost).toLocaleString()}.00
+                </TableCell>
+                <TableCell>
+                  ₦ {Number(row.amount).toLocaleString()}.00
+                </TableCell>
+
                 {/* <TableCell>{row.unitCost.toFixed(2)}</TableCell> */}
                 {/* <TableCell>{calculateTotalCost(row).toFixed(2)}</TableCell> */}
               </TableRow>
