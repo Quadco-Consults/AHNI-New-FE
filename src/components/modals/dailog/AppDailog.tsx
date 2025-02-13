@@ -76,6 +76,7 @@ import AddInterventionArea from "pages/protectedPages/modules/programs/AddInterv
 import AddObligationModal from "./components/ObligationModal";
 import AddNewItems from "pages/protectedPages/modules/procurement/AddNewItems";
 import AddMarketPrice from "pages/protectedPages/modules/config/AddMarketPrice";
+import SubGrantManualSubUploadModal from "./components/PartnerSubmissionUploadModal";
 
 const sheets: Record<string, ReactNode> = {
   [DialogType.Categories]: <CategoriesModal />,
@@ -107,8 +108,10 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.ConsultancyApplicationSuccess]: (
     <ConsultancyApplicationSuccessModal />
   ),
-
   [DialogType.AddStock]: <AddStock />,
+
+  [DialogType.AddMarketPrice]: <AddMarketPrice />,
+  [DialogType.AddNewItems]: <AddNewItems />,
   [DialogType.AddTeamMenbers]: <TeamMemberSelection />,
   [DialogType.AddFundingSource]: <AddFundingSource />,
   [DialogType.AddBeneficiaries]: <AddBeneficiaries />,
@@ -124,8 +127,6 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.AddDepartments]: <AddDepartments />,
   [DialogType.AddFinancialYear]: <AddFinancialYear />,
   [DialogType.AddItems]: <AddItems />,
-  [DialogType.AddMarketPrice]: <AddMarketPrice />,
-  [DialogType.AddNewItems]: <AddNewItems />,
   [DialogType.AddLocations]: <AddLocations />,
   [DialogType.AddLots]: <AddLots />,
   [DialogType.AddSolicitation]: <AddSolicitation />,
@@ -157,6 +158,8 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.EditValue]: <EditValue />,
   [DialogType.NewLeave]: <NewLeaveForm />,
   [DialogType.ADD_OBLIGATION_MODAL]: <AddObligationModal />,
+  [DialogType.ADD_OBLIGATION_MODAL]: <AddObligationModal />,
+  [DialogType.SUBGRANT_MANUAL_SUB_UPLOAD]: <SubGrantManualSubUploadModal />,
 };
 
 const AppDailog = () => {

@@ -20,7 +20,7 @@ import { useEffect } from "react";
 import {
     SSPCompositionSchema,
     TSSPCompositionFormValues,
-} from "definations/program/plan/supervision-plan";
+} from "definations/program/plan/supervision-plan/supervision-plan";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import Card from "components/shared/Card";
@@ -31,7 +31,7 @@ import {
 import { useGetAllUsersQuery } from "services/auth/user";
 import { RouteEnum } from "constants/RouterConstants";
 import DateInput from "components/shared/DateInput";
-import { useGetSingleSupervisionPlanQuery } from "services/program/plan/supervision-plan";
+import { useGetSingleSupervisionPlanQuery } from "services/program/plan/supervision-plan/supervision-plan";
 import { skipToken } from "@reduxjs/toolkit/query";
 
 const Composition = () => {

@@ -3,10 +3,8 @@ import {
     IExpenditureSingleData,
     TExpenditureFormData,
 } from "definations/c&g/grants";
-import baseAPI from "..";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
-
-//
+import baseAPI from "services/index";
 
 const ExpenditureAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({

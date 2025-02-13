@@ -13,7 +13,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import {
     useCreateObligationMutation,
     useModifyObligationMutation,
-} from "services/c&g/obligation";
+} from "services/c&g/grant/obligation";
 import { toast } from "sonner";
 import { closeDialog } from "store/ui";
 

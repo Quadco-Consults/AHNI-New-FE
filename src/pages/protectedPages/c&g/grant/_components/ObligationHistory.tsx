@@ -5,7 +5,7 @@ import { IGrantSingleData } from "definations/c&g/grants";
 import { useParams } from "react-router-dom";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { obligationColumns } from "components/Table/columns/c&g/grant/obligation";
-import { useGetAllObligationsQuery } from "services/c&g/obligation";
+import { useGetAllObligationsQuery } from "services/c&g/grant/obligation";
 
 const ObligationHistory: React.FC<any> = ({
     total_obligation_amount,
