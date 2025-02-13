@@ -65,7 +65,7 @@ const PurchaseOrderNew = () => {
   const [createPurchcaseOrderMutation] = useCreatePurchaseOrderMutation();
 
   const form = useForm<z.infer<typeof PurchaseOrderListSchema>>({
-    // resolver: zodResolver(PurchaseOrderListSchema),
+    resolver: zodResolver(PurchaseOrderListSchema),
     defaultValues: {},
   });
 
@@ -111,56 +111,14 @@ const PurchaseOrderNew = () => {
   const onSubmit = async (data: z.infer<typeof PurchaseOrderListSchema>) => {
     const formData = {
       purchase_request: data?.purchase_request,
-      vendor: vendorValue,
-      purchase_order_items: data?.items.map((item) => {
-        const total_price = Number(item?.unit_cost) * Number(item?.quantity);
-
-        return {
-          item: item?.item_id,
-          quantity: item?.quantity,
-          unit_price: item?.unit_cost,
-          fco_number: item?.fco,
-          total_price: total_price,
-        };
-      }),
-
-      delivery_lead_time: data?.delivery_lead_time,
-      payment_terms: data?.payment_terms,
+      vendor: data?.vendor,
+      purchase_order_items: data?.items.map((item) => ({
+        item_id: item?.item_id,
+        quantity: item?.quantity,
+        unit_cost: item?.unit_cost,
+        fco_number: item?.fco,
+      })),
     };
-    const payload = {
-      // agreed_by: "ce0d4ec5-a05f-4fb4-bb0b-78d67cb22cf5",
-      // authorised_by: "f8a4ae24-8c82-4a96-84ef-00bc948f3408",
-      // approved_by: "02030314-b162-4b4d-8af1-88eabdcc615d",
-      // department: "5d2744bf-5c5d-453b-b1a2-6fafc399eeb9",
-      purchase_order_items: [
-        {
-          description: "New product order",
-          quantity: 100,
-          uom: "pcs",
-          unit_price: "50.00",
-          total_price: "5000.00",
-          purchase_order: "94a9570d-82e2-4a81-b165-8cff67d9c735",
-          item: "5953ca74-944e-4941-87b8-f4f42ef3ae12",
-          fco_number: "e061813c-72e1-457d-8a00-7d067c1098c1",
-        },
-      ],
-      status_level: "PENDING",
-      // purchase_date: "2025-02-07",
-      // comment: "Urgent order",
-      delivery_lead_time: "7 days",
-      payment_terms: "30 days",
-      // authorized_datetime: "2025-02-07T14:15:22Z",
-      // approved_date: "2025-02-07",
-      // agreed_date: "2025-02-07",
-      vendor: vendorValue,
-      purchase_request: data?.purchase_request,
-      // cba: "ec04ec86-b5f8-4721-bfc5-faf7ce8265d3",
-      // solicitation: "28ecbd6f-6594-47e0-a285-6307da68bc1c",
-      // funding_source: "82253826-056a-4942-9e4b-fa5a3865d10e",
-      // location: "15f20760-76a7-41ee-b509-705d3ffd8eb5",
-      // authorized_by: "d2184caf-75ac-4d95-8e72-51af98a5023a",
-    };
-    console.log({ formData, payload, data, vendorValue });
 
     try {
       createPurchcaseOrderMutation(formData).unwrap();
@@ -171,9 +129,6 @@ const PurchaseOrderNew = () => {
       console.log(error);
     }
   };
-  console.log({ vendors, vendorValue });
-  const log = form.getValues();
-  console.log({ log });
 
   const breadcrumbs = [
     { name: "Procurement", icon: true },
@@ -363,11 +318,6 @@ const PurchaseOrderNew = () => {
               </div>
             </div>
           </div>
-          <div className='grid grid-cols-2 pt-5 gap-5'>
-            <FormInput name='payment_terms' label='Payment Terms' />
-            <FormInput name='delivery_lead_time' label='Delivery' />
-          </div>
-
           <div className='mt-10'>
             <div>
               <p className='font-semibold'>Items Quotation</p>

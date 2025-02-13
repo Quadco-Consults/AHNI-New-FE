@@ -66,6 +66,7 @@ const Preview = () => {
     useGetSingleInterventionAreaQuery(
       requestsDetails?.intervention_areas[0] ?? skipToken
     );
+  console.log({ hello: requestsDetails?.fconumber_details });
 
   return (
     <div className='bg-white p-8'>
@@ -92,10 +93,7 @@ const Preview = () => {
                 id: request,
               })}
             >
-              <Button className='flex gap-2 py-6'>
-                <AddSquareIcon />
-                View Purchase Request
-              </Button>
+              <Button className='flex gap-2 py-6'>View Purchase Request</Button>
             </Link>
           )}{" "}
         </div>
@@ -110,7 +108,7 @@ const Preview = () => {
         <div className=' my-3'>
           <div className='flex border-gray-200 border max-w-[800px] w-full'>
             <div className=' border-r border-gray-200 w-full max-w-[321px] p-3'>
-              Request Date:
+              <strong>Request Date:</strong>
             </div>
             <div className='w-full max-w-[490px] p-3'>
               {requestsDetails?.requested_date}
@@ -126,10 +124,11 @@ const Preview = () => {
           </div>{" "} */}
           <div className='flex border-gray-200 border max-w-[800px] w-full'>
             <div className=' border-r border-gray-200 w-full max-w-[321px] p-3'>
-              FCO #:{" "}
+              <strong>FCO</strong>
             </div>
             <div className='w-full max-w-[490px] p-3'>
-              {fcoNumber && fcoNumber?.data?.name}
+              {/* {fcoNumber && fcoNumber?.data?.name} */}
+              {requestsDetails?.fconumber_details[0]?.module_code}
             </div>
           </div>
         </div>

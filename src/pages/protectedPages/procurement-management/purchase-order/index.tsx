@@ -1,7 +1,6 @@
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
 import { EyeIcon, PlusIcon } from "lucide-react";
-// import { DownloadIcon, EyeIcon, PlusIcon, PrinterIcon } from "lucide-react";
 import { Checkbox } from "components/ui/checkbox";
 
 import { Input } from "components/ui/input";
@@ -49,12 +48,7 @@ const PurchaseOrder = () => {
           <Input type='Search' placeholder='search' className='w-[30%]' />
         </div>
 
-        <DataTable
-          data={data?.data?.results || []}
-          //   data={[]}
-          columns={columns}
-          // isLoading={isLoading}
-        />
+        <DataTable data={data?.data?.results || []} columns={columns} />
       </Card>
     </div>
   );
@@ -136,28 +130,15 @@ const ActionListAction = ({ data }: any) => {
           </IconButton>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem key='print' className='flex gap-2'>
-            <Link
-              to={generatePath(RouteEnum.PURCHASE_ORDER_ID, {
-                id: data.id,
-              })}
-            >
+          <Link
+            to={generatePath(RouteEnum.PURCHASE_ORDER_ID, {
+              id: data.id,
+            })}
+          >
+            <DropdownMenuItem key='print' className='flex gap-2'>
               <EyeIcon /> View
-            </Link>
-          </DropdownMenuItem>
-          {/* <DropdownMenuItem key='print' className='flex gap-2'>
-            <PrinterIcon />
-            Print
-          </DropdownMenuItem>
-          <DropdownMenuItem key='print' className='flex gap-2'>
-            <DownloadIcon /> Download
-          </DropdownMenuItem> */}
-
-          {/* {data?.items?.map((item: any) => (
-            <DropdownMenuItem key={item?.id}>
-              {item?.item?.name}
             </DropdownMenuItem>
-          ))} */}
+          </Link>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
