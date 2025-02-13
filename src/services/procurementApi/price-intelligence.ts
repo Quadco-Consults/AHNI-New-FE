@@ -26,7 +26,7 @@ const PriceIntelligenceAPI = baseAPI.injectEndpoints({
     >({
       query: ({ path }) => {
         return {
-          url: `${BASE_URL}${path.id}/detail/`,
+          url: `${BASE_URL}${path.id}/`,
         };
       },
       providesTags: ["PRICE_INTELLIGENCE"],

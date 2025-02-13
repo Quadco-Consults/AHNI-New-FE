@@ -1,3 +1,7 @@
+import { Button } from "components/ui/button";
+import { RouteEnum } from "constants/RouterConstants";
+import { Link } from "react-router-dom";
+
 const TermsAndConditions = () => {
   return (
     <div className='py-6'>
@@ -381,6 +385,12 @@ const TermsAndConditions = () => {
             department or agency and the host government.
           </p>
         </div>
+      </div>
+
+      <div className='w-full flex justify-end my-8'>
+        <Link to={RouteEnum.PURCHASE_ORDER} className=''>
+          <Button>Purchase Order</Button>
+        </Link>
       </div>
     </div>
   );

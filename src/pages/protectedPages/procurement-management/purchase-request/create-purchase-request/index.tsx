@@ -2,11 +2,25 @@ import LongArrowLeft from "components/icons/LongArrowLeft";
 import { useNavigate } from "react-router-dom";
 import CreatePurchaseRequestForm from "./form";
 import BreadcrumbCard from "components/shared/Breadcrumb";
+import useQuery from "hooks/useQuery";
+import { useMemo } from "react";
+import PurchaseRequestAPI from "services/procurementApi/purchase-sample-request ";
 
-type Props = {};
-
-function CreatePurchaseRequest({}: Props) {
+function CreatePurchaseRequest() {
+  const query = useQuery();
+  const id = query.get("request");
   const navigate = useNavigate();
+
+  const { data: requestsDetails } = PurchaseRequestAPI.useGetActivityMemoQuery(
+    useMemo(
+      () => ({
+        path: { id: id as string },
+      }),
+      [id]
+    )
+  );
+
+  console.log({ requestsDetails });
 
   const goBack = () => {
     navigate(-1);
@@ -29,12 +43,12 @@ function CreatePurchaseRequest({}: Props) {
         <LongArrowLeft />
       </button>
       <span className='block space-y-2'>
-        <h3 className='font-semibold text-xl text-black'>
+        <h3 className='font-semibold text-xl text-black text-[24px]'>
           Purchase Request Form
         </h3>
       </span>
 
-      <CreatePurchaseRequestForm />
+      <CreatePurchaseRequestForm expenses={requestsDetails?.expenses} />
     </section>
   );
 }

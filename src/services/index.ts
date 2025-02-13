@@ -1,9 +1,9 @@
 import {
-    BaseQueryFn,
-    FetchArgs,
-    fetchBaseQuery,
-    FetchBaseQueryError,
-    createApi,
+  BaseQueryFn,
+  FetchArgs,
+  fetchBaseQuery,
+  FetchBaseQueryError,
+  createApi,
 } from "@reduxjs/toolkit/query/react";
 import { RootState } from "src/store";
 
@@ -11,36 +11,36 @@ import { RootState } from "src/store";
 // https://ahniprod-eec741554a5e.herokuapp.com/api/v1/
 
 const baseQuery = fetchBaseQuery({
-    baseUrl: "https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1/",
-    prepareHeaders: (headers, { getState }) => {
-        // @ts-ignore
-        const { auth } = getState() as RootState;
+  baseUrl: "https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1/",
+  prepareHeaders: (headers, { getState }) => {
+    // @ts-ignore
+    const { auth } = getState() as RootState;
 
-        if (auth.access_token) {
-            headers.set("Authorization", `Bearer ${auth.access_token}`);
-        }
-        return headers;
-    },
+    if (auth.access_token) {
+      headers.set("Authorization", `Bearer ${auth.access_token}`);
+    }
+    return headers;
+  },
 });
 
 const baseQueryWithReauth: BaseQueryFn<
-    string | FetchArgs,
-    unknown,
-    FetchBaseQueryError
+  string | FetchArgs,
+  unknown,
+  FetchBaseQueryError
 > = async (args, api, extraOptions) => {
-    const result = await baseQuery(args, api, extraOptions);
+  const result = await baseQuery(args, api, extraOptions);
 
-    if (result.error && result.error.status === 404) {
-        return result.error;
-    }
-    return result;
+  if (result.error && result.error.status === 404) {
+    return result.error;
+  }
+  return result;
 };
 
 const baseAPI = createApi({
-    reducerPath: "baseApi",
-    baseQuery: baseQueryWithReauth,
-    endpoints: () => ({}),
-    //  cache , The default time is seconds , Default duration 60 second
+  reducerPath: "baseApi",
+  baseQuery: baseQueryWithReauth,
+  endpoints: () => ({}),
+  //  cache , The default time is seconds , Default duration 60 second
 
     tagTypes: [
         "Users",

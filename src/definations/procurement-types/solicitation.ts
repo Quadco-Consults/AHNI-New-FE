@@ -63,6 +63,20 @@ export type SolicitationSubmissionResultsData = {
   year_or_incorperation: string;
   nature_of_business: string;
   status: string;
+  vendor: {
+    company_name: string;
+    company_registration_number: string;
+    type_of_business: string;
+    status: string;
+    email: string;
+  };
+  bid_details: {
+    status: string;
+  };
+  solicitation: {
+    rfq_id: string;
+    rfq_date: string;
+  };
 };
 
 export interface SolicitationSubmissionData {
@@ -70,7 +84,9 @@ export interface SolicitationSubmissionData {
   next: string;
   number_of_pages: number;
   previous: string;
-  results: SolicitationSubmissionResultsData[];
+  data: {
+    results: SolicitationSubmissionResultsData[];
+  };
 }
 
 // -------------------------------

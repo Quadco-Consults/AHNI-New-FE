@@ -1,6 +1,6 @@
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import { Label } from "components/ui/label";
-import { generatePath, Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Check, ChevronsUpDown, MinusCircle, PlusCircle } from "lucide-react";
 import { cn } from "lib/utils";
 import { Button } from "components/ui/button";
@@ -25,9 +25,12 @@ import { Form } from "components/ui/form";
 import FormButton from "atoms/FormButton";
 import LongArrowRight from "components/icons/LongArrowRight";
 // import { toast } from "sonner";
-import { RouteEnum } from "constants/RouterConstants";
+
 import BreadcrumbCard from "components/shared/Breadcrumb";
 import DepartmentsAPI from "services/configs/departments";
+import { toast } from "sonner";
+import { useCreatePurchaseOrderMutation } from "services/procurementApi/purchase-order";
+import { RouteEnum } from "constants/RouterConstants";
 
 const PurchaseOrderNew = () => {
   const [open, setOpen] = useState(false);
@@ -59,7 +62,7 @@ const PurchaseOrderNew = () => {
   const { data: departments, isLoading: departmentsIsLoading } =
     DepartmentsAPI.useGetDepartmentsQuery({});
 
-  console.log({ vendors, requests, requestsDetails, requestValue });
+  const [createPurchcaseOrderMutation] = useCreatePurchaseOrderMutation();
 
   const form = useForm<z.infer<typeof PurchaseOrderListSchema>>({
     resolver: zodResolver(PurchaseOrderListSchema),
@@ -71,7 +74,7 @@ const PurchaseOrderNew = () => {
   const data = useMemo(() => {
     // @ts-ignore
     return requestsDetails?.data?.items.map((data) => ({
-      item_id: data?.item?.id || "",
+      item_id: data?.item || "",
       fco: data?.fco || "",
       quantity: data?.quantity || 0,
       unit_cost: data?.unit_cost || 0,
@@ -106,26 +109,25 @@ const PurchaseOrderNew = () => {
   }, []);
 
   const onSubmit = async (data: z.infer<typeof PurchaseOrderListSchema>) => {
-    console.log({ data });
+    const formData = {
+      purchase_request: data?.purchase_request,
+      vendor: data?.vendor,
+      items: data?.items.map((item) => ({
+        item_id: item?.item_id,
+        quantity: item?.quantity,
+        unit_cost: item?.unit_cost,
+        fco: item?.fco,
+      })),
+    };
 
-    // const formData = {
-    //   purchase_request: data?.purchase_request,
-    //   vendor: data?.vendor,
-    //   items: data?.items.map((item) => ({
-    //     item_id: item?.item_id,
-    //     quantity: item?.quantity,
-    //     unit_cost: item?.unit_cost,
-    //     fco: item?.fco,
-    //   })),
-    // };
-
-    // try {
-    navigate(RouteEnum.PURCHASE_ORDER);
-    //   toast.success("Successfully created.");
-    // } catch (error) {
-    //   toast.error("Something went wrong");
-    //   console.log(error);
-    // }
+    try {
+      createPurchcaseOrderMutation(formData).unwrap();
+      navigate(RouteEnum.PURCHASE_ORDER);
+      toast.success("Successfully created.");
+    } catch (error) {
+      toast.error("Something went wrong");
+      console.log(error);
+    }
   };
 
   const breadcrumbs = [
@@ -133,10 +135,6 @@ const PurchaseOrderNew = () => {
     { name: "Purchase Order", icon: true },
     { name: "Create", icon: false },
   ];
-
-  const lon = form.getValues();
-
-  console.log({ lon });
 
   return (
     <div className='space-y-5'>
@@ -149,7 +147,7 @@ const PurchaseOrderNew = () => {
         <LongArrowLeft />
       </button>
 
-      <p className=' text-[24px] font-semibold'>Purchase Order Form</p>
+      <p className='text-[24px] font-semibold'>Purchase Order Form</p>
 
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-5'>
@@ -236,8 +234,6 @@ const PurchaseOrderNew = () => {
                       <CommandGroup>
                         {requestsIsLoading && <LoadingSpinner />}
                         {requests?.data?.results?.map((request) => {
-                          console.log({ request: request?.ref_number });
-
                           return (
                             <CommandItem
                               key={request?.id}
@@ -424,17 +420,17 @@ const PurchaseOrderNew = () => {
             </Button>
           </div>
           <div className='flex items-center justify-end'>
-            <Link to={generatePath(RouteEnum.PURCHASE_ORDER)}>
-              <FormButton
-                loading={false}
-                disabled={false}
-                type='submit'
-                className='flex items-center justify-center gap-2'
-              >
-                Submit
-                <LongArrowRight />
-              </FormButton>
-            </Link>
+            {/* <Link to={generatePath(RouteEnum.PURCHASE_ORDER)}> */}
+            <FormButton
+              loading={false}
+              disabled={false}
+              type='submit'
+              className='flex items-center justify-center gap-2'
+            >
+              Submit
+              <LongArrowRight />
+            </FormButton>
+            {/* </Link> */}
           </div>
         </form>
       </Form>

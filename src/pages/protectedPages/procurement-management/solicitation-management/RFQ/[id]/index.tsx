@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { Button } from "components/ui/button";
-import { generatePath, Link, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
 import { LoadingSpinner } from "components/shared/Loading";
 // import { SolicitationResultsData } from "definations/procurement-types/solicitation";
@@ -9,13 +9,12 @@ import VendorSubmission from "./tab-contents/Vendor-submission";
 import BreadcrumbCard from "components/shared/Breadcrumb";
 import { useGetSingleSolicitationQuery } from "services/procurementApi/solicitation";
 import { skipToken } from "@reduxjs/toolkit/query/react";
+import GoBack from "components/shared/GoBack";
 
 const RFQDetails = () => {
   const { id } = useParams();
 
   const { data, isLoading } = useGetSingleSolicitationQuery(id ?? skipToken);
-
-  console.log({ data, id });
 
   if (isLoading) return <LoadingSpinner />;
 
@@ -28,6 +27,7 @@ const RFQDetails = () => {
 
   return (
     <div className='space-y-5'>
+      <GoBack />
       <BreadcrumbCard list={breadcrumbs} />
       <div className='flex justify-between'>
         <h4 className='text-lg font-bold'>{data?.data.title}</h4>
@@ -51,6 +51,7 @@ const RFQDetails = () => {
           {data && <DetailsContent {...data?.data} />}
         </TabsContent>
         <TabsContent value='vendor-submission'>
+          {/* @ts-ignore */}
           {data && <VendorSubmission {...data?.data} />}
         </TabsContent>
       </Tabs>
