@@ -3,8 +3,8 @@ import {
     IGrantSingleData,
     TGrantFormData,
 } from "definations/c&g/grants";
-import baseAPI from "../";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
+import baseAPI from "services/index";
 
 const BASE_URL = "/contract-grants/grants/";
 

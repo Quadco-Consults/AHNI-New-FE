@@ -1,8 +1,13 @@
+import BackNavigation from "atoms/BackNavigation";
 import Card from "components/shared/Card";
 import { agreementColumns } from "components/Table/columns/c&g/contract-management/agreement";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
+import { Button } from "components/ui/button";
+import { CG_GROUTES } from "constants/RouterConstants";
+import { Plus } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useGetAllAgreementsQuery } from "services/c&g/contract-management/agreement";
 
 export default function Agreement() {
@@ -11,8 +16,16 @@ export default function Agreement() {
     const { data, isFetching } = useGetAllAgreementsQuery({ page, size: 10 });
 
     return (
-        <section className="space-y-5">
-            <h1 className="text-xl font-bold">Agreements</h1>
+        <section>
+            <div className="flex items-center justify-between">
+                <BackNavigation extraText="Agreements" />
+                <Link to={CG_GROUTES.CREATE_AGREEMENT}>
+                    <Button>
+                        <Plus size={20} />
+                        Create Agreement
+                    </Button>
+                </Link>
+            </div>
             <Card>
                 <TableFilters>
                     <DataTable

@@ -15,7 +15,7 @@ import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useParams } from "react-router-dom";
 import PencilIcon from "components/icons/PencilIcon";
-import { useDeleteObligationMutation } from "services/c&g/obligation";
+import { useDeleteObligationMutation } from "services/c&g/grant/obligation";
 
 export const obligationColumns: ColumnDef<IObligationPaginatedData>[] = [
     {

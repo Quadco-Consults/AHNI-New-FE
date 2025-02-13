@@ -10,10 +10,7 @@ import {
 } from "definations/c&g/grants";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { SubmitHandler, useForm } from "react-hook-form";
-import {
-    useCreateExpenditureMutation,
-    useModifyExpenditureMutation,
-} from "services/c&g/expenditure";
+import { useCreateExpenditureMutation, useModifyExpenditureMutation } from "services/c&g/grant/expenditure";
 import { toast } from "sonner";
 import { closeDialog } from "store/ui";
 
