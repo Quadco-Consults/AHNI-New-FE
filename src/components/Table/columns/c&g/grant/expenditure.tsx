@@ -12,7 +12,7 @@ import { useParams } from "react-router-dom";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
-import { useDeleteExpenditureMutation } from "services/c&g/expenditure";
+import { useDeleteExpenditureMutation } from "services/c&g/grant/expenditure";
 
 export const expenditureColumns: ColumnDef<IExpenditurePaginatedData>[] = [
     {
