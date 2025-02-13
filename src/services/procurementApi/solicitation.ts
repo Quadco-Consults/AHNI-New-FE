@@ -46,17 +46,17 @@ const SolicitationAPI = baseAPI.injectEndpoints({
       providesTags: ["SOLICITATION"],
     }),
 
-    getSolicitationSubmission: builder.query<
-      SolicitationSubmissionData,
-      { path: { id: string } }
-    >({
-      query: ({ path }) => {
-        return {
-          url: `/by-solicitation/${path.id}/submissions/`,
-        };
-      },
-      providesTags: ["SOLICITATION"],
-    }),
+    // getSolicitationSubmission: builder.query<
+    //   SolicitationSubmissionData,
+    //   { path: { id: string } }
+    // >({
+    //   query: ({ path }) => {
+    //     return {
+    //       url: `/by-solicitation/${path.id}/submissions/`,
+    //     };
+    //   },
+    //   providesTags: ["SOLICITATION"],
+    // }),
 
     getPassedSolicitation: builder.query<
       SolicitationSubmissionData,
@@ -74,7 +74,7 @@ const SolicitationAPI = baseAPI.injectEndpoints({
 
 export const {
   useGetPassedSolicitationQuery,
-  useGetSolicitationSubmissionQuery,
+  // useGetSolicitationSubmissionQuery,
   useCreateSolicitationMutation,
   useGetAllSolicitationsQuery,
   useGetSingleSolicitationQuery,
