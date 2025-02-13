@@ -75,6 +75,7 @@ import AddCostGrouping from "pages/protectedPages/modules/finance/AddCostGroupin
 import AddInterventionArea from "pages/protectedPages/modules/programs/AddInterventionArea";
 import AddObligationModal from "./components/ObligationModal";
 import AddNewItems from "pages/protectedPages/modules/procurement/AddNewItems";
+import AddMarketPrice from "pages/protectedPages/modules/config/AddMarketPrice";
 
 const sheets: Record<string, ReactNode> = {
   [DialogType.Categories]: <CategoriesModal />,
@@ -123,6 +124,7 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.AddDepartments]: <AddDepartments />,
   [DialogType.AddFinancialYear]: <AddFinancialYear />,
   [DialogType.AddItems]: <AddItems />,
+  [DialogType.AddMarketPrice]: <AddMarketPrice />,
   [DialogType.AddNewItems]: <AddNewItems />,
   [DialogType.AddLocations]: <AddLocations />,
   [DialogType.AddLots]: <AddLots />,

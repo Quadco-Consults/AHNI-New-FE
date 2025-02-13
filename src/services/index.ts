@@ -76,6 +76,7 @@ const baseAPI = createApi({
     "AssetTypes",
     "Categories",
     "Departments",
+    "MARKETPRICE",
     "FinancialYear",
     "Items",
     "Locations",

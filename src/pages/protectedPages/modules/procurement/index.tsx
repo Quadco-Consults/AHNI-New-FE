@@ -7,6 +7,7 @@ import PrequalificationCategory from "./AllPrequalificationCategory";
 import PrequalificationCriteria from "./AllPrequalificationCriteria";
 import Questionairs from "./AllQuestionnaire";
 import AllItems from "./AllItems";
+import MarketPrice from "./MarketPrice";
 
 const Procurement = () => {
   return (
@@ -15,6 +16,7 @@ const Procurement = () => {
         <Tabs defaultValue='lots'>
           <TabsList>
             <TabsTrigger value='lots'>Lots</TabsTrigger>
+            <TabsTrigger value='market-price'>Market Price</TabsTrigger>
             <TabsTrigger value='items'>Items</TabsTrigger>
             <TabsTrigger value='solicitation'>
               Solicitation Evaluation Criteria
@@ -30,6 +32,11 @@ const Procurement = () => {
           <TabsContent value='lots'>
             <Card className='mt-10 pb-8 px-6'>
               <Lots />
+            </Card>
+          </TabsContent>
+          <TabsContent value='market-price'>
+            <Card className='mt-10 pb-8 px-6'>
+              <MarketPrice />
             </Card>
           </TabsContent>
           <TabsContent value='items'>
