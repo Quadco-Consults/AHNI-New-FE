@@ -3,9 +3,9 @@ import { TotalExpenditureSvg, TotalIncomeSvg } from "assets/svgs/CAndGSvgs";
 import DataTable from "components/Table/DataTable";
 import { expenditureColumns } from "components/Table/columns/c&g/grant/expenditure";
 import { IGrantSingleData } from "definations/c&g/grants";
-import { useGetAllExpendituresQuery } from "services/c&g/expenditure";
 import { useParams } from "react-router-dom";
 import { skipToken } from "@reduxjs/toolkit/query";
+import { useGetAllExpendituresQuery } from "services/c&g/grant/expenditure";
 
 const ExpenditureHistory: React.FC<any> = ({
     total_expenditure_amount,
