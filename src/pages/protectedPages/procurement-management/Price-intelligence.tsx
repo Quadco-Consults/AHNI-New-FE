@@ -24,7 +24,8 @@ import {
 } from "components/ui/dialog";
 import BreadcrumbCard from "components/shared/Breadcrumb";
 import { PriceIntelligenceDetail } from "definations/procurement-types/price-intelligence";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 const RatingCircle = ({ showInner }: any) => {
   return (
@@ -49,7 +50,7 @@ const PriceIntelligence = () => {
     PriceIntelligenceAPI.useGetPriceIntelligenceQuery(
       useMemo(
         () => ({
-          path: { id: priceId as string },
+          path: { id: (priceId as string) ?? skipToken },
         }),
         [priceId]
       )
@@ -64,20 +65,27 @@ const PriceIntelligence = () => {
     { name: "Price Intelligence", icon: false },
   ];
 
-  console.log({ data });
+  console.log({ data, priceDetails });
 
   return (
     <div className='space-y-10'>
       <BreadcrumbCard list={breadcrumbs} />
       <div className='grid grid-cols-2 gap-6 '>
-        {data?.map((price) => (
+        {data?.data?.results?.map((price) => (
           <Card key={price?.id} className='h-[275px] cursor-pointer'>
-            <Dialog open={open} onOpenChange={() => onOpenDialog(price?.id)}>
+            <Dialog
+              open={open}
+              onOpenChange={() => onOpenDialog(price?.item_id)}
+            >
               <DialogTrigger asChild>
                 <div className='flex flex-col justify-between h-full'>
                   <div className='space-y-2 w-[70%]'>
-                    <h2 className='text-lg font-semibold'>{price?.name}</h2>
-                    <p className='text-sm leading-6 '>{price?.description}</p>
+                    <h2 className='text-lg font-semibold'>
+                      {price?.item_name}
+                    </h2>
+                    <p className='text-sm leading-6 '>
+                      {price?.item_description}
+                    </p>
                   </div>
                   <div className='space-y-4'>
                     <div className='grid grid-cols-5 w-[40%]'>
@@ -92,13 +100,13 @@ const PriceIntelligence = () => {
                         <div className='flex items-center justify-between'>
                           <p className='text-sm font-light'>
                             <span className='font-bold'>
-                              ₦{price?.min_price || 0}
+                              ₦{Number(price?.min_price).toLocaleString() || 0}
                             </span>{" "}
                             Min
                           </p>
                           <p className='text-sm font-light'>
                             <span className='font-bold'>
-                              ₦{price?.max_price || 0}
+                              ₦{Number(price?.max_price).toLocaleString() || 0}
                             </span>{" "}
                             Max
                           </p>
@@ -159,7 +167,7 @@ const PriceIntelligence = () => {
                         Product Description
                       </h3>
                       <p className='text-sm font-light'>
-                        Specification: {priceDetails?.description}
+                        Specification: {priceDetails?.data?.item_description}
                       </p>
                     </div>
                     <div className='mt-10'>
@@ -177,7 +185,9 @@ const PriceIntelligence = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {priceDetails?.history?.map((history, index) => (
+                            {priceDetails?.data?.source_prices[
+                              "Market Survey"
+                            ]?.map((history, index) => (
                               <tr key={index} className='w-full border'>
                                 <td className='w-fit p-2 text-center '>
                                   <span className='p-2 px-4 text-xs bg-gray-200 text-black rounded'>
@@ -192,6 +202,11 @@ const PriceIntelligence = () => {
                                 </td>
                                 <td className='w-fit p-2 text-center'>
                                   {history?.date}
+
+                                  {format(
+                                    parseISO(history?.created_datetime),
+                                    "dd MMM, yy"
+                                  )}
                                 </td>
                               </tr>
                             ))}
@@ -211,29 +226,6 @@ const PriceIntelligence = () => {
 };
 
 export default PriceIntelligence;
-
-// Define the data type
-// type DataType = {
-//   month: string;
-//   price: number;
-// };
-
-// Complete sample data array for all months
-// const data: DataType[] = [
-//   { month: "Jan", price: 1500000 },
-//   { month: "Feb", price: 2600000 },
-//   { month: "Mar", price: 3720192.5 },
-//   // Add your actual data points for each month
-//   { month: "Apr", price: 3800000 },
-//   { month: "May", price: 2850000 },
-//   { month: "Jun", price: 3900000 },
-//   { month: "Jul", price: 2950000 },
-//   { month: "Aug", price: 4000000 },
-//   { month: "Sep", price: 4050000 },
-//   { month: "Oct", price: 3100000 },
-//   { month: "Nov", price: 4200000 },
-//   { month: "Dec", price: 8300000 },
-// ];
 
 // Custom Tooltip component
 const CustomTooltip = ({
@@ -255,28 +247,47 @@ const CustomTooltip = ({
 
 // Chart component
 const PriceTrendChart = (data: PriceIntelligenceDetail) => {
-  const formattedData = data?.history?.map((history) => {
-    return {
-      source: history?.source,
-      price: history.price,
-      date: format(history?.date, "dd, MMM"),
-    };
-  });
-  const dummyData = [
-    { date: "2024-02-01", price: 100 },
-    { date: "2024-02-02", price: 120 },
-    { date: "2024-02-03", price: 90 },
-    { date: "2024-02-04", price: 130 },
-    { date: "2024-02-05", price: 110 },
-    { date: "2024-02-06", price: 150 },
-    { date: "2024-02-07", price: 140 },
-  ];
+  // Extract price history from all sources
+  const priceEntries = Object.entries(data?.data?.source_prices || {}).flatMap(
+    ([source, prices]: [string, any[]]) =>
+      prices.map((entry) => ({
+        source,
+        price: entry?.price,
+        date: format(parseISO(entry?.created_datetime), "dd MMM, yy"), // Format date
+      }))
+  );
+
+  // Extract unique sources
+  const allSources = Array.from(new Set(priceEntries.map((d) => d.source)));
+
+  // State to track selected sources
+  const [selectedSources, setSelectedSources] = useState<string[]>(allSources);
+
+  // Filter data based on selected sources
+  const filteredData = priceEntries
+    .filter((d) => selectedSources.includes(d.source))
+    .map(({ price, date }) => ({ price, date })) // Keep only price and date
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
 
   return (
     <div className='p-4'>
+      <div className='mb-4 flex gap-3 flex-wrap'>
+        {allSources.map((source) => (
+          <label key={source} className='flex items-center space-x-2'>
+            <input
+              type='checkbox'
+              checked={selectedSources.includes(source)}
+              onChange={() => {
+                setSelectedSources([source]);
+              }}
+            />
+            <span>{source}</span>
+          </label>
+        ))}
+      </div>
       <ResponsiveContainer width='100%' height={300}>
         <AreaChart
-          data={formattedData || dummyData}
+          data={filteredData}
           margin={{
             top: 20,
             right: 30,
