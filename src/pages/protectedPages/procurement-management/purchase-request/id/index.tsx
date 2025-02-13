@@ -55,10 +55,10 @@ const PurchaseRequesttDetails = () => {
   //   }
   // );
 
-  console.log({
-    requesting_department: data?.data?.requesting_department,
-    data,
-  });
+  const grandTotal = data?.data?.items.reduce(
+    (sum, row) => sum + Number(row.amount),
+    0
+  );
 
   return (
     <section className='min-h-screen space-y-8'>
@@ -146,7 +146,7 @@ const PurchaseRequesttDetails = () => {
             {data?.data?.items.map((row, index) => (
               <TableRow className='text-center' key={index}>
                 <TableCell>{index + 1}</TableCell>
-                <TableCell>{row.item_detail.name || row.item}</TableCell>
+                <TableCell>{row.item_name || row.item}</TableCell>
                 <TableCell>
                   {row?.fco_number_detail?.name || row.fco_number}
                 </TableCell>
@@ -187,6 +187,10 @@ const PurchaseRequesttDetails = () => {
         </Table>
       </div>
 
+      <div className='flex items-center justify-center w-fit gap-20 px-5 py-3 border rounded-lg border-primary text-primary ml-auto mt-6'>
+        <h4>Total:</h4>
+        <span>₦ {grandTotal?.toLocaleString()}.00</span>
+      </div>
       <div className=' grid grid-cols-2 gap-y-12'>
         <div className=' space-y-3'>
           <p>Signed</p>
