@@ -1,5 +1,4 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { IExpenditurePaginatedData } from "definations/c&g/grants";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
 import { toast } from "sonner";
@@ -8,23 +7,52 @@ import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIco
 import DeleteIcon from "components/icons/DeleteIcon";
 import PencilIcon from "components/icons/PencilIcon";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
-import { useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import { useDeleteExpenditureMutation } from "services/c&g/grant/expenditure";
+import { IAgreementPaginatedData } from "definations/c&g/contract-management/agreement";
+import { useDeleteAgreementMutation } from "services/c&g/contract-management/agreement";
+import { CG_GROUTES } from "constants/RouterConstants";
 
-export const expenditureColumns: ColumnDef<IExpenditurePaginatedData>[] = [
+export const agreementColumns: ColumnDef<IAgreementPaginatedData>[] = [
     {
-        header: "Amount Spent",
-        id: "amount",
-        accessorFn: ({ amount }) => `$${amount}`,
+        header: "Provider",
+        id: "provider",
+        accessorKey: "provider",
         size: 200,
     },
+
     {
-        header: "Description",
-        id: "description",
-        accessorKey: "description",
+        header: "Service",
+        id: "service",
+        accessorKey: "service",
+        size: 200,
+    },
+
+    {
+        header: "Type",
+        id: "type",
+        accessorKey: "type",
+        size: 200,
+    },
+
+    {
+        header: "Start Date",
+        id: "start_date",
+        accessorKey: "start_date",
+        size: 200,
+    },
+
+    {
+        header: "End Date",
+        id: "end_date",
+        accessorKey: "end_date",
+        size: 200,
+    },
+
+    {
+        header: "Status",
+        id: "status",
+        accessorKey: "status",
         size: 200,
     },
 
@@ -36,26 +64,25 @@ export const expenditureColumns: ColumnDef<IExpenditurePaginatedData>[] = [
     },
 ];
 
-const TableMenu = ({
-    id: expenditureId,
-    ...rest
-}: IExpenditurePaginatedData) => {
+const TableMenu = ({ id }: IAgreementPaginatedData) => {
     const [isDialogOpen, setDialogOpen] = useState(false);
 
-    const dispatch = useAppDispatch();
+    const { pathname } = useLocation();
 
-    const { id: grantId } = useParams();
+    console.log({ pathname });
 
-    const [deleteExpenditure, { isLoading }] = useDeleteExpenditureMutation();
+    const [deleteAgreement, { isLoading }] = useDeleteAgreementMutation();
 
     const handleDelete = async () => {
         try {
-            await deleteExpenditure({ grantId: grantId ?? "", expenditureId });
-            toast.success("Expenditure Deleted");
+            await deleteAgreement(id).unwrap();
+            toast.success("Agreement Deleted");
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }
     };
+
+    if (pathname === "/admin/agreements/") return null;
 
     return (
         <div className="flex items-center gap-2">
@@ -67,29 +94,20 @@ const TableMenu = ({
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-fit">
-                        <Button
-                            className="w-full flex items-center justify-start gap-2"
-                            variant="ghost"
-                            onClick={() => {
-                                dispatch(
-                                    openDialog({
-                                        type: DialogType.ExpenditureModal,
-                                        dialogProps: {
-                                            header: "Update Expenditure",
-                                            width: "max-w-lg",
-                                            grantId,
-                                            expenditure: {
-                                                id: expenditureId,
-                                                ...rest,
-                                            },
-                                        },
-                                    })
-                                );
+                        <Link
+                            to={{
+                                pathname: CG_GROUTES.CREATE_AGREEMENT,
+                                search: `?id=${id}`,
                             }}
                         >
-                            <PencilIcon />
-                            Edit
-                        </Button>
+                            <Button
+                                className="w-full flex items-center justify-start gap-2"
+                                variant="ghost"
+                            >
+                                <PencilIcon />
+                                Edit
+                            </Button>
+                        </Link>
                         <Button
                             className="w-full flex items-center justify-start gap-2"
                             variant="ghost"

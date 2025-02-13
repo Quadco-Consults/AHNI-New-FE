@@ -10,9 +10,9 @@ import { useAppDispatch } from "hooks/useStore";
 import { useParams } from "react-router-dom";
 import { LoadingSpinner } from "components/shared/Loading";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import { useGetSingleGrantQuery } from "services/c&g/grant";
 import { skipToken } from "@reduxjs/toolkit/query";
 import ObligationHistory from "./_components/ObligationHistory";
+import { useGetSingleGrantQuery } from "services/c&g/grant/grant";
 
 const GrantDetails: React.FC = () => {
     const [tabValue, setTabValue] = useState("details");

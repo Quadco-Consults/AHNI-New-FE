@@ -16,7 +16,7 @@ import {
     useCreateGrantMutation,
     useGetSingleGrantQuery,
     useModifyGrantMutation,
-} from "services/c&g/grant";
+} from "services/c&g/grant/grant";
 import { useGetAllProjectsQuery } from "services/project";
 import { toast } from "sonner";
 

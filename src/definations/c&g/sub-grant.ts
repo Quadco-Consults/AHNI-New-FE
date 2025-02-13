@@ -74,3 +74,83 @@ export interface ISubGrantSingleData {
     created_by: string | null;
     updated_by: string | null;
 }
+
+export const SubGrantSubmissionSchema = z.object({
+    partner: z.string().min(1, "Please select partner"),
+    organisation_name: z.string().min(1, "Please enter organization name"),
+    principal_one_name: z.string().min(1, "Please enter 1st principal name"),
+    principal_one_designaation: z
+        .string()
+        .min(1, "Please enter principal one designation"),
+    principal_two_name: z
+        .string()
+        .min(1, "Please enter principal one two name"),
+    principal_two_designation: z
+        .string()
+        .min(1, "Please enter principal two designation"),
+    address: z.string().min(1, "Please enter address"),
+    phone_number: z.string().min(1, "Please enter phone number"),
+    fax: z.string().min(1, "Please enter fax "),
+    email: z
+        .string()
+        .min(1, "Please enter email")
+        .email("Please enter a valid email"),
+    web_address: z
+        .string()
+        .min(1, "Please enter website")
+        .url("Please enter a valid web address"),
+    duns_number: z.string().min(1, "Please enter duns completed"),
+    has_conflict_of_interest: z.string().min(1, "Please select an option"),
+    organisation_type: z.string().min(1, "Please select organization type"),
+});
+
+export type TSubGrantSubmissionFormData = z.infer<
+    typeof SubGrantSubmissionSchema
+>;
+
+export interface ISubGrantSubmissionPaginatedData {
+    id: string;
+    partner: string;
+    sub_grant: string;
+    created_datetime: string;
+    updated_datetime: string;
+    organisation_name: string;
+    organisation_type: string;
+    principal_one_name: string;
+    principal_one_designaation: string;
+    principal_two_name: string;
+    principal_two_designation: string;
+    address: string;
+    phone_number: string;
+    fax: string;
+    email: string;
+    web_address: string;
+    duns_number: string;
+    has_conflict_of_interest: boolean;
+    created_by: string;
+    updated_by: string | null;
+}
+
+export interface ISubGrantSubmissionSingleData {
+    id: string;
+    partner: TPartnerData;
+    sub_grant: ISubGrantSingleData;
+    documents: [];
+    created_datetime: string;
+    updated_datetime: string;
+    organisation_name: string;
+    organisation_type: string;
+    principal_one_name: string;
+    principal_one_designaation: string;
+    principal_two_name: string;
+    principal_two_designation: string;
+    address: string;
+    phone_number: string;
+    fax: string;
+    email: string;
+    web_address: string;
+    duns_number: string;
+    has_conflict_of_interest: boolean;
+    created_by: string;
+    updated_by: string | null;
+}

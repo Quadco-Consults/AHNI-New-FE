@@ -5,10 +5,10 @@ import { Plus } from "lucide-react";
 import { grantColumns } from "components/Table/columns/c&g/grant/grant";
 import TableFilters from "components/Table/TableFilters";
 import { CG_GROUTES } from "constants/RouterConstants";
-import { useGetAllGrantsQuery } from "services/c&g/grant";
 import { useState } from "react";
 import Card from "components/shared/Card";
 import { useDebounce } from "ahooks";
+import { useGetAllGrantsQuery } from "services/c&g/grant/grant";
 
 export default function GrantHomePage() {
     const [page, setPage] = useState(1);

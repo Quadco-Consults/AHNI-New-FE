@@ -2,7 +2,6 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ISubGrantPaginatedData } from "definations/c&g/sub-grant";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
-import { toast } from "sonner";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import { useAppDispatch } from "hooks/useStore";
 import PencilIcon from "components/icons/PencilIcon";
@@ -11,14 +10,25 @@ import { useState } from "react";
 import { generatePath, Link } from "react-router-dom";
 import EyeIcon from "components/icons/EyeIcon";
 import { CG_GROUTES } from "constants/RouterConstants";
+import { toast } from "sonner";
+import { useDeleteSubGrantMutation } from "services/c&g/subgrant/sub-grant";
+import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 
 export const subGrantAwardColumns: ColumnDef<ISubGrantPaginatedData>[] = [
     {
-        header: "Project Title",
+        header: "Title",
+        id: "title",
+        accessorKey: "title",
+        size: 200,
+    },
+
+    {
+        header: "Project",
         id: "project",
         accessorKey: "project",
         size: 200,
     },
+
     {
         header: "Business Unit",
         id: "business_unit",
@@ -66,7 +76,18 @@ export const subGrantAwardColumns: ColumnDef<ISubGrantPaginatedData>[] = [
 const TableMenu = ({ id }: ISubGrantPaginatedData) => {
     const [isDialogOpen, setDialogOpen] = useState(false);
 
-    const dispatch = useAppDispatch();
+    const [deleteSubGrant, { isLoading: isDeleteLoading }] =
+        useDeleteSubGrantMutation();
+
+    const handleDelete = async () => {
+        try {
+            await deleteSubGrant(id).unwrap();
+            toast.success("Sub Grant Deleted");
+            setDialogOpen(false);
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
+        }
+    };
 
     return (
         <div className="flex items-center gap-2">
@@ -92,13 +113,20 @@ const TableMenu = ({ id }: ISubGrantPaginatedData) => {
                                 View
                             </Button>
                         </Link>
-                        <Button
-                            className="w-full flex items-center justify-start gap-2"
-                            variant="ghost"
+                        <Link
+                            to={{
+                                pathname: CG_GROUTES.CREATE_SUBGRANT_AWARD,
+                                search: `?id=${id}`,
+                            }}
                         >
-                            <PencilIcon />
-                            Edit
-                        </Button>
+                            <Button
+                                className="w-full flex items-center justify-start gap-2"
+                                variant="ghost"
+                            >
+                                <PencilIcon />
+                                Edit
+                            </Button>
+                        </Link>
                         <Button
                             className="w-full flex items-center justify-start gap-2"
                             variant="ghost"
@@ -111,13 +139,13 @@ const TableMenu = ({ id }: ISubGrantPaginatedData) => {
                 </Popover>
             </>
 
-            {/* <ConfirmationDialog
+            <ConfirmationDialog
                 open={isDialogOpen}
-                title="Are you sure you want to delete this expenditure?"
-                loading={isLoading}
+                title="Are you sure you want to delete this sub grant?"
+                loading={isDeleteLoading}
                 onCancel={() => setDialogOpen(false)}
                 onOk={handleDelete}
-            /> */}
+            />
         </div>
     );
 };
