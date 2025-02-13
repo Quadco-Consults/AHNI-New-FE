@@ -1,7 +1,6 @@
 /* eslint-disable react/prop-types */
 import { Icon } from "@iconify/react";
 import Card from "components/shared/Card";
-import IconButton from "components/shared/IconButton";
 import { Badge } from "components/ui/badge";
 import { Checkbox } from "components/ui/checkbox";
 import { cn } from "lib/utils";
@@ -20,8 +19,6 @@ const VendorSubmission = () => {
   const { data } = useGetSolicitationSubmissionQuery({
     path: { id: id as string },
   });
-
-  console.log({ data });
 
   return (
     <div className='space-y-10'>
@@ -69,8 +66,7 @@ const VendorSubmission = () => {
         </div>
 
         <DataTable
-          data={[]}
-          //   data={data?.results || []}
+          data={data?.data?.results || []}
           columns={columns}
           isLoading={false}
         />
@@ -110,62 +106,87 @@ const columns: ColumnDef<SolicitationSubmissionResultsData>[] = [
     header: "Vendor Name",
     accessorKey: "company_name",
     size: 250,
+    cell: ({ row }) => {
+      return <p>{row?.original?.vendor?.company_name}</p>;
+    },
   },
   {
-    header: "Company Reg No",
-    accessorKey: "company_registration_number",
+    header: "Type of Business",
+    accessorKey: "Type_of_business",
     size: 200,
+    cell: ({ row }) => {
+      return <p>{row?.original?.vendor?.type_of_business}</p>;
+    },
   },
   {
-    header: "Year of Incorporation",
+    header: "Reg No",
     accessorKey: "year_or_incorperation",
     size: 200,
+    cell: ({ row }) => {
+      return <p>{row?.original?.vendor?.company_registration_number}</p>;
+    },
   },
   {
-    header: "Nature of Business",
-    accessorKey: "nature_of_business",
+    header: "Prequalification",
+    accessorKey: "prequalification",
     size: 200,
-  },
-  {
-    header: "Status",
-    accessorKey: "status",
-    cell: ({ getValue }) => {
+    cell: ({ row }) => {
+      const status = row?.original?.vendor?.status;
       return (
         <Badge
           className={cn(
             "px-3 py-2 rounded-lg",
-            getValue() === "Approved" && "bg-green-200 text-green-500",
-            getValue() === "Fail" && "bg-red-200 text-red-500",
-            getValue() === "Pending" && "bg-yellow-200 text-yellow-500"
+            status === "Approved" && "bg-green-200 text-green-500",
+            status === "Fail" && "bg-red-200 text-red-500",
+            status === "Pending" && "bg-yellow-200 text-yellow-500"
           )}
         >
-          {getValue() as string}
+          {status}
         </Badge>
       );
     },
   },
   {
-    header: "Actions",
-    id: "actions",
-    cell: ({ row }) => <ActionListAction data={row.original} />,
+    header: "RFQ No.",
+    accessorKey: "rfq_no",
+    size: 200,
+    cell: ({ row }) => {
+      return <p>{row?.original?.solicitation?.rfq_id}</p>;
+    },
+  },
+  {
+    header: "RFQ Date",
+    accessorKey: "rfq_date",
+    size: 200,
+    cell: ({ row }) => {
+      return <p>{row?.original?.solicitation?.rfq_date || "-"}</p>;
+    },
+  },
+  {
+    header: "Status",
+    accessorKey: "status",
+    cell: ({ row }) => {
+      const status = row?.original?.bid_details?.status;
+      return (
+        <Badge
+          className={cn(
+            "px-3 py-2 rounded-lg",
+            status === "PASSED" && "bg-green-200 text-green-500",
+            status === "FAIL" && "bg-red-200 text-red-500",
+            status === "PENDING" && "bg-yellow-200 text-yellow-500"
+          )}
+        >
+          {status}
+        </Badge>
+      );
+    },
+  },
+  {
+    header: "Company Email",
+    accessorKey: "company_email",
+    size: 200,
+    cell: ({ row }) => {
+      return <p>{row?.original?.vendor?.email}</p>;
+    },
   },
 ];
-
-const ActionListAction = ({ data }: any) => {
-  return (
-    <div className='flex gap-2'>
-      <Link
-        to={generatePath(RouteEnum.VENDOR_MANAGEMENT_DETAILS, {
-          id: data?.id,
-        })}
-      >
-        <IconButton className='bg-[#F9F9F9] hover:text-primary'>
-          <Icon icon='ph:eye-duotone' fontSize={15} />
-        </IconButton>
-      </Link>
-      <IconButton className='bg-[#F9F9F9] hover:text-primary'>
-        <Icon icon='ant-design:delete-twotone' fontSize={15} />
-      </IconButton>
-    </div>
-  );
-};

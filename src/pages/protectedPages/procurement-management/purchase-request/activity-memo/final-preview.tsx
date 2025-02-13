@@ -18,6 +18,9 @@ import { useGetSingleCostCategoryQuery } from "services/modules/finance/cost-cat
 import { useGetSingleCostInputQuery } from "services/modules/finance/cost-input";
 import { useGetSingleActivityPlanQuery } from "services/programsApi/activity-plan";
 import useQuery from "hooks/useQuery";
+import { useGetSingleFCONumberQuery } from "services/modules/finance/fco-number";
+import { useGetSingleInterventionAreaQuery } from "services/modules/program/interventions";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 const Preview = () => {
   const query = useQuery();
@@ -35,21 +38,34 @@ const Preview = () => {
   );
 
   const { data: budgetLine } = useGetSingleBudgetLineQuery(
-    requestsDetails?.budget_line[0]
+    requestsDetails?.budget_line[0] ?? skipToken
   );
 
   const { data: costCategory } =
     // @ts-ignore
-    useGetSingleCostCategoryQuery(requestsDetails?.cost_categories[0]);
+    useGetSingleCostCategoryQuery(
+      // @ts-ignore
+      requestsDetails?.cost_categories[0] ?? skipToken
+    );
 
   const { data: costInput } =
     // @ts-ignore
-    useGetSingleCostInputQuery(requestsDetails?.cost_input[0]);
+    useGetSingleCostInputQuery(requestsDetails?.cost_input[0] ?? skipToken);
 
   const { data: activityPlan } = useGetSingleActivityPlanQuery(
     // @ts-ignore
-    requestsDetails?.activity
+    requestsDetails?.activity ?? skipToken
   );
+
+  const { data: fcoNumber } = useGetSingleFCONumberQuery(
+    // @ts-ignore
+    requestsDetails?.fconumber[0] ?? skipToken
+  );
+  const { data: interventionArea } =
+    // @ts-ignore
+    useGetSingleInterventionAreaQuery(
+      requestsDetails?.intervention_areas[0] ?? skipToken
+    );
 
   return (
     <div className='bg-white p-8'>
@@ -58,7 +74,10 @@ const Preview = () => {
           {created === "true" && (
             <Link
               className='w-fit'
-              to={generatePath(RouteEnum.CREATE_PURCHASE_REQUEST)}
+              to={{
+                pathname: RouteEnum.CREATE_PURCHASE_REQUEST,
+                search: `?request=${id}`,
+              }}
             >
               <Button className='flex gap-2 py-6'>
                 <AddSquareIcon />
@@ -110,7 +129,7 @@ const Preview = () => {
               FCO #:{" "}
             </div>
             <div className='w-full max-w-[490px] p-3'>
-              {requestsDetails?.fconumber}
+              {fcoNumber && fcoNumber?.data?.name}
             </div>
           </div>
         </div>
@@ -118,7 +137,7 @@ const Preview = () => {
           <div className='flex border-gray-200 border w-full'>
             <div className='w-full  p-3'>
               <strong>Intervention Areas: </strong>
-              {requestsDetails?.intervention_areas[0]}
+              {interventionArea && interventionArea?.data?.code}{" "}
             </div>
           </div>
           <div className='flex border-gray-200 border max-w-[800px] w-full'>
@@ -134,7 +153,7 @@ const Preview = () => {
           </div>{" "}
           <div className='flex border-gray-200 border max-w-[800px] w-full'>
             <div className=' border-r border-gray-200 w-full max-w-[321px] p-3'>
-              <strong>Cost Input #:</strong>
+              <strong>Cost Input #: </strong>
               {costCategory && costInput?.data?.name}{" "}
             </div>
           </div>{" "}
@@ -156,7 +175,7 @@ const Preview = () => {
               {requestsDetails?.expenses.map((row, index) => (
                 <TableRow key={index}>
                   {/* expenses item name */}
-                  <TableCell>{row.item}</TableCell>
+                  <TableCell>{row?.item_detail?.name}</TableCell>
                   <TableCell>{row.quantity}</TableCell>
                   <TableCell>{row.num_of_days}</TableCell>
                   <TableCell>{row.num_of_facility}</TableCell>
@@ -165,29 +184,6 @@ const Preview = () => {
                   <TableCell>{Number(row.total_cost).toFixed(2)}</TableCell>
                 </TableRow>
               ))}
-              {/* <TableRow>
-                <TableCell>
-                  <strong>Totals</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>{totals.quantity}</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>{totals.days}</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>{totals.facility}</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>{totals.frequency}</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>{totals.unitCost.toFixed(2)}</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>{totals.totalCost.toFixed(2)}</strong>
-                </TableCell>
-              </TableRow> */}
             </TableBody>
           </Table>
         </div>

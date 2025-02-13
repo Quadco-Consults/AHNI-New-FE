@@ -135,14 +135,14 @@ export const SampleMemoSchema = z.object({
   copy: z.array(z.string().min(1, "Field is required")),
   created_by: z.string().min(1, "Field is required"),
   approved_by: z.string().min(1, "Field is required"),
-  reviewed_by: z.string().min(1, "Field is required"),
-  authorized_by: z.string().min(1, "Field is required"),
+  // reviewed_by: z.string().min(1, "Field is required"),
+  // authorized_by: z.string().min(1, "Field is required"),
   through: z.array(z.string().min(1, "Field is required")),
   expenses: z.array(
     z.object({
       item: z.string().optional(),
       quantity: z.string().optional(),
-      days: z.string().optional(),
+      num_of_days: z.string().optional(),
       unit_cost: z.string().optional(),
       total_cost: z.number().optional(),
     })
@@ -229,7 +229,7 @@ export const PurchaseOrderListSchema = z.object({
     })
   ),
   purchase_request: z.string().min(1, "Field is required"),
-  vendor: z.string().min(1, "Field is required"),
+  // vendor: z.string().min(1, "Field is required"),
 });
 
 export const SolicitationItemsSchema = z.object({
@@ -252,8 +252,9 @@ export const SolicitationQuotationSchema = z.object({
   tender_type: z.string().min(1, "Please select tender type"),
   purchase_request: z
     .string()
-    .min(1, "Please select purchase request")
-    .nullable(),
+    // .min(1, "Please select purchase request")
+    .nullable()
+    .optional(),
   procurement_type: z.string().min(1, "Please select purchase request"),
 });
 
@@ -284,19 +285,18 @@ export const SolicitationSchema = z.object({
 });
 
 export const SolicitationSubmissionSchema = z.object({
-  solicitation_id: z.string().min(1, "Field is required"),
-  vendor_id: z.string().min(1, "Field is required"),
-  items: z.array(
+  solicitation: z.string().min(1, "Field is required"),
+  vendor: z.string().min(1, "Field is required"),
+  bid_items: z.array(
     z.object({
-      quantity: z.number().min(1, "Field is required"),
       unit_price: z.string().min(1, "Field is required"),
       solicitation_item: z.string().min(1, "Field is required"),
     })
   ),
-  responses: z.array(
+  evaluations: z.array(
     z.object({
       response: z.string().min(1, "Field is required"),
-      solicitation_criteria: z.string().min(1, "Field is required"),
+      evaluation_criteria: z.string().min(1, "Field is required"),
     })
   ),
 });
@@ -371,3 +371,41 @@ export const ProcurementPlanListSchema = z.object({
   milestone_name: z.string().min(1, "Field is required"),
   milestone_description: z.string().min(1, "Field is required"),
 });
+
+// Manual Bid Submission
+
+// Define UUID validation
+const uuidSchema = z.string().uuid();
+
+// Define bid item schema
+const bidItemSchema = z.object({
+  bid_submission: uuidSchema,
+  solicitation_item: uuidSchema,
+  unit_price: z
+    .string()
+    .or(z.number()) // Accepts both string and number formats
+    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
+      message: "unit_price must be a valid positive number",
+    }),
+});
+
+// Define evaluation schema
+const evaluationSchema = z.object({
+  bid_submission: uuidSchema,
+  evaluation_criteria: uuidSchema,
+  response: z.string().min(1, "Response is required"),
+});
+
+// Main schema
+export const ManualBidCbaPrequalificationSchema = z.object({
+  vendor: uuidSchema,
+  solicitation: uuidSchema,
+  bid_items: z
+    .array(bidItemSchema)
+    .nonempty("At least one bid item is required"),
+  evaluations: z
+    .array(evaluationSchema)
+    .nonempty("At least one evaluation is required"),
+});
+
+// Manual Bid Submission end

@@ -12,18 +12,18 @@ import {
   CbaResultsData,
   CbaSubmitPayload,
 } from "definations/procurement-types/cba";
+import { TPaginatedResponse, TRequest } from "definations/index";
 
 const BASE_URL = "/procurements/cba/";
 
 const CbaAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getCbaList: builder.query<CbaData, {}>({
-      query: (config) => {
-        return {
-          url: `${BASE_URL}`,
-          ...config,
-        };
-      },
+    getCbaList: builder.query<TPaginatedResponse<CbaData>, TRequest>({
+      query: (params) => ({
+        method: "GET",
+        url: `${BASE_URL}`,
+        params,
+      }),
       providesTags: ["CBA"],
     }),
 

@@ -17,7 +17,7 @@ import {
 } from "components/ui/select";
 import { MinusCircle } from "lucide-react";
 import { useFormContext } from "react-hook-form";
-import { useGetAllConsumablesQuery } from "services/admin/inventory-management/consumable";
+import { useGetAllItemsQuery } from "services/modules/config/item";
 
 const ExpensesForm = ({
   fields,
@@ -30,7 +30,7 @@ const ExpensesForm = ({
   watch: any;
   setValue: any;
 }) => {
-  const consumables = useGetAllConsumablesQuery({
+  const { data: item } = useGetAllItemsQuery({
     page: 1,
     size: 2000000,
   });
@@ -41,19 +41,17 @@ const ExpensesForm = ({
   //   const { fields, remove } = useFieldArray({ control, name: "expenses" });
 
   //   // Map consumables data to options
-  const consumablesOptions = consumables?.data?.data?.results.map(
-    ({ name, id }) => ({
-      label: name,
-      value: id,
-    })
-  );
+  const itemsOptions = item?.data?.results?.map(({ name, id }) => ({
+    label: name,
+    value: id,
+  }));
   // optimization for number spliting is required use: .toLocaleString()
   return (
     <div>
       {/* @ts-ignore */}
       {fields.map((field, index) => {
         const quantity = watch(`expenses.${index}.quantity`) || 0;
-        const days = watch(`expenses.${index}.days`) || 0;
+        const days = watch(`expenses.${index}.num_of_days`) || 0;
         const unitCost = watch(`expenses.${index}.unit_cost`) || 0;
 
         // Calculate total cost dynamically
@@ -63,7 +61,7 @@ const ExpensesForm = ({
 
         return (
           <div key={field.id} className='grid grid-cols-2 gap-5 mt-5'>
-            {consumablesOptions && (
+            {itemsOptions && (
               <>
                 <FormField
                   control={control}
@@ -82,18 +80,17 @@ const ExpensesForm = ({
                         <Select
                           onValueChange={(selectedValue) => {
                             onChange(selectedValue); // Update the selected item value
-                            const selectedItem =
-                              consumables?.data?.data?.results.find(
-                                (item) => item.id === selectedValue
-                              );
+                            // const selectedItem = item?.data?.results?.find(
+                            //   (item) => item.id === selectedValue
+                            // );
 
-                            if (selectedItem) {
-                              // Update the unit cost field
-                              setValue(
-                                `expenses.${index}.unit_cost`,
-                                selectedItem.item_cost || 0
-                              );
-                            }
+                            // if (selectedItem) {
+                            //   // Update the unit cost field
+                            //   setValue(
+                            //     `expenses.${index}.unit_cost`,
+                            //     selectedItem.ngn_cost || 0
+                            //   );
+                            // }
                           }}
                           value={value}
                           defaultValue={value}
@@ -104,7 +101,7 @@ const ExpensesForm = ({
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {consumablesOptions?.map((item) => {
+                            {itemsOptions?.map((item) => {
                               return (
                                 <SelectItem
                                   value={item.value as string}
@@ -132,7 +129,7 @@ const ExpensesForm = ({
             />
             <FormInput
               label='# of Days'
-              name={`expenses.${index}.days`}
+              name={`expenses.${index}.num_of_days`}
               type='text'
             />
 

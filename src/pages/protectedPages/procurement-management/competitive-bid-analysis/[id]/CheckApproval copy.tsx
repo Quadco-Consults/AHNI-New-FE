@@ -3,19 +3,14 @@ import GoBack from "components/shared/GoBack";
 import { Loading } from "components/shared/Loading";
 import { Button } from "components/ui/button";
 import { Textarea } from "components/ui/textarea";
-import { RouteEnum } from "constants/RouterConstants";
 import useQuery from "hooks/useQuery";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import ManualBidCbaPrequalificationAPI from "services/procurementApi/manual-bid-cba-prequalification";
-import { toast } from "sonner";
 
 const TableComponent = () => {
   const query = useQuery();
   const id = query.get("id");
   const cba = query.get("cba");
-
-  const navigate = useNavigate();
 
   const { data: summaryData, isLoading } =
     ManualBidCbaPrequalificationAPI.useGetManualBidPrequalificationsQuery({
@@ -27,7 +22,6 @@ const TableComponent = () => {
   const [createVendorBidAnalysis] =
     ManualBidCbaPrequalificationAPI.useCreateVendorBidAnalysisMutation();
 
-  const [recommendationNote, setRecommendationNote] = useState("");
   function formatBidData(inputData) {
     if (inputData) {
       const companies = [
@@ -38,6 +32,7 @@ const TableComponent = () => {
           }))
         ),
       ];
+      console.log({ companies });
 
       const itemsMap = new Map();
       const extraDataMap = new Map();
@@ -46,14 +41,16 @@ const TableComponent = () => {
         const companyName = result.vendor.company_name;
 
         result.bid_details.bidsubmissionitems.forEach((item) => {
-          if (!itemsMap.has(item.solicitation_item_id)) {
-            itemsMap.set(item.solicitation_item_id, {
-              id: item?.solicitation_item_id,
+          console.log({ quad: item });
+
+          if (!itemsMap.has(item.solicitation_item)) {
+            itemsMap.set(item.solicitation_item, {
+              id: item?.solicitation_item,
               title: item.solicitation_item_name, // Adjust title as needed
               qty: 1,
             });
           }
-          itemsMap.get(item.solicitation_item_id)[companyName] = {
+          itemsMap.get(item.solicitation_item)[companyName] = {
             unitPrice: parseFloat(item.unit_price),
             total: parseFloat(item.total_price),
           };
@@ -87,10 +84,12 @@ const TableComponent = () => {
 
   // Example usage:
   const formattedData = formatBidData(summaryData?.data);
+  console.log({ formattedData });
 
   const [checkedItems, setCheckedItems] = useState({});
 
   const [headerChecked, setHeaderChecked] = useState({});
+  console.log({ headerChecked, checkedItems });
 
   const handleCheckboxChange = (itemId, company, checked) => {
     setCheckedItems((prevCheckedItems) => {
@@ -98,17 +97,17 @@ const TableComponent = () => {
         ...prevCheckedItems,
         [itemId]: {
           ...prevCheckedItems[itemId],
-          [company?.name]: checked,
+          [company]: checked,
         },
       };
 
       const allChecked = formattedData?.data?.items?.every((item) => {
-        return updatedCheckedItems[item.id]?.[company?.name] || false;
+        return updatedCheckedItems[item.id]?.[company] || false;
       });
 
       setHeaderChecked((prevHeaderChecked) => ({
         ...prevHeaderChecked,
-        [company?.name]: allChecked,
+        [company]: allChecked,
       }));
 
       return updatedCheckedItems;
@@ -121,7 +120,7 @@ const TableComponent = () => {
       formattedData?.data?.items?.forEach((item) => {
         updatedCheckedItems[item.id] = {
           ...updatedCheckedItems[item.id],
-          [company?.name]: checked,
+          [company]: checked,
         };
       });
       return updatedCheckedItems;
@@ -129,14 +128,14 @@ const TableComponent = () => {
 
     setHeaderChecked((prevHeaderChecked) => ({
       ...prevHeaderChecked,
-      [company?.name]: checked,
+      [company]: checked,
     }));
   };
 
   useEffect(() => {
     setHeaderChecked(
       formattedData?.data?.companies?.reduce((acc, company) => {
-        acc[company?.name] = false;
+        acc[company] = false;
         return acc;
       }, {})
     );
@@ -144,7 +143,7 @@ const TableComponent = () => {
       formattedData?.data?.items?.reduce((acc, item) => {
         acc[item.id] = formattedData?.data?.companies?.reduce(
           (companyAcc, company) => {
-            companyAcc[company?.name] = false;
+            companyAcc[company] = false;
             return companyAcc;
           },
           {}
@@ -156,12 +155,9 @@ const TableComponent = () => {
 
   const calculateCheckedGrandTotal = () => {
     return formattedData?.data?.companies.reduce((totals, company) => {
-      totals[company?.name] = formattedData?.data?.items.reduce((sum, item) => {
-        if (
-          checkedItems !== undefined &&
-          checkedItems[item.id]?.[company?.name]
-        ) {
-          return sum + (item[company?.name]?.total || 0);
+      totals[company] = formattedData?.data?.items.reduce((sum, item) => {
+        if (checkedItems !== undefined && checkedItems[item.id]?.[company]) {
+          return sum + (item[company]?.total || 0);
         }
         return sum;
       }, 0);
@@ -175,11 +171,14 @@ const TableComponent = () => {
     checkedGrandTotal &&
     Object.values(checkedGrandTotal!)?.reduce((sum, total) => sum + total, 0);
 
+  const [recommendationNote, setRecommendationNote] = useState("");
+
   // Function to format selected items per vendor
   const getSelectedItemsForVendor = (vendor) => {
     const selectedItems = formattedData?.data?.items
-      .filter((item) => checkedItems[item.id]?.[vendor?.name])
+      .filter((item) => checkedItems[item.id]?.[vendor])
       .map((item) => item.id);
+    console.log({ selectedItems });
 
     return selectedItems;
   };
@@ -188,33 +187,31 @@ const TableComponent = () => {
     if (!cba || !id) return alert("Missing required IDs");
 
     const selectedVendors = formattedData?.data?.companies.filter((vendor) =>
-      Object.values(checkedItems).some((item) => item[vendor?.name])
+      Object.values(checkedItems).some((item) => item[vendor])
     );
+    console.log({ selectedVendors });
 
     if (!selectedVendors.length) {
-      return toast.error("No vendors selected.");
+      return alert("No vendors selected.");
     }
 
     try {
       const apiCalls = selectedVendors.map((vendor) => {
         const payload = {
           cba_id: cba,
-          vendor_id: vendor?.id, // Assuming `vendor` is the vendor ID
+          vendor_id: vendor, // Assuming `vendor` is the vendor ID
           recommendation_note: recommendationNote,
           selected_items: getSelectedItemsForVendor(vendor),
-          solicitation_id: id,
         };
 
-        return createVendorBidAnalysis(payload).unwrap();
+        // return createVendorBidAnalysis(payload).unwrap();
       });
 
       await Promise.all(apiCalls);
-      navigate(`${RouteEnum.COMPETITIVE_BID_ANALYSIS}`);
-
-      toast.success("Analysis submitted successfully!");
+      alert("Analysis submitted successfully!");
     } catch (error) {
       console.error("Error submitting analysis:", error);
-      toast.error("Failed to submit analysis.");
+      alert("Failed to submit analysis.");
     }
   };
 
@@ -235,7 +232,7 @@ const TableComponent = () => {
                 <td colSpan={3} className=''></td>
                 {formattedData?.data.companies.map((company, index) => (
                   <td key={index} colSpan={3} className=' text-center border-l'>
-                    {company?.name?.toUpperCase()}
+                    {company.toUpperCase()}
                   </td>
                 ))}
               </tr>
@@ -244,6 +241,8 @@ const TableComponent = () => {
                 <td className='p-3 min-w-[420px]'>Items Description</td>
                 <td className='p-3 min-w-[50px]'>Qty</td>
                 {formattedData?.data?.companies.map((company, index) => {
+                  console.log({ company });
+
                   return (
                     <>
                       <td
@@ -253,7 +252,7 @@ const TableComponent = () => {
                         {headerChecked !== undefined && (
                           <input
                             type='checkbox'
-                            checked={headerChecked[company?.name]}
+                            checked={headerChecked[company]}
                             onChange={(e) =>
                               handleHeaderCheckboxChange(
                                 company,
@@ -293,7 +292,7 @@ const TableComponent = () => {
                           <td
                             key={`che-${item.id}-${idx}`}
                             className={
-                              checkedItems[item.id]?.[company?.name]
+                              checkedItems[item.id]?.[company]
                                 ? "bg-green-100 rounded-md border-green-600 p-3 border border-r-0"
                                 : " p-3 border-l"
                             }
@@ -302,8 +301,7 @@ const TableComponent = () => {
                               <input
                                 type='checkbox'
                                 checked={
-                                  checkedItems[item.id]?.[company?.name] ||
-                                  false
+                                  checkedItems[item.id]?.[company] || false
                                 }
                                 onChange={(e) =>
                                   handleCheckboxChange(
@@ -318,22 +316,22 @@ const TableComponent = () => {
                           <td
                             key={`unit-price-${item.id}-${idx}`}
                             className={
-                              checkedItems[item.id]?.[company?.name]
+                              checkedItems[item.id]?.[company]
                                 ? "bg-green-100 rounded-md border-green-600  p-3 border-y"
                                 : " p-3"
                             }
                           >
-                            {item[company.name].unitPrice}
+                            {item[company].unitPrice}
                           </td>
                           <td
                             key={`total-${item.id}-${idx}`}
                             className={
-                              checkedItems[item.id]?.[company?.name]
+                              checkedItems[item.id]?.[company]
                                 ? "bg-green-100 rounded-md border-green-600  p-3  border border-l-0"
                                 : " p-3"
                             }
                           >
-                            {Number(item[company?.name].total).toLocaleString()}
+                            {Number(item[company].total).toLocaleString()}
                           </td>
                         </>
                       );
@@ -355,9 +353,7 @@ const TableComponent = () => {
                     <div className=' border border-red-600 max-w-[326px] p-4 rounded-md ml-auto text-red-600 flex justify-between'>
                       Total:
                       <span>
-                        {Number(
-                          checkedGrandTotal[company?.name]
-                        ).toLocaleString()}
+                        {Number(checkedGrandTotal[company]).toLocaleString()}
                       </span>
                     </div>
                   </td>
@@ -376,7 +372,7 @@ const TableComponent = () => {
                         colSpan={3}
                         className={`p-3 border-l`}
                       >
-                        {extra[company?.name]?.text}
+                        {extra[company]?.text}
                       </td>
                     ))}
                   </tr>
@@ -390,7 +386,6 @@ const TableComponent = () => {
           <Textarea
             className='border rounded-md p-3 max-w-[400px]'
             placeholder='Enter recommendation here'
-            onChange={(e) => setRecommendationNote(e.target.value)}
           />
         </div>
         <div className='flex w-full justify-end'>
