@@ -41,6 +41,7 @@ export const DialogType = {
   AddDepartments: "AddDepartments",
   AddFinancialYear: "AddFinancialYear",
   AddItems: "AddItems",
+  AddMarketPrice: "AddMarketPrice",
   AddNewItems: "AddNewItems",
   AddLocations: "AddLocations",
   AddLots: "AddLots",
