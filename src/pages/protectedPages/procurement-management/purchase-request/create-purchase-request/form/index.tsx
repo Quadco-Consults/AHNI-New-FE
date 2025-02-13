@@ -6,7 +6,9 @@ import AddSquareIcon from "components/icons/AddSquareIcon";
 import LongArrowRight from "components/icons/LongArrowRight";
 import { LoadingSpinner } from "components/shared/Loading";
 import { Button } from "components/ui/button";
-import { Form } from "components/ui/form";
+import { Form, FormControl, FormField, FormItem } from "components/ui/form";
+import { Label } from "components/ui/label";
+import MultiSelectFormField from "components/ui/multiselect";
 import { SelectContent, SelectItem } from "components/ui/select";
 import { RouteEnum } from "constants/RouterConstants";
 import { DepartmentsResultsData } from "definations/configs/departments";
@@ -64,9 +66,10 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
 
   console.log({ locations });
 
-  const form = useForm<z.infer<typeof PurchaseRequestSchema>>({
+  // const form = useForm<z.infer<typeof PurchaseRequestSchema>>({
+  const form = useForm({
     // const form = useForm({
-    resolver: zodResolver(PurchaseRequestSchema),
+    // resolver: zodResolver(PurchaseRequestSchema),
     defaultValues: {
       reviewed_by: "",
       authorised_by: "",
@@ -137,7 +140,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
       role_approved_by: data.role_approved_by,
     };
 
-    console.log({ payload });
+    console.log({ payload, data });
 
     try {
       // @ts-ignore
@@ -277,7 +280,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                       </td>
 
                       <td className='w-fit p-2 text-center'>
-                        <FormSelect
+                        {/* <FormSelect
                           label=''
                           name={`items.[${index}].fco_number`}
                         >
@@ -295,7 +298,32 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                               })
                             )}
                           </SelectContent>
-                        </FormSelect>
+                        </FormSelect> */}
+
+                        <Label className='font-semibold'>FCO</Label>
+                        <FormField
+                          control={form.control}
+                          name={`items.[${index}].fco_number`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <MultiSelectFormField
+                                  options={fco?.data?.data?.results || []}
+                                  // defaultValue={field.value}
+                                  onValueChange={field.onChange}
+                                  placeholder='Select fcos'
+                                  variant='inverted'
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* {errors.fconumber && (
+                            <span className='text-sm text-red-500 font-medium'>
+                              {errors.fconumber.message}
+                            </span>
+                          )} */}
                       </td>
                       <td className='w-fit p-2 text-center'>
                         <FormInput

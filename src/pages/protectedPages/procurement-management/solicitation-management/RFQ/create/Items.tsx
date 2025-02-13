@@ -50,11 +50,10 @@ const Items = () => {
   const formData = JSON.parse(localStorage.getItem("rfqQuotation") as any);
 
   const form = useForm<z.infer<typeof ItemSchema>>({
-    defaultValues: {
-      solicitation_evaluations: [{ criteria: "" }],
-      solicitation_items: [{ item: "", lot: "", quantity: "0" }],
-    },
+    defaultValues: {},
   });
+
+  const { setValue, getValues, handleSubmit } = form;
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -116,11 +115,39 @@ const Items = () => {
   const [createSolicitation, { isLoading: isCreateLoading }] =
     useCreateSolicitationMutation();
 
-  const onSubmit: SubmitHandler<z.infer<typeof ItemSchema>> = async (data) => {
-    const quotationData = JSON.parse(
-      sessionStorage.getItem("rfqQuotationFormData") || "{}"
-    );
+  const quotationData = JSON.parse(
+    sessionStorage.getItem("rfqQuotationFormData") || "{}"
+  );
 
+  const { data, isLoading } = PurchaseRequestAPI.useGetPurchaseRequestQuery({
+    path: { id: quotationData?.purchase_request as string },
+  });
+
+  console.log({ quotationData, data, isLoading });
+
+  const itemsData = useMemo(() => {
+    // @ts-ignore
+    return data?.data?.items.map((item: any) => ({
+      item: item?.item || "",
+      fco: item?.fco || "",
+      quantity: item?.quantity || 0,
+      unit_cost: item?.unit_cost || 0,
+      description: item?.item?.name || "",
+      uom: item?.item?.uom === null ? "" : item?.item?.uom,
+      total: item?.sub_total_amount || 0,
+      name: item?.item_detail?.name,
+    }));
+  }, [data]);
+
+  console.log({ itemsData });
+
+  useEffect(() => {
+    if (itemsData?.length > 0) {
+      setValue("solicitation_items", itemsData);
+    }
+  }, [itemsData, setValue]);
+
+  const onSubmit: SubmitHandler<z.infer<typeof ItemSchema>> = async (data) => {
     const payload = { ...quotationData, ...data };
     // console.log({ payload });
 
@@ -135,22 +162,37 @@ const Items = () => {
     }
   };
 
+  const log = getValues();
+  console.log({ log });
+
   return (
     <RfqLayout>
       <Form {...form}>
-        <form className='space-y-8 p-5' onSubmit={form.handleSubmit(onSubmit)}>
+        <form className='space-y-8 p-5' onSubmit={handleSubmit(onSubmit)}>
           <div className='space-y-5'>
             <h6 className='text-yellow-600'>Items</h6>
 
             {fields?.map((field, index) => (
               <div key={index} className='flex items-center gap-5 w-full'>
                 <div className='grid grid-cols-1 gap-4 w-full md:grid-cols-3'>
-                  <FormSelect
-                    name={`solicitation_items.${index}.item`}
-                    label='Item'
-                    required
-                    options={itemOptions}
-                  />
+                  {itemsData.length < index + 1 ? (
+                    <FormSelect
+                      name={`solicitation_items.${index}.item`}
+                      label='Item'
+                      required
+                      options={itemOptions}
+                      value={form.watch(`solicitation_items.${index}.item`)}
+                      disabled={true}
+                    />
+                  ) : (
+                    <FormInput
+                      name={`solicitation_items.${index}.name`}
+                      label='Quantity'
+                      required
+                      disabled
+                    />
+                  )}
+
                   <FormInput
                     name={`solicitation_items.${index}.quantity`}
                     label='Quantity'
