@@ -24,7 +24,7 @@ const TableComponent = () => {
       },
     });
 
-  const [createVendorBidAnalysis] =
+  const [createVendorBidAnalysis, { isLoading: submissionLoading }] =
     ManualBidCbaPrequalificationAPI.useCreateVendorBidAnalysisMutation();
 
   const [recommendationNote, setRecommendationNote] = useState("");
@@ -394,7 +394,9 @@ const TableComponent = () => {
           />
         </div>
         <div className='flex w-full justify-end'>
-          <Button onClick={handleSubmitAnalysis}>Submit Analysis</Button>
+          <Button onClick={handleSubmitAnalysis} disabled={submissionLoading}>
+            Submit Analysis
+          </Button>
         </div>
       </div>
     </>

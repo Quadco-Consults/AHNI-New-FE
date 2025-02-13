@@ -30,15 +30,12 @@ const ExpensesForm = ({
   watch: any;
   setValue: any;
 }) => {
+  const { control } = useFormContext();
+
   const { data: item } = useGetAllItemsQuery({
     page: 1,
     size: 2000000,
   });
-
-  const { control } = useFormContext();
-
-  //   const { control, watch, setValue } = useFormContext();
-  //   const { fields, remove } = useFieldArray({ control, name: "expenses" });
 
   //   // Map consumables data to options
   const itemsOptions = item?.data?.results?.map(({ name, id }) => ({
