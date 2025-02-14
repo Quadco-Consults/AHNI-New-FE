@@ -22,7 +22,7 @@ export const candg = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/c&g/sub-grant/awards/id/CreatePartnerSubmissionDetails"
+                    "pages/protectedPages/c&g/sub-grant/awards/id/submission/create"
                 )
         ),
     },
@@ -32,7 +32,7 @@ export const candg = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/c&g/sub-grant/awards/id/CreatePartnerSubmissionUploads"
+                    "pages/protectedPages/c&g/sub-grant/awards/id/submission/create/upload"
                 )
         ),
     },
@@ -42,7 +42,7 @@ export const candg = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/c&g/sub-grant/awards/id/PartnerSubmissionDetailsWrapper"
+                    "pages/protectedPages/c&g/sub-grant/awards/id/submission/id/Layout"
                 )
         ),
     },
@@ -167,27 +167,28 @@ export const candg = [
             () => import("pages/protectedPages/candg/closeout/NewCloseOutPlan")
         ),
     },
+
+    // ------------------------
+
     {
         path: CG_GROUTES.CONSULTANCY,
+        element: lazy(() => import("pages/protectedPages/candg/consultancy")),
+    },
+
+    {
+        path: CG_GROUTES.CREATE_CONSULTANCY_DETAILS,
         element: lazy(
-            () => import("pages/protectedPages/candg/consultancy/Consultancy")
+            () => import("pages/protectedPages/candg/consultancy/create")
         ),
     },
+
     {
-        path: CG_GROUTES.NEW_CONSULTANCY,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/candg/consultancy/CreateNewConsultancy"
-                )
-        ),
-    },
-    {
-        path: CG_GROUTES.NEW_CONSULTANCY_SCOPE,
+        path: CG_GROUTES.CREATE_CONSULTANCY_WORK_SCOPE,
         element: lazy(
             () => import("pages/protectedPages/candg/consultancy/ScopeOfWork")
         ),
     },
+
     {
         path: CG_GROUTES.CONSULTANCY_DETAILS,
         element: lazy(

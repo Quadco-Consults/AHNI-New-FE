@@ -5,7 +5,7 @@ import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { useGetAllSubGrantManualSubQuery } from "services/c&g/subgrant/manual-submission";
+import { useGetAllSubGrantManualSubQuery } from "services/c&g/subgrant/submission";
 
 export default function PreAwardAssessment() {
     const [page, setPage] = useState(1);

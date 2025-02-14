@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { IGrantSingleData } from "./grants";
+import { IGrantSingleData } from "../../grants";
 import { TPartnerData } from "definations/modules/project/partners";
 import { IUser } from "definations/auth/user";
 

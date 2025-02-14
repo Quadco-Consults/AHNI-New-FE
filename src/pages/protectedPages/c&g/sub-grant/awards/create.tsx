@@ -12,7 +12,10 @@ import { Label } from "components/ui/label";
 import MultiSelectFormField from "components/ui/multiselect";
 import { DialogType, largeDailogScreen } from "constants/dailogs";
 import { CG_GROUTES } from "constants/RouterConstants";
-import { SubGrantSchema, TSubGrantFormData } from "definations/c&g/sub-grant";
+import {
+    SubGrantSchema,
+    TSubGrantFormData,
+} from "definations/c&g/contract-management/sub-grant/sub-grant";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { useEffect, useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";

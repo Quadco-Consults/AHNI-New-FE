@@ -5,11 +5,11 @@ import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIco
 import { Button } from "components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { CG_GROUTES } from "constants/RouterConstants";
-import { ISubGrantSubmissionPaginatedData } from "definations/c&g/sub-grant";
+import { ISubGrantSubmissionPaginatedData } from "definations/c&g/contract-management/sub-grant/sub-grant";
 import { generatePath, Link, useParams } from "react-router-dom";
 import PencilIcon from "components/icons/PencilIcon";
 import { toast } from "sonner";
-import { useDeleteSubGrantManualSubMutation } from "services/c&g/subgrant/manual-submission";
+import { useDeleteSubGrantManualSubMutation } from "services/c&g/subgrant/submission";
 import { useState } from "react";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 

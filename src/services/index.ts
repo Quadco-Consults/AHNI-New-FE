@@ -127,6 +127,7 @@ const baseAPI = createApi({
         "SUB_GRANT",
         "SUBGRANT_SUBMISSION",
         "MANUAL_BID_CBA_PREQUALIFICATION",
+        "SUBGRANT_UPLOAD",
     ],
     // keepUnusedDataFor: 5 * 60,
     keepUnusedDataFor: 0,

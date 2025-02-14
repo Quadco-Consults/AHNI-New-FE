@@ -3,10 +3,10 @@ import Card from "components/shared/Card";
 import { partnerSubmissionColumns } from "components/Table/columns/c&g/sub-grant/submission";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
-import { ISubGrantSingleData } from "definations/c&g/sub-grant";
+import { ISubGrantSingleData } from "definations/c&g/contract-management/sub-grant/sub-grant";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { useGetAllSubGrantManualSubQuery } from "services/c&g/subgrant/manual-submission";
+import { useGetAllSubGrantManualSubQuery } from "services/c&g/subgrant/submission";
 
 export default function PartnerSubmissionList({}: ISubGrantSingleData) {
     const [page, setPage] = useState(1);

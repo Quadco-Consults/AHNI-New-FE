@@ -2,7 +2,7 @@ import {
     ISubGrantSubmissionPaginatedData,
     ISubGrantSubmissionSingleData,
     TSubGrantSubmissionFormData,
-} from "definations/c&g/sub-grant";
+} from "definations/c&g/contract-management/sub-grant/sub-grant";
 import baseAPI from "../..";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
@@ -60,22 +60,6 @@ const SubGrantManualSubAPI = baseAPI.injectEndpoints({
             invalidatesTags: ["SUBGRANT_SUBMISSION"],
         }),
 
-        uploadPartnerSubmissionDocument: builder.mutation<
-            TResponse<TSubGrantSubmissionFormData>,
-            {
-                subGrantId: string;
-                submissionId: string;
-                body: { documents: { name: string; document: File }[] };
-            }
-        >({
-            query: ({ subGrantId, submissionId, body }) => ({
-                method: "PATCH",
-                url: `/contract-grants/sub-grants/${subGrantId}/submissions/${submissionId}/`,
-                body,
-            }),
-            invalidatesTags: ["SUBGRANT_SUBMISSION"],
-        }),
-
         deleteSubGrantManualSub: builder.mutation<
             TResponse<ISubGrantSubmissionSingleData>,
             string
@@ -94,6 +78,5 @@ export const {
     useGetAllSubGrantManualSubQuery,
     useGetSingleSubGrantManualSubQuery,
     useModifySubGrantManualSubMutation,
-    useUploadPartnerSubmissionDocumentMutation,
     useDeleteSubGrantManualSubMutation,
 } = SubGrantManualSubAPI;
