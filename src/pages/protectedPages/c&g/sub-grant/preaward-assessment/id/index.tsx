@@ -4,13 +4,12 @@ import TabState from "components/ui/TabState";
 import { CG_GROUTES } from "constants/RouterConstants";
 import { useState } from "react";
 import { generatePath, Link, useParams } from "react-router-dom";
-import SubmittedApplicationDetails from "../SubmittedApplicationDetails";
-import SubmittedDocsUpload from "../SubmittedDocsUpload";
 import { PreAwardAssessmentIcon } from "assets/svgs/CAndGSvgs";
-import PreAwardAssessmentResult from "./PreAwardAssessmentResult";
+import PreAwardAssessmentResult from "../PreAwardAssessmentResult";
 
-const PreAwardAssessmentSingle = () => {
+export default function PreAwardSubmissionDetails() {
     const params = useParams();
+
     const tabDetails = [
         {
             id: 1,
@@ -74,6 +73,4 @@ const PreAwardAssessmentSingle = () => {
             </section>
         </main>
     );
-};
-
-export default PreAwardAssessmentSingle;
+}

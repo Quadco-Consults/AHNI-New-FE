@@ -24,7 +24,7 @@ const SubGrantManualSubAPI = baseAPI.injectEndpoints({
 
         getAllSubGrantManualSub: builder.query<
             TPaginatedResponse<ISubGrantSubmissionPaginatedData>,
-            TRequest & { sub_grant: string }
+            TRequest & { sub_grant?: string }
         >({
             query: (params) => ({
                 method: "GET",
