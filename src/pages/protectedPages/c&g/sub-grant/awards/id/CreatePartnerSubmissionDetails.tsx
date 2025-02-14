@@ -54,7 +54,7 @@ export default function SubGrantManualSubmission() {
 
     const [searchParams] = useSearchParams();
 
-    const partnerSubId = searchParams.get("partnerSubId");
+    const submissionId = searchParams.get("partnerSubId");
 
     const { data: partner } = useGetAllPartnersQuery({
         page: 1,
@@ -80,11 +80,10 @@ export default function SubGrantManualSubmission() {
         data
     ) => {
         try {
-            if (subGrantId && partnerSubId) {
+            if (subGrantId && submissionId) {
                 await modifySubGrantManualSub({
-                    subGrantId,
-                    submissionId: partnerSubId ?? "",
-                    body: data,
+                    submissionId: submissionId ?? "",
+                    body: { ...data, sub_grant: subGrantId },
                 }).unwrap();
                 toast.success("Manual Submission Updated");
             } else {
@@ -102,7 +101,7 @@ export default function SubGrantManualSubmission() {
                         id: subGrantId,
                     }
                 ),
-                search: `?partnerSubId=${partnerSubId ?? ""}`,
+                search: `?partnerSubId=${submissionId ?? ""}`,
             });
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
@@ -110,9 +109,7 @@ export default function SubGrantManualSubmission() {
     };
 
     const { data } = useGetSingleSubGrantManualSubQuery(
-        subGrantId && partnerSubId
-            ? { subGrantId, submissionId: partnerSubId }
-            : skipToken
+        submissionId ?? skipToken
     );
 
     useEffect(() => {

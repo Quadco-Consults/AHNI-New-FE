@@ -6,16 +6,13 @@ import { useParams } from "react-router-dom";
 import { useGetSingleSubGrantManualSubQuery } from "services/c&g/subgrant/manual-submission";
 
 export default function PartnerSubmissionDetails() {
-    const { subGrantId, partnerSubId } = useParams();
+    const { subGrantId, partnerSubId: submissionId } = useParams();
 
     const { data, isLoading } = useGetSingleSubGrantManualSubQuery(
-        subGrantId && partnerSubId
-            ? {
-                  subGrantId,
-                  submissionId: partnerSubId,
-              }
-            : skipToken
+        submissionId ?? skipToken
     );
+
+    console.log({ submissionId });
 
     const partnerSubmissionDetails = useMemo(() => {
         return [
