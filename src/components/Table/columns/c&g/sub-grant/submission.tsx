@@ -6,7 +6,7 @@ import { Button } from "components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { CG_GROUTES } from "constants/RouterConstants";
 import { ISubGrantSubmissionPaginatedData } from "definations/c&g/contract-management/sub-grant/sub-grant";
-import { generatePath, Link, useParams } from "react-router-dom";
+import { generatePath, Link, useLocation, useParams } from "react-router-dom";
 import PencilIcon from "components/icons/PencilIcon";
 import { toast } from "sonner";
 import { useDeleteSubGrantManualSubMutation } from "services/c&g/subgrant/submission";
@@ -53,6 +53,10 @@ const TableMenu = ({ id: partnerSubId }: ISubGrantSubmissionPaginatedData) => {
 
     const { id: subGrantId } = useParams();
 
+    const { pathname } = useLocation();
+
+    const isPreawardPath = pathname.includes("/preaward-assessment");
+
     const [deletePartnerSubmission, { isLoading: isDeleteLoading }] =
         useDeleteSubGrantManualSubMutation();
 
@@ -66,6 +70,13 @@ const TableMenu = ({ id: partnerSubId }: ISubGrantSubmissionPaginatedData) => {
         }
     };
 
+    const path = isPreawardPath
+        ? "/login"
+        : generatePath(CG_GROUTES.SUBGRANT_SUBMISSION_DETAILS, {
+              subGrantId,
+              partnerSubId,
+          });
+
     return (
         <div className="flex items-center gap-2">
             <>
@@ -76,13 +87,7 @@ const TableMenu = ({ id: partnerSubId }: ISubGrantSubmissionPaginatedData) => {
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-fit">
-                        <Link
-                            className="w-full"
-                            to={generatePath(
-                                CG_GROUTES.SUBGRANT_SUBMISSION_DETAILS,
-                                { subGrantId, partnerSubId }
-                            )}
-                        >
+                        <Link className="w-full" to={path}>
                             <Button
                                 className="w-full flex items-center justify-start gap-2"
                                 variant="ghost"
@@ -92,32 +97,36 @@ const TableMenu = ({ id: partnerSubId }: ISubGrantSubmissionPaginatedData) => {
                             </Button>
                         </Link>
 
-                        <Link
-                            to={{
-                                pathname: generatePath(
-                                    CG_GROUTES.CREATE_SUBGRANT_SUBMISSION_DETAILS,
-                                    { id: subGrantId }
-                                ),
-                                search: `?partnerSubId=${partnerSubId}`,
-                            }}
-                        >
-                            <Button
-                                className="w-full flex items-center justify-start gap-2"
-                                variant="ghost"
-                            >
-                                <PencilIcon />
-                                Edit
-                            </Button>
-                        </Link>
+                        {!isPreawardPath && (
+                            <>
+                                <Link
+                                    to={{
+                                        pathname: generatePath(
+                                            CG_GROUTES.CREATE_SUBGRANT_SUBMISSION_DETAILS,
+                                            { id: subGrantId }
+                                        ),
+                                        search: `?partnerSubId=${partnerSubId}`,
+                                    }}
+                                >
+                                    <Button
+                                        className="w-full flex items-center justify-start gap-2"
+                                        variant="ghost"
+                                    >
+                                        <PencilIcon />
+                                        Edit
+                                    </Button>
+                                </Link>
 
-                        <Button
-                            className="w-full flex items-center justify-start gap-2"
-                            variant="ghost"
-                            onClick={() => setDialogOpen(true)}
-                        >
-                            <DeleteIcon />
-                            Delete
-                        </Button>
+                                <Button
+                                    className="w-full flex items-center justify-start gap-2"
+                                    variant="ghost"
+                                    onClick={() => setDialogOpen(true)}
+                                >
+                                    <DeleteIcon />
+                                    Delete
+                                </Button>
+                            </>
+                        )}
                     </PopoverContent>
                 </Popover>
             </>

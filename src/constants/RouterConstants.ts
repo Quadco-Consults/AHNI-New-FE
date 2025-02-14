@@ -293,8 +293,6 @@ export const CG_GROUTES = {
     OVERVIEW: "/c-and-g/overview",
     GRANT: "/c-and-g/grant",
     GRANT_CREATE: "/c-and-g/create-grant",
-    // ---
-
     GRANT_DETAILS: "/c-and-g/grant-details/:id",
 
     SUBGRANT: "/c-and-g/sub-grant",
@@ -307,9 +305,12 @@ export const CG_GROUTES = {
     SUBGRANT_SUBMISSION_DETAILS:
         "/c-and-g/sub-grant/:subGrantId/submission/:partnerSubId",
 
-    // sub grant
+  
+
 
     PREAWARD_ASSESSMENT: "/c-and-g/sub-grant/preaward-assessment",
+
+    
     // --------------------------------------------------------------------
     PRE_AWARD_ASSESSMENT_SINGLE: "/c-and-g/sub-grant/pre-award-assessment/:id",
     PRE_AWARD_ASSESSMENT_STEP_1:

@@ -922,7 +922,6 @@ const DEPARTMENTAL_LINKS = [
                         path: CG_GROUTES.CONSULTANCY,
                     },
                     { name: "Consultancy report", path: "/" },
-                    { name: "Payment request", path: "/" },
                     { name: "Agreement", path: CG_GROUTES.AGREEMENT },
                     { name: "Facilitator management", path: "/" },
                     { name: "SLA", path: CG_GROUTES.CONSULTANCY_SLA },
