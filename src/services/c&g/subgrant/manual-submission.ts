@@ -6,6 +6,8 @@ import {
 import baseAPI from "../..";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
+const BASE_URL = "/contract-grants/sub-grants/submissions/";
+
 const SubGrantManualSubAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
         createSubGrantManualSub: builder.mutation<
@@ -14,10 +16,10 @@ const SubGrantManualSubAPI = baseAPI.injectEndpoints({
         >({
             query: (body) => ({
                 method: "POST",
-                url: `/contract-grants/sub-grants/submissions/`,
+                url: BASE_URL,
                 body,
             }),
-            invalidatesTags: ["SUB_GRANT_MANUAL_SUB"],
+            invalidatesTags: ["SUBGRANT_SUBMISSION"],
         }),
 
         getAllSubGrantManualSub: builder.query<
@@ -26,37 +28,36 @@ const SubGrantManualSubAPI = baseAPI.injectEndpoints({
         >({
             query: (params) => ({
                 method: "GET",
-                url: `/contract-grants/sub-grants/submissions/`,
+                url: BASE_URL,
                 params: params,
             }),
-            providesTags: ["SUB_GRANT_MANUAL_SUB"],
+            providesTags: ["SUBGRANT_SUBMISSION"],
         }),
 
         getSingleSubGrantManualSub: builder.query<
             TResponse<ISubGrantSubmissionSingleData>,
-            { subGrantId: string; submissionId: string }
+            string
         >({
-            query: ({ subGrantId, submissionId }) => ({
+            query: (submissionId) => ({
                 method: "GET",
-                url: `/contract-grants/sub-grants/${subGrantId}/submissions/${submissionId}/`,
+                url: `${BASE_URL}${submissionId}/`,
             }),
-            providesTags: ["SUB_GRANT_MANUAL_SUB"],
+            providesTags: ["SUBGRANT_SUBMISSION"],
         }),
 
         modifySubGrantManualSub: builder.mutation<
             TResponse<TSubGrantSubmissionFormData>,
             {
-                subGrantId: string;
                 submissionId: string;
-                body: TSubGrantSubmissionFormData;
+                body: TSubGrantSubmissionFormData & { sub_grant: string };
             }
         >({
-            query: ({ subGrantId, submissionId, body }) => ({
+            query: ({ submissionId, body }) => ({
                 method: "PUT",
-                url: `/contract-grants/sub-grants/${subGrantId}/submissions/${submissionId}/`,
+                url: `${BASE_URL}${submissionId}/`,
                 body,
             }),
-            invalidatesTags: ["SUB_GRANT_MANUAL_SUB"],
+            invalidatesTags: ["SUBGRANT_SUBMISSION"],
         }),
 
         uploadPartnerSubmissionDocument: builder.mutation<
@@ -72,21 +73,18 @@ const SubGrantManualSubAPI = baseAPI.injectEndpoints({
                 url: `/contract-grants/sub-grants/${subGrantId}/submissions/${submissionId}/`,
                 body,
             }),
-            invalidatesTags: ["SUB_GRANT_MANUAL_SUB"],
+            invalidatesTags: ["SUBGRANT_SUBMISSION"],
         }),
 
         deleteSubGrantManualSub: builder.mutation<
             TResponse<ISubGrantSubmissionSingleData>,
-            {
-                subGrantId: string;
-                submissionId: string;
-            }
+            string
         >({
-            query: ({ subGrantId, submissionId }) => ({
+            query: (submissionId) => ({
                 method: "DELETE",
-                url: `/contract-grants/sub-grants/${subGrantId}/submissions/${submissionId}/`,
+                url: `${BASE_URL}${submissionId}/`,
             }),
-            invalidatesTags: ["SUB_GRANT_MANUAL_SUB"],
+            invalidatesTags: ["SUBGRANT_SUBMISSION"],
         }),
     }),
 });

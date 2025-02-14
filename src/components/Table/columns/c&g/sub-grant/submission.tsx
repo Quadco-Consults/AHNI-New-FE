@@ -58,10 +58,7 @@ const TableMenu = ({ id: partnerSubId }: ISubGrantSubmissionPaginatedData) => {
 
     const handleDelete = async () => {
         try {
-            await deletePartnerSubmission({
-                subGrantId: subGrantId ?? "",
-                submissionId: partnerSubId,
-            }).unwrap();
+            await deletePartnerSubmission(partnerSubId).unwrap();
             toast.success("Submission Deleted");
             setDialogOpen(false);
         } catch (error: any) {
