@@ -66,7 +66,15 @@ const Preview = () => {
     useGetSingleInterventionAreaQuery(
       requestsDetails?.intervention_areas[0] ?? skipToken
     );
-  console.log({ hello: requestsDetails?.fconumber_details });
+
+  // @ts-ignore
+  const grandTotal = requestsDetails?.expenses.reduce(
+    // @ts-ignore
+    (sum, row) => sum + Number(row.total_cost),
+    0
+  );
+
+  console.log({ expense: requestsDetails?.expenses });
 
   return (
     <div className='bg-white p-8'>
@@ -187,6 +195,11 @@ const Preview = () => {
               ))}
             </TableBody>
           </Table>
+        </div>
+
+        <div className='flex items-center justify-center w-fit gap-20 px-5 py-3 border rounded-lg border-primary text-primary ml-auto mt-6'>
+          <h4>Total:</h4>
+          <span>₦ {grandTotal?.toLocaleString()}.00</span>
         </div>
         <div>
           {" "}
