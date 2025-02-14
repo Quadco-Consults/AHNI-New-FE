@@ -108,6 +108,12 @@ export interface ISolicitationRFQData {
       item: TAssetSingleData;
       lot: string;
       quantity: number;
+      item_detail: {
+        name: string;
+      };
+      lot_detail: {
+        name: string;
+      };
     }
   ];
   solicitation_evaluations: [
