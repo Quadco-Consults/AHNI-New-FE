@@ -102,12 +102,18 @@ export interface ISolicitationRFQData {
   tender_type: string;
   request_type: string;
   procurement_type: null;
-  items: [
+  solicitation_items: [
     {
       id: string;
       item: TAssetSingleData;
       lot: string;
       quantity: number;
+      item_detail: {
+        name: string;
+      };
+      lot_detail: {
+        name: string;
+      };
     }
   ];
   solicitation_evaluations: [

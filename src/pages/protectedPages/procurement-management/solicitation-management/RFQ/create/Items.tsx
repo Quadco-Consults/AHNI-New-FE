@@ -163,7 +163,7 @@ const Items = () => {
   };
 
   const log = getValues();
-  console.log({ log });
+  console.log({ log, itemsData: itemsData?.length });
 
   return (
     <RfqLayout>
@@ -175,7 +175,7 @@ const Items = () => {
             {fields?.map((field, index) => (
               <div key={index} className='flex items-center gap-5 w-full'>
                 <div className='grid grid-cols-1 gap-4 w-full md:grid-cols-3'>
-                  {itemsData.length < index + 1 ? (
+                  {!itemsData || itemsData?.length < index + 1 ? (
                     <FormSelect
                       name={`solicitation_items.${index}.item`}
                       label='Item'
@@ -187,7 +187,7 @@ const Items = () => {
                   ) : (
                     <FormInput
                       name={`solicitation_items.${index}.name`}
-                      label='Quantity'
+                      label='Item'
                       required
                       disabled
                     />
