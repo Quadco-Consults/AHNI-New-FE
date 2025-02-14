@@ -12,7 +12,7 @@ import FadedButton from "atoms/FadedButton";
 import { Document, Page } from "react-pdf";
 import { PDFICon } from "assets/svgs/CAndGSvgs";
 import { createPortal } from "react-dom";
-import SubGrantManualDocsModal from "components/modals/dailog/components/PartnerSubmissionUploadModal";
+import SubGrantManualDocsModal from "components/modals/dailog/components/SubGrantSubUploadModal";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { SubGrantPreAwardsApi } from "services/cAndGApi/subGrant";
 

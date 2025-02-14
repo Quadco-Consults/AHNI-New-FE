@@ -1,6 +1,6 @@
 import Card from "components/shared/Card";
 import DescriptionCard from "components/shared/DescriptionCard";
-import { ISubGrantSingleData } from "definations/c&g/sub-grant";
+import { ISubGrantSingleData } from "definations/c&g/contract-management/sub-grant/sub-grant";
 import { useMemo } from "react";
 
 const SubGrantAwardDetails = ({

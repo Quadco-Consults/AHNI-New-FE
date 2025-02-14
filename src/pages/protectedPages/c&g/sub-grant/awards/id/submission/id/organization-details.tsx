@@ -3,7 +3,7 @@ import Card from "components/shared/Card";
 import { LoadingSpinner } from "components/shared/Loading";
 import { useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { useGetSingleSubGrantManualSubQuery } from "services/c&g/subgrant/manual-submission";
+import { useGetSingleSubGrantManualSubQuery } from "services/c&g/subgrant/submission";
 
 export default function PartnerSubmissionDetails() {
     const { subGrantId, partnerSubId: submissionId } = useParams();
@@ -11,8 +11,6 @@ export default function PartnerSubmissionDetails() {
     const { data, isLoading } = useGetSingleSubGrantManualSubQuery(
         submissionId ?? skipToken
     );
-
-    console.log({ submissionId });
 
     const partnerSubmissionDetails = useMemo(() => {
         return [

@@ -1,11 +1,10 @@
 import { SubmitHandler, useForm } from "react-hook-form";
-import ConsultancyStepWrapper from "./ConsultancyStepWrapper";
+import ConsultancyStepWrapper from "../ConsultancyStepWrapper";
 import { z } from "zod";
 import { ConsunltancyApplicationDetails } from "definations/candg-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "atoms/FormInput";
 import { Form } from "components/ui/form";
-import FormTextArea from "atoms/FormTextArea";
 import FadedButton from "atoms/FadedButton";
 import FormButton from "atoms/FormButton";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -13,55 +12,48 @@ import { objectToFormData } from "utils/utls";
 import { useState } from "react";
 import { Label } from "components/ui/label";
 import { consultancyAPIs } from "services/cAndGApi/consultancy";
-import FormSelect from "atoms/FormSelect";
 import { UploadFileSvg } from "assets/svgs/CAndGSvgs";
 import { toast } from "sonner";
+import {
+    ConsultancyManagementDetailSchema,
+    TConsultancyManagementDetailsFormData,
+} from "definations/c&g/contract-management/consultancy-management";
+import { Button } from "components/ui/button";
+import FormSelect from "atoms/FormSelect";
 
-const CreateNewConsultancy = () => {
-    const [locations, setLocations] = useState<string>();
-    const navigate = useNavigate();
-    const [file, setFile] = useState<File | undefined>();
-    const [
-        addNewConsultanceApplicationDetails,
-        addNewConsultanceApplicationDetailsResults,
-    ] = consultancyAPIs.useAddConsultancyDetailsMutation();
-
-    const form = useForm<z.infer<typeof ConsunltancyApplicationDetails>>({
-        resolver: zodResolver(ConsunltancyApplicationDetails),
-    });
-
-    const { pathname } = useLocation();
-    const onSubmit: SubmitHandler<
-        z.infer<typeof ConsunltancyApplicationDetails>
-    > = async (data) => {
-        const formData = objectToFormData({
-            ...data,
-            locations: locations?.split(","),
-            job_file: file,
-        });
-        try {
-            const result = await addNewConsultanceApplicationDetails(
-                formData
-            ).unwrap();
-            if (result) {
-                localStorage.setItem(
-                    "application-details",
-                    JSON.stringify(result)
-                );
-                let path = pathname.substring(0, pathname.lastIndexOf("/"));
-                path += "/scope-of-work";
-                navigate(path);
-            }
-        } catch (error: any) {
-            toast.error(error?.data?.errors?.[0]?.attr + " is required");
-        }
-    };
-
-    const options = [
+/*   const options = [
         { value: "Pending", label: "Pending" },
         { value: "Approved", label: "Approved" },
         { value: "Rejected", label: "Rejected" },
-    ];
+    ]; */
+
+const CreateNewConsultancy = () => {
+    const form = useForm<TConsultancyManagementDetailsFormData>({
+        resolver: zodResolver(ConsultancyManagementDetailSchema),
+        defaultValues: {
+            title: "",
+            grade_level: "",
+            locations: [],
+            duration: "",
+            commencement_date: "",
+            end_date: "",
+            consultants_number: "",
+            extra_info: "",
+            background: "",
+            evaluation_comments: "",
+            advertisement_document: "",
+            supervisor: "",
+        },
+    });
+
+    const onSubmit: SubmitHandler<
+        TConsultancyManagementDetailsFormData
+    > = async () => {
+        try {
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
+        }
+    };
 
     return (
         <ConsultancyStepWrapper>
@@ -71,53 +63,51 @@ const CreateNewConsultancy = () => {
                 </p>
                 <Form {...form}>
                     <form
-                        action=""
                         onSubmit={form.handleSubmit(onSubmit)}
                         className="w-full space-y-[1.25rem]"
                     >
                         <FormInput
                             label="Title"
                             name="title"
-                            placeholder=""
+                            placeholder="Enter Title"
                             required
                         />
+
                         <FormInput
                             label="Grade Level"
                             name="grade_level"
-                            placeholder=""
+                            placeholder="Enter Grade Level"
                             required
                         />
-                        <div>
-                            <Label>Locations</Label>
-                            <input
-                                className="flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-gray-100 dark:bg-background"
-                                type="text"
-                                placeholder="e.g:abuja,lagos,uyo"
-                                onChange={(e) => {
-                                    setLocations(e.target.value);
-                                }}
-                            />
-                        </div>
-                        {/* <FormInput label="Locations" name="locations" placeholder="" required /> */}
+
+                        <FormSelect
+                            label="Location"
+                            name="locations"
+                            placeholder="Select Locations"
+                            required
+                        />
+
                         <FormInput
                             label="Duration"
                             name="duration"
-                            placeholder=""
+                            placeholder="Enter Duration"
                             type="number"
                             required
                         />
+
                         <FormInput
+                            type="date"
                             label="Commencement Date"
                             name="commencement_date"
-                            placeholder="2024-04-28"
                             required
                         />
                         <FormInput
+                            type="date"
                             label="Effective End Date"
-                            name="effective_end_date"
-                            placeholder="2024-04-28"
+                            name="end_date"
                             required
                         />
+
                         <FormInput
                             label="Number of Consultants"
                             name="number_of_consultants"
@@ -169,32 +159,20 @@ const CreateNewConsultancy = () => {
                                     // name="file"
                                     hidden
                                     id="file"
-                                    onChange={(e) => {
-                                        if (e.target.files) {
-                                            setFile(e.target.files?.[0]);
-                                        }
-                                    }}
                                 />
                                 <p className="border flex items-center w-full gap-x-[1rem] rounded-lg border-[#DBDFE9] px-[1.125rem] h-[3.5rem]">
-                                    {file?.name}
+                                    {/* {file?.name} */}
                                 </p>
                             </div>
                         </div>
-                        <div className="flex justify-end items-center gap-x-[1rem]">
-                            <div>
-                                <FadedButton type="button">
-                                    <p className="text-primary">Cancel</p>
-                                </FadedButton>
-                            </div>
-                            <div>
-                                <FormButton
-                                    loading={
-                                        addNewConsultanceApplicationDetailsResults.isLoading
-                                    }
-                                >
-                                    <p>Next</p>
-                                </FormButton>
-                            </div>
+                        <div className="flex justify-end items-center">
+                            <Button type="button" variant="outline" size="lg">
+                                Cancel
+                            </Button>
+
+                            <FormButton size="lg" loading={false}>
+                                Next
+                            </FormButton>
                         </div>
                     </form>
                 </Form>

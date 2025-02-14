@@ -1,6 +1,7 @@
 import BackNavigation from "atoms/BackNavigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import PartnerSubmissionDetails from "./PartnerSubmissionDetails";
+import PartnerSubmissionDetails from "./organization-details";
+import SubGrantUploadDetail from "./uploads";
 
 export default function PartnerSubmissionDetailsWrapper() {
     return (
@@ -22,7 +23,9 @@ export default function PartnerSubmissionDetailsWrapper() {
                     <PartnerSubmissionDetails />
                 </TabsContent>
 
-                <TabsContent value="uploads"></TabsContent>
+                <TabsContent value="uploads">
+                    <SubGrantUploadDetail />
+                </TabsContent>
             </main>
         </Tabs>
     );

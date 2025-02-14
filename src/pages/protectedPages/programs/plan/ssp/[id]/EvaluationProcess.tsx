@@ -30,7 +30,7 @@ import FormInput from "atoms/FormInput";
 import {
     SubGrantSubmissionSchema,
     TSubGrantSubmissionFormData,
-} from "definations/c&g/sub-grant";
+} from "definations/c&g/contract-management/sub-grant/sub-grant";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
     SupervisionPlanReviewSchema,

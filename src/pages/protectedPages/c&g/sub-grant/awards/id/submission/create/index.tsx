@@ -1,5 +1,5 @@
 import { SubmitHandler, useForm } from "react-hook-form";
-import ManualSubGrantStepWrapper from "./SubGrantManualSubWrapper";
+import ManualSubGrantStepWrapper from "./Layout";
 import { Form } from "components/ui/form";
 import FormInput from "atoms/FormInput";
 import FormTextArea from "atoms/FormTextArea";
@@ -8,8 +8,6 @@ import FormButton from "atoms/FormButton";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
     generatePath,
-    Link,
-    useLocation,
     useNavigate,
     useParams,
     useSearchParams,
@@ -18,7 +16,7 @@ import { CG_GROUTES } from "constants/RouterConstants";
 import {
     SubGrantSubmissionSchema,
     TSubGrantSubmissionFormData,
-} from "definations/c&g/sub-grant";
+} from "definations/c&g/contract-management/sub-grant/sub-grant";
 import { useGetAllPartnersQuery } from "services/modules/project/partners";
 import { useEffect, useMemo } from "react";
 import { toast } from "sonner";
@@ -26,10 +24,10 @@ import {
     useCreateSubGrantManualSubMutation,
     useGetSingleSubGrantManualSubQuery,
     useModifySubGrantManualSubMutation,
-} from "services/c&g/subgrant/manual-submission";
+} from "services/c&g/subgrant/submission";
 import { skipToken } from "@reduxjs/toolkit/query";
 
-export default function SubGrantManualSubmission() {
+export default function CreateSubGrantSubDetails() {
     const form = useForm<TSubGrantSubmissionFormData>({
         resolver: zodResolver(SubGrantSubmissionSchema),
         defaultValues: {

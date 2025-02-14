@@ -1,30 +1,42 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
 import Upload from "components/shared/Upload";
 import { Button } from "components/ui/button";
-import { useAppSelector } from "hooks/useStore";
+import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { Upload as UploadIcon } from "lucide-react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { useUploadPartnerSubmissionDocumentMutation } from "services/c&g/subgrant/manual-submission";
+import { useCreateSubGrantUploadMutation } from "services/c&g/subgrant/submission-upload";
 import { toast } from "sonner";
+import { closeDialog } from "store/ui";
+import { ShorthandPropertyAssignment } from "typescript";
 import { z } from "zod";
 
-const FormSchema = z.object({
+const SubGrantSubUploadSchema = z.object({
     name: z.string().min(1, "Please enter a name"),
     document: z
         .any()
         .refine((files) => files?.length > 0, "Please select a file"),
 });
 
-type TFormData = z.infer<typeof FormSchema>;
+export type TSubGrantSubUploadFormData = z.infer<
+    typeof SubGrantSubUploadSchema
+>;
 
-export default function PartnerSubmissionUploadModal() {
-    const form = useForm<TFormData>({
-        resolver: zodResolver(FormSchema),
+export default function SubGrantSubUploadModal() {
+    const form = useForm<TSubGrantSubUploadFormData>({
+        resolver: zodResolver(SubGrantSubUploadSchema),
         defaultValues: { name: "" },
     });
 
+    const dispatch = useAppDispatch();
+
     const { dialogProps } = useAppSelector((state) => state.ui.dailog);
+
+    const submissionId = dialogProps?.partnerSubId as string;
+
+    const [createSubGrantUpload, { isLoading }] =
+        useCreateSubGrantUploadMutation();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -32,20 +44,19 @@ export default function PartnerSubmissionUploadModal() {
         }
     };
 
-    const [uploadPartnerSubmissionDocument, { isLoading: isUploadLoading }] =
-        useUploadPartnerSubmissionDocumentMutation();
-
-    const onSubmit: SubmitHandler<TFormData> = async ({ name, document }) => {
+    const onSubmit: SubmitHandler<TSubGrantSubUploadFormData> = async ({
+        name,
+        document,
+    }) => {
         const formData = new FormData();
         formData.append("name", name);
         formData.append("document", document[0]);
+        formData.append("sub_grant_submission", submissionId);
 
         try {
-            await uploadPartnerSubmissionDocument({
-                subGrantId: dialogProps?.subGrantId as string,
-                submissionId: dialogProps?.partnerSubId as string,
-                body: formData as any,
-            });
+            await createSubGrantUpload(formData as any).unwrap();
+            toast.success("Document Uploaded");
+            dispatch(closeDialog());
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }
@@ -85,9 +96,14 @@ export default function PartnerSubmissionUploadModal() {
                         </span>
                     </div>
 
-                    <Button type="submit" className="w-full">
+                    <FormButton
+                        type="submit"
+                        className="w-full"
+                        size="lg"
+                        loading={isLoading}
+                    >
                         Submit
-                    </Button>
+                    </FormButton>
                 </form>
             </FormProvider>
         </div>

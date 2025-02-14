@@ -8,7 +8,7 @@ import {
 import { IoMdClose } from "react-icons/io";
 import { DocumentPayload } from "../subGrant/ManualSubmissionDocumentUpload";
 import { createPortal } from "react-dom";
-import SubGrantManualDocsModal from "components/modals/dailog/components/PartnerSubmissionUploadModal";
+import SubGrantManualDocsModal from "components/modals/dailog/components/SubGrantSubUploadModal";
 import { generatePath, useNavigate, useParams } from "react-router-dom";
 import FormButton from "atoms/FormButton";
 import { toast } from "sonner";

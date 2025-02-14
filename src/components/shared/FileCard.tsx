@@ -37,7 +37,8 @@ type TProps = {
     name: string;
     showDeleteIcon?: boolean;
     timestamp: string;
-    onDeleteDocument: (id: string) => void;
+    isLoading?: boolean;
+    onDeleteDocument?: (id: string) => void;
 };
 
 export default function FilePreview({
@@ -46,6 +47,7 @@ export default function FilePreview({
     name,
     timestamp,
     showDeleteIcon,
+    isLoading,
     onDeleteDocument,
 }: TProps) {
     const [isDialogOpen, setDialogOpen] = useState(false);
@@ -55,8 +57,11 @@ export default function FilePreview({
     const Icon = FILE_TYPE_ICONS[type as keyof typeof FILE_TYPE_ICONS];
 
     const onDelete = () => {
-        onDeleteDocument(id);
-        setDialogOpen(false);
+        if(onDeleteDocument){
+            onDeleteDocument(id);
+            setDialogOpen(false);
+
+        }
     };
 
     return (
@@ -93,6 +98,7 @@ export default function FilePreview({
                 title="Are you sure you want to delete this file?"
                 onCancel={() => setDialogOpen(false)}
                 onOk={onDelete}
+                loading={isLoading}
             />
         </>
     );

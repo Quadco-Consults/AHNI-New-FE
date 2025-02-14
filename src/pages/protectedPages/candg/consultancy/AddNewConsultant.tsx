@@ -4,7 +4,7 @@ import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { IoMdClose } from "react-icons/io";
 import { createPortal } from "react-dom";
-import SubGrantManualDocsModal from "components/modals/dailog/components/PartnerSubmissionUploadModal";
+import SubGrantManualDocsModal from "components/modals/dailog/components/SubGrantSubUploadModal";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "atoms/FormInput";
 import { Form } from "components/ui/form";

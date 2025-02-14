@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { ISubGrantPaginatedData } from "definations/c&g/sub-grant";
+import { ISubGrantPaginatedData } from "definations/c&g/contract-management/sub-grant/sub-grant";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";

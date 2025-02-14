@@ -331,12 +331,13 @@ export const CG_GROUTES = {
     CREATE_AGREEMENT: "/c-and-g/agreements/create",
     // -------------
 
-    // consultancy
+    // CONSULTANCY
     CONSULTANCY: "/c-and-g/consultancy",
-    NEW_CONSULTANCY:
-        "/c-and-g/consultancy/create-new-consultancy/application-details",
-    NEW_CONSULTANCY_SCOPE:
-        "/c-and-g/consultancy/create-new-consultancy/scope-of-work",
+    CREATE_CONSULTANCY_DETAILS: "/c-and-g/consultancy/create/application-details",
+    CREATE_CONSULTANCY_WORK_SCOPE: "/c-and-g/consultancy/create/scope-of-work",
+    // CONSULTANCY
+
+
     CONSULTANCY_DETAILS: "/c-and-g/consultancy/details/:id",
     ADD_CONSULTANCY_APPLICATION:
         "/api/v1/contract-grants/consultancy-applications/:id",
