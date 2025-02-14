@@ -9,8 +9,8 @@ const DetailsContent = ({
   status,
   tender_type,
   background,
-  items,
   rfq_id,
+  solicitation_items,
 }: ISolicitationRFQData) => {
   return (
     <div className='p-5'>
@@ -54,7 +54,7 @@ const DetailsContent = ({
           <h2 className='font-medium text-yellow-darker text-base'>Items</h2>
 
           <div className='grid grid-cols-2 gap-5'>
-            {items?.map((item) => (
+            {solicitation_items?.map((item) => (
               <Card key={item?.id} className='border-yellow-darker space-y-3'>
                 <div className='flex items-center gap-5'>
                   <h4 className='w-1/4 font-medium'>Item:</h4>
