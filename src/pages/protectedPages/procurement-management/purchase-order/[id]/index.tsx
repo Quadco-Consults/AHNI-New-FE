@@ -9,16 +9,14 @@ import { skipToken } from "@reduxjs/toolkit/query";
 import { formatDate } from "date-fns";
 import { Button } from "components/ui/button";
 import { RouteEnum } from "constants/RouterConstants";
+import { useEffect, useState } from "react";
 
 const Order = () => {
   const params = useParams();
-
+  const [grandTotal, setGrandTotal] = useState("");
   const { data } = useGetSinglePurchaseOrderQuery(params.id);
 
-  // Calculate the grand total
-  const grandTotal = tableData.reduce((sum, item) => sum + item.total_price, 0);
   // Convert number to words
-  //   const grandTotalWords = toWords(grandTotal).toUpperCase() + " NAIRA ONLY";
   const tableColumns: ColumnDef<any>[] = [
     {
       id: "deliveryLeadTime",
@@ -73,6 +71,10 @@ const Order = () => {
               ),
               accessorKey: "description",
               size: 473,
+
+              cell: ({ row }) => {
+                return <p>{row?.original?.item_detail?.description}</p>;
+              },
             },
           ],
         },
@@ -94,6 +96,13 @@ const Order = () => {
               header: () => <div className='bg-gray-200 p-4'>UNIT PRICE</div>,
               accessorKey: "unit_price",
               size: 160,
+              cell: ({ row }) => {
+                return (
+                  <p>
+                    ₦{Number(row?.original?.unit_price).toLocaleString()}.00
+                  </p>
+                );
+              },
             },
           ],
         },
@@ -115,6 +124,13 @@ const Order = () => {
               header: () => <div className='bg-gray-200 p-4'>TOTAL PRICE</div>,
               accessorKey: "total_price",
               size: 120,
+              cell: ({ row }) => {
+                return (
+                  <p>
+                    ₦{Number(row?.original?.total_price).toLocaleString()}.00
+                  </p>
+                );
+              },
             },
           ],
         },
@@ -127,7 +143,18 @@ const Order = () => {
     0
   );
 
-  //   const grandTotalWords = toWords(totalCost)?.toUpperCase() + " NAIRA ONLY";
+  useEffect(() => {
+    if (data?.data?.purchase_order_items) {
+      // Calculate the grand total
+      const grandTotal = data?.data?.purchase_order_items?.reduce(
+        (sum, item) => sum + item.total_price,
+        0
+      );
+      const grandTotalWords =
+        toWords(grandTotal)?.toUpperCase() + " NAIRA ONLY";
+      setGrandTotal(grandTotalWords);
+    }
+  }, [data]);
 
   return (
     <div className='bg-white p-8'>
@@ -176,7 +203,7 @@ const Order = () => {
       </div>
       <div className='flex flex-row-reverse gap-4'>
         {/* Grand Total Section */}
-        <div className=''>
+        <div className='flex-1'>
           <h3 className='font-bold text-lg'>
             Grand Total:
             <span className='font-normal ml-2'>
@@ -185,7 +212,7 @@ const Order = () => {
           </h3>
           <div className='flex  mt-4 h-[211px] items-center border bg-gray-100  border-gray-300'>
             <div className='p-4'>
-              {/* <p className='text-[10px] p-0 text-start'>{grandTotalWords}</p> */}
+              <p className='text-[10px] p-0 text-start'>{grandTotal}</p>
             </div>
           </div>
         </div>
@@ -299,38 +326,3 @@ const Order = () => {
 };
 
 export default Order;
-
-const tableData = [
-  {
-    fco: "FCO-001",
-    quantity_1: 10,
-    quantity: 5,
-    description: "Laptops - Dell Inspiron 15",
-    unit_price: 250000,
-    total_price: 1250000,
-  },
-  {
-    fco: "FCO-002",
-    quantity_1: 20,
-    quantity: 10,
-    description: "Office Chairs - Ergonomic Mesh",
-    unit_price: 50000,
-    total_price: 500000,
-  },
-  {
-    fco: "FCO-003",
-    quantity_1: 5,
-    quantity: 2,
-    description: "Printers - HP LaserJet Pro MFP",
-    unit_price: 150000,
-    total_price: 300000,
-  },
-  {
-    fco: "FCO-004",
-    quantity_1: 50,
-    quantity: 25,
-    description: "A4 Paper - 80gsm (Carton)",
-    unit_price: 12000,
-    total_price: 300000,
-  },
-];
