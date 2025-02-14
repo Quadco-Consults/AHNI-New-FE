@@ -77,7 +77,7 @@ function PurchaseRequest() {
           0
         );
 
-        return <div>{totalAmount}</div>;
+        return <div> ₦{totalAmount?.toLocaleString()}.00</div>;
       },
     },
     {
