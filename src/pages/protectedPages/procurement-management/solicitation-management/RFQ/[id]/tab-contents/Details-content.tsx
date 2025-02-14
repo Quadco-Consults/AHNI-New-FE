@@ -66,7 +66,7 @@ const DetailsContent = ({
                 </div>
                 <div className='flex items-center gap-5'>
                   <h4 className='w-1/4 font-medium'>Lot:</h4>
-                  <h4>{item?.lot}</h4>
+                  <h4>{item?.lot_detail?.name}</h4>
                 </div>
               </Card>
             ))}
