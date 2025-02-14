@@ -33,7 +33,7 @@ const PurchaseRequesttDetails = () => {
   );
 
   return (
-    <section className='min-h-screen space-y-8'>
+    <section className='min-h-screen space-y-8 bg-white p-8'>
       <div className='flex justify-center items-center flex-col'>
         <img src={logoPng} alt='logo' width={200} />
         <h1>Achieving Health Nigeria Initiative (AHNI)</h1>

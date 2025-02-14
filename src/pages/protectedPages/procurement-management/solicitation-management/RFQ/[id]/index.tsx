@@ -25,21 +25,14 @@ const RFQDetails = () => {
     { name: "Detail", icon: false },
   ];
 
+  console.log({ data });
+
   return (
     <div className='space-y-5'>
       <GoBack />
       <BreadcrumbCard list={breadcrumbs} />
       <div className='flex justify-between'>
         <h4 className='text-lg font-bold'>{data?.data.title}</h4>
-
-        <Link
-          //   to={generatePath(RouteEnum.RFQ_CREATE_CBA, {
-          //     id: id as string,
-          //   })}
-          to={{ pathname: RouteEnum.RFQ_CREATE_CBA, search: `?id=${id}` }}
-        >
-          <Button>Create CBA</Button>
-        </Link>
       </div>
 
       <Tabs defaultValue='rfq-details'>
