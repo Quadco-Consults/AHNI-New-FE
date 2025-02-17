@@ -140,8 +140,6 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
       role_approved_by: data.role_approved_by,
     };
 
-    console.log({ payload, data });
-
     try {
       // @ts-ignore
       await createPurchaseRequestMutation(payload).unwrap();
@@ -251,8 +249,6 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
               </thead>
               <tbody>
                 {fields.map((field, index) => {
-                  console.log({ field }, `items.[${index}].quantity`);
-
                   return (
                     <tr key={index} className='w-full'>
                       <td className='w-fit p-2 text-center '>
@@ -300,12 +296,11 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                           </SelectContent>
                         </FormSelect> */}
 
-                        <Label className='font-semibold'>FCO</Label>
                         <FormField
                           control={form.control}
                           name={`items.[${index}].fco_number`}
                           render={({ field }) => (
-                            <FormItem>
+                            <FormItem className=' mt-2'>
                               <FormControl>
                                 <MultiSelectFormField
                                   options={fco?.data?.data?.results || []}
