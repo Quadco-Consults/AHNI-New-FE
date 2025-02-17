@@ -5,26 +5,17 @@ import FormSelect from "atoms/FormSelectField";
 import { SelectContent, SelectItem } from "components/ui/select";
 import { Button } from "components/ui/button";
 import AddSquareIcon from "components/icons/AddSquareIcon";
-import { Form, FormControl, FormField, FormItem } from "components/ui/form";
+import { Form } from "components/ui/form";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import FormButton from "atoms/FormButton";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
 import { z } from "zod";
-import { SolicitationItemsSchema } from "definations/procurement-validator";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { MinusCircle } from "lucide-react";
 import { Label } from "components/ui/label";
-import SolicitationCriteriaAPI from "services/procurementApi/solicitation-evaluation-criteria";
-import MultiSelectFormField from "components/ui/rfqmultiselect";
-import LotsAPI from "services/procurementApi/lots";
-import { LotsResultsData } from "definations/procurement-types/lots";
-import { Loading, LoadingSpinner } from "components/shared/Loading";
+import { LoadingSpinner } from "components/shared/Loading";
 import PurchaseRequestAPI from "services/procurementApi/purchase-request";
-import ItemsAPI from "services/configs/items";
-import { ItemsResultsData } from "definations/configs/itmes";
 import { toast } from "sonner";
-import { useGetAllAssetsQuery } from "services/admin/inventory-management/item";
 import { useGetAllLotsQuery } from "services/modules/procurement/lot";
 import { useGetAllSolicitationEvaluationCriteriaQuery } from "services/modules/procurement/solicitation-evaluation-criteria";
 import { useCreateSolicitationMutation } from "services/procurementApi/solicitation";
@@ -47,7 +38,7 @@ const ItemSchema = z.object({
 
 const Items = () => {
   const navigate = useNavigate();
-  const formData = JSON.parse(localStorage.getItem("rfqQuotation") as any);
+  // const formData = JSON.parse(localStorage.getItem("rfqQuotation") as any);
 
   const form = useForm<z.infer<typeof ItemSchema>>({
     defaultValues: {},
@@ -119,11 +110,9 @@ const Items = () => {
     sessionStorage.getItem("rfqQuotationFormData") || "{}"
   );
 
-  const { data, isLoading } = PurchaseRequestAPI.useGetPurchaseRequestQuery({
+  const { data } = PurchaseRequestAPI.useGetPurchaseRequestQuery({
     path: { id: quotationData?.purchase_request as string },
   });
-
-  console.log({ quotationData, data, isLoading });
 
   const itemsData = useMemo(() => {
     // @ts-ignore
@@ -139,8 +128,6 @@ const Items = () => {
     }));
   }, [data]);
 
-  console.log({ itemsData });
-
   useEffect(() => {
     if (itemsData?.length > 0) {
       setValue("solicitation_items", itemsData);
@@ -153,7 +140,6 @@ const Items = () => {
 
     try {
       const res = await createSolicitation(payload).unwrap();
-      console.log({ res, id: res?.data?.id });
       sessionStorage.removeItem("rfqQuotationFormData");
       toast.success("Solicitation Created Successfully");
       navigate(`${RouteEnum.RFQ_CREATE_CBA}?id=${res?.data?.id}`);
@@ -161,9 +147,6 @@ const Items = () => {
       toast.error(error.data.message ?? "Something went wrong");
     }
   };
-
-  const log = getValues();
-  console.log({ log, itemsData: itemsData?.length });
 
   return (
     <RfqLayout>

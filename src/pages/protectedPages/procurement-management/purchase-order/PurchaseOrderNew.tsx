@@ -21,7 +21,7 @@ import { z } from "zod";
 import { PurchaseOrderListSchema } from "definations/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "atoms/FormInput";
-import { Form } from "components/ui/form";
+import { Form, FormControl, FormField, FormItem } from "components/ui/form";
 import FormButton from "atoms/FormButton";
 import LongArrowRight from "components/icons/LongArrowRight";
 // import { toast } from "sonner";
@@ -31,6 +31,10 @@ import DepartmentsAPI from "services/configs/departments";
 import { toast } from "sonner";
 import { useCreatePurchaseOrderMutation } from "services/procurementApi/purchase-order";
 import { RouteEnum } from "constants/RouterConstants";
+import { useGetAllFCONumbersQuery } from "services/modules/finance/fco-number";
+import MultiSelectFormField from "components/ui/multiselect";
+import FormSelect from "atoms/FormSelect";
+import { useGetAllItemsQuery } from "services/modules/config/item";
 
 const PurchaseOrderNew = () => {
   const [open, setOpen] = useState(false);
@@ -46,7 +50,10 @@ const PurchaseOrderNew = () => {
   };
 
   const { data: vendors, isLoading: vendorsIsLoading } =
-    VendorsAPI.useGetVendorsQuery({});
+    VendorsAPI.useGetVendorsQuery({
+      // @ts-ignore
+      params: { status: "Approved" },
+    });
   const { data: requests, isLoading: requestsIsLoading } =
     PurchaseRequestAPI.useGetPurchaseRequestsQuery({});
   const { data: requestsDetails } =
@@ -59,6 +66,24 @@ const PurchaseOrderNew = () => {
       )
     );
 
+  const fco = useGetAllFCONumbersQuery({
+    page: 1,
+    size: 2000000,
+  });
+
+  const { data: item } = useGetAllItemsQuery({
+    page: 1,
+    size: 2000000,
+  });
+
+  const itemOptions = useMemo(
+    () =>
+      item?.data.results.map(({ name, id }) => ({
+        label: name,
+        value: id,
+      })),
+    [item]
+  );
   const { data: departments, isLoading: departmentsIsLoading } =
     DepartmentsAPI.useGetDepartmentsQuery({});
 
@@ -81,8 +106,11 @@ const PurchaseOrderNew = () => {
       description: data?.item?.name || "",
       uom: data?.item?.uom === null ? "" : data?.item?.uom,
       total: data?.sub_total_amount || 0,
+      name: data?.item_detail?.name,
     }));
   }, [requestsDetails]);
+
+  console.log({ requestsDetails });
 
   useEffect(() => {
     if (data) {
@@ -171,9 +199,6 @@ const PurchaseOrderNew = () => {
       console.log(error);
     }
   };
-  console.log({ vendors, vendorValue });
-  const log = form.getValues();
-  console.log({ log });
 
   const breadcrumbs = [
     { name: "Procurement", icon: true },
@@ -392,6 +417,8 @@ const PurchaseOrderNew = () => {
             </thead>
             <tbody>
               {fields.map((field, index) => {
+                console.log({ data });
+
                 return (
                   <tr key={index} className='w-full'>
                     <td className='w-fit p-2 text-center '>
@@ -400,10 +427,20 @@ const PurchaseOrderNew = () => {
                       </span>
                     </td>
                     <td className='w-fit p-2 text-center'>
-                      <FormInput
+                      {/* <FormInput
                         placeholder='Enter Description'
                         name={`items.[${index}].description`}
-                      />
+                      /> */}
+                      {!data || data?.length < index + 1 ? (
+                        <FormSelect
+                          name={`items.${index}.description`}
+                          options={itemOptions}
+                          value={form.watch(`items.${index}.description`)}
+                          disabled={true}
+                        />
+                      ) : (
+                        <FormInput name={`items.${index}.name`} disabled />
+                      )}
                     </td>
                     <td className='w-fit p-2 text-center'>
                       <FormInput
@@ -420,8 +457,25 @@ const PurchaseOrderNew = () => {
                         className='w-24'
                       />
                     </td>
-                    <td className='w-fit p-2 text-center'>
-                      <FormInput label='' name={`items.[${index}].fco`} />
+                    <td className='w-fit p-2 text-center '>
+                      {/* <FormInput label='' name={`items.[${index}].f */}
+                      <FormField
+                        control={form.control}
+                        name={`items.[${index}].fco_number`}
+                        render={({ field }) => (
+                          <FormItem className=' mt-2'>
+                            <FormControl>
+                              <MultiSelectFormField
+                                options={fco?.data?.data?.results || []}
+                                // defaultValue={field.value}
+                                onValueChange={field.onChange}
+                                placeholder='Select'
+                                variant='inverted'
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
                     </td>
                     <td className='w-fit p-2 text-center'>
                       <FormInput
