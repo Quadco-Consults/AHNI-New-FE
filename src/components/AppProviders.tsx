@@ -8,21 +8,21 @@ import { BrowserRouter } from "react-router-dom";
 import { Toaster } from "sonner";
 
 type PageProps = {
-  children: ReactNode;
+    children: ReactNode;
 };
 
 const AppProviders: FC<PageProps> = ({ children }) => {
-  return (
-    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-      <ReduxProvider store={store}>
-        <BrowserRouter>
-          <AppDailog />
-          <Toaster richColors={true} position="top-center" />
-          {children}
-        </BrowserRouter>
-      </ReduxProvider>
-    </ThemeProvider>
-  );
+    return (
+        <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+            <ReduxProvider store={store}>
+                <BrowserRouter>
+                    <AppDailog />
+                    <Toaster richColors={true} position="top-center" />
+                    {children}
+                </BrowserRouter>
+            </ReduxProvider>
+        </ThemeProvider>
+    );
 };
 
 export default AppProviders;

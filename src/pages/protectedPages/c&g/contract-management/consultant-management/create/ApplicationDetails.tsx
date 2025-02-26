@@ -1,34 +1,35 @@
 import { SubmitHandler, useForm } from "react-hook-form";
-import ConsultancyStepWrapper from "../ConsultancyStepWrapper";
-import { z } from "zod";
-import { ConsunltancyApplicationDetails } from "definations/candg-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "atoms/FormInput";
-import { Form } from "components/ui/form";
-import FadedButton from "atoms/FadedButton";
 import FormButton from "atoms/FormButton";
-import { useLocation, useNavigate } from "react-router-dom";
-import { objectToFormData } from "utils/utls";
-import { useState } from "react";
 import { Label } from "components/ui/label";
-import { consultancyAPIs } from "services/cAndGApi/consultancy";
 import { UploadFileSvg } from "assets/svgs/CAndGSvgs";
 import { toast } from "sonner";
 import {
     ConsultancyManagementDetailSchema,
-    TConsultancyManagementDetailsFormData,
+    TConsultantanagementDetailsFormData,
 } from "definations/c&g/contract-management/consultancy-management";
 import { Button } from "components/ui/button";
 import FormSelect from "atoms/FormSelect";
+import ConsultantManagementLayout from "./Layout";
+import FormTextArea from "atoms/FormTextArea";
+import { FormField, FormItem, Form, FormControl } from "components/ui/form";
+import MultiSelectFormField from "components/ui/multiselect";
+import { useGetAllLocationsQuery } from "services/modules/config/location";
+import { useMemo } from "react";
+import { useGetAllUsersQuery } from "services/auth/user";
+import { useNavigate } from "react-router-dom";
+import { CG_ROUTES } from "constants/RouterConstants";
+import { fileToBase64 } from "utils/fileToBase64";
+import {
+    useCreateConsultantManagementMutation,
+    useModifyConsultantManagementMutation,
+} from "services/c&g/contract-management/consultant-management";
 
-/*   const options = [
-        { value: "Pending", label: "Pending" },
-        { value: "Approved", label: "Approved" },
-        { value: "Rejected", label: "Rejected" },
-    ]; */
+export default function ApplicationDetails() {
+    const navigate = useNavigate();
 
-const CreateNewConsultancy = () => {
-    const form = useForm<TConsultancyManagementDetailsFormData>({
+    const form = useForm<TConsultantanagementDetailsFormData>({
         resolver: zodResolver(ConsultancyManagementDetailSchema),
         defaultValues: {
             title: "",
@@ -41,26 +42,66 @@ const CreateNewConsultancy = () => {
             extra_info: "",
             background: "",
             evaluation_comments: "",
-            advertisement_document: "",
             supervisor: "",
         },
     });
 
-    const onSubmit: SubmitHandler<
-        TConsultancyManagementDetailsFormData
-    > = async () => {
+    const {
+        formState: { errors },
+    } = form;
+
+    const { data: location } = useGetAllLocationsQuery({
+        page: 1,
+        size: 2000000,
+    });
+
+    const locationOptions = location?.data.results;
+
+    const { data: user } = useGetAllUsersQuery({ page: 1, size: 2000000 });
+
+    const userOptions = useMemo(
+        () =>
+            user?.data.results.map(({ first_name, last_name, id }) => ({
+                label: `${first_name} ${last_name}`,
+                value: id,
+            })),
+        [user]
+    );
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            form.setValue("advertisement_document", e.target.files);
+        }
+    };
+
+    const onSubmit: SubmitHandler<TConsultantanagementDetailsFormData> = async (
+        data
+    ) => {
         try {
+            const payload = {
+                ...data,
+                advertisement_document: await fileToBase64(
+                    data.advertisement_document[0]
+                ),
+            };
+
+            sessionStorage.setItem(
+                "consultantManagementFormData",
+                JSON.stringify(payload)
+            );
+
+            navigate(CG_ROUTES.CREATE_CONSULTANCY_WORK_SCOPE);
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }
     };
 
     return (
-        <ConsultancyStepWrapper>
+        <ConsultantManagementLayout>
             <main className="w-full flex flex-col items-center justify-center gap-y-[2.5rem] bg-white p-[1.25rem] pt-[2rem]  rounded-2xl">
-                <p className="font-semibold text-[1.25rem] w-full text-black">
+                <h2 className="font-semibold text-[1.25rem] w-full text-black">
                     Application Details
-                </p>
+                </h2>
                 <Form {...form}>
                     <form
                         onSubmit={form.handleSubmit(onSubmit)}
@@ -80,12 +121,36 @@ const CreateNewConsultancy = () => {
                             required
                         />
 
-                        <FormSelect
-                            label="Location"
-                            name="locations"
-                            placeholder="Select Locations"
-                            required
-                        />
+                        <div>
+                            <Label className="font-semibold">Locations</Label>
+
+                            <FormField
+                                control={form.control}
+                                name="locations"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormControl>
+                                            <MultiSelectFormField
+                                                options={locationOptions || []}
+                                                defaultValue={field.value}
+                                                onValueChange={field.onChange}
+                                                placeholder="Select Locations"
+                                                variant="inverted"
+                                            />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+
+                            {errors.advertisement_document && (
+                                <span className="text-sm text-red-500 font-medium">
+                                    {
+                                        errors?.advertisement_document
+                                            ?.message as string
+                                    }
+                                </span>
+                            )}
+                        </div>
 
                         <FormInput
                             label="Duration"
@@ -110,42 +175,46 @@ const CreateNewConsultancy = () => {
 
                         <FormInput
                             label="Number of Consultants"
-                            name="number_of_consultants"
+                            name="consultants_number"
                             type="number"
-                            placeholder=""
+                            placeholder="Enter Number of Consultants"
                             required
                         />
 
-                        {/* <FormSelect
-                            label="Supervisor"
-                            name="supervisor"
-                            // options={userData}
-                            placeholder="Select supervisor"
-                            required
-                        />
                         <FormInput
                             label="Any other Info"
                             name="extra_info"
-                            placeholder=""
+                            placeholder="Enter Any Other Info"
                             required
                         />
+
                         <FormTextArea
                             label="Background"
                             name="background"
-                            placeholder=""
+                            placeholder="Enter Background"
                             required
                         />
+
                         <FormTextArea
                             label="Evaluation Comments"
                             name="evaluation_comments"
-                            placeholder=""
+                            placeholder="Enter Evaluation Comments"
                             required
-                        /> */}
+                        />
+
+                        <FormSelect
+                            label="Supervisor"
+                            name="supervisor"
+                            placeholder="Select supervisor"
+                            options={userOptions}
+                            required
+                        />
+
                         <div className="flex flex-col gap-y-[1rem]">
                             <Label className="font-semibold">
-                                {" "}
                                 Upload Complete Advertisement Document
                             </Label>
+
                             <div className="flex items-center w-full gap-x-[1rem]">
                                 <label
                                     className="cursor-pointer shrink-0 border flex items-center gap-x-[1rem] w-fit rounded-lg border-[#DBDFE9] py-[.875rem] px-[1.125rem]"
@@ -156,29 +225,26 @@ const CreateNewConsultancy = () => {
                                 </label>
                                 <input
                                     type="file"
-                                    // name="file"
+                                    name="file"
                                     hidden
                                     id="file"
+                                    onChange={handleFileChange}
                                 />
                                 <p className="border flex items-center w-full gap-x-[1rem] rounded-lg border-[#DBDFE9] px-[1.125rem] h-[3.5rem]">
                                     {/* {file?.name} */}
                                 </p>
                             </div>
                         </div>
-                        <div className="flex justify-end items-center">
+                        <div className="flex justify-end items-center gap-5">
                             <Button type="button" variant="outline" size="lg">
                                 Cancel
                             </Button>
 
-                            <FormButton size="lg" loading={false}>
-                                Next
-                            </FormButton>
+                            <FormButton size="lg">Next</FormButton>
                         </div>
                     </form>
                 </Form>
             </main>
-        </ConsultancyStepWrapper>
+        </ConsultantManagementLayout>
     );
-};
-
-export default CreateNewConsultancy;
+}

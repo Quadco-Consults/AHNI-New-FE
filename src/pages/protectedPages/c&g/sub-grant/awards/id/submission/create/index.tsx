@@ -12,7 +12,7 @@ import {
     useParams,
     useSearchParams,
 } from "react-router-dom";
-import { CG_GROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "constants/RouterConstants";
 import {
     SubGrantSubmissionSchema,
     TSubGrantSubmissionFormData,
@@ -94,7 +94,7 @@ export default function CreateSubGrantSubDetails() {
 
             navigate({
                 pathname: generatePath(
-                    CG_GROUTES.CREATE_SUBGRANT_SUBMISSION_UPLOADS,
+                    CG_ROUTES.CREATE_SUBGRANT_SUBMISSION_UPLOADS,
                     {
                         id: subGrantId,
                     }

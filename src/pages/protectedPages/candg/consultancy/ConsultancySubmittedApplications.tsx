@@ -8,7 +8,7 @@ import DataTable from "components/Table/DataTable";
 import { Button } from "components/ui/button";
 import { Checkbox } from "components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { CG_GROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "constants/RouterConstants";
 import React, { useMemo } from "react";
 import { generatePath, Link, useNavigate, useParams } from "react-router-dom";
 import { consultancyAPIs } from "services/cAndGApi/consultancy";
@@ -124,7 +124,7 @@ const ConsultancySubmittedApplications: React.FC = () => {
                                 <Link
                                     className="w-full"
                                     to={generatePath(
-                                        CG_GROUTES.CONSULTANCY_APPLICATION_DETAILS,
+                                        CG_ROUTES.CONSULTANCY_APPLICATION_DETAILS,
                                         {
                                             id: data?.id,
                                         }
@@ -171,7 +171,7 @@ const ConsultancySubmittedApplications: React.FC = () => {
                 <SearchBar onchange={() => ""} />
                 <Button
                     onClick={() => {
-                        navigate(CG_GROUTES.NEW_CLOSE_OUT_PLAN);
+                        navigate(CG_ROUTES.NEW_CLOSE_OUT_PLAN);
                     }}
                     variant={"custom"}
                     className="bg-[#FFF2F2] text-primary"

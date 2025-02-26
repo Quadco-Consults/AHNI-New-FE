@@ -77,6 +77,7 @@ import AddObligationModal from "./components/ObligationModal";
 import AddNewItems from "pages/protectedPages/modules/procurement/AddNewItems";
 import AddMarketPrice from "pages/protectedPages/modules/config/AddMarketPrice";
 import SubGrantManualSubUploadModal from "./components/SubGrantSubUploadModal";
+import AddPreAwardQuestion from "pages/protectedPages/modules/c&g/AddPreAwardQuestion";
 
 const sheets: Record<string, ReactNode> = {
     [DialogType.Categories]: <CategoriesModal />,
@@ -160,6 +161,7 @@ const sheets: Record<string, ReactNode> = {
     [DialogType.ADD_OBLIGATION_MODAL]: <AddObligationModal />,
     [DialogType.ADD_OBLIGATION_MODAL]: <AddObligationModal />,
     [DialogType.SUBGRANT_MANUAL_SUB_UPLOAD]: <SubGrantManualSubUploadModal />,
+    [DialogType.ADD_PRE_AWARD_QUESTION_MODAL]: <AddPreAwardQuestion />,
 };
 
 const AppDailog = () => {

@@ -289,7 +289,7 @@ export const RouteEnum = {
     NOTIFICATIONS: "/notifications",
 };
 
-export const CG_GROUTES = {
+export const CG_ROUTES = {
     OVERVIEW: "/c-and-g/overview",
     GRANT: "/c-and-g/grant",
     GRANT_CREATE: "/c-and-g/create-grant",
@@ -305,22 +305,8 @@ export const CG_GROUTES = {
     SUBGRANT_SUBMISSION_DETAILS:
         "/c-and-g/sub-grant/:subGrantId/submission/:partnerSubId",
 
-  
-
-
-    PREAWARD_ASSESSMENT: "/c-and-g/sub-grant/preaward-assessment",
-
-    
-    // --------------------------------------------------------------------
-    PRE_AWARD_ASSESSMENT_SINGLE: "/c-and-g/sub-grant/pre-award-assessment/:id",
-    PRE_AWARD_ASSESSMENT_STEP_1:
-        "/c-and-g/sub-grant/pre-award-assessment_1/:id",
-    PRE_AWARD_ASSESSMENT_STEP_2:
-        "/c-and-g/sub-grant/pre-award-assessment_2/:id",
-    PRE_AWARD_ASSESSMENT_STEP_3:
-        "/c-and-g/sub-grant/pre-award-assessment_3/:id/:result",
-    PRE_AWARD_ASSESSMENT_STEP_4:
-        "/c-and-g/sub-grant/pre-award-assessment_3/:id",
+    PREAWARD_ASSESSMENT:
+        "/c-and-g/sub-grant/:subGrantId/submission/:partnerSubId/preaward-assessment",
 
     // close out
     CLOSE_OUT: "/c-and-g/close-out-plan",
@@ -334,20 +320,25 @@ export const CG_GROUTES = {
 
     // CONSULTANCY
     CONSULTANCY: "/c-and-g/consultancy",
-    CREATE_CONSULTANCY_DETAILS: "/c-and-g/consultancy/create/application-details",
+    CREATE_CONSULTANCY_DETAILS:
+        "/c-and-g/consultancy/create/application-details",
     CREATE_CONSULTANCY_WORK_SCOPE: "/c-and-g/consultancy/create/scope-of-work",
-    // CONSULTANCY
+    CONSULTANCY_DETAILS: "/c-and-g/consultancy/:id",
+    CREATE_CONSULTANCY_APPLICANT: "/c-and-g/consultancy/:id/applicant/create",
 
-
-    CONSULTANCY_DETAILS: "/c-and-g/consultancy/details/:id",
-    ADD_CONSULTANCY_APPLICATION:
-        "/api/v1/contract-grants/consultancy-applications/:id",
     CONSULTANCY_APPLICATION_DETAILS:
         "/api/v1/contract-grants/consultancy-applications_details/:id",
     CONSULTANCY_SHORTLIST_METRIC:
         "/api/v1/consultancy/shortlisted-applications-metrics/:id",
     CONSULTANCY_SLA: "/c-and-g/consultancy/sla",
     //   OVERVIEW: "/c-and-g/overview",
+
+    // CONSULTANCY REPORT
+    CONSULTANCY_REPORT: "/c-and-g/consultancy-report",
+    CREATE_CONSULTANCY_REPORT: "/c-and-g/consultancy-report/create/",
+    CONSULTANCY_REPORT_DETAILS: "/c-and-g/consultancy-report/:id/",
+
+    CG_MODULES: "/modules/c-and-g",
 };
 
 export const HrRoutes = {

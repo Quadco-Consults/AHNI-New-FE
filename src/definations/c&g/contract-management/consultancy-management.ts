@@ -1,3 +1,5 @@
+import { IUser } from "definations/auth/user";
+import { TLocationData } from "definations/modules/config/location";
 import { z } from "zod";
 
 export const ConsultancyManagementDetailSchema = z.object({
@@ -12,26 +14,94 @@ export const ConsultancyManagementDetailSchema = z.object({
     background: z.string().min(1, "Please enter background"),
     evaluation_comments: z.string().min(1, "Please enter evaluation comment"),
     advertisement_document: z
-        .string()
-        .min(1, "Please enter advertisement document"),
+        .any()
+        .refine((files: FileList) => files?.length > 0, "Please select a file"),
     supervisor: z.string().min(1, "Please select supervisor"),
 });
 
-export type TConsultancyManagementDetailsFormData = z.infer<
+export type TConsultantanagementDetailsFormData = z.infer<
     typeof ConsultancyManagementDetailSchema
 >;
 
-/* "scope_of_work": {
-    "deliverables": [
-      {
-        "deliverable": "string",
-        "number_of_days": 0
-      }
-    ],
-    "description": "string",
-    "background": "string",
-    "objectives": "string",
-    "fee_rate": 2147483647,
-    "payment_frequency": 2147483647,
-    "advertisement_document": "string"
-  }, */
+export const ScopeOfWorkSchema = z.object({
+    description: z.string().min(1, "Please enter description"),
+    background: z.string().min(1, "Please enter background"),
+    objectives: z.string().min(1, "Please enter objectives"),
+    deliverables: z.array(
+        z.object({
+            deliverable: z.string().min(1, "Please enter deliverable name"),
+            number_of_days: z.string().min(1, "Please enter number of days"),
+        })
+    ),
+    advertisement_document: z
+        .any()
+        .refine((files: FileList) => files?.length > 0, "Please select a file"),
+    fee_rate: z.string().min(1, "Please enter fee rate"),
+    payment_frequency: z.string().min(1, "Please select payment frequency"),
+    location: z.string().min(1, "Please select payment frequency"),
+    scope_of_work_document: z
+        .any()
+        .refine((files: FileList) => files?.length > 0, "Please select a file"),
+});
+
+export type TScopeOfWorkFormData = z.infer<typeof ScopeOfWorkSchema>;
+
+interface IScopeOfWorkData {
+    id: string;
+    deliverables: {
+        deliverable: string;
+        number_of_days: number;
+    }[];
+    advertisement_document: string;
+    scope_of_work_document: string;
+    created_datetime: string;
+    updated_datetime: string;
+    description: string;
+    background: string;
+    location: string;
+    objectives: string;
+    fee_rate: number;
+    payment_frequency: number;
+}
+export interface IConsultantPaginatedData {
+    id: string;
+    scope_of_work: IScopeOfWorkData;
+    advertisement_document: string;
+    supervisor: string;
+    locations: TLocationData[];
+    created_datetime: string;
+    updated_datetime: string;
+    title: string;
+    grade_level: string;
+    duration: number;
+    commencement_date: string;
+    end_date: string;
+    consultants_number: number;
+    status: string;
+    extra_info: string;
+    background: string;
+    evaluation_comments: string;
+    created_by: string;
+    updated_by: null;
+}
+
+export interface IConsultantSingleData {
+    id: string;
+    scope_of_work: IScopeOfWorkData;
+    advertisement_document: string;
+    supervisor: IUser;
+    locations: TLocationData[];
+    created_datetime: string;
+    title: string;
+    grade_level: string;
+    duration: number;
+    commencement_date: string;
+    end_date: string;
+    consultants_number: number;
+    status: string;
+    extra_info: string;
+    background: string;
+    evaluation_comments: string;
+    created_by: string;
+    updated_by: null;
+}

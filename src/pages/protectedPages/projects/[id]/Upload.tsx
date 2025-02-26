@@ -16,7 +16,7 @@ import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import Pagination from "components/shared/Pagination";
-import FilePreview from "components/shared/FileCard";
+import FilePreview from "components/shared/FilePreview";
 import { toast } from "sonner";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(

@@ -8,10 +8,9 @@ import DeleteIcon from "components/icons/DeleteIcon";
 import PencilIcon from "components/icons/PencilIcon";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 import { Link, useLocation, useParams } from "react-router-dom";
-import { useAppDispatch } from "hooks/useStore";
 import { IAgreementPaginatedData } from "definations/c&g/contract-management/agreement";
 import { useDeleteAgreementMutation } from "services/c&g/contract-management/agreement";
-import { CG_GROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "constants/RouterConstants";
 
 export const agreementColumns: ColumnDef<IAgreementPaginatedData>[] = [
     {
@@ -96,7 +95,7 @@ const TableMenu = ({ id }: IAgreementPaginatedData) => {
                     <PopoverContent className="w-fit">
                         <Link
                             to={{
-                                pathname: CG_GROUTES.CREATE_AGREEMENT,
+                                pathname: CG_ROUTES.CREATE_AGREEMENT,
                                 search: `?id=${id}`,
                             }}
                         >

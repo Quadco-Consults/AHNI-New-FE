@@ -11,7 +11,7 @@ import {
     useDeleteSubGrantUploadMutation,
     useGetAllSubGrantUploadsQuery,
 } from "services/c&g/subgrant/submission-upload";
-import FilePreview from "components/shared/FileCard";
+import FilePreview from "components/shared/FilePreview";
 import Pagination from "components/shared/Pagination";
 import { useState } from "react";
 import { toast } from "sonner";

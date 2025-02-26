@@ -112,6 +112,7 @@ export interface ISubGrantSubmissionPaginatedData {
     id: string;
     partner: string;
     sub_grant: string;
+    sub_grant_id: string;
     created_datetime: string;
     updated_datetime: string;
     organisation_name: string;

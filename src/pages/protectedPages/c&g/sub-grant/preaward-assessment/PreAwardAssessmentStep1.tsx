@@ -2,7 +2,7 @@ import BackNavigation from "atoms/BackNavigation";
 import FormButton from "atoms/FormButton";
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
-import { CG_GROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "constants/RouterConstants";
 import { useEffect, useState } from "react";
 import { generatePath, useNavigate, useParams } from "react-router-dom";
 import { SubGrantPreAwardsApi } from "services/cAndGApi/subGrant";
@@ -52,11 +52,6 @@ const PreAwardAssessmentStep1 = () => {
                 body: answersArray,
             }).unwrap();
             toast.success("step one completed");
-            navigate(
-                generatePath(CG_GROUTES.PRE_AWARD_ASSESSMENT_STEP_2, {
-                    id: params.id,
-                })
-            );
         } catch (error: any) {
             toast.error(error?.data?.message);
             console.log(error);
