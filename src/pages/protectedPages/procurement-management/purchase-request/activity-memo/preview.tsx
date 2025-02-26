@@ -6,7 +6,7 @@ import { Separator } from "components/ui/separator";
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
 import { ChevronRight, Save } from "lucide-react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "store/index";
 
 import { toast } from "sonner";
@@ -25,6 +25,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
 import useQuery from "hooks/useQuery";
 import { skipToken } from "@reduxjs/toolkit/query";
+import { activityActions } from "store/formData/activity-memo";
 
 // Sample Checkbox component
 // eslint-disable-next-line react/display-name
@@ -59,6 +60,7 @@ const CheckboxForm = () => {
   const request = query.get("request");
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const activity = useSelector((state: RootState) => state.activity.activity);
   const mergedObject = activity.reduce((acc: any, obj: any) => {
@@ -209,11 +211,6 @@ const CheckboxForm = () => {
 
   // const dispatch = useDispatch();
   const onSubmit = async (data: FormData) => {
-    // dispatch(activityActions.clearActivity());
-
-    // Define your programAreas array
-    // const programAreas = []; // Example IDs of program areas
-
     // Filter the beneficiaries based on selected and IDs in programAreas
     const filteredBeneficiaries = data?.beneficiaries?.filter(
       (beneficiary) => beneficiary.selected
@@ -248,6 +245,7 @@ const CheckboxForm = () => {
       navigate(`${RouteEnum.PREVIEW_LETTER}?id=${res?.id}&created=${"true"}`);
 
       toast.success("Successfully created.");
+      dispatch(activityActions.clearActivity());
     } catch (error) {
       toast.error("Something went wrong");
       console.log(error);
@@ -512,7 +510,7 @@ const CheckboxForm = () => {
                     </TableHeader>
                     <TableBody>
                       {filteredBeneficiaries?.map(({ id }) => (
-                        <TableRow key={id} className='h-[80px]'>
+                        <TableRow key={id} className=''>
                           <TableCell>
                             {" "}
                             <Controller
@@ -552,7 +550,7 @@ const CheckboxForm = () => {
                                 <>
                                   <input
                                     type='text'
-                                    className='w-full h-full border-none rounded-none p-2'
+                                    className='w-full h-full border-none rounded-none'
                                     {...field}
                                   />
                                 </>
