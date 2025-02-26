@@ -7,7 +7,6 @@ import FormButton from "atoms/FormButton";
 import { Label } from "components/ui/label";
 import { openDialog } from "store/ui";
 import { DialogType, mediumDailogScreen } from "constants/dailogs";
-import { CalendarIcon } from "lucide-react";
 import { FormField, FormItem, Form, FormControl } from "components/ui/form";
 import Card from "components/shared/Card";
 import FormInput from "atoms/FormInput";
@@ -16,7 +15,6 @@ import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormTextArea from "atoms/FormTextArea";
 import { toast } from "sonner";
-import { format } from "date-fns";
 import { useGetAllUsersQuery } from "services/auth/user";
 import {
     addObjective,

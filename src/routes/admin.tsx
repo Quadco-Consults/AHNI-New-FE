@@ -323,33 +323,33 @@ export const adminRoutes = [
     {
         path: AdminRoutes.AGREEMENT,
         element: lazy(
-            () => import("pages/protectedPages/admin/Agreement/index")
+            () => import("pages/protectedPages/admin/agreement/index")
         ),
     },
 
     {
         path: AdminRoutes.SLA,
-        element: lazy(() => import("pages/protectedPages/admin/Agreement")),
+        element: lazy(() => import("pages/protectedPages/admin/agreement")),
     },
     {
         path: AdminRoutes.HMO,
-        element: lazy(() => import("pages/protectedPages/admin/Agreement")),
+        element: lazy(() => import("pages/protectedPages/admin/agreement")),
     },
     {
         path: AdminRoutes.Insurance,
-        element: lazy(() => import("pages/protectedPages/admin/Agreement")),
+        element: lazy(() => import("pages/protectedPages/admin/agreement")),
     },
     {
         path: AdminRoutes.Security,
-        element: lazy(() => import("pages/protectedPages/admin/Agreement")),
+        element: lazy(() => import("pages/protectedPages/admin/agreement")),
     },
     {
         path: AdminRoutes.Ticketing,
-        element: lazy(() => import("pages/protectedPages/admin/Agreement")),
+        element: lazy(() => import("pages/protectedPages/admin/agreement")),
     },
     {
         path: AdminRoutes.ViewAggrement,
-        element: lazy(() => import("pages/protectedPages/admin/Agreement/id")),
+        element: lazy(() => import("pages/protectedPages/admin/agreement/id")),
     },
 
     {

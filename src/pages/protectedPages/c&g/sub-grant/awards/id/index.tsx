@@ -1,7 +1,7 @@
 import BackNavigation from "atoms/BackNavigation";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import { Button } from "components/ui/button";
-import { CG_GROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "constants/RouterConstants";
 import SubGrantAwardDetails from "./SubGrantAwardDetails";
 import SubGrantSubmissionDetails from "./submission";
 import { generatePath, Link, useParams } from "react-router-dom";
@@ -49,7 +49,7 @@ const SubGrantDetails = () => {
                         <Link
                             className="w-full"
                             to={generatePath(
-                                CG_GROUTES.CREATE_SUBGRANT_SUBMISSION_DETAILS,
+                                CG_ROUTES.CREATE_SUBGRANT_SUBMISSION_DETAILS,
                                 {
                                     id,
                                 }

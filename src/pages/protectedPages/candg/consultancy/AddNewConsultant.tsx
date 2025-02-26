@@ -17,7 +17,7 @@ import {
 import FormButton from "atoms/FormButton";
 import { objectToFormData } from "utils/utls";
 import { generatePath, useNavigate, useParams } from "react-router-dom";
-import { CG_GROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "constants/RouterConstants";
 
 interface Referee {
     name: string;
@@ -56,31 +56,6 @@ const AddNewConsultant = () => {
             }
         }
         try {
-            const result = await addApplicationMutation({
-                ...data,
-                job_detail: params.id,
-                referees: refereeArray,
-            }).unwrap();
-            if (result) {
-                for (let i = 0; i < documentArray.length; i++) {
-                    let objectDetails = documentArray[i];
-                    const formData = objectToFormData({
-                        ...objectDetails,
-                        application: result.id,
-                    });
-                    try {
-                        const result = await addDocument(formData).unwrap();
-                        toast.success(result?.message);
-                        navigate(
-                            generatePath(CG_GROUTES.CONSULTANCY_DETAILS, {
-                                id: params.id,
-                            })
-                        );
-                    } catch (error: any) {
-                        toast.error(error?.data?.message);
-                    }
-                }
-            }
         } catch (error: any) {
             toast.error(error?.data?.message);
         }
@@ -237,14 +212,13 @@ const AddNewConsultant = () => {
                                                 htmlFor=""
                                                 className="font-semibold"
                                             >
-                                                Upload {item.document_name}
                                             </label>
                                             <input
                                                 className="w-full border border-[#DBDFE9] bg-[#F9F9F9] p-5 rounded-[6px]"
                                                 type="text"
                                                 name={`name${index + 1}`}
                                                 required
-                                                value={item.document_file.name}
+                                                value={""}
                                                 disabled
                                             />
                                         </div>
@@ -257,8 +231,6 @@ const AddNewConsultant = () => {
                                                     );
                                                 // let updatedArray = refereeArray.splice(index, 1);
                                                 // console.log(updatedArray, "after splice");
-
-                                                setDocumentArray(updatedArray);
                                             }}
                                         />
                                     </div>
@@ -296,14 +268,14 @@ const AddNewConsultant = () => {
                     </div>
                 </form>
             </Form>
-            {uploadDocument &&
+            {/* {uploadDocument &&
                 createPortal(
                     <SubGrantManualDocsModal
                         setDocs={setDocumentArray}
                         setModalOpen={setUploadDocument}
                     />,
                     document.getElementById("portals") as HTMLElement
-                )}
+                )} */}
         </div>
     );
 };

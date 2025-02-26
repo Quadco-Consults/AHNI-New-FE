@@ -4,7 +4,7 @@ import EyeIcon from "components/icons/EyeIcon";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import { Button } from "components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { CG_GROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "constants/RouterConstants";
 import { ISubGrantSubmissionPaginatedData } from "definations/c&g/contract-management/sub-grant/sub-grant";
 import { generatePath, Link, useLocation, useParams } from "react-router-dom";
 import PencilIcon from "components/icons/PencilIcon";
@@ -48,7 +48,10 @@ export const partnerSubmissionColumns: ColumnDef<ISubGrantSubmissionPaginatedDat
         },
     ];
 
-const TableMenu = ({ id: partnerSubId }: ISubGrantSubmissionPaginatedData) => {
+const TableMenu = ({
+    id: partnerSubId,
+    sub_grant_id,
+}: ISubGrantSubmissionPaginatedData) => {
     const [isDialogOpen, setDialogOpen] = useState(false);
 
     const { id: subGrantId } = useParams();
@@ -71,8 +74,11 @@ const TableMenu = ({ id: partnerSubId }: ISubGrantSubmissionPaginatedData) => {
     };
 
     const path = isPreawardPath
-        ? "/login"
-        : generatePath(CG_GROUTES.SUBGRANT_SUBMISSION_DETAILS, {
+        ? generatePath(CG_ROUTES.SUBGRANT_SUBMISSION_DETAILS, {
+              subGrantId: sub_grant_id,
+              partnerSubId,
+          })
+        : generatePath(CG_ROUTES.SUBGRANT_SUBMISSION_DETAILS, {
               subGrantId,
               partnerSubId,
           });
@@ -102,7 +108,7 @@ const TableMenu = ({ id: partnerSubId }: ISubGrantSubmissionPaginatedData) => {
                                 <Link
                                     to={{
                                         pathname: generatePath(
-                                            CG_GROUTES.CREATE_SUBGRANT_SUBMISSION_DETAILS,
+                                            CG_ROUTES.CREATE_SUBGRANT_SUBMISSION_DETAILS,
                                             { id: subGrantId }
                                         ),
                                         search: `?partnerSubId=${partnerSubId}`,

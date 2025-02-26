@@ -4,7 +4,7 @@ import { generatePath, Link } from "react-router-dom";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import { CG_GROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "constants/RouterConstants";
 import EyeIcon from "components/icons/EyeIcon";
 import PencilIcon from "components/icons/PencilIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
@@ -115,7 +115,7 @@ const TableMenu = ({ id }: IGrantPaginatedData) => {
                         <div className="flex flex-col items-start justify-between gap-1">
                             <Link
                                 className="w-full"
-                                to={generatePath(CG_GROUTES.GRANT_DETAILS, {
+                                to={generatePath(CG_ROUTES.GRANT_DETAILS, {
                                     id,
                                 })}
                             >
@@ -131,7 +131,7 @@ const TableMenu = ({ id }: IGrantPaginatedData) => {
                             <Link
                                 className="w-full"
                                 to={{
-                                    pathname: CG_GROUTES.GRANT_CREATE,
+                                    pathname: CG_ROUTES.GRANT_CREATE,
                                     search: `?id=${id}`,
                                 }}
                             >

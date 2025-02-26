@@ -32,7 +32,7 @@ const FILE_TYPE_ICONS = {
 };
 
 type TProps = {
-    id: string;
+    id?: string;
     file: string;
     name: string;
     showDeleteIcon?: boolean;
@@ -58,7 +58,7 @@ export default function FilePreview({
 
     const onDelete = () => {
         if(onDeleteDocument){
-            onDeleteDocument(id);
+            onDeleteDocument(id ?? "");
             setDialogOpen(false);
 
         }

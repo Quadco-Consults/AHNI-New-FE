@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem } from "components/ui/form";
 import { Label } from "components/ui/label";
 import MultiSelectFormField from "components/ui/multiselect";
 import { DialogType, largeDailogScreen } from "constants/dailogs";
-import { CG_GROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "constants/RouterConstants";
 import {
     SubGrantSchema,
     TSubGrantFormData,
@@ -133,7 +133,7 @@ export default function CreateSubGrant() {
             }
 
             dispatch(clearTeamMembers());
-            navigate(CG_GROUTES.SUBGRANT);
+            navigate(CG_ROUTES.SUBGRANT);
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }

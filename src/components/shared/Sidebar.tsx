@@ -7,7 +7,7 @@ import {
     RouteEnum,
     AdminRoutes,
     HrRoutes,
-    CG_GROUTES,
+    CG_ROUTES,
 } from "constants/RouterConstants";
 import { Icon } from "@iconify/react";
 import { cn } from "lib/utils";
@@ -591,6 +591,11 @@ const MODULE_LINKS = [
                 name: "HR",
                 path: RouteEnum.MODULES_HR,
             },
+
+            {
+                name: "C and G",
+                path: CG_ROUTES.CG_MODULES,
+            },
         ],
     },
 ];
@@ -894,37 +899,40 @@ const DEPARTMENTAL_LINKS = [
         icon: <CGIcon />,
 
         link: [
-            { name: "Overview", path: CG_GROUTES.OVERVIEW },
+            { name: "Overview", path: CG_ROUTES.OVERVIEW },
 
-            { name: "Grants", path: CG_GROUTES.GRANT },
+            { name: "Grants", path: CG_ROUTES.GRANT },
 
             {
                 name: "Sub Grants",
                 sublinks: [
-                    { name: "Awards", path: CG_GROUTES.SUBGRANT },
+                    { name: "Awards", path: CG_ROUTES.SUBGRANT },
                     {
                         name: "Pre-award Assessment",
-                        path: CG_GROUTES.PREAWARD_ASSESSMENT,
+                        path: CG_ROUTES.PREAWARD_ASSESSMENT,
                     },
                 ],
             },
             {
                 name: "Closeout",
                 sublinks: [
-                    { name: "Closeout Plan", path: CG_GROUTES.CLOSE_OUT },
+                    { name: "Closeout Plan", path: CG_ROUTES.CLOSE_OUT },
                 ],
             },
             {
                 name: "Contract Management",
                 sublinks: [
                     {
-                        name: "Consultant management",
-                        path: CG_GROUTES.CONSULTANCY,
+                        name: "Consultant Management",
+                        path: CG_ROUTES.CONSULTANCY,
                     },
-                    { name: "Consultancy report", path: "/" },
-                    { name: "Agreement", path: CG_GROUTES.AGREEMENT },
-                    { name: "Facilitator management", path: "/" },
-                    { name: "SLA", path: CG_GROUTES.CONSULTANCY_SLA },
+                    {
+                        name: "Consultancy Report",
+                        path: CG_ROUTES.CONSULTANCY_REPORT,
+                    },
+                    { name: "Agreement", path: CG_ROUTES.AGREEMENT },
+                    { name: "Facilitator Management", path: "/" },
+                    { name: "SLA", path: CG_ROUTES.CONSULTANCY_SLA },
                 ],
             },
             { name: "C&G Reports", path: "/" },

@@ -2,20 +2,38 @@ import BackNavigation from "atoms/BackNavigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import PartnerSubmissionDetails from "./organization-details";
 import SubGrantUploadDetail from "./uploads";
+import { Button } from "components/ui/button";
+import { generatePath, Link, useParams } from "react-router-dom";
+import { CG_ROUTES } from "constants/RouterConstants";
 
 export default function PartnerSubmissionDetailsWrapper() {
+    const { subGrantId, partnerSubId } = useParams();
+
     return (
         <Tabs defaultValue="details" className="space-y-5">
-            <header className="flex items-center gap-5">
-                <BackNavigation />
+            <header className="flex items-center justify-between">
+                <div className="flex items-center gap-5">
+                    <BackNavigation />
 
-                <TabsList>
-                    <TabsTrigger value="details">
-                        Organization Details
-                    </TabsTrigger>
+                    <TabsList>
+                        <TabsTrigger value="details">
+                            Organization Details
+                        </TabsTrigger>
 
-                    <TabsTrigger value="uploads">Document Uploads</TabsTrigger>
-                </TabsList>
+                        <TabsTrigger value="uploads">
+                            Document Uploads
+                        </TabsTrigger>
+                    </TabsList>
+                </div>
+
+                <Link
+                    to={generatePath(CG_ROUTES.PREAWARD_ASSESSMENT, {
+                        subGrantId,
+                        partnerSubId,
+                    })}
+                >
+                    <Button>Start Prequalification</Button>
+                </Link>
             </header>
 
             <main>
