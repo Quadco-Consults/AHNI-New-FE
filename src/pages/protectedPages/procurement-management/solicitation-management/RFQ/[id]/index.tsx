@@ -25,8 +25,6 @@ const RFQDetails = () => {
     { name: "Detail", icon: false },
   ];
 
-  console.log({ data });
-
   return (
     <div className='space-y-5'>
       <GoBack />

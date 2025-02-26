@@ -16,10 +16,25 @@ import {
   TSolicitationQuotationFormData,
 } from "definations/procurement-validator";
 import FormTextArea from "atoms/FormTextArea";
+import EoiAPI from "services/procurementApi/eoi";
 
 const Quotation = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
+
+  const { data: eoiData } = EoiAPI.useGetEoisQuery(
+    useMemo(() => ({ params: { type: "OPEN_TENDER" } }), [])
+  );
+
+  const eoiOptions = useMemo(
+    () =>
+      // @ts-ignore
+      eoiData?.data.results.map(({ name, id }) => ({
+        label: name,
+        value: id,
+      })),
+    [eoiData]
+  );
 
   const { data: purchaseRequest, isLoading: isPurchaseRequestLoading } =
     PurchaseRequestAPI.useGetPurchaseRequestsQuery({});
@@ -43,6 +58,7 @@ const Quotation = () => {
       tender_type: "",
       purchase_request: "",
       procurement_type: "",
+      eoi_tender: "",
     },
   });
 
@@ -57,8 +73,6 @@ const Quotation = () => {
     path += "/items";
     navigate(path);
   };
-
-  console.log(form.formState.errors);
 
   return (
     <RfqLayout>
@@ -78,22 +92,28 @@ const Quotation = () => {
             </div>
 
             <FormTextArea name='background' label='Background' required />
-
-            <FormSelect name='tender_type' label='Tender Type'>
-              <SelectContent>
-                {[
-                  "CLOSED SOURCE",
-                  "OPENED SOURCE",
-                  "LIMITED SOLICITATION",
-                  "NATIONAL OPEN TENDER",
-                ].map((value: string, index: number) => (
-                  <SelectItem key={index} value={value}>
-                    {value}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </FormSelect>
-
+            <div className='grid grid-cols-2 gap-6'>
+              <FormSelect name='tender_type' label='Tender Type'>
+                <SelectContent>
+                  {[
+                    "CLOSED SOURCE",
+                    "OPENED SOURCE",
+                    "LIMITED SOLICITATION",
+                    "NATIONAL OPEN TENDER",
+                  ].map((value: string, index: number) => (
+                    <SelectItem key={index} value={value}>
+                      {value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </FormSelect>
+              <FormSelect
+                label='EOI'
+                name='eoi_tender'
+                placeholder='Select EOI'
+                options={eoiOptions}
+              />
+            </div>
             <div className='grid grid-cols-2 gap-6'>
               <FormSelect name='request_type' label='Request type'>
                 <SelectContent>

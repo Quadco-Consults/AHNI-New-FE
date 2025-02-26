@@ -34,8 +34,6 @@ const TPS = () => {
     path: { id: cbaData?.data?.solicitation?.id ?? skipToken },
   });
 
-  console.log({ cbaData });
-
   const [createManualBidCBAPrequalification] =
     ManualBidCbaPrequalificationAPI.useCreateManualBidCbaPrequalificationMutation();
 

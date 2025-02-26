@@ -30,7 +30,7 @@ const ItemSchema = z.object({
   solicitation_items: z.array(
     z.object({
       item: z.string().min(1, "Please select an item"),
-      lot: z.string().min(1, "Please select a lot"),
+      lot: z.string().optional(),
       quantity: z.string().min(1, "Please enter quantity"),
     })
   ),
@@ -44,7 +44,7 @@ const Items = () => {
     defaultValues: {},
   });
 
-  const { setValue, getValues, handleSubmit } = form;
+  const { setValue, handleSubmit } = form;
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -136,13 +136,12 @@ const Items = () => {
 
   const onSubmit: SubmitHandler<z.infer<typeof ItemSchema>> = async (data) => {
     const payload = { ...quotationData, ...data };
-    // console.log({ payload });
 
     try {
-      const res = await createSolicitation(payload).unwrap();
+      await createSolicitation(payload).unwrap();
       sessionStorage.removeItem("rfqQuotationFormData");
       toast.success("Solicitation Created Successfully");
-      navigate(`${RouteEnum.RFQ_CREATE_CBA}?id=${res?.data?.id}`);
+      navigate(RouteEnum.RFQ);
     } catch (error: any) {
       toast.error(error.data.message ?? "Something went wrong");
     }
@@ -185,7 +184,6 @@ const Items = () => {
                   <FormSelect
                     name={`solicitation_items.${index}.lot`}
                     label='Lot'
-                    required
                   >
                     <SelectContent>
                       {isLotLoading && <LoadingSpinner />}
