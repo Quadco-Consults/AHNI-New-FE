@@ -77,6 +77,7 @@ import AddObligationModal from "./components/ObligationModal";
 import AddNewItems from "pages/protectedPages/modules/procurement/AddNewItems";
 import AddMarketPrice from "pages/protectedPages/modules/config/AddMarketPrice";
 import SubGrantManualSubUploadModal from "./components/PartnerSubmissionUploadModal";
+import AddCBAVendor from "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/AddCBAVendor";
 
 const sheets: Record<string, ReactNode> = {
   [DialogType.Categories]: <CategoriesModal />,
@@ -111,6 +112,7 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.AddStock]: <AddStock />,
 
   [DialogType.AddMarketPrice]: <AddMarketPrice />,
+  [DialogType.AddCBAVendor]: <AddCBAVendor />,
   [DialogType.AddNewItems]: <AddNewItems />,
   [DialogType.AddTeamMenbers]: <TeamMemberSelection />,
   [DialogType.AddFundingSource]: <AddFundingSource />,

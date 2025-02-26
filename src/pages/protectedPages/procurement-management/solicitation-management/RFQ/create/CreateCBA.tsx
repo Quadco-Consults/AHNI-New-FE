@@ -41,6 +41,7 @@ import { useGetAllUsersQuery } from "services/auth/user";
 import useQuery from "hooks/useQuery";
 import { zodResolver } from "@hookform/resolvers/zod";
 import RfqLayout from "./RfqLayout";
+import { useGetAllSolicitationsQuery } from "services/procurementApi/solicitation";
 
 const CreateCBA = () => {
   const navigate = useNavigate();
@@ -48,12 +49,15 @@ const CreateCBA = () => {
   const rfqId = searchParams.get("id");
   const name = searchParams.get("name");
 
-  console.log({ rfqId, name });
+  const { data: rfqData, isLoading } = useGetAllSolicitationsQuery({
+    // page,
+    size: 2000000,
+  });
 
   // const query = useQuery();
   // const rfqId = query.get("id");
 
-  const { data: users, isLoading } = useGetAllUsersQuery({
+  const { data: users } = useGetAllUsersQuery({
     page: 1,
     size: 2000000,
   });
@@ -90,7 +94,7 @@ const CreateCBA = () => {
       cba_date: data?.cba_date,
       assignee: data?.assignee,
       status: "PENDING",
-      solicitation: rfqId,
+      solicitation: data?.solicitation,
       lot: data.lot,
     };
 
@@ -98,28 +102,31 @@ const CreateCBA = () => {
       // @ts-ignore
       await createCbaMutation(payload).unwrap();
       toast.success("Successfully created.");
-      navigate(RouteEnum.RFQ);
+      navigate(RouteEnum.COMPETITIVE_BID_ANALYSIS);
     } catch (error) {
       toast.error("Something went wrong");
       console.log(error);
     }
   };
 
-  const breadcrumbs = [
-    { name: "Procurement", icon: true },
-    { name: "Solicitation Management", icon: true },
-    { name: "RFQ", icon: true },
-    { name: "Detail", icon: true },
-    { name: "Create CBA", icon: false },
-  ];
-
   return (
-    <RfqLayout>
+    <div className='bg-white p-4 h-full'>
       <h4 className='font-semibold text-lg pb-5'>Create CBA</h4>
 
       <Form {...form}>
         {/* @ts-ignore */}
         <form className='space-y-8' onSubmit={handleSubmit(onSubmit)}>
+          <FormSelect name='solicitation' label='RFQ'>
+            <SelectContent>
+              {isLoading && <LoadingSpinner />}
+              {rfqData?.data?.results?.map((rfq) => (
+                <SelectItem key={rfq?.id} value={rfq?.id}>
+                  {/* {rfq?.first_name} {rfq?.last_name} */}
+                  {rfq?.rfq_id}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </FormSelect>
           <div className='grid grid-cols-1 gap-4 w-full md:grid-cols-3'>
             <FormSelect name='cba_type' label='CBA type'>
               <SelectContent>
@@ -315,7 +322,7 @@ const CreateCBA = () => {
           </div>
         </form>
       </Form>
-    </RfqLayout>
+    </div>
   );
 };
 

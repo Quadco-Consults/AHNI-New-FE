@@ -10,7 +10,7 @@ import FilterIcon from "components/icons/FilterIcon";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import { Link, generatePath } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
-import EyeIcon from "components/icons/EyeIcon";
+// import EyeIcon from "components/icons/EyeIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { Badge } from "components/ui/badge";
 import { Checkbox } from "components/ui/checkbox";
@@ -20,6 +20,7 @@ import PrinterIcon from "components/icons/PrinterIcon";
 import SendIcon from "components/icons/SendIcon";
 import { useState } from "react";
 import { Loading } from "components/shared/Loading";
+import { Plus } from "lucide-react";
 
 const CompetitiveAnalysis = () => {
   const [page, setPage] = useState(1);
@@ -45,6 +46,16 @@ const CompetitiveAnalysis = () => {
       </div>
 
       <Card className='space-y-10'>
+        <div className='flex items-center justify-end'>
+          <Link to={RouteEnum.RFQ_CREATE_CBA}>
+            <Button>
+              <span>
+                <Plus size={15} />
+              </span>
+              Create New
+            </Button>
+          </Link>
+        </div>
         <div className='flex items-center justify-start gap-2'>
           <span className='flex items-center w-1/3 px-2 py-2 border rounded-lg'>
             <SearchIcon />

@@ -28,7 +28,7 @@ import logoPng from "assets/imgs/logo.png";
 import Card from "components/shared/Card";
 import { Icon } from "@iconify/react";
 import { Badge } from "components/ui/badge";
-import { Link, generatePath } from "react-router-dom";
+import { Link, generatePath, useNavigate } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
 import FormTextArea from "atoms/FormTextArea";
 import FormInput from "atoms/FormInput";
@@ -58,6 +58,7 @@ const EOI = () => {
   const [file, setFile] = useState<File | null>(null);
   const [open, setOpen] = useState(false);
   const [categorySearchParams, setCategorySearchParams] = useState("");
+  const navigate = useNavigate();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -92,6 +93,7 @@ const EOI = () => {
       description: "",
       eoi_number: "",
       // status: "",
+      type: "",
       categories: [],
     },
   });
@@ -108,6 +110,7 @@ const EOI = () => {
     }
     const opening_date = startDate ? format(startDate, "yyy-MM-dd") : "";
     const closing_date = endDate ? format(endDate, "yyy-MM-dd") : "";
+    console.log({ data });
 
     const formData = new FormData();
     formData.append("name", data.name);
@@ -118,11 +121,17 @@ const EOI = () => {
     formData.append("closing_date", closing_date);
     formData.append("document", file);
     formData.append("eoi_number", data.eoi_number);
+    formData.append("type", data.type);
     data.categories.forEach((item) => formData.append("categories", item));
 
     try {
-      await createEoiMutation(formData).unwrap();
+      const response = await createEoiMutation(formData).unwrap();
       toast.success("Successfully Created.");
+      console.log({ response });
+
+      if (data?.type === "OPEN_TENDER") {
+        navigate(RouteEnum.RFQ_CREATE_QUOTATION);
+      }
       setOpen(false);
     } catch (error) {
       console.log(error);
@@ -144,6 +153,14 @@ const EOI = () => {
   if (isLoading) {
     return <Loading />;
   }
+
+  const tenderOptions = [
+    { label: "New Vendor", value: "NEW_VENDOR" },
+    { label: "Open Tender", value: "OPEN_TENDER" },
+  ].map(({ label, value }) => ({
+    label: label,
+    value: value,
+  }));
 
   return (
     <div className='space-y-10'>
@@ -276,6 +293,15 @@ const EOI = () => {
                               )}
                             </SelectContent>
                           </FormSelect>
+                        </div>
+                        <div>
+                          <FormSelect
+                            name='type'
+                            label='Tender'
+                            placeholder='Select Tender Type'
+                            required
+                            options={tenderOptions}
+                          />
                         </div>
                       </div>
 

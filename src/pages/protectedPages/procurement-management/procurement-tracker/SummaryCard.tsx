@@ -16,12 +16,20 @@ const SummaryCard = () => {
       header: "Donor Name",
       accessorKey: "donor_name",
       size: 150,
+      cell: ({ row }) => {
+        return <div>{row.original?.purchse_order?.po_reference}</div>;
+      },
     },
+    // Project
     {
       header: "Programme Requesting",
       accessorKey: "programme_requesting",
       size: 150,
+      cell: ({ row }) => {
+        return <div>{row.original?.pr_reference}</div>;
+      },
     },
+    // location
     {
       header: "Office Requesting",
       accessorKey: "office_requesting",
@@ -45,7 +53,7 @@ const SummaryCard = () => {
     },
     {
       header: "Item Category (drop down)",
-      accessorKey: "item_category_drop_down",
+      accessorKey: "item_category",
       size: 150,
     },
     {
@@ -62,6 +70,9 @@ const SummaryCard = () => {
       header: "FCO",
       accessorKey: "f-c-o",
       size: 150,
+      cell: ({ row }) => {
+        return <div>{row.original?.purchse_order?.fco_number || "-"}</div>;
+      },
     },
     {
       header: "Description of goods/ services",
@@ -97,7 +108,7 @@ const SummaryCard = () => {
 
       <DataTable
         //   @ts-ignore
-        data={data?.results || []}
+        data={data?.data?.results || []}
         columns={columns}
         // isLoading={isLoading}
       />
