@@ -1,3 +1,4 @@
+import FormButton from "atoms/FormButton";
 import Card from "components/shared/Card";
 import GoBack from "components/shared/GoBack";
 import { Loading } from "components/shared/Loading";
@@ -17,6 +18,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import InterviewAPI from "services/hrApi/hr-interview";
 import JobApplicationAPI from "services/hrApi/hr-job-applications";
+import { toast } from "sonner";
 
 const InterviewForm = () => {
   const params = useParams();
@@ -39,13 +41,44 @@ const InterviewForm = () => {
     formState: { errors },
   } = form;
 
-  const onSubmit = (data: any) => {
-    console.log("Submitted Data:", data);
+  const onSubmit = async (formData: any) => {
+    const payload = {
+      candidate_name: data?.data?.applicant_name,
+      position_applied: data?.data?.position_applied,
+      date_of_interview: data?.data?.created_datetime,
+      appearance_rating: formData["rating-0"],
+      appearance_comments: formData["comments-0"],
+      communication_rating: formData["rating-1"],
+      communication_comments: formData["comments-1"],
+      teamwork_rating: formData["rating-2"],
+      teamwork_comments: formData["comments-2"],
+      ethics_rating: formData["rating-3"],
+      ethics_comments: formData["comments-3"],
+      analytical_rating: formData["rating-4"],
+      analytical_comments: formData["comments-4"],
+      knowledge_rating: formData["rating-5"],
+      knowledge_comments: formData["comments-5"],
+      experience_rating: formData["rating-6"],
+      experience_comments: formData["comments-6"],
+      preferred_candidate: formData.preference,
+      recommendation: formData.recommendations,
+      interviewer: data?.data?.interviewer || "", // Ensure this is a valid UUID
+    };
+    try {
+      // @ts-ignore
+      await createInterview(payload).unwrap();
+      toast.success(" Interview Submitted successfully");
+      navigate(-1);
+    } catch (error) {
+      toast.error("Something went wrong");
+      console.error(error);
+    }
   };
 
   if (isLoading) {
     return <Loading />;
   }
+
   return (
     <div className='flex flex-col gap-4'>
       <GoBack />
@@ -177,12 +210,14 @@ const InterviewForm = () => {
             </label>
           </div>
           <div className='flex w-full justify-end mt-4'>
-            <Button
+            <FormButton
+              disabled={createLoading}
+              loading={createLoading}
               type='submit'
               className='bg-primary text-white py-2 px-4 rounded-md hover:bg-secondary transition duration-300 ease-in-out'
             >
               Complete Interview
-            </Button>
+            </FormButton>
           </div>
         </form>
       </Card>
