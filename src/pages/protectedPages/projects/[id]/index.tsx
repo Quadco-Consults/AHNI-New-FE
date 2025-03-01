@@ -6,12 +6,12 @@ import Summary from "./Summary";
 import Uploads from "./Upload";
 import { Loading } from "components/shared/Loading";
 import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
 } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
 import { RouteEnum } from "constants/RouterConstants";
@@ -20,98 +20,104 @@ import { skipToken } from "@reduxjs/toolkit/query/react";
 import Performance from "./Performance";
 import Activity from "./Activity";
 import ProjectObligation from "./Obligation";
+import ObligationHistory from "pages/protectedPages/c&g/grant/_components/ObligationHistory";
+import { useGetSingleGrantQuery } from "services/c&g/grant/grant";
 
 const ProjectDetail = () => {
-    const navigate = useNavigate();
-    const { id } = useParams();
+  const navigate = useNavigate();
+  const { id } = useParams();
 
-    localStorage.setItem("projectDetailID", id as string);
+  localStorage.setItem("projectDetailID", id as string);
 
-    const { data: project, isLoading } = useGetSingleProjectQuery(
-        id ?? skipToken
-    );
+  const { data: project, isLoading } = useGetSingleProjectQuery(
+    id ?? skipToken
+  );
 
-    const goBack = () => {
-        navigate(-1);
-    };
+  const { data, isLoading: loadingGrant } = useGetSingleGrantQuery(
+    project?.data?.grant_id ?? skipToken
+  );
 
-    if (isLoading) {
-        return <Loading />;
-    }
+  const goBack = () => {
+    navigate(-1);
+  };
 
-    return (
-        <div className="space-y-6 relative min-h-screen">
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href={RouteEnum.PROJECTS}>
-                            Projects
-                        </BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator>
-                        <Icon icon="iconoir:slash" />
-                    </BreadcrumbSeparator>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Details</BreadcrumbPage>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
-            <button
-                onClick={goBack}
-                className="w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center"
-            >
-                <LongArrowLeft />
-            </button>
+  if (isLoading) {
+    return <Loading />;
+  }
 
-            <Tabs defaultValue="summary" className="space-y-5">
-                <TabsList className="ml-10">
-                    <TabsTrigger value="summary">Project Summary</TabsTrigger>
+  return (
+    <div className="space-y-6 relative min-h-screen">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href={RouteEnum.PROJECTS}>Projects</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator>
+            <Icon icon="iconoir:slash" />
+          </BreadcrumbSeparator>
+          <BreadcrumbItem>
+            <BreadcrumbPage>Details</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <button
+        onClick={goBack}
+        className="w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center"
+      >
+        <LongArrowLeft />
+      </button>
 
-                    <TabsTrigger value="obligation">
-                        Project Obligation
-                    </TabsTrigger>
+      <Tabs defaultValue="summary" className="space-y-5">
+        <TabsList className="ml-10">
+          <TabsTrigger value="summary">Project Summary</TabsTrigger>
 
-                    <TabsTrigger value="performance">
-                        Project Performance
-                    </TabsTrigger>
+          <TabsTrigger value="obligation">Project Obligation</TabsTrigger>
 
-                    <TabsTrigger value="uploads">Uploads</TabsTrigger>
+          <TabsTrigger value="performance">Project Performance</TabsTrigger>
 
-                    <TabsTrigger value="activity">Activity/Report</TabsTrigger>
-                </TabsList>
+          <TabsTrigger value="uploads">Uploads</TabsTrigger>
 
-                {project && (
-                    <>
-                        <TabsContent value="summary">
-                            <Card>
-                                <Summary {...project.data} />
-                            </Card>
-                        </TabsContent>
+          <TabsTrigger value="activity">Activity/Report</TabsTrigger>
+        </TabsList>
 
-                        <TabsContent value="obligation">
-                            <Card>
-                                <ProjectObligation {...project.data} />
-                            </Card>
-                        </TabsContent>
+        {project && (
+          <>
+            <TabsContent value="summary">
+              <Card>
+                <Summary {...project.data} />
+              </Card>
+            </TabsContent>
 
-                        <TabsContent value="performance">
-                            <Card>
-                                <Performance {...project.data} />
-                            </Card>
-                        </TabsContent>
-
-                        <TabsContent value="uploads">
-                            <Uploads />
-                        </TabsContent>
-
-                        <TabsContent value="activity">
-                            <Activity />
-                        </TabsContent>
-                    </>
+            <TabsContent value="obligation">
+              <Card>
+                {/* <ProjectObligation {...project.data} /> */}
+                {data && (
+                  <ObligationHistory
+                    grandID={project?.data?.grant_id}
+                    {...data?.data}
+                  />
                 )}
-            </Tabs>
-        </div>
-    );
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="performance">
+              <Card>
+                <Performance {...project.data} />
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="uploads">
+              <Uploads />
+            </TabsContent>
+
+            <TabsContent value="activity">
+              <Activity />
+            </TabsContent>
+          </>
+        )}
+      </Tabs>
+    </div>
+  );
 };
 
 export default ProjectDetail;
