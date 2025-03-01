@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { TotalExpenditureSvg, TotalIncomeSvg } from "assets/svgs/CAndGSvgs";
 import DataTable from "components/Table/DataTable";
 import { IGrantSingleData } from "definations/c&g/grants";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { obligationColumns } from "components/Table/columns/c&g/grant/obligation";
 import { useGetAllObligationsQuery } from "services/c&g/grant/obligation";
@@ -11,6 +11,7 @@ import { formatNumberCurrency } from "utils/utls";
 const ObligationHistory: React.FC<any> = ({
   total_obligation_amount,
   total_expenditure_amount,
+  grandID,
 }: IGrantSingleData) => {
   const StatsCard = useMemo(() => {
     return [
@@ -34,11 +35,13 @@ const ObligationHistory: React.FC<any> = ({
   }, [total_obligation_amount, total_expenditure_amount]);
 
   const [page, setPage] = useState(1);
+  const path = useLocation();
 
   const { id } = useParams();
+  const idToUse = !path.pathname.includes("projects") ? id : grandID;
 
   const { data, isFetching } = useGetAllObligationsQuery(
-    id ? { grantId: id, page, size: 10 } : skipToken
+    idToUse ? { grantId: idToUse, page, size: 10 } : skipToken
   );
 
   return (
