@@ -1,7 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import {
-    IExpenditurePaginatedData,
-    IObligationPaginatedData,
+  IExpenditurePaginatedData,
+  IObligationPaginatedData,
 } from "definations/c&g/grants";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
@@ -16,102 +16,103 @@ import { DialogType } from "constants/dailogs";
 import { useParams } from "react-router-dom";
 import PencilIcon from "components/icons/PencilIcon";
 import { useDeleteObligationMutation } from "services/c&g/grant/obligation";
+import { formatNumberCurrency } from "utils/utls";
 
 export const obligationColumns: ColumnDef<IObligationPaginatedData>[] = [
-    {
-        header: "Amount Spent",
-        id: "amount",
-        accessorFn: ({ amount }) => `$${amount}`,
-        size: 200,
-    },
-    {
-        header: "Description",
-        id: "description",
-        accessorKey: "description",
-        size: 200,
-    },
+  {
+    header: "Amount Spent",
+    id: "amount",
+    accessorFn: ({ amount }) => formatNumberCurrency(amount, "USD"),
+    size: 200,
+  },
+  {
+    header: "Description",
+    id: "description",
+    accessorKey: "description",
+    size: 200,
+  },
 
-    {
-        header: "",
-        id: "action",
-        size: 80,
-        cell: ({ row }) => <TableMenu {...row.original} />,
-    },
+  {
+    header: "",
+    id: "action",
+    size: 80,
+    cell: ({ row }) => <TableMenu {...row.original} />,
+  },
 ];
 
 const TableMenu = ({ id, ...rest }: IExpenditurePaginatedData) => {
-    const [isDialogOpen, setDialogOpen] = useState(false);
+  const [isDialogOpen, setDialogOpen] = useState(false);
 
-    const { id: grantId } = useParams();
+  const { id: grantId } = useParams();
 
-    const [deleteObligation, { isLoading }] = useDeleteObligationMutation();
+  const [deleteObligation, { isLoading }] = useDeleteObligationMutation();
 
-    const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
 
-    const handleDelete = async () => {
-        try {
-            await deleteObligation({
-                grantId: grantId ?? "",
-                obligationId: id,
-            }).unwrap();
-            toast.success("Obligation Deleted");
-        } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
-        }
-    };
+  const handleDelete = async () => {
+    try {
+      await deleteObligation({
+        grantId: grantId ?? "",
+        obligationId: id,
+      }).unwrap();
+      toast.success("Obligation Deleted");
+    } catch (error: any) {
+      toast.error(error.data.message ?? "Something went wrong");
+    }
+  };
 
-    return (
-        <div className="flex items-center gap-2">
-            <>
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <Button variant="ghost" className="flex gap-2 py-6">
-                            <MoreOptionsHorizontalIcon />
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-fit">
-                        <Button
-                            className="w-full flex items-center justify-start gap-2"
-                            variant="ghost"
-                            onClick={() => {
-                                dispatch(
-                                    openDialog({
-                                        type: DialogType.ADD_OBLIGATION_MODAL,
-                                        dialogProps: {
-                                            header: "Update Obligation",
-                                            width: "max-w-lg",
-                                            grantId,
-                                            obligation: {
-                                                id,
-                                                ...rest,
-                                            },
-                                        },
-                                    })
-                                );
-                            }}
-                        >
-                            <PencilIcon />
-                            Edit
-                        </Button>
-                        <Button
-                            className="w-full flex items-center justify-start gap-2"
-                            variant="ghost"
-                            onClick={() => setDialogOpen(true)}
-                        >
-                            <DeleteIcon />
-                            Delete
-                        </Button>
-                    </PopoverContent>
-                </Popover>
-            </>
+  return (
+    <div className="flex items-center gap-2">
+      <>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" className="flex gap-2 py-6">
+              <MoreOptionsHorizontalIcon />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-fit">
+            <Button
+              className="w-full flex items-center justify-start gap-2"
+              variant="ghost"
+              onClick={() => {
+                dispatch(
+                  openDialog({
+                    type: DialogType.ADD_OBLIGATION_MODAL,
+                    dialogProps: {
+                      header: "Update Obligation",
+                      width: "max-w-lg",
+                      grantId,
+                      obligation: {
+                        id,
+                        ...rest,
+                      },
+                    },
+                  })
+                );
+              }}
+            >
+              <PencilIcon />
+              Edit
+            </Button>
+            <Button
+              className="w-full flex items-center justify-start gap-2"
+              variant="ghost"
+              onClick={() => setDialogOpen(true)}
+            >
+              <DeleteIcon />
+              Delete
+            </Button>
+          </PopoverContent>
+        </Popover>
+      </>
 
-            <ConfirmationDialog
-                open={isDialogOpen}
-                title="Are you sure you want to delete this obligation?"
-                loading={isLoading}
-                onCancel={() => setDialogOpen(false)}
-                onOk={handleDelete}
-            />
-        </div>
-    );
+      <ConfirmationDialog
+        open={isDialogOpen}
+        title="Are you sure you want to delete this obligation?"
+        loading={isLoading}
+        onCancel={() => setDialogOpen(false)}
+        onOk={handleDelete}
+      />
+    </div>
+  );
 };

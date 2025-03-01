@@ -16,11 +16,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { AuthRoutes } from "constants/RouterConstants";
 import { useAppDispatch } from "hooks/useStore";
 import { logOut } from "store/auth/authSlice";
+import { getPageTitleFromPath } from "utils/utls";
 
 const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
   const { setTheme } = useTheme();
   const location = useLocation();
-  const pageTitle = getPageTitle(location.pathname);
+  const pageTitle = getPageTitleFromPath(location.pathname);
 
   const navigate = useNavigate();
 
@@ -88,8 +89,8 @@ const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
 
 export default Header;
 
-// Function to extract page title from URL
-const getPageTitle = (pathname: string) => {
-  const lastSegment = pathname.split("/").pop();
-  return lastSegment?.replace(/-/g, " ");
-};
+// // Function to extract page title from URL
+// const getPageTitle = (pathname: string) => {
+//   const lastSegment = pathname.split("/").pop();
+//   return lastSegment?.replace(/-/g, " ");
+// };
