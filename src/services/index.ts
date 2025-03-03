@@ -132,6 +132,7 @@ const baseAPI = createApi({
         "AGREEMENT",
         "CONSULTANT_MANAGEMENT",
         "CONSULTANCY_REPORT",
+        "FACILITATOR_MANAGEMENT",
     ],
     // keepUnusedDataFor: 5 * 60,
     keepUnusedDataFor: 0,

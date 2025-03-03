@@ -337,6 +337,14 @@ export const CG_ROUTES = {
     CONSULTANCY_REPORT: "/c-and-g/consultancy-report",
     CREATE_CONSULTANCY_REPORT: "/c-and-g/consultancy-report/create/",
     CONSULTANCY_REPORT_DETAILS: "/c-and-g/consultancy-report/:id/",
+    
+
+    // FACILITATOR MANAGEMENT
+    FACILITATOR: "/c-and-g/facilitators",
+    CREATE_FACILITATOR_DETAILS:
+        "/c-and-g/facilitator/create/application-details",
+    CREATE_FACILITATOR_WORK_SCOPE: "/c-and-g/facilitator/create/scope-of-work",
+    FACILITATOR_DETAILS: "/c-and-g/facilitator/:id",
 
     CG_MODULES: "/modules/c-and-g",
 };
