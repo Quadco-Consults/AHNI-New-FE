@@ -931,7 +931,10 @@ const DEPARTMENTAL_LINKS = [
                         path: CG_ROUTES.CONSULTANCY_REPORT,
                     },
                     { name: "Agreement", path: CG_ROUTES.AGREEMENT },
-                    { name: "Facilitator Management", path: "/" },
+                    {
+                        name: "Facilitator Management",
+                        path: CG_ROUTES.FACILITATOR,
+                    },
                     { name: "SLA", path: CG_ROUTES.CONSULTANCY_SLA },
                 ],
             },

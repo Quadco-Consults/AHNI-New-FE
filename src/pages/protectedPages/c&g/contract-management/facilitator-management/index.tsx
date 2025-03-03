@@ -8,7 +8,7 @@ import { useState } from "react";
 import { LoadingSpinner } from "components/shared/Loading";
 import Pagination from "components/shared/Pagination";
 
-export default function Consultancy() {
+export default function FacilitatorManagement() {
     const [page, setPage] = useState(1);
 
     const { data, isFetching } = useGetAllConsultantManagementsQuery({
@@ -19,9 +19,9 @@ export default function Consultancy() {
     return (
         <section className="space-y-5">
             <div className="flex justify-end">
-                <Link to={CG_ROUTES.CREATE_CONSULTANCY_DETAILS}>
+                <Link to={CG_ROUTES.CREATE_FACILITATOR_DETAILS}>
                     <Button>
-                        <Plus size={29} /> New Consultant
+                        <Plus size={29} /> New Facilitator
                     </Button>
                 </Link>
             </div>

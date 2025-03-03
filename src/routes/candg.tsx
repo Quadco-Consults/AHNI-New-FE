@@ -270,6 +270,37 @@ export const candg = [
         ),
     },
 
+    // FACILITATOR MANAGEMENT
+    {
+        path: CG_ROUTES.FACILITATOR,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/facilitator-management/"
+                )
+        ),
+    },
+
+    {
+        path: CG_ROUTES.CREATE_FACILITATOR_DETAILS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/facilitator-management/create/ApplicationDetails"
+                )
+        ),
+    },
+
+    {
+        path: CG_ROUTES.CREATE_FACILITATOR_WORK_SCOPE,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/facilitator-management/create/ScopeOfWork"
+                )
+        ),
+    },
+
     // sla
     {
         path: CG_ROUTES.CONSULTANCY_SLA,
