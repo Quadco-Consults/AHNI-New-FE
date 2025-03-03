@@ -41,6 +41,12 @@ export const hr = [
     ),
   },
   {
+    path: HrRoutes.ADVERTISEMENT_INTERVIEW_DETAILS,
+    element: lazy(
+      () => import("pages/protectedPages/hr/advertisement/id/InterviewDetail")
+    ),
+  },
+  {
     path: HrRoutes.SELECTION,
     element: lazy(() => import("pages/protectedPages/hr/selection/index")),
   },

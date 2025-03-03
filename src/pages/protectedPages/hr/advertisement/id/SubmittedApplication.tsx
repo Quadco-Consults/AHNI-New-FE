@@ -1,20 +1,9 @@
 // import { generatePath } from "react-router-dom";
+import { JobAdvertisement } from "definations/hr-types/job-advertisement";
 import ApplicationsTable from "../table/ApplicationsTable";
 
-// import { HrRoutes } from "constants/RouterConstants";
-
-const SubmittedApplication = () => {
-  // const href = generatePath(
-  //   HrRoutes.ADVERTISEMENT_MANUAL_APPLICATION_SUBMISSION
-  // );
-  // console.log({ href });
-
-  return (
-    <ApplicationsTable
-      href={"/hr/advertisement/1/application-form"}
-      linkTitle={"Add Applicant"}
-    />
-  );
+const SubmittedApplication = ({ id }: JobAdvertisement) => {
+  return <ApplicationsTable linkTitle={"Add Applicant"} id={id} />;
 };
 
 export default SubmittedApplication;
