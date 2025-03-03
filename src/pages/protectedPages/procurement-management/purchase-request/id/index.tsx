@@ -21,41 +21,19 @@ const PurchaseRequesttDetails = () => {
     path: { id: id as string },
   });
 
-  // const goBack = () => {
-  //   navigate(-1);
-  // };
-  // Simulating fetching data
-
   if (isLoading) {
     return <LoadingSpinner />;
   }
 
-  // const calculateTotalCost = (row) =>
-  //   row.quantity * row.number * row.facility * row.frequency * row.unitCost;
+  // @ts-ignore
+  const grandTotal = data?.data?.items.reduce(
+    // @ts-ignore
+    (sum, row) => sum + Number(row.amount),
+    0
+  );
 
-  // const totals = rows.reduce(
-  //   (acc, row) => {
-  //     const totalCost = calculateTotalCost(row);
-  //     return {
-  //       quantity: acc.quantity + row.quantity,
-  //       number: acc.number + row.number,
-  //       facility: acc.facility + row.facility,
-  //       frequency: acc.frequency + row.frequency,
-  //       unitCost: acc.unitCost + row.unitCost,
-  //       totalCost: acc.totalCost + totalCost,
-  //     };
-  //   },
-  //   {
-  //     quantity: 0,
-  //     number: 0,
-  //     facility: 0,
-  //     frequency: 0,
-  //     unitCost: 0,
-  //     totalCost: 0,
-  //   }
-  // );
   return (
-    <section className='min-h-screen space-y-8'>
+    <section className='min-h-screen space-y-8 bg-white p-8'>
       <div className='flex justify-center items-center flex-col'>
         <img src={logoPng} alt='logo' width={200} />
         <h1>Achieving Health Nigeria Initiative (AHNI)</h1>
@@ -64,16 +42,6 @@ const PurchaseRequesttDetails = () => {
       <div>
         {" "}
         <div className='flex items-center justify-end'>
-          {/* <FormButton
-              loading={isLoading}
-              disabled={isLoading}
-              type='submit'
-              className='flex items-center justify-center gap-2'
-            >
-              Submit
-              <LongArrowRight />
-            </FormButton> */}
-
           <h3 className='flex gap-2 p-2 bg-alternate border border-primary rounded'>
             <strong>Ref:</strong>
             {/* @ts-ignore */}
@@ -108,7 +76,7 @@ const PurchaseRequesttDetails = () => {
                   Requesting Dept.{" "}
                 </h4>
                 {/* @ts-ignore */}
-                <h4>{data?.data?.requesting_department}</h4>
+                <h4>{data?.data?.requesting_department_detail?.name}</h4>
               </div>
             </div>{" "}
             <div className='flex flex-col gap-3'>
@@ -117,7 +85,7 @@ const PurchaseRequesttDetails = () => {
                   Deliver
                 </h4>
                 {/* @ts-ignore */}
-                <h4>{data?.data?.deliver_to}</h4>
+                <h4>{data?.data?.location_detail?.name}</h4>
               </div>
             </div>{" "}
           </div>
@@ -139,41 +107,34 @@ const PurchaseRequesttDetails = () => {
             {/* @ts-ignore */}
             {data?.data?.items.map((row, index) => (
               <TableRow className='text-center' key={index}>
-                <TableCell>{row.index}</TableCell>
-                <TableCell>{row.item}</TableCell>
-                <TableCell>{row.fco_number}</TableCell>
+                <TableCell>{index + 1}</TableCell>
+                <TableCell>{row.item_detail?.name || row.item}</TableCell>
+                <TableCell className='flex items-center gap-2'>
+                  {/* @ts-ignore */}
+                  {row?.fconumber_details.map((fco, idx) => (
+                    <div key={idx}>
+                      {fco?.module_code}{" "}
+                      {idx + 1 < row?.fconumber_details.length && ","}
+                    </div>
+                  )) || row.fco_number}
+                </TableCell>
                 <TableCell>{row.quantity}</TableCell>
-                <TableCell>{row.unit_cost}</TableCell>
-                <TableCell>{row.amount}</TableCell>
-                {/* <TableCell>{row.unitCost.toFixed(2)}</TableCell> */}
-                {/* <TableCell>{calculateTotalCost(row).toFixed(2)}</TableCell> */}
+                <TableCell>
+                  ₦ {Number(row.unit_cost).toLocaleString()}.00
+                </TableCell>
+                <TableCell>
+                  ₦ {Number(row.amount).toLocaleString()}.00
+                </TableCell>
               </TableRow>
             ))}
-            {/* <TableRow className='text-center'>
-              <TableCell>
-                <strong>Totals</strong>
-              </TableCell>
-              <TableCell>
-                <strong>{totals.quantity}</strong>
-              </TableCell>
-              <TableCell>
-                <strong>{totals.number}</strong>
-              </TableCell>
-              <TableCell>
-                <strong>{totals.facility}</strong>
-              </TableCell>
-
-              <TableCell>
-                <strong>{totals.unitCost.toFixed(2)}</strong>
-              </TableCell>
-              <TableCell>
-                <strong>{totals.totalCost.toFixed(2)}</strong>
-              </TableCell>
-            </TableRow> */}
           </TableBody>
         </Table>
       </div>
 
+      <div className='flex items-center justify-center w-fit gap-20 px-5 py-3 border rounded-lg border-primary text-primary ml-auto mt-6'>
+        <h4>Total:</h4>
+        <span>₦ {grandTotal?.toLocaleString()}.00</span>
+      </div>
       <div className=' grid grid-cols-2 gap-y-12'>
         <div className=' space-y-3'>
           <p>Signed</p>

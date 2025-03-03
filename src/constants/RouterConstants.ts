@@ -45,6 +45,9 @@ export const AdminRoutes = {
   CREATE_PAYMENT_REQUEST_UPLOADS: "/admin/payment-request/create/uploads",
   VIEW_PAYMENT_REQUEST: "/admin/payment-request/:id",
 
+  // AGREEMENT
+  AGREEMENT: "/admin/agreements/",
+
   // ASSET MAINTENANCE
   INDEX_ASSET_MAINTENANCE: "/admin/asset-maintenance",
   CREATE_ASSET_MAINTENANCE: "/admin/asset-maintenance/create",
@@ -74,14 +77,49 @@ export const AdminRoutes = {
   CreateAssets: "/admin/inventory-management/create-assets",
   ViewAssets: "/admin/inventory-management/view-assets",
 
-  Agrements: "/admin/agrements",
-  AgrementsCreeate: "/admin/agrements/create",
   HMO: "/admin/agrements/HM0",
   SLA: "/admin/agrements/SLA",
   Security: "/admin/agrements/security",
   Insurance: "/admin/agrements/insurance",
   Ticketing: "/admin/agrements/ticketing",
   ViewAggrement: "/admin/agrements/View-Aggrement",
+
+  // starting new import
+
+  //rfq routes
+  RFQ: "/admin/solicitation/rfq",
+  RFQ_CREATE_QUOTATION: "/admin/solicitation/rfq/create/quotation",
+  RFQ_CREATE_ITEMS: "/admin/solicitation/rfq/create/items",
+  RFQ_DETAILS: "/admin/solicitation/rfq/:id",
+  RFQ_CREATE_CBA: "/admin/solicitation/rfq/create/create-cba",
+  RFQ_COMPETITIVE_BID_ANALYSIS:
+    "/admin/solicitation/rfq/competitive-bid-analysis/:id",
+  RFQ_DETAILS_BID_SUBMISSION:
+    "/admin/solicitation/rfq/:id/manual-bid-submission",
+  RFQ_VENDOR: "/admin/rfq-vendor",
+
+  //purchase order routes
+  PURCHASE_ORDER: "/admin/purchase-order",
+  PURCHASE_ORDER_ID: "/admin/purchase-order/:id",
+  PURCHASE_ORDER_ID_TERMS: "/admin/purchase-order/:id/terms-and-conditions",
+  PURCHASE_ORDER_NEW: "/admin/purchase-order-new",
+
+  SUBMISSION_OF_BIDS: "/admin/submission-of-bids",
+  PRICE_INTELLIGENCE: "/admin/price-intelligence",
+
+  //competitive bid analysis routes
+  COMPETITIVE_BID_ANALYSIS: "/admin/competitive-bid-analysis",
+  COMPETITIVE_BID_ANALYSIS_DETAILS: "/admin/competitive-bid-analysis/:id",
+  COMPETITIVE_BID_ANALYSIS_DETAILS_APPROVAL_CHECK:
+    "/admin/competitive-bid-analysis/:id/check-approval",
+  COMPETITIVE_BID_ANALYSIS_DETAILS_START:
+    "/admin/competitive-bid-analysis/:id/start",
+  COMPETITIVE_BID_ANALYSIS_DETAILS_FINANCIAL_BID_OPENING:
+    "/admin/competitive-bid-analysis/:id/financial-bid-opening",
+  SUMMARY_OF_TECHNICAL_PREQUALIFICATION:
+    "/admin/competitive-bid-analysis/:id/summary-of-technical-prequalification",
+
+  //ending
 };
 
 export const RouteEnum = {
@@ -153,13 +191,13 @@ export const RouteEnum = {
   COMPETITIVE_BID_ANALYSIS_DETAILS:
     "/procurement-management/competitive-bid-analysis/:id",
   COMPETITIVE_BID_ANALYSIS_DETAILS_APPROVAL_CHECK:
-    "/procurement-management/competitive-bid-analysis/check-approval",
+    "/procurement-management/competitive-bid-analysis/:id/check-approval",
   COMPETITIVE_BID_ANALYSIS_DETAILS_START:
     "/procurement-management/competitive-bid-analysis/:id/start",
   COMPETITIVE_BID_ANALYSIS_DETAILS_FINANCIAL_BID_OPENING:
-    "/procurement-management/competitive-bid-analysis/financial-bid-opening",
+    "/procurement-management/competitive-bid-analysis/:id/financial-bid-opening",
   SUMMARY_OF_TECHNICAL_PREQUALIFICATION:
-    "/procurement-management/competitive-bid-analysis/summary-of-technical-prequalification",
+    "/procurement-management/competitive-bid-analysis/:id/summary-of-technical-prequalification",
   //eoi routes
   EOI: "/procurement-management/vendor-management/eoi",
   EOI_VIEW: "/procurement-management/vendor-management/eoi/:id",
@@ -283,16 +321,12 @@ export const RouteEnum = {
   NOTIFICATIONS: "/notifications",
 };
 
-export const CG_GROUTES = {
+export const CG_ROUTES = {
   OVERVIEW: "/c-and-g/overview",
   GRANT: "/c-and-g/grant",
   GRANT_CREATE: "/c-and-g/create-grant",
-  // ---
-
-  AGREEMENT: "/c-and-g/agreement",
   GRANT_DETAILS: "/c-and-g/grant-details/:id",
 
-  // ------
   SUBGRANT: "/c-and-g/sub-grant",
   CREATE_SUBGRANT_AWARD: "/c-and-g/sub-grant/create-sub-grant",
   SUBGRANT_AWARD_DETAILS: "/c-and-g/sub-grant/:id",
@@ -300,39 +334,50 @@ export const CG_GROUTES = {
     "/c-and-g/sub-grant/manual-submission/organization-details/:id",
   CREATE_SUBGRANT_SUBMISSION_UPLOADS:
     "/c-and-g/sub-grant/manual-submission/document-upload/:id",
+  SUBGRANT_SUBMISSION_DETAILS:
+    "/c-and-g/sub-grant/:subGrantId/submission/:partnerSubId",
 
-  // sub grant
-
-  SUBMITTED_APPLICATIONS: "/c-and-g/sub-grant/submitted-applications/:id",
-  ////// pre award assessment
-  PRE_AWARD_ASSESSMENT: "/c-and-g/sub-grant/pre-award-assessment",
-  PRE_AWARD_ASSESSMENT_SINGLE: "/c-and-g/sub-grant/pre-award-assessment/:id",
-  PRE_AWARD_ASSESSMENT_STEP_1: "/c-and-g/sub-grant/pre-award-assessment_1/:id",
-  PRE_AWARD_ASSESSMENT_STEP_2: "/c-and-g/sub-grant/pre-award-assessment_2/:id",
-  PRE_AWARD_ASSESSMENT_STEP_3:
-    "/c-and-g/sub-grant/pre-award-assessment_3/:id/:result",
-  PRE_AWARD_ASSESSMENT_STEP_4: "/c-and-g/sub-grant/pre-award-assessment_3/:id",
+  PREAWARD_ASSESSMENT:
+    "/c-and-g/sub-grant/:subGrantId/submission/:partnerSubId/preaward-assessment",
 
   // close out
   CLOSE_OUT: "/c-and-g/close-out-plan",
   CLOSE_OUT_DETAILS: "/c-and-g/close-out-plan/details/:id",
   NEW_CLOSE_OUT_PLAN: "/c-and-g/close-out-plan/new-grant",
 
-  // consultancy
+  // CONTRACT MANAGEMENT
+  AGREEMENT: "/c-and-g/agreements",
+  CREATE_AGREEMENT: "/c-and-g/agreements/create",
+  // -------------
+
+  // CONSULTANCY
   CONSULTANCY: "/c-and-g/consultancy",
-  NEW_CONSULTANCY:
-    "/c-and-g/consultancy/create-new-consultancy/application-details",
-  NEW_CONSULTANCY_SCOPE:
-    "/c-and-g/consultancy/create-new-consultancy/scope-of-work",
-  CONSULTANCY_DETAILS: "/c-and-g/consultancy/details/:id",
-  ADD_CONSULTANCY_APPLICATION:
-    "/api/v1/contract-grants/consultancy-applications/:id",
+  CREATE_CONSULTANCY_DETAILS: "/c-and-g/consultancy/create/application-details",
+  CREATE_CONSULTANCY_WORK_SCOPE: "/c-and-g/consultancy/create/scope-of-work",
+  CONSULTANCY_DETAILS: "/c-and-g/consultancy/:id",
+  CREATE_CONSULTANCY_APPLICANT: "/c-and-g/consultancy/:id/applicant/create",
+
   CONSULTANCY_APPLICATION_DETAILS:
     "/api/v1/contract-grants/consultancy-applications_details/:id",
   CONSULTANCY_SHORTLIST_METRIC:
     "/api/v1/consultancy/shortlisted-applications-metrics/:id",
   CONSULTANCY_SLA: "/c-and-g/consultancy/sla",
   //   OVERVIEW: "/c-and-g/overview",
+
+    // CONSULTANCY REPORT
+    CONSULTANCY_REPORT: "/c-and-g/consultancy-report",
+    CREATE_CONSULTANCY_REPORT: "/c-and-g/consultancy-report/create/",
+    CONSULTANCY_REPORT_DETAILS: "/c-and-g/consultancy-report/:id/",
+    
+
+    // FACILITATOR MANAGEMENT
+    FACILITATOR: "/c-and-g/facilitators",
+    CREATE_FACILITATOR_DETAILS:
+        "/c-and-g/facilitator/create/application-details",
+    CREATE_FACILITATOR_WORK_SCOPE: "/c-and-g/facilitator/create/scope-of-work",
+    FACILITATOR_DETAILS: "/c-and-g/facilitator/:id",
+
+    CG_MODULES: "/modules/c-and-g",
 };
 
 export const HrRoutes = {

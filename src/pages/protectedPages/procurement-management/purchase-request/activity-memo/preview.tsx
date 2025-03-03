@@ -6,7 +6,7 @@ import { Separator } from "components/ui/separator";
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
 import { ChevronRight, Save } from "lucide-react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "store/index";
 
 import { toast } from "sonner";
@@ -25,6 +25,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
 import useQuery from "hooks/useQuery";
 import { skipToken } from "@reduxjs/toolkit/query";
+import { activityActions } from "store/formData/activity-memo";
 
 // Sample Checkbox component
 // eslint-disable-next-line react/display-name
@@ -59,6 +60,7 @@ const CheckboxForm = () => {
   const request = query.get("request");
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const activity = useSelector((state: RootState) => state.activity.activity);
   const mergedObject = activity.reduce((acc: any, obj: any) => {
@@ -82,13 +84,11 @@ const CheckboxForm = () => {
     useMemo(() => (id ? { path: { id: id as string } } : skipToken), [id])
   );
 
-  console.log({ requestsDetails });
-
   const form = useForm<FormData>({
     resolver: zodResolver(UploadSchema),
     defaultValues: {
       beneficiaries: [],
-      integratedTraining: "",
+      // integratedTraining: "true",
     },
   });
 
@@ -98,6 +98,29 @@ const CheckboxForm = () => {
   const beneficiary = watch("beneficiaries");
   const budgets = watch("budget_expended");
   const activityBudget = watch("activity_budget");
+
+  useEffect(() => {
+    if (request) {
+      setValue(
+        "integratedTraining",
+        // @ts-ignore
+        "true"
+      );
+    }
+
+    if (requestsDetails?.project_area) {
+      setValue(
+        "beneficiaries",
+        // @ts-ignore
+        projects?.data?.results.map(({ title, id, project_id }) => ({
+          name: title,
+          selected: id === requestsDetails?.project_area ? true : false,
+          id,
+          project_id,
+        }))
+      );
+    }
+  }, [request, setValue, requestsDetails]);
 
   // Update default values when beneficiaries data is available
   useEffect(() => {
@@ -115,8 +138,6 @@ const CheckboxForm = () => {
       );
     }
   }, [projects, setValue]);
-
-  console.log({ projects, requestsDetails });
 
   useEffect(() => {
     if (requestsDetails) {
@@ -162,16 +183,34 @@ const CheckboxForm = () => {
     }
   }, [integratedTraining, projects, setValue]);
 
+  useEffect(() => {
+    if (request) {
+      setValue(
+        "integratedTraining",
+        // @ts-ignore
+        "true"
+      );
+    }
+
+    if (requestsDetails?.project_area) {
+      setValue(
+        "beneficiaries",
+        // @ts-ignore
+        projects?.data?.results.map(({ title, id, project_id }) => ({
+          name: title,
+          selected: id === requestsDetails?.project_area ? true : false,
+          id,
+          project_id,
+        }))
+      );
+    }
+  }, [request, setValue, requestsDetails]);
+
   const [createActivityMemoMutation] =
     PurchaseRequestAPI.useCreateActivityMemoMutation();
 
   // const dispatch = useDispatch();
   const onSubmit = async (data: FormData) => {
-    // dispatch(activityActions.clearActivity());
-
-    // Define your programAreas array
-    // const programAreas = []; // Example IDs of program areas
-
     // Filter the beneficiaries based on selected and IDs in programAreas
     const filteredBeneficiaries = data?.beneficiaries?.filter(
       (beneficiary) => beneficiary.selected
@@ -186,7 +225,6 @@ const CheckboxForm = () => {
       authorized_by: mergedObject.through,
       is_program: true,
       balance: data.balance,
-      // location: "south park",
       subject: mergedObject.subject,
       budget_line: mergedObject.budget_line,
       comment: mergedObject.comment,
@@ -204,10 +242,10 @@ const CheckboxForm = () => {
     try {
       const res = await createActivityMemoMutation(payload).unwrap();
 
-      // navigate(RouteEnum.PREVIEW_LETTER);
       navigate(`${RouteEnum.PREVIEW_LETTER}?id=${res?.id}&created=${"true"}`);
 
       toast.success("Successfully created.");
+      dispatch(activityActions.clearActivity());
     } catch (error) {
       toast.error("Something went wrong");
       console.log(error);
@@ -217,6 +255,7 @@ const CheckboxForm = () => {
   const filteredBeneficiaries = beneficiary?.filter(
     (beneficiary) => beneficiary.selected
   );
+  console.log({ requestsDetails });
 
   return (
     <Form {...form}>
@@ -339,12 +378,14 @@ const CheckboxForm = () => {
                       <TableRow>
                         <TableCell>
                           {mergedObject?.selectedActivity?.activity_code ||
+                            requestsDetails?.activity_detail?.code ||
                             requestsDetails?.activity}
                         </TableCell>
                         <TableCell>
                           {mergedObject?.selectedCostCategory?.name ||
                             // @ts-ignore
-                            requestsDetails?.cost_categories[0]}
+                            requestsDetails?.cost_categories_details[0]
+                              ?.module_name}
                         </TableCell>
                       </TableRow>
                     </TableBody>
@@ -441,9 +482,7 @@ const CheckboxForm = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredBeneficiaries.map((data) => {
-                        console.log({ data });
-
+                      {filteredBeneficiaries?.map((data) => {
                         return (
                           <TableRow key={data?.id} className='h-[80px]'>
                             <TableCell>Award ID: {data?.project_id}</TableCell>
@@ -470,8 +509,8 @@ const CheckboxForm = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredBeneficiaries.map(({ id }) => (
-                        <TableRow key={id} className='h-[80px]'>
+                      {filteredBeneficiaries?.map(({ id }) => (
+                        <TableRow key={id} className=''>
                           <TableCell>
                             {" "}
                             <Controller
@@ -511,7 +550,7 @@ const CheckboxForm = () => {
                                 <>
                                   <input
                                     type='text'
-                                    className='w-full h-full border-none rounded-none p-2'
+                                    className='w-full h-full border-none rounded-none'
                                     {...field}
                                   />
                                 </>

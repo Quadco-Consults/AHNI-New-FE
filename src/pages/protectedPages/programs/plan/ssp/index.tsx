@@ -12,7 +12,7 @@ import { DialogType } from "constants/dailogs";
 import { openDialog } from "store/ui";
 import UploadIcon from "components/icons/UploadIcon";
 import DataTable from "components/Table/DataTable";
-import { useGetAllSupervisionPlanQuery } from "services/program/plan/supervision-plan";
+import { useGetAllSupervisionPlanQuery } from "services/program/plan/supervision-plan/supervision-plan";
 import BreadcrumbCard from "components/shared/Breadcrumb";
 import { useState } from "react";
 import { supportiveSupervisionPlanColumns } from "components/Table/columns/program/plan/supportive-supervision-plan";

@@ -24,7 +24,7 @@ const TableComponent = () => {
       },
     });
 
-  const [createVendorBidAnalysis] =
+  const [createVendorBidAnalysis, { isLoading: submissionLoading }] =
     ManualBidCbaPrequalificationAPI.useCreateVendorBidAnalysisMutation();
 
   const [recommendationNote, setRecommendationNote] = useState("");
@@ -38,7 +38,6 @@ const TableComponent = () => {
           }))
         ),
       ];
-      console.log({ companies });
 
       const itemsMap = new Map();
       const extraDataMap = new Map();
@@ -47,8 +46,6 @@ const TableComponent = () => {
         const companyName = result.vendor.company_name;
 
         result.bid_details.bidsubmissionitems.forEach((item) => {
-          console.log({ quad: item });
-
           if (!itemsMap.has(item.solicitation_item_id)) {
             itemsMap.set(item.solicitation_item_id, {
               id: item?.solicitation_item_id,
@@ -94,7 +91,6 @@ const TableComponent = () => {
   const [checkedItems, setCheckedItems] = useState({});
 
   const [headerChecked, setHeaderChecked] = useState({});
-  console.log({ headerChecked, checkedItems });
 
   const handleCheckboxChange = (itemId, company, checked) => {
     setCheckedItems((prevCheckedItems) => {
@@ -184,7 +180,6 @@ const TableComponent = () => {
     const selectedItems = formattedData?.data?.items
       .filter((item) => checkedItems[item.id]?.[vendor?.name])
       .map((item) => item.id);
-    console.log({ selectedItems, formattedData: formattedData?.data?.items });
 
     return selectedItems;
   };
@@ -207,6 +202,7 @@ const TableComponent = () => {
           vendor_id: vendor?.id, // Assuming `vendor` is the vendor ID
           recommendation_note: recommendationNote,
           selected_items: getSelectedItemsForVendor(vendor),
+          solicitation_id: id,
         };
 
         return createVendorBidAnalysis(payload).unwrap();
@@ -398,7 +394,9 @@ const TableComponent = () => {
           />
         </div>
         <div className='flex w-full justify-end'>
-          <Button onClick={handleSubmitAnalysis}>Submit Analysis</Button>
+          <Button onClick={handleSubmitAnalysis} disabled={submissionLoading}>
+            Submit Analysis
+          </Button>
         </div>
       </div>
     </>

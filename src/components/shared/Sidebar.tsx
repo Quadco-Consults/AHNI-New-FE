@@ -7,7 +7,7 @@ import {
   RouteEnum,
   AdminRoutes,
   HrRoutes,
-  CG_GROUTES,
+  CG_ROUTES,
 } from "constants/RouterConstants";
 import { Icon } from "@iconify/react";
 import { cn } from "lib/utils";
@@ -46,8 +46,8 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
         sidebarWidth === false ? "w-[19%]" : "w-[5%]"
       )}
     >
-      <section className='flex flex-col w-full gap-2'>
-        <div className='relative h-[5rem] overflow-hidden'>
+      <section className="flex flex-col w-full gap-2">
+        <div className="relative h-[5rem] overflow-hidden">
           <div
             className={cn(
               "bg-background z-20 mx-auto duration-200 ",
@@ -56,9 +56,9 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
           >
             <img
               src={logoSvg}
-              alt='logo'
+              alt="logo"
               // width={50}
-              className='object-cover w-24 mx-auto'
+              className="object-cover w-24 mx-auto"
             />
             <IconButton
               onClick={() => setSidebarWidth(!sidebarWidth)}
@@ -67,12 +67,12 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                 sidebarWidth && "right-3 rotate-180 duration-200"
               )}
             >
-              <Icon icon='ph:arrow-left-duotone' fontSize={15} />
+              <Icon icon="ph:arrow-left-duotone" fontSize={15} />
             </IconButton>
           </div>
         </div>
 
-        <div className='px-2 pt-5 space-y-6'>
+        <div className="px-2 pt-5 space-y-6">
           {/* Dashboard button */}
 
           <NavLink
@@ -96,7 +96,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
           </NavLink>
 
           {/* Departmental Links */}
-          <div className=''>
+          <div className="">
             <h4
               className={cn(
                 "text-black/40 px-2 py-3 text-xs font-semibold uppercase duration-200",
@@ -114,8 +114,8 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                   "text-primary "
               )}
             >
-              <div className='flex w-[85%] items-center gap-2'>
-                <span className=''>
+              <div className="flex w-[85%] items-center gap-2">
+                <span className="">
                   <ProjectsIcon />
                 </span>
                 <h4
@@ -130,7 +130,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
             </NavLink>
 
             {DEPARTMENTAL_LINKS.map((link: any, index: number) => (
-              <div key={index} className='w-full '>
+              <div key={index} className="w-full ">
                 <div
                   onClick={() => {
                     setShowMenu(!showMenu);
@@ -141,8 +141,8 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                     location.pathname.startsWith(link.path) && "text-primary "
                   )}
                 >
-                  <div className='flex w-[85%] items-center gap-2'>
-                    <span className=''>{link.icon}</span>
+                  <div className="flex w-[85%] items-center gap-2">
+                    <span className="">{link.icon}</span>
                     <h4
                       className={cn(
                         " w-[100%] truncate font-medium",
@@ -157,7 +157,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                       "h-5 w-5 -rotate-90 transition duration-200",
                       showMenu && selectedLinkIndex === index && "rotate-0"
                     )}
-                    aria-hidden='true'
+                    aria-hidden="true"
                   />
                 </div>
                 <motion.ul
@@ -170,12 +170,12 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                           height: 0,
                         }
                   }
-                  className='h-0 overflow-hidden list-none pl-14'
+                  className="h-0 overflow-hidden list-none pl-14"
                 >
                   {link?.link?.map((el: any, i: number) =>
                     el?.sublinks ? (
                       <div key={i}>
-                        <li className='text-sm list-none hover:text-amber-400 hover:cursor-pointer'>
+                        <li className="text-sm list-none hover:text-amber-400 hover:cursor-pointer">
                           <div
                             onClick={() => {
                               setShowSubMenu(!showSubMenu);
@@ -194,7 +194,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                                   " bg-amber-400 border-amber-400 hover:bg-amber-400"
                               )}
                             ></span>
-                            <h6 className='py-2'>{el.name}</h6>
+                            <h6 className="py-2">{el.name}</h6>
                             <ChevronDown
                               className={cn(
                                 "h-3 w-3 transition duration-200",
@@ -202,7 +202,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                                   selectedLinkSubIndex === i &&
                                   "rotate-180"
                               )}
-                              aria-hidden='true'
+                              aria-hidden="true"
                             />
                           </div>
                         </li>
@@ -217,7 +217,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                                   height: 0,
                                 }
                           }
-                          className='h-0 overflow-hidden text-sm'
+                          className="h-0 overflow-hidden text-sm"
                         >
                           {el?.sublinks?.map((sublink: any) => (
                             <NavLink
@@ -227,7 +227,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                                 return isActive ? "text-amber-400" : "";
                               }}
                             >
-                              <li className='py-2 ml-8 list-none hover:text-amber-400 hover:cursor-pointer'>
+                              <li className="py-2 ml-8 list-none hover:text-amber-400 hover:cursor-pointer">
                                 {sublink.name}
                               </li>
                             </NavLink>
@@ -256,7 +256,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                                 " bg-amber-400 border-amber-400 hover:bg-amber-400"
                             )}
                           ></span>
-                          <h6 className='py-2'>{el.name}</h6>
+                          <h6 className="py-2">{el.name}</h6>
                         </li>
                       </NavLink>
                     )
@@ -278,7 +278,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
             </h4>
 
             {MODULE_LINKS.map((link: any, index: number) => (
-              <div key={index} className='w-full '>
+              <div key={index} className="w-full ">
                 <div
                   onClick={() => {
                     setShowSettings(!showSettings);
@@ -289,8 +289,8 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                     location.pathname.startsWith(link.path) && "text-primary "
                   )}
                 >
-                  <div className='flex w-[85%] items-center gap-2'>
-                    <span className=''>{link.icon}</span>
+                  <div className="flex w-[85%] items-center gap-2">
+                    <span className="">{link.icon}</span>
                     <h4
                       className={cn(
                         " w-[100%] truncate font-medium",
@@ -305,7 +305,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                       "h-5 w-5 -rotate-90 transition duration-200",
                       showSettings && selectedLinkIndex === index && "rotate-0"
                     )}
-                    aria-hidden='true'
+                    aria-hidden="true"
                   />
                 </div>
                 <motion.ul
@@ -318,12 +318,12 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                           height: 0,
                         }
                   }
-                  className='h-0 overflow-hidden list-none pl-14'
+                  className="h-0 overflow-hidden list-none pl-14"
                 >
                   {link?.link?.map((el: any, i: number) =>
                     el?.sublinks ? (
                       <div key={i}>
-                        <li className='text-sm list-none hover:text-amber-400 hover:cursor-pointer'>
+                        <li className="text-sm list-none hover:text-amber-400 hover:cursor-pointer">
                           <div
                             onClick={() => {
                               setShowSubMenu(!showSubMenu);
@@ -342,7 +342,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                                   " bg-amber-400 border-amber-400 hover:bg-amber-400"
                               )}
                             ></span>
-                            <h6 className='py-2'>{el.name}</h6>
+                            <h6 className="py-2">{el.name}</h6>
                             <ChevronDown
                               className={cn(
                                 "h-3 w-3 transition duration-200",
@@ -350,7 +350,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                                   selectedLinkSubIndex === i &&
                                   "rotate-180"
                               )}
-                              aria-hidden='true'
+                              aria-hidden="true"
                             />
                           </div>
                         </li>
@@ -365,7 +365,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                                   height: 0,
                                 }
                           }
-                          className='h-0 overflow-hidden text-sm'
+                          className="h-0 overflow-hidden text-sm"
                         >
                           {el?.sublinks?.map((sublink: any) => (
                             <NavLink
@@ -375,7 +375,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                                 return isActive ? "text-amber-400" : "";
                               }}
                             >
-                              <li className='py-2 ml-8 list-none hover:text-amber-400 hover:cursor-pointer'>
+                              <li className="py-2 ml-8 list-none hover:text-amber-400 hover:cursor-pointer">
                                 {sublink.name}
                               </li>
                             </NavLink>
@@ -404,7 +404,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                                 " bg-amber-400 border-amber-400 hover:bg-amber-400"
                             )}
                           ></span>
-                          <h6 className='py-2'>{el.name}</h6>
+                          <h6 className="py-2">{el.name}</h6>
                         </li>
                       </NavLink>
                     )
@@ -417,7 +417,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
           </div>
 
           {/* Global Hub */}
-          <div className=''>
+          <div className="">
             <h4
               className={cn(
                 "text-black/40 px-2 py-3 text-xs font-semibold uppercase duration-200",
@@ -435,8 +435,8 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                   "text-primary "
               )}
             >
-              <div className='flex w-[85%] items-center gap-2'>
-                <span className=''>
+              <div className="flex w-[85%] items-center gap-2">
+                <span className="">
                   <Bell />
                 </span>
                 <h4
@@ -507,6 +507,11 @@ const MODULE_LINKS = [
         name: "HR",
         path: RouteEnum.MODULES_HR,
       },
+
+      {
+        name: "C and G",
+        path: CG_ROUTES.CG_MODULES,
+      },
     ],
   },
 ];
@@ -558,6 +563,10 @@ const DEPARTMENTAL_LINKS = [
         ],
       },
       { name: "Fund Request", path: RouteEnum.PROGRAM_FUND_REQUEST },
+      {
+        name: "Adhoc Management",
+        path: CG_ROUTES.CONSULTANCY,
+      },
       { name: "Reports", path: RouteEnum.PROGRAM_REPORT },
     ],
   },
@@ -586,7 +595,10 @@ const DEPARTMENTAL_LINKS = [
       { name: "Supplier Database", path: RouteEnum.SUPPLIER_DATABASE },
       { name: "Price Intelligence", path: RouteEnum.PRICE_INTELLIGENCE },
       { name: "Procurement Plan", path: RouteEnum.PROCUREMENT_PLAN },
-      { name: "Procurement Tracker", path: RouteEnum.PROCUREMENT_TRACKER },
+      {
+        name: "Procurement Tracker",
+        path: RouteEnum.PROCUREMENT_TRACKER,
+      },
       { name: "Purchase Requests", path: RouteEnum.PURCHASE_REQUEST },
       {
         name: "Solicitation Management",
@@ -662,7 +674,24 @@ const DEPARTMENTAL_LINKS = [
           // { name: "Procurement Report", path: RouteEnum.REPORT },
         ],
       },
-
+      {
+        name: "Solicitation Management",
+        path: "/procurement-management/solicitation",
+        sublinks: [
+          { name: "RFQ", path: RouteEnum.RFQ },
+          // { name: "National Open Tender", path: RouteEnum.OPEN_TENDER },
+          // { name: "Single-Sourcing", path: RouteEnum.SINGLE_SOURCING },
+        ],
+      },
+      {
+        name: "Competitive Bid Analysis",
+        path: RouteEnum.COMPETITIVE_BID_ANALYSIS,
+        // sublinks: [
+        //   { name: "CBA", path: RouteEnum.COMPETITIVE_ANALYSIS },
+        //   { name: "Selection", path: RouteEnum.COMPETITIVE_SELECTION },
+        // ],
+      },
+      { name: "Service Order", path: RouteEnum.PURCHASE_ORDER },
       {
         name: "Fleet Management",
         path: "/admin/fleet-management",
@@ -696,7 +725,7 @@ const DEPARTMENTAL_LINKS = [
       },
       {
         name: "Agreements",
-        path: AdminRoutes.Agrements,
+        path: AdminRoutes.AGREEMENT,
         // sublinks: [
         //   { name: "Lease", path: AdminRoutes.Lease },
         //   { name: "SLA", path: AdminRoutes.SLA },
@@ -807,36 +836,38 @@ const DEPARTMENTAL_LINKS = [
     icon: <CGIcon />,
 
     link: [
-      { name: "Overview", path: CG_GROUTES.OVERVIEW },
+      { name: "Overview", path: CG_ROUTES.OVERVIEW },
 
-      { name: "Grants", path: CG_GROUTES.GRANT },
+      { name: "Grants", path: CG_ROUTES.GRANT },
 
       {
         name: "Sub Grants",
         sublinks: [
-          { name: "Awards", path: CG_GROUTES.SUBGRANT },
+          { name: "Awards", path: CG_ROUTES.SUBGRANT },
           {
             name: "Pre-award Assessment",
-            path: CG_GROUTES.PRE_AWARD_ASSESSMENT,
+            path: CG_ROUTES.PREAWARD_ASSESSMENT,
           },
         ],
       },
       {
         name: "Closeout",
-        sublinks: [{ name: "Closeout Plan", path: CG_GROUTES.CLOSE_OUT }],
+        sublinks: [{ name: "Closeout Plan", path: CG_ROUTES.CLOSE_OUT }],
       },
       {
         name: "Contract Management",
         sublinks: [
           {
-            name: "Consultant management",
-            path: CG_GROUTES.CONSULTANCY,
+            name: "Consultant Management",
+            path: CG_ROUTES.CONSULTANCY,
           },
-          { name: "Consultancy report", path: "/" },
-          { name: "Payment request", path: "/" },
-          { name: "Agreement", path: CG_GROUTES.AGREEMENT },
-          { name: "Facilitator management", path: "/" },
-          { name: "SLA", path: CG_GROUTES.CONSULTANCY_SLA },
+          {
+            name: "Consultancy Report",
+            path: CG_ROUTES.CONSULTANCY_REPORT,
+          },
+          { name: "Agreement", path: CG_ROUTES.AGREEMENT },
+          { name: "Facilitator Management", path: "/" },
+          { name: "SLA", path: CG_ROUTES.CONSULTANCY_SLA },
         ],
       },
       { name: "C&G Reports", path: "/" },

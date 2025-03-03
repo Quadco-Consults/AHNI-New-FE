@@ -7,7 +7,7 @@ import Card from "components/shared/Card";
 import { FormField, FormItem, Form, FormControl } from "components/ui/form";
 import { Label } from "components/ui/label";
 import MultiSelectFormField from "components/ui/multiselect";
-import { CG_GROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "constants/RouterConstants";
 import { ConsultancyMetrics } from "definations/candg-validator";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -73,7 +73,7 @@ const ConsultancyShortlisMetric = () => {
             toast.success("success");
             setTimeout(() => {
                 navigate(
-                    generatePath(CG_GROUTES.CONSULTANCY_DETAILS, {
+                    generatePath(CG_ROUTES.CONSULTANCY_DETAILS, {
                         id: params.id,
                     })
                 );

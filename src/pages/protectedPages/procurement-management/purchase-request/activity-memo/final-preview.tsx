@@ -44,6 +44,7 @@ const Preview = () => {
   const { data: costCategory } =
     // @ts-ignore
     useGetSingleCostCategoryQuery(
+      // @ts-ignore
       requestsDetails?.cost_categories[0] ?? skipToken
     );
 
@@ -65,6 +66,15 @@ const Preview = () => {
     useGetSingleInterventionAreaQuery(
       requestsDetails?.intervention_areas[0] ?? skipToken
     );
+
+  // @ts-ignore
+  const grandTotal = requestsDetails?.expenses.reduce(
+    // @ts-ignore
+    (sum, row) => sum + Number(row.total_cost),
+    0
+  );
+
+  console.log({ expense: requestsDetails?.expenses });
 
   return (
     <div className='bg-white p-8'>
@@ -91,10 +101,7 @@ const Preview = () => {
                 id: request,
               })}
             >
-              <Button className='flex gap-2 py-6'>
-                <AddSquareIcon />
-                View Purchase Request
-              </Button>
+              <Button className='flex gap-2 py-6'>View Purchase Request</Button>
             </Link>
           )}{" "}
         </div>
@@ -109,7 +116,7 @@ const Preview = () => {
         <div className=' my-3'>
           <div className='flex border-gray-200 border max-w-[800px] w-full'>
             <div className=' border-r border-gray-200 w-full max-w-[321px] p-3'>
-              Request Date:
+              <strong>Request Date:</strong>
             </div>
             <div className='w-full max-w-[490px] p-3'>
               {requestsDetails?.requested_date}
@@ -125,10 +132,11 @@ const Preview = () => {
           </div>{" "} */}
           <div className='flex border-gray-200 border max-w-[800px] w-full'>
             <div className=' border-r border-gray-200 w-full max-w-[321px] p-3'>
-              FCO #:{" "}
+              <strong>FCO</strong>
             </div>
             <div className='w-full max-w-[490px] p-3'>
-              {fcoNumber && fcoNumber?.data?.name}
+              {/* {fcoNumber && fcoNumber?.data?.name} */}
+              {requestsDetails?.fconumber_details[0]?.module_code}
             </div>
           </div>
         </div>
@@ -164,7 +172,6 @@ const Preview = () => {
                 <TableCell>Expense Item</TableCell>
                 <TableCell>Quantity</TableCell>
                 <TableCell># of Days</TableCell>
-                <TableCell># of Facility</TableCell>
                 <TableCell># Frequency</TableCell>
                 <TableCell>Unit Cost</TableCell>
                 <TableCell>Total Cost</TableCell>
@@ -174,40 +181,25 @@ const Preview = () => {
               {requestsDetails?.expenses.map((row, index) => (
                 <TableRow key={index}>
                   {/* expenses item name */}
-                  <TableCell>{row.item}</TableCell>
+                  <TableCell>{row?.item_detail?.name}</TableCell>
                   <TableCell>{row.quantity}</TableCell>
                   <TableCell>{row.num_of_days}</TableCell>
-                  <TableCell>{row.num_of_facility}</TableCell>
                   <TableCell>{row.frequency}</TableCell>
-                  <TableCell>{Number(row.unit_cost).toFixed(2)}</TableCell>
-                  <TableCell>{Number(row.total_cost).toFixed(2)}</TableCell>
+                  <TableCell>
+                    ₦ {Number(row.unit_cost).toLocaleString()}.00
+                  </TableCell>
+                  <TableCell>
+                    ₦ {Number(row.total_cost).toLocaleString()}.00
+                  </TableCell>
                 </TableRow>
               ))}
-              {/* <TableRow>
-                <TableCell>
-                  <strong>Totals</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>{totals.quantity}</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>{totals.days}</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>{totals.facility}</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>{totals.frequency}</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>{totals.unitCost.toFixed(2)}</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>{totals.totalCost.toFixed(2)}</strong>
-                </TableCell>
-              </TableRow> */}
             </TableBody>
           </Table>
+        </div>
+
+        <div className='flex items-center justify-center w-fit gap-20 px-5 py-3 border rounded-lg border-primary text-primary ml-auto mt-6'>
+          <h4>Total:</h4>
+          <span>₦ {grandTotal?.toLocaleString()}.00</span>
         </div>
         <div>
           {" "}

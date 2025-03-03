@@ -18,7 +18,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     label?: string;
 }
 
-const FormInput: FC<InputProps> = ({ name, label, ...rest }) => {
+const FormInput: FC<InputProps> = ({ name, label, disabled, ...rest }) => {
     const [isPasswordVisible, setPasswordVisibility] = useState(false);
     const { control } = useFormContext();
 
@@ -53,6 +53,7 @@ const FormInput: FC<InputProps> = ({ name, label, ...rest }) => {
                                             : type
                                     }
                                     placeholder={rest.placeholder}
+                                    disabled={disabled}
                                     onChange={onChange}
                                     value={value}
                                     className={cn(

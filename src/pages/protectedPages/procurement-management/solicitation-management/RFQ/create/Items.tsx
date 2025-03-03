@@ -5,29 +5,21 @@ import FormSelect from "atoms/FormSelectField";
 import { SelectContent, SelectItem } from "components/ui/select";
 import { Button } from "components/ui/button";
 import AddSquareIcon from "components/icons/AddSquareIcon";
-import { Form, FormControl, FormField, FormItem } from "components/ui/form";
+import { Form } from "components/ui/form";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import FormButton from "atoms/FormButton";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
 import { z } from "zod";
-import { SolicitationItemsSchema } from "definations/procurement-validator";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { MinusCircle } from "lucide-react";
 import { Label } from "components/ui/label";
-import SolicitationCriteriaAPI from "services/procurementApi/solicitation-evaluation-criteria";
-import MultiSelectFormField from "components/ui/rfqmultiselect";
-import LotsAPI from "services/procurementApi/lots";
-import { LotsResultsData } from "definations/procurement-types/lots";
-import { Loading, LoadingSpinner } from "components/shared/Loading";
+import { LoadingSpinner } from "components/shared/Loading";
 import PurchaseRequestAPI from "services/procurementApi/purchase-request";
-import ItemsAPI from "services/configs/items";
-import { ItemsResultsData } from "definations/configs/itmes";
 import { toast } from "sonner";
-import { useGetAllAssetsQuery } from "services/admin/inventory-management/asset";
 import { useGetAllLotsQuery } from "services/modules/procurement/lot";
 import { useGetAllSolicitationEvaluationCriteriaQuery } from "services/modules/procurement/solicitation-evaluation-criteria";
 import { useCreateSolicitationMutation } from "services/procurementApi/solicitation";
+import { useGetAllItemsQuery } from "services/modules/config/item";
 
 const ItemSchema = z.object({
   solicitation_evaluations: z.array(
@@ -35,7 +27,7 @@ const ItemSchema = z.object({
       criteria: z.string().min(1, "Please select a category"),
     })
   ),
-  items: z.array(
+  solicitation_items: z.array(
     z.object({
       item: z.string().min(1, "Please select an item"),
       lot: z.string().min(1, "Please select a lot"),
@@ -46,18 +38,17 @@ const ItemSchema = z.object({
 
 const Items = () => {
   const navigate = useNavigate();
-  const formData = JSON.parse(localStorage.getItem("rfqQuotation") as any);
+  // const formData = JSON.parse(localStorage.getItem("rfqQuotation") as any);
 
   const form = useForm<z.infer<typeof ItemSchema>>({
-    defaultValues: {
-      solicitation_evaluations: [{ criteria: "" }],
-      items: [{ item: "", lot: "", quantity: "0" }],
-    },
+    defaultValues: {},
   });
+
+  const { setValue, getValues, handleSubmit } = form;
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: "items",
+    name: "solicitation_items",
   });
 
   const {
@@ -69,18 +60,18 @@ const Items = () => {
     name: "solicitation_evaluations",
   });
 
-  const { data: asset, isLoading: isAssetLoading } = useGetAllAssetsQuery({
+  const { data: item } = useGetAllItemsQuery({
     page: 1,
     size: 2000000,
   });
 
-  const assetOptions = useMemo(
+  const itemOptions = useMemo(
     () =>
-      asset?.data.results.map(({ name, id }) => ({
+      item?.data.results.map(({ name, id }) => ({
         label: name,
         value: id,
       })),
-    [asset]
+    [item]
   );
 
   const { data: lot, isLoading: isLotLoading } = useGetAllLotsQuery({
@@ -94,7 +85,7 @@ const Items = () => {
         label: name,
         value: id,
       })),
-    [asset]
+    [lot]
   );
 
   const { data: solicitationCriteria } =
@@ -115,19 +106,40 @@ const Items = () => {
   const [createSolicitation, { isLoading: isCreateLoading }] =
     useCreateSolicitationMutation();
 
-  const onSubmit: SubmitHandler<z.infer<typeof ItemSchema>> = async (data) => {
-    const quotationData = JSON.parse(
-      sessionStorage.getItem("rfqQuotationFormData") || "{}"
-    );
+  const quotationData = JSON.parse(
+    sessionStorage.getItem("rfqQuotationFormData") || "{}"
+  );
 
+  const { data } = PurchaseRequestAPI.useGetPurchaseRequestQuery({
+    path: { id: quotationData?.purchase_request as string },
+  });
+
+  const itemsData = useMemo(() => {
+    // @ts-ignore
+    return data?.data?.items.map((item: any) => ({
+      item: item?.item || "",
+      fco: item?.fco || "",
+      quantity: item?.quantity || 0,
+      unit_cost: item?.unit_cost || 0,
+      description: item?.item?.name || "",
+      uom: item?.item?.uom === null ? "" : item?.item?.uom,
+      total: item?.sub_total_amount || 0,
+      name: item?.item_detail?.name,
+    }));
+  }, [data]);
+
+  useEffect(() => {
+    if (itemsData?.length > 0) {
+      setValue("solicitation_items", itemsData);
+    }
+  }, [itemsData, setValue]);
+
+  const onSubmit: SubmitHandler<z.infer<typeof ItemSchema>> = async (data) => {
     const payload = { ...quotationData, ...data };
-    // navigate(RouteEnum.RFQ_CREATE_CBA, {   });
-    // navigate(`${RouteEnum.RFQ_CREATE_CBA}?id=${res?.data?.id}`);
+    // console.log({ payload });
 
     try {
       const res = await createSolicitation(payload).unwrap();
-      console.log({ res, id: res?.data?.id });
-
       sessionStorage.removeItem("rfqQuotationFormData");
       toast.success("Solicitation Created Successfully");
       navigate(`${RouteEnum.RFQ_CREATE_CBA}?id=${res?.data?.id}`);
@@ -139,26 +151,42 @@ const Items = () => {
   return (
     <RfqLayout>
       <Form {...form}>
-        <form className='space-y-8 p-5' onSubmit={form.handleSubmit(onSubmit)}>
+        <form className='space-y-8 p-5' onSubmit={handleSubmit(onSubmit)}>
           <div className='space-y-5'>
             <h6 className='text-yellow-600'>Items</h6>
 
             {fields?.map((field, index) => (
               <div key={index} className='flex items-center gap-5 w-full'>
                 <div className='grid grid-cols-1 gap-4 w-full md:grid-cols-3'>
-                  <FormSelect
-                    name={`items.${index}.item`}
-                    label='Item'
-                    required
-                    options={assetOptions}
-                  />
+                  {!itemsData || itemsData?.length < index + 1 ? (
+                    <FormSelect
+                      name={`solicitation_items.${index}.item`}
+                      label='Item'
+                      required
+                      options={itemOptions}
+                      value={form.watch(`solicitation_items.${index}.item`)}
+                      disabled={true}
+                    />
+                  ) : (
+                    <FormInput
+                      name={`solicitation_items.${index}.name`}
+                      label='Item'
+                      required
+                      disabled
+                    />
+                  )}
+
                   <FormInput
-                    name={`items.${index}.quantity`}
+                    name={`solicitation_items.${index}.quantity`}
                     label='Quantity'
                     required
                   />
 
-                  <FormSelect name={`items.${index}.lot`} label='Lot' required>
+                  <FormSelect
+                    name={`solicitation_items.${index}.lot`}
+                    label='Lot'
+                    required
+                  >
                     <SelectContent>
                       {isLotLoading && <LoadingSpinner />}
                       {lotOptions?.map(({ label, value }) => (

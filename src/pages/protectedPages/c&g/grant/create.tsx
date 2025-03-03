@@ -7,7 +7,7 @@ import FormSelect from "atoms/FormSelect";
 import Card from "components/shared/Card";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
-import { CG_GROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "constants/RouterConstants";
 import { GrantSchema, TGrantFormData } from "definations/c&g/grants";
 import { useEffect, useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -16,7 +16,7 @@ import {
     useCreateGrantMutation,
     useGetSingleGrantQuery,
     useModifyGrantMutation,
-} from "services/c&g/grant";
+} from "services/c&g/grant/grant";
 import { useGetAllProjectsQuery } from "services/project";
 import { toast } from "sonner";
 
@@ -72,7 +72,7 @@ export default function CreateGrant() {
                 toast.success("Grant Created Successfully");
             }
 
-            navigate(CG_GROUTES.GRANT);
+            navigate(CG_ROUTES.GRANT);
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }

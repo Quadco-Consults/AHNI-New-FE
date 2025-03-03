@@ -5,7 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { generatePath, Link, useNavigate, useParams } from "react-router-dom";
 import { Loading } from "components/shared/Loading";
 import { skipToken } from "@reduxjs/toolkit/query/react";
-import { useGetSingleSupervisionPlanQuery } from "services/program/plan/supervision-plan";
+import { useGetSingleSupervisionPlanQuery } from "services/program/plan/supervision-plan/supervision-plan";
 import BreadcrumbCard from "components/shared/Breadcrumb";
 import { RouteEnum } from "constants/RouterConstants";
 

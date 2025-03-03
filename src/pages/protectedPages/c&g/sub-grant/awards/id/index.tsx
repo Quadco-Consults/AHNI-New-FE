@@ -1,16 +1,15 @@
 import BackNavigation from "atoms/BackNavigation";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import { Button } from "components/ui/button";
-import { CG_GROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "constants/RouterConstants";
 import SubGrantAwardDetails from "./SubGrantAwardDetails";
-import SubGrantSubmissionDetails from "./SubGrantSubmissionDetails";
+import SubGrantSubmissionDetails from "./submission";
 import { generatePath, Link, useParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import { useGetSingleSubGrantQuery } from "services/c&g/sub-grant";
+import { useGetSingleSubGrantQuery } from "services/c&g/subgrant/sub-grant";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { LoadingSpinner } from "components/shared/Loading";
 import { useState } from "react";
-import { useDebounce } from "ahooks";
 
 const SubGrantDetails = () => {
     const [tabValue, setTabValue] = useState("details");
@@ -50,7 +49,7 @@ const SubGrantDetails = () => {
                         <Link
                             className="w-full"
                             to={generatePath(
-                                CG_GROUTES.CREATE_SUBGRANT_SUBMISSION_DETAILS,
+                                CG_ROUTES.CREATE_SUBGRANT_SUBMISSION_DETAILS,
                                 {
                                     id,
                                 }
