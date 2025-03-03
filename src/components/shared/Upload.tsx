@@ -1,16 +1,21 @@
+import { cn } from "lib/utils";
+import { useFormContext } from "react-hook-form";
+
 type TProps = {
     children: React.ReactNode;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     multiple?: boolean;
+    className?: string;
 };
 
 export default function Upload({
     children,
     onChange,
     multiple = false,
+    className,
 }: TProps) {
     return (
-        <div className="inline-block relative">
+        <div className={cn("inline-block relative", className)}>
             {children}
             <input
                 type="file"

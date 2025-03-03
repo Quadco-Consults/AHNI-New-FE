@@ -11,8 +11,8 @@ import {
     useCreateSupervisionPlanMutation,
     useGetSingleSupervisionPlanQuery,
     useModifySupervisionPlanMutation,
-} from "services/program/plan/supervision-plan";
-import { TSSPCompositionFormValues } from "definations/program/plan/supervision-plan";
+} from "services/program/plan/supervision-plan/supervision-plan";
+import { TSSPCompositionFormValues } from "definations/program/plan/supervision-plan/supervision-plan";
 import { formatDate } from "utils/date";
 import { RouteEnum } from "constants/RouterConstants";
 import { skipToken } from "@reduxjs/toolkit/query";

@@ -1,38 +1,48 @@
 import { lazy } from "react";
-import { CG_GROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "constants/RouterConstants";
 
 export const candg = [
     {
-        path: CG_GROUTES.OVERVIEW,
+        path: CG_ROUTES.OVERVIEW,
         element: lazy(() => import("pages/protectedPages/c&g")),
     },
 
     {
-        path: CG_GROUTES.GRANT,
+        path: CG_ROUTES.GRANT,
         element: lazy(() => import("pages/protectedPages/c&g/grant")),
     },
 
     {
-        path: CG_GROUTES.GRANT_CREATE,
+        path: CG_ROUTES.GRANT_CREATE,
         element: lazy(() => import("pages/protectedPages/c&g/grant/create")),
     },
 
     {
-        path: CG_GROUTES.CREATE_SUBGRANT_SUBMISSION_DETAILS,
+        path: CG_ROUTES.CREATE_SUBGRANT_SUBMISSION_DETAILS,
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/c&g/sub-grant/awards/id/CreateSubGrantSubmissionDetails"
+                    "pages/protectedPages/c&g/sub-grant/awards/id/submission/create"
                 )
         ),
     },
 
     {
-        path: CG_GROUTES.CREATE_SUBGRANT_SUBMISSION_UPLOADS,
+        path: CG_ROUTES.CREATE_SUBGRANT_SUBMISSION_UPLOADS,
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/c&g/sub-grant/awards/id/CreateSubGrantSubmissionUploads"
+                    "pages/protectedPages/c&g/sub-grant/awards/id/submission/create/upload"
+                )
+        ),
+    },
+
+    {
+        path: CG_ROUTES.SUBGRANT_SUBMISSION_DETAILS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/sub-grant/awards/id/submission/id/Layout"
                 )
         ),
     },
@@ -40,163 +50,178 @@ export const candg = [
     // -----------------------
 
     {
-        path: CG_GROUTES.AGREEMENT,
+        path: CG_ROUTES.AGREEMENT,
         element: lazy(
-            () => import("pages/protectedPages/candg/consultancy/Agreement")
+            () =>
+                import("pages/protectedPages/c&g/contract-management/agreement")
         ),
     },
 
     {
-        path: CG_GROUTES.GRANT_DETAILS,
+        path: CG_ROUTES.CREATE_AGREEMENT,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/agreement/create"
+                )
+        ),
+    },
+
+    {
+        path: CG_ROUTES.GRANT_DETAILS,
         element: lazy(() => import("pages/protectedPages/c&g/grant/id")),
     },
 
     // sub grant
     {
-        path: CG_GROUTES.SUBGRANT,
+        path: CG_ROUTES.SUBGRANT,
         element: lazy(
             () => import("pages/protectedPages/c&g/sub-grant/awards")
         ),
     },
     {
-        path: CG_GROUTES.CREATE_SUBGRANT_AWARD,
+        path: CG_ROUTES.CREATE_SUBGRANT_AWARD,
         element: lazy(
             () => import("pages/protectedPages/c&g/sub-grant/awards/create")
         ),
     },
     {
-        path: CG_GROUTES.SUBGRANT_AWARD_DETAILS,
+        path: CG_ROUTES.SUBGRANT_AWARD_DETAILS,
         element: lazy(
             () => import("pages/protectedPages/c&g/sub-grant/awards/id")
         ),
     },
 
     {
-        path: CG_GROUTES.SUBMITTED_APPLICATIONS,
+        path: CG_ROUTES.PREAWARD_ASSESSMENT,
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/candg/subGrant/SubmittedApplications"
-                )
-        ),
-    },
-    //////pre awrd assessments
-    {
-        path: CG_GROUTES.PRE_AWARD_ASSESSMENT,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessment"
-                )
-        ),
-    },
-    {
-        path: CG_GROUTES.PRE_AWARD_ASSESSMENT_SINGLE,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentSingle"
-                )
-        ),
-    },
-    {
-        path: CG_GROUTES.PRE_AWARD_ASSESSMENT_STEP_1,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep1"
-                )
-        ),
-    },
-    {
-        path: CG_GROUTES.PRE_AWARD_ASSESSMENT_STEP_2,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep2"
-                )
-        ),
-    },
-    {
-        path: CG_GROUTES.PRE_AWARD_ASSESSMENT_STEP_3,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep3"
-                )
-        ),
-    },
-    {
-        path: CG_GROUTES.PRE_AWARD_ASSESSMENT_STEP_4,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep4"
+                    "pages/protectedPages/c&g/sub-grant/awards/id/submission/id/preaward-assessment"
                 )
         ),
     },
 
+    // {
+    //     path: CG_ROUTES.PRE_AWARD_ASSESSMENT_SINGLE,
+    //     element: lazy(
+    //         () =>
+    //             import(
+    //                 "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentSingle"
+    //             )
+    //     ),
+    // },
+
+    // {
+    //     path: CG_ROUTES.PRE_AWARD_ASSESSMENT_STEP_1,
+    //     element: lazy(
+    //         () =>
+    //             import(
+    //                 "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep1"
+    //             )
+    //     ),
+    // },
+    // {
+    //     path: CG_ROUTES.PRE_AWARD_ASSESSMENT_STEP_2,
+    //     element: lazy(
+    //         () =>
+    //             import(
+    //                 "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep2"
+    //             )
+    //     ),
+    // },
+    // {
+    //     path: CG_ROUTES.PRE_AWARD_ASSESSMENT_STEP_3,
+    //     element: lazy(
+    //         () =>
+    //             import(
+    //                 "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep3"
+    //             )
+    //     ),
+    // },
+    // {
+    //     path: CG_ROUTES.PRE_AWARD_ASSESSMENT_STEP_4,
+    //     element: lazy(
+    //         () =>
+    //             import(
+    //                 "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep4"
+    //             )
+    //     ),
+    // },
+
     // close out
     {
-        path: CG_GROUTES.CLOSE_OUT,
+        path: CG_ROUTES.CLOSE_OUT,
         element: lazy(
             () => import("pages/protectedPages/candg/closeout/CloseOut")
         ),
     },
 
     {
-        path: CG_GROUTES.CLOSE_OUT_DETAILS,
+        path: CG_ROUTES.CLOSE_OUT_DETAILS,
         element: lazy(
             () => import("pages/protectedPages/candg/closeout/CloseOutDetails")
         ),
     },
     {
-        path: CG_GROUTES.NEW_CLOSE_OUT_PLAN,
+        path: CG_ROUTES.NEW_CLOSE_OUT_PLAN,
         element: lazy(
             () => import("pages/protectedPages/candg/closeout/NewCloseOutPlan")
         ),
     },
+
+    // ------------------------
+
     {
-        path: CG_GROUTES.CONSULTANCY,
-        element: lazy(
-            () => import("pages/protectedPages/candg/consultancy/Consultancy")
-        ),
-    },
-    {
-        path: CG_GROUTES.NEW_CONSULTANCY,
+        path: CG_ROUTES.CONSULTANCY,
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/candg/consultancy/CreateNewConsultancy"
+                    "pages/protectedPages/c&g/contract-management/consultant-management"
+                )
+        ),
+    },
+
+    {
+        path: CG_ROUTES.CREATE_CONSULTANCY_DETAILS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/consultant-management/create/ApplicationDetails"
+                )
+        ),
+    },
+
+    {
+        path: CG_ROUTES.CREATE_CONSULTANCY_WORK_SCOPE,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/consultant-management/create/ScopeOfWork"
+                )
+        ),
+    },
+
+    {
+        path: CG_ROUTES.CONSULTANCY_DETAILS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/consultant-management/id/ConsultantDetails"
                 )
         ),
     },
     {
-        path: CG_GROUTES.NEW_CONSULTANCY_SCOPE,
-        element: lazy(
-            () => import("pages/protectedPages/candg/consultancy/ScopeOfWork")
-        ),
-    },
-    {
-        path: CG_GROUTES.CONSULTANCY_DETAILS,
+        path: CG_ROUTES.CREATE_CONSULTANCY_APPLICANT,
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/candg/consultancy/ConsultancyDetails"
+                    "pages/protectedPages/c&g/contract-management/consultant-management/id/applicants/CreateApplicant"
                 )
         ),
     },
     {
-        path: CG_GROUTES.ADD_CONSULTANCY_APPLICATION,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/candg/consultancy/AddConsultancyApplication"
-                )
-        ),
-    },
-    {
-        path: CG_GROUTES.CONSULTANCY_APPLICATION_DETAILS,
+        path: CG_ROUTES.CONSULTANCY_APPLICATION_DETAILS,
         element: lazy(
             () =>
                 import(
@@ -205,7 +230,7 @@ export const candg = [
         ),
     },
     {
-        path: CG_GROUTES.CONSULTANCY_SHORTLIST_METRIC,
+        path: CG_ROUTES.CONSULTANCY_SHORTLIST_METRIC,
         element: lazy(
             () =>
                 import(
@@ -213,9 +238,77 @@ export const candg = [
                 )
         ),
     },
+
+    /* CONSULTANCY REPORT */
+    {
+        path: CG_ROUTES.CONSULTANCY_REPORT,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/consultancy-report/"
+                )
+        ),
+    },
+
+    {
+        path: CG_ROUTES.CREATE_CONSULTANCY_REPORT,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/consultancy-report/create"
+                )
+        ),
+    },
+
+    {
+        path: CG_ROUTES.CONSULTANCY_REPORT_DETAILS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/consultancy-report/id"
+                )
+        ),
+    },
+
+    // FACILITATOR MANAGEMENT
+    {
+        path: CG_ROUTES.FACILITATOR,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/facilitator-management/"
+                )
+        ),
+    },
+
+    {
+        path: CG_ROUTES.CREATE_FACILITATOR_DETAILS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/facilitator-management/create/ApplicationDetails"
+                )
+        ),
+    },
+
+    {
+        path: CG_ROUTES.CREATE_FACILITATOR_WORK_SCOPE,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/facilitator-management/create/ScopeOfWork"
+                )
+        ),
+    },
+
     // sla
     {
-        path: CG_GROUTES.CONSULTANCY_SLA,
+        path: CG_ROUTES.CONSULTANCY_SLA,
         element: lazy(() => import("pages/protectedPages/candg/sla/SLA")),
+    },
+
+    {
+        path: CG_ROUTES.CG_MODULES,
+        element: lazy(() => import("pages/protectedPages/modules/c&g/index")),
     },
 ];

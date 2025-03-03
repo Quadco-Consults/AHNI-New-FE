@@ -459,7 +459,7 @@ const CreateActivityMemo = () => {
                 append({
                   item: "",
                   quantity: "",
-                  days: "",
+                  num_of_days: "",
                   unit_cost: "",
                   total_cost: 0,
                 })

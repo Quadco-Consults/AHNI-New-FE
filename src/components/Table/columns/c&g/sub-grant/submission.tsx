@@ -1,74 +1,88 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Checkbox } from "components/ui/checkbox";
 import DeleteIcon from "components/icons/DeleteIcon";
 import EyeIcon from "components/icons/EyeIcon";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
 import { Button } from "components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { CG_GROUTES } from "constants/RouterConstants";
-import { ISubGrantSingleData } from "definations/c&g/sub-grant";
-import { generatePath, Link } from "react-router-dom";
+import { CG_ROUTES } from "constants/RouterConstants";
+import { ISubGrantSubmissionPaginatedData } from "definations/c&g/contract-management/sub-grant/sub-grant";
+import { generatePath, Link, useLocation, useParams } from "react-router-dom";
+import PencilIcon from "components/icons/PencilIcon";
+import { toast } from "sonner";
+import { useDeleteSubGrantManualSubMutation } from "services/c&g/subgrant/submission";
+import { useState } from "react";
+import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 
-export const subGrantSubmissionColumns: ColumnDef<any>[] = [
-    {
-        id: "select",
-        size: 50,
-        header: ({ table }) => {
-            return (
-                <Checkbox
-                    checked={table.getIsAllPageRowsSelected()}
-                    onCheckedChange={(value) => {
-                        table.toggleAllPageRowsSelected(!!value);
-                    }}
-                />
-            );
+export const partnerSubmissionColumns: ColumnDef<ISubGrantSubmissionPaginatedData>[] =
+    [
+        {
+            header: "Legal Name of the Organization",
+            id: "organisation_name",
+            accessorKey: "organisation_name",
+            size: 200,
+        },
+        {
+            header: "Address",
+            id: "address",
+            accessorKey: "address",
+            size: 200,
+        },
+        {
+            header: "Email",
+            id: "email",
+            accessorKey: "email",
+            size: 200,
+        },
+        {
+            header: "Telephone",
+            id: "phone_number",
+            accessorKey: "phone_number",
+            size: 200,
         },
 
-        cell: ({ row }) => {
-            return (
-                <Checkbox
-                    checked={row.getIsSelected()}
-                    onCheckedChange={(value) => {
-                        row.toggleSelected(!!value);
-                    }}
-                />
-            );
+        {
+            header: "",
+            id: "actions",
+            size: 50,
+            cell: ({ row }) => <TableMenu {...row.original} />,
         },
-    },
+    ];
 
-    {
-        header: "Legal Name of the Organization",
-        accessorKey: "organisation_name",
-        size: 200,
-        // cell: ({ row }) => <p>{row?.original?.project?.title}</p>,
-    },
-    {
-        header: "Address",
-        accessorKey: "address",
-        size: 200,
-    },
-    {
-        header: "Telephone",
-        accessorKey: "telephone",
-        size: 200,
-        // cell: ({ row }) => <p>{row?.original?.grantor?.name}</p>,
-    },
-    {
-        header: "Email",
-        accessorKey: "email",
-        size: 200,
-    },
-    {
-        header: "",
-        id: "actions",
-        size: 50,
-        cell: ({ row }) => <TableMenu data={row.original} />,
-    },
-];
+const TableMenu = ({
+    id: partnerSubId,
+    sub_grant_id,
+}: ISubGrantSubmissionPaginatedData) => {
+    const [isDialogOpen, setDialogOpen] = useState(false);
 
-const TableMenu = ({ data }: any) => {
+    const { id: subGrantId } = useParams();
+
+    const { pathname } = useLocation();
+
+    const isPreawardPath = pathname.includes("/preaward-assessment");
+
+    const [deletePartnerSubmission, { isLoading: isDeleteLoading }] =
+        useDeleteSubGrantManualSubMutation();
+
+    const handleDelete = async () => {
+        try {
+            await deletePartnerSubmission(partnerSubId).unwrap();
+            toast.success("Submission Deleted");
+            setDialogOpen(false);
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
+        }
+    };
+
+    const path = isPreawardPath
+        ? generatePath(CG_ROUTES.SUBGRANT_SUBMISSION_DETAILS, {
+              subGrantId: sub_grant_id,
+              partnerSubId,
+          })
+        : generatePath(CG_ROUTES.SUBGRANT_SUBMISSION_DETAILS, {
+              subGrantId,
+              partnerSubId,
+          });
+
     return (
         <div className="flex items-center gap-2">
             <>
@@ -78,37 +92,58 @@ const TableMenu = ({ data }: any) => {
                             <MoreOptionsHorizontalIcon />
                         </Button>
                     </PopoverTrigger>
-                    <PopoverContent className=" w-fit">
-                        <div className="flex flex-col items-start justify-between gap-1">
-                            <Link
-                                className="w-full"
-                                to={generatePath(
-                                    CG_GROUTES.SUBMITTED_APPLICATIONS,
-                                    {
-                                        id: data?.id,
-                                    }
-                                )}
-                            >
-                                <Button
-                                    className="w-full flex items-center justify-start gap-2"
-                                    variant="ghost"
-                                >
-                                    <EyeIcon />
-                                    View
-                                </Button>
-                            </Link>
-
+                    <PopoverContent className="w-fit">
+                        <Link className="w-full" to={path}>
                             <Button
                                 className="w-full flex items-center justify-start gap-2"
                                 variant="ghost"
                             >
-                                <DeleteIcon />
-                                Delete
+                                <EyeIcon />
+                                View
                             </Button>
-                        </div>
+                        </Link>
+
+                        {!isPreawardPath && (
+                            <>
+                                <Link
+                                    to={{
+                                        pathname: generatePath(
+                                            CG_ROUTES.CREATE_SUBGRANT_SUBMISSION_DETAILS,
+                                            { id: subGrantId }
+                                        ),
+                                        search: `?partnerSubId=${partnerSubId}`,
+                                    }}
+                                >
+                                    <Button
+                                        className="w-full flex items-center justify-start gap-2"
+                                        variant="ghost"
+                                    >
+                                        <PencilIcon />
+                                        Edit
+                                    </Button>
+                                </Link>
+
+                                <Button
+                                    className="w-full flex items-center justify-start gap-2"
+                                    variant="ghost"
+                                    onClick={() => setDialogOpen(true)}
+                                >
+                                    <DeleteIcon />
+                                    Delete
+                                </Button>
+                            </>
+                        )}
                     </PopoverContent>
                 </Popover>
             </>
+
+            <ConfirmationDialog
+                open={isDialogOpen}
+                title="Are you sure you want to delete this submission?"
+                loading={isDeleteLoading}
+                onCancel={() => setDialogOpen(false)}
+                onOk={handleDelete}
+            />
         </div>
     );
 };

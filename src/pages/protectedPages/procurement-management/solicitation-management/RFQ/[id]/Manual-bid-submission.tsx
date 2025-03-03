@@ -28,7 +28,7 @@ const ManualBidSubmission = () => {
 
   const { data: vendors, isLoading: vendorsIsLoading } =
     VendorsAPI.useGetVendorListQuery({
-      params: { no_paginate: true },
+      params: { status: "Approved" },
     });
 
   const [createSolicitationSubmission, { isLoading: isCreateLoading }] =
@@ -72,7 +72,7 @@ const ManualBidSubmission = () => {
 
   // const data = [];
   const data = useMemo(() => {
-    return singleSolicitation?.data?.items.map((data) => ({
+    return singleSolicitation?.data?.solicitation_items?.map((data) => ({
       solicitation_item: data?.id,
       quantity: data?.quantity || 0,
       name: data?.item_detail?.name,

@@ -4,11 +4,11 @@ import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { grantColumns } from "components/Table/columns/c&g/grant/grant";
 import TableFilters from "components/Table/TableFilters";
-import { CG_GROUTES } from "constants/RouterConstants";
-import { useGetAllGrantsQuery } from "services/c&g/grant";
+import { CG_ROUTES } from "constants/RouterConstants";
 import { useState } from "react";
 import Card from "components/shared/Card";
 import { useDebounce } from "ahooks";
+import { useGetAllGrantsQuery } from "services/c&g/grant/grant";
 
 export default function GrantHomePage() {
     const [page, setPage] = useState(1);
@@ -28,7 +28,7 @@ export default function GrantHomePage() {
     return (
         <section className="space-y-5">
             <div className="flex justify-end">
-                <Link to={CG_GROUTES.GRANT_CREATE}>
+                <Link to={CG_ROUTES.GRANT_CREATE}>
                     <Button>
                         <Plus size={20} /> New Grant
                     </Button>

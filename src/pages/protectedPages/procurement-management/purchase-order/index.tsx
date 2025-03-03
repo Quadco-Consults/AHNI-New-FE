@@ -1,6 +1,6 @@
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
-import { DownloadIcon, EyeIcon, PlusIcon, PrinterIcon } from "lucide-react";
+import { EyeIcon, PlusIcon } from "lucide-react";
 import { Checkbox } from "components/ui/checkbox";
 
 import { Input } from "components/ui/input";
@@ -21,6 +21,7 @@ import DataTable from "components/Table/DataTable";
 import BreadcrumbCard from "components/shared/Breadcrumb";
 import { IPurchaseOrderPaginatedData } from "definations/procurement-types/purchase-order";
 import { useGetAllPurchaseOrdersQuery } from "services/procurementApi/purchase-order";
+import { convertDateFormat, formatDate } from "utils/date";
 
 const PurchaseOrder = () => {
   const breadcrumbs = [
@@ -30,32 +31,25 @@ const PurchaseOrder = () => {
 
   const { data } = useGetAllPurchaseOrdersQuery({});
 
-  //   console.log({ data });
-
   return (
-    <div className='space-y-10'>
+    <div className="space-y-10">
       <BreadcrumbCard list={breadcrumbs} />
-      <div className='flex justify-end'>
+      <div className="flex justify-end">
         <Link to={generatePath(RouteEnum.PURCHASE_ORDER_NEW)}>
-          <Button className='flex py-6 items-center gap-x-3'>
-            <p className='flex h-[20.5px] w-[20.5px] items-center justify-center rounded  bg-white/30'>
+          <Button className="flex py-6 items-center gap-x-3">
+            <p className="flex h-[20.5px] w-[20.5px] items-center justify-center rounded  bg-white/30">
               <PlusIcon size={14} />
             </p>
             New Purchase Order
           </Button>
         </Link>
       </div>
-      <Card className='space-y-5'>
+      <Card className="space-y-5">
         <div>
-          <Input type='Search' placeholder='search' className='w-[30%]' />
+          <Input type="Search" placeholder="search" className="w-[30%]" />
         </div>
 
-        <DataTable
-          data={data?.data?.results || []}
-          //   data={[]}
-          columns={columns}
-          // isLoading={isLoading}
-        />
+        <DataTable data={data?.data?.results || []} columns={columns} />
       </Card>
     </div>
   );
@@ -98,15 +92,24 @@ const columns: ColumnDef<IPurchaseOrderPaginatedData>[] = [
     header: "Vendor Name",
     accessorKey: "vendor_name",
     size: 250,
+    cell: ({ row }) => {
+      // @ts-ignore
+      return <div>{row?.original?.vendor_detail?.company_name}</div>;
+    },
   },
   {
     header: "RFQ",
     accessorKey: "rfq",
     size: 200,
+    cell: ({ row }) => {
+      // @ts-ignore
+      return <div>{row?.original?.solicitation_detail?.title}</div>;
+    },
   },
   {
     header: "Date Generated",
     accessorKey: "created_datetime",
+    accessorFn: (data) => convertDateFormat(data.created_datetime),
     cell: ({ getValue }) => {
       return (
         <div className={cn("px-3 py-2 rounded-lg")}>{getValue() as string}</div>
@@ -120,9 +123,8 @@ const columns: ColumnDef<IPurchaseOrderPaginatedData>[] = [
   },
 ];
 const ActionListAction = ({ data }: any) => {
-  console.log(data);
   return (
-    <div className='flex gap-2'>
+    <div className="flex gap-2">
       <DropdownMenu>
         <DropdownMenuTrigger>
           <IconButton>
@@ -130,22 +132,15 @@ const ActionListAction = ({ data }: any) => {
           </IconButton>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem key='print' className='flex gap-2'>
-            <EyeIcon /> View
-          </DropdownMenuItem>
-          <DropdownMenuItem key='print' className='flex gap-2'>
-            <PrinterIcon />
-            Print
-          </DropdownMenuItem>
-          <DropdownMenuItem key='print' className='flex gap-2'>
-            <DownloadIcon /> Download
-          </DropdownMenuItem>
-
-          {/* {data?.items?.map((item: any) => (
-            <DropdownMenuItem key={item?.id}>
-              {item?.item?.name}
+          <Link
+            to={generatePath(RouteEnum.PURCHASE_ORDER_ID, {
+              id: data.id,
+            })}
+          >
+            <DropdownMenuItem key="print" className="flex gap-2">
+              <EyeIcon /> View
             </DropdownMenuItem>
-          ))} */}
+          </Link>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

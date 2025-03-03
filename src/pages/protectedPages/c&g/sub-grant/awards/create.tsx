@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { skipToken } from "@reduxjs/toolkit/query";
 import BackNavigation from "atoms/BackNavigation";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
@@ -10,18 +11,25 @@ import { Form, FormControl, FormField, FormItem } from "components/ui/form";
 import { Label } from "components/ui/label";
 import MultiSelectFormField from "components/ui/multiselect";
 import { DialogType, largeDailogScreen } from "constants/dailogs";
-import { CG_GROUTES } from "constants/RouterConstants";
-import { SubGrantSchema, TSubGrantFormData } from "definations/c&g/sub-grant";
+import { CG_ROUTES } from "constants/RouterConstants";
+import {
+    SubGrantSchema,
+    TSubGrantFormData,
+} from "definations/c&g/contract-management/sub-grant/sub-grant";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { useEffect, useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useGetAllUsersQuery } from "services/auth/user";
-import { useGetAllGrantsQuery } from "services/c&g/grant";
-import { useCreateSubGrantMutation } from "services/c&g/sub-grant";
+import { useGetAllGrantsQuery } from "services/c&g/grant/grant";
+import {
+    useCreateSubGrantMutation,
+    useGetSingleSubGrantQuery,
+    useModifySubGrantMutation,
+} from "services/c&g/subgrant/sub-grant";
 import { useGetAllPartnersQuery } from "services/modules/project/partners";
 import { toast } from "sonner";
-import { clearTeamMembers } from "store/admin/team-members";
+import { addTeamMembers, clearTeamMembers } from "store/admin/team-members";
 import { openDialog } from "store/ui";
 
 const tenderTypeOptions = [
@@ -61,6 +69,10 @@ export default function CreateSubGrant() {
 
     const navigate = useNavigate();
 
+    const [searchParams] = useSearchParams();
+    const id = searchParams.get("id");
+    const { data } = useGetSingleSubGrantQuery(id ?? skipToken);
+
     const { teamMembers } = useAppSelector((state) => state.teamMember);
 
     const dispatch = useAppDispatch();
@@ -83,7 +95,7 @@ export default function CreateSubGrant() {
                 label: reference_number,
                 value: id,
             })),
-        [grant]
+        [grant, data]
     );
 
     const { data: user } = useGetAllUsersQuery({ page: 1, size: 2000000 });
@@ -94,7 +106,7 @@ export default function CreateSubGrant() {
                 label: `${first_name} ${last_name}`,
                 value: id,
             })),
-        [user]
+        [user, data]
     );
 
     useEffect(() => {
@@ -107,16 +119,42 @@ export default function CreateSubGrant() {
     const [createSubGrant, { isLoading: isCreateLoading }] =
         useCreateSubGrantMutation();
 
+    const [modifySubGrant, { isLoading: isModifyLoading }] =
+        useModifySubGrantMutation();
+
     const onSubmit: SubmitHandler<TSubGrantFormData> = async (data) => {
         try {
-            await createSubGrant(data).unwrap();
-            toast.success("Sub Grant Created");
+            if (id) {
+                await modifySubGrant({ id, body: data }).unwrap();
+                toast.success("Sub Grant Award Updated");
+            } else {
+                await createSubGrant(data).unwrap();
+                toast.success("Sub Grant Award Created");
+            }
+
             dispatch(clearTeamMembers());
-            navigate(CG_GROUTES.SUBGRANT);
+            navigate(CG_ROUTES.SUBGRANT);
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }
     };
+
+    useEffect(() => {
+        if (data) {
+            form.reset({
+                ...data.data,
+                grant: data.data.grant.id,
+                partners: data.data.partners.map((partner) => partner.id),
+                sub_grant_administrator: data.data.sub_grant_administrator.id,
+                technical_staff: data.data.technical_staff.id,
+                evaluation_applicants: data.data.evaluation_applicants.map(
+                    (member) => member.id
+                ),
+            });
+
+            dispatch(addTeamMembers(data.data.evaluation_applicants));
+        }
+    }, [data]);
 
     return (
         <Card>
@@ -318,7 +356,10 @@ export default function CreateSubGrant() {
                         </section>
 
                         <div className="flex justify-end">
-                            <FormButton loading={isCreateLoading} size="lg">
+                            <FormButton
+                                loading={isCreateLoading || isModifyLoading}
+                                size="lg"
+                            >
                                 Submit
                             </FormButton>
                         </div>

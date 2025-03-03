@@ -6,12 +6,15 @@ import AddSquareIcon from "components/icons/AddSquareIcon";
 import LongArrowRight from "components/icons/LongArrowRight";
 import { LoadingSpinner } from "components/shared/Loading";
 import { Button } from "components/ui/button";
-import { Form } from "components/ui/form";
+import { Form, FormControl, FormField, FormItem } from "components/ui/form";
+import { Label } from "components/ui/label";
+import MultiSelectFormField from "components/ui/multiselect";
 import { SelectContent, SelectItem } from "components/ui/select";
 import { RouteEnum } from "constants/RouterConstants";
 import { DepartmentsResultsData } from "definations/configs/departments";
 import { ItemsResultsData } from "definations/configs/itmes";
 import { PurchaseRequestSchema } from "definations/procurement-validator";
+import useQuery from "hooks/useQuery";
 import { MinusCircle } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -28,6 +31,8 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 const CreatePurchaseRequestForm = ({ expenses }) => {
+  const query = useQuery();
+  const request = query.get("request");
   const { data: departments, isLoading: departmentsIsLoading } =
     DepartmentsAPI.useGetDepartmentsQuery({});
   const { isLoading: partnersIsLoading } = useGetAllPartnersQuery({
@@ -61,9 +66,10 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
 
   console.log({ locations });
 
-  const form = useForm<z.infer<typeof PurchaseRequestSchema>>({
+  // const form = useForm<z.infer<typeof PurchaseRequestSchema>>({
+  const form = useForm({
     // const form = useForm({
-    resolver: zodResolver(PurchaseRequestSchema),
+    // resolver: zodResolver(PurchaseRequestSchema),
     defaultValues: {
       reviewed_by: "",
       authorised_by: "",
@@ -81,7 +87,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
       // reviewed_date
       // authorized_date
       // approved_date
-      request_memo: "14700b16-9a76-46a3-ad06-4371b3dc96a6",
+      request_memo: request!,
       // location
       role_requested_by: "",
       role_reviewed_by: "",
@@ -156,8 +162,6 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
     }));
   }, [expenses]);
 
-  console.log({ expenses, expensesData });
-
   useEffect(() => {
     if (expensesData) {
       setValue("items", expensesData);
@@ -165,7 +169,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
   }, [expensesData, setValue]);
 
   const lon = form.getValues();
-  console.log({ ln: lon?.items });
+  console.log({ ln: lon });
 
   return (
     <div className='pt-5'>
@@ -245,8 +249,6 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
               </thead>
               <tbody>
                 {fields.map((field, index) => {
-                  console.log({ field }, `items.[${index}].quantity`);
-
                   return (
                     <tr key={index} className='w-full'>
                       <td className='w-fit p-2 text-center '>
@@ -274,7 +276,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                       </td>
 
                       <td className='w-fit p-2 text-center'>
-                        <FormSelect
+                        {/* <FormSelect
                           label=''
                           name={`items.[${index}].fco_number`}
                         >
@@ -292,7 +294,31 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                               })
                             )}
                           </SelectContent>
-                        </FormSelect>
+                        </FormSelect> */}
+
+                        <FormField
+                          control={form.control}
+                          name={`items.[${index}].fco_number`}
+                          render={({ field }) => (
+                            <FormItem className=' mt-2'>
+                              <FormControl>
+                                <MultiSelectFormField
+                                  options={fco?.data?.data?.results || []}
+                                  // defaultValue={field.value}
+                                  onValueChange={field.onChange}
+                                  placeholder='Select fcos'
+                                  variant='inverted'
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* {errors.fconumber && (
+                            <span className='text-sm text-red-500 font-medium'>
+                              {errors.fconumber.message}
+                            </span>
+                          )} */}
                       </td>
                       <td className='w-fit p-2 text-center'>
                         <FormInput

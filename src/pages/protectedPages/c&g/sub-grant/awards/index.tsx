@@ -5,10 +5,10 @@ import { subGrantAwardColumns } from "components/Table/columns/c&g/sub-grant/awa
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { Button } from "components/ui/button";
-import { CG_GROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "constants/RouterConstants";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useGetAllSubGrantsQuery } from "services/c&g/sub-grant";
+import { useGetAllSubGrantsQuery } from "services/c&g/subgrant/sub-grant";
 
 export default function SubGrant() {
     const [page, setPage] = useState(1);
@@ -28,7 +28,7 @@ export default function SubGrant() {
     return (
         <section className="space-y-5">
             <div className="flex justify-end">
-                <Link to={CG_GROUTES.CREATE_SUBGRANT_AWARD}>
+                <Link to={CG_ROUTES.CREATE_SUBGRANT_AWARD}>
                     <Button>
                         <AddSquareIcon />
                         New Sub Grant

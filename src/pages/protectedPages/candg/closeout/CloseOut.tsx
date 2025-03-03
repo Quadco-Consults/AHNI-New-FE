@@ -10,7 +10,7 @@ import TableFilters from "components/Table/TableFilters";
 import { Button } from "components/ui/button";
 import { Checkbox } from "components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { CG_GROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "constants/RouterConstants";
 import React, { useMemo } from "react";
 import { generatePath, Link, useNavigate } from "react-router-dom";
 import { closeoutPlanAPis } from "services/cAndGApi/closeOutPlan";
