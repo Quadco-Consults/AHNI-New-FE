@@ -14,138 +14,139 @@ import { format } from "date-fns";
 import PencilIcon from "components/icons/PencilIcon";
 import { toast } from "sonner";
 import { useDeleteVehicleMaintenanceMutation } from "services/admin/fleet-management/vehicle-maintenance";
+import { formatNumberCurrency } from "utils/utls";
 
 export const vehicleMaintenanceColumns: ColumnDef<IVehicleMaintenancePaginatedData>[] =
-    [
-        {
-            header: "Asset",
-            id: "asset",
-            accessorKey: "asset",
-        },
+  [
+    {
+      header: "Asset",
+      id: "asset",
+      accessorKey: "asset",
+    },
 
-        {
-            header: "Maintenance Type",
-            id: "maintenance_type",
-            accessorKey: "maintenance_type",
-            size: 200,
-        },
+    {
+      header: "Maintenance Type",
+      id: "maintenance_type",
+      accessorKey: "maintenance_type",
+      size: 200,
+    },
 
-        {
-            header: "FCO",
-            id: "fco",
-            accessorKey: "fco",
-        },
+    {
+      header: "FCO",
+      id: "fco",
+      accessorKey: "fco",
+    },
 
-        {
-            header: "Cost Estimate",
-            id: "cost_estimate",
-            accessorFn: ({ cost_estimate }) => `$${cost_estimate}`,
-        },
+    {
+      header: "Cost Estimate",
+      id: "cost_estimate",
 
-        {
-            header: "Description",
-            id: "description",
-            accessorKey: "description",
-            size: 250,
-        },
+      accessorFn: ({ cost_estimate }) =>
+        formatNumberCurrency(cost_estimate, "USD"),
+    },
 
-        {
-            header: "Status",
-            id: "status",
-            accessorKey: "status",
-        },
-        {
-            header: "Date Created",
-            id: "created_datetime",
-            accessorFn: ({ created_datetime }) =>
-                format(created_datetime, "dd-MM-yyyy"),
-        },
+    {
+      header: "Description",
+      id: "description",
+      accessorKey: "description",
+      size: 250,
+    },
 
-        {
-            header: "",
-            accessorKey: "action",
-            cell: ({ row }) => {
-                return <TableMenu {...row.original} />;
-            },
-        },
-    ];
+    {
+      header: "Status",
+      id: "status",
+      accessorKey: "status",
+    },
+    {
+      header: "Date Created",
+      id: "created_datetime",
+      accessorFn: ({ created_datetime }) =>
+        format(created_datetime, "dd-MM-yyyy"),
+    },
+
+    {
+      header: "",
+      accessorKey: "action",
+      cell: ({ row }) => {
+        return <TableMenu {...row.original} />;
+      },
+    },
+  ];
 
 const TableMenu = ({ id }: IVehicleMaintenancePaginatedData) => {
-    const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-    const [deleteVehicleMaintenance, { isLoading }] =
-        useDeleteVehicleMaintenanceMutation();
+  const [deleteVehicleMaintenance, { isLoading }] =
+    useDeleteVehicleMaintenanceMutation();
 
-    const onDelete = async () => {
-        try {
-            await deleteVehicleMaintenance(id).unwrap();
-            toast.success("Vehicle Maintenance Request Deleted");
-        } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
-        }
-    };
+  const onDelete = async () => {
+    try {
+      await deleteVehicleMaintenance(id).unwrap();
+      toast.success("Vehicle Maintenance Request Deleted");
+    } catch (error: any) {
+      toast.error(error.data.message ?? "Something went wrong");
+    }
+  };
 
-    return (
-        <div className="flex items-center gap-2">
-            <Popover>
-                <PopoverTrigger asChild>
-                    <Button variant="ghost" className="flex gap-2 py-6">
-                        <MoreOptionsHorizontalIcon />
-                    </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-fit">
-                    <div className="flex flex-col items-start justify-between gap-1">
-                        <Link
-                            to={{
-                                pathname: generatePath(
-                                    AdminRoutes.VIEW_VEHICLE_MAINTENANCE,
-                                    { id }
-                                ),
-                                // search: `?id=${id}`,
-                            }}
-                        >
-                            <Button
-                                className="w-full flex items-center justify-start gap-2"
-                                variant="ghost"
-                            >
-                                <EyeIcon />
-                                View
-                            </Button>
-                        </Link>
-                        <Link
-                            to={{
-                                pathname:
-                                    AdminRoutes.CREATE_VEHICLE_MAINTENANCE,
-                                search: `?id=${id}`,
-                            }}
-                        >
-                            <Button
-                                className="w-full flex items-center justify-start gap-2"
-                                variant="ghost"
-                            >
-                                <PencilIcon />
-                                Edit
-                            </Button>
-                        </Link>
-                        <Button
-                            className="w-full flex items-center justify-start gap-2"
-                            variant="ghost"
-                            onClick={() => setDialogOpen(true)}
-                        >
-                            <DeleteIcon />
-                            Delete
-                        </Button>
-                    </div>
-                </PopoverContent>
-            </Popover>
+  return (
+    <div className="flex items-center gap-2">
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="ghost" className="flex gap-2 py-6">
+            <MoreOptionsHorizontalIcon />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-fit">
+          <div className="flex flex-col items-start justify-between gap-1">
+            <Link
+              to={{
+                pathname: generatePath(AdminRoutes.VIEW_VEHICLE_MAINTENANCE, {
+                  id,
+                }),
+                // search: `?id=${id}`,
+              }}
+            >
+              <Button
+                className="w-full flex items-center justify-start gap-2"
+                variant="ghost"
+              >
+                <EyeIcon />
+                View
+              </Button>
+            </Link>
+            <Link
+              to={{
+                pathname: AdminRoutes.CREATE_VEHICLE_MAINTENANCE,
+                search: `?id=${id}`,
+              }}
+            >
+              <Button
+                className="w-full flex items-center justify-start gap-2"
+                variant="ghost"
+              >
+                <PencilIcon />
+                Edit
+              </Button>
+            </Link>
+            <Button
+              className="w-full flex items-center justify-start gap-2"
+              variant="ghost"
+              onClick={() => setDialogOpen(true)}
+            >
+              <DeleteIcon />
+              Delete
+            </Button>
+          </div>
+        </PopoverContent>
+      </Popover>
 
-            <ConfirmationDialog
-                open={dialogOpen}
-                title="Are you sure you want to delete this request?"
-                loading={isLoading}
-                onCancel={() => setDialogOpen(false)}
-                onOk={onDelete}
-            />
-        </div>
-    );
+      <ConfirmationDialog
+        open={dialogOpen}
+        title="Are you sure you want to delete this request?"
+        loading={isLoading}
+        onCancel={() => setDialogOpen(false)}
+        onOk={onDelete}
+      />
+    </div>
+  );
 };

@@ -21,6 +21,7 @@ import DataTable from "components/Table/DataTable";
 import BreadcrumbCard from "components/shared/Breadcrumb";
 import { IPurchaseOrderPaginatedData } from "definations/procurement-types/purchase-order";
 import { useGetAllPurchaseOrdersQuery } from "services/procurementApi/purchase-order";
+import { convertDateFormat, formatDate } from "utils/date";
 
 const PurchaseOrder = () => {
   const breadcrumbs = [
@@ -31,21 +32,21 @@ const PurchaseOrder = () => {
   const { data } = useGetAllPurchaseOrdersQuery({});
 
   return (
-    <div className='space-y-10'>
+    <div className="space-y-10">
       <BreadcrumbCard list={breadcrumbs} />
-      <div className='flex justify-end'>
+      <div className="flex justify-end">
         <Link to={generatePath(RouteEnum.PURCHASE_ORDER_NEW)}>
-          <Button className='flex py-6 items-center gap-x-3'>
-            <p className='flex h-[20.5px] w-[20.5px] items-center justify-center rounded  bg-white/30'>
+          <Button className="flex py-6 items-center gap-x-3">
+            <p className="flex h-[20.5px] w-[20.5px] items-center justify-center rounded  bg-white/30">
               <PlusIcon size={14} />
             </p>
             New Purchase Order
           </Button>
         </Link>
       </div>
-      <Card className='space-y-5'>
+      <Card className="space-y-5">
         <div>
-          <Input type='Search' placeholder='search' className='w-[30%]' />
+          <Input type="Search" placeholder="search" className="w-[30%]" />
         </div>
 
         <DataTable data={data?.data?.results || []} columns={columns} />
@@ -108,6 +109,7 @@ const columns: ColumnDef<IPurchaseOrderPaginatedData>[] = [
   {
     header: "Date Generated",
     accessorKey: "created_datetime",
+    accessorFn: (data) => convertDateFormat(data.created_datetime),
     cell: ({ getValue }) => {
       return (
         <div className={cn("px-3 py-2 rounded-lg")}>{getValue() as string}</div>
@@ -122,7 +124,7 @@ const columns: ColumnDef<IPurchaseOrderPaginatedData>[] = [
 ];
 const ActionListAction = ({ data }: any) => {
   return (
-    <div className='flex gap-2'>
+    <div className="flex gap-2">
       <DropdownMenu>
         <DropdownMenuTrigger>
           <IconButton>
@@ -135,7 +137,7 @@ const ActionListAction = ({ data }: any) => {
               id: data.id,
             })}
           >
-            <DropdownMenuItem key='print' className='flex gap-2'>
+            <DropdownMenuItem key="print" className="flex gap-2">
               <EyeIcon /> View
             </DropdownMenuItem>
           </Link>

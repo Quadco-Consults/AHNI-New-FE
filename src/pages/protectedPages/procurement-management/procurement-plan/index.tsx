@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from "components/ui/select";
 import FinancialAPI from "services/configs/financial-year";
+import { formatNumberCurrency } from "utils/utls";
 
 export default function ProcurementPlan() {
   const [selectedFinancialYear, setSelectedFinancialYear] = useState("");
@@ -171,20 +172,20 @@ export default function ProcurementPlan() {
     setDataSource(updatedData);
   };
   return (
-    <section className='min-h-screen space-y-10'>
+    <section className="min-h-screen space-y-10">
       <BreadcrumbCard list={breadcrumbs} />
 
-      <div className='flex items-center justify-end gap-4'>
+      <div className="flex items-center justify-end gap-4">
         <Popover>
           <PopoverTrigger asChild>
-            <Button className='flex gap-2 py-6'>
+            <Button className="flex gap-2 py-6">
               <AddSquareIcon />
               New Procurement Plan
               <ArrowDownIcon />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className=' w-fit'>
-            <div className='flex flex-col items-start justify-between gap-1'>
+          <PopoverContent className=" w-fit">
+            <div className="flex flex-col items-start justify-between gap-1">
               {/* <Link
                 className='w-full'
                 to={generatePath(RouteEnum.CREATE_PROCUREMENT)}
@@ -197,40 +198,40 @@ export default function ProcurementPlan() {
                 </Button>
               </Link> */}
               <Button
-                className='w-full flex items-center gap-2 justify-start'
-                variant='ghost'
+                className="w-full flex items-center gap-2 justify-start"
+                variant="ghost"
                 onClick={() => setModalOpen(true)}
               >
                 <UploadIcon /> Upload Procurement plan
               </Button>
               <Button
-                className='w-full flex items-center gap-2 justify-start'
-                variant='ghost'
+                className="w-full flex items-center gap-2 justify-start"
+                variant="ghost"
                 onClick={handleDownloadSheet}
               >
-                <MdDownload size={20} className='text-blue-500' />
+                <MdDownload size={20} className="text-blue-500" />
                 &nbsp; Download Procurement Plan
               </Button>
             </div>
           </PopoverContent>
         </Popover>
       </div>
-      <Card className='space-y-5'>
-        <div className='flex items-center justify-between gap-2'>
-          <div className='flex items-center w-1/3 px-2 py-2 border rounded-lg'>
+      <Card className="space-y-5">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
             <SearchIcon />
             <input
-              placeholder='Search'
-              type='text'
-              className='ml-2 h-full w-full border-none bg-none focus:outline-none outline-none'
+              placeholder="Search"
+              type="text"
+              className="ml-2 h-full w-full border-none bg-none focus:outline-none outline-none"
             />
           </div>
-          <div className='flex items-center gap-4'>
+          <div className="flex items-center gap-4">
             <h6>Financial year</h6>
             <div>
               <Select>
                 <SelectTrigger>
-                  <SelectValue placeholder='Select Year' />
+                  <SelectValue placeholder="Select Year" />
                 </SelectTrigger>
 
                 <SelectContent>
@@ -341,6 +342,7 @@ const tableColumns = (
         header: "Year 1 USD",
         accessorKey: "year1_usd",
         size: 150,
+        accessorFn: (data) => formatNumberCurrency(data.year1_usd, "USD"),
         cell: (cell) => (
           <EditableCell
             value={cell.getValue()}
@@ -353,6 +355,7 @@ const tableColumns = (
       {
         header: "Year 2 USD",
         accessorKey: "year2_usd",
+        accessorFn: (data) => formatNumberCurrency(data.year2_usd, "USD"),
         size: 150,
         cell: (cell) => (
           <EditableCell
@@ -367,7 +370,7 @@ const tableColumns = (
       {
         header: "Year 3 USD",
         accessorKey: "year3_usd",
-
+        accessorFn: (data) => formatNumberCurrency(data.year3_usd, "USD"),
         size: 150,
         cell: (cell) => (
           <EditableCell
@@ -381,6 +384,8 @@ const tableColumns = (
       {
         header: "Approved Budget Amount - USD",
         accessorKey: "approved_budget_amount_usd",
+        accessorFn: (data) =>
+          formatNumberCurrency(data.approved_budget_amount_usd, "USD"),
         size: 200,
         cell: (cell) => (
           <EditableCell
@@ -394,6 +399,7 @@ const tableColumns = (
       {
         header: "Year 1 Targets",
         accessorKey: "year1_targets",
+        accessorFn: (data) => formatNumberCurrency(data.year1_targets, "USD"),
         size: 140,
         cell: (cell) => (
           <EditableCell
@@ -408,6 +414,8 @@ const tableColumns = (
       {
         header: "Year 2 Targets",
         accessorKey: "year2_targets",
+        accessorFn: (data) => formatNumberCurrency(data.year2_targets, "USD"),
+
         size: 140,
         cell: (cell) => (
           <EditableCell
@@ -422,6 +430,8 @@ const tableColumns = (
       {
         header: "Year 3 Targets",
         accessorKey: "year3_targets",
+        accessorFn: (data) => formatNumberCurrency(data.year3_targets, "USD"),
+
         size: 140,
         cell: (cell) => (
           <EditableCell
@@ -468,6 +478,9 @@ const tableColumns = (
       {
         header: "Approved Budget ($)",
         accessorKey: "approved_budget_amount_usd",
+        accessorFn: (data) =>
+          formatNumberCurrency(data.approved_budget_amount_usd, "USD"),
+
         size: 200,
         cell: (cell) => (
           <EditableCell
@@ -793,7 +806,7 @@ const EditableCell = (props: PropsType) => {
 
   return (
     <Textarea
-      className='w-fit h-fit border-none overflow-scroll bg-transparent shadow-none'
+      className="w-fit h-fit border-none overflow-scroll bg-transparent shadow-none"
       value={inputValue as string}
       onChange={(e) => setInputValue(e.target.value)}
       style={{ scrollbarWidth: "none" }}

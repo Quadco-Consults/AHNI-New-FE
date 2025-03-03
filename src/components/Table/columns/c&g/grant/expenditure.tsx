@@ -13,102 +13,103 @@ import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useDeleteExpenditureMutation } from "services/c&g/grant/expenditure";
+import { formatNumberCurrency } from "utils/utls";
 
 export const expenditureColumns: ColumnDef<IExpenditurePaginatedData>[] = [
-    {
-        header: "Amount Spent",
-        id: "amount",
-        accessorFn: ({ amount }) => `$${amount}`,
-        size: 200,
-    },
-    {
-        header: "Description",
-        id: "description",
-        accessorKey: "description",
-        size: 200,
-    },
+  {
+    header: "Amount Spent",
+    id: "amount",
+    accessorFn: ({ amount }) => formatNumberCurrency(amount, "USD"),
+    size: 200,
+  },
+  {
+    header: "Description",
+    id: "description",
+    accessorKey: "description",
+    size: 200,
+  },
 
-    {
-        header: "",
-        id: "action",
-        size: 80,
-        cell: ({ row }) => <TableMenu {...row.original} />,
-    },
+  {
+    header: "",
+    id: "action",
+    size: 80,
+    cell: ({ row }) => <TableMenu {...row.original} />,
+  },
 ];
 
 const TableMenu = ({
-    id: expenditureId,
-    ...rest
+  id: expenditureId,
+  ...rest
 }: IExpenditurePaginatedData) => {
-    const [isDialogOpen, setDialogOpen] = useState(false);
+  const [isDialogOpen, setDialogOpen] = useState(false);
 
-    const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
 
-    const { id: grantId } = useParams();
+  const { id: grantId } = useParams();
 
-    const [deleteExpenditure, { isLoading }] = useDeleteExpenditureMutation();
+  const [deleteExpenditure, { isLoading }] = useDeleteExpenditureMutation();
 
-    const handleDelete = async () => {
-        try {
-            await deleteExpenditure({ grantId: grantId ?? "", expenditureId });
-            toast.success("Expenditure Deleted");
-        } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
-        }
-    };
+  const handleDelete = async () => {
+    try {
+      await deleteExpenditure({ grantId: grantId ?? "", expenditureId });
+      toast.success("Expenditure Deleted");
+    } catch (error: any) {
+      toast.error(error.data.message ?? "Something went wrong");
+    }
+  };
 
-    return (
-        <div className="flex items-center gap-2">
-            <>
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <Button variant="ghost" className="flex gap-2 py-6">
-                            <MoreOptionsHorizontalIcon />
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-fit">
-                        <Button
-                            className="w-full flex items-center justify-start gap-2"
-                            variant="ghost"
-                            onClick={() => {
-                                dispatch(
-                                    openDialog({
-                                        type: DialogType.ExpenditureModal,
-                                        dialogProps: {
-                                            header: "Update Expenditure",
-                                            width: "max-w-lg",
-                                            grantId,
-                                            expenditure: {
-                                                id: expenditureId,
-                                                ...rest,
-                                            },
-                                        },
-                                    })
-                                );
-                            }}
-                        >
-                            <PencilIcon />
-                            Edit
-                        </Button>
-                        <Button
-                            className="w-full flex items-center justify-start gap-2"
-                            variant="ghost"
-                            onClick={() => setDialogOpen(true)}
-                        >
-                            <DeleteIcon />
-                            Delete
-                        </Button>
-                    </PopoverContent>
-                </Popover>
-            </>
+  return (
+    <div className="flex items-center gap-2">
+      <>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" className="flex gap-2 py-6">
+              <MoreOptionsHorizontalIcon />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-fit">
+            <Button
+              className="w-full flex items-center justify-start gap-2"
+              variant="ghost"
+              onClick={() => {
+                dispatch(
+                  openDialog({
+                    type: DialogType.ExpenditureModal,
+                    dialogProps: {
+                      header: "Update Expenditure",
+                      width: "max-w-lg",
+                      grantId,
+                      expenditure: {
+                        id: expenditureId,
+                        ...rest,
+                      },
+                    },
+                  })
+                );
+              }}
+            >
+              <PencilIcon />
+              Edit
+            </Button>
+            <Button
+              className="w-full flex items-center justify-start gap-2"
+              variant="ghost"
+              onClick={() => setDialogOpen(true)}
+            >
+              <DeleteIcon />
+              Delete
+            </Button>
+          </PopoverContent>
+        </Popover>
+      </>
 
-            <ConfirmationDialog
-                open={isDialogOpen}
-                title="Are you sure you want to delete this expenditure?"
-                loading={isLoading}
-                onCancel={() => setDialogOpen(false)}
-                onOk={handleDelete}
-            />
-        </div>
-    );
+      <ConfirmationDialog
+        open={isDialogOpen}
+        title="Are you sure you want to delete this expenditure?"
+        loading={isLoading}
+        onCancel={() => setDialogOpen(false)}
+        onOk={handleDelete}
+      />
+    </div>
+  );
 };
