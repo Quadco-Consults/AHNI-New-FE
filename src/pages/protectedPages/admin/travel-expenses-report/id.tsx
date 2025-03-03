@@ -10,179 +10,165 @@ import { format } from "date-fns";
 import { FormProvider, useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import { useGetSingleTravelExpenseQuery } from "services/admin/travel-expense";
+import { formatNumberCurrency } from "utils/utls";
 
 export default function TravelExpenseDetailsPage() {
-    const { id } = useParams();
+  const { id } = useParams();
 
-    const { data, isLoading } = useGetSingleTravelExpenseQuery(id ?? skipToken);
+  const { data, isLoading } = useGetSingleTravelExpenseQuery(id ?? skipToken);
 
-    const form = useForm();
+  const form = useForm();
 
-    return (
-        <div>
-            <BackNavigation />
+  return (
+    <div>
+      <BackNavigation />
 
-            <Card>
-                <CardHeader className="font-bold">
-                    Travel Expense Report Details
-                </CardHeader>
+      <Card>
+        <CardHeader className="font-bold">
+          Travel Expense Report Details
+        </CardHeader>
 
-                {isLoading ? (
-                    <LoadingSpinner />
-                ) : (
-                    data && (
-                        <CardContent className="space-y-10">
-                            <div className="grid grid-cols-3 gap-10">
-                                <DescriptionCard
-                                    label="User"
-                                    description={`${data.data.user.first_name} ${data.data.user.last_name}`}
-                                />
+        {isLoading ? (
+          <LoadingSpinner />
+        ) : (
+          data && (
+            <CardContent className="space-y-10">
+              <div className="grid grid-cols-3 gap-10">
+                <DescriptionCard
+                  label="User"
+                  description={`${data.data.user.first_name} ${data.data.user.last_name}`}
+                />
 
-                                <DescriptionCard
-                                    label="Staff ID No"
-                                    description={data.data.staff_id}
-                                />
+                <DescriptionCard
+                  label="Staff ID No"
+                  description={data.data.staff_id}
+                />
 
-                                <DescriptionCard
-                                    label="Purpose of Travel"
-                                    description={data.data.travel_purpose}
-                                />
-                            </div>
+                <DescriptionCard
+                  label="Purpose of Travel"
+                  description={data.data.travel_purpose}
+                />
+              </div>
 
-                            {data?.data.activities.map(
-                                (
-                                    {
-                                        date,
-                                        activity,
-                                        departure_datetime,
-                                        departure_point,
-                                        arrival_datetime,
-                                        assignment_location,
-                                        visa_free,
-                                        airport_taxi_fee,
-                                        registration_fee,
-                                        inter_city_taxi_fee,
-                                        total_amount,
-                                        others,
-                                    },
-                                    index
-                                ) => (
-                                    <div className="space-y-5">
-                                        <h3 className="font-bold text-xl">
-                                            Day {index + 1}
-                                        </h3>
+              {data?.data.activities.map(
+                (
+                  {
+                    date,
+                    activity,
+                    departure_datetime,
+                    departure_point,
+                    arrival_datetime,
+                    assignment_location,
+                    visa_free,
+                    airport_taxi_fee,
+                    registration_fee,
+                    inter_city_taxi_fee,
+                    total_amount,
+                    others,
+                  },
+                  index
+                ) => (
+                  <div className="space-y-5">
+                    <h3 className="font-bold text-xl">Day {index + 1}</h3>
 
-                                        <div className="grid grid-cols-3 gap-10">
-                                            <DescriptionCard
-                                                label="Date"
-                                                description={date}
-                                            />
+                    <div className="grid grid-cols-3 gap-10">
+                      <DescriptionCard label="Date" description={date} />
 
-                                            <DescriptionCard
-                                                label="Activity"
-                                                description={activity}
-                                            />
+                      <DescriptionCard
+                        label="Activity"
+                        description={activity}
+                      />
 
-                                            <DescriptionCard
-                                                label="Departure Date"
-                                                description={format(
-                                                    departure_datetime,
-                                                    "dd-MMM-yyyy"
-                                                )}
-                                            />
+                      <DescriptionCard
+                        label="Departure Date"
+                        description={format(departure_datetime, "dd-MMM-yyyy")}
+                      />
 
-                                            <DescriptionCard
-                                                label="Point of Departure"
-                                                description={departure_point}
-                                            />
+                      <DescriptionCard
+                        label="Point of Departure"
+                        description={departure_point}
+                      />
 
-                                            <DescriptionCard
-                                                label="Arrival Date"
-                                                description={format(
-                                                    arrival_datetime,
-                                                    "dd-MMM-yyyy"
-                                                )}
-                                            />
+                      <DescriptionCard
+                        label="Arrival Date"
+                        description={format(arrival_datetime, "dd-MMM-yyyy")}
+                      />
 
-                                            <DescriptionCard
-                                                label="Assignment Location"
-                                                description={
-                                                    assignment_location
-                                                }
-                                            />
+                      <DescriptionCard
+                        label="Assignment Location"
+                        description={assignment_location}
+                      />
 
-                                            <DescriptionCard
-                                                label="Visa Free"
-                                                description={`${
-                                                    visa_free ? "YES" : "NO"
-                                                }`}
-                                            />
+                      <DescriptionCard
+                        label="Visa Free"
+                        description={`${visa_free ? "YES" : "NO"}`}
+                      />
 
-                                            <DescriptionCard
-                                                label="Airport Taxi Fee"
-                                                description={`$${airport_taxi_fee}`}
-                                            />
+                      <DescriptionCard
+                        label="Airport Taxi Fee"
+                        description={formatNumberCurrency(
+                          airport_taxi_fee,
+                          "USD"
+                        )}
+                      />
 
-                                            <DescriptionCard
-                                                label="Registration Fee"
-                                                description={`$${registration_fee}`}
-                                            />
+                      <DescriptionCard
+                        label="Registration Fee"
+                        description={formatNumberCurrency(
+                          registration_fee,
+                          "USD"
+                        )}
+                      />
 
-                                            <DescriptionCard
-                                                label="Taxi fare within /Between cities"
-                                                description={`$${inter_city_taxi_fee}`}
-                                            />
+                      <DescriptionCard
+                        label="Taxi fare within /Between cities"
+                        description={formatNumberCurrency(
+                          inter_city_taxi_fee,
+                          "USD"
+                        )}
+                      />
 
-                                            <DescriptionCard
-                                                label="Total Amount"
-                                                description={`$${total_amount}`}
-                                            />
+                      <DescriptionCard
+                        label="Total Amount"
+                        description={formatNumberCurrency(total_amount, "USD")}
+                      />
 
-                                            <DescriptionCard
-                                                label="Others"
-                                                description={others}
-                                            />
+                      <DescriptionCard label="Others" description={others} />
 
-                                            <DescriptionCard
-                                                label="Total Cost"
-                                                description={`$${
-                                                    Number(airport_taxi_fee) +
-                                                    Number(registration_fee) +
-                                                    Number(
-                                                        inter_city_taxi_fee
-                                                    ) +
-                                                    Number(total_amount)
-                                                }`}
-                                            />
-                                        </div>
-                                    </div>
-                                )
-                            )}
+                      <DescriptionCard
+                        label="Total Cost"
+                        description={`$${
+                          Number(airport_taxi_fee) +
+                          Number(registration_fee) +
+                          Number(inter_city_taxi_fee) +
+                          Number(total_amount)
+                        }`}
+                      />
+                    </div>
+                  </div>
+                )
+              )}
 
-                            <FormProvider {...form}>
-                                <form className="space-y-5">
-                                    <FormTextArea
-                                        label="Comment"
-                                        name="comment"
-                                        placeholder="Enter Comment"
-                                        required
-                                    />
+              <FormProvider {...form}>
+                <form className="space-y-5">
+                  <FormTextArea
+                    label="Comment"
+                    name="comment"
+                    placeholder="Enter Comment"
+                    required
+                  />
 
-                                    <FormButton
-                                        size="lg"
-                                        type="submit"
-                                        className="bg-green-500"
-                                    >
-                                        Approve
-                                    </FormButton>
-                                </form>
-                            </FormProvider>
-                        </CardContent>
-                    )
-                )}
-            </Card>
-        </div>
-    );
+                  <FormButton size="lg" type="submit" className="bg-green-500">
+                    Approve
+                  </FormButton>
+                </form>
+              </FormProvider>
+            </CardContent>
+          )
+        )}
+      </Card>
+    </div>
+  );
 }
 
 /* 

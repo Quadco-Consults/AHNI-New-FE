@@ -22,8 +22,13 @@ const ProtectedPage = () => {
 
   return (
     <div className="flex">
-      <div className={cn("hidden md:block", sidebarWidth ? "w-[5%]" : "w-[19%]")}>
-        <Sidebar setSidebarWidth={setSidebarWidth} sidebarWidth={sidebarWidth} />
+      <div
+        className={cn("hidden md:block", sidebarWidth ? "w-[5%]" : "w-[19%]")}
+      >
+        <Sidebar
+          setSidebarWidth={setSidebarWidth}
+          sidebarWidth={sidebarWidth}
+        />
       </div>
       <div className={cn("w-full", sidebarWidth ? "md:w-[95%]" : "md:w-[81%]")}>
         <Header sidebarWidth={sidebarWidth} />
