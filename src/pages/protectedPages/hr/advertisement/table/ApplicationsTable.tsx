@@ -28,8 +28,6 @@ const ApplicationsTable = ({
   id?: string;
   status?: "shortlisted" | "";
 }) => {
-  // const { data, isLoading } = JobApplicationAPI.useGetJobApplicationsQuery();
-
   const { data, isLoading } = JobApplicationAPI.useGetJobApplicationsQuery({
     status: status,
   });

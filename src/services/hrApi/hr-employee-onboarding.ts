@@ -12,8 +12,8 @@ const EmployeeOnboardingAPI = baseAPI.injectEndpoints({
       query: ({ status, search }) => ({
         url: BASE_URL,
         params: {
-          ...(status && { status }), // Include status if provided
-          ...(search && { search }), // Include search if provided
+          ...(status && { status }),
+          ...(search && { search }),
         },
       }),
       providesTags: ["EMPLOYEE_ONBOARDING"],

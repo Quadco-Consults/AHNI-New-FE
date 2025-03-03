@@ -45,7 +45,7 @@ const InterviewForm = () => {
     const payload = {
       candidate_name: data?.data?.applicant_name,
       position_applied: data?.data?.position_applied,
-      date_of_interview: data?.data?.created_datetime,
+      date_of_interview: data?.data?.created_datetime.split("T")[0],
       appearance_rating: formData["rating-0"],
       appearance_comments: formData["comments-0"],
       communication_rating: formData["rating-1"],
