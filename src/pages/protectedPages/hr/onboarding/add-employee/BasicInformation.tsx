@@ -37,14 +37,16 @@ const BasicInformation = () => {
     LocationAPi.useGetLocationListQuery({
       params: { no_paginate: true },
     });
-  // const { data: grades, isLoading: gradeIsLoading } =
-  //   HrGradeAPI.useGetHrGradeListQuery({
-  //     params: { no_paginate: true },
-  //   });
-  // const { data: positions, isLoading: positionIsLoading } =
-  //   HrPositionAPI.useGetHrPositionListQuery({
-  //     params: { no_paginate: true },
-  //   });
+  const { data: grades, isLoading: gradeIsLoading } =
+    HrGradeAPI.useGetHrGradeListQuery({
+      params: { no_paginate: true },
+    });
+  const { data: positions, isLoading: positionIsLoading } =
+    HrPositionAPI.useGetHrPositionListQuery({
+      params: { no_paginate: true },
+    });
+  console.log({ positions, grades });
+
   const [createWorkforceMutation, { isLoading }] =
     WorkforceAPI.useCreateWorkforceMutation();
 
