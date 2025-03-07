@@ -7,10 +7,11 @@ import {
 } from "@reduxjs/toolkit/query/react";
 import { RootState } from "src/store";
 
-// https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1/
+//
 // https://ahniprod-eec741554a5e.herokuapp.com/api/v1/
 
 const baseQuery = fetchBaseQuery({
+    // baseUrl: "https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1/",
     baseUrl: "https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1/",
     prepareHeaders: (headers, { getState }) => {
         // @ts-ignore
@@ -133,6 +134,7 @@ const baseAPI = createApi({
         "CONSULTANT_MANAGEMENT",
         "CONSULTANCY_REPORT",
         "FACILITATOR_MANAGEMENT",
+        "CLOSE_OUT_PLAN",
     ],
     // keepUnusedDataFor: 5 * 60,
     keepUnusedDataFor: 0,

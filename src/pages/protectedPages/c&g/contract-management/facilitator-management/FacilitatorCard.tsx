@@ -12,20 +12,21 @@ import { CardTitle } from "components/ui/card";
 import { CG_ROUTES } from "constants/RouterConstants";
 import { format } from "date-fns";
 import { IConsultantPaginatedData } from "definations/c&g/contract-management/consultancy-management";
+import { IFacilitatorPaginatedData } from "definations/c&g/contract-management/facilitator-management";
 import React from "react";
 import { generatePath, Link } from "react-router-dom";
 
-export default function ConsultantCard({
+export default function FacilitatorCard({
     id,
     title,
-    consultants_number,
+    facilitaor_number,
     duration,
     end_date,
     locations,
     evaluation_comments,
     created_datetime,
     status,
-}: IConsultantPaginatedData) {
+}: IFacilitatorPaginatedData) {
     return (
         <div className="w-[49.5%]">
             <Card className="flex flex-col gap-y-[.625rem] w-full min-h-[25rem] justify-between relative p-[2rem]">
@@ -52,7 +53,7 @@ export default function ConsultantCard({
                     <div className="w-full flex flex-wrap items-center justify-start gap-x-[.625rem] gap-y-[1rem]">
                         <DetailsTag
                             icon={<PeoplePositionsSvg />}
-                            label={`${consultants_number} people`}
+                            label={`${facilitaor_number} people`}
                         />
                         <DetailsTag
                             icon={<ClockTimingSvg />}
@@ -80,7 +81,7 @@ export default function ConsultantCard({
                         <div className="bg-white w-fit">
                             <Link
                                 to={generatePath(
-                                    CG_ROUTES.CONSULTANCY_DETAILS,
+                                    CG_ROUTES.FACILITATOR_DETAILS,
                                     { id }
                                 )}
                             >

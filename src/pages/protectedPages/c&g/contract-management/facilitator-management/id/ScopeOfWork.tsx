@@ -1,23 +1,19 @@
 import DescriptionCard from "components/shared/DescriptionCard";
 import FilePreview from "components/shared/FilePreview";
 import { Separator } from "components/ui/separator";
-import { IConsultantSingleData } from "definations/c&g/contract-management/consultancy-management";
+import { IFacilitatorSingleData } from "definations/c&g/contract-management/facilitator-management";
 
 export default function ScopeOfWork({
-    title,
     created_datetime,
     scope_of_work: {
         description,
         background,
         objectives,
-        fee_rate,
-        payment_frequency,
-        location,
         deliverables,
         advertisement_document,
         scope_of_work_document,
     },
-}: IConsultantSingleData) {
+}: IFacilitatorSingleData) {
     const totalDays = deliverables.reduce(
         (sum, item) => sum + item.number_of_days,
         0
@@ -56,34 +52,6 @@ export default function ScopeOfWork({
 
                     <p className="font-bold">Total</p>
                     <p className="font-bold">{totalDays} Days</p>
-                </div>
-            </div>
-
-            <Separator />
-
-            <div className="space-y-4">
-                <h2 className="font-bold text-[#DEA004]">Payment Schedule</h2>
-
-                <p className="text-sm text-gray-500">
-                    The fee rate for this work will be paid at the end of every
-                    month of assignment upon satisfactory approval by the AHNi
-                    Technical Monitor.
-                </p>
-
-                <p className="text-red-500">
-                    NOTE: 5% With Holding tax (WHT) will be deducted - in line
-                    with the regulations
-                </p>
-
-                <div className="grid grid-cols-2 gap-5">
-                    <DescriptionCard label="Fee Rate" description={fee_rate} />
-
-                    <DescriptionCard
-                        label="Payment Frequency"
-                        description={payment_frequency}
-                    />
-
-                    <DescriptionCard label="Location" description={location} />
                 </div>
             </div>
 

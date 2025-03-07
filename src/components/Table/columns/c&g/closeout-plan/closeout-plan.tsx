@@ -1,92 +1,63 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { ISubGrantPaginatedData } from "definations/c&g/contract-management/sub-grant/sub-grant";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
+import DeleteIcon from "components/icons/DeleteIcon";
+import EyeIcon from "components/icons/EyeIcon";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import PencilIcon from "components/icons/PencilIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
-import { useState } from "react";
-import { generatePath, Link } from "react-router-dom";
-import EyeIcon from "components/icons/EyeIcon";
-import { CG_ROUTES } from "constants/RouterConstants";
-import { toast } from "sonner";
-import { useDeleteSubGrantMutation } from "services/c&g/subgrant/sub-grant";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
-import { formatNumberCurrency } from "utils/utls";
+import { Button } from "components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import { CG_ROUTES } from "constants/RouterConstants";
+import { ICloseOutPlanPaginatedData } from "definations/c&g/closeout-plan";
+import { useState } from "react";
+import { generatePath, Link, useNavigate } from "react-router-dom";
+import { useDeleteCloseOutPlanMutation } from "services/c&g/closeout-plan";
+import { closeoutPlanAPis } from "services/cAndGApi/closeOutPlan";
+import { toast } from "sonner";
 
-export const subGrantAwardColumns: ColumnDef<ISubGrantPaginatedData>[] = [
+export const closeOutPlanColumns: ColumnDef<ICloseOutPlanPaginatedData>[] = [
     {
-        header: "Title",
-        id: "title",
-        accessorKey: "title",
-        size: 200,
-    },
-
-    {
-        header: "Project",
+        header: "Project Name",
         id: "project",
         accessorKey: "project",
-        size: 200,
-    },
-
-    {
-        header: "Business Unit",
-        id: "business_unit",
-        accessorKey: "business_unit",
-        size: 200,
-    },
-
-    {
-        header: "Award Amount (USD)",
-        id: "amount_usd",
-        accessorFn: (data) => formatNumberCurrency(data.amount_usd, "USD"),
-        accessorKey: "amount_usd",
-        size: 200,
-    },
-
-    {
-        header: "Award Amount (NGN)",
-        id: "amount_ngn",
-        accessorKey: "amount_ngn",
-        accessorFn: (data) => formatNumberCurrency(data.amount_ngn, "NGN"),
-
-        size: 200,
-    },
-
-    {
-        header: "Start Date",
-        accessorKey: "start_date",
-        size: 200,
+        size: 250,
     },
     {
-        header: "End Date",
-        accessorKey: "end_date",
-        size: 200,
+        header: "Department",
+        id: "department",
+        accessorKey: "department",
+        size: 250,
+    },
+    {
+        header: "Location",
+        id: "location",
+        accessorKey: "location",
+        size: 250,
     },
     {
         header: "Status",
+        id: "status",
         accessorKey: "status",
-        size: 200,
+        size: 250,
+        cell: ({ row }) => row.original.status,
     },
     {
-        header: "",
+        header: "Action",
         id: "actions",
         size: 50,
         cell: ({ row }) => <TableMenu {...row.original} />,
     },
 ];
 
-const TableMenu = ({ id }: ISubGrantPaginatedData) => {
-    const [isDialogOpen, setDialogOpen] = useState(false);
+const TableMenu = ({ id }: ICloseOutPlanPaginatedData) => {
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-    const [deleteSubGrant, { isLoading: isDeleteLoading }] =
-        useDeleteSubGrantMutation();
+    const [deleteCloseOutPlan, { isLoading: isDeleteLoading }] =
+        useDeleteCloseOutPlanMutation();
 
     const handleDelete = async () => {
         try {
-            await deleteSubGrant(id).unwrap();
-            toast.success("Sub Grant Deleted");
-            setDialogOpen(false);
+            await deleteCloseOutPlan(id).unwrap();
+            toast.success("Close Out Plan Deleted");
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }
@@ -103,7 +74,7 @@ const TableMenu = ({ id }: ISubGrantPaginatedData) => {
                     </PopoverTrigger>
                     <PopoverContent className="w-fit">
                         <Link
-                            to={generatePath(CG_ROUTES.SUBGRANT_AWARD_DETAILS, {
+                            to={generatePath(CG_ROUTES.CLOSE_OUT_DETAILS, {
                                 id,
                             })}
                         >
@@ -117,7 +88,7 @@ const TableMenu = ({ id }: ISubGrantPaginatedData) => {
                         </Link>
                         <Link
                             to={{
-                                pathname: CG_ROUTES.CREATE_SUBGRANT_AWARD,
+                                pathname: CG_ROUTES.NEW_CLOSE_OUT_PLAN,
                                 search: `?id=${id}`,
                             }}
                         >
@@ -132,7 +103,7 @@ const TableMenu = ({ id }: ISubGrantPaginatedData) => {
                         <Button
                             className="w-full flex items-center justify-start gap-2"
                             variant="ghost"
-                            onClick={() => setDialogOpen(true)}
+                            onClick={() => setIsDialogOpen(true)}
                         >
                             <DeleteIcon />
                             Delete
@@ -143,9 +114,9 @@ const TableMenu = ({ id }: ISubGrantPaginatedData) => {
 
             <ConfirmationDialog
                 open={isDialogOpen}
-                title="Are you sure you want to delete this sub grant?"
+                title="Are you sure you want to delete this close out plan?"
                 loading={isDeleteLoading}
-                onCancel={() => setDialogOpen(false)}
+                onCancel={() => setIsDialogOpen(false)}
                 onOk={handleDelete}
             />
         </div>
