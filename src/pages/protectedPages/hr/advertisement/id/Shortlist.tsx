@@ -1,7 +1,8 @@
+import { JobAdvertisement } from "definations/hr-types/job-advertisement";
 import ApplicationsTable from "../table/ApplicationsTable";
 
-const Shortlist = () => {
-  return <ApplicationsTable href={"/hr/advertisement/1/application-form"} />;
+const Shortlist = ({ id }: JobAdvertisement) => {
+  return <ApplicationsTable id={id} status='shortlisted' />;
 };
 
 export default Shortlist;

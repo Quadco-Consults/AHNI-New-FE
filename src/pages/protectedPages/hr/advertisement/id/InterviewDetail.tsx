@@ -1,38 +1,18 @@
-import UserIcon from "components/icons/UserIcon";
 import Card from "components/shared/Card";
 import DescriptionCard from "components/shared/DescriptionCard";
 import GoBack from "components/shared/GoBack";
 import { Loading } from "components/shared/Loading";
 import PdfContent from "components/shared/PdfContent";
-import { Button } from "components/ui/button";
 import { useParams } from "react-router-dom";
-import JobApplicationAPI from "services/hrApi/hr-job-applications";
-import { toast } from "sonner";
+import InterviewAPI from "services/hrApi/hr-interview";
 
-const SubmittedApplicationDetail = () => {
+const InterviewDetail = () => {
   const params = useParams();
 
-  const { data, isLoading } = JobApplicationAPI.useGetJobApplicationQuery({
+  const { data, isLoading } = InterviewAPI.useGetInterviewQuery({
     id: params?.appID as string,
   });
-
-  const [patchJobApplication, { isLoading: isUpdating }] =
-    JobApplicationAPI.usePatchJobApplicationMutation();
-
-  const handleShortlist = async () => {
-    try {
-      await patchJobApplication({
-        id: params?.appID as string,
-        body: {
-          status: "shortlisted",
-        },
-      }).unwrap();
-      toast.success("Applicant shortlisted successfully");
-    } catch (error) {
-      toast.error("Failed to update status");
-      console.error(error);
-    }
-  };
+  console.log({ data });
 
   if (isLoading) {
     return <Loading />;
@@ -41,13 +21,11 @@ const SubmittedApplicationDetail = () => {
     name: "document",
     document: data?.data?.cover_letter!,
   };
+
   return (
     <div className='space-y-4'>
       <div className='flex justify-between items-center'>
         <GoBack />
-        <Button onClick={handleShortlist} disabled={isUpdating}>
-          <UserIcon /> {isUpdating ? "Shortlisting..." : "Shortlist Applicant"}
-        </Button>
       </div>
       <Card className='space-y-8'>
         <h4 className='text-lg font-medium'>{data?.data?.applicant_name}</h4>
@@ -102,4 +80,4 @@ const SubmittedApplicationDetail = () => {
   );
 };
 
-export default SubmittedApplicationDetail;
+export default InterviewDetail;

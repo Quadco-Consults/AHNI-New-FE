@@ -4,6 +4,7 @@ import FilterIcon from "components/icons/FilterIcon";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import SearchIcon from "components/icons/SearchIcon";
 import Card from "components/shared/Card";
+import { Loading } from "components/shared/Loading";
 import DataTable from "components/Table/DataTable";
 import { Badge } from "components/ui/badge";
 import { Button } from "components/ui/button";
@@ -12,25 +13,36 @@ import { HrRoutes } from "constants/RouterConstants";
 import { TOnboarding } from "definations/hr-types/hr-beneficiary";
 import { cn } from "lib/utils";
 import { Link } from "react-router-dom";
+import EmployeeOnboardingAPI from "services/hrApi/hr-employee-onboarding";
 
 const Onboarding = () => {
+  const { data: employeeData, isLoading: fetchingEmployeeData } =
+    EmployeeOnboardingAPI.useGetEmployeeOnboardingsQuery({});
+
+  console.log({ employeeData, fetchingEmployeeData });
+
+  if (fetchingEmployeeData) {
+    return <Loading />;
+  }
+
   return (
-    <Card className="space-y-4">
-      <div className="flex items-center justify-start gap-2 pt-4">
-        <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
+    <Card className='space-y-4'>
+      <div className='flex items-center justify-start gap-2 pt-4'>
+        <span className='flex items-center w-1/3 px-2 py-2 border rounded-lg'>
           <SearchIcon />
           <input
-            placeholder="Search"
-            type="text"
-            className="ml-2 h-6 border-none bg-none focus:outline-none outline-none"
+            placeholder='Search'
+            type='text'
+            className='ml-2 h-6 border-none w-full bg-none focus:outline-none outline-none'
           />
         </span>
-        <Button className="shadow-sm" variant="ghost">
+        <Button className='shadow-sm' variant='ghost'>
           <FilterIcon />
         </Button>
       </div>
 
       <DataTable data={data} columns={columns} isLoading={false} />
+      {/* <DataTable data={[]} columns={columns} isLoading={false} /> */}
     </Card>
   );
 };
@@ -73,7 +85,7 @@ const columns: ColumnDef<TOnboarding>[] = [
     cell: ({ getValue }) => {
       return (
         <Badge
-          variant="default"
+          variant='default'
           className={cn(
             "p-1 rounded-lg",
             getValue() === "APPROVED" && "bg-green-200 text-green-500",
@@ -97,22 +109,22 @@ const columns: ColumnDef<TOnboarding>[] = [
 
 const ActionList = () => {
   return (
-    <div className="flex items-center gap-2">
+    <div className='flex items-center gap-2'>
       <>
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost" className="flex gap-2 py-6">
+            <Button variant='ghost' className='flex gap-2 py-6'>
               <MoreOptionsHorizontalIcon />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className=" w-fit">
+          <PopoverContent className=' w-fit'>
             <Link
               to={HrRoutes.ONBOARDING_START}
-              className="flex flex-col items-start justify-between gap-1"
+              className='flex flex-col items-start justify-between gap-1'
             >
               <Button
-                className="w-full flex items-center justify-start gap-2"
-                variant="ghost"
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
               >
                 <EyeIcon />
                 View
