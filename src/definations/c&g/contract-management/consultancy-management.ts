@@ -46,7 +46,7 @@ export const ScopeOfWorkSchema = z.object({
 
 export type TScopeOfWorkFormData = z.infer<typeof ScopeOfWorkSchema>;
 
-interface IScopeOfWorkData {
+export interface IScopeOfWorkData {
     id: string;
     deliverables: {
         deliverable: string;

@@ -9,18 +9,18 @@ import {
 import DescriptionCard from "components/shared/DescriptionCard";
 import FilePreview from "components/shared/FilePreview";
 import { format } from "date-fns";
-import { IConsultantSingleData } from "definations/c&g/contract-management/consultancy-management";
+import { IFacilitatorSingleData } from "definations/c&g/contract-management/facilitator-management";
 
 export default function JobDetails({
     title,
-    consultants_number,
+    facilitaor_number,
     duration,
     end_date,
     locations,
     background,
     advertisement_document,
     created_datetime,
-}: IConsultantSingleData) {
+}: IFacilitatorSingleData) {
     return (
         <div className="space-y-5">
             <h1 className="font-bold text-lg">{title}</h1>
@@ -28,7 +28,7 @@ export default function JobDetails({
             <div className="flex flex-wrap items-center justify-start gap-x-[.625rem] gap-y-[1rem] w-1/2">
                 <DetailsTag
                     icon={<PeoplePositionsSvg />}
-                    label={`${consultants_number} people`}
+                    label={`${facilitaor_number} people`}
                 />
                 <DetailsTag
                     icon={<ClockTimingSvg />}
@@ -38,10 +38,10 @@ export default function JobDetails({
                     icon={<DataCalenderSvg />}
                     label={format(end_date, "MMM dd, yyy")}
                 />
-                <DetailsTag
+                {/* <DetailsTag
                     icon={<LocationSvg />}
                     label={locations.map((item) => item.name).join(", ")}
-                />
+                /> */}
                 <DetailsTag icon={<SuiteCase />} label="Internal" />
 
                 <DetailsTag icon={<PersonClusterSvg />} label="Cluster Leads" />

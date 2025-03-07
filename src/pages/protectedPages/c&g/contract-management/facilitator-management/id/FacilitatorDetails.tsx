@@ -9,18 +9,15 @@ import { LoadingSpinner } from "components/shared/Loading";
 import { useState } from "react";
 import JobDetails from "./JobDetails";
 import Card from "components/shared/Card";
-import { useGetSingleConsultantManagementQuery } from "services/c&g/contract-management/consultant-management";
 import ScopeOfWork from "./ScopeOfWork";
-import Applications from "./applicants/ConsultancyApplicant";
+import { useGetSingleFacilitatorQuery } from "services/c&g/contract-management/facilitator-management";
 
-export default function ConsultantDetailsPage() {
+export default function FacilitatorDetails() {
     const [tabValue, setTabValue] = useState("job-details");
 
     const { id } = useParams();
 
-    const { data, isLoading } = useGetSingleConsultantManagementQuery(
-        id ?? skipToken
-    );
+    const { data, isLoading } = useGetSingleFacilitatorQuery(id ?? skipToken);
 
     if (isLoading) {
         return <LoadingSpinner />;
@@ -45,35 +42,11 @@ export default function ConsultantDetailsPage() {
                             Scope Of Work
                         </TabsTrigger>
 
-                        <TabsTrigger value="applications">
-                            Submitted Applications
-                        </TabsTrigger>
-
-                        <TabsTrigger value="shortlist">Shortlist</TabsTrigger>
-
                         <TabsTrigger value="contract-form">
                             Contract Request Form
                         </TabsTrigger>
                     </TabsList>
                 </div>
-                {tabValue === "applications" && (
-                    <div>
-                        <Link
-                            className="w-full"
-                            to={generatePath(
-                                CG_ROUTES.CREATE_CONSULTANCY_APPLICANT,
-                                {
-                                    id,
-                                }
-                            )}
-                        >
-                            <Button className="flex gap-2 py-6" type="button">
-                                <AddSquareIcon />
-                                Add Applicant
-                            </Button>
-                        </Link>
-                    </div>
-                )}
             </section>
             <section>
                 {data && (
@@ -83,10 +56,6 @@ export default function ConsultantDetailsPage() {
                         </TabsContent>
                         <TabsContent value="work-scope">
                             <ScopeOfWork {...data.data} />
-                        </TabsContent>
-
-                        <TabsContent value="applications">
-                            <Applications />
                         </TabsContent>
                     </Card>
                 )}

@@ -2,16 +2,18 @@ import { Button } from "components/ui/button";
 import { CG_ROUTES } from "constants/RouterConstants";
 import { Plus } from "lucide-react";
 import { Link } from "react-router-dom";
-import ConsultancyCard from "./ConsultantCard";
+import ConsultancyCard from "./FacilitatorCard";
 import { useGetAllConsultantManagementsQuery } from "services/c&g/contract-management/consultant-management";
 import { useState } from "react";
 import { LoadingSpinner } from "components/shared/Loading";
 import Pagination from "components/shared/Pagination";
+import { useGetAllFacilitatorsQuery } from "services/c&g/contract-management/facilitator-management";
+import FacilitatorCard from "./FacilitatorCard";
 
 export default function FacilitatorManagement() {
     const [page, setPage] = useState(1);
 
-    const { data, isFetching } = useGetAllConsultantManagementsQuery({
+    const { data, isFetching } = useGetAllFacilitatorsQuery({
         page,
         size: 10,
     });
@@ -31,7 +33,7 @@ export default function FacilitatorManagement() {
                 data && (
                     <div className="w-full flex flex-wrap justify-between items-start gap-y-[1rem]">
                         {data.data.results.map((consultant) => (
-                            <ConsultancyCard
+                            <FacilitatorCard
                                 key={consultant.id}
                                 {...consultant}
                             />

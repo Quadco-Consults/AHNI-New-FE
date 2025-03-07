@@ -152,21 +152,20 @@ export const candg = [
     // close out
     {
         path: CG_ROUTES.CLOSE_OUT,
+        element: lazy(() => import("pages/protectedPages/c&g/closeout-plan")),
+    },
+
+    {
+        path: CG_ROUTES.NEW_CLOSE_OUT_PLAN,
         element: lazy(
-            () => import("pages/protectedPages/candg/closeout/CloseOut")
+            () => import("pages/protectedPages/c&g/closeout-plan/create")
         ),
     },
 
     {
         path: CG_ROUTES.CLOSE_OUT_DETAILS,
         element: lazy(
-            () => import("pages/protectedPages/candg/closeout/CloseOutDetails")
-        ),
-    },
-    {
-        path: CG_ROUTES.NEW_CLOSE_OUT_PLAN,
-        element: lazy(
-            () => import("pages/protectedPages/candg/closeout/NewCloseOutPlan")
+            () => import("pages/protectedPages/c&g/closeout-plan/id")
         ),
     },
 
@@ -297,6 +296,16 @@ export const candg = [
             () =>
                 import(
                     "pages/protectedPages/c&g/contract-management/facilitator-management/create/ScopeOfWork"
+                )
+        ),
+    },
+
+    {
+        path: CG_ROUTES.FACILITATOR_DETAILS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/facilitator-management/id/FacilitatorDetails"
                 )
         ),
     },

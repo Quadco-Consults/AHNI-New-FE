@@ -46,7 +46,7 @@ export type TFacilitatorScopeOfWorkFormData = z.infer<
     typeof FacilitatorScopeOfWorkSchema
 >;
 
-interface IScopeOfWorkData {
+export interface IScopeOfWorkData {
     id: string;
     deliverables: {
         deliverable: string;
@@ -60,9 +60,47 @@ interface IScopeOfWorkData {
     background: string;
     location: string;
     objectives: string;
-    fee_rate: number;
-    payment_frequency: number;
 }
-export interface IFacilitatorPaginatedData {}
 
-export interface IFacilitatorSingleData {}
+export interface IFacilitatorPaginatedData {
+    id: string;
+    scope_of_work: IScopeOfWorkData;
+    advertisement_document: string;
+    supervisor: string;
+    locations: TLocationData[];
+    created_datetime: string;
+    updated_datetime: string;
+    title: string;
+    grade_level: string;
+    duration: number;
+    commencement_date: string;
+    end_date: string;
+    facilitaor_number: number;
+    status: string;
+    extra_info: string;
+    background: string;
+    evaluation_comments: string;
+    created_by: string;
+    updated_by: null;
+}
+
+export interface IFacilitatorSingleData {
+    id: string;
+    scope_of_work: IScopeOfWorkData;
+    advertisement_document: string;
+    supervisor: IUser;
+    locations: TLocationData[];
+    created_datetime: string;
+    title: string;
+    grade_level: string;
+    duration: number;
+    commencement_date: string;
+    end_date: string;
+    facilitaor_number: number;
+    status: string;
+    extra_info: string;
+    background: string;
+    evaluation_comments: string;
+    created_by: string;
+    updated_by: null;
+}
