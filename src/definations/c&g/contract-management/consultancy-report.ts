@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { IConsultantSingleData } from "./consultancy-management";
+import { IConsultantSingleData } from "./consultancy-management/consultancy-management";
 import { IUser } from "definations/auth/user";
 
 export const ConsultancyReportSchema = z.object({
