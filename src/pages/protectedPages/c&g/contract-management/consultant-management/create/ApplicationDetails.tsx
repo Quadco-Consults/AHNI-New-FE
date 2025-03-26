@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import {
     ConsultancyManagementDetailSchema,
     TConsultantanagementDetailsFormData,
-} from "definations/c&g/contract-management/consultancy-management";
+} from "definations/c&g/contract-management/consultancy-management/consultancy-management";
 import { Button } from "components/ui/button";
 import FormSelect from "atoms/FormSelect";
 import ConsultantManagementLayout from "./Layout";
@@ -18,13 +18,9 @@ import MultiSelectFormField from "components/ui/multiselect";
 import { useGetAllLocationsQuery } from "services/modules/config/location";
 import { useMemo } from "react";
 import { useGetAllUsersQuery } from "services/auth/user";
-import { useNavigate } from "react-router-dom";
-import { CG_ROUTES } from "constants/RouterConstants";
+import { useLocation, useNavigate } from "react-router-dom";
+import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
 import { fileToBase64 } from "utils/fileToBase64";
-import {
-    useCreateConsultantManagementMutation,
-    useModifyConsultantManagementMutation,
-} from "services/c&g/contract-management/consultant-management";
 
 export default function ApplicationDetails() {
     const navigate = useNavigate();
@@ -45,6 +41,8 @@ export default function ApplicationDetails() {
             supervisor: "",
         },
     });
+
+    const { pathname } = useLocation();
 
     const {
         formState: { errors },
@@ -90,7 +88,11 @@ export default function ApplicationDetails() {
                 JSON.stringify(payload)
             );
 
-            navigate(CG_ROUTES.CREATE_CONSULTANCY_WORK_SCOPE);
+            if (pathname.includes("adhoc-management")) {
+                navigate(ProgramRoutes.CREATE_ADHOC_WORK_SCOPE);
+            } else {
+                navigate(CG_ROUTES.CREATE_CONSULTANCY_WORK_SCOPE);
+            }
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }

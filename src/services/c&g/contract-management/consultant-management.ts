@@ -3,7 +3,7 @@ import {
     IConsultantSingleData,
     TConsultantanagementDetailsFormData,
     TScopeOfWorkFormData,
-} from "definations/c&g/contract-management/consultancy-management";
+} from "definations/c&g/contract-management/consultancy-management/consultancy-management";
 import baseAPI from "services/index";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
@@ -13,7 +13,8 @@ const ConsultantManagementAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
         createConsultantManagement: builder.mutation<
             TResponse<IConsultantSingleData>,
-            TConsultantanagementDetailsFormData & TScopeOfWorkFormData
+            TConsultantanagementDetailsFormData &
+                TScopeOfWorkFormData & { type: "CONSULTANT" | "ADHOC" }
         >({
             query: (body) => ({
                 method: "POST",
@@ -25,7 +26,7 @@ const ConsultantManagementAPI = baseAPI.injectEndpoints({
 
         getAllConsultantManagements: builder.query<
             TPaginatedResponse<IConsultantPaginatedData>,
-            TRequest
+            TRequest & { type: string }
         >({
             query: (params) => ({
                 method: "GET",

@@ -349,7 +349,7 @@ export const program = [
     },
 
     {
-        path: CG_ROUTES.CONSULTANCY_DETAILS,
+        path: ProgramRoutes.ADHOC_DETAILS,
         element: lazy(
             () =>
                 import(

@@ -9,7 +9,7 @@ import {
 import DescriptionCard from "components/shared/DescriptionCard";
 import FilePreview from "components/shared/FilePreview";
 import { format } from "date-fns";
-import { IConsultantSingleData } from "definations/c&g/contract-management/consultancy-management";
+import { IConsultantSingleData } from "definations/c&g/contract-management/consultancy-management/consultancy-management";
 
 export default function JobDetails({
     title,

@@ -9,11 +9,11 @@ import {
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
 import { CardTitle } from "components/ui/card";
-import { CG_ROUTES } from "constants/RouterConstants";
+import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
 import { format } from "date-fns";
-import { IConsultantPaginatedData } from "definations/c&g/contract-management/consultancy-management";
+import { IConsultantPaginatedData } from "definations/c&g/contract-management/consultancy-management/consultancy-management";
 import React from "react";
-import { generatePath, Link } from "react-router-dom";
+import { generatePath, Link, useLocation } from "react-router-dom";
 
 export default function ConsultantCard({
     id,
@@ -26,6 +26,10 @@ export default function ConsultantCard({
     created_datetime,
     status,
 }: IConsultantPaginatedData) {
+    const { pathname } = useLocation();
+
+    const isAdhoc = pathname.includes("adhoc-management");
+
     return (
         <div className="w-[49.5%]">
             <Card className="flex flex-col gap-y-[.625rem] w-full min-h-[25rem] justify-between relative p-[2rem]">
@@ -80,7 +84,9 @@ export default function ConsultantCard({
                         <div className="bg-white w-fit">
                             <Link
                                 to={generatePath(
-                                    CG_ROUTES.CONSULTANCY_DETAILS,
+                                    isAdhoc
+                                        ? ProgramRoutes.ADHOC_DETAILS
+                                        : CG_ROUTES.CONSULTANCY_DETAILS,
                                     { id }
                                 )}
                             >

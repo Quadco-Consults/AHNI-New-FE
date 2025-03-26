@@ -1,7 +1,7 @@
 import { Button } from "components/ui/button";
-import { CG_ROUTES } from "constants/RouterConstants";
+import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
 import { Plus } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import ConsultancyCard from "./ConsultantCard";
 import { useGetAllConsultantManagementsQuery } from "services/c&g/contract-management/consultant-management";
 import { useState } from "react";
@@ -11,15 +11,25 @@ import Pagination from "components/shared/Pagination";
 export default function Consultancy() {
     const [page, setPage] = useState(1);
 
+    const { pathname } = useLocation();
+
+    const type = pathname.includes("adhoc-management") ? "ADHOC" : "CONSULTANT";
+
     const { data, isFetching } = useGetAllConsultantManagementsQuery({
         page,
         size: 10,
+        type,
     });
+
+    const path =
+        type === "ADHOC"
+            ? ProgramRoutes.CREATE_ADHOC_DETAILS
+            : CG_ROUTES.CREATE_CONSULTANCY_DETAILS;
 
     return (
         <section className="space-y-5">
             <div className="flex justify-end">
-                <Link to={CG_ROUTES.CREATE_CONSULTANCY_DETAILS}>
+                <Link to={path}>
                     <Button>
                         <Plus size={29} /> New Consultant
                     </Button>

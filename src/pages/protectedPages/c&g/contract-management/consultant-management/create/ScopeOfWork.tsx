@@ -14,7 +14,7 @@ import {
     ScopeOfWorkSchema,
     TConsultantanagementDetailsFormData,
     TScopeOfWorkFormData,
-} from "definations/c&g/contract-management/consultancy-management";
+} from "definations/c&g/contract-management/consultancy-management/consultancy-management";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "components/ui/button";
 import DeleteIcon from "components/icons/DeleteIcon";
@@ -24,10 +24,14 @@ import {
     useCreateConsultantManagementMutation,
     useModifyConsultantManagementMutation,
 } from "services/c&g/contract-management/consultant-management";
-import { useNavigate } from "react-router-dom";
-import { CG_ROUTES } from "constants/RouterConstants";
+import { useLocation, useNavigate } from "react-router-dom";
+import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
 
 export default function ScopeOfWork() {
+    const { pathname } = useLocation();
+
+    const type = pathname.includes("adhoc-management") ? "ADHOC" : "CONSULTANT";
+
     const navigate = useNavigate();
 
     const form = useForm<TScopeOfWorkFormData>({
@@ -81,10 +85,18 @@ export default function ScopeOfWork() {
                 },
             };
 
-            await createConsultantManagement(payload as any).unwrap();
+            await createConsultantManagement({
+                ...payload,
+                type,
+            } as any).unwrap();
+
             toast.success("Consultant Created");
 
-            navigate(CG_ROUTES.CONSULTANCY);
+            if (pathname.includes("adhoc-management")) {
+                navigate(ProgramRoutes.ADHOC_MANAGEMENT);
+            } else {
+                navigate(CG_ROUTES.CONSULTANCY);
+            }
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }
@@ -263,7 +275,10 @@ export default function ScopeOfWork() {
                                     options={[
                                         { label: "Weekly", value: "Weekly" },
                                         { label: "Monthly", value: "Monthly" },
-                                        { label: "Bi-Annually", value: "Bi-Annually" },
+                                        {
+                                            label: "Bi-Annually",
+                                            value: "Bi-Annually",
+                                        },
                                         { label: "Anually", value: "Annually" },
                                     ]}
                                 />
