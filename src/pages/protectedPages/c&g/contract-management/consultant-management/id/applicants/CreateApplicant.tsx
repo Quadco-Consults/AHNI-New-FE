@@ -1,3 +1,4 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { UploadFileSvg } from "assets/svgs/CAndGSvgs";
 import BackNavigation from "atoms/BackNavigation";
 import FadedButton from "atoms/FadedButton";
@@ -11,15 +12,43 @@ import { Form } from "components/ui/form";
 import { Label } from "components/ui/label";
 import { Separator } from "components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import {
+    ConsultancyApplicantionSchema,
+    TConsultancyApplicantFormData,
+} from "definations/c&g/contract-management/consultancy-management/consultancy-application";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { AiFillPlusCircle } from "react-icons/ai";
+import { useGetExistingConsultancyApplicantsQuery } from "services/c&g/contract-management/consultancy-management/consultancy-applicants";
 
 export default function CreateApplicant() {
     const [tabValue, setTabValue] = useState("existing");
     const [showDocument, setShowDocument] = useState(false);
 
-    const form = useForm();
+    const { data } = useGetExistingConsultancyApplicantsQuery({
+        page: 1,
+        size: 2000000,
+    });
+
+    const form = useForm<TConsultancyApplicantFormData>({
+        resolver: zodResolver(ConsultancyApplicantionSchema),
+        defaultValues: {
+            consultancy: "",
+            referees: [
+                {
+                    name: "",
+                    email: "",
+                    phone_number: "",
+                },
+            ],
+            name: "",
+            email: "",
+            phone_number: "",
+            employment_type: "",
+            resume: "",
+            cover_letter: "",
+        },
+    });
 
     return (
         <section>

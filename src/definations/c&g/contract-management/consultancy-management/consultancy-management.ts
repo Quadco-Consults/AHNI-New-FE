@@ -13,9 +13,15 @@ export const ConsultancyManagementDetailSchema = z.object({
     extra_info: z.string().min(1, "Please enter extra info"),
     background: z.string().min(1, "Please enter background"),
     evaluation_comments: z.string().min(1, "Please enter evaluation comment"),
-    advertisement_document: z
-        .any()
-        .refine((files: FileList) => files?.length > 0, "Please select a file"),
+    advertisement_document: z.union([
+        z
+            .any()
+            .refine(
+                (files: FileList) => files?.length > 0,
+                "Please select a file"
+            ),
+        z.string().url(),
+    ]),
     supervisor: z.string().min(1, "Please select supervisor"),
 });
 
@@ -33,15 +39,27 @@ export const ScopeOfWorkSchema = z.object({
             number_of_days: z.string().min(1, "Please enter number of days"),
         })
     ),
-    advertisement_document: z
-        .any()
-        .refine((files: FileList) => files?.length > 0, "Please select a file"),
+    advertisement_document: z.union([
+        z
+            .any()
+            .refine(
+                (files: FileList) => files?.length > 0,
+                "Please select a file"
+            ),
+        z.string().url(),
+    ]),
     fee_rate: z.string().min(1, "Please enter fee rate"),
     payment_frequency: z.string().min(1, "Please select payment frequency"),
     location: z.string().min(1, "Please select payment frequency"),
-    scope_of_work_document: z
-        .any()
-        .refine((files: FileList) => files?.length > 0, "Please select a file"),
+    scope_of_work_document: z.union([
+        z
+            .any()
+            .refine(
+                (files: FileList) => files?.length > 0,
+                "Please select a file"
+            ),
+        z.string().url(),
+    ]),
 });
 
 export type TScopeOfWorkFormData = z.infer<typeof ScopeOfWorkSchema>;
@@ -61,7 +79,7 @@ export interface IScopeOfWorkData {
     location: string;
     objectives: string;
     fee_rate: number;
-    payment_frequency: number;
+    payment_frequency: string;
 }
 export interface IConsultantPaginatedData {
     id: string;

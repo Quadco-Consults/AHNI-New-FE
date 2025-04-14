@@ -3,9 +3,15 @@ import { consultantApplicantColumns } from "components/Table/columns/c&g/contrac
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { useState } from "react";
+import { useGetAllExistingConsultantsQuery } from "services/c&g/contract-management/consultancy-management/consultant-management";
 
 export default function ConsultancyApplicant() {
-    const [page, setPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(1);
+
+    // const { data, isFetching } = useGetAllExistingConsultantsQuery({
+    //     page: currentPage,
+    //     size: 10,
+    // });
 
     return (
         <section className="space-y-5">

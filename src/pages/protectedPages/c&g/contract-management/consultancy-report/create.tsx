@@ -23,7 +23,7 @@ import {
 import FormButton from "atoms/FormButton";
 import FormSelect from "atoms/FormSelectField";
 import { useGetAllUsersQuery } from "services/auth/user";
-import { useGetAllConsultantManagementsQuery } from "services/c&g/contract-management/consultant-management";
+import { useGetAllConsultantManagementsQuery } from "services/c&g/contract-management/consultancy-management/consultant-management";
 
 export default function CreateConsultancyReport() {
     const form = useForm<TConsultancyReportFormData>({
