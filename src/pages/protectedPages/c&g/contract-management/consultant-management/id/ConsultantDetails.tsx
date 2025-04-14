@@ -9,7 +9,7 @@ import { LoadingSpinner } from "components/shared/Loading";
 import { useState } from "react";
 import JobDetails from "./JobDetails";
 import Card from "components/shared/Card";
-import { useGetSingleConsultantManagementQuery } from "services/c&g/contract-management/consultant-management";
+import { useGetSingleConsultantManagementQuery } from "services/c&g/contract-management/consultancy-management/consultant-management";
 import ScopeOfWork from "./ScopeOfWork";
 import Applications from "./applicants/ConsultancyApplicant";
 

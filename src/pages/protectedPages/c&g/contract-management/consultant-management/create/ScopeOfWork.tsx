@@ -22,13 +22,20 @@ import { toast } from "sonner";
 import { fileToBase64 } from "utils/fileToBase64";
 import {
     useCreateConsultantManagementMutation,
+    useGetSingleConsultantManagementQuery,
     useModifyConsultantManagementMutation,
-} from "services/c&g/contract-management/consultant-management";
-import { useLocation, useNavigate } from "react-router-dom";
+} from "services/c&g/contract-management/consultancy-management/consultant-management";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
+import { skipToken } from "@reduxjs/toolkit/query";
+import { useEffect } from "react";
 
 export default function ScopeOfWork() {
     const { pathname } = useLocation();
+
+    const [searchParams] = useSearchParams();
+
+    const consultantId = searchParams.get("id");
 
     const type = pathname.includes("adhoc-management") ? "ADHOC" : "CONSULTANT";
 
@@ -76,21 +83,33 @@ export default function ScopeOfWork() {
                 ...applicationDetails,
                 scope_of_work: {
                     ...data,
-                    advertisement_document: await fileToBase64(
-                        data.advertisement_document[0]
-                    ),
-                    scope_of_work_document: await fileToBase64(
-                        data.scope_of_work_document[0]
-                    ),
+                    advertisement_document:
+                        typeof data.advertisement_document !== "string"
+                            ? await fileToBase64(data.advertisement_document[0])
+                            : null,
+                    scope_of_work_document:
+                        typeof data.scope_of_work_document !== "string"
+                            ? await fileToBase64(data.scope_of_work_document[0])
+                            : null,
                 },
             };
 
-            await createConsultantManagement({
-                ...payload,
-                type,
-            } as any).unwrap();
-
-            toast.success("Consultant Created");
+            if (consultantId) {
+                await modifyConsultantManagement({
+                    id: consultantId,
+                    body: { ...payload, type } as any,
+                }).unwrap();
+            } else {
+                await createConsultantManagement({
+                    ...payload,
+                    type,
+                } as any).unwrap();
+            }
+            if (type === "ADHOC") {
+                toast.success("Adhoc Created");
+            } else {
+                toast.success("Consultant Created");
+            }
 
             if (pathname.includes("adhoc-management")) {
                 navigate(ProgramRoutes.ADHOC_MANAGEMENT);
@@ -98,9 +117,38 @@ export default function ScopeOfWork() {
                 navigate(CG_ROUTES.CONSULTANCY);
             }
         } catch (error: any) {
+            console.log(error);
             toast.error(error.data.message ?? "Something went wrong");
         }
     };
+
+    const { data } = useGetSingleConsultantManagementQuery(
+        consultantId ?? skipToken
+    );
+
+    useEffect(() => {
+        if (data) {
+            const {
+                fee_rate,
+                deliverables,
+                advertisement_document,
+                scope_of_work_document,
+            } = data.data.scope_of_work;
+
+            form.reset({
+                ...data.data.scope_of_work,
+                fee_rate: String(fee_rate),
+                deliverables: deliverables.map((item) => ({
+                    ...item,
+                    number_of_days: String(item.number_of_days),
+                })),
+                advertisement_document: advertisement_document ?? "",
+                scope_of_work_document: scope_of_work_document ?? "",
+            });
+        }
+    }, [data]);
+
+    console.log(form.formState.errors);
 
     return (
         <ConsultantManagementLayout>
@@ -234,11 +282,10 @@ export default function ScopeOfWork() {
                                         }
                                     />
                                     <p className="border flex items-center w-full gap-x-[1rem] rounded-lg border-[#DBDFE9] px-[1.125rem] h-[3.5rem]">
-                                        {
-                                            form.watch(
-                                                "advertisement_document"
-                                            )[0]?.name
-                                        }
+                                        {form.watch("advertisement_document")[0]
+                                            ?.name ||
+                                            data?.data.scope_of_work
+                                                .advertisement_document}
                                     </p>
                                 </div>
                             </div>
@@ -316,11 +363,11 @@ export default function ScopeOfWork() {
                                             }
                                         />
                                         <p className="border flex items-center w-full gap-x-[1rem] rounded-lg border-[#DBDFE9] px-[1.125rem] h-[3.5rem]">
-                                            {
-                                                form.watch(
-                                                    "scope_of_work_document"
-                                                )[0]?.name
-                                            }
+                                            {form.watch(
+                                                "scope_of_work_document"
+                                            )[0]?.name ||
+                                                data?.data.scope_of_work
+                                                    .scope_of_work_document}
                                         </p>
                                     </div>
                                 </div>

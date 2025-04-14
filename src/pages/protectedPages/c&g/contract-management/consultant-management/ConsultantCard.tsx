@@ -6,14 +6,19 @@ import {
     PersonClusterSvg,
     SuiteCase,
 } from "assets/svgs/CAndGSvgs";
+import DeleteIcon from "components/icons/DeleteIcon";
+import PencilIcon from "components/icons/PencilIcon";
+import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
 import { CardTitle } from "components/ui/card";
 import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
 import { format } from "date-fns";
 import { IConsultantPaginatedData } from "definations/c&g/contract-management/consultancy-management/consultancy-management";
-import React from "react";
+import React, { useState } from "react";
 import { generatePath, Link, useLocation } from "react-router-dom";
+import { useDeleteConsultantManagementMutation } from "services/c&g/contract-management/consultancy-management/consultant-management";
+import { toast } from "sonner";
 
 export default function ConsultantCard({
     id,
@@ -29,6 +34,21 @@ export default function ConsultantCard({
     const { pathname } = useLocation();
 
     const isAdhoc = pathname.includes("adhoc-management");
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const [deleteConsultantManagement, { isLoading: isDeleteLoading }] =
+        useDeleteConsultantManagementMutation();
+
+    const handleDelete = async () => {
+        try {
+            await deleteConsultantManagement(id).unwrap();
+            toast.success("Consultant Deleted");
+            setIsModalOpen(false);
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
+        }
+    };
 
     return (
         <div className="w-[49.5%]">
@@ -47,12 +67,35 @@ export default function ConsultantCard({
                             {status}
                         </p>
                     </div>
-                    <CardTitle
-                        className="text-black text-[1.25rem]"
-                        title="Card"
-                    >
-                        {title}
-                    </CardTitle>
+                    <div className="flex items-center justify-between">
+                        <CardTitle
+                            className="text-black text-[1.25rem]"
+                            title="Card"
+                        >
+                            {title}
+                        </CardTitle>
+
+                        <div className="flex items-center">
+                            <Link
+                                to={{
+                                    pathname: isAdhoc
+                                        ? ProgramRoutes.CREATE_ADHOC_DETAILS
+                                        : CG_ROUTES.CREATE_CONSULTANCY_DETAILS,
+                                    search: `?id=${id}`,
+                                }}
+                            >
+                                <Button variant="ghost">
+                                    <PencilIcon />
+                                </Button>
+                            </Link>
+                            <Button
+                                variant="ghost"
+                                onClick={() => setIsModalOpen(true)}
+                            >
+                                <DeleteIcon />
+                            </Button>
+                        </div>
+                    </div>
                     <div className="w-full flex flex-wrap items-center justify-start gap-x-[.625rem] gap-y-[1rem]">
                         <DetailsTag
                             icon={<PeoplePositionsSvg />}
@@ -98,6 +141,14 @@ export default function ConsultantCard({
                     </div>
                 </div>
             </Card>
+
+            <ConfirmationDialog
+                open={isModalOpen}
+                title="Are you sure you want to delete this consultant?"
+                onCancel={() => setIsModalOpen(false)}
+                onOk={handleDelete}
+                loading={isDeleteLoading}
+            />
         </div>
     );
 }

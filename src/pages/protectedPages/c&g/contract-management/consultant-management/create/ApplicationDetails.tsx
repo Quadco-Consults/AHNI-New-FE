@@ -16,14 +16,19 @@ import FormTextArea from "atoms/FormTextArea";
 import { FormField, FormItem, Form, FormControl } from "components/ui/form";
 import MultiSelectFormField from "components/ui/multiselect";
 import { useGetAllLocationsQuery } from "services/modules/config/location";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useGetAllUsersQuery } from "services/auth/user";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
 import { fileToBase64 } from "utils/fileToBase64";
+import { useGetSingleConsultantManagementQuery } from "services/c&g/contract-management/consultancy-management/consultant-management";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 export default function ApplicationDetails() {
     const navigate = useNavigate();
+
+    const [searchParams] = useSearchParams();
+    const consultantId = searchParams.get("id");
 
     const form = useForm<TConsultantanagementDetailsFormData>({
         resolver: zodResolver(ConsultancyManagementDetailSchema),
@@ -67,8 +72,8 @@ export default function ApplicationDetails() {
     );
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            form.setValue("advertisement_document", e.target.files);
+        if (e.target.files && e.target.files.length > 0) {
+            form.setValue("advertisement_document", Array.from(e.target.files));
         }
     };
 
@@ -78,9 +83,10 @@ export default function ApplicationDetails() {
         try {
             const payload = {
                 ...data,
-                advertisement_document: await fileToBase64(
-                    data.advertisement_document[0]
-                ),
+                advertisement_document:
+                    typeof data.advertisement_document !== "string"
+                        ? await fileToBase64(data.advertisement_document[0])
+                        : null,
             };
 
             sessionStorage.setItem(
@@ -88,15 +94,52 @@ export default function ApplicationDetails() {
                 JSON.stringify(payload)
             );
 
+            const searchUrl = `${consultantId ? `?id=${consultantId}` : ""}`;
+
             if (pathname.includes("adhoc-management")) {
-                navigate(ProgramRoutes.CREATE_ADHOC_WORK_SCOPE);
+                navigate({
+                    pathname: ProgramRoutes.CREATE_ADHOC_WORK_SCOPE,
+                    search: searchUrl,
+                });
             } else {
-                navigate(CG_ROUTES.CREATE_CONSULTANCY_WORK_SCOPE);
+                navigate({
+                    pathname: CG_ROUTES.CREATE_CONSULTANCY_WORK_SCOPE,
+                    search: searchUrl,
+                });
             }
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error?.data.message ?? "Something went wrong");
         }
     };
+
+    const { data } = useGetSingleConsultantManagementQuery(
+        consultantId ?? skipToken
+    );
+
+    useEffect(() => {
+        if (data) {
+            const {
+                locations,
+                supervisor,
+                duration,
+                consultants_number,
+                advertisement_document,
+            } = data.data;
+
+            form.reset({
+                ...data.data,
+                locations: locations.map(({ id }) => id),
+                duration: String(duration),
+                consultants_number: String(consultants_number),
+                supervisor: supervisor.id,
+                advertisement_document: advertisement_document ?? "",
+            });
+        }
+    }, [data, user]);
+
+    const file = form.watch("advertisement_document");
+
+    const fileName = file && file[0].name;
 
     return (
         <ConsultantManagementLayout>
@@ -107,7 +150,7 @@ export default function ApplicationDetails() {
                 <Form {...form}>
                     <form
                         onSubmit={form.handleSubmit(onSubmit)}
-                        className="w-full space-y-[1.25rem]"
+                        className="w-full space-y-8"
                     >
                         <FormInput
                             label="Title"
@@ -144,12 +187,9 @@ export default function ApplicationDetails() {
                                 )}
                             />
 
-                            {errors.advertisement_document && (
+                            {errors.locations && (
                                 <span className="text-sm text-red-500 font-medium">
-                                    {
-                                        errors?.advertisement_document
-                                            ?.message as string
-                                    }
+                                    {errors?.locations?.message as string}
                                 </span>
                             )}
                         </div>
@@ -162,18 +202,21 @@ export default function ApplicationDetails() {
                             required
                         />
 
-                        <FormInput
-                            type="date"
-                            label="Commencement Date"
-                            name="commencement_date"
-                            required
-                        />
-                        <FormInput
-                            type="date"
-                            label="Effective End Date"
-                            name="end_date"
-                            required
-                        />
+                        <div className="grid grid-cols-2 gap-5">
+                            <FormInput
+                                type="date"
+                                label="Commencement Date"
+                                name="commencement_date"
+                                required
+                            />
+
+                            <FormInput
+                                type="date"
+                                label="Effective End Date"
+                                name="end_date"
+                                required
+                            />
+                        </div>
 
                         <FormInput
                             label="Number of Consultants"
@@ -233,9 +276,19 @@ export default function ApplicationDetails() {
                                     onChange={handleFileChange}
                                 />
                                 <p className="border flex items-center w-full gap-x-[1rem] rounded-lg border-[#DBDFE9] px-[1.125rem] h-[3.5rem]">
-                                    {/* {file?.name} */}
+                                    {fileName ||
+                                        data?.data.advertisement_document}
                                 </p>
                             </div>
+
+                            {errors.advertisement_document && (
+                                <span className="text-sm text-red-500 font-medium">
+                                    {
+                                        errors?.advertisement_document
+                                            ?.message as string
+                                    }
+                                </span>
+                            )}
                         </div>
                         <div className="flex justify-end items-center gap-5">
                             <Button type="button" variant="outline" size="lg">

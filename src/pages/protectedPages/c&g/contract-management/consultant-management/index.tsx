@@ -3,7 +3,7 @@ import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
 import { Plus } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import ConsultancyCard from "./ConsultantCard";
-import { useGetAllConsultantManagementsQuery } from "services/c&g/contract-management/consultant-management";
+import { useGetAllConsultantManagementsQuery } from "services/c&g/contract-management/consultancy-management/consultant-management";
 import { useState } from "react";
 import { LoadingSpinner } from "components/shared/Loading";
 import Pagination from "components/shared/Pagination";

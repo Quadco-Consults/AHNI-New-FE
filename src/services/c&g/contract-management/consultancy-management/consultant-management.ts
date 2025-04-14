@@ -47,6 +47,18 @@ const ConsultantManagementAPI = baseAPI.injectEndpoints({
             providesTags: ["CONSULTANT_MANAGEMENT"],
         }),
 
+        getAllExistingConsultants: builder.query<
+            TPaginatedResponse<IConsultantPaginatedData>,
+            TRequest & { type: string }
+        >({
+            query: (params) => ({
+                method: "GET",
+                url: `${BASE_URL}applicants/existing`,
+                params,
+            }),
+            providesTags: ["CONSULTANT_MANAGEMENT"],
+        }),
+
         modifyConsultantManagement: builder.mutation<
             TPaginatedResponse<IConsultantSingleData>,
             {
@@ -56,7 +68,7 @@ const ConsultantManagementAPI = baseAPI.injectEndpoints({
             }
         >({
             query: ({ id, body }) => ({
-                method: "PUT",
+                method: "PATCH",
                 url: `${BASE_URL}${id}/`,
                 body,
             }),
@@ -80,6 +92,7 @@ export const {
     useCreateConsultantManagementMutation,
     useGetAllConsultantManagementsQuery,
     useGetSingleConsultantManagementQuery,
+    useGetAllExistingConsultantsQuery,
     useModifyConsultantManagementMutation,
     useDeleteConsultantManagementMutation,
 } = ConsultantManagementAPI;
