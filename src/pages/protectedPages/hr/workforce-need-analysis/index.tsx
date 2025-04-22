@@ -13,10 +13,11 @@ import SearchBar from "atoms/SearchBar";
 import { Checkbox } from "components/ui/checkbox";
 import IconButton from "components/shared/IconButton";
 import { Icon } from "@iconify/react";
+import { useGetWorkforceNeedAnalysisQuery } from "services/hrApi/hr-workforce-need-analysis";
 
 const WFNA: React.FC = () => {
   const navigate = useNavigate();
-
+  const {data, isLoading:loadingWorkforce} = useGetWorkforceNeedAnalysisQuery({}) 
   const columns: ColumnDef<any>[] = [
     {
       id: "select",
@@ -44,61 +45,55 @@ const WFNA: React.FC = () => {
     },
     {
       header: "Position",
-      accessorKey: "position",
-      size: 200,
-      cell: ({ row }) => <p>{row?.original?.project?.title}</p>,
+      accessorKey: "position.name",
+      size: 200, 
     },
     {
       header: "Location",
-      accessorKey: "location",
-      size: 200,
-      cell: ({ row }) => <p>{row?.original?.location?.name}</p>,
+      accessorKey: "location.name",
+      size: 200, 
     },
     {
       header: "Current Staff",
-      accessorKey: "current_staff",
-      size: 200,
-      cell: ({ row }) => <p>{row?.original?.grantor?.name}</p>,
+      accessorKey: "current_staff_count",
+      size: 200, 
     },
     {
       header: "Required Staff Based on WISN",
-      accessorKey: "required_staff_based",
+      accessorKey: "wisn_required_staff_count",
       size: 250,
     },
     {
       header: "Shortage or excess",
-      accessorKey: "shortage_or_excess",
+      accessorKey: "shortage_excess_count",
       size: 200,
     },
     {
       header: "Workforce Problem",
       accessorKey: "workforce_problem",
-      size: 200,
-      cell: ({ row }) => <p>{row?.original?.intervention_area?.name}</p>,
+      size: 200, 
     },
     {
       header: "WISN Ratio",
       accessorKey: "wisn_ratio",
-      size: 200,
-      cell: ({ row }) => <p>{row?.original?.status || "-"}</p>,
+      size: 200, 
     },
 
     {
       header: "Workload Pressure",
-      accessorKey: "workload_pressure",
-      size: 200,
-      cell: ({ row }) => <p>{row?.original?.status || "-"}</p>,
+      accessorKey: "workload_problem",
+      size: 200, 
     },
-    {
+    /* {
       header: "Actions",
       id: "actions",
       size: 150,
       cell: ({ row }) => <ActionListAction data={row} />,
-    },
+    }, */
   ];
 
   const ActionListAction = ({ data }: any) => {
-    console.log({ data });
+     
     return (
       <div className='flex gap-2'>
         <Link
@@ -138,12 +133,9 @@ const WFNA: React.FC = () => {
       </div>
       <div className='w-full'>
         <DataTable
-          columns={columns}
-          //   onRowClick={(row) => {
-          //     navigate("/c-and-g/grant-details/" + row?.original?.id);
-          //   }}
-          data={[]}
-          isLoading={true}
+          columns={columns} 
+          data={data?.data?.results ??[]}
+          isLoading={loadingWorkforce}
           pagination={{
             total: 10,
             pageSize: 10,

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import logoSvg from "assets/svgs/logo-bg.svg";
 import { NavLink, useLocation } from "react-router-dom";
-import { Bell, ChevronDown, Package, ScanEye } from "lucide-react";
+import { Bell, ChevronDown, Package, ScanEye, HeartHandshake } from "lucide-react";
 import {
     RouteEnum,
     AdminRoutes,
@@ -531,6 +531,31 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                                     )}
                                 >
                                     Notifications
+                                </h4>
+                            </div>
+                        </NavLink>
+                        <NavLink
+                            to={RouteEnum.SUPPORT}
+                            className={cn(
+                                "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
+                                location.pathname.startsWith(
+                                    RouteEnum.SUPPORT
+                                ) && "text-primary "
+                            )}
+                        >
+                            <div className="flex w-[85%] items-center gap-2">
+                                <span className="">
+                                    <HeartHandshake />
+                                </span>
+                                <h4
+                                    className={cn(
+                                        " w-[100%] truncate font-medium",
+                                        sidebarWidth === false
+                                            ? "block"
+                                            : "hidden"
+                                    )}
+                                >
+                                    SUPPORT
                                 </h4>
                             </div>
                         </NavLink>

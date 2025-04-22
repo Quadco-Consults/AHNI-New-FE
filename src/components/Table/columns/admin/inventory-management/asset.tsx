@@ -32,7 +32,11 @@ export const assetColumn: ColumnDef<TAssetPaginatedData>[] = [
         id: "asset_code",
         accessorKey: "asset_code",
     },
-
+    {
+        header: "Plate Number",
+        id: "plate_number",
+        accessorKey: "plate_number",
+    },
     {
         header: "Model Number",
         id: "model_number",

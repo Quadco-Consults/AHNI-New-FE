@@ -83,6 +83,10 @@ export const DepartmentsSchema = z.object({
     name: z.string(),
     description: z.string(),
 });
+export const PositionsSchema = z.object({
+    name: z.string(),
+    description: z.string(),
+});
 
 export const RiskPlanManagementSchema = z.object({
     risk_number: z

@@ -5,14 +5,14 @@ import JobDetail from "./JobDetail";
 import SubmittedApplication from "./SubmittedApplication";
 import Shortlist from "./Shortlist";
 import InterviewAnalysis from "./InterviewAnalysis";
-import JobAdvertisementAPI from "services/hrApi/hr-job-advertisement";
+import  { useGetJobAdvertisementQuery } from "services/hrApi/hr-job-advertisement";
 import { Loading } from "components/shared/Loading";
 import { useParams } from "react-router-dom";
 
 const AdvertisementDetail = () => {
   const { id } = useParams();
 
-  const { data, isLoading } = JobAdvertisementAPI.useGetJobAdvertisementQuery({
+  const { data, isLoading } = useGetJobAdvertisementQuery({
     id: id as string,
   });
 
@@ -32,6 +32,8 @@ const AdvertisementDetail = () => {
     {
       label: "Shortlist",
       value: "shortlist",
+      
+      // @ts-ignore
       children: <Shortlist />,
     },
     {

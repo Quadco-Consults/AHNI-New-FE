@@ -1,7 +1,4 @@
-import {
-    TBaseCreateResponse,
-    TBasePaginatedResponse,
-} from "definations/auth/auth";
+import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 import baseAPI from "..";
 import { HrGradeFormValues } from "definations/hr-validator";
 import { HrGradeResults } from "definations/hr-types/hr-grades";
@@ -11,8 +8,8 @@ const BASE_URL = "/hr/hr-positions/";
 const HrPositionAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
         getHrPositions: builder.query<
-            TBasePaginatedResponse<HrGradeResults[]>,
-            {}
+            TPaginatedResponse<HrGradeResults[]>,
+            TRequest
         >({
             query: (config) => {
                 return {
@@ -40,7 +37,7 @@ const HrPositionAPI = baseAPI.injectEndpoints({
             providesTags: ["HR_GRADE"],
         }),
         createHrPosition: builder.mutation<
-            TBaseCreateResponse<HrGradeResults>,
+            TResponse<HrGradeResults>,
             HrGradeFormValues
         >({
             query: (body) => ({
@@ -51,7 +48,7 @@ const HrPositionAPI = baseAPI.injectEndpoints({
             invalidatesTags: ["HR_GRADE"],
         }),
         updateHrPosition: builder.mutation<
-            TBaseCreateResponse<HrGradeResults>,
+            TResponse<HrGradeResults>,
             { path: { id: string }; body: { name: string } }
         >({
             query: ({ path, body }) => ({
@@ -64,4 +61,11 @@ const HrPositionAPI = baseAPI.injectEndpoints({
     }),
 });
 
-export default HrPositionAPI;
+export const {
+    useCreateHrPositionMutation,
+    useGetHrPositionListQuery,
+    useGetHrPositionQuery,
+    useGetHrPositionsQuery,
+    useUpdateHrPositionMutation
+
+} = HrPositionAPI;

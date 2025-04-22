@@ -1,7 +1,7 @@
 import baseAPI from "..";
 import { HrBeneficiaryResults } from "definations/hr-types/hr-beneficiary";
 
-const BASE_URL = "/hr/hr-beneficiaries/";
+const BASE_URL = "/hr/employees/beneficiaries/";
 
 const HrBeneficiaryAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
@@ -56,4 +56,11 @@ const HrBeneficiaryAPI = baseAPI.injectEndpoints({
   }),
 });
 
-export default HrBeneficiaryAPI;
+export const {
+  useCreateHrBeneficiaryMutation,
+  useGetHrBeneficiariesQuery,
+  useGetHrBeneficiaryListQuery,
+  useGetHrBeneficiaryQuery,
+  useUpdateHrBeneficiaryMutation
+}
+= HrBeneficiaryAPI;

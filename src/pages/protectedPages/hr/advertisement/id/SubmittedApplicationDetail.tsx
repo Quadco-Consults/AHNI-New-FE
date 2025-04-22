@@ -5,32 +5,36 @@ import GoBack from "components/shared/GoBack";
 import { Loading } from "components/shared/Loading";
 import PdfContent from "components/shared/PdfContent";
 import { Button } from "components/ui/button";
-import { useParams } from "react-router-dom";
-import JobApplicationAPI from "services/hrApi/hr-job-applications";
+import { HrRoutes } from "constants/RouterConstants";
+import { useNavigate, useParams } from "react-router-dom"; 
+import { useGetJobApplicationQuery, usePatchJobApplicationMutation, usePatchJobApplicationShortlistedMutation } from "services/hrApi/hr-job-applications";
 import { toast } from "sonner";
 
 const SubmittedApplicationDetail = () => {
   const params = useParams();
-
-  const { data, isLoading } = JobApplicationAPI.useGetJobApplicationQuery({
+  const navigate = useNavigate()
+  const { data, isLoading } = useGetJobApplicationQuery({
     id: params?.appID as string,
   });
 
-  const [patchJobApplication, { isLoading: isUpdating }] =
-    JobApplicationAPI.usePatchJobApplicationMutation();
-
+  const [patchJobApplicationShortlisted, { isLoading: isUpdating }] =
+  usePatchJobApplicationShortlistedMutation(); 
   const handleShortlist = async () => {
+    if(data?.data?.status !== "APPLIED"){
     try {
-      await patchJobApplication({
+      await patchJobApplicationShortlisted({
         id: params?.appID as string,
         body: {
-          status: "shortlisted",
+          status: "SHORTLISTED",
         },
       }).unwrap();
       toast.success("Applicant shortlisted successfully");
+      navigate(-1)
     } catch (error) {
       toast.error("Failed to update status");
       console.error(error);
+    }}else{
+      toast.error("Applicant needs to be interviewed first")
     }
   };
 
@@ -53,45 +57,24 @@ const SubmittedApplicationDetail = () => {
         <h4 className='text-lg font-medium'>{data?.data?.applicant_name}</h4>
 
         <div className='grid grid-cols-1 gap-5 md:grid-cols-3'>
-          <div className='space-y-4'>
-            <h4 className='font-medium'>Referee 1</h4>
-            <DescriptionCard
-              aside
-              label='Name'
-              description={data?.data?.referee_1_name}
-            />
-            <DescriptionCard
-              aside
-              label='Email'
-              description={data?.data?.referee_1_email}
-            />
-          </div>
-          <div className='space-y-4'>
-            <h4 className='font-medium'>Referee 2</h4>
-            <DescriptionCard
-              aside
-              label='Name'
-              description={data?.data?.referee_2_name}
-            />
-            <DescriptionCard
-              aside
-              label='Email'
-              description={data?.data?.referee_2_email}
-            />
-          </div>
-          <div className='space-y-4'>
-            <h4 className='font-medium'>Referee 3</h4>
-            <DescriptionCard
-              aside
-              label='Name'
-              description={data?.data?.referee_3_name}
-            />
-            <DescriptionCard
-              aside
-              label='Email'
-              description={data?.data?.referee_3_email}
-            />
-          </div>
+          {
+            data?.data?.referees?.map((el,l) => (
+              <div key={l} className='space-y-4'>
+                <h4 className='font-medium'>Referee {(l + 1)}</h4>
+                <DescriptionCard
+                  aside
+                  label='Name'
+                  description={el?.name}
+                />
+                <DescriptionCard
+                  aside
+                  label='Email'
+                  description={el?.email}
+                />
+              </div>
+            ))
+          }
+           
         </div>
 
         <div className='grid grid-cols-1 gap-5 md:grid-cols-3'>

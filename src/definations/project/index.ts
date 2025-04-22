@@ -56,3 +56,10 @@ export interface IProjectSingleData {
   currency: string;
   status: string;
 }
+export interface ProjectsData {
+  count: number;
+  next: string;
+  number_of_pages: number;
+  previous: string;
+  results: IProjectSingleData[];
+}

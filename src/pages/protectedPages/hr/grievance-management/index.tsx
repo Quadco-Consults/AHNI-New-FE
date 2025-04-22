@@ -3,7 +3,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import FormButton from "atoms/FormButton";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import DataTable from "components/Table/DataTable";
-import React from "react";
+import React, { useState } from "react";
 
 import FilterIcon2 from "assets/svgs/FilterIcon2";
 import { Button } from "components/ui/button";
@@ -13,10 +13,24 @@ import SearchBar from "atoms/SearchBar";
 import { Checkbox } from "components/ui/checkbox";
 import IconButton from "components/shared/IconButton";
 import { Icon } from "@iconify/react";
+import { useDeleteGrievianceManagementMutation, useGetGrievianceManagementsQuery } from "services/hrApi/hr-grieviance-management";
+import moment from "moment";
+import { Badge } from "components/ui/badge";
+import { cn } from "lib/utils";
+import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 
 const GrievanceManagement: React.FC = () => {
   const navigate = useNavigate();
-
+  const [selectedId, setSelectedId] = useState<string>("")
+  const [isDialogOpen, setDialogOpen] = useState(false);
+  const {data: grievants, isLoading: isLoadingCompliants} = useGetGrievianceManagementsQuery({})
+  const [deleteGrievianceManagement, {isLoading: deleting}] = useDeleteGrievianceManagementMutation({}) 
+  const onDelete = async() => {
+    await deleteGrievianceManagement({
+      id: selectedId as string
+    })
+    setDialogOpen(false);
+};
   const columns: ColumnDef<any>[] = [
     {
       id: "select",
@@ -45,47 +59,57 @@ const GrievanceManagement: React.FC = () => {
     {
       header: "Title",
       accessorKey: "title",
-      size: 200,
-      cell: ({ row }) => <p>{row?.original?.project?.title}</p>,
+      size: 200, 
     },
     {
       header: "Description",
       accessorKey: "description",
-      size: 200,
-      cell: ({ row }) => <p>{row?.original?.location?.name}</p>,
+      size: 200, 
     },
     {
       header: "Submit Date",
       accessorKey: "submit_date",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.grantor?.name}</p>,
+      cell: ({ row }) => <p>{moment(row?.original?.created_datetime).format("DD-MMM-YYYY")}</p>,
     },
     {
       header: "Status",
-      accessorKey: "Status",
+      accessorKey: "is_resolved",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.location?.name}</p>,
+      cell: ({ getValue }) => {
+        return (
+          <Badge
+            className={cn(
+              "p-1 rounded-lg capitalize",
+              getValue() === true
+                ? "bg-green-50 text-green-500"
+                : "bg-red-50 text-red-500"
+            )}
+          >
+            {getValue() === true ? "Resolved" : "Unresolved" as string}
+          </Badge>
+        );
+      },
     },
     {
       header: "Actions",
       id: "actions",
       size: 150,
-      cell: ({ row }) => <ActionListAction data={row} />,
+      cell: ({ row }) => <ActionListAction data={row.original} />,
     },
   ];
 
-  const ActionListAction = ({ data }: any) => {
-    console.log(data);
+  const ActionListAction = ({ data }: any) => {  
     return (
       <div className='flex gap-2'>
         <Link
-          to={generatePath(RouteEnum.VENDOR_MANAGEMENT_DETAILS, { id: "1" })}
+          to={generatePath(HrRoutes.GRIEVANCE_MANAGEMENT_DETAILS, { id: data?.id })}
         >
           <IconButton className='bg-[#F9F9F9] hover:text-primary'>
             <Icon icon='ph:eye-duotone' fontSize={15} />
           </IconButton>
         </Link>
-        <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+        <IconButton onClick={() => {setSelectedId(data?.id); setDialogOpen(true)}} className='bg-[#F9F9F9] hover:text-primary'>
           <Icon icon='ant-design:delete-twotone' fontSize={15} />
         </IconButton>
       </div>
@@ -119,8 +143,8 @@ const GrievanceManagement: React.FC = () => {
           //   onRowClick={(row) => {
           //     navigate("/c-and-g/grant-details/" + row?.original?.id);
           //   }}
-          data={[]}
-          isLoading={true}
+          data={grievants?.data?.results ?? []}
+          isLoading={isLoadingCompliants}
           pagination={{
             total: 10,
             pageSize: 10,
@@ -128,6 +152,13 @@ const GrievanceManagement: React.FC = () => {
           }}
         />
       </div>
+       <ConfirmationDialog
+          open={isDialogOpen}
+          title="Are you sure you want to delete this complaint?"
+          onCancel={() => setDialogOpen(false)}
+          onOk={onDelete}
+          loading={deleting}
+      />
     </div>
   );
 };

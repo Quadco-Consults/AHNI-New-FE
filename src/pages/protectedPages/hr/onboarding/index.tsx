@@ -9,25 +9,35 @@ import DataTable from "components/Table/DataTable";
 import { Badge } from "components/ui/badge";
 import { Button } from "components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { HrRoutes } from "constants/RouterConstants";
 import { TOnboarding } from "definations/hr-types/hr-beneficiary";
 import { cn } from "lib/utils";
-import { Link } from "react-router-dom";
-import EmployeeOnboardingAPI from "services/hrApi/hr-employee-onboarding";
+import { Link } from "react-router-dom"; 
+import { useGetEmployeeOnboardingsQuery } from "services/hrApi/hr-employee-onboarding";
+import ApplicationsTable from "../advertisement/table/ApplicationsTable";
 
 const Onboarding = () => {
-  const { data: employeeData, isLoading: fetchingEmployeeData } =
-    EmployeeOnboardingAPI.useGetEmployeeOnboardingsQuery({});
-
-  console.log({ employeeData, fetchingEmployeeData });
+  const { data: employeeData, isLoading: fetchingEmployeeData } = useGetEmployeeOnboardingsQuery({});
+ 
 
   if (fetchingEmployeeData) {
     return <Loading />;
   }
-
-  return (
-    <Card className='space-y-4'>
-      <div className='flex items-center justify-start gap-2 pt-4'>
+  const TABS = [
+    {
+      label: "Accepted Applicants",
+      value: "accepted",
+      // @ts-ignore
+      children:  <ApplicationsTable   status='ACCEPTED' />,
+    },
+    {
+      label: "Employees",
+      value: "employees",
+      // @ts-ignore
+      children: 
+      <>
+      <div className='flex items-center justify-start gap-2 py-4'>
         <span className='flex items-center w-1/3 px-2 py-2 border rounded-lg'>
           <SearchIcon />
           <input
@@ -40,9 +50,31 @@ const Onboarding = () => {
           <FilterIcon />
         </Button>
       </div>
+      <DataTable data={employeeData?.data?.results} columns={columns} isLoading={fetchingEmployeeData} />
+      </>
+      ,
+    }, 
+  ];
+  return (
+    <Card className='space-y-4'>
+      
 
-      <DataTable data={data} columns={columns} isLoading={false} />
-      {/* <DataTable data={[]} columns={columns} isLoading={false} /> */}
+       
+       <Tabs defaultValue='accepted'>
+              <TabsList>
+                {TABS.map((tab) => (
+                  <TabsTrigger key={tab.value} value={tab.value}>
+                    {tab.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+      
+              {TABS.map((tab) => (
+                <TabsContent key={tab.value} value={tab.value}>
+                  <Card className='px-6'>{tab.children}</Card>
+                </TabsContent>
+              ))}
+            </Tabs>
     </Card>
   );
 };
@@ -60,12 +92,12 @@ const data: TOnboarding[] = Array(5).fill({
 const columns: ColumnDef<TOnboarding>[] = [
   {
     header: "Staff_name",
-    accessorKey: "staff_name",
+    accessorKey: "legal_firstname ",
     size: 150,
   },
   {
     header: "Position",
-    accessorKey: "position",
+    accessorKey: "designation.name",
     size: 100,
   },
   {

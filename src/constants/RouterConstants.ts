@@ -324,6 +324,10 @@ export const RouteEnum = {
     // PROGRAM_OVERVIEW: "/program/overview",
 
     NOTIFICATIONS: "/notifications",
+    SUPPORT: "/support",
+    SUPPORT_DETAILS:
+        "/support/:id",
+    ACCOUNT: "/account"
 };
 
 export const CG_ROUTES = {
@@ -401,19 +405,19 @@ export const HrRoutes = {
   
   SELECTION: "hr/selection",
     ONBOARDING: "/hr/onboarding",
-    ONBOARDING_START: "/hr/onboarding/start-onboarding",
+    ONBOARDING_START: "/hr/onboarding/start-onboarding/:id/",
     ONBOARDING_ADD_EMPLOYEE_INFO:
-        "/hr/onboarding/add-employee/employee-information",
+        "/hr/onboarding/add-employee/employee-information/:id/",
     ONBOARDING_ADD_EMPLOYEE_ADD:
-        "/hr/onboarding/add-employee/additional-information",
+        "/hr/onboarding/add-employee/additional-information/:id/",
     ONBOARDING_ADD_EMPLOYEE_BENEFICIARY:
-        "/hr/onboarding/add-employee/beneficiary-designation",
+        "/hr/onboarding/add-employee/beneficiary-designation/:id/",
     ONBOARDING_ADD_EMPLOYEE_ID_CARD:
-        "/hr/onboarding/add-employee/id-card-information",
+        "/hr/onboarding/add-employee/id-card-information/:id/",
     ONBOARDING_ADD_EMPLOYEE_SALARY:
-        "/hr/onboarding/add-employee/salary-account-details",
+        "/hr/onboarding/add-employee/salary-account-details/:id/",
     ONBOARDING_ADD_EMPLOYEE_PENSION:
-        "/hr/onboarding/add-employee/pension-scheme-enrolment",
+        "/hr/onboarding/add-employee/pension-scheme-enrolment/:id/",
     WORKFORCE_NEED_ANALYSIS: "/hr/workforce-need-analysis",
     WORKFORCE_NEED_ANALYSIS_CREATE: "/hr/workforce-need-analysis/create",
     WORKFORCE_DATABASE: "/hr/workforce-database",
