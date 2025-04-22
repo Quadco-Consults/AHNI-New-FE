@@ -28,6 +28,12 @@ export const FeedbackGrievianceManagementSchema = z.object({
     
   feedback: z.string().min(1, "Please enter feedback"), 
 });
+export const DocumentGrievianceManagementSchema = z.object({
+    
+  name: z.string().min(1,"Please enter document name"), 
+  document: isBrowser ? z.instanceof(FileList) : z.any(),
+  complaint: z.string().min(1, "Please enter id"), 
+});
 export type TGrievianceManagementFormData = z.infer<typeof GrievianceManagementSchema>;
 export interface GrievianceManagement {
   id: string;
@@ -39,4 +45,10 @@ export interface GrievianceManagement {
   date: string;
   is_resolved: boolean;
   uploads: upload[];
+}
+export interface GrievianceManagementDocument {
+  id: string;
+  name: string; 
+  document: string;
+  complaint: string
 }

@@ -56,7 +56,7 @@ const Details = (data: any) => {
   return (
     <div className='bg-white border shadow-sm rounded-2xl dark:bg-[hsl(15,13%,6%)]'>
       <div className='p-5 flex justify-between items-center'>
-        <h4 className='font-bold text-lg'>{data?.title}</h4>
+        <h4 className='font-bold capitalize text-lg'>{data?.title}</h4>
       </div>
       <div className='flex flex-col p-5 gap-4'>
         <Card>
