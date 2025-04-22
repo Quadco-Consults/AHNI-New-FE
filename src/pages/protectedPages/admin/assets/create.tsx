@@ -12,8 +12,8 @@ import {
 } from "definations/admin/inventory-management/asset";
 import useQuery from "hooks/useQuery";
 import { nigerianStates } from "lib/index";
-import { useEffect, useMemo } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useEffect, useMemo, } from "react";
+import { SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import {
     useCreateAssetMutation,
@@ -229,6 +229,12 @@ export default function CreateAsset() {
             toast.error(error.data.message ?? "Something went wrong");
         }
     };
+    const asseType = useWatch({
+        control: form.control,
+        name: "asset_type"
+      });
+      const isVehicle = assetType?.data?.results?.find(el => el.id === asseType)?.name === "Vehicle"; 
+      
 
     return (
         <div className="space-y-6">
@@ -278,12 +284,12 @@ export default function CreateAsset() {
                                 required
                             />
 
-                            <FormInput
+                           { isVehicle && <FormInput
                                 label="Plate Number"
                                 name="plate_number"
                                 placeholder="Enter Plate Number"
                                 required
-                            />
+                            /> }
 
                             <FormSelect
                                 label="Donor"

@@ -63,7 +63,7 @@ const Uploads = (data: VendorsResultsData) => {
   return (
     <div className='bg-white border shadow-sm rounded-2xl dark:bg-[hsl(15,13%,6%)]'>
       <div className='p-5 flex justify-between items-center'>
-        <h4 className='font-bold text-lg'>Non-Payment of September Salary</h4>
+        <h4 className='font-bold text-lg'>{data?.title}</h4>
         <Button className='bg-alternate text-primary'>
           <AddSquareIcon /> Add
         </Button>

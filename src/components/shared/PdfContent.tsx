@@ -44,7 +44,7 @@ const PdfContent = ({
           <Dialog>
             <DialogTrigger>
               <Document
-                file={"https://pdfobject.com/pdf/sample.pdf"}
+                file={pdf?.document ?? "https://pdfobject.com/pdf/sample.pdf"}
                 onLoadSuccess={onDocumentLoadSuccess}
               >
                 <Page pageNumber={pageNumber} width={200} height={100} />
@@ -55,7 +55,7 @@ const PdfContent = ({
                 <DialogTitle>{pdf.name}</DialogTitle>
                 <div className='flex pt-5 justify-center'>
                   <Document
-                    file={"https://pdfobject.com/pdf/sample.pdf"}
+                    file={pdf?.document ?? "https://pdfobject.com/pdf/sample.pdf"}
                     onLoadSuccess={onDocumentLoadSuccess}
                   >
                     {Array.from(new Array(numPages), (el, index) => (

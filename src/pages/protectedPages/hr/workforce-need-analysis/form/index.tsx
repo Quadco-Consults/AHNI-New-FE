@@ -1,53 +1,74 @@
 // import { zodResolver } from "@hookform/resolvers/zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelectField";
 import Card from "components/shared/Card";
 // import AddSquareIcon from "components/icons/AddSquareIcon";
 import GoBack from "components/shared/GoBack";
+import { LoadingSpinner } from "components/shared/Loading";
 
 // import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";
-import { SelectContent } from "components/ui/select";
+import { SelectContent, SelectItem } from "components/ui/select";
 import { Separator } from "components/ui/separator";
 import { HrRoutes } from "constants/RouterConstants";
+import { LocationResultsData } from "definations/configs/location";
+import { PositionsResultsData } from "definations/configs/positions";
+import { workforceNeedAnalysisSchema } from "definations/hr-validator";
 
 import { UploadIcon } from "lucide-react";
 // import { ItemsResultsData } from "definations/configs/itmes";
 // import { SampleMemoSchema } from "definations/procurement-validator";
 // import { MinusCircle } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { useGetDepartmentPaginateQuery } from "services/configs/departments";
+import { useGetLocationListQuery } from "services/configs/locationApi";
+import { useGetPositionPaginateQuery } from "services/configs/positions"; 
+import { useCreateWorkforceNeedAnalysisMutation } from "services/hrApi/hr-workforce-need-analysis";
+import { z } from "zod";
 
-// import ItemsAPI from "services/configs/items";
-
-// import PurchaseRequestAPI from "services/procurementApi/purchase-request";
-// import { toast } from "sonner";
-// import { z } from "zod";
-
+export type TFormValues = z.infer<typeof workforceNeedAnalysisSchema>;
 const CreateActivityMemo = () => {
-  const form = useForm<any>({
-    // resolver: zodResolver(),
-    defaultValues: {},
-  });
-
+  const form = useForm<TFormValues>({
+      resolver: zodResolver(workforceNeedAnalysisSchema),
+      defaultValues: {
+        current_staff_count: 0,
+        wisn_required_staff_count: 0, 
+        shortage_excess_count: 0, 
+        workforce_problem: "", 
+        wisn_ratio: "", 
+        workload_problem: "", 
+        position: "", 
+        location: "", 
+      },
+    });
+    const [createWorkforceNeedAnalysis, {isLoading: isCreatingLoading}] = useCreateWorkforceNeedAnalysisMutation()
   const navigate = useNavigate();
-
+ 
+  const { data: locations, isLoading: locationIsLoading } =
+    useGetLocationListQuery({ 
+    }); 
+  const {data: positions, isLoading: positionIsLoading} = useGetPositionPaginateQuery({})
   const { handleSubmit } = form;
+ 
 
-  //   const { fields, append, remove } = useFieldArray({
-  //     control,
-  //     name: "expenses",
-  //   });
+  const onSubmit: SubmitHandler<TFormValues> = async (data: any) => {
+     
+    await createWorkforceNeedAnalysis(data).unwrap();
+    navigate(HrRoutes.WORKFORCE_NEED_ANALYSIS); 
+  }; 
 
-  const onSubmit = async (data: any) => {
-    console.log({ data });
-    navigate(HrRoutes.WORKFORCE_NEED_ANALYSIS);
-  };
-  const lon = form.getValues();
-
-  console.log({ lon });
-
+  const problemTypes = [
+    {value: "SHORTAGE", label: "Shortage"},
+    {value: "EXCESS", label: "Excess"},
+  ]
+  const loadProblemTypes = [
+    {value: "HIGH", label: "High"},
+    {value: "BALANCE", label: "Balance"},
+    {value: "NONE", label: "None"},
+  ]
   return (
     <div className=''>
       <GoBack />
@@ -61,32 +82,32 @@ const CreateActivityMemo = () => {
             <div className='grid gap-5'>
               <FormSelect label='Position' name='position' required>
                 <SelectContent>
-                  {/* {departmentsIsLoading ? (
+                  {positionIsLoading ? (
                     <LoadingSpinner />
                   ) : (
-                    departments?.results?.map(
-                      (department: DepartmentsResultsData) => (
-                        <SelectItem key={department?.id} value={department?.id}>
-                          {department?.name}
+                    positions?.data?.results?.map(
+                      (position: PositionsResultsData) => (
+                        <SelectItem key={position?.id} value={position?.id}>
+                          {position?.name}
                         </SelectItem>
                       )
                     )
-                  )} */}
+                  )}  
                 </SelectContent>
               </FormSelect>{" "}
               <FormSelect label='Location' name='location' required>
                 <SelectContent>
-                  {/* {departmentsIsLoading ? (
+                   {locationIsLoading ? (
                     <LoadingSpinner />
                   ) : (
-                    departments?.results?.map(
-                      (department: DepartmentsResultsData) => (
-                        <SelectItem key={department?.id} value={department?.id}>
-                          {department?.name}
+                    locations?.data?.results?.map(
+                      (location: LocationResultsData) => (
+                        <SelectItem key={location?.id} value={location?.id}>
+                          {location?.name}
                         </SelectItem>
                       )
                     )
-                  )} */}
+                  )}  
                 </SelectContent>
               </FormSelect>{" "}
             </div>
@@ -94,42 +115,41 @@ const CreateActivityMemo = () => {
               <span className='text-p'>Staff Information</span>
               <div className='grid grid-cols-3 gap-5'>
                 <FormInput
-                  label='Current Staff'
-                  name='current_staff'
-                  type='text'
+                  label='Current Staff Count'
+                  name='current_staff_count'
+                  type='number'
                   required
                 />
                 <FormInput
                   label='Required Staff Based on WISN'
-                  name='required_staff_based_on_WISN'
-                  type='text'
+                  name='wisn_required_staff_count'
+                  type='number'
                   required
                 />
                 <FormInput
-                  label='Shortage or excess'
-                  name='shortage_or_excess'
-                  type='text'
+                  label='Shortage or excess count'
+                  name='shortage_excess_count'
+                  type='number'
                   required
                 />
               </div>
               <div className='grid grid-cols-3 gap-5 mt-8'>
-                <FormInput
+                <FormSelect 
                   label='Workforce Problem'
-                  name='workforce_problem'
-                  type='text'
-                  required
+                  name="workforce_problem"
+                  options={problemTypes}
                 />
+                 
                 <FormInput
                   label='WISN Ratio'
                   name='wisn_ratio'
                   type='text'
                   required
                 />
-                <FormInput
-                  label='Workload Pressure'
-                  name='workload_pressure'
-                  type='text'
-                  required
+                <FormSelect 
+                  label='Workload Problem'
+                  name="workload_problem"
+                  options={loadProblemTypes}
                 />
               </div>
             </Card>

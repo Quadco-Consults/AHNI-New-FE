@@ -16,28 +16,33 @@ import {
   hrBeneficiarySchema,
   HrContingentBeneficiaryFormValues,
   hrContingentBeneficiarySchema,
+  HrSignatoriesBeneficiaryFormValues,
+  hrSignatoriesBeneficiarySchema,
 } from "definations/hr-validator";
-import { zodResolver } from "@hookform/resolvers/zod";
-import HrBeneficiaryAPI from "services/hrApi/hr-beneficiary";
+import { zodResolver } from "@hookform/resolvers/zod"; 
 import { toast } from "sonner";
 import FormButton from "atoms/FormButton";
 import { updateStepCompletion } from "store/stepTracker";
+import { useCreateHrBeneficiaryMutation } from "services/hrApi/hr-beneficiary";
+import GoBack from "components/shared/GoBack";
+import FormSelect from "atoms/FormSelect";
+import { useCreateEmployeeOnboardingAddSignatoryMutation } from "services/hrApi/hr-employee-onboarding-add-signatory";
+import FileUpload from "atoms/FileUpload";
 
 const Beneficiary = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const [createHrBeneficiaryMutation, { isLoading }] =
-    HrBeneficiaryAPI.useCreateHrBeneficiaryMutation();
-
+  const [createHrBeneficiaryMutation, { isLoading }] = useCreateHrBeneficiaryMutation();
+  const [createEmployeeOnboardingAddSignatory, { isLoading: addingSignatory }] = useCreateEmployeeOnboardingAddSignatoryMutation()
   const beneficiaryForm = useForm<HrBeneficiaryFormValues>({
     resolver: zodResolver(hrBeneficiarySchema),
     defaultValues: {
       name: "",
       relationship: "",
-      percentage: "",
+      percentage_of_benefit: "",
       phone_number: "",
-      beneficiary_type: "primary",
+      is_primary: true,
       employee: localStorage.getItem("workforceID") as string,
     },
   });
@@ -48,7 +53,17 @@ const Beneficiary = () => {
       name: "",
       relationship: "",
       phone_number: "",
-      beneficiary_type: "contingent",
+      is_primary: false,
+      employee: localStorage.getItem("workforceID") as string,
+    },
+  });
+  const signatoriesBeneficiaryForm = useForm<HrSignatoriesBeneficiaryFormValues>({
+    resolver: zodResolver(hrSignatoriesBeneficiarySchema),
+    defaultValues: {
+      name: "",
+      relationship: "",
+      phone_number: "",
+      is_primary: false,
       employee: localStorage.getItem("workforceID") as string,
     },
   });
@@ -95,9 +110,37 @@ const Beneficiary = () => {
       toast.error("Something went wrong");
     }
   };
+  const submitSignatoriesHandler = async (data: HrSignatoriesBeneficiaryFormValues) => {
+    try {
+      const formData = new FormData();
+      formData.append("witness_name", data.witness_name);
+      formData.append("witness_date", data.witness_date);
+      formData.append("withness_signature", data.witness_signature[0]);
+      formData.append("employee", localStorage.getItem("workforceID") as string);
+      await createEmployeeOnboardingAddSignatory(formData).unwrap();
+      dispatch(
+        updateStepCompletion({
+          path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_BENEFICIARY,
+        })
+      );
+
+      dispatch(
+        openDialog({
+          type: DialogType.HrSuccessModal,
+          dialogProps: {
+            label: "Signatory information saved",
+          },
+        })
+      );
+      signatoriesBeneficiaryForm.reset();
+    } catch (error) {
+      toast.error("Something went wrong");
+    }
+  };
 
   return (
     <>
+     <GoBack />
       <Card className='space-y-6 mt-6 max-w-4xl mx-auto'>
         <div>
           <h4 className='font-semibold text-lg text-center'>
@@ -131,7 +174,7 @@ const Beneficiary = () => {
                 label='Beneficiary Names (Last, First)'
                 required
               />
-              <FormInput name='percentage' label='% of Benefit' required />
+              <FormInput name='percentage_of_benefit' label='% of Benefit' required />
               <FormInput
                 name='relationship'
                 label='Relationship with Employee'
@@ -183,7 +226,23 @@ const Beneficiary = () => {
               />
               <FormInput name='phone_number' label='Phone Number' required />
             </div>
-            {/* <Separator />
+               
+
+            <FormButton
+              loading={isLoading}
+              disabled={isLoading}
+              variant='outline'
+            >
+              <Save size={20} /> Save
+            </FormButton>
+          </form>
+        </Form>
+        <Form {...signatoriesBeneficiaryForm}>
+          <form
+            onSubmit={signatoriesBeneficiaryForm.handleSubmit(submitSignatoriesHandler)}
+            className='space-y-6'
+          >
+            
           <div className="card-wrapper space-y-6">
             <h4 className="text-red-500 text-lg font-medium">
               Authorization and Signatories
@@ -195,28 +254,16 @@ const Beneficiary = () => {
             </p>
             <Separator />
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <FormSelect
-                options={[]}
-                name="employee"
-                label="Employee"
-                placeholder="Select Employee"
-                required
-              />
-              <FormInput type="date" name="date" label="Date" required />
-              <FormInput name="witness" label="Full Name of Witness" required />
-              <FormInput type="date" name="date" label="Date" required />
+              <FormInput  name="witness_name" label="Full Name of Witness" required />
+              <FormInput type="date" name="witness_date" label="Date" required /> 
             </div>
-            <FormInput
-              type="file"
-              name="signature"
-              label="Witness Signature"
-              required
-            />
-          </div> */}
+             
+            <FileUpload name='witness_signature' label='Witness Signature' />
+          </div>  
 
             <FormButton
-              loading={isLoading}
-              disabled={isLoading}
+              loading={addingSignatory}
+              disabled={addingSignatory}
               variant='outline'
             >
               <Save size={20} /> Save

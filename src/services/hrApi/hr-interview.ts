@@ -1,7 +1,7 @@
 import { Interview } from "definations/hr-types/interview";
 import baseAPI from "..";
 
-const BASE_URL = "hr/interview/";
+const BASE_URL = "hr/jobs/interviews/";
 
 const InterviewAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
@@ -37,4 +37,8 @@ const InterviewAPI = baseAPI.injectEndpoints({
   }),
 });
 
-export default InterviewAPI;
+export const {
+  useCreateInterviewMutation,
+  useGetInterviewQuery,
+  useGetInterviewsQuery,
+} = InterviewAPI;

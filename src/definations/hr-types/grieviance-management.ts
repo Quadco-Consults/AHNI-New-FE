@@ -1,3 +1,6 @@
+import { z } from "zod";
+const isBrowser =
+  typeof window !== "undefined" && typeof FileList !== "undefined";
 type upload = {
   id: string;
   complaint: string;
@@ -6,7 +9,26 @@ type upload = {
   created_datetime: string;
   updated_datetime: string;
 };
-
+export const GrievianceManagementSchema = z.object({
+    
+    title: z.string().min(1, "Please enter title"),
+    description: z.string().min(1, "Please enter description"), 
+    document_name: z.string().min(1,"Please enter document name"), 
+    document: isBrowser ? z.instanceof(FileList) : z.any(),
+});
+export const FindingsGrievianceManagementSchema = z.object({
+    
+  findings: z.string().min(1, "Please enter findings"), 
+});
+export const ResolutionGrievianceManagementSchema = z.object({
+    
+  resolution: z.string().min(1, "Please enter resolution"), 
+});
+export const FeedbackGrievianceManagementSchema = z.object({
+    
+  feedback: z.string().min(1, "Please enter feedback"), 
+});
+export type TGrievianceManagementFormData = z.infer<typeof GrievianceManagementSchema>;
 export interface GrievianceManagement {
   id: string;
   whistle_blower: string;

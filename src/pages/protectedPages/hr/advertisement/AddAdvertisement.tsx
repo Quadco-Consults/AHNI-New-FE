@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import FileUpload from "atoms/FileUpload";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
+import FormMultiSelect from "atoms/FormMultiSelect";
 import FormSelect from "atoms/FormSelect";
 import FormTextArea from "atoms/FormTextArea";
 import Card from "components/shared/Card";
@@ -9,46 +10,62 @@ import GoBack from "components/shared/GoBack";
 import { Form } from "components/ui/form";
 import { HrRoutes } from "constants/RouterConstants";
 import { jobAdvertismentSchema } from "definations/hr-validator";
-import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
-import JobAdvertisementAPI from "services/hrApi/hr-job-advertisement";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom"; 
+import { useCreateJobAdvertisementMutation } from "services/hrApi/hr-job-advertisement";
+import { useGetUsersQuery } from "services/usersAPI";
 import { toast } from "sonner";
+import { z } from "zod";
 
+export type TFormValues = z.infer<typeof jobAdvertismentSchema>;
 const AddAdvertisement = () => {
-  const [createJobAdvertisementMutation, isLoading] =
-    JobAdvertisementAPI.useCreateJobAdvertisementMutation();
+  const {data: interviewers, isloading: isGettingUsers} = useGetUsersQuery()
+  const [createJobAdvertisementMutation, {isLoading: isCreatingLoading}] =
+  useCreateJobAdvertisementMutation();
   const navigate = useNavigate();
 
-  const form = useForm({
+  const form = useForm<TFormValues>({
     resolver: zodResolver(jobAdvertismentSchema),
     defaultValues: {
       title: "",
       grade_level: "",
       locations: "",
-      job_type: "INTERNAL",
+      job_type: "Internal",
       duration: "",
       commencement_date: "",
-      number_of_positions: "",
+      number_of_positions: 1,
       supervisor: "",
       any_other_info: "",
       background: "",
+      interviewers: [],
       advert_document: null,
     },
   });
 
   const { handleSubmit } = form;
 
-  const onSubmit = async (data: any) => {
+  const onSubmit: SubmitHandler<TFormValues> =  async (data: any) => {
     try {
       const formData = new FormData();
-      Object.entries(data).forEach(([key]) => {
-        if (key === "advert_document" && data[key]?.length) {
-          // Ensure it's a single file, not FileList
-          formData.append(key, data[key][0]);
-        } else {
-          formData.append(key, data[key]);
+      Object.entries(data).forEach(([key, value]) => {
+        // @ts-ignore
+        if (key === "advert_document" && value?.length) {
+          // @ts-ignore
+          formData.append(key, value[0]); // Handle file upload
+        } 
+        else if (key === "interviewers" && Array.isArray(value)) {
+          // Append each UUID separately with the same key
+          value.forEach(uuid => {
+            formData.append(key, uuid);
+          });
+        }
+    
+        else {
+          // @ts-ignore
+          formData.append(key, value);
         }
       });
+    
 
       // @ts-ignore
       await createJobAdvertisementMutation(formData).unwrap();
@@ -60,10 +77,14 @@ const AddAdvertisement = () => {
     }
   };
   const jobTypeOptions = [
-    { value: "INTERNAL", label: "Internal" },
-    { value: "EXTERNAL", label: "External" },
-    { value: "BOTH", label: "Both" },
-  ];
+    { value: "Internal", label: "Internal" },
+    { value: "External", label: "External" },
+    { value: "Both", label: "Both" },
+  ]; 
+  const interviewersOption = interviewers?.data?.results?.map((el) => ({
+    value: el?.id,
+    label: `${el?.first_name} ${el?.last_name}`
+  })) || [];
   return (
     <div className='space-y-4'>
       <GoBack />
@@ -83,7 +104,7 @@ const AddAdvertisement = () => {
               placeholder='Select Project'
               options={jobTypeOptions}
             />
-            <FormInput name='duration' label='Duration' required />
+            <FormInput name='duration' label='Duration' placeholder="Example: 9 months" required />
             <FormInput
               name='commencement_date'
               label='Commencement Date'
@@ -97,7 +118,15 @@ const AddAdvertisement = () => {
               type='number'
             />
             <FormInput name='supervisor' label='Supervisor' required />
-            <FormInput name='any_other_info' label='Info' required />
+            
+            <FormMultiSelect
+              name='interviewers'
+              label='Interviewers'
+              required
+              placeholder='Select interviewers'
+              options={interviewersOption}
+            />
+            <FormInput name='any_other_info' label='Info'  />
             <FormTextArea name='background' label='Background' required />
             <FileUpload
               name='advert_document'
@@ -106,8 +135,8 @@ const AddAdvertisement = () => {
 
             <div className='flex justify-end'>
               <FormButton
-                loading={isLoading === isLoading || false}
-                disabled={isLoading === isLoading || false}
+                loading={isCreatingLoading ?? false}
+                disabled={isCreatingLoading ?? false}
               >
                 Create
               </FormButton>

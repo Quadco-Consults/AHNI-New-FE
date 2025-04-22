@@ -1,7 +1,7 @@
 import { JobApplication } from "definations/hr-types/job-application";
 import baseAPI from "..";
 
-const BASE_URL = "hr/job-application/";
+const BASE_URL = "hr/jobs/applications/";
 
 const JobApplicationAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
@@ -59,7 +59,49 @@ const JobApplicationAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["JOB_APPLICATIONS"],
     }),
+    patchJobApplicationShortlisted: builder.mutation<
+      JobApplication,
+      { id: string; body: Partial<JobApplication> }
+    >({
+      query: ({ id, body }) => ({
+        url: `hr/jobs/applications/${id}/shortlist/`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: ["JOB_APPLICATIONS"],
+    }),
+    patchJobApplicationAccepted: builder.mutation<
+      JobApplication,
+      { id: string; body: Partial<JobApplication> }
+    >({
+      query: ({ id, body }) => ({
+        url: `hr/jobs/applications/${id}/accept/`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: ["JOB_APPLICATIONS"],
+    }),
+    patchJobApplicationPreferred: builder.mutation<
+      JobApplication,
+      { id: string; body: Partial<JobApplication> }
+    >({
+      query: ({ id, body }) => ({
+        url: `hr/jobs/applications/${id}/mark-as-preferred/`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: ["JOB_APPLICATIONS"],
+    }),
   }),
 });
 
-export default JobApplicationAPI;
+export const {
+  useCreateJobApplicationMutation,
+  useGetJobApplicationQuery,
+  useGetJobApplicationsQuery,
+  useUpdateJobApplicationMutation,
+  usePatchJobApplicationMutation,
+  usePatchJobApplicationShortlistedMutation,
+  usePatchJobApplicationAcceptedMutation,
+  usePatchJobApplicationPreferredMutation,
+} = JobApplicationAPI;
