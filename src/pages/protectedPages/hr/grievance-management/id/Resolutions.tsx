@@ -53,7 +53,7 @@ const Resolutions = (data: VendorsResultsData) => {
   return (
     <div className='bg-white border shadow-sm rounded-2xl dark:bg-[hsl(15,13%,6%)]'>
       <div className='p-5 flex justify-between items-center'>
-        <h4 className='font-bold text-lg'>{data?.title}</h4>
+        <h4 className='font-bold capitalize text-lg'>{data?.title}</h4>
         <Button onClick={() => { setDialogOpen(true)}}   className='bg-alternate text-primary py-2 px-4 rounded-md'>
           <EditIcon />
           Edit
