@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import FormButton from "atoms/FormButton";
 import { Button } from "components/ui/button";
-import FundRequstLayout from "./FundRequstLayout";
+import FundRequstLayout from "./Layout";
 import React, { useState } from "react";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { Form } from "components/ui/form";

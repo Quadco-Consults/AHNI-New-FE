@@ -8,7 +8,7 @@ import Card from "components/shared/Card";
 import { Form } from "components/ui/form";
 import { RouteEnum } from "constants/RouterConstants";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { nigerianStates } from "lib/index";
 import {
@@ -82,8 +82,6 @@ const CreateRegister = () => {
 
             reset({
                 ...prevData,
-                importance: prevData.importance.toString() as any,
-                influence: prevData.influence.toString() as any,
             });
         }
     }, [prevStakeholder]);
@@ -116,6 +114,8 @@ const CreateRegister = () => {
             toast.error(error.data.message || "Something went wrong");
         }
     };
+
+    console.log(form.formState.errors);
 
     return (
         <div className="space-y-6 min-h-screen">
@@ -187,28 +187,30 @@ const CreateRegister = () => {
                             required
                         />
 
-                        <FormSelect
-                            name="importance"
-                            label="Importance"
-                            placeholder="Select Importance"
-                            required
-                            options={importanceOptions}
-                        />
+                        {id && (
+                            <>
+                                <FormSelect
+                                    name="importance"
+                                    label="Importance"
+                                    placeholder="Select Importance"
+                                    options={importanceOptions}
+                                />
 
-                        <FormSelect
-                            name="influence"
-                            label="Influence"
-                            placeholder="Select Influence"
-                            required
-                            options={importanceOptions}
-                        />
+                                <FormSelect
+                                    name="influence"
+                                    label="Influence"
+                                    placeholder="Select Influence"
+                                    options={importanceOptions}
+                                />
 
-                        <FormInput
-                            label="Score"
-                            name="score"
-                            placeholder="Enter Score"
-                            required
-                        />
+                                <FormInput
+                                    label="Score"
+                                    name="score"
+                                    placeholder="Enter Score"
+                                    required
+                                />
+                            </>
+                        )}
 
                         <FormInput
                             name="major_concerns"

@@ -20,6 +20,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { AiFillPlusCircle } from "react-icons/ai";
 import { useGetExistingConsultancyApplicantsQuery } from "services/c&g/contract-management/consultancy-management/consultancy-applicants";
+import NewApplicantStaffForm from "./NewApplicantStaffForm";
 
 export default function CreateApplicant() {
     const [tabValue, setTabValue] = useState("existing");
@@ -106,39 +107,10 @@ export default function CreateApplicant() {
                                 </div>
                             </>
                         ) : (
-                            <div className="grid grid-cols-2 gap-10">
-                                <FormInput
-                                    label="Name"
-                                    name="name"
-                                    placeholder="Enter Name"
-                                    required
-                                />
-
-                                <FormInput
-                                    label="Email"
-                                    name="email"
-                                    placeholder="Enter Email"
-                                    required
-                                />
-
-                                <FormInput
-                                    label="Phone Number"
-                                    name="phone_number"
-                                    placeholder="Enter Phone Number"
-                                    required
-                                />
-
-                                <FormSelect
-                                    label="Employment Type"
-                                    name="employment_type"
-                                    placeholder="Select Employment Type"
-                                    required
-                                    options={[]}
-                                />
-                            </div>
+                           <NewApplicantStaffForm />
                         )}
 
-                        <div className="flex flex-col items-start gap-3">
+                        {/* <div className="flex flex-col items-start gap-3">
                             <Label className="font-bold">Referee</Label>
                             <Button
                                 type="button"
@@ -169,7 +141,7 @@ export default function CreateApplicant() {
                                 />
                                 Add Document
                             </Button>
-                        </div>
+                        </div> */}
 
                         {showDocument && (
                             <div className="grid grid-cols-2 gap-10">

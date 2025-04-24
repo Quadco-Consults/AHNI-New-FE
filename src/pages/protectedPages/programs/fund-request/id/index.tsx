@@ -4,7 +4,6 @@ import LongArrowLeft from "components/icons/LongArrowLeft";
 import Card from "components/shared/Card";
 import Summary from "./Summary";
 import { Button } from "components/ui/button";
-import FundSummary from "./FundRequestSummary";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
@@ -12,8 +11,9 @@ import { LoadingSpinner } from "components/shared/Loading";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import { useGetSingleProjectQuery } from "services/project";
 import { RouteEnum } from "constants/RouterConstants";
+import FundRequestSummary from "./FundRequestSummary";
 
-const FundRequestDetail = () => {
+export default function FundRequestDetail() {
     const navigate = useNavigate();
     const { id } = useParams();
 
@@ -96,7 +96,7 @@ const FundRequestDetail = () => {
                                 </Card>
                             </TabsContent>
                             <TabsContent value="fund Request Summary">
-                                <FundSummary />
+                                <FundRequestSummary />
                             </TabsContent>
                             <TabsContent value="approval Status">
                                 {/* <ApprovalStatus /> */}
@@ -107,6 +107,4 @@ const FundRequestDetail = () => {
             </Tabs>
         </div>
     );
-};
-
-export default FundRequestDetail;
+}

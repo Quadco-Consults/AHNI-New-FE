@@ -1,0 +1,436 @@
+import Card from "components/shared/Card";
+import { Button } from "components/ui/button";
+import { RouteEnum } from "constants/RouterConstants";
+import { ArrowLeft } from "lucide-react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import SupportiveSupervisionAPI from "services/programsApi/suportive-supervision";
+import { Criteria } from "definations/program-types/supportive-supervision";
+import { Input } from "components/ui/input";
+import { Upload as UploadFile } from "lucide-react";
+import FormButton from "atoms/FormButton";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { supportiveSupervisionActions } from "store/formData/ssp-values";
+import { Loading, LoadingSpinner } from "components/shared/Loading";
+import { toast } from "sonner";
+import { RootState } from "store/index";
+import { skipToken } from "@reduxjs/toolkit/query/react";
+import BreadcrumbCard from "components/shared/Breadcrumb";
+import BackNavigation from "atoms/BackNavigation";
+import Upload from "components/shared/Upload";
+import { Separator } from "components/ui/separator";
+import { Textarea } from "components/ui/textarea";
+import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import FormTextArea from "atoms/FormTextArea";
+import AddSquareIcon from "components/icons/AddSquareIcon";
+import { IObjective } from "definations/program/plan/supervision-plan/supervision-plan";
+import { useGetSingleSupervisionPlanQuery } from "services/program/plan/supervision-plan/supervision-plan";
+import FormRadio from "atoms/FormRadio";
+import FormInput from "atoms/FormInput";
+import {
+    SubGrantSubmissionSchema,
+    TSubGrantSubmissionFormData,
+} from "definations/c&g/contract-management/sub-grant/sub-grant";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+    SupervisionPlanReviewSchema,
+    TSupervisionPlanReviewFormData,
+} from "definations/program/plan/supervision-plan/supervision-plan-review";
+import { useCreateSupervisionPlanReviewMutation } from "services/program/plan/supervision-plan/supervision-plan-review";
+import { fileToBase64 } from "utils/fileToBase64";
+
+type FormData = {
+    [key: string]: string;
+};
+
+const breadcrumbs = [
+    { name: "Programs", icon: true },
+    { name: "Plans", icon: true },
+    { name: "Supportive Supervision Plan", icon: true },
+    { name: "Details", icon: true },
+    { name: "Evaluation", icon: false },
+];
+
+type GroupedData = {
+    [categoryName: string]: IObjective[];
+};
+
+const groupByCategoryName = (array: IObjective[]): GroupedData => {
+    return array?.reduce((acc, item) => {
+        // @ts-ignore
+        const categoryName = item.evaluation_category.name;
+
+        if (!acc[categoryName]) {
+            acc[categoryName] = [];
+        }
+
+        acc[categoryName].push(item);
+        return acc;
+    }, {} as GroupedData);
+};
+
+const uploadsCriteria = [
+    {
+        tag: "VISIT_SUMMARY",
+        label: "CQI/TA form completed with summary of visit? (Attach copy for retirement)",
+    },
+    {
+        tag: "POST_CLINIC_REVIEW",
+        label: "Observe post clinic review meeting? (Attach summary of visit, picture gallery)",
+    },
+    { tag: "ADHOC_STAFF_DEBRIEF", label: "Debrief with facility/adhoc staff." },
+];
+
+export default function EvaluationCriteriaProcess() {
+    const { id: planId } = useParams();
+
+    const form = useForm<TSupervisionPlanReviewFormData>({
+        resolver: zodResolver(SupervisionPlanReviewSchema),
+        defaultValues: {
+            reviews: [],
+            documents: [
+                { title: "VISIT_SUMMARY" },
+                { title: "POST_CLINIC_REVIEW" },
+                { title: "ADHOC_STAFF_DEBRIEF" },
+            ],
+            remediation_plan: "",
+            is_agree_on_visit_plan: "",
+        },
+    });
+
+    const [page, setPage] = useState(1);
+
+    const { id } = useParams();
+
+    const { data: supervisionPlan } = useGetSingleSupervisionPlanQuery(
+        id ?? skipToken
+    );
+
+    const [groupedCriteria, setGroupedCriteria] = useState<GroupedData>();
+
+    useEffect(() => {
+        if (supervisionPlan) {
+            setGroupedCriteria(
+                groupByCategoryName(supervisionPlan?.data.objectives)
+            );
+
+            const reviews = supervisionPlan.data.objectives.map(({ id }) => ({
+                is_selected: undefined,
+                comment: "",
+                objective: id,
+            }));
+
+            form.setValue("reviews", reviews);
+        }
+    }, [supervisionPlan]);
+
+    const handlePrev = () => {
+        if (page > 1) {
+            setPage(page - 1);
+        }
+    };
+
+    const handleNext = () => {
+        setPage(page + 1);
+    };
+
+    const handleFileChange = (id: string, file: FileList | null) => {
+        const documents = form.getValues("documents");
+
+        if (file) {
+            const updatedDocuments = documents.map((doc) => {
+                if (doc.title === id) {
+                    return { ...doc, document: file[0] };
+                }
+
+                return doc;
+            });
+
+            form.setValue("documents", updatedDocuments);
+        }
+    };
+
+    const documents = form.watch("documents")[0];
+
+    // console.log(documents.document.name);
+    console.log(form.formState.errors);
+
+    const [createSupervisionPlanReview, { isLoading: isCreateLoading }] =
+        useCreateSupervisionPlanReviewMutation();
+
+    const onSubmit: SubmitHandler<TSupervisionPlanReviewFormData> = async ({
+        reviews,
+        documents,
+    }) => {
+        try {
+            if (planId) {
+                const formData = new FormData();
+
+                reviews.forEach((review, index) => {
+                    formData.append(
+                        `reviews[${index}][is_selected]`,
+                        review.is_selected as any
+                    );
+                    formData.append(
+                        `reviews[${index}][comment]`,
+                        review.comment
+                    );
+                    formData.append(
+                        `reviews[${index}][objective]`,
+                        review.objective
+                    );
+                });
+
+                documents.forEach((doc, index) => {
+                    formData.append(
+                        `documents[${index}][title]`,
+                        doc.title as any
+                    );
+                    formData.append(
+                        `documents[${index}][is_selected]`,
+                        doc.is_selected as any
+                    );
+                    formData.append(
+                        `documents[${index}][document]`,
+                        doc.document
+                    );
+                });
+
+                await createSupervisionPlanReview({
+                    id: planId,
+                    body: formData as any,
+                });
+            }
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
+        }
+    };
+
+    if (!groupedCriteria) {
+        return <LoadingSpinner />;
+    }
+
+    //   const categoryEntries = Object.entries(groupedCriteria || []);
+    //   const [categoryName, items] = categoryEntries[page - 1];
+    const categoryEntries = Object.entries(groupedCriteria || []);
+
+    // The page 4 is a special hardcoded upload page
+    const isUploadPage = page === 4;
+
+    // Only try to destructure if we're on a category page (1-3)
+    let categoryName = "";
+    let items: IObjective[] = [];
+
+    if (!isUploadPage) {
+        // If we're trying to access a category page beyond what we have,
+        // default to the last available category
+        const safeIndex = Math.min(page - 1, categoryEntries.length - 1);
+        if (categoryEntries.length > 0) {
+            [categoryName, items] = categoryEntries[safeIndex];
+        }
+    }
+
+    return (
+        <FormProvider {...form}>
+            <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
+                <div className="space-y-5">
+                    <BreadcrumbCard list={breadcrumbs} />
+
+                    <BackNavigation />
+
+                    <div className="flex justify-end">
+                        <div className="py-2 px-4 rounded-lg border text-green-500 border-green-500 bg-green-50">
+                            Page {page}/4
+                        </div>
+                    </div>
+
+                    <Card>
+                        <h4 className="font-semibold">
+                            Integrated Facility Visit Checklist for
+                            Comprehensive Sites
+                        </h4>
+
+                        <hr />
+
+                        {!isUploadPage ? (
+                            <Card className="space-y-3">
+                                <h4 className="font-semibold text-red-600">
+                                    {categoryName}
+                                </h4>
+
+                                <h6 className="font-light text-gray-500">
+                                    Verify the following
+                                </h6>
+
+                                {items.map((item, index) => {
+                                    const globalIndex =
+                                        supervisionPlan?.data.objectives.findIndex(
+                                            (obj) => obj.id === item.id
+                                        );
+
+                                    return (
+                                        <Card
+                                            key={item.id}
+                                            className="space-y-3 border-yellow-600"
+                                        >
+                                            <h4 className="text-semibold text-yellow-600">
+                                                {item.name}
+                                            </h4>
+
+                                            <div className="flex justify-between pb-3 gap-5">
+                                                <h2>{item.description}</h2>
+
+                                                <FormRadio
+                                                    name={`reviews.${globalIndex}.is_selected`}
+                                                    options={[
+                                                        {
+                                                            label: "Yes",
+                                                            value: true,
+                                                        },
+                                                        {
+                                                            label: "No",
+                                                            value: false,
+                                                        },
+                                                    ]}
+                                                />
+                                            </div>
+
+                                            <FormInput
+                                                name={`reviews.${globalIndex}.comment`}
+                                                className="flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-gray-100 dark:bg-background"
+                                                type="text"
+                                                placeholder="Comment..."
+                                            />
+
+                                            <hr />
+                                        </Card>
+                                    );
+                                })}
+                            </Card>
+                        ) : (
+                            uploadsCriteria.map(({ tag, label }, i) => (
+                                <Card key={i} className="space-y-3">
+                                    <h4 className="text-semibold font-light">
+                                        {label}
+                                    </h4>
+
+                                    <div className="flex justify-between pb-3 gap-5">
+                                        <h3 className="font-bold">
+                                            Upload Attachment
+                                        </h3>
+
+                                        <div className="flex gap-5 justify-between">
+                                            <div className="flex items-stretch space-x-2">
+                                                <input
+                                                    type="radio"
+                                                    className="border-green-500"
+                                                    value="true"
+                                                />
+                                                <label
+                                                    htmlFor="yes"
+                                                    className="text-green-500"
+                                                >
+                                                    Yes
+                                                </label>
+                                            </div>
+
+                                            <div className="flex items-stretch space-x-2">
+                                                <input
+                                                    type="radio"
+                                                    value="false"
+                                                    className="border-primary"
+                                                />
+                                                <label
+                                                    htmlFor="no"
+                                                    className="text-primary"
+                                                >
+                                                    No
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <Upload
+                                        onChange={(e) =>
+                                            handleFileChange(
+                                                tag,
+                                                e.target.files
+                                            )
+                                        }
+                                    >
+                                        <Button
+                                            type="button"
+                                            className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                                        >
+                                            <AddSquareIcon />
+                                            Upload New Document
+                                        </Button>
+                                    </Upload>
+
+                                    <hr />
+                                </Card>
+                            ))
+                        )}
+
+                        {isUploadPage && (
+                            <>
+                                <Separator className="my-12" />
+
+                                <FormTextArea
+                                    label="Remediation plan and follow up actions"
+                                    name="remediation_plan"
+                                />
+
+                                <Separator className="my-12" />
+
+                                <div className="flex justify-between pb-3 gap-5">
+                                    <h4 className="text-semibold font-light">
+                                        Agree on visit date
+                                    </h4>
+
+                                    <FormRadio
+                                        name="is_agree_on_visit_plan"
+                                        options={[
+                                            {
+                                                label: "Yes",
+                                                value: "true",
+                                            },
+                                            {
+                                                label: "No",
+                                                value: "false",
+                                            },
+                                        ]}
+                                    />
+                                </div>
+                            </>
+                        )}
+                    </Card>
+
+                    <div className="flex justify-between">
+                        <Button
+                            variant="outline"
+                            className="flex gap-4 items-center text-primary border-primary hover:bg-red-50 hover:text-red-500"
+                            onClick={handlePrev}
+                        >
+                            <ArrowLeft size={15} /> Back
+                        </Button>
+
+                        {page === 4 ? (
+                            <Button type="submit" className="px-8">
+                                Finish
+                            </Button>
+                        ) : (
+                            <Button
+                                type="button"
+                                className="px-8"
+                                onClick={handleNext}
+                            >
+                                Next
+                            </Button>
+                        )}
+                    </div>
+                </div>
+            </form>
+        </FormProvider>
+    );
+}

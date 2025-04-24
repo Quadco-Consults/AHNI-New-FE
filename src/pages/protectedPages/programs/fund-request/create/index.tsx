@@ -5,7 +5,7 @@ import FormSelect from "atoms/FormSelectField";
 import FormButton from "atoms/FormButton";
 import { Button } from "components/ui/button";
 import Card from "components/shared/Card";
-import FundRequstLayout from "./FundRequstLayout";
+import FundRequstLayout from "./Layout";
 import {
     FundRequestSchema,
     TFundRequestFormValues,
@@ -20,6 +20,7 @@ import { useGetAllPartnersQuery } from "services/modules/project/partners";
 import { useGetAllFinancialYearsQuery } from "services/modules/config/financial-year";
 import { useGetAllLocationsQuery } from "services/modules/config/location";
 import { useGetAllUsersQuery } from "services/auth/user";
+import { useMemo } from "react";
 
 const getYearOptions = () => {
     const currentYear = new Date().getFullYear();
@@ -87,26 +88,27 @@ const CreateFundRequest = () => {
         size: 2000000,
     });
 
-    const projectOptions = project?.data.results.map(({ title, id }) => ({
-        label: title,
-        value: id,
-    }));
-
-    const { data: partner } = useGetAllPartnersQuery({
-        page: 1,
-        size: 2000000,
-    });
+    const projectOptions = useMemo(
+        () =>
+            project?.data.results.map(({ title, id }) => ({
+                label: title,
+                value: id,
+            })),
+        [project]
+    );
 
     const { data: financialYear } = useGetAllFinancialYearsQuery({
         page: 1,
         size: 2000000,
     });
 
-    const financialYearOptions = financialYear?.data.results.map(
-        ({ year, id }) => ({
-            label: year,
-            value: id,
-        })
+    const financialYearOptions = useMemo(
+        () =>
+            financialYear?.data.results.map(({ year, id }) => ({
+                label: year,
+                value: id,
+            })),
+        [financialYear]
     );
 
     const { data: location } = useGetAllLocationsQuery({
@@ -114,18 +116,24 @@ const CreateFundRequest = () => {
         size: 2000000,
     });
 
-    const locationOptions = location?.data.results.map(({ name, id }) => ({
-        label: name,
-        value: id,
-    }));
+    const locationOptions = useMemo(
+        () =>
+            location?.data.results.map(({ name, id }) => ({
+                label: name,
+                value: id,
+            })),
+        [location]
+    );
 
     const { data: user } = useGetAllUsersQuery({ page: 1, size: 2000000 });
 
-    const reviewerOptions = user?.data.results.map(
-        ({ first_name, last_name, id }) => ({
-            label: `${first_name} ${last_name}`,
-            value: id,
-        })
+    const userOptions = useMemo(
+        () =>
+            user?.data.results.map(({ first_name, last_name, id }) => ({
+                label: `${first_name} ${last_name}`,
+                value: id,
+            })),
+        [user]
     );
 
     const { handleSubmit } = form;
@@ -212,19 +220,35 @@ const CreateFundRequest = () => {
                         </div>
 
                         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                            <FormSelect
-                                label="Reviewer"
-                                name="reviewer"
-                                required
-                                options={reviewerOptions}
-                                placeholder="Select Reviewer"
-                            />
-
                             <FormInput
                                 label="Unqiue Identifier Code"
                                 name="uuid_code"
                                 required
                                 placeholder="Enter Unique Identifier Code"
+                            />
+
+                            <FormSelect
+                                label="Reviewer"
+                                name="reviewer"
+                                required
+                                options={userOptions}
+                                placeholder="Select Reviewer"
+                            />
+
+                            <FormSelect
+                                label="Authorizer"
+                                name="reviewer"
+                                required
+                                options={userOptions}
+                                placeholder="Select Authorizer"
+                            />
+
+                            <FormSelect
+                                label="Approver"
+                                name="reviewer"
+                                required
+                                options={userOptions}
+                                placeholder="Select Approver"
                             />
                         </div>
 

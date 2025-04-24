@@ -23,8 +23,11 @@ import {
     dasboardData,
     dashboardColumns,
 } from "components/Table/columns/dashboard";
+import { useGetUserProfileQuery } from "services/auth/user";
 
-const Dashboard = () => {
+export default function Dashboard() {
+    const { data: user } = useGetUserProfileQuery(null);
+
     return (
         <div className="space-y-10">
             <h4 className="font-bold text-lg">Dashboard</h4>
@@ -792,9 +795,7 @@ const Dashboard = () => {
             </div>
         </div>
     );
-};
-
-export default Dashboard;
+}
 
 const pieData = [
     { name: "Group A", value: 400, color: "#0088FE" },

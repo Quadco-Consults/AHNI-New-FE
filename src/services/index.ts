@@ -112,7 +112,6 @@ const baseAPI = createApi({
         "ENGAGEMENT_PLAN",
         "PROJECTS",
         "ASSET_CLASSIFICATION",
-        "Consumable",
         "PROJECT_DOCUMENT",
         "ITEM_REQUISITION",
         "ASSET",
@@ -144,6 +143,8 @@ const baseAPI = createApi({
         "FACILITATOR_MANAGEMENT",
         "CLOSE_OUT_PLAN",
         "CONSULTANCY_APPLICATION",
+        "SUPERVISION_PLAN_REVIEW",
+        "CONSUMABLE"
     ],
     // keepUnusedDataFor: 5 * 60,
     keepUnusedDataFor: 0,
