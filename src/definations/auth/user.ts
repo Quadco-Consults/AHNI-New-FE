@@ -54,6 +54,7 @@ export interface IUser {
     permissions: Permission[];
     mobile_number: string;
     gender: "MALE" | "FEMALE" | "Other";
+    assigned_modules: string[],
     designation: string;
     fullName: string;
     action: string;
@@ -62,3 +63,4 @@ export interface IUser {
     actions: string;
     is_active: boolean;
 }
+

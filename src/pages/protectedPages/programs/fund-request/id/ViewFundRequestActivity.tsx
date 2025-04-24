@@ -29,7 +29,7 @@ export default function ViewFundRequestActivity() {
                 </h4>
 
                 <h4 className="text-red-500 font-bold mt-2">
-                    FUND REQUEST DETAILS - ACEBAY PHO
+                    {fundRequest?.data.project?.title}
                 </h4>
             </div>
 

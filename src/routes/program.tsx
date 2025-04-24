@@ -69,7 +69,7 @@ export const program = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/programs/plan/ssp/[id]/EvaluationProcess"
+                    "pages/protectedPages/programs/plan/ssp/[id]/EvaluationCriteriaProcess"
                 )
         ),
     },
@@ -187,7 +187,7 @@ export const program = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/programs/fund-request/Create-fund-request"
+                    "pages/protectedPages/programs/fund-request/create/index"
                 )
         ),
     },
@@ -207,7 +207,7 @@ export const program = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/programs/fund-request/Fund-summary"
+                    "pages/protectedPages/programs/fund-request/create/summary"
                 )
         ),
     },

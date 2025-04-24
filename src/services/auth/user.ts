@@ -15,7 +15,7 @@ interface TRolePermission {
     }[];
 }
 
-const usersAPi = baseAPI.injectEndpoints({
+const UserAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
         createUser: builder.mutation<TResponse<IUser>, TCreateUserFormValues>({
             query: (body) => ({
@@ -34,7 +34,7 @@ const usersAPi = baseAPI.injectEndpoints({
             providesTags: ["Users"],
         }),
 
-        getSingleUser: builder.query<TResponse<IUser>, string>({
+        getSingleUser: builder.query<TResponse<IUser>, null>({
             query: (id) => ({
                 url: `/users/${id}/`,
             }),
@@ -101,9 +101,10 @@ export const {
     useCreateUserMutation,
     useGetAllUsersQuery,
     useGetSingleUserQuery,
+    useLazyGetSingleUserQuery,
     useGetUserProfileQuery,
     useUpdateUserMutation,
     useAddUserToRoleMutation,
     useActivateUserMutation,
     useDeactivateUserMutation,
-} = usersAPi;
+} = UserAPI;

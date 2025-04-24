@@ -5,22 +5,26 @@ import {
     TSSPCompositionFormValues,
     TSupervisionPlanSingleData,
 } from "definations/program/plan/supervision-plan/supervision-plan";
+import {
+    ISupervisionPlanReviewSingleData,
+    TSupervisionPlanReviewFormData,
+} from "definations/program/plan/supervision-plan/supervision-plan-review";
 
 const BASE_URL = "/programs/plans/supportive-supervision/";
 
-const SupervisionPlanAPI = baseAPI.injectEndpoints({
+const SupervisionPlanReviewAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
-        // createSupervisionPlan: builder.mutation<
-        //     TResponse<TSupervisionPlanPaginatedData>,
-        //     TSSPCompositionFormValues
-        // >({
-        //     query: (body) => ({
-        //         method: "POST",
-        //         url: BASE_URL,
-        //         body,
-        //     }),
-        //     invalidatesTags: ["SUPERVISION_PLAN"],
-        // }),
+        createSupervisionPlanReview: builder.mutation<
+            TResponse<ISupervisionPlanReviewSingleData>,
+            { id: string; body: TSupervisionPlanReviewFormData }
+        >({
+            query: ({ id, body }) => ({
+                method: "POST",
+                url: `${BASE_URL}${id}/reviews/`,
+                body,
+            }),
+            invalidatesTags: ["SUPERVISION_PLAN_REVIEW"],
+        }),
         // getAllSupervisionPlan: builder.query<
         //     TPaginatedResponse<TSupervisionPlanPaginatedData>,
         //     TRequest
@@ -66,4 +70,5 @@ const SupervisionPlanAPI = baseAPI.injectEndpoints({
     }),
 });
 
-export const {} = SupervisionPlanAPI;
+export const { useCreateSupervisionPlanReviewMutation } =
+    SupervisionPlanReviewAPI;

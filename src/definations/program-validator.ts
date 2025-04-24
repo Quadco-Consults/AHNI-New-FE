@@ -147,9 +147,9 @@ export const StakeholderRegisterSchema = z.object({
     phone_number: z.string().min(1, "Field is required"),
     email: z.string().min(1, "Field is required").email(),
     project_role: z.string().min(1, "Field is required"),
-    importance: z.enum(["1", "2", "3", "4", "5"]),
-    influence: z.string().min(1, "Field is required"),
-    score: z.string().min(1, "Field is required"),
+    importance: z.string().optional(),
+    influence: z.string().optional(),
+    score: z.string().optional(),
     major_concerns: z.string().min(1, "Field is required"),
     relationship_owner: z.string().min(1, "Field is required"),
 });
@@ -163,8 +163,8 @@ export type TStakeholderRegisterData = Omit<
     "importance" | "influence"
 > & {
     id: string;
-    importance: number;
-    influence: number;
+    importance: string;
+    influence: string;
 };
 
 export const StakeholderMappingSchema = z.object({

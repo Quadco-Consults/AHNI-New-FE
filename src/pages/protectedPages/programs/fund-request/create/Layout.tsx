@@ -7,7 +7,7 @@ type IPageProps = {
     children: ReactNode;
 };
 
-const FundRequstLayout: FC<IPageProps> = ({ children }) => {
+const FundReqeustLayout: FC<IPageProps> = ({ children }) => {
     return (
         <div className="space-y-5">
             <BackNavigation />
@@ -17,4 +17,4 @@ const FundRequstLayout: FC<IPageProps> = ({ children }) => {
     );
 };
 
-export default FundRequstLayout;
+export default FundReqeustLayout;

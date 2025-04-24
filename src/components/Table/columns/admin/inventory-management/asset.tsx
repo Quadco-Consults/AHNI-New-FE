@@ -21,6 +21,13 @@ export const assetColumn: ColumnDef<TAssetPaginatedData>[] = [
     },
 
     {
+        header: "Asset Type",
+        id: "asset_type",
+        accessorKey: "asset_type",
+        accessorFn: ({ asset_type }) => `${asset_type.name}`,
+    },
+
+    {
         header: "Classification",
         id: "classification",
         accessorKey: "classification",
@@ -43,6 +50,13 @@ export const assetColumn: ColumnDef<TAssetPaginatedData>[] = [
         header: "Serial Number",
         id: "serial_number",
         accessorKey: "serial_number",
+    },
+
+    {
+        header: "Plate Number",
+        id: "plate_number",
+        accessorKey: "plate_number",
+        accessorFn: ({ plate_number }) => `${plate_number || "Not Applicable"}`,
     },
 
     {

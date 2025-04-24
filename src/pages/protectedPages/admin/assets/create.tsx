@@ -230,6 +230,11 @@ export default function CreateAsset() {
         }
     };
 
+    const selectedAssetTypeId = form.watch("asset_type");
+    const selectedAssetTypeName = assetType?.data.results.find(
+        (assetType) => assetType.id === selectedAssetTypeId
+    )?.name;
+
     return (
         <div className="space-y-6">
             <BackNavigation extraText="Asset Registration" />
@@ -278,12 +283,24 @@ export default function CreateAsset() {
                                 required
                             />
 
-                            <FormInput
-                                label="Plate Number"
-                                name="plate_number"
-                                placeholder="Enter Plate Number"
-                                required
-                            />
+                            {selectedAssetTypeName?.toLowerCase() ===
+                                "vehicle" && (
+                                <>
+                                    <FormInput
+                                        label="Plate Number"
+                                        name="plate_number"
+                                        placeholder="Enter Plate Number"
+                                        required
+                                    />
+
+                                    <FormInput
+                                        label="Chasis Number"
+                                        name="chasis_number"
+                                        placeholder="Enter Plate Number"
+                                        required
+                                    />
+                                </>
+                            )}
 
                             <FormSelect
                                 label="Donor"

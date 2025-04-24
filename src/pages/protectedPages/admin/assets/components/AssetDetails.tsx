@@ -25,7 +25,7 @@ export default function AssetDetails() {
 
             <Card>
                 <CardHeader className="font-bold">
-                    Asset Details
+                    {asset?.data.name}
                     <Separator className="mt-4" />
                 </CardHeader>
 

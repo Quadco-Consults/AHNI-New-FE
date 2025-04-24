@@ -13,8 +13,9 @@ import { Checkbox } from "components/ui/checkbox";
 import Card from "components/shared/Card";
 import { LoginSchema, TLoginFormValues } from "definations/auth/auth";
 import { useLoginMutation } from "services/auth/auth";
+import { useGetSingleUserQuery } from "services/auth/user";
 
-const LoginForm = () => {
+export default function LoginForm() {
     const form = useForm<TLoginFormValues>({
         resolver: zodResolver(LoginSchema),
     });
@@ -24,6 +25,8 @@ const LoginForm = () => {
     const dispatch = useAppDispatch();
 
     const [login, { isLoading }] = useLoginMutation();
+
+    useGetSingleUserQuery
 
     const { handleSubmit } = form;
 
@@ -106,6 +109,4 @@ const LoginForm = () => {
             </Form>
         </div>
     );
-};
-
-export default LoginForm;
+}

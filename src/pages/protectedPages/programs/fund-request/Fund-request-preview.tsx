@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import FundRequstLayout from "./FundRequstLayout";
+import FundRequstLayout from "./create/Layout";
 import DataTable from "components/Table/DataTable";
 import FormButton from "atoms/FormButton";
 import { Button } from "components/ui/button";
@@ -64,7 +64,7 @@ export default function Summary() {
                 <div className="space-y-3">
                     <h3 className="font-semibold">Project Name</h3>
                     <p className="text-sm text-gray-500">
-                        {/* {projectQueryResult.data?.title} */}
+                        {/* {programFundRequest?.} */}
                     </p>
                 </div>
 
@@ -151,15 +151,6 @@ export default function Summary() {
             </div>
         </FundRequstLayout>
     );
-}
-
-interface TableType {
-    activity_description: string;
-    amount: string;
-    unit_cost: string;
-    frequency: string;
-    comment: string;
-    category: string;
 }
 
 const columns = (): ColumnDef<TFundRequestActivity>[] => {
