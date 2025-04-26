@@ -48,6 +48,7 @@ export const VendorsRegistrationSchema = z.object({
   company_chairman: z.string().min(1, "Field is required"),
   bank_address: z.string().min(1, "Field is required"),
   bank_name: z.string().min(1, "Field is required"),
+  state: z.string().min(1, "Field is required"),
 });
 
 export const VendorsCompanySchema = z.object({
