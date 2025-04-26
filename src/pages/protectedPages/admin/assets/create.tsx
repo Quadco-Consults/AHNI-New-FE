@@ -12,8 +12,8 @@ import {
 } from "definations/admin/inventory-management/asset";
 import useQuery from "hooks/useQuery";
 import { nigerianStates } from "lib/index";
-import { useEffect, useMemo } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useEffect, useMemo, } from "react";
+import { SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import {
     useCreateAssetMutation,
@@ -230,11 +230,6 @@ export default function CreateAsset() {
         }
     };
 
-    const selectedAssetTypeId = form.watch("asset_type");
-    const selectedAssetTypeName = assetType?.data.results.find(
-        (assetType) => assetType.id === selectedAssetTypeId
-    )?.name;
-
     return (
         <div className="space-y-6">
             <BackNavigation extraText="Asset Registration" />
@@ -283,24 +278,12 @@ export default function CreateAsset() {
                                 required
                             />
 
-                            {selectedAssetTypeName?.toLowerCase() ===
-                                "vehicle" && (
-                                <>
-                                    <FormInput
-                                        label="Plate Number"
-                                        name="plate_number"
-                                        placeholder="Enter Plate Number"
-                                        required
-                                    />
-
-                                    <FormInput
-                                        label="Chasis Number"
-                                        name="chasis_number"
-                                        placeholder="Enter Plate Number"
-                                        required
-                                    />
-                                </>
-                            )}
+                            <FormInput
+                                label="Plate Number"
+                                name="plate_number"
+                                placeholder="Enter Plate Number"
+                                required
+                            />
 
                             <FormSelect
                                 label="Donor"

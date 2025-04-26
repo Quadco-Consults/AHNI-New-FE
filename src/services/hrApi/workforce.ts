@@ -1,7 +1,4 @@
-import {
-    TBaseCreateResponse,
-    TBasePaginatedResponse,
-} from "definations/auth/auth";
+import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 import baseAPI from "..";
 import {
     WorkforceBankAccount,
@@ -19,8 +16,8 @@ const BASE_URL = "/hr/hr-workforce/";
 const WorkforceAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
         getWorkforces: builder.query<
-            TBasePaginatedResponse<WorkforceResults[]>,
-            {}
+        TPaginatedResponse<WorkforceResults[]>,
+        TRequest
         >({
             query: (config) => {
                 return {
@@ -63,7 +60,7 @@ const WorkforceAPI = baseAPI.injectEndpoints({
             providesTags: ["WORKFORCE"],
         }),
         createWorkforcePension: builder.mutation<
-            TBaseCreateResponse<WorkforcePension>,
+        TResponse<WorkforcePension>,
             { path: { id: string }; body: WorkforcePensionFormValues }
         >({
             query: ({ path, body }) => ({
@@ -85,7 +82,7 @@ const WorkforceAPI = baseAPI.injectEndpoints({
             providesTags: ["WORKFORCE"],
         }),
         createWorkforceBankAccount: builder.mutation<
-            TBaseCreateResponse<WorkforceBankAccount>,
+        TResponse<WorkforceBankAccount>,
             { path: { id: string }; body: WorkforceBankAccountFormValues }
         >({
             query: ({ path, body }) => ({
@@ -96,7 +93,7 @@ const WorkforceAPI = baseAPI.injectEndpoints({
             invalidatesTags: ["WORKFORCE"],
         }),
         createWorkforceQualification: builder.mutation<
-            TBaseCreateResponse<WorkforcePension>,
+        TResponse<WorkforcePension>,
             { path: { id: string }; body: FormData }
         >({
             query: ({ path, body }) => ({
@@ -107,7 +104,7 @@ const WorkforceAPI = baseAPI.injectEndpoints({
             invalidatesTags: ["WORKFORCE"],
         }),
         createWorkforce: builder.mutation<
-            TBaseCreateResponse<WorkforceResults>,
+        TResponse<WorkforceResults>,
             any
         >({
             query: (body) => ({
@@ -118,7 +115,7 @@ const WorkforceAPI = baseAPI.injectEndpoints({
             invalidatesTags: ["WORKFORCE"],
         }),
         updateWorkforce: builder.mutation<
-            TBaseCreateResponse<WorkforceResults>,
+        TResponse<WorkforceResults>,
             { path: { id: string }; body: any }
         >({
             query: ({ path, body }) => ({
@@ -129,7 +126,7 @@ const WorkforceAPI = baseAPI.injectEndpoints({
             invalidatesTags: ["WORKFORCE"],
         }),
         updateWorkforceAdditionalInfo: builder.mutation<
-            TBaseCreateResponse<WorkforceResults>,
+        TResponse<WorkforceResults>,
             { path: { id: string }; body: any }
         >({
             query: ({ path, body }) => ({
@@ -142,4 +139,16 @@ const WorkforceAPI = baseAPI.injectEndpoints({
     }),
 });
 
-export default WorkforceAPI;
+export const {
+    useCreateWorkforceBankAccountMutation,
+    useCreateWorkforceMutation,
+    useCreateWorkforcePensionMutation,
+    useCreateWorkforceQualificationMutation,
+    useGetWorkforceBankAccountQuery,
+    useGetWorkforcePensionQuery,
+    useGetWorkforceQualificationsQuery,
+    useGetWorkforceQuery,
+    useGetWorkforcesQuery,
+    useUpdateWorkforceAdditionalInfoMutation,
+    useUpdateWorkforceMutation
+} = WorkforceAPI;

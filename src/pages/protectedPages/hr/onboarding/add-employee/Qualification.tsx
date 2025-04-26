@@ -11,46 +11,47 @@ import {
   WorkforceQualificationFormValues,
   workforceQualificationSchema,
 } from "definations/hr-validator";
-import { zodResolver } from "@hookform/resolvers/zod";
-import WorkforceAPI from "services/hrApi/workforce";
+import { zodResolver } from "@hookform/resolvers/zod"; 
 import { toast } from "sonner";
-import FormButton from "atoms/FormButton";
+import FormButton from "atoms/FormButton";  
+import { useCreateEmployeeOnboardingQualificationsMutation } from "services/hrApi/hr-emloyee-onboarding-qualifications";
 
-const Qualification = () => {
+const Qualification = ({id} : {id:string}) => {
   const dispatch = useAppDispatch();
   const workforceID = localStorage.getItem("workforceID");
 
-  const [createWorkforceQualificationMutation, { isLoading }] =
-    WorkforceAPI.useCreateWorkforceQualificationMutation();
+  const [createEmployeeOnboardingQualifications, { isLoading }] =
+  useCreateEmployeeOnboardingQualificationsMutation();
 
   const form = useForm<WorkforceQualificationFormValues>({
     resolver: zodResolver(workforceQualificationSchema),
     defaultValues: {
-      name: "",
-      institution: "",
-      year: "",
-      document: FileList,
+      certificate_name: "",
+      institution_name: "",
+      date_of_qualification: "",
+      certificate_file: FileList,
+      employee: workforceID as string
     },
   });
   const { handleSubmit } = form;
 
   const onSubmit = async (data: WorkforceQualificationFormValues) => {
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("institution", data.institution);
-    formData.append("year", data.year.substring(0, data.year.indexOf("-")));
-    formData.append("document", data.document[0]);
-
     if (workforceID === undefined) {
       toast.error("Basic information is required");
       return;
     }
+    const formData = new FormData();
+    formData.append("certificate_name", data.certificate_name);
+    formData.append("institution_name", data.institution_name);
+    formData.append("date_of_qualification", data.date_of_qualification);
+    formData.append("certificate_file", data.certificate_file[0]);
+    formData.append("employee", workforceID as string);
+    
+    
 
     try {
-      await createWorkforceQualificationMutation({
-        path: { id: workforceID as string },
-        body: formData,
-      }).unwrap();
+      // @ts-ignore
+      await createEmployeeOnboardingQualifications(formData).unwrap();
       dispatch(
         openDialog({
           type: DialogType.HrSuccessModal,
@@ -71,14 +72,14 @@ const Qualification = () => {
         <h4 className="text-red-500 text-lg font-medium">Qualification</h4>
         <Separator />
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <FormInput name="name" label="Certificate Name" required />
+          <FormInput name="certificate_name" label="Certificate Name" required />
           <FormInput
-            name="institution"
-            label="Institution (Optional)"
+            name="institution_name"
+            label="Institution "
             required
           />
-          <FormInput type="date" name="year" label="Year (Optional)" required />
-          <FileUpload name="document" label="Document" />
+          <FormInput type="date" name="date_of_qualification" label="Year " required />
+          <FileUpload name="certificate_file" label="Document" />
         </div>
         {/* <Button variant="ghost">
           <AddIcon /> Add Qualification

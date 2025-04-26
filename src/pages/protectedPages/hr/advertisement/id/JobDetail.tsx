@@ -10,6 +10,7 @@ import {
   PersonStanding,
   Users,
 } from "lucide-react";
+import moment from "moment";
 
 const JobDetail = ({
   job_type,
@@ -39,7 +40,7 @@ const JobDetail = ({
           <Clock size={15} /> {duration} months with possibility of extension
         </Badge>
         <Badge variant='md'>
-          <CalendarDays size={15} /> {formatDate(created_at!, "dd, MMM, yy")}
+          <CalendarDays size={15} /> {moment(created_at!).format("DD-MM-YYYY")}
         </Badge>
         <Badge variant='md'>
           <MapPin size={15} /> {locations}

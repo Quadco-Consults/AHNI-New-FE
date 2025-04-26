@@ -1,3 +1,4 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import FileUpload from "atoms/FileUpload";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
@@ -8,60 +9,84 @@ import GoBack from "components/shared/GoBack";
 import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";
 import { HrRoutes } from "constants/RouterConstants";
+import { jobApplicationSchema } from "definations/hr-validator";
 
-import { useForm } from "react-hook-form";
-import { useNavigate, useParams } from "react-router-dom";
-import JobApplicationAPI from "services/hrApi/hr-job-applications";
+import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
+import { useNavigate, useParams } from "react-router-dom"; 
+import { useGetJobAdvertisementQuery } from "services/hrApi/hr-job-advertisement";
+import { useCreateJobApplicationMutation } from "services/hrApi/hr-job-applications";
 import { toast } from "sonner";
+import { z } from "zod";
+export type TFormValues = z.infer<typeof jobApplicationSchema>;
+
 const ApplicationForm = () => {
   const { id } = useParams();
 
   const [createJobApplication, { isLoading }] =
-    JobApplicationAPI.useCreateJobApplicationMutation();
-  const navigate = useNavigate();
-
-  const form = useForm({
-    // resolver: zodResolver(jobApplicationSchema),
+  useCreateJobApplicationMutation();
+  const {data: adDetails} = useGetJobAdvertisementQuery(
+    {id: id!}
+  ); 
+  const navigate = useNavigate(); 
+  const form = useForm<TFormValues>({
+    resolver: zodResolver(jobApplicationSchema),
     defaultValues: {
       applicant_name: "",
       applicant_email: "",
       application_notes: "",
       cover_letter: "",
-      employment_type: "internal",
-      job: id,
+      employment_type: "INTERNAL",
+      advertisement: id,
+      interview_date: adDetails?.data?.commencement_date,
       position_applied: "",
-      referee_1_name: "",
-      referee_1_email: "",
-      referee_2_name: "",
-      referee_2_email: "",
-      referee_3_name: "",
-      referee_3_email: "",
-
-      resume: null, // File will be converted to Base64
+      referees: [{ name: '', email: '' }] ,
+      resume: null,  
       status: "applied",
     },
   });
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "referees"
+  });
+
 
   const { handleSubmit } = form;
 
-  const onSubmit = async (data: any) => {
+  
+  const onSubmit: SubmitHandler<TFormValues> = async (data: any) => {
+      
     try {
-      const formData = new FormData();
-
-      Object.entries(data).forEach(([key, value]) => {
-        if (key === "resume" || key === "cover_letter") {
-          if (value instanceof FileList && value.length > 0) {
-            formData.append(key, value[0]); // ✅ Append only the first file
-          }
-        } else if (value !== undefined && value !== null) {
-          formData.append(key, value.toString()); // ✅ Convert to string for safety
-        }
-      });
-
-      // @ts-ignore
-      await createJobApplication(formData).unwrap();
+      const fileToBase64 = async (file: File | FileList | string): Promise<string | null> => {
+        // If already base64 string, return it
+        if (typeof file === 'string' && file.startsWith('data:')) return file;
+        
+        // Handle FileList
+        const actualFile = file instanceof FileList ? file[0] : file;
+        if (!(actualFile instanceof File)) return null;
+  
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(actualFile);
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = error => reject(error);
+        });
+      };
+  
+      // Prepare files - handles both initial submit and edit cases
+      const [resumeBase64, coverLetterBase64] = await Promise.all([
+        fileToBase64(data.resume),
+        fileToBase64(data.cover_letter)
+      ]); 
+      const payload = {
+        ...data,
+        resume: resumeBase64,
+        cover_letter: coverLetterBase64, 
+      };
+  
+      
+      await createJobApplication(payload).unwrap();  
       toast.success(" Application Submitted successfully");
-      navigate(HrRoutes.ADVERTISEMENT);
+      navigate(-1)
     } catch (error) {
       toast.error("Something went wrong");
       console.error(error);
@@ -69,9 +94,9 @@ const ApplicationForm = () => {
   };
 
   const jobTypeOptions = [
-    { value: "internal", label: "Internal" },
-    { value: "external", label: "External" },
-    { value: "both", label: "Both" },
+    { value: "INTERNAL", label: "Internal" },
+    { value: "EXTERNAL", label: "External" },
+    { value: "BOTH", label: "Both" },
   ];
 
   return (
@@ -101,37 +126,59 @@ const ApplicationForm = () => {
                 options={jobTypeOptions}
               />
             </div>
-            <h5>Referee 1</h5>
-            <div className='grid grid-cols-2 gap-4'>
-              <FormInput name='referee_1_name' label='Name' required />
-              <FormInput
-                name='referee_1_email'
-                label='Email'
-                type='email'
-                required
-              />
+            
+            <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-medium">Referees</h3>
+              <div
+                
+                onClick={() => append({ name: '', email: '' })}
+                className="text-primary-500 cursor-pointer hover:text-primary-700"
+              >
+                + Add Referee
+              </div>
             </div>
-            <h5>Referee 2</h5>
-            <div className='grid grid-cols-2 gap-4'>
-              <FormInput name='referee_2_name' label='Name' required />
-              <FormInput
-                name='referee_2_email'
-                label='Email'
-                type='email'
-                required
-              />
-            </div>{" "}
-            <h5>Referee 3</h5>
-            <div className='grid grid-cols-2 gap-4'>
-              <FormInput name='referee_3_name' label='Name' required />
-              <FormInput
-                name='referee_3_email'
-                label='Email'
-                type='email'
-                required
-              />
+
+              {fields.map((field, index) => (
+                <div key={field.id} className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <h5>Referee {index + 1}</h5>
+                    {index > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => remove(index)}
+                        className="text-red-500 hover:text-red-700 text-sm"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormInput
+                      name={`referees.${index}.name`}
+                      label="Name"
+                      control={form.control}
+                      rules={{ required: "Name is required" }}
+                    />
+                    <FormInput
+                      name={`referees.${index}.email`}
+                      label="Email"
+                      type="email"
+                      control={form.control}
+                      rules={{ 
+                        required: "Email is required",
+                        pattern: {
+                          value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                          message: "Invalid email address"
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
-            <FormTextArea name='application_notes' label='Note' required />
+            <FormTextArea name='application_notes' label='Note'  />
             <div className='grid grid-cols-2 gap-4'>
               <FileUpload name='resume' label='Upload Resume' />
               <FileUpload name='cover_letter' label='Upload Cover Letter' />

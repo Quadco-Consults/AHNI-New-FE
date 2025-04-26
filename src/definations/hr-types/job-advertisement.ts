@@ -4,7 +4,7 @@ export interface JobAdvertisement {
   title: string;
   grade_level: string;
   locations: string;
-  job_type: "INTERNAL" | "EXTERNAL" | "BOTH"; // Assuming it's one of these values
+  job_type: "Internal" | "External" | "Both"; // Assuming it's one of these values
   duration: string;
   commencement_date: string;
   number_of_positions: number;

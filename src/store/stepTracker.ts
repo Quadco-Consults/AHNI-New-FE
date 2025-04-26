@@ -20,7 +20,7 @@ const initialState: StepsState = {
       description: "Fill the employee information form",
       isCompleted: false,
       path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_INFO,
-    },
+    }, 
     {
       label: "Additional Information",
       description: "Fill this form to provide additional information",
@@ -50,7 +50,7 @@ const initialState: StepsState = {
       description: "Fill the pension reform scheme form",
       isCompleted: false,
       path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_PENSION,
-    },
+    },  
   ],
 };
 

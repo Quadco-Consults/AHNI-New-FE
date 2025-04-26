@@ -13,9 +13,13 @@ import { HrRoutes } from "constants/RouterConstants";
 
 import { UploadIcon } from "lucide-react";
 
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form"; 
 import { useNavigate } from "react-router-dom";
 import FileUpload from "atoms/FileUpload";
+import  { useCreateGrievianceManagementMutation } from "services/hrApi/hr-grieviance-management";
+import { GrievianceManagementSchema, TGrievianceManagementFormData } from "definations/hr-types/grieviance-management";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 
 // import ItemsAPI from "services/configs/items";
 
@@ -24,8 +28,8 @@ import FileUpload from "atoms/FileUpload";
 // import { z } from "zod";
 
 const GrievanceManagementForm = () => {
-  const form = useForm<any>({
-    // resolver: zodResolver(),
+  const form = useForm<TGrievianceManagementFormData>({
+    resolver: zodResolver(GrievianceManagementSchema),
     defaultValues: {},
   });
 
@@ -38,10 +42,23 @@ const GrievanceManagementForm = () => {
   //     name: "expenses",
   //   });
 
-  const onSubmit = async (data: any) => {
-    console.log({ data });
-    navigate(HrRoutes.GRIEVANCE_MANAGEMENT);
-  };
+  const [createGrievianceManagement, { isLoading: isCreateLoading }] = useCreateGrievianceManagementMutation()
+   
+  const onSubmit: SubmitHandler<TGrievianceManagementFormData> = async (data) => {
+      
+    try {
+              const formData = new FormData()
+              formData.append("title", data.title);
+              formData.append("description", data.description);
+              formData.append("document_name", data.document_name);
+              formData.append("document", data.document[0]);
+              await createGrievianceManagement(formData).unwrap();
+              toast.success("Complaint Submitted");
+              navigate(HrRoutes.GRIEVANCE_MANAGEMENT); 
+          } catch (error: any) {
+              toast.error(error.data.message ?? "Something went wrong");
+          }
+      };
 
   return (
     <div className=''>
@@ -56,31 +73,22 @@ const GrievanceManagementForm = () => {
             className='flex flex-col gap-6'
           >
             <div className='grid gap-5'>
-              <FormSelect label='Title' name='title' required>
-                <SelectContent>
-                  {/* {departmentsIsLoading ? (
-                    <LoadingSpinner />
-                  ) : (
-                    departments?.results?.map(
-                      (department: DepartmentsResultsData) => (
-                        <SelectItem key={department?.id} value={department?.id}>
-                          {department?.name}
-                        </SelectItem>
-                      )
-                    )
-                  )} */}
-                </SelectContent>
-              </FormSelect>{" "}
+              <FormInput
+              label='Title'
+              name='title'
+              type='text'
+              required
+            />
               <div>
                 <FormTextArea label='Description' name='description' required />
               </div>
-              <div className='grid grid-cols-3 gap-5'>
+              {/* <div className='grid grid-cols-3 gap-5'>
                 <FormInput label='Date' name='date' type='date' required />
-              </div>
+              </div> */}
             </div>
             <FormInput
               label='Name of Document'
-              name='name_of_document'
+              name='document_name'
               type='text'
               required
             />
@@ -99,8 +107,8 @@ const GrievanceManagementForm = () => {
                 Cancel
               </FormButton>
               <FormButton
-                // loading={isLoading}
-                // disabled={isLoading}
+                loading={isCreateLoading}
+                disabled={isCreateLoading}
                 type='submit'
                 className='flex items-center justify-center gap-2'
               >

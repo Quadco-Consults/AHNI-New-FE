@@ -12,12 +12,12 @@ import EyeIcon from "components/icons/EyeIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import DataTable from "components/Table/DataTable";
 import SearchIcon from "components/icons/SearchIcon";
-import FilterIcon from "components/icons/FilterIcon";
-import InterviewAPI from "services/hrApi/hr-interview";
+import FilterIcon from "components/icons/FilterIcon"; 
 import { Loading } from "components/shared/Loading";
+import { useGetInterviewsQuery } from "services/hrApi/hr-interview";
 
 const InterviewTable = () => {
-  const { data, isLoading } = InterviewAPI.useGetInterviewsQuery({});
+  const { data, isLoading } = useGetInterviewsQuery({});
 
   const { id: paramsID } = useParams();
 
@@ -51,7 +51,7 @@ const InterviewTable = () => {
     },
     {
       header: "Application Name",
-      accessorKey: "candidate_name",
+      accessorKey: "application.applicant_name",
       size: 250,
     },
     {
@@ -61,7 +61,7 @@ const InterviewTable = () => {
     },
     {
       header: "Communication",
-      accessorKey: "communication_rating",
+      accessorKey: "oral_communication_rating",
       size: 250,
     },
     {
@@ -70,7 +70,7 @@ const InterviewTable = () => {
     },
     {
       header: "Ethics",
-      accessorKey: "ethics_rating",
+      accessorKey: "work_ethics_rating",
     },
     {
       header: "Analytical",

@@ -1,7 +1,7 @@
 import { GrievianceManagement } from "definations/hr-types/grieviance-management";
 import baseAPI from "..";
 
-const BASE_URL = "hr/grieviance-management/";
+const BASE_URL = "hr/grievances/complaints/";
 
 const GrievianceManagementAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
@@ -50,6 +50,16 @@ const GrievianceManagementAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["GRIEVIANCE_MANAGEMENT"],
     }),
+    deleteGrievianceManagement: builder.mutation<
+      GrievianceManagement,
+      { id: string; }
+    >({
+      query: ({ id,  }) => ({
+        url: `${BASE_URL}${id}/`,
+        method: "DELETE", 
+      }),
+      invalidatesTags: ["GRIEVIANCE_MANAGEMENT"],
+    }),
 
     patchGrievianceManagement: builder.mutation<
       GrievianceManagement,
@@ -65,4 +75,10 @@ const GrievianceManagementAPI = baseAPI.injectEndpoints({
   }),
 });
 
-export default GrievianceManagementAPI;
+export const {
+  useCreateGrievianceManagementMutation,
+  useGetGrievianceManagementQuery,
+  useGetGrievianceManagementsQuery,
+  useUpdateGrievianceManagementMutation,
+  useDeleteGrievianceManagementMutation
+} = GrievianceManagementAPI;

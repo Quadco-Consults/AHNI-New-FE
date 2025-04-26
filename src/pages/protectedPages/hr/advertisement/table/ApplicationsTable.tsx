@@ -6,7 +6,7 @@ import { cn } from "lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import { generatePath, Link } from "react-router-dom";
+import { generatePath, Link, useNavigate, useParams } from "react-router-dom";
 import { HrRoutes } from "constants/RouterConstants";
 import EyeIcon from "components/icons/EyeIcon";
 import ScanIcon from "components/icons/ScanIcon";
@@ -15,23 +15,24 @@ import DataTable from "components/Table/DataTable";
 import SearchIcon from "components/icons/SearchIcon";
 import FilterIcon from "components/icons/FilterIcon";
 import AddSquareIcon from "components/icons/AddSquareIcon";
-import JobApplicationAPI from "services/hrApi/hr-job-applications";
+import  { useGetJobApplicationsQuery, usePatchJobApplicationAcceptedMutation, usePatchJobApplicationPreferredMutation } from "services/hrApi/hr-job-applications";
 import { Loading } from "components/shared/Loading";
+import { CheckCheckIcon } from "lucide-react";
+import { toast } from "sonner";
 
 const ApplicationsTable = ({
   linkTitle,
   id,
-  status = "",
+  status = "", 
 }: {
   href?: string;
   linkTitle?: string;
   id?: string;
-  status?: "shortlisted" | "";
+  status?: "SHORTLISTED" | "PREFERRED" | "ACCEPTED" | ""; 
 }) => {
-  const { data, isLoading } = JobApplicationAPI.useGetJobApplicationsQuery({
+  const { data, isLoading } = useGetJobApplicationsQuery({
     status: status,
   });
-
   if (isLoading) {
     return <Loading />;
   }
@@ -133,10 +134,12 @@ const columns: ColumnDef<AdvertisementResults>[] = [
         <Badge
           className={cn(
             "p-1 rounded-lg capitalize",
-            getValue() === "shortlisted"
+            getValue().toLowerCase() === "shortlisted"
               ? "bg-green-50 text-green-500"
-              : getValue() === "applied"
+              : getValue().toLowerCase() === "applied"
               ? "bg-yellow-50 text-yellow-500"
+              : getValue().toLowerCase() === "accepted"
+              ? "bg-black text-white"
               : "bg-blue-50 text-blue-500"
           )}
         >
@@ -149,11 +152,39 @@ const columns: ColumnDef<AdvertisementResults>[] = [
     header: "Actions",
     id: "actions",
     size: 100,
-    cell: ({ row }) => <ActionList data={row.original} />,
+    cell: ({ row }) => <ActionList  data={row.original} />,
   },
 ];
 
-const ActionList = ({ data }: any) => {
+const ActionList = ({ data }: any) => {  
+    const navigate = useNavigate()
+   const [patchJobApplicationAccepted, { isLoading: isUpdating }] =
+     usePatchJobApplicationAcceptedMutation(); 
+     const [patchJobApplicationPreferred, { isLoading: isUpdatingPreferred }] = usePatchJobApplicationPreferredMutation()
+     const handleAccepted = async () => {
+      try {
+        await patchJobApplicationAccepted({
+          id: data?.id as string,
+          body: {
+            status: "ACCEPTED",
+          },
+        }).unwrap();
+        toast.success("Applicant accepted successfully"); 
+      } catch (error) {
+        toast.error("Failed to update status"); 
+     };}
+     const handlePreferred = async () => {
+      try {
+        await patchJobApplicationPreferred({
+          id: data?.id as string,
+          body: {
+            status: "PREFERRED",
+          },
+        }).unwrap();
+        toast.success("Applicant preferred successfully"); 
+      } catch (error) {
+        toast.error("Failed to update status"); 
+     };}
   return (
     <div className='flex items-center gap-2'>
       <>
@@ -165,9 +196,9 @@ const ActionList = ({ data }: any) => {
           </PopoverTrigger>
           <PopoverContent className=' w-fit'>
             <div className='flex flex-col items-start justify-between gap-1'>
-              <Link
+              {(data?.status?.toLowerCase() !== "accepted") && <Link
                 to={generatePath(HrRoutes.ADVERTISEMENT_DETAIL_SUB_APP, {
-                  id: data?.job,
+                  id: data?.advertisement,
                   appID: data?.id,
                 })}
               >
@@ -178,10 +209,50 @@ const ActionList = ({ data }: any) => {
                   <EyeIcon />
                   View
                 </Button>
-              </Link>
-              <Link
+              </Link>}
+              {(data?.status?.toLowerCase() === "shortlisted" ) && 
+                <Button
+                  className='w-full flex items-center justify-start gap-2'
+                  variant='ghost'
+                  onClick={() => {handlePreferred()}}
+                >
+                  <CheckCheckIcon />
+                  Mark as Preferred
+              </Button>
+              }
+              {(data?.status?.toLowerCase() === "preferred" ) && 
+                <Button
+                  className='w-full flex items-center justify-start gap-2'
+                  variant='ghost'
+                  onClick={() => {handleAccepted()}}
+                >
+                  <CheckCheckIcon />
+                  Accept
+              </Button> 
+              }
+              {
+                (data?.status?.toLowerCase() === "accepted" && 
+                <Link
+                  
+                  to={generatePath(HrRoutes.ONBOARDING_START, {
+                    id: data?.id 
+                  })}
+                  className='flex flex-col items-start justify-between gap-1'
+                >
+                    <Button
+                      className='w-full flex items-center justify-start gap-2'
+                      variant='ghost' 
+                    >
+                      <CheckCheckIcon />
+                      Onboard
+                  </Button>
+                </Link>
+              
+              )
+              }
+             {(data?.status?.toLowerCase() !== "shortlisted" && data?.status?.toLowerCase() !== "interviewed" &&  data?.status?.toLowerCase() !== "preferred" && data?.status?.toLowerCase() !== "accepted") && <Link
                 to={generatePath(HrRoutes.ADVERTISEMENT_INTERVIEW_FORM, {
-                  id: data?.job,
+                  id: data?.advertisement,
                   appID: data?.id,
                 })}
               >
@@ -192,7 +263,7 @@ const ActionList = ({ data }: any) => {
                   <ScanIcon />
                   Interview
                 </Button>
-              </Link>
+              </Link>}
 
               <Button
                 className='w-full flex items-center justify-start gap-2'
