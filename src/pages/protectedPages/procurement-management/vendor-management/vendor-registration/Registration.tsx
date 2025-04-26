@@ -91,6 +91,7 @@ const Registration = () => {
       bank_address: "",
       bank_name: "",
       submitted_categories: [],
+      state: "",
     },
   });
 
@@ -112,6 +113,7 @@ const Registration = () => {
         bank_address: vendor?.data?.bank_address,
         bank_name: vendor?.data?.bank_name,
         submitted_categories: [],
+        state: vendor?.data?.state,
       });
     }
   }, [vendorId, vendor]);
@@ -131,6 +133,7 @@ const Registration = () => {
 
   const onSubmit = (data: z.infer<typeof VendorsRegistrationSchema>) => {
     dispatch(vendorsActions.addVendors({ ...data }));
+    console.log({ data });
 
     let path = pathname;
 
@@ -194,12 +197,23 @@ const Registration = () => {
                     type='number'
                   />
                 </div>
+                <div className='grid grid-cols-2 col-span-3 gap-x-6 '>
+                  <FormInput
+                    label='Nature of Business'
+                    name='nature_of_business'
+                  />{" "}
+                  <FormSelect name='state' label='State' required>
+                    <SelectContent>
+                      {statesOfNigeria.map((value: string, index: number) => (
+                        <SelectItem key={index} value={value}>
+                          {value}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </FormSelect>
+                </div>
               </div>
               <div className='space-y-4'>
-                <FormInput
-                  label='Nature of Business'
-                  name='nature_of_business'
-                />
                 <FormTextArea label='Company Address' name='company_address' />
 
                 <FormInput
@@ -384,3 +398,43 @@ const Registration = () => {
 };
 
 export default Registration;
+
+const statesOfNigeria = [
+  "Abia",
+  "Adamawa",
+  "Akwa Ibom",
+  "Anambra",
+  "Bauchi",
+  "Bayelsa",
+  "Benue",
+  "Borno",
+  "Cross River",
+  "Delta",
+  "Ebonyi",
+  "Edo",
+  "Ekiti",
+  "Enugu",
+  "Gombe",
+  "Imo",
+  "Jigawa",
+  "Kaduna",
+  "Kano",
+  "Katsina",
+  "Kebbi",
+  "Kogi",
+  "Kwara",
+  "Lagos",
+  "Nasarawa",
+  "Niger",
+  "Ogun",
+  "Ondo",
+  "Osun",
+  "Oyo",
+  "Plateau",
+  "Rivers",
+  "Sokoto",
+  "Taraba",
+  "Yobe",
+  "Zamfara",
+  "FCT (Abuja)",
+];
