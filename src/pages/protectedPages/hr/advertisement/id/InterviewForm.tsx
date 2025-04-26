@@ -16,20 +16,20 @@ import { Textarea } from "components/ui/textarea";
 import { formatDate } from "date-fns";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
-import InterviewAPI from "services/hrApi/hr-interview";
-import JobApplicationAPI from "services/hrApi/hr-job-applications";
+import InterviewAPI, { useCreateInterviewMutation } from "services/hrApi/hr-interview"; 
+import { useGetJobApplicationQuery } from "services/hrApi/hr-job-applications";
 import { toast } from "sonner";
 
 const InterviewForm = () => {
   const params = useParams();
   const navigate = useNavigate();
 
-  const { data, isLoading } = JobApplicationAPI.useGetJobApplicationQuery({
+  const { data, isLoading } = useGetJobApplicationQuery({
     id: params?.appID as string,
   });
 
   const [createInterview, { isLoading: createLoading }] =
-    InterviewAPI.useCreateInterviewMutation();
+    useCreateInterviewMutation();
 
   const form = useForm();
 
@@ -48,12 +48,12 @@ const InterviewForm = () => {
       date_of_interview: data?.data?.created_datetime.split("T")[0],
       appearance_rating: formData["rating-0"],
       appearance_comments: formData["comments-0"],
-      communication_rating: formData["rating-1"],
-      communication_comments: formData["comments-1"],
+      oral_communication_rating: formData["rating-1"],
+      oral_communication_comments: formData["comments-1"],
       teamwork_rating: formData["rating-2"],
       teamwork_comments: formData["comments-2"],
-      ethics_rating: formData["rating-3"],
-      ethics_comments: formData["comments-3"],
+      work_ethics_rating: formData["rating-3"],
+      work_ethics_comments: formData["comments-3"],
       analytical_rating: formData["rating-4"],
       analytical_comments: formData["comments-4"],
       knowledge_rating: formData["rating-5"],
@@ -61,11 +61,11 @@ const InterviewForm = () => {
       experience_rating: formData["rating-6"],
       experience_comments: formData["comments-6"],
       preferred_candidate: formData.preference,
-      recommendation: formData.recommendations,
-      interviewer: data?.data?.interviewer || "", // Ensure this is a valid UUID
+      recommendation: formData.recommendations, 
+      application: params?.appID as string,
     };
     try {
-      // @ts-ignore
+      // @ts-ignore 
       await createInterview(payload).unwrap();
       toast.success(" Interview Submitted successfully");
       navigate(-1);
@@ -180,6 +180,7 @@ const InterviewForm = () => {
                   {...register(`comments-${index}`, {
                     required: "Comments are required",
                   })}
+                  required
                   rows={6}
                   className='mt-2'
                 />

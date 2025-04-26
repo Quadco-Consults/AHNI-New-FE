@@ -23,7 +23,7 @@ interface Step {
 
 const steps: Step[] = [
   { step: 1, stepName: "Employee Information", route: "employee-information" },
-  {
+ /*  {
     step: 2,
     stepName: "Additional Information",
     route: "additional-information",
@@ -43,7 +43,7 @@ const steps: Step[] = [
     step: 6,
     stepName: "Pension Scheme Enrolment",
     route: "pension-scheme-enrolment",
-  },
+  }, */
 ];
 
 const EmployeeRegistrationHeading = () => {

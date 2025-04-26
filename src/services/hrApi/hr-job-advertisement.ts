@@ -1,7 +1,7 @@
 import { JobAdvertisement } from "definations/hr-types/job-advertisement";
 import baseAPI from "..";
 
-const BASE_URL = "hr/job-advertisement/";
+const BASE_URL = "hr/jobs/advertisements/";
 
 const JobAdvertisementAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
@@ -41,4 +41,9 @@ const JobAdvertisementAPI = baseAPI.injectEndpoints({
   }),
 });
 
-export default JobAdvertisementAPI;
+export const {
+  useCreateJobAdvertisementMutation,
+  useGetJobAdvertisementQuery,
+  useGetJobAdvertisementsQuery,
+  useUpdateJobAdvertisementMutation
+} = JobAdvertisementAPI;

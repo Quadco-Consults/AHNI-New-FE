@@ -23,6 +23,14 @@ import { toast } from "sonner";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { Icon } from "@iconify/react";
 import AddSquareIcon from "components/icons/AddSquareIcon";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { useAppDispatch } from "hooks/useStore";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { DocumentGrievianceManagementSchema, GrievianceManagementDocument } from "definations/hr-types/grieviance-management";
+import { useCreateGrievianceManagementDocumentMutation, useDeleteGrievianceManagementDocumentMutation, useGetGrievianceManagementDocumentsQuery } from "services/hrApi/hr-grieviance-management-document";
+import UploadDocumentDialog from "components/modals/dailog/UploadDocumentDailog";
+import moment from "moment";
+import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -50,42 +58,86 @@ const Uploads = (data: VendorsResultsData) => {
   const [deleteVendorDocumentMutation] =
     VendorsDocumentAPI.useDeleteVendorDocumentMutation();
 
-  const deleteDocHandler = async (id: string) => {
-    try {
-      await deleteVendorDocumentMutation({ path: { id: id } }).unwrap;
-      toast.success("Document successfully deleted.");
-    } catch (error) {
-      toast.error("Something went wrong");
-      console.log(error);
-    }
-  };
+  
 
+
+
+  type UploadsFormValues = {
+      // Define your form fields here
+      name: string; 
+      document: string;
+      complaint: string
+    };
+    
+      const [isDialogOpen, setDialogOpen] = useState(false);
+      const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
+      const [selectedDocument, setSelectedDocument] = useState("");
+    const form = useForm<UploadsFormValues>({
+      defaultValues: {
+        name: '', 
+        document: "",
+        complaint: data?.id
+      },
+      resolver: zodResolver(DocumentGrievianceManagementSchema),
+    });
+    
+    const dispatch = useAppDispatch();
+    const {data: documents, isLoading:fetchingDocuments} = useGetGrievianceManagementDocumentsQuery({})
+    const [createGrievianceManagementDocument, {isLoading: isLoading}] = useCreateGrievianceManagementDocumentMutation({})
+    const [deleteGrievianceManagementDocument, {isLoading: deleting}] = useDeleteGrievianceManagementDocumentMutation({})
+    const onSubmit: SubmitHandler<UploadsFormValues> =  async (details: any) => {
+       
+        try {
+          const formData = new FormData();
+          formData.append("name", details.name);  
+          formData.append("document", details.document[0]);   
+          formData.append("complaint", data?.id);  
+      
+          // @ts-ignore
+          await createGrievianceManagementDocument(formData).unwrap();
+          toast.success("Upload submitted successfully"); 
+          setDialogOpen(false)
+        } catch (error) {
+          toast.error("Something went wrong"); ;
+        }
+      };
+    const deleteDocHandler = async () => {
+      try {
+        await deleteGrievianceManagementDocument({ id: selectedDocument } );
+        toast.success("Document successfully deleted.");
+        setDeleteDialogOpen(false)
+      } catch (error) {
+        toast.error("Something went wrong");
+        console.log(error);
+      }
+    };
+      
   return (
     <div className='bg-white border shadow-sm rounded-2xl dark:bg-[hsl(15,13%,6%)]'>
       <div className='p-5 flex justify-between items-center'>
-        <h4 className='font-bold text-lg'>Non-Payment of September Salary</h4>
-        <Button className='bg-alternate text-primary'>
+        <h4 className='font-bold capitalize text-lg'>{data?.title}</h4>
+        <Button onClick={() => { setDialogOpen(true)}}  className='bg-alternate text-primary'>
           <AddSquareIcon /> Add
         </Button>
       </div>
 
-      {vendorDocumentsQueryResult?.isLoading ? (
+      {fetchingDocuments ? (
         <LoadingSpinner />
-      ) : vendorDocuments && vendorDocuments?.length > 0 ? (
+      ) : documents?.data?.results && documents?.data?.results?.length > 0 ? (
         <div className='grid grid-cols-1 items-center p-5 gap-5 md:grid-cols-2 lg:grid-cols-3'>
-          {vendorDocuments?.map((doc: VendorsDocumentResultsData) => {
+          {documents?.data?.results?.map((doc: GrievianceManagementDocument) => {
             console.log({ doc });
 
             // return;
             return (
               <div
                 // @ts-ignore
-                key={doc?.document_id}
+                key={doc?.id}
                 className='border space-y-4 rounded-2xl p-5 w-full overflow-hidden h-fit'
               >
                 <div className='flex items-center justify-between gap-2'>
                   <div className='flex items-center gap-2'>
-                    {doc?.files[0]?.endsWith("pdf") ? (
+                    {doc?.document?.endsWith("pdf") ? (
                       <svg
                         width='24'
                         height='24'
@@ -122,12 +174,12 @@ const Uploads = (data: VendorsResultsData) => {
                         fontSize={25}
                       />
                     )}
-                    <h2 className='line-clamp-1'>{doc?.document_type}</h2>
+                   
                   </div>
                   <div>
                     <Button
                       type='button'
-                      onClick={() => deleteDocHandler(doc?.id)}
+                      onClick={() => {setDeleteDialogOpen(true),setSelectedDocument(doc?.id)}}
                       variant='outline'
                       size='icon'
                     >
@@ -135,7 +187,7 @@ const Uploads = (data: VendorsResultsData) => {
                     </Button>
                   </div>
                 </div>
-                {doc?.files[0]?.file_url?.endsWith("pdf") ? (
+                {doc?.document?.endsWith("pdf") ? (
                   <div className='bg-[#0000001A] py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden'>
                     <Dialog>
                       <DialogTrigger>
@@ -152,7 +204,7 @@ const Uploads = (data: VendorsResultsData) => {
                       </DialogTrigger>
                       <DialogContent className='min-w-[60%]'>
                         <DialogHeader>
-                          <DialogTitle>{doc?.document_type}</DialogTitle>
+                          <DialogTitle>{doc?.name}</DialogTitle>
                           <div className='flex pt-5 justify-center'>
                             <Document
                               file={doc?.document}
@@ -175,8 +227,8 @@ const Uploads = (data: VendorsResultsData) => {
                 ) : (
                   <div className='h-56 overflow-hidden'>
                     <img
-                      src={doc?.files[0]?.file_url}
-                      alt={doc?.document_type}
+                      src={doc?.document}
+                      alt={doc?.name}
                       className=' object-contain h-48 w-96'
                     />
                   </div>
@@ -185,7 +237,7 @@ const Uploads = (data: VendorsResultsData) => {
                   Last Updated: {/* // @ts-ignore */}
                   {/* <span>{format(doc?.uploaded_datetime, "MMM dd, yyy")}</span> */}
                   {/* @ts-ignore */}
-                  <span>{format(doc?.uploaded_date, "MMM dd, yyy")}</span>
+                  <span>{moment(doc?.created_datetime).format("MMM DD, yyy")}</span>
                 </h6>
               </div>
             );
@@ -194,6 +246,22 @@ const Uploads = (data: VendorsResultsData) => {
       ) : (
         <p className='text-center p-10'>Data is empty</p>
       )}
+      <UploadDocumentDialog 
+        open={isDialogOpen}
+        form={form}
+        name={"name"}  
+        title={"Upload Document"}
+        onCancel={() => setDialogOpen(false)}
+        onSubmit={onSubmit} 
+        loading={isLoading}
+      />
+       <ConfirmationDialog
+                open={isDeleteDialogOpen}
+                title="Are you sure you want to delete this document?"
+                onCancel={() => setDeleteDialogOpen(false)}
+                onOk={deleteDocHandler}
+                loading={deleting}
+            />
     </div>
   );
 };

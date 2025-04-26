@@ -10,7 +10,7 @@ import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { HrRoutes } from "constants/RouterConstants";
 import Card from "components/shared/Card";
-import WorkforceAPI from "services/hrApi/workforce";
+import  { useCreateWorkforceBankAccountMutation } from "services/hrApi/workforce";
 import {
   WorkforceBankAccountFormValues,
   workforceBankAccountSchema,
@@ -19,6 +19,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import FormButton from "atoms/FormButton";
 import { updateStepCompletion } from "store/stepTracker";
+import { useCreateEmployeeOnboardingBankAcctMutation } from "services/hrApi/hr-employee-onboarding-bank-account";
+import GoBack from "components/shared/GoBack";
 
 const Salary = () => {
   const navigate = useNavigate();
@@ -26,8 +28,8 @@ const Salary = () => {
 
   const id = localStorage.getItem("workforceID");
 
-  const [createMutation, { isLoading }] =
-    WorkforceAPI.useCreateWorkforceBankAccountMutation();
+  const [createEmployeeOnboardingBankAcct, { isLoading }] =
+  useCreateEmployeeOnboardingBankAcctMutation();
 
   const form = useForm<WorkforceBankAccountFormValues>({
     resolver: zodResolver(workforceBankAccountSchema),
@@ -37,7 +39,7 @@ const Salary = () => {
       account_name: "",
       account_number: "",
       sort_code: "",
-      date_provided: "",
+      employee: id as string,
     },
   });
 
@@ -49,10 +51,7 @@ const Salary = () => {
 
   const onSubmit = async (data: WorkforceBankAccountFormValues) => {
     try {
-      await createMutation({
-        path: { id: id as string },
-        body: data,
-      }).unwrap();
+      await createEmployeeOnboardingBankAcct(data).unwrap();
 
       dispatch(
         updateStepCompletion({
@@ -76,6 +75,7 @@ const Salary = () => {
 
   return (
     <>
+     <GoBack />
       <Card className='space-y-10 mt-6 max-w-4xl mx-auto'>
         <div>
           <h4 className='font-semibold text-lg text-center'>
@@ -104,12 +104,7 @@ const Salary = () => {
                 required
               />
               <FormInput name='sort_code' label='Sort Code' required />
-              <FormInput
-                name='date_provided'
-                label='Date'
-                type='date'
-                required
-              />
+               
             </div>
             <div className='flex gap-x-6 justify-end'>
               <FormButton

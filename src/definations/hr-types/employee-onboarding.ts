@@ -105,3 +105,28 @@ export interface EmployeeOnboarding {
   project: string;
   group_membership: number[];
 }
+export interface EmployeeOnboardingQualifications {
+  certificate_name: "string",
+  institution_name: "string",
+  date_of_qualification: "string",
+  certificate_file: "string",
+  employee: "string"
+}
+export interface EmployeeOnboardingAddInfo {
+  name: "string",
+  relationship: "string",
+  email_address: "string",
+  address: "string",
+  home_phone: "string",
+  mobile_phone: "string",
+  employee: "string"
+}
+export type EmployeeOnboardingAddSignatory = {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  witness_name: string;
+  witness_date: string;
+  withness_signature: string;
+  employee: string; 
+};

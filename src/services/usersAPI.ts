@@ -4,7 +4,7 @@ import { invalidateTags, provideTags } from "utils/QueryUtils";
 import baseAPI from ".";
 import { TCreateUser, TUser } from "definations/auth/user";
 
-const BASE_URL = "/auth/users/";
+const BASE_URL = "/users/";
 
 const usersAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
@@ -89,4 +89,12 @@ const usersAPI = baseAPI.injectEndpoints({
     }),
 });
 
-export default usersAPI;
+export const {
+    useCreateUserMutation,
+    useCreateUserRoleMutation,
+    useDeleteUserMutation,
+    useGetUserQuery,
+    useModifyUserMutation,
+    useGetUsersQuery,
+    useUpdateUserMutation
+} = usersAPI;

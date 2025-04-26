@@ -6,13 +6,12 @@ import { Button } from "components/ui/button";
 import { HrRoutes } from "constants/RouterConstants";
 import { format } from "date-fns";
 import { Briefcase, CalendarDays, Clock, MapPin, Users } from "lucide-react";
-import { generatePath, Link } from "react-router-dom";
-import JobAdvertisementAPI from "services/hrApi/hr-job-advertisement";
-
+import { generatePath, Link } from "react-router-dom"; 
+import { useGetJobAdvertisementsQuery } from "services/hrApi/hr-job-advertisement";
 const Advertisement = () => {
   const { data, isLoading } =
-    JobAdvertisementAPI.useGetJobAdvertisementsQuery();
-
+    useGetJobAdvertisementsQuery();
+  console.log(data)
   if (isLoading) {
     return <Loading />;
   }

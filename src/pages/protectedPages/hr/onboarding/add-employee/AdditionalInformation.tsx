@@ -17,11 +17,12 @@ import {
   workforceAdditionalInfoSchema,
 } from "definations/hr-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { workforceAdditionalInfoValues } from "definations/hr-types/workforce";
-import WorkforceAPI from "services/hrApi/workforce";
+import { workforceAdditionalInfoValues } from "definations/hr-types/workforce"; 
 import { toast } from "sonner";
 import FormButton from "atoms/FormButton";
 import { updateStepCompletion } from "store/stepTracker";
+import { useCreateEmployeeOnboardingAddInfoMutation } from "services/hrApi/hr-employee-onboarding-add-info";
+import GoBack from "components/shared/GoBack";
 
 const AdditionalInformation = () => {
   const navigate = useNavigate();
@@ -29,12 +30,20 @@ const AdditionalInformation = () => {
 
   const id = localStorage.getItem("workforceID");
 
-  const [updateMutation, { isLoading }] =
-    WorkforceAPI.useUpdateWorkforceAdditionalInfoMutation();
+  const [createEmployeeOnboardingAddInfo, { isLoading }] =
+  useCreateEmployeeOnboardingAddInfoMutation();
 
   const form = useForm<WorkforceAdditionalInfoFormValues>({
-    resolver: zodResolver(workforceAdditionalInfoSchema),
-    defaultValues: workforceAdditionalInfoValues,
+    resolver: zodResolver(workforceAdditionalInfoSchema), 
+    defaultValues: {
+      name: "", 
+      relationship: "",
+      home_phone: "", 
+      mobile_phone: "",
+      email_address: "",
+      address: "",
+      employee: id as string, 
+    }, 
   });
   const { handleSubmit } = form;
 
@@ -44,10 +53,18 @@ const AdditionalInformation = () => {
 
   const onSubmit = async (data: WorkforceAdditionalInfoFormValues) => {
     try {
-      await updateMutation({ path: { id: id as string }, body: data }).unwrap();
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("relationship", data.relationship);
+      formData.append("home_phone", data.home_phone);
+      formData.append("mobile_phone", data.mobile_phone);
+      formData.append("email_address", data.email_address);
+      formData.append("address", data.address);
+      formData.append("employee", id as string);
+      await createEmployeeOnboardingAddInfo(formData).unwrap();
       dispatch(
         updateStepCompletion({
-          path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_INFO,
+          path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_ADD,
         })
       );
       dispatch(
@@ -65,7 +82,8 @@ const AdditionalInformation = () => {
   };
 
   return (
-    <>
+    <> 
+        <GoBack />
       <Card className='space-y-6 mt-6'>
         <div>
           <h4 className='font-semibold text-lg text-center'>
@@ -80,151 +98,38 @@ const AdditionalInformation = () => {
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
             <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-              <FormInput
-                name='date_of_birth'
-                type='date'
-                label='Date of Birth'
-              />
-              {/* <FormInput name="date_of_hire" type="date" label="Date of Hire" /> */}
-              <FormSelect
-                options={[
-                  { label: "Christian", value: "christian" },
-                  { label: "Muslim", value: "muslim" },
-                  { label: "Others", value: "others" },
-                ]}
-                name='religion'
-                placeholder='Religion'
-                label='Religion'
-                required
-              />
-            </div>
-            <FormTextArea name='address' label='Address' required rows={6} />
-            <FormSelect
-              options={[
-                { label: "Single", value: "single" },
-                { label: "Married", value: "married" },
-              ]}
-              name='marital_status'
-              label='Marital Status'
-              placeholder='Select marital status'
-              required
-            />
-            <div className='card-wrapper space-y-6'>
-              <h4 className='text-red-500 text-lg font-medium'>
-                Emergency contacts
-              </h4>
-              <Separator />
-              <p className='text-sm font-medium'>Contact 1</p>
-              <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
                 <FormInput
-                  name='emergency_contact_one.name'
-                  label='Name'
+                  name='name'
+                  label='Full Name'
                   required
                 />
                 <FormInput
-                  name='emergency_contact_one.relationship'
+                  name='relationship'
                   label='Relationship'
-                />
-                <FormInput
-                  name='emergency_contact_one.email'
-                  label='Email Address'
                   required
                 />
-              </div>
-              <FormTextArea
-                name='emergency_contact_one.address'
-                label='Address'
-                required
-                rows={6}
-              />
-              <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+                
                 <FormInput
-                  name='emergency_contact_one.phone_number_1'
+                  name='home_phone'
                   label='Home Phone'
                   required
                 />
                 <FormInput
-                  name='emergency_contact_one.phone_number_2'
+                  name='mobile_phone'
                   label='Mobile/Other'
                   required
                 />
-              </div>
-              <Separator />
-              <p className='text-sm font-medium'>Contact 2</p>
-              <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
                 <FormInput
-                  name='emergency_contact_two.name'
-                  label='Name'
-                  required
-                />
-                <FormInput
-                  name='emergency_contact_two.relationship'
-                  label='Relationship'
-                />
-                <FormInput
-                  name='emergency_contact_two.email'
+                  name='email_address'
                   label='Email Address'
                   required
                 />
-              </div>
-              <FormTextArea
-                name='emergency_contact_two.address'
-                label='Address'
-                required
-                rows={6}
-              />
-              <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
                 <FormInput
-                  name='emergency_contact_two.phone_number_1'
-                  label='Home Phone'
+                  name='address'
+                  label='Address'
                   required
-                />
-                <FormInput
-                  name='emergency_contact_two.phone_number_2'
-                  label='Mobile/Other'
-                  required
-                />
-              </div>
-            </div>
-            {/* <Separator />
-          <div className="card-wrapper space-y-6">
-            <h4 className="text-red-500 text-lg font-medium">
-              System Analyst Authorization (Only if all previously completed and
-              signed)
-            </h4>
-            <Separator />
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <FormInput name="login" label="User Login Name" required />
-              <FormInput
-                name="computer_name"
-                label="Computer Name (Only if previously granted)"
-              />
-              <FormInput
-                name="mailbox"
-                label="E-mail MailBox Alias (only if previously approved)"
-                required
-              />
-              <FormSelect
-                options={[]}
-                name="training"
-                label="Training Completed"
-                required
-              />
-              <FormSelect
-                options={[]}
-                name="signature"
-                label="Name and Signature"
-                placeholder="Select Authorization Officer"
-                required
-              />
-              <FormInput
-                name="date"
-                label="Date Completed"
-                type="date"
-                required
-              />
-            </div>
-          </div> */}
+                /> 
+             </div>   
 
             <div className='flex gap-x-6 justify-end'>
               <FormButton

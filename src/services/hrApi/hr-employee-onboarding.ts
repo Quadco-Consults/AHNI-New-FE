@@ -1,7 +1,7 @@
 import { EmployeeOnboarding } from "definations/hr-types/employee-onboarding";
 import baseAPI from "..";
 
-const BASE_URL = "hr/employee-onboarding/";
+const BASE_URL = "hr/employees/";
 
 const EmployeeOnboardingAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
@@ -23,6 +23,11 @@ const EmployeeOnboardingAPI = baseAPI.injectEndpoints({
       query: ({ id }) => ({ url: `${BASE_URL}${id}/` }),
       providesTags: ["EMPLOYEE_ONBOARDING"],
     }),
+    getEmployeeIdentityCard: builder.query<EmployeeOnboarding, { id: string }>({
+      query: ({ id }) => ({ url: `hr/employees/${id}/identity-card/` }),
+      providesTags: ["EMPLOYEE_ONBOARDING"],
+    }),
+    
 
     createEmployeeOnboarding: builder.mutation<
       EmployeeOnboarding,
@@ -35,6 +40,7 @@ const EmployeeOnboardingAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["EMPLOYEE_ONBOARDING"],
     }),
+    
 
     updateEmployeeOnboarding: builder.mutation<
       EmployeeOnboarding,
@@ -62,4 +68,11 @@ const EmployeeOnboardingAPI = baseAPI.injectEndpoints({
   }),
 });
 
-export default EmployeeOnboardingAPI;
+export const {
+  useCreateEmployeeOnboardingMutation,
+  useGetEmployeeOnboardingQuery,
+  useGetEmployeeOnboardingsQuery,
+  usePatchEmployeeOnboardingMutation,
+  useUpdateEmployeeOnboardingMutation,
+  useGetEmployeeIdentityCardQuery
+} = EmployeeOnboardingAPI;

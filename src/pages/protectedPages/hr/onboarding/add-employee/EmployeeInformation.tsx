@@ -4,10 +4,12 @@ import BasicInformation from "./BasicInformation";
 import Qualification from "./Qualification";
 import { Button } from "components/ui/button";
 import { ChevronRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { HrRoutes } from "constants/RouterConstants";
+import GoBack from "components/shared/GoBack";
 
 const EmployeeInformation = () => {
+  const { id } = useParams();  
   const navigate = useNavigate();
 
   const handleNext = () => {
@@ -15,6 +17,8 @@ const EmployeeInformation = () => {
   };
 
   return (
+    <>
+    <GoBack />
     <Card className='space-y-6 mt-6'>
       <div>
         <h4 className='font-semibold text-lg text-center'>
@@ -35,12 +39,12 @@ const EmployeeInformation = () => {
         </TabsList>
         <TabsContent value='basic_information'>
           <Card className='px-6'>
-            <BasicInformation />
+            <BasicInformation id={id} />
           </Card>
         </TabsContent>
         <TabsContent value='qualification'>
           <Card className='px-6'>
-            <Qualification />
+            <Qualification id={id}  />
           </Card>
         </TabsContent>
       </Tabs>
@@ -52,6 +56,7 @@ const EmployeeInformation = () => {
         </Button>
       </div>
     </Card>
+    </>
   );
 };
 

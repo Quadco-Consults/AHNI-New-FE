@@ -3,6 +3,7 @@ export const DialogType = {
     PriceInteligence: "PriceInteligence",
     Checklist: "Checklist",
     WorkPlanUpload: "WorkPlanUpload",
+    AddTicket: "AddTicket",
     ActivityUpload: "ActivityUpload",
     SspUpload: "SspUpload",
     SspApproveModal: "SspApproveModal",

@@ -13,7 +13,7 @@ import { useTheme } from "configs/theme-provider";
 import { cn } from "lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "components/ui/avatar";
 import { useLocation, useNavigate } from "react-router-dom";
-import { AuthRoutes } from "constants/RouterConstants";
+import { AuthRoutes, RouteEnum } from "constants/RouterConstants";
 import { useAppDispatch } from "hooks/useStore";
 import { logOut } from "store/auth/authSlice";
 import { getPageTitleFromPath } from "utils/utls";
@@ -72,7 +72,14 @@ const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
               <AvatarFallback>AD</AvatarFallback>
             </Avatar>
           </PopoverTrigger>
-          <PopoverContent className="w-35 p-5">
+          <PopoverContent className="w-35 p-5 flex flex-col flex-shrink-0 gap-3">
+            <Button
+              onClick={() => {navigate(RouteEnum.ACCOUNT);}}
+              variant="default"
+              className="w-full"
+            >
+              Profile
+            </Button>
             <Button
               onClick={logoutHandler}
               variant="secondary"

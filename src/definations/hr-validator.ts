@@ -5,39 +5,30 @@ const isBrowser =
   typeof window !== "undefined" && typeof FileList !== "undefined";
 
 export const workforceQualificationSchema = object({
-  name: string().min(1, "Field is required"),
-  institution: string().min(1, "Field is required"),
-  year: string().min(1, "Field is required"),
-  document: isBrowser ? z.instanceof(FileList) : z.any(),
+  certificate_name: string().min(1, "Field is required"),
+  institution_name: string().min(1, "Field is required"),
+  date_of_qualification: string().min(1, "Field is required"),
+  certificate_file: isBrowser ? z.instanceof(FileList) : z.any(),
+  employee: string().min(1, "Field is required"),
 });
 export const workforcePensionSchema = object({
-  name: string().min(1, "Field is required"),
-  rsa_number: string().min(1, "Field is required"),
+  pfa_name: string().min(1, "Field is required"),
   pfc_account_name: string().min(1, "Field is required"),
+  rsa_number: string().min(1, "Field is required"),
   pfc_account_number: string().min(1, "Field is required"),
-  date_provided: string().min(1, "Field is required"),
+  has_existing_retirement_savings: z.boolean(),
+  is_match_existing_pfa: z.boolean(), 
+  pfa_registeration_date: string().min(1, "Field is required"),
+  employee: string().min(1, "Field is required"),
 });
 export const workforceAdditionalInfoSchema = object({
-  date_of_birth: string().min(1, "Field is required"),
+  name: string().min(1, "Field is required"),
+  relationship: string().min(1, "Field is required"),
+  home_phone: string().min(1, "Field is required"),
+  mobile_phone: string().min(1, "Field is required"),
+  email_address: string().email().min(1, "Field is required"),
   address: string().min(1, "Field is required"),
-  marital_status: string().min(1, "Field is required"),
-  religion: string().min(1, "Field is required"),
-  emergency_contact_one: object({
-    name: string().min(1, "Field is required"),
-    relationship: string().min(1, "Field is required"),
-    phone_number_1: string().min(1, "Field is required"),
-    phone_number_2: string().min(1, "Field is required"),
-    email: string().email().min(1, "Field is required"),
-    address: string().min(1, "Field is required"),
-  }),
-  emergency_contact_two: object({
-    name: string().min(1, "Field is required"),
-    relationship: string().min(1, "Field is required"),
-    phone_number_1: string().min(1, "Field is required"),
-    phone_number_2: string().min(1, "Field is required"),
-    email: string().email().min(1, "Field is required"),
-    address: string().min(1, "Field is required"),
-  }),
+  employee: string().min(1, "Field is required"),
 });
 export const workforceBankAccountSchema = object({
   bank_name: string().min(1, "Field is required"),
@@ -45,47 +36,57 @@ export const workforceBankAccountSchema = object({
   account_name: string().min(1, "Field is required"),
   account_number: string().min(1, "Field is required"),
   sort_code: string().min(1, "Field is required"),
-  date_provided: string().min(1, "Field is required"),
+  employee: string().min(1, "Field is required"),
 });
 
 export const workforceSchema = object({
-  user: object({
-    first_name: string().min(1, "Field is required"),
-    last_name: string().min(1, "Field is required"),
-    email: string().email().min(1, "Field is required"),
-    phone_number: string().min(1, "Field is required"),
-    gender: string().min(1, "Field is required"),
-    designation: string().min(1, "Field is required"),
-  }),
-  employee_number: string().min(1, "Field is required"),
-  employment_type: string().min(1, "Field is required"),
-  employment_status: string().min(1, "Field is required"),
-  date_of_hire: z.string().min(1, "Field is required"),
-  // date_of_leaving: z.string().min(1, "Field is required"),
-  signature: isBrowser ? z.instanceof(FileList) : z.any(),
-  passport: isBrowser ? z.instanceof(FileList) : z.any(),
-  location: z.string().min(1, "Field is required"),
-  department: z.string().min(1, "Field is required"),
-  position: z.string().min(1, "Field is required"),
-  grade: z.string().min(1, "Field is required"),
+ 
+  legal_firstname: z.string().min(1, "Field is required"),
+  legal_middlename: z.string().optional(),
+  legal_lastname: z.string().min(1, "Field is required"),
+  address: z.string().min(1, "Field is required"),
+  designation: z.string().min(1, "Field is required"),
+  phone_number: z.string().min(1, "Field is required"),
+  other_number: z.string().optional(),
+  date_of_birth: z.string().date("Field is required"), 
+  date_of_hire: z.string().min(1, "Field is required"), 
+  ss_number: z.string().min(1, "Field is required"),
+  serial_id_code: z.string().min(1, "Field is required"),
+  signature_file: isBrowser ? z.instanceof(FileList) : z.any(),
+  passport_file: isBrowser ? z.instanceof(FileList) : z.any(), 
+  marital_status:  z.enum(["single", "married", "divorced"]),
+  own_computer: z.boolean(),
+  require_email_access: z.boolean(),
+  employment_type: z.enum(["INTERNAL", "EXTERNAL", "BOTH"]),
+  group: z.string().min(1, "Field is required"), 
+  location: z.string().min(1, "Field is required"), 
+  application: z.string().min(1, "Field is required"), 
+  department: z.string().min(1, "Field is required"), 
+  project: z.string().min(1, "Field is required"),  
 });
 
 export const hrGradeSchema = object({
   name: z.string().min(1, "Field is required"),
 });
 export const hrBeneficiarySchema = object({
-  beneficiary_type: string().min(1, "Field is required"),
+  is_primary: z.boolean(),
   name: string().min(1, "Field is required"),
   relationship: string().min(1, "Field is required"),
-  percentage: string().min(1, "Field is required"),
+  percentage_of_benefit: string().min(1, "Field is required"),
   phone_number: string().min(1, "Field is required"),
   employee: string().min(1, "Field is required"),
 });
 export const hrContingentBeneficiarySchema = object({
-  beneficiary_type: string().min(1, "Field is required"),
+  is_primary: z.boolean(),
   name: string().min(1, "Field is required"),
   relationship: string().min(1, "Field is required"),
   phone_number: string().min(1, "Field is required"),
+  employee: string().min(1, "Field is required"),
+});
+export const hrSignatoriesBeneficiarySchema = object({ 
+  witness_name: string().min(1, "Field is required"),
+  witness_date: string().min(1, "Field is required"),
+  witness_signature: isBrowser ? z.instanceof(FileList) : z.any(),
   employee: string().min(1, "Field is required"),
 });
 
@@ -93,7 +94,8 @@ export const jobAdvertismentSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
   grade_level: z.string().min(1, "Grade Level is required"),
   locations: z.string().min(1, "Locations is required"),
-  job_type: z.enum(["INTERNAL", "EXTERNAL", "BOTH"]),
+  interviewers: z.array(z.string().uuid()).min(1, "At least one interviewer is required"), 
+  job_type: z.enum(["Internal", "External", "Both"]),
   duration: z.string().min(1, "Duration is required"),
   commencement_date: z.string().min(1, "Commencement Date is required"),
   number_of_positions: z.preprocess(
@@ -111,28 +113,37 @@ export const jobApplicationSchema = z.object({
   applicant_email: z.string().email("Invalid email"),
   application_notes: z.string().optional(),
   cover_letter: z
-    .string()
-    .min(10, "Cover letter must be at least 10 characters"),
-  employment_type: z.enum(["internal", "external", "both"]),
-  job: z.string().uuid("Invalid Job ID"),
+    .any().optional(),
+  employment_type: z.enum(["INTERNAL", "EXTERNAL", "BOTH"]),
+  advertisement: z.string().uuid("Invalid Advert ID"),
+  interview_date: z.string().optional(),
   position_applied: z.string().min(2, "Position is required"),
-  referee_1_name: z.string().optional(),
-  referee_1_email: z.string().email().optional(),
-  referee_2_name: z.string().optional(),
-  referee_2_email: z.string().email().optional(),
-  referee_3_name: z.string().optional(),
-  referee_3_email: z.string().email().optional(),
-  // interview_date: z.string().optional(),
-  // interviewer: z.string().optional(),
-  // interview_feedback: z.string().optional(),
-  // decision_date: z.string().optional(),
-  // decision_made_by: z.string().optional(),
+  referees: z.array(
+    z.object({
+      name: z.string().min(3, "Name must be at least 3 characters"),
+      email: z.string().email("Invalid email")
+    })
+  ).min(1, "At least one referee is required"),
+
   resume: z.any().optional(), // File will be converted to Base64
   status: z.enum(["applied", "interviewed", "hired", "rejected"]),
+});
+export const workforceNeedAnalysisSchema = z.object({  
+  current_staff_count: z.string().min(1,"Current Staff Count is required"),
+  wisn_required_staff_count: z.string().min(1,"WISN STAFF COUNT is required"), 
+  shortage_excess_count: z.string().min(1,"Shortage or excess count is required"), 
+  workforce_problem: z.string().min(1, "Workforce Problem is required"), 
+  wisn_ratio: z.string().min(1, "WISN Ratio is required"), 
+  workload_problem: z.string().min(1, "Workload Problem is required"), 
+  position: z.string().min(1, "Position is required"), 
+  location: z.string().min(1, "Location is required"),
 });
 
 export type HrContingentBeneficiaryFormValues = z.infer<
   typeof hrContingentBeneficiarySchema
+>;
+export type HrSignatoriesBeneficiaryFormValues = z.infer<
+  typeof hrSignatoriesBeneficiarySchema
 >;
 
 export type HrJobAdvertismentFormValues = z.infer<typeof jobAdvertismentSchema>;
