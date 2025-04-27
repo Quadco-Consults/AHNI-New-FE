@@ -44,6 +44,7 @@ interface MultiSelectFormFieldProps
   disabled?: boolean;
   placeholder: string;
   className?: string;
+  // @ts-ignore
   onValueChange: (id: string[]) => void;
 }
 
@@ -55,11 +56,11 @@ const MultiSelectFormField = React.forwardRef<
     {
       className,
       variant,
-      asChild = false,
+      // asChild = false,
       options,
       defaultValue,
       onValueChange,
-      disabled,
+      // disabled,
       placeholder,
       ...props
     },
@@ -107,11 +108,11 @@ const MultiSelectFormField = React.forwardRef<
             ref={ref}
             {...props}
             onClick={() => setIsPopoverOpen(!isPopoverOpen)}
-            className="flex w-full p-1 rounded-md border min-h-10 h-auto items-center justify-between bg-inherit "
+            className='flex w-full p-1 rounded-md border min-h-10 h-auto items-center justify-between bg-inherit '
           >
             {selectedValues.length > 0 ? (
-              <div className="flex justify-between items-center w-full">
-                <div className="flex flex-wrap items-center">
+              <div className='flex justify-between items-center w-full'>
+                <div className='flex flex-wrap items-center'>
                   {selectedValues.map((id) => {
                     const option = options.find((o) => o.id === id);
                     return (
@@ -123,7 +124,7 @@ const MultiSelectFormField = React.forwardRef<
                       >
                         {option?.name}
                         <XCircle
-                          className="ml-2 h-4 w-4 cursor-pointer"
+                          className='ml-2 h-4 w-4 cursor-pointer'
                           onClick={(event) => {
                             event.stopPropagation();
                             toggleOption(id);
@@ -133,9 +134,9 @@ const MultiSelectFormField = React.forwardRef<
                     );
                   })}
                 </div>
-                <div className="flex items-center justify-between">
+                <div className='flex items-center justify-between'>
                   <XIcon
-                    className="h-4 mx-2 cursor-pointer text-muted-foreground"
+                    className='h-4 mx-2 cursor-pointer text-muted-foreground'
                     onClick={(event) => {
                       setSelectedValues([]);
                       selectedValuesSet.current.clear();
@@ -144,30 +145,30 @@ const MultiSelectFormField = React.forwardRef<
                     }}
                   />
                   <Separator
-                    orientation="vertical"
-                    className="flex min-h-6 h-full"
+                    orientation='vertical'
+                    className='flex min-h-6 h-full'
                   />
-                  <ChevronDown className="h-4 mx-2 cursor-pointer text-muted-foreground" />
+                  <ChevronDown className='h-4 mx-2 cursor-pointer text-muted-foreground' />
                 </div>
               </div>
             ) : (
-              <div className="flex items-center justify-between w-full mx-auto">
-                <span className="text-sm text-muted-foreground mx-3">
+              <div className='flex items-center justify-between w-full mx-auto'>
+                <span className='text-sm text-muted-foreground mx-3'>
                   {placeholder}
                 </span>
-                <ChevronDown className="h-4 cursor-pointer text-muted-foreground mx-2" />
+                <ChevronDown className='h-4 cursor-pointer text-muted-foreground mx-2' />
               </div>
             )}
           </button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-[200px] p-0 drop-shadow-sm"
-          align="start"
+          className='w-[200px] p-0 drop-shadow-sm'
+          align='start'
           onEscapeKeyDown={() => setIsPopoverOpen(false)}
         >
           <Command>
             <CommandInput
-              placeholder="Search..."
+              placeholder='Search...'
               onKeyDown={handleInputKeyDown}
             />
             <CommandList>
@@ -183,7 +184,7 @@ const MultiSelectFormField = React.forwardRef<
                         pointerEvents: "auto",
                         opacity: 1,
                       }}
-                      className="cursor-pointer"
+                      className='cursor-pointer'
                     >
                       <div
                         className={cn(
@@ -193,7 +194,7 @@ const MultiSelectFormField = React.forwardRef<
                             : "opacity-50 [&_svg]:invisible"
                         )}
                       >
-                        <CheckIcon className="h-4 w-4" />
+                        <CheckIcon className='h-4 w-4' />
                       </div>
 
                       <span>{option.name}</span>
@@ -203,7 +204,7 @@ const MultiSelectFormField = React.forwardRef<
               </CommandGroup>
               <CommandSeparator />
               <CommandGroup>
-                <div className="flex items-center justify-between">
+                <div className='flex items-center justify-between'>
                   {selectedValues.length > 0 && (
                     <>
                       <CommandItem
@@ -216,13 +217,13 @@ const MultiSelectFormField = React.forwardRef<
                           pointerEvents: "auto",
                           opacity: 1,
                         }}
-                        className="flex-1 justify-center cursor-pointer"
+                        className='flex-1 justify-center cursor-pointer'
                       >
                         Clear
                       </CommandItem>
                       <Separator
-                        orientation="vertical"
-                        className="flex min-h-6 h-full"
+                        orientation='vertical'
+                        className='flex min-h-6 h-full'
                       />
                     </>
                   )}
@@ -233,7 +234,7 @@ const MultiSelectFormField = React.forwardRef<
                       pointerEvents: "auto",
                       opacity: 1,
                     }}
-                    className="flex-1 justify-center cursor-pointer"
+                    className='flex-1 justify-center cursor-pointer'
                   >
                     Close
                   </CommandItem>
