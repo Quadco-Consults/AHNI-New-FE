@@ -1,6 +1,5 @@
 import PdfContent from "components/shared/PdfContent";
 import { Badge } from "components/ui/badge";
-import { formatDate } from "date-fns";
 import { JobAdvertisement } from "definations/hr-types/job-advertisement";
 import {
   Briefcase,
