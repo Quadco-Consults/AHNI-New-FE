@@ -15,7 +15,7 @@ import { useState } from "react";
 import PdfIcon from "components/icons/PdfIcon";
 import { WorkforceResults } from "definations/hr-types/workforce";
 import { useParams } from "react-router-dom";
-import WorkforceAPI from "services/hrApi/workforce";
+import { useGetWorkforceQualificationsQuery } from "services/hrApi/workforce";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -28,7 +28,7 @@ const StaffInformation = ({ data }: { data: WorkforceResults }) => {
   const { id } = useParams();
 
   const qualificationResultQuery =
-    WorkforceAPI.useGetWorkforceQualificationsQuery({
+    useGetWorkforceQualificationsQuery({
       path: { id: id as string },
     });
 
