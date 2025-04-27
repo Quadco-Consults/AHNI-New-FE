@@ -12,138 +12,148 @@ import { skipToken } from "@reduxjs/toolkit/query/react";
 import BackNavigation from "atoms/BackNavigation";
 
 export default function AssetDetails() {
-    const [params] = useSearchParams();
-    const assetId = params.get("id");
+  const [params] = useSearchParams();
+  const assetId = params.get("id");
 
-    const { data: asset, isLoading } = useGetSingleAssetQuery(
-        assetId ?? skipToken
-    );
+  const { data: asset, isLoading } = useGetSingleAssetQuery(
+    assetId ?? skipToken
+  );
 
-    return (
-        <>
-            <BackNavigation />
+  return (
+    <>
+      <BackNavigation />
 
-            <Card>
-                <CardHeader className="font-bold">
-                    {asset?.data.name}
-                    <Separator className="mt-4" />
-                </CardHeader>
+      <Card>
+        <CardHeader className="font-bold">
+          {asset?.data.name}
+          <Separator className="mt-4" />
+        </CardHeader>
 
-                {isLoading ? (
-                    <LoadingSpinner />
-                ) : (
-                    asset && (
-                        <>
-                            <CardContent className="grid grid-cols-3 gap-y-8 gap-x-4">
-                                <DescriptionCard
-                                    label="Asset Name"
-                                    description={asset.data.name}
-                                />
+        {isLoading ? (
+          <LoadingSpinner />
+        ) : (
+          asset && (
+            <>
+              <CardContent className="grid grid-cols-4 gap-y-8 gap-x-4">
+                <DescriptionCard
+                  label="Asset Name"
+                  description={asset.data.name}
+                />
 
-                                <DescriptionCard
-                                    label="Assignee"
-                                    description={`${asset.data.assignee.first_name} ${asset.data.assignee.last_name}`}
-                                />
+                <DescriptionCard
+                  label="Assignee"
+                  description={`${asset.data.assignee.first_name} ${asset.data.assignee.last_name}`}
+                />
 
-                                <DescriptionCard
-                                    label="Asset Code"
-                                    description={asset.data.asset_code}
-                                />
+                <DescriptionCard
+                  label="Asset Code"
+                  description={asset.data.asset_code}
+                />
 
-                                <DescriptionCard
-                                    label="Acquisition Date"
-                                    description={asset.data.acquisition_date}
-                                />
+                <DescriptionCard
+                  label="Acquisition Date"
+                  description={asset.data.acquisition_date}
+                />
 
-                                <DescriptionCard
-                                    label="State"
-                                    description={asset.data.state}
-                                />
+                <DescriptionCard label="State" description={asset.data.state} />
 
-                                <DescriptionCard
-                                    label="Asset Condtion"
-                                    description={
-                                        asset.data.asset_condition.name
-                                    }
-                                />
+                <DescriptionCard
+                  label="Asset Condtion"
+                  description={asset.data.asset_condition.name}
+                />
 
-                                <DescriptionCard
-                                    label="Manufacturer"
-                                    description={
-                                        asset?.data?.asset_type?.manufacturer ||
-                                        "N/A"
-                                    }
-                                />
+                <DescriptionCard
+                  label="Manufacturer"
+                  description={asset?.data?.asset_type?.manufacturer || "N/A"}
+                />
 
-                                <DescriptionCard
-                                    label="Location"
-                                    description={asset.data.location.name}
-                                />
+                <DescriptionCard
+                  label="Location"
+                  description={asset.data.location.name}
+                />
 
-                                <DescriptionCard
-                                    label="Life of Project"
-                                    description={asset.data.estimated_life_span}
-                                />
+                <DescriptionCard
+                  label="Life of Project"
+                  description={asset.data.estimated_life_span}
+                />
 
-                                <DescriptionCard
-                                    label="Asset Classification"
-                                    description={asset.data.classification.name}
-                                />
+                <DescriptionCard
+                  label="Asset Classification"
+                  description={asset.data.classification.name}
+                />
 
-                                <DescriptionCard
-                                    label="USD Cost"
-                                    description={`$${asset.data.usd_cost}`}
-                                />
+                <DescriptionCard
+                  label="USD Cost"
+                  description={`$${asset.data.usd_cost}`}
+                />
 
-                                <DescriptionCard
-                                    label="NGN Cost"
-                                    description={`₦${asset.data.ngn_cost}`}
-                                />
+                <DescriptionCard
+                  label="NGN Cost"
+                  description={`₦${asset.data.ngn_cost}`}
+                />
 
-                                <DescriptionCard
-                                    label="Unit"
-                                    description={asset.data.unit}
-                                />
+                <DescriptionCard label="Unit" description={asset.data.unit} />
 
-                                <DescriptionCard
-                                    label="Implementer"
-                                    description={`${asset.data.implementer.last_name} ${asset.data.implementer.last_name}`}
-                                />
-                            </CardContent>
+                <DescriptionCard
+                  label="Implementer"
+                  description={`${asset.data.implementer.last_name} ${asset.data.implementer.last_name}`}
+                />
 
-                            <CardHeader className="font-bold text-lg">
-                                <Separator className="my-4" />
-                                Asset History Movement
-                            </CardHeader>
+                {asset?.data.asset_type.name.toLowerCase() === "vehicle" && (
+                  <>
+                    <DescriptionCard
+                      label="Plate Number"
+                      description={asset.data.plate_number}
+                    />
 
-                            <div className="px-5">
-                                <TableFilters>
-                                    <DataTable data={[]} columns={columns} />
-                                </TableFilters>
-                            </div>
-                        </>
-                    )
+                    <DescriptionCard
+                      label="Chasis Number"
+                      description={asset.data.chasis_number}
+                    />
+                  </>
                 )}
-            </Card>
-        </>
-    );
+
+                <div className="col-span-3">
+                  <DescriptionCard
+                    label="Description"
+                    description={asset.data.description}
+                  />
+                </div>
+              </CardContent>
+
+              <CardHeader className="font-bold text-lg">
+                <Separator className="my-4" />
+                Asset History Movement
+              </CardHeader>
+
+              <div className="px-5">
+                <TableFilters>
+                  <DataTable data={[]} columns={columns} />
+                </TableFilters>
+              </div>
+            </>
+          )
+        )}
+      </Card>
+    </>
+  );
 }
 
 const columns: ColumnDef<TAssetSingleData>[] = [
-    {
-        header: "Date",
-        accessorKey: "date",
-    },
-    {
-        header: "Description",
-        accessorKey: "description",
-    },
-    {
-        header: "Status",
-        accessorKey: "status",
-    },
-    {
-        header: "Remark",
-        accessorKey: "remark",
-    },
+  {
+    header: "Date",
+    accessorKey: "date",
+  },
+  {
+    header: "Description",
+    accessorKey: "description",
+  },
+  {
+    header: "Status",
+    accessorKey: "status",
+  },
+  {
+    header: "Remark",
+    accessorKey: "remark",
+  },
 ];

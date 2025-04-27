@@ -341,8 +341,6 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                         </h4>
 
                         {MODULE_LINKS.map((link: any, index: number) => {
-                            console.log(link);
-
                             if (link) {
                                 return (
                                     <div key={index} className="w-full ">
@@ -664,8 +662,6 @@ const MODULE_LINKS = [
 ];
 
 const getDeparmentalLinks = (assignedModules: string[]) => {
-    console.log({ assignedModules });
-
     return [
         {
             name: "Programs",

@@ -9,6 +9,8 @@ export const AssetRequestSchema = z.object({
     reviewer: z.string().min(1, "Please select a reviewer"),
     authorizer: z.string().min(1, "Please select an authorizer"),
     approver: z.string().min(1, "Please select an approver"),
+    from_location: z.string().min(1, "Please select location"),
+    to_location: z.string().min(1, "Please select location"),
     disposal_justification: z
         .string()
         .min(1, "Please enter a disposal justification"),
