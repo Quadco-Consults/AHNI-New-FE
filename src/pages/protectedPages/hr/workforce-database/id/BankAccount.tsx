@@ -2,7 +2,10 @@ import DescriptionCard from "components/shared/DescriptionCard";
 import { LoadingSpinner } from "components/shared/Loading";
 import { Separator } from "components/ui/separator";
 import { useParams } from "react-router-dom";
-import { useGetWorkforceBankAccountQuery, useGetWorkforcePensionQuery } from "services/hrApi/workforce";
+import {
+  useGetWorkforceBankAccountQuery,
+  useGetWorkforcePensionQuery,
+} from "services/hrApi/workforce";
 
 const BankAccount = () => {
   const { id } = useParams();

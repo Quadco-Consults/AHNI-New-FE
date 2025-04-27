@@ -8,14 +8,14 @@ import BankAccount from "./BankAccount";
 import AdditionalInfo from "./AdditionalInfo";
 import Compensation from "./Compensation";
 import { useParams } from "react-router-dom";
-import WorkforceAPI from "services/hrApi/workforce";
+import { useGetWorkforceQuery } from "services/hrApi/workforce";
 import { LoadingSpinner } from "components/shared/Loading";
 import { WorkforceResults } from "definations/hr-types/workforce";
 
 const WorkforceDetail = () => {
   const { id } = useParams();
 
-  const { data, isLoading } = WorkforceAPI.useGetWorkforceQuery({
+  const { data, isLoading } = useGetWorkforceQuery({
     path: { id: id as string },
   });
 

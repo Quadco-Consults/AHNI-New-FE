@@ -19,7 +19,10 @@ const InterviewAPI = baseAPI.injectEndpoints({
       providesTags: ["INTERVIEWS"],
     }),
 
-    getInterview: builder.query<Interview, { id: string }>({
+    getInterview: builder.query<
+      { status: string; message: string; data: Interview },
+      { id: string }
+    >({
       query: ({ id }) => ({ url: `${BASE_URL}${id}/` }),
       providesTags: ["INTERVIEWS"],
     }),
