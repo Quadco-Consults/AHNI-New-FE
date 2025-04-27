@@ -4,12 +4,12 @@ import GoBack from "components/shared/GoBack";
 import { Loading } from "components/shared/Loading";
 import PdfContent from "components/shared/PdfContent";
 import { useParams } from "react-router-dom";
-import InterviewAPI from "services/hrApi/hr-interview";
+import { useGetInterviewQuery } from "services/hrApi/hr-interview";
 
 const InterviewDetail = () => {
   const params = useParams();
 
-  const { data, isLoading } = InterviewAPI.useGetInterviewQuery({
+  const { data, isLoading } = useGetInterviewQuery({
     id: params?.appID as string,
   });
 
