@@ -13,10 +13,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { HrRoutes } from "constants/RouterConstants";
 import { WorkforceResults } from "definations/hr-types/workforce";
 import { generatePath, Link } from "react-router-dom";
-import WorkforceAPI from "services/hrApi/workforce";
+import { useGetWorkforcesQuery } from "services/hrApi/workforce";
 
 const WorkforceDatabase = () => {
-  const { data, isLoading } = WorkforceAPI.useGetWorkforcesQuery({});
+  const { data, isLoading } = useGetWorkforcesQuery({});
   return (
     <div className="space-y-6">
       <div className="flex justify-end">
