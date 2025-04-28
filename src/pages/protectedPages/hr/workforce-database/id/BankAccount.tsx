@@ -2,14 +2,17 @@ import DescriptionCard from "components/shared/DescriptionCard";
 import { LoadingSpinner } from "components/shared/Loading";
 import { Separator } from "components/ui/separator";
 import { useParams } from "react-router-dom";
-import WorkforceAPI from "services/hrApi/workforce";
+import {
+  useGetWorkforceBankAccountQuery,
+  useGetWorkforcePensionQuery,
+} from "services/hrApi/workforce";
 
 const BankAccount = () => {
   const { id } = useParams();
-  const { data, isLoading } = WorkforceAPI.useGetWorkforceBankAccountQuery({
+  const { data, isLoading } = useGetWorkforceBankAccountQuery({
     path: { id: id as string },
   });
-  const { data: pension } = WorkforceAPI.useGetWorkforcePensionQuery({
+  const { data: pension } = useGetWorkforcePensionQuery({
     path: { id: id as string },
   });
 

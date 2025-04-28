@@ -19,7 +19,7 @@ const ConsumableAPI = baseAPI.injectEndpoints({
                 url: `${BASE_URL}`,
                 body,
             }),
-            invalidatesTags: ["Consumable"],
+            invalidatesTags: ["CONSUMABLE"],
         }),
 
         getAllConsumables: builder.query<
@@ -31,7 +31,7 @@ const ConsumableAPI = baseAPI.injectEndpoints({
                 url: `${BASE_URL}`,
                 params,
             }),
-            providesTags: ["Consumable"],
+            providesTags: ["CONSUMABLE"],
         }),
 
         getSingleConsumable: builder.query<
@@ -42,6 +42,15 @@ const ConsumableAPI = baseAPI.injectEndpoints({
                 method: "GET",
                 url: `${BASE_URL}${id}`,
             }),
+            providesTags: ["CONSUMABLE"],
+        }),
+
+        getAllConsumableStockCards: builder.query<TResponse<any>, string>({
+            query: (id) => ({
+                method: "GET",
+                url: `${BASE_URL}${id}/stock-cards/`,
+            }),
+            providesTags: ["CONSUMABLE"],
         }),
 
         editConsumable: builder.mutation<
@@ -53,7 +62,7 @@ const ConsumableAPI = baseAPI.injectEndpoints({
                 url: `${BASE_URL}${id}/`,
                 body,
             }),
-            invalidatesTags: ["Consumable"],
+            invalidatesTags: ["CONSUMABLE"],
         }),
 
         deleteConsumable: builder.mutation<
@@ -64,7 +73,7 @@ const ConsumableAPI = baseAPI.injectEndpoints({
                 method: "DELETE",
                 url: `${BASE_URL}${id}`,
             }),
-            invalidatesTags: ["Consumable"],
+            invalidatesTags: ["CONSUMABLE"],
         }),
     }),
 });
@@ -73,6 +82,7 @@ export const {
     useCreateConsumableMutation,
     useGetAllConsumablesQuery,
     useGetSingleConsumableQuery,
+    useGetAllConsumableStockCardsQuery,
     useEditConsumableMutation,
     useDeleteConsumableMutation,
 } = ConsumableAPI;

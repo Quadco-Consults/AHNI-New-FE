@@ -24,6 +24,7 @@ import {
 import { useGetAllUsersQuery } from "services/auth/user";
 import { toast } from "sonner";
 import AssetRequestLayout from "./Layout";
+import { useGetAllLocationsQuery } from "services/modules/config/location";
 
 export default function CreateAssetRequestDetails() {
     const { data: asset } = useGetAllAssetsQuery({
@@ -77,6 +78,20 @@ export default function CreateAssetRequestDetails() {
         id ?? skipToken
     );
 
+    const { data: location } = useGetAllLocationsQuery({
+        page: 1,
+        size: 2000000,
+    });
+
+    const locationOptions = useMemo(
+        () =>
+            location?.data.results.map(({ name, id }) => ({
+                label: name,
+                value: id,
+            })),
+        [location]
+    );
+
     const [editAssetRequest, { isLoading: isEditLoading }] =
         useEditAssetRequestMutation();
 
@@ -122,9 +137,13 @@ export default function CreateAssetRequestDetails() {
                 description: assetRequest?.data.description,
                 disposal_justification:
                     assetRequest?.data.disposal_justification,
+                from_location: assetRequest?.data.from_location.id,
+                to_location: assetRequest?.data.to_location.id,
             });
         }
     }, [assetRequest]);
+
+    const requestType = form.watch("type");
 
     return (
         <AssetRequestLayout>
@@ -139,24 +158,54 @@ export default function CreateAssetRequestDetails() {
                             className="space-y-6"
                             onSubmit={form.handleSubmit(onSubmit)}
                         >
-                            <FormSelect
-                                label="Asset"
-                                name="asset"
-                                required
-                                placeholder="Select Asset"
-                                options={assetOptions}
-                            />
+                            <div className="grid grid-cols-2 gap-10">
+                                <FormSelect
+                                    label="Asset"
+                                    name="asset"
+                                    required
+                                    placeholder="Select Asset"
+                                    options={assetOptions}
+                                />
 
-                            <FormSelect
-                                label="Request Type"
-                                name="type"
-                                placeholder="Select Request Type"
-                                required
-                                options={[
-                                    { label: "Movement", value: "MOVEMENT" },
-                                    { label: "Disposal", value: "DISPOSAL" },
-                                ]}
-                            />
+                                <FormSelect
+                                    label="Request Type"
+                                    name="type"
+                                    placeholder="Select Request Type"
+                                    required
+                                    options={[
+                                        {
+                                            label: "Movement",
+                                            value: "MOVEMENT",
+                                        },
+                                        {
+                                            label: "Disposal",
+                                            value: "DISPOSAL",
+                                        },
+                                    ]}
+                                />
+                            </div>
+
+                            {requestType === "MOVEMENT" && (
+                                <div className="grid grid-cols-2 gap-10">
+                                    <FormSelect
+                                        label="From"
+                                        name="from_location"
+                                        id="from_location"
+                                        placeholder="Select Location"
+                                        required
+                                        options={locationOptions}
+                                    />
+
+                                    <FormSelect
+                                        label="To"
+                                        name="to_location"
+                                        id="to_location"
+                                        placeholder="Select Location"
+                                        required
+                                        options={locationOptions}
+                                    />
+                                </div>
+                            )}
 
                             <FormInput
                                 label="Recommendation"
@@ -172,36 +221,38 @@ export default function CreateAssetRequestDetails() {
                                 required
                             />
 
-                            <FormInput
-                                label="Justification"
-                                name="disposal_justification"
-                                placeholder="Enter Justification"
-                                required
-                            />
+                            <div className="grid grid-cols-2 gap-10">
+                                <FormInput
+                                    label="Justification"
+                                    name="disposal_justification"
+                                    placeholder="Enter Justification"
+                                    required
+                                />
 
-                            <FormSelect
-                                label="Reviewer"
-                                name="reviewer"
-                                required
-                                placeholder="Select Reviewer"
-                                options={userOptions}
-                            />
+                                <FormSelect
+                                    label="Reviewer"
+                                    name="reviewer"
+                                    required
+                                    placeholder="Select Reviewer"
+                                    options={userOptions}
+                                />
 
-                            <FormSelect
-                                label="Authorizer"
-                                name="authorizer"
-                                required
-                                placeholder="Select Authorizer"
-                                options={userOptions}
-                            />
+                                <FormSelect
+                                    label="Authorizer"
+                                    name="authorizer"
+                                    required
+                                    placeholder="Select Authorizer"
+                                    options={userOptions}
+                                />
 
-                            <FormSelect
-                                label="Approver"
-                                name="approver"
-                                required
-                                placeholder="Select Approver"
-                                options={userOptions}
-                            />
+                                <FormSelect
+                                    label="Approver"
+                                    name="approver"
+                                    required
+                                    placeholder="Select Approver"
+                                    options={userOptions}
+                                />
+                            </div>
 
                             <div className="flex justify-end">
                                 <FormButton

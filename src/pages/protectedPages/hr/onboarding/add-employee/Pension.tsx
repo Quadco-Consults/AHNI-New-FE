@@ -19,6 +19,9 @@ import WorkforceAPI from "services/hrApi/workforce";
 import { toast } from "sonner";
 import FormButton from "atoms/FormButton";
 import { updateStepCompletion } from "store/stepTracker";
+import { useCreateEmployeeOnboardingPensionMutation } from "services/hrApi/hr-employee-onboarding-pension";
+import FormCheckBox from "atoms/FormCheckBox";
+import GoBack from "components/shared/GoBack";
 
 const Pension = () => {
   const navigate = useNavigate();
@@ -26,17 +29,20 @@ const Pension = () => {
 
   const id = localStorage.getItem("workforceID");
 
-  const [createMutation, { isLoading }] =
-    WorkforceAPI.useCreateWorkforcePensionMutation();
+  const [createEmployeeOnboardingPension, { isLoading }] =
+  useCreateEmployeeOnboardingPensionMutation();
 
   const form = useForm<WorkforcePensionFormValues>({
     resolver: zodResolver(workforcePensionSchema),
     defaultValues: {
-      name: "",
+      pfa_name: "",
       rsa_number: "",
       pfc_account_name: "",
       pfc_account_number: "",
-      date_provided: "",
+      has_existing_retirement_savings: true,
+      is_match_existing_pfa: true,
+      pfa_registeration_date: "",
+      employee: id as string
     },
   });
 
@@ -48,10 +54,7 @@ const Pension = () => {
 
   const onSubmit = async (data: WorkforcePensionFormValues) => {
     try {
-      await createMutation({
-        path: { id: id as string },
-        body: data,
-      }).unwrap();
+      await createEmployeeOnboardingPension(data).unwrap();
       dispatch(
         updateStepCompletion({
           path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_PENSION,
@@ -74,6 +77,7 @@ const Pension = () => {
 
   return (
     <>
+     <GoBack />
       <Card className='space-y-10 mt-6 max-w-4xl mx-auto'>
         <div>
           <h4 className='font-semibold text-lg text-center'>
@@ -93,7 +97,7 @@ const Pension = () => {
             </h4>
             <Separator />
             <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-              <FormInput name='name' label='Name of selected PFA' required />
+              <FormInput name='pfa_name' label='Name of selected PFA' required />
               <FormInput name='rsa_number' label='RSA Number' required />
               <FormInput
                 name='pfc_account_name'
@@ -106,19 +110,9 @@ const Pension = () => {
                 required
               />
             </div>
-            {/* <FormSelect
-            options={[]}
-            name="saving_account"
-            label="Do you already have a Retirement Savings Account with any PFA?"
-            required
-          />
-          <FormSelect
-            options={[]}
-            name="account_detail"
-            label="If you have an existing PFA, are the account details you have provided above for the existing PFA?"
-            required
-          /> */}
-            <FormInput name='date_provided' label='Date' type='date' required />
+             <FormCheckBox label="Do you already have a Retirement Savings Account with any PFA?" name="has_existing_retirement_savings" required />
+             <FormCheckBox label="If you have an existing PFA, are the account details you have provided above for the existing PFA?" name="is_match_existing_pfa" required />
+            <FormInput name='pfa_registeration_date' label='PFA Registeration Date' type='date' required />
 
             <div className='flex gap-x-6 justify-end'>
               <FormButton

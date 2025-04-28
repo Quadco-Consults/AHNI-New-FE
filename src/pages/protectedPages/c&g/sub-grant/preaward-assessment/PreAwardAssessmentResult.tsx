@@ -1,8 +1,6 @@
 import Card from "components/shared/Card";
 import { useParams } from "react-router-dom";
 import { SubGrantPreAwardsApi } from "services/cAndGApi/subGrant";
-import SubmittedDocsUpload from "../SubmittedDocsUpload";
-import PreAwardAssessmentStep4 from "./PreAwardAssessmentStep4";
 
 const PreAwardAssessmentResult = () => {
     const params = useParams();
@@ -24,8 +22,6 @@ const PreAwardAssessmentResult = () => {
                             Overall Final Rating
                         </p>
                     </div>
-
-                    <PreAwardAssessmentStep4 />
                 </Card>
             </Card>
         </main>

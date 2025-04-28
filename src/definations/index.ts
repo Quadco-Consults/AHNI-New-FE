@@ -2,6 +2,7 @@ export interface TRequest {
     page?: number;
     size?: number;
     search?: string;
+    status?: string;
 }
 
 export interface TResponse<T> {

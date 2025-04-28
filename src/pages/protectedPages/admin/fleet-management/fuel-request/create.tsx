@@ -119,7 +119,7 @@ export default function CreateFuelConsumption() {
             if (id) {
                 await modifyFuelRequest({
                     id,
-                    body: { distance_covered: "100", ...data },
+                    body: data,
                 }).unwrap();
                 toast.success("Updated Fuel Request");
             } else {
@@ -165,6 +165,13 @@ export default function CreateFuelConsumption() {
             });
         }
     }, [fuelConsumption]);
+
+    const price = form.watch("price_per_litre");
+    const quantity = form.watch("quantity");
+
+    useEffect(() => {
+        form.setValue("amount", String(Number(price) * Number(price)));
+    }, [price, quantity]);
 
     return (
         <div>

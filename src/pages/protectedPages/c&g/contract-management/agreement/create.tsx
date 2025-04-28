@@ -1,6 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
-import * as z from "zod";
 import { Form } from "components/ui/form";
 import FormInput from "atoms/FormInput";
 import BackNavigation from "atoms/BackNavigation";
@@ -18,8 +17,8 @@ import {
     useGetSingleAgreementQuery,
     useModifyAgreementMutation,
 } from "services/c&g/contract-management/agreement";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { CG_GROUTES } from "constants/RouterConstants";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { CG_ROUTES } from "constants/RouterConstants";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { useEffect } from "react";
 
@@ -65,7 +64,7 @@ export default function CreateAgreement() {
                 toast.success("Agreement Created");
             }
 
-            navigate(CG_GROUTES.AGREEMENT);
+            navigate(CG_ROUTES.AGREEMENT);
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }

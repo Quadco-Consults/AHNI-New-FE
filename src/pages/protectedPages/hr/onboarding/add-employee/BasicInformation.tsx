@@ -8,16 +8,16 @@ import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
 import { WorkforceFormValues, workforceSchema } from "definations/hr-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
-import HrGradeAPI from "services/hrApi/hr-grade";
-import HrPositionAPI from "services/hrApi/hr-position";
+import { useGetHrGradeListQuery } from "services/hrApi/hr-grade";
+import  { useGetHrPositionListQuery } from "services/hrApi/hr-position";
 import { SelectContent, SelectItem } from "components/ui/select";
 import { LoadingSpinner } from "components/shared/Loading";
 import { HrGradeResults } from "definations/hr-types/hr-grades";
 import FileUpload from "atoms/FileUpload";
-import WorkforceAPI from "services/hrApi/workforce";
+import { useCreateWorkforceMutation } from "services/hrApi/workforce";
 import { toast } from "sonner";
-import LocationAPi from "services/configs/locationApi";
-import DepartmentsAPI from "services/configs/departments";
+import { useGetLocationListQuery } from "services/configs/locationApi";
+import { useGetDepartmentPaginateQuery } from "services/configs/departments";
 import { LocationResultsData } from "definations/configs/location";
 import { DepartmentsResultsData } from "definations/configs/departments";
 import FormButton from "atoms/FormButton";
@@ -25,71 +25,92 @@ import FormButton from "atoms/FormButton";
 import { Button } from "components/ui/button";
 import { HrRoutes } from "constants/RouterConstants";
 import { updateStepCompletion } from "store/stepTracker";
+import FormCheckBox from "atoms/FormCheckBox";
+import { useGetAllProjectsQuery } from "services/project";
+import { IProjectSingleData } from "definations/project";
+import { useCreateEmployeeOnboardingMutation } from "services/hrApi/hr-employee-onboarding";
+import { useGetPositionPaginateQuery } from "services/configs/positions";
+import { PositionsResultsData } from "definations/configs/positions";
 
-const BasicInformation = () => {
+const BasicInformation = ({id} : {id: string}) => {
   const dispatch = useAppDispatch();
 
   const { data: departments, isLoading: departmentIsLoading } =
-    DepartmentsAPI.useGetDepartmentPaginateQuery({
-      params: { no_paginate: true },
+    useGetDepartmentPaginateQuery({ 
     });
   const { data: locations, isLoading: locationIsLoading } =
-    LocationAPi.useGetLocationListQuery({
-      params: { no_paginate: true },
+    useGetLocationListQuery({ 
     });
-  // const { data: grades, isLoading: gradeIsLoading } =
-  //   HrGradeAPI.useGetHrGradeListQuery({
-  //     params: { no_paginate: true },
-  //   });
-  // const { data: positions, isLoading: positionIsLoading } =
-  //   HrPositionAPI.useGetHrPositionListQuery({
-  //     params: { no_paginate: true },
-  //   });
-  const [createWorkforceMutation, { isLoading }] =
-    WorkforceAPI.useCreateWorkforceMutation();
+  const { data: projects, isLoading: projectsIsLoading } =
+    useGetAllProjectsQuery({ 
+    }); 
+  const {data: positions, isLoading: positionIsLoading} = useGetPositionPaginateQuery({})
+   
+
+  const [createEmployeeOnboarding, { isLoading }] =
+  useCreateEmployeeOnboardingMutation();
 
   const form = useForm<WorkforceFormValues>({
     resolver: zodResolver(workforceSchema),
     defaultValues: {
-      user: {
-        first_name: "",
-        last_name: "",
-        email: "",
-        phone_number: "",
-        gender: "",
-        designation: "",
-      },
-      employee_number: "",
-      employment_type: "",
-      employment_status: "",
+      legal_firstname: "", 
+      legal_middlename: "",
+      legal_lastname: "", 
+      address: "",
+      designation: "",
+      phone_number: "",
+      other_number: "",
+      date_of_birth: "",
       date_of_hire: "",
-      // date_of_leaving: "",
-      signature: FileList,
-      passport: FileList,
-      location: "",
+      ss_number: "",
+      serial_id_code: "",
+      signature_file: FileList,
+      passport_file: FileList,
+      marital_status: "single",
+      own_computer: true,
+      require_email_access: true,
+      employment_type: "INTERNAL", 
+      group: "",
+      location: "", 
+      application: id, 
       department: "",
-      position: "",
-      grade: "",
+      project: "" 
     },
   });
   const { handleSubmit } = form;
 
   const onSubmit = async (data: WorkforceFormValues) => {
     const formData = new FormData();
-    formData.append("user", JSON.stringify(data.user));
-    formData.append("date_of_hire", data.date_of_hire);
-    formData.append("department", data.department);
-    formData.append("employee_number", data.employee_number);
-    formData.append("employment_status", data.employment_status);
+    formData.append("legal_firstname", data.legal_firstname);
+    formData.append("legal_lastname", data.legal_lastname);
+    // @ts-ignore 
+    formData.append("legal_middlename", data.legalmiddlename);
+    formData.append("address", data.address);
+    formData.append("designation", data.designation);
+    formData.append("phone_number", data.phone_number);
+    // @ts-ignore 
+    formData.append("other_number", data.other_number); 
+    formData.append("date_of_birth", data.date_of_birth); 
+    formData.append("date_of_hire", data.date_of_hire); 
+    formData.append("ss_number", data.ss_number);
+    formData.append("serial_id_code", data.serial_id_code); 
+    formData.append("passport_file", data.passport_file[0]);
+    formData.append("signature_file", data.signature_file[0]); 
+    formData.append("marital_status", data.marital_status);
+    // @ts-ignore 
+    formData.append("own_computer", data.own_computer);
+    // @ts-ignore 
+    formData.append("require_email_access", data.require_email_access);
     formData.append("employment_type", data.employment_type);
-    formData.append("grade", data.grade);
-    formData.append("position", data.position);
+    formData.append("group", data.group);
     formData.append("location", data.location);
-    formData.append("passport", data.passport[0]);
-    formData.append("signature", data.signature[0]);
+    formData.append("application", id);
+    formData.append("project", data.project); 
+    formData.append("department", data.department); 
 
     try {
-      const res = await createWorkforceMutation(formData).unwrap();
+      // @ts-ignore 
+      const res = await createEmployeeOnboarding(formData).unwrap();
       dispatch(
         updateStepCompletion({
           path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_INFO,
@@ -103,6 +124,7 @@ const BasicInformation = () => {
           },
         })
       );
+      // @ts-ignore 
       localStorage.setItem("workforceID", res.data.id);
 
       form.reset();
@@ -110,72 +132,109 @@ const BasicInformation = () => {
       toast.error("Something went wrong");
     }
   };
+  const jobTypeOptions = [
+    { value: "INTERNAL", label: "Internal" },
+    { value: "EXTERNAL", label: "External" },
+    { value: "BOTH", label: "Both" },
+  ];
+  const maritalTypeOptions = [
+    { value: "single", label: "Single" },
+    { value: "married", label: "Married" },
+    { value: "divorced", label: "Divorced" },
+  ];
 
   return (
     <>
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
           <div>
-            <FormLabel className='font-semibold'>
+          <FormLabel className='font-semibold'>
               Employee Legal Name:
               <span className='text-red-500'>*</span>
             </FormLabel>
-            <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-              <FormInput name='user.first_name' placeholder='First name' />
-              <FormInput name='user.last_name' placeholder='Last name' />
+            <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
+              <FormInput name='legal_firstname'   placeholder='First name' />
+              <FormInput name='legal_middlename'  placeholder='Middle name' />
+              <FormInput name='legal_lastname'   placeholder='Last name' />
             </div>
           </div>
+           
+          <FormSelect
+                name='designation'
+                label='Designation'
+                placeholder='Select designation'
+                required
+              >
+                <SelectContent>
+                  {positionIsLoading && <LoadingSpinner />} 
+                {
+                 
+                positions?.data?.results?.map((position: PositionsResultsData) => (
+                  <SelectItem key={position?.id} value={String(position?.id)}>
+                    {position?.name}
+                  </SelectItem>
+                ))} 
+                </SelectContent>
+              </FormSelect>
+          <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+            <FormInput name='phone_number' label='Phone Number' required />
+            <FormInput name='other_number' label='Other Phone Number'  />
+            <FormInput name='address' placeholder='Address' label="Address" required /> 
+             
+          </div>
+          <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
+            
+            
+            <FormInput
+              name='date_of_birth'
+              type='date'
+              label='Date of Birth'
+              required
+            />
+            <FormInput
+              name='date_of_hire'
+              type='date'
+              label='Date of Hire'
+              required
+            />
+            <FormInput name='ss_number' label='SS #' placeholder="Surname" required />  
+          </div>
+          <FileUpload name='passport_file' label='Passport' />
+          <FileUpload name='signature_file' label='Signature' />
           <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
             <FormSelect
-              name='position'
-              label='Position'
-              placeholder='Select position'
-              required
-            >
-              {/* <SelectContent>
-              {positionIsLoading && <LoadingSpinner />}
-              {positions?.map((position: HrGradeResults) => (
-                <SelectItem key={position?.id} value={position?.id}>
-                  {position?.name}
-                </SelectItem>
-              ))}
-            </SelectContent> */}
-            </FormSelect>
-            <FormSelect
-              name='grade'
-              label='Grade'
-              placeholder='Select grade'
-              required
-            >
-              <SelectContent>
-                {/* {gradeIsLoading && <LoadingSpinner />}
-              {grades?.map((grade: HrGradeResults) => (
-                <SelectItem key={grade?.id} value={String(grade?.id)}>
-                  {grade?.name}
-                </SelectItem>
-              ))} */}
-              </SelectContent>
-            </FormSelect>
-            <FormInput name='user.phone_number' label='Phone Number' required />
-            <FormInput name='user.email' label='Email' required />
-            <FormSelect
-              name='user.gender'
-              label='Gender'
-              placeholder='Select gender'
-              required
-            >
-              <SelectContent>
-                {[
-                  { label: "Male", value: "male" },
-                  { label: "Female", value: "female" },
-                ]?.map(({ label, value }, index) => (
-                  <SelectItem key={index} value={value}>
-                    {label}
+                name='department'
+                label='Department/Unit'
+                placeholder='Select department'
+                required
+              >
+                <SelectContent>
+                  {departmentIsLoading && <LoadingSpinner />} 
+                {
+                 
+                departments?.data?.results?.map((department: DepartmentsResultsData) => (
+                  <SelectItem key={department?.id} value={String(department?.id)}>
+                    {department?.name}
                   </SelectItem>
-                ))}
-              </SelectContent>
-            </FormSelect>
-            <FormInput name='user.designation' label='Designation' required />
+                ))} 
+                </SelectContent>
+              </FormSelect>
+            <FormInput name='serial_id_code' label='Serial ID Code' required />
+            
+            <FormSelect
+              name='marital_status'
+              label='Marital Status'
+              placeholder='Select employment ty'
+              options={maritalTypeOptions}
+            />
+            
+            <FormSelect
+              name='employment_type'
+              label='Employement type'
+              placeholder='Select employment ty'
+              options={jobTypeOptions}
+            />
+            <FormInput name='group' label='Group' required />
             <FormSelect
               name='location'
               label='Location'
@@ -183,110 +242,51 @@ const BasicInformation = () => {
               required
             >
               <SelectContent>
-                {/* {locationIsLoading && <LoadingSpinner />}
-              {locations?.map((location: LocationResultsData) => (
+                {locationIsLoading && <LoadingSpinner />}
+                 
+              {
+               
+              locations?.data?.results?.map((location: LocationResultsData) => (
                 <SelectItem key={location?.id} value={String(location?.id)}>
                   {location?.state}
                 </SelectItem>
-              ))} */}
+              ))}  
               </SelectContent>
             </FormSelect>
-            <FormInput
-              name='date_of_hire'
-              type='date'
-              label='Date of Hire'
-              required
-            />
-            <FormInput
-              name='employee_number'
-              label='Employee Number'
-              required
-            />
-            <FileUpload name='passport' label='Passport' />
-            <FileUpload name='signature' label='Signature' />
+            
             <FormSelect
-              name='department'
-              label='Department/Unit'
-              placeholder='Select department'
+              name='project'
+              label='Project'
+              placeholder='Select project'
               required
             >
               <SelectContent>
-                {/* {departmentIsLoading && <LoadingSpinner />}
-              {departments?.map((department: DepartmentsResultsData) => (
-                <SelectItem key={department?.id} value={String(department?.id)}>
-                  {department?.name}
+                {projectsIsLoading && <LoadingSpinner />}
+              {projects?.data?.results?.map((project: IProjectSingleData) => (
+                <SelectItem key={project?.id} value={String(project?.id)}>
+                  {project?.title}
                 </SelectItem>
-              ))} */}
+              ))} 
               </SelectContent>
             </FormSelect>
-            <FormSelect
-              name='employment_type'
-              label='Employment Type'
-              placeholder='Select employment type'
-              required
-            >
-              <SelectContent>
-                {[{ label: "Internal", value: "internal" }]?.map(
-                  ({ label, value }, index) => (
-                    <SelectItem key={index} value={value}>
-                      {label}
-                    </SelectItem>
-                  )
-                )}
-              </SelectContent>
-            </FormSelect>
-            <FormSelect
-              name='employment_status'
-              label='Status'
-              placeholder='Select status'
-              required
-            >
-              <SelectContent>
-                {[{ label: "Active", value: "active" }]?.map(
-                  ({ label, value }, index) => (
-                    <SelectItem key={index} value={value}>
-                      {label}
-                    </SelectItem>
-                  )
-                )}
-              </SelectContent>
-            </FormSelect>
-            {/* <FormSelect
-            options={[]}
-            name="computer"
-            label="Do you have a Computer?"
-            required
-          />
-          <FormSelect
-            options={[]}
-            name="email"
-            label="Do you require Email access?"
-            required
-          /> */}
+             
+            
+             
+             
+            <FormCheckBox 
+              name="own_computer"
+              label="Own a Computer"
+            />
+            <FormCheckBox 
+              name="require_email_access"
+              label="Require Email Access"
+            />
+            
+             
+             
           </div>
 
-          {/* <div className="card-wrapper space-y-6">
-          <h4 className="text-red-500 text-lg font-medium">
-            Group Membership & Location
-          </h4>
-          <Separator />
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <FormSelect
-              options={[]}
-              name="group"
-              label="Group Membership"
-              placeholder="Select group"
-              required
-            />
-            <FormSelect
-              options={[]}
-              name="location"
-              label="Location"
-              placeholder="Select location"
-              required
-            />
-          </div>
-        </div> */}
+          
 
           <div className='flex gap-x-6 justify-end'>
             <FormButton

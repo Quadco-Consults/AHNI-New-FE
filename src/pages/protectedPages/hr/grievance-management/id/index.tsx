@@ -8,15 +8,16 @@ import GoBack from "components/shared/GoBack";
 import Details from "./Details";
 import Resolutions from "./Resolutions";
 import Feedback from "./Feedback";
+import { useGetGrievianceManagementQuery } from "services/hrApi/hr-grieviance-management";
 
 const PrequalificationDetails = () => {
   const { id } = useParams();
 
-  const { data: grData, isLoading } = VendorsAPI.useGetVendorQuery({
-    path: { id: id as string },
+  const { data: grievanceData, isLoading } = useGetGrievianceManagementQuery({
+     id: id as string ,
   });
 
-  console.log({ grData });
+  console.log({ grievanceData });
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -35,16 +36,16 @@ const PrequalificationDetails = () => {
           </TabsList>
         </div>
         <TabsContent value='details'>
-          <Details {...(data as any)} />
+          <Details {...(grievanceData?.data as any)} />
         </TabsContent>
         <TabsContent value='uploads'>
-          <Uploads {...(data as any)} />
+          <Uploads {...(grievanceData?.data as any)} />
         </TabsContent>
         <TabsContent value='resolution'>
-          <Resolutions {...(data as any)} />
+          <Resolutions {...(grievanceData?.data as any)} />
         </TabsContent>
         <TabsContent value='feed-back'>
-          <Feedback {...(data as any)} />
+          <Feedback {...(grievanceData?.data as any)} />
         </TabsContent>
       </Tabs>
     </div>

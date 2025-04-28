@@ -1,10 +1,10 @@
 import DescriptionCard from "components/shared/DescriptionCard";
 import { LoadingSpinner } from "components/shared/Loading";
 import { Separator } from "components/ui/separator";
-import HrBeneficiaryAPI from "services/hrApi/hr-beneficiary";
+import { useGetHrBeneficiariesQuery } from "services/hrApi/hr-beneficiary";
 
 const Beneficiary = () => {
-  const { data, isLoading } = HrBeneficiaryAPI.useGetHrBeneficiariesQuery({});
+  const { data, isLoading } = useGetHrBeneficiariesQuery({});
 
   const primaryBeneficiaries = data?.results?.filter(
     (beneficiary) => beneficiary.beneficiary_type === "primary"

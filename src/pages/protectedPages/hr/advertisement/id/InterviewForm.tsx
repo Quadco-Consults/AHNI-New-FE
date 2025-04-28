@@ -1,5 +1,7 @@
+import FormButton from "atoms/FormButton";
 import Card from "components/shared/Card";
 import GoBack from "components/shared/GoBack";
+import { Loading } from "components/shared/Loading";
 import { Badge } from "components/ui/badge";
 import { Button } from "components/ui/button";
 import { Separator } from "components/ui/separator";
@@ -11,58 +13,71 @@ import {
   TableRow,
 } from "components/ui/table";
 import { Textarea } from "components/ui/textarea";
+import { formatDate } from "date-fns";
 import { useForm } from "react-hook-form";
+import { useNavigate, useParams } from "react-router-dom";
+import InterviewAPI, { useCreateInterviewMutation } from "services/hrApi/hr-interview"; 
+import { useGetJobApplicationQuery } from "services/hrApi/hr-job-applications";
+import { toast } from "sonner";
 
 const InterviewForm = () => {
+  const params = useParams();
+  const navigate = useNavigate();
+
+  const { data, isLoading } = useGetJobApplicationQuery({
+    id: params?.appID as string,
+  });
+
+  const [createInterview, { isLoading: createLoading }] =
+    useCreateInterviewMutation();
+
+  const form = useForm();
+
   const {
     register,
     handleSubmit,
     setValue,
     watch,
     formState: { errors },
-  } = useForm();
+  } = form;
 
-  const onSubmit = (data: any) => {
-    console.log("Submitted Data:", data);
+  const onSubmit = async (formData: any) => {
+    const payload = {
+      candidate_name: data?.data?.applicant_name,
+      position_applied: data?.data?.position_applied,
+      date_of_interview: data?.data?.created_datetime.split("T")[0],
+      appearance_rating: formData["rating-0"],
+      appearance_comments: formData["comments-0"],
+      oral_communication_rating: formData["rating-1"],
+      oral_communication_comments: formData["comments-1"],
+      teamwork_rating: formData["rating-2"],
+      teamwork_comments: formData["comments-2"],
+      work_ethics_rating: formData["rating-3"],
+      work_ethics_comments: formData["comments-3"],
+      analytical_rating: formData["rating-4"],
+      analytical_comments: formData["comments-4"],
+      knowledge_rating: formData["rating-5"],
+      knowledge_comments: formData["comments-5"],
+      experience_rating: formData["rating-6"],
+      experience_comments: formData["comments-6"],
+      preferred_candidate: formData.preference,
+      recommendation: formData.recommendations, 
+      application: params?.appID as string,
+    };
+    try {
+      // @ts-ignore 
+      await createInterview(payload).unwrap();
+      toast.success(" Interview Submitted successfully");
+      navigate(-1);
+    } catch (error) {
+      toast.error("Something went wrong");
+      console.error(error);
+    }
   };
 
-  const ratingSections = [
-    {
-      title: "Appearance/Corporate Poise",
-      description:
-        "Appearance and composure in conformity with acceptable standards of the position",
-    },
-    {
-      title: "Oral Communication",
-      description:
-        "Ability to speak articulately and with clarity displaying good pronunciation and grammar",
-    },
-    {
-      title: "Supervisory Experience and/or Teamwork",
-      description: "Ability to supervise and/or work as a team member",
-    },
-    {
-      title: "Work Ethics",
-      description:
-        "Ability/tendency to maintain AHNI values (excellence, integrity, responsiveness, respect and dedication) and use judgment to execute duties and responsibilities.",
-    },
-    {
-      title: "Analytical thinking",
-      description:
-        "Capacity to examine and evaluate situations in a logical and rational approach",
-    },
-    {
-      title:
-        "Knowledge of international/regional NGO or local organization issues",
-      description:
-        "Displayed knowledge/understanding of political, social and ethical issues surrounding health related matters and knowledge of and experience with NGO’s interventions.",
-    },
-    {
-      title: "Quality/Relevance of Experience ",
-      description:
-        "Determined by the length, variety of positions held, quality of experience, industry type and size relevant to position.",
-    },
-  ];
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <div className='flex flex-col gap-4'>
@@ -72,19 +87,19 @@ const InterviewForm = () => {
         <div className='grid grid-cols-2 gap-4'>
           <div className='flex flex-col gap-3'>
             <h2 className='font-semibold'>Name of Candidate</h2>
-            <p>James Septimus</p>
+            <p>{data?.data?.applicant_name}</p>
           </div>
           <div className='flex flex-col gap-3'>
             <h2 className='font-semibold'>Position Applied</h2>
-            <p>STO-PCT Borno</p>
+            <p> {data?.data?.position_applied}</p>
           </div>
           <div className='flex flex-col gap-3'>
             <h2 className='font-semibold'>Name of Interviewer</h2>
-            <p>Ali N. Pollock</p>
+            <p>{data?.data?.interviewer || "-"}</p>
           </div>
           <div className='flex flex-col gap-3'>
             <h2 className='font-semibold'>Date of Interview</h2>
-            <p>24th April, 2024</p>
+            <p>{formatDate(data?.data?.created_datetime, "dd, MMM, yyyy")}</p>
           </div>
         </div>
 
@@ -165,6 +180,7 @@ const InterviewForm = () => {
                   {...register(`comments-${index}`, {
                     required: "Comments are required",
                   })}
+                  required
                   rows={6}
                   className='mt-2'
                 />
@@ -195,12 +211,14 @@ const InterviewForm = () => {
             </label>
           </div>
           <div className='flex w-full justify-end mt-4'>
-            <Button
+            <FormButton
+              disabled={createLoading}
+              loading={createLoading}
               type='submit'
               className='bg-primary text-white py-2 px-4 rounded-md hover:bg-secondary transition duration-300 ease-in-out'
             >
               Complete Interview
-            </Button>
+            </FormButton>
           </div>
         </form>
       </Card>
@@ -226,3 +244,41 @@ const getColor = (rating: number) => {
 };
 
 export default InterviewForm;
+
+const ratingSections = [
+  {
+    title: "Appearance/Corporate Poise",
+    description:
+      "Appearance and composure in conformity with acceptable standards of the position",
+  },
+  {
+    title: "Oral Communication",
+    description:
+      "Ability to speak articulately and with clarity displaying good pronunciation and grammar",
+  },
+  {
+    title: "Supervisory Experience and/or Teamwork",
+    description: "Ability to supervise and/or work as a team member",
+  },
+  {
+    title: "Work Ethics",
+    description:
+      "Ability/tendency to maintain AHNI values (excellence, integrity, responsiveness, respect and dedication) and use judgment to execute duties and responsibilities.",
+  },
+  {
+    title: "Analytical thinking",
+    description:
+      "Capacity to examine and evaluate situations in a logical and rational approach",
+  },
+  {
+    title:
+      "Knowledge of international/regional NGO or local organization issues",
+    description:
+      "Displayed knowledge/understanding of political, social and ethical issues surrounding health related matters and knowledge of and experience with NGO’s interventions.",
+  },
+  {
+    title: "Quality/Relevance of Experience ",
+    description:
+      "Determined by the length, variety of positions held, quality of experience, industry type and size relevant to position.",
+  },
+];

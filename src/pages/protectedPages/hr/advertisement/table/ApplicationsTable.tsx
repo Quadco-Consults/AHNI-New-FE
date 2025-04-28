@@ -6,7 +6,7 @@ import { cn } from "lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import { generatePath, Link } from "react-router-dom";
+import { generatePath, Link, useNavigate, useParams } from "react-router-dom";
 import { HrRoutes } from "constants/RouterConstants";
 import EyeIcon from "components/icons/EyeIcon";
 import ScanIcon from "components/icons/ScanIcon";
@@ -15,39 +15,139 @@ import DataTable from "components/Table/DataTable";
 import SearchIcon from "components/icons/SearchIcon";
 import FilterIcon from "components/icons/FilterIcon";
 import AddSquareIcon from "components/icons/AddSquareIcon";
+import {
+  useGetJobApplicationsQuery,
+  usePatchJobApplicationAcceptedMutation,
+  usePatchJobApplicationPreferredMutation,
+} from "services/hrApi/hr-job-applications";
+import { useGetJobAdvertisementsQuery } from "services/hrApi/hr-job-advertisement";
+import { Loading } from "components/shared/Loading";
+import { CheckCheckIcon } from "lucide-react";
+import { toast } from "sonner";
+import { useState } from "react";
+import useDebounce from "utils/useDebounce";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "components/ui/select";
 
 const ApplicationsTable = ({
-  href = "",
   linkTitle,
+  id: propId,
+  status = "",
 }: {
   href?: string;
   linkTitle?: string;
+  id?: string;
+  status?: "SHORTLISTED" | "PREFERRED" | "ACCEPTED" | "";
 }) => {
-  console.log({ href });
+  // Get ID from URL params if available
+  const params = useParams();
+  const urlId = params?.id;
+
+  // State for selected advertisement
+  const [selectedAdvertId, setSelectedAdvertId] = useState<string | undefined>(
+    propId || urlId
+  );
+
+  // State for advertisement search
+  const [advertSearchTerm, setAdvertSearchTerm] = useState("");
+  const debouncedAdvertSearch = useDebounce(advertSearchTerm, 1000);
+
+  // Fetch advertisements for dropdown
+  const { data: advertsData, isLoading: isLoadingAdverts } =
+    useGetJobAdvertisementsQuery({
+      search: debouncedAdvertSearch,
+    });
+
+  // Fetch applications using the ID directly
+  const { data, isLoading } = useGetJobApplicationsQuery(
+    {
+      status: status,
+      id: selectedAdvertId || "",
+    },
+    { skip: !selectedAdvertId }
+  );
+
+  // Determine if we need to show the advertisement selector
+  const showAdvertSelector = !propId && !urlId;
+
+  if (isLoading && selectedAdvertId) {
+    return <Loading />;
+  }
 
   return (
-    <div className='space-y-6'>
-      <div className='flex items-center justify-start gap-2'>
-        <span className='flex items-center w-1/3 px-2 py-2 border rounded-lg'>
+    <div className="space-y-6">
+      {showAdvertSelector && (
+        <div className="mb-4 border p-4 rounded-lg space-y-3">
+          <h3 className="text-sm font-medium">Select an Advertisement</h3>
+
+          {/* Search above dropdown */}
+          <div className="flex items-center w-full px-2 py-2 border rounded-lg mb-2">
+            <SearchIcon />
+            <input
+              placeholder="Search advertisements"
+              type="text"
+              value={advertSearchTerm}
+              onChange={(e) => setAdvertSearchTerm(e.target.value)}
+              className="ml-2 h-6 w-full border-none bg-none focus:outline-none outline-none"
+            />
+          </div>
+
+          {/* Dropdown for advertisements */}
+          <Select onValueChange={setSelectedAdvertId} value={selectedAdvertId}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select an advertisement" />
+            </SelectTrigger>
+            <SelectContent>
+              {isLoadingAdverts ? (
+                <div className="flex justify-center items-center p-4">
+                  <p className="text-sm text-muted-foreground">Loading...</p>
+                </div>
+              ) : (advertsData?.data?.results || []).length > 0 ? (
+                (advertsData?.data?.results || []).map((advert) => (
+                  <SelectItem key={advert.id} value={advert.id}>
+                    {advert.title}
+                  </SelectItem>
+                ))
+              ) : (
+                <div className="flex justify-center items-center p-4">
+                  <p className="text-sm text-muted-foreground">
+                    No advertisements found
+                  </p>
+                </div>
+              )}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      <div className="flex items-center justify-start gap-2">
+        <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
           <SearchIcon />
           <input
-            placeholder='Search'
-            type='text'
-            className='ml-2 h-6 border-none bg-none focus:outline-none outline-none'
+            placeholder="Search"
+            type="text"
+            className="ml-2 h-6 w-full border-none bg-none focus:outline-none outline-none"
           />
         </span>
-        <Button className='shadow-sm' variant='ghost'>
+        <Button className="shadow-sm" variant="ghost">
           <FilterIcon />
         </Button>
-        {linkTitle && (
-          <div className='ml-auto'>
+        {linkTitle && selectedAdvertId && (
+          <div className="ml-auto">
             <Link
-              className='w-full'
-              // to={generatePath(CandGRoutes.MANUAL_SUB_GRANT_SUBMISSION)}
-              to={href}
-              // to={""}
+              to={generatePath(
+                HrRoutes.ADVERTISEMENT_MANUAL_APPLICATION_SUBMISSION,
+                {
+                  id: selectedAdvertId,
+                }
+              )}
             >
-              <Button className='flex gap-2 py-6' type='button'>
+              <Button className="flex gap-2 py-6" type="button">
                 <AddSquareIcon />
                 <p>{linkTitle}</p>
               </Button>
@@ -55,29 +155,26 @@ const ApplicationsTable = ({
           </div>
         )}
       </div>
-      <DataTable data={data} columns={columns} isLoading={false} />
+
+      {!selectedAdvertId ? (
+        <div className="text-center py-8 border rounded-md">
+          <p className="text-gray-500">
+            Please select an advertisement to view applications
+          </p>
+        </div>
+      ) : (
+        <DataTable
+          // @ts-ignore
+          data={data?.data?.results}
+          columns={columns}
+          isLoading={false}
+        />
+      )}
     </div>
   );
 };
 
 export default ApplicationsTable;
-
-const data = [
-  {
-    name: "James Septimus",
-    position: "Technical Associate",
-    type: "Technical Associate",
-    status: "Applied",
-    email: "jamesseptimus@gmail.com",
-  },
-  {
-    name: "James Septimus",
-    position: "Technical Associate",
-    type: "Technical Associate",
-    status: "Shortlisted",
-    email: "jamesseptimus@gmail.com",
-  },
-];
 
 const columns: ColumnDef<AdvertisementResults>[] = [
   {
@@ -106,22 +203,22 @@ const columns: ColumnDef<AdvertisementResults>[] = [
   },
   {
     header: "Application Name",
-    accessorKey: "name",
+    accessorKey: "applicant_name",
     size: 250,
   },
   {
     header: "Position Applied",
-    accessorKey: "position",
+    accessorKey: "position_applied",
     size: 200,
   },
   {
     header: "Employment type",
-    accessorKey: "type",
+    accessorKey: "employment_type",
     size: 250,
   },
   {
     header: "Applicant Email",
-    accessorKey: "email",
+    accessorKey: "applicant_email",
   },
   {
     header: "Status",
@@ -130,10 +227,14 @@ const columns: ColumnDef<AdvertisementResults>[] = [
       return (
         <Badge
           className={cn(
-            "p-1 rounded-lg",
-            getValue() === "Applied"
+            "p-1 rounded-lg capitalize",
+            getValue().toLowerCase() === "shortlisted"
               ? "bg-green-50 text-green-500"
-              : "bg-yellow-50 text-yellow-500"
+              : getValue().toLowerCase() === "applied"
+              ? "bg-yellow-50 text-yellow-500"
+              : getValue().toLowerCase() === "accepted"
+              ? "bg-black text-white"
+              : "bg-blue-50 text-blue-500"
           )}
         >
           {getValue() as string}
@@ -145,54 +246,132 @@ const columns: ColumnDef<AdvertisementResults>[] = [
     header: "Actions",
     id: "actions",
     size: 100,
-    cell: () => <ActionList />,
+    cell: ({ row }) => <ActionList data={row.original} />,
   },
 ];
 
-const ActionList = () => {
+const ActionList = ({ data }: any) => {
+  const navigate = useNavigate();
+  const [patchJobApplicationAccepted, { isLoading: isUpdating }] =
+    usePatchJobApplicationAcceptedMutation();
+  const [patchJobApplicationPreferred, { isLoading: isUpdatingPreferred }] =
+    usePatchJobApplicationPreferredMutation();
+  const handleAccepted = async () => {
+    try {
+      await patchJobApplicationAccepted({
+        id: data?.id as string,
+        body: {
+          status: "ACCEPTED",
+        },
+      }).unwrap();
+      toast.success("Applicant accepted successfully");
+    } catch (error) {
+      toast.error("Failed to update status");
+    }
+  };
+  const handlePreferred = async () => {
+    try {
+      await patchJobApplicationPreferred({
+        id: data?.id as string,
+        body: {
+          status: "PREFERRED",
+        },
+      }).unwrap();
+      toast.success("Applicant preferred successfully");
+    } catch (error) {
+      toast.error("Failed to update status");
+    }
+  };
   return (
-    <div className='flex items-center gap-2'>
+    <div className="flex items-center gap-2">
       <>
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant='ghost' className='flex gap-2 py-6'>
+            <Button variant="ghost" className="flex gap-2 py-6">
               <MoreOptionsHorizontalIcon />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className=' w-fit'>
-            <div className='flex flex-col items-start justify-between gap-1'>
-              <Link
-                to={generatePath(HrRoutes.ADVERTISEMENT_DETAIL_SUB_APP, {
-                  id: 1,
-                  appID: 2,
-                })}
-              >
-                <Button
-                  className='w-full flex items-center justify-start gap-2'
-                  variant='ghost'
+          <PopoverContent className=" w-fit">
+            <div className="flex flex-col items-start justify-between gap-1">
+              {data?.status?.toLowerCase() !== "accepted" && (
+                <Link
+                  to={generatePath(HrRoutes.ADVERTISEMENT_DETAIL_SUB_APP, {
+                    id: data?.advertisement,
+                    appID: data?.id,
+                  })}
                 >
-                  <EyeIcon />
-                  View
-                </Button>
-              </Link>
-              <Link
-                to={generatePath(HrRoutes.ADVERTISEMENT_INTERVIEW_FORM, {
-                  id: 1,
-                  appID: 2,
-                })}
-              >
+                  <Button
+                    className="w-full flex items-center justify-start gap-2"
+                    variant="ghost"
+                  >
+                    <EyeIcon />
+                    View
+                  </Button>
+                </Link>
+              )}
+              {data?.status?.toLowerCase() === "shortlisted" && (
                 <Button
-                  className='w-full flex items-center justify-start gap-2'
-                  variant='ghost'
+                  className="w-full flex items-center justify-start gap-2"
+                  variant="ghost"
+                  onClick={() => {
+                    handlePreferred();
+                  }}
                 >
-                  <ScanIcon />
-                  Interview
+                  <CheckCheckIcon />
+                  Mark as Preferred
                 </Button>
-              </Link>
+              )}
+              {data?.status?.toLowerCase() === "preferred" && (
+                <Button
+                  className="w-full flex items-center justify-start gap-2"
+                  variant="ghost"
+                  onClick={() => {
+                    handleAccepted();
+                  }}
+                >
+                  <CheckCheckIcon />
+                  Accept
+                </Button>
+              )}
+              {data?.status?.toLowerCase() === "accepted" && (
+                <Link
+                  to={generatePath(HrRoutes.ONBOARDING_START, {
+                    id: data?.id,
+                  })}
+                  className="flex flex-col items-start justify-between gap-1"
+                >
+                  <Button
+                    className="w-full flex items-center justify-start gap-2"
+                    variant="ghost"
+                  >
+                    <CheckCheckIcon />
+                    Onboard
+                  </Button>
+                </Link>
+              )}
+              {data?.status?.toLowerCase() !== "shortlisted" &&
+                data?.status?.toLowerCase() !== "interviewed" &&
+                data?.status?.toLowerCase() !== "preferred" &&
+                data?.status?.toLowerCase() !== "accepted" && (
+                  <Link
+                    to={generatePath(HrRoutes.ADVERTISEMENT_INTERVIEW_FORM, {
+                      id: data?.advertisement,
+                      appID: data?.id,
+                    })}
+                  >
+                    <Button
+                      className="w-full flex items-center justify-start gap-2"
+                      variant="ghost"
+                    >
+                      <ScanIcon />
+                      Interview
+                    </Button>
+                  </Link>
+                )}
 
               <Button
-                className='w-full flex items-center justify-start gap-2'
-                variant='ghost'
+                className="w-full flex items-center justify-start gap-2"
+                variant="ghost"
               >
                 <DeleteIcon />
                 delete

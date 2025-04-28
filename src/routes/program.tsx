@@ -1,4 +1,4 @@
-import { RouteEnum } from "constants/RouterConstants";
+import { CG_ROUTES, ProgramRoutes, RouteEnum } from "constants/RouterConstants";
 
 import { lazy } from "react";
 
@@ -69,7 +69,7 @@ export const program = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/programs/plan/ssp/[id]/EvaluationProcess"
+                    "pages/protectedPages/programs/plan/ssp/[id]/EvaluationCriteriaProcess"
                 )
         ),
     },
@@ -98,6 +98,76 @@ export const program = [
         ),
     },
 
+    //consultant (adhoc) management
+    {
+        path: CG_ROUTES.CONSULTANCY,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/consultant-management"
+                )
+        ),
+    },
+
+    {
+        path: CG_ROUTES.CREATE_CONSULTANCY_DETAILS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/consultant-management/create/ApplicationDetails"
+                )
+        ),
+    },
+
+    {
+        path: CG_ROUTES.CREATE_CONSULTANCY_WORK_SCOPE,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/consultant-management/create/ScopeOfWork"
+                )
+        ),
+    },
+
+    {
+        path: CG_ROUTES.CONSULTANCY_DETAILS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/consultant-management/id/ConsultantDetails"
+                )
+        ),
+    },
+    {
+        path: CG_ROUTES.CREATE_CONSULTANCY_APPLICANT,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/consultant-management/id/applicants/CreateApplicant"
+                )
+        ),
+    },
+    {
+        path: CG_ROUTES.CONSULTANCY_APPLICATION_DETAILS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/candg/consultancy/ConsultancyApplicationDetails"
+                )
+        ),
+    },
+    {
+        path: CG_ROUTES.CONSULTANCY_SHORTLIST_METRIC,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/candg/consultancy/ConsultancyShortlisMetric"
+                )
+        ),
+    },
+
+    //consultant (adhoc) management
+
     {
         path: RouteEnum.PROGRAM_FUND_REQUEST,
         element: lazy(
@@ -117,7 +187,7 @@ export const program = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/programs/fund-request/Create-fund-request"
+                    "pages/protectedPages/programs/fund-request/create/index"
                 )
         ),
     },
@@ -137,7 +207,7 @@ export const program = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/programs/fund-request/Fund-summary"
+                    "pages/protectedPages/programs/fund-request/create/summary"
                 )
         ),
     },
@@ -242,6 +312,75 @@ export const program = [
             () =>
                 import(
                     "pages/protectedPages/programs/stakeholder-management/engagement/id"
+                )
+        ),
+    },
+
+    /* *************** ADHOC STAFF MANAGEMENT *************** */
+
+    {
+        path: ProgramRoutes.ADHOC_MANAGEMENT,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/consultant-management"
+                )
+        ),
+    },
+
+    {
+        path: ProgramRoutes.CREATE_ADHOC_DETAILS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/consultant-management/create/ApplicationDetails"
+                )
+        ),
+    },
+
+    {
+        path: ProgramRoutes.CREATE_ADHOC_WORK_SCOPE,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/consultant-management/create/ScopeOfWork"
+                )
+        ),
+    },
+
+    {
+        path: ProgramRoutes.ADHOC_DETAILS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/consultant-management/id/ConsultantDetails"
+                )
+        ),
+    },
+    {
+        path: CG_ROUTES.CREATE_CONSULTANCY_APPLICANT,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/consultant-management/id/applicants/CreateApplicant"
+                )
+        ),
+    },
+    {
+        path: CG_ROUTES.CONSULTANCY_APPLICATION_DETAILS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/candg/consultancy/ConsultancyApplicationDetails"
+                )
+        ),
+    },
+    {
+        path: CG_ROUTES.CONSULTANCY_SHORTLIST_METRIC,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/candg/consultancy/ConsultancyShortlisMetric"
                 )
         ),
     },

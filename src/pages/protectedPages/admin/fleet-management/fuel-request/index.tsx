@@ -10,13 +10,13 @@ export default function FuelConsumptionHomePage() {
     return (
         <Tabs defaultValue="vehicle">
             <TabsList>
-                <TabsTrigger value="vehicle">Vehicles</TabsTrigger>
-                <TabsTrigger value="vendor">Vendors</TabsTrigger>
+                <TabsTrigger value="vehicle">By Vehicles</TabsTrigger>
+                <TabsTrigger value="vendor">By Vendors</TabsTrigger>
             </TabsList>
 
             <div className="flex justify-end">
                 <Link to={AdminRoutes.CREATE_FUEL_CONSUMPTION}>
-                    <Button>
+                    <Button size="lg">
                         <Plus size={20} />
                         Request Fuel
                     </Button>

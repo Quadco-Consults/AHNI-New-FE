@@ -3,6 +3,7 @@ export const DialogType = {
   PriceInteligence: "PriceInteligence",
   Checklist: "Checklist",
   WorkPlanUpload: "WorkPlanUpload",
+  AddTicket: "AddTicket",
   ActivityUpload: "ActivityUpload",
   SspUpload: "SspUpload",
   SspApproveModal: "SspApproveModal",
@@ -45,7 +46,6 @@ export const DialogType = {
   AddNewItems: "AddNewItems",
   AddLocations: "AddLocations",
   AddLots: "AddLots",
-  AddCBAVendor: "AddCBAVendor",
   AddSolicitation: "AddSolicitation",
   AddPrequalificationCategory: "AddPrequalificationCategory",
   AddPrequalificationCriteria: "AddPrequalificationCriteria",
@@ -75,8 +75,8 @@ export const DialogType = {
 
   // GRANTS
   ADD_OBLIGATION_MODAL: "ADD_OBLIGATION_MODAL",
-
   SUBGRANT_MANUAL_SUB_UPLOAD: "SUBGRANT_MANUAL_SUB_UPLOAD",
+  ADD_PRE_AWARD_QUESTION_MODAL: "ADD_PRE_AWARD_QUESTION_MODAL",
 };
 
 export const largeDailogScreen = {

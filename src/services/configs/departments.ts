@@ -98,4 +98,12 @@ const DepartmentsAPI = baseAPI.injectEndpoints({
   }),
 });
 
-export default DepartmentsAPI;
+export const {
+  useCreateDepartmentMutation,
+  useDeleteDepartmentMutation,
+  useGetDepartmentPaginateQuery,
+  useGetDepartmentQuery,
+  useGetDepartmentsQuery,
+  useUpdateDepartmentMutation,
+  useModifyDepartmentMutation
+} = DepartmentsAPI;

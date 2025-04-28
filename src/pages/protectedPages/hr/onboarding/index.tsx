@@ -4,33 +4,77 @@ import FilterIcon from "components/icons/FilterIcon";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import SearchIcon from "components/icons/SearchIcon";
 import Card from "components/shared/Card";
+import { Loading } from "components/shared/Loading";
 import DataTable from "components/Table/DataTable";
 import { Badge } from "components/ui/badge";
 import { Button } from "components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { HrRoutes } from "constants/RouterConstants";
 import { TOnboarding } from "definations/hr-types/hr-beneficiary";
 import { cn } from "lib/utils";
-import { Link } from "react-router-dom";
+import { Link } from "react-router-dom"; 
+import { useGetEmployeeOnboardingsQuery } from "services/hrApi/hr-employee-onboarding";
+import ApplicationsTable from "../advertisement/table/ApplicationsTable";
 
 const Onboarding = () => {
-  return (
-    <Card className="space-y-4">
-      <div className="flex items-center justify-start gap-2 pt-4">
-        <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
+  const { data: employeeData, isLoading: fetchingEmployeeData } = useGetEmployeeOnboardingsQuery({});
+ 
+
+  if (fetchingEmployeeData) {
+    return <Loading />;
+  }
+  const TABS = [
+    {
+      label: "Accepted Applicants",
+      value: "accepted",
+      // @ts-ignore
+      children:  <ApplicationsTable   status='ACCEPTED' />,
+    },
+    {
+      label: "Employees",
+      value: "employees",
+      // @ts-ignore
+      children: 
+      <>
+      <div className='flex items-center justify-start gap-2 py-4'>
+        <span className='flex items-center w-1/3 px-2 py-2 border rounded-lg'>
           <SearchIcon />
           <input
-            placeholder="Search"
-            type="text"
-            className="ml-2 h-6 border-none bg-none focus:outline-none outline-none"
+            placeholder='Search'
+            type='text'
+            className='ml-2 h-6 border-none w-full bg-none focus:outline-none outline-none'
           />
         </span>
-        <Button className="shadow-sm" variant="ghost">
+        <Button className='shadow-sm' variant='ghost'>
           <FilterIcon />
         </Button>
       </div>
+      <DataTable data={employeeData?.data?.results} columns={columns} isLoading={fetchingEmployeeData} />
+      </>
+      ,
+    }, 
+  ];
+  return (
+    <Card className='space-y-4'>
+      
 
-      <DataTable data={data} columns={columns} isLoading={false} />
+       
+       <Tabs defaultValue='accepted'>
+              <TabsList>
+                {TABS.map((tab) => (
+                  <TabsTrigger key={tab.value} value={tab.value}>
+                    {tab.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+      
+              {TABS.map((tab) => (
+                <TabsContent key={tab.value} value={tab.value}>
+                  <Card className='px-6'>{tab.children}</Card>
+                </TabsContent>
+              ))}
+            </Tabs>
     </Card>
   );
 };
@@ -48,12 +92,12 @@ const data: TOnboarding[] = Array(5).fill({
 const columns: ColumnDef<TOnboarding>[] = [
   {
     header: "Staff_name",
-    accessorKey: "staff_name",
+    accessorKey: "legal_firstname ",
     size: 150,
   },
   {
     header: "Position",
-    accessorKey: "position",
+    accessorKey: "designation.name",
     size: 100,
   },
   {
@@ -73,7 +117,7 @@ const columns: ColumnDef<TOnboarding>[] = [
     cell: ({ getValue }) => {
       return (
         <Badge
-          variant="default"
+          variant='default'
           className={cn(
             "p-1 rounded-lg",
             getValue() === "APPROVED" && "bg-green-200 text-green-500",
@@ -97,22 +141,22 @@ const columns: ColumnDef<TOnboarding>[] = [
 
 const ActionList = () => {
   return (
-    <div className="flex items-center gap-2">
+    <div className='flex items-center gap-2'>
       <>
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost" className="flex gap-2 py-6">
+            <Button variant='ghost' className='flex gap-2 py-6'>
               <MoreOptionsHorizontalIcon />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className=" w-fit">
+          <PopoverContent className=' w-fit'>
             <Link
               to={HrRoutes.ONBOARDING_START}
-              className="flex flex-col items-start justify-between gap-1"
+              className='flex flex-col items-start justify-between gap-1'
             >
               <Button
-                className="w-full flex items-center justify-start gap-2"
-                variant="ghost"
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
               >
                 <EyeIcon />
                 View

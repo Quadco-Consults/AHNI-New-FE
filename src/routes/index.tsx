@@ -9,6 +9,8 @@ import { candg } from "./candg";
 import { modules } from "./modules";
 import { hr } from "./hr";
 import { notification } from "./notification";
+import { support } from "./support";
+import { account } from "./account";
 
 const getRoutes = function getRoutes() {
     return configureRoutes([
@@ -22,6 +24,8 @@ const getRoutes = function getRoutes() {
         ...modules,
         ...hr,
         ...notification,
+        ...support,
+        ...account,
     ]);
 };
 
