@@ -1,25 +1,15 @@
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
-import { RouteEnum } from "constants/RouterConstants";
 import { ArrowLeft } from "lucide-react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import SupportiveSupervisionAPI from "services/programsApi/suportive-supervision";
-import { Criteria } from "definations/program-types/supportive-supervision";
-import { Input } from "components/ui/input";
-import { Upload as UploadFile } from "lucide-react";
-import FormButton from "atoms/FormButton";
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { supportiveSupervisionActions } from "store/formData/ssp-values";
-import { Loading, LoadingSpinner } from "components/shared/Loading";
+import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { LoadingSpinner } from "components/shared/Loading";
 import { toast } from "sonner";
-import { RootState } from "store/index";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import BreadcrumbCard from "components/shared/Breadcrumb";
 import BackNavigation from "atoms/BackNavigation";
 import Upload from "components/shared/Upload";
 import { Separator } from "components/ui/separator";
-import { Textarea } from "components/ui/textarea";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import FormTextArea from "atoms/FormTextArea";
 import AddSquareIcon from "components/icons/AddSquareIcon";
@@ -27,21 +17,12 @@ import { IObjective } from "definations/program/plan/supervision-plan/supervisio
 import { useGetSingleSupervisionPlanQuery } from "services/program/plan/supervision-plan/supervision-plan";
 import FormRadio from "atoms/FormRadio";
 import FormInput from "atoms/FormInput";
-import {
-    SubGrantSubmissionSchema,
-    TSubGrantSubmissionFormData,
-} from "definations/c&g/contract-management/sub-grant/sub-grant";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
     SupervisionPlanReviewSchema,
     TSupervisionPlanReviewFormData,
 } from "definations/program/plan/supervision-plan/supervision-plan-review";
 import { useCreateSupervisionPlanReviewMutation } from "services/program/plan/supervision-plan/supervision-plan-review";
-import { fileToBase64 } from "utils/fileToBase64";
-
-type FormData = {
-    [key: string]: string;
-};
 
 const breadcrumbs = [
     { name: "Programs", icon: true },
@@ -150,9 +131,8 @@ export default function EvaluationCriteriaProcess() {
         }
     };
 
-    const documents = form.watch("documents")[0];
+    const documents = form.watch("documents");
 
-    // console.log(documents.document.name);
     console.log(form.formState.errors);
 
     const [createSupervisionPlanReview, { isLoading: isCreateLoading }] =
@@ -350,22 +330,32 @@ export default function EvaluationCriteriaProcess() {
                                         </div>
                                     </div>
 
-                                    <Upload
-                                        onChange={(e) =>
-                                            handleFileChange(
-                                                tag,
-                                                e.target.files
-                                            )
-                                        }
-                                    >
-                                        <Button
-                                            type="button"
-                                            className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                                    <div>
+                                        <Upload
+                                            onChange={(e) =>
+                                                handleFileChange(
+                                                    tag,
+                                                    e.target.files
+                                                )
+                                            }
                                         >
-                                            <AddSquareIcon />
-                                            Upload New Document
-                                        </Button>
-                                    </Upload>
+                                            <Button
+                                                type="button"
+                                                className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                                            >
+                                                <AddSquareIcon />
+                                                Upload New Document
+                                            </Button>
+                                        </Upload>
+
+                                        <p className="mt-2">
+                                            {
+                                                documents.find(
+                                                    (doc) => doc.title === tag
+                                                )?.document?.name
+                                            }
+                                        </p>
+                                    </div>
 
                                     <hr />
                                 </Card>
