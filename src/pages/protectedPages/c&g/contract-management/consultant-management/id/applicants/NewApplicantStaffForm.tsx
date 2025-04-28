@@ -7,7 +7,6 @@ import FormSelect from "atoms/FormSelect";
 import FormTextArea from "atoms/FormTextArea";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
-import Upload from "components/shared/Upload";
 import { Button } from "components/ui/button";
 import { Label } from "components/ui/label";
 import { countries } from "constants/countries";
