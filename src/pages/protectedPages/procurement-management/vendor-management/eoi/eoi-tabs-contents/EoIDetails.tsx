@@ -113,7 +113,7 @@ const EoIDetails = (data: EOIResultsData) => {
             <Dialog>
               <DialogTrigger>
                 <Document
-                  file={data.document}
+                  file={data.document_detail}
                   onLoadSuccess={onDocumentLoadSuccess}
                 >
                   <Page pageNumber={pageNumber} width={200} height={100} />
@@ -124,7 +124,7 @@ const EoIDetails = (data: EOIResultsData) => {
                   <DialogTitle>{data.name}</DialogTitle>
                   <div className='flex pt-5 justify-center'>
                     <Document
-                      file={data.document}
+                      file={data.document_detail}
                       onLoadSuccess={onDocumentLoadSuccess}
                     >
                       {Array.from(new Array(numPages), (el, index) => (

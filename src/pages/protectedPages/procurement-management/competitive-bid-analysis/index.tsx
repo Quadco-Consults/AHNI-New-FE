@@ -10,7 +10,7 @@ import FilterIcon from "components/icons/FilterIcon";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import { Link, generatePath } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
-import EyeIcon from "components/icons/EyeIcon";
+// import EyeIcon from "components/icons/EyeIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { Badge } from "components/ui/badge";
 import { Checkbox } from "components/ui/checkbox";
@@ -20,6 +20,7 @@ import PrinterIcon from "components/icons/PrinterIcon";
 import SendIcon from "components/icons/SendIcon";
 import { useState } from "react";
 import { Loading } from "components/shared/Loading";
+import { Plus } from "lucide-react";
 
 const CompetitiveAnalysis = () => {
   const [page, setPage] = useState(1);
@@ -31,7 +32,7 @@ const CompetitiveAnalysis = () => {
   if (isLoading) {
     return <Loading />;
   }
-
+  // return;
   return (
     <div className='space-y-10'>
       <div>
@@ -45,6 +46,16 @@ const CompetitiveAnalysis = () => {
       </div>
 
       <Card className='space-y-10'>
+        <div className='flex items-center justify-end'>
+          <Link to={RouteEnum.RFQ_CREATE_CBA}>
+            <Button>
+              <span>
+                <Plus size={15} />
+              </span>
+              Create New
+            </Button>
+          </Link>
+        </div>
         <div className='flex items-center justify-start gap-2'>
           <span className='flex items-center w-1/3 px-2 py-2 border rounded-lg'>
             <SearchIcon />
@@ -182,7 +193,7 @@ const ActionListAction = ({ data }: any) => {
                   View
                 </Button>
               </Link> */}
-              <Link
+              {/* <Link
                 className='w-full'
                 to={generatePath(
                   RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_START,
@@ -190,15 +201,15 @@ const ActionListAction = ({ data }: any) => {
                     id: data?.id,
                   }
                 )}
+              > */}
+              {/* <Button
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
               >
-                <Button
-                  className='w-full flex items-center justify-start gap-2'
-                  variant='ghost'
-                >
-                  <SendIcon />
-                  Start CBA
-                </Button>
-              </Link>
+                <SendIcon />
+                Start CBA
+              </Button> */}
+              {/* </Link> */}
               <Link
                 className='w-full'
                 to={{
@@ -212,7 +223,7 @@ const ActionListAction = ({ data }: any) => {
                   variant='ghost'
                 >
                   <SendIcon />
-                  Check Approval
+                  Start CBA
                 </Button>
               </Link>
               <Button

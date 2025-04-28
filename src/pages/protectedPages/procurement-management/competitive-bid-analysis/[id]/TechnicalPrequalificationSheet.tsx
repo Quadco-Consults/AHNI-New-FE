@@ -18,33 +18,47 @@ import { RouteEnum } from "constants/RouterConstants";
 import { toast } from "sonner";
 import { Loading } from "components/shared/Loading";
 import { skipToken } from "@reduxjs/toolkit/query";
+import VendorsAPI from "services/procurementApi/vendors";
 
 const TPS = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
-  const { data: cbaData, isLoading } = CbaAPI.useGetCbaQuery({
-    path: {
-      // @ts-ignore
-      id: id,
-    },
+  const { id, appID } = useParams();
+
+  // const { data: cbaData } = CbaAPI.useGetCbaQuery({
+  //   path: {
+  //     // @ts-ignore
+  //     id: id,
+  //   },
+  // });
+
+  const { data: grData, isLoading } = VendorsAPI.useGetVendorQuery({
+    path: { id: id as string },
   });
 
   const { data } = useGetSolicitationSubmissionQuery({
     // @ts-ignore
-    path: { id: cbaData?.data?.solicitation?.id ?? skipToken },
+    path: { id: appID ?? skipToken },
   });
 
-  console.log({ cbaData });
+  // console.log({ id, grData, isLoading, appID, data });
 
   const [createManualBidCBAPrequalification] =
     ManualBidCbaPrequalificationAPI.useCreateManualBidCbaPrequalificationMutation();
 
-  const [vendorId, setVendorId] = useState<string>("");
+  const [vendorId, setVendorId] = useState<string>(id!);
+  console.log({
+    id,
+    grData: grData?.data?.company_name,
+    isLoading,
+    appID,
+    data: data?.data?.results[0]?.solicitation?.title,
+    vendorId,
+  });
 
   const form = useForm({
     defaultValues: {
       cba: "",
-      bid_submission: "",
+      bid_submission: id!,
       stage: "TECHNICAL",
       criteriaDataStatus: [],
     },
@@ -52,36 +66,31 @@ const TPS = () => {
 
   const { handleSubmit, control, getValues, setValue } = form;
 
-  useEffect(() => {
-    // @ts-ignore
-    if (vendorId) {
-      setValue("bid_submission", vendorId);
-    }
-  }, [setValue, vendorId]);
-
-  useEffect(() => {
-    if (cbaData?.data?.id) {
-      setValue("cba", cbaData?.data?.id);
-    }
-  }, [cbaData, setValue]);
+  // useEffect(() => {
+  //   if (cbaData?.data?.id) {
+  //     setValue("cba", cbaData?.data?.id);
+  //   }
+  // }, [cbaData, setValue]);
 
   const onSubmit = async (data: any) => {
-    if (!vendorId || !cbaData?.data?.solicitation) {
-      console.error("Vendor ID or Solicitation ID is missing.");
-      return;
-    }
+    // if (!vendorId || !cbaData?.data?.solicitation) {
+    //   console.error("Vendor ID or Solicitation ID is missing.");
+    //   return;
+    // }
 
     try {
       let failedCount = 0; // Counter for failed responses
 
       for (let criteria of data.criteriaDataStatus) {
         const payload = {
-          cba: data.cba,
+          // 81699270-da42-4540-bf75-89777fed1e25
+          cba: "bc9d055f-7732-49f7-b501-c20726fb8cd4",
           bid_submission: data.bid_submission,
           stage: data.stage,
           criteria: criteria.criteria,
           passed: criteria.status === "PASS",
         };
+        console.log({ payload });
 
         // @ts-ignore
         const response = await createManualBidCBAPrequalification(
@@ -105,9 +114,11 @@ const TPS = () => {
     }
     navigate(RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_FINANCIAL_BID_OPENING, {
       state: {
-        cba: data.cba,
+        // cba: data.cba,
+        cba: "bc9d055f-7732-49f7-b501-c20726fb8cd4",
+
         bid_submission: data.bid_submission,
-        solicitation: cbaData?.data?.solicitation?.id,
+        solicitation: id!,
       },
     });
   };
@@ -137,18 +148,19 @@ const TPS = () => {
             <div className='p-4 w-full h-[70px] flex justify-between items-center'>
               <h3 className='w-[250px] whitespace-nowrap'>Project Title</h3>
               <div className='flex w-full items-center justify-start ml-6'>
-                <p>{cbaData?.data?.solicitation?.title}</p>
+                <p>{data?.data?.results[0]?.solicitation?.title}</p>
               </div>
             </div>{" "}
             <Separator />
             <div className='p-4 w-full h-[70px] flex justify-between items-center'>
-              <h3 className='w-[250px] whitespace-nowrap'>Company Accessed</h3>
+              <h3 className='w-[250px] whitespace-nowrap'>Company Accessed:</h3>
               <div className='flex w-full items-center justify-start ml-6'>
-                <VendorSelect
+                {/* <VendorSelect
                   vendorId={vendorId}
                   setVendorId={setVendorId}
                   data={data}
-                />
+                /> */}
+                <p>{grData?.data?.company_name}</p>
               </div>
             </div>
             <TenderChecklist
@@ -225,7 +237,8 @@ const TPS = () => {
             </h3>
             <DataTable
               columns={columns}
-              data={cbaData?.data?.committee_members || []}
+              // data={cbaData?.data?.committee_members || []}
+              data={[]}
             />
           </div>
           <div className='w-full'>
