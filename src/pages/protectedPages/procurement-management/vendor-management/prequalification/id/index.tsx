@@ -71,6 +71,7 @@ const PrequalificationDetails = () => {
           <TabsTrigger value='technical-capability'>
             Technical Capability
           </TabsTrigger>
+          <TabsTrigger value='items'>Items</TabsTrigger>
         </TabsList>
         <TabsContent value='overview'>
           <Overview {...(data as VendorsResultsData)} />
@@ -83,6 +84,11 @@ const PrequalificationDetails = () => {
         </TabsContent>
         <TabsContent value='technical-capability'>
           <TechnicalCapability {...(data as VendorsResultsData)} />
+        </TabsContent>
+        <TabsContent value='items'>
+          {/* <TechnicalCapability {...(data as VendorsResultsData)} />
+           */}
+          items
         </TabsContent>
       </Tabs>
     </div>

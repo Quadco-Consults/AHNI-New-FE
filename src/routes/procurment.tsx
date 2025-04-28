@@ -237,6 +237,15 @@ export const procurment = [
     ),
   },
   {
+    path: RouteEnum.RFQ_CREATE_QUOTATION_OPEN_TENDER,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/solicitation-management/RFQ/create/Quotation"
+        )
+    ),
+  },
+  {
     path: RouteEnum.RFQ_CREATE_ITEMS,
     element: lazy(
       () =>
@@ -296,7 +305,7 @@ export const procurment = [
     element: lazy(
       () =>
         import(
-          "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/technicalPrequalificationSheet"
+          "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/TechnicalPrequalificationSheet"
         )
     ),
   },

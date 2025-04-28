@@ -7,6 +7,7 @@ export const EOISchema = z.object({
   financial_year: z.string().min(1, "Field is required"),
   categories: z.array(z.string()),
   eoi_number: z.string().min(1, "Field is required"),
+  type: z.string().min(1, "Field is required"),
 });
 
 export const PrequalificationCriteriaSchema = z.object({
@@ -251,6 +252,8 @@ export const SolicitationQuotationSchema = z.object({
   background: z.string().min(1, "Please enter background"),
   request_type: z.string().min(1, "Please select request type"),
   tender_type: z.string().min(1, "Please select tender type"),
+  eoi_tender: z.string().optional(),
+
   purchase_request: z
     .string()
     // .min(1, "Please select purchase request")

@@ -3,16 +3,12 @@ import GoBack from "components/shared/GoBack";
 import { Loading } from "components/shared/Loading";
 import { Button } from "components/ui/button";
 import { Textarea } from "components/ui/textarea";
-import { DialogType } from "constants/dailogs";
 import { RouteEnum } from "constants/RouterConstants";
 import useQuery from "hooks/useQuery";
-import { useAppDispatch } from "hooks/useStore";
-import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ManualBidCbaPrequalificationAPI from "services/procurementApi/manual-bid-cba-prequalification";
 import { toast } from "sonner";
-import { openDialog } from "store/ui";
 
 const TableComponent = () => {
   const query = useQuery();
@@ -20,7 +16,6 @@ const TableComponent = () => {
   const cba = query.get("cba");
 
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
 
   const { data: summaryData, isLoading } =
     ManualBidCbaPrequalificationAPI.useGetManualBidPrequalificationsQuery({
@@ -188,35 +183,6 @@ const TableComponent = () => {
     return selectedItems;
   };
 
-  const [updatedPrices, setUpdatedPrices] = useState({});
-
-  const handleUnitPriceChange = (e, itemId, companyName) => {
-    const newPrice = parseFloat(e.target.value) || 0;
-
-    setUpdatedPrices((prevPrices) => ({
-      ...prevPrices,
-      [itemId]: {
-        ...prevPrices[itemId],
-        [companyName]: newPrice,
-      },
-    }));
-
-    // Update total price as well
-    // setFormattedData((prevData) => {
-    //   const newData = { ...prevData };
-    //   const itemIndex = newData.data.items.findIndex((i) => i.id === itemId);
-
-    //   if (itemIndex !== -1) {
-    //     newData.data.items[itemIndex][companyName].unitPrice = newPrice;
-    //     newData.data.items[itemIndex][companyName].total =
-    //       newPrice * newData.data.items[itemIndex].qty;
-    //   }
-
-    //   return newData;
-    // });
-  };
-  console.log({ updatedPrices });
-
   const handleSubmitAnalysis = async () => {
     if (!cba || !id) return alert("Missing required IDs");
 
@@ -259,25 +225,6 @@ const TableComponent = () => {
     <>
       <GoBack />
       <div className=' bg-white p-6 mt-8'>
-        <div className='my-4 flex justify-end'>
-          <Button
-            onClick={() =>
-              dispatch(
-                openDialog({
-                  type: DialogType.AddCBAVendor,
-                  dialogProps: {
-                    header: "Add Vendor",
-                  },
-                })
-              )
-            }
-          >
-            <span>
-              <Plus size={20} />
-            </span>
-            Add Vendor
-          </Button>
-        </div>
         <div className=' overflow-x-auto bg-white'>
           {" "}
           {/* Add overflow-x-auto for horizontal scrolling */}
@@ -375,15 +322,7 @@ const TableComponent = () => {
                                 : " p-3"
                             }
                           >
-                            {/* {item[company.name].unitPrice} */}
-                            <input
-                              type='number'
-                              value={item[company.name].unitPrice}
-                              onChange={(e) =>
-                                handleUnitPriceChange(e, item.id, company.name)
-                              }
-                              className='w-full px-2 py-1 border rounded-md'
-                            />
+                            {item[company.name].unitPrice}
                           </td>
                           <td
                             key={`total-${item.id}-${idx}`}
