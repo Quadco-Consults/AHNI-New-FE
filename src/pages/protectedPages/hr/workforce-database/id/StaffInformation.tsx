@@ -27,10 +27,9 @@ const StaffInformation = ({ data }: { data: WorkforceResults }) => {
   const [pageNumber] = useState<number>(1);
   const { id } = useParams();
 
-  const qualificationResultQuery =
-    useGetWorkforceQualificationsQuery({
-      path: { id: id as string },
-    });
+  const qualificationResultQuery = useGetWorkforceQualificationsQuery({
+    path: { id: id as string },
+  });
 
   const qualifications = qualificationResultQuery?.data;
 
