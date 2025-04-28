@@ -7,7 +7,12 @@ type TProps = {
     className?: string;
 };
 
-const DescriptionCard = ({ label, description, aside, className }: TProps) => {
+export default function DescriptionCard({
+    label,
+    description,
+    aside,
+    className,
+}: TProps) {
     return (
         <>
             {aside ? (
@@ -23,6 +28,4 @@ const DescriptionCard = ({ label, description, aside, className }: TProps) => {
             )}
         </>
     );
-};
-
-export default DescriptionCard;
+}

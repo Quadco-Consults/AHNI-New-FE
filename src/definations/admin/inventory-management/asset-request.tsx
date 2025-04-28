@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { TAssetSingleData } from "./asset";
+import { TLocationData } from "definations/modules/config/location";
 
 export const AssetRequestSchema = z.object({
     asset: z.string().min(1, "Please select an asset"),
@@ -50,6 +51,8 @@ export interface IAssetRequestSingleSData {
     recommendation: string;
     description: string;
     disposal_justification: string;
+    from_location: TLocationData;
+    to_location: TLocationData;
     comments: string;
     created_by: string;
     updated_by: string;

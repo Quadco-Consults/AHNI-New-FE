@@ -137,6 +137,8 @@ export default function CreateAssetRequestDetails() {
                 description: assetRequest?.data.description,
                 disposal_justification:
                     assetRequest?.data.disposal_justification,
+                from_location: assetRequest?.data.from_location.id,
+                to_location: assetRequest?.data.to_location.id,
             });
         }
     }, [assetRequest]);

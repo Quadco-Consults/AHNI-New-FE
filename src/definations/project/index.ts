@@ -7,6 +7,7 @@ import { IUser } from "definations/auth/user";
 export const ProjectSchema = z.object({
   title: z.string().min(1, "Please enter title"),
   project_id: z.string().min(1, "Please enter project id"),
+  location: z.string().min(1, "Please select project location"),
   goal: z.string().min(1, "Please enter goal"),
   narrative: z.string().min(1, "Please enter narrative"),
   budget_performance: z.string().min(1, "Please enter budget performance"),
@@ -31,6 +32,7 @@ export type TProjectFormValues = z.infer<typeof ProjectSchema>;
 
 export interface IProjectSingleData {
   id: string;
+  location: string;
   project_managers: IUser[];
   beneficiaries: TBeneficiaryData[];
   funding_sources: TFundingSourceData[];
@@ -56,6 +58,7 @@ export interface IProjectSingleData {
   currency: string;
   status: string;
 }
+
 export interface ProjectsData {
   count: number;
   next: string;
