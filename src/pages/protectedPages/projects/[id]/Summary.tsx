@@ -1,6 +1,7 @@
 import LocationSvg from "assets/svgs/LocationSvg";
 import { Badge } from "components/ui/badge";
 import { IProjectSingleData } from "definations/project";
+import { formatNumberCurrency } from "utils/utls";
 
 export default function ProjectSummary(props: IProjectSingleData) {
     const {
@@ -22,9 +23,16 @@ export default function ProjectSummary(props: IProjectSingleData) {
             <h4 className="font-semibold text-lg">Project Summary</h4>
             <hr />
 
-            <div className="space-y-1">
-                <h3 className="font-semibold">Project Title</h3>
-                <p className="text-sm text-gray-500">{title}</p>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <div className="space-y-1">
+                    <h3 className="font-semibold">Project Title</h3>
+                    <p className="text-sm text-gray-500">{title}</p>
+                </div>
+
+                <div className="space-y-1">
+                    <h3 className="font-semibold">Project Location</h3>
+                    <p className="text-sm text-gray-500">N/A</p>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -57,8 +65,7 @@ export default function ProjectSummary(props: IProjectSingleData) {
                         Budget (Total Estimated Amount)
                     </h3>
                     <p className="text-sm text-gray-500">
-                        {currency === "NGN" ? "₦" : "$"}
-                        {budget}
+                        {formatNumberCurrency(budget, currency)}
                     </p>
                 </div>
 

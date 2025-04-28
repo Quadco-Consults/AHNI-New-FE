@@ -1,7 +1,7 @@
 import { useAppSelector } from "hooks/useStore";
 import { dailogSelector } from "store/ui";
 import { BaseDailog } from "./BaseDailog";
-import { ReactNode } from "react";
+import React, { ReactNode } from "react";
 import { DialogType } from "constants/dailogs";
 import CategoriesModal from "./components/CategoriesModal";
 import PriceModal from "./components/PriceModal";
@@ -76,14 +76,16 @@ import AddInterventionArea from "pages/protectedPages/modules/programs/AddInterv
 import AddObligationModal from "./components/ObligationModal";
 import AddNewItems from "pages/protectedPages/modules/procurement/AddNewItems";
 import AddMarketPrice from "pages/protectedPages/modules/config/AddMarketPrice";
-import SubGrantManualSubUploadModal from "./components/PartnerSubmissionUploadModal";
-import AddCBAVendor from "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/AddCBAVendor";
+import SubGrantManualSubUploadModal from "./components/SubGrantSubUploadModal";
+import AddPreAwardQuestion from "pages/protectedPages/modules/c&g/AddPreAwardQuestion";
+import AddTicketModal from "./components/AddTicketModal";
 
 const sheets: Record<string, ReactNode> = {
   [DialogType.Categories]: <CategoriesModal />,
   [DialogType.PriceInteligence]: <PriceModal />,
   [DialogType.Checklist]: <ChecklistModal />,
   [DialogType.WorkPlanUpload]: <WorkPlanUploadModal />,
+  [DialogType.AddTicket]: <AddTicketModal />,
   [DialogType.ActivityUpload]: <ActivityUploadModal />,
   [DialogType.ActivityTrackerModal]: <ActivityTrackerModal />,
   [DialogType.SspUpload]: <SspUploadModal />,
@@ -112,7 +114,6 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.AddStock]: <AddStock />,
 
   [DialogType.AddMarketPrice]: <AddMarketPrice />,
-  [DialogType.AddCBAVendor]: <AddCBAVendor />,
   [DialogType.AddNewItems]: <AddNewItems />,
   [DialogType.AddTeamMenbers]: <TeamMemberSelection />,
   [DialogType.AddFundingSource]: <AddFundingSource />,
@@ -162,16 +163,35 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.ADD_OBLIGATION_MODAL]: <AddObligationModal />,
   [DialogType.ADD_OBLIGATION_MODAL]: <AddObligationModal />,
   [DialogType.SUBGRANT_MANUAL_SUB_UPLOAD]: <SubGrantManualSubUploadModal />,
+  [DialogType.ADD_PRE_AWARD_QUESTION_MODAL]: <AddPreAwardQuestion />,
 };
+interface DialogPropsMap {
+  [DialogType.FeedbackModal]: {
+    form: any;
+    onAction: () => void;
+    isLoading: boolean;
+    // Add other expected props
+  };
+  // Define props for other modal types as needed
+}
 
 const AppDailog = () => {
-  const { type } = useAppSelector(dailogSelector);
+  const { type, dialogProps } = useAppSelector(dailogSelector);
 
-  const SpecificModal = sheets[type];
+  const renderModal = () => {
+    const modal = sheets[type];
+    if (!modal) return null;
 
-  if (!SpecificModal) return null;
+    // Safely merge props
+    const mergedProps = {
+      ...(modal.props || {}),
+      ...(dialogProps as Partial<DialogPropsMap[typeof type]>),
+    };
 
-  return <BaseDailog>{SpecificModal}</BaseDailog>;
+    return React.cloneElement(modal, mergedProps);
+  };
+
+  return <BaseDailog>{renderModal()}</BaseDailog>;
 };
 
 export default AppDailog;

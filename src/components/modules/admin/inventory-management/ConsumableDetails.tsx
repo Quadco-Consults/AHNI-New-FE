@@ -71,7 +71,7 @@ export default function ConsumableDetails() {
                                         </h4>
                                         <p className="text-[#4D4545] text-sm">
                                             {consumable?.data
-                                                .previous_quantity || "N/A"}
+                                                .previous_quantity || "0"}
                                         </p>
                                     </div>
 

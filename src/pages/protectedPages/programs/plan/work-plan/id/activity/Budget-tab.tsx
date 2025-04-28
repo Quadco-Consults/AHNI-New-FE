@@ -5,6 +5,7 @@ import {
     TWorkPlanSingleResponse,
 } from "definations/program-types/work-plan";
 import { useMemo } from "react";
+import { formatNumberCurrency } from "utils/utls";
 
 type PropsType = {
     data: TWorkPlanSingleResponse;
@@ -34,104 +35,107 @@ const BudgetTab = ({ data }: PropsType) => {
             {
                 header: "Unit Cost",
                 accessorKey: "unit_cost_ngn",
-                accessorFn: (data) => `${data.unit_cost_ngn}`,
+                accessorFn: (data) =>
+                    formatNumberCurrency(data.unit_cost_ngn, "NGN"),
                 size: 200,
             },
 
             {
                 header: "Oct",
-                accessorFn: ({ gant_chart }) =>
-                    `${(gant_chart && gant_chart["Oct"]) || "N/A"}`,
+                accessorFn: ({ budget_chart }) =>
+                    `${(budget_chart && `₦${budget_chart["Oct"]}`) || "N/A"}`,
                 size: 100,
             },
 
             {
                 header: "Nov",
-                accessorFn: ({ gant_chart }) =>
-                    `${(gant_chart && gant_chart["Nov"]) || "N/A"}`,
+                accessorFn: ({ budget_chart }) =>
+                    `${(budget_chart && `₦${budget_chart["Nov"]}`) || "N/A"}`,
                 size: 100,
             },
 
             {
                 header: "Dec",
-                accessorFn: ({ gant_chart }) =>
-                    `${(gant_chart && gant_chart["Dec"]) || "N/A"}`,
+                accessorFn: ({ budget_chart }) =>
+                    `${(budget_chart && `₦${budget_chart["Dec"]}`) || "N/A"}`,
                 size: 100,
             },
 
             {
                 header: "Jan",
-                accessorFn: ({ gant_chart }) =>
-                    `${(gant_chart && gant_chart["Jan"]) || "N/A"}`,
+                accessorFn: ({ budget_chart }) =>
+                    `${(budget_chart && `₦${budget_chart["Jan"]}`) || "N/A"}`,
                 size: 100,
             },
 
             {
                 header: "Feb",
-                accessorFn: ({ gant_chart }) =>
-                    `${(gant_chart && gant_chart["Feb"]) || "N/A"}`,
+                accessorFn: ({ budget_chart }) =>
+                    `${(budget_chart && `₦${budget_chart["Feb"]}`) || "N/A"}`,
                 size: 100,
             },
 
             {
                 header: "Mar",
-                accessorFn: ({ gant_chart }) =>
-                    `${(gant_chart && gant_chart["Mar"]) || "N/A"}`,
+                accessorFn: ({ budget_chart }) =>
+                    `${(budget_chart && `₦${budget_chart["Mar"]}`) || "N/A"}`,
                 size: 100,
             },
 
             {
                 header: "Apr",
-                accessorFn: ({ gant_chart }) =>
-                    `${(gant_chart && gant_chart["Apr"]) || "N/A"}`,
+                accessorFn: ({ budget_chart }) =>
+                    `${(budget_chart && `₦${budget_chart["Apr"]}`) || "N/A"}`,
                 size: 100,
             },
 
             {
                 header: "May",
-                accessorFn: ({ gant_chart }) =>
-                    `${(gant_chart && gant_chart["May"]) || "N/A"}`,
+                accessorFn: ({ budget_chart }) =>
+                    `${(budget_chart && `₦${budget_chart["May"]}`) || "N/A"}`,
                 size: 100,
             },
 
             {
                 header: "Jun",
-                accessorFn: ({ gant_chart }) =>
-                    `${(gant_chart && gant_chart["Jun"]) || "N/A"}`,
+                accessorFn: ({ budget_chart }) =>
+                    `${(budget_chart && `₦${budget_chart["Jun"]}`) || "N/A"}`,
                 size: 100,
             },
 
             {
                 header: "Jul",
-                accessorFn: ({ gant_chart }) =>
-                    `${(gant_chart && gant_chart["Jul"]) || "N/A"}`,
+                accessorFn: ({ budget_chart }) =>
+                    `${(budget_chart && `₦${budget_chart["Jul"]}`) || "N/A"}`,
                 size: 100,
             },
 
             {
                 header: "Aug",
-                accessorFn: ({ gant_chart }) =>
-                    `${(gant_chart && gant_chart["Aug"]) || "N/A"}`,
+                accessorFn: ({ budget_chart }) =>
+                    `${(budget_chart && `₦${budget_chart["Aug"]}`) || "N/A"}`,
                 size: 100,
             },
 
             {
                 header: "Sep",
-                accessorFn: ({ gant_chart }) =>
-                    `${(gant_chart && gant_chart["Sep"]) || "N/A"}`,
+                accessorFn: ({ budget_chart }) =>
+                    `${(budget_chart && `₦${budget_chart["Sep"]}`) || "N/A"}`,
                 size: 100,
             },
 
             {
                 header: "Total (NGN)",
                 accessorKey: "total_amount_ngn",
-                accessorFn: (data) => `₦${data.total_amount_ngn}`,
+                accessorFn: (data) =>
+                    formatNumberCurrency(data.total_amount_ngn, "NGN"),
                 size: 250,
             },
 
             {
                 header: "Total (USD)",
-                accessorFn: (data) => `$${data.total_amount_usd}`,
+                accessorFn: (data) =>
+                    formatNumberCurrency(data.total_amount_ngn, "USD"),
                 size: 200,
             },
 
@@ -146,7 +150,16 @@ const BudgetTab = ({ data }: PropsType) => {
                 accessorKey: "approved_ref_no",
                 size: 250,
             },
-
+            {
+                header: "Cost Category",
+                accessorKey: "cost_group",
+                size: 250,
+            },
+            {
+                header: "Intervention Area",
+                accessorKey: "intervention_area",
+                size: 250,
+            },
             {
                 header: "Comments",
                 accessorKey: "comments",

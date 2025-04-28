@@ -22,7 +22,7 @@ import DocumentCard from "./DocumentCard";
 import Pagination from "components/shared/Pagination";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
-import FilePreview from "components/shared/FileCard";
+import FilePreview from "components/shared/FilePreview";
 import { toast } from "sonner";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(

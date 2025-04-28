@@ -17,43 +17,45 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url
 ).toString();
 
-const PdfContent = () => {
-  const [numPages, setNumPages] = useState<number>();
-  const [pageNumber] = useState<number>(1);
-
-  const pdf = {
+const PdfContent = ({
+  pdf = {
     name: "document",
     document: "document.pdf",
-  };
+  },
+}: {
+  pdf?: any;
+}) => {
+  const [numPages, setNumPages] = useState<number>();
+  const [pageNumber] = useState<number>(1);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }): void {
     setNumPages(numPages);
   }
   return (
-    <div className="border space-y-4 rounded-2xl p-5 w-full overflow-hidden h-fit">
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
+    <div className='border space-y-4 rounded-2xl p-5 w-full overflow-hidden h-fit'>
+      <div className='flex items-center justify-between gap-2'>
+        <div className='flex items-center gap-2'>
           <PdfIcon />
-          <h2 className="line-clamp-1">{pdf?.name}</h2>
+          <h2 className='line-clamp-1'>{pdf?.name}</h2>
         </div>
       </div>
       {pdf?.document?.endsWith("pdf") ? (
-        <div className="bg-[#0000001A] py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden">
+        <div className='bg-[#0000001A] py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden'>
           <Dialog>
             <DialogTrigger>
               <Document
-                file={"https://pdfobject.com/pdf/sample.pdf"}
+                file={pdf?.document ?? "https://pdfobject.com/pdf/sample.pdf"}
                 onLoadSuccess={onDocumentLoadSuccess}
               >
                 <Page pageNumber={pageNumber} width={200} height={100} />
               </Document>
             </DialogTrigger>
-            <DialogContent className="min-w-[60%]">
+            <DialogContent className='min-w-[60%]'>
               <DialogHeader>
                 <DialogTitle>{pdf.name}</DialogTitle>
-                <div className="flex pt-5 justify-center">
+                <div className='flex pt-5 justify-center'>
                   <Document
-                    file={"https://pdfobject.com/pdf/sample.pdf"}
+                    file={pdf?.document ?? "https://pdfobject.com/pdf/sample.pdf"}
                     onLoadSuccess={onDocumentLoadSuccess}
                   >
                     {Array.from(new Array(numPages), (el, index) => (
@@ -71,7 +73,7 @@ const PdfContent = () => {
           </Dialog>
         </div>
       ) : (
-        <div className="h-56">
+        <div className='h-56'>
           <img src={pdf.document} alt={pdf.name} />
         </div>
       )}

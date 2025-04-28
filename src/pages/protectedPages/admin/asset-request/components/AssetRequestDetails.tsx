@@ -48,6 +48,29 @@ export default function AssetRequestDetails() {
                         />
 
                         <DescriptionCard
+                            label="Request Type"
+                            description={assetRequest?.data.type}
+                        />
+
+                        {assetRequest?.data.type === "MOVEMENT" && (
+                            <>
+                                <DescriptionCard
+                                    label="From"
+                                    description={
+                                        assetRequest?.data.from_location.name
+                                    }
+                                />
+
+                                <DescriptionCard
+                                    label="To"
+                                    description={
+                                        assetRequest?.data.to_location.name
+                                    }
+                                />
+                            </>
+                        )}
+
+                        <DescriptionCard
                             label="Disposal Justification"
                             description={
                                 assetRequest?.data.disposal_justification
@@ -70,8 +93,8 @@ export default function AssetRequestDetails() {
                         />
 
                         <DescriptionCard
-                            label="Description"
-                            description={assetRequest?.data.description}
+                            label="Recommendation"
+                            description={assetRequest?.data.recommendation}
                         />
 
                         <DescriptionCard
@@ -80,8 +103,8 @@ export default function AssetRequestDetails() {
                         />
 
                         <DescriptionCard
-                            label="Recommendation"
-                            description={assetRequest?.data.recommendation}
+                            label="Description"
+                            description={assetRequest?.data.description}
                         />
                     </CardContent>
                 )

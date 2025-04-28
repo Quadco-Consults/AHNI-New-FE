@@ -6,7 +6,7 @@ import ConsultancyScopeOfWorkDetails from "./ConsultancyScopeOfWorkDetails";
 import ConsultancySubmittedApplications from "./ConsultancySubmittedApplications";
 import { Button } from "components/ui/button";
 import AddSquareIcon from "components/icons/AddSquareIcon";
-import { CG_GROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "constants/RouterConstants";
 import { generatePath, useNavigate, useParams } from "react-router-dom";
 import ConsultancyShortList from "./ConsultancyShortList";
 
@@ -77,20 +77,7 @@ const ConsultancyDetails = () => {
                 </div>
                 <div>
                     {tabState === tabDetails[2].state && (
-                        <Button
-                            className="flex gap-2 py-6"
-                            type="button"
-                            onClick={() => {
-                                navigate(
-                                    generatePath(
-                                        CG_GROUTES.ADD_CONSULTANCY_APPLICATION,
-                                        {
-                                            id: params.id,
-                                        }
-                                    )
-                                );
-                            }}
-                        >
+                        <Button className="flex gap-2 py-6" type="button">
                             <AddSquareIcon />
                             <p>Add Applicant</p>
                         </Button>

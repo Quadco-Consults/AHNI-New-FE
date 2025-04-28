@@ -4,12 +4,12 @@ import EyeIcon from "components/icons/EyeIcon";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import { Button } from "components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { CG_GROUTES } from "constants/RouterConstants";
-import { ISubGrantSubmissionPaginatedData } from "definations/c&g/sub-grant";
-import { generatePath, Link, useParams } from "react-router-dom";
+import { CG_ROUTES } from "constants/RouterConstants";
+import { ISubGrantSubmissionPaginatedData } from "definations/c&g/contract-management/sub-grant/sub-grant";
+import { generatePath, Link, useLocation, useParams } from "react-router-dom";
 import PencilIcon from "components/icons/PencilIcon";
 import { toast } from "sonner";
-import { useDeleteSubGrantManualSubMutation } from "services/c&g/subgrant/manual-submission";
+import { useDeleteSubGrantManualSubMutation } from "services/c&g/subgrant/submission";
 import { useState } from "react";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 
@@ -48,26 +48,40 @@ export const partnerSubmissionColumns: ColumnDef<ISubGrantSubmissionPaginatedDat
         },
     ];
 
-const TableMenu = ({ id: partnerSubId }: ISubGrantSubmissionPaginatedData) => {
+const TableMenu = ({
+    id: partnerSubId,
+    sub_grant_id,
+}: ISubGrantSubmissionPaginatedData) => {
     const [isDialogOpen, setDialogOpen] = useState(false);
 
     const { id: subGrantId } = useParams();
+
+    const { pathname } = useLocation();
+
+    const isPreawardPath = pathname.includes("/preaward-assessment");
 
     const [deletePartnerSubmission, { isLoading: isDeleteLoading }] =
         useDeleteSubGrantManualSubMutation();
 
     const handleDelete = async () => {
         try {
-            await deletePartnerSubmission({
-                subGrantId: subGrantId ?? "",
-                submissionId: partnerSubId,
-            }).unwrap();
+            await deletePartnerSubmission(partnerSubId).unwrap();
             toast.success("Submission Deleted");
             setDialogOpen(false);
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }
     };
+
+    const path = isPreawardPath
+        ? generatePath(CG_ROUTES.SUBGRANT_SUBMISSION_DETAILS, {
+              subGrantId: sub_grant_id,
+              partnerSubId,
+          })
+        : generatePath(CG_ROUTES.SUBGRANT_SUBMISSION_DETAILS, {
+              subGrantId,
+              partnerSubId,
+          });
 
     return (
         <div className="flex items-center gap-2">
@@ -79,13 +93,7 @@ const TableMenu = ({ id: partnerSubId }: ISubGrantSubmissionPaginatedData) => {
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-fit">
-                        <Link
-                            className="w-full"
-                            to={generatePath(
-                                CG_GROUTES.SUBGRANT_SUBMISSION_DETAILS,
-                                { subGrantId, partnerSubId }
-                            )}
-                        >
+                        <Link className="w-full" to={path}>
                             <Button
                                 className="w-full flex items-center justify-start gap-2"
                                 variant="ghost"
@@ -95,32 +103,36 @@ const TableMenu = ({ id: partnerSubId }: ISubGrantSubmissionPaginatedData) => {
                             </Button>
                         </Link>
 
-                        <Link
-                            to={{
-                                pathname: generatePath(
-                                    CG_GROUTES.CREATE_SUBGRANT_SUBMISSION_DETAILS,
-                                    { id: subGrantId }
-                                ),
-                                search: `?partnerSubId=${partnerSubId}`,
-                            }}
-                        >
-                            <Button
-                                className="w-full flex items-center justify-start gap-2"
-                                variant="ghost"
-                            >
-                                <PencilIcon />
-                                Edit
-                            </Button>
-                        </Link>
+                        {!isPreawardPath && (
+                            <>
+                                <Link
+                                    to={{
+                                        pathname: generatePath(
+                                            CG_ROUTES.CREATE_SUBGRANT_SUBMISSION_DETAILS,
+                                            { id: subGrantId }
+                                        ),
+                                        search: `?partnerSubId=${partnerSubId}`,
+                                    }}
+                                >
+                                    <Button
+                                        className="w-full flex items-center justify-start gap-2"
+                                        variant="ghost"
+                                    >
+                                        <PencilIcon />
+                                        Edit
+                                    </Button>
+                                </Link>
 
-                        <Button
-                            className="w-full flex items-center justify-start gap-2"
-                            variant="ghost"
-                            onClick={() => setDialogOpen(true)}
-                        >
-                            <DeleteIcon />
-                            Delete
-                        </Button>
+                                <Button
+                                    className="w-full flex items-center justify-start gap-2"
+                                    variant="ghost"
+                                    onClick={() => setDialogOpen(true)}
+                                >
+                                    <DeleteIcon />
+                                    Delete
+                                </Button>
+                            </>
+                        )}
                     </PopoverContent>
                 </Popover>
             </>

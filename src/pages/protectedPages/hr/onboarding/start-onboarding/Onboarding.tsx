@@ -1,10 +1,11 @@
 import CheckIcon from "assets/svgs/CheckIcon";
 
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { generatePath, Link } from "react-router-dom";
 import { RootState } from "store/index";
 
-const Onboarding = () => {
+const Onboarding = ({id} : {
+  id?: string;}) => {
   const steps = useSelector((state: RootState) => state?.steps?.steps);
 
   return (
@@ -16,9 +17,13 @@ const Onboarding = () => {
         </p>
       </div>
       <div className='space-y-6 divide-y'>
-        {steps.map(({ label, description, isCompleted, path }, index) => (
-          <Link
-            to={path}
+        {steps.map(({ label, description, isCompleted, path,  }, index) => 
+        { 
+          return(
+            <Link 
+            to={generatePath(path, {
+              id: id!, 
+            })}
             key={index}
             className='flex items-center pt-5 gap-x-4'
           >
@@ -34,7 +39,8 @@ const Onboarding = () => {
               <p className='text-small'>{description}</p>
             </div>
           </Link>
-        ))}
+          )
+        })}
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ import {
     ISubGrantPaginatedData,
     ISubGrantSingleData,
     TSubGrantFormData,
-} from "definations/c&g/sub-grant";
+} from "definations/c&g/contract-management/sub-grant/sub-grant";
 import baseAPI from "../..";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 

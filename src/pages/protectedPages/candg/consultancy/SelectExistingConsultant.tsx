@@ -6,14 +6,11 @@ import {
     ConsultancyApplicationsDocsApi,
 } from "services/cAndGApi/consultancy";
 import { IoMdClose } from "react-icons/io";
-import { DocumentPayload } from "../subGrant/ManualSubmissionDocumentUpload";
-import { createPortal } from "react-dom";
-import SubGrantManualDocsModal from "components/modals/dailog/components/PartnerSubmissionUploadModal";
 import { generatePath, useNavigate, useParams } from "react-router-dom";
 import FormButton from "atoms/FormButton";
 import { toast } from "sonner";
 import { objectToFormData } from "utils/utls";
-import { CG_GROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "constants/RouterConstants";
 
 interface Referee {
     name: string;
@@ -24,7 +21,7 @@ const SelectExistingConsultant = () => {
     const navigate = useNavigate();
     const params = useParams();
     const [refereeArray, setRefereeArray] = useState<Referee[]>([]);
-    const [documentArray, setDocumentArray] = useState<DocumentPayload[]>([]);
+    const [documentArray, setDocumentArray] = useState();
     const [uploadDocument, setUploadDocument] = useState(false);
     const [userObject, setUserObject] = useState<any>({});
     const [addApplicationMutation, addApplicationMutationResults] =
@@ -68,26 +65,6 @@ const SelectExistingConsultant = () => {
                 job_detail: params.id,
                 referees: refereeArray,
             }).unwrap();
-            if (result) {
-                for (let i = 0; i < documentArray.length; i++) {
-                    let objectDetails = documentArray[i];
-                    const formData = objectToFormData({
-                        ...objectDetails,
-                        application: result.id,
-                    });
-                    try {
-                        await addDocument(formData).unwrap();
-                        toast.success("success");
-                        navigate(
-                            generatePath(CG_GROUTES.CONSULTANCY_DETAILS, {
-                                id: params.id,
-                            })
-                        );
-                    } catch (error: any) {
-                        toast.error(error?.data?.message);
-                    }
-                }
-            }
         } catch (error: any) {
             toast.error(error?.data?.message);
         }
@@ -259,7 +236,7 @@ const SelectExistingConsultant = () => {
                 <div className="flex flex-col gap-y-[1.25rem] w-full items-start">
                     <p className="font-semibold">Documents</p>
                     <div className="w-full flex flex-wrap justify-between items-center gap-y-[1.5rem]">
-                        {documentArray.map((item, index) => {
+                        {/* {documentArray.map((item, index) => {
                             return (
                                 <div
                                     className="flex items-center w-[49%] justify-between"
@@ -296,7 +273,7 @@ const SelectExistingConsultant = () => {
                                     />
                                 </div>
                             );
-                        })}
+                        })} */}
                     </div>
                     <Button
                         className="px-0 space-x-[1rem]"
@@ -328,14 +305,14 @@ const SelectExistingConsultant = () => {
                     </FormButton>
                 </div>{" "}
             </form>
-            {uploadDocument &&
+            {/* {uploadDocument &&
                 createPortal(
                     <SubGrantManualDocsModal
                         setDocs={setDocumentArray}
                         setModalOpen={setUploadDocument}
                     />,
                     document.getElementById("portals") as HTMLElement
-                )}
+                )} */}
         </div>
     );
 };

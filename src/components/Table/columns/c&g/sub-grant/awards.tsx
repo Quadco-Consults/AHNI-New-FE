@@ -1,18 +1,18 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { ISubGrantPaginatedData } from "definations/c&g/sub-grant";
+import { ISubGrantPaginatedData } from "definations/c&g/contract-management/sub-grant/sub-grant";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import { useAppDispatch } from "hooks/useStore";
 import PencilIcon from "components/icons/PencilIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { useState } from "react";
 import { generatePath, Link } from "react-router-dom";
 import EyeIcon from "components/icons/EyeIcon";
-import { CG_GROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "constants/RouterConstants";
 import { toast } from "sonner";
 import { useDeleteSubGrantMutation } from "services/c&g/subgrant/sub-grant";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
+import { formatNumberCurrency } from "utils/utls";
 
 export const subGrantAwardColumns: ColumnDef<ISubGrantPaginatedData>[] = [
     {
@@ -39,6 +39,7 @@ export const subGrantAwardColumns: ColumnDef<ISubGrantPaginatedData>[] = [
     {
         header: "Award Amount (USD)",
         id: "amount_usd",
+        accessorFn: (data) => formatNumberCurrency(data.amount_usd, "USD"),
         accessorKey: "amount_usd",
         size: 200,
     },
@@ -47,6 +48,8 @@ export const subGrantAwardColumns: ColumnDef<ISubGrantPaginatedData>[] = [
         header: "Award Amount (NGN)",
         id: "amount_ngn",
         accessorKey: "amount_ngn",
+        accessorFn: (data) => formatNumberCurrency(data.amount_ngn, "NGN"),
+
         size: 200,
     },
 
@@ -100,10 +103,9 @@ const TableMenu = ({ id }: ISubGrantPaginatedData) => {
                     </PopoverTrigger>
                     <PopoverContent className="w-fit">
                         <Link
-                            to={generatePath(
-                                CG_GROUTES.SUBGRANT_AWARD_DETAILS,
-                                { id }
-                            )}
+                            to={generatePath(CG_ROUTES.SUBGRANT_AWARD_DETAILS, {
+                                id,
+                            })}
                         >
                             <Button
                                 className="w-full flex items-center justify-start gap-2"
@@ -115,7 +117,7 @@ const TableMenu = ({ id }: ISubGrantPaginatedData) => {
                         </Link>
                         <Link
                             to={{
-                                pathname: CG_GROUTES.CREATE_SUBGRANT_AWARD,
+                                pathname: CG_ROUTES.CREATE_SUBGRANT_AWARD,
                                 search: `?id=${id}`,
                             }}
                         >

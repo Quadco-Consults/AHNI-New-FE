@@ -49,8 +49,7 @@ export default function CreateAssetMaintenance() {
             approver: "",
         },
     });
-
-    console.log(form.formState.errors);
+ 
 
     const navigate = useNavigate();
 

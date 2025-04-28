@@ -64,13 +64,13 @@ export const stakeholderRegisterColumnss: ColumnDef<TStakeholderRegisterData>[] 
         {
             header: "Importance",
             id: "importance",
-            accessorFn: ({ importance }) => `${importance}`,
+            accessorFn: ({ importance }) => `${importance || "N/A"}`,
             size: 200,
         },
         {
             header: "Influence",
             id: "influence",
-            accessorFn: ({ influence }) => `${influence}`,
+            accessorFn: ({ influence }) => `${influence || "N/A"}`,
             size: 200,
         },
         {

@@ -10,11 +10,18 @@ import { DialogType } from "constants/dailogs";
 import { HrRoutes } from "constants/RouterConstants";
 import Card from "components/shared/Card";
 import { updateStepCompletion } from "store/stepTracker";
+import GoBack from "components/shared/GoBack";
+import { useGetEmployeeIdentityCardQuery,  } from "services/hrApi/hr-employee-onboarding";
+import moment from "moment";
 
 const IdCardInformation = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
+  const {data, isLoading} = useGetEmployeeIdentityCardQuery({
+    id: localStorage.getItem("workforceID") as string
+  }) 
+  console.log(data)
   const handleNext = () => {
     navigate(HrRoutes.ONBOARDING_ADD_EMPLOYEE_SALARY);
   };
@@ -37,6 +44,7 @@ const IdCardInformation = () => {
 
   return (
     <>
+     <GoBack />
       <Card className='space-y-10 mt-6 max-w-4xl mx-auto'>
         <div>
           <h4 className='font-semibold text-lg text-center'>
@@ -48,30 +56,31 @@ const IdCardInformation = () => {
         </div>
         <div className='card-wrapper space-y-6'>
           <div className='flex items-center gap-x-4'>
-            <img src={avatar} alt='avatar' width={100} />
-            <h4 className='font-semibold'>James Septimus</h4>
+            
+            <img src={data?.data?.passport_file} alt='avatar' className="min-h-[100px]" width={100} />
+            <h4 className='font-semibold'>{data?.data?.legal_firstname} {data?.data?.legal_lastname}</h4>
           </div>
           <div className='grid grid-cols-1 gap-8 md:grid-cols-3'>
             <div className='space-y-6'>
               <DescriptionCard
                 label='Position Title'
-                description='Field Officer'
+                description={data?.data?.position}
               />
-              <DescriptionCard label='Phone Number' description='08039876543' />
+              <DescriptionCard label='Phone Number' description={data?.data?.phone_number} />
             </div>
             <div className='space-y-6'>
               <DescriptionCard
                 label='Employee Number'
-                description='08039876543'
+                description={data?.data?.employee_number}
               />
-              <DescriptionCard label='Employee Signature' description='' />
+              <DescriptionCard label='Employee Signature' description={<img src={data?.data?.signature_file} alt='avatar' className="max-h-[50px]" width={50} />} />
             </div>
             <div className='space-y-6'>
               <DescriptionCard
                 label='Email Address'
-                description='jamesseptimus@ahnigeria.org'
+                description={data?.data?.email_address}
               />
-              <DescriptionCard label='Date' description='22/09/2024' />
+              <DescriptionCard label='Date' description={moment(data?.data?.date_of_hire).format("DD-MM-YYYY")} />
             </div>
           </div>
           <Button>

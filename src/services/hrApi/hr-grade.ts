@@ -1,7 +1,5 @@
-import {
-    TBaseCreateResponse,
-    TBasePaginatedResponse,
-} from "definations/auth/auth";
+
+import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 import baseAPI from "..";
 import { HrGradeFormValues } from "definations/hr-validator";
 import { HrGradeResults } from "definations/hr-types/hr-grades";
@@ -11,8 +9,8 @@ const BASE_URL = "/hr/hr-grades/";
 const HrGradeAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
         getHrGrades: builder.query<
-            TBasePaginatedResponse<HrGradeResults[]>,
-            {}
+        TPaginatedResponse<HrGradeResults[]>,
+        TRequest
         >({
             query: (config) => {
                 return {
@@ -40,7 +38,7 @@ const HrGradeAPI = baseAPI.injectEndpoints({
             providesTags: ["HR_GRADE"],
         }),
         createHrGrade: builder.mutation<
-            TBaseCreateResponse<HrGradeResults>,
+        TResponse<HrGradeResults>,
             HrGradeFormValues
         >({
             query: (body) => ({
@@ -51,7 +49,7 @@ const HrGradeAPI = baseAPI.injectEndpoints({
             invalidatesTags: ["HR_GRADE"],
         }),
         updateHrGrade: builder.mutation<
-            TBaseCreateResponse<HrGradeResults>,
+            TResponse<HrGradeResults>,
             { path: { id: string }; body: { name: string } }
         >({
             query: ({ path, body }) => ({
@@ -64,4 +62,10 @@ const HrGradeAPI = baseAPI.injectEndpoints({
     }),
 });
 
-export default HrGradeAPI;
+export const {
+    useCreateHrGradeMutation,
+    useGetHrGradeListQuery,
+    useGetHrGradeQuery,
+    useGetHrGradesQuery,
+    useUpdateHrGradeMutation
+} = HrGradeAPI;
