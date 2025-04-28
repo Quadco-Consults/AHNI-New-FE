@@ -76,18 +76,7 @@ const ExpensesForm = ({
                         </FormLabel>
                         <Select
                           onValueChange={(selectedValue) => {
-                            onChange(selectedValue); // Update the selected item value
-                            // const selectedItem = item?.data?.results?.find(
-                            //   (item) => item.id === selectedValue
-                            // );
-
-                            // if (selectedItem) {
-                            //   // Update the unit cost field
-                            //   setValue(
-                            //     `expenses.${index}.unit_cost`,
-                            //     selectedItem.ngn_cost || 0
-                            //   );
-                            // }
+                            onChange(selectedValue);
                           }}
                           value={value}
                           defaultValue={value}
@@ -134,9 +123,8 @@ const ExpensesForm = ({
               label='Unit Cost'
               name={`expenses.${index}.unit_cost`}
               type='text'
-              disabled // Make this field readonly since it updates dynamically
             />
-            <div className='mt-5 flex-col flex gap-5'>
+            <div className='flex-col flex gap-5'>
               <FormInput
                 label='Total Cost'
                 name={`expenses.${index}.total_cost`}

@@ -177,13 +177,9 @@ export const RouteEnum = {
   RFQ: "/procurement-management/solicitation/rfq",
   RFQ_CREATE_QUOTATION:
     "/procurement-management/solicitation/rfq/create/quotation",
-  RFQ_CREATE_QUOTATION_OPEN_TENDER:
-    "/procurement-management/solicitation/rfq/create/quotation/:id",
   RFQ_CREATE_ITEMS: "/procurement-management/solicitation/rfq/create/items",
   RFQ_DETAILS: "/procurement-management/solicitation/rfq/:id",
-  // RFQ_CREATE_CBA: "/procurement-management/solicitation/rfq/create/create-cba",
-  RFQ_CREATE_CBA:
-    "/procurement-management/solicitation/rfq/create/create-cba/:id",
+  RFQ_CREATE_CBA: "/procurement-management/solicitation/rfq/create/create-cba",
   RFQ_COMPETITIVE_BID_ANALYSIS:
     "/procurement-management/solicitation/rfq/competitive-bid-analysis/:id",
   RFQ_DETAILS_BID_SUBMISSION:
@@ -197,7 +193,7 @@ export const RouteEnum = {
   COMPETITIVE_BID_ANALYSIS_DETAILS_APPROVAL_CHECK:
     "/procurement-management/competitive-bid-analysis/:id/check-approval",
   COMPETITIVE_BID_ANALYSIS_DETAILS_START:
-    "/procurement-management/competitive-bid-analysis/:id/start/:appID",
+    "/procurement-management/competitive-bid-analysis/:id/start",
   COMPETITIVE_BID_ANALYSIS_DETAILS_FINANCIAL_BID_OPENING:
     "/procurement-management/competitive-bid-analysis/:id/financial-bid-opening",
   SUMMARY_OF_TECHNICAL_PREQUALIFICATION:
@@ -243,6 +239,9 @@ export const RouteEnum = {
 
   VENDOR_PERFORMANCE_EVALUATION_ID:
     "/procurement-management/vendor-performance-evaluation/:id",
+
+  VENDOR_PERFORMANCE_START_EVALUATION:
+    "/procurement-management/vendor-performance-evaluation/:id/form",
 
   VENDOR_PERFORMANCE_EVALUATION_FORM:
     "/procurement-management/vendor-performance-evaluation/form",
