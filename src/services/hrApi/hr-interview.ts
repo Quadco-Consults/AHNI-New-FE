@@ -7,11 +7,12 @@ const InterviewAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     getInterviews: builder.query<
       Interview[],
-      { status?: string; search?: string }
+      { status?: string; search?: string; id: string }
     >({
-      query: ({ status, search }) => ({
+      query: ({ status, search, id }) => ({
         url: BASE_URL,
         params: {
+          advertisement: id,
           ...(status && { status }), // Include status if provided
           ...(search && { search }), // Include search if provided
         },
