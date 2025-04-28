@@ -64,6 +64,7 @@ export interface VendorsResultsData {
   questionairs: Questionairs[];
   submitted_categories: string[];
   approved_categories: string[];
+  state: string;
 }
 
 export interface VendorsData {
