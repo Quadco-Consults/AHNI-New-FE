@@ -1,6 +1,10 @@
 import baseAPI from "services/index";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
-import { IConsultancyStaffPaginatedData, IConsultancyStaffSingleData, TConsultancyStaffFormData } from "definations/c&g/contract-management/consultancy-management/consultancy-application";
+import {
+    IConsultancyStaffPaginatedData,
+    IConsultancyStaffSingleData,
+    TConsultancyStaffFormData,
+} from "definations/c&g/contract-management/consultancy-management/consultancy-application";
 
 const BASE_URL = "/contract-grants/consultancy/applicants/";
 
@@ -8,7 +12,9 @@ const ConsultancyStaffAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
         createConsultancyStaff: builder.mutation<
             TResponse<IConsultancyStaffSingleData>,
-            TConsultancyStaffFormData
+            TConsultancyStaffFormData & {
+                documents: { name: string; document: any }[];
+            }
         >({
             query: (body) => ({
                 method: "POST",
@@ -80,6 +86,4 @@ const ConsultancyStaffAPI = baseAPI.injectEndpoints({
     }),
 });
 
-export const {
-   useCreateConsultancyStaffMutation,
-} = ConsultancyStaffAPI;
+export const { useCreateConsultancyStaffMutation } = ConsultancyStaffAPI;
