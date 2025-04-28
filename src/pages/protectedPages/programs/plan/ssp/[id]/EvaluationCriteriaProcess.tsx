@@ -10,7 +10,12 @@ import BreadcrumbCard from "components/shared/Breadcrumb";
 import BackNavigation from "atoms/BackNavigation";
 import Upload from "components/shared/Upload";
 import { Separator } from "components/ui/separator";
-import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import {
+    FormProvider,
+    SubmitHandler,
+    useFieldArray,
+    useForm,
+} from "react-hook-form";
 import FormTextArea from "atoms/FormTextArea";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import { IObjective } from "definations/program/plan/supervision-plan/supervision-plan";
@@ -23,6 +28,7 @@ import {
     TSupervisionPlanReviewFormData,
 } from "definations/program/plan/supervision-plan/supervision-plan-review";
 import { useCreateSupervisionPlanReviewMutation } from "services/program/plan/supervision-plan/supervision-plan-review";
+import { fileToBase64 } from "utils/fileToBase64";
 
 const breadcrumbs = [
     { name: "Programs", icon: true },
@@ -50,18 +56,6 @@ const groupByCategoryName = (array: IObjective[]): GroupedData => {
     }, {} as GroupedData);
 };
 
-const uploadsCriteria = [
-    {
-        tag: "VISIT_SUMMARY",
-        label: "CQI/TA form completed with summary of visit? (Attach copy for retirement)",
-    },
-    {
-        tag: "POST_CLINIC_REVIEW",
-        label: "Observe post clinic review meeting? (Attach summary of visit, picture gallery)",
-    },
-    { tag: "ADHOC_STAFF_DEBRIEF", label: "Debrief with facility/adhoc staff." },
-];
-
 export default function EvaluationCriteriaProcess() {
     const { id: planId } = useParams();
 
@@ -70,14 +64,30 @@ export default function EvaluationCriteriaProcess() {
         defaultValues: {
             reviews: [],
             documents: [
-                { title: "VISIT_SUMMARY" },
-                { title: "POST_CLINIC_REVIEW" },
-                { title: "ADHOC_STAFF_DEBRIEF" },
+                {
+                    title: "VISIT_SUMMARY",
+                    label: "CQI/TA form completed with summary of visit? (Attach copy for retirement)",
+                },
+                {
+                    title: "POST_CLINIC_REVIEW",
+                    label: "Observe post clinic review meeting? (Attach summary of visit, picture gallery)",
+                },
+                {
+                    title: "ADHOC_STAFF_DEBRIEF",
+                    label: "Debrief with facility/adhoc staff.",
+                },
             ],
             remediation_plan: "",
             is_agree_on_visit_plan: "",
         },
     });
+
+    const { fields: documentFields } = useFieldArray({
+        name: "documents",
+        control: form.control,
+    });
+
+    console.log(form.formState.errors);
 
     const [page, setPage] = useState(1);
 
@@ -115,17 +125,22 @@ export default function EvaluationCriteriaProcess() {
         setPage(page + 1);
     };
 
-    const handleFileChange = (id: string, file: FileList | null) => {
+    const handleFileChange = async (id: string, file: FileList | null) => {
         const documents = form.getValues("documents");
 
         if (file) {
-            const updatedDocuments = documents.map((doc) => {
-                if (doc.title === id) {
-                    return { ...doc, document: file[0] };
-                }
-
-                return doc;
-            });
+            const updatedDocuments = await Promise.all(
+                documents.map(async (doc) => {
+                    if (doc.title === id) {
+                        return {
+                            ...doc,
+                            document: await fileToBase64(file[0]),
+                            name: file[0].name,
+                        };
+                    }
+                    return doc;
+                })
+            );
 
             form.setValue("documents", updatedDocuments);
         }
@@ -133,52 +148,17 @@ export default function EvaluationCriteriaProcess() {
 
     const documents = form.watch("documents");
 
-    console.log(form.formState.errors);
-
     const [createSupervisionPlanReview, { isLoading: isCreateLoading }] =
         useCreateSupervisionPlanReviewMutation();
 
-    const onSubmit: SubmitHandler<TSupervisionPlanReviewFormData> = async ({
-        reviews,
-        documents,
-    }) => {
+    const onSubmit: SubmitHandler<TSupervisionPlanReviewFormData> = async (
+        data
+    ) => {
         try {
             if (planId) {
-                const formData = new FormData();
-
-                reviews.forEach((review, index) => {
-                    formData.append(
-                        `reviews[${index}][is_selected]`,
-                        review.is_selected as any
-                    );
-                    formData.append(
-                        `reviews[${index}][comment]`,
-                        review.comment
-                    );
-                    formData.append(
-                        `reviews[${index}][objective]`,
-                        review.objective
-                    );
-                });
-
-                documents.forEach((doc, index) => {
-                    formData.append(
-                        `documents[${index}][title]`,
-                        doc.title as any
-                    );
-                    formData.append(
-                        `documents[${index}][is_selected]`,
-                        doc.is_selected as any
-                    );
-                    formData.append(
-                        `documents[${index}][document]`,
-                        doc.document
-                    );
-                });
-
                 await createSupervisionPlanReview({
                     id: planId,
-                    body: formData as any,
+                    body: data as any,
                 });
             }
         } catch (error: any) {
@@ -190,8 +170,6 @@ export default function EvaluationCriteriaProcess() {
         return <LoadingSpinner />;
     }
 
-    //   const categoryEntries = Object.entries(groupedCriteria || []);
-    //   const [categoryName, items] = categoryEntries[page - 1];
     const categoryEntries = Object.entries(groupedCriteria || []);
 
     // The page 4 is a special hardcoded upload page
@@ -288,53 +266,36 @@ export default function EvaluationCriteriaProcess() {
                                 })}
                             </Card>
                         ) : (
-                            uploadsCriteria.map(({ tag, label }, i) => (
-                                <Card key={i} className="space-y-3">
+                            documentFields.map((field, index) => (
+                                <Card key={field.id} className="space-y-3">
                                     <h4 className="text-semibold font-light">
-                                        {label}
+                                        {field.label}
                                     </h4>
 
                                     <div className="flex justify-between pb-3 gap-5">
                                         <h3 className="font-bold">
                                             Upload Attachment
                                         </h3>
-
-                                        <div className="flex gap-5 justify-between">
-                                            <div className="flex items-stretch space-x-2">
-                                                <input
-                                                    type="radio"
-                                                    className="border-green-500"
-                                                    value="true"
-                                                />
-                                                <label
-                                                    htmlFor="yes"
-                                                    className="text-green-500"
-                                                >
-                                                    Yes
-                                                </label>
-                                            </div>
-
-                                            <div className="flex items-stretch space-x-2">
-                                                <input
-                                                    type="radio"
-                                                    value="false"
-                                                    className="border-primary"
-                                                />
-                                                <label
-                                                    htmlFor="no"
-                                                    className="text-primary"
-                                                >
-                                                    No
-                                                </label>
-                                            </div>
-                                        </div>
+                                        <FormRadio
+                                            name={`documents.${index}.is_selected`}
+                                            options={[
+                                                {
+                                                    label: "Yes",
+                                                    value: true,
+                                                },
+                                                {
+                                                    label: "No",
+                                                    value: false,
+                                                },
+                                            ]}
+                                        />
                                     </div>
 
                                     <div>
                                         <Upload
                                             onChange={(e) =>
                                                 handleFileChange(
-                                                    tag,
+                                                    field.title,
                                                     e.target.files
                                                 )
                                             }
@@ -351,8 +312,10 @@ export default function EvaluationCriteriaProcess() {
                                         <p className="mt-2">
                                             {
                                                 documents.find(
-                                                    (doc) => doc.title === tag
-                                                )?.document?.name
+                                                    (doc) =>
+                                                        doc.title ===
+                                                        field.title
+                                                )?.name
                                             }
                                         </p>
                                     </div>
