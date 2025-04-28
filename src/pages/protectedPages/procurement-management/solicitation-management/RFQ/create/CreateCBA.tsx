@@ -21,7 +21,12 @@ import {
   DialogClose,
 } from "components/ui/dialog";
 import { useForm } from "react-hook-form";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import {
+  generatePath,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import logoPng from "assets/imgs/logo.png";
 import { Input } from "components/ui/input";
 import { Icon } from "@iconify/react";
@@ -42,12 +47,16 @@ import useQuery from "hooks/useQuery";
 import { zodResolver } from "@hookform/resolvers/zod";
 import RfqLayout from "./RfqLayout";
 import { useGetAllSolicitationsQuery } from "services/procurementApi/solicitation";
+import { useEffect } from "react";
 
 const CreateCBA = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const rfqId = searchParams.get("id");
+  // const rfqId = searchParams.get("id");
   const name = searchParams.get("name");
+  const { id: rfqId } = useParams();
+  // console.log({ id });
+  console.log({ rfqId });
 
   const { data: rfqData, isLoading } = useGetAllSolicitationsQuery({
     // page,
@@ -79,7 +88,13 @@ const CreateCBA = () => {
       committee_members: [],
     },
   });
-  const { handleSubmit, watch } = form;
+  const { handleSubmit, watch, getValues } = form;
+
+  useEffect(() => {
+    if (rfqId) {
+      form.setValue("solicitation", rfqId);
+    }
+  }, [rfqId]);
 
   const matchedUsers =
     users?.data?.results?.filter((user) =>
@@ -102,12 +117,19 @@ const CreateCBA = () => {
       // @ts-ignore
       await createCbaMutation(payload).unwrap();
       toast.success("Successfully created.");
-      navigate(RouteEnum.COMPETITIVE_BID_ANALYSIS);
+      // navigate(RouteEnum.COMPETITIVE_BID_ANALYSIS);
+      navigate(
+        generatePath(RouteEnum.RFQ_DETAILS, {
+          id: data?.solicitation,
+        })
+      );
     } catch (error) {
       toast.error("Something went wrong");
       console.log(error);
     }
   };
+  const check = getValues();
+  console.log({ check, rfqData });
 
   return (
     <div className='bg-white p-4 h-full'>

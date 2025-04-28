@@ -8,7 +8,7 @@ import AddSquareIcon from "components/icons/AddSquareIcon";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import FormButton from "atoms/FormButton";
-import { useNavigate } from "react-router-dom";
+import { generatePath, useNavigate } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
 import { z } from "zod";
 import { MinusCircle } from "lucide-react";
@@ -138,10 +138,18 @@ const Items = () => {
     const payload = { ...quotationData, ...data };
 
     try {
-      await createSolicitation(payload).unwrap();
+      const response = await createSolicitation(payload).unwrap();
       sessionStorage.removeItem("rfqQuotationFormData");
       toast.success("Solicitation Created Successfully");
-      navigate(RouteEnum.RFQ);
+      // navigate(RouteEnum.RFQ);
+      console.log({ response });
+
+      // navigate(RouteEnum.RFQ_CREATE_CBA);
+      navigate(
+        generatePath(RouteEnum.RFQ_CREATE_CBA, {
+          id: response?.data?.id,
+        })
+      );
     } catch (error: any) {
       toast.error(error.data.message ?? "Something went wrong");
     }

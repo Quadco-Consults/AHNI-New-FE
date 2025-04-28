@@ -24,8 +24,11 @@ type Data = {
   isSelected: boolean;
 };
 
-const EOIVendorSubmission = () => {
-  const { data: vendorData } = VendorsAPI.useGetVendorsQuery({});
+const EOIVendorSubmission = ({ status }: { status?: string }) => {
+  const { data: vendorData } = VendorsAPI.useGetVendorsQuery({
+    // @ts-ignore
+    params: { status: status && status },
+  });
 
   return (
     <div className='space-y-10'>

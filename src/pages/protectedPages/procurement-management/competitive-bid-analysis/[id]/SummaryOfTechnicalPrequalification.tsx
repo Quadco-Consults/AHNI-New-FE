@@ -5,23 +5,24 @@ import {
   TableHeader,
   TableRow,
 } from "components/ui/table";
-import logoPng from "assets/svgs/logo-bg.svg";
+// import logoPng from "assets/svgs/logo-bg.svg";
 import VendorBidPrequalificationAPI from "services/procurementApi/manual-bid-cba-prequalification-fn";
-import GoBack from "components/shared/GoBack";
+// import GoBack from "components/shared/GoBack";
 import { Loading } from "components/shared/Loading";
-import { Link, useLocation } from "react-router-dom";
-import { RouteEnum } from "constants/RouterConstants";
-import { Button } from "components/ui/button";
-import SendIcon from "components/icons/SendIcon";
+// import { Link, useLocation } from "react-router-dom";
+// import { RouteEnum } from "constants/RouterConstants";
+// import { Button } from "components/ui/button";
+// import SendIcon from "components/icons/SendIcon";
 
 const SummaryOfTechnicalPrequalification = () => {
-  const location = useLocation();
-  const { cba, solicitation } = location.state || {}; // Handle undefined state
+  // const location = useLocation();
+  // const { cba, solicitation } = location.state || {}; // Handle undefined state
 
   const { data: summaryData, isLoading } =
     VendorBidPrequalificationAPI.useGetVendorBidPrequalificationQuery({
       path: {
-        id: cba,
+        // id: cba,
+        id: "bc9d055f-7732-49f7-b501-c20726fb8cd4",
       },
     });
 
@@ -31,11 +32,11 @@ const SummaryOfTechnicalPrequalification = () => {
 
   return (
     <>
-      <GoBack />
+      {/* <GoBack /> */}
       <div>
-        <div className='flex justify-center items-center flex-col'>
+        {/* <div className='flex justify-center items-center flex-col'>
           <img src={logoPng} alt='logo' width={200} />
-        </div>
+        </div> */}
         <div className='p-4 w-full h-[70px] flex justify-between items-center text-xl'>
           <h3 className='w-[250px] whitespace-nowrap text-primary'>
             STAGE 1 - TECHNICAL PREQUALIFICATION SUMMARY
@@ -177,7 +178,7 @@ const SummaryOfTechnicalPrequalification = () => {
           </Table>
         </div>
         <div className='w-full flex mt-8'>
-          <div className='w-fit ml-auto'>
+          {/* <div className='w-fit ml-auto'>
             <Link
               className='w-full'
               // to={generatePath(
@@ -200,7 +201,7 @@ const SummaryOfTechnicalPrequalification = () => {
                 Check Approval
               </Button>
             </Link>
-          </div>
+          </div> */}
         </div>
       </div>
     </>

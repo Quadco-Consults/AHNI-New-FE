@@ -1,11 +1,11 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import RfqLayout from "./RfqLayout";
 import { Form } from "components/ui/form";
 import FormSelect from "atoms/FormSelectField";
 import { SelectContent, SelectItem } from "components/ui/select";
 import FormInput from "atoms/FormInput";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Button } from "components/ui/button";
 import FormButton from "atoms/FormButton";
 import { LoadingSpinner } from "components/shared/Loading";
@@ -21,6 +21,8 @@ import EoiAPI from "services/procurementApi/eoi";
 const Quotation = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const { id } = useParams();
+  console.log({ id });
 
   const { data: eoiData } = EoiAPI.useGetEoisQuery(
     useMemo(() => ({ params: { type: "OPEN_TENDER" } }), [])
@@ -36,17 +38,7 @@ const Quotation = () => {
     [eoiData]
   );
 
-  const { data: purchaseRequest, isLoading: isPurchaseRequestLoading } =
-    PurchaseRequestAPI.useGetPurchaseRequestsQuery({});
-
-  const purchaseRequestOptions = useMemo(
-    () =>
-      purchaseRequest?.data.results.map(({ ref_number, id }) => ({
-        label: ref_number,
-        value: id,
-      })),
-    [purchaseRequest]
-  );
+  console.log({ eoiOptions });
 
   const form = useForm<TSolicitationQuotationFormData>({
     resolver: zodResolver(SolicitationQuotationSchema),
@@ -62,12 +54,43 @@ const Quotation = () => {
     },
   });
 
+  // After eoiOptions
+  useEffect(() => {
+    if (!id || !eoiOptions?.length) return;
+
+    // @ts-ignore
+    const matchedEoi = eoiOptions?.find((option) => option?.value === id);
+
+    if (matchedEoi) {
+      form.setValue("eoi_tender", matchedEoi.value); // set EOI
+      form.setValue("tender_type", "NATIONAL OPEN TENDER"); // set Tender Type
+    }
+  }, [id, eoiOptions, form]);
+
+  const { data: purchaseRequest, isLoading: isPurchaseRequestLoading } =
+    PurchaseRequestAPI.useGetPurchaseRequestsQuery({});
+
+  const purchaseRequestOptions = useMemo(
+    () =>
+      purchaseRequest?.data.results.map(({ ref_number, id }) => ({
+        label: ref_number,
+        value: id,
+      })),
+    [purchaseRequest]
+  );
+
   const onSubmit: SubmitHandler<TSolicitationQuotationFormData> = (data) => {
     sessionStorage.setItem("rfqQuotationFormData", JSON.stringify(data));
     let path = pathname;
 
-    // Remove the last segment of the path
-    path = path.substring(0, path.lastIndexOf("/"));
+    if (id) {
+      // If there is an ID in the URL, remove the last two segments
+      path = path.substring(0, path.lastIndexOf("/")); // remove /:id
+      path = path.substring(0, path.lastIndexOf("/")); // remove /quotation
+    } else {
+      // Otherwise remove only the last segment
+      path = path.substring(0, path.lastIndexOf("/"));
+    }
 
     // Append the new segment to the path
     path += "/items";

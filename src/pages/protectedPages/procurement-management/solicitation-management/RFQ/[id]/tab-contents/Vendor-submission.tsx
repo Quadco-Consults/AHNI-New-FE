@@ -12,6 +12,7 @@ import DataTable from "components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import { SolicitationSubmissionResultsData } from "definations/procurement-types/solicitation";
 import { useGetSolicitationSubmissionQuery } from "services/procurementApi/vendor-bid-submissions";
+import IconButton from "components/shared/IconButton";
 
 const VendorSubmission = () => {
   const { id } = useParams();
@@ -189,4 +190,36 @@ const columns: ColumnDef<SolicitationSubmissionResultsData>[] = [
       return <p>{row?.original?.vendor?.email}</p>;
     },
   },
+  {
+    header: "Actions",
+    id: "actions",
+    cell: ({ row }) => <ActionListAction data={row.original} />,
+  },
 ];
+
+const ActionListAction = ({ data }: any) => {
+  console.log({ datads: data?.solicitation?.id });
+
+  return (
+    <div className='flex gap-2'>
+      <Link
+        to={generatePath(RouteEnum.VENDOR_MANAGEMENT_DETAILS, { id: data?.id })}
+      >
+        <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+          <Icon icon='ph:eye-duotone' fontSize={15} />
+        </IconButton>
+      </Link>
+      <Link
+        // to={generatePath(RouteEnum.VENDOR_MANAGEMENT_DETAILS, { id: data?.id })}
+        to={generatePath(RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_START, {
+          id: data?.id as string,
+          appID: data?.solicitation?.id,
+        })}
+      >
+        <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+          Evaluate
+        </IconButton>
+      </Link>
+    </div>
+  );
+};
