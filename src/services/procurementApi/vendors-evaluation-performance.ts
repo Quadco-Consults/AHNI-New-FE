@@ -40,6 +40,22 @@ const VendorsEvaluaionAndPerformanceAPI = baseAPI.injectEndpoints({
         !error ? invalidateTags("VENDOR_EVALUATION") : [],
     }),
 
+    createVendorEvaluationById: builder.mutation<
+      VendorsResponse,
+      { path: { id: string }; body: any }
+    >({
+      query: ({ path, body }) => (
+        console.log({ path, body }),
+        {
+          url: `${BASE_URL}${path.id}/submit/`,
+          method: "PATCH",
+          body,
+        }
+      ),
+      invalidatesTags: (_, error) =>
+        !error ? invalidateTags("VENDOR_EVALUATION") : [],
+    }),
+
     getVendorEvaluation: builder.query<
       TResponse<any>,
       { path: { id: string } }

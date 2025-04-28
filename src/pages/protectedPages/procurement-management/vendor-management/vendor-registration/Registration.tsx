@@ -91,6 +91,7 @@ const Registration = () => {
       bank_address: "",
       bank_name: "",
       submitted_categories: [],
+      state: "",
     },
   });
 
@@ -112,6 +113,7 @@ const Registration = () => {
         bank_address: vendor?.data?.bank_address,
         bank_name: vendor?.data?.bank_name,
         submitted_categories: [],
+        state: vendor?.data?.state,
       });
     }
   }, [vendorId, vendor]);
@@ -194,12 +196,28 @@ const Registration = () => {
                     type='number'
                   />
                 </div>
+                <div className='grid grid-cols-2 col-span-3 gap-x-6 '>
+                  <FormInput
+                    label='Nature of Business'
+                    name='nature_of_business'
+                  />{" "}
+                  <FormSelect name='state' label='State' required>
+                    <SelectContent>
+                      {statesOfNigeria.map(
+                        (
+                          { label, value }: { label: string; value: string },
+                          index: number
+                        ) => (
+                          <SelectItem key={index} value={value}>
+                            {label}
+                          </SelectItem>
+                        )
+                      )}
+                    </SelectContent>
+                  </FormSelect>
+                </div>
               </div>
               <div className='space-y-4'>
-                <FormInput
-                  label='Nature of Business'
-                  name='nature_of_business'
-                />
                 <FormTextArea label='Company Address' name='company_address' />
 
                 <FormInput
@@ -384,3 +402,43 @@ const Registration = () => {
 };
 
 export default Registration;
+
+const statesOfNigeria = [
+  { value: "Abia", label: "Abia" },
+  { value: "Adamawa", label: "Adamawa" },
+  { value: "Akwa Ibom", label: "Akwa Ibom" },
+  { value: "Anambra", label: "Anambra" },
+  { value: "Bauchi", label: "Bauchi" },
+  { value: "Bayelsa", label: "Bayelsa" },
+  { value: "Benue", label: "Benue" },
+  { value: "Borno", label: "Borno" },
+  { value: "Cross River", label: "Cross River" },
+  { value: "Delta", label: "Delta" },
+  { value: "Ebonyi", label: "Ebonyi" },
+  { value: "Edo", label: "Edo" },
+  { value: "Ekiti", label: "Ekiti" },
+  { value: "Enugu", label: "Enugu" },
+  { value: "Federal Capital Territory", label: "FCT (Abuja)" },
+  { value: "Gombe", label: "Gombe" },
+  { value: "Imo", label: "Imo" },
+  { value: "Jigawa", label: "Jigawa" },
+  { value: "Kaduna", label: "Kaduna" },
+  { value: "Kano", label: "Kano" },
+  { value: "Katsina", label: "Katsina" },
+  { value: "Kebbi", label: "Kebbi" },
+  { value: "Kogi", label: "Kogi" },
+  { value: "Kwara", label: "Kwara" },
+  { value: "Lagos", label: "Lagos" },
+  { value: "Nasarawa", label: "Nasarawa" },
+  { value: "Niger", label: "Niger" },
+  { value: "Ogun", label: "Ogun" },
+  { value: "Ondo", label: "Ondo" },
+  { value: "Osun", label: "Osun" },
+  { value: "Oyo", label: "Oyo" },
+  { value: "Plateau", label: "Plateau" },
+  { value: "Rivers", label: "Rivers" },
+  { value: "Sokoto", label: "Sokoto" },
+  { value: "Taraba", label: "Taraba" },
+  { value: "Yobe", label: "Yobe" },
+  { value: "Zamfara", label: "Zamfara" },
+];
