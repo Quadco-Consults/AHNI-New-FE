@@ -137,6 +137,8 @@ export default function CreateAssetRequestDetails() {
                 description: assetRequest?.data.description,
                 disposal_justification:
                     assetRequest?.data.disposal_justification,
+                from_location: assetRequest?.data.from_location.id,
+                to_location: assetRequest?.data.to_location.id,
             });
         }
     }, [assetRequest]);
@@ -187,8 +189,8 @@ export default function CreateAssetRequestDetails() {
                                 <div className="grid grid-cols-2 gap-10">
                                     <FormSelect
                                         label="From"
-                                        name="from"
-                                        id="from"
+                                        name="from_location"
+                                        id="from_location"
                                         placeholder="Select Location"
                                         required
                                         options={locationOptions}
@@ -196,8 +198,8 @@ export default function CreateAssetRequestDetails() {
 
                                     <FormSelect
                                         label="To"
-                                        name="to"
-                                        id="to"
+                                        name="to_location"
+                                        id="to_location"
                                         placeholder="Select Location"
                                         required
                                         options={locationOptions}

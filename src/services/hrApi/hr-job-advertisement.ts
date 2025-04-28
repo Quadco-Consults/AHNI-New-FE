@@ -1,16 +1,25 @@
-import { JobAdvertisement } from "definations/hr-types/job-advertisement";
+import {
+  JobAdvertisement,
+  JobAdvertisementModel,
+} from "definations/hr-types/job-advertisement";
 import baseAPI from "..";
 
 const BASE_URL = "hr/jobs/advertisements/";
 
 const JobAdvertisementAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getJobAdvertisements: builder.query<JobAdvertisement[], void>({
-      query: () => ({ url: BASE_URL }),
+    getJobAdvertisements: builder.query<
+      JobAdvertisement[],
+      { search?: string }
+    >({
+      query: ({ search }) => ({
+        url: BASE_URL,
+        params: { ...(search && { search }) },
+      }),
       providesTags: ["JOB_ADVERTISEMENTS"],
     }),
 
-    getJobAdvertisement: builder.query<JobAdvertisement, { id: string }>({
+    getJobAdvertisement: builder.query<JobAdvertisementModel, { id: string }>({
       query: ({ id }) => ({ url: `${BASE_URL}${id}/` }),
       providesTags: ["JOB_ADVERTISEMENTS"],
     }),
@@ -45,5 +54,5 @@ export const {
   useCreateJobAdvertisementMutation,
   useGetJobAdvertisementQuery,
   useGetJobAdvertisementsQuery,
-  useUpdateJobAdvertisementMutation
+  useUpdateJobAdvertisementMutation,
 } = JobAdvertisementAPI;

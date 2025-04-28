@@ -39,11 +39,8 @@ export const assetColumn: ColumnDef<TAssetPaginatedData>[] = [
         id: "asset_code",
         accessorKey: "asset_code",
     },
-    {
-        header: "Plate Number",
-        id: "plate_number",
-        accessorKey: "plate_number",
-    },
+    
+    
     {
         header: "Model Number",
         id: "model_number",
@@ -61,6 +58,12 @@ export const assetColumn: ColumnDef<TAssetPaginatedData>[] = [
         id: "plate_number",
         accessorKey: "plate_number",
         accessorFn: ({ plate_number }) => `${plate_number || "Not Applicable"}`,
+    },
+
+    {
+        header: "Chasis Number",
+        id: "chasis_number",
+        accessorFn: ({ chasis_number }) => `${chasis_number || "Not Applicable"}`,
     },
 
     {

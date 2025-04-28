@@ -12,6 +12,8 @@ export const AssetSchema = z.object({
     assignee: z.string().min(1, "Please select an assignee"),
     asset_code: z.string().min(1, "Please enter an asset code"),
     plate_number: z.string().optional(),
+    chasis_number: z.string().optional(),
+    description: z.string().min(1, "Please enter a description"),
     asset_type: z.string().min(1, "Please select an asset type"),
     project: z.string().min(1, "Please select a project"),
     donor: z.string().min(1, "Please select a donor"),
@@ -50,6 +52,7 @@ export interface TAssetPaginatedData {
     asset_code: string;
     acquisition_date: string;
     plate_number: string;
+    chasis_number: string;
     state: string;
     estimated_life_span: string;
     usd_cost: string;
@@ -62,6 +65,8 @@ export interface TAssetPaginatedData {
 export interface TAssetSingleData {
     id: string;
     implementer: IUser;
+    plate_number: string;
+    chasis_number: string;
     asset_condition: TAssetConditionData;
     location: TLocationData;
     project: IProjectSingleData;

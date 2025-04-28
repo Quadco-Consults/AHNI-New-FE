@@ -4,14 +4,15 @@ import GoBack from "components/shared/GoBack";
 import { Loading } from "components/shared/Loading";
 import PdfContent from "components/shared/PdfContent";
 import { useParams } from "react-router-dom";
-import InterviewAPI from "services/hrApi/hr-interview";
+import { useGetInterviewQuery } from "services/hrApi/hr-interview";
 
 const InterviewDetail = () => {
   const params = useParams();
 
-  const { data, isLoading } = InterviewAPI.useGetInterviewQuery({
+  const { data, isLoading } = useGetInterviewQuery({
     id: params?.appID as string,
   });
+
   console.log({ data });
 
   if (isLoading) {
@@ -23,56 +24,56 @@ const InterviewDetail = () => {
   };
 
   return (
-    <div className='space-y-4'>
-      <div className='flex justify-between items-center'>
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
         <GoBack />
       </div>
-      <Card className='space-y-8'>
-        <h4 className='text-lg font-medium'>{data?.data?.applicant_name}</h4>
+      <Card className="space-y-8">
+        <h4 className="text-lg font-medium">{data?.data?.applicant_name}</h4>
 
-        <div className='grid grid-cols-1 gap-5 md:grid-cols-3'>
-          <div className='space-y-4'>
-            <h4 className='font-medium'>Referee 1</h4>
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+          <div className="space-y-4">
+            <h4 className="font-medium">Referee 1</h4>
             <DescriptionCard
               aside
-              label='Name'
+              label="Name"
               description={data?.data?.referee_1_name}
             />
             <DescriptionCard
               aside
-              label='Email'
+              label="Email"
               description={data?.data?.referee_1_email}
             />
           </div>
-          <div className='space-y-4'>
-            <h4 className='font-medium'>Referee 2</h4>
+          <div className="space-y-4">
+            <h4 className="font-medium">Referee 2</h4>
             <DescriptionCard
               aside
-              label='Name'
+              label="Name"
               description={data?.data?.referee_2_name}
             />
             <DescriptionCard
               aside
-              label='Email'
+              label="Email"
               description={data?.data?.referee_2_email}
             />
           </div>
-          <div className='space-y-4'>
-            <h4 className='font-medium'>Referee 3</h4>
+          <div className="space-y-4">
+            <h4 className="font-medium">Referee 3</h4>
             <DescriptionCard
               aside
-              label='Name'
+              label="Name"
               description={data?.data?.referee_3_name}
             />
             <DescriptionCard
               aside
-              label='Email'
+              label="Email"
               description={data?.data?.referee_3_email}
             />
           </div>
         </div>
 
-        <div className='grid grid-cols-1 gap-5 md:grid-cols-3'>
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
           <PdfContent pdf={pdf} />
         </div>
       </Card>

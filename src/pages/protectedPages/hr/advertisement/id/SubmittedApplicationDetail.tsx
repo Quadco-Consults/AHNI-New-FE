@@ -6,79 +6,160 @@ import { Loading } from "components/shared/Loading";
 import PdfContent from "components/shared/PdfContent";
 import { Button } from "components/ui/button";
 import { HrRoutes } from "constants/RouterConstants";
-import { useNavigate, useParams } from "react-router-dom"; 
-import { useGetJobApplicationQuery, usePatchJobApplicationMutation, usePatchJobApplicationShortlistedMutation } from "services/hrApi/hr-job-applications";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  useGetJobApplicationQuery,
+  usePatchJobApplicationShortlistedMutation,
+} from "services/hrApi/hr-job-applications";
 import { toast } from "sonner";
+import { format } from "date-fns";
 
 const SubmittedApplicationDetail = () => {
   const params = useParams();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const { data, isLoading } = useGetJobApplicationQuery({
     id: params?.appID as string,
   });
 
   const [patchJobApplicationShortlisted, { isLoading: isUpdating }] =
-  usePatchJobApplicationShortlistedMutation(); 
+    usePatchJobApplicationShortlistedMutation();
+
   const handleShortlist = async () => {
-    if(data?.data?.status !== "APPLIED"){
-    try {
-      await patchJobApplicationShortlisted({
-        id: params?.appID as string,
-        body: {
-          status: "SHORTLISTED",
-        },
-      }).unwrap();
-      toast.success("Applicant shortlisted successfully");
-      navigate(-1)
-    } catch (error) {
-      toast.error("Failed to update status");
-      console.error(error);
-    }}else{
-      toast.error("Applicant needs to be interviewed first")
+    if (data?.data?.status !== "APPLIED") {
+      try {
+        await patchJobApplicationShortlisted({
+          id: params?.appID as string,
+          body: {
+            status: "SHORTLISTED",
+          },
+        }).unwrap();
+        toast.success("Applicant shortlisted successfully");
+        navigate(-1);
+      } catch (error) {
+        toast.error("Failed to update status");
+        console.error(error);
+      }
+    } else {
+      toast.error("Applicant needs to be interviewed first");
     }
   };
 
   if (isLoading) {
     return <Loading />;
   }
-  const pdf = {
-    name: "document",
-    document: data?.data?.cover_letter!,
+
+  const applicationData = data?.data;
+
+  const coverLetterPdf = {
+    name: "Cover Letter",
+    document: applicationData?.cover_letter,
   };
+
+  const resumePdf = {
+    name: "Resume",
+    document: applicationData?.resume,
+  };
+
+  // Format date if it exists
+  const formattedInterviewDate = applicationData?.interview_date
+    ? new Date(applicationData.interview_date).toLocaleDateString()
+    : "Not scheduled";
+
   return (
-    <div className='space-y-4'>
-      <div className='flex justify-between items-center'>
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
         <GoBack />
         <Button onClick={handleShortlist} disabled={isUpdating}>
           <UserIcon /> {isUpdating ? "Shortlisting..." : "Shortlist Applicant"}
         </Button>
       </div>
-      <Card className='space-y-8'>
-        <h4 className='text-lg font-medium'>{data?.data?.applicant_name}</h4>
 
-        <div className='grid grid-cols-1 gap-5 md:grid-cols-3'>
-          {
-            data?.data?.referees?.map((el,l) => (
-              <div key={l} className='space-y-4'>
-                <h4 className='font-medium'>Referee {(l + 1)}</h4>
-                <DescriptionCard
-                  aside
-                  label='Name'
-                  description={el?.name}
-                />
-                <DescriptionCard
-                  aside
-                  label='Email'
-                  description={el?.email}
-                />
-              </div>
-            ))
-          }
-           
+      <Card className="space-y-8">
+        <h4 className="text-xl font-semibold">
+          {applicationData?.applicant_name}
+        </h4>
+
+        {/* Application Details */}
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+          <DescriptionCard
+            aside
+            label="Applicant Email"
+            description={applicationData?.applicant_email}
+          />
+          <DescriptionCard
+            aside
+            label="Employment Type"
+            description={applicationData?.employment_type}
+          />
+          <DescriptionCard
+            aside
+            label="Position Applied"
+            description={applicationData?.position_applied}
+          />
+          <DescriptionCard
+            aside
+            label="Application Status"
+            description={applicationData?.status}
+          />
+          <DescriptionCard
+            aside
+            label="Interview Date"
+            description={formattedInterviewDate}
+          />
+          <DescriptionCard
+            aside
+            label="Application Date"
+            description={new Date(
+              applicationData?.created_datetime
+            ).toLocaleDateString()}
+          />
         </div>
 
-        <div className='grid grid-cols-1 gap-5 md:grid-cols-3'>
-          <PdfContent pdf={pdf} />
+        {/* Notes */}
+        {applicationData?.application_notes && (
+          <div className="space-y-2">
+            <h4 className="font-medium">Application Notes</h4>
+            <div className="p-4 bg-gray-50 rounded-md">
+              {applicationData.application_notes}
+            </div>
+          </div>
+        )}
+
+        {/* Referees Section */}
+        <div className="space-y-4">
+          <h4 className="font-medium text-lg">Referees</h4>
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+            {applicationData?.referees?.map((referee, index) => (
+              <div key={referee.id} className="p-4 border rounded-md space-y-3">
+                <h4 className="font-medium">Referee {index + 1}</h4>
+                <DescriptionCard
+                  aside
+                  label="Name"
+                  description={referee?.name}
+                />
+                <DescriptionCard
+                  aside
+                  label="Email"
+                  description={referee?.email}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Documents Section */}
+        <div className="space-y-4">
+          <h4 className="font-medium text-lg">Documents</h4>
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+            <div>
+              <h5 className="mb-2 font-medium">Cover Letter</h5>
+              <PdfContent pdf={coverLetterPdf} />
+            </div>
+            <div>
+              <h5 className="mb-2 font-medium">Resume</h5>
+              <PdfContent pdf={resumePdf} />
+            </div>
+          </div>
         </div>
       </Card>
     </div>

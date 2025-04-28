@@ -13,10 +13,12 @@ export const SupervisionPlanReviewSchema = z.object({
     documents: z.array(
         z.object({
             title: z.string().min(1, "Please enter document title"),
-            // is_selected: z
-            //     .boolean({ required_error: "Selection is required" })
-            //     .optional(),
+            label: z.string().optional(),
+            is_selected: z
+                .boolean({ required_error: "Selection is required" })
+                .optional(),
             document: z.any(),
+            name: z.string(),
         })
     ),
     remediation_plan: z.string().min(1, "Please enter a remediation plan"),

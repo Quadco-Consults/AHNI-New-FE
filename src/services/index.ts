@@ -146,7 +146,8 @@ const baseAPI = createApi({
         "CLOSE_OUT_PLAN",
         "CONSULTANCY_APPLICATION",
         "SUPERVISION_PLAN_REVIEW",
-        "CONSUMABLE"
+        "CONSUMABLE",
+        "CONSULTANCY_STAFF"
     ],
     // keepUnusedDataFor: 5 * 60,
     keepUnusedDataFor: 0,
