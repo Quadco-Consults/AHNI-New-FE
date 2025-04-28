@@ -3,7 +3,9 @@ import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelectField";
 import LongArrowRight from "components/icons/LongArrowRight";
 import GoBack from "components/shared/GoBack";
-import { Form } from "components/ui/form";
+import { Form, FormControl, FormField, FormItem } from "components/ui/form";
+import { Label } from "components/ui/label";
+import MultiSelectFormField from "components/ui/multiselect";
 import { Separator } from "components/ui/separator";
 import { RouteEnum } from "constants/RouterConstants";
 import { useEffect } from "react";
@@ -41,7 +43,8 @@ const CreateVendorEvaluation = () => {
   const form = useForm<any>({
     // resolver: zodResolver(),
     defaultValues: {
-      evaluators: profile?.data.id,
+      evaluators: "",
+      // evaluators: profile?.data.id,
       supervisors: "",
       vendor: "",
       vendor_service: "",
@@ -64,18 +67,10 @@ const CreateVendorEvaluation = () => {
 
   const usersOptions = users?.data.results.map(
     ({ first_name, last_name, id }) => ({
-      label: `${first_name} ${last_name}`,
-      value: id,
+      name: `${first_name} ${last_name}`,
+      id: id,
     })
   );
-
-  const ratingOptions = [
-    { label: "Excellent", value: "5" },
-    { label: "Good", value: "4" },
-    { label: "Satisfactorily", value: "3" },
-    { label: "Fair", value: "2" },
-    { label: "Low", value: "1" },
-  ];
 
   // Autofill location based on selected vendor
   useEffect(() => {
@@ -85,54 +80,25 @@ const CreateVendorEvaluation = () => {
       );
 
       if (selectedVendor) {
-        setValue("location_of_service", selectedVendor.company_address || "");
+        setValue("location_of_service", selectedVendor.state || "");
         setValue(
           "vendor_service",
           selectedVendor?.approved_categories_details[0]?.name || ""
         );
       }
     }
-    setValue("evaluators", profile?.data.id || "");
+    // setValue("evaluators", profile?.data.id || "");
   }, [selectedVendorId, vendor, setValue, profile?.data.id]);
 
   const onSubmit = async (data: any) => {
     const payload = {
-      evaluators: [data.evaluators],
-      supervisors: [data.supervisors],
-      criteria_scores: [
-        {
-          criteria: "delivery_leadtime",
-          value: data.delivery_leadtime,
-          evaluation: "",
-        },
-        {
-          criteria: "competitive_pricing",
-          value: data?.competitive_pricing,
-          evaluation: "",
-        },
-        {
-          criteria: "professionalism",
-          value: data?.professionalism,
-          evaluation: "",
-        },
-        {
-          criteria: "responsiveness",
-          value: data?.responsiveness,
-          evaluation: "",
-        },
-        {
-          criteria: "post_delivery_after_sales_report",
-          value: data?.post_delivery_after_sales_report,
-          evaluation: "",
-        },
-      ],
-
+      evaluators: data.evaluators,
+      supervisors: data.supervisors,
       vendor: data?.vendor,
       service: data?.vendor_service,
       location_of_service: data?.location_of_service,
       reviewed_period_start: data?.reviewed_period_start,
       reviewed_period_end: data?.reviewed_period_end,
-      comments: data?.comments,
     };
 
     try {
@@ -197,50 +163,55 @@ const CreateVendorEvaluation = () => {
             </span>
             <Separator className='my-4' />
             <div className='grid grid-cols-2 gap-5'>
-              <FormSelect
-                label='Delivery leadtime'
-                name='delivery_leadtime'
-                required
-                options={ratingOptions}
-              />
-
-              <FormSelect
-                label='Competitive Pricing'
-                name='competitive_pricing'
-                required
-                options={ratingOptions}
-              />
-            </div>
-
-            <div className='grid grid-cols-2 gap-5'>
-              <FormSelect
-                label='Post-delivery after sales report'
-                name='post_delivery_after_sales_report'
-                required
-                options={ratingOptions}
-              />{" "}
-              <FormSelect
-                label='Professionalism'
-                name='professionalism'
-                required
-                options={ratingOptions}
-              />
-            </div>
-            <div className='grid grid-cols-2 gap-5'>
               {usersOptions && (
-                <FormSelect
-                  label='Supervisor'
-                  name='supervisors'
-                  required
-                  options={usersOptions}
-                />
+                <>
+                  <div className=''>
+                    <Label className='font-semibold'>Evaluators</Label>
+                    <FormField
+                      control={form.control}
+                      name='evaluators'
+                      render={({ field }) => {
+                        return (
+                          <FormItem>
+                            <FormControl>
+                              <MultiSelectFormField
+                                options={usersOptions || []}
+                                defaultValue={field.value}
+                                onValueChange={field.onChange}
+                                placeholder='Please Select'
+                                variant='inverted'
+                              />
+                            </FormControl>
+                          </FormItem>
+                        );
+                      }}
+                    />
+                  </div>
+
+                  <div className=''>
+                    <Label className='font-semibold'>Supervisor</Label>
+                    <FormField
+                      control={form.control}
+                      name='supervisors'
+                      render={({ field }) => {
+                        return (
+                          <FormItem>
+                            <FormControl>
+                              <MultiSelectFormField
+                                options={usersOptions || []}
+                                defaultValue={field.value}
+                                onValueChange={field.onChange}
+                                placeholder='Please Select'
+                                variant='inverted'
+                              />
+                            </FormControl>
+                          </FormItem>
+                        );
+                      }}
+                    />
+                  </div>
+                </>
               )}
-              <FormSelect
-                label='Responsiveness'
-                name='responsiveness'
-                required
-                options={ratingOptions}
-              />
             </div>
             <FormButton
               loading={createVendorEvaluationMutationLoading}

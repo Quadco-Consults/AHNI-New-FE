@@ -492,4 +492,14 @@ export const procurment = [
         )
     ),
   },
+
+  {
+    path: RouteEnum.VENDOR_PERFORMANCE_START_EVALUATION,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/vendor-performance/id/InterviewForm"
+        )
+    ),
+  },
 ];
