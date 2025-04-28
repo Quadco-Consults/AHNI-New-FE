@@ -39,29 +39,42 @@ const DeliveryStageCard = () => {
       header: "Procurement Status",
       accessorKey: "date_pr_received",
       size: 200,
-      // cell: ({ row }) => {
-      //   return <div>{row.original?.solicitation?.status || "-"}</div>;
-      // },
-
       cell: ({ row }) => {
-        const track = row?.original?.solicitation?.status;
-        console.log({ track });
-
         return (
           <Badge
             variant='default'
             className={cn(
-              "p-1 rounded-lg"
+              "p-1 rounded-lg bg-yellow-200 text-yellow-500"
               // getValue() === "REVIEWED" && "bg-blue-200 text-blue-500",
               // getValue() === "APPROVED" && "bg-green-200 text-green-500",
               // getValue() === "PENDING" && "bg-yellow-200 text-yellow-500",
               // getValue() === "AUTHORIZED" && "text-green-200 bg-green-500"
             )}
           >
-            {/* {getValue() as string} */}
+            {"ON GOING"}
           </Badge>
         );
       },
+
+      // cell: ({ row }) => {
+      //   const track = row?.original?.solicitation?.status;
+      //   console.log({ track });
+
+      //   return (
+      //     <Badge
+      //       variant='default'
+      //       className={cn(
+      //         "p-1 rounded-lg"
+      //         // getValue() === "REVIEWED" && "bg-blue-200 text-blue-500",
+      //         // getValue() === "APPROVED" && "bg-green-200 text-green-500",
+      //         // getValue() === "PENDING" && "bg-yellow-200 text-yellow-500",
+      //         // getValue() === "AUTHORIZED" && "text-green-200 bg-green-500"
+      //       )}
+      //     >
+      //       {/* {getValue() as string} */}
+      //     </Badge>
+      //   );
+      // },
     },
     {
       header: "Remarks",

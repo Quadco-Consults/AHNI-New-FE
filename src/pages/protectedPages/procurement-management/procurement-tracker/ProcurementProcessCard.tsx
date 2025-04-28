@@ -16,13 +16,16 @@ const ProcurementProcessCard = () => {
       header: "Procurement Process (drop down)",
       accessorKey: "programme_requesting",
       size: 120,
+      cell: ({ row }) => {
+        return <div>{row.original?.solicitation?.tender_type}</div>;
+      },
     },
     {
       header: "Esitmated PR value(NGN)",
       accessorKey: "office_requesting",
       size: 200,
       cell: ({ row }) => {
-        return <div>{row.original?.purchse_order?.total_cost || "-"}</div>;
+        return <div>{row.original?.purchse_order?.total_price || "-"}</div>;
       },
     },
 
@@ -30,11 +33,17 @@ const ProcurementProcessCard = () => {
       header: "Purchase Order No",
       accessorKey: "procurement_officer_responsible",
       size: 195,
+      cell: ({ row }) => {
+        return <div>{row.original?.purchse_order?.po_reference || "-"}</div>;
+      },
     },
     {
       header: "Purchased Order value(NGN)",
       accessorKey: "pr_no. ",
       size: 150,
+      cell: ({ row }) => {
+        return <div>{row.original?.purchse_order?.total_price || "-"}</div>;
+      },
     },
     {
       header: "Actual Payment Request Valu(NGN)",
@@ -45,6 +54,14 @@ const ProcurementProcessCard = () => {
       header: "Savings(+-)",
       accessorKey: "f-c-o",
       size: 150,
+      cell: ({ row }) => {
+        return (
+          <div>
+            {row.original?.purchse_order?.total_price -
+              row.original?.purchse_order?.total_price || "-"}
+          </div>
+        );
+      },
     },
     {
       header: "Currency",

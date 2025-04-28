@@ -32,7 +32,7 @@ const CompetitiveAnalysis = () => {
   if (isLoading) {
     return <Loading />;
   }
-
+  // return;
   return (
     <div className='space-y-10'>
       <div>
@@ -193,7 +193,7 @@ const ActionListAction = ({ data }: any) => {
                   View
                 </Button>
               </Link> */}
-              <Link
+              {/* <Link
                 className='w-full'
                 to={generatePath(
                   RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_START,
@@ -201,15 +201,15 @@ const ActionListAction = ({ data }: any) => {
                     id: data?.id,
                   }
                 )}
+              > */}
+              {/* <Button
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
               >
-                <Button
-                  className='w-full flex items-center justify-start gap-2'
-                  variant='ghost'
-                >
-                  <SendIcon />
-                  Start CBA
-                </Button>
-              </Link>
+                <SendIcon />
+                Start CBA
+              </Button> */}
+              {/* </Link> */}
               <Link
                 className='w-full'
                 to={{
@@ -223,7 +223,7 @@ const ActionListAction = ({ data }: any) => {
                   variant='ghost'
                 >
                   <SendIcon />
-                  Check Approval
+                  Start CBA
                 </Button>
               </Link>
               <Button

@@ -127,10 +127,15 @@ const EOI = () => {
     try {
       const response = await createEoiMutation(formData).unwrap();
       toast.success("Successfully Created.");
-      console.log({ response });
 
       if (data?.type === "OPEN_TENDER") {
-        navigate(RouteEnum.RFQ_CREATE_QUOTATION);
+        const id = response?.data?.id;
+        navigate(
+          generatePath(RouteEnum.RFQ_CREATE_QUOTATION_OPEN_TENDER, {
+            id: id,
+            type: data?.type,
+          })
+        );
       }
       setOpen(false);
     } catch (error) {

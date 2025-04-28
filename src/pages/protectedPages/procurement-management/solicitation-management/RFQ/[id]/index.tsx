@@ -1,7 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import { Button } from "components/ui/button";
-import { Link, useParams } from "react-router-dom";
-import { RouteEnum } from "constants/RouterConstants";
+import { useParams } from "react-router-dom";
+
 import { LoadingSpinner } from "components/shared/Loading";
 // import { SolicitationResultsData } from "definations/procurement-types/solicitation";
 import DetailsContent from "./tab-contents/Details-content";
@@ -10,6 +9,8 @@ import BreadcrumbCard from "components/shared/Breadcrumb";
 import { useGetSingleSolicitationQuery } from "services/procurementApi/solicitation";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import GoBack from "components/shared/GoBack";
+import EOIVendorSubmission from "pages/protectedPages/procurement-management/vendor-management/eoi/eoi-tabs-contents/EOIVendorSubmission";
+import SummaryOfTechnicalPrequalification from "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/SummaryOfTechnicalPrequalification";
 
 const RFQDetails = () => {
   const { id } = useParams();
@@ -25,25 +26,43 @@ const RFQDetails = () => {
     { name: "Detail", icon: false },
   ];
 
+  console.log({ data: data?.data?.tender_type });
+  // NATIONAL OPEN TENDER
   return (
     <div className='space-y-5'>
       <GoBack />
       <BreadcrumbCard list={breadcrumbs} />
       <div className='flex justify-between'>
-        <h4 className='text-lg font-bold'>{data?.data.title}</h4>
+        <h4 className='text-lg font-bold'>{data?.data?.title}</h4>
       </div>
 
       <Tabs defaultValue='rfq-details'>
         <TabsList>
           <TabsTrigger value='rfq-details'>RFQ Details</TabsTrigger>
+          {data?.data?.tender_type === "NATIONAL OPEN TENDER" && (
+            <TabsTrigger value='vendor-evaluation'>
+              Vender Evaluation
+            </TabsTrigger>
+          )}
           <TabsTrigger value='vendor-submission'>Vendor Submission</TabsTrigger>
+          <TabsTrigger value='vendor-submission-evaluation'>
+            Vendor Submission Evaluation
+          </TabsTrigger>
         </TabsList>
         <TabsContent value='rfq-details'>
           {data && <DetailsContent {...data?.data} />}
         </TabsContent>
+        <TabsContent value='vendor-evaluation'>
+          <EOIVendorSubmission status='Pending' />
+        </TabsContent>
         <TabsContent value='vendor-submission'>
           {/* @ts-ignore */}
           {data && <VendorSubmission {...data?.data} />}
+        </TabsContent>
+
+        <TabsContent value='vendor-submission-evaluation'>
+          {/* @ts-ignore */}
+          <SummaryOfTechnicalPrequalification />
         </TabsContent>
       </Tabs>
     </div>
