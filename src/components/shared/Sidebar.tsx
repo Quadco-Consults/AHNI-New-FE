@@ -2,7 +2,13 @@
 import { useState } from "react";
 import logoSvg from "assets/svgs/logo-bg.svg";
 import { NavLink, useLocation } from "react-router-dom";
-import { Bell, ChevronDown, Package, ScanEye, HeartHandshake } from "lucide-react";
+import {
+    Bell,
+    ChevronDown,
+    Package,
+    ScanEye,
+    HeartHandshake,
+} from "lucide-react";
 import {
     RouteEnum,
     AdminRoutes,
@@ -139,194 +145,188 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                             </div>
                         </NavLink>
 
-                        {assignedModules &&
-                            getDeparmentalLinks(["procurement"]).map(
-                                (link: any, index: number) => (
-                                    <div key={index} className="w-full ">
-                                        <div
-                                            onClick={() => {
-                                                setShowMenu(!showMenu);
-                                                setSelectedLinkIndex(index);
-                                            }}
-                                            className={cn(
-                                                "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
-                                                location.pathname.startsWith(
-                                                    link.path
-                                                ) && "text-primary "
-                                            )}
-                                        >
-                                            <div className="flex w-[85%] items-center gap-2">
-                                                <span className="">
-                                                    {link.icon}
-                                                </span>
-                                                <h4
-                                                    className={cn(
-                                                        " w-[100%] truncate font-medium",
-                                                        sidebarWidth === false
-                                                            ? "block"
-                                                            : "hidden"
-                                                    )}
-                                                >
-                                                    {link.name}
-                                                </h4>
-                                            </div>
-                                            <ChevronDown
+                        {getDeparmentalLinks(["procurement"]).map(
+                            (link: any, index: number) => (
+                                <div key={index} className="w-full ">
+                                    <div
+                                        onClick={() => {
+                                            setShowMenu(!showMenu);
+                                            setSelectedLinkIndex(index);
+                                        }}
+                                        className={cn(
+                                            "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
+                                            location.pathname.startsWith(
+                                                link.path
+                                            ) && "text-primary "
+                                        )}
+                                    >
+                                        <div className="flex w-[85%] items-center gap-2">
+                                            <span className="">
+                                                {link.icon}
+                                            </span>
+                                            <h4
                                                 className={cn(
-                                                    "h-5 w-5 -rotate-90 transition duration-200",
-                                                    showMenu &&
-                                                        selectedLinkIndex ===
-                                                            index &&
-                                                        "rotate-0"
+                                                    " w-[100%] truncate font-medium",
+                                                    sidebarWidth === false
+                                                        ? "block"
+                                                        : "hidden"
                                                 )}
-                                                aria-hidden="true"
-                                            />
+                                            >
+                                                {link.name}
+                                            </h4>
                                         </div>
-                                        <motion.ul
-                                            animate={
+                                        <ChevronDown
+                                            className={cn(
+                                                "h-5 w-5 -rotate-90 transition duration-200",
                                                 showMenu &&
-                                                selectedLinkIndex === index
-                                                    ? {
-                                                          height: "fit-content",
-                                                      }
-                                                    : {
-                                                          height: 0,
-                                                      }
-                                            }
-                                            className="h-0 overflow-hidden list-none pl-14"
-                                        >
-                                            {link?.link?.map(
-                                                (el: any, i: number) =>
-                                                    el?.sublinks ? (
-                                                        <div key={i}>
-                                                            <li className="text-sm list-none hover:text-amber-400 hover:cursor-pointer">
-                                                                <div
-                                                                    onClick={() => {
-                                                                        setShowSubMenu(
-                                                                            !showSubMenu
-                                                                        );
-                                                                        setSelectedLinkSubIndex(
-                                                                            i
-                                                                        );
-                                                                    }}
-                                                                    className={cn(
-                                                                        "flex items-center justify-start gap-2",
-                                                                        location.pathname.startsWith(
-                                                                            el.path
-                                                                        ) &&
-                                                                            " text-amber-400 "
-                                                                    )}
-                                                                >
-                                                                    <span
-                                                                        className={cn(
-                                                                            "bg-black hover:bg-amber-400 aspect-square w-2 truncate rounded-full border",
-                                                                            location.pathname.startsWith(
-                                                                                el.path
-                                                                            ) &&
-                                                                                " bg-amber-400 border-amber-400 hover:bg-amber-400"
-                                                                        )}
-                                                                    ></span>
-                                                                    <h6 className="py-2">
-                                                                        {
-                                                                            el.name
-                                                                        }
-                                                                    </h6>
-                                                                    <ChevronDown
-                                                                        className={cn(
-                                                                            "h-3 w-3 transition duration-200",
-                                                                            showSubMenu &&
-                                                                                selectedLinkSubIndex ===
-                                                                                    i &&
-                                                                                "rotate-180"
-                                                                        )}
-                                                                        aria-hidden="true"
-                                                                    />
-                                                                </div>
-                                                            </li>
-
-                                                            <motion.ul
-                                                                animate={
-                                                                    showSubMenu &&
-                                                                    selectedLinkSubIndex ===
-                                                                        i
-                                                                        ? {
-                                                                              height: "fit-content",
-                                                                          }
-                                                                        : {
-                                                                              height: 0,
-                                                                          }
-                                                                }
-                                                                className="h-0 overflow-hidden text-sm"
-                                                            >
-                                                                {el?.sublinks?.map(
-                                                                    (
-                                                                        sublink: any
-                                                                    ) => (
-                                                                        <NavLink
-                                                                            key={
-                                                                                sublink.name
-                                                                            }
-                                                                            to={
-                                                                                sublink.path
-                                                                            }
-                                                                            className={({
-                                                                                isActive,
-                                                                            }) => {
-                                                                                return isActive
-                                                                                    ? "text-amber-400"
-                                                                                    : "";
-                                                                            }}
-                                                                        >
-                                                                            <li className="py-2 ml-8 list-none hover:text-amber-400 hover:cursor-pointer">
-                                                                                {
-                                                                                    sublink.name
-                                                                                }
-                                                                            </li>
-                                                                        </NavLink>
-                                                                    )
-                                                                )}
-                                                            </motion.ul>
-                                                        </div>
-                                                    ) : (
-                                                        <NavLink
-                                                            key={i}
-                                                            to={el.path}
-                                                            className={({
-                                                                isActive,
-                                                            }) => {
-                                                                return isActive
-                                                                    ? "text-amber-400"
-                                                                    : "";
+                                                    selectedLinkIndex ===
+                                                        index &&
+                                                    "rotate-0"
+                                            )}
+                                            aria-hidden="true"
+                                        />
+                                    </div>
+                                    <motion.ul
+                                        animate={
+                                            showMenu &&
+                                            selectedLinkIndex === index
+                                                ? {
+                                                      height: "fit-content",
+                                                  }
+                                                : {
+                                                      height: 0,
+                                                  }
+                                        }
+                                        className="h-0 overflow-hidden list-none pl-14"
+                                    >
+                                        {link?.link?.map((el: any, i: number) =>
+                                            el?.sublinks ? (
+                                                <div key={i}>
+                                                    <li className="text-sm list-none hover:text-amber-400 hover:cursor-pointer">
+                                                        <div
+                                                            onClick={() => {
+                                                                setShowSubMenu(
+                                                                    !showSubMenu
+                                                                );
+                                                                setSelectedLinkSubIndex(
+                                                                    i
+                                                                );
                                                             }}
+                                                            className={cn(
+                                                                "flex items-center justify-start gap-2",
+                                                                location.pathname.startsWith(
+                                                                    el.path
+                                                                ) &&
+                                                                    " text-amber-400 "
+                                                            )}
                                                         >
-                                                            <li
+                                                            <span
                                                                 className={cn(
-                                                                    "hover:text-amber-400 flex items-center justify-start gap-2 text-sm",
+                                                                    "bg-black hover:bg-amber-400 aspect-square w-2 truncate rounded-full border",
                                                                     location.pathname.startsWith(
                                                                         el.path
                                                                     ) &&
-                                                                        " text-amber-400 "
+                                                                        " bg-amber-400 border-amber-400 hover:bg-amber-400"
                                                                 )}
-                                                            >
-                                                                <span
-                                                                    className={cn(
-                                                                        "bg-black hover:bg-amber-400 aspect-square w-2 rounded-full border",
-                                                                        location.pathname.startsWith(
-                                                                            el.path
-                                                                        ) &&
-                                                                            " bg-amber-400 border-amber-400 hover:bg-amber-400"
-                                                                    )}
-                                                                ></span>
-                                                                <h6 className="py-2">
-                                                                    {el.name}
-                                                                </h6>
-                                                            </li>
-                                                        </NavLink>
-                                                    )
-                                            )}
-                                        </motion.ul>
-                                    </div>
-                                )
-                            )}
+                                                            ></span>
+                                                            <h6 className="py-2">
+                                                                {el.name}
+                                                            </h6>
+                                                            <ChevronDown
+                                                                className={cn(
+                                                                    "h-3 w-3 transition duration-200",
+                                                                    showSubMenu &&
+                                                                        selectedLinkSubIndex ===
+                                                                            i &&
+                                                                        "rotate-180"
+                                                                )}
+                                                                aria-hidden="true"
+                                                            />
+                                                        </div>
+                                                    </li>
+
+                                                    <motion.ul
+                                                        animate={
+                                                            showSubMenu &&
+                                                            selectedLinkSubIndex ===
+                                                                i
+                                                                ? {
+                                                                      height: "fit-content",
+                                                                  }
+                                                                : {
+                                                                      height: 0,
+                                                                  }
+                                                        }
+                                                        className="h-0 overflow-hidden text-sm"
+                                                    >
+                                                        {el?.sublinks?.map(
+                                                            (sublink: any) => (
+                                                                <NavLink
+                                                                    key={
+                                                                        sublink.name
+                                                                    }
+                                                                    to={
+                                                                        sublink.path
+                                                                    }
+                                                                    className={({
+                                                                        isActive,
+                                                                    }) => {
+                                                                        return isActive
+                                                                            ? "text-amber-400"
+                                                                            : "";
+                                                                    }}
+                                                                >
+                                                                    <li className="py-2 ml-8 list-none hover:text-amber-400 hover:cursor-pointer">
+                                                                        {
+                                                                            sublink.name
+                                                                        }
+                                                                    </li>
+                                                                </NavLink>
+                                                            )
+                                                        )}
+                                                    </motion.ul>
+                                                </div>
+                                            ) : (
+                                                <NavLink
+                                                    key={i}
+                                                    to={el.path}
+                                                    className={({
+                                                        isActive,
+                                                    }) => {
+                                                        return isActive
+                                                            ? "text-amber-400"
+                                                            : "";
+                                                    }}
+                                                >
+                                                    <li
+                                                        className={cn(
+                                                            "hover:text-amber-400 flex items-center justify-start gap-2 text-sm",
+                                                            location.pathname.startsWith(
+                                                                el.path
+                                                            ) &&
+                                                                " text-amber-400 "
+                                                        )}
+                                                    >
+                                                        <span
+                                                            className={cn(
+                                                                "bg-black hover:bg-amber-400 aspect-square w-2 rounded-full border",
+                                                                location.pathname.startsWith(
+                                                                    el.path
+                                                                ) &&
+                                                                    " bg-amber-400 border-amber-400 hover:bg-amber-400"
+                                                            )}
+                                                        ></span>
+                                                        <h6 className="py-2">
+                                                            {el.name}
+                                                        </h6>
+                                                    </li>
+                                                </NavLink>
+                                            )
+                                        )}
+                                    </motion.ul>
+                                </div>
+                            )
+                        )}
                     </div>
 
                     {/* settings */}
@@ -341,8 +341,6 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                         </h4>
 
                         {MODULE_LINKS.map((link: any, index: number) => {
-                            console.log(link);
-
                             if (link) {
                                 return (
                                     <div key={index} className="w-full ">
@@ -664,8 +662,6 @@ const MODULE_LINKS = [
 ];
 
 const getDeparmentalLinks = (assignedModules: string[]) => {
-    console.log({ assignedModules });
-
     return [
         {
             name: "Programs",

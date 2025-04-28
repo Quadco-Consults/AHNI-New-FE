@@ -30,7 +30,23 @@ export interface TActivity {
     activity_justification: string;
     lead_dept: string;
     lead_person: string;
+    intervention_area: string;
+    cost_group: string;
     gant_chart: {
+        Apr: number;
+        Aug: number;
+        Dec: number;
+        Feb: number;
+        Jan: number;
+        Jul: number;
+        Jun: number;
+        Mar: number;
+        May: number;
+        Nov: number;
+        Oct: number;
+        Sep: number;
+    };
+    budget_chart: {
         Apr: number;
         Aug: number;
         Dec: number;

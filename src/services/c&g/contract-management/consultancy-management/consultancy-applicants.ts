@@ -1,29 +1,31 @@
 import baseAPI from "services/index";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 import {
-    IConsultancyApplicantPaginatedData,
-    IConsultancyApplicantSingleData,
-    TConsultancyApplicantFormData,
+    IConsultancyStaffPaginatedData,
+    IConsultancyStaffSingleData,
+    TConsultancyStaffFormData,
 } from "definations/c&g/contract-management/consultancy-management/consultancy-application";
 
 const BASE_URL = "/contract-grants/consultancy/applicants/";
 
-const ConsultancyApplicationAPI = baseAPI.injectEndpoints({
+const ConsultancyStaffAPI = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
-        createConsultancyApplication: builder.mutation<
-            TResponse<IConsultancyApplicantSingleData>,
-            TConsultancyApplicantFormData
+        createConsultancyStaff: builder.mutation<
+            TResponse<IConsultancyStaffSingleData>,
+            TConsultancyStaffFormData & {
+                documents: { name: string; document: any }[];
+            }
         >({
             query: (body) => ({
                 method: "POST",
                 url: BASE_URL,
                 body,
             }),
-            invalidatesTags: ["CONSULTANCY_APPLICATION"],
+            invalidatesTags: ["CONSULTANCY_STAFF"],
         }),
 
-        getAllConsultancyApplications: builder.query<
-            TPaginatedResponse<IConsultancyApplicantPaginatedData>,
+        getAllConsultancyStaffs: builder.query<
+            TPaginatedResponse<IConsultancyStaffPaginatedData>,
             TRequest
         >({
             query: (params) => ({
@@ -31,36 +33,36 @@ const ConsultancyApplicationAPI = baseAPI.injectEndpoints({
                 url: BASE_URL,
                 params,
             }),
-            providesTags: ["CONSULTANCY_APPLICATION"],
+            providesTags: ["CONSULTANCY_STAFF"],
         }),
 
-        getSingleConsultancyApplication: builder.query<
-            TResponse<IConsultancyApplicantSingleData>,
+        getSingleConsultancyStaff: builder.query<
+            TResponse<IConsultancyStaffSingleData>,
             string
         >({
             query: (id) => ({
                 method: "GET",
                 url: `${BASE_URL}${id}/`,
             }),
-            providesTags: ["CONSULTANCY_APPLICATION"],
+            providesTags: ["CONSULTANCY_STAFF"],
         }),
 
-        getExistingConsultancyApplicants: builder.query<
-            TPaginatedResponse<IConsultancyApplicantPaginatedData>,
-            TRequest
-        >({
-            query: (id) => ({
-                method: "GET",
-                url: `${BASE_URL}existing/`,
-            }),
-            providesTags: ["CONSULTANCY_APPLICATION"],
-        }),
+        // getExistingConsultancyApplicants: builder.query<
+        //     TPaginatedResponse<IConsultancyApplicantPaginatedData>,
+        //     TRequest
+        // >({
+        //     query: (id) => ({
+        //         method: "GET",
+        //         url: `${BASE_URL}existing/`,
+        //     }),
+        //     providesTags: ["CONSULTANCY_STAFF"],
+        // }),
 
-        modifyConsultancyApplication: builder.mutation<
-            TPaginatedResponse<IConsultancyApplicantSingleData>,
+        modifyConsultancyStaff: builder.mutation<
+            TPaginatedResponse<IConsultancyStaffSingleData>,
             {
                 id: string;
-                body: TConsultancyApplicantFormData;
+                body: TConsultancyStaffFormData;
             }
         >({
             query: ({ id, body }) => ({
@@ -68,27 +70,20 @@ const ConsultancyApplicationAPI = baseAPI.injectEndpoints({
                 url: `${BASE_URL}${id}/`,
                 body,
             }),
-            invalidatesTags: ["CONSULTANCY_APPLICATION"],
+            invalidatesTags: ["CONSULTANCY_STAFF"],
         }),
 
-        deleteConsultancyApplication: builder.mutation<
-            TResponse<IConsultancyApplicantSingleData>,
+        deleteConsultancyStaff: builder.mutation<
+            TResponse<IConsultancyStaffSingleData>,
             string
         >({
             query: (id) => ({
                 method: "DELETE",
                 url: `${BASE_URL}${id}/`,
             }),
-            invalidatesTags: ["CONSULTANCY_APPLICATION"],
+            invalidatesTags: ["CONSULTANCY_STAFF"],
         }),
     }),
 });
 
-export const {
-    useCreateConsultancyApplicationMutation,
-    useGetAllConsultancyApplicationsQuery,
-    useGetSingleConsultancyApplicationQuery,
-    useGetExistingConsultancyApplicantsQuery,
-    useModifyConsultancyApplicationMutation,
-    useDeleteConsultancyApplicationMutation,
-} = ConsultancyApplicationAPI;
+export const { useCreateConsultancyStaffMutation } = ConsultancyStaffAPI;

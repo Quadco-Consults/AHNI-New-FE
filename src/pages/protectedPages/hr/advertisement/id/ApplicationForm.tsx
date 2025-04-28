@@ -10,9 +10,9 @@ import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";
 import { HrRoutes } from "constants/RouterConstants";
 import { jobApplicationSchema } from "definations/hr-validator";
-
+import { useEffect } from "react";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
-import { useNavigate, useParams } from "react-router-dom"; 
+import { useNavigate, useParams } from "react-router-dom";
 import { useGetJobAdvertisementQuery } from "services/hrApi/hr-job-advertisement";
 import { useCreateJobApplicationMutation } from "services/hrApi/hr-job-applications";
 import { toast } from "sonner";
@@ -23,11 +23,11 @@ const ApplicationForm = () => {
   const { id } = useParams();
 
   const [createJobApplication, { isLoading }] =
-  useCreateJobApplicationMutation();
-  const {data: adDetails} = useGetJobAdvertisementQuery(
-    {id: id!}
-  ); 
-  const navigate = useNavigate(); 
+    useCreateJobApplicationMutation();
+  const { data: adDetails, isLoading: isLoadingAdDetails } =
+    useGetJobAdvertisementQuery({ id: id! });
+  const navigate = useNavigate();
+
   const form = useForm<TFormValues>({
     resolver: zodResolver(jobApplicationSchema),
     defaultValues: {
@@ -35,109 +35,121 @@ const ApplicationForm = () => {
       applicant_email: "",
       application_notes: "",
       cover_letter: "",
-      employment_type: "INTERNAL",
+      employment_type: "",
       advertisement: id,
-      interview_date: adDetails?.data?.commencement_date,
+      interview_date: "",
       position_applied: "",
-      referees: [{ name: '', email: '' }] ,
-      resume: null,  
+      referees: [{ name: "", email: "" }],
+      resume: null,
       status: "applied",
     },
   });
+
+  // Update form values when advertisement details load
+  useEffect(() => {
+    if (adDetails?.data) {
+      form.setValue("employment_type", adDetails.data.job_type?.toUpperCase());
+      form.setValue("position_applied", adDetails.data.title);
+      form.setValue("interview_date", adDetails.data.commencement_date);
+    }
+  }, [adDetails, form]);
+
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: "referees"
+    name: "referees",
   });
-
 
   const { handleSubmit } = form;
 
-  
   const onSubmit: SubmitHandler<TFormValues> = async (data: any) => {
-      
     try {
-      const fileToBase64 = async (file: File | FileList | string): Promise<string | null> => {
+      const fileToBase64 = async (
+        file: File | FileList | string
+      ): Promise<string | null> => {
         // If already base64 string, return it
-        if (typeof file === 'string' && file.startsWith('data:')) return file;
-        
+        if (typeof file === "string" && file.startsWith("data:")) return file;
+
         // Handle FileList
         const actualFile = file instanceof FileList ? file[0] : file;
         if (!(actualFile instanceof File)) return null;
-  
+
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
           reader.readAsDataURL(actualFile);
           reader.onload = () => resolve(reader.result as string);
-          reader.onerror = error => reject(error);
+          reader.onerror = (error) => reject(error);
         });
       };
-  
+
       // Prepare files - handles both initial submit and edit cases
       const [resumeBase64, coverLetterBase64] = await Promise.all([
         fileToBase64(data.resume),
-        fileToBase64(data.cover_letter)
-      ]); 
+        fileToBase64(data.cover_letter),
+      ]);
       const payload = {
         ...data,
         resume: resumeBase64,
-        cover_letter: coverLetterBase64, 
+        cover_letter: coverLetterBase64,
       };
-  
-      
-      await createJobApplication(payload).unwrap();  
-      toast.success(" Application Submitted successfully");
-      navigate(-1)
+
+      await createJobApplication(payload).unwrap();
+      toast.success("Application Submitted successfully");
+      navigate(-1);
     } catch (error) {
       toast.error("Something went wrong");
       console.error(error);
     }
   };
 
-  const jobTypeOptions = [
-    { value: "INTERNAL", label: "Internal" },
-    { value: "EXTERNAL", label: "External" },
-    { value: "BOTH", label: "Both" },
-  ];
+  // const jobTypeOptions = [
+  //   { value: "INTERNAL", label: "Internal" },
+  //   { value: "EXTERNAL", label: "External" },
+  //   { value: "BOTH", label: "Both" },
+  // ];
 
   return (
-    <div className='space-y-4'>
+    <div className="space-y-4">
       <GoBack />
       <Card>
         <Form {...form}>
-          <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
-            <h4 className='font-medium text-lg pb-4 text-primary'>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <h4 className="font-medium text-lg pb-4 text-primary">
               Applicant Details
             </h4>
-            <div className='grid grid-cols-2 gap-4'>
-              <FormInput name='applicant_name' label='Name' required />
+            <div className="grid grid-cols-2 gap-4">
+              <FormInput name="applicant_name" label="Name" required />
               <FormInput
-                name='applicant_email'
-                label='Email'
-                type='email'
+                name="applicant_email"
+                label="Email"
+                type="email"
                 required
               />
             </div>
-            <div className='grid grid-cols-2 gap-4'>
-              <FormInput name='position_applied' label='Position' required />
-              <FormSelect
-                name='employment_type'
-                label='Employement type'
-                placeholder='Select Project'
-                options={jobTypeOptions}
+            <div className="grid grid-cols-2 gap-4">
+              <FormInput
+                name="position_applied"
+                label="Position"
+                required
+                disabled
+              />
+              {/* Replaced dropdown with disabled input */}
+              <FormInput
+                name="employment_type"
+                label="Employment type"
+                disabled
               />
             </div>
-            
+
             <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-medium">Referees</h3>
-              <div
-                
-                onClick={() => append({ name: '', email: '' })}
-                className="text-primary-500 cursor-pointer hover:text-primary-700"
-              >
-                + Add Referee
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-medium">Referees</h3>
+                <div
+                  onClick={() => append({ name: "", email: "" })}
+                  className="text-primary-500 cursor-pointer hover:text-primary-700"
+                >
+                  + Add Referee
+                </div>
               </div>
-            </div>
 
               {fields.map((field, index) => (
                 <div key={field.id} className="space-y-2">
@@ -153,7 +165,7 @@ const ApplicationForm = () => {
                       </button>
                     )}
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-4">
                     <FormInput
                       name={`referees.${index}.name`}
@@ -166,29 +178,35 @@ const ApplicationForm = () => {
                       label="Email"
                       type="email"
                       control={form.control}
-                      rules={{ 
+                      rules={{
                         required: "Email is required",
                         pattern: {
                           value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                          message: "Invalid email address"
-                        }
+                          message: "Invalid email address",
+                        },
                       }}
                     />
                   </div>
                 </div>
               ))}
             </div>
-            <FormTextArea name='application_notes' label='Note'  />
-            <div className='grid grid-cols-2 gap-4'>
-              <FileUpload name='resume' label='Upload Resume' />
-              <FileUpload name='cover_letter' label='Upload Cover Letter' />
+            <FormTextArea name="application_notes" label="Note" />
+            <div className="grid grid-cols-2 gap-4">
+              <FileUpload name="resume" label="Upload Resume" />
+              <FileUpload name="cover_letter" label="Upload Cover Letter" />
             </div>
-            <div className='flex justify-end gap-3'>
-              <Button className='bg-alternate text-primary'>Cancel</Button>
+            <div className="flex justify-end gap-3">
+              <Button
+                type="button"
+                className="bg-alternate text-primary"
+                onClick={() => navigate(-1)}
+              >
+                Cancel
+              </Button>
               <FormButton
                 disabled={isLoading}
                 loading={isLoading}
-                type='submit'
+                type="submit"
               >
                 Submit
               </FormButton>
