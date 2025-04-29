@@ -62,7 +62,7 @@ const RFQDetails = () => {
 
         <TabsContent value='vendor-submission-evaluation'>
           {/* @ts-ignore */}
-          <SummaryOfTechnicalPrequalification />
+          <SummaryOfTechnicalPrequalification id={id} />
         </TabsContent>
       </Tabs>
     </div>
