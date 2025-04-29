@@ -237,6 +237,15 @@ export const procurment = [
     ),
   },
   {
+    path: RouteEnum.RFQ_CREATE_QUOTATION_OPEN_TENDER,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/solicitation-management/RFQ/create/Quotation"
+        )
+    ),
+  },
+  {
     path: RouteEnum.RFQ_CREATE_ITEMS,
     element: lazy(
       () =>
@@ -296,7 +305,7 @@ export const procurment = [
     element: lazy(
       () =>
         import(
-          "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/technicalPrequalificationSheet"
+          "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/TechnicalPrequalificationSheet"
         )
     ),
   },
@@ -480,6 +489,16 @@ export const procurment = [
       () =>
         import(
           "pages/protectedPages/procurement-management/vendor-performance/form/index"
+        )
+    ),
+  },
+
+  {
+    path: RouteEnum.VENDOR_PERFORMANCE_START_EVALUATION,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/vendor-performance/id/InterviewForm"
         )
     ),
   },

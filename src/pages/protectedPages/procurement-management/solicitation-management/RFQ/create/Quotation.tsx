@@ -1,11 +1,11 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import RfqLayout from "./RfqLayout";
 import { Form } from "components/ui/form";
 import FormSelect from "atoms/FormSelectField";
 import { SelectContent, SelectItem } from "components/ui/select";
 import FormInput from "atoms/FormInput";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Button } from "components/ui/button";
 import FormButton from "atoms/FormButton";
 import { LoadingSpinner } from "components/shared/Loading";
@@ -16,10 +16,56 @@ import {
   TSolicitationQuotationFormData,
 } from "definations/procurement-validator";
 import FormTextArea from "atoms/FormTextArea";
+import EoiAPI from "services/procurementApi/eoi";
 
 const Quotation = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const { id } = useParams();
+  console.log({ id });
+
+  const { data: eoiData } = EoiAPI.useGetEoisQuery(
+    useMemo(() => ({ params: { type: "OPEN_TENDER" } }), [])
+  );
+
+  const eoiOptions = useMemo(
+    () =>
+      // @ts-ignore
+      eoiData?.data.results.map(({ name, id }) => ({
+        label: name,
+        value: id,
+      })),
+    [eoiData]
+  );
+
+  console.log({ eoiOptions });
+
+  const form = useForm<TSolicitationQuotationFormData>({
+    resolver: zodResolver(SolicitationQuotationSchema),
+    defaultValues: {
+      title: "",
+      rfq_id: "",
+      background: "",
+      request_type: "",
+      tender_type: "",
+      purchase_request: "",
+      procurement_type: "",
+      eoi_tender: "",
+    },
+  });
+
+  // After eoiOptions
+  useEffect(() => {
+    if (!id || !eoiOptions?.length) return;
+
+    // @ts-ignore
+    const matchedEoi = eoiOptions?.find((option) => option?.value === id);
+
+    if (matchedEoi) {
+      form.setValue("eoi_tender", matchedEoi.value); // set EOI
+      form.setValue("tender_type", "NATIONAL OPEN TENDER"); // set Tender Type
+    }
+  }, [id, eoiOptions, form]);
 
   const { data: purchaseRequest, isLoading: isPurchaseRequestLoading } =
     PurchaseRequestAPI.useGetPurchaseRequestsQuery({});
@@ -33,32 +79,23 @@ const Quotation = () => {
     [purchaseRequest]
   );
 
-  const form = useForm<TSolicitationQuotationFormData>({
-    resolver: zodResolver(SolicitationQuotationSchema),
-    defaultValues: {
-      title: "",
-      rfq_id: "",
-      background: "",
-      request_type: "",
-      tender_type: "",
-      purchase_request: "",
-      procurement_type: "",
-    },
-  });
-
   const onSubmit: SubmitHandler<TSolicitationQuotationFormData> = (data) => {
     sessionStorage.setItem("rfqQuotationFormData", JSON.stringify(data));
     let path = pathname;
 
-    // Remove the last segment of the path
-    path = path.substring(0, path.lastIndexOf("/"));
+    if (id) {
+      // If there is an ID in the URL, remove the last two segments
+      path = path.substring(0, path.lastIndexOf("/")); // remove /:id
+      path = path.substring(0, path.lastIndexOf("/")); // remove /quotation
+    } else {
+      // Otherwise remove only the last segment
+      path = path.substring(0, path.lastIndexOf("/"));
+    }
 
     // Append the new segment to the path
     path += "/items";
     navigate(path);
   };
-
-  console.log(form.formState.errors);
 
   return (
     <RfqLayout>
@@ -78,22 +115,28 @@ const Quotation = () => {
             </div>
 
             <FormTextArea name='background' label='Background' required />
-
-            <FormSelect name='tender_type' label='Tender Type'>
-              <SelectContent>
-                {[
-                  "CLOSED SOURCE",
-                  "OPENED SOURCE",
-                  "LIMITED SOLICITATION",
-                  "NATIONAL OPEN TENDER",
-                ].map((value: string, index: number) => (
-                  <SelectItem key={index} value={value}>
-                    {value}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </FormSelect>
-
+            <div className='grid grid-cols-2 gap-6'>
+              <FormSelect name='tender_type' label='Tender Type'>
+                <SelectContent>
+                  {[
+                    "CLOSED SOURCE",
+                    "OPENED SOURCE",
+                    "LIMITED SOLICITATION",
+                    "NATIONAL OPEN TENDER",
+                  ].map((value: string, index: number) => (
+                    <SelectItem key={index} value={value}>
+                      {value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </FormSelect>
+              <FormSelect
+                label='EOI'
+                name='eoi_tender'
+                placeholder='Select EOI'
+                options={eoiOptions}
+              />
+            </div>
             <div className='grid grid-cols-2 gap-6'>
               <FormSelect name='request_type' label='Request type'>
                 <SelectContent>

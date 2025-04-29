@@ -16,16 +16,27 @@ const SummaryCard = () => {
       header: "Donor Name",
       accessorKey: "donor_name",
       size: 150,
+      // cell: ({ row }) => {
+      //   return <div>{row.original?.purchse_order?.po_reference}</div>;
+      // },
     },
+    // Project
     {
       header: "Programme Requesting",
       accessorKey: "programme_requesting",
       size: 150,
+      // cell: ({ row }) => {
+      //   return <div>{row.original?.pr_reference}</div>;
+      // },
     },
+    // location
     {
       header: "Office Requesting",
       accessorKey: "office_requesting",
       size: 200,
+      cell: ({ row }) => {
+        return <div>{row.original?.deparment}</div>;
+      },
     },
 
     {
@@ -37,15 +48,21 @@ const SummaryCard = () => {
       header: "PR No.",
       accessorKey: "pr_no. ",
       size: 150,
+      cell: ({ row }) => {
+        return <div>{row.original?.pr_reference}</div>;
+      },
     },
     {
       header: "Date PR Received",
       accessorKey: "date_pr_received",
       size: 200,
+      cell: ({ row }) => {
+        return <div>{row.original?.request_date}</div>;
+      },
     },
     {
       header: "Item Category (drop down)",
-      accessorKey: "item_category_drop_down",
+      accessorKey: "item_category",
       size: 150,
     },
     {
@@ -62,11 +79,17 @@ const SummaryCard = () => {
       header: "FCO",
       accessorKey: "f-c-o",
       size: 150,
+      cell: ({ row }) => {
+        return <div>{row.original?.purchse_order?.fco_number || "-"}</div>;
+      },
     },
     {
       header: "Description of goods/ services",
       accessorKey: "description-of-goods-services",
       size: 350,
+      cell: ({ row }) => {
+        return <div>{row.original?.item_name}</div>;
+      },
     },
     {
       header: "Unit",
@@ -97,7 +120,7 @@ const SummaryCard = () => {
 
       <DataTable
         //   @ts-ignore
-        data={data?.results || []}
+        data={data?.data?.results || []}
         columns={columns}
         // isLoading={isLoading}
       />

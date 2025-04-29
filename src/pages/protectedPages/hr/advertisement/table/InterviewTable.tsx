@@ -12,14 +12,13 @@ import EyeIcon from "components/icons/EyeIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import DataTable from "components/Table/DataTable";
 import SearchIcon from "components/icons/SearchIcon";
-import FilterIcon from "components/icons/FilterIcon"; 
+import FilterIcon from "components/icons/FilterIcon";
 import { Loading } from "components/shared/Loading";
 import { useGetInterviewsQuery } from "services/hrApi/hr-interview";
 
 const InterviewTable = () => {
-  const { data, isLoading } = useGetInterviewsQuery({});
-
   const { id: paramsID } = useParams();
+  const { data, isLoading } = useGetInterviewsQuery({ id: paramsID });
 
   if (isLoading) {
     return <Loading />;
@@ -106,16 +105,16 @@ const InterviewTable = () => {
 
   const ActionList = ({ data }: any) => {
     return (
-      <div className='flex items-center gap-2'>
+      <div className="flex items-center gap-2">
         <>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant='ghost' className='flex gap-2 py-6'>
+              <Button variant="ghost" className="flex gap-2 py-6">
                 <MoreOptionsHorizontalIcon />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className=' w-fit'>
-              <div className='flex flex-col items-start justify-between gap-1'>
+            <PopoverContent className=" w-fit">
+              <div className="flex flex-col items-start justify-between gap-1">
                 <Link
                   to={generatePath(HrRoutes.ADVERTISEMENT_INTERVIEW_DETAILS, {
                     id: paramsID,
@@ -123,8 +122,8 @@ const InterviewTable = () => {
                   })}
                 >
                   <Button
-                    className='w-full flex items-center justify-start gap-2'
-                    variant='ghost'
+                    className="w-full flex items-center justify-start gap-2"
+                    variant="ghost"
                   >
                     <EyeIcon />
                     View
@@ -132,8 +131,8 @@ const InterviewTable = () => {
                 </Link>
 
                 <Button
-                  className='w-full flex items-center justify-start gap-2'
-                  variant='ghost'
+                  className="w-full flex items-center justify-start gap-2"
+                  variant="ghost"
                 >
                   <DeleteIcon />
                   delete
@@ -147,21 +146,21 @@ const InterviewTable = () => {
   };
 
   return (
-    <div className='space-y-6'>
-      <div className='flex items-center justify-start gap-2'>
-        <span className='flex items-center w-1/3 px-2 py-2 border rounded-lg'>
+    <div className="space-y-6">
+      <div className="flex items-center justify-start gap-2">
+        <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
           <SearchIcon />
           <input
-            placeholder='Search'
-            type='text'
-            className='ml-2 h-6 w-full border-none bg-none focus:outline-none outline-none'
+            placeholder="Search"
+            type="text"
+            className="ml-2 h-6 w-full border-none bg-none focus:outline-none outline-none"
           />
         </span>
-        <Button className='shadow-sm' variant='ghost'>
+        <Button className="shadow-sm" variant="ghost">
           <FilterIcon />
         </Button>
       </div>
-      <h4 className='text-lg font-medium'>AVERAGE INTERVIEW SCORE ANALYSIS </h4>
+      <h4 className="text-lg font-medium">AVERAGE INTERVIEW SCORE ANALYSIS </h4>
       <DataTable
         // @ts-ignore
         data={data?.data?.results}
