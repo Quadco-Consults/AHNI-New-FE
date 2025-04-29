@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
-import { Button } from "components/ui/button";
-import { ArrowLeft } from "lucide-react";
+
 import { useNavigate, useParams } from "react-router-dom";
 import { SelectContent, SelectItem } from "components/ui/select";
 import { Form } from "components/ui/form";
@@ -19,7 +18,7 @@ import FormButton from "atoms/FormButton";
 import { useCreateSolicitationSubmissionMutation } from "services/procurementApi/vendor-bid-submissions";
 import { useGetSingleSolicitationQuery } from "services/procurementApi/solicitation";
 import { useGetAllSolicitationEvaluationCriteriaQuery } from "services/modules/procurement/solicitation-evaluation-criteria";
-import { RouteEnum } from "constants/RouterConstants";
+
 import GoBack from "components/shared/GoBack";
 
 const ManualBidSubmission = () => {

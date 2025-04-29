@@ -1,7 +1,7 @@
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelectField";
-import GoBack from "components/shared/GoBack";
+// import GoBack from "components/shared/GoBack";
 import { Button } from "components/ui/button";
 import {
   Form,
@@ -25,14 +25,14 @@ import {
   generatePath,
   useNavigate,
   useParams,
-  useSearchParams,
+  // useSearchParams,
 } from "react-router-dom";
 import logoPng from "assets/imgs/logo.png";
 import { Input } from "components/ui/input";
 import { Icon } from "@iconify/react";
 import { LoadingSpinner } from "components/shared/Loading";
 import { Checkbox } from "components/ui/checkbox";
-import BreadcrumbCard from "components/shared/Breadcrumb";
+
 import { z } from "zod";
 import { CbaSchema } from "definations/procurement-validator";
 // import { TUser } from "definations/auth/user";
@@ -43,17 +43,17 @@ import { Badge } from "components/ui/badge";
 import LotsAPI from "services/procurementApi/lots";
 import { LotsResultsData } from "definations/procurement-types/lots";
 import { useGetAllUsersQuery } from "services/auth/user";
-import useQuery from "hooks/useQuery";
+
 import { zodResolver } from "@hookform/resolvers/zod";
-import RfqLayout from "./RfqLayout";
+
 import { useGetAllSolicitationsQuery } from "services/procurementApi/solicitation";
 import { useEffect } from "react";
 
 const CreateCBA = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  // const [searchParams] = useSearchParams();
   // const rfqId = searchParams.get("id");
-  const name = searchParams.get("name");
+  // const name = searchParams.get("name");
   const { id: rfqId } = useParams();
   // console.log({ id });
   console.log({ rfqId });

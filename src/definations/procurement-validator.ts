@@ -8,6 +8,7 @@ export const EOISchema = z.object({
   categories: z.array(z.string()),
   eoi_number: z.string().min(1, "Field is required"),
   type: z.string().min(1, "Field is required"),
+  solicitation: z.string().optional(),
 });
 
 export const PrequalificationCriteriaSchema = z.object({
@@ -253,6 +254,7 @@ export const SolicitationQuotationSchema = z.object({
   request_type: z.string().min(1, "Please select request type"),
   tender_type: z.string().min(1, "Please select tender type"),
   eoi_tender: z.string().optional(),
+  categories: z.array(z.string()),
 
   purchase_request: z
     .string()
@@ -309,7 +311,7 @@ export const CbaSchema = z.object({
   cba_type: z.string().min(1, "Field is required"),
   cba_date: z.string().min(1, "Field is required"),
   solicitation: z.string().min(1, "Field is required"),
-  lot: z.string().min(1, "Field is required"),
+  lot: z.string().optional(),
   assignee: z.string().min(1, "Field is required"),
   committee_members: z.array(z.string()),
 });
