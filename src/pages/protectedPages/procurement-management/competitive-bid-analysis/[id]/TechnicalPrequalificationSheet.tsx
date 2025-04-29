@@ -40,7 +40,12 @@ const TPS = () => {
     path: { id: appID ?? skipToken },
   });
 
-  // console.log({ id, grData, isLoading, appID, data });
+  const { data: cbaData } = CbaAPI.useGetCbaListQuery({});
+  const matchedItem = cbaData?.data?.results?.find(
+    // @ts-ignore
+    (item) => item.solicitation?.id === appID
+  );
+  console.log({ matchedItem });
 
   const [createManualBidCBAPrequalification] =
     ManualBidCbaPrequalificationAPI.useCreateManualBidCbaPrequalificationMutation();
@@ -84,7 +89,7 @@ const TPS = () => {
       for (let criteria of data.criteriaDataStatus) {
         const payload = {
           // 81699270-da42-4540-bf75-89777fed1e25
-          cba: "bc9d055f-7732-49f7-b501-c20726fb8cd4",
+          cba: matchedItem?.id,
           bid_submission: data.bid_submission,
           stage: data.stage,
           criteria: criteria.criteria,
@@ -115,7 +120,7 @@ const TPS = () => {
     navigate(RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_FINANCIAL_BID_OPENING, {
       state: {
         // cba: data.cba,
-        cba: "bc9d055f-7732-49f7-b501-c20726fb8cd4",
+        cba: matchedItem?.id,
 
         bid_submission: data.bid_submission,
         solicitation: id!,
