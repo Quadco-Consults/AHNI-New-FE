@@ -32,6 +32,16 @@ export const projectColumns: ColumnDef<IProjectSingleData>[] = [
     size: 200,
   },
   {
+    header: "Grant ID",
+    accessorKey: "grant_id",
+    size: 130,
+  },
+  {
+    header: "Grant Name",
+    accessorKey: "grant_name",
+    size: 130,
+  },
+  {
     header: "Start Date",
     accessorKey: "start_date",
     size: 130,
@@ -41,6 +51,7 @@ export const projectColumns: ColumnDef<IProjectSingleData>[] = [
     accessorKey: "end_date",
     size: 130,
   },
+
   {
     header: "Status",
     accessorKey: "status",
@@ -48,7 +59,7 @@ export const projectColumns: ColumnDef<IProjectSingleData>[] = [
     cell: ({ getValue }) => {
       return (
         <Badge
-          variant="default"
+          variant='default'
           className={cn(
             "p-1 rounded-lg",
             getValue() === "IN_PROGRESS" && "bg-green-200 text-green-500",
@@ -117,9 +128,9 @@ export const projectColumns: ColumnDef<IProjectSingleData>[] = [
 
 const ProjectBeneficiaries = ({ data }: any) => {
   return (
-    <div className="flex gap-2 flex-wrap">
+    <div className='flex gap-2 flex-wrap'>
       {data?.map((el: any) => (
-        <Badge key={el.id} className="bg-[#EBE8E1] text-[#1a0000ad]">
+        <Badge key={el.id} className='bg-[#EBE8E1] text-[#1a0000ad]'>
           {el.name}
         </Badge>
       ))}
@@ -129,9 +140,9 @@ const ProjectBeneficiaries = ({ data }: any) => {
 
 const ProjectFundingSource = ({ data }: any) => {
   return (
-    <div className="flex gap-2 flex-wrap">
+    <div className='flex gap-2 flex-wrap'>
       {data?.map((el: any) => (
-        <Badge key={el.id} className="bg-[#EBE8E1] text-[#1a0000ad]">
+        <Badge key={el.id} className='bg-[#EBE8E1] text-[#1a0000ad]'>
           {el.name}
         </Badge>
       ))}
@@ -157,48 +168,48 @@ const TableMenu = ({ id, status }: IProjectSingleData) => {
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className='flex items-center gap-2'>
       <>
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost" className="flex gap-2 py-6">
+            <Button variant='ghost' className='flex gap-2 py-6'>
               <MoreOptionsHorizontalIcon />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-fit">
-            <div className="flex flex-col items-start justify-between gap-1">
+          <PopoverContent className='w-fit'>
+            <div className='flex flex-col items-start justify-between gap-1'>
               <Link
-                className="w-full"
+                className='w-full'
                 to={generatePath(RouteEnum.PROJECTS_DETAILS, {
                   id,
                 })}
               >
                 <Button
-                  className="w-full flex items-center justify-start gap-2"
-                  variant="ghost"
+                  className='w-full flex items-center justify-start gap-2'
+                  variant='ghost'
                 >
                   <EyeIcon />
                   View
                 </Button>
               </Link>
               <Link
-                className="w-full"
+                className='w-full'
                 to={{
                   pathname: RouteEnum.PROJECTS_CREATE_SUMMARY,
                   search: `?id=${id}`,
                 }}
               >
                 <Button
-                  className="w-full flex items-center justify-start gap-2"
-                  variant="ghost"
+                  className='w-full flex items-center justify-start gap-2'
+                  variant='ghost'
                 >
                   <EditIcon />
                   Edit
                 </Button>
               </Link>
               <Button
-                variant="ghost"
-                type="button"
+                variant='ghost'
+                type='button'
                 onClick={() => {
                   dispatch(
                     openDialog({
@@ -215,8 +226,8 @@ const TableMenu = ({ id, status }: IProjectSingleData) => {
                 Change Status
               </Button>
               <Button
-                className="w-full flex items-center justify-start gap-2"
-                variant="ghost"
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
                 onClick={() => setDialogOpen(true)}
               >
                 <DeleteIcon />
@@ -229,7 +240,7 @@ const TableMenu = ({ id, status }: IProjectSingleData) => {
 
       <ConfirmationDialog
         open={dialogOpen}
-        title="Are you sure you want to delete this project?"
+        title='Are you sure you want to delete this project?'
         loading={isLoading}
         onCancel={() => setDialogOpen(false)}
         onOk={handleDeleteProject}
