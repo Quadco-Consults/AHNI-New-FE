@@ -97,7 +97,8 @@ export const AdminRoutes = {
   RFQ_DETAILS_BID_SUBMISSION:
     "/admin/solicitation/rfq/:id/manual-bid-submission",
   RFQ_VENDOR: "/admin/rfq-vendor",
-
+  RFQ_CREATE_QUOTATION_OPEN_TENDER:
+    "/procurement-management/solicitation/rfq/create/quotation/:id",
   //purchase order routes
   PURCHASE_ORDER: "/admin/purchase-order",
   PURCHASE_ORDER_ID: "/admin/purchase-order/:id",
@@ -179,12 +180,15 @@ export const RouteEnum = {
     "/procurement-management/solicitation/rfq/create/quotation",
   RFQ_CREATE_ITEMS: "/procurement-management/solicitation/rfq/create/items",
   RFQ_DETAILS: "/procurement-management/solicitation/rfq/:id",
-  RFQ_CREATE_CBA: "/procurement-management/solicitation/rfq/create/create-cba",
+  RFQ_CREATE_CBA:
+    "/procurement-management/solicitation/rfq/create/create-cba/:id",
   RFQ_COMPETITIVE_BID_ANALYSIS:
     "/procurement-management/solicitation/rfq/competitive-bid-analysis/:id",
   RFQ_DETAILS_BID_SUBMISSION:
     "/procurement-management/solicitation/rfq/:id/manual-bid-submission",
   RFQ_VENDOR: "/procurement-management/rfq-vendor",
+  RFQ_CREATE_QUOTATION_OPEN_TENDER:
+    "/procurement-management/solicitation/rfq/create/quotation/:id",
 
   //competitive bid analysis routes
   COMPETITIVE_BID_ANALYSIS: "/procurement-management/competitive-bid-analysis",
