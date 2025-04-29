@@ -95,6 +95,7 @@ const EOI = () => {
       // status: "",
       type: "",
       categories: [],
+      solicitation: "",
     },
   });
 
@@ -110,7 +111,6 @@ const EOI = () => {
     }
     const opening_date = startDate ? format(startDate, "yyy-MM-dd") : "";
     const closing_date = endDate ? format(endDate, "yyy-MM-dd") : "";
-    console.log({ data });
 
     const formData = new FormData();
     formData.append("name", data.name);
@@ -122,6 +122,10 @@ const EOI = () => {
     formData.append("document", file);
     formData.append("eoi_number", data.eoi_number);
     formData.append("type", data.type);
+    if (data.type === "OPEN_TENDER") {
+      formData.append("solicitation", data?.solicitation!);
+    }
+
     data.categories.forEach((item) => formData.append("categories", item));
 
     try {
@@ -166,6 +170,18 @@ const EOI = () => {
     label: label,
     value: value,
   }));
+
+  const solOptions = [
+    { label: "RFQ", value: "R_F_Q" },
+    { label: "RFP", value: "R_F_P" },
+  ].map(({ label, value }) => ({
+    label: label,
+    value: value,
+  }));
+
+  const tender = form.watch("type");
+
+  console.log({ tender });
 
   return (
     <div className='space-y-10'>
@@ -299,7 +315,7 @@ const EOI = () => {
                             </SelectContent>
                           </FormSelect>
                         </div>
-                        <div>
+                        <div className=''>
                           <FormSelect
                             name='type'
                             label='Tender'
@@ -308,6 +324,17 @@ const EOI = () => {
                             options={tenderOptions}
                           />
                         </div>
+                        {tender === "OPEN_TENDER" && (
+                          <div className=''>
+                            <FormSelect
+                              name='solicitation'
+                              label='Solicitation'
+                              placeholder='Select Solicitation Type'
+                              required
+                              options={solOptions}
+                            />
+                          </div>
+                        )}
                       </div>
 
                       <div className='space-y-2'>
