@@ -43,6 +43,7 @@ export interface IProjectSingleData {
   partners: TPartnerData[];
   documents: [];
   grant_id: string;
+  grant_name: string;
   created_datetime: string;
   updated_datetime: string;
   project_id: string;
