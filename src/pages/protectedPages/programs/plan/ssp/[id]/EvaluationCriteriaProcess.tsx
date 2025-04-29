@@ -1,7 +1,7 @@
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { LoadingSpinner } from "components/shared/Loading";
 import { toast } from "sonner";
@@ -27,8 +27,14 @@ import {
     SupervisionPlanReviewSchema,
     TSupervisionPlanReviewFormData,
 } from "definations/program/plan/supervision-plan/supervision-plan-review";
-import { useCreateSupervisionPlanReviewMutation } from "services/program/plan/supervision-plan/supervision-plan-review";
+import {
+    useCreateSupervisionPlanReviewMutation,
+    useGetAllSupervisionPlanReviewsQuery,
+    useGetSingleSupervisionPlanReviewQuery,
+} from "services/program/plan/supervision-plan/supervision-plan-review";
 import { fileToBase64 } from "utils/fileToBase64";
+import FormButton from "atoms/FormButton";
+import {  RouteEnum } from "constants/RouterConstants";
 
 const breadcrumbs = [
     { name: "Programs", icon: true },
@@ -58,6 +64,22 @@ const groupByCategoryName = (array: IObjective[]): GroupedData => {
 
 export default function EvaluationCriteriaProcess() {
     const { id: planId } = useParams();
+
+    const navigate = useNavigate();
+
+    const { data: planReview } = useGetAllSupervisionPlanReviewsQuery(
+        planId ? { planId } : skipToken
+    );
+
+    const { data: currentPlan } = useGetSingleSupervisionPlanReviewQuery(
+        planId && planReview?.data?.results[0].id
+            ? { planId, reviewId: planReview?.data?.results[0].id }
+            : skipToken
+    );
+
+    console.log({ currentPlan });
+
+    // useGetSingleSupervisionPlanReviewQuery()
 
     const form = useForm<TSupervisionPlanReviewFormData>({
         resolver: zodResolver(SupervisionPlanReviewSchema),
@@ -160,6 +182,8 @@ export default function EvaluationCriteriaProcess() {
                     id: planId,
                     body: data as any,
                 });
+
+                navigate(RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION);
             }
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
@@ -369,9 +393,13 @@ export default function EvaluationCriteriaProcess() {
                         </Button>
 
                         {page === 4 ? (
-                            <Button type="submit" className="px-8">
+                            <FormButton
+                                type="submit"
+                                className="px-8"
+                                loading={isCreateLoading}
+                            >
                                 Finish
-                            </Button>
+                            </FormButton>
                         ) : (
                             <Button
                                 type="button"

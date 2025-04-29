@@ -25,27 +25,32 @@ const SupervisionPlanReviewAPI = baseAPI.injectEndpoints({
             }),
             invalidatesTags: ["SUPERVISION_PLAN_REVIEW"],
         }),
-        // getAllSupervisionPlan: builder.query<
-        //     TPaginatedResponse<TSupervisionPlanPaginatedData>,
-        //     TRequest
-        // >({
-        //     query: (params) => ({
-        //         method: "GET",
-        //         url: BASE_URL,
-        //         params,
-        //     }),
-        //     providesTags: ["SUPERVISION_PLAN"],
-        // }),
-        // getSingleSupervisionPlan: builder.query<
-        //     TResponse<TSupervisionPlanSingleData>,
-        //     string
-        // >({
-        //     query: (id) => ({
-        //         method: "GET",
-        //         url: `${BASE_URL}${id}`,
-        //     }),
-        //     providesTags: ["SUPERVISION_PLAN"],
-        // }),
+
+        getAllSupervisionPlanReviews: builder.query<
+            TPaginatedResponse<TSupervisionPlanPaginatedData>,
+            TRequest & { planId: string }
+        >({
+            query: ({ planId, ...rest }) => ({
+                method: "GET",
+                url: `${BASE_URL}${planId}/reviews/`,
+                params: rest,
+            }),
+            providesTags: ["SUPERVISION_PLAN_REVIEW"],
+        }),
+
+        getSingleSupervisionPlanReview: builder.query<
+            TResponse<TSupervisionPlanSingleData>,
+            { planId: string; reviewId: string }
+        >({
+            query: ({ planId, reviewId }) => ({
+                method: "GET",
+                url: `${BASE_URL}${planId}/reviews/${reviewId}/`,
+            }),
+            providesTags: ["SUPERVISION_PLAN_REVIEW"],
+        }),
+
+        // https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1/programs/plans/supportive-supervision/{id}/reviews/{review_pk}/
+
         // modifySupervisionPlan: builder.mutation<
         //     TResponse<TSupervisionPlanSingleData>,
         //     { id: string; body: TSSPCompositionFormValues }
@@ -70,5 +75,8 @@ const SupervisionPlanReviewAPI = baseAPI.injectEndpoints({
     }),
 });
 
-export const { useCreateSupervisionPlanReviewMutation } =
-    SupervisionPlanReviewAPI;
+export const {
+    useCreateSupervisionPlanReviewMutation,
+    useGetAllSupervisionPlanReviewsQuery,
+    useGetSingleSupervisionPlanReviewQuery,
+} = SupervisionPlanReviewAPI;

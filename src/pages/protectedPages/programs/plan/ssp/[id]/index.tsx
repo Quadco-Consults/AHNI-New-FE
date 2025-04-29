@@ -8,6 +8,7 @@ import { skipToken } from "@reduxjs/toolkit/query/react";
 import { useGetSingleSupervisionPlanQuery } from "services/program/plan/supervision-plan/supervision-plan";
 import BreadcrumbCard from "components/shared/Breadcrumb";
 import { RouteEnum } from "constants/RouterConstants";
+import { useGetAllSupervisionPlanReviewsQuery } from "services/program/plan/supervision-plan/supervision-plan-review";
 
 const breadcrumbs = [
     { name: "Programs", icon: true },
@@ -27,6 +28,10 @@ const SspDetails = () => {
 
     const { data: supervisionPlan, isLoading } =
         useGetSingleSupervisionPlanQuery(id ?? skipToken);
+
+    const { data: planReview } = useGetAllSupervisionPlanReviewsQuery(
+        id ? { planId: id } : skipToken
+    );
 
     if (isLoading) {
         return <Loading />;
@@ -52,7 +57,11 @@ const SspDetails = () => {
                         }
                     )}
                 >
-                    <Button>Start Evaluation</Button>
+                    <Button>
+                        {planReview && planReview?.data.results.length > 0
+                            ? "Update Evaluation"
+                            : "Start Evaluation"}
+                    </Button>
                 </Link>
             </div>
 
