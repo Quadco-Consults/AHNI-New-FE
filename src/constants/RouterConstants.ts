@@ -114,7 +114,7 @@ export const AdminRoutes = {
   COMPETITIVE_BID_ANALYSIS_DETAILS_APPROVAL_CHECK:
     "/admin/competitive-bid-analysis/:id/check-approval",
   COMPETITIVE_BID_ANALYSIS_DETAILS_START:
-    "/admin/competitive-bid-analysis/:id/start",
+    "/admin/competitive-bid-analysis/:id/start/:appID",
   COMPETITIVE_BID_ANALYSIS_DETAILS_FINANCIAL_BID_OPENING:
     "/admin/competitive-bid-analysis/:id/financial-bid-opening",
   SUMMARY_OF_TECHNICAL_PREQUALIFICATION:
@@ -197,7 +197,7 @@ export const RouteEnum = {
   COMPETITIVE_BID_ANALYSIS_DETAILS_APPROVAL_CHECK:
     "/procurement-management/competitive-bid-analysis/:id/check-approval",
   COMPETITIVE_BID_ANALYSIS_DETAILS_START:
-    "/procurement-management/competitive-bid-analysis/:id/start",
+    "/procurement-management/competitive-bid-analysis/:id/start/:appID",
   COMPETITIVE_BID_ANALYSIS_DETAILS_FINANCIAL_BID_OPENING:
     "/procurement-management/competitive-bid-analysis/:id/financial-bid-opening",
   SUMMARY_OF_TECHNICAL_PREQUALIFICATION:
