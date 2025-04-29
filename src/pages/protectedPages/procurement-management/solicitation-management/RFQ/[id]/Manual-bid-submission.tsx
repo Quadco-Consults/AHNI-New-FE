@@ -109,7 +109,7 @@ const ManualBidSubmission = () => {
       await createSolicitationSubmission(data).unwrap();
 
       toast.success("Successfully created.");
-      navigate(RouteEnum.RFQ);
+      navigate(-1);
     } catch (error) {
       toast.error("Something went wrong");
       console.log(error);

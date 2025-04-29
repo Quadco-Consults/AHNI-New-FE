@@ -7,7 +7,7 @@ import { ChevronRight } from "lucide-react";
 import TenderChecklist from "./TenderCheckList";
 import { useForm } from "react-hook-form";
 import { RouteEnum } from "constants/RouterConstants";
-import { useLocation, useNavigate } from "react-router-dom";
+import { generatePath, useLocation, useNavigate } from "react-router-dom";
 import ManualBidCbaPrequalificationAPI from "services/procurementApi/manual-bid-cba-prequalification";
 import { toast } from "sonner";
 import GoBack from "components/shared/GoBack";
@@ -53,7 +53,7 @@ const FinancialBid = () => {
   const navigate = useNavigate();
 
   const lon = getValues();
-  console.log({ lon });
+  console.log({ lon, cbaData });
   const onSubmit = async (data: any) => {
     console.log("Submitted Data:", data);
 
@@ -76,14 +76,19 @@ const FinancialBid = () => {
     } catch (error) {
       console.error("Error submitting data:", error);
     }
-
-    navigate(RouteEnum.SUMMARY_OF_TECHNICAL_PREQUALIFICATION, {
-      state: {
-        cba: data.cba,
-        bid_submission: data.bid_submission,
-        solicitation,
-      },
-    });
+    navigate(
+      generatePath(RouteEnum.RFQ_DETAILS, {
+        // @ts-ignore
+        id: cbaData?.data?.solicitation?.id,
+      })
+    );
+    // navigate(RouteEnum.SUMMARY_OF_TECHNICAL_PREQUALIFICATION, {
+    //   state: {
+    //     cba: data.cba,
+    //     bid_submission: data.bid_submission,
+    //     solicitation,
+    //   },
+    // });
   };
 
   return (

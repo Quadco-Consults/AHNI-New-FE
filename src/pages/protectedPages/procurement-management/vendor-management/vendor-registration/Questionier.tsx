@@ -119,6 +119,7 @@ const Questionier = () => {
       type_of_business: mergedObject?.type_of_business,
       website: mergedObject?.website,
       year_or_incorperation: mergedObject?.year_or_incorperation,
+      state: mergedObject?.state,
     };
 
     try {

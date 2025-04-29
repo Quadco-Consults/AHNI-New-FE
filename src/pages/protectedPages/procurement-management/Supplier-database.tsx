@@ -89,6 +89,11 @@ const columns: ColumnDef<VendorsResultsData>[] = [
     accessorKey: "tin",
   },
   {
+    header: "State",
+    size: 200,
+    accessorKey: "state",
+  },
+  {
     header: "Area of Specialization",
     size: 300,
     accessorKey: "area_of_specialization",

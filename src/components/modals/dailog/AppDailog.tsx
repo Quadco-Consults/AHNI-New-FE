@@ -81,123 +81,117 @@ import AddPreAwardQuestion from "pages/protectedPages/modules/c&g/AddPreAwardQue
 import AddTicketModal from "./components/AddTicketModal";
 
 const sheets: Record<string, ReactNode> = {
-    
-    [DialogType.Categories]: <CategoriesModal />,
-    [DialogType.PriceInteligence]: <PriceModal />,
-    [DialogType.Checklist]: <ChecklistModal />,
-    [DialogType.WorkPlanUpload]: <WorkPlanUploadModal />, 
-    [DialogType.AddTicket]: <AddTicketModal />,
-    [DialogType.ActivityUpload]: <ActivityUploadModal />,
-    [DialogType.ActivityTrackerModal]: <ActivityTrackerModal />,
-    [DialogType.SspUpload]: <SspUploadModal />,
-    [DialogType.SspApproveModal]: <SspApproveModal />,
-    [DialogType.SuccessModal]: <SuccessModal />,
-    [DialogType.FundSuccessModal]: <FundSuccessModal />,
-    [DialogType.PreventionModal]: <PreventionModal />,
-    [DialogType.AssestAction]: <AssestAction />,
-    [DialogType.FundRequestModal]: <FundRequestModal />,
-    [DialogType.StateModal]: <StateModal />,
-    [DialogType.FundRequstSummaryModal]: <FundRequestSummaryModal />,
-    [DialogType.StakeholderModal]: <StakeholderModal />,
-    [DialogType.ProjectObjectiveModal]: <ProjectObjectiveModal />,
-    [DialogType.ConsortiumModal]: <ConsortiumModal />,
-    [DialogType.ProjectUploadModal]: <ProjectUploadModal />,
-    [DialogType.ProjectDetailsUploadModal]: <ProjectDetailsUploadModal />,
-    [DialogType.EditUser]: <EditUser />,
-    [DialogType.AssingRoleToUser]: <AssingRole />,
-    [DialogType.SspSubmitModal]: <SspSubmitModal />,
-    [DialogType.ExpenditureModal]: <ExpenditureModal />,
-    [DialogType.AddPermissionToRole]: <AssingPermission />,
+  [DialogType.Categories]: <CategoriesModal />,
+  [DialogType.PriceInteligence]: <PriceModal />,
+  [DialogType.Checklist]: <ChecklistModal />,
+  [DialogType.WorkPlanUpload]: <WorkPlanUploadModal />,
+  [DialogType.AddTicket]: <AddTicketModal />,
+  [DialogType.ActivityUpload]: <ActivityUploadModal />,
+  [DialogType.ActivityTrackerModal]: <ActivityTrackerModal />,
+  [DialogType.SspUpload]: <SspUploadModal />,
+  [DialogType.SspApproveModal]: <SspApproveModal />,
+  [DialogType.SuccessModal]: <SuccessModal />,
+  [DialogType.FundSuccessModal]: <FundSuccessModal />,
+  [DialogType.PreventionModal]: <PreventionModal />,
+  [DialogType.AssestAction]: <AssestAction />,
+  [DialogType.FundRequestModal]: <FundRequestModal />,
+  [DialogType.StateModal]: <StateModal />,
+  [DialogType.FundRequstSummaryModal]: <FundRequestSummaryModal />,
+  [DialogType.StakeholderModal]: <StakeholderModal />,
+  [DialogType.ProjectObjectiveModal]: <ProjectObjectiveModal />,
+  [DialogType.ConsortiumModal]: <ConsortiumModal />,
+  [DialogType.ProjectUploadModal]: <ProjectUploadModal />,
+  [DialogType.ProjectDetailsUploadModal]: <ProjectDetailsUploadModal />,
+  [DialogType.EditUser]: <EditUser />,
+  [DialogType.AssingRoleToUser]: <AssingRole />,
+  [DialogType.SspSubmitModal]: <SspSubmitModal />,
+  [DialogType.ExpenditureModal]: <ExpenditureModal />,
+  [DialogType.AddPermissionToRole]: <AssingPermission />,
 
-    [DialogType.ConsultancyApplicationSuccess]: (
-        <ConsultancyApplicationSuccessModal />
-    ),
-    [DialogType.AddStock]: <AddStock />,
+  [DialogType.ConsultancyApplicationSuccess]: (
+    <ConsultancyApplicationSuccessModal />
+  ),
+  [DialogType.AddStock]: <AddStock />,
 
-    [DialogType.AddMarketPrice]: <AddMarketPrice />,
-    [DialogType.AddNewItems]: <AddNewItems />,
-    [DialogType.AddTeamMenbers]: <TeamMemberSelection />,
-    [DialogType.AddFundingSource]: <AddFundingSource />,
-    [DialogType.AddBeneficiaries]: <AddBeneficiaries />,
-    [DialogType.AddDocumentTypes]: <AddDocumentTypes />,
-    [DialogType.AddPartners]: <AddPartners />,
-    [DialogType.AddRiskCategory]: <AddRiskCategory />,
-    [DialogType.AddInterventionArea]: <AddInterventionArea />,
-    [DialogType.AddSupervisionCategory]: <AddSupervisionCategory />,
-    [DialogType.AddFacility]: <AddFacility />,
-    [DialogType.AddAssetConditions]: <AddAssetConditions />,
-    [DialogType.AddAssetTypes]: <AddAssetTypes />,
-    [DialogType.AddCategories]: <AddCategories />,
-    [DialogType.AddDepartments]: <AddDepartments />,
-    [DialogType.AddFinancialYear]: <AddFinancialYear />,
-    [DialogType.AddItems]: <AddItems />,
-    [DialogType.AddLocations]: <AddLocations />,
-    [DialogType.AddLots]: <AddLots />,
-    [DialogType.AddSolicitation]: <AddSolicitation />,
-    [DialogType.AddPrequalificationCategory]: <AddPrequalificationCategory />,
-    [DialogType.AddPrequalificationCriteria]: <AddPrequalificationCriteria />,
-    [DialogType.AddQuestionairs]: <AddQuestionairs />,
-    [DialogType.AddCostCategory]: <AddCostCategory />,
-    [DialogType.AddBudgetLine]: <AddBudgetLine />,
-    [DialogType.AddCostInput]: <AddCostInput />,
-    [DialogType.AddCostGrouping]: <AddCostGrouping />,
-    [DialogType.AddFcoNumber]: <AddFcoNumber />,
-    [DialogType.AddProjectClasses]: <AddProjectClasses />,
-    [DialogType.AddChartsOfAccounts]: <AddChartsOfAccount />,
-    // [DialogType.ProcurementUploadModal]: <ProcurementUploadModal />,
-    [DialogType.HrSuccessModal]: <HrSuccessModal />,
-    [DialogType.ApprovalModal]: <ApprovalModal />,
-    [DialogType.FeedbackModal]: <FeedbackModal   />,
+  [DialogType.AddMarketPrice]: <AddMarketPrice />,
+  [DialogType.AddNewItems]: <AddNewItems />,
+  [DialogType.AddTeamMenbers]: <TeamMemberSelection />,
+  [DialogType.AddFundingSource]: <AddFundingSource />,
+  [DialogType.AddBeneficiaries]: <AddBeneficiaries />,
+  [DialogType.AddDocumentTypes]: <AddDocumentTypes />,
+  [DialogType.AddPartners]: <AddPartners />,
+  [DialogType.AddRiskCategory]: <AddRiskCategory />,
+  [DialogType.AddInterventionArea]: <AddInterventionArea />,
+  [DialogType.AddSupervisionCategory]: <AddSupervisionCategory />,
+  [DialogType.AddFacility]: <AddFacility />,
+  [DialogType.AddAssetConditions]: <AddAssetConditions />,
+  [DialogType.AddAssetTypes]: <AddAssetTypes />,
+  [DialogType.AddCategories]: <AddCategories />,
+  [DialogType.AddDepartments]: <AddDepartments />,
+  [DialogType.AddFinancialYear]: <AddFinancialYear />,
+  [DialogType.AddItems]: <AddItems />,
+  [DialogType.AddLocations]: <AddLocations />,
+  [DialogType.AddLots]: <AddLots />,
+  [DialogType.AddSolicitation]: <AddSolicitation />,
+  [DialogType.AddPrequalificationCategory]: <AddPrequalificationCategory />,
+  [DialogType.AddPrequalificationCriteria]: <AddPrequalificationCriteria />,
+  [DialogType.AddQuestionairs]: <AddQuestionairs />,
+  [DialogType.AddCostCategory]: <AddCostCategory />,
+  [DialogType.AddBudgetLine]: <AddBudgetLine />,
+  [DialogType.AddCostInput]: <AddCostInput />,
+  [DialogType.AddCostGrouping]: <AddCostGrouping />,
+  [DialogType.AddFcoNumber]: <AddFcoNumber />,
+  [DialogType.AddProjectClasses]: <AddProjectClasses />,
+  [DialogType.AddChartsOfAccounts]: <AddChartsOfAccount />,
+  // [DialogType.ProcurementUploadModal]: <ProcurementUploadModal />,
+  [DialogType.HrSuccessModal]: <HrSuccessModal />,
+  [DialogType.ApprovalModal]: <ApprovalModal />,
+  [DialogType.FeedbackModal]: <FeedbackModal />,
 
-    [DialogType.AddNewRoleModal]: <AddNewRoleModal />,
-    [DialogType.AddSupervisionCriteria]: <AddSupervisionCriteria />,
+  [DialogType.AddNewRoleModal]: <AddNewRoleModal />,
+  [DialogType.AddSupervisionCriteria]: <AddSupervisionCriteria />,
 
-    [DialogType.FundRequestBreakdown]: <FundRequestBreakdown />,
-    [DialogType.ChangeRiskStatusModal]: <ChangeRiskStatusModal />,
-    [DialogType.ChangeProjectStatusModal]: <ChangeProjectStatusModal />,
+  [DialogType.FundRequestBreakdown]: <FundRequestBreakdown />,
+  [DialogType.ChangeRiskStatusModal]: <ChangeRiskStatusModal />,
+  [DialogType.ChangeProjectStatusModal]: <ChangeProjectStatusModal />,
 
-    [DialogType.AddPosition]: <AddPosition />,
-    [DialogType.AddAssetClassification]: <AddAssetClassification />,
-    [DialogType.ChangeWorkPlanStatusModal]: <ChangeWorkPlanStatusModal />,
-    [DialogType.EditValue]: <EditValue  />,
-    [DialogType.NewLeave]: <NewLeaveForm />,
-    [DialogType.ADD_OBLIGATION_MODAL]: <AddObligationModal />,
-    [DialogType.ADD_OBLIGATION_MODAL]: <AddObligationModal />,
-    [DialogType.SUBGRANT_MANUAL_SUB_UPLOAD]: <SubGrantManualSubUploadModal />,
-    [DialogType.ADD_PRE_AWARD_QUESTION_MODAL]: <AddPreAwardQuestion />,
+  [DialogType.AddPosition]: <AddPosition />,
+  [DialogType.AddAssetClassification]: <AddAssetClassification />,
+  [DialogType.ChangeWorkPlanStatusModal]: <ChangeWorkPlanStatusModal />,
+  [DialogType.EditValue]: <EditValue />,
+  [DialogType.NewLeave]: <NewLeaveForm />,
+  [DialogType.ADD_OBLIGATION_MODAL]: <AddObligationModal />,
+  [DialogType.ADD_OBLIGATION_MODAL]: <AddObligationModal />,
+  [DialogType.SUBGRANT_MANUAL_SUB_UPLOAD]: <SubGrantManualSubUploadModal />,
+  [DialogType.ADD_PRE_AWARD_QUESTION_MODAL]: <AddPreAwardQuestion />,
 };
 interface DialogPropsMap {
-    [DialogType.FeedbackModal]: { 
-        form: any; 
-        onAction: () => void;
-        isLoading: boolean;
-        // Add other expected props
-    };
-    // Define props for other modal types as needed
+  [DialogType.FeedbackModal]: {
+    form: any;
+    onAction: () => void;
+    isLoading: boolean;
+    // Add other expected props
+  };
+  // Define props for other modal types as needed
 }
 
 const AppDailog = () => {
-    const { type, dialogProps } = useAppSelector(dailogSelector);
+  const { type, dialogProps } = useAppSelector(dailogSelector);
 
-    const renderModal = () => {
-        const modal = sheets[type];
-        if (!modal) return null;
+  const renderModal = () => {
+    const modal = sheets[type];
+    if (!modal) return null;
 
-        // Safely merge props
-        const mergedProps = {
-            ...(modal.props || {}),
-            ...(dialogProps as Partial<DialogPropsMap[typeof type]>)
-        };
-
-        return React.cloneElement(modal, mergedProps);
+    // Safely merge props
+    const mergedProps = {
+      ...(modal.props || {}),
+      ...(dialogProps as Partial<DialogPropsMap[typeof type]>),
     };
 
- 
+    return React.cloneElement(modal, mergedProps);
+  };
 
-    return <BaseDailog>{renderModal()}</BaseDailog>;
-
- 
-
+  return <BaseDailog>{renderModal()}</BaseDailog>;
 };
 
 export default AppDailog;

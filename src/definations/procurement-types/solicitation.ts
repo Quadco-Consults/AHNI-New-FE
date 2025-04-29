@@ -76,6 +76,7 @@ export type SolicitationSubmissionResultsData = {
   solicitation: {
     rfq_id: string;
     rfq_date: string;
+    title: string;
   };
 };
 
@@ -110,6 +111,8 @@ export interface ISolicitationRFQData {
       quantity: number;
       item_detail: {
         name: string;
+        uom: string;
+        description: string;
       };
       lot_detail: {
         name: string;

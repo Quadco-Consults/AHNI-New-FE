@@ -38,6 +38,9 @@ import { z } from "zod";
 import ExpensesForm from "./ExpensesForm";
 import { useGetAllActivityPlansQuery } from "services/programsApi/activity-plan";
 import { useEffect } from "react";
+import { Button } from "components/ui/button";
+import { openDialog } from "store/ui";
+import { DialogType } from "constants/dailogs";
 
 const CreateActivityMemo = () => {
   const dispatch = useDispatch();
@@ -451,36 +454,55 @@ const CreateActivityMemo = () => {
             setValue={setValue}
           />
           {/*  */}
-          <div className='flex items-center justify-end gap-3'>
-            <FormButton
-              type='button'
-              className='flex items-center justify-center gap-2'
+          <div className='flex justify-between items-center'>
+            <Button
               onClick={() =>
-                append({
-                  item: "",
-                  quantity: "",
-                  num_of_days: "",
-                  unit_cost: "",
-                  total_cost: 0,
-                })
+                dispatch(
+                  openDialog({
+                    type: DialogType.AddItems,
+                    dialogProps: {
+                      header: "Add Item",
+                    },
+                  })
+                )
               }
+              variant='outline'
+              className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]'
+              size='sm'
             >
-              <AddSquareIcon />
-              Add new expenses item row
-            </FormButton>
+              Click to add New
+            </Button>
+            <div className='flex items-center justify-end gap-3'>
+              <FormButton
+                type='button'
+                className='flex items-center justify-center gap-2'
+                onClick={() =>
+                  append({
+                    item: "",
+                    quantity: "",
+                    num_of_days: "",
+                    unit_cost: "",
+                    total_cost: 0,
+                  })
+                }
+              >
+                <AddSquareIcon />
+                Add new expenses item row
+              </FormButton>
 
-            {/*  */}
-            {/* <Link className='w-fit' to={generatePath(RouteEnum.SAMPLE_PREVIEW)}> */}
-            <FormButton
-              // loading={isLoading}
-              // disabled={isLoading}
-              type='submit'
-              className='flex items-center justify-center gap-2'
-            >
-              <LongArrowRight />
-              Next
-            </FormButton>
-            {/* </Link> */}
+              {/*  */}
+              {/* <Link className='w-fit' to={generatePath(RouteEnum.SAMPLE_PREVIEW)}> */}
+              <FormButton
+                // loading={isLoading}
+                // disabled={isLoading}
+                type='submit'
+                className='flex items-center justify-center gap-2'
+              >
+                <LongArrowRight />
+                Next
+              </FormButton>
+              {/* </Link> */}
+            </div>
           </div>
           <FormButton
             // loading={isLoading}
