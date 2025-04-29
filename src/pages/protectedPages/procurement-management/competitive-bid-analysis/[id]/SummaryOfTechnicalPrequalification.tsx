@@ -9,20 +9,30 @@ import {
 import VendorBidPrequalificationAPI from "services/procurementApi/manual-bid-cba-prequalification-fn";
 // import GoBack from "components/shared/GoBack";
 import { Loading } from "components/shared/Loading";
+import CbaAPI from "services/procurementApi/cba";
 // import { Link, useLocation } from "react-router-dom";
 // import { RouteEnum } from "constants/RouterConstants";
 // import { Button } from "components/ui/button";
 // import SendIcon from "components/icons/SendIcon";
 
-const SummaryOfTechnicalPrequalification = () => {
+// @ts-ignore
+// eslint-disable-next-line react/prop-types
+const SummaryOfTechnicalPrequalification = ({ id }) => {
   // const location = useLocation();
   // const { cba, solicitation } = location.state || {}; // Handle undefined state
+
+  const { data: cbaData } = CbaAPI.useGetCbaListQuery({});
+  const matchedItem = cbaData?.data?.results?.find(
+    // @ts-ignore
+    (item) => item.solicitation?.id === id
+  );
 
   const { data: summaryData, isLoading } =
     VendorBidPrequalificationAPI.useGetVendorBidPrequalificationQuery({
       path: {
-        // id: cba,
-        id: "bc9d055f-7732-49f7-b501-c20726fb8cd4",
+        // @ts-ignore
+
+        id: matchedItem?.id,
       },
     });
 
@@ -34,9 +44,6 @@ const SummaryOfTechnicalPrequalification = () => {
     <>
       {/* <GoBack /> */}
       <div>
-        {/* <div className='flex justify-center items-center flex-col'>
-          <img src={logoPng} alt='logo' width={200} />
-        </div> */}
         <div className='p-4 w-full h-[70px] flex justify-between items-center text-xl'>
           <h3 className='w-[250px] whitespace-nowrap text-primary'>
             STAGE 1 - TECHNICAL PREQUALIFICATION SUMMARY
