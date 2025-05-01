@@ -255,7 +255,7 @@ export const SolicitationQuotationSchema = z.object({
   tender_type: z.string().min(1, "Please select tender type"),
   eoi_tender: z.string().optional(),
   categories: z.array(z.string()),
-
+  documents: z.string().optional(),
   purchase_request: z
     .string()
     // .min(1, "Please select purchase request")
@@ -263,6 +263,20 @@ export const SolicitationQuotationSchema = z.object({
     .optional(),
   procurement_type: z.string().min(1, "Please select purchase request"),
 });
+
+export const SolicitationProposalSchema = z.object({
+  title: z.string().min(1, "Please enter title"),
+  rfp_id: z.string().min(1, "Please enter rfq id"),
+  background: z.string().min(1, "Please enter background"),
+  tender_type: z.string().min(1, "Please select tender type"),
+  eoi_tender: z.string().optional(),
+  categories: z.array(z.string().optional()),
+  documents: z.string().optional(),
+});
+
+export type TSolicitationProposalFormData = z.infer<
+  typeof SolicitationProposalSchema
+>;
 
 export type TSolicitationQuotationFormData = z.infer<
   typeof SolicitationQuotationSchema

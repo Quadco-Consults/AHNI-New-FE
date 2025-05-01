@@ -1,15 +1,17 @@
 import React, { useEffect, useMemo, useState } from "react";
-import RfqLayout from "./RfqLayout";
+import RfqLayout from "./RfpLayout";
 import FormSelect from "atoms/FormSelectField";
 import { SelectContent, SelectItem } from "components/ui/select";
 import FormInput from "atoms/FormInput";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { generatePath, useNavigate, useParams } from "react-router-dom";
+import { Upload as UploadFile } from "lucide-react";
+import DeleteIcon from "components/icons/DeleteIcon";
 import { Button } from "components/ui/button";
 import FormButton from "atoms/FormButton";
 import { LoadingSpinner } from "components/shared/Loading";
+import { motion } from "framer-motion";
 import { zodResolver } from "@hookform/resolvers/zod";
-import PurchaseRequestAPI from "services/procurementApi/purchase-request";
 import {
   Dialog,
   DialogContent,
@@ -31,8 +33,8 @@ import {
 import { Checkbox } from "components/ui/checkbox";
 
 import {
-  SolicitationQuotationSchema,
-  TSolicitationQuotationFormData,
+  SolicitationProposalSchema,
+  TSolicitationProposalFormData,
 } from "definations/procurement-validator";
 import FormTextArea from "atoms/FormTextArea";
 import EoiAPI from "services/procurementApi/eoi";
@@ -43,16 +45,13 @@ import { CategoryResultsData } from "definations/configs/category";
 import { Input } from "components/ui/input";
 import { Icon } from "@iconify/react";
 import { DialogClose } from "@radix-ui/react-dialog";
-import AddSquareIcon from "components/icons/AddSquareIcon";
+import { RouteEnum } from "constants/RouterConstants";
 import FadedButton from "atoms/FadedButton";
-import DeleteIcon from "components/icons/DeleteIcon";
-import { motion } from "framer-motion";
-import { Upload as UploadFile } from "lucide-react";
+import AddSquareIcon from "components/icons/AddSquareIcon";
 
-const Quotation = () => {
+const Proposal = () => {
   const [categorySearchParams, setCategorySearchParams] = useState("");
 
-  const { pathname } = useLocation();
   const navigate = useNavigate();
   const { id } = useParams();
 
@@ -82,16 +81,13 @@ const Quotation = () => {
     [eoiData]
   );
 
-  const form = useForm<TSolicitationQuotationFormData>({
-    resolver: zodResolver(SolicitationQuotationSchema),
+  const form = useForm<TSolicitationProposalFormData>({
+    resolver: zodResolver(SolicitationProposalSchema),
     defaultValues: {
       title: "",
-      rfq_id: "",
+      rfp_id: "",
       background: "",
-      request_type: "",
       tender_type: "",
-      purchase_request: "",
-      procurement_type: "",
       eoi_tender: "",
       categories: [],
       documents: "",
@@ -116,18 +112,6 @@ const Quotation = () => {
     }
   }, [id, eoiOptions, form]);
 
-  const { data: purchaseRequest, isLoading: isPurchaseRequestLoading } =
-    PurchaseRequestAPI.useGetPurchaseRequestsQuery({});
-
-  const purchaseRequestOptions = useMemo(
-    () =>
-      purchaseRequest?.data.results.map(({ ref_number, id }) => ({
-        label: ref_number,
-        value: id,
-      })),
-    [purchaseRequest]
-  );
-
   // @ts-ignore
   const categories = categoryQueryResult?.data?.data?.results;
 
@@ -136,22 +120,10 @@ const Quotation = () => {
       form.watch("categories").includes(category?.id)
     ) || [];
 
-  const onSubmit: SubmitHandler<TSolicitationQuotationFormData> = (data) => {
-    sessionStorage.setItem("rfqQuotationFormData", JSON.stringify(data));
-    let path = pathname;
+  const onSubmit: SubmitHandler<TSolicitationProposalFormData> = (data) => {
+    sessionStorage.setItem("rfpProposalFormData", JSON.stringify(data));
 
-    if (id) {
-      // If there is an ID in the URL, remove the last two segments
-      path = path.substring(0, path.lastIndexOf("/")); // remove /:id
-      path = path.substring(0, path.lastIndexOf("/")); // remove /quotation
-    } else {
-      // Otherwise remove only the last segment
-      path = path.substring(0, path.lastIndexOf("/"));
-    }
-
-    // Append the new segment to the path
-    path += "/items";
-    navigate(path);
+    navigate(generatePath(RouteEnum.RFP));
   };
 
   const tender_type = form.watch("tender_type");
@@ -342,7 +314,7 @@ const Quotation = () => {
     <RfqLayout>
       <div className='p-5'>
         <h4 className='font-semibold text-lg'>
-          Initiate New Request for Quotation
+          Initiate New Request for Proposal
         </h4>
         <Form {...form}>
           <form
@@ -350,26 +322,22 @@ const Quotation = () => {
             className='space-y-5 mt-10'
           >
             <div className='grid grid-cols-2 gap-5'>
-              <FormInput name='title' label='RFQ Title' required />
+              <FormInput name='title' label='RFP Title' required />
 
-              <FormInput name='rfq_id' label='RFQ ID' required />
+              <FormInput name='rfp_id' label='RFP ID' required />
             </div>
 
             <FormTextArea name='background' label='Background' required />
             <div className='grid grid-cols-2 gap-6'>
               <FormSelect name='tender_type' label='Tender Type'>
                 <SelectContent>
-                  {[
-                    "SINGLE SOURCE",
-                    "CLOSED SOURCE",
-                    "OPENED SOURCE",
-                    "LIMITED SOLICITATION",
-                    "NATIONAL OPEN TENDER",
-                  ].map((value: string, index: number) => (
-                    <SelectItem key={index} value={value}>
-                      {value}
-                    </SelectItem>
-                  ))}
+                  {["OPENED SOURCE", "LIMITED SOLICITATION"].map(
+                    (value: string, index: number) => (
+                      <SelectItem key={index} value={value}>
+                        {value}
+                      </SelectItem>
+                    )
+                  )}
                 </SelectContent>
               </FormSelect>
               <FormSelect
@@ -396,7 +364,7 @@ const Quotation = () => {
                 </FormSelect>
               )}
 
-              <FormSelect name='request_type' label='Request type'>
+              {/* <FormSelect name='request_type' label='Request type'>
                 <SelectContent>
                   {[
                     "REQUEST FOR QUOTATION",
@@ -408,26 +376,9 @@ const Quotation = () => {
                     </SelectItem>
                   ))}
                 </SelectContent>
-              </FormSelect>
-
-              <FormSelect name='purchase_request' label='Purchase Request'>
-                <SelectContent>
-                  {isPurchaseRequestLoading && <LoadingSpinner />}
-
-                  {purchaseRequestOptions?.map(({ label, value }) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </FormSelect>
+              </FormSelect> */}
             </div>
 
-            <FormInput
-              label='Procurement Type'
-              name='procurement_type'
-              required
-            />
             {["LIMITED SOLICITATION"].includes(tender_type) && (
               <div className='space-y-2'>
                 <h4 className='font-medium '>Job Category</h4>
@@ -600,7 +551,6 @@ const Quotation = () => {
               <AddSquareIcon />
               Add Documents
             </FadedButton>
-
             <div className='flex justify-between mt-16'>
               <Button
                 onClick={() => navigate(-1)}
@@ -609,7 +559,7 @@ const Quotation = () => {
               >
                 Cancel
               </Button>
-              <FormButton type='submit'>Next</FormButton>
+              <FormButton type='submit'>Submit</FormButton>
             </div>
           </form>
         </Form>
@@ -618,4 +568,4 @@ const Quotation = () => {
   );
 };
 
-export default Quotation;
+export default Proposal;
