@@ -70,6 +70,8 @@ export const DialogType = {
   AddPosition: "AddPosition",
   AddAssetClassification: "AddAssetClassification",
   ChangeWorkPlanStatusModal: "ChangeWorkPlanStatusModal",
+  ChangeProcurementTrackerStatusModal: "ChangeProcurementTrackerStatusModal",
+  ChangeProcurementTrackerRemarkModal: "ChangeProcurementTrackerRemarkModal",
   EditValue: "EditValue",
   NewLeave: "NewLeave",
 
