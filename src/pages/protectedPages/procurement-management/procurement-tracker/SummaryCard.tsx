@@ -20,6 +20,14 @@ const SummaryCard = () => {
       //   return <div>{row.original?.purchse_order?.po_reference}</div>;
       // },
     },
+    {
+      header: "Project",
+      accessorKey: "project",
+      size: 150,
+      // cell: ({ row }) => {
+      //   return <div>{row.original?.purchse_order?.po_reference}</div>;
+      // },
+    },
     // Project
     {
       header: "Programme Requesting",
@@ -100,6 +108,12 @@ const SummaryCard = () => {
       header: "Quantity",
       accessorKey: "quantity",
       size: 150,
+
+      cell: ({ row }) => {
+        return (
+          <div> {Number(row.original?.quantity || 0).toLocaleString()}</div>
+        );
+      },
     },
   ];
   return (

@@ -79,6 +79,8 @@ import AddMarketPrice from "pages/protectedPages/modules/config/AddMarketPrice";
 import SubGrantManualSubUploadModal from "./components/SubGrantSubUploadModal";
 import AddPreAwardQuestion from "pages/protectedPages/modules/c&g/AddPreAwardQuestion";
 import AddTicketModal from "./components/AddTicketModal";
+import ChangeProcurementTrackerStatusModal from "./ChangeProcurementTrackerStatusModal";
+import ChangeProcurementTrackerRemarkModal from "./ChangeProcurementTrackerRemarkModal";
 
 const sheets: Record<string, ReactNode> = {
   [DialogType.Categories]: <CategoriesModal />,
@@ -158,6 +160,12 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.AddPosition]: <AddPosition />,
   [DialogType.AddAssetClassification]: <AddAssetClassification />,
   [DialogType.ChangeWorkPlanStatusModal]: <ChangeWorkPlanStatusModal />,
+  [DialogType.ChangeProcurementTrackerStatusModal]: (
+    <ChangeProcurementTrackerStatusModal />
+  ),
+  [DialogType.ChangeProcurementTrackerRemarkModal]: (
+    <ChangeProcurementTrackerRemarkModal />
+  ),
   [DialogType.EditValue]: <EditValue />,
   [DialogType.NewLeave]: <NewLeaveForm />,
   [DialogType.ADD_OBLIGATION_MODAL]: <AddObligationModal />,
