@@ -1,18 +1,22 @@
 import { ColumnDef } from "@tanstack/react-table";
-// import FilterIcon from "components/icons/FilterIcon";
+
 import Card from "components/shared/Card";
 import DataTable from "components/Table/DataTable";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
-// import { Button } from "components/ui/button";
-// import { SearchIcon } from "lucide-react";
-// import React from "react";
+import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import ProcurementTrackerAPI from "services/procurementApi/procurement-tracker";
+import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
+import { Button } from "components/ui/button";
+import EditIcon from "components/icons/EditIcon";
+import { openDialog } from "store/ui";
+import { DialogType } from "constants/dailogs";
+import PencilIcon from "components/icons/PencilIcon";
+import { useAppDispatch } from "hooks/useStore";
 
 const DeliveryStageCard = () => {
   const { data } = ProcurementTrackerAPI.useGetProcurementTrackersQuery({});
 
-  //   const columns: ColumnDef<ProcurementTrackerResults>[] = [
   const columns: ColumnDef<any>[] = [
     {
       header: "Date Delivery Due",
@@ -39,7 +43,8 @@ const DeliveryStageCard = () => {
       header: "Procurement Status",
       accessorKey: "date_pr_received",
       size: 200,
-      cell: ({ row }) => {
+      // cell: ({ row }) => {
+      cell: () => {
         return (
           <Badge
             variant='default'
@@ -81,6 +86,12 @@ const DeliveryStageCard = () => {
       accessorKey: "remarks",
       size: 150,
     },
+    {
+      header: "Action",
+      accessorKey: "remarks",
+      size: 150,
+      cell: ({ row }) => <TableAction {...row.original} />,
+    },
   ];
   return (
     <Card className='space-y-5'>
@@ -94,3 +105,54 @@ const DeliveryStageCard = () => {
 };
 
 export default DeliveryStageCard;
+
+const TableAction = ({ id, status }: { id: any; status: any }) => {
+  const dispatch = useAppDispatch();
+
+  return (
+    <div className='flex items-center gap-2'>
+      <>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant='ghost' className='flex gap-2 py-6'>
+              <MoreOptionsHorizontalIcon />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className=' w-fit'>
+            <div className='flex flex-col items-start justify-between gap-1'>
+              <Button
+                variant='ghost'
+                onClick={() => {
+                  dispatch(
+                    openDialog({
+                      type: DialogType.ChangeProcurementTrackerRemarkModal,
+                      dialogProps: { id, status },
+                    })
+                  );
+                }}
+              >
+                {" "}
+                <EditIcon />
+                Remark
+              </Button>
+
+              <Button
+                variant='ghost'
+                onClick={() => {
+                  dispatch(
+                    openDialog({
+                      type: DialogType.ChangeProcurementTrackerStatusModal,
+                      dialogProps: { id, status },
+                    })
+                  );
+                }}
+              >
+                <PencilIcon /> Change Status
+              </Button>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </>
+    </div>
+  );
+};
