@@ -190,6 +190,18 @@ export const RouteEnum = {
   RFQ_CREATE_QUOTATION_OPEN_TENDER:
     "/procurement-management/solicitation/rfq/create/quotation/:id",
 
+  // rfp routes
+  RFP: "/procurement-management/solicitation/rfp",
+  RFP_CREATE_PROPOSAL:
+    "/procurement-management/solicitation/rfp/create/proposal",
+  RFP_CREATE_UPLOADS: "/procurement-management/solicitation/rfp/create/uploads",
+  RFP_DETAILS: "/procurement-management/solicitation/rfp/:id",
+  RFP_DETAILS_BID_SUBMISSION:
+    "/procurement-management/solicitation/rfp/:id/manual-bid-submission",
+  RFP_VENDOR: "/procurement-management/rfp-vendor",
+  RFP_CREATE_PROPOSAL_OPEN_TENDER:
+    "/procurement-management/solicitation/rfp/create/proposal/:id",
+
   //competitive bid analysis routes
   COMPETITIVE_BID_ANALYSIS: "/procurement-management/competitive-bid-analysis",
   COMPETITIVE_BID_ANALYSIS_DETAILS:

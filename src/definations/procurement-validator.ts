@@ -8,6 +8,7 @@ export const EOISchema = z.object({
   categories: z.array(z.string()),
   eoi_number: z.string().min(1, "Field is required"),
   type: z.string().min(1, "Field is required"),
+  solicitation: z.string().optional(),
 });
 
 export const PrequalificationCriteriaSchema = z.object({
@@ -253,7 +254,8 @@ export const SolicitationQuotationSchema = z.object({
   request_type: z.string().min(1, "Please select request type"),
   tender_type: z.string().min(1, "Please select tender type"),
   eoi_tender: z.string().optional(),
-
+  categories: z.array(z.string()),
+  documents: z.string().optional(),
   purchase_request: z
     .string()
     // .min(1, "Please select purchase request")
@@ -261,6 +263,20 @@ export const SolicitationQuotationSchema = z.object({
     .optional(),
   procurement_type: z.string().min(1, "Please select purchase request"),
 });
+
+export const SolicitationProposalSchema = z.object({
+  title: z.string().min(1, "Please enter title"),
+  rfp_id: z.string().min(1, "Please enter rfq id"),
+  background: z.string().min(1, "Please enter background"),
+  tender_type: z.string().min(1, "Please select tender type"),
+  eoi_tender: z.string().optional(),
+  categories: z.array(z.string().optional()),
+  documents: z.string().optional(),
+});
+
+export type TSolicitationProposalFormData = z.infer<
+  typeof SolicitationProposalSchema
+>;
 
 export type TSolicitationQuotationFormData = z.infer<
   typeof SolicitationQuotationSchema
@@ -309,7 +325,7 @@ export const CbaSchema = z.object({
   cba_type: z.string().min(1, "Field is required"),
   cba_date: z.string().min(1, "Field is required"),
   solicitation: z.string().min(1, "Field is required"),
-  lot: z.string().min(1, "Field is required"),
+  lot: z.string().optional(),
   assignee: z.string().min(1, "Field is required"),
   committee_members: z.array(z.string()),
 });
