@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import PurchaseRequestAPI from "services/procurementApi/purchase-request";
 import { LoadingSpinner } from "components/shared/Loading";
 import Card from "components/shared/Card";
@@ -12,6 +12,7 @@ import {
 } from "components/ui/table";
 
 import logoPng from "assets/svgs/logo-bg.svg";
+import { BsFiletypeDoc } from "react-icons/bs";
 const PurchaseRequesttDetails = () => {
   // const navigate = useNavigate();
   const { id } = useParams();
@@ -91,6 +92,7 @@ const PurchaseRequesttDetails = () => {
           </div>
         </Card>
       </div>
+
       <div className='mt-8'>
         <Table>
           <TableHeader>
@@ -229,6 +231,15 @@ const PurchaseRequesttDetails = () => {
             <h4>{data?.data?.approved_by?.name}</h4>
           </div>
         </div>
+      </div>
+
+      <div className=''>
+        <Link to={"file"} target='_blank' title={"file"}>
+          <div className='bg-[#0000001A] py-2 px-4 w-fit  rounded-2xl flex items-center justify-center overflow-hidden'>
+            <BsFiletypeDoc size={40} className='mr-2' />
+            Specification Document
+          </div>
+        </Link>
       </div>
     </section>
   );
