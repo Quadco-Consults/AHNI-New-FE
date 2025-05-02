@@ -19,7 +19,7 @@ import { useGetSingleProjectQuery } from "services/project";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import Performance from "./Performance";
 import Activity from "./Activity";
-import ProjectObligation from "./Obligation";
+
 import ObligationHistory from "pages/protectedPages/c&g/grant/_components/ObligationHistory";
 import { useGetSingleGrantQuery } from "services/c&g/grant/grant";
 
@@ -33,9 +33,7 @@ const ProjectDetail = () => {
     id ?? skipToken
   );
 
-  const { data, isLoading: loadingGrant } = useGetSingleGrantQuery(
-    project?.data?.grant_id ?? skipToken
-  );
+  const { data } = useGetSingleGrantQuery(project?.data?.grant_id ?? skipToken);
 
   const goBack = () => {
     navigate(-1);
@@ -46,14 +44,14 @@ const ProjectDetail = () => {
   }
 
   return (
-    <div className="space-y-6 relative min-h-screen">
+    <div className='space-y-6 relative min-h-screen'>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink href={RouteEnum.PROJECTS}>Projects</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator>
-            <Icon icon="iconoir:slash" />
+            <Icon icon='iconoir:slash' />
           </BreadcrumbSeparator>
           <BreadcrumbItem>
             <BreadcrumbPage>Details</BreadcrumbPage>
@@ -62,33 +60,33 @@ const ProjectDetail = () => {
       </Breadcrumb>
       <button
         onClick={goBack}
-        className="w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center"
+        className='w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center'
       >
         <LongArrowLeft />
       </button>
 
-      <Tabs defaultValue="summary" className="space-y-5">
-        <TabsList className="ml-10">
-          <TabsTrigger value="summary">Project Summary</TabsTrigger>
+      <Tabs defaultValue='summary' className='space-y-5'>
+        <TabsList className='ml-10'>
+          <TabsTrigger value='summary'>Project Summary</TabsTrigger>
 
-          <TabsTrigger value="obligation">Project Obligation</TabsTrigger>
+          <TabsTrigger value='obligation'>Project Obligation</TabsTrigger>
 
-          <TabsTrigger value="performance">Project Performance</TabsTrigger>
+          <TabsTrigger value='performance'>Project Performance</TabsTrigger>
 
-          <TabsTrigger value="uploads">Uploads</TabsTrigger>
+          <TabsTrigger value='uploads'>Uploads</TabsTrigger>
 
-          <TabsTrigger value="activity">Activity/Report</TabsTrigger>
+          <TabsTrigger value='activity'>Activity/Report</TabsTrigger>
         </TabsList>
 
         {project && (
           <>
-            <TabsContent value="summary">
+            <TabsContent value='summary'>
               <Card>
                 <Summary {...project.data} />
               </Card>
             </TabsContent>
 
-            <TabsContent value="obligation">
+            <TabsContent value='obligation'>
               <Card>
                 {/* <ProjectObligation {...project.data} /> */}
                 {data && (
@@ -100,17 +98,17 @@ const ProjectDetail = () => {
               </Card>
             </TabsContent>
 
-            <TabsContent value="performance">
+            <TabsContent value='performance'>
               <Card>
                 <Performance {...project.data} />
               </Card>
             </TabsContent>
 
-            <TabsContent value="uploads">
+            <TabsContent value='uploads'>
               <Uploads />
             </TabsContent>
 
-            <TabsContent value="activity">
+            <TabsContent value='activity'>
               <Activity />
             </TabsContent>
           </>
