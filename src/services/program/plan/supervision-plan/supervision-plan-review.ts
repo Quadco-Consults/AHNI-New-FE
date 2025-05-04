@@ -1,11 +1,7 @@
 import baseAPI from "../../..";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 import {
-    TSupervisionPlanPaginatedData,
-    TSSPCompositionFormValues,
-    TSupervisionPlanSingleData,
-} from "definations/program/plan/supervision-plan/supervision-plan";
-import {
+    ISupervisionPlanReviewPaginatedData,
     ISupervisionPlanReviewSingleData,
     TSupervisionPlanReviewFormData,
 } from "definations/program/plan/supervision-plan/supervision-plan-review";
@@ -27,7 +23,7 @@ const SupervisionPlanReviewAPI = baseAPI.injectEndpoints({
         }),
 
         getAllSupervisionPlanReviews: builder.query<
-            TPaginatedResponse<TSupervisionPlanPaginatedData>,
+            TPaginatedResponse<ISupervisionPlanReviewPaginatedData>,
             TRequest & { planId: string }
         >({
             query: ({ planId, ...rest }) => ({
@@ -39,7 +35,7 @@ const SupervisionPlanReviewAPI = baseAPI.injectEndpoints({
         }),
 
         getSingleSupervisionPlanReview: builder.query<
-            TResponse<TSupervisionPlanSingleData>,
+            TResponse<ISupervisionPlanReviewSingleData>,
             { planId: string; reviewId: string }
         >({
             query: ({ planId, reviewId }) => ({
@@ -49,19 +45,22 @@ const SupervisionPlanReviewAPI = baseAPI.injectEndpoints({
             providesTags: ["SUPERVISION_PLAN_REVIEW"],
         }),
 
-        // https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1/programs/plans/supportive-supervision/{id}/reviews/{review_pk}/
+        modifySupervisionPlanReview: builder.mutation<
+            TResponse<ISupervisionPlanReviewSingleData>,
+            {
+                planId: string;
+                reviewId: string;
+                body: TSupervisionPlanReviewFormData;
+            }
+        >({
+            query: ({ planId, reviewId, body }) => ({
+                method: "PATCH",
+                url: `${BASE_URL}${planId}/reviews/${reviewId}/`,
+                body,
+            }),
+            invalidatesTags: ["SUPERVISION_PLAN_REVIEW"],
+        }),
 
-        // modifySupervisionPlan: builder.mutation<
-        //     TResponse<TSupervisionPlanSingleData>,
-        //     { id: string; body: TSSPCompositionFormValues }
-        // >({
-        //     query: ({ id, body }) => ({
-        //         method: "PUT",
-        //         url: `${BASE_URL}${id}/`,
-        //         body,
-        //     }),
-        //     invalidatesTags: ["SUPERVISION_PLAN"],
-        // }),
         // deleteSupervisionPlan: builder.mutation<
         //     TResponse<TSupervisionPlanSingleData>,
         //     string
@@ -79,4 +78,5 @@ export const {
     useCreateSupervisionPlanReviewMutation,
     useGetAllSupervisionPlanReviewsQuery,
     useGetSingleSupervisionPlanReviewQuery,
+    useModifySupervisionPlanReviewMutation,
 } = SupervisionPlanReviewAPI;

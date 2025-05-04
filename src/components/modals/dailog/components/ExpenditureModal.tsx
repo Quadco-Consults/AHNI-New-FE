@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
+import FormSelect from "atoms/FormSelect";
 import FormTextArea from "atoms/FormTextArea";
 import { Form } from "components/ui/form";
 import {
@@ -10,7 +11,10 @@ import {
 } from "definations/c&g/grants";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useCreateExpenditureMutation, useModifyExpenditureMutation } from "services/c&g/grant/expenditure";
+import {
+    useCreateExpenditureMutation,
+    useModifyExpenditureMutation,
+} from "services/c&g/grant/expenditure";
 import { toast } from "sonner";
 import { closeDialog } from "store/ui";
 
@@ -67,6 +71,22 @@ export default function ExpenditureModal() {
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                <FormSelect
+                    label="Project"
+                    name="amount"
+                    placeholder="Select Project"
+                    required
+                    options={[]}
+                />
+
+                <FormSelect
+                    label="Activity"
+                    name="amount"
+                    placeholder="Select Activity"
+                    required
+                    options={[]}
+                />
+
                 <FormInput
                     type="number"
                     label="Amount"

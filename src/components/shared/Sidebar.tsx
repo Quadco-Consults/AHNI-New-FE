@@ -1025,6 +1025,10 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
                             name: "Pre-award Assessment",
                             path: CG_ROUTES.PREAWARD_ASSESSMENT,
                         },
+                        {
+                            name: "Awarded Beneficiaries",
+                            path: CG_ROUTES.PREAWARD_ASSESSMENT,
+                        },
                     ],
                 },
                 {
