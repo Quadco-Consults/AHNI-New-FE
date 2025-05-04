@@ -24,29 +24,11 @@ export default function CloseOutPlan() {
             <main className="space-y-5">
                 <BackNavigation />
 
-                <Tabs defaultValue="summary">
-                    <TabsList className="ml-10">
-                        <TabsTrigger value="summary">MD OFFICE</TabsTrigger>
-
-                        <TabsTrigger value="obligation">FINANCE</TabsTrigger>
-
-                        <TabsTrigger value="performance">ICT</TabsTrigger>
-
-                        <TabsTrigger value="uploads">C&G</TabsTrigger>
-
-                        <TabsTrigger value="activity">PROCUREMENT</TabsTrigger>
-                    </TabsList>
-                </Tabs>
                 <Card className="space-y-10">
                     <div className="grid grid-cols-4 gap-5">
                         <DescriptionCard
                             label="Project"
                             description={data.data.project.title}
-                        />
-
-                        <DescriptionCard
-                            label="Department"
-                            description={data.data.department.name}
                         />
 
                         <DescriptionCard

@@ -101,12 +101,18 @@ export default function CreateGrant() {
                         onSubmit={form.handleSubmit(onSubmit)}
                     >
                         <div className="grid grid-cols-2 gap-8">
-                            <FormSelect
+                            <FormInput
                                 name="project"
-                                label="Project Name"
-                                placeholder="Select Project"
+                                label="Grant Name"
+                                placeholder="Enter Grant Name"
                                 required={true}
-                                options={projectOptions}
+                            />
+
+                            <FormInput
+                                name="project"
+                                label="Grant ID"
+                                placeholder="Enter Grant ID"
+                                required={true}
                             />
 
                             <FormSelect

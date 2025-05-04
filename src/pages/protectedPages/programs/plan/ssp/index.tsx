@@ -3,8 +3,6 @@ import Card from "components/shared/Card";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
 import AddSquareIcon from "components/icons/AddSquareIcon";
-import SearchIcon from "components/icons/SearchIcon";
-import FilterIcon from "components/icons/FilterIcon";
 import { RouteEnum } from "constants/RouterConstants";
 import ArrowDownIcon from "components/icons/ArrowDownIcon";
 import { useAppDispatch } from "hooks/useStore";

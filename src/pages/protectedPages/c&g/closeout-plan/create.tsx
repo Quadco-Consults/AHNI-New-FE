@@ -194,37 +194,43 @@ export default function CreateCloseOutPlan() {
                                             <DeleteIcon />
                                         </Button>
                                     </div>
-                                    <div
-                                        key={field.id}
-                                        className="grid grid-cols-2 gap-5"
-                                    >
-                                        <FormInput
-                                            label="Designation"
-                                            name={`tasks.${index}.designation`}
-                                            placeholder="Enter Designation"
+                                    <div key={field.id} className="space-y-5">
+                                        <FormTextArea
+                                            label="Description"
+                                            name="description"
+                                            placeholder="Enter Description"
                                             required
                                         />
 
-                                        <FormInput
-                                            label="Remarks"
-                                            name={`tasks.${index}.remarks`}
-                                            placeholder="Enter Remarks"
-                                            required
-                                        />
+                                        <div className="grid grid-cols-2 gap-5">
+                                            <FormInput
+                                                label="Designation"
+                                                name={`tasks.${index}.designation`}
+                                                placeholder="Enter Designation"
+                                                required
+                                            />
 
-                                        <FormInput
-                                            type="date"
-                                            label="Start Date"
-                                            name={`tasks.${index}.start_date`}
-                                            required
-                                        />
+                                            <FormInput
+                                                label="Remarks"
+                                                name={`tasks.${index}.remarks`}
+                                                placeholder="Enter Remarks"
+                                                required
+                                            />
 
-                                        <FormInput
-                                            type="date"
-                                            label="End Date"
-                                            name={`tasks.${index}.end_date`}
-                                            required
-                                        />
+                                            <FormInput
+                                                type="date"
+                                                label="Start Date"
+                                                name={`tasks.${index}.start_date`}
+                                                required
+                                            />
+
+                                            <FormInput
+                                                type="date"
+                                                label="End Date"
+                                                name={`tasks.${index}.end_date`}
+                                                required
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             ))}
