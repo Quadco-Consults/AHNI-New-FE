@@ -13,7 +13,6 @@ import SearchBar from "atoms/SearchBar";
 import { Checkbox } from "components/ui/checkbox";
 import IconButton from "components/shared/IconButton";
 import { Icon } from "@iconify/react";
-import { CalendarHeart, CalendarMinus, CalendarPlus } from "lucide-react";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
 
@@ -115,7 +114,11 @@ const LeaveManagement: React.FC = () => {
     console.log(data);
     return (
       <div className='flex gap-2'>
-        <Link to={generatePath(HrRoutes.LEAVE_MANAGEMENT_DETAIL, { id: "1" })}>
+        <Link
+          to={generatePath(HrRoutes.LEAVE_MANAGEMENT_LEAVE_LIST_DETAIL, {
+            id: "1",
+          })}
+        >
           <IconButton className='bg-[#F9F9F9] hover:text-primary'>
             <Icon icon='ph:eye-duotone' fontSize={15} />
           </IconButton>

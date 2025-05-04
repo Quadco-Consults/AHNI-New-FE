@@ -903,7 +903,19 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
           name: "Grievance Management",
           path: HrRoutes.GRIEVANCE_MANAGEMENT,
         },
-        { name: "Leave Management", path: HrRoutes.LEAVE_MANAGEMENT },
+        {
+          name: "Leave Management",
+          sublinks: [
+            {
+              name: "Request",
+              path: HrRoutes.LEAVE_MANAGEMENT_REQUEST_LEAVE,
+            },
+            {
+              name: "Leave List",
+              path: HrRoutes.LEAVE_MANAGEMENT_LEAVE_LIST,
+            },
+          ],
+        },
         { name: "HR Reports", path: "/" },
       ],
     },
