@@ -6,7 +6,7 @@ import FormSelect from "atoms/FormSelectField";
 import GoBack from "components/shared/GoBack";
 
 import { Form } from "components/ui/form";
-import { SelectContent } from "components/ui/select";
+import { SelectContent, SelectItem } from "components/ui/select";
 
 import FormTextArea from "atoms/FormTextArea";
 import { HrRoutes } from "constants/RouterConstants";
@@ -15,6 +15,7 @@ import { UploadIcon } from "lucide-react";
 
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 // import ItemsAPI from "services/configs/items";
 
@@ -23,6 +24,26 @@ import { useNavigate } from "react-router-dom";
 // import { z } from "zod";
 
 const LeaveForm = () => {
+  // const { data: leaveTypes, isLoading: leaveTypesIsLoading } =
+  //     useLeaveTypesQuery({});
+
+  const leaveTypes = [
+    "Sick Leave",
+    "Annual Leave",
+    "Maternity",
+    "Paternity",
+  ].map((option) => ({
+    label: option,
+    value: option,
+  }));
+
+  let daysOptions = Array.from({ length: 30 }, (_, index) => index + 1).map(
+    (option) => ({
+      label: option,
+      value: `${option}`,
+    })
+  );
+
   const form = useForm<any>({
     // resolver: zodResolver(),
     defaultValues: {},
@@ -30,7 +51,8 @@ const LeaveForm = () => {
 
   const navigate = useNavigate();
 
-  const { handleSubmit } = form;
+  const { handleSubmit, getValues } = form;
+  const { type } = getValues();
 
   //   const { fields, append, remove } = useFieldArray({
   //     control,
@@ -39,8 +61,19 @@ const LeaveForm = () => {
 
   const onSubmit = async (data: any) => {
     console.log({ data });
-    navigate(HrRoutes.LEAVE_MANAGEMENT);
+    navigate(HrRoutes.LEAVE_MANAGEMENT_LEAVE_LIST);
   };
+
+  useEffect(() => {
+    console.log("hshs", type);
+
+    const days = Array.from({ length: 30 }, (_, index) => index + 1);
+
+    daysOptions = days.map((option) => ({
+      label: option,
+      value: `${option}`,
+    }));
+  }, type);
 
   return (
     <div className=''>
@@ -57,19 +90,25 @@ const LeaveForm = () => {
             <div className='grid gap-5'>
               <FormSelect label='Leave Type' name='type' required>
                 <SelectContent>
-                  {/* {departmentsIsLoading ? (
+                  {leaveTypes?.map((leave) => (
+                    <SelectItem key={leave.label} value={leave.value}>
+                      {leave.label}
+                    </SelectItem>
+                  ))}
+                  {/* {leaveTypesIsLoading ? (
                     <LoadingSpinner />
                   ) : (
-                    departments?.results?.map(
-                      (department: DepartmentsResultsData) => (
-                        <SelectItem key={department?.id} value={department?.id}>
-                          {department?.name}
+                    leaveTypes?.results?.map(
+                      (leave: leaveTypesData) => (
+                        <SelectItem key={leave?.id} value={leave?.id}>
+                          {leave?.name}
                         </SelectItem>
                       )
                     )
                   )} */}
                 </SelectContent>
-              </FormSelect>{" "}
+              </FormSelect>
+
               <div>
                 <FormTextArea label='Reason' name='reason' required />
               </div>
@@ -78,8 +117,13 @@ const LeaveForm = () => {
                 <FormInput label='To' name='to' type='date' required />
               </div>
             </div>
-            <FormSelect label='Nimber of days' name='days' required>
+            <FormSelect label='Number of days' name='days' required>
               <SelectContent>
+                {daysOptions?.map((day) => (
+                  <SelectItem key={day.label} value={day.value}>
+                    {day.label}
+                  </SelectItem>
+                ))}
                 {/* {departmentsIsLoading ? (
                     <LoadingSpinner />
                   ) : (

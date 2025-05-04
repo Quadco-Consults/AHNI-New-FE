@@ -180,25 +180,25 @@ export const hr = [
     ),
   },
   {
-    path: HrRoutes.LEAVE_MANAGEMENT,
+    path: HrRoutes.LEAVE_MANAGEMENT_LEAVE_LIST,
     element: lazy(
       () => import("pages/protectedPages/hr/leave-management/index")
     ),
   },
   {
-    path: HrRoutes.LEAVE_MANAGEMENT_DETAIL,
+    path: HrRoutes.LEAVE_MANAGEMENT_LEAVE_LIST_DETAIL,
     element: lazy(
       () => import("pages/protectedPages/hr/leave-management/id/index")
     ),
   },
+  // {
+  //   path: HrRoutes.LEAVE_MANAGEMENT_LEAVE_SETTINGS,
+  //   element: lazy(
+  //     () => import("pages/protectedPages/hr/leave-management/Settings")
+  //   ),
+  // },
   {
-    path: HrRoutes.LEAVE_MANAGEMENT_REQUEST,
-    element: lazy(
-      () => import("pages/protectedPages/hr/leave-management/leaveRequest")
-    ),
-  },
-  {
-    path: HrRoutes.LEAVE_MANAGEMENT_DETAIL_FORM,
+    path: HrRoutes.LEAVE_MANAGEMENT_REQUEST_LEAVE,
     element: lazy(
       () => import("pages/protectedPages/hr/leave-management/form/index")
     ),
