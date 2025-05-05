@@ -190,6 +190,18 @@ export const RouteEnum = {
   RFQ_CREATE_QUOTATION_OPEN_TENDER:
     "/procurement-management/solicitation/rfq/create/quotation/:id",
 
+  // rfp routes
+  RFP: "/procurement-management/solicitation/rfp",
+  RFP_CREATE_PROPOSAL:
+    "/procurement-management/solicitation/rfp/create/proposal",
+  RFP_CREATE_UPLOADS: "/procurement-management/solicitation/rfp/create/uploads",
+  RFP_DETAILS: "/procurement-management/solicitation/rfp/:id",
+  RFP_DETAILS_BID_SUBMISSION:
+    "/procurement-management/solicitation/rfp/:id/manual-bid-submission",
+  RFP_VENDOR: "/procurement-management/rfp-vendor",
+  RFP_CREATE_PROPOSAL_OPEN_TENDER:
+    "/procurement-management/solicitation/rfp/create/proposal/:id",
+
   //competitive bid analysis routes
   COMPETITIVE_BID_ANALYSIS: "/procurement-management/competitive-bid-analysis",
   COMPETITIVE_BID_ANALYSIS_DETAILS:
@@ -437,10 +449,10 @@ export const HrRoutes = {
   GRIEVANCE_MANAGEMENT: "/hr/grievance-management",
   GRIEVANCE_MANAGEMENT_CREATE: "/hr/grievance-management/create",
   GRIEVANCE_MANAGEMENT_DETAILS: "/hr/grievance-management/:id",
-  LEAVE_MANAGEMENT: "/hr/leave-management",
-  LEAVE_MANAGEMENT_DETAIL: "/hr/leave-management/:id",
-  LEAVE_MANAGEMENT_REQUEST: "/hr/leave-management/request",
-  LEAVE_MANAGEMENT_DETAIL_FORM: "/hr/leave-management/:id/leave-form",
+  LEAVE_MANAGEMENT_REQUEST_LEAVE: "/hr/leave-management/request-leave",
+  LEAVE_MANAGEMENT_LEAVE_LIST: "/hr/leave-management/leave-list",
+  LEAVE_MANAGEMENT_LEAVE_LIST_DETAIL: "/hr/leave-management/leave-list/:id",
+  LEAVE_MANAGEMENT_LEAVE_SETTINGS: "hr/leave-management/leave-settings",
   TIMESHEET_MANAGEMENT: "/hr/timesheet-management",
   TIMESHEET_MANAGEMENT_DETAIL: "/hr/timesheet-management/:id",
   TIMESHEET_MANAGEMENT_DETAIL_CREATE: "/hr/timesheet-management/:id/create",

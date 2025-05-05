@@ -25,7 +25,15 @@ const ProcurementProcessCard = () => {
       accessorKey: "office_requesting",
       size: 200,
       cell: ({ row }) => {
-        return <div>{row.original?.purchse_order?.total_price || "-"}</div>;
+        return (
+          <div>
+            {" "}
+            NGN
+            {Number(
+              row.original?.purchse_order?.total_price || 0
+            ).toLocaleString()}
+          </div>
+        );
       },
     },
 
@@ -42,11 +50,18 @@ const ProcurementProcessCard = () => {
       accessorKey: "pr_no. ",
       size: 150,
       cell: ({ row }) => {
-        return <div>{row.original?.purchse_order?.total_price || "-"}</div>;
+        return (
+          <div>
+            NGN
+            {Number(
+              row.original?.purchse_order?.total_price || 0
+            ).toLocaleString()}
+          </div>
+        );
       },
     },
     {
-      header: "Actual Payment Request Valu(NGN)",
+      header: "Actual Payment Request Value(NGN)",
       accessorKey: "date_pr_received",
       size: 200,
     },
