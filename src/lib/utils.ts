@@ -24,3 +24,8 @@ export function formatCurrency(amount: number | string): string {
 
   return formattedAmount;
 }
+
+export const truncateStringLength = (str: string, limit: number) => {
+  if (str === null || str === undefined) return "";
+  return str.length > limit ? str.substring(0, limit) + " ..." : str;
+};
