@@ -13,7 +13,10 @@ import SearchBar from "atoms/SearchBar";
 import { Checkbox } from "components/ui/checkbox";
 import IconButton from "components/shared/IconButton";
 import { Icon } from "@iconify/react";
-import { useDeleteGrievianceManagementMutation, useGetGrievianceManagementsQuery } from "services/hrApi/hr-grieviance-management";
+import {
+  useDeleteGrievianceManagementMutation,
+  useGetGrievianceManagementsQuery,
+} from "services/hrApi/hr-grieviance-management";
 import moment from "moment";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
@@ -21,16 +24,19 @@ import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 
 const GrievanceManagement: React.FC = () => {
   const navigate = useNavigate();
-  const [selectedId, setSelectedId] = useState<string>("")
+  const [selectedId, setSelectedId] = useState<string>("");
   const [isDialogOpen, setDialogOpen] = useState(false);
-  const {data: grievants, isLoading: isLoadingCompliants} = useGetGrievianceManagementsQuery({})
-  const [deleteGrievianceManagement, {isLoading: deleting}] = useDeleteGrievianceManagementMutation({}) 
-  const onDelete = async() => {
+  const { data: grievants, isLoading: isLoadingCompliants } =
+    useGetGrievianceManagementsQuery({});
+  const [deleteGrievianceManagement, { isLoading: deleting }] =
+    useDeleteGrievianceManagementMutation({});
+  console.log("--->", grievants);
+  const onDelete = async () => {
     await deleteGrievianceManagement({
-      id: selectedId as string
-    })
+      id: selectedId as string,
+    });
     setDialogOpen(false);
-};
+  };
   const columns: ColumnDef<any>[] = [
     {
       id: "select",
@@ -59,18 +65,20 @@ const GrievanceManagement: React.FC = () => {
     {
       header: "Title",
       accessorKey: "title",
-      size: 200, 
+      size: 200,
     },
     {
       header: "Description",
       accessorKey: "description",
-      size: 200, 
+      size: 200,
     },
     {
       header: "Submit Date",
       accessorKey: "submit_date",
       size: 200,
-      cell: ({ row }) => <p>{moment(row?.original?.created_datetime).format("DD-MMM-YYYY")}</p>,
+      cell: ({ row }) => (
+        <p>{moment(row?.original?.created_datetime).format("DD-MMM-YYYY")}</p>
+      ),
     },
     {
       header: "Status",
@@ -86,7 +94,7 @@ const GrievanceManagement: React.FC = () => {
                 : "bg-red-50 text-red-500"
             )}
           >
-            {getValue() === true ? "Resolved" : "Unresolved" as string}
+            {getValue() === true ? "Resolved" : ("Unresolved" as string)}
           </Badge>
         );
       },
@@ -99,17 +107,25 @@ const GrievanceManagement: React.FC = () => {
     },
   ];
 
-  const ActionListAction = ({ data }: any) => {  
+  const ActionListAction = ({ data }: any) => {
     return (
       <div className='flex gap-2'>
         <Link
-          to={generatePath(HrRoutes.GRIEVANCE_MANAGEMENT_DETAILS, { id: data?.id })}
+          to={generatePath(HrRoutes.GRIEVANCE_MANAGEMENT_DETAILS, {
+            id: data?.id,
+          })}
         >
           <IconButton className='bg-[#F9F9F9] hover:text-primary'>
             <Icon icon='ph:eye-duotone' fontSize={15} />
           </IconButton>
         </Link>
-        <IconButton onClick={() => {setSelectedId(data?.id); setDialogOpen(true)}} className='bg-[#F9F9F9] hover:text-primary'>
+        <IconButton
+          onClick={() => {
+            setSelectedId(data?.id);
+            setDialogOpen(true);
+          }}
+          className='bg-[#F9F9F9] hover:text-primary'
+        >
           <Icon icon='ant-design:delete-twotone' fontSize={15} />
         </IconButton>
       </div>
@@ -152,12 +168,12 @@ const GrievanceManagement: React.FC = () => {
           }}
         />
       </div>
-       <ConfirmationDialog
-          open={isDialogOpen}
-          title="Are you sure you want to delete this complaint?"
-          onCancel={() => setDialogOpen(false)}
-          onOk={onDelete}
-          loading={deleting}
+      <ConfirmationDialog
+        open={isDialogOpen}
+        title='Are you sure you want to delete this complaint?'
+        onCancel={() => setDialogOpen(false)}
+        onOk={onDelete}
+        loading={deleting}
       />
     </div>
   );
