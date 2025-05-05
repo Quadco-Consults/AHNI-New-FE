@@ -30,13 +30,14 @@ const GrievanceManagement: React.FC = () => {
     useGetGrievianceManagementsQuery({});
   const [deleteGrievianceManagement, { isLoading: deleting }] =
     useDeleteGrievianceManagementMutation({});
-  console.log("--->", grievants);
+
   const onDelete = async () => {
     await deleteGrievianceManagement({
       id: selectedId as string,
     });
     setDialogOpen(false);
   };
+
   const columns: ColumnDef<any>[] = [
     {
       id: "select",

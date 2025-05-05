@@ -857,10 +857,10 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
         {
           name: "Performance Management",
           sublinks: [
-            {
-              name: "Timesheet Management",
-              path: HrRoutes.TIMESHEET_MANAGEMENT,
-            },
+            // {
+            //   name: "Timesheet Management",
+            //   path: HrRoutes.TIMESHEET_MANAGEMENT,
+            // },
             {
               name: "Performance Appraisal",
               path: HrRoutes.PERFORMANCE_MANAGEMENT,
@@ -903,7 +903,7 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
           name: "Grievance Management",
           path: HrRoutes.GRIEVANCE_MANAGEMENT,
         },
-        { name: "Time Management", path: HrRoutes.TIME_MANAGEMENT },
+        { name: "Timesheet Management", path: HrRoutes.TIMESHEET_MANAGEMENT },
         {
           name: "Leave Management",
           sublinks: [
