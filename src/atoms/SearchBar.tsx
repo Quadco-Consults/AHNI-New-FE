@@ -1,11 +1,20 @@
 import React from "react";
-import { FiSearch } from "react-icons/fi";
+import SearchIcon from "components/icons/SearchIcon";
 
-const SearchBar = ({ onchange }: { onchange: React.ChangeEventHandler<HTMLInputElement> }) => {
+const SearchBar = ({
+  onchange,
+}: {
+  onchange: React.ChangeEventHandler<HTMLInputElement>;
+}) => {
   return (
-    <div className=" border border-[#CDD5E0] bg-white rounded-[6px] w-[344px] max-w-full flex items-center justify-between py-[11px] px-[13px]">
-      <FiSearch />
-      <input className="text outline-none w-full text-xs ml-2" onChange={onchange} type="text" placeholder="Search..." />
+    <div className='border border-[#CDD5E0] bg-white rounded-[6px] w-[344px] max-w-full flex gap-2 items-center py-[11px] px-[13px]'>
+      <SearchIcon />
+      <input
+        className='ml-2 h-6 border-none bg-none focus:outline-none outline-none w-[100%]'
+        onChange={onchange}
+        type='text'
+        placeholder='Search...'
+      />
     </div>
   );
 };
