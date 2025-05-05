@@ -72,7 +72,9 @@ export const DialogType = {
   ChangeWorkPlanStatusModal: "ChangeWorkPlanStatusModal",
   ChangeProcurementTrackerStatusModal: "ChangeProcurementTrackerStatusModal",
   ChangeProcurementTrackerRemarkModal: "ChangeProcurementTrackerRemarkModal",
+  AssignToModal: "AssignToModal",
   EditValue: "EditValue",
+
   NewLeave: "NewLeave",
 
   // GRANTS
