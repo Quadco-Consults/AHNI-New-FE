@@ -194,6 +194,9 @@ export const procurment = [
       () => import("pages/protectedPages/procurement-management/Report")
     ),
   },
+
+  // RFQ
+
   {
     path: RouteEnum.RFQ_VENDOR,
     element: lazy(
@@ -209,6 +212,7 @@ export const procurment = [
         )
     ),
   },
+
   {
     path: RouteEnum.RFQ_DETAILS,
     element: lazy(
@@ -327,6 +331,47 @@ export const procurment = [
         )
     ),
   },
+
+  // RFP
+  {
+    path: RouteEnum.RFP,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/solicitation-management/RFP"
+        )
+    ),
+  },
+
+  {
+    path: RouteEnum.RFP_CREATE_PROPOSAL,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/solicitation-management/RFP/create/Proposal"
+        )
+    ),
+  },
+  {
+    path: RouteEnum.RFP_CREATE_UPLOADS,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/solicitation-management/RFP/create/Uploads"
+        )
+    ),
+  },
+
+  {
+    path: RouteEnum.RFP_DETAILS,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/solicitation-management/RFP/[id]/index"
+        )
+    ),
+  },
+  // Vendor Management
   {
     path: RouteEnum.VENDOR_MANAGEMENT,
     element: lazy(

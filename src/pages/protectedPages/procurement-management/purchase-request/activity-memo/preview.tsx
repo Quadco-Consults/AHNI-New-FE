@@ -92,35 +92,16 @@ const CheckboxForm = () => {
     },
   });
 
-  const { control, handleSubmit, setValue, watch } = form;
+  const { control, handleSubmit, setValue, watch, getValues } = form;
 
   const integratedTraining = watch("integratedTraining");
   const beneficiary = watch("beneficiaries");
-  const budgets = watch("budget_expended");
-  const activityBudget = watch("activity_budget");
 
-  useEffect(() => {
-    if (request) {
-      setValue(
-        "integratedTraining",
-        // @ts-ignore
-        "true"
-      );
-    }
+  useEffect(() => {}, []);
 
-    if (requestsDetails?.project_area) {
-      setValue(
-        "beneficiaries",
-        // @ts-ignore
-        projects?.data?.results.map(({ title, id, project_id }) => ({
-          name: title,
-          selected: id === requestsDetails?.project_area ? true : false,
-          id,
-          project_id,
-        }))
-      );
-    }
-  }, [request, setValue, requestsDetails]);
+  const lon = getValues();
+
+  console.log({ requestsDetails, projects, lon, request });
 
   // Update default values when beneficiaries data is available
   useEffect(() => {
@@ -162,10 +143,10 @@ const CheckboxForm = () => {
     }
   }, [requestsDetails, setValue]);
 
-  useEffect(() => {
-    const balance = Number(activityBudget) - Number(budgets) || 0;
-    setValue("balance", balance);
-  }, [setValue, activityBudget, budgets]);
+  // useEffect(() => {
+  //   const balance = Number(activityBudget) - Number(budgets) || 0;
+  //   setValue("balance", balance);
+  // }, [setValue, activityBudget, budgets]);
 
   // Reset beneficiaries when integratedTraining is "false"
   useEffect(() => {
@@ -204,7 +185,7 @@ const CheckboxForm = () => {
         }))
       );
     }
-  }, [request, setValue, requestsDetails]);
+  }, [request, setValue, requestsDetails, projects]);
 
   const [createActivityMemoMutation] =
     PurchaseRequestAPI.useCreateActivityMemoMutation();
@@ -238,6 +219,7 @@ const CheckboxForm = () => {
       project_area: program_area[0],
       budget_expended: data.budget_expended,
     };
+    console.log({ payload, here: "I am here" });
 
     try {
       const res = await createActivityMemoMutation(payload).unwrap();
@@ -255,7 +237,10 @@ const CheckboxForm = () => {
   const filteredBeneficiaries = beneficiary?.filter(
     (beneficiary) => beneficiary.selected
   );
-  console.log({ requestsDetails });
+
+  const activity_budget = watch(`activity_budget`);
+  const budget_expended = watch(`budget_expended`);
+  const total_balance = Number(activity_budget) - Number(budget_expended) || 0;
 
   return (
     <Form {...form}>
@@ -321,26 +306,29 @@ const CheckboxForm = () => {
                       control={control}
                       render={({ field }) =>
                         // @ts-ignore
-                        field.value.map((beneficiary, index) => (
-                          <div
-                            key={beneficiary.id}
-                            className='flex items-center gap-2'
-                          >
-                            <Checkbox
-                              checked={beneficiary.selected}
-                              onChange={(e) =>
-                                field.onChange(
-                                  field.value.map((b, i) =>
-                                    i === index
-                                      ? { ...b, selected: e.target.checked }
-                                      : b
+                        field.value.map((beneficiary, index) => {
+                          return (
+                            <div
+                              key={beneficiary.id}
+                              className='flex items-center gap-2'
+                            >
+                              <Checkbox
+                                checked={beneficiary.selected}
+                                // value={}
+                                onChange={(e) =>
+                                  field.onChange(
+                                    field.value.map((b, i) =>
+                                      i === index
+                                        ? { ...b, selected: e.target.checked }
+                                        : b
+                                    )
                                   )
-                                )
-                              }
-                            />
-                            <label>{beneficiary.name}</label>
-                          </div>
-                        ))
+                                }
+                              />
+                              <label>{beneficiary.name}</label>
+                            </div>
+                          );
+                        })
                       }
                     />
                   </div>
@@ -435,18 +423,11 @@ const CheckboxForm = () => {
                           />
                         </TableCell>
                         <TableCell className='p-2 rounded-none h-2'>
-                          <Controller
-                            name='balance'
-                            control={control}
-                            render={({ field }) => (
-                              <>
-                                <input
-                                  type='text'
-                                  className='w-full h-full border-none rounded-none p-2'
-                                  {...field}
-                                />
-                              </>
-                            )}
+                          <input
+                            value={Number(total_balance).toLocaleString()}
+                            type='text'
+                            className='w-full h-full border-none rounded-none p-2'
+                            disabled
                           />
                         </TableCell>
                       </TableRow>
@@ -543,18 +524,11 @@ const CheckboxForm = () => {
                             />{" "}
                           </TableCell>
                           <TableCell className='p-2 rounded-none h-2'>
-                            <Controller
-                              name='balance'
-                              control={control}
-                              render={({ field }) => (
-                                <>
-                                  <input
-                                    type='text'
-                                    className='w-full h-full border-none rounded-none'
-                                    {...field}
-                                  />
-                                </>
-                              )}
+                            <input
+                              value={Number(total_balance).toLocaleString()}
+                              type='text'
+                              className='w-full h-full border-none rounded-none p-2'
+                              disabled
                             />
                           </TableCell>
                         </TableRow>

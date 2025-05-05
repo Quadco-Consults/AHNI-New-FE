@@ -1,26 +1,43 @@
-/* eslint-disable no-unused-vars */
 import React from "react";
-import { cn, truncateStringLength } from "lib/utils";
-import { ColumnDef, Row } from "@tanstack/react-table";
-import ApproveIcon from "components/icons/ApproveIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
-import EyeIcon from "components/icons/EyeIcon";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
+import {
+  CalendarHeart,
+  CalendarMinus,
+  CalendarPlus,
+  Clock,
+} from "lucide-react";
+import { Icon } from "@iconify/react";
 import DataTable from "components/Table/DataTable";
+import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "components/ui/badge";
-
-import FilterIcon2 from "assets/svgs/FilterIcon2";
-import { Button } from "components/ui/button";
-import { generatePath, Link, useNavigate } from "react-router-dom";
-import { HrRoutes, RouteEnum } from "constants/RouterConstants";
-import SearchBar from "atoms/SearchBar";
+import { cn, truncateStringLength } from "lib/utils";
 import { Checkbox } from "components/ui/checkbox";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import { generatePath, Link, useNavigate } from "react-router-dom";
+import { HrRoutes } from "constants/RouterConstants";
+import IconButton from "components/shared/IconButton";
 
-import FormButton from "atoms/FormButton";
-
-const LeaveManagement: React.FC = () => {
+const LeaveHistory: React.FC = () => {
   const navigate = useNavigate();
+
+  const ActionListAction = ({ data }: any) => {
+    console.log(data);
+
+    return (
+      <div className='flex gap-2'>
+        <Link
+          to={generatePath(HrRoutes.LEAVE_MANAGEMENT_LEAVE_LIST_DETAIL, {
+            id: "1",
+          })}
+        >
+          <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+            <Icon icon='ph:eye-duotone' fontSize={15} />
+          </IconButton>
+        </Link>
+        <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+          <Icon icon='ant-design:delete-twotone' fontSize={15} />
+        </IconButton>
+      </div>
+    );
+  };
 
   const columns: ColumnDef<any>[] = [
     {
@@ -48,14 +65,8 @@ const LeaveManagement: React.FC = () => {
       },
     },
     {
-      header: "Employee",
-      accessorKey: "employee",
-      size: 200,
-      cell: ({ row }) => <p>{row?.original?.employee}</p>,
-    },
-    {
       header: "Reason",
-      accessorKey: "total",
+      accessorKey: "reason",
       size: 200,
       cell: ({ row }) => (
         <p>{truncateStringLength(row?.original?.reason, 85)}</p>
@@ -68,28 +79,37 @@ const LeaveManagement: React.FC = () => {
       cell: ({ row }) => <p>{row?.original?.leave_type}</p>,
     },
     {
-      header: "From",
+      header: "from",
       accessorKey: "from",
-      size: 200,
+      size: 120,
       cell: ({ row }) => <p>{row?.original?.from}</p>,
     },
     {
-      header: "To",
+      header: "to",
       accessorKey: "to",
-      size: 200,
+      size: 120,
       cell: ({ row }) => <p>{row?.original?.to}</p>,
     },
     {
+      header: "No of Days",
+      accessorKey: "days",
+      size: 120,
+      cell: ({ row }) => <p>{row?.original?.days}</p>,
+    },
+    {
       header: "Status",
+      id: "status",
       accessorKey: "status",
-      size: 200,
       cell: ({ getValue }) => {
         return (
           <Badge
+            variant='default'
             className={cn(
               "p-1 rounded-lg",
               getValue() === "Approved" && "bg-green-200 text-green-500",
-              getValue() === "Rejected" && "bg-red-200 text-red-500"
+              getValue() === "Rejected" && "bg-red-200 text-red-500",
+              getValue() === "Pending" && "bg-yellow-200 text-yellow-500",
+              getValue() === "On Hold" && "text-grey-200 bg-grey-500"
             )}
           >
             {getValue() as string}
@@ -97,71 +117,18 @@ const LeaveManagement: React.FC = () => {
         );
       },
     },
-    {
-      header: "Actions",
-      id: "actions",
-      size: 150,
-      cell: ({ row }) => <ActionList data={row} />,
-    },
+    // {
+    //   header: "Actions",
+    //   id: "actions",
+    //   size: 150,
+    //   cell: ({ row }) => <ActionListAction data={row} />,
+    // },
   ];
 
-  const ActionList = ({ data }: { data: Row<any> }) => {
-    return (
-      <div className='flex items-center gap-2'>
-        <>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant='ghost' className='flex gap-2 py-6'>
-                <MoreOptionsHorizontalIcon />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className=' w-fit'>
-              <div className='flex flex-col items-start justify-between gap-1'>
-                <Link
-                  to={generatePath(
-                    HrRoutes.LEAVE_MANAGEMENT_LEAVE_LIST_DETAIL,
-                    {
-                      id: data.original.id,
-                    }
-                  )}
-                >
-                  <Button
-                    className='w-full flex items-center justify-start gap-2'
-                    variant='ghost'
-                  >
-                    <EyeIcon />
-                    View
-                  </Button>
-                </Link>
-
-                <Button
-                  className='w-full flex items-center justify-start gap-2'
-                  variant='ghost'
-                >
-                  <ApproveIcon />
-                  Approve
-                </Button>
-
-                <Button
-                  className='w-full flex items-center justify-start gap-2'
-                  variant='ghost'
-                >
-                  <DeleteIcon />
-                  Delete
-                </Button>
-              </div>
-            </PopoverContent>
-          </Popover>
-        </>
-      </div>
-    );
-  };
-
   return (
-    <div className='flex flex-col justify-center items-center gap-y-[1rem]'>
-      {/* <div className='flex w-full gap-6 justify-between mb-6'>
-        {" "}
-        <div className='flex w-full p-6 justify-between bg-[#3E3574] rounded-md items-center  text-white'>
+    <>
+      <div className='flex w-full gap-4 justify-between mb-6'>
+        <div className='flex w-full max-w-[255px] p-6 justify-between bg-[#3E3574] rounded-md items-center  text-white'>
           <div className='border border-white h-[30px] w-[35px] rounded-sm flex justify-center items-center p-2'>
             <CalendarHeart />
           </div>
@@ -172,7 +139,7 @@ const LeaveManagement: React.FC = () => {
             </p>
           </div>
         </div>
-        <div className='flex w-full p-6 justify-between bg-[#B14F05] rounded-md items-center  text-white'>
+        <div className='flex w-full max-w-[255px] p-6 justify-between bg-[#B14F05] rounded-md items-center  text-white'>
           <div className='border border-white h-[30px] w-[35px] rounded-sm flex justify-center items-center p-2'>
             <CalendarMinus />
           </div>
@@ -183,7 +150,7 @@ const LeaveManagement: React.FC = () => {
             </p>
           </div>
         </div>{" "}
-        <div className='flex w-full p-6 justify-between bg-[#077373] rounded-md items-center  text-white'>
+        <div className='flex w-full max-w-[255px] p-6 justify-between bg-[#077373] rounded-md items-center  text-white'>
           <div className='border border-white h-[30px] w-[35px] rounded-sm flex justify-center items-center p-2'>
             <CalendarPlus />
           </div>
@@ -194,25 +161,17 @@ const LeaveManagement: React.FC = () => {
             </p>
           </div>
         </div>{" "}
-      </div> */}
-      <div className='w-full flex justify-between items-center'>
-        <div className='flex items-center justify-center'>
-          <SearchBar onchange={() => ""} />
-
-          <Button variant='ghost' className=''>
-            <FilterIcon2 />
-          </Button>
+        <div className='flex w-full max-w-[255px] p-6 justify-between bg-[#252F4A] rounded-md items-center  text-white'>
+          <div className='border border-white h-[30px] w-[35px] rounded-sm flex justify-center items-center p-2'>
+            <Clock />
+          </div>
+          <div className='text-xs leading-5'>
+            <p>Next Leave In</p>
+            <p>
+              <span className='text-xl font-medium'>86</span> Days
+            </p>
+          </div>
         </div>
-        {/* <div className='flex items-center'>
-          <FormButton
-            onClick={() => {
-              navigate(HrRoutes.LEAVE_MANAGEMENT_DETAIL);
-            }}
-          >
-            <AddSquareIcon />
-            <p>Add New</p>
-          </FormButton>
-        </div> */}
       </div>
       <div className='w-full'>
         <DataTable
@@ -229,51 +188,66 @@ const LeaveManagement: React.FC = () => {
           }}
         />
       </div>
-    </div>
+    </>
   );
 };
 
-export default LeaveManagement;
+export default LeaveHistory;
 
 const dummyData = [
   {
     id: 1,
-    employee: "John Doe",
     reason:
       "I am writing to report a serious issue that I believe requires immediate attention. Over the past six months, I have observed what appears to be a misuse of company funds by a senior manager in our department. Specifically, this individual has been submitting fraudulent expense reports for personal expenses, which are then reimbursed by the company as business expenses.",
-    leave_type: "Medical Leave",
-    from: "14-03-2025",
-    to: "14-04-2025",
+    leave_type: "Vacation",
+    from: "2025-01-01",
+    to: "2025-01-15",
+    days: 15,
     status: "Approved",
+    employee: "John Doe",
   },
   {
     id: 2,
-    employee: "Jane Smith",
     reason:
       "I am writing to report a serious issue that I believe requires immediate attention. Over the past six months, I have observed what appears to be a misuse of company funds by a senior manager in our department. Specifically, this individual has been submitting fraudulent expense reports for personal expenses, which are then reimbursed by the company as business expenses.",
-    leave_type: "Medical Leave",
-    from: "14-03-2025",
-    to: "14-04-2025",
-    status: "Approved",
+    leave_type: "Sick Leave",
+    from: "2025-01-10",
+    to: "2025-01-12",
+    days: 3,
+    status: "Pending",
+    employee: "Jane Smith",
   },
   {
     id: 3,
-    employee: "Alice Johnson",
     reason:
       "I am writing to report a serious issue that I believe requires immediate attention. Over the past six months, I have observed what appears to be a misuse of company funds by a senior manager in our department. Specifically, this individual has been submitting fraudulent expense reports for personal expenses, which are then reimbursed by the company as business expenses.",
-    leave_type: "Medical Leave",
-    from: "14-03-2025",
-    to: "14-04-2025",
+    leave_type: "Parental Leave",
+    from: "2025-02-01",
+    to: "2025-03-15",
+    days: 43,
     status: "Approved",
+    employee: "Alice Johnson",
   },
   {
     id: 4,
-    employee: "Bob Brown",
     reason:
       "I am writing to report a serious issue that I believe requires immediate attention. Over the past six months, I have observed what appears to be a misuse of company funds by a senior manager in our department. Specifically, this individual has been submitting fraudulent expense reports for personal expenses, which are then reimbursed by the company as business expenses.",
-    leave_type: "Medical Leave",
-    from: "14-03-2025",
-    to: "14-04-2025",
-    status: "Approved",
+    leave_type: "Casual Leave",
+    from: "2025-01-20",
+    to: "2025-01-22",
+    days: 3,
+    status: "Rejected",
+    employee: "Bob Brown",
+  },
+  {
+    id: 5,
+    reason:
+      "I am writing to report a serious issue that I believe requires immediate attention. Over the past six months, I have observed what appears to be a misuse of company funds by a senior manager in our department. Specifically, this individual has been submitting fraudulent expense reports for personal expenses, which are then reimbursed by the company as business expenses.",
+    leave_type: "Educational Leave",
+    from: "2025-03-01",
+    to: "2025-03-31",
+    days: 31,
+    status: "Pending",
+    employee: "Mary Green",
   },
 ];
