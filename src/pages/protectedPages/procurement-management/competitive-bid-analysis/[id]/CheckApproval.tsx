@@ -3,16 +3,16 @@ import GoBack from "components/shared/GoBack";
 import { Loading } from "components/shared/Loading";
 import { Button } from "components/ui/button";
 import { Textarea } from "components/ui/textarea";
-import { DialogType } from "constants/dailogs";
 import { RouteEnum } from "constants/RouterConstants";
 import useQuery from "hooks/useQuery";
 import { useAppDispatch } from "hooks/useStore";
-import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ManualBidCbaPrequalificationAPI from "services/procurementApi/manual-bid-cba-prequalification";
 import { toast } from "sonner";
-import { openDialog } from "store/ui";
+import logoPng from "assets/svgs/logo-bg.svg";
+import { FileDown } from "lucide-react";
+import { BsFiletypeCsv } from "react-icons/bs";
 
 const TableComponent = () => {
   const query = useQuery();
@@ -175,9 +175,9 @@ const TableComponent = () => {
 
   const checkedGrandTotal = calculateCheckedGrandTotal();
 
-  const checkedOverallGrandTotal =
-    checkedGrandTotal &&
-    Object.values(checkedGrandTotal!)?.reduce((sum, total) => sum + total, 0);
+  // const checkedOverallGrandTotal =
+  //   checkedGrandTotal &&
+  //   Object.values(checkedGrandTotal!)?.reduce((sum, total) => sum + total, 0);
 
   // Function to format selected items per vendor
   const getSelectedItemsForVendor = (vendor) => {
@@ -215,7 +215,6 @@ const TableComponent = () => {
     //   return newData;
     // });
   };
-  console.log({ updatedPrices });
 
   const handleSubmitAnalysis = async () => {
     if (!cba || !id) return alert("Missing required IDs");
@@ -254,28 +253,30 @@ const TableComponent = () => {
   if (isLoading) {
     return <Loading />;
   }
-
+  console.log({
+    summaryData,
+    summaryDatax: summaryData?.data?.results[0]?.solicitation?.title,
+  });
+  const solicitation = summaryData?.data?.results[0]?.solicitation;
   return (
     <>
       <GoBack />
       <div className=' bg-white p-6 mt-8'>
-        <div className='my-4 flex justify-end'>
-          <Button
-            onClick={() =>
-              dispatch(
-                openDialog({
-                  type: DialogType.AddCBAVendor,
-                  dialogProps: {
-                    header: "Add Vendor",
-                  },
-                })
-              )
-            }
-          >
+        <div className='flex justify-center items-center flex-col mb-10'>
+          <img src={logoPng} alt='logo' width={200} />
+          <h1>Achieving Health Nigeria Initiative (AHNI)</h1>
+          <p>COMPETITIVE BID ANALYSIS (CBA)</p>
+        </div>
+
+        <div className='my-4 flex w-full font-bold justify-between items-center'>
+          <p className='uppercase'>
+            SUBJECT: CBA FOR {solicitation?.title} ({solicitation?.rfq_id})
+          </p>
+          <Button variant='custom'>
             <span>
-              <Plus size={20} />
+              <BsFiletypeCsv size={25} />
             </span>
-            Add Vendor
+            Download
           </Button>
         </div>
         <div className=' overflow-x-auto bg-white'>
@@ -403,16 +404,16 @@ const TableComponent = () => {
               ))}
               <tr className='border-b'>
                 <td colSpan={3} className='p-3'>
-                  <div className=' border border-green-600 max-w-[326px] p-4 rounded-md ml-auto text-green-600 flex justify-between'>
+                  <div className='max-w-[326px] p-4 rounded-md mr-auto text-green-600 flex justify-between'>
                     Grand Total:
-                    <span>
+                    {/* <span>
                       {Number(checkedOverallGrandTotal).toLocaleString()}
-                    </span>
+                    </span> */}
                   </div>
                 </td>
                 {formattedData?.data?.companies?.map((company, index) => (
                   <td key={index} colSpan={3} className='p-3 border-l'>
-                    <div className=' border border-red-600 max-w-[326px] p-4 rounded-md ml-auto text-red-600 flex justify-between'>
+                    <div className=' max-w-[326px] p-4 rounded-md ml-auto text-red-600 flex justify-between'>
                       Total:
                       <span>
                         {Number(
