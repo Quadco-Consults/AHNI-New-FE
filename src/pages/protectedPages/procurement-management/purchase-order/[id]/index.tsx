@@ -10,6 +10,7 @@ import { formatDate } from "date-fns";
 import { Button } from "components/ui/button";
 import { RouteEnum } from "constants/RouterConstants";
 import { useEffect, useState } from "react";
+import { BsFiletypeCsv, BsFiletypeDoc } from "react-icons/bs";
 
 const Order = () => {
   const params = useParams();
@@ -316,7 +317,22 @@ const Order = () => {
           <p></p>
         </Card>
       </div>
-      <div className='w-full flex justify-end my-8'>
+      <div className='w-full flex justify-end my-8 gap-3'>
+        <Link to={"file"} target='_blank' title={"file"}>
+          <Button
+            variant='secondary'
+            className='bg-[#0000001A] py-2 px-4 w-fit  rounded-2xl flex items-center justify-center overflow-hidden'
+          >
+            <BsFiletypeDoc size={25} className='mr-2' />
+            Specification Document
+          </Button>
+        </Link>
+        <Button variant='custom'>
+          <span>
+            <BsFiletypeCsv size={25} />
+          </span>
+          Download
+        </Button>
         <Link to={RouteEnum.PURCHASE_ORDER_ID_TERMS} className=''>
           <Button>Terms and Conditions</Button>
         </Link>

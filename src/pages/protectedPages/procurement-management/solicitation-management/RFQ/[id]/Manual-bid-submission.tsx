@@ -80,11 +80,11 @@ const ManualBidSubmission = () => {
   }, [singleSolicitation]);
 
   const dataVal = useMemo(() => {
-    return solicitationCriteria?.data?.results?.map((data) => ({
+    return singleSolicitation?.data?.solicitation_evaluations?.map((data) => ({
       response: "",
       evaluation_criteria: data?.id,
     }));
-  }, [solicitationCriteria]);
+  }, [singleSolicitation]);
 
   useEffect(() => {
     if (data) {
@@ -233,7 +233,10 @@ const ManualBidSubmission = () => {
               return (
                 <tr key={index} className='w-full'>
                   <FormInput
-                    label={solicitationCriteria?.data.results[index]?.name}
+                    label={
+                      singleSolicitation?.data?.solicitation_evaluations[index]
+                        ?.criteria_details?.name
+                    }
                     name={`evaluations.[${index}].response`}
                     className='w-full'
                   />
