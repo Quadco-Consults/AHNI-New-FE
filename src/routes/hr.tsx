@@ -204,6 +204,12 @@ export const hr = [
     ),
   },
   {
+    path: HrRoutes.LEAVE_MANAGEMENT_ASSIGN_LEAVE,
+    element: lazy(
+      () => import("pages/protectedPages/hr/leave-management/Assign")
+    ),
+  },
+  {
     path: HrRoutes.PERFORMANCE_MANAGEMENT,
     element: lazy(
       () => import("pages/protectedPages/hr/performance-management/index")

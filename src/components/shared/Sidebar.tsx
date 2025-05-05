@@ -871,7 +871,7 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
           name: "Employee compensation & benefits",
           sublinks: [
             {
-              name: "Pay Group",
+              name: "Compensation Category (Pay Group)",
               path: HrRoutes.EMPLOYEE_BENEFITS_PAY_GROUP,
             },
             {
@@ -903,12 +903,13 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
           name: "Grievance Management",
           path: HrRoutes.GRIEVANCE_MANAGEMENT,
         },
+        { name: "Time Management", path: HrRoutes.TIME_MANAGEMENT },
         {
           name: "Leave Management",
           sublinks: [
             {
-              name: "Request",
-              path: HrRoutes.LEAVE_MANAGEMENT_REQUEST_LEAVE,
+              name: "Assign",
+              path: HrRoutes.LEAVE_MANAGEMENT_ASSIGN_LEAVE,
             },
             {
               name: "Leave List",

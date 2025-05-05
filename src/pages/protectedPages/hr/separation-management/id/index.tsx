@@ -3,7 +3,6 @@ import GoBack from "components/shared/GoBack";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import ExitSummary from "./ExitSummary";
 import Severance from "./Severance";
-import Evaluation from "./Evaluation";
 import Feedback from "./Feedback";
 
 const SeparationManagementDetail = () => {
@@ -25,22 +24,17 @@ const SeparationManagementDetail = () => {
       children: <Severance />,
     },
     {
-      label: "Evaluation",
-      value: "evaluation",
-      children: <Evaluation />,
-    },
-    {
-      label: "Feedback",
+      label: "Evaluation & Feedback",
       value: "feedback",
       children: <Feedback />,
     },
   ];
 
   return (
-    <div className="space-y-6">
+    <div className='space-y-6'>
       <GoBack />
 
-      <Tabs defaultValue="exit_summary">
+      <Tabs defaultValue='exit_summary'>
         <TabsList>
           {TABS.map((tab) => (
             <TabsTrigger key={tab.value} value={tab.value}>
@@ -51,7 +45,7 @@ const SeparationManagementDetail = () => {
 
         {TABS.map((tab) => (
           <TabsContent key={tab.value} value={tab.value}>
-            <Card className="px-6">{tab.children}</Card>
+            <Card className='px-6'>{tab.children}</Card>
           </TabsContent>
         ))}
       </Tabs>
