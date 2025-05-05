@@ -81,6 +81,7 @@ import AddPreAwardQuestion from "pages/protectedPages/modules/c&g/AddPreAwardQue
 import AddTicketModal from "./components/AddTicketModal";
 import ChangeProcurementTrackerStatusModal from "./ChangeProcurementTrackerStatusModal";
 import ChangeProcurementTrackerRemarkModal from "./ChangeProcurementTrackerRemarkModal";
+import AssignToModal from "./AssignToModal";
 
 const sheets: Record<string, ReactNode> = {
   [DialogType.Categories]: <CategoriesModal />,
@@ -166,6 +167,7 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.ChangeProcurementTrackerRemarkModal]: (
     <ChangeProcurementTrackerRemarkModal />
   ),
+  [DialogType.AssignToModal]: <AssignToModal />,
   [DialogType.EditValue]: <EditValue />,
   [DialogType.NewLeave]: <NewLeaveForm />,
   [DialogType.ADD_OBLIGATION_MODAL]: <AddObligationModal />,
