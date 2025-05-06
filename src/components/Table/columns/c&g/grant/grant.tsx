@@ -13,165 +13,199 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useDeleteGrantMutation } from "services/c&g/grant/grant";
 import { formatNumberCurrency } from "utils/utls";
+import { Badge } from "components/ui/badge";
+import { cn } from "lib/utils";
 
 export const grantColumns: ColumnDef<IGrantPaginatedData>[] = [
-  {
-    header: "Project Name",
-    id: "project",
-    accessorKey: "project",
-    size: 200,
-  },
-  {
-    header: "Location",
-    accessorKey: "location",
-    size: 200,
-  },
-  {
-    header: "Funding source",
-    id: "funding_sources",
-    accessorFn: ({ funding_sources }) => funding_sources?.join(", "),
-    size: 200,
-  },
-  {
-    header: "Award Amount",
-    id: "award_amount",
-    accessorKey: "award_amount",
-    accessorFn: (data) => formatNumberCurrency(data.award_amount, "USD"),
-    size: 200,
-  },
+    {
+        header: "Grant Name",
+        id: "name",
+        accessorKey: "name",
+        size: 200,
+    },
 
-  {
-    header: "Award Type",
-    id: "award_type",
-    accessorKey: "award_type",
-    size: 200,
-  },
-  {
-    header: "Monthly Spend",
-    id: "monthly_spend",
-    accessorFn: ({ current_month_expenditure_amount }) =>
-      current_month_expenditure_amount
-        ? formatNumberCurrency(current_month_expenditure_amount, "USD")
-        : "N/A",
-    size: 200,
-  },
-  {
-    header: "Total Obligations",
-    id: "total_obligation_amount",
-    accessorFn: ({ total_obligation_amount }) =>
-      total_obligation_amount
-        ? formatNumberCurrency(total_obligation_amount, "USD")
-        : "N/A",
-    size: 200,
-  },
+    {
+        header: "Grant ID",
+        id: "grant_id",
+        accessorKey: "grant_id",
+        size: 200,
+    },
 
-  {
-    header: "Total Expenditure",
-    id: "total_expenditure_amount",
-    accessorFn: ({ total_expenditure_amount }) =>
-      total_expenditure_amount
-        ? formatNumberCurrency(total_expenditure_amount, "USD")
-        : "N/A",
-    size: 200,
-  },
+    {
+        header: "Donor",
+        id: "funding_sources",
+        // accessorFn: ({ funding_sources }) => funding_sources?.join(", "),
+        size: 200,
+    },
 
-  {
-    header: "Intervention",
-    id: "beneficiaries",
-    accessorFn: ({ beneficiaries }) => beneficiaries.join(", "),
-    size: 200,
-  },
+    {
+        header: "Project",
+        id: "project",
+        size: 200,
+    },
 
-  {
-    header: "Status",
-    id: "status",
-    accessorKey: "status",
-    size: 200,
-  },
+    {
+        header: "Location",
+        accessorKey: "location",
+        size: 200,
+    },
 
-  {
-    header: "",
-    id: "action",
-    cell: ({ row }) => <TableMenu {...row.original} />,
-  },
+    {
+        header: "Award Amount",
+        id: "award_amount",
+        accessorKey: "award_amount",
+        accessorFn: (data) => formatNumberCurrency(data.award_amount, "USD"),
+        size: 200,
+    },
+
+    {
+        header: "Award Type",
+        id: "award_type",
+        accessorKey: "award_type",
+        size: 200,
+    },
+    {
+        header: "Monthly Spend",
+        id: "monthly_spend",
+        accessorFn: ({ current_month_expenditure_amount }) =>
+            current_month_expenditure_amount
+                ? formatNumberCurrency(current_month_expenditure_amount, "USD")
+                : "N/A",
+        size: 200,
+    },
+    {
+        header: "Total Obligations",
+        id: "total_obligation_amount",
+        accessorFn: ({ total_obligation_amount }) =>
+            total_obligation_amount
+                ? formatNumberCurrency(total_obligation_amount, "USD")
+                : "N/A",
+        size: 200,
+    },
+
+    {
+        header: "Total Expenditure",
+        id: "total_expenditure_amount",
+        accessorFn: ({ total_expenditure_amount }) =>
+            total_expenditure_amount
+                ? formatNumberCurrency(total_expenditure_amount, "USD")
+                : "N/A",
+        size: 200,
+    },
+
+    {
+        header: "Intervention",
+        id: "beneficiaries",
+        // accessorFn: ({ beneficiaries }) => beneficiaries.join(", "),
+        size: 200,
+    },
+
+    {
+        header: "Status",
+        accessorKey: "status",
+        size: 200,
+        cell: ({ getValue }) => {
+            return (
+                <Badge
+                    variant="default"
+                    className={cn(
+                        "p-1 rounded-lg",
+                        getValue() === "IN_PROGRESS" &&
+                            "bg-green-200 text-green-500",
+                        getValue() === "CLOSED" && "bg-red-200 text-red-500",
+                        getValue() === "PENDING" &&
+                            "bg-yellow-200 text-yellow-500",
+                        getValue() === "On Hold" && "text-grey-200 bg-grey-500"
+                    )}
+                >
+                    {getValue() as string}
+                </Badge>
+            );
+        },
+    },
+    {
+        header: "",
+        id: "action",
+        cell: ({ row }) => <TableMenu {...row.original} />,
+    },
 ];
 
 const TableMenu = ({ id }: IGrantPaginatedData) => {
-  const [isDialogOpen, setDialogOpen] = useState(false);
+    const [isDialogOpen, setDialogOpen] = useState(false);
 
-  const [deleteGrant, { isLoading }] = useDeleteGrantMutation();
+    const [deleteGrant, { isLoading }] = useDeleteGrantMutation();
 
-  const handleDelete = async () => {
-    try {
-      await deleteGrant(id).unwrap();
-      toast.success("Grant Deleted");
-    } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
-    }
-  };
+    const handleDelete = async () => {
+        try {
+            await deleteGrant(id).unwrap();
+            toast.success("Grant Deleted");
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
+        }
+    };
 
-  return (
-    <div className="flex items-center gap-2">
-      <>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="ghost" className="flex gap-2 py-6">
-              <MoreOptionsHorizontalIcon />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-fit">
-            <div className="flex flex-col items-start justify-between gap-1">
-              <Link
-                className="w-full"
-                to={generatePath(CG_ROUTES.GRANT_DETAILS, {
-                  id,
-                })}
-              >
-                <Button
-                  className="w-full flex items-center justify-start gap-2"
-                  variant="ghost"
-                >
-                  <EyeIcon />
-                  View
-                </Button>
-              </Link>
+    return (
+        <div className="flex items-center gap-2">
+            <>
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button variant="ghost" className="flex gap-2 py-6">
+                            <MoreOptionsHorizontalIcon />
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-fit">
+                        <div className="flex flex-col items-start justify-between gap-1">
+                            <Link
+                                className="w-full"
+                                to={generatePath(CG_ROUTES.GRANT_DETAILS, {
+                                    id,
+                                })}
+                            >
+                                <Button
+                                    className="w-full flex items-center justify-start gap-2"
+                                    variant="ghost"
+                                >
+                                    <EyeIcon />
+                                    View
+                                </Button>
+                            </Link>
 
-              <Link
-                className="w-full"
-                to={{
-                  pathname: CG_ROUTES.GRANT_CREATE,
-                  search: `?id=${id}`,
-                }}
-              >
-                <Button
-                  className="w-full flex items-center justify-start gap-2"
-                  variant="ghost"
-                >
-                  <PencilIcon />
-                  Edit
-                </Button>
-              </Link>
+                            <Link
+                                className="w-full"
+                                to={{
+                                    pathname: CG_ROUTES.GRANT_CREATE,
+                                    search: `?id=${id}`,
+                                }}
+                            >
+                                <Button
+                                    className="w-full flex items-center justify-start gap-2"
+                                    variant="ghost"
+                                >
+                                    <PencilIcon />
+                                    Edit
+                                </Button>
+                            </Link>
 
-              <Button
-                className="w-full flex items-center justify-start gap-2"
-                variant="ghost"
-                onClick={() => setDialogOpen(true)}
-              >
-                <DeleteIcon />
-                Delete
-              </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
-      </>
+                            <Button
+                                className="w-full flex items-center justify-start gap-2"
+                                variant="ghost"
+                                onClick={() => setDialogOpen(true)}
+                            >
+                                <DeleteIcon />
+                                Delete
+                            </Button>
+                        </div>
+                    </PopoverContent>
+                </Popover>
+            </>
 
-      <ConfirmationDialog
-        open={isDialogOpen}
-        title="Are you sure you want to delete this grant?"
-        loading={isLoading}
-        onCancel={() => setDialogOpen(false)}
-        onOk={handleDelete}
-      />
-    </div>
-  );
+            <ConfirmationDialog
+                open={isDialogOpen}
+                title="Are you sure you want to delete this grant?"
+                loading={isLoading}
+                onCancel={() => setDialogOpen(false)}
+                onOk={handleDelete}
+            />
+        </div>
+    );
 };

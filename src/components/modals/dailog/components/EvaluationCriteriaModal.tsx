@@ -17,9 +17,12 @@ import { useGetAllSupervisionCriteriaQuery } from "services/modules/program/supe
 import { useGetAllSupervisionCategoryQuery } from "services/modules/program/supervision-category";
 import { Button } from "components/ui/button";
 import Pagination from "components/shared/Pagination";
+import DeleteIcon from "components/icons/DeleteIcon";
 
 export default function EvaluationCriteriaModal() {
     const [page, setPage] = useState(1);
+
+    const [evaluationCategory, setEvaluationCategory] = useState("");
 
     const dialogProps = useAppSelector((state) => state.ui.dailog.dialogProps);
 
@@ -39,7 +42,11 @@ export default function EvaluationCriteriaModal() {
     );
 
     const { data: criteria, isFetching: isCriteriaLoading } =
-        useGetAllSupervisionCriteriaQuery({ page, size: 12 });
+        useGetAllSupervisionCriteriaQuery({
+            page,
+            size: 12,
+            evaluation_category: evaluationCategory,
+        });
 
     const [chosenCriterias, setChosenCriterias] = useState<
         {
@@ -49,8 +56,6 @@ export default function EvaluationCriteriaModal() {
     >([]);
 
     const dispatch = useAppDispatch();
-
-    console.log(chosenCriterias);
 
     const handleChangeCheck = (
         checkedValue: boolean | string,
@@ -111,8 +116,13 @@ export default function EvaluationCriteriaModal() {
                             select all relevant questions
                         </p>
 
-                        <div className="w-8/12 mt-6">
-                            <Select>
+                        <div className="w-8/12 mt-6 flex items-center gap-2">
+                            <Select
+                                onValueChange={(value) => {
+                                    setEvaluationCategory(value);
+                                }}
+                                value={evaluationCategory}
+                            >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select evaluation category" />
                                 </SelectTrigger>
@@ -132,6 +142,16 @@ export default function EvaluationCriteriaModal() {
                                         )
                                     )}
                                 </SelectContent>
+                                {evaluationCategory && (
+                                    <Button
+                                        variant="ghost"
+                                        onClick={() =>
+                                            setEvaluationCategory("")
+                                        }
+                                    >
+                                        <DeleteIcon /> Clear Filter
+                                    </Button>
+                                )}
                             </Select>
                         </div>
                     </div>

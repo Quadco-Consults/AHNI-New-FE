@@ -45,6 +45,10 @@ const Overview = (data: VendorsResultsData) => {
           <h4>{data?.company_address}</h4>
         </div>
         <div className='grid grid-cols-2 items-center'>
+          <h4 className='font-bold'>State</h4>
+          <h4>{data?.state}</h4>
+        </div>
+        <div className='grid grid-cols-2 items-center'>
           <h4 className='font-bold'>Company Email</h4>
           <h4>{data?.email}</h4>
         </div>

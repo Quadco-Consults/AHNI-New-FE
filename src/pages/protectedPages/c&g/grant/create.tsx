@@ -30,7 +30,8 @@ export default function CreateGrant() {
     const form = useForm<TGrantFormData>({
         resolver: zodResolver(GrantSchema),
         defaultValues: {
-            project: "",
+            name: "",
+            grant_id: "",
             award_type: "",
             award_amount: "",
             reference_number: "",
@@ -101,12 +102,18 @@ export default function CreateGrant() {
                         onSubmit={form.handleSubmit(onSubmit)}
                     >
                         <div className="grid grid-cols-2 gap-8">
-                            <FormSelect
-                                name="project"
-                                label="Project Name"
-                                placeholder="Select Project"
-                                required={true}
-                                options={projectOptions}
+                            <FormInput
+                                name="name"
+                                label="Grant Name"
+                                placeholder="Enter Grant Name"
+                                required
+                            />
+
+                            <FormInput
+                                name="grant_id"
+                                label="Grant ID"
+                                placeholder="Enter Grant ID"
+                                required
                             />
 
                             <FormSelect

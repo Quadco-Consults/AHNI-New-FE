@@ -26,7 +26,7 @@ export default function LoginForm() {
 
     const [login, { isLoading }] = useLoginMutation();
 
-    useGetSingleUserQuery
+    useGetSingleUserQuery;
 
     const { handleSubmit } = form;
 
@@ -39,7 +39,7 @@ export default function LoginForm() {
                 toast.success(resp.message);
             }
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error.data.message || "Something went wrong");
         }
     };
     return (
