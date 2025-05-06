@@ -10,7 +10,7 @@ const SupervisionCriteria = baseAPI.injectEndpoints({
     endpoints: (builder) => ({
         getAllSupervisionCriteria: builder.query<
             TPaginatedResponse<TSupervisionCriteriaData>,
-            TRequest
+            TRequest & { evaluation_category: string }
         >({
             query: (params) => ({
                 method: "GET",
