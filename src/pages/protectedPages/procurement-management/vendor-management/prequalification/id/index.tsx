@@ -30,6 +30,7 @@ const PrequalificationDetails = () => {
     return <LoadingSpinner />;
   }
   const data = vendorsData?.data;
+
   return (
     <div className='space-y-5'>
       <Breadcrumb>
@@ -55,14 +56,20 @@ const PrequalificationDetails = () => {
       <div className='flex justify-between'>
         <h4 className='text-lg font-bold'>Prequalification</h4>
 
-        <Link
-          to={generatePath(RouteEnum.VENDOR_MANAGEMENT_START_PREQUALIFICATION, {
-            id: id,
-          })}
-        >
-          <Button>Start Prequalification</Button>
-        </Link>
+        {["Pending"].includes(data?.status!) && (
+          <Link
+            to={generatePath(
+              RouteEnum.VENDOR_MANAGEMENT_START_PREQUALIFICATION,
+              {
+                id: id,
+              }
+            )}
+          >
+            <Button>Start Prequalification</Button>
+          </Link>
+        )}
       </div>
+
       <Tabs defaultValue='overview'>
         <TabsList>
           <TabsTrigger value='overview'>Overview</TabsTrigger>
@@ -71,7 +78,6 @@ const PrequalificationDetails = () => {
           <TabsTrigger value='technical-capability'>
             Technical Capability
           </TabsTrigger>
-          <TabsTrigger value='items'>Items</TabsTrigger>
         </TabsList>
         <TabsContent value='overview'>
           <Overview {...(data as VendorsResultsData)} />
@@ -84,11 +90,6 @@ const PrequalificationDetails = () => {
         </TabsContent>
         <TabsContent value='technical-capability'>
           <TechnicalCapability {...(data as VendorsResultsData)} />
-        </TabsContent>
-        <TabsContent value='items'>
-          {/* <TechnicalCapability {...(data as VendorsResultsData)} />
-           */}
-          items
         </TabsContent>
       </Tabs>
     </div>
