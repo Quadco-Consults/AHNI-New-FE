@@ -19,22 +19,22 @@ import { cn } from "lib/utils";
 export const grantColumns: ColumnDef<IGrantPaginatedData>[] = [
     {
         header: "Grant Name",
-        id: "project",
-        accessorKey: "project",
+        id: "name",
+        accessorKey: "name",
         size: 200,
     },
 
     {
         header: "Grant ID",
-        id: "project",
-        accessorKey: "project",
+        id: "grant_id",
+        accessorKey: "grant_id",
         size: 200,
     },
 
     {
         header: "Donor",
         id: "funding_sources",
-        accessorFn: ({ funding_sources }) => funding_sources?.join(", "),
+        // accessorFn: ({ funding_sources }) => funding_sources?.join(", "),
         size: 200,
     },
 
@@ -96,7 +96,7 @@ export const grantColumns: ColumnDef<IGrantPaginatedData>[] = [
     {
         header: "Intervention",
         id: "beneficiaries",
-        accessorFn: ({ beneficiaries }) => beneficiaries.join(", "),
+        // accessorFn: ({ beneficiaries }) => beneficiaries.join(", "),
         size: 200,
     },
 
