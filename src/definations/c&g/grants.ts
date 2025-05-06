@@ -2,7 +2,8 @@ import { IProjectSingleData } from "definations/project";
 import { z } from "zod";
 
 export const GrantSchema = z.object({
-    project: z.string().min(1, "Please select project"),
+    name: z.string().min(1, "Please select project"),
+    grant_id: z.string().min(1, "Please select project"),
     award_type: z.string().min(1, "Please select award type"),
     award_amount: z.string().min(1, "Please enter award amount"),
     reference_number: z.string().min(1, "Please enter reference number"),
@@ -12,7 +13,9 @@ export type TGrantFormData = z.infer<typeof GrantSchema>;
 
 export interface IGrantPaginatedData {
     id: string;
-    project: string;
+    grant_id: string;
+    name: string;
+    status: string;
     funding_sources: string[];
     beneficiaries: string[];
     current_month_expenditure_amount: string | null;

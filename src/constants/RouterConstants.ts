@@ -463,6 +463,8 @@ export const HrRoutes = {
 
 /* *************** PROGRAM ROUTES *************** */
 export enum ProgramRoutes {
+  SUPERVISION_PLAN_EVALUATION_DETAILS = "/program/plan/supportive-supervsion-plan/:supervisionPlanId/view-evaluation/",
+
   ADHOC_MANAGEMENT = "/program/adhoc-management/",
   CREATE_ADHOC_DETAILS = "/program/adhoc-management/create-adhoc-details/",
   CREATE_ADHOC_WORK_SCOPE = "/program/adhoc-management/create-scope-of-work/",

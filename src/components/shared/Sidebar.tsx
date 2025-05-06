@@ -760,15 +760,7 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
             // { name: "Single-Sourcing", path: RouteEnum.SINGLE_SOURCING },
           ],
         },
-        {
-          name: "Competitive Bid Analysis",
-          path: RouteEnum.COMPETITIVE_BID_ANALYSIS,
-          // sublinks: [
-          //   { name: "CBA", path: RouteEnum.COMPETITIVE_ANALYSIS },
-          //   { name: "Selection", path: RouteEnum.COMPETITIVE_SELECTION },
-          // ],
-        },
-        { name: "Service Order", path: RouteEnum.PURCHASE_ORDER },
+
         {
           name: "Fleet Management",
           path: "/admin/fleet-management",
@@ -857,10 +849,10 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
         {
           name: "Performance Management",
           sublinks: [
-            // {
-            //   name: "Timesheet Management",
-            //   path: HrRoutes.TIMESHEET_MANAGEMENT,
-            // },
+            {
+              name: "Timesheet Management",
+              path: HrRoutes.TIMESHEET_MANAGEMENT,
+            },
             {
               name: "Performance Appraisal",
               path: HrRoutes.PERFORMANCE_MANAGEMENT,
@@ -937,6 +929,10 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
               name: "Pre-award Assessment",
               path: CG_ROUTES.PREAWARD_ASSESSMENT,
             },
+            {
+              name: "Awarded Beneficiaries",
+              path: CG_ROUTES.PREAWARD_ASSESSMENT,
+            },
           ],
         },
         {
@@ -954,12 +950,15 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
               name: "Consultancy Report",
               path: CG_ROUTES.CONSULTANCY_REPORT,
             },
-            { name: "Agreement", path: CG_ROUTES.AGREEMENT },
+            {
+              name: "Service Level Agreement",
+              path: CG_ROUTES.AGREEMENT,
+            },
             {
               name: "Facilitator Management",
               path: CG_ROUTES.FACILITATOR,
             },
-            { name: "SLA", path: CG_ROUTES.CONSULTANCY_SLA },
+            // { name: "SLA", path: CG_ROUTES.CONSULTANCY_SLA },
           ],
         },
         { name: "C&G Reports", path: "/" },

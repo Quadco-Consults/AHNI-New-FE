@@ -166,7 +166,7 @@ const columns: ColumnDef<VendorsResultsData>[] = [
     size: 200,
   },
   {
-    header: "Evaluation Status",
+    header: "Status",
     accessorKey: "status",
     cell: ({ getValue }) => {
       return (

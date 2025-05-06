@@ -31,10 +31,11 @@ import {
     useCreateSupervisionPlanReviewMutation,
     useGetAllSupervisionPlanReviewsQuery,
     useGetSingleSupervisionPlanReviewQuery,
+    useModifySupervisionPlanReviewMutation,
 } from "services/program/plan/supervision-plan/supervision-plan-review";
 import { fileToBase64 } from "utils/fileToBase64";
 import FormButton from "atoms/FormButton";
-import {  RouteEnum } from "constants/RouterConstants";
+import { RouteEnum } from "constants/RouterConstants";
 
 const breadcrumbs = [
     { name: "Programs", icon: true },
@@ -72,14 +73,10 @@ export default function EvaluationCriteriaProcess() {
     );
 
     const { data: currentPlan } = useGetSingleSupervisionPlanReviewQuery(
-        planId && planReview?.data?.results[0].id
-            ? { planId, reviewId: planReview?.data?.results[0].id }
+        planId && planReview?.data?.results[0]?.id
+            ? { planId, reviewId: planReview?.data?.results[0]?.id }
             : skipToken
     );
-
-    console.log({ currentPlan });
-
-    // useGetSingleSupervisionPlanReviewQuery()
 
     const form = useForm<TSupervisionPlanReviewFormData>({
         resolver: zodResolver(SupervisionPlanReviewSchema),
@@ -109,8 +106,6 @@ export default function EvaluationCriteriaProcess() {
         control: form.control,
     });
 
-    console.log(form.formState.errors);
-
     const [page, setPage] = useState(1);
 
     const { id } = useParams();
@@ -133,9 +128,51 @@ export default function EvaluationCriteriaProcess() {
                 objective: id,
             }));
 
-            form.setValue("reviews", reviews);
+            form.setValue("reviews", reviews as any);
         }
     }, [supervisionPlan]);
+
+    useEffect(() => {
+        if (currentPlan) {
+            const {
+                reviews,
+                documents,
+                remediation_plan,
+                is_agree_on_visit_plan,
+            } = currentPlan.data;
+
+            const transformedReviews = reviews?.map(
+                ({ objective, ...rest }) => ({
+                    ...rest,
+                    objective: objective?.id,
+                })
+            );
+
+            const currentDocuments = form.getValues("documents");
+
+            const transformedDocuments = currentDocuments?.map((currentDoc) => {
+                const matchingDoc = documents?.find(
+                    (doc) => doc.title === currentDoc.title
+                );
+
+                return matchingDoc
+                    ? {
+                          ...currentDoc,
+                          ...matchingDoc,
+                          name: matchingDoc?.document,
+                          document: null,
+                      }
+                    : currentDoc;
+            });
+
+            form.reset({
+                reviews: transformedReviews,
+                documents: transformedDocuments,
+                remediation_plan,
+                is_agree_on_visit_plan: String(is_agree_on_visit_plan),
+            });
+        }
+    }, [currentPlan]);
 
     const handlePrev = () => {
         if (page > 1) {
@@ -144,7 +181,9 @@ export default function EvaluationCriteriaProcess() {
     };
 
     const handleNext = () => {
-        setPage(page + 1);
+        if (page < totalPages) {
+            setPage(page + 1);
+        }
     };
 
     const handleFileChange = async (id: string, file: FileList | null) => {
@@ -173,13 +212,22 @@ export default function EvaluationCriteriaProcess() {
     const [createSupervisionPlanReview, { isLoading: isCreateLoading }] =
         useCreateSupervisionPlanReviewMutation();
 
+    const [modifySupervisionPlanReview, { isLoading: isModifyLoading }] =
+        useModifySupervisionPlanReviewMutation();
+
     const onSubmit: SubmitHandler<TSupervisionPlanReviewFormData> = async (
         data
     ) => {
         try {
-            if (planId) {
+            if (planId && currentPlan) {
+                await modifySupervisionPlanReview({
+                    planId,
+                    reviewId: currentPlan?.data.id,
+                    body: data as any,
+                });
+            } else {
                 await createSupervisionPlanReview({
-                    id: planId,
+                    id: planId ?? "",
                     body: data as any,
                 });
 
@@ -195,22 +243,21 @@ export default function EvaluationCriteriaProcess() {
     }
 
     const categoryEntries = Object.entries(groupedCriteria || []);
+    const totalPages = categoryEntries.length + 1;
 
-    // The page 4 is a special hardcoded upload page
-    const isUploadPage = page === 4;
+    const isUploadPage = page === totalPages;
 
-    // Only try to destructure if we're on a category page (1-3)
     let categoryName = "";
     let items: IObjective[] = [];
 
     if (!isUploadPage) {
-        // If we're trying to access a category page beyond what we have,
-        // default to the last available category
         const safeIndex = Math.min(page - 1, categoryEntries.length - 1);
         if (categoryEntries.length > 0) {
             [categoryName, items] = categoryEntries[safeIndex];
         }
     }
+
+    const documentErrors = form?.formState?.errors?.documents;
 
     return (
         <FormProvider {...form}>
@@ -222,7 +269,7 @@ export default function EvaluationCriteriaProcess() {
 
                     <div className="flex justify-end">
                         <div className="py-2 px-4 rounded-lg border text-green-500 border-green-500 bg-green-50">
-                            Page {page}/4
+                            Page {page}/{totalPages}
                         </div>
                     </div>
 
@@ -290,63 +337,79 @@ export default function EvaluationCriteriaProcess() {
                                 })}
                             </Card>
                         ) : (
-                            documentFields.map((field, index) => (
-                                <Card key={field.id} className="space-y-3">
-                                    <h4 className="text-semibold font-light">
-                                        {field.label}
-                                    </h4>
+                            documentFields.map((field, index) => {
+                                const currentDocInfo = documents?.find(
+                                    (doc) => doc.title === field.title
+                                );
 
-                                    <div className="flex justify-between pb-3 gap-5">
-                                        <h3 className="font-bold">
-                                            Upload Attachment
-                                        </h3>
-                                        <FormRadio
-                                            name={`documents.${index}.is_selected`}
-                                            options={[
-                                                {
-                                                    label: "Yes",
-                                                    value: true,
-                                                },
-                                                {
-                                                    label: "No",
-                                                    value: false,
-                                                },
-                                            ]}
-                                        />
-                                    </div>
+                                const name = currentDocInfo?.name;
+                                const url = currentDocInfo?.document;
 
-                                    <div>
-                                        <Upload
-                                            onChange={(e) =>
-                                                handleFileChange(
-                                                    field.title,
-                                                    e.target.files
-                                                )
-                                            }
-                                        >
-                                            <Button
-                                                type="button"
-                                                className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                                return (
+                                    <Card key={field.id} className="space-y-3">
+                                        <h4 className="text-semibold font-light">
+                                            {field.label}
+                                        </h4>
+
+                                        <div className="flex justify-between pb-3 gap-5">
+                                            <h3 className="font-bold">
+                                                Upload Attachment
+                                            </h3>
+                                            <FormRadio
+                                                name={`documents.${index}.is_selected`}
+                                                options={[
+                                                    {
+                                                        label: "Yes",
+                                                        value: true,
+                                                    },
+                                                    {
+                                                        label: "No",
+                                                        value: false,
+                                                    },
+                                                ]}
+                                            />
+
+                                            {documentErrors &&
+                                                documentErrors[index]?.message}
+                                        </div>
+
+                                        <div>
+                                            <Upload
+                                                onChange={(e) =>
+                                                    handleFileChange(
+                                                        field.title,
+                                                        e.target.files
+                                                    )
+                                                }
                                             >
-                                                <AddSquareIcon />
-                                                Upload New Document
-                                            </Button>
-                                        </Upload>
+                                                <Button
+                                                    type="button"
+                                                    className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                                                >
+                                                    <AddSquareIcon />
+                                                    Upload New Document
+                                                </Button>
+                                            </Upload>
 
-                                        <p className="mt-2">
-                                            {
-                                                documents.find(
-                                                    (doc) =>
-                                                        doc.title ===
-                                                        field.title
-                                                )?.name
-                                            }
-                                        </p>
-                                    </div>
+                                            {name ? (
+                                                <p className="mt-2">{name}</p>
+                                            ) : url ? (
+                                                <p className="mt-2">
+                                                    <a
+                                                        href={url}
+                                                        target="_blank"
+                                                        title="Click to view"
+                                                    >
+                                                        {url}
+                                                    </a>
+                                                </p>
+                                            ) : null}
+                                        </div>
 
-                                    <hr />
-                                </Card>
-                            ))
+                                        <hr />
+                                    </Card>
+                                );
+                            })
                         )}
 
                         {isUploadPage && (
@@ -392,11 +455,11 @@ export default function EvaluationCriteriaProcess() {
                             <ArrowLeft size={15} /> Back
                         </Button>
 
-                        {page === 4 ? (
+                        {page === totalPages ? (
                             <FormButton
                                 type="submit"
                                 className="px-8"
-                                loading={isCreateLoading}
+                                loading={isCreateLoading || isModifyLoading}
                             >
                                 Finish
                             </FormButton>

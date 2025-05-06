@@ -98,6 +98,16 @@ export const program = [
         ),
     },
 
+    {
+        path: ProgramRoutes.SUPERVISION_PLAN_EVALUATION_DETAILS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/programs/plan/ssp/[id]/EvaluationDetails"
+                )
+        ),
+    },
+
     //consultant (adhoc) management
     {
         path: CG_ROUTES.CONSULTANCY,

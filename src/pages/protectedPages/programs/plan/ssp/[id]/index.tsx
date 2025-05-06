@@ -7,8 +7,9 @@ import { Loading } from "components/shared/Loading";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import { useGetSingleSupervisionPlanQuery } from "services/program/plan/supervision-plan/supervision-plan";
 import BreadcrumbCard from "components/shared/Breadcrumb";
-import { RouteEnum } from "constants/RouterConstants";
+import { ProgramRoutes, RouteEnum } from "constants/RouterConstants";
 import { useGetAllSupervisionPlanReviewsQuery } from "services/program/plan/supervision-plan/supervision-plan-review";
+import FadedButton from "atoms/FadedButton";
 
 const breadcrumbs = [
     { name: "Programs", icon: true },
@@ -33,6 +34,8 @@ const SspDetails = () => {
         id ? { planId: id } : skipToken
     );
 
+    const doesReviewExist = planReview && planReview?.data.results.length > 0;
+
     if (isLoading) {
         return <Loading />;
     }
@@ -49,20 +52,36 @@ const SspDetails = () => {
                 >
                     <ArrowLeft size={15} /> Back
                 </Button>
-                <Link
-                    to={generatePath(
-                        RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_MANAGEMENT,
-                        {
-                            id,
-                        }
+
+                <div className="space-x-3">
+                    {doesReviewExist && (
+                        <Link
+                            to={generatePath(
+                                ProgramRoutes.SUPERVISION_PLAN_EVALUATION_DETAILS,
+                                { supervisionPlanId: id || "" }
+                            )}
+                        >
+                            <FadedButton className="text-primary">
+                                View Evaluation
+                            </FadedButton>
+                        </Link>
                     )}
-                >
-                    <Button>
-                        {planReview && planReview?.data.results.length > 0
-                            ? "Update Evaluation"
-                            : "Start Evaluation"}
-                    </Button>
-                </Link>
+
+                    <Link
+                        to={generatePath(
+                            RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_MANAGEMENT,
+                            {
+                                id,
+                            }
+                        )}
+                    >
+                        <Button>
+                            {doesReviewExist
+                                ? "Update Evaluation"
+                                : "Start Evaluation"}
+                        </Button>
+                    </Link>
+                </div>
             </div>
 
             <Card className="space-y-5">
