@@ -181,7 +181,9 @@ export default function EvaluationCriteriaProcess() {
     };
 
     const handleNext = () => {
-        setPage(page + 1);
+        if (page < totalPages) {
+            setPage(page + 1);
+        }
     };
 
     const handleFileChange = async (id: string, file: FileList | null) => {
@@ -241,17 +243,14 @@ export default function EvaluationCriteriaProcess() {
     }
 
     const categoryEntries = Object.entries(groupedCriteria || []);
+    const totalPages = categoryEntries.length + 1;
 
-    // The page 4 is a special hardcoded upload page
-    const isUploadPage = page === 4;
+    const isUploadPage = page === totalPages;
 
-    // Only try to destructure if we're on a category page (1-3)
     let categoryName = "";
     let items: IObjective[] = [];
 
     if (!isUploadPage) {
-        // If we're trying to access a category page beyond what we have,
-        // default to the last available category
         const safeIndex = Math.min(page - 1, categoryEntries.length - 1);
         if (categoryEntries.length > 0) {
             [categoryName, items] = categoryEntries[safeIndex];
@@ -270,7 +269,7 @@ export default function EvaluationCriteriaProcess() {
 
                     <div className="flex justify-end">
                         <div className="py-2 px-4 rounded-lg border text-green-500 border-green-500 bg-green-50">
-                            Page {page}/4
+                            Page {page}/{totalPages}
                         </div>
                     </div>
 
@@ -456,7 +455,7 @@ export default function EvaluationCriteriaProcess() {
                             <ArrowLeft size={15} /> Back
                         </Button>
 
-                        {page === 4 ? (
+                        {page === totalPages ? (
                             <FormButton
                                 type="submit"
                                 className="px-8"

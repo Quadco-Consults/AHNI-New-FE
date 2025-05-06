@@ -19,8 +19,8 @@ export const SupervisionPlanReviewSchema = z.object({
             is_selected: z.boolean({
                 required_error: "Please select an option",
             }),
-            document: z.any(),
-            name: z.string().optional(),
+            document: z.any().nullable(),
+            name: z.string().optional().nullable(),
         })
     ),
     remediation_plan: z.string().min(1, "Please enter a remediation plan"),
