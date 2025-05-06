@@ -14,46 +14,95 @@ import { CG_ROUTES } from "constants/RouterConstants";
 
 export const agreementColumns: ColumnDef<IAgreementPaginatedData>[] = [
     {
-        header: "Provider",
-        id: "provider",
-        accessorKey: "provider",
+        header: "Name of Vendor",
+        id: "_",
+        accessorKey: "service",
         size: 200,
     },
 
     {
-        header: "Service",
+        header: "Service Type",
         id: "service",
         accessorKey: "service",
         size: 200,
     },
 
     {
-        header: "Type",
-        id: "type",
-        accessorKey: "type",
+        header: "Location",
+        id: "location",
+        accessorKey: "location",
         size: 200,
     },
 
     {
-        header: "Start Date",
-        id: "start_date",
-        accessorKey: "start_date",
+        header: "Month",
+        id: "month",
+        accessorKey: "month",
         size: 200,
     },
 
     {
-        header: "End Date",
-        id: "end_date",
-        accessorKey: "end_date",
+        header: "Year",
+        id: "year",
+        accessorKey: "year",
+        size: 200,
+    },
+
+    {
+        header: "Effective Date",
+        id: "service",
+        accessorKey: "service",
+        size: 200,
+    },
+
+    {
+        header: "Expiry Date",
+        id: "service",
+        accessorKey: "service",
         size: 200,
     },
 
     {
         header: "Status",
-        id: "status",
-        accessorKey: "status",
+        id: "service",
+        accessorKey: "service",
         size: 200,
     },
+
+    {
+        header: "Remarks",
+        id: "service",
+        accessorKey: "service",
+        size: 200,
+    },
+
+    // {
+    //     header: "Type",
+    //     id: "type",
+    //     accessorKey: "type",
+    //     size: 200,
+    // },
+
+    // {
+    //     header: "Start Date",
+    //     id: "start_date",
+    //     accessorKey: "start_date",
+    //     size: 200,
+    // },
+
+    // {
+    //     header: "End Date",
+    //     id: "end_date",
+    //     accessorKey: "end_date",
+    //     size: 200,
+    // },
+
+    // {
+    //     header: "Status",
+    //     id: "status",
+    //     accessorKey: "status",
+    //     size: 200,
+    // },
 
     {
         header: "",
