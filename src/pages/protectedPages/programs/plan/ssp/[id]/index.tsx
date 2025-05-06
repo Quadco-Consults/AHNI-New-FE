@@ -34,6 +34,8 @@ const SspDetails = () => {
         id ? { planId: id } : skipToken
     );
 
+    const doesReviewExist = planReview && planReview?.data.results.length > 0;
+
     if (isLoading) {
         return <Loading />;
     }
@@ -52,16 +54,19 @@ const SspDetails = () => {
                 </Button>
 
                 <div className="space-x-3">
-                    <Link
-                        to={generatePath(
-                            ProgramRoutes.SUPERVISION_PLAN_EVALUATION_DETAILS,
-                            { supervisionPlanId: id || "" }
-                        )}
-                    >
-                        <FadedButton className="text-primary">
-                            View Evaluation
-                        </FadedButton>
-                    </Link>
+                    {doesReviewExist && (
+                        <Link
+                            to={generatePath(
+                                ProgramRoutes.SUPERVISION_PLAN_EVALUATION_DETAILS,
+                                { supervisionPlanId: id || "" }
+                            )}
+                        >
+                            <FadedButton className="text-primary">
+                                View Evaluation
+                            </FadedButton>
+                        </Link>
+                    )}
+
                     <Link
                         to={generatePath(
                             RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_MANAGEMENT,
@@ -71,7 +76,7 @@ const SspDetails = () => {
                         )}
                     >
                         <Button>
-                            {planReview && planReview?.data.results.length > 0
+                            {doesReviewExist
                                 ? "Update Evaluation"
                                 : "Start Evaluation"}
                         </Button>
