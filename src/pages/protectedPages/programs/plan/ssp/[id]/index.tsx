@@ -7,8 +7,9 @@ import { Loading } from "components/shared/Loading";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import { useGetSingleSupervisionPlanQuery } from "services/program/plan/supervision-plan/supervision-plan";
 import BreadcrumbCard from "components/shared/Breadcrumb";
-import { RouteEnum } from "constants/RouterConstants";
+import { ProgramRoutes, RouteEnum } from "constants/RouterConstants";
 import { useGetAllSupervisionPlanReviewsQuery } from "services/program/plan/supervision-plan/supervision-plan-review";
+import FadedButton from "atoms/FadedButton";
 
 const breadcrumbs = [
     { name: "Programs", icon: true },
@@ -49,20 +50,33 @@ const SspDetails = () => {
                 >
                     <ArrowLeft size={15} /> Back
                 </Button>
-                <Link
-                    to={generatePath(
-                        RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_MANAGEMENT,
-                        {
-                            id,
-                        }
-                    )}
-                >
-                    <Button>
-                        {planReview && planReview?.data.results.length > 0
-                            ? "Update Evaluation"
-                            : "Start Evaluation"}
-                    </Button>
-                </Link>
+
+                <div className="space-x-3">
+                    <Link
+                        to={generatePath(
+                            ProgramRoutes.SUPERVISION_PLAN_EVALUATION_DETAILS,
+                            { supervisionPlanId: id || "" }
+                        )}
+                    >
+                        <FadedButton className="text-primary">
+                            View Evaluation
+                        </FadedButton>
+                    </Link>
+                    <Link
+                        to={generatePath(
+                            RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_MANAGEMENT,
+                            {
+                                id,
+                            }
+                        )}
+                    >
+                        <Button>
+                            {planReview && planReview?.data.results.length > 0
+                                ? "Update Evaluation"
+                                : "Start Evaluation"}
+                        </Button>
+                    </Link>
+                </div>
             </div>
 
             <Card className="space-y-5">
