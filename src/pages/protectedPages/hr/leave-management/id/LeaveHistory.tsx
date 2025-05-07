@@ -117,12 +117,12 @@ const LeaveHistory: React.FC = () => {
         );
       },
     },
-    // {
-    //   header: "Actions",
-    //   id: "actions",
-    //   size: 150,
-    //   cell: ({ row }) => <ActionListAction data={row} />,
-    // },
+    {
+      header: "Actions",
+      id: "actions",
+      size: 150,
+      cell: ({ row }) => <ActionListAction data={row} />,
+    },
   ];
 
   return (

@@ -6,18 +6,21 @@ import FormSelect from "atoms/FormSelectField";
 import GoBack from "components/shared/GoBack";
 
 import { Form } from "components/ui/form";
-import { SelectContent } from "components/ui/select";
+import { SelectContent, SelectItem } from "components/ui/select";
 import { Separator } from "components/ui/separator";
 import FormTextArea from "atoms/FormTextArea";
 import { HrRoutes } from "constants/RouterConstants";
 
 import { UploadIcon } from "lucide-react";
 
-import { SubmitHandler, useForm } from "react-hook-form"; 
+import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import FileUpload from "atoms/FileUpload";
-import  { useCreateGrievianceManagementMutation } from "services/hrApi/hr-grieviance-management";
-import { GrievianceManagementSchema, TGrievianceManagementFormData } from "definations/hr-types/grieviance-management";
+import { useCreateGrievianceManagementMutation } from "services/hrApi/hr-grieviance-management";
+import {
+  GrievianceManagementSchema,
+  TGrievianceManagementFormData,
+} from "definations/hr-types/grieviance-management";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
@@ -33,6 +36,11 @@ const GrievanceManagementForm = () => {
     defaultValues: {},
   });
 
+  const options = ["Complaint", "Whistleblowing"].map((option) => ({
+    label: option,
+    value: option,
+  }));
+
   const navigate = useNavigate();
 
   const { handleSubmit } = form;
@@ -42,50 +50,60 @@ const GrievanceManagementForm = () => {
   //     name: "expenses",
   //   });
 
-  const [createGrievianceManagement, { isLoading: isCreateLoading }] = useCreateGrievianceManagementMutation()
-   
-  const onSubmit: SubmitHandler<TGrievianceManagementFormData> = async (data) => {
-      
+  const [createGrievianceManagement, { isLoading: isCreateLoading }] =
+    useCreateGrievianceManagementMutation();
+
+  const onSubmit: SubmitHandler<TGrievianceManagementFormData> = async (
+    data
+  ) => {
     try {
-              const formData = new FormData()
-              formData.append("title", data.title);
-              formData.append("description", data.description);
-              formData.append("document_name", data.document_name);
-              formData.append("document", data.document[0]);
-              await createGrievianceManagement(formData).unwrap();
-              toast.success("Complaint Submitted");
-              navigate(HrRoutes.GRIEVANCE_MANAGEMENT); 
-          } catch (error: any) {
-              toast.error(error.data.message ?? "Something went wrong");
-          }
-      };
+      const formData = new FormData();
+      formData.append("title", data.title);
+      formData.append("description", data.description);
+      formData.append("document_name", data.document_name);
+      formData.append("document", data.document[0]);
+      await createGrievianceManagement(formData).unwrap();
+      toast.success("Complaint Submitted");
+      navigate(HrRoutes.GRIEVANCE_MANAGEMENT);
+    } catch (error: any) {
+      toast.error(error.data.message ?? "Something went wrong");
+    }
+  };
 
   return (
     <div className=''>
       <GoBack />
 
       <div className='pt-10'>
-        <h3 className='text-[18px] pb-10'>New Complaint Submission</h3>
+        <h3 className='text-[18px] pb-10'>New Grievance</h3>
 
         <Form {...form}>
           <form
             onSubmit={handleSubmit(onSubmit)}
             className='flex flex-col gap-6'
           >
-            <div className='grid gap-5'>
-              <FormInput
-              label='Title'
-              name='title'
-              type='text'
-              required
-            />
-              <div>
+            <div className='grid grid-cols-2 gap-5'>
+              <div className='col-span-2'>
+                <FormSelect label='Title' name='title' required>
+                  <SelectContent>
+                    {options?.map((title) => (
+                      <SelectItem key={title.label} value={title.value}>
+                        {title.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </FormSelect>
+              </div>
+
+              <div className='col-span-2'>
                 <FormTextArea label='Description' name='description' required />
               </div>
-              {/* <div className='grid grid-cols-3 gap-5'>
+
+              <div className='col-span-1'>
                 <FormInput label='Date' name='date' type='date' required />
-              </div> */}
+              </div>
             </div>
+
             <FormInput
               label='Name of Document'
               name='document_name'
