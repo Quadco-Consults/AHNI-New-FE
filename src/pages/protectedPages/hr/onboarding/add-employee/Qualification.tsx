@@ -11,17 +11,18 @@ import {
   WorkforceQualificationFormValues,
   workforceQualificationSchema,
 } from "definations/hr-validator";
-import { zodResolver } from "@hookform/resolvers/zod"; 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import FormButton from "atoms/FormButton";  
+import FormButton from "atoms/FormButton";
 import { useCreateEmployeeOnboardingQualificationsMutation } from "services/hrApi/hr-emloyee-onboarding-qualifications";
+import { EmployeeOnboarding } from "definations/hr-types/employee-onboarding";
 
-const Qualification = ({id} : {id:string}) => {
+const Qualification = ({ data }: { data: EmployeeOnboarding | undefined }) => {
   const dispatch = useAppDispatch();
   const workforceID = localStorage.getItem("workforceID");
 
   const [createEmployeeOnboardingQualifications, { isLoading }] =
-  useCreateEmployeeOnboardingQualificationsMutation();
+    useCreateEmployeeOnboardingQualificationsMutation();
 
   const form = useForm<WorkforceQualificationFormValues>({
     resolver: zodResolver(workforceQualificationSchema),
@@ -30,7 +31,7 @@ const Qualification = ({id} : {id:string}) => {
       institution_name: "",
       date_of_qualification: "",
       certificate_file: FileList,
-      employee: workforceID as string
+      employee: workforceID as string,
     },
   });
   const { handleSubmit } = form;
@@ -46,8 +47,6 @@ const Qualification = ({id} : {id:string}) => {
     formData.append("date_of_qualification", data.date_of_qualification);
     formData.append("certificate_file", data.certificate_file[0]);
     formData.append("employee", workforceID as string);
-    
-    
 
     try {
       // @ts-ignore
@@ -68,28 +67,33 @@ const Qualification = ({id} : {id:string}) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <h4 className="text-red-500 text-lg font-medium">Qualification</h4>
+      <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
+        <h4 className='text-red-500 text-lg font-medium'>Qualification</h4>
         <Separator />
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <FormInput name="certificate_name" label="Certificate Name" required />
+        <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
           <FormInput
-            name="institution_name"
-            label="Institution "
+            name='certificate_name'
+            label='Certificate Name'
             required
           />
-          <FormInput type="date" name="date_of_qualification" label="Year " required />
-          <FileUpload name="certificate_file" label="Document" />
+          <FormInput name='institution_name' label='Institution ' required />
+          <FormInput
+            type='date'
+            name='date_of_qualification'
+            label='Year '
+            required
+          />
+          <FileUpload name='certificate_file' label='Document' />
         </div>
         {/* <Button variant="ghost">
           <AddIcon /> Add Qualification
         </Button> */}
 
-        <div className="flex gap-x-6 justify-end">
+        <div className='flex gap-x-6 justify-end'>
           <FormButton
             loading={isLoading}
             disabled={isLoading}
-            variant="outline"
+            variant='outline'
           >
             <Save size={20} /> Save
           </FormButton>

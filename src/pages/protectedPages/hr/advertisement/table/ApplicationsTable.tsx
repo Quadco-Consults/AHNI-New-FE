@@ -80,65 +80,51 @@ const ApplicationsTable = ({
   }
 
   return (
-    <div className="space-y-6">
+    <div className='space-y-6'>
       {showAdvertSelector && (
-        <div className="mb-4 border p-4 rounded-lg space-y-3">
-          <h3 className="text-sm font-medium">Select an Advertisement</h3>
-
-          {/* Search above dropdown */}
-          <div className="flex items-center w-full px-2 py-2 border rounded-lg mb-2">
-            <SearchIcon />
-            <input
-              placeholder="Search advertisements"
-              type="text"
-              value={advertSearchTerm}
-              onChange={(e) => setAdvertSearchTerm(e.target.value)}
-              className="ml-2 h-6 w-full border-none bg-none focus:outline-none outline-none"
-            />
-          </div>
-
-          {/* Dropdown for advertisements */}
-          <Select onValueChange={setSelectedAdvertId} value={selectedAdvertId}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select an advertisement" />
-            </SelectTrigger>
-            <SelectContent>
-              {isLoadingAdverts ? (
-                <div className="flex justify-center items-center p-4">
-                  <p className="text-sm text-muted-foreground">Loading...</p>
-                </div>
-              ) : (advertsData?.data?.results || []).length > 0 ? (
-                (advertsData?.data?.results || []).map((advert) => (
-                  <SelectItem key={advert.id} value={advert.id}>
-                    {advert.title}
-                  </SelectItem>
-                ))
-              ) : (
-                <div className="flex justify-center items-center p-4">
-                  <p className="text-sm text-muted-foreground">
-                    No advertisements found
-                  </p>
-                </div>
-              )}
-            </SelectContent>
-          </Select>
-        </div>
+        <Select onValueChange={setSelectedAdvertId} value={selectedAdvertId}>
+          <SelectTrigger className='w-full'>
+            <SelectValue placeholder='Select an advertisement' />
+          </SelectTrigger>
+          <SelectContent>
+            {isLoadingAdverts ? (
+              <div className='flex justify-center items-center p-4'>
+                <p className='text-sm text-muted-foreground'>Loading...</p>
+              </div>
+            ) : (advertsData?.data?.results || []).length > 0 ? (
+              (advertsData?.data?.results || []).map((advert) => (
+                <SelectItem key={advert.id} value={advert.id}>
+                  {advert.title}
+                </SelectItem>
+              ))
+            ) : (
+              <div className='flex justify-center items-center p-4'>
+                <p className='text-sm text-muted-foreground'>
+                  No advertisements found
+                </p>
+              </div>
+            )}
+          </SelectContent>
+        </Select>
       )}
 
-      <div className="flex items-center justify-start gap-2">
-        <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
+      <div className='my-3 border' />
+
+      <div className='flex items-center justify-start gap-2'>
+        <span className='flex items-center w-1/3 px-2 py-2 border rounded-lg'>
           <SearchIcon />
           <input
-            placeholder="Search"
-            type="text"
-            className="ml-2 h-6 w-full border-none bg-none focus:outline-none outline-none"
+            placeholder='Search'
+            type='text'
+            className='ml-2 h-6 border-none bg-none focus:outline-none outline-none'
           />
         </span>
-        <Button className="shadow-sm" variant="ghost">
+        <Button className='shadow-sm' variant='ghost'>
           <FilterIcon />
         </Button>
+
         {linkTitle && selectedAdvertId && (
-          <div className="ml-auto">
+          <div className='ml-auto'>
             <Link
               to={generatePath(
                 HrRoutes.ADVERTISEMENT_MANUAL_APPLICATION_SUBMISSION,
@@ -147,7 +133,7 @@ const ApplicationsTable = ({
                 }
               )}
             >
-              <Button className="flex gap-2 py-6" type="button">
+              <Button className='flex gap-2 py-6' type='button'>
                 <AddSquareIcon />
                 <p>{linkTitle}</p>
               </Button>
@@ -157,8 +143,8 @@ const ApplicationsTable = ({
       </div>
 
       {!selectedAdvertId ? (
-        <div className="text-center py-8 border rounded-md">
-          <p className="text-gray-500">
+        <div className='text-center py-8 border rounded-md'>
+          <p className='text-gray-500'>
             Please select an advertisement to view applications
           </p>
         </div>
@@ -283,16 +269,16 @@ const ActionList = ({ data }: any) => {
     }
   };
   return (
-    <div className="flex items-center gap-2">
+    <div className='flex items-center gap-2'>
       <>
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost" className="flex gap-2 py-6">
+            <Button variant='ghost' className='flex gap-2 py-6'>
               <MoreOptionsHorizontalIcon />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className=" w-fit">
-            <div className="flex flex-col items-start justify-between gap-1">
+          <PopoverContent className=' w-fit'>
+            <div className='flex flex-col items-start justify-between gap-1'>
               {data?.status?.toLowerCase() !== "accepted" && (
                 <Link
                   to={generatePath(HrRoutes.ADVERTISEMENT_DETAIL_SUB_APP, {
@@ -301,8 +287,8 @@ const ActionList = ({ data }: any) => {
                   })}
                 >
                   <Button
-                    className="w-full flex items-center justify-start gap-2"
-                    variant="ghost"
+                    className='w-full flex items-center justify-start gap-2'
+                    variant='ghost'
                   >
                     <EyeIcon />
                     View
@@ -311,8 +297,8 @@ const ActionList = ({ data }: any) => {
               )}
               {data?.status?.toLowerCase() === "shortlisted" && (
                 <Button
-                  className="w-full flex items-center justify-start gap-2"
-                  variant="ghost"
+                  className='w-full flex items-center justify-start gap-2'
+                  variant='ghost'
                   onClick={() => {
                     handlePreferred();
                   }}
@@ -323,8 +309,8 @@ const ActionList = ({ data }: any) => {
               )}
               {data?.status?.toLowerCase() === "preferred" && (
                 <Button
-                  className="w-full flex items-center justify-start gap-2"
-                  variant="ghost"
+                  className='w-full flex items-center justify-start gap-2'
+                  variant='ghost'
                   onClick={() => {
                     handleAccepted();
                   }}
@@ -338,11 +324,11 @@ const ActionList = ({ data }: any) => {
                   to={generatePath(HrRoutes.ONBOARDING_START, {
                     id: data?.id,
                   })}
-                  className="flex flex-col items-start justify-between gap-1"
+                  className='flex flex-col items-start justify-between gap-1'
                 >
                   <Button
-                    className="w-full flex items-center justify-start gap-2"
-                    variant="ghost"
+                    className='w-full flex items-center justify-start gap-2'
+                    variant='ghost'
                   >
                     <CheckCheckIcon />
                     Onboard
@@ -360,8 +346,8 @@ const ActionList = ({ data }: any) => {
                     })}
                   >
                     <Button
-                      className="w-full flex items-center justify-start gap-2"
-                      variant="ghost"
+                      className='w-full flex items-center justify-start gap-2'
+                      variant='ghost'
                     >
                       <ScanIcon />
                       Interview
@@ -370,8 +356,8 @@ const ActionList = ({ data }: any) => {
                 )}
 
               <Button
-                className="w-full flex items-center justify-start gap-2"
-                variant="ghost"
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
               >
                 <DeleteIcon />
                 delete

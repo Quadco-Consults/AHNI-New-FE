@@ -13,13 +13,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { HrRoutes } from "constants/RouterConstants";
 import { TOnboarding } from "definations/hr-types/hr-beneficiary";
 import { cn } from "lib/utils";
-import { Link } from "react-router-dom"; 
+import { generatePath, Link, useNavigate, useParams } from "react-router-dom";
 import { useGetEmployeeOnboardingsQuery } from "services/hrApi/hr-employee-onboarding";
 import ApplicationsTable from "../advertisement/table/ApplicationsTable";
 
 const Onboarding = () => {
-  const { data: employeeData, isLoading: fetchingEmployeeData } = useGetEmployeeOnboardingsQuery({});
- 
+  const { data: employeeData, isLoading: fetchingEmployeeData } =
+    useGetEmployeeOnboardingsQuery({});
 
   if (fetchingEmployeeData) {
     return <Loading />;
@@ -29,70 +29,71 @@ const Onboarding = () => {
       label: "Accepted Applicants",
       value: "accepted",
       // @ts-ignore
-      children:  <ApplicationsTable   status='ACCEPTED' />,
+      children: <ApplicationsTable status='ACCEPTED' />,
     },
     {
       label: "Employees",
       value: "employees",
       // @ts-ignore
-      children: 
-      <>
-      <div className='flex items-center justify-start gap-2 py-4'>
-        <span className='flex items-center w-1/3 px-2 py-2 border rounded-lg'>
-          <SearchIcon />
-          <input
-            placeholder='Search'
-            type='text'
-            className='ml-2 h-6 border-none w-full bg-none focus:outline-none outline-none'
+      children: (
+        <>
+          <div className='flex items-center justify-start gap-2 py-4'>
+            <span className='flex items-center w-1/3 px-2 py-2 border rounded-lg'>
+              <SearchIcon />
+              <input
+                placeholder='Search'
+                type='text'
+                className='ml-2 h-6 border-none w-full bg-none focus:outline-none outline-none'
+              />
+            </span>
+            <Button className='shadow-sm' variant='ghost'>
+              <FilterIcon />
+            </Button>
+          </div>
+          <DataTable
+            data={employeeData?.data?.results}
+            columns={columns}
+            isLoading={fetchingEmployeeData}
           />
-        </span>
-        <Button className='shadow-sm' variant='ghost'>
-          <FilterIcon />
-        </Button>
-      </div>
-      <DataTable data={employeeData?.data?.results} columns={columns} isLoading={fetchingEmployeeData} />
-      </>
-      ,
-    }, 
+        </>
+      ),
+    },
   ];
   return (
     <Card className='space-y-4'>
-      
+      <Tabs defaultValue='accepted'>
+        <TabsList>
+          {TABS.map((tab) => (
+            <TabsTrigger key={tab.value} value={tab.value}>
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-       
-       <Tabs defaultValue='accepted'>
-              <TabsList>
-                {TABS.map((tab) => (
-                  <TabsTrigger key={tab.value} value={tab.value}>
-                    {tab.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-      
-              {TABS.map((tab) => (
-                <TabsContent key={tab.value} value={tab.value}>
-                  <Card className='px-6'>{tab.children}</Card>
-                </TabsContent>
-              ))}
-            </Tabs>
+        {TABS.map((tab) => (
+          <TabsContent key={tab.value} value={tab.value}>
+            <Card className='px-6'>{tab.children}</Card>
+          </TabsContent>
+        ))}
+      </Tabs>
     </Card>
   );
 };
 
 export default Onboarding;
 
-const data: TOnboarding[] = Array(5).fill({
-  staff_name: "James Septimus",
-  position: "Technical Associate",
-  employment_type: "Technical Associate",
-  email: "Technical Associate",
-  status: "New",
-});
+// const data: TOnboarding[] = Array(5).fill({
+//   staff_name: "James Septimus",
+//   position: "Technical Associate",
+//   employment_type: "Technical Associate",
+//   email: "Technical Associate",
+//   status: "New",
+// });
 
-const columns: ColumnDef<TOnboarding>[] = [
+const columns: ColumnDef<any>[] = [
   {
-    header: "Staff_name",
-    accessorKey: "legal_firstname ",
+    header: "Staff Name",
+    accessorFn: (data) => `${data.legal_firstname} ${data.legal_lastname}`,
     size: 150,
   },
   {
@@ -107,7 +108,7 @@ const columns: ColumnDef<TOnboarding>[] = [
   },
   {
     header: "Email",
-    accessorKey: "email",
+    accessorKey: "location.email",
     size: 130,
   },
   {
@@ -135,11 +136,12 @@ const columns: ColumnDef<TOnboarding>[] = [
     header: "Action",
     id: "actions",
     size: 50,
-    cell: () => <ActionList />,
+    cell: ({ row }) => <ActionList data={row.original} />,
   },
 ];
 
-const ActionList = () => {
+const ActionList = ({ data }: { data: any }) => {
+  // console.log(data);
   return (
     <div className='flex items-center gap-2'>
       <>
@@ -151,7 +153,9 @@ const ActionList = () => {
           </PopoverTrigger>
           <PopoverContent className=' w-fit'>
             <Link
-              to={HrRoutes.ONBOARDING_START}
+              to={generatePath(HrRoutes.ONBOARDING_START, {
+                id: data?.id,
+              })}
               className='flex flex-col items-start justify-between gap-1'
             >
               <Button
