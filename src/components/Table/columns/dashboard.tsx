@@ -90,14 +90,14 @@ export const dasboardData: Data[] = [
 ];
 
 const ActionListAction = ({ data }: any) => {
-  console.log(data);
+  // console.log(data);
   return (
-    <div className="flex items-center gap-2">
-      <IconButton className="bg-[#F9F9F9] hover:text-primary">
-        <Icon icon="solar:pen-bold-duotone" fontSize={15} />
+    <div className='flex items-center gap-2'>
+      <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+        <Icon icon='solar:pen-bold-duotone' fontSize={15} />
       </IconButton>
-      <IconButton className="bg-[#F9F9F9] hover:text-primary">
-        <Icon icon="ant-design:delete-twotone" fontSize={15} />
+      <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+        <Icon icon='ant-design:delete-twotone' fontSize={15} />
       </IconButton>
     </div>
   );
@@ -105,12 +105,12 @@ const ActionListAction = ({ data }: any) => {
 
 const ProjectAction = ({ data }: any) => {
   return (
-    <div className="flex gap-3 items-center">
+    <div className='flex gap-3 items-center'>
       <div>
-        <img src={logoPng} alt="logo" width={50} />
+        <img src={logoPng} alt='logo' width={50} />
       </div>
       <div>
-        <h4 className="font-bold">{data.ref.name}</h4>
+        <h4 className='font-bold'>{data.ref.name}</h4>
         <h6>{data.ref.desc}</h6>
       </div>
     </div>
