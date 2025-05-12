@@ -4,6 +4,7 @@ import {
     IConsultancyStaffPaginatedData,
     IConsultancyStaffSingleData,
     TConsultancyStaffFormData,
+    TExistingApplicantFormData,
 } from "definations/c&g/contract-management/consultancy-management/consultancy-application";
 
 const BASE_URL = "/contract-grants/consultancy/applicants/";
@@ -24,9 +25,21 @@ const ConsultancyStaffAPI = baseAPI.injectEndpoints({
             invalidatesTags: ["CONSULTANCY_STAFF"],
         }),
 
+        createExistingApplicantStaff: builder.mutation<
+            TResponse<IConsultancyStaffSingleData>,
+            TExistingApplicantFormData
+        >({
+            query: (body) => ({
+                method: "POST",
+                url: `${BASE_URL}existing/`,
+                body,
+            }),
+            invalidatesTags: ["CONSULTANCY_STAFF"],
+        }),
+
         getAllConsultancyStaffs: builder.query<
             TPaginatedResponse<IConsultancyStaffPaginatedData>,
-            TRequest
+            TRequest & { consultants?: string }
         >({
             query: (params) => ({
                 method: "GET",
@@ -47,22 +60,13 @@ const ConsultancyStaffAPI = baseAPI.injectEndpoints({
             providesTags: ["CONSULTANCY_STAFF"],
         }),
 
-        // getExistingConsultancyApplicants: builder.query<
-        //     TPaginatedResponse<IConsultancyApplicantPaginatedData>,
-        //     TRequest
-        // >({
-        //     query: (id) => ({
-        //         method: "GET",
-        //         url: `${BASE_URL}existing/`,
-        //     }),
-        //     providesTags: ["CONSULTANCY_STAFF"],
-        // }),
-
         modifyConsultancyStaff: builder.mutation<
             TPaginatedResponse<IConsultancyStaffSingleData>,
             {
                 id: string;
-                body: TConsultancyStaffFormData;
+                body: TConsultancyStaffFormData & {
+                    documents: { name: string; document: any }[];
+                };
             }
         >({
             query: ({ id, body }) => ({
@@ -86,4 +90,11 @@ const ConsultancyStaffAPI = baseAPI.injectEndpoints({
     }),
 });
 
-export const { useCreateConsultancyStaffMutation } = ConsultancyStaffAPI;
+export const {
+    useCreateConsultancyStaffMutation,
+    useCreateExistingApplicantStaffMutation,
+    useGetAllConsultancyStaffsQuery,
+    useGetSingleConsultancyStaffQuery,
+    useModifyConsultancyStaffMutation,
+    useDeleteConsultancyStaffMutation,
+} = ConsultancyStaffAPI;

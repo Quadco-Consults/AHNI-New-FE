@@ -83,7 +83,7 @@ export default function EvaluationDetails() {
     const evaluationTimeStamp = supervisionPlanReview?.data.submission_datetime;
     const groupedByCategory = reviews?.reduce<Record<string, typeof reviews>>(
         (acc, review) => {
-            const category = review.objective?.evaluation_category;
+            const category = review.objective?.evaluation_category?.name;
 
             if (!acc[category]) acc[category] = [];
 
@@ -138,41 +138,50 @@ export default function EvaluationDetails() {
                                             </h6>
 
                                             {categoryReviews.map(
-                                                (item, index) => {
+                                                (
+                                                    {
+                                                        id,
+                                                        objective: {
+                                                            name,
+                                                            description,
+                                                        },
+                                                        is_selected,
+                                                        comment,
+                                                    },
+                                                    index
+                                                ) => {
                                                     return (
                                                         <Card
-                                                            key={item.id}
+                                                            key={id}
                                                             className="space-y-3 border-yellow-600"
                                                         >
                                                             <h4 className="text-semibold text-yellow-600">
-                                                                {
-                                                                    item
-                                                                        .objective
-                                                                        .name
-                                                                }
+                                                                {name}
                                                             </h4>
 
                                                             <div className="flex justify-between pb-3 gap-5">
                                                                 <h2>
                                                                     {
-                                                                        item
-                                                                            .objective
-                                                                            .description
+                                                                        description
                                                                     }
                                                                 </h2>
 
-                                                                <p>
-                                                                    {item.is_selected
+                                                                <Badge
+                                                                    variant={`${
+                                                                        is_selected
+                                                                            ? "success"
+                                                                            : "destructive"
+                                                                    }`}
+                                                                >
+                                                                    {is_selected
                                                                         ? "Yes"
                                                                         : "No"}
-                                                                </p>
+                                                                </Badge>
                                                             </div>
 
                                                             <Input
                                                                 disabled
-                                                                value={
-                                                                    item.comment
-                                                                }
+                                                                value={comment}
                                                                 className="flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-gray-100 dark:bg-background"
                                                                 type="text"
                                                                 placeholder="Comment..."
@@ -224,18 +233,22 @@ export default function EvaluationDetails() {
                                                 </div>
 
                                                 {evaluationTimeStamp && (
-                                                    <FilePreview
-                                                        name={
-                                                            documentConstants[
-                                                                index
-                                                            ].title
-                                                        }
-                                                        timestamp={
-                                                            evaluationTimeStamp
-                                                        }
-                                                        file={document}
-                                                        showDeleteIcon={false}
-                                                    />
+                                                    <div className="w-1/3">
+                                                        <FilePreview
+                                                            name={
+                                                                documentConstants[
+                                                                    index
+                                                                ].title
+                                                            }
+                                                            timestamp={
+                                                                evaluationTimeStamp
+                                                            }
+                                                            file={document}
+                                                            showDeleteIcon={
+                                                                false
+                                                            }
+                                                        />
+                                                    </div>
                                                 )}
 
                                                 <hr />
@@ -284,19 +297,19 @@ export default function EvaluationDetails() {
                         variant="outline"
                         className="flex gap-4 items-center text-primary border-primary hover:bg-red-50 hover:text-red-500"
                         onClick={handlePrev}
+                        disabled={page === 1}
                     >
                         <ArrowLeft size={15} /> Back
                     </Button>
 
-                    {page !== totalPages && (
-                        <Button
-                            type="button"
-                            className="px-8"
-                            onClick={handleNext}
-                        >
-                            Next
-                        </Button>
-                    )}
+                    <Button
+                        type="button"
+                        className="px-8"
+                        onClick={handleNext}
+                        disabled={page === totalPages}
+                    >
+                        Next
+                    </Button>
                 </div>
             </section>
         );

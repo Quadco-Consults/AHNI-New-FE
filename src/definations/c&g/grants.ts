@@ -33,7 +33,8 @@ export interface IGrantPaginatedData {
 
 export interface IGrantSingleData {
     id: string;
-    project: IProjectSingleData;
+    name: string;
+    grant_id: string;
     created_datetime: string;
     updated_datetime: string;
     award_type: string;
