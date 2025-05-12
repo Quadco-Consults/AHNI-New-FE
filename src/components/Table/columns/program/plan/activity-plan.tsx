@@ -12,6 +12,9 @@ import { Link } from "react-router-dom";
 import { RouteEnum } from "constants/RouterConstants";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useAppDispatch } from "hooks/useStore";
+import { openDialog } from "store/ui";
+import { DialogType } from "constants/dailogs";
 
 export const activityPlanColumns: ColumnDef<TActivityPlanData>[] = [
     {
@@ -19,11 +22,31 @@ export const activityPlanColumns: ColumnDef<TActivityPlanData>[] = [
         accessorKey: "project",
         size: 150,
     },
+
     {
-        header: "IR",
+        header: "IR/BL",
         accessorKey: "ir",
         size: 150,
     },
+
+    {
+        header: "Objective",
+        accessorKey: "_",
+        size: 200,
+    },
+
+    {
+        header: "Budget Line",
+        accessorKey: "_",
+        size: 200,
+    },
+
+    {
+        header: "Month",
+        accessorKey: "_",
+        size: 200,
+    },
+
     {
         header: "Activity Code",
         accessorKey: "activity_code",
@@ -49,7 +72,7 @@ export const activityPlanColumns: ColumnDef<TActivityPlanData>[] = [
         size: 150,
     },
     {
-        header: "Responsible Person",
+        header: "Responsible Person / Lead Person",
         accessorKey: "responsible_person",
         size: 200,
     },
@@ -59,7 +82,7 @@ export const activityPlanColumns: ColumnDef<TActivityPlanData>[] = [
         size: 250,
     },
     {
-        header: "Memo Required",
+        header: "Memo Approved",
         accessorFn: (data) => ` ${data?.is_memo_required ? "YES" : "NO"}`,
         size: 150,
     },
@@ -68,21 +91,42 @@ export const activityPlanColumns: ColumnDef<TActivityPlanData>[] = [
         accessorFn: (data) => ` ${data?.is_ea_required ? "YES" : "NO"}`,
         size: 150,
     },
+
+    {
+        header: "Expected Result",
+        accessorKey: "_",
+        size: 200,
+    },
+
     {
         header: "Results Achieved",
         accessorKey: "is_results_achieved",
         accessorFn: (data) => ` ${data?.is_results_achieved ? "YES" : "NO"}`,
         size: 300,
     },
+
+    {
+        header: "Status",
+        accessorKey: "_",
+        size: 200,
+    },
+
     {
         header: "Follow Up Action",
         accessorKey: "follow_up_action",
         size: 200,
     },
+
     {
         header: "Comments",
         accessorKey: "comments",
         size: 300,
+    },
+
+    {
+        header: "Driver / Vehicle Assigned",
+        accessorKey: "_",
+        size: 200,
     },
 
     {
@@ -97,6 +141,8 @@ const TableAction = ({ id }: TActivityPlanData) => {
     const [dialogOpen, setDialogOpen] = useState(false);
 
     const [deleteActivityPlan, { isLoading }] = useDeleteActivityPlanMutation();
+
+    const dispatch = useAppDispatch();
 
     const handleDelete = async () => {
         try {
@@ -133,6 +179,20 @@ const TableAction = ({ id }: TActivityPlanData) => {
                                     Edit
                                 </Button>
                             </Link>
+
+                            <Button
+                                variant="ghost"
+                                onClick={() => {
+                                    dispatch(
+                                        openDialog({
+                                            type: DialogType.ChangeWorkPlanStatusModal,
+                                            dialogProps: { id, status },
+                                        })
+                                    );
+                                }}
+                            >
+                                <PencilIcon /> Change Status
+                            </Button>
 
                             <Button
                                 className="w-full flex items-center justify-start gap-2"

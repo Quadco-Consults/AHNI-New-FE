@@ -66,7 +66,6 @@ export default function ActivityPlan() {
             document.body.removeChild(link);
             URL.revokeObjectURL(blobUrl);
         } catch (error: any) {
-            console.log(error);
             toast.error(error.data.message || "Something went wrong");
         }
     };

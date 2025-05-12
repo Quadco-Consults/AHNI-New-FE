@@ -12,9 +12,10 @@ import { Label } from "components/ui/label";
 import { countries } from "constants/countries";
 import {
     ConsultancyStaffSchema,
+    IConsultancyStaffSingleData,
     TConsultancyStaffFormData,
 } from "definations/c&g/contract-management/consultancy-management/consultancy-application";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
     FormProvider,
     SubmitHandler,
@@ -23,12 +24,22 @@ import {
 } from "react-hook-form";
 import { AiFillPlusCircle } from "react-icons/ai";
 import { useParams } from "react-router-dom";
-import { useCreateConsultancyStaffMutation } from "services/c&g/contract-management/consultancy-management/consultancy-applicants";
+import {
+    useCreateConsultancyStaffMutation,
+    useModifyConsultancyStaffMutation,
+} from "services/c&g/contract-management/consultancy-management/consultancy-applicants";
 import { toast } from "sonner";
 import { fileToBase64 } from "utils/fileToBase64";
 
-export default function NewApplicantStaffForm() {
+export default function NewConsultancyStaffForm({
+    consultancyStaffData,
+}: {
+    consultancyStaffData: IConsultancyStaffSingleData | undefined;
+}) {
     const { id } = useParams();
+
+    const prevCoverLetter = consultancyStaffData?.documents[0]?.document;
+    const prevResume = consultancyStaffData?.documents[1]?.document;
 
     const form = useForm<TConsultancyStaffFormData>({
         resolver: zodResolver(ConsultancyStaffSchema),
@@ -77,7 +88,9 @@ export default function NewApplicantStaffForm() {
         },
     });
 
-    const [files, setFiles] = useState<{ name: string; document: File | any}[]>([
+    const [files, setFiles] = useState<
+        { name: string; document: File | any }[]
+    >([
         { name: "file-resume", document: null },
         { name: "file-letter", document: null },
     ]);
@@ -156,33 +169,56 @@ export default function NewApplicantStaffForm() {
     const [createConsultancyStaff, { isLoading: isCreateLoading }] =
         useCreateConsultancyStaffMutation();
 
+    const [modifyConsultantStaff, { isLoading: isModifyLoading }] =
+        useModifyConsultancyStaffMutation();
+
     const onSubmit: SubmitHandler<TConsultancyStaffFormData> = async (data) => {
         try {
-            if (files) {
-                const resume = await fileToBase64(files[0].document);
-                const coverLetter = await fileToBase64(files[1].document);
+            const resume = files[0].document
+                ? await fileToBase64(files[0].document)
+                : "";
 
+            const coverLetter = files[1].document
+                ? await fileToBase64(files[1].document)
+                : "";
+
+            const documents = [
+                { name: files[0].name, document: resume },
+                { name: files[1].name, document: coverLetter },
+            ];
+
+            if (consultancyStaffData?.id) {
+                await modifyConsultantStaff({
+                    id: consultancyStaffData.id,
+                    body: { ...data, documents },
+                });
+
+                toast.success("Consultancy Staff Updated");
+            } else {
                 await createConsultancyStaff({
                     ...data,
-                    documents: [
-                        { name: files[0].name, document: resume },
-                        { name: files[1].name, document: coverLetter },
-                    ],
+                    documents,
                 }).unwrap();
+
                 toast.success("Consultancy Staff Created");
             }
         } catch (error: any) {
-            toast.error(error?.data.message ?? "Something went wrong");
+            toast.error(error?.data?.message ?? "Something went wrong");
+            console.log(error);
         }
     };
+
+    useEffect(() => {
+        if (consultancyStaffData) {
+            form.reset(consultancyStaffData);
+        }
+    }, [consultancyStaffData]);
 
     console.log(form.formState.errors);
 
     return (
         <FormProvider {...form}>
             <form className="space-y-10" onSubmit={form.handleSubmit(onSubmit)}>
-                <h2 className="font-bold text-xl">Add New Applicant</h2>
-
                 <div className="grid grid-cols-3 gap-10">
                     <FormInput
                         label="Name (Last, First, Middle)"
@@ -273,7 +309,7 @@ export default function NewApplicantStaffForm() {
                         {educationFields?.map((field, index) => (
                             <div
                                 key={field.id}
-                                className="grid grid-cols-3 gap-10"
+                                className="grid grid-cols-3 gap-10 items-center"
                             >
                                 <FormInput
                                     label="Institution Name"
@@ -305,6 +341,7 @@ export default function NewApplicantStaffForm() {
                                 <Button
                                     type="button"
                                     variant="ghost"
+                                    className="mt-3.5"
                                     onClick={() => {
                                         removeEducationField(index);
                                     }}
@@ -361,6 +398,7 @@ export default function NewApplicantStaffForm() {
                                 <Button
                                     type="button"
                                     variant="ghost"
+                                    className="mt-3.5"
                                     onClick={() => {
                                         removeLanguage(index);
                                     }}
@@ -394,7 +432,7 @@ export default function NewApplicantStaffForm() {
                         {employmentFields?.map((field, index) => (
                             <div
                                 key={field.id}
-                                className="grid grid-cols-3 gap-10"
+                                className="grid grid-cols-3 gap-10 items-center"
                             >
                                 <FormInput
                                     label="Position Title"
@@ -407,7 +445,7 @@ export default function NewApplicantStaffForm() {
                                     required
                                 />
                                 <FormInput
-                                    label="Employee Telephone"
+                                    label="Employer Telephone"
                                     name={`employment_history.${index}.employer_telephone`}
                                     required
                                 />
@@ -427,6 +465,7 @@ export default function NewApplicantStaffForm() {
                                 <Button
                                     type="button"
                                     variant="ghost"
+                                    className="mt-3.5"
                                     onClick={() => {
                                         removeEmployment(index);
                                     }}
@@ -464,7 +503,7 @@ export default function NewApplicantStaffForm() {
                         {consultantServices?.map((field, index) => (
                             <div
                                 key={field.id}
-                                className="grid grid-cols-3 gap-10"
+                                className="grid grid-cols-3 gap-10 items-center"
                             >
                                 <FormInput
                                     label="Services Performed"
@@ -477,7 +516,7 @@ export default function NewApplicantStaffForm() {
                                     required
                                 />
                                 <FormInput
-                                    label="Employee Telephone"
+                                    label="Employer Telephone"
                                     name={`special_consultant_services.${index}.employer_telephone`}
                                     required
                                 />
@@ -497,6 +536,7 @@ export default function NewApplicantStaffForm() {
                                 <Button
                                     type="button"
                                     variant="ghost"
+                                    className="mt-3.5"
                                     onClick={() => {
                                         removeConsultantService(index);
                                     }}
@@ -553,6 +593,7 @@ export default function NewApplicantStaffForm() {
                                 <Button
                                     type="button"
                                     variant="ghost"
+                                    className="mt-3.5"
                                     onClick={() => {
                                         removeReferee(index);
                                     }}
@@ -602,8 +643,8 @@ export default function NewApplicantStaffForm() {
                                 id="file-resume"
                                 onChange={handleFileChange}
                             />
-                            <p className="border flex items-center w-full gap-x-[1rem] rounded-lg border-[#DBDFE9] px-[1.125rem] h-[3.5rem]">
-                                {files[0]?.document?.name}
+                            <p className="border flex items-center w-full gap-x-[1rem] rounded-lg border-[#DBDFE9] px-[1.125rem] h-[3.5rem] truncate text-ellipsis">
+                                {files[0]?.document?.name || prevResume}
                             </p>
                         </div>
                     </div>
@@ -626,36 +667,12 @@ export default function NewApplicantStaffForm() {
                                 id="file-letter"
                                 onChange={handleFileChange}
                             />
-                            <p className="border flex items-center w-full gap-x-[1rem] rounded-lg border-[#DBDFE9] px-[1.125rem] h-[3.5rem]">
-                                {files[1]?.document?.name}
+                            <p className="border flex items-center w-full gap-x-[1rem] rounded-lg border-[#DBDFE9] px-[1.125rem] h-[3.5rem] overflow-hidden truncate text-ellipsis">
+                                {files[1]?.document?.name || prevCoverLetter}
                             </p>
                         </div>
                     </div>
                 </div>
-
-                {/* <section className="flex flex-col items-start gap-3"> */}
-                {/* <h3 className="font-bold text-lg">Document Uploads</h3> */}
-
-                {/* <div className="space-x-5">
-                        {fileNames?.map((name) => (
-                            <span>{name}</span>
-                        ))}
-                    </div> */}
-
-                {/* <Upload onChange={handleFileChange} multiple={true}>
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            className="p-0 hover:bg-transparent"
-                        >
-                            <AiFillPlusCircle
-                                size={24}
-                                className="text-green-500"
-                            />
-                            Add Document
-                        </Button>
-                    </Upload> */}
-                {/* </section> */}
 
                 <div className="flex items-center justify-end gap-3">
                     <FadedButton
@@ -666,7 +683,10 @@ export default function NewApplicantStaffForm() {
                         Cancel
                     </FadedButton>
 
-                    <FormButton size="lg" loading={isCreateLoading}>
+                    <FormButton
+                        size="lg"
+                        loading={isCreateLoading || isModifyLoading}
+                    >
                         Submit
                     </FormButton>
                 </div>

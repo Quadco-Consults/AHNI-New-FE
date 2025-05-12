@@ -206,7 +206,7 @@ export const candg = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/c&g/contract-management/consultant-management/id/ConsultantDetails"
+                    "pages/protectedPages/c&g/contract-management/consultant-management/id/ConsultancyDetails"
                 )
         ),
     },
@@ -215,7 +215,7 @@ export const candg = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/c&g/contract-management/consultant-management/id/applicants/CreateApplicant"
+                    "pages/protectedPages/c&g/contract-management/consultant-management/id/applicants/CreateConsultancyStaff"
                 )
         ),
     },
@@ -224,7 +224,7 @@ export const candg = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/candg/consultancy/ConsultancyApplicationDetails"
+                    "pages/protectedPages/c&g/contract-management/consultant-management/id/applicants/ConsultancyStaffDetails"
                 )
         ),
     },
