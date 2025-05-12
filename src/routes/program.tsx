@@ -388,6 +388,16 @@ export const program = [
     },
 
     {
+        path: ProgramRoutes.ADHOC_DATABASE,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/consultancy-database/index"
+                )
+        ),
+    },
+
+    {
         path: CG_ROUTES.CONSULTANCY_SHORTLIST_METRIC,
         element: lazy(
             () =>
