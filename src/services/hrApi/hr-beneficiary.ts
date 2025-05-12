@@ -5,7 +5,10 @@ const BASE_URL = "/hr/employees/beneficiaries/";
 
 const HrBeneficiaryAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getHrBeneficiaries: builder.query<HrBeneficiaryResults[], {}>({
+    getHrBeneficiaries: builder.query<
+      { data: { results: HrBeneficiaryResults[] } },
+      {}
+    >({
       query: (config) => {
         return {
           url: `${BASE_URL}`,
@@ -45,10 +48,10 @@ const HrBeneficiaryAPI = baseAPI.injectEndpoints({
 
     updateHrBeneficiary: builder.mutation<
       HrBeneficiaryResults,
-      { path: { id: string }; body: { name: string } }
+      { id: string; body: HrBeneficiaryResults }
     >({
-      query: ({ path, body }) => ({
-        url: `${BASE_URL}${path.id}/`,
+      query: ({ id, body }) => ({
+        url: `${BASE_URL}${id}/`,
         method: "PUT",
         body,
       }),
