@@ -6,29 +6,28 @@ import {
     SelectTrigger,
     SelectValue,
 } from "components/ui/select";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
+import { useAppSelector } from "hooks/useStore";
 import { FormEvent, useState } from "react";
-import { usePatchWorkPlanTrackerMutation } from "services/programsApi/activity-tracker";
 import { toast } from "sonner";
-import { closeDialog } from "store/ui";
 
-const statusOptions = ["PENDING", "APPROVED"].map((option) => ({
+const statusOptions = [
+    "DONE",
+    "STARTED BUT NOT FINISHED",
+    "ONGOING",
+    "NO LONGER APPLICABLE",
+    "NOT DONE",
+].map((option) => ({
     label: option,
     value: option,
 }));
 
-export default function ChangeWorkPlanStatusModal() {
+export default function ActivityPlanStatusModal() {
     const { dailog } = useAppSelector((state) => state.ui);
 
     const id = dailog?.dialogProps?.id as string;
     const prevStatus = dailog?.dialogProps?.status as string;
 
     const [status, setStatus] = useState(prevStatus);
-
-    const dispatch = useAppDispatch();
-
-    const [patchWorkPlanTracker, { isLoading }] =
-        usePatchWorkPlanTrackerMutation();
 
     const handleChangeStatus = (value: string) => {
         setStatus(value);
@@ -38,13 +37,7 @@ export default function ChangeWorkPlanStatusModal() {
         e.preventDefault();
 
         try {
-            await patchWorkPlanTracker({
-                id,
-                body: { status },
-            }).unwrap();
-
-            dispatch(closeDialog());
-            toast.success("Updated Risk Status");
+            console.log("Submitting");
         } catch (error: any) {
             toast.error(error.data.message || "Something went wrong");
         }
@@ -52,9 +45,7 @@ export default function ChangeWorkPlanStatusModal() {
 
     return (
         <form onSubmit={onSubmit} className="w-full space-y-6">
-            <h2 className="text-lg font-bold">
-                Change Work Plan Tracker Status
-            </h2>
+            <h2 className="text-lg font-bold">Change Activity Plan Status</h2>
 
             <Select
                 value={status}
@@ -62,7 +53,7 @@ export default function ChangeWorkPlanStatusModal() {
                 onValueChange={handleChangeStatus}
             >
                 <SelectTrigger>
-                    <SelectValue placeholder="Select Risk Status" />
+                    <SelectValue placeholder="Select Activity Plan Status" />
                 </SelectTrigger>
 
                 <SelectContent>
@@ -75,7 +66,7 @@ export default function ChangeWorkPlanStatusModal() {
             </Select>
 
             <div className="flex justify-end">
-                <FormButton type="submit" loading={isLoading}>
+                <FormButton type="submit" loading={false}>
                     Submit
                 </FormButton>
             </div>

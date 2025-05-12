@@ -2,9 +2,6 @@ import Card from "components/shared/Card";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
 import AddSquareIcon from "components/icons/AddSquareIcon";
-import SearchIcon from "components/icons/SearchIcon";
-import FilterIcon from "components/icons/FilterIcon";
-
 import { useState } from "react";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
