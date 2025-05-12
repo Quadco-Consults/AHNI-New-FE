@@ -185,7 +185,7 @@ const TableAction = ({ id }: TActivityPlanData) => {
                                 onClick={() => {
                                     dispatch(
                                         openDialog({
-                                            type: DialogType.ChangeWorkPlanStatusModal,
+                                            type: DialogType.ACTIVITY_PLAN_STATUS_MODAL,
                                             dialogProps: { id, status },
                                         })
                                     );
