@@ -6,26 +6,30 @@ const BASE_URL = "hr/employees/workforce/need-analysis/";
 const WorkforceNeedAnalysisAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     getWorkforceNeedAnalysis: builder.query<
-    WorkforceNeedAnalysis[],
-      { status?: string; search?: string }
+      WorkforceNeedAnalysis[],
+      { search?: string; location?: string; position?: string }
     >({
-      query: ({ status, search }) => ({
+      query: ({ search, location, position }) => ({
         url: BASE_URL,
         params: {
-          ...(status && { status }),
           ...(search && { search }),
+          ...(location && { location }),
+          ...(position && { position }),
         },
       }),
       providesTags: ["WORKFORCE_NEED_ANALYSIS"],
     }),
 
-    getWorkforceNeedAnalysisId: builder.query<WorkforceNeedAnalysis, { id: string }>({
+    getWorkforceNeedAnalysisId: builder.query<
+      WorkforceNeedAnalysis,
+      { id: string }
+    >({
       query: ({ id }) => ({ url: `${BASE_URL}${id}/` }),
       providesTags: ["WORKFORCE_NEED_ANALYSIS"],
     }),
 
     createWorkforceNeedAnalysis: builder.mutation<
-    WorkforceNeedAnalysis,
+      WorkforceNeedAnalysis,
       Partial<WorkforceNeedAnalysis>
     >({
       query: (body) => ({
@@ -34,13 +38,12 @@ const WorkforceNeedAnalysisAPI = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: ["WORKFORCE_NEED_ANALYSIS"],
-    }), 
-    
+    }),
   }),
 });
 
 export const {
   useCreateWorkforceNeedAnalysisMutation,
   useGetWorkforceNeedAnalysisIdQuery,
-  useGetWorkforceNeedAnalysisQuery
+  useGetWorkforceNeedAnalysisQuery,
 } = WorkforceNeedAnalysisAPI;

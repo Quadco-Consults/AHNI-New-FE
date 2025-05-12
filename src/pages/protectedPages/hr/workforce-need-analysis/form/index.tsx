@@ -1,18 +1,21 @@
 // import { zodResolver } from "@hookform/resolvers/zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import React from "react";
+// import { skipToken } from "@reduxjs/toolkit/query/react";
+import FormSelect from "atoms/FormSelectField";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
-import FormSelect from "atoms/FormSelectField";
 import Card from "components/shared/Card";
 // import AddSquareIcon from "components/icons/AddSquareIcon";
 import GoBack from "components/shared/GoBack";
+import { useNavigate } from "react-router-dom";
 import { LoadingSpinner } from "components/shared/Loading";
 
 // import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";
-import { SelectContent, SelectItem } from "components/ui/select";
 import { Separator } from "components/ui/separator";
 import { HrRoutes } from "constants/RouterConstants";
+import { SelectContent, SelectItem } from "components/ui/select";
 import { LocationResultsData } from "definations/configs/location";
 import { PositionsResultsData } from "definations/configs/positions";
 import { workforceNeedAnalysisSchema } from "definations/hr-validator";
@@ -22,55 +25,90 @@ import { UploadIcon } from "lucide-react";
 // import { SampleMemoSchema } from "definations/procurement-validator";
 // import { MinusCircle } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+
 import { useGetDepartmentPaginateQuery } from "services/configs/departments";
 import { useGetLocationListQuery } from "services/configs/locationApi";
-import { useGetPositionPaginateQuery } from "services/configs/positions"; 
-import { useCreateWorkforceNeedAnalysisMutation } from "services/hrApi/hr-workforce-need-analysis";
+import { useGetPositionPaginateQuery } from "services/configs/positions";
+import {
+  useCreateWorkforceNeedAnalysisMutation,
+  useGetWorkforceNeedAnalysisIdQuery,
+} from "services/hrApi/hr-workforce-need-analysis";
 import { z } from "zod";
+import useQuery from "hooks/useQuery";
 
 export type TFormValues = z.infer<typeof workforceNeedAnalysisSchema>;
+
 const CreateActivityMemo = () => {
+  const query = useQuery();
+  const analysisId = query.get("id");
+
   const form = useForm<TFormValues>({
-      resolver: zodResolver(workforceNeedAnalysisSchema),
-      defaultValues: {
-        current_staff_count: 0,
-        wisn_required_staff_count: 0, 
-        shortage_excess_count: 0, 
-        workforce_problem: "", 
-        wisn_ratio: "", 
-        workload_problem: "", 
-        position: "", 
-        location: "", 
-      },
-    });
-    const [createWorkforceNeedAnalysis, {isLoading: isCreatingLoading}] = useCreateWorkforceNeedAnalysisMutation()
+    resolver: zodResolver(workforceNeedAnalysisSchema),
+    defaultValues: {
+      current_staff_count: 0,
+      wisn_required_staff_count: 0,
+      shortage_excess_count: 0,
+      workforce_problem: "",
+      wisn_ratio: "",
+      workload_problem: "",
+      position: "",
+      location: "",
+    },
+  });
+
+  const [createWorkforceNeedAnalysis, { isLoading: isCreatingLoading }] =
+    useCreateWorkforceNeedAnalysisMutation();
   const navigate = useNavigate();
- 
+
   const { data: locations, isLoading: locationIsLoading } =
-    useGetLocationListQuery({ 
-    }); 
-  const {data: positions, isLoading: positionIsLoading} = useGetPositionPaginateQuery({})
+    useGetLocationListQuery({});
+  const { data: positions, isLoading: positionIsLoading } =
+    useGetPositionPaginateQuery({});
+
   const { handleSubmit } = form;
- 
 
   const onSubmit: SubmitHandler<TFormValues> = async (data: any) => {
-     
     await createWorkforceNeedAnalysis(data).unwrap();
-    navigate(HrRoutes.WORKFORCE_NEED_ANALYSIS); 
-  }; 
+    navigate(HrRoutes.WORKFORCE_NEED_ANALYSIS);
+  };
 
   const problemTypes = [
-    {value: "SHORTAGE", label: "Shortage"},
-    {value: "EXCESS", label: "Excess"},
-  ]
+    { value: "SHORTAGE", label: "Shortage" },
+    { value: "SURPLUS", label: "Surplus" },
+    { value: "BALANCE", label: "Balance" },
+  ];
+
   const loadProblemTypes = [
-    {value: "HIGH", label: "High"},
-    {value: "BALANCE", label: "Balance"},
-    {value: "NONE", label: "None"},
-  ]
+    { value: "HIGH", label: "High" },
+    { value: "NORMAL", label: "Normal" },
+    { value: "NONE", label: "None" },
+  ];
+
+  const { data: analysis } = useGetWorkforceNeedAnalysisIdQuery({
+    id: analysisId,
+  });
+
+  // console.log(analysisId);
+
+  React.useEffect(() => {
+    if (analysis) {
+      form.reset({
+        current_staff_count: analysis.data.current_staff_count,
+        wisn_required_staff_count: analysis.data.wisn_required_staff_count,
+        shortage_excess_count: analysis.data.shortage_excess_count,
+        workforce_problem: analysis.data.workforce_problem,
+        wisn_ratio: analysis.data.wisn_ratio,
+        workload_problem: analysis.data.workload_problem,
+        position: analysis.data.position.name,
+        location: analysis.data.location.name,
+      });
+    }
+
+    console.log(form.getValues());
+  }, [analysis]);
+
   return (
-    <div className=''>
+    <div>
       <GoBack />
 
       <div className='pt-20'>
@@ -79,46 +117,64 @@ const CreateActivityMemo = () => {
             onSubmit={handleSubmit(onSubmit)}
             className='flex flex-col gap-6'
           >
-            <div className='grid gap-5'>
-              <FormSelect label='Position' name='position' required>
-                <SelectContent>
-                  {positionIsLoading ? (
-                    <LoadingSpinner />
-                  ) : (
-                    positions?.data?.results?.map(
-                      (position: PositionsResultsData) => (
-                        <SelectItem key={position?.id} value={position?.id}>
-                          {position?.name}
-                        </SelectItem>
+            <div className='grid grid-cols-2 gap-5'>
+              <div className='col-span-1'>
+                <FormSelect
+                  label='Position'
+                  name='position'
+                  required
+                  disabled={!!analysisId}
+                >
+                  <SelectContent>
+                    {positionIsLoading ? (
+                      <LoadingSpinner />
+                    ) : (
+                      positions?.data?.results?.map(
+                        (position: PositionsResultsData) => (
+                          <SelectItem key={position?.id} value={position.name}>
+                            {position?.name}
+                          </SelectItem>
+                        )
                       )
-                    )
-                  )}  
-                </SelectContent>
-              </FormSelect>{" "}
-              <FormSelect label='Location' name='location' required>
-                <SelectContent>
-                   {locationIsLoading ? (
-                    <LoadingSpinner />
-                  ) : (
-                    locations?.data?.results?.map(
-                      (location: LocationResultsData) => (
-                        <SelectItem key={location?.id} value={location?.id}>
-                          {location?.name}
-                        </SelectItem>
+                    )}
+                  </SelectContent>
+                </FormSelect>
+              </div>
+
+              <div className='col-span-1'>
+                <FormSelect
+                  label='Location'
+                  name='location'
+                  required
+                  disabled={!!analysisId}
+                >
+                  <SelectContent>
+                    {locationIsLoading ? (
+                      <LoadingSpinner />
+                    ) : (
+                      locations?.data?.results?.map(
+                        (location: LocationResultsData) => (
+                          <SelectItem key={location?.id} value={location.name}>
+                            {location?.name}
+                          </SelectItem>
+                        )
                       )
-                    )
-                  )}  
-                </SelectContent>
-              </FormSelect>{" "}
+                    )}
+                  </SelectContent>
+                </FormSelect>
+              </div>
             </div>
+
             <Card>
-              <span className='text-p'>Staff Information</span>
+              <h4 className='text-xl mb-8'>Staff Information</h4>
+
               <div className='grid grid-cols-3 gap-5'>
                 <FormInput
                   label='Current Staff Count'
                   name='current_staff_count'
                   type='number'
                   required
+                  disabled={!!analysisId}
                 />
                 <FormInput
                   label='Required Staff Based on WISN'
@@ -130,26 +186,32 @@ const CreateActivityMemo = () => {
                   label='Shortage or excess count'
                   name='shortage_excess_count'
                   type='number'
+                  disabled={!!analysisId}
                   required
                 />
               </div>
+
               <div className='grid grid-cols-3 gap-5 mt-8'>
-                <FormSelect 
+                <FormSelect
                   label='Workforce Problem'
-                  name="workforce_problem"
+                  name='workforce_problem'
                   options={problemTypes}
+                  disabled={!!analysisId}
                 />
-                 
+
                 <FormInput
                   label='WISN Ratio'
                   name='wisn_ratio'
                   type='text'
                   required
+                  disabled={!!analysisId}
                 />
-                <FormSelect 
+
+                <FormSelect
                   label='Workload Problem'
-                  name="workload_problem"
+                  name='workload_problem'
                   options={loadProblemTypes}
+                  disabled={!!analysisId}
                 />
               </div>
             </Card>
@@ -162,8 +224,8 @@ const CreateActivityMemo = () => {
                 type='submit'
                 className='flex items-center justify-center gap-2'
               >
-                <UploadIcon />
-                Submit
+                {!analysisId && <UploadIcon />}
+                {analysisId ? "Edit" : "Submit"}
               </FormButton>
             </div>
           </form>

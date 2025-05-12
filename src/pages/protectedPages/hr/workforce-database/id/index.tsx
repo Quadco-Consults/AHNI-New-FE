@@ -10,30 +10,33 @@ import Compensation from "./Compensation";
 import { useParams } from "react-router-dom";
 import { useGetWorkforceQuery } from "services/hrApi/workforce";
 import { LoadingSpinner } from "components/shared/Loading";
-import { WorkforceResults } from "definations/hr-types/workforce";
+import { useGetEmployeeOnboardingQuery } from "services/hrApi/hr-employee-onboarding";
+import { EmployeeOnboarding } from "definations/hr-types/employee-onboarding";
 
 const WorkforceDetail = () => {
   const { id } = useParams();
 
-  const { data, isLoading } = useGetWorkforceQuery({
-    path: { id: id as string },
+  const { data, isLoading } = useGetEmployeeOnboardingQuery({
+    id: id as string,
   });
+
+  // console.log(data);
 
   const TABS = [
     {
       label: "Staff Information",
       value: "staff_information",
-      children: <StaffInformation data={data as WorkforceResults} />,
+      children: <StaffInformation info={data as EmployeeOnboarding} />,
     },
     {
       label: "Beneficiary",
       value: "beneficiary",
-      children: <Beneficiary />,
+      children: <Beneficiary id={id as string} />,
     },
     {
       label: "ID Card",
       value: "id_card",
-      children: <IdCard />,
+      children: <IdCard info={data as EmployeeOnboarding} />,
     },
     {
       label: "Compensation and Benefit",
@@ -48,15 +51,15 @@ const WorkforceDetail = () => {
     {
       label: "Additional Information",
       value: "additional_information",
-      children: <AdditionalInfo data={data as WorkforceResults} />,
+      children: <AdditionalInfo info={data as EmployeeOnboarding} />,
     },
   ];
 
   return (
-    <div className="space-y-6">
+    <div className='space-y-6'>
       <GoBack />
 
-      <Tabs defaultValue="staff_information">
+      <Tabs defaultValue='staff_information'>
         <TabsList>
           {TABS.map((tab) => (
             <TabsTrigger key={tab.value} value={tab.value}>
@@ -70,7 +73,7 @@ const WorkforceDetail = () => {
           <>
             {TABS.map((tab) => (
               <TabsContent key={tab.value} value={tab.value}>
-                <Card className="px-6">{tab.children}</Card>
+                <Card className='px-6'>{tab.children}</Card>
               </TabsContent>
             ))}
           </>

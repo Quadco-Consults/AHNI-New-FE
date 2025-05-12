@@ -12,53 +12,56 @@ const BankAccount = () => {
   const { data, isLoading } = useGetWorkforceBankAccountQuery({
     path: { id: id as string },
   });
+
   const { data: pension } = useGetWorkforcePensionQuery({
     path: { id: id as string },
   });
 
+  // console.log("--mm", data);
+
   return (
-    <div className="card-wrapper space-y-10">
+    <div className='card-wrapper space-y-10'>
       {isLoading && <LoadingSpinner />}
-      <h4 className="text-red-500 text-lg font-medium">Bank Account Details</h4>
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-        <DescriptionCard label="Bank Name" description={data?.bank_name} />
-        <DescriptionCard label="Branch Name" description={data?.branch_name} />
+      <h4 className='text-red-500 text-lg font-medium'>Bank Account Details</h4>
+      <div className='grid grid-cols-1 gap-8 md:grid-cols-2'>
+        <DescriptionCard label='Bank Name' description={data?.bank_name} />
+        <DescriptionCard label='Branch Name' description={data?.branch_name} />
         <DescriptionCard
-          label="Account Name"
+          label='Account Name'
           description={data?.account_name}
         />
         <DescriptionCard
-          label="Account Number"
+          label='Account Number'
           description={data?.account_number}
         />
-        <DescriptionCard label="Sort Code" description={data?.sort_code} />
-        <DescriptionCard label="Date" description={data?.date_provided} />
+        <DescriptionCard label='Sort Code' description={data?.sort_code} />
+        <DescriptionCard label='Date' description={data?.date_provided} />
       </div>
 
       <Separator />
 
-      <h4 className="text-red-500 text-lg font-medium">
+      <h4 className='text-red-500 text-lg font-medium'>
         Pension Fund Administration (PFA) selection
       </h4>
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+      <div className='grid grid-cols-1 gap-8 md:grid-cols-2'>
         <DescriptionCard
-          label="Name of selected PFA"
+          label='Name of selected PFA'
           description={pension?.name}
         />
-        <DescriptionCard label="RSA Number" description={pension?.rsa_number} />
+        <DescriptionCard label='RSA Number' description={pension?.rsa_number} />
         <DescriptionCard
-          label="PFC (Pension Fund Custodian) Account Name"
+          label='PFC (Pension Fund Custodian) Account Name'
           description={pension?.pfc_account_name}
         />
         <DescriptionCard
-          label="PFC Account Number"
+          label='PFC Account Number'
           description={pension?.pfc_account_number}
         />
         {/* <DescriptionCard
           label="Do you already have a Retirement Savings Account with any PFA?"
           description="Yes"
         /> */}
-        <DescriptionCard label="Date" description={pension?.date_provided} />
+        <DescriptionCard label='Date' description={pension?.date_provided} />
       </div>
     </div>
   );
