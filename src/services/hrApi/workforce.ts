@@ -11,7 +11,7 @@ import {
   WorkforcePensionFormValues,
 } from "definations/hr-validator";
 
-const BASE_URL = "/hr/hr-workforce/";
+const BASE_URL = "/hr/employees";
 
 const WorkforceAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
@@ -27,17 +27,19 @@ const WorkforceAPI = baseAPI.injectEndpoints({
       },
       providesTags: ["WORKFORCE"],
     }),
+
     getWorkforceQualifications: builder.query<
       WorkforceQualificationResult[],
-      { path: { id: string } }
+      { id: string }
     >({
-      query: ({ path }) => {
+      query: ({ id }) => {
         return {
-          url: `${BASE_URL}${path.id}/qualifications/`,
+          url: `${BASE_URL}/qualifications/${id}`,
         };
       },
       providesTags: ["WORKFORCE"],
     }),
+
     getWorkforce: builder.query<WorkforceResults, { path: { id: string } }>({
       query: ({ path }) => {
         return {
@@ -46,39 +48,43 @@ const WorkforceAPI = baseAPI.injectEndpoints({
       },
       providesTags: ["WORKFORCE"],
     }),
+
     getWorkforcePension: builder.query<
       WorkforcePension,
       { path: { id: string } }
     >({
       query: ({ path }) => {
         return {
-          url: `${BASE_URL}${path.id}/pension-administrator/`,
+          url: `${BASE_URL}/pension-funds/${path.id}`,
         };
       },
       providesTags: ["WORKFORCE"],
     }),
+
     createWorkforcePension: builder.mutation<
       TResponse<WorkforcePension>,
       { path: { id: string }; body: WorkforcePensionFormValues }
     >({
       query: ({ path, body }) => ({
-        url: `${BASE_URL}${path.id}/pension-administrator/`,
+        url: `${BASE_URL}/pension-funds/${path.id}`,
         method: "POST",
         body,
       }),
       invalidatesTags: ["WORKFORCE"],
     }),
+
     getWorkforceBankAccount: builder.query<
       WorkforceBankAccount,
       { path: { id: string } }
     >({
       query: ({ path }) => {
         return {
-          url: `${BASE_URL}${path.id}/bank-account/`,
+          url: `${BASE_URL}/bank-account/${path.id}`,
         };
       },
       providesTags: ["WORKFORCE"],
     }),
+
     createWorkforceBankAccount: builder.mutation<
       TResponse<WorkforceBankAccount>,
       { path: { id: string }; body: WorkforceBankAccountFormValues }
@@ -90,6 +96,7 @@ const WorkforceAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["WORKFORCE"],
     }),
+
     createWorkforceQualification: builder.mutation<
       TResponse<WorkforcePension>,
       { path: { id: string }; body: FormData }
@@ -101,6 +108,7 @@ const WorkforceAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["WORKFORCE"],
     }),
+
     createWorkforce: builder.mutation<TResponse<WorkforceResults>, any>({
       query: (body) => ({
         url: `${BASE_URL}`,

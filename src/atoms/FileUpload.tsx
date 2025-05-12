@@ -9,11 +9,19 @@ type PageProps = {
   label?: string;
   name: string;
   extraClass?: string;
+  disabled?: boolean;
 };
-const FileUpload: FC<PageProps> = ({ label, extraClass, name }) => {
+
+const FileUpload: FC<PageProps> = ({
+  label,
+  extraClass,
+  name,
+  disabled = false,
+}) => {
   const { register, watch } = useFormContext();
 
   const file = watch(name) as FileList;
+  // console.log("ooooo", file);
 
   return (
     <div className='w-full space-y-1'>
@@ -22,20 +30,25 @@ const FileUpload: FC<PageProps> = ({ label, extraClass, name }) => {
         <div className='w-[120px] text-sm relative gap-x-3 h-10 rounded-md border flex justify-center items-center'>
           <UploadFile size={15} />
           <p>Select file</p>
+
           <Input
             // accept="image/*"
+            disabled={disabled}
             {...register(name)}
             type='file'
             className='absolute top-0 bottom-0 left-0 right-0 opacity-0 cursor-pointer '
           />
         </div>
-        <div className='flex flex-1 mb-2'>
+
+        <aside className='flex flex-1 mb-2'>
           <Input
-            className='w-full  h-10 rounded-md border'
-            value={file ? file[0]?.name : ""}
+            className='w-full h-10 rounded-md border'
+            value={
+              file ? (typeof file === "object" ? file[0]?.name : file) : ""
+            }
             disabled
           />
-        </div>
+        </aside>
       </div>
     </div>
   );

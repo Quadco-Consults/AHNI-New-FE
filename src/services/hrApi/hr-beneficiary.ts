@@ -14,6 +14,7 @@ const HrBeneficiaryAPI = baseAPI.injectEndpoints({
       },
       providesTags: ["HR_BENEFICIARIES"],
     }),
+
     getHrBeneficiaryList: builder.query<HrBeneficiaryResults[], {}>({
       query: (config) => {
         return {
@@ -23,17 +24,16 @@ const HrBeneficiaryAPI = baseAPI.injectEndpoints({
       },
       providesTags: ["HR_BENEFICIARIES"],
     }),
-    getHrBeneficiary: builder.query<
-      HrBeneficiaryResults,
-      { path: { id: string } }
-    >({
-      query: ({ path }) => {
+
+    getHrBeneficiary: builder.query<HrBeneficiaryResults, { id: string }>({
+      query: ({ id }) => {
         return {
-          url: `${BASE_URL}${path.id}/`,
+          url: `${BASE_URL}${id}/`,
         };
       },
       providesTags: ["HR_BENEFICIARIES"],
     }),
+
     createHrBeneficiary: builder.mutation<HrBeneficiaryResults, any>({
       query: (body) => ({
         url: `${BASE_URL}`,
@@ -42,6 +42,7 @@ const HrBeneficiaryAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["HR_BENEFICIARIES"],
     }),
+
     updateHrBeneficiary: builder.mutation<
       HrBeneficiaryResults,
       { path: { id: string }; body: { name: string } }
@@ -61,6 +62,5 @@ export const {
   useGetHrBeneficiariesQuery,
   useGetHrBeneficiaryListQuery,
   useGetHrBeneficiaryQuery,
-  useUpdateHrBeneficiaryMutation
-}
-= HrBeneficiaryAPI;
+  useUpdateHrBeneficiaryMutation,
+} = HrBeneficiaryAPI;
