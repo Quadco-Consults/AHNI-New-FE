@@ -17,7 +17,7 @@ export const workforcePensionSchema = object({
   rsa_number: string().min(1, "Field is required"),
   pfc_account_number: string().min(1, "Field is required"),
   has_existing_retirement_savings: z.boolean(),
-  is_match_existing_pfa: z.boolean(), 
+  is_match_existing_pfa: z.boolean(),
   pfa_registeration_date: string().min(1, "Field is required"),
   employee: string().min(1, "Field is required"),
 });
@@ -40,7 +40,6 @@ export const workforceBankAccountSchema = object({
 });
 
 export const workforceSchema = object({
- 
   legal_firstname: z.string().min(1, "Field is required"),
   legal_middlename: z.string().optional(),
   legal_lastname: z.string().min(1, "Field is required"),
@@ -48,21 +47,21 @@ export const workforceSchema = object({
   designation: z.string().min(1, "Field is required"),
   phone_number: z.string().min(1, "Field is required"),
   other_number: z.string().optional(),
-  date_of_birth: z.string().date("Field is required"), 
-  date_of_hire: z.string().min(1, "Field is required"), 
+  date_of_birth: z.string().date("Field is required"),
+  date_of_hire: z.string().min(1, "Field is required"),
   ss_number: z.string().min(1, "Field is required"),
   serial_id_code: z.string().min(1, "Field is required"),
-  signature_file: isBrowser ? z.instanceof(FileList) : z.any(),
-  passport_file: isBrowser ? z.instanceof(FileList) : z.any(), 
-  marital_status:  z.enum(["single", "married", "divorced"]),
+  signature_file: z.any(),
+  passport_file: z.any(),
+  marital_status: z.enum(["single", "married", "divorced"]),
   own_computer: z.boolean(),
   require_email_access: z.boolean(),
   employment_type: z.enum(["INTERNAL", "EXTERNAL", "BOTH"]),
-  group: z.string().min(1, "Field is required"), 
-  location: z.string().min(1, "Field is required"), 
-  application: z.string().min(1, "Field is required"), 
-  department: z.string().min(1, "Field is required"), 
-  project: z.string().min(1, "Field is required"),  
+  group: z.string().min(1, "Field is required"),
+  location: z.string().min(1, "Field is required"),
+  // application: z.string().min(1, "Field is required"),
+  department: z.string().min(1, "Field is required"),
+  project: z.string().min(1, "Field is required"),
 });
 
 export const hrGradeSchema = object({
@@ -83,7 +82,7 @@ export const hrContingentBeneficiarySchema = object({
   phone_number: string().min(1, "Field is required"),
   employee: string().min(1, "Field is required"),
 });
-export const hrSignatoriesBeneficiarySchema = object({ 
+export const hrSignatoriesBeneficiarySchema = object({
   witness_name: string().min(1, "Field is required"),
   witness_date: string().min(1, "Field is required"),
   witness_signature: isBrowser ? z.instanceof(FileList) : z.any(),
@@ -94,7 +93,9 @@ export const jobAdvertismentSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
   grade_level: z.string().min(1, "Grade Level is required"),
   locations: z.string().min(1, "Locations is required"),
-  interviewers: z.array(z.string().uuid()).min(1, "At least one interviewer is required"), 
+  interviewers: z
+    .array(z.string().uuid())
+    .min(1, "At least one interviewer is required"),
   job_type: z.enum(["Internal", "External", "Both"]),
   duration: z.string().min(1, "Duration is required"),
   commencement_date: z.string().min(1, "Commencement Date is required"),
@@ -112,30 +113,33 @@ export const jobApplicationSchema = z.object({
   applicant_name: z.string().min(3, "Name must be at least 3 characters"),
   applicant_email: z.string().email("Invalid email"),
   application_notes: z.string().optional(),
-  cover_letter: z
-    .any().optional(),
+  cover_letter: z.any().optional(),
   employment_type: z.enum(["INTERNAL", "EXTERNAL", "BOTH"]),
   advertisement: z.string().uuid("Invalid Advert ID"),
   interview_date: z.string().optional(),
   position_applied: z.string().min(2, "Position is required"),
-  referees: z.array(
-    z.object({
-      name: z.string().min(3, "Name must be at least 3 characters"),
-      email: z.string().email("Invalid email")
-    })
-  ).min(1, "At least one referee is required"),
+  referees: z
+    .array(
+      z.object({
+        name: z.string().min(3, "Name must be at least 3 characters"),
+        email: z.string().email("Invalid email"),
+      })
+    )
+    .min(1, "At least one referee is required"),
 
   resume: z.any().optional(), // File will be converted to Base64
   status: z.enum(["applied", "interviewed", "hired", "rejected"]),
 });
-export const workforceNeedAnalysisSchema = z.object({  
-  current_staff_count: z.string().min(1,"Current Staff Count is required"),
-  wisn_required_staff_count: z.string().min(1,"WISN STAFF COUNT is required"), 
-  shortage_excess_count: z.string().min(1,"Shortage or excess count is required"), 
-  workforce_problem: z.string().min(1, "Workforce Problem is required"), 
-  wisn_ratio: z.string().min(1, "WISN Ratio is required"), 
-  workload_problem: z.string().min(1, "Workload Problem is required"), 
-  position: z.string().min(1, "Position is required"), 
+export const workforceNeedAnalysisSchema = z.object({
+  current_staff_count: z.string().min(1, "Current Staff Count is required"),
+  wisn_required_staff_count: z.string().min(1, "WISN STAFF COUNT is required"),
+  shortage_excess_count: z
+    .string()
+    .min(1, "Shortage or excess count is required"),
+  workforce_problem: z.string().min(1, "Workforce Problem is required"),
+  wisn_ratio: z.string().min(1, "WISN Ratio is required"),
+  workload_problem: z.string().min(1, "Workload Problem is required"),
+  position: z.string().min(1, "Position is required"),
   location: z.string().min(1, "Location is required"),
 });
 
