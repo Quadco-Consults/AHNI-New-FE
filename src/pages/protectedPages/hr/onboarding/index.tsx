@@ -163,7 +163,7 @@ const ActionList = ({ data }: { data: any }) => {
                 variant='ghost'
               >
                 <EyeIcon />
-                View
+                Edit
               </Button>
             </Link>
           </PopoverContent>
