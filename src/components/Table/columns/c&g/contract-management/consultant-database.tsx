@@ -13,124 +13,33 @@ import { IConsultancyReportPaginatedData } from "definations/c&g/contract-manage
 import { useDeleteConsultancyReportMutation } from "services/c&g/contract-management/consultancy-report";
 import EyeIcon from "components/icons/EyeIcon";
 
-export const consultancyReportColumns: ColumnDef<IConsultancyReportPaginatedData>[] =
+export const consultantDatabaseColumns: ColumnDef<IConsultancyReportPaginatedData>[] =
     [
         {
-            header: "Consultant Name",
-            id: "consultant_name",
-            accessorKey: "consultant_name",
+            header: "Purpose",
+            id: "purpose",
+            accessorKey: "purpose",
             size: 200,
         },
 
         {
-            header: "Designation",
-            id: "designation",
-            accessorKey: "designation",
+            header: "Consultant",
+            id: "consultant",
+            accessorKey: "consultant",
             size: 200,
         },
 
         {
-            header: "Location",
-            id: "location",
-            accessorKey: "location",
+            header: "Consultancy Duration",
+            id: "consultancy_duration",
+            accessorKey: "consultancy_duration",
             size: 200,
         },
 
         {
-            header: "Project",
-            id: "project",
-            accessorKey: "project",
-            size: 200,
-        },
-
-        {
-            header: "Requesting Unit",
-            id: "requesting_unit",
-            accessorKey: "requesting_unit",
-            size: 200,
-        },
-
-        {
-            header: "Month",
-            id: "month",
-            accessorKey: "month",
-            size: 200,
-        },
-
-        {
-            header: "Year",
-            id: "year",
-            accessorKey: "year",
-            size: 200,
-        },
-
-        {
-            header: "Start Date",
-            id: "start-date",
-            accessorKey: "start-date",
-            size: 200,
-        },
-
-        {
-            header: "End Date",
-            id: "end_date",
-            accessorKey: "end_date",
-            size: 200,
-        },
-
-        {
-            header: "Total Working Days",
-            id: "total_working_days",
-            accessorKey: "total_working_days",
-            size: 200,
-        },
-
-        {
-            header: "Days Worked",
-            id: "days_worked",
-            accessorKey: "days_worked",
-            size: 200,
-        },
-
-        {
-            header: "Days Remaining",
-            id: "days_remaining",
-            accessorKey: "days_remaining",
-            size: 200,
-        },
-
-        {
-            header: "Daily Rate",
-            id: "daily_rate",
-            accessorKey: "daily_rate",
-            size: 200,
-        },
-
-        {
-            header: "Contract Amount",
-            id: "contract_amount",
-            accessorKey: "contract_amount",
-            size: 200,
-        },
-
-        {
-            header: "Amount Paid",
-            id: "amount_paid",
-            accessorKey: "amount_paid",
-            size: 200,
-        },
-
-        {
-            header: "Balance",
-            id: "balance",
-            accessorKey: "balance",
-            size: 200,
-        },
-
-        {
-            header: "Payment Dates",
-            id: "payment_date",
-            accessorKey: "payment_date",
+            header: "Supervisor",
+            id: "supervisor",
+            accessorKey: "supervisor",
             size: 200,
         },
 
@@ -138,13 +47,6 @@ export const consultancyReportColumns: ColumnDef<IConsultancyReportPaginatedData
             header: "Status",
             id: "status",
             accessorKey: "status",
-            size: 200,
-        },
-
-        {
-            header: "Remarks",
-            id: "remarks",
-            accessorKey: "remarks",
             size: 200,
         },
 
@@ -223,7 +125,7 @@ const TableMenu = ({ id }: IConsultancyReportPaginatedData) => {
 
             <ConfirmationDialog
                 open={isDialogOpen}
-                title="Are you sure you want to delete this consultancy report?"
+                title="Are you sure you want to delete this consultant?"
                 loading={isLoading}
                 onCancel={() => setDialogOpen(false)}
                 onOk={handleDelete}
