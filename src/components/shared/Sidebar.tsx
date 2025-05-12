@@ -69,7 +69,6 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                         <img
                             src={logoSvg}
                             alt="logo"
-                            // width={50}
                             className="object-cover w-24 mx-auto"
                         />
                         <IconButton
@@ -755,7 +754,6 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
                             name: "Vendor Evaluation",
                             path: RouteEnum.VENDOR_PERFORMANCE_EVALUATION,
                         },
-                        // { name: "Vendor Selection", path: RouteEnum.EOI_VENDOR },
                     ],
                 },
                 {
@@ -778,43 +776,14 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
                     sublinks: [
                         { name: "RFQ", path: RouteEnum.RFQ },
                         { name: "RFP", path: RouteEnum.RFP },
-                        // { name: "National Open Tender", path: RouteEnum.OPEN_TENDER },
-                        // { name: "Single-Sourcing", path: RouteEnum.SINGLE_SOURCING },
                     ],
                 },
-                // {
-                //   name: "Expression of Interest",
-                //   sublinks: [
-                //     { name: "EOI", path: RouteEnum.EOI },
-                //     { name: "Vendor of Submission", path: RouteEnum.EOI_VENDOR },
-                //   ],
-                // },
-                // {
-                //   name: "RFQ Management",
-                //   sublinks: [
-                //     { name: "RFQ", path: RouteEnum.RFQ },
-                //     { name: "Vendor of Submission", path: RouteEnum.RFQ_VENDOR },
-                //   ],
-                // },
-                // {
-                //   name: "Submission of Bids",
-                //   path: RouteEnum.SUBMISSION_OF_BIDS,
-                // },
+
                 {
                     name: "Competitive Bid Analysis",
                     path: RouteEnum.COMPETITIVE_BID_ANALYSIS,
-                    // sublinks: [
-                    //   { name: "CBA", path: RouteEnum.COMPETITIVE_ANALYSIS },
-                    //   { name: "Selection", path: RouteEnum.COMPETITIVE_SELECTION },
-                    // ],
                 },
                 { name: "Purchase Order", path: RouteEnum.PURCHASE_ORDER },
-                // { name: "Payment Request", path: RouteEnum.PAYMENT_REQUEST },
-
-                // {
-                //     name: "Procurement Tracker",
-                //     path: RouteEnum.PROCUREMENT_TRACKER,
-                // },
                 { name: "Procurement Report", path: RouteEnum.REPORT },
             ],
         },
@@ -823,7 +792,6 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
             name: "Admin",
             icon: <AdminIcon />,
             link: [
-                // { name: "Overview", path: AdminRoutes.OVERVIEW },
                 {
                     name: "Inventory Management",
                     path: "/admin/inventory-managment",
@@ -847,20 +815,15 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
                         },
 
                         {
-                            name: "Procurement Tracker",
-                            path: RouteEnum.PROCUREMENT_TRACKER,
+                            name: "Admin Tracker",
+                            path: AdminRoutes.ADMIN_TRACKER,
                         },
-                        // { name: "Procurement Report", path: RouteEnum.REPORT },
                     ],
                 },
                 {
                     name: "Solicitation Management",
                     path: "/procurement-management/solicitation",
-                    sublinks: [
-                        { name: "RFQ", path: RouteEnum.RFQ },
-                        // { name: "National Open Tender", path: RouteEnum.OPEN_TENDER },
-                        // { name: "Single-Sourcing", path: RouteEnum.SINGLE_SOURCING },
-                    ],
+                    sublinks: [{ name: "RFQ", path: RouteEnum.RFQ }],
                 },
 
                 {
@@ -895,16 +858,8 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
                     path: AdminRoutes.INDEX_PAYMENT_REQUEST,
                 },
                 {
-                    name: "Agreements",
+                    name: "Service Level Agreements",
                     path: AdminRoutes.AGREEMENT,
-                    // sublinks: [
-                    //   { name: "Lease", path: AdminRoutes.Lease },
-                    //   { name: "SLA", path: AdminRoutes.SLA },
-                    //   { name: "HMO", path: AdminRoutes.HMO },
-                    //   { name: "Security", path: AdminRoutes.Security },
-                    //   { name: "Insurance", path: AdminRoutes.Insurance },
-                    //   { name: "Ticketing", path: AdminRoutes.Ticketing },
-                    // ],
                 },
 
                 {
@@ -1055,7 +1010,6 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
                             name: "Facilitator Management",
                             path: CG_ROUTES.FACILITATOR,
                         },
-                        // { name: "SLA", path: CG_ROUTES.CONSULTANCY_SLA },
                     ],
                 },
                 { name: "C&G Reports", path: "/" },

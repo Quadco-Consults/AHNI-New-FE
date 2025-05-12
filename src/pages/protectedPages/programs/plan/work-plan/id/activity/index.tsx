@@ -68,11 +68,11 @@ const workPlanDetailsColumn: ColumnDef<TActivity>[] = [
 
     {
         header: "Gantt Chart",
+        accessorKey: "gant_chart",
         columns: [
             {
                 header: "Oct",
-                accessorFn: (data) =>
-                    `${data.gant_chart ? data?.gant_chart["Oct"] : "N/A"}`,
+                accessorFn: ({ gant_chart }) => "Hello",
                 size: 100,
             },
 

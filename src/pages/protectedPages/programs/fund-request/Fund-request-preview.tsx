@@ -41,7 +41,7 @@ export default function Summary() {
     );
 
     const { data: reviewer } = useGetSingleUserQuery(
-        programFundRequest.reviewer ?? skipToken
+        programFundRequest?.reviewer ?? skipToken
     );
 
     const [createFundRequest, { isLoading: isCreateLoading }] =
