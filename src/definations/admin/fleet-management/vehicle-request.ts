@@ -14,6 +14,9 @@ export const VehicleRequestSchema = z.object({
     ),
     supervisor: z.string().min(1, "Please select a supervisior"),
     recommendations: z.string().min(1, "Please enter a recommendation"),
+
+    // to be added
+    request_type: z.string().min(1, "Please enter a recommendation"),
 });
 
 export type TVehicleRequestFormValues = z.infer<typeof VehicleRequestSchema>;

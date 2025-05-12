@@ -172,6 +172,14 @@ export default function CreateConsumablePage() {
                             required
                         />
 
+                        <FormSelect
+                            name="category"
+                            label="Category"
+                            placeholder="Select Category"
+                            options={categoryOptions}
+                            required
+                        />
+
                         {consumableId && (
                             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                                 <FormInput
@@ -188,13 +196,7 @@ export default function CreateConsumablePage() {
                                     options={stockControlMethodOptions}
                                     required
                                 />
-                                <FormSelect
-                                    name="category"
-                                    label="Category"
-                                    placeholder="Select Category"
-                                    options={categoryOptions}
-                                    required
-                                />
+
                                 <FormInput
                                     label="Expiry Date"
                                     name="expiry_date"

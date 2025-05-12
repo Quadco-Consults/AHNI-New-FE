@@ -1,3 +1,5 @@
+import { TItemData } from "definations/modules/config/item";
+
 export type PurchaseOrderItems = {
     id: string;
     item: {
@@ -42,4 +44,47 @@ export interface IPurchaseOrderPaginatedData {
     agreed_by: null;
 }
 
-export interface IPurchaseOrderSingleData {}
+export interface IPurchaseOrderSingleData {
+    id: string;
+    agreed_by_detail: null;
+    approved_by_detail: null;
+    vendor_detail: {
+        id: string;
+        company_name: string;
+        company_registration_number: string;
+        type_of_business: string;
+        status: string;
+        email: string;
+    };
+    solicitation_detail: null;
+    purchase_order_items: {
+        id: number;
+        item_detail: TItemData;
+        description: null;
+        quantity: number;
+        uom: null;
+        unit_price: string;
+        total_price: string;
+        purchase_order: string;
+        item: string;
+        fco_number: null;
+    }[];
+    created_datetime: string;
+    updated_datetime: string;
+    status_level: string;
+    purchase_order_number: string;
+    purchase_date: string;
+    comment: null;
+    delivery_lead_time: null;
+    payment_terms: "";
+    authorized_datetime: null;
+    approved_date: null;
+    agreed_date: null;
+    vendor: string;
+    purchase_request: string;
+    cba: null;
+    solicitation: null;
+    funding_source: null;
+    location: null;
+    authorized_by: null;
+}

@@ -95,6 +95,7 @@ const AddItems = () => {
                         required
                         placeholder="Enter UOM"
                     />
+
                     <FormSelect
                         label="Category"
                         name="category"

@@ -66,9 +66,14 @@ export const AdminRoutes = {
 
     // ---------------------
 
+    /* GOOD RECEIVE NOTES START */
     GRN: "/admin/inventory-management/good-receive-note",
-    GRN_CREATE: "/admin/inventory-management/good-receive-note/create",
+    GRN_CREATE_SUMMARY: "/admin/inventory-management/good-receive-note/create",
+    GRN_CREATE_UPLOADS:
+        "/admin/inventory-management/good-receive-note/create/uploads",
     GRN_DETAIL: "/admin/inventory-management/good-receive-note/:id",
+    /* GOOD RECEIVE NOTES END */
+
     ITEM_REQUISITION: "/admin/inventory-management/item-requisition",
     ITEM_REQUISITION_DETAIL: "/admin/inventory-management/item-requisition/:id",
     CREATE_ITEM_REQUISITION:
@@ -84,8 +89,6 @@ export const AdminRoutes = {
     Insurance: "/admin/agrements/insurance",
     Ticketing: "/admin/agrements/ticketing",
     ViewAggrement: "/admin/agrements/View-Aggrement",
-
-    // starting new import
 
     //rfq routes
     RFQ: "/admin/solicitation/rfq",
@@ -122,6 +125,8 @@ export const AdminRoutes = {
         "/admin/competitive-bid-analysis/:id/summary-of-technical-prequalification",
 
     //ending
+
+    ADMIN_TRACKER: "/admin/admin-tracker",
 };
 
 export const RouteEnum = {
