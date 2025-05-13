@@ -9,13 +9,10 @@ import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
 import { WorkforceFormValues, workforceSchema } from "definations/hr-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useGetHrGradeListQuery } from "services/hrApi/hr-grade";
-import { useGetHrPositionListQuery } from "services/hrApi/hr-position";
 import { SelectContent, SelectItem } from "components/ui/select";
 import { LoadingSpinner } from "components/shared/Loading";
 import { HrGradeResults } from "definations/hr-types/hr-grades";
 import FileUpload from "atoms/FileUpload";
-import { useCreateWorkforceMutation } from "services/hrApi/workforce";
 import { toast } from "sonner";
 import { useGetLocationListQuery } from "services/configs/locationApi";
 import { useGetDepartmentPaginateQuery } from "services/configs/departments";
@@ -55,7 +52,7 @@ const BasicInformation = ({ info }: { info: any }) => {
   const [createEmployeeOnboarding, { isLoading }] =
     useCreateEmployeeOnboardingMutation();
 
-  const [updateEmployeeOnboarding, { isLoading: patchLoading }] =
+  const [updateEmployeeOnboarding, { isLoading: updateLoading }] =
     usePatchEmployeeOnboardingMutation();
 
   const form = useForm<WorkforceFormValues>({
@@ -84,8 +81,7 @@ const BasicInformation = ({ info }: { info: any }) => {
       project: "",
     },
   });
-  const { handleSubmit, watch, reset } = form;
-  const values = watch();
+  const { handleSubmit, reset } = form;
 
   const onSubmit = async (data: WorkforceFormValues) => {
     const formData = new FormData();
@@ -128,6 +124,7 @@ const BasicInformation = ({ info }: { info: any }) => {
       formData.append("passport_file", data.passport_file[0]);
       formData.append("signature_file", data.signature_file[0]);
     }
+
     console.log(formData);
 
     if (info) {
@@ -187,7 +184,7 @@ const BasicInformation = ({ info }: { info: any }) => {
     // console.log(form.getValues());
     if (info) {
       const { data } = info;
-      console.log("-->", data);
+      // console.log("-->", data);
 
       form.reset({
         legal_firstname: data.legal_firstname,
@@ -403,8 +400,8 @@ const BasicInformation = ({ info }: { info: any }) => {
 
           <div className='flex gap-x-6 justify-end'>
             <FormButton
-              loading={isLoading}
-              disabled={isLoading}
+              loading={isLoading || updateLoading}
+              disabled={isLoading || updateLoading}
               variant='outline'
             >
               <Save size={20} /> Save

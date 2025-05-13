@@ -67,26 +67,26 @@ export const workforceSchema = object({
 export const hrGradeSchema = object({
   name: z.string().min(1, "Field is required"),
 });
+
 export const hrBeneficiarySchema = object({
   is_primary: z.boolean(),
   name: string().min(1, "Field is required"),
   relationship: string().min(1, "Field is required"),
   percentage_of_benefit: string().min(1, "Field is required"),
   phone_number: string().min(1, "Field is required"),
-  employee: string().min(1, "Field is required"),
 });
+
 export const hrContingentBeneficiarySchema = object({
   is_primary: z.boolean(),
   name: string().min(1, "Field is required"),
   relationship: string().min(1, "Field is required"),
   phone_number: string().min(1, "Field is required"),
-  employee: string().min(1, "Field is required"),
 });
+
 export const hrSignatoriesBeneficiarySchema = object({
   witness_name: string().min(1, "Field is required"),
   witness_date: string().min(1, "Field is required"),
-  witness_signature: isBrowser ? z.instanceof(FileList) : z.any(),
-  employee: string().min(1, "Field is required"),
+  withness_signature: z.any(),
 });
 
 export const jobAdvertismentSchema = z.object({
