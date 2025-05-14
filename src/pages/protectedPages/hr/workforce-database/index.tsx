@@ -24,7 +24,7 @@ const WorkforceDatabase = () => {
   return (
     <div className='space-y-6'>
       <div className='flex justify-end'>
-        <Link to={HrRoutes.ONBOARDING_START}>
+        <Link to={HrRoutes.WORKFORCE_DATABASE_CREATE}>
           <Button>
             <AddSquareIcon /> Add New Employee
           </Button>

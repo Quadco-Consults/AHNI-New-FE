@@ -38,6 +38,8 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
     setNumPages(numPages);
   }
 
+  console.log(data);
+
   // useEffect(() => {
   //   if (info) {
   //     setData(info);
