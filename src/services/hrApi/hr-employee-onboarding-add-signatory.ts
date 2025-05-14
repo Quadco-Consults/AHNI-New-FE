@@ -20,10 +20,13 @@ const EmployeeOnboardingAddSignatoryAPI = baseAPI.injectEndpoints({
       providesTags: ["EMPLOYEE_ONBOARDING"],
     }),
 
-    // getEmployeeOnboardingAddSignatoryQuery: builder.query<EmployeeOnboardingAddSignatory, { id: string }>({
-    //   query: ({ id }) => ({ url: `${BASE_URL}${id}/` }),
-    //   providesTags: ["EMPLOYEE_ONBOARDING"],
-    // }),
+    getEmployeeOnboardingAddSignatoryQuery: builder.query<
+      EmployeeOnboardingAddSignatory,
+      { id: string }
+    >({
+      query: ({ id }) => ({ url: `${BASE_URL}${id}/` }),
+      providesTags: ["EMPLOYEE_ONBOARDING"],
+    }),
 
     createEmployeeOnboardingAddSignatory: builder.mutation<
       EmployeeOnboardingAddSignatory,
@@ -68,5 +71,5 @@ export const {
   useGetEmployeeOnboardingAddSignatoryQuery,
   usePatchEmployeeOnboardingAddSignatoryMutation,
   useUpdateEmployeeOnboardingAddSignatoryMutation,
-  // useGetEmployeeOnboardingAddSignatoryQueryQuery
+  useGetEmployeeOnboardingAddSignatoryQueryQuery,
 } = EmployeeOnboardingAddSignatoryAPI;

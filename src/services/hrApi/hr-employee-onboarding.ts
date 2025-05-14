@@ -23,11 +23,11 @@ const EmployeeOnboardingAPI = baseAPI.injectEndpoints({
       query: ({ id }) => ({ url: `${BASE_URL}${id}/` }),
       providesTags: ["EMPLOYEE_ONBOARDING"],
     }),
+
     getEmployeeIdentityCard: builder.query<EmployeeOnboarding, { id: string }>({
       query: ({ id }) => ({ url: `hr/employees/${id}/identity-card/` }),
       providesTags: ["EMPLOYEE_ONBOARDING"],
     }),
-    
 
     createEmployeeOnboarding: builder.mutation<
       EmployeeOnboarding,
@@ -40,7 +40,6 @@ const EmployeeOnboardingAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["EMPLOYEE_ONBOARDING"],
     }),
-    
 
     updateEmployeeOnboarding: builder.mutation<
       EmployeeOnboarding,
@@ -74,5 +73,5 @@ export const {
   useGetEmployeeOnboardingsQuery,
   usePatchEmployeeOnboardingMutation,
   useUpdateEmployeeOnboardingMutation,
-  useGetEmployeeIdentityCardQuery
+  useGetEmployeeIdentityCardQuery,
 } = EmployeeOnboardingAPI;

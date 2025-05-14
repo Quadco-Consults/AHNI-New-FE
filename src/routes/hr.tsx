@@ -125,6 +125,12 @@ export const hr = [
     ),
   },
   {
+    path: HrRoutes.WORKFORCE_DATABASE_CREATE,
+    element: lazy(
+      () => import("pages/protectedPages/hr/workforce-database/create/index")
+    ),
+  },
+  {
     path: HrRoutes.WORKFORCE_DATABASE_DETAIL,
     element: lazy(
       () => import("pages/protectedPages/hr/workforce-database/id/index")
