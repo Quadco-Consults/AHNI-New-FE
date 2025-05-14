@@ -13,7 +13,7 @@ export type HrBeneficiaryResults = {
   beneficiary_type: string;
   name: string;
   relationship: string;
-  percentage: number;
+  percentage_of_benefit: number;
   phone_number: string;
   employee: string;
   is_primary?: boolean;

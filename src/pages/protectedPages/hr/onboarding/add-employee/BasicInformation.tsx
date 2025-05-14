@@ -11,7 +11,7 @@ import { WorkforceFormValues, workforceSchema } from "definations/hr-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SelectContent, SelectItem } from "components/ui/select";
 import { LoadingSpinner } from "components/shared/Loading";
-import { HrGradeResults } from "definations/hr-types/hr-grades";
+
 import FileUpload from "atoms/FileUpload";
 import { toast } from "sonner";
 import { useGetLocationListQuery } from "services/configs/locationApi";
@@ -20,7 +20,6 @@ import { LocationResultsData } from "definations/configs/location";
 import { DepartmentsResultsData } from "definations/configs/departments";
 import FormButton from "atoms/FormButton";
 
-import { Button } from "components/ui/button";
 import { HrRoutes } from "constants/RouterConstants";
 import { updateStepCompletion } from "store/stepTracker";
 import FormCheckBox from "atoms/FormCheckBox";
@@ -309,7 +308,7 @@ const BasicInformation = ({ info }: { info: any }) => {
             <FormInput
               name='ss_number'
               label='SS #'
-              placeholder='Surname'
+              placeholder='SS number'
               required
             />
           </div>
