@@ -342,14 +342,14 @@ const BasicInformation = ({ info }: { info: any }) => {
             <FormSelect
               name='marital_status'
               label='Marital Status'
-              placeholder='Select employment ty'
+              placeholder='Select Marital Status'
               options={maritalTypeOptions}
             />
 
             <FormSelect
               name='employment_type'
               label='Employment Type'
-              placeholder='Select employment ty'
+              placeholder='Select Employment Type'
               options={jobTypeOptions}
             />
 

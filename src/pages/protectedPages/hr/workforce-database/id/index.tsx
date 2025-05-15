@@ -8,7 +8,6 @@ import BankAccount from "./BankAccount";
 import AdditionalInfo from "./AdditionalInfo";
 import Compensation from "./Compensation";
 import { useParams } from "react-router-dom";
-import { useGetWorkforceQuery } from "services/hrApi/workforce";
 import { LoadingSpinner } from "components/shared/Loading";
 import { useGetEmployeeOnboardingQuery } from "services/hrApi/hr-employee-onboarding";
 import { EmployeeOnboarding } from "definations/hr-types/employee-onboarding";
@@ -51,7 +50,7 @@ const WorkforceDetail = () => {
     {
       label: "Additional Information",
       value: "additional_information",
-      children: <AdditionalInfo info={data as EmployeeOnboarding} />,
+      children: <AdditionalInfo />,
     },
   ];
 

@@ -5,21 +5,25 @@ const BASE_URL = "hr/employees/qualifications/";
 
 const EmployeeOnboardingQualificationsAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getEmployeeOnboardingQualificationssQualifications: builder.query<
-      EmployeeOnboardingQualifications[],
-      { status?: string; search?: string }
+    getEmployeeOnboardingQualificationsList: builder.query<
+      { data: { results: EmployeeOnboardingQualifications[] } },
+      { status?: string; search?: string; employee?: string }
     >({
-      query: ({ status, search }) => ({
+      query: ({ status, search, employee }) => ({
         url: BASE_URL,
         params: {
           ...(status && { status }),
           ...(search && { search }),
+          ...(employee && { employee }),
         },
       }),
       providesTags: ["EMPLOYEE_ONBOARDING"],
     }),
 
-    getEmployeeOnboardingQualifications: builder.query<EmployeeOnboardingQualifications, { id: string }>({
+    getEmployeeOnboardingQualifications: builder.query<
+      EmployeeOnboardingQualifications,
+      { id: string }
+    >({
       query: ({ id }) => ({ url: `${BASE_URL}${id}/` }),
       providesTags: ["EMPLOYEE_ONBOARDING"],
     }),
@@ -34,7 +38,8 @@ const EmployeeOnboardingQualificationsAPI = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: ["EMPLOYEE_ONBOARDING"],
-    }), 
+    }),
+
     updateEmployeeOnboardingQualifications: builder.mutation<
       EmployeeOnboardingQualifications,
       { id: string; body: Partial<EmployeeOnboardingQualifications> }
@@ -64,7 +69,7 @@ const EmployeeOnboardingQualificationsAPI = baseAPI.injectEndpoints({
 export const {
   useCreateEmployeeOnboardingQualificationsMutation,
   useGetEmployeeOnboardingQualificationsQuery,
-  useGetEmployeeOnboardingQualificationssQualificationsQuery,
+  useGetEmployeeOnboardingQualificationsListQuery,
   usePatchEmployeeOnboardingQualificationsMutation,
-  useUpdateEmployeeOnboardingQualificationsMutation
+  useUpdateEmployeeOnboardingQualificationsMutation,
 } = EmployeeOnboardingQualificationsAPI;
