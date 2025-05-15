@@ -64,6 +64,14 @@ const EmployeeOnboardingAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["EMPLOYEE_ONBOARDING"],
     }),
+
+    deleteEmployeeOnboarding: builder.mutation<EmployeeOnboarding, string>({
+      query: (id) => ({
+        method: "DELETE",
+        url: `${BASE_URL}${id}/`,
+      }),
+      invalidatesTags: ["EMPLOYEE_ONBOARDING"],
+    }),
   }),
 });
 
@@ -74,4 +82,5 @@ export const {
   usePatchEmployeeOnboardingMutation,
   useUpdateEmployeeOnboardingMutation,
   useGetEmployeeIdentityCardQuery,
+  useDeleteEmployeeOnboardingMutation,
 } = EmployeeOnboardingAPI;

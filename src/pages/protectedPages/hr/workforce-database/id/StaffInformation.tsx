@@ -39,7 +39,7 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
     setNumPages(numPages);
   }
 
-  // console.log("Info ", data);
+  // console.log("Info ", qualifications);
 
   return (
     <div className='space-y-6'>
@@ -77,6 +77,7 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
               <h2 className='line-clamp-1'>Passport</h2>
             </div>
           </div>
+
           {data?.passport_file.endsWith("pdf") ? (
             <div className='bg-[#0000001A] py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden'>
               <Dialog>
@@ -123,6 +124,7 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
               <h2 className='line-clamp-1'>Signature</h2>
             </div>
           </div>
+
           {data?.signature_file.endsWith("pdf") ? (
             <div className='bg-[#0000001A] py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden'>
               <Dialog>
@@ -134,6 +136,7 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
                     <Page pageNumber={pageNumber} width={200} height={100} />
                   </Document>
                 </DialogTrigger>
+
                 <DialogContent className='min-w-[60%]'>
                   <DialogHeader>
                     <DialogTitle>Signature</DialogTitle>
@@ -183,7 +186,7 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
 
         <Separator />
 
-        {qualifications?.data && qualifications.data.results.length && (
+        {qualifications?.data && qualifications.data.results.length > 0 && (
           <div className='grid grid-cols-1 items-center gap-5 md:grid-cols-2 lg:grid-cols-2'>
             {qualifications.data.results.map((qualification, index) => (
               <section>
