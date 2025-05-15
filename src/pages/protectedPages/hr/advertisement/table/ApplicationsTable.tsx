@@ -33,6 +33,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "components/ui/select";
+import SearchBar from "atoms/SearchBar";
 
 const ApplicationsTable = ({
   linkTitle,
@@ -111,14 +112,8 @@ const ApplicationsTable = ({
       <div className='my-3 border' />
 
       <div className='flex items-center justify-start gap-2'>
-        <span className='flex items-center w-1/3 px-2 py-2 border rounded-lg'>
-          <SearchIcon />
-          <input
-            placeholder='Search'
-            type='text'
-            className='ml-2 h-6 border-none bg-none focus:outline-none outline-none'
-          />
-        </span>
+        <SearchBar />
+
         <Button className='shadow-sm' variant='ghost'>
           <FilterIcon />
         </Button>
