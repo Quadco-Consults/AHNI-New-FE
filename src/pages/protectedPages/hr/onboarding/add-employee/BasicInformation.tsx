@@ -109,7 +109,7 @@ const BasicInformation = ({ info }: { info: any }) => {
     formData.append("project", data.project);
     formData.append("department", data.department);
 
-    if (info) {
+    if (info.data) {
       if (typeof data.passport_file !== "string") {
         // Has been changed [Backend returns string]
         console.log(data.passport_file);
@@ -126,7 +126,7 @@ const BasicInformation = ({ info }: { info: any }) => {
 
     console.log(formData);
 
-    if (info) {
+    if (info.data) {
       // console.log("EDit");
       try {
         // @ts-ignore
@@ -181,9 +181,9 @@ const BasicInformation = ({ info }: { info: any }) => {
 
   React.useEffect(() => {
     // console.log(form.getValues());
-    if (info) {
+    if (info.data) {
+      console.log("-->", info);
       const { data } = info;
-      // console.log("-->", data);
 
       form.reset({
         legal_firstname: data.legal_firstname,
@@ -221,7 +221,7 @@ const BasicInformation = ({ info }: { info: any }) => {
   }, [info]);
 
   React.useEffect(() => {
-    if (info) {
+    if (info.data) {
       const { data } = info;
       // console.log(">>>>", departments, locations, projects, positions);
 
