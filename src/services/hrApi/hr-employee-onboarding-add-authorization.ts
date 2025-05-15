@@ -1,12 +1,12 @@
 import baseAPI from "..";
-import { HrEmergencyResults } from "definations/hr-types/employee-onboarding";
+import { HrSystemAuthorization } from "definations/hr-types/employee-onboarding";
 
-const BASE_URL = "/hr/employees/emergency-contacts/";
+const BASE_URL = "/hr/employees/system-authorization/";
 
-const HrEmergencyAPI = baseAPI.injectEndpoints({
+const SystemAuthorizationAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getHrEmergencyList: builder.query<
-      { data: { results: HrEmergencyResults[] } },
+    getSystemAuthorizationList: builder.query<
+      { data: { results: HrSystemAuthorization[] } },
       { employee: string }
     >({
       query: ({ employee }) => {
@@ -20,7 +20,10 @@ const HrEmergencyAPI = baseAPI.injectEndpoints({
       providesTags: ["HR_BENEFICIARIES"],
     }),
 
-    getHrEmergency: builder.query<HrEmergencyResults, { id: string }>({
+    getSystemAuthorization: builder.query<
+      HrSystemAuthorization,
+      { id: string }
+    >({
       query: ({ id }) => {
         return {
           url: `${BASE_URL}${id}/`,
@@ -29,7 +32,7 @@ const HrEmergencyAPI = baseAPI.injectEndpoints({
       providesTags: ["HR_BENEFICIARIES"],
     }),
 
-    createHrEmergency: builder.mutation<HrEmergencyResults, any>({
+    createSystemAuthorization: builder.mutation<HrSystemAuthorization, any>({
       query: (body) => ({
         url: `${BASE_URL}`,
         method: "POST",
@@ -38,9 +41,9 @@ const HrEmergencyAPI = baseAPI.injectEndpoints({
       invalidatesTags: ["HR_BENEFICIARIES"],
     }),
 
-    updateHrEmergency: builder.mutation<
-      HrEmergencyResults,
-      { id: string; body: HrEmergencyResults }
+    updateSystemAuthorization: builder.mutation<
+      HrSystemAuthorization,
+      { id: string; body: HrSystemAuthorization }
     >({
       query: ({ id, body }) => ({
         url: `${BASE_URL}${id}/`,
@@ -53,8 +56,8 @@ const HrEmergencyAPI = baseAPI.injectEndpoints({
 });
 
 export const {
-  useCreateHrEmergencyMutation,
-  useGetHrEmergencyListQuery,
-  useGetHrEmergencyQuery,
-  useUpdateHrEmergencyMutation,
-} = HrEmergencyAPI;
+  useCreateSystemAuthorizationMutation,
+  useGetSystemAuthorizationListQuery,
+  useGetSystemAuthorizationQuery,
+  useUpdateSystemAuthorizationMutation,
+} = SystemAuthorizationAPI;

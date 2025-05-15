@@ -8,13 +8,20 @@ import { useNavigate, useParams } from "react-router-dom";
 import { HrRoutes } from "constants/RouterConstants";
 import GoBack from "components/shared/GoBack";
 import { useGetEmployeeOnboardingQuery } from "services/hrApi/hr-employee-onboarding";
+import { useGetEmployeeOnboardingQualificationsListQuery } from "services/hrApi/hr-employee-onboarding-qualifications";
 
 const EmployeeInformation = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const { data, isLoading } = useGetEmployeeOnboardingQuery({
     id: id as string,
   });
+
+  const { data: qualifications, isLoading: getLoading } =
+    useGetEmployeeOnboardingQualificationsListQuery({
+      employee: id as string,
+    });
 
   const handleNext = () => {
     navigate(HrRoutes.ONBOARDING_ADD_EMPLOYEE_ADD);
@@ -53,11 +60,15 @@ const EmployeeInformation = () => {
                   </Card>
                 </TabsContent>
 
-                <TabsContent value='qualification'>
-                  <Card className='px-6'>
-                    <Qualification data={data} />
-                  </Card>
-                </TabsContent>
+                {!getLoading && (
+                  <TabsContent value='qualification'>
+                    <Card className='px-6'>
+                      <Qualification
+                        qualifications={qualifications?.data.results}
+                      />
+                    </Card>
+                  </TabsContent>
+                )}
               </Tabs>
             )}
           </>
