@@ -4,7 +4,7 @@ import SearchIcon from "components/icons/SearchIcon";
 const SearchBar = ({
   onchange,
 }: {
-  onchange: React.ChangeEventHandler<HTMLInputElement>;
+  onchange?: React.ChangeEventHandler<HTMLInputElement>;
 }) => {
   return (
     <div className='border border-[#CDD5E0] bg-white rounded-[6px] w-[344px] max-w-full flex gap-2 items-center py-[11px] px-[13px]'>

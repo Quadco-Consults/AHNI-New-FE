@@ -24,29 +24,33 @@ const Beneficiary = ({ id }: { id: string }) => {
 
         <Separator />
 
-        {primary?.map((beneficiary) => (
-          <div
-            key={beneficiary?.id}
-            className='grid grid-cols-1 card-wrapper border-yellow-500 items-center gap-5 md:grid-cols-2 lg:grid-cols-2'
-          >
-            <DescriptionCard
-              label='Beneficiary Names (Last, First)'
-              description={beneficiary?.name}
-            />
-            <DescriptionCard
-              label='% of Benefit'
-              description={`${beneficiary?.percentage_of_benefit}%`}
-            />
-            <DescriptionCard
-              label='Relationship with Employee'
-              description={beneficiary?.relationship}
-            />
-            <DescriptionCard
-              label='Phone Number'
-              description={beneficiary?.phone_number}
-            />
-          </div>
-        ))}
+        {primary && primary.length ? (
+          primary?.map((beneficiary) => (
+            <div
+              key={beneficiary?.id}
+              className='grid grid-cols-1 card-wrapper border-yellow-500 items-center gap-5 md:grid-cols-2 lg:grid-cols-2'
+            >
+              <DescriptionCard
+                label='Beneficiary Names (Last, First)'
+                description={beneficiary?.name}
+              />
+              <DescriptionCard
+                label='% of Benefit'
+                description={`${beneficiary?.percentage_of_benefit}%`}
+              />
+              <DescriptionCard
+                label='Relationship with Employee'
+                description={beneficiary?.relationship}
+              />
+              <DescriptionCard
+                label='Phone Number'
+                description={beneficiary?.phone_number}
+              />
+            </div>
+          ))
+        ) : (
+          <h2 className='text-medium'>No Beneficiaries</h2>
+        )}
       </div>
 
       <Separator />
@@ -55,7 +59,9 @@ const Beneficiary = ({ id }: { id: string }) => {
         <h4 className='text-red-500 text-lg font-medium'>
           Contingent Beneficiary
         </h4>
+
         <Separator />
+
         {/* {contingent?.map((beneficiary) => (
           <div
             key={beneficiary?.id}
