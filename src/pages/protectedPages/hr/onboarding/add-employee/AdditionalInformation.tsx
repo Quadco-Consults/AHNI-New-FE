@@ -6,7 +6,7 @@ import FormSelect from "atoms/FormSelect";
 import { Separator } from "components/ui/separator";
 import { Button } from "components/ui/button";
 import { ChevronRight, Save } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, generatePath, Link } from "react-router-dom";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
@@ -31,10 +31,6 @@ const AdditionalInformation = () => {
   });
 
   if (!contactsLoading) console.log(data);
-
-  const handleNext = () => {
-    navigate(HrRoutes.ONBOARDING_ADD_EMPLOYEE_BENEFICIARY);
-  };
 
   return (
     <>
@@ -87,10 +83,17 @@ const AdditionalInformation = () => {
         </Card>
 
         <div className='flex gap-x-6 justify-end'>
-          <Button type='button' onClick={handleNext}>
-            Next
-            <ChevronRight size={20} />
-          </Button>
+          <Link
+            to={generatePath(HrRoutes.ONBOARDING_ADD_EMPLOYEE_BENEFICIARY, {
+              id,
+            })}
+            className='flex flex-col items-start justify-between gap-1'
+          >
+            <Button type='button'>
+              Next
+              <ChevronRight size={20} />
+            </Button>
+          </Link>
         </div>
       </Card>
 
