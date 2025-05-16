@@ -8,9 +8,10 @@ export const workforceQualificationSchema = object({
   certificate_name: string().min(1, "Field is required"),
   institution_name: string().min(1, "Field is required"),
   date_of_qualification: string().min(1, "Field is required"),
-  certificate_file: isBrowser ? z.instanceof(FileList) : z.any(),
+  certificate_file: z.any(),
   employee: string().min(1, "Field is required"),
 });
+
 export const workforcePensionSchema = object({
   pfa_name: string().min(1, "Field is required"),
   pfc_account_name: string().min(1, "Field is required"),
@@ -21,15 +22,7 @@ export const workforcePensionSchema = object({
   pfa_registeration_date: string().min(1, "Field is required"),
   employee: string().min(1, "Field is required"),
 });
-export const workforceAdditionalInfoSchema = object({
-  name: string().min(1, "Field is required"),
-  relationship: string().min(1, "Field is required"),
-  home_phone: string().min(1, "Field is required"),
-  mobile_phone: string().min(1, "Field is required"),
-  email_address: string().email().min(1, "Field is required"),
-  address: string().min(1, "Field is required"),
-  employee: string().min(1, "Field is required"),
-});
+
 export const workforceBankAccountSchema = object({
   bank_name: string().min(1, "Field is required"),
   branch_name: string().min(1, "Field is required"),
@@ -64,29 +57,39 @@ export const workforceSchema = object({
   project: z.string().min(1, "Field is required"),
 });
 
+export const hrEmergencySchema = object({
+  name: string().min(1, "Field is required"),
+  relationship: string().min(1, "Field is required"),
+  home_phone: string().min(1, "Field is required"),
+  mobile_phone: string().min(1, "Field is required"),
+  email_address: string().email().min(1, "Field is required"),
+  address: string().min(1, "Field is required"),
+  employee: string().min(1, "Field is required"),
+});
+
 export const hrGradeSchema = object({
   name: z.string().min(1, "Field is required"),
 });
+
 export const hrBeneficiarySchema = object({
   is_primary: z.boolean(),
   name: string().min(1, "Field is required"),
   relationship: string().min(1, "Field is required"),
   percentage_of_benefit: string().min(1, "Field is required"),
   phone_number: string().min(1, "Field is required"),
-  employee: string().min(1, "Field is required"),
 });
+
 export const hrContingentBeneficiarySchema = object({
   is_primary: z.boolean(),
   name: string().min(1, "Field is required"),
   relationship: string().min(1, "Field is required"),
   phone_number: string().min(1, "Field is required"),
-  employee: string().min(1, "Field is required"),
 });
+
 export const hrSignatoriesBeneficiarySchema = object({
   witness_name: string().min(1, "Field is required"),
   witness_date: string().min(1, "Field is required"),
-  witness_signature: isBrowser ? z.instanceof(FileList) : z.any(),
-  employee: string().min(1, "Field is required"),
+  withness_signature: z.any(),
 });
 
 export const jobAdvertismentSchema = z.object({
@@ -126,10 +129,10 @@ export const jobApplicationSchema = z.object({
       })
     )
     .min(1, "At least one referee is required"),
-
   resume: z.any().optional(), // File will be converted to Base64
   status: z.enum(["applied", "interviewed", "hired", "rejected"]),
 });
+
 export const workforceNeedAnalysisSchema = z.object({
   current_staff_count: z.string().min(1, "Current Staff Count is required"),
   wisn_required_staff_count: z.string().min(1, "WISN STAFF COUNT is required"),
@@ -143,9 +146,20 @@ export const workforceNeedAnalysisSchema = z.object({
   location: z.string().min(1, "Location is required"),
 });
 
+export const hrSystemAuthorizationSchema = z.object({
+  user_login_name: z.string().min(1, "User Login Name is required"),
+  computer_name: z.string().min(1, "Computer Name is required"),
+  email_alias: z.string().min(1, "Email Alias is required"),
+  is_training_completed: z.boolean(),
+  authorization_officer_name: z.string().min(1, "Name is required"),
+  authorization_date: z.string().min(1, "Date Completed is required"),
+  employee: z.string(),
+});
+
 export type HrContingentBeneficiaryFormValues = z.infer<
   typeof hrContingentBeneficiarySchema
 >;
+
 export type HrSignatoriesBeneficiaryFormValues = z.infer<
   typeof hrSignatoriesBeneficiarySchema
 >;
@@ -155,12 +169,13 @@ export type HrBeneficiaryFormValues = z.infer<typeof hrBeneficiarySchema>;
 export type HrGradeFormValues = z.infer<typeof hrGradeSchema>;
 export type WorkforceFormValues = z.infer<typeof workforceSchema>;
 export type WorkforcePensionFormValues = z.infer<typeof workforcePensionSchema>;
-export type WorkforceAdditionalInfoFormValues = z.infer<
-  typeof workforceAdditionalInfoSchema
->;
+export type HrEmergencyFormValues = z.infer<typeof hrEmergencySchema>;
 export type WorkforceBankAccountFormValues = z.infer<
   typeof workforceBankAccountSchema
 >;
 export type WorkforceQualificationFormValues = z.infer<
   typeof workforceQualificationSchema
+>;
+export type hrSystemAuthorizationFormValues = z.infer<
+  typeof hrSystemAuthorizationSchema
 >;
