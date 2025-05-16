@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, generatePath, Link } from "react-router-dom";
 import DescriptionCard from "components/shared/DescriptionCard";
 import { Button } from "components/ui/button";
 import PrinterIcon from "components/icons/PrinterIcon";
@@ -22,11 +22,7 @@ const IdCardInformation = () => {
     id: id as string,
   });
 
-  console.log(data);
-
-  const handleNext = () => {
-    navigate(HrRoutes.ONBOARDING_ADD_EMPLOYEE_SALARY);
-  };
+  // console.log(data);
 
   const onSubmit = () => {
     dispatch(
@@ -117,10 +113,18 @@ const IdCardInformation = () => {
           <Button onClick={onSubmit} variant='outline'>
             <Save size={20} /> Save
           </Button>
-          <Button type='button' onClick={handleNext}>
-            Next
-            <ChevronRight size={20} />
-          </Button>
+
+          <Link
+            to={generatePath(HrRoutes.ONBOARDING_ADD_EMPLOYEE_SALARY, {
+              id,
+            })}
+            className='flex flex-col items-start justify-between gap-1'
+          >
+            <Button type='button'>
+              Next
+              <ChevronRight size={20} />
+            </Button>
+          </Link>
         </div>
       </Card>
       {/* <Button
