@@ -1,3 +1,5 @@
+import React from "react";
+import { useParams } from "react-router-dom";
 import { Separator } from "components/ui/separator";
 import FormInput from "atoms/FormInput";
 import { Form } from "components/ui/form";
@@ -10,7 +12,6 @@ import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { HrRoutes } from "constants/RouterConstants";
 import Card from "components/shared/Card";
-import  { useCreateWorkforceBankAccountMutation } from "services/hrApi/workforce";
 import {
   WorkforceBankAccountFormValues,
   workforceBankAccountSchema,
@@ -19,17 +20,25 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import FormButton from "atoms/FormButton";
 import { updateStepCompletion } from "store/stepTracker";
-import { useCreateEmployeeOnboardingBankAcctMutation } from "services/hrApi/hr-employee-onboarding-bank-account";
+import {
+  useCreateEmployeeOnboardingBankAcctMutation,
+  useGetEmployeeOnboardingBankAcctQuery,
+  useUpdateEmployeeOnboardingBankAcctMutation,
+} from "services/hrApi/hr-employee-onboarding-bank-account";
 import GoBack from "components/shared/GoBack";
 
 const Salary = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const id = localStorage.getItem("workforceID");
-
   const [createEmployeeOnboardingBankAcct, { isLoading }] =
-  useCreateEmployeeOnboardingBankAcctMutation();
+    useCreateEmployeeOnboardingBankAcctMutation();
+  const [updateEmployeeOnboardingBankAcct, { isLoading: updateLoading }] =
+    useUpdateEmployeeOnboardingBankAcctMutation();
+
+  const { data: bankData, isLoading: dataLoading } =
+    useGetEmployeeOnboardingBankAcctQuery({ employee: id as string });
 
   const form = useForm<WorkforceBankAccountFormValues>({
     resolver: zodResolver(workforceBankAccountSchema),
@@ -50,32 +59,77 @@ const Salary = () => {
   };
 
   const onSubmit = async (data: WorkforceBankAccountFormValues) => {
-    try {
-      await createEmployeeOnboardingBankAcct(data).unwrap();
+    // console.log("---->", data);
 
-      dispatch(
-        updateStepCompletion({
-          path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_SALARY,
-        })
-      );
+    if (bankData && bankData.data.results.length) {
+      // console.log(data);
+      try {
+        await updateEmployeeOnboardingBankAcct({
+          id: bankData.data.results[0].id,
+          body: data,
+        }).unwrap();
 
-      dispatch(
-        openDialog({
-          type: DialogType.HrSuccessModal,
-          dialogProps: {
-            label: "Employee information saved",
-          },
-        })
-      );
-      form.reset();
-    } catch (error) {
-      toast.error("Something went wrong");
+        dispatch(
+          updateStepCompletion({
+            path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_SALARY,
+          })
+        );
+
+        dispatch(
+          openDialog({
+            type: DialogType.HrSuccessModal,
+            dialogProps: {
+              label: "Employee information saved",
+            },
+          })
+        );
+        form.reset();
+      } catch (error) {
+        console.log(error);
+        toast.error("Something went wrong");
+      }
+    } else {
+      try {
+        await createEmployeeOnboardingBankAcct(data).unwrap();
+
+        dispatch(
+          updateStepCompletion({
+            path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_SALARY,
+          })
+        );
+
+        dispatch(
+          openDialog({
+            type: DialogType.HrSuccessModal,
+            dialogProps: {
+              label: "Employee information saved",
+            },
+          })
+        );
+        form.reset();
+      } catch (error) {
+        toast.error("Something went wrong");
+      }
     }
   };
 
+  React.useEffect(() => {
+    if (bankData && bankData.data.results.length) {
+      console.log(bankData.data);
+      form.reset({
+        bank_name: bankData.data.results[0].bank_name,
+        branch_name: bankData.data.results[0].branch_name,
+        account_name: bankData.data.results[0].account_name,
+        account_number: bankData.data.results[0].account_number,
+        sort_code: bankData.data.results[0].sort_code,
+        employee: id as string,
+      });
+    }
+  }, [dataLoading]);
+
   return (
     <>
-     <GoBack />
+      <GoBack />
       <Card className='space-y-10 mt-6 max-w-4xl mx-auto'>
         <div>
           <h4 className='font-semibold text-lg text-center'>
@@ -104,12 +158,11 @@ const Salary = () => {
                 required
               />
               <FormInput name='sort_code' label='Sort Code' required />
-               
             </div>
             <div className='flex gap-x-6 justify-end'>
               <FormButton
-                loading={isLoading}
-                disabled={isLoading}
+                loading={isLoading || updateLoading}
+                disabled={isLoading || updateLoading}
                 variant='outline'
               >
                 <Save size={20} /> Save
