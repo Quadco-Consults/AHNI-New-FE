@@ -11,6 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { AdminRoutes } from "constants/RouterConstants";
 import { IExpenseAuthorizationPaginatedData } from "definations/admin/expense-authorization";
 import { cn } from "lib/utils";
+import { Shield } from "lucide-react";
 import { useState } from "react";
 import { generatePath, Link } from "react-router-dom";
 import { useDeleteExpenseAuthorizationMutation } from "services/admin/expense-authorization";
@@ -21,50 +22,64 @@ export const expenseAuthorizationColumns: ColumnDef<IExpenseAuthorizationPaginat
         {
             header: "Project",
             accessorKey: "project",
+            size: 250,
         },
 
         {
-            header: "Full Name",
+            header: "Employee ID Number",
+            id: "_",
+            accessorKey: "_",
+            size: 250,
+        },
+
+        {
+            header: "Employee Full Name",
             id: "full_name",
             accessorFn: ({ created_by: { first_name, last_name } }) =>
                 `${first_name} ${last_name}`,
+            size: 250,
         },
 
         {
-            header: "Email",
+            header: "Employee Email",
             id: "email",
             accessorFn: ({ created_by: { email } }) => email,
+            size: 250,
         },
 
         {
-            header: "Phone Number",
+            header: "Employee Phone Number",
             id: "mobile_number",
             accessorFn: ({ created_by: { mobile_number } }) => mobile_number,
             size: 250,
         },
 
         {
-            header: "Address",
+            header: "Employee Address",
             id: "address",
             accessorKey: "address",
+            size: 250,
         },
 
         {
             header: "EA Number",
             id: "ta_number",
             accessorKey: "ta_number",
+            size: 250,
         },
 
         {
             header: "Department",
             id: "department",
             accessorKey: "department",
+            size: 250,
         },
 
         {
             header: "Status",
             id: "status",
             accessorKey: "status",
+            size: 250,
             cell: ({ getValue }) => {
                 return (
                     <Badge
@@ -85,6 +100,13 @@ export const expenseAuthorizationColumns: ColumnDef<IExpenseAuthorizationPaginat
                     </Badge>
                 );
             },
+        },
+
+        {
+            header: "Security Clearance",
+            id: "_",
+            accessorKey: "_",
+            size: 250,
         },
 
         {
@@ -131,7 +153,7 @@ const TableMenu = ({ id }: IExpenseAuthorizationPaginatedData) => {
                             variant="ghost"
                         >
                             <EyeIcon />
-                            View
+                            View Item
                         </Button>
                     </Link>
 
@@ -147,7 +169,7 @@ const TableMenu = ({ id }: IExpenseAuthorizationPaginatedData) => {
                             variant="ghost"
                         >
                             <PencilIcon />
-                            Edit
+                            Edit Item
                         </Button>
                     </Link>
                     <Button
@@ -156,7 +178,16 @@ const TableMenu = ({ id }: IExpenseAuthorizationPaginatedData) => {
                         onClick={() => setDialogOpen(true)}
                     >
                         <DeleteIcon />
-                        Delete
+                        Delete Item
+                    </Button>
+
+                    <Button
+                        className="w-full flex items-center justify-start gap-2"
+                        variant="ghost"
+                        onClick={() => setDialogOpen(true)}
+                    >
+                        <Shield className="text-green-500" />
+                        Security Approval
                     </Button>
                 </div>
             </PopoverContent>

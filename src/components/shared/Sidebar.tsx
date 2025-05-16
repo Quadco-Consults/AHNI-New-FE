@@ -2,6 +2,7 @@
 import { useState } from "react";
 import logoSvg from "assets/svgs/logo-bg.svg";
 import { NavLink, useLocation } from "react-router-dom";
+import { FaDotCircle } from "react-icons/fa";
 import {
     Bell,
     ChevronDown,
@@ -35,6 +36,50 @@ type SidebarProps = {
     sidebarWidth: boolean;
     setSidebarWidth: any;
 };
+
+const globalHubMenu = [
+    { label: "Support", path: RouteEnum.SUPPORT, icon: <HeartHandshake /> },
+    {
+        label: "Item Requisition",
+        path: AdminRoutes.ITEM_REQUISITION,
+    },
+
+    {
+        label: "Vehicle Request",
+        path: AdminRoutes.INDEX_VEHICLE_REQUEST,
+    },
+
+    {
+        label: "Fuel Request",
+        path: AdminRoutes.INDEX_FUEL_CONSUMPTION,
+    },
+
+    {
+        label: "Facility Maintenance Ticket",
+        path: AdminRoutes.INDEX_FACILITY_MAINTENANCE,
+    },
+
+    {
+        label: "Payment Request",
+        path: AdminRoutes.INDEX_PAYMENT_REQUEST,
+    },
+
+    {
+        label: "Asset Maintenance Request",
+        path: AdminRoutes.INDEX_ASSET_MAINTENANCE,
+    },
+
+    {
+        label: "Expense Authorization",
+        path: AdminRoutes.EXPENSE_AUTHORIZATION,
+    },
+
+    {
+        label: "Travel Expense Report",
+        path: AdminRoutes.TRAVEL_EXPENSE_REPORT,
+    },
+];
+
 const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
     const { data: user } = useGetUserProfileQuery(null);
 
@@ -543,56 +588,34 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                             GLOBAL HUB
                         </h4>
 
-                        <NavLink
-                            to={RouteEnum.NOTIFICATIONS}
-                            className={cn(
-                                "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
-                                location.pathname.startsWith(
-                                    RouteEnum.NOTIFICATIONS
-                                ) && "text-primary "
-                            )}
-                        >
-                            <div className="flex w-[85%] items-center gap-2">
-                                <span className="">
-                                    <Bell />
-                                </span>
-                                <h4
+                        {globalHubMenu?.map(({ label, path, icon }) => {
+                            return (
+                                <NavLink
+                                    to={path}
                                     className={cn(
-                                        " w-[100%] truncate font-medium",
-                                        sidebarWidth === false
-                                            ? "block"
-                                            : "hidden"
+                                        "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
+                                        location.pathname.startsWith(path) &&
+                                            "text-primary "
                                     )}
                                 >
-                                    Notifications
-                                </h4>
-                            </div>
-                        </NavLink>
-                        <NavLink
-                            to={RouteEnum.SUPPORT}
-                            className={cn(
-                                "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
-                                location.pathname.startsWith(
-                                    RouteEnum.SUPPORT
-                                ) && "text-primary "
-                            )}
-                        >
-                            <div className="flex w-[85%] items-center gap-2">
-                                <span className="">
-                                    <HeartHandshake />
-                                </span>
-                                <h4
-                                    className={cn(
-                                        " w-[100%] truncate font-medium",
-                                        sidebarWidth === false
-                                            ? "block"
-                                            : "hidden"
-                                    )}
-                                >
-                                    SUPPORT
-                                </h4>
-                            </div>
-                        </NavLink>
+                                    <div className="flex w-[85%] items-center gap-2">
+                                        <span className="">
+                                            {icon ? icon : <FaDotCircle />}
+                                        </span>
+                                        <h4
+                                            className={cn(
+                                                " w-[100%] truncate font-medium uppercase",
+                                                sidebarWidth === false
+                                                    ? "block"
+                                                    : "hidden"
+                                            )}
+                                        >
+                                            {label}
+                                        </h4>
+                                    </div>
+                                </NavLink>
+                            );
+                        })}
                     </div>
                 </div>
             </section>
@@ -800,10 +823,12 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
                             name: "Consumable",
                             path: AdminRoutes.INDEX_CONSUMABLE,
                         },
+
                         {
                             name: "Item Requisition",
                             path: AdminRoutes.ITEM_REQUISITION,
                         },
+
                         { name: "Assets", path: AdminRoutes.ASSETS },
                         {
                             name: "Asset Requests",
@@ -820,6 +845,7 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
                         },
                     ],
                 },
+
                 {
                     name: "Solicitation Management",
                     path: "/procurement-management/solicitation",
@@ -977,11 +1003,11 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
                         { name: "Awards", path: CG_ROUTES.SUBGRANT },
                         {
                             name: "Pre-award Assessment",
-                            path: CG_ROUTES.PREAWARD_ASSESSMENT,
+                            path: CG_ROUTES.PRE_AWARD_ASSESSMENT,
                         },
                         {
                             name: "Awarded Beneficiaries",
-                            path: CG_ROUTES.PREAWARD_ASSESSMENT,
+                            path: CG_ROUTES.AWARDED_BENEFICIARIES,
                         },
                     ],
                 },
@@ -998,6 +1024,12 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
                             name: "Consultant Management",
                             path: CG_ROUTES.CONSULTANCY,
                         },
+
+                        {
+                            name: "Consultancy Database",
+                            path: CG_ROUTES.CONSULTANCY_DATABASE,
+                        },
+
                         {
                             name: "Consultancy Report",
                             path: CG_ROUTES.CONSULTANCY_REPORT,

@@ -30,6 +30,7 @@ import {
 import { toast } from "sonner";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import DeleteIcon from "components/icons/DeleteIcon";
+import { useGetAllExpenseAuthorizationsQuery } from "services/admin/expense-authorization";
 
 const visaFreeOptions = [
     { label: "Yes", value: "true" },
@@ -79,6 +80,20 @@ export default function CreateTravelExpenseReportPage() {
                 value: id,
             })),
         [user]
+    );
+
+    const { data: expenseAuthorization } = useGetAllExpenseAuthorizationsQuery({
+        page: 1,
+        size: 2000000,
+    });
+
+    const expenseAuthorizationOptions = useMemo(
+        () =>
+            expenseAuthorization?.data.results.map(({ ta_number, id }) => ({
+                label: ta_number,
+                value: id,
+            })),
+        [expenseAuthorization]
     );
 
     const navigate = useNavigate();
@@ -148,6 +163,14 @@ export default function CreateTravelExpenseReportPage() {
                         <form onSubmit={form.handleSubmit(onSubmit)}>
                             <div className="grid grid-cols-2 gap-8">
                                 <FormSelect
+                                    label="Expense Authorization"
+                                    name="expense_authorization"
+                                    placeholder="Select Expense Authorization"
+                                    required
+                                    options={expenseAuthorizationOptions}
+                                />
+
+                                <FormSelect
                                     label="User"
                                     name="user"
                                     placeholder="Select User"
@@ -161,9 +184,7 @@ export default function CreateTravelExpenseReportPage() {
                                     placeholder="Enter Staff ID No"
                                     required
                                 />
-                            </div>
 
-                            <div className="mt-5">
                                 <FormInput
                                     label="Purpose of Travel"
                                     name="travel_purpose"

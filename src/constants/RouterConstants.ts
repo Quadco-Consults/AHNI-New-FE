@@ -369,7 +369,9 @@ export const CG_ROUTES = {
     SUBGRANT_SUBMISSION_DETAILS:
         "/c-and-g/sub-grant/:subGrantId/submission/:partnerSubId",
 
-    PREAWARD_ASSESSMENT:
+    PRE_AWARD_ASSESSMENT: "/c-and-g/sub-grant/preaward-assessment",
+
+    START_PRE_AWARD_ASSESSMENT:
         "/c-and-g/sub-grant/:subGrantId/submission/:partnerSubId/preaward-assessment",
 
     // close out
@@ -385,7 +387,7 @@ export const CG_ROUTES = {
     // CONSULTANCY
     CONSULTANCY: "/c-and-g/consultancy",
     CREATE_CONSULTANCY_DETAILS:
-        "/c-and-g/consultancy/create/application-details",
+        "/program/consultant-management/:id/applicant/create/",
     CREATE_CONSULTANCY_WORK_SCOPE: "/c-and-g/consultancy/create/scope-of-work",
     CONSULTANCY_DETAILS: "/c-and-g/consultancy/:id",
     CREATE_CONSULTANCY_APPLICANT: "/c-and-g/consultancy/:id/applicant/create",
@@ -410,6 +412,10 @@ export const CG_ROUTES = {
     FACILITATOR_DETAILS: "/c-and-g/facilitator/:id",
 
     CG_MODULES: "/modules/c-and-g",
+
+    AWARDED_BENEFICIARIES: "/c-and-g/awarded-beneficiaries",
+
+    CONSULTANCY_DATABASE: "/c-and-g/consultancy-database",
 };
 
 export const HrRoutes = {

@@ -29,7 +29,7 @@ export default function ConsultancyDetailsPage() {
     const path =
         type === "ADHOC"
             ? ProgramRoutes.CREATE_ADHOC_APPLICANT
-            : CG_ROUTES.CREATE_CONSULTANCY_DETAILS;
+            : CG_ROUTES.CREATE_CONSULTANCY_APPLICANT;
 
     if (isLoading) {
         return <LoadingSpinner />;

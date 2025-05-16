@@ -1,7 +1,7 @@
 import { IUser } from "definations/auth/user";
 import { TDepartmentData } from "definations/modules/config/department";
 import { TFCONumberData } from "definations/modules/finance/fco-number";
-import { TProjectData } from "definations/project";
+import { IProjectSingleData } from "definations/project";
 import { z } from "zod";
 
 export const ExpenseAuthorizationSchema = z.object({
@@ -19,20 +19,37 @@ export const ExpenseAuthorizationSchema = z.object({
     is_car_rental_allowed: z.string().min(1, "Please select a choice"),
     is_hotel_reservation_required: z.string().min(1, "Please select a choice"),
     is_hotel_transport_required: z.string().min(1, "Please select a choice"),
-    destination: z.string().min(1, "Please enter destination"),
+    // destination: z.string().min(1, "Please enter destination"),
 
-    travel_fee: z.object({
-        lodging: z.string().min(1, "Please enter lodging"),
-        meals: z.string().min(1, "Please enter meals"),
-        number_of_nights: z.string().min(1, "Please enter number of nights"),
-        interstate: z.string().min(1, "Please enter interstate"),
-        airport_taxi: z.string().min(1, "Please enter airport taxi"),
-        car_hire: z.string().min(1, "Please enter car hire"),
-    }),
+    // travel_fee: z.object({
+    //     lodging: z.string().min(1, "Please enter lodging"),
+    //     meals: z.string().min(1, "Please enter meals"),
+    //     number_of_nights: z.string().min(1, "Please enter number of nights"),
+    //     interstate: z.string().min(1, "Please enter interstate"),
+    //     airport_taxi: z.string().min(1, "Please enter airport taxi"),
+    //     car_hire: z.string().min(1, "Please enter car hire"),
+    // }),
 
     reviewer: z.string().min(1, "Please select reviewer"),
     authorizer: z.string().min(1, "Please select authorizer"),
     approver: z.string().min(1, "Please select approver"),
+
+    // to be added
+    destinations: z.array(
+        z.object({
+            destination: z.string().min(1, "Please enter destination"),
+            travel_fee: z.object({
+                lodging: z.string().min(1, "Please enter lodging"),
+                meals: z.string().min(1, "Please enter meals"),
+                number_of_nights: z
+                    .string()
+                    .min(1, "Please enter number of nights"),
+                interstate: z.string().min(1, "Please enter interstate"),
+                airport_taxi: z.string().min(1, "Please enter airport taxi"),
+                car_hire: z.string().min(1, "Please enter car hire"),
+            }),
+        })
+    ),
 });
 
 export type TExpenseAuthorizationFormData = z.infer<
@@ -69,7 +86,7 @@ export interface IExpenseAuthorizationSingleData {
     id: string;
     department: TDepartmentData;
     fco: TFCONumberData;
-    project: TProjectData;
+    project: IProjectSingleData;
     created_by: IUser;
     created_datetime: string;
     updated_datetime: string;

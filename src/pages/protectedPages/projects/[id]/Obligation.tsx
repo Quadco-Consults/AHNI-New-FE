@@ -6,9 +6,9 @@ import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIco
 import DeleteIcon from "components/icons/DeleteIcon";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 import { useState } from "react";
-import { TProjectData } from "definations/project";
+import { IProjectSingleData } from "definations/project";
 
-export default function ProjectObligation({}: TProjectData) {
+export default function ProjectObligation({}: IProjectSingleData) {
     return (
         <div>
             <h2 className="font-bold text-lg mb-4">Project Obligation</h2>
@@ -91,7 +91,6 @@ const TableAction = ({}: TColumn) => {
             <ConfirmationDialog
                 open={dialogOpen}
                 title="Are you sure you want to delete this project?"
-                // loading={isLoading}
                 onCancel={() => setDialogOpen(false)}
                 onOk={handleDeleteOblogation}
             />
