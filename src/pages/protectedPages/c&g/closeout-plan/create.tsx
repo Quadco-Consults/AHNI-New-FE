@@ -43,14 +43,27 @@ export default function CreateCloseOutPlan() {
             project: "",
             department: "",
             location: "",
-            key_task: "",
             tasks: [
-                { designation: "", remarks: "", start_date: "", end_date: "" },
+                {
+                    key_task: "",
+                    activities: [
+                        {
+                            designation: "",
+                            remarks: "",
+                            start_date: "",
+                            end_date: "",
+                        },
+                    ],
+                },
             ],
         },
     });
 
-    const { fields, append, remove } = useFieldArray({
+    const {
+        fields: taskFields,
+        append: appendTask,
+        remove: removeTask,
+    } = useFieldArray({
         name: "tasks",
         control: form.control,
     });
@@ -127,16 +140,14 @@ export default function CreateCloseOutPlan() {
                 data: { project, department, location },
             } = data;
 
-            form.reset({
-                ...data.data,
-                project: project.id,
-                department: department.id,
-                location: location.id,
-            });
+            // form.reset({
+            //     ...data.data,
+            //     project: project.id,
+            //     department: department.id,
+            //     location: location.id,
+            // });
         }
     }, [data, project, department, location]);
-
-    console.log({ id });
 
     return (
         <Card>
@@ -173,66 +184,14 @@ export default function CreateCloseOutPlan() {
                         />
 
                         <div className="space-y-5">
-                            <FormTextArea
-                                label="Key Task"
-                                name="key_task"
-                                placeholder="Enter Key Task"
-                                required
-                            />
-
-                            {fields.map((field, index) => (
-                                <div className="space-y-3">
-                                    <div className="flex items-center justify-between">
-                                        <h3 className="text-lg font-semibold">
-                                            Task {index + 1}
-                                        </h3>
-
-                                        <Button
-                                            variant="ghost"
-                                            onClick={() => remove(index)}
-                                        >
-                                            <DeleteIcon />
-                                        </Button>
-                                    </div>
-                                    <div key={field.id} className="space-y-5">
-                                        <FormTextArea
-                                            label="Description"
-                                            name="description"
-                                            placeholder="Enter Description"
-                                            required
-                                        />
-
-                                        <div className="grid grid-cols-2 gap-5">
-                                            <FormInput
-                                                label="Designation"
-                                                name={`tasks.${index}.designation`}
-                                                placeholder="Enter Designation"
-                                                required
-                                            />
-
-                                            <FormInput
-                                                label="Remarks"
-                                                name={`tasks.${index}.remarks`}
-                                                placeholder="Enter Remarks"
-                                                required
-                                            />
-
-                                            <FormInput
-                                                type="date"
-                                                label="Start Date"
-                                                name={`tasks.${index}.start_date`}
-                                                required
-                                            />
-
-                                            <FormInput
-                                                type="date"
-                                                label="End Date"
-                                                name={`tasks.${index}.end_date`}
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
+                            {taskFields.map((_, taskIndex) => (
+                                <TaskItem
+                                    key={taskFields[taskIndex].id}
+                                    taskIndex={taskIndex}
+                                    removeTask={removeTask}
+                                    control={form.control}
+                                    register={form.register}
+                                />
                             ))}
 
                             <FadedButton
@@ -240,12 +199,7 @@ export default function CreateCloseOutPlan() {
                                 size="lg"
                                 className="text-primary"
                                 onClick={() =>
-                                    append({
-                                        designation: "",
-                                        remarks: "",
-                                        start_date: "",
-                                        end_date: "",
-                                    })
+                                    appendTask({ key_task: "", activities: [] })
                                 }
                             >
                                 <AddSquareIcon /> Add Task
@@ -270,6 +224,99 @@ export default function CreateCloseOutPlan() {
                     </form>
                 </Form>
             </CardContent>
+        </Card>
+    );
+}
+
+function TaskItem({
+    taskIndex,
+    removeTask,
+    control,
+    register,
+}: {
+    taskIndex: number;
+    removeTask: (index: number) => void;
+    control: any;
+    register: any;
+}) {
+    const {
+        fields: activityFields,
+        append: appendActivity,
+        remove: removeActivity,
+    } = useFieldArray({
+        control,
+        name: `tasks.${taskIndex}.activities`,
+    });
+
+    return (
+        <Card className="space-y-5">
+            <FormTextArea
+                label="Key Task"
+                name={`tasks.${taskIndex}.key_task`}
+                placeholder="Enter Key Task"
+                required
+            />
+
+            {activityFields.map((activity, activityIndex) => (
+                <div key={activity.id} className="space-y-3">
+                    <h3 className="text-lg font-semibold">
+                        Activity {activityIndex + 1}
+                    </h3>
+                    <div className="space-y-5">
+                        <FormTextArea
+                            label="Description"
+                            name={`tasks.${taskIndex}.activities.${activityIndex}.description`}
+                            placeholder="Enter Description"
+                            required
+                        />
+                        <div className="grid grid-cols-2 gap-5">
+                            <FormInput
+                                label="Designation"
+                                name={`tasks.${taskIndex}.activities.${activityIndex}.designation`}
+                                placeholder="Enter Designation"
+                                required
+                            />
+                            
+                            <FormInput
+                                label="Remarks"
+                                name={`tasks.${taskIndex}.activities.${activityIndex}.remarks`}
+                                placeholder="Enter Remarks"
+                                required
+                            />
+
+                            <FormInput
+                                type="date"
+                                label="Start Date"
+                                name={`tasks.${taskIndex}.activities.${activityIndex}.start_date`}
+                                required
+                            />
+
+                            <FormInput
+                                type="date"
+                                label="End Date"
+                                name={`tasks.${taskIndex}.activities.${activityIndex}.end_date`}
+                                required
+                            />
+                        </div>
+                    </div>
+                </div>
+            ))}
+            <FadedButton
+                type="button"
+                size="lg"
+                className="text-primary"
+                onClick={() =>
+                    appendActivity({
+                        description: "",
+                        designation: "",
+                        remarks: "",
+                        start_date: "",
+                        end_date: "",
+                    })
+                }
+            >
+                <AddSquareIcon /> Add Activity
+            </FadedButton>
         </Card>
     );
 }

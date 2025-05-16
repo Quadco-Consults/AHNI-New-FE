@@ -54,7 +54,7 @@ const TableMenu = ({
 }: ISubGrantSubmissionPaginatedData) => {
     const [isDialogOpen, setDialogOpen] = useState(false);
 
-    const { id: subGrantId } = useParams();
+    const { id: subGrantId = "" } = useParams();
 
     const { pathname } = useLocation();
 

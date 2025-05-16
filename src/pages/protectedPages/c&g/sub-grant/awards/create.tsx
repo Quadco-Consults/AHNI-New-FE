@@ -289,10 +289,10 @@ export default function CreateSubGrant() {
                             />
 
                             <FormSelect
-                                label="Tender Type"
+                                label="Sub Grant Type"
                                 options={tenderTypeOptions}
                                 name="tender_type"
-                                placeholder="Select Tender Type"
+                                placeholder="Select Sub-Grant Type"
                                 required
                             />
 
