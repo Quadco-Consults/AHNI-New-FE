@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import FinancialAPI from "services/configs/financial-year";
 import { closeDialog } from "store/ui";
 import { useDispatch } from "react-redux";
+import { useGetAllProjectsQuery } from "services/project";
 
 type PropsType = {
   isOpen: boolean;
@@ -35,8 +36,9 @@ const customStyles = {
 };
 
 const FormSchema = z.object({
-  financial_year: z.string().min(1, "Please select a file to upload"),
+  financial_year: z.string().min(1, "Please select a Financial Year"),
   file: z.string().min(1, "Please select a file to upload"),
+  project: z.string().min(1, "Please select a Project"),
 });
 
 const ProcurementPlanUploadModal = (props: PropsType) => {
@@ -51,18 +53,31 @@ const ProcurementPlanUploadModal = (props: PropsType) => {
     params: { no_paginate: true },
   });
 
+  const { data: project } = useGetAllProjectsQuery({
+    page: 1,
+    size: 1000000,
+  });
+  // @ts-ignore
   const financialYearOptions = financialYear?.data.results.map(
+    // @ts-ignore
     ({ year, id }) => ({
       label: year,
       value: id,
     })
   );
 
+  // @ts-ignore
+  const projectOptions = project?.data.results.map(({ title, id }) => ({
+    label: title,
+    value: id,
+  }));
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       financial_year: "",
       file: "1",
+      project: "",
     },
   });
 
@@ -73,11 +88,9 @@ const ProcurementPlanUploadModal = (props: PropsType) => {
 
     setFile(file);
   };
-  console.log({ file });
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: { financial_year: string | Blob }) => {
     const formData = new FormData();
-    console.log({ data });
 
     formData.append("file", file as Blob);
     formData.append("financial_year", data?.financial_year);
@@ -124,6 +137,14 @@ const ProcurementPlanUploadModal = (props: PropsType) => {
                 name='financial_year'
                 required
                 options={financialYearOptions}
+              />
+            </div>
+            <div className='flex items-center gap-2'>
+              <FormSelect
+                label='Project'
+                name='project'
+                required
+                options={projectOptions}
               />
             </div>
             <div className='w-full relative gap-x-3 h-[52px] rounded-[16.2px] border flex justify-center items-center px-5'>
