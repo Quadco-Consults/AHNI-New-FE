@@ -66,7 +66,7 @@ export interface ISupervisionPlanReviewSingleData {
             updated_datetime: string;
             name: string;
             description: string;
-            evaluation_category: string;
+            evaluation_category: { name: string };
         };
         created_datetime: string;
         updated_datetime: string;

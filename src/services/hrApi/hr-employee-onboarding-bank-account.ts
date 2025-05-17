@@ -1,4 +1,3 @@
- 
 import baseAPI from "..";
 import { WorkforceBankAccountFormValues } from "definations/hr-validator";
 
@@ -7,26 +6,30 @@ const BASE_URL = "hr/employees/bank-accounts/";
 const EmployeeOnboardingBankAcctAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     getEmployeeOnboardingBankAcct: builder.query<
-    WorkforceBankAccountFormValues[],
-      { status?: string; search?: string }
+      { data: { results: WorkforceBankAccountFormValues[] } },
+      { status?: string; search?: string; employee?: string }
     >({
-      query: ({ status, search }) => ({
+      query: ({ status, search, employee }) => ({
         url: BASE_URL,
         params: {
           ...(status && { status }),
           ...(search && { search }),
+          ...(employee && { employee }),
         },
       }),
       providesTags: ["EMPLOYEE_ONBOARDING"],
     }),
 
-    getEmployeeOnboardingBankAcctQuery: builder.query<WorkforceBankAccountFormValues, { id: string }>({
+    getEmployeeOnboardingBankAcctQuery: builder.query<
+      WorkforceBankAccountFormValues,
+      { id: string }
+    >({
       query: ({ id }) => ({ url: `${BASE_URL}${id}/` }),
       providesTags: ["EMPLOYEE_ONBOARDING"],
     }),
 
     createEmployeeOnboardingBankAcct: builder.mutation<
-    WorkforceBankAccountFormValues,
+      WorkforceBankAccountFormValues,
       Partial<WorkforceBankAccountFormValues>
     >({
       query: (body) => ({
@@ -35,9 +38,10 @@ const EmployeeOnboardingBankAcctAPI = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: ["EMPLOYEE_ONBOARDING"],
-    }), 
+    }),
+
     updateEmployeeOnboardingBankAcct: builder.mutation<
-    WorkforceBankAccountFormValues,
+      WorkforceBankAccountFormValues,
       { id: string; body: Partial<WorkforceBankAccountFormValues> }
     >({
       query: ({ id, body }) => ({
@@ -49,7 +53,7 @@ const EmployeeOnboardingBankAcctAPI = baseAPI.injectEndpoints({
     }),
 
     patchEmployeeOnboardingBankAcct: builder.mutation<
-    WorkforceBankAccountFormValues,
+      WorkforceBankAccountFormValues,
       { id: string; body: Partial<WorkforceBankAccountFormValues> }
     >({
       query: ({ id, body }) => ({
@@ -67,5 +71,5 @@ export const {
   useGetEmployeeOnboardingBankAcctQuery,
   useGetEmployeeOnboardingBankAcctQueryQuery,
   usePatchEmployeeOnboardingBankAcctMutation,
-  useUpdateEmployeeOnboardingBankAcctMutation
+  useUpdateEmployeeOnboardingBankAcctMutation,
 } = EmployeeOnboardingBankAcctAPI;

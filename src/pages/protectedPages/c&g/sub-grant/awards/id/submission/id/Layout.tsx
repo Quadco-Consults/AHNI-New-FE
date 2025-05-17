@@ -27,7 +27,7 @@ export default function PartnerSubmissionDetailsWrapper() {
                 </div>
 
                 <Link
-                    to={generatePath(CG_ROUTES.PREAWARD_ASSESSMENT, {
+                    to={generatePath(CG_ROUTES.START_PRE_AWARD_ASSESSMENT, {
                         subGrantId,
                         partnerSubId,
                     })}

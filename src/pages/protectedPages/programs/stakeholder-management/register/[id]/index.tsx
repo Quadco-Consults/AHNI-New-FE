@@ -2,6 +2,7 @@ import { skipToken } from "@reduxjs/toolkit/query/react";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
 import Card from "components/shared/Card";
+import DescriptionCard from "components/shared/DescriptionCard";
 import { LoadingSpinner } from "components/shared/Loading";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetSingleStakeholderRegisterQuery } from "services/programsApi/stakeholder";
@@ -126,6 +127,23 @@ const RegisterDetails = () => {
                                 </h4>
                                 <p>{data?.data.relationship_owner}</p>
                             </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            <DescriptionCard
+                                label="Contact Person Name"
+                                description=""
+                            />
+
+                            <DescriptionCard
+                                label="Contact Person Email"
+                                description=""
+                            />
+
+                            <DescriptionCard
+                                label="Contact Person Phone Number"
+                                description=""
+                            />
                         </div>
                     </>
                 )}

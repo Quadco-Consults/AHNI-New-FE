@@ -144,7 +144,7 @@ export const program = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/c&g/contract-management/consultant-management/id/ConsultantDetails"
+                    "pages/protectedPages/c&g/contract-management/consultant-management/id/ConsultancyDetails"
                 )
         ),
     },
@@ -153,7 +153,7 @@ export const program = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/c&g/contract-management/consultant-management/id/applicants/CreateApplicant"
+                    "pages/protectedPages/c&g/contract-management/consultant-management/id/applicants/CreateConsultancyStaff"
                 )
         ),
     },
@@ -162,7 +162,7 @@ export const program = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/candg/consultancy/ConsultancyApplicationDetails"
+                    "pages/protectedPages/c&g/contract-management/consultant-management/id/applicants/ConsultancyStaffDetails"
                 )
         ),
     },
@@ -363,28 +363,40 @@ export const program = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/c&g/contract-management/consultant-management/id/ConsultantDetails"
+                    "pages/protectedPages/c&g/contract-management/consultant-management/id/ConsultancyDetails"
                 )
         ),
     },
     {
-        path: CG_ROUTES.CREATE_CONSULTANCY_APPLICANT,
+        path: ProgramRoutes.CREATE_ADHOC_APPLICANT,
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/c&g/contract-management/consultant-management/id/applicants/CreateApplicant"
+                    "pages/protectedPages/c&g/contract-management/consultant-management/id/applicants/CreateConsultancyStaff"
                 )
         ),
     },
+
     {
-        path: CG_ROUTES.CONSULTANCY_APPLICATION_DETAILS,
+        path: ProgramRoutes.ADHOC_APPLICANT_DETAILS,
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/candg/consultancy/ConsultancyApplicationDetails"
+                    "pages/protectedPages/c&g/contract-management/consultant-management/id/applicants/ConsultancyStaffDetails"
                 )
         ),
     },
+
+    {
+        path: ProgramRoutes.ADHOC_DATABASE,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/consultancy-database/index"
+                )
+        ),
+    },
+
     {
         path: CG_ROUTES.CONSULTANCY_SHORTLIST_METRIC,
         element: lazy(

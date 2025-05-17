@@ -7,7 +7,7 @@ import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIco
 import DeleteIcon from "components/icons/DeleteIcon";
 import PencilIcon from "components/icons/PencilIcon";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { IAgreementPaginatedData } from "definations/c&g/contract-management/agreement";
 import { useDeleteAgreementMutation } from "services/c&g/contract-management/agreement";
 import { CG_ROUTES } from "constants/RouterConstants";
@@ -17,6 +17,27 @@ export const agreementColumns: ColumnDef<IAgreementPaginatedData>[] = [
         header: "Name of Vendor",
         id: "_",
         accessorKey: "service",
+        size: 200,
+    },
+
+    {
+        header: "Contact Person",
+        id: "_",
+        accessorKey: "_",
+        size: 200,
+    },
+
+    {
+        header: "Contact Person Email",
+        id: "_",
+        accessorKey: "_",
+        size: 200,
+    },
+
+    {
+        header: "Contact Person Phone Number",
+        id: "_",
+        accessorKey: "_",
         size: 200,
     },
 

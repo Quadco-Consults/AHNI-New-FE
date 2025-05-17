@@ -7,7 +7,7 @@ import Card from "components/shared/Card";
 import GoBack from "components/shared/GoBack";
 import { Form } from "components/ui/form";
 import { Label } from "components/ui/label";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import FormRadio from "atoms/FormRadio";
 import {
     ExpenseAuthorizationSchema,
@@ -34,6 +34,11 @@ import {
 import { toast } from "sonner";
 import { useGetAllUsersQuery } from "services/auth/user";
 import { skipToken } from "@reduxjs/toolkit/query/react";
+import FadedButton from "atoms/FadedButton";
+import { AddIcon } from "assets/svgs/CAndGSvgs";
+import { PlusIcon } from "lucide-react";
+import AddSquareIcon from "components/icons/AddSquareIcon";
+import DeleteIcon from "components/icons/DeleteIcon";
 
 const radioOptions = [
     { label: "Yes", value: "true" },
@@ -58,19 +63,38 @@ export default function CreateExpenseAuthorization() {
             is_car_rental_allowed: "",
             is_hotel_reservation_required: "",
             is_hotel_transport_required: "",
-            destination: "",
-            travel_fee: {
-                lodging: "",
-                meals: "",
-                number_of_nights: "",
-                interstate: "",
-                airport_taxi: "",
-                car_hire: "",
-            },
+            // destination: "",
+            // travel_fee: {
+            //     lodging: "",
+            //     meals: "",
+            //     number_of_nights: "",
+            //     interstate: "",
+            //     airport_taxi: "",
+            //     car_hire: "",
+            // },
             reviewer: "",
             authorizer: "",
             approver: "",
+
+            destinations: [
+                {
+                    destination: "",
+                    travel_fee: {
+                        lodging: "",
+                        meals: "",
+                        number_of_nights: "",
+                        interstate: "",
+                        airport_taxi: "",
+                        car_hire: "",
+                    },
+                },
+            ],
         },
+    });
+
+    const { fields, append, remove } = useFieldArray({
+        name: "destinations",
+        control: form.control,
     });
 
     const navigate = useNavigate();
@@ -187,15 +211,15 @@ export default function CreateExpenseAuthorization() {
                 is_hotel_transport_required: String(
                     data.is_hotel_transport_required
                 ),
-                destination: data.destination,
-                travel_fee: {
-                    lodging: "",
-                    meals: "",
-                    number_of_nights: "",
-                    interstate: "",
-                    airport_taxi: "",
-                    car_hire: "",
-                },
+                // destination: data.destination,
+                // travel_fee: {
+                //     lodging: "",
+                //     meals: "",
+                //     number_of_nights: "",
+                //     interstate: "",
+                //     airport_taxi: "",
+                //     car_hire: "",
+                // },
 
                 reviewer: "",
                 authorizer: "",
@@ -219,14 +243,6 @@ export default function CreateExpenseAuthorization() {
                         onSubmit={form.handleSubmit(onSubmit)}
                     >
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                            <FormSelect
-                                label="Project Name"
-                                name="project"
-                                placeholder="Select Project"
-                                required
-                                options={projectoptions}
-                            />
-
                             <FormSelect
                                 label="Department"
                                 name="department"
@@ -319,86 +335,128 @@ export default function CreateExpenseAuthorization() {
                                 />
                             </div>
                         </div>
+                        <section className="space-y-5">
+                            {fields?.map((field, index) => (
+                                <Card key={field.id} className="space-y-5">
+                                    <FormSelect
+                                        label="Project Name"
+                                        name="project"
+                                        placeholder="Select Project"
+                                        required
+                                        options={projectoptions}
+                                    />
 
-                        <FormTextArea
-                            label="Destination"
-                            name="destination"
-                            placeholder="Enter Destination"
-                            required
-                        />
+                                    <FormTextArea
+                                        label="Destination"
+                                        name={`destinations.${index}.destination`}
+                                        placeholder="Enter Destination"
+                                        required
+                                    />
 
-                        <div className="space-y-4">
-                            <Label className="text-lg font-bold">
-                                Travel Office Use:
-                            </Label>
+                                    <div className="grid grid-cols-2 gap-5">
+                                        <FormInput
+                                            type="date"
+                                            label="Date of Arrival"
+                                            name={`destinations.${index}.travel_fee.car_hire`}
+                                            required
+                                        />
 
-                            <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-                                <FormInput
-                                    label="Lodging"
-                                    name={`travel_fee.lodging`}
-                                    type="number"
-                                    placeholder="Enter Lodging"
-                                    required
-                                />
+                                        <FormInput
+                                            type="date"
+                                            label="Date of Departure"
+                                            name={`destinations.${index}.travel_fee.car_hire`}
+                                            required
+                                        />
+                                    </div>
 
-                                <FormInput
-                                    label="Meals"
-                                    name={`travel_fee.meals`}
-                                    type="number"
-                                    placeholder="Enter Meals"
-                                    required
-                                />
+                                    <div className="space-y-4">
+                                        <Label className="text-lg font-bold">
+                                            Travel Office Use:
+                                        </Label>
 
-                                <FormInput
-                                    label="Number of Night"
-                                    name={`travel_fee.number_of_nights`}
-                                    type="number"
-                                    placeholder="Enter No of Nights"
-                                    required
-                                />
+                                        <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+                                            <FormInput
+                                                label="Lodging"
+                                                name={`destinations.${index}.travel_fee.lodging`}
+                                                type="number"
+                                                placeholder="Enter Lodging"
+                                                required
+                                            />
 
-                                <FormInput
-                                    label="Interstate"
-                                    name={`travel_fee.interstate`}
-                                    type="number"
-                                    placeholder="Enter Interstate"
-                                    required
-                                />
+                                            <FormInput
+                                                label="Meals"
+                                                name={`destinations.${index}.travel_fee.meals`}
+                                                type="number"
+                                                placeholder="Enter Meals"
+                                                required
+                                            />
 
-                                <FormInput
-                                    label="Airport Taxi"
-                                    name={`travel_fee.airport_taxi`}
-                                    type="number"
-                                    placeholder="Enter Airport Taxi"
-                                    required
-                                />
+                                            <FormInput
+                                                label="Number of Night"
+                                                name={`destinations.${index}.travel_fee.number_of_nights`}
+                                                type="number"
+                                                placeholder="Enter No of Nights"
+                                                required
+                                            />
 
-                                <FormInput
-                                    label="Car Hire"
-                                    name={`travel_fee.car_hire`}
-                                    type="number"
-                                    placeholder="Enter Car Hire"
-                                    required
-                                />
+                                            <FormInput
+                                                label="Interstate"
+                                                name={`destinations.${index}.travel_fee.interstate`}
+                                                type="number"
+                                                placeholder="Enter Interstate"
+                                                required
+                                            />
+
+                                            <FormInput
+                                                label="Airport Taxi"
+                                                name={`destinations.${index}.travel_fee.airport_taxi`}
+                                                type="number"
+                                                placeholder="Enter Airport Taxi"
+                                                required
+                                            />
+
+                                            <FormInput
+                                                label="Car Hire"
+                                                name={`destinations.${index}.travel_fee.car_hire`}
+                                                type="number"
+                                                placeholder="Enter Car Hire"
+                                                required
+                                            />
+
+                                            <Button
+                                                variant="ghost"
+                                                type="button"
+                                                onClick={() => remove(index)}
+                                            >
+                                                <DeleteIcon />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </Card>
+                            ))}
+
+                            <div className="flex justify-end">
+                                <FadedButton
+                                    className="text-primary"
+                                    type="button"
+                                    onClick={() =>
+                                        append({
+                                            destination: "",
+                                            travel_fee: {
+                                                lodging: "",
+                                                meals: "",
+                                                number_of_nights: "",
+                                                interstate: "",
+                                                airport_taxi: "",
+                                                car_hire: "",
+                                            },
+                                        })
+                                    }
+                                >
+                                    <AddSquareIcon /> Add Destination
+                                </FadedButton>
                             </div>
-
-                            {/* <div className="max-w-md text-red-500 space-y-4">
-                                <div className="flex gap-x-6 items-center justify-between">
-                                    <h4 className="font-medium">Total:</h4>
-                                    <p className="font-semibold">N1200</p>
-                                </div>
-                                <div className="flex gap-x-6 items-center justify-between">
-                                    <h4 className="font-medium">Advance %:</h4>
-                                    <p className="font-semibold">N/A</p>
-                                </div>
-                                <div className="flex gap-x-6 items-center justify-between">
-                                    <h4 className="font-medium">
-                                        Total Advance:
-                                    </h4>
-                                    <p className="font-semibold">N/A</p>
-                                </div>
-                            </div> */}
-                        </div>
+                        </section>
 
                         <div className="space-y-4">
                             <Label className="font-bold text-lg">

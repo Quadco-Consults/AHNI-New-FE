@@ -225,6 +225,27 @@ const CreateRegister = () => {
                             placeholder="Enter relationship owner"
                             required
                         />
+
+                        <FormInput
+                            label="Contact Person Name"
+                            name="_"
+                            placeholder="Enter Contact Person Name"
+                            required
+                        />
+
+                        <FormInput
+                            label="Contact Person Email"
+                            name="_"
+                            placeholder="Enter Contact Person Email"
+                            required
+                        />
+
+                        <FormInput
+                            label="Contact Person Phone Number"
+                            name="_"
+                            placeholder="Enter Contact Person Phone Number"
+                            required
+                        />
                     </Card>
 
                     <div className="flex justify-end gap-5 pt-10">

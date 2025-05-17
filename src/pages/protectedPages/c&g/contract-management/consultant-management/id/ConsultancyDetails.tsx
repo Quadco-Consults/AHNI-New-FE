@@ -1,8 +1,8 @@
 import BackNavigation from "atoms/BackNavigation";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import { Button } from "components/ui/button";
-import { CG_ROUTES } from "constants/RouterConstants";
-import { generatePath, Link, useParams } from "react-router-dom";
+import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
+import { generatePath, Link, useLocation, useParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { LoadingSpinner } from "components/shared/Loading";
@@ -11,9 +11,9 @@ import JobDetails from "./JobDetails";
 import Card from "components/shared/Card";
 import { useGetSingleConsultantManagementQuery } from "services/c&g/contract-management/consultancy-management/consultant-management";
 import ScopeOfWork from "./ScopeOfWork";
-import Applications from "./applicants/ConsultancyApplicant";
+import Applications from "./applicants/ConsultancyStaffList";
 
-export default function ConsultantDetailsPage() {
+export default function ConsultancyDetailsPage() {
     const [tabValue, setTabValue] = useState("job-details");
 
     const { id } = useParams();
@@ -21,6 +21,15 @@ export default function ConsultantDetailsPage() {
     const { data, isLoading } = useGetSingleConsultantManagementQuery(
         id ?? skipToken
     );
+
+    const { pathname } = useLocation();
+
+    const type = pathname.includes("adhoc-management") ? "ADHOC" : "CONSULTANT";
+
+    const path =
+        type === "ADHOC"
+            ? ProgramRoutes.CREATE_ADHOC_APPLICANT
+            : CG_ROUTES.CREATE_CONSULTANCY_APPLICANT;
 
     if (isLoading) {
         return <LoadingSpinner />;
@@ -60,12 +69,9 @@ export default function ConsultantDetailsPage() {
                     <div>
                         <Link
                             className="w-full"
-                            to={generatePath(
-                                CG_ROUTES.CREATE_CONSULTANCY_APPLICANT,
-                                {
-                                    id,
-                                }
-                            )}
+                            to={generatePath(path, {
+                                id,
+                            })}
                         >
                             <Button className="flex gap-2 py-6" type="button">
                                 <AddSquareIcon />

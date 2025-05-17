@@ -20,6 +20,53 @@ import { cn } from "lib/utils";
 export const itemRequisitionColumns: ColumnDef<TItemRequisitionPaginatedData>[] =
     [
         {
+            header: "Employee ID Number",
+            id: "_",
+            accessorKey: "_",
+            size: 250,
+        },
+
+        {
+            header: "Employee Full Name",
+            id: "full_name",
+
+            size: 250,
+        },
+
+        {
+            header: "Employee Email",
+            id: "email",
+            size: 250,
+        },
+
+        {
+            header: "Employee Phone Number",
+            id: "mobile_number",
+            size: 250,
+        },
+
+        {
+            header: "Employee Address",
+            id: "address",
+            accessorKey: "address",
+            size: 250,
+        },
+
+        {
+            header: "Employee EA Number",
+            id: "ta_number",
+            accessorKey: "ta_number",
+            size: 250,
+        },
+
+        {
+            header: "Employee Department",
+            id: "department",
+            accessorKey: "department",
+            size: 250,
+        },
+
+        {
             header: "Items Requested",
             accessorFn: ({ consummables }) =>
                 consummables.map((item) => item.consummable).join(", "),

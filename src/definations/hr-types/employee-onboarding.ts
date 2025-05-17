@@ -23,14 +23,14 @@ type emergency_contact = {
   employee: string;
 };
 
-type system_authorization = {
+export type HrSystemAuthorization = {
   id: string;
   created_datetime: string;
   updated_datetime: string;
   user_login_name: string;
   computer_name: string;
   email_alias: string;
-  training_completed: boolean;
+  is_training_completed: boolean;
   authorization_officer_name: string;
   authorization_date: string;
   employee: string;
@@ -62,7 +62,7 @@ type pfas = {
   employee: string;
 };
 
-type qualifications = {
+export type HrQualifications = {
   id: string;
   certificate_url: string;
   created_datetime: string;
@@ -80,10 +80,10 @@ export interface EmployeeOnboarding {
 
   beneficiaries: beneficiary[];
   emergency_contacts: emergency_contact[];
-  system_authorization: system_authorization;
+  system_authorization: HrSystemAuthorization;
   bank_accounts: bank_accounts;
   pfas: pfas;
-  qualifications: qualifications;
+  qualifications: HrQualifications;
 
   created_datetime: string;
   updated_datetime: string;
@@ -106,21 +106,22 @@ export interface EmployeeOnboarding {
   group_membership: number[];
 }
 export interface EmployeeOnboardingQualifications {
-  certificate_name: "string",
-  institution_name: "string",
-  date_of_qualification: "string",
-  certificate_file: "string",
-  employee: "string"
+  certificate_name: "string";
+  institution_name: "string";
+  date_of_qualification: "string";
+  certificate_file: "string";
+  employee: "string";
 }
-export interface EmployeeOnboardingAddInfo {
-  name: "string",
-  relationship: "string",
-  email_address: "string",
-  address: "string",
-  home_phone: "string",
-  mobile_phone: "string",
-  employee: "string"
+export interface HrEmergencyResults {
+  name: "string";
+  relationship: "string";
+  email_address: "string";
+  address: "string";
+  home_phone: "string";
+  mobile_phone: "string";
+  employee: "string";
 }
+
 export type EmployeeOnboardingAddSignatory = {
   id: string;
   created_at: string;
@@ -128,5 +129,5 @@ export type EmployeeOnboardingAddSignatory = {
   witness_name: string;
   witness_date: string;
   withness_signature: string;
-  employee: string; 
+  employee: string;
 };

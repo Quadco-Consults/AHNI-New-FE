@@ -1,8 +1,6 @@
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
 import AddSquareIcon from "components/icons/AddSquareIcon";
-import SearchIcon from "components/icons/SearchIcon";
-import FilterIcon from "components/icons/FilterIcon";
 import { useState } from "react";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
@@ -66,7 +64,6 @@ export default function ActivityPlan() {
             document.body.removeChild(link);
             URL.revokeObjectURL(blobUrl);
         } catch (error: any) {
-            console.log(error);
             toast.error(error.data.message || "Something went wrong");
         }
     };

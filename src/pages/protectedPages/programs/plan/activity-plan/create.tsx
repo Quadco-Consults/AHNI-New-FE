@@ -228,6 +228,13 @@ export default function CreateActivityPlan() {
                         />
 
                         <FormTextArea
+                            label="Expected Result"
+                            name="_"
+                            placeholder="Enter Expected Result"
+                            required
+                        />
+
+                        <FormTextArea
                             label="Comments"
                             name="comments"
                             placeholder="Enter Comments"

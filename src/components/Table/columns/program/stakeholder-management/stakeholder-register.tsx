@@ -92,6 +92,25 @@ export const stakeholderRegisterColumnss: ColumnDef<TStakeholderRegisterData>[] 
             accessorFn: ({ relationship_owner }) => `${relationship_owner}`,
             size: 200,
         },
+
+        {
+            header: "Contact Person Name",
+            id: "_",
+            size: 200,
+        },
+
+        {
+            header: "Contact Person Email",
+            id: "_",
+            size: 200,
+        },
+
+        {
+            header: "Contact Person Phone Number",
+            id: "_",
+            size: 200,
+        },
+
         {
             header: "",
             id: "menu",

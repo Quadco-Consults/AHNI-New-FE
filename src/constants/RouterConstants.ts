@@ -65,9 +65,14 @@ export const AdminRoutes = {
 
   // ---------------------
 
+  /* GOOD RECEIVE NOTES START */
   GRN: "/admin/inventory-management/good-receive-note",
-  GRN_CREATE: "/admin/inventory-management/good-receive-note/create",
+  GRN_CREATE_SUMMARY: "/admin/inventory-management/good-receive-note/create",
+  GRN_CREATE_UPLOADS:
+    "/admin/inventory-management/good-receive-note/create/uploads",
   GRN_DETAIL: "/admin/inventory-management/good-receive-note/:id",
+  /* GOOD RECEIVE NOTES END */
+
   ITEM_REQUISITION: "/admin/inventory-management/item-requisition",
   ITEM_REQUISITION_DETAIL: "/admin/inventory-management/item-requisition/:id",
   CREATE_ITEM_REQUISITION:
@@ -83,8 +88,6 @@ export const AdminRoutes = {
   Insurance: "/admin/agrements/insurance",
   Ticketing: "/admin/agrements/ticketing",
   ViewAggrement: "/admin/agrements/View-Aggrement",
-
-  // starting new import
 
   //rfq routes
   RFQ: "/admin/solicitation/rfq",
@@ -121,6 +124,8 @@ export const AdminRoutes = {
     "/admin/competitive-bid-analysis/:id/summary-of-technical-prequalification",
 
   //ending
+
+  ADMIN_TRACKER: "/admin/admin-tracker",
 };
 
 export const RouteEnum = {
@@ -361,7 +366,9 @@ export const CG_ROUTES = {
   SUBGRANT_SUBMISSION_DETAILS:
     "/c-and-g/sub-grant/:subGrantId/submission/:partnerSubId",
 
-  PREAWARD_ASSESSMENT:
+  PRE_AWARD_ASSESSMENT: "/c-and-g/sub-grant/preaward-assessment",
+
+  START_PRE_AWARD_ASSESSMENT:
     "/c-and-g/sub-grant/:subGrantId/submission/:partnerSubId/preaward-assessment",
 
   // close out
@@ -376,7 +383,8 @@ export const CG_ROUTES = {
 
   // CONSULTANCY
   CONSULTANCY: "/c-and-g/consultancy",
-  CREATE_CONSULTANCY_DETAILS: "/c-and-g/consultancy/create/application-details",
+  CREATE_CONSULTANCY_DETAILS:
+    "/program/consultant-management/:id/applicant/create/",
   CREATE_CONSULTANCY_WORK_SCOPE: "/c-and-g/consultancy/create/scope-of-work",
   CONSULTANCY_DETAILS: "/c-and-g/consultancy/:id",
   CREATE_CONSULTANCY_APPLICANT: "/c-and-g/consultancy/:id/applicant/create",
@@ -400,6 +408,10 @@ export const CG_ROUTES = {
   FACILITATOR_DETAILS: "/c-and-g/facilitator/:id",
 
   CG_MODULES: "/modules/c-and-g",
+
+  AWARDED_BENEFICIARIES: "/c-and-g/awarded-beneficiaries",
+
+  CONSULTANCY_DATABASE: "/c-and-g/consultancy-database",
 };
 
 export const HrRoutes = {
@@ -434,6 +446,7 @@ export const HrRoutes = {
   WORKFORCE_NEED_ANALYSIS: "/hr/workforce-need-analysis",
   WORKFORCE_NEED_ANALYSIS_CREATE: "/hr/workforce-need-analysis/create",
   WORKFORCE_DATABASE: "/hr/workforce-database",
+  WORKFORCE_DATABASE_CREATE: "/hr/workforce-database/create",
   WORKFORCE_DATABASE_DETAIL: "/hr/workforce-database/:id",
   PERFORMANCE_MANAGEMENT: "/hr/performance-management",
   PERFORMANCE_MANAGEMENT_CREATE: "/hr/performance-management/create",
@@ -473,4 +486,5 @@ export enum ProgramRoutes {
   ADHOC_DETAILS = "/program/adhoc-management/:id/details/",
   CREATE_ADHOC_APPLICANT = "/program/adhoc-management/:id/applicant/create/",
   ADHOC_APPLICANT_DETAILS = "/program/adhoc-management/:adhocId/applicant/:applicantId/details/",
+  ADHOC_DATABASE = "/program/adhoc-database/",
 }
