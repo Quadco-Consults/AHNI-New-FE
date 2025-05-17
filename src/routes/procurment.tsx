@@ -59,6 +59,15 @@ export const procurment = [
     ),
   },
   {
+    path: RouteEnum.PROCUREMENT_PLAN_FINANCIAL_YEAR,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/procurement-plan/id/financial-year"
+        )
+    ),
+  },
+  {
     path: RouteEnum.PROCUREMENT_DETAILS,
     element: lazy(
       () =>
