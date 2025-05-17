@@ -162,6 +162,7 @@ export const RouteEnum = {
 
   //purchase request routes
   PURCHASE_REQUEST: "/procurement-management/purchase-request",
+  PENDING_PURCHASE_REQUEST: "/procurement-management/purchase-request/pending",
   PURCHASE_REQUEST_DETAILS: "/procurement-management/purchase-request/:id",
   PURCHASE_REQUEST_FORM: "/procurement-management/purchase-request/form",
   CREATE_PURCHASE_REQUEST: "/procurement-management/create-purchase-request",
