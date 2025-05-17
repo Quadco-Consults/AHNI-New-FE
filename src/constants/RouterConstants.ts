@@ -167,6 +167,8 @@ export const RouteEnum = {
 
   //procurement routes
   PROCUREMENT_PLAN: "/procurement-management/procurement-plan",
+  PROCUREMENT_PLAN_FINANCIAL_YEAR:
+    "/procurement-management/procurement-plan/financial-year",
   PROCUREMENT_DETAILS: "/procurement-management/procurement-plan/:id",
   CREATE_PROCUREMENT:
     "/procurement-management/procurement-plan/create/procurement-plan",
