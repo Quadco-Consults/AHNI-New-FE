@@ -175,9 +175,28 @@ const TableComponent = () => {
 
   const checkedGrandTotal = calculateCheckedGrandTotal();
 
-  // const checkedOverallGrandTotal =
-  //   checkedGrandTotal &&
-  //   Object.values(checkedGrandTotal!)?.reduce((sum, total) => sum + total, 0);
+  const extraSections = [
+    {
+      title: "QUALITYCOST-BASED ANALYSIS (100%)",
+      subLabels: [
+        "i) Technical Evaluation = 60%",
+        "ii) Price Reasonableness = 40%",
+      ],
+    },
+    {
+      title: "List of Approved Models and Brands (If Applicable)",
+      subLabels: ["Model/Brand Name"],
+    },
+    {
+      title: "Price Responsiveness Rating",
+      subLabels: [
+        "1st – most responsive",
+        "2nd – most responsive",
+        "3rd – most responsive",
+        "4th – most responsive",
+      ],
+    },
+  ];
 
   // Function to format selected items per vendor
   const getSelectedItemsForVendor = (vendor) => {
@@ -424,6 +443,35 @@ const TableComponent = () => {
                   </td>
                 ))}
               </tr>
+              {extraSections.map((section, sectionIndex) => (
+                <tr key={`section-${sectionIndex}`} className='border-b'>
+                  <td colSpan={3} className='p-3 font-semibold align-top'>
+                    {section.title}
+                    {section?.subLabels?.map((label, index) => (
+                      <p key={index}>{label}</p>
+                    ))}
+                  </td>
+
+                  {formattedData?.data.companies.map(
+                    (company, companyIndex) => (
+                      <td
+                        key={`input-${sectionIndex}-${company.name}`}
+                        colSpan={3}
+                        className='p-3 border-l'
+                      >
+                        {
+                          <input
+                            type='text'
+                            name={`section-${sectionIndex}-${company.name}`}
+                            placeholder='Enter value'
+                            className='w-full border px-2 py-1 rounded'
+                          />
+                        }
+                      </td>
+                    )
+                  )}
+                </tr>
+              ))}
 
               {formattedData?.extraData?.map((extra) => {
                 return (
@@ -447,7 +495,7 @@ const TableComponent = () => {
           </table>
         </div>
         <div className='flex my-4 px-8 max-w-[900px]  justify-between items-center'>
-          <p className='text-[14px]'>RECOMMENDATION NOTES :</p>
+          <p className='text-[14px] uppercase'> Award Recommendation :</p>
           <Textarea
             className='border rounded-md p-3 max-w-[400px]'
             placeholder='Enter recommendation here'
