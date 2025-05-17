@@ -123,6 +123,15 @@ export const procurment = [
     ),
   },
   {
+    path: RouteEnum.PENDING_PURCHASE_REQUEST,
+    element: lazy(
+      () =>
+        import(
+          "pages/protectedPages/procurement-management/purchase-request/PurchaseRequest"
+        )
+    ),
+  },
+  {
     path: RouteEnum.CREATE_PURCHASE_REQUEST,
     element: lazy(
       () =>
