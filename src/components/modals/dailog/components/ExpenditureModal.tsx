@@ -32,8 +32,6 @@ export default function ExpenditureModal() {
         },
     });
 
-    console.log(expenditure);
-
     const dispatch = useAppDispatch();
 
     const grantId = dialogProps?.grantId as string;

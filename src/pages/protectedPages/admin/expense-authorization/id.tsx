@@ -5,8 +5,11 @@ import Card from "components/shared/Card";
 import DescriptionCard from "components/shared/DescriptionCard";
 import GoBack from "components/shared/GoBack";
 import { LoadingSpinner } from "components/shared/Loading";
+import { expenseAuthorizationDestinationColumns } from "components/Table/columns/admin/expense-authorization/expense-authorization-destinations";
+import DataTable from "components/Table/DataTable";
 import { CardContent, CardHeader } from "components/ui/card";
 import { Form } from "components/ui/form";
+import { remove } from "lodash";
 import { useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import { useGetSingleExpenseAuthorizationQuery } from "services/admin/expense-authorization";
@@ -172,40 +175,15 @@ export default function ExpenseAuthorizationDetailsPage() {
 
                             <div className="space-y-5">
                                 <h3 className="text-lg font-bold">
-                                    Travel Office Use
+                                    Destinations
                                 </h3>
 
-                                <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
-                                    <DescriptionCard
-                                        label="Lodging"
-                                        description="N/A"
-                                    />
-
-                                    <DescriptionCard
-                                        label="Meals"
-                                        description="N/A"
-                                    />
-
-                                    <DescriptionCard
-                                        label="Number of Nights"
-                                        description="N/A"
-                                    />
-
-                                    <DescriptionCard
-                                        label="Interstate"
-                                        description="N/A"
-                                    />
-
-                                    <DescriptionCard
-                                        label="Airport Taxi"
-                                        description="N/A"
-                                    />
-
-                                    <DescriptionCard
-                                        label="Car Hire"
-                                        description="N/A"
-                                    />
-                                </div>
+                                <DataTable
+                                    columns={
+                                        expenseAuthorizationDestinationColumns
+                                    }
+                                    data={[]}
+                                />
                             </div>
 
                             <Form {...form}>
@@ -220,13 +198,23 @@ export default function ExpenseAuthorizationDetailsPage() {
                                         required
                                     />
 
-                                    <FormButton
-                                        type="submit"
-                                        className="bg-green-500"
-                                        size="lg"
-                                    >
-                                        Approve
-                                    </FormButton>
+                                    <div className="space-x-3">
+                                        <FormButton
+                                            type="submit"
+                                            className="bg-green-500"
+                                            size="lg"
+                                        >
+                                            Approve
+                                        </FormButton>
+
+                                        <FormButton
+                                            type="submit"
+                                            className="bg-red-500"
+                                            size="lg"
+                                        >
+                                            Reject
+                                        </FormButton>
+                                    </div>
                                 </form>
                             </Form>
                         </CardContent>

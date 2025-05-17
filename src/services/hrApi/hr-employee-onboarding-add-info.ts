@@ -1,70 +1,60 @@
-import { EmployeeOnboardingAddInfo } from "definations/hr-types/employee-onboarding";
 import baseAPI from "..";
+import { HrEmergencyResults } from "definations/hr-types/employee-onboarding";
 
-const BASE_URL = "hr/employees/emergency-contacts/";
+const BASE_URL = "/hr/employees/emergency-contacts/";
 
-const EmployeeOnboardingAddInfoAPI = baseAPI.injectEndpoints({
+const HrEmergencyAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getEmployeeOnboardingAddInfo: builder.query<
-      EmployeeOnboardingAddInfo[],
-      { status?: string; search?: string }
+    getHrEmergencyList: builder.query<
+      { data: { results: HrEmergencyResults[] } },
+      { employee: string }
     >({
-      query: ({ status, search }) => ({
-        url: BASE_URL,
-        params: {
-          ...(status && { status }),
-          ...(search && { search }),
-        },
-      }),
-      providesTags: ["EMPLOYEE_ONBOARDING"],
+      query: ({ employee }) => {
+        return {
+          url: `${BASE_URL}`,
+          params: {
+            ...(employee && { employee }),
+          },
+        };
+      },
+      providesTags: ["HR_BENEFICIARIES"],
     }),
 
-    getEmployeeOnboardingAddInfoQuery: builder.query<EmployeeOnboardingAddInfo, { id: string }>({
-      query: ({ id }) => ({ url: `${BASE_URL}${id}/` }),
-      providesTags: ["EMPLOYEE_ONBOARDING"],
+    getHrEmergency: builder.query<HrEmergencyResults, { id: string }>({
+      query: ({ id }) => {
+        return {
+          url: `${BASE_URL}${id}/`,
+        };
+      },
+      providesTags: ["HR_BENEFICIARIES"],
     }),
 
-    createEmployeeOnboardingAddInfo: builder.mutation<
-      EmployeeOnboardingAddInfo,
-      Partial<EmployeeOnboardingAddInfo>
-    >({
+    createHrEmergency: builder.mutation<HrEmergencyResults, any>({
       query: (body) => ({
-        url: BASE_URL,
+        url: `${BASE_URL}`,
         method: "POST",
         body,
       }),
-      invalidatesTags: ["EMPLOYEE_ONBOARDING"],
-    }), 
-    updateEmployeeOnboardingAddInfo: builder.mutation<
-      EmployeeOnboardingAddInfo,
-      { id: string; body: Partial<EmployeeOnboardingAddInfo> }
+      invalidatesTags: ["HR_BENEFICIARIES"],
+    }),
+
+    updateHrEmergency: builder.mutation<
+      HrEmergencyResults,
+      { id: string; body: HrEmergencyResults }
     >({
       query: ({ id, body }) => ({
         url: `${BASE_URL}${id}/`,
         method: "PUT",
         body,
       }),
-      invalidatesTags: ["EMPLOYEE_ONBOARDING"],
-    }),
-
-    patchEmployeeOnboardingAddInfo: builder.mutation<
-      EmployeeOnboardingAddInfo,
-      { id: string; body: Partial<EmployeeOnboardingAddInfo> }
-    >({
-      query: ({ id, body }) => ({
-        url: `${BASE_URL}${id}/`,
-        method: "PATCH",
-        body,
-      }),
-      invalidatesTags: ["EMPLOYEE_ONBOARDING"],
+      invalidatesTags: ["HR_BENEFICIARIES"],
     }),
   }),
 });
 
 export const {
-  useCreateEmployeeOnboardingAddInfoMutation,
-  useGetEmployeeOnboardingAddInfoQuery,
-  useGetEmployeeOnboardingAddInfoQueryQuery,
-  usePatchEmployeeOnboardingAddInfoMutation,
-  useUpdateEmployeeOnboardingAddInfoMutation
-} = EmployeeOnboardingAddInfoAPI;
+  useCreateHrEmergencyMutation,
+  useGetHrEmergencyListQuery,
+  useGetHrEmergencyQuery,
+  useUpdateHrEmergencyMutation,
+} = HrEmergencyAPI;

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import EyeIcon from "components/icons/EyeIcon";
 import FilterIcon from "components/icons/FilterIcon";
@@ -14,16 +15,140 @@ import { HrRoutes } from "constants/RouterConstants";
 import { TOnboarding } from "definations/hr-types/hr-beneficiary";
 import { cn } from "lib/utils";
 import { generatePath, Link, useNavigate, useParams } from "react-router-dom";
-import { useGetEmployeeOnboardingsQuery } from "services/hrApi/hr-employee-onboarding";
+import {
+  useGetEmployeeOnboardingsQuery,
+  useDeleteEmployeeOnboardingMutation,
+} from "services/hrApi/hr-employee-onboarding";
 import ApplicationsTable from "../advertisement/table/ApplicationsTable";
 
+import DeleteIcon from "components/icons/DeleteIcon";
+
+import { toast } from "sonner";
+import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
+
 const Onboarding = () => {
+  const [employeeID, setEmployeedId] = useState("");
+  const [isDialogOpen, setDialogOpen] = useState(false);
+
   const { data: employeeData, isLoading: fetchingEmployeeData } =
     useGetEmployeeOnboardingsQuery({});
+
+  const [deleteEmployeeOnboarding, { isLoading }] =
+    useDeleteEmployeeOnboardingMutation();
+
+  // console.log(employeeData);
+
+  const handleDelete = (id: string) => {
+    setEmployeedId(id);
+    setDialogOpen(true);
+  };
+
+  const confirmHandleDelete = async () => {
+    try {
+      await deleteEmployeeOnboarding(employeeID).unwrap();
+      toast.success("Payment Request Deleted");
+    } catch (error: any) {
+      console.log("Employee delete: ", error);
+      toast.error(error.data.message ?? "Something went wrong");
+    }
+  };
 
   if (fetchingEmployeeData) {
     return <Loading />;
   }
+
+  const columns: ColumnDef<any>[] = [
+    {
+      header: "Staff Name",
+      accessorFn: (data) => `${data.legal_firstname} ${data.legal_lastname}`,
+      size: 150,
+    },
+    {
+      header: "Position",
+      accessorKey: "designation.name",
+      size: 100,
+    },
+    {
+      header: "Employment Type",
+      accessorKey: "employment_type",
+      size: 130,
+    },
+    {
+      header: "Email",
+      accessorKey: "location.email",
+      size: 130,
+    },
+    {
+      header: "Status",
+      accessorKey: "status",
+      size: 100,
+      cell: ({ getValue }) => {
+        return (
+          <Badge
+            variant='default'
+            className={cn(
+              "p-1 rounded-lg",
+              getValue() === "APPROVED" && "bg-green-200 text-green-500",
+              getValue() === "Reject" && "bg-red-200 text-red-500",
+              getValue() === "New" && "bg-yellow-200 text-yellow-500",
+              getValue() === "On Hold" && "text-grey-200 bg-grey-500"
+            )}
+          >
+            {getValue() as string}
+          </Badge>
+        );
+      },
+    },
+    {
+      header: "Action",
+      id: "actions",
+      size: 50,
+      cell: ({ row }) => <ActionList data={row.original} />,
+    },
+  ];
+
+  const ActionList = ({ data }: { data: any }) => {
+    // console.log(data);
+    return (
+      <div className='flex items-center gap-2'>
+        <>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant='ghost' className='flex gap-2 py-6'>
+                <MoreOptionsHorizontalIcon />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className=' w-fit'>
+              <Link
+                to={generatePath(HrRoutes.ONBOARDING_START, {
+                  id: data?.id,
+                })}
+                className='flex flex-col items-start justify-between gap-1'
+              >
+                <Button
+                  className='w-full flex items-center justify-start gap-2'
+                  variant='ghost'
+                >
+                  <EyeIcon />
+                  Edit
+                </Button>
+              </Link>
+
+              <Button
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
+                onClick={() => handleDelete(data.id)}
+              >
+                <DeleteIcon />
+                Delete
+              </Button>
+            </PopoverContent>
+          </Popover>
+        </>
+      </div>
+    );
+  };
+
   const TABS = [
     {
       label: "Accepted Applicants",
@@ -59,24 +184,34 @@ const Onboarding = () => {
       ),
     },
   ];
-  return (
-    <Card className='space-y-4'>
-      <Tabs defaultValue='accepted'>
-        <TabsList>
-          {TABS.map((tab) => (
-            <TabsTrigger key={tab.value} value={tab.value}>
-              {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
 
-        {TABS.map((tab) => (
-          <TabsContent key={tab.value} value={tab.value}>
-            <Card className='px-6'>{tab.children}</Card>
-          </TabsContent>
-        ))}
-      </Tabs>
-    </Card>
+  return (
+    <>
+      <Card className='space-y-4'>
+        <Tabs defaultValue='accepted'>
+          <TabsList>
+            {TABS.map((tab) => (
+              <TabsTrigger key={tab.value} value={tab.value}>
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+
+          {TABS.map((tab) => (
+            <TabsContent key={tab.value} value={tab.value}>
+              <Card className='px-6'>{tab.children}</Card>
+            </TabsContent>
+          ))}
+        </Tabs>
+      </Card>
+      <ConfirmationDialog
+        open={isDialogOpen}
+        title='Are you sure you want to delete this payment request?'
+        loading={isLoading}
+        onCancel={() => setDialogOpen(false)}
+        onOk={confirmHandleDelete}
+      />
+    </>
   );
 };
 
@@ -89,86 +224,3 @@ export default Onboarding;
 //   email: "Technical Associate",
 //   status: "New",
 // });
-
-const columns: ColumnDef<any>[] = [
-  {
-    header: "Staff Name",
-    accessorFn: (data) => `${data.legal_firstname} ${data.legal_lastname}`,
-    size: 150,
-  },
-  {
-    header: "Position",
-    accessorKey: "designation.name",
-    size: 100,
-  },
-  {
-    header: "Employment Type",
-    accessorKey: "employment_type",
-    size: 130,
-  },
-  {
-    header: "Email",
-    accessorKey: "location.email",
-    size: 130,
-  },
-  {
-    header: "Status",
-    accessorKey: "status",
-    size: 100,
-    cell: ({ getValue }) => {
-      return (
-        <Badge
-          variant='default'
-          className={cn(
-            "p-1 rounded-lg",
-            getValue() === "APPROVED" && "bg-green-200 text-green-500",
-            getValue() === "Reject" && "bg-red-200 text-red-500",
-            getValue() === "New" && "bg-yellow-200 text-yellow-500",
-            getValue() === "On Hold" && "text-grey-200 bg-grey-500"
-          )}
-        >
-          {getValue() as string}
-        </Badge>
-      );
-    },
-  },
-  {
-    header: "Action",
-    id: "actions",
-    size: 50,
-    cell: ({ row }) => <ActionList data={row.original} />,
-  },
-];
-
-const ActionList = ({ data }: { data: any }) => {
-  // console.log(data);
-  return (
-    <div className='flex items-center gap-2'>
-      <>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant='ghost' className='flex gap-2 py-6'>
-              <MoreOptionsHorizontalIcon />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className=' w-fit'>
-            <Link
-              to={generatePath(HrRoutes.ONBOARDING_START, {
-                id: data?.id,
-              })}
-              className='flex flex-col items-start justify-between gap-1'
-            >
-              <Button
-                className='w-full flex items-center justify-start gap-2'
-                variant='ghost'
-              >
-                <EyeIcon />
-                View
-              </Button>
-            </Link>
-          </PopoverContent>
-        </Popover>
-      </>
-    </div>
-  );
-};

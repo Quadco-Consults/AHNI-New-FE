@@ -27,6 +27,8 @@ const WorkPlanDetail = () => {
         navigate(-1);
     };
 
+    console.log(data);
+
     return (
         <div className="space-y-6 relative min-h-screen">
             <BreadcrumbCard list={breadcrumbs} />

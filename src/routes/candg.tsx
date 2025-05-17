@@ -93,61 +93,32 @@ export const candg = [
     },
 
     {
-        path: CG_ROUTES.PREAWARD_ASSESSMENT,
+        path: CG_ROUTES.PRE_AWARD_ASSESSMENT,
+        element: lazy(
+            () =>
+                import("pages/protectedPages/c&g/sub-grant/preaward-assessment")
+        ),
+    },
+
+    {
+        path: CG_ROUTES.START_PRE_AWARD_ASSESSMENT,
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/c&g/sub-grant/awards/id/submission/id/preaward-assessment"
+                    "pages/protectedPages/c&g/sub-grant/preaward-assessment/PreAwardAssessment"
                 )
         ),
     },
 
-    // {
-    //     path: CG_ROUTES.PRE_AWARD_ASSESSMENT_SINGLE,
-    //     element: lazy(
-    //         () =>
-    //             import(
-    //                 "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentSingle"
-    //             )
-    //     ),
-    // },
-
-    // {
-    //     path: CG_ROUTES.PRE_AWARD_ASSESSMENT_STEP_1,
-    //     element: lazy(
-    //         () =>
-    //             import(
-    //                 "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep1"
-    //             )
-    //     ),
-    // },
-    // {
-    //     path: CG_ROUTES.PRE_AWARD_ASSESSMENT_STEP_2,
-    //     element: lazy(
-    //         () =>
-    //             import(
-    //                 "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep2"
-    //             )
-    //     ),
-    // },
-    // {
-    //     path: CG_ROUTES.PRE_AWARD_ASSESSMENT_STEP_3,
-    //     element: lazy(
-    //         () =>
-    //             import(
-    //                 "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep3"
-    //             )
-    //     ),
-    // },
-    // {
-    //     path: CG_ROUTES.PRE_AWARD_ASSESSMENT_STEP_4,
-    //     element: lazy(
-    //         () =>
-    //             import(
-    //                 "pages/protectedPages/candg/subGrant/preAwardAssessments/PreAwardAssessmentStep4"
-    //             )
-    //     ),
-    // },
+    {
+        path: CG_ROUTES.AWARDED_BENEFICIARIES,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/sub-grant/awarded-beneficiaries"
+                )
+        ),
+    },
 
     // close out
     {
@@ -186,7 +157,7 @@ export const candg = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/c&g/contract-management/consultant-management/create/ApplicationDetails"
+                    "pages/protectedPages/c&g/contract-management/consultant-management/id/applicants/CreateConsultancyStaff"
                 )
         ),
     },
@@ -206,7 +177,7 @@ export const candg = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/c&g/contract-management/consultant-management/id/ConsultantDetails"
+                    "pages/protectedPages/c&g/contract-management/consultant-management/id/ConsultancyDetails"
                 )
         ),
     },
@@ -215,7 +186,7 @@ export const candg = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/c&g/contract-management/consultant-management/id/applicants/CreateApplicant"
+                    "pages/protectedPages/c&g/contract-management/consultant-management/id/applicants/CreateConsultancyStaff"
                 )
         ),
     },
@@ -224,7 +195,7 @@ export const candg = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/candg/consultancy/ConsultancyApplicationDetails"
+                    "pages/protectedPages/c&g/contract-management/consultant-management/id/applicants/ConsultancyStaffDetails"
                 )
         ),
     },
@@ -319,5 +290,15 @@ export const candg = [
     {
         path: CG_ROUTES.CG_MODULES,
         element: lazy(() => import("pages/protectedPages/modules/c&g/index")),
+    },
+
+    {
+        path: CG_ROUTES.CONSULTANCY_DATABASE,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/consultancy-database/index"
+                )
+        ),
     },
 ];

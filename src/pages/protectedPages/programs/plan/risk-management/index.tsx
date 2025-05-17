@@ -12,6 +12,10 @@ import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
 import { riskManagementPlanColumns } from "components/Table/columns/program/plan/risk-management-plan";
 import TableFilters from "components/Table/TableFilters";
 import { useDebounce } from "ahooks";
+import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import ArrowDownIcon from "components/icons/ArrowDownIcon";
+import UploadIcon from "components/icons/UploadIcon";
+import { DownloadIcon } from "lucide-react";
 
 const breadcrumbs: TBreadcrumbList[] = [
     { name: "Programs", icon: true },
@@ -39,12 +43,49 @@ export default function RiskManagementPage() {
             <BreadcrumbCard list={breadcrumbs} />
 
             <div className="flex justify-end">
-                <Link to={RouteEnum.PROGRAM_RISK_MANAGEMENT_CREATE}>
-                    <Button className="flex gap-2 py-6">
-                        <AddSquareIcon />
-                        New Risk Management
-                    </Button>
-                </Link>
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button className="flex gap-2 py-6 w-40">
+                            Actions
+                            <ArrowDownIcon />
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-fit">
+                        <div className="flex flex-col items-start justify-between gap-1">
+                            <Link
+                                to={RouteEnum.PROGRAM_RISK_MANAGEMENT_CREATE}
+                                className="block w-full"
+                            >
+                                <Button
+                                    className="flex gap-2 py-6"
+                                    variant="ghost"
+                                    type="button"
+                                >
+                                    <AddSquareIcon fillColor="#FF0000" />
+                                    Create Manually
+                                </Button>
+                            </Link>
+
+                            <Button
+                                className="flex gap-2 py-6"
+                                variant="ghost"
+                                type="button"
+                            >
+                                <UploadIcon />
+                                Upload
+                            </Button>
+
+                            <Button
+                                className="flex items-center gap-2 justify-start"
+                                variant="ghost"
+                                onClick={() => {}}
+                            >
+                                <DownloadIcon className="text-green-500" />
+                                Download Template
+                            </Button>
+                        </div>
+                    </PopoverContent>
+                </Popover>
             </div>
 
             <Card>

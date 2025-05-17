@@ -16,6 +16,9 @@ export const PaymentRequestSchema = z.object({
     reviewer: z.string().min(1, "Please select reviewer"),
     authorizer: z.string().min(1, "Please select authorizer"),
     approver: z.string().min(1, "Please select approver"),
+
+    // to be added
+    request_type: z.string().min(1, "Please select approver"),
 });
 
 export type TPaymentRequestFormData = z.infer<typeof PaymentRequestSchema>;

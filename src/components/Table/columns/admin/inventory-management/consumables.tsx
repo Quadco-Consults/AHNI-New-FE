@@ -36,7 +36,7 @@ export const consumableColums: ColumnDef<TConsumablePaginatedData>[] = [
     {
         header: "Name",
         id: "name",
-        accessorKey: "name",
+        accessorKey: `item.name`,
     },
     {
         header: "Quantity",

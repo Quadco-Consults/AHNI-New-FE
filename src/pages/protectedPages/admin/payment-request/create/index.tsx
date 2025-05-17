@@ -25,6 +25,7 @@ import { Button } from "components/ui/button";
 import { AdminRoutes } from "constants/RouterConstants";
 import { useGetSinglePaymentRequestQuery } from "services/admin/payment-request";
 import { skipToken } from "@reduxjs/toolkit/query";
+import { useGetAllExistingConsultantsQuery } from "services/c&g/contract-management/consultancy-management/consultant-management";
 
 export default function CreatePaymentRequest() {
     const form = useForm<TPaymentRequestFormData>({
@@ -42,6 +43,9 @@ export default function CreatePaymentRequest() {
             reviewer: "",
             authorizer: "",
             approver: "",
+
+            // to be added
+            request_type: "",
         },
     });
 
@@ -78,6 +82,11 @@ export default function CreatePaymentRequest() {
             })),
         [user]
     );
+
+    // const { data: consultant } = useGetAllExistingConsultantsQuery({
+    //     page: 1,
+    //     size: 2000000,
+    // });
 
     const onSubmit: SubmitHandler<TPaymentRequestFormData> = (data) => {
         sessionStorage.setItem("paymentRequestFormData", JSON.stringify(data));
@@ -122,6 +131,8 @@ export default function CreatePaymentRequest() {
         form.reset(data);
     }, [paymentRequest, user, purchaseOrder]);
 
+    const requestType = form.watch("request_type");
+
     return (
         <PaymentRequestLayout>
             <Card>
@@ -137,12 +148,55 @@ export default function CreatePaymentRequest() {
                                 />
 
                                 <FormSelect
-                                    label="SO/PO Number"
-                                    name="purchase_order"
-                                    placeholder="Select Purchase Order"
-                                    required
-                                    options={purchaseOrderOptions}
+                                    label="Request Type"
+                                    name="request_type"
+                                    placeholder="Select Request Type"
+                                    options={[
+                                        {
+                                            label: "SERVICE ORDER",
+                                            value: "SERVICE_ORDER",
+                                        },
+                                        {
+                                            label: "CONSULTANT",
+                                            value: "CONSULTANT",
+                                        },
+                                        {
+                                            label: "ADHOC STAFF",
+                                            value: "ADHOC_STAFF",
+                                        },
+                                        { label: "OTHERS", value: "OTHERS" },
+                                    ]}
                                 />
+
+                                {requestType === "SERVICE_ORDER" && (
+                                    <FormSelect
+                                        label="SO/PO Number"
+                                        name="purchase_order"
+                                        placeholder="Select Purchase Order"
+                                        required
+                                        options={purchaseOrderOptions}
+                                    />
+                                )}
+
+                                {requestType === "CONSULTANT" && (
+                                    <FormSelect
+                                        label="Consultant"
+                                        name="consultant"
+                                        placeholder="Select Consultant"
+                                        required
+                                        options={[]}
+                                    />
+                                )}
+
+                                {requestType === "ADHOC_STAFF" && (
+                                    <FormSelect
+                                        label="Adhoc Staff"
+                                        name="adhoc_staff"
+                                        placeholder="Select Adhoc Staff"
+                                        required
+                                        options={[]}
+                                    />
+                                )}
 
                                 <FormInput
                                     label="Payment To"

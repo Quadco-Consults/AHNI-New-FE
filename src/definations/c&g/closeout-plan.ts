@@ -7,13 +7,28 @@ export const CloseOutPlanSchema = z.object({
     project: z.string().min(1, "Please select project"),
     department: z.string().min(1, "Please select department"),
     location: z.string().min(1, "Please select location"),
-    key_task: z.string().min(1, "Please enter key task"),
+    // key_task: z.string().min(1, "Please enter key task"),
+    // tasks: z.array(
+    //     z.object({
+    //         designation: z.string().min(1, "Please enter designation"),
+    //         remarks: z.string().min(1, "Please enter remarks"),
+    //         start_date: z.string().min(1, "Please select start date"),
+    //         end_date: z.string().min(1, "Please select end date"),
+    //     })
+    // ),
+
     tasks: z.array(
         z.object({
-            designation: z.string().min(1, "Please enter designation"),
-            remarks: z.string().min(1, "Please enter remarks"),
-            start_date: z.string().min(1, "Please select start date"),
-            end_date: z.string().min(1, "Please select end date"),
+            key_task: z.string().min(1, "Please enter key task"),
+            activities: z.array(
+                z.object({
+                    description: z.string().min(1, "Please enter description"),
+                    designation: z.string().min(1, "Please enter designation"),
+                    remarks: z.string().min(1, "Please enter remarks"),
+                    start_date: z.string().min(1, "Please select start date"),
+                    end_date: z.string().min(1, "Please select end date"),
+                })
+            ),
         })
     ),
 });

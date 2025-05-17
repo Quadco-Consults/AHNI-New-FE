@@ -1,4 +1,5 @@
 import { TCategoryData } from "definations/modules/config/category";
+import { TItemData } from "definations/modules/config/item";
 import { z } from "zod";
 
 export const ConsumableSchema = z.object({
@@ -47,6 +48,7 @@ export interface TConsumablePaginatedData {
     grn_tracking_number: null;
     created_by: string;
     updated_by: null;
+    item: TItemData;
 }
 
 export interface TConsumableSingleData {

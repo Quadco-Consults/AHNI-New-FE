@@ -20,7 +20,7 @@ export default function GoodReceiveNoteHomePage() {
     return (
         <div className="space-y-10">
             <div className="flex justify-end">
-                <Link to={AdminRoutes.GRN_CREATE}>
+                <Link to={AdminRoutes.GRN_CREATE_SUMMARY}>
                     <Button>
                         <AddSquareIcon />
                         Add GRN

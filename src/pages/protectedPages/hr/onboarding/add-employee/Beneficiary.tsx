@@ -1,11 +1,13 @@
+import React from "react";
 import { useForm } from "react-hook-form";
 import { Form } from "components/ui/form";
+import GoBack from "components/shared/GoBack";
 // import FormCheckBox from "atoms/FormCheckBox";
 import { Separator } from "components/ui/separator";
 import { Button } from "components/ui/button";
 import FormInput from "atoms/FormInput";
 import { ChevronRight, Save } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams, generatePath, Link } from "react-router-dom";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
@@ -19,31 +21,59 @@ import {
   HrSignatoriesBeneficiaryFormValues,
   hrSignatoriesBeneficiarySchema,
 } from "definations/hr-validator";
-import { zodResolver } from "@hookform/resolvers/zod"; 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import FormButton from "atoms/FormButton";
 import { updateStepCompletion } from "store/stepTracker";
-import { useCreateHrBeneficiaryMutation } from "services/hrApi/hr-beneficiary";
-import GoBack from "components/shared/GoBack";
-import FormSelect from "atoms/FormSelect";
-import { useCreateEmployeeOnboardingAddSignatoryMutation } from "services/hrApi/hr-employee-onboarding-add-signatory";
+import {
+  useCreateHrBeneficiaryMutation,
+  useUpdateHrBeneficiaryMutation,
+  useGetHrBeneficiariesQuery,
+} from "services/hrApi/hr-beneficiary";
+import {
+  useCreateEmployeeOnboardingAddSignatoryMutation,
+  useGetEmployeeOnboardingAddSignatoryQuery,
+  useUpdateEmployeeOnboardingAddSignatoryMutation,
+} from "services/hrApi/hr-employee-onboarding-add-signatory";
 import FileUpload from "atoms/FileUpload";
 
+import { createFileObjectFromUrl } from "utils/get-file-extension";
+
 const Beneficiary = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const [signature, setSignature] = React.useState<any>({});
 
-  const [createHrBeneficiaryMutation, { isLoading }] = useCreateHrBeneficiaryMutation();
-  const [createEmployeeOnboardingAddSignatory, { isLoading: addingSignatory }] = useCreateEmployeeOnboardingAddSignatoryMutation()
+  const [createHrBeneficiaryMutation, { isLoading }] =
+    useCreateHrBeneficiaryMutation();
+  const [updateHrBeneficiaryMutation, { isLoading: updateLoading }] =
+    useUpdateHrBeneficiaryMutation();
+
+  const [createEmployeeOnboardingAddSignatory, { isLoading: addingSignatory }] =
+    useCreateEmployeeOnboardingAddSignatoryMutation();
+  const [updateEmployeeOnboardingAddSignatory, { isLoading: updateSignatory }] =
+    useUpdateEmployeeOnboardingAddSignatoryMutation();
+
+  const { data, isLoading: getLoading } = useGetHrBeneficiariesQuery({
+    params: {
+      employee: id as string,
+    },
+  });
+
+  const { data: signatories, isLoading: signatoriesLoading } =
+    useGetEmployeeOnboardingAddSignatoryQuery({
+      employee: id as string,
+    });
+
   const beneficiaryForm = useForm<HrBeneficiaryFormValues>({
     resolver: zodResolver(hrBeneficiarySchema),
     defaultValues: {
       name: "",
       relationship: "",
-      percentage_of_benefit: "",
+      percentage_of_benefit: 0,
       phone_number: "",
       is_primary: true,
-      employee: localStorage.getItem("workforceID") as string,
     },
   });
 
@@ -54,40 +84,65 @@ const Beneficiary = () => {
       relationship: "",
       phone_number: "",
       is_primary: false,
-      employee: localStorage.getItem("workforceID") as string,
     },
   });
-  const signatoriesBeneficiaryForm = useForm<HrSignatoriesBeneficiaryFormValues>({
+
+  const signatoriesForm = useForm<HrSignatoriesBeneficiaryFormValues>({
     resolver: zodResolver(hrSignatoriesBeneficiarySchema),
     defaultValues: {
-      name: "",
-      relationship: "",
-      phone_number: "",
-      is_primary: false,
-      employee: localStorage.getItem("workforceID") as string,
+      witness_name: "",
+      witness_date: "",
+      withness_signature: "",
     },
   });
 
-  const handleNext = () => {
-    navigate(HrRoutes.ONBOARDING_ADD_EMPLOYEE_ID_CARD);
-  };
+  const onSubmit = async (hrData: HrBeneficiaryFormValues) => {
+    const formData = {
+      ...hrData,
+      employee: id,
+    };
 
-  const onSubmit = async (data: HrBeneficiaryFormValues) => {
-    try {
-      await createHrBeneficiaryMutation(data).unwrap();
-      dispatch(
-        openDialog({
-          type: DialogType.HrSuccessModal,
-          dialogProps: {
-            label: "Beneficiary information saved",
-          },
-        })
-      );
-      beneficiaryForm.reset();
-    } catch (error) {
-      toast.error("Something went wrong");
+    if (data?.data.results.length) {
+      console.log(hrData);
+
+      try {
+        await updateHrBeneficiaryMutation({
+          id: data?.data.results[0].id,
+          body: formData,
+        }).unwrap();
+
+        dispatch(
+          openDialog({
+            type: DialogType.HrSuccessModal,
+            dialogProps: {
+              label: "Beneficiary information saved",
+            },
+          })
+        );
+
+        beneficiaryForm.reset(formData);
+      } catch (error) {
+        console.log("Update Beneficiary", error);
+        toast.error("Something went wrong");
+      }
+    } else {
+      try {
+        await createHrBeneficiaryMutation(formData).unwrap();
+        dispatch(
+          openDialog({
+            type: DialogType.HrSuccessModal,
+            dialogProps: {
+              label: "Beneficiary information saved",
+            },
+          })
+        );
+        beneficiaryForm.reset();
+      } catch (error) {
+        toast.error("Something went wrong");
+      }
     }
   };
+
   const submitHandler = async (data: HrContingentBeneficiaryFormValues) => {
     try {
       await createHrBeneficiaryMutation(data).unwrap();
@@ -110,37 +165,118 @@ const Beneficiary = () => {
       toast.error("Something went wrong");
     }
   };
-  const submitSignatoriesHandler = async (data: HrSignatoriesBeneficiaryFormValues) => {
-    try {
-      const formData = new FormData();
-      formData.append("witness_name", data.witness_name);
-      formData.append("witness_date", data.witness_date);
-      formData.append("withness_signature", data.witness_signature[0]);
-      formData.append("employee", localStorage.getItem("workforceID") as string);
-      await createEmployeeOnboardingAddSignatory(formData).unwrap();
-      dispatch(
-        updateStepCompletion({
-          path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_BENEFICIARY,
-        })
-      );
 
-      dispatch(
-        openDialog({
-          type: DialogType.HrSuccessModal,
-          dialogProps: {
-            label: "Signatory information saved",
-          },
-        })
-      );
-      signatoriesBeneficiaryForm.reset();
-    } catch (error) {
-      toast.error("Something went wrong");
+  const submitSignatoriesHandler = async (
+    data: HrSignatoriesBeneficiaryFormValues
+  ) => {
+    const formData = new FormData();
+    // console.log("Form data: ", data);
+
+    formData.append("witness_name", data.witness_name);
+    formData.append("witness_date", data.witness_date);
+    formData.append("employee", id as string);
+
+    if (signatories?.data.results.length) {
+      if (typeof data.withness_signature !== "string") {
+        // Has been changed [Backend returns string]
+        // console.log(data.withness_signature);
+        formData.append("withness_signature", data.withness_signature);
+      } else {
+        formData.append("withness_signature", signature);
+      }
+    } else {
+      formData.append("withness_signature", data.withness_signature[0]);
+    }
+
+    if (signatories?.data.results.length) {
+      console.log("Signatory Edit: ", formData);
+
+      try {
+        await updateEmployeeOnboardingAddSignatory({
+          id: signatories?.data.results[0].id,
+          body: formData,
+        }).unwrap();
+
+        dispatch(
+          updateStepCompletion({
+            path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_BENEFICIARY,
+          })
+        );
+
+        dispatch(
+          openDialog({
+            type: DialogType.HrSuccessModal,
+            dialogProps: {
+              label: "Signatory information saved",
+            },
+          })
+        );
+        signatoriesForm.reset();
+      } catch (error) {
+        toast.error("Something went wrong");
+      }
+    } else {
+      try {
+        await createEmployeeOnboardingAddSignatory(formData).unwrap();
+
+        dispatch(
+          updateStepCompletion({
+            path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_BENEFICIARY,
+          })
+        );
+
+        dispatch(
+          openDialog({
+            type: DialogType.HrSuccessModal,
+            dialogProps: {
+              label: "Signatory information saved",
+            },
+          })
+        );
+        signatoriesForm.reset();
+      } catch (error) {
+        toast.error("Something went wrong");
+      }
     }
   };
 
+  React.useEffect(() => {
+    if (!getLoading && data?.data && data.data.results.length) {
+      beneficiaryForm.reset({
+        name: data?.data.results[0].name,
+        relationship: data?.data.results[0].relationship,
+        percentage_of_benefit: data?.data.results[0].percentage_of_benefit,
+        phone_number: data?.data.results[0].phone_number,
+        is_primary: data?.data.results[0].is_primary,
+      });
+    }
+  }, [data]);
+
+  React.useEffect(() => {
+    if (
+      !signatoriesLoading &&
+      signatories?.data &&
+      signatories.data.results.length
+    ) {
+      // console.log("Signatories ", signatories);
+
+      signatoriesForm.reset({
+        witness_name: signatories.data.results[0].witness_name,
+        witness_date: signatories.data.results[0].witness_date,
+        withness_signature: signatories.data.results[0].withness_signature,
+      });
+
+      createFileObjectFromUrl(
+        signatories.data.results[0].withness_signature
+      ).then((file) => {
+        setSignature(file);
+      });
+    }
+  }, [signatories]);
+
   return (
     <>
-     <GoBack />
+      <GoBack />
       <Card className='space-y-6 mt-6 max-w-4xl mx-auto'>
         <div>
           <h4 className='font-semibold text-lg text-center'>
@@ -174,7 +310,12 @@ const Beneficiary = () => {
                 label='Beneficiary Names (Last, First)'
                 required
               />
-              <FormInput name='percentage_of_benefit' label='% of Benefit' required />
+              <FormInput
+                name='percentage_of_benefit'
+                label='% of Benefit'
+                type='number'
+                required
+              />
               <FormInput
                 name='relationship'
                 label='Relationship with Employee'
@@ -226,44 +367,53 @@ const Beneficiary = () => {
               />
               <FormInput name='phone_number' label='Phone Number' required />
             </div>
-               
 
             <FormButton
-              loading={isLoading}
-              disabled={isLoading}
+              loading={isLoading || updateLoading}
+              // disabled={isLoading || updateLoading}
+              disabled
               variant='outline'
             >
               <Save size={20} /> Save
             </FormButton>
           </form>
         </Form>
-        <Form {...signatoriesBeneficiaryForm}>
+
+        <Form {...signatoriesForm}>
           <form
-            onSubmit={signatoriesBeneficiaryForm.handleSubmit(submitSignatoriesHandler)}
+            onSubmit={signatoriesForm.handleSubmit(submitSignatoriesHandler)}
             className='space-y-6'
           >
-            
-          <div className="card-wrapper space-y-6">
-            <h4 className="text-red-500 text-lg font-medium">
-              Authorization and Signatories
-            </h4>
-            <p className="text-small">
-              By signing this document, I understand and agree that this
-              Beneficiary Designation Form will apply to AHNi Business Travel/
-              Accidental death and Dismemberment Policy.
-            </p>
-            <Separator />
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <FormInput  name="witness_name" label="Full Name of Witness" required />
-              <FormInput type="date" name="witness_date" label="Date" required /> 
+            <div className='card-wrapper space-y-6'>
+              <h4 className='text-red-500 text-lg font-medium'>
+                Authorization and Signatories
+              </h4>
+              <p className='text-small'>
+                By signing this document, I understand and agree that this
+                Beneficiary Designation Form will apply to AHNi Business Travel/
+                Accidental death and Dismemberment Policy.
+              </p>
+              <Separator />
+              <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+                <FormInput
+                  name='witness_name'
+                  label='Full Name of Witness'
+                  required
+                />
+                <FormInput
+                  type='date'
+                  name='witness_date'
+                  label='Date'
+                  required
+                />
+              </div>
+
+              <FileUpload name='withness_signature' label='Witness Signature' />
             </div>
-             
-            <FileUpload name='witness_signature' label='Witness Signature' />
-          </div>  
 
             <FormButton
-              loading={addingSignatory}
-              disabled={addingSignatory}
+              loading={addingSignatory || updateSignatory}
+              disabled={addingSignatory || updateSignatory}
               variant='outline'
             >
               <Save size={20} /> Save
@@ -271,10 +421,17 @@ const Beneficiary = () => {
           </form>
         </Form>
         <div className='flex gap-x-6 justify-end'>
-          <Button type='button' onClick={handleNext}>
-            Next
-            <ChevronRight size={20} />
-          </Button>
+          <Link
+            to={generatePath(HrRoutes.ONBOARDING_ADD_EMPLOYEE_ID_CARD, {
+              id,
+            })}
+            className='flex flex-col items-start justify-between gap-1'
+          >
+            <Button type='button'>
+              Next
+              <ChevronRight size={20} />
+            </Button>
+          </Link>
         </div>
       </Card>
       {/* <Button

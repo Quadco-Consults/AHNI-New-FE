@@ -483,7 +483,7 @@ export const procurment = [
     element: lazy(
       () =>
         import(
-          "pages/protectedPages/procurement-management/purchase-order/[id]/index"
+          "pages/protectedPages/procurement-management/purchase-order/[id]/"
         )
     ),
   },

@@ -1,4 +1,3 @@
- 
 import baseAPI from "..";
 import { WorkforcePensionFormValues } from "definations/hr-validator";
 
@@ -7,26 +6,30 @@ const BASE_URL = "hr/employees/pension-funds/";
 const EmployeeOnboardingPensionAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     getEmployeeOnboardingPension: builder.query<
-    WorkforcePensionFormValues[],
-      { status?: string; search?: string }
+      WorkforcePensionFormValues[],
+      { status?: string; search?: string; employee?: string }
     >({
-      query: ({ status, search }) => ({
+      query: ({ status, search, employee }) => ({
         url: BASE_URL,
         params: {
           ...(status && { status }),
           ...(search && { search }),
+          ...(employee && { employee }),
         },
       }),
       providesTags: ["EMPLOYEE_ONBOARDING"],
     }),
 
-    getEmployeeOnboardingPensionQuery: builder.query<WorkforcePensionFormValues, { id: string }>({
+    getEmployeeOnboardingPensionQuery: builder.query<
+      WorkforcePensionFormValues,
+      { id: string }
+    >({
       query: ({ id }) => ({ url: `${BASE_URL}${id}/` }),
       providesTags: ["EMPLOYEE_ONBOARDING"],
     }),
 
     createEmployeeOnboardingPension: builder.mutation<
-    WorkforcePensionFormValues,
+      WorkforcePensionFormValues,
       Partial<WorkforcePensionFormValues>
     >({
       query: (body) => ({
@@ -35,9 +38,10 @@ const EmployeeOnboardingPensionAPI = baseAPI.injectEndpoints({
         body,
       }),
       invalidatesTags: ["EMPLOYEE_ONBOARDING"],
-    }), 
+    }),
+
     updateEmployeeOnboardingPension: builder.mutation<
-    WorkforcePensionFormValues,
+      WorkforcePensionFormValues,
       { id: string; body: Partial<WorkforcePensionFormValues> }
     >({
       query: ({ id, body }) => ({
@@ -49,7 +53,7 @@ const EmployeeOnboardingPensionAPI = baseAPI.injectEndpoints({
     }),
 
     patchEmployeeOnboardingPension: builder.mutation<
-    WorkforcePensionFormValues,
+      WorkforcePensionFormValues,
       { id: string; body: Partial<WorkforcePensionFormValues> }
     >({
       query: ({ id, body }) => ({
@@ -67,5 +71,5 @@ export const {
   useGetEmployeeOnboardingPensionQuery,
   useGetEmployeeOnboardingPensionQueryQuery,
   usePatchEmployeeOnboardingPensionMutation,
-  useUpdateEmployeeOnboardingPensionMutation
+  useUpdateEmployeeOnboardingPensionMutation,
 } = EmployeeOnboardingPensionAPI;

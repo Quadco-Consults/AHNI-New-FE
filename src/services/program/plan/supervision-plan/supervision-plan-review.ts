@@ -60,17 +60,6 @@ const SupervisionPlanReviewAPI = baseAPI.injectEndpoints({
             }),
             invalidatesTags: ["SUPERVISION_PLAN_REVIEW"],
         }),
-
-        // deleteSupervisionPlan: builder.mutation<
-        //     TResponse<TSupervisionPlanSingleData>,
-        //     string
-        // >({
-        //     query: (id) => ({
-        //         method: "DELETE",
-        //         url: `${BASE_URL}${id}`,
-        //     }),
-        //     invalidatesTags: ["SUPERVISION_PLAN"],
-        // }),
     }),
 });
 

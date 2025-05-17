@@ -5,8 +5,6 @@ import DescriptionCard from "components/shared/DescriptionCard";
 import { LoadingSpinner } from "components/shared/Loading";
 import { closeOutPlanTaskColumns } from "components/Table/columns/c&g/closeout-plan/closeout-plan-tasks";
 import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
-import { Tabs, TabsList, TabsTrigger } from "components/ui/tabs";
 import { useParams } from "react-router-dom";
 import { useGetSingleCloseOutPlanQuery } from "services/c&g/closeout-plan";
 
@@ -35,20 +33,15 @@ export default function CloseOutPlan() {
                             label="Location"
                             description={data.data.location.name}
                         />
-
-                        <DescriptionCard
-                            label="Key Task"
-                            description={data.data.key_task}
-                        />
                     </div>
 
-                    <TableFilters>
+                    <div className="space-y-5">
                         <DataTable
                             columns={closeOutPlanTaskColumns}
                             data={data.data.tasks || []}
                             isLoading={isLoading}
                         />
-                    </TableFilters>
+                    </div>
                 </Card>
             </main>
         );

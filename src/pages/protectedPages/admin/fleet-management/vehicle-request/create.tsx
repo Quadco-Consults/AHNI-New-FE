@@ -29,6 +29,10 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { AdminRoutes } from "constants/RouterConstants";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import { addTeamMembers } from "store/admin/team-members";
+import { useGetAllProjectsQuery } from "services/project";
+import { useGetAllActivityPlansQuery } from "services/programsApi/activity-plan";
+import { useGetAllAssetsQuery } from "services/admin/inventory-management/asset";
+import VendorsAPI from "services/procurementApi/vendors";
 
 const NewVehicleRequest = () => {
     const form = useForm<TVehicleRequestFormValues>({
@@ -42,6 +46,9 @@ const NewVehicleRequest = () => {
             travel_team_members: [],
             supervisor: "",
             recommendations: "",
+
+            // to be added
+            request_type: "",
         },
     });
 
@@ -50,6 +57,34 @@ const NewVehicleRequest = () => {
 
     const [searchParams] = useSearchParams();
     const id = searchParams.get("id");
+
+    const { data: project } = useGetAllProjectsQuery({
+        page: 1,
+        size: 2000000,
+    });
+
+    const projectOptions = useMemo(
+        () =>
+            project?.data.results.map(({ title, id }) => ({
+                label: title,
+                value: id,
+            })),
+        [project]
+    );
+
+    const { data: activity } = useGetAllActivityPlansQuery({
+        page: 1,
+        size: 2000000,
+    });
+
+    const activityOptions = useMemo(
+        () =>
+            activity?.data.results.map(({ activity_code, id }) => ({
+                label: activity_code,
+                value: id,
+            })),
+        [activity]
+    );
 
     const { data: user } = useGetAllUsersQuery({ page: 1, size: 2000000 });
 
@@ -62,21 +97,32 @@ const NewVehicleRequest = () => {
         [user]
     );
 
-    const { data: location } = useGetAllLocationsQuery({
+    const { data: asset } = useGetAllAssetsQuery({ page: 1, size: 2000000 });
+
+    const assetOptions = useMemo(
+        () =>
+            asset?.data.results.map(({ name, id }) => ({
+                label: name,
+                value: id,
+            })),
+        [asset]
+    );
+
+    const { data: vendor } = VendorsAPI.useGetVendorsQuery({
         page: 1,
         size: 2000000,
     });
 
-    const locationOptions = useMemo(
+    const vendorOptions = useMemo(
         () =>
-            location?.data.results.map(({ name, id }) => ({
-                label: name,
+            vendor?.data.results.map(({ company_name, id }) => ({
+                label: company_name,
                 value: id,
             })),
-        [location]
+        [vendor]
     );
 
-    const users = useAppSelector(userSelector);
+    const requestType = form.watch("request_type");
 
     const [createVehicleRequest, { isLoading: isCreateLoading }] =
         useCreateVehicleRequestMutation();
@@ -162,15 +208,54 @@ const NewVehicleRequest = () => {
                         <Form {...form}>
                             <form
                                 onSubmit={form.handleSubmit(onSubmit)}
-                                className="flex flex-col gap-y-6"
+                                className="grid grid-cols-2 gap-10"
                             >
                                 <FormSelect
-                                    label="Location"
-                                    name="location"
-                                    placeholder="Select Location"
+                                    label="Project"
+                                    name="project"
+                                    placeholder="Select Project"
                                     required
-                                    options={locationOptions}
+                                    options={projectOptions}
                                 />
+
+                                <FormSelect
+                                    label="Activity"
+                                    name="activity"
+                                    placeholder="Select Activity"
+                                    required
+                                    options={activityOptions}
+                                />
+
+                                <FormSelect
+                                    label="Request Type"
+                                    name="request_type"
+                                    placeholder="Select Request Type"
+                                    required
+                                    options={[
+                                        { label: "ASSET", value: "ASSET" },
+                                        { label: "VENDOR", value: "VENDOR" },
+                                    ]}
+                                />
+
+                                {/* {requestType === "ASSET" && (
+                                    <FormSelect
+                                        label="Asset Vehicle"
+                                        name="_"
+                                        placeholder="Select Asset Vehicle"
+                                        required
+                                        options={assetOptions}
+                                    />
+                                )} */}
+
+                                {requestType === "VENDOR" && (
+                                    <FormSelect
+                                        label="Vendors"
+                                        name="vendor"
+                                        placeholder="Select Vendor"
+                                        required
+                                        options={vendorOptions}
+                                    />
+                                )}
 
                                 <div className="grid grid-cols-2 gap-5">
                                     <FormInput

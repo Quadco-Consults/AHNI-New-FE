@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
+import FormSelect from "atoms/FormSelect";
 import FormTextArea from "atoms/FormTextArea";
 import { Form } from "components/ui/form";
 import {
@@ -67,6 +68,14 @@ export default function AObligationModal() {
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                <FormSelect
+                    label="Project"
+                    name="amount"
+                    placeholder="Select Project"
+                    required
+                    options={[]}
+                />
+
                 <FormInput
                     type="number"
                     label="Amount"

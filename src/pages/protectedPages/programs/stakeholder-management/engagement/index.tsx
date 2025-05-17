@@ -98,6 +98,13 @@ const columns: ColumnDef<TEngagementPlanPaginatedData>[] = [
         accessorFn: (data) => `${data.project_managers.join(", ")}`,
         size: 200,
     },
+
+    {
+        header: "Stakeholders",
+        accessorKey: "_",
+        size: 200,
+    },
+
     {
         header: "Start Date",
         accessorKey: "start_date",
@@ -108,6 +115,13 @@ const columns: ColumnDef<TEngagementPlanPaginatedData>[] = [
         accessorKey: "end_date",
         size: 150,
     },
+
+    {
+        header: "Status",
+        accessorKey: "_",
+        size: 150,
+    },
+
     {
         header: "",
         id: "actions",
