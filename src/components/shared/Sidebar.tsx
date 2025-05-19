@@ -3,13 +3,7 @@ import { useState } from "react";
 import logoSvg from "assets/svgs/logo-bg.svg";
 import { NavLink, useLocation } from "react-router-dom";
 import { FaDotCircle } from "react-icons/fa";
-import {
-    Bell,
-    ChevronDown,
-    Package,
-    ScanEye,
-    HeartHandshake,
-} from "lucide-react";
+import { ChevronDown, Package, ScanEye, HeartHandshake } from "lucide-react";
 import {
     RouteEnum,
     AdminRoutes,
@@ -77,6 +71,11 @@ const globalHubMenu = [
     {
         label: "Travel Expense Report",
         path: AdminRoutes.TRAVEL_EXPENSE_REPORT,
+    },
+
+    {
+        label: "Consultancy Report",
+        path: CG_ROUTES.CONSULTANCY_REPORT,
     },
 ];
 
@@ -752,6 +751,11 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
                             name: "Adhoc Database",
                             path: ProgramRoutes.ADHOC_DATABASE,
                         },
+
+                        {
+                            name: "Adhoc Acceptance",
+                            path: ProgramRoutes.ADHOC_ACCEPTANCE,
+                        },
                     ],
                 },
 
@@ -1031,6 +1035,11 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
                         },
 
                         {
+                            name: "Consultancy Acceptance",
+                            path: CG_ROUTES.CONSULTANT_ACCEPTANCE,
+                        },
+
+                        {
                             name: "Consultancy Report",
                             path: CG_ROUTES.CONSULTANCY_REPORT,
                         },
@@ -1040,7 +1049,12 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
                         },
                         {
                             name: "Facilitator Management",
-                            path: CG_ROUTES.FACILITATOR,
+                            path: CG_ROUTES.FACILITATOR_ADVERT,
+                        },
+
+                        {
+                            name: "Facilitator Database",
+                            path: CG_ROUTES.FACILITATOR_DATABASE,
                         },
                     ],
                 },

@@ -24,6 +24,7 @@ import FormButton from "atoms/FormButton";
 import FormSelect from "atoms/FormSelectField";
 import { useGetAllUsersQuery } from "services/auth/user";
 import { useGetAllConsultantManagementsQuery } from "services/c&g/contract-management/consultancy-management/consultant-management";
+import { useGetAllProjectsQuery } from "services/project";
 
 export default function CreateConsultancyReport() {
     const form = useForm<TConsultancyReportFormData>({
@@ -47,6 +48,20 @@ export default function CreateConsultancyReport() {
 
     const navigate = useNavigate();
 
+    const { data: project } = useGetAllProjectsQuery({
+        page: 1,
+        size: 2000000,
+    });
+
+    const projectOptions = useMemo(
+        () =>
+            project?.data.results.map(({ title, id }) => ({
+                label: title,
+                value: id,
+            })),
+        [project]
+    );
+
     const { data: user } = useGetAllUsersQuery({
         page: 1,
         size: 2000000,
@@ -64,6 +79,7 @@ export default function CreateConsultancyReport() {
     const { data: consultant } = useGetAllConsultantManagementsQuery({
         page: 1,
         size: 2000000,
+        type: "",
     });
 
     const consultantOptions = useMemo(
@@ -123,6 +139,14 @@ export default function CreateConsultancyReport() {
                             className="space-y-8"
                         >
                             <div className="grid grid-cols-3 gap-5">
+                                <FormSelect
+                                    label="Project"
+                                    name="project"
+                                    placeholder="Select Project"
+                                    required
+                                    options={projectOptions}
+                                />
+
                                 <FormSelect
                                     label="Supervisor"
                                     name="supervisor"

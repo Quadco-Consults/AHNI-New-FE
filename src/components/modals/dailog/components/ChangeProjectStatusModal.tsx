@@ -51,8 +51,6 @@ export default function ChangeProjectStatusModal() {
 
     return (
         <form onSubmit={onSubmit} className="w-full space-y-6">
-            <h2 className="text-lg font-bold">Change Project Status</h2>
-
             <Select
                 defaultValue={status}
                 value={status}

@@ -12,6 +12,7 @@ import Card from "components/shared/Card";
 import { useGetSingleConsultantManagementQuery } from "services/c&g/contract-management/consultancy-management/consultant-management";
 import ScopeOfWork from "./ScopeOfWork";
 import Applications from "./applicants/ConsultancyStaffList";
+import ShortlistedAppplicants from "./ShortlistedApplicants";
 
 export default function ConsultancyDetailsPage() {
     const [tabValue, setTabValue] = useState("job-details");
@@ -58,11 +59,7 @@ export default function ConsultancyDetailsPage() {
                             Submitted Applications
                         </TabsTrigger>
 
-                        <TabsTrigger value="shortlist">Shortlist</TabsTrigger>
-
-                        <TabsTrigger value="contract-form">
-                            Contract Request Form
-                        </TabsTrigger>
+                        <TabsTrigger value="shortlisted">Shortlist</TabsTrigger>
                     </TabsList>
                 </div>
                 {tabValue === "applications" && (
@@ -93,6 +90,10 @@ export default function ConsultancyDetailsPage() {
 
                         <TabsContent value="applications">
                             <Applications />
+                        </TabsContent>
+
+                        <TabsContent value="shortlisted">
+                            <ShortlistedAppplicants />
                         </TabsContent>
                     </Card>
                 )}

@@ -58,11 +58,21 @@ export const candg = [
     },
 
     {
-        path: CG_ROUTES.CREATE_AGREEMENT,
+        path: CG_ROUTES.CREATE_AGREEMENT_DETAILS,
         element: lazy(
             () =>
                 import(
                     "pages/protectedPages/c&g/contract-management/agreement/create"
+                )
+        ),
+    },
+
+    {
+        path: CG_ROUTES.CREATE_AGREEMENT_UPLOADS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/agreement/uploads"
                 )
         ),
     },
@@ -199,15 +209,6 @@ export const candg = [
                 )
         ),
     },
-    {
-        path: CG_ROUTES.CONSULTANCY_SHORTLIST_METRIC,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/candg/consultancy/ConsultancyShortlisMetric"
-                )
-        ),
-    },
 
     /* CONSULTANCY REPORT */
     {
@@ -242,49 +243,53 @@ export const candg = [
 
     // FACILITATOR MANAGEMENT
     {
-        path: CG_ROUTES.FACILITATOR,
+        path: CG_ROUTES.FACILITATOR_ADVERT,
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/c&g/contract-management/facilitator-management/"
+                    "pages/protectedPages/c&g/contract-management/consultant-management"
                 )
         ),
     },
 
     {
-        path: CG_ROUTES.CREATE_FACILITATOR_DETAILS,
+        path: CG_ROUTES.CREATE_FACILITATOR_ADVERT_DETAILS,
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/c&g/contract-management/facilitator-management/create/ApplicationDetails"
+                    "pages/protectedPages/c&g/contract-management/consultant-management/create/ApplicationDetails"
                 )
         ),
     },
 
     {
-        path: CG_ROUTES.CREATE_FACILITATOR_WORK_SCOPE,
+        path: CG_ROUTES.CREATE_FACILITATOR_ADVERT_WORK_SCOPE,
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/c&g/contract-management/facilitator-management/create/ScopeOfWork"
+                    "pages/protectedPages/c&g/contract-management/consultant-management/create/ScopeOfWork"
                 )
         ),
     },
 
     {
-        path: CG_ROUTES.FACILITATOR_DETAILS,
+        path: CG_ROUTES.FACILITATOR_ADVERT_DETAILS,
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/c&g/contract-management/facilitator-management/id/FacilitatorDetails"
+                    "pages/protectedPages/c&g/contract-management/consultant-management/id/ConsultancyDetails"
                 )
         ),
     },
 
-    // sla
     {
-        path: CG_ROUTES.CONSULTANCY_SLA,
-        element: lazy(() => import("pages/protectedPages/candg/sla/SLA")),
+        path: CG_ROUTES.FACILITATOR_DATABASE,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/consultancy-database/"
+                )
+        ),
     },
 
     {
@@ -298,6 +303,26 @@ export const candg = [
             () =>
                 import(
                     "pages/protectedPages/c&g/contract-management/consultancy-database/index"
+                )
+        ),
+    },
+
+    {
+        path: CG_ROUTES.CONSULTANT_ACCEPTANCE,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/consultant-acceptance/"
+                )
+        ),
+    },
+
+    {
+        path: CG_ROUTES.CONSULTANT_ACCEPTANCE_DETAILS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/consultant-acceptance/id"
                 )
         ),
     },

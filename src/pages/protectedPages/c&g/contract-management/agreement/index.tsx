@@ -19,7 +19,7 @@ export default function Agreement() {
         <section>
             <div className="flex items-center justify-between">
                 <BackNavigation extraText="Agreements" />
-                <Link to={CG_ROUTES.CREATE_AGREEMENT}>
+                <Link to={CG_ROUTES.CREATE_AGREEMENT_DETAILS}>
                     <Button>
                         <Plus size={20} />
                         Create Agreement
