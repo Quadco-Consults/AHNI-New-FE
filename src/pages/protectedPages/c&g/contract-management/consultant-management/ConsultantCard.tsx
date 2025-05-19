@@ -15,6 +15,7 @@ import { CardTitle } from "components/ui/card";
 import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
 import { format } from "date-fns";
 import { IConsultantPaginatedData } from "definations/c&g/contract-management/consultancy-management/consultancy-management";
+import useJobAdvertType from "hooks/useJobAdvertType";
 import React, { useState } from "react";
 import { generatePath, Link, useLocation } from "react-router-dom";
 import { useDeleteConsultantManagementMutation } from "services/c&g/contract-management/consultancy-management/consultant-management";
@@ -31,9 +32,21 @@ export default function ConsultantCard({
     created_datetime,
     status,
 }: IConsultantPaginatedData) {
-    const { pathname } = useLocation();
+    const advertType = useJobAdvertType();
 
-    const isAdhoc = pathname.includes("adhoc-management");
+    const advertEditPath =
+        advertType === "adhoc"
+            ? ProgramRoutes.CREATE_ADHOC_DETAILS
+            : advertType === "facilitator"
+            ? CG_ROUTES.CREATE_FACILITATOR_ADVERT_DETAILS
+            : CG_ROUTES.CREATE_CONSULTANCY_DETAILS;
+
+    const advertDetailsPath =
+        advertType === "adhoc"
+            ? ProgramRoutes.ADHOC_DETAILS
+            : advertType === "facilitator"
+            ? CG_ROUTES.FACILITATOR_ADVERT_DETAILS
+            : CG_ROUTES.CONSULTANCY_DETAILS;
 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -78,9 +91,7 @@ export default function ConsultantCard({
                         <div className="flex items-center">
                             <Link
                                 to={{
-                                    pathname: isAdhoc
-                                        ? ProgramRoutes.CREATE_ADHOC_DETAILS
-                                        : CG_ROUTES.CREATE_CONSULTANCY_DETAILS,
+                                    pathname: advertEditPath,
                                     search: `?id=${id}`,
                                 }}
                             >
@@ -125,14 +136,7 @@ export default function ConsultantCard({
                     <p className="text-sm">{evaluation_comments}</p>
                     <div className="w-full flex flex-col items-center justify-center absolute bottom-0 left-0 py-[.75rem] bg-gradient-to-b from-white/50 via-white/60 to-white/90">
                         <div className="bg-white w-fit">
-                            <Link
-                                to={generatePath(
-                                    isAdhoc
-                                        ? ProgramRoutes.ADHOC_DETAILS
-                                        : CG_ROUTES.CONSULTANCY_DETAILS,
-                                    { id }
-                                )}
-                            >
+                            <Link to={generatePath(advertDetailsPath, { id })}>
                                 <Button className="bg-white text-primary z-[99] border border-[#00000012]">
                                     Tap to View
                                 </Button>

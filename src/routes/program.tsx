@@ -166,17 +166,6 @@ export const program = [
                 )
         ),
     },
-    {
-        path: CG_ROUTES.CONSULTANCY_SHORTLIST_METRIC,
-        element: lazy(
-            () =>
-                import(
-                    "pages/protectedPages/candg/consultancy/ConsultancyShortlisMetric"
-                )
-        ),
-    },
-
-    //consultant (adhoc) management
 
     {
         path: RouteEnum.PROGRAM_FUND_REQUEST,
@@ -388,6 +377,16 @@ export const program = [
     },
 
     {
+        path: ProgramRoutes.ADHOC_APPLICANT_INTERVIEW,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/consultant-management/id/ApplicantInterview"
+                )
+        ),
+    },
+
+    {
         path: ProgramRoutes.ADHOC_DATABASE,
         element: lazy(
             () =>
@@ -398,11 +397,21 @@ export const program = [
     },
 
     {
-        path: CG_ROUTES.CONSULTANCY_SHORTLIST_METRIC,
+        path: ProgramRoutes.ADHOC_ACCEPTANCE,
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/candg/consultancy/ConsultancyShortlisMetric"
+                    "pages/protectedPages/c&g/contract-management/consultant-acceptance/"
+                )
+        ),
+    },
+
+    {
+        path: ProgramRoutes.ADHOC_ACCEPTANCE_DETAILS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/consultant-acceptance/id"
                 )
         ),
     },

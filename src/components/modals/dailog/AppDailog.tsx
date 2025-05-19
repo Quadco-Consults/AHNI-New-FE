@@ -83,6 +83,9 @@ import ChangeProcurementTrackerStatusModal from "./ChangeProcurementTrackerStatu
 import ChangeProcurementTrackerRemarkModal from "./ChangeProcurementTrackerRemarkModal";
 import AssignToModal from "./AssignToModal";
 import ActivityPlanStatusModal from "./components/ActivityPlanStatusModal";
+import PreferredConsultant from "./components/PreferredConsultant";
+import PreferredConsultantModal from "./components/PreferredConsultant";
+import DocumentUploadModal from "./DocumentUpload";
 
 const sheets: Record<string, ReactNode> = {
     [DialogType.Categories]: <CategoriesModal />,
@@ -176,6 +179,8 @@ const sheets: Record<string, ReactNode> = {
     [DialogType.SUBGRANT_MANUAL_SUB_UPLOAD]: <SubGrantManualSubUploadModal />,
     [DialogType.ADD_PRE_AWARD_QUESTION_MODAL]: <AddPreAwardQuestion />,
     [DialogType.ACTIVITY_PLAN_STATUS_MODAL]: <ActivityPlanStatusModal />,
+    [DialogType.PREFERRED_CONSULTANT_MODAL]: <PreferredConsultantModal />,
+    [DialogType.DOCUMENT_UPLOADS]: <DocumentUploadModal />,
 };
 interface DialogPropsMap {
     [DialogType.FeedbackModal]: {

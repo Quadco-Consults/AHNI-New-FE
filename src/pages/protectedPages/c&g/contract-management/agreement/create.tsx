@@ -20,7 +20,10 @@ import {
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { CG_ROUTES } from "constants/RouterConstants";
 import { skipToken } from "@reduxjs/toolkit/query";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import ServiceLevelAgreementLayout from "./Layout";
+import VendorsAPI from "services/procurementApi/vendors";
+import { useGetAllLocationsQuery } from "services/modules/config/location";
 
 const agreementTypeOptions = [
     { label: "LEASE", value: "LEASE" },
@@ -36,7 +39,6 @@ export default function CreateAgreement() {
         resolver: zodResolver(AgreementSchema),
         defaultValues: {
             provider: "",
-            service: "",
             type: "",
             start_date: "",
             end_date: "",
@@ -48,6 +50,34 @@ export default function CreateAgreement() {
 
     const navigate = useNavigate();
 
+    const { data: vendor } = VendorsAPI.useGetVendorsQuery({
+        page: 1,
+        size: 2000000,
+    });
+
+    const vendorOptions = useMemo(
+        () =>
+            vendor?.data.results.map(({ company_name, id }) => ({
+                label: company_name,
+                value: id,
+            })),
+        [vendor]
+    );
+
+    const { data: location } = useGetAllLocationsQuery({
+        page: 1,
+        size: 2000000,
+    });
+
+    const locationOptions = useMemo(
+        () =>
+            location?.data.results.map(({ name, id }) => ({
+                label: name,
+                value: id,
+            })),
+        [location]
+    );
+
     const [createAgreement, { isLoading: isCreateLoading }] =
         useCreateAgreementMutation();
 
@@ -55,19 +85,21 @@ export default function CreateAgreement() {
         useModifyAgreementMutation();
 
     const onSubmit: SubmitHandler<TAgreementFormData> = async (data) => {
-        try {
-            if (id) {
-                await modifyAgreement({ id, body: data }).unwrap();
-                toast.success("Agreement Updated");
-            } else {
-                await createAgreement(data).unwrap();
-                toast.success("Agreement Created");
-            }
+        // try {
+        //     if (id) {
+        //         await modifyAgreement({ id, body: data }).unwrap();
+        //         toast.success("Agreement Updated");
+        //     } else {
+        //         await createAgreement(data).unwrap();
+        //         toast.success("Agreement Created");
+        //     }
 
-            navigate(CG_ROUTES.AGREEMENT);
-        } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
-        }
+        //     navigate(CG_ROUTES.AGREEMENT);
+        // } catch (error: any) {
+        //     toast.error(error.data.message ?? "Something went wrong");
+        // }
+
+        navigate(CG_ROUTES.CREATE_AGREEMENT_UPLOADS);
     };
 
     const { data } = useGetSingleAgreementQuery(id ?? skipToken);
@@ -79,72 +111,87 @@ export default function CreateAgreement() {
     }, []);
 
     return (
-        <div className="space-y-6">
-            <BackNavigation extraText="New Agreement" />
-            <Card>
-                <CardContent className="p-5">
-                    <Form {...form}>
-                        <form
-                            onSubmit={form.handleSubmit(onSubmit)}
-                            className="space-y-8"
-                        >
-                            <div className="grid grid-cols-2 gap-8">
-                                <FormInput
-                                    label="Provider"
-                                    name="provider"
-                                    placeholder="Enter Provider"
-                                    required
-                                />
+        <ServiceLevelAgreementLayout>
+            <div className="space-y-6">
+                <BackNavigation extraText="New Agreement" />
+                <Card>
+                    <CardContent className="p-5">
+                        <Form {...form}>
+                            <form
+                                onSubmit={form.handleSubmit(onSubmit)}
+                                className="space-y-8"
+                            >
+                                <div className="grid grid-cols-2 gap-8">
+                                    <FormSelect
+                                        label="Provider"
+                                        name="provider"
+                                        placeholder="Select Provider"
+                                        required
+                                        options={vendorOptions}
+                                    />
 
-                                <FormInput
-                                    name="service"
-                                    label="Service"
-                                    placeholder="Enter Service"
-                                    required
-                                />
+                                    <FormSelect
+                                        label="Type"
+                                        name="type"
+                                        placeholder="Select Type"
+                                        options={agreementTypeOptions}
+                                        required
+                                    />
 
-                                <FormSelect
-                                    label="Type"
-                                    name="type"
-                                    placeholder="Select Type"
-                                    options={agreementTypeOptions}
-                                    required
-                                />
+                                    <FormInput
+                                        type="date"
+                                        label="Start Date"
+                                        name="start_date"
+                                        required
+                                    />
 
-                                <FormInput
-                                    type="date"
-                                    label="Start Date"
-                                    name="start_date"
-                                    required
-                                />
-                                <FormInput
-                                    type="date"
-                                    label="End Date"
-                                    name="end_date"
-                                    required
-                                />
-                            </div>
+                                    <FormInput
+                                        type="date"
+                                        label="End Date"
+                                        name="end_date"
+                                        required
+                                    />
 
-                            <div className="flex items-center justify-end gap-5">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="lg"
-                                >
-                                    Cancel
-                                </Button>
-                                <FormButton
-                                    type="submit"
-                                    size="lg"
-                                    loading={isCreateLoading || isModifyLoading}
-                                >
-                                    Submit
-                                </FormButton>
-                            </div>
-                        </form>
-                    </Form>
-                </CardContent>
-            </Card>
-        </div>
+                                    <FormInput
+                                        type="number"
+                                        label="Contract Cost"
+                                        name="contract_cost"
+                                        placeholder="Enter Contract Cost"
+                                        required
+                                    />
+
+                                    <FormSelect
+                                        label="Location"
+                                        name="location"
+                                        placeholder="Select Location"
+                                        required
+                                        options={locationOptions}
+                                    />
+                                </div>
+
+                                <div className="flex items-center justify-end gap-5">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="lg"
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <FormButton
+                                        type="submit"
+                                        size="lg"
+                                        loading={
+                                            isCreateLoading || isModifyLoading
+                                        }
+                                    >
+                                        Next
+                                    </FormButton>
+                                </div>
+                            </form>
+                        </Form>
+                    </CardContent>
+                </Card>
+            </div>
+        </ServiceLevelAgreementLayout>
     );
 }

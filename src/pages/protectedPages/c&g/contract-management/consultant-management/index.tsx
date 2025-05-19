@@ -1,37 +1,45 @@
+import { useState } from "react";
 import { Button } from "components/ui/button";
 import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
 import { Plus } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import ConsultancyCard from "./ConsultantCard";
 import { useGetAllConsultantManagementsQuery } from "services/c&g/contract-management/consultancy-management/consultant-management";
-import { useState } from "react";
 import { LoadingSpinner } from "components/shared/Loading";
 import Pagination from "components/shared/Pagination";
+import UserAdvertType from "hooks/useJobAdvertType";
 
 export default function Consultancy() {
     const [page, setPage] = useState(1);
 
-    const { pathname } = useLocation();
-
-    const type = pathname.includes("adhoc-management") ? "ADHOC" : "CONSULTANT";
+    const advertType = UserAdvertType();
 
     const { data, isFetching } = useGetAllConsultantManagementsQuery({
         page,
         size: 10,
-        type,
+        type: advertType.toUpperCase(),
     });
 
     const path =
-        type === "ADHOC"
+        advertType === "adhoc"
             ? ProgramRoutes.CREATE_ADHOC_DETAILS
+            : advertType === "facilitator"
+            ? CG_ROUTES.CREATE_FACILITATOR_ADVERT_DETAILS
             : CG_ROUTES.CREATE_CONSULTANCY_DETAILS;
+
+    const btnLabel =
+        advertType === "adhoc"
+            ? "Adhoc"
+            : advertType === "consultant"
+            ? "Consultant"
+            : "Facilitator";
 
     return (
         <section className="space-y-5">
             <div className="flex justify-end">
                 <Link to={path}>
                     <Button>
-                        <Plus size={29} /> New Consultant
+                        <Plus size={29} /> New {btnLabel}
                     </Button>
                 </Link>
             </div>

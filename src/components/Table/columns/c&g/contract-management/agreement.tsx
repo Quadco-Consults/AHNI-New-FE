@@ -85,8 +85,8 @@ export const agreementColumns: ColumnDef<IAgreementPaginatedData>[] = [
 
     {
         header: "Status",
-        id: "service",
-        accessorKey: "service",
+        id: "status",
+        accessorKey: "status",
         size: 200,
     },
 
@@ -96,34 +96,6 @@ export const agreementColumns: ColumnDef<IAgreementPaginatedData>[] = [
         accessorKey: "service",
         size: 200,
     },
-
-    // {
-    //     header: "Type",
-    //     id: "type",
-    //     accessorKey: "type",
-    //     size: 200,
-    // },
-
-    // {
-    //     header: "Start Date",
-    //     id: "start_date",
-    //     accessorKey: "start_date",
-    //     size: 200,
-    // },
-
-    // {
-    //     header: "End Date",
-    //     id: "end_date",
-    //     accessorKey: "end_date",
-    //     size: 200,
-    // },
-
-    // {
-    //     header: "Status",
-    //     id: "status",
-    //     accessorKey: "status",
-    //     size: 200,
-    // },
 
     {
         header: "",
@@ -165,7 +137,7 @@ const TableMenu = ({ id }: IAgreementPaginatedData) => {
                     <PopoverContent className="w-fit">
                         <Link
                             to={{
-                                pathname: CG_ROUTES.CREATE_AGREEMENT,
+                                pathname: CG_ROUTES.CREATE_AGREEMENT_DETAILS,
                                 search: `?id=${id}`,
                             }}
                         >
