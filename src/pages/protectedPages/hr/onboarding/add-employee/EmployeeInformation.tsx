@@ -4,7 +4,7 @@ import BasicInformation from "./BasicInformation";
 import Qualification from "./Qualification";
 import { Button } from "components/ui/button";
 import { ChevronRight } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, generatePath, Link } from "react-router-dom";
 import { HrRoutes } from "constants/RouterConstants";
 import GoBack from "components/shared/GoBack";
 import { useGetEmployeeOnboardingQuery } from "services/hrApi/hr-employee-onboarding";
@@ -22,10 +22,6 @@ const EmployeeInformation = () => {
     useGetEmployeeOnboardingQualificationsListQuery({
       employee: id as string,
     });
-
-  const handleNext = () => {
-    navigate(HrRoutes.ONBOARDING_ADD_EMPLOYEE_ADD);
-  };
 
   return (
     <>
@@ -96,10 +92,17 @@ const EmployeeInformation = () => {
         )}
 
         <div className='flex gap-x-6 justify-end'>
-          <Button type='button' onClick={handleNext}>
-            Next
-            <ChevronRight size={20} />
-          </Button>
+          <Link
+            to={generatePath(HrRoutes.ONBOARDING_ADD_EMPLOYEE_ADD, {
+              id,
+            })}
+            className='flex flex-col items-start justify-between gap-1'
+          >
+            <Button type='button'>
+              Next
+              <ChevronRight size={20} />
+            </Button>
+          </Link>
         </div>
       </Card>
     </>
