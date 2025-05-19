@@ -1,10 +1,9 @@
 import React from "react";
-import { useParams } from "react-router-dom";
 import { Separator } from "components/ui/separator";
 import FormInput from "atoms/FormInput";
 import { Form } from "components/ui/form";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams, generatePath, Link } from "react-router-dom";
 import { Button } from "components/ui/button";
 import { ChevronRight, Save } from "lucide-react";
 import { useAppDispatch } from "hooks/useStore";
@@ -53,10 +52,6 @@ const Salary = () => {
   });
 
   const { handleSubmit } = form;
-
-  const handleNext = () => {
-    navigate(HrRoutes.ONBOARDING_ADD_EMPLOYEE_PENSION);
-  };
 
   const onSubmit = async (data: WorkforceBankAccountFormValues) => {
     // console.log("---->", data);
@@ -167,14 +162,23 @@ const Salary = () => {
               >
                 <Save size={20} /> Save
               </FormButton>
-              <Button type='button' onClick={handleNext}>
-                Next
-                <ChevronRight size={20} />
-              </Button>
+
+              <Link
+                to={generatePath(HrRoutes.ONBOARDING_ADD_EMPLOYEE_PENSION, {
+                  id,
+                })}
+                className='flex flex-col items-start justify-between gap-1'
+              >
+                <Button type='button'>
+                  Next
+                  <ChevronRight size={20} />
+                </Button>
+              </Link>
             </div>
           </form>
         </Form>
       </Card>
+
       {/* <Button
         onClick={() =>
           dispatch(
