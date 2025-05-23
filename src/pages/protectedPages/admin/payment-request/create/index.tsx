@@ -25,7 +25,6 @@ import { Button } from "components/ui/button";
 import { AdminRoutes } from "constants/RouterConstants";
 import { useGetSinglePaymentRequestQuery } from "services/admin/payment-request";
 import { skipToken } from "@reduxjs/toolkit/query";
-import { useGetAllExistingConsultantsQuery } from "services/c&g/contract-management/consultancy-management/consultant-management";
 
 export default function CreatePaymentRequest() {
     const form = useForm<TPaymentRequestFormData>({
@@ -46,6 +45,7 @@ export default function CreatePaymentRequest() {
 
             // to be added
             request_type: "",
+            number: "",
         },
     });
 
@@ -83,11 +83,6 @@ export default function CreatePaymentRequest() {
         [user]
     );
 
-    // const { data: consultant } = useGetAllExistingConsultantsQuery({
-    //     page: 1,
-    //     size: 2000000,
-    // });
-
     const onSubmit: SubmitHandler<TPaymentRequestFormData> = (data) => {
         sessionStorage.setItem("paymentRequestFormData", JSON.stringify(data));
 
@@ -101,7 +96,7 @@ export default function CreatePaymentRequest() {
     };
 
     const { data: paymentRequest } = useGetSinglePaymentRequestQuery(
-        id ?? skipToken
+        id ? id : skipToken
     );
 
     useEffect(() => {
@@ -112,7 +107,7 @@ export default function CreatePaymentRequest() {
         if (paymentRequest) {
             const { data } = paymentRequest;
 
-            return form.reset({
+            form.reset({
                 payment_date: data.payment_date,
                 purchase_order: data.purchase_order.id,
                 payment_to: data.payment_to,
@@ -127,11 +122,12 @@ export default function CreatePaymentRequest() {
                 approver: "",
             });
         }
-
-        form.reset(data);
     }, [paymentRequest, user, purchaseOrder]);
 
-    const requestType = form.watch("request_type");
+    const requestType = form.watch("request_type") || "";
+    const number = form.watch("number") || "";
+
+    console.log({ requestType });
 
     return (
         <PaymentRequestLayout>
@@ -139,7 +135,7 @@ export default function CreatePaymentRequest() {
                 <CardContent>
                     <FormProvider {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)}>
-                            <div className="grid grid-cols-3 mt-5 gap-8">
+                            <div className="grid grid-cols-3 mt-5 gap-10">
                                 <FormInput
                                     label="Date"
                                     name="payment_date"
@@ -178,25 +174,47 @@ export default function CreatePaymentRequest() {
                                     />
                                 )}
 
-                                {requestType === "CONSULTANT" && (
+                                {(requestType === "CONSULTANT" ||
+                                    requestType === "ADHOC_STAFF") && (
                                     <FormSelect
-                                        label="Consultant"
-                                        name="consultant"
-                                        placeholder="Select Consultant"
-                                        required
-                                        options={[]}
+                                        label="Number"
+                                        name="number"
+                                        placeholder="Select Number"
+                                        options={[
+                                            {
+                                                label: "SINGLE",
+                                                value: "SINGLE",
+                                            },
+
+                                            {
+                                                label: "MULTIPLE",
+                                                value: "MULTIPLE",
+                                            },
+                                        ]}
                                     />
                                 )}
 
-                                {requestType === "ADHOC_STAFF" && (
-                                    <FormSelect
-                                        label="Adhoc Staff"
-                                        name="adhoc_staff"
-                                        placeholder="Select Adhoc Staff"
-                                        required
-                                        options={[]}
-                                    />
-                                )}
+                                {requestType === "CONSULTANT" &&
+                                    number === "SINGLE" && (
+                                        <FormSelect
+                                            label="Consultant"
+                                            name="consultant"
+                                            placeholder="Select Consultant"
+                                            required
+                                            options={[]}
+                                        />
+                                    )}
+
+                                {requestType === "ADHOC_STAFF" &&
+                                    number === "SINGLE" && (
+                                        <FormSelect
+                                            label="Adhoc Staff"
+                                            name="adhoc_staff"
+                                            placeholder="Select Adhoc Staff"
+                                            required
+                                            options={[]}
+                                        />
+                                    )}
 
                                 <FormInput
                                     label="Payment To"
@@ -205,12 +223,14 @@ export default function CreatePaymentRequest() {
                                     required
                                 />
 
-                                <FormInput
-                                    label="Tax Identification Number"
-                                    name="tax_identification_number"
-                                    placeholder="Enter Tax Identification Number"
-                                    required
-                                />
+                                {number === "SINGLE" && (
+                                    <FormInput
+                                        label="Tax Identification Number"
+                                        name="tax_identification_number"
+                                        placeholder="Enter Tax Identification Number"
+                                        required
+                                    />
+                                )}
 
                                 <FormInput
                                     label="Amount In Figures"
@@ -227,20 +247,24 @@ export default function CreatePaymentRequest() {
                                     required
                                 />
 
-                                <FormInput
-                                    label="Account Number"
-                                    name="account_number"
-                                    placeholder="Enter Account Number"
-                                    required
-                                    type="number"
-                                />
+                                {number === "SINGLE" && (
+                                    <FormInput
+                                        label="Account Number"
+                                        name="account_number"
+                                        placeholder="Enter Account Number"
+                                        required
+                                        type="number"
+                                    />
+                                )}
 
-                                <FormInput
-                                    label="Bank"
-                                    name="bank_name"
-                                    placeholder="Enter Bank Name"
-                                    required
-                                />
+                                {number === "SINGLE" && (
+                                    <FormInput
+                                        label="Bank"
+                                        name="bank_name"
+                                        placeholder="Enter Bank Name"
+                                        required
+                                    />
+                                )}
                             </div>
 
                             <FormTextArea

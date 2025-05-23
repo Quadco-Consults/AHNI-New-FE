@@ -43,6 +43,7 @@ export default function Consultancy() {
                     </Button>
                 </Link>
             </div>
+
             {isFetching ? (
                 <LoadingSpinner />
             ) : (

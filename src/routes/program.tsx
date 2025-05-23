@@ -356,6 +356,17 @@ export const program = [
                 )
         ),
     },
+
+    {
+        path: ProgramRoutes.CREATE_ADHOC_INTERVIEW,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/consultant-management/id/CreateInterview"
+                )
+        ),
+    },
+
     {
         path: ProgramRoutes.CREATE_ADHOC_APPLICANT,
         element: lazy(

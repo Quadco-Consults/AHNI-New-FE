@@ -62,18 +62,41 @@ const AddFundingSource = () => {
                 className="flex flex-col gap-y-7"
             >
                 <FormInput
-                    label="Name"
+                    label="Donor Name"
                     name="name"
                     placeholder="Enter Name"
                     required
                 />
 
-                <FormTextArea
-                    label="Description"
-                    name="description"
-                    placeholder="Enter Description"
+                <FormInput
+                    label="Donor Email"
+                    name="email"
+                    placeholder="Enter email"
                 />
-                
+
+                <FormTextArea
+                    label="Donor Address"
+                    name="address"
+                    placeholder="Enter address"
+                />
+
+                <FormInput
+                    label="Donor Contact Person"
+                    name="description"
+                    placeholder="Enter name"
+                />
+
+                <FormInput
+                    label="Donor Contact Person Email"
+                    name="email"
+                    placeholder="Enter email"
+                />
+
+                <FormInput
+                    label="Donor Contact Person Phone Number"
+                    name="phone_number"
+                    placeholder="Enter phone number"
+                />
                 <div className="flex justify-start gap-4">
                     <FormButton loading={isLoading || updateFundingLoading}>
                         Save

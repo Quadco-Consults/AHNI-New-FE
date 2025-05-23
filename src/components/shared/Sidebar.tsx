@@ -77,6 +77,11 @@ const globalHubMenu = [
         label: "Consultancy Report",
         path: CG_ROUTES.CONSULTANCY_REPORT,
     },
+
+    {
+        label: "Contract Request",
+        path: CG_ROUTES.CONTRACT_REQUEST,
+    },
 ];
 
 const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
@@ -992,6 +997,7 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
                 { name: "HR Reports", path: "/" },
             ],
         },
+
         {
             name: "C&G",
             icon: <CGIcon />,
@@ -999,12 +1005,18 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
             link: [
                 { name: "Overview", path: CG_ROUTES.OVERVIEW },
 
+                { name: "Donor Database", path: CG_ROUTES.DONOR_DATABSE },
+
                 { name: "Grants", path: CG_ROUTES.GRANT },
 
                 {
                     name: "Sub Grants",
                     sublinks: [
-                        { name: "Awards", path: CG_ROUTES.SUBGRANT },
+                        {
+                            name: "Sub Grant Adverts",
+                            path: CG_ROUTES.SUBGRANT_ADVERT,
+                        },
+                        { name: "Awards", path: CG_ROUTES.SUBGRANT_AWARD },
                         {
                             name: "Pre-award Assessment",
                             path: CG_ROUTES.PRE_AWARD_ASSESSMENT,
@@ -1015,6 +1027,7 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
                         },
                     ],
                 },
+
                 {
                     name: "Closeout",
                     sublinks: [
@@ -1024,6 +1037,11 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
                 {
                     name: "Contract Management",
                     sublinks: [
+                        {
+                            name: "Contract Request",
+                            path: CG_ROUTES.CONTRACT_REQUEST,
+                        },
+
                         {
                             name: "Consultant Management",
                             path: CG_ROUTES.CONSULTANCY,

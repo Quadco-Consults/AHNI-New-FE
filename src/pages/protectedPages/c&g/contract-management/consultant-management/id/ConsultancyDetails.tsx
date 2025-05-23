@@ -10,7 +10,6 @@ import { useState } from "react";
 import JobDetails from "./JobDetails";
 import Card from "components/shared/Card";
 import { useGetSingleConsultantManagementQuery } from "services/c&g/contract-management/consultancy-management/consultant-management";
-import ScopeOfWork from "./ScopeOfWork";
 import Applications from "./applicants/ConsultancyStaffList";
 import ShortlistedAppplicants from "./ShortlistedApplicants";
 
@@ -32,6 +31,9 @@ export default function ConsultancyDetailsPage() {
             ? ProgramRoutes.CREATE_ADHOC_APPLICANT
             : CG_ROUTES.CREATE_CONSULTANCY_APPLICANT;
 
+    const interviewPath =
+        type === "ADHOC" ? ProgramRoutes.CREATE_ADHOC_INTERVIEW : "";
+
     if (isLoading) {
         return <LoadingSpinner />;
     }
@@ -49,10 +51,6 @@ export default function ConsultancyDetailsPage() {
                     <TabsList>
                         <TabsTrigger value="job-details">
                             Job Details
-                        </TabsTrigger>
-
-                        <TabsTrigger value="work-scope">
-                            Scope Of Work
                         </TabsTrigger>
 
                         <TabsTrigger value="applications">
@@ -77,15 +75,28 @@ export default function ConsultancyDetailsPage() {
                         </Link>
                     </div>
                 )}
+
+                {tabValue === "shortlisted" && (
+                    <div>
+                        <Link
+                            className="w-full"
+                            to={generatePath(interviewPath, {
+                                id,
+                            })}
+                        >
+                            <Button className="flex gap-2 py-6" type="button">
+                                <AddSquareIcon />
+                                Create Interview
+                            </Button>
+                        </Link>
+                    </div>
+                )}
             </section>
             <section>
                 {data && (
                     <Card>
                         <TabsContent value="job-details">
                             <JobDetails {...data.data} />
-                        </TabsContent>
-                        <TabsContent value="work-scope">
-                            <ScopeOfWork {...data.data} />
                         </TabsContent>
 
                         <TabsContent value="applications">
