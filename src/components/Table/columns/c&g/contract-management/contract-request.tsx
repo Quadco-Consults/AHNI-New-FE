@@ -7,86 +7,74 @@ import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIco
 import DeleteIcon from "components/icons/DeleteIcon";
 import PencilIcon from "components/icons/PencilIcon";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
-import { generatePath, Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { IAgreementPaginatedData } from "definations/c&g/contract-management/agreement";
 import { useDeleteAgreementMutation } from "services/c&g/contract-management/agreement";
-import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
-import { IConsultancyStaffPaginatedData } from "definations/c&g/contract-management/consultancy-management/consultancy-application";
-import EyeIcon from "components/icons/EyeIcon";
+import { CG_ROUTES } from "constants/RouterConstants";
 
-export const consultancyStaffColumns: ColumnDef<IConsultancyStaffPaginatedData>[] =
-    [
-        {
-            header: "Applicant Name",
-            id: "name",
-            accessorKey: "name",
-            size: 200,
-        },
+export const contractRequestColumns: ColumnDef<IAgreementPaginatedData>[] = [
+    {
+        header: "Request Title",
+        id: "_",
+        accessorKey: "service",
+        size: 200,
+    },
 
-        {
-            header: "Email",
-            id: "email",
-            accessorKey: "email",
-            size: 200,
-        },
+    {
+        header: "Request Type",
+        id: "_",
+        accessorKey: "_",
+        size: 200,
+    },
 
-        {
-            header: "Phone Number",
-            id: "phone_number",
-            accessorKey: "phone_number",
-            size: 200,
-        },
+    {
+        header: "Requesting Department",
+        id: "_",
+        accessorKey: "_",
+        size: 200,
+    },
 
-        {
-            header: "Start Duration Date",
-            id: "start_duration_date",
-            accessorKey: "start_duration_date",
-            size: 200,
-        },
+    {
+        header: "Location",
+        id: "_",
+        accessorKey: "_",
+        size: 200,
+    },
 
-        {
-            header: "End Duration Date",
-            id: "end_duration_date",
-            accessorKey: "end_duration_date",
-            size: 200,
-        },
+    {
+        header: "Status",
+        id: "status",
+        accessorKey: "status",
+        size: 200,
+    },
 
-        {
-            header: "",
-            id: "action",
-            size: 80,
-            cell: ({ row }) => <TableMenu {...row.original} />,
-        },
-    ];
+    {
+        header: "",
+        id: "action",
+        size: 80,
+        cell: ({ row }) => <TableMenu {...row.original} />,
+    },
+];
 
-const TableMenu = ({ id }: IConsultancyStaffPaginatedData) => {
+const TableMenu = ({ id }: IAgreementPaginatedData) => {
     const [isDialogOpen, setDialogOpen] = useState(false);
-
-    const { id: adhocId } = useParams();
 
     const { pathname } = useLocation();
 
-    const type = pathname.includes("adhoc-management") ? "ADHOC" : "CONSULTANT";
-
-    const viewPath =
-        type === "ADHOC"
-            ? ProgramRoutes.ADHOC_APPLICANT_DETAILS
-            : CG_ROUTES.CONSULTANCY_APPLICATION_DETAILS;
-
-    const editPath =
-        type === "ADHOC"
-            ? ProgramRoutes.CREATE_ADHOC_APPLICANT
-            : CG_ROUTES.CREATE_CONSULTANCY_APPLICANT;
+    console.log({ pathname });
 
     const [deleteAgreement, { isLoading }] = useDeleteAgreementMutation();
 
     const handleDelete = async () => {
         try {
             await deleteAgreement(id).unwrap();
-            toast.success("Adhoc Applicant Deleted");
+            toast.success("Agreement Deleted");
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }
     };
+
+    if (pathname === "/admin/agreements/") return null;
 
     return (
         <div className="flex items-center gap-2">
@@ -99,26 +87,8 @@ const TableMenu = ({ id }: IConsultancyStaffPaginatedData) => {
                     </PopoverTrigger>
                     <PopoverContent className="w-fit">
                         <Link
-                            to={generatePath(viewPath, {
-                                id: adhocId,
-                                adhocId,
-                                applicantId: id,
-                            })}
-                        >
-                            <Button
-                                className="w-full flex items-center justify-start gap-2"
-                                variant="ghost"
-                            >
-                                <EyeIcon />
-                                View
-                            </Button>
-                        </Link>
-
-                        <Link
                             to={{
-                                pathname: generatePath(editPath, {
-                                    id: adhocId,
-                                }),
+                                pathname: CG_ROUTES.CREATE_AGREEMENT_DETAILS,
                                 search: `?id=${id}`,
                             }}
                         >
@@ -130,7 +100,6 @@ const TableMenu = ({ id }: IConsultancyStaffPaginatedData) => {
                                 Edit
                             </Button>
                         </Link>
-
                         <Button
                             className="w-full flex items-center justify-start gap-2"
                             variant="ghost"

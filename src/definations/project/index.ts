@@ -3,7 +3,7 @@ import { TBeneficiaryData } from "definations/modules/project/beneficiaries";
 import { TFundingSourceData } from "definations/modules/project/funding-source";
 import { TPartnerData } from "definations/modules/project/partners";
 import { IUser } from "definations/auth/user";
-import { IGrantSingleData } from "definations/c&g/grants";
+// import { IGrantSingleData } from "definations/c&g/grants";
 
 export const ProjectSchema = z.object({
     title: z.string().min(1, "Please enter title"),
@@ -43,7 +43,7 @@ export interface IProjectSingleData {
     }[];
     partners: TPartnerData[];
     documents: [];
-    grant: IGrantSingleData;
+    // grant: IGrantSingleData;
     created_datetime: string;
     updated_datetime: string;
     project_id: string;

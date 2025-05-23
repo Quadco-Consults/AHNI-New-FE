@@ -18,14 +18,14 @@ import { cn } from "lib/utils";
 
 export const grantColumns: ColumnDef<IGrantPaginatedData>[] = [
     {
-        header: "Grant Name",
+        header: "Project",
         id: "name",
         accessorKey: "name",
         size: 200,
     },
 
     {
-        header: "Grant ID",
+        header: "Project ID",
         id: "grant_id",
         accessorKey: "grant_id",
         size: 200,
@@ -39,14 +39,22 @@ export const grantColumns: ColumnDef<IGrantPaginatedData>[] = [
     },
 
     {
-        header: "Project",
+        header: "Intervention Area",
         id: "project",
         size: 200,
     },
 
     {
-        header: "Location",
-        accessorKey: "location",
+        header: "Award Type",
+        id: "award_type",
+        accessorKey: "award_type",
+        size: 200,
+    },
+
+    {
+        header: "Modification",
+        id: "modification",
+        accessorKey: "modification",
         size: 200,
     },
 
@@ -58,12 +66,6 @@ export const grantColumns: ColumnDef<IGrantPaginatedData>[] = [
         size: 200,
     },
 
-    {
-        header: "Award Type",
-        id: "award_type",
-        accessorKey: "award_type",
-        size: 200,
-    },
     {
         header: "Monthly Spend",
         id: "monthly_spend",
@@ -90,13 +92,6 @@ export const grantColumns: ColumnDef<IGrantPaginatedData>[] = [
             total_expenditure_amount
                 ? formatNumberCurrency(total_expenditure_amount, "USD")
                 : "N/A",
-        size: 200,
-    },
-
-    {
-        header: "Intervention",
-        id: "beneficiaries",
-        // accessorFn: ({ beneficiaries }) => beneficiaries.join(", "),
         size: 200,
     },
 

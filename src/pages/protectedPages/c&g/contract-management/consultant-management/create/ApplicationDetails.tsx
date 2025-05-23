@@ -3,15 +3,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "atoms/FormInput";
 import FormButton from "atoms/FormButton";
 import { Label } from "components/ui/label";
-import { UploadFileSvg } from "assets/svgs/CAndGSvgs";
 import { toast } from "sonner";
 import {
     ConsultancyManagementDetailSchema,
     TConsultantanagementDetailsFormData,
 } from "definations/c&g/contract-management/consultancy-management/consultancy-management";
 import { Button } from "components/ui/button";
-import FormSelect from "atoms/FormSelect";
-import ConsultantManagementLayout from "./Layout";
 import FormTextArea from "atoms/FormTextArea";
 import { FormField, FormItem, Form, FormControl } from "components/ui/form";
 import MultiSelectFormField from "components/ui/multiselect";
@@ -23,6 +20,7 @@ import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
 import { fileToBase64 } from "utils/fileToBase64";
 import { useGetSingleConsultantManagementQuery } from "services/c&g/contract-management/consultancy-management/consultant-management";
 import { skipToken } from "@reduxjs/toolkit/query";
+import FormSelect from "atoms/FormSelect";
 
 export default function ApplicationDetails() {
     const navigate = useNavigate();
@@ -34,16 +32,11 @@ export default function ApplicationDetails() {
         resolver: zodResolver(ConsultancyManagementDetailSchema),
         defaultValues: {
             title: "",
-            grade_level: "",
             locations: [],
-            duration: "",
             commencement_date: "",
             end_date: "",
             consultants_number: "",
-            extra_info: "",
             background: "",
-            evaluation_comments: "",
-            supervisor: "",
         },
     });
 
@@ -62,31 +55,12 @@ export default function ApplicationDetails() {
 
     const { data: user } = useGetAllUsersQuery({ page: 1, size: 2000000 });
 
-    const userOptions = useMemo(
-        () =>
-            user?.data.results.map(({ first_name, last_name, id }) => ({
-                label: `${first_name} ${last_name}`,
-                value: id,
-            })),
-        [user]
-    );
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files.length > 0) {
-            form.setValue("advertisement_document", Array.from(e.target.files));
-        }
-    };
-
     const onSubmit: SubmitHandler<TConsultantanagementDetailsFormData> = async (
         data
     ) => {
         try {
             const payload = {
                 ...data,
-                advertisement_document:
-                    typeof data.advertisement_document !== "string"
-                        ? await fileToBase64(data.advertisement_document[0])
-                        : null,
             };
 
             sessionStorage.setItem(
@@ -118,144 +92,98 @@ export default function ApplicationDetails() {
 
     useEffect(() => {
         if (data) {
-            const {
-                locations,
-                supervisor,
-                duration,
-                consultants_number,
-                advertisement_document,
-            } = data.data;
+            const { locations, consultants_number, advertisement_document } =
+                data.data;
 
             form.reset({
                 ...data.data,
                 locations: locations.map(({ id }) => id),
-                duration: String(duration),
                 consultants_number: String(consultants_number),
-                supervisor: supervisor.id,
-                advertisement_document: advertisement_document ?? "",
             });
         }
     }, [data, user]);
 
-    const file = form.watch("advertisement_document");
-
-    const fileName = file && file[0].name;
-
     return (
-        <ConsultantManagementLayout>
-            <main className="w-full flex flex-col items-center justify-center gap-y-[2.5rem] bg-white p-[1.25rem] pt-[2rem]  rounded-2xl">
-                <h2 className="font-semibold text-[1.25rem] w-full text-black">
-                    Application Details
-                </h2>
-                <Form {...form}>
-                    <form
-                        onSubmit={form.handleSubmit(onSubmit)}
-                        className="w-full space-y-8"
-                    >
-                        <FormInput
-                            label="Title"
-                            name="title"
-                            placeholder="Enter Title"
-                            required
-                        />
+        <main className="w-full flex flex-col items-center justify-center gap-y-[2.5rem] bg-white p-[1.25rem] pt-[2rem]  rounded-2xl">
+            <Form {...form}>
+                <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="w-full space-y-8"
+                >
+                    <FormInput
+                        label="Title of Consultancy"
+                        name="title"
+                        placeholder="Enter Title"
+                        required
+                    />
 
-                        <FormInput
-                            label="Grade Level"
-                            name="grade_level"
-                            placeholder="Enter Grade Level"
-                            required
-                        />
+                    <FormSelect
+                        label="Contract Request"
+                        name="contract_request"
+                        placeholder="Select Contract Request"
+                        required
+                    />
 
-                        <div>
-                            <Label className="font-semibold">Locations</Label>
+                    <FormTextArea
+                        label="Job Description"
+                        name="description"
+                        placeholder="Enter Background"
+                        required
+                    />
 
-                            <FormField
-                                control={form.control}
-                                name="locations"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormControl>
-                                            <MultiSelectFormField
-                                                options={locationOptions || []}
-                                                defaultValue={field.value}
-                                                onValueChange={field.onChange}
-                                                placeholder="Select Locations"
-                                                variant="inverted"
-                                            />
-                                        </FormControl>
-                                    </FormItem>
-                                )}
-                            />
+                    <div>
+                        <Label className="font-semibold">Locations</Label>
 
-                            {errors.locations && (
-                                <span className="text-sm text-red-500 font-medium">
-                                    {errors?.locations?.message as string}
-                                </span>
+                        <FormField
+                            control={form.control}
+                            name="locations"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormControl>
+                                        <MultiSelectFormField
+                                            options={locationOptions || []}
+                                            defaultValue={field.value}
+                                            onValueChange={field.onChange}
+                                            placeholder="Select Locations"
+                                            variant="inverted"
+                                        />
+                                    </FormControl>
+                                </FormItem>
                             )}
-                        </div>
-
-                        <FormInput
-                            label="Duration"
-                            name="duration"
-                            placeholder="Enter Duration"
-                            type="number"
-                            required
                         />
 
-                        <div className="grid grid-cols-2 gap-5">
-                            <FormInput
-                                type="date"
-                                label="Commencement Date"
-                                name="commencement_date"
-                                required
-                            />
+                        {errors.locations && (
+                            <span className="text-sm text-red-500 font-medium">
+                                {errors?.locations?.message as string}
+                            </span>
+                        )}
+                    </div>
 
-                            <FormInput
-                                type="date"
-                                label="Effective End Date"
-                                name="end_date"
-                                required
-                            />
-                        </div>
-
+                    <div className="grid grid-cols-2 gap-5">
                         <FormInput
-                            label="Number of Consultants"
-                            name="consultants_number"
-                            type="number"
-                            placeholder="Enter Number of Consultants"
+                            type="date"
+                            label="Commencement Date"
+                            name="commencement_date"
                             required
                         />
 
                         <FormInput
-                            label="Any other Info"
-                            name="extra_info"
-                            placeholder="Enter Any Other Info"
+                            type="date"
+                            label="Effective End Date"
+                            name="end_date"
                             required
                         />
+                    </div>
 
-                        <FormTextArea
-                            label="Background"
-                            name="background"
-                            placeholder="Enter Background"
-                            required
-                        />
+                    <FormInput
+                        label="Number of Consultants"
+                        name="consultants_number"
+                        type="number"
+                        placeholder="Enter Number of Consultants"
+                        required
+                    />
 
-                        <FormTextArea
-                            label="Evaluation Comments"
-                            name="evaluation_comments"
-                            placeholder="Enter Evaluation Comments"
-                            required
-                        />
-
-                        <FormSelect
-                            label="Supervisor"
-                            name="supervisor"
-                            placeholder="Select supervisor"
-                            options={userOptions}
-                            required
-                        />
-
-                        <div className="flex flex-col gap-y-[1rem]">
+                    {/* <div className="flex flex-col gap-y-[1rem]">
                             <Label className="font-semibold">
                                 Upload Complete Advertisement Document
                             </Label>
@@ -289,17 +217,17 @@ export default function ApplicationDetails() {
                                     }
                                 </span>
                             )}
-                        </div>
-                        <div className="flex justify-end items-center gap-5">
-                            <Button type="button" variant="outline" size="lg">
-                                Cancel
-                            </Button>
+                        </div> */}
 
-                            <FormButton size="lg">Next</FormButton>
-                        </div>
-                    </form>
-                </Form>
-            </main>
-        </ConsultantManagementLayout>
+                    <div className="flex justify-end items-center gap-5">
+                        <Button type="button" variant="outline" size="lg">
+                            Cancel
+                        </Button>
+
+                        <FormButton size="lg">Next</FormButton>
+                    </div>
+                </form>
+            </Form>
+        </main>
     );
 }

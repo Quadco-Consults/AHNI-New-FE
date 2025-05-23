@@ -1,92 +1,87 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
-import { toast } from "sonner";
-import { useState } from "react";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
-import PencilIcon from "components/icons/PencilIcon";
-import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
-import { generatePath, Link, useLocation, useParams } from "react-router-dom";
-import { useDeleteAgreementMutation } from "services/c&g/contract-management/agreement";
-import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
-import { IConsultancyStaffPaginatedData } from "definations/c&g/contract-management/consultancy-management/consultancy-application";
 import EyeIcon from "components/icons/EyeIcon";
+import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
+import { Button } from "components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import { CG_ROUTES } from "constants/RouterConstants";
+import { ISubGrantSubmissionPaginatedData } from "definations/c&g/contract-management/sub-grant/sub-grant";
+import { generatePath, Link, useLocation, useParams } from "react-router-dom";
+import PencilIcon from "components/icons/PencilIcon";
+import { toast } from "sonner";
+import { useDeleteSubGrantManualSubMutation } from "services/c&g/subgrant/submission";
+import { useState } from "react";
+import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 
-export const consultancyStaffColumns: ColumnDef<IConsultancyStaffPaginatedData>[] =
+export const preAwardAssessmentColumns: ColumnDef<ISubGrantSubmissionPaginatedData>[] =
     [
         {
-            header: "Applicant Name",
-            id: "name",
-            accessorKey: "name",
+            header: "Sub Grant Title",
+            id: "title",
+            accessorKey: "title",
             size: 200,
         },
-
         {
-            header: "Email",
-            id: "email",
-            accessorKey: "email",
+            header: "Pre-Award Assessment Type",
+            id: "type",
+            accessorKey: "type",
             size: 200,
         },
-
         {
-            header: "Phone Number",
-            id: "phone_number",
-            accessorKey: "phone_number",
+            header: "Status",
+            id: "status",
+            accessorKey: "status",
             size: 200,
         },
-
         {
-            header: "Start Duration Date",
-            id: "start_duration_date",
-            accessorKey: "start_duration_date",
-            size: 200,
-        },
-
-        {
-            header: "End Duration Date",
-            id: "end_duration_date",
-            accessorKey: "end_duration_date",
+            header: "Pre-Award Assessment Date",
+            id: "date",
+            accessorKey: "date",
             size: 200,
         },
 
         {
             header: "",
-            id: "action",
-            size: 80,
+            id: "actions",
+            size: 50,
             cell: ({ row }) => <TableMenu {...row.original} />,
         },
     ];
 
-const TableMenu = ({ id }: IConsultancyStaffPaginatedData) => {
+const TableMenu = ({
+    id: partnerSubId,
+    sub_grant_id,
+}: ISubGrantSubmissionPaginatedData) => {
     const [isDialogOpen, setDialogOpen] = useState(false);
 
-    const { id: adhocId } = useParams();
+    const { id: subGrantId = "" } = useParams();
 
     const { pathname } = useLocation();
 
-    const type = pathname.includes("adhoc-management") ? "ADHOC" : "CONSULTANT";
+    const isPreawardPath = pathname.includes("/preaward-assessment");
 
-    const viewPath =
-        type === "ADHOC"
-            ? ProgramRoutes.ADHOC_APPLICANT_DETAILS
-            : CG_ROUTES.CONSULTANCY_APPLICATION_DETAILS;
-
-    const editPath =
-        type === "ADHOC"
-            ? ProgramRoutes.CREATE_ADHOC_APPLICANT
-            : CG_ROUTES.CREATE_CONSULTANCY_APPLICANT;
-
-    const [deleteAgreement, { isLoading }] = useDeleteAgreementMutation();
+    const [deletePartnerSubmission, { isLoading: isDeleteLoading }] =
+        useDeleteSubGrantManualSubMutation();
 
     const handleDelete = async () => {
         try {
-            await deleteAgreement(id).unwrap();
-            toast.success("Adhoc Applicant Deleted");
+            await deletePartnerSubmission(partnerSubId).unwrap();
+            toast.success("Submission Deleted");
+            setDialogOpen(false);
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }
     };
+
+    const path = isPreawardPath
+        ? generatePath(CG_ROUTES.SUBGRANT_SUBMISSION_DETAILS, {
+              subGrantId: sub_grant_id,
+              partnerSubId,
+          })
+        : generatePath(CG_ROUTES.SUBGRANT_SUBMISSION_DETAILS, {
+              subGrantId,
+              partnerSubId,
+          });
 
     return (
         <div className="flex items-center gap-2">
@@ -98,13 +93,7 @@ const TableMenu = ({ id }: IConsultancyStaffPaginatedData) => {
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-fit">
-                        <Link
-                            to={generatePath(viewPath, {
-                                id: adhocId,
-                                adhocId,
-                                applicantId: id,
-                            })}
-                        >
+                        <Link className="w-full" to={path}>
                             <Button
                                 className="w-full flex items-center justify-start gap-2"
                                 variant="ghost"
@@ -116,10 +105,11 @@ const TableMenu = ({ id }: IConsultancyStaffPaginatedData) => {
 
                         <Link
                             to={{
-                                pathname: generatePath(editPath, {
-                                    id: adhocId,
-                                }),
-                                search: `?id=${id}`,
+                                pathname: generatePath(
+                                    CG_ROUTES.CREATE_SUBGRANT_SUBMISSION_DETAILS,
+                                    { id: subGrantId }
+                                ),
+                                search: `?partnerSubId=${partnerSubId}`,
                             }}
                         >
                             <Button
@@ -145,8 +135,8 @@ const TableMenu = ({ id }: IConsultancyStaffPaginatedData) => {
 
             <ConfirmationDialog
                 open={isDialogOpen}
-                title="Are you sure you want to delete this expenditure?"
-                loading={isLoading}
+                title="Are you sure you want to delete this submission?"
+                loading={isDeleteLoading}
                 onCancel={() => setDialogOpen(false)}
                 onOk={handleDelete}
             />
