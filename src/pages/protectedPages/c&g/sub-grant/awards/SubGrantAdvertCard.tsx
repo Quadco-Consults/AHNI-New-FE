@@ -6,27 +6,41 @@ import {
     PersonClusterSvg,
     SuiteCase,
 } from "assets/svgs/CAndGSvgs";
+import DeleteIcon from "components/icons/DeleteIcon";
+import PencilIcon from "components/icons/PencilIcon";
+import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
 import { CardTitle } from "components/ui/card";
-import { CG_ROUTES } from "constants/RouterConstants";
 import { format } from "date-fns";
-import { IConsultantPaginatedData } from "definations/c&g/contract-management/consultancy-management/consultancy-management";
-import { IFacilitatorPaginatedData } from "definations/c&g/contract-management/facilitator-management";
-import React from "react";
-import { generatePath, Link } from "react-router-dom";
+import { ISubGrantPaginatedData } from "definations/c&g/contract-management/sub-grant/sub-grant";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { useDeleteSubGrantMutation } from "services/c&g/subgrant/sub-grant";
+import { toast } from "sonner";
 
-export default function FacilitatorCard({
+export default function SubgrantAdvertCard({
     id,
     title,
-    facilitaor_number,
-    duration,
-    end_date,
-    locations,
-    evaluation_comments,
     created_datetime,
-    status,
-}: IFacilitatorPaginatedData) {
+    start_date,
+    end_date,
+}: ISubGrantPaginatedData) {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const [deleteSubGrant, { isLoading: isDeleteLoading }] =
+        useDeleteSubGrantMutation();
+
+    const handleDelete = async () => {
+        try {
+            await deleteSubGrant(id).unwrap();
+            toast.success("Sub Grant Deleted");
+            setIsModalOpen(false);
+        } catch (error: any) {
+            toast.error(error.data.message ?? "Something went wrong");
+        }
+    };
+
     return (
         <div className="w-[49.5%]">
             <Card className="flex flex-col gap-y-[.625rem] w-full min-h-[25rem] justify-between relative p-[2rem]">
@@ -41,23 +55,41 @@ export default function FacilitatorCard({
                         <p
                             className={`bg-[#26B94133] text-[.625rem] py-1 px-[.625rem] w-fit rounded-full text-[#26B941]`}
                         >
-                            {status}
+                            {/* {status} */}
                         </p>
                     </div>
-                    <CardTitle
-                        className="text-black text-[1.25rem]"
-                        title="Card"
-                    >
-                        {title}
-                    </CardTitle>
+                    <div className="flex items-center justify-between">
+                        <CardTitle
+                            className="text-black text-[1.25rem]"
+                            title="Card"
+                        >
+                            {title}
+                        </CardTitle>
+
+                        <div className="flex items-center">
+                            <Link to="/">
+                                <Button variant="ghost">
+                                    <PencilIcon />
+                                </Button>
+                            </Link>
+                            <Button
+                                variant="ghost"
+                                onClick={() => setIsModalOpen(true)}
+                            >
+                                <DeleteIcon />
+                            </Button>
+                        </div>
+                    </div>
                     <div className="w-full flex flex-wrap items-center justify-start gap-x-[.625rem] gap-y-[1rem]">
                         <DetailsTag
                             icon={<PeoplePositionsSvg />}
-                            label={`${facilitaor_number} people`}
+                            label=""
+                            // label={`${consultants_number} people`}
                         />
                         <DetailsTag
                             icon={<ClockTimingSvg />}
-                            label={`${duration} months with possibility of extension`}
+                            label=""
+                            // label={`${duration} months with possibility of extension`}
                         />
                         <DetailsTag
                             icon={<DataCalenderSvg />}
@@ -65,7 +97,8 @@ export default function FacilitatorCard({
                         />
                         <DetailsTag
                             icon={<LocationSvg />}
-                            label={locations.join(", ")}
+                            label=""
+                            // label={locations.join(", ")}
                         />
                         <DetailsTag icon={<SuiteCase />} label="Internal" />
 
@@ -75,24 +108,28 @@ export default function FacilitatorCard({
                         />
                     </div>
                 </div>
-                <div className="relative">
+
+                {/* <div className="relative">
                     <p className="text-sm">{evaluation_comments}</p>
                     <div className="w-full flex flex-col items-center justify-center absolute bottom-0 left-0 py-[.75rem] bg-gradient-to-b from-white/50 via-white/60 to-white/90">
                         <div className="bg-white w-fit">
-                            <Link
-                                to={generatePath(
-                                    CG_ROUTES.FACILITATOR_DETAILS,
-                                    { id }
-                                )}
-                            >
+                            <Link to="/">
                                 <Button className="bg-white text-primary z-[99] border border-[#00000012]">
                                     Tap to View
                                 </Button>
                             </Link>
                         </div>
                     </div>
-                </div>
+                </div> */}
             </Card>
+
+            <ConfirmationDialog
+                open={isModalOpen}
+                title="Are you sure you want to delete this sub grant?"
+                onCancel={() => setIsModalOpen(false)}
+                onOk={handleDelete}
+                loading={isDeleteLoading}
+            />
         </div>
     );
 }

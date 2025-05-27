@@ -2,7 +2,6 @@ import { z } from "zod";
 
 export const AgreementSchema = z.object({
     provider: z.string().min(1, "Please enter provider"),
-    service: z.string().min(1, "Please enter service"),
     type: z.string().min(1, "Please select type"),
     start_date: z.string().min(1, "Please select start date"),
     end_date: z.string().min(1, "Please select end date"),

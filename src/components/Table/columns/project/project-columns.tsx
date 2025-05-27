@@ -32,16 +32,17 @@ export const projectColumns: ColumnDef<IProjectSingleData>[] = [
         size: 200,
     },
 
-    {
-        header: "Grant Name",
-        accessorKey: `grant.name`,
-        size: 130,
-    },
-    {
-        header: "Grant ID",
-        accessorKey: `grant.grant_id`,
-        size: 130,
-    },
+    // {
+    //     header: "Grant Name",
+    //     accessorKey: `grant.name`,
+    //     size: 130,
+    // },
+    // {
+    //     header: "Grant ID",
+    //     accessorKey: `grant.grant_id`,
+    //     size: 130,
+    // },
+
     {
         header: "Start Date",
         accessorKey: "start_date",

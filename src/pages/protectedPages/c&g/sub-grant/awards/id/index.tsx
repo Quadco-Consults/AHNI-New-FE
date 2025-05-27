@@ -39,8 +39,8 @@ const SubGrantDetails = () => {
                             Submissions
                         </TabsTrigger>
 
-                        <TabsTrigger value="beneficiaries">
-                            Awarded Beneficiaries
+                        <TabsTrigger value="shortlisted">
+                            Shortlisted Sub-Grantees
                         </TabsTrigger>
                     </TabsList>
                 </div>
@@ -62,6 +62,23 @@ const SubGrantDetails = () => {
                         </Link>
                     </div>
                 )}
+
+                {tabValue === "shortlisted" && (
+                    <div>
+                        <Link
+                            to={generatePath(
+                                CG_ROUTES.SUBGRANT_CREATE_PRE_AWARD_ASSESSMENT,
+                                { id }
+                            )}
+                            className="w-full"
+                        >
+                            <Button className="flex gap-2 py-6" type="button">
+                                <AddSquareIcon />
+                                Create Pre-award Assessment
+                            </Button>
+                        </Link>
+                    </div>
+                )}
             </section>
             <section>
                 {data && (
@@ -73,7 +90,7 @@ const SubGrantDetails = () => {
                             <SubGrantSubmissionDetails {...data?.data} />
                         </TabsContent>
 
-                        <TabsContent value="beneficiaries">
+                        <TabsContent value="shortlisted">
                             <></>
                         </TabsContent>
                     </>

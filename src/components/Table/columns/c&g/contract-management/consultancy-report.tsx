@@ -16,149 +16,37 @@ import EyeIcon from "components/icons/EyeIcon";
 export const consultancyReportColumns: ColumnDef<IConsultancyReportPaginatedData>[] =
     [
         {
-            header: "Names",
-            id: "location",
-            accessorKey: "location",
+            header: "Purpose",
+            id: "purpose",
+            accessorKey: "purpose",
             size: 200,
         },
 
         {
-            header: "Gender",
-            id: "location",
-            accessorKey: "location",
+            header: "Consultant",
+            id: "consultant",
+            accessorKey: "consultant",
             size: 200,
         },
 
         {
-            header: "State",
-            id: "project",
-            accessorKey: "project",
+            header: "Report Period",
+            id: "report_date",
+            accessorKey: "report_date",
             size: 200,
         },
 
         {
-            header: "Designation",
-            id: "requesting_unit",
-            accessorKey: "requesting_unit",
+            header: "Consultancy Period",
+            id: "consultancy_start_date",
+            accessorKey: "consultancy_start_date",
             size: 200,
         },
 
         {
-            header: "Health Facility / Assignment Location",
-            id: "month",
-            accessorKey: "month",
-            size: 200,
-        },
-
-        {
-            header: "Spoke Site Name",
-            id: "year",
-            accessorKey: "year",
-            size: 200,
-        },
-
-        {
-            header: "LGA",
-            id: "start-date",
-            accessorKey: "start-date",
-            size: 200,
-        },
-
-        {
-            header: "Phone Number",
-            id: "end_date",
-            accessorKey: "end_date",
-            size: 200,
-        },
-
-        {
-            header: "Status of Adhoc Staff",
-            id: "total_working_days",
-            accessorKey: "total_working_days",
-            size: 200,
-        },
-
-        {
-            header: "QMap Backstop",
-            id: "days_worked",
-            accessorKey: "days_worked",
-            size: 200,
-        },
-
-        {
-            header: "Program Officer",
-            id: "days_remaining",
-            accessorKey: "days_remaining",
-            size: 200,
-        },
-
-        {
-            header: "STL",
-            id: "daily_rate",
-            accessorKey: "daily_rate",
-            size: 200,
-        },
-
-        {
-            header: "SEO",
-            id: "contract_amount",
-            accessorKey: "contract_amount",
-            size: 200,
-        },
-
-        {
-            header: "LGA 2",
-            id: "amount_paid",
-            accessorKey: "amount_paid",
-            size: 200,
-        },
-
-        {
-            header: "Cluster",
-            id: "balance",
-            accessorKey: "balance",
-            size: 200,
-        },
-
-        {
-            header: "Account Name",
-            id: "payment_date",
-            accessorKey: "payment_date",
-            size: 200,
-        },
-
-        {
-            header: "Bank Name",
-            id: "status",
-            accessorKey: "status",
-            size: 200,
-        },
-
-        {
-            header: "Account Number",
-            id: "remarks",
-            accessorKey: "remarks",
-            size: 200,
-        },
-
-        {
-            header: "Sort Code",
-            id: "remarks",
-            accessorKey: "remarks",
-            size: 200,
-        },
-
-        {
-            header: "Email Address",
-            id: "remarks",
-            accessorKey: "remarks",
-            size: 200,
-        },
-
-        {
-            header: "Qualification",
-            id: "remarks",
-            accessorKey: "remarks",
+            header: "Supervisor",
+            id: "supervisor",
+            accessorKey: "supervisor",
             size: 200,
         },
 

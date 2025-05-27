@@ -73,15 +73,6 @@ const GrantDetailsCard = ({
                     })}
                 </div>
             </Card>
-            <div className="space-y-5">
-                <h3 className="font-bold tex-lg">Projects Under Grant</h3>
-
-                <DataTable
-                    data={[]}
-                    columns={projectColumns}
-                    isLoading={false}
-                />
-            </div>
 
             <Card>
                 <h3 className="font-semibold">Grant Analytics</h3>

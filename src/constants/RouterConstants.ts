@@ -342,9 +342,6 @@ export const RouteEnum = {
   CREATE_USERS: "/users/create",
   AUTHORIZATION: "/authorization",
 
-  // PROGRAM_OVERVIEW: "/program/overview",
-  // PROGRAM_OVERVIEW: "/program/overview",
-
   NOTIFICATIONS: "/notifications",
   SUPPORT: "/support",
   SUPPORT_DETAILS: "/support/:id",
@@ -353,13 +350,22 @@ export const RouteEnum = {
 
 export const CG_ROUTES = {
   OVERVIEW: "/c-and-g/overview",
+
+  /* DONOR DATABASE */
+  DONOR_DATABSE: "/c-and-g/donor-database",
+  VIEW_DONOR_DATABASE: "/c-and-g/donor-database/:id",
+  /* DONOR DATABASE */
+
   GRANT: "/c-and-g/grant",
   GRANT_CREATE: "/c-and-g/create-grant",
   GRANT_DETAILS: "/c-and-g/grant-details/:id",
 
-  SUBGRANT: "/c-and-g/sub-grant",
-  CREATE_SUBGRANT_AWARD: "/c-and-g/sub-grant/create-sub-grant",
-  SUBGRANT_AWARD_DETAILS: "/c-and-g/sub-grant/:id",
+  /* SUB GRANT */
+  SUBGRANT_ADVERT: "/c-and-g/sub-grant",
+  CREATE_SUBGRANT_ADVERT: "/c-and-g/sub-grant/create-sub-grant",
+  SUBGRANT_ADVERT_DETAILS: "/c-and-g/sub-grant/:id",
+  SUBGRANT_CREATE_PRE_AWARD_ASSESSMENT:
+    "/c-and-g/sub-grant/:id/create-pre-award-assessment",
   CREATE_SUBGRANT_SUBMISSION_DETAILS:
     "/c-and-g/sub-grant/manual-submission/organization-details/:id",
   CREATE_SUBGRANT_SUBMISSION_UPLOADS:
@@ -372,6 +378,10 @@ export const CG_ROUTES = {
   START_PRE_AWARD_ASSESSMENT:
     "/c-and-g/sub-grant/:subGrantId/submission/:partnerSubId/preaward-assessment",
 
+  SUBGRANT_AWARD: "/c-and-g/sub-grant/awards",
+  SUBGRANT_AWARD_DETAILS: "/c-and-g/sub-grant/awards/:id",
+  /* SUB GRANT */
+
   // close out
   CLOSE_OUT: "/c-and-g/close-out-plan",
   CLOSE_OUT_DETAILS: "/c-and-g/close-out-plan/details/:id",
@@ -379,13 +389,13 @@ export const CG_ROUTES = {
 
   // CONTRACT MANAGEMENT
   AGREEMENT: "/c-and-g/agreements",
-  CREATE_AGREEMENT: "/c-and-g/agreements/create",
+  CREATE_AGREEMENT_DETAILS: "/c-and-g/agreements/create/summary",
+  CREATE_AGREEMENT_UPLOADS: "/c-and-g/agreements/create/uploads",
   // -------------
 
   // CONSULTANCY
   CONSULTANCY: "/c-and-g/consultancy",
-  CREATE_CONSULTANCY_DETAILS:
-    "/program/consultant-management/:id/applicant/create/",
+  CREATE_CONSULTANCY_DETAILS: "/c-and-g/consultancy/application-details",
   CREATE_CONSULTANCY_WORK_SCOPE: "/c-and-g/consultancy/create/scope-of-work",
   CONSULTANCY_DETAILS: "/c-and-g/consultancy/:id",
   CREATE_CONSULTANCY_APPLICANT: "/c-and-g/consultancy/:id/applicant/create",
@@ -395,24 +405,37 @@ export const CG_ROUTES = {
   CONSULTANCY_SHORTLIST_METRIC:
     "/api/v1/consultancy/shortlisted-applications-metrics/:id",
   CONSULTANCY_SLA: "/c-and-g/consultancy/sla",
-  //   OVERVIEW: "/c-and-g/overview",
+
+  CONSULTANT_ACCEPTANCE: "/c-and-g/consultant/consultance-acceptance",
+  CONSULTANT_ACCEPTANCE_DETAILS:
+    "/c-and-g/consultant/consultance-acceptance/details",
 
   // CONSULTANCY REPORT
   CONSULTANCY_REPORT: "/c-and-g/consultancy-report",
   CREATE_CONSULTANCY_REPORT: "/c-and-g/consultancy-report/create/",
   CONSULTANCY_REPORT_DETAILS: "/c-and-g/consultancy-report/:id/",
 
-  // FACILITATOR MANAGEMENT
-  FACILITATOR: "/c-and-g/facilitators",
-  CREATE_FACILITATOR_DETAILS: "/c-and-g/facilitator/create/application-details",
-  CREATE_FACILITATOR_WORK_SCOPE: "/c-and-g/facilitator/create/scope-of-work",
-  FACILITATOR_DETAILS: "/c-and-g/facilitator/:id",
+  /* FACILITATOR MANAGEMENT */
+  FACILITATOR_ADVERT: "/c-and-g/facilitator-management",
+  CREATE_FACILITATOR_ADVERT_DETAILS:
+    "/c-and-g/facilitator-management/create/application-details",
+  CREATE_FACILITATOR_ADVERT_WORK_SCOPE:
+    "/c-and-g/facilitator-management/create/scope-of-work",
+  FACILITATOR_ADVERT_DETAILS: "/c-and-g/facilitator-management/:id",
+  CREATE_FACILITATOR_ADVERT_APPLICANT:
+    "/c-and-g/facilitator-management/:id/applicant/create",
+  FACILITATOR_DATABASE: "/c-and-g/facilitator-database",
+  /* FACILITATOR MANAGEMENT */
 
   CG_MODULES: "/modules/c-and-g",
 
   AWARDED_BENEFICIARIES: "/c-and-g/awarded-beneficiaries",
 
   CONSULTANCY_DATABASE: "/c-and-g/consultancy-database",
+
+  CONTRACT_REQUEST: "/c-and-g/contract-request/",
+  CREATE_CONTRACT_REQUEST: "/c-and-g/contract-request/create-contract-request",
+  CONTRACT_REQUEST_DETAILS: "/c-and-g/contract-request/:id/",
 };
 
 export const HrRoutes = {
@@ -485,7 +508,12 @@ export enum ProgramRoutes {
   CREATE_ADHOC_DETAILS = "/program/adhoc-management/create-adhoc-details/",
   CREATE_ADHOC_WORK_SCOPE = "/program/adhoc-management/create-scope-of-work/",
   ADHOC_DETAILS = "/program/adhoc-management/:id/details/",
+  CREATE_ADHOC_INTERVIEW = "/program/adhoc-management/:id/create-interview/",
   CREATE_ADHOC_APPLICANT = "/program/adhoc-management/:id/applicant/create/",
   ADHOC_APPLICANT_DETAILS = "/program/adhoc-management/:adhocId/applicant/:applicantId/details/",
+  ADHOC_APPLICANT_INTERVIEW = "/program/adhoc-management/:adhocId/applicant/:applicantId/adhoc-interview/",
   ADHOC_DATABASE = "/program/adhoc-database/",
+
+  ADHOC_ACCEPTANCE = "/program/adhoc/adhoc-acceptance",
+  ADHOC_ACCEPTANCE_DETAILS = "/program/adhoc/adhoc-acceptance/details",
 }

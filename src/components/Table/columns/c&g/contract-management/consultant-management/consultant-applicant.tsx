@@ -100,6 +100,7 @@ const TableMenu = ({ id }: IConsultancyStaffPaginatedData) => {
                     <PopoverContent className="w-fit">
                         <Link
                             to={generatePath(viewPath, {
+                                id: adhocId,
                                 adhocId,
                                 applicantId: id,
                             })}

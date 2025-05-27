@@ -51,7 +51,7 @@ export default function SingleConsultancyStaffDetails({
                 />
 
                 <DescriptionCard
-                    label="Proposed Salary"
+                    label="Proposed Amount / Rate"
                     description={proposed_salary}
                 />
 
@@ -64,6 +64,8 @@ export default function SingleConsultancyStaffDetails({
                     label="Place of Birth"
                     description={place_of_birth}
                 />
+
+                <DescriptionCard label="Date of Birth" description="N/A" />
 
                 <DescriptionCard
                     label="Citizenship"

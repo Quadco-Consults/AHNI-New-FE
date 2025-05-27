@@ -3,13 +3,7 @@ import { useState } from "react";
 import logoSvg from "assets/svgs/logo-bg.svg";
 import { NavLink, useLocation } from "react-router-dom";
 import { FaDotCircle } from "react-icons/fa";
-import {
-  Bell,
-  ChevronDown,
-  Package,
-  ScanEye,
-  HeartHandshake,
-} from "lucide-react";
+import { ChevronDown, Package, ScanEye, HeartHandshake } from "lucide-react";
 import {
   RouteEnum,
   AdminRoutes,
@@ -30,7 +24,7 @@ import AdminIcon from "components/icons/sidebar-icons/AdminIcon";
 import CGIcon from "components/icons/sidebar-icons/CGIcon";
 import HRIcon from "components/icons/sidebar-icons/HRIcon";
 import FinanceIcon from "components/icons/sidebar-icons/FinanceIcon";
-import { useGetUserProfileQuery } from "services/auth/user";
+// import { useGetUserProfileQuery } from "services/auth/user";
 
 type SidebarProps = {
   sidebarWidth: boolean;
@@ -79,12 +73,22 @@ const globalHubMenu = [
     label: "Travel Expense Report",
     path: AdminRoutes.TRAVEL_EXPENSE_REPORT,
   },
+
+  {
+    label: "Consultancy Report",
+    path: CG_ROUTES.CONSULTANCY_REPORT,
+  },
+
+  {
+    label: "Contract Request",
+    path: CG_ROUTES.CONTRACT_REQUEST,
+  },
 ];
 
 const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
-  const { data: user } = useGetUserProfileQuery(null);
+  // const { data: user } = useGetUserProfileQuery(null);
 
-  const assignedModules = user?.data.assigned_modules;
+  // const assignedModules = user?.data.assigned_modules;
 
   const location = useLocation();
   const [showMenu, setShowMenu] = useState(false);
@@ -185,7 +189,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                 </h4>
               </div>
             </NavLink>
-
+            {/* @ts-ignore */}
             {getDeparmentalLinks(["procurement"]).map(
               (link: any, index: number) => (
                 <div key={index} className='w-full '>
@@ -493,9 +497,10 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
               GLOBAL HUB
             </h4>
 
-            {globalHubMenu?.map(({ label, path, icon }) => {
+            {globalHubMenu?.map(({ label, path, icon }, id) => {
               return (
                 <NavLink
+                  key={id}
                   to={path}
                   className={cn(
                     "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
@@ -583,7 +588,8 @@ const MODULE_LINKS = [
   },
 ];
 
-const getDeparmentalLinks = (assignedModules: string[]) => {
+// const getDeparmentalLinks = (assignedModules: string[]) => {
+const getDeparmentalLinks = () => {
   return [
     {
       name: "Programs",
@@ -651,6 +657,11 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
             {
               name: "Adhoc Database",
               path: ProgramRoutes.ADHOC_DATABASE,
+            },
+
+            {
+              name: "Adhoc Acceptance",
+              path: ProgramRoutes.ADHOC_ACCEPTANCE,
             },
           ],
         },
@@ -895,12 +906,18 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
       link: [
         { name: "Overview", path: CG_ROUTES.OVERVIEW },
 
+        { name: "Donor Database", path: CG_ROUTES.DONOR_DATABSE },
+
         { name: "Grants", path: CG_ROUTES.GRANT },
 
         {
           name: "Sub Grants",
           sublinks: [
-            { name: "Awards", path: CG_ROUTES.SUBGRANT },
+            {
+              name: "Sub Grant Adverts",
+              path: CG_ROUTES.SUBGRANT_ADVERT,
+            },
+            { name: "Awards", path: CG_ROUTES.SUBGRANT_AWARD },
             {
               name: "Pre-award Assessment",
               path: CG_ROUTES.PRE_AWARD_ASSESSMENT,
@@ -911,6 +928,7 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
             },
           ],
         },
+
         {
           name: "Closeout",
           sublinks: [{ name: "Closeout Plan", path: CG_ROUTES.CLOSE_OUT }],
@@ -919,6 +937,11 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
           name: "Contract Management",
           sublinks: [
             {
+              name: "Contract Request",
+              path: CG_ROUTES.CONTRACT_REQUEST,
+            },
+
+            {
               name: "Consultant Management",
               path: CG_ROUTES.CONSULTANCY,
             },
@@ -926,6 +949,11 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
             {
               name: "Consultancy Database",
               path: CG_ROUTES.CONSULTANCY_DATABASE,
+            },
+
+            {
+              name: "Consultancy Acceptance",
+              path: CG_ROUTES.CONSULTANT_ACCEPTANCE,
             },
 
             {
@@ -938,7 +966,12 @@ const getDeparmentalLinks = (assignedModules: string[]) => {
             },
             {
               name: "Facilitator Management",
-              path: CG_ROUTES.FACILITATOR,
+              path: CG_ROUTES.FACILITATOR_ADVERT,
+            },
+
+            {
+              name: "Facilitator Database",
+              path: CG_ROUTES.FACILITATOR_DATABASE,
             },
           ],
         },

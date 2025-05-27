@@ -4,15 +4,20 @@ import EyeIcon from "components/icons/EyeIcon";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import PencilIcon from "components/icons/PencilIcon";
 import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
+import { Badge } from "components/ui/badge";
 import { Button } from "components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import { DialogType } from "constants/dailogs";
 import { CG_ROUTES } from "constants/RouterConstants";
 import { ICloseOutPlanPaginatedData } from "definations/c&g/closeout-plan";
+import { useAppDispatch } from "hooks/useStore";
+import { cn } from "lib/utils";
 import { useState } from "react";
 import { generatePath, Link, useNavigate } from "react-router-dom";
 import { useDeleteCloseOutPlanMutation } from "services/c&g/closeout-plan";
 import { closeoutPlanAPis } from "services/cAndGApi/closeOutPlan";
 import { toast } from "sonner";
+import { openDialog } from "store/ui";
 
 export const closeOutPlanColumns: ColumnDef<ICloseOutPlanPaginatedData>[] = [
     {
@@ -21,24 +26,44 @@ export const closeOutPlanColumns: ColumnDef<ICloseOutPlanPaginatedData>[] = [
         accessorKey: "project",
         size: 250,
     },
+
     {
-        header: "Department",
-        id: "department",
-        accessorKey: "department",
+        header: "Donor",
+        id: "donor",
+        accessorKey: "donor",
         size: 250,
     },
+
     {
         header: "Location",
         id: "location",
         accessorKey: "location",
         size: 250,
     },
+
     {
         header: "Status",
         id: "status",
         accessorKey: "status",
         size: 250,
-        cell: ({ row }) => row.original.status,
+        cell: ({ getValue }) => {
+            return (
+                <Badge
+                    variant="default"
+                    className={cn(
+                        "p-1 rounded-lg",
+                        getValue() === "IN_PROGRESS" &&
+                            "bg-green-200 text-green-500",
+                        getValue() === "CLOSED" && "bg-red-200 text-red-500",
+                        getValue() === "PENDING" &&
+                            "bg-yellow-200 text-yellow-500",
+                        getValue() === "On Hold" && "text-grey-200 bg-grey-500"
+                    )}
+                >
+                    {getValue() as string}
+                </Badge>
+            );
+        },
     },
     {
         header: "Action",
@@ -50,6 +75,8 @@ export const closeOutPlanColumns: ColumnDef<ICloseOutPlanPaginatedData>[] = [
 
 const TableMenu = ({ id }: ICloseOutPlanPaginatedData) => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+    const dispatch = useAppDispatch();
 
     const [deleteCloseOutPlan, { isLoading: isDeleteLoading }] =
         useDeleteCloseOutPlanMutation();
@@ -107,6 +134,26 @@ const TableMenu = ({ id }: ICloseOutPlanPaginatedData) => {
                         >
                             <DeleteIcon />
                             Delete
+                        </Button>
+
+                        <Button
+                            className="w-full flex items-center justify-start gap-2"
+                            variant="ghost"
+                            onClick={() => {
+                                dispatch(
+                                    openDialog({
+                                        type: DialogType.ChangeProjectStatusModal,
+                                        dialogProps: {
+                                            header: "Change Project Status",
+                                            status,
+                                            id,
+                                        },
+                                    })
+                                );
+                            }}
+                        >
+                            <PencilIcon />
+                            Change Status
                         </Button>
                     </PopoverContent>
                 </Popover>
