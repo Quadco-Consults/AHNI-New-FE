@@ -346,6 +346,9 @@ export const RouteEnum = {
   SUPPORT: "/support",
   SUPPORT_DETAILS: "/support/:id",
   ACCOUNT: "/account",
+
+  // Audit
+  AUDIT_LOG: "/audit-log",
 };
 
 export const CG_ROUTES = {
