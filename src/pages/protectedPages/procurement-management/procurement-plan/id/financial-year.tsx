@@ -17,6 +17,8 @@ import {
 import FinancialAPI from "services/configs/financial-year";
 import { formatNumberCurrency } from "utils/utls";
 import ProcurementPlanUploadModal from "../components/ProcurementPlanUploadModal";
+import { Button } from "components/ui/button";
+import { FileDown } from "lucide-react";
 
 export default function ProcurementPlan() {
   const [selectedFinancialYear, setSelectedFinancialYear] = useState("");
@@ -124,31 +126,13 @@ export default function ProcurementPlan() {
             />
           </div>
           <div className='flex items-center gap-4'>
-            <h6>Financial year</h6>
-            <div>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder='Select Year' />
-                </SelectTrigger>
-
-                <SelectContent>
-                  <SelectGroup>
-                    {/* @ts-ignore */}
-                    {financialYearOptions?.map(({ label, value }, idx) => {
-                      return (
-                        <SelectItem
-                          value={value}
-                          key={idx}
-                          //  @ts-ignore
-                          onChange={(e) => setSelectedFinancialYear(e)}
-                        >
-                          {label}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+            <div className='flex items-center gap-x-3'>
+              <Button variant='default'>
+                <span>
+                  <FileDown size={18} />
+                </span>
+                Download xlsx
+              </Button>
             </div>
           </div>
         </div>
