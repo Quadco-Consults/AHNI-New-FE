@@ -19,7 +19,11 @@ import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import PencilIcon from "components/icons/PencilIcon";
 
-function PurchaseRequest({ status }: { status: "pending" | "approved" }) {
+function PurchaseRequest({
+  status = "pending",
+}: {
+  status: "pending" | "approved";
+}) {
   const dispatch = useAppDispatch();
 
   const { data, isLoading } = PurchaseRequestAPI.useGetPurchaseRequestsQuery(
