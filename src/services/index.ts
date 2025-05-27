@@ -50,6 +50,7 @@ const baseAPI = createApi({
   //  cache , The default time is seconds , Default duration 60 second
 
   tagTypes: [
+    "ACTIVITIES",
     "Users",
     "Roles",
     "Permission",
