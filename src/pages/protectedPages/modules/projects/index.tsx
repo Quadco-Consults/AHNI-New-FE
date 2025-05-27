@@ -10,7 +10,7 @@ export default function ProjectModules() {
     return (
         <Tabs defaultValue="source">
             <TabsList>
-                <TabsTrigger value="source">Funding Source</TabsTrigger>
+                <TabsTrigger value="source">Donors</TabsTrigger>
                 <TabsTrigger value="beneficiaries">Beneficiaries</TabsTrigger>
                 <TabsTrigger value="type">Document Types</TabsTrigger>
                 <TabsTrigger value="partners">Partners</TabsTrigger>

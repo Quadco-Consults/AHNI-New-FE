@@ -255,7 +255,7 @@ export default function NewConsultancyStaffForm({
 
                     <FormInput
                         type="number"
-                        label="Proposed Salary"
+                        label="Proposed Amount / Rate"
                         name="proposed_salary"
                         required
                     />
@@ -264,6 +264,13 @@ export default function NewConsultancyStaffForm({
                         type="number"
                         label="Telephone Number"
                         name="phone_number"
+                        required
+                    />
+
+                    <FormInput
+                        type="date"
+                        label="Date of Birth"
+                        name="date_of_birth"
                         required
                     />
 

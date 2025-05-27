@@ -73,15 +73,15 @@ export default function ProjectSummaryPage() {
         size: 2000000,
     });
 
-    const { data: grants } = useGetAllGrantsQuery({
-        page: 1,
-        size: 2000000,
-    });
+    // const { data: grants } = useGetAllGrantsQuery({
+    //     page: 1,
+    //     size: 2000000,
+    // });
 
-    const grantOptions = grants?.data?.results?.map(({ name, id }) => ({
-        label: name,
-        value: id,
-    }));
+    // const grantOptions = grants?.data?.results?.map(({ name, id }) => ({
+    //     label: name,
+    //     value: id,
+    // }));
 
     const query = useQuery();
 
@@ -298,13 +298,15 @@ export default function ProjectSummaryPage() {
                                         placeholder="Enter ID"
                                         required
                                     />
-                                    <FormSelect
+
+                                    {/* <FormSelect
                                         label="Grant"
                                         name="grant"
                                         placeholder="Select Grant"
                                         required
                                         options={grantOptions}
-                                    />
+                                    /> */}
+
                                     <FormSelect
                                         label="Project Location"
                                         name="location"

@@ -16,30 +16,121 @@ import EyeIcon from "components/icons/EyeIcon";
 export const consultantDatabaseColumns: ColumnDef<IConsultancyReportPaginatedData>[] =
     [
         {
-            header: "Purpose",
-            id: "purpose",
-            accessorKey: "purpose",
-            size: 200,
-        },
-
-        {
-            header: "Consultant",
+            header: "Name of Consultant",
             id: "consultant",
             accessorKey: "consultant",
             size: 200,
         },
 
         {
-            header: "Consultancy Duration",
-            id: "consultancy_duration",
-            accessorKey: "consultancy_duration",
+            header: "Phone Number",
+            id: "consultant",
+            accessorKey: "consultant",
             size: 200,
         },
 
         {
-            header: "Supervisor",
-            id: "supervisor",
-            accessorKey: "supervisor",
+            header: "Designation",
+            id: "consultant",
+            accessorKey: "consultant",
+            size: 200,
+        },
+
+        {
+            header: "Location",
+            id: "consultant",
+            accessorKey: "consultant",
+            size: 200,
+        },
+
+        {
+            header: "Project",
+            id: "consultant",
+            accessorKey: "consultant",
+            size: 200,
+        },
+
+        {
+            header: "Requesting Unit",
+            id: "consultant",
+            accessorKey: "consultant",
+            size: 200,
+        },
+
+        {
+            header: "Month",
+            id: "consultant",
+            accessorKey: "consultant",
+            size: 200,
+        },
+
+        {
+            header: "Start Date",
+            id: "consultant",
+            accessorKey: "consultant",
+            size: 200,
+        },
+
+        {
+            header: "End Date",
+            id: "consultant",
+            accessorKey: "consultant",
+            size: 200,
+        },
+
+        {
+            header: "Total Working Days",
+            id: "consultant",
+            accessorKey: "consultant",
+            size: 200,
+        },
+
+        {
+            header: "Days Worked",
+            id: "consultant",
+            accessorKey: "consultant",
+            size: 200,
+        },
+
+        {
+            header: "Days Remaining",
+            id: "consultant",
+            accessorKey: "consultant",
+            size: 200,
+        },
+
+        {
+            header: "Daily Rate",
+            id: "consultant",
+            accessorKey: "consultant",
+            size: 200,
+        },
+
+        {
+            header: "Contract Amount",
+            id: "consultant",
+            accessorKey: "consultant",
+            size: 200,
+        },
+
+        {
+            header: "Amount Paid",
+            id: "consultant",
+            accessorKey: "consultant",
+            size: 200,
+        },
+
+        {
+            header: "Balance",
+            id: "consultant",
+            accessorKey: "consultant",
+            size: 200,
+        },
+
+        {
+            header: "Payment Date",
+            id: "consultant",
+            accessorKey: "consultant",
             size: 200,
         },
 
@@ -47,6 +138,13 @@ export const consultantDatabaseColumns: ColumnDef<IConsultancyReportPaginatedDat
             header: "Status",
             id: "status",
             accessorKey: "status",
+            size: 200,
+        },
+
+        {
+            header: "Remarks",
+            id: "consultant",
+            accessorKey: "consultant",
             size: 200,
         },
 

@@ -15,13 +15,6 @@ export const SubGrantSchema = z.object({
     amount_ngn: z.string().min(1, "Please enter amount in NGN"),
     start_date: z.string().min(1, "Please select start date"),
     end_date: z.string().min(1, "Please select end date"),
-    submission_start_date: z.string().min(1, "Please select opening date"),
-    submission_end_date: z.string().min(1, "Please select closing date"),
-    tender_type: z.string().min(1, "Please select tender type"),
-    assessment_date: z.string().min(1, "Please select assessment date"),
-    evaluation_applicants: z
-        .array(z.string())
-        .nonempty("Please select evaluation applicants"),
 });
 
 export type TSubGrantFormData = z.infer<typeof SubGrantSchema>;

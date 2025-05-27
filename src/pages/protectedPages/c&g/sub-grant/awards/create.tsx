@@ -5,12 +5,10 @@ import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelect";
 import Card from "components/shared/Card";
-import { Button } from "components/ui/button";
 import { CardContent } from "components/ui/card";
 import { Form, FormControl, FormField, FormItem } from "components/ui/form";
 import { Label } from "components/ui/label";
 import MultiSelectFormField from "components/ui/multiselect";
-import { DialogType, largeDailogScreen } from "constants/dailogs";
 import { CG_ROUTES } from "constants/RouterConstants";
 import {
     SubGrantSchema,
@@ -21,24 +19,22 @@ import { useEffect, useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useGetAllUsersQuery } from "services/auth/user";
-import { useGetAllGrantsQuery } from "services/c&g/grant/grant";
 import {
     useCreateSubGrantMutation,
     useGetSingleSubGrantQuery,
     useModifySubGrantMutation,
 } from "services/c&g/subgrant/sub-grant";
+import { useGetAllDepartmentsQuery } from "services/modules/config/department";
 import { useGetAllPartnersQuery } from "services/modules/project/partners";
+import { useGetAllProjectsQuery } from "services/project";
 import { toast } from "sonner";
-import { addTeamMembers, clearTeamMembers } from "store/admin/team-members";
-import { openDialog } from "store/ui";
 
-const tenderTypeOptions = [
-    { label: "CLOSED SOURCE", value: "CLOSED_SOURCE" },
-    { label: "LIMITED SOLICITATION", value: "LIMITED_SOLICITATION" },
-    { label: "NATIONAL OPEN TENDER", value: "NATIONAL_OPEN_TENDER" },
+const subawardTypeOptions = [
+    "STANDARD",
+    "REIMBURSEMENT",
+    "FIXED AMOUNT AWARD",
+    "IN-KIND",
 ];
-
-const subawardTypeOptions = ["STANDARD", "REIMBURSEMENT", "ADVANCE", "IN-KIND"];
 
 export default function CreateSubGrant() {
     const form = useForm<TSubGrantFormData>({
@@ -55,11 +51,6 @@ export default function CreateSubGrant() {
             amount_ngn: "",
             start_date: "",
             end_date: "",
-            submission_start_date: "",
-            submission_end_date: "",
-            tender_type: "",
-            assessment_date: "",
-            evaluation_applicants: [],
         },
     });
 
@@ -73,13 +64,10 @@ export default function CreateSubGrant() {
     const id = searchParams.get("id");
     const { data } = useGetSingleSubGrantQuery(id ?? skipToken);
 
-    const { teamMembers } = useAppSelector((state) => state.teamMember);
-
-    const dispatch = useAppDispatch();
-
     const { data: partner } = useGetAllPartnersQuery({
         page: 1,
         size: 20000000,
+        partner_type: "SUBGRANTEE",
     });
 
     const partnerOptions = useMemo(
@@ -87,15 +75,32 @@ export default function CreateSubGrant() {
         [partner]
     );
 
-    const { data: grant } = useGetAllGrantsQuery({ page: 1, size: 2000000 });
+    const { data: department } = useGetAllDepartmentsQuery({
+        page: 1,
+        size: 2000000,
+    });
 
-    const grantOptions = useMemo(
+    const departmentOptions = useMemo(
         () =>
-            grant?.data.results.map(({ reference_number, id }) => ({
-                label: reference_number,
+            department?.data.results.map(({ name, id }) => ({
+                label: name,
                 value: id,
             })),
-        [grant, data]
+        [department]
+    );
+
+    const { data: project } = useGetAllProjectsQuery({
+        page: 1,
+        size: 2000000,
+    });
+
+    const projectOptions = useMemo(
+        () =>
+            project?.data.results.map(({ title, id }) => ({
+                label: title,
+                value: id,
+            })),
+        [project]
     );
 
     const { data: user } = useGetAllUsersQuery({ page: 1, size: 2000000 });
@@ -109,13 +114,6 @@ export default function CreateSubGrant() {
         [user, data]
     );
 
-    useEffect(() => {
-        if (teamMembers.length > 0) {
-            const memberIds = teamMembers.map((member) => member.id);
-            form.setValue("evaluation_applicants", memberIds as unknown as any);
-        }
-    }, [teamMembers]);
-
     const [createSubGrant, { isLoading: isCreateLoading }] =
         useCreateSubGrantMutation();
 
@@ -125,15 +123,19 @@ export default function CreateSubGrant() {
     const onSubmit: SubmitHandler<TSubGrantFormData> = async (data) => {
         try {
             if (id) {
-                await modifySubGrant({ id, body: data }).unwrap();
+                await modifySubGrant({
+                    id,
+                    body: data,
+                }).unwrap();
                 toast.success("Sub Grant Award Updated");
             } else {
-                await createSubGrant(data).unwrap();
+                await createSubGrant({
+                    ...data,
+                }).unwrap();
                 toast.success("Sub Grant Award Created");
             }
 
-            dispatch(clearTeamMembers());
-            navigate(CG_ROUTES.SUBGRANT);
+            navigate(CG_ROUTES.SUBGRANT_ADVERT);
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }
@@ -143,16 +145,11 @@ export default function CreateSubGrant() {
         if (data) {
             form.reset({
                 ...data.data,
-                grant: data.data.grant.id,
+                grant: data?.data.grant.id,
                 partners: data.data.partners.map((partner) => partner.id),
                 sub_grant_administrator: data.data.sub_grant_administrator.id,
                 technical_staff: data.data.technical_staff.id,
-                evaluation_applicants: data.data.evaluation_applicants.map(
-                    (member) => member.id
-                ),
             });
-
-            dispatch(addTeamMembers(data.data.evaluation_applicants));
         }
     }, [data]);
 
@@ -166,17 +163,15 @@ export default function CreateSubGrant() {
                         onSubmit={form.handleSubmit(onSubmit)}
                     >
                         <FormSelect
-                            label="Grant"
+                            label="Project"
                             name="grant"
-                            placeholder="Select Grant"
+                            placeholder="Select Project"
                             required
-                            options={grantOptions}
+                            options={projectOptions}
                         />
 
                         <div>
-                            <Label className="font-semibold">
-                                Consortium Partners
-                            </Label>
+                            <Label className="font-semibold">Sub-Grantee</Label>
                             <FormField
                                 control={form.control}
                                 name="partners"
@@ -237,11 +232,12 @@ export default function CreateSubGrant() {
                                 options={userOptions}
                             />
 
-                            <FormInput
+                            <FormSelect
                                 label="Business Unit"
                                 name="business_unit"
-                                placeholder="Enter Business Unit"
+                                placeholder="Select Business Unit"
                                 required
+                                options={departmentOptions}
                             />
 
                             <FormInput
@@ -273,38 +269,9 @@ export default function CreateSubGrant() {
                                 name="end_date"
                                 required
                             />
-
-                            <FormInput
-                                label="Opening Date"
-                                type="date"
-                                name="submission_start_date"
-                                required
-                            />
-
-                            <FormInput
-                                label="Closing Date"
-                                type="date"
-                                name="submission_end_date"
-                                required
-                            />
-
-                            <FormSelect
-                                label="Sub Grant Type"
-                                options={tenderTypeOptions}
-                                name="tender_type"
-                                placeholder="Select Sub-Grant Type"
-                                required
-                            />
-
-                            <FormInput
-                                label="Assessment Date"
-                                type="date"
-                                name="assessment_date"
-                                required
-                            />
                         </div>
 
-                        <section className="space-y-5">
+                        {/* <section className="space-y-5">
                             <div className="grid grid-cols-2 gap-5">
                                 {teamMembers?.map((team) => (
                                     <div className="grid grid-cols-2 gap-3 bg-gray-100 rounded-lg p-4">
@@ -353,7 +320,7 @@ export default function CreateSubGrant() {
                                     </span>
                                 )}
                             </div>
-                        </section>
+                        </section> */}
 
                         <div className="flex justify-end">
                             <FormButton

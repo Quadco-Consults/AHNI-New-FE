@@ -34,6 +34,7 @@ const AddPartners = () => {
         resolver: zodResolver(PartnerSchema),
         defaultValues: {
             name: result?.name ?? "",
+            partner_type: result?.partner_type ?? "",
             address: result?.address ?? "",
             city: result?.city ?? "",
             state: result?.state ?? "",
@@ -78,7 +79,19 @@ const AddPartners = () => {
                         placeholder="Enter Name"
                         required
                     />
-                    
+
+                    <FormSelect
+                        label="Type of Partner"
+                        name="partner_type"
+                        placeholder="Select Partner Type"
+                        required
+                        options={[
+                            { label: "Consortium", value: "CONSORTIUM" },
+                            { label: "Sub-Grantee", value: "SUBGRANTEE" },
+                            { label: "Others", value: "OTHER" },
+                        ]}
+                    />
+
                     <FormTextArea
                         name="address"
                         label="Address"
@@ -124,13 +137,9 @@ const AddPartners = () => {
                         required
                     />
 
-                    <div className="flex justify-start gap-4">
-                        <FormButton
-                            loading={isLoading || updatePartnersLoading}
-                        >
-                            Save
-                        </FormButton>
-                    </div>
+                    <FormButton loading={isLoading || updatePartnersLoading}>
+                        Save
+                    </FormButton>
                 </form>
             </Form>
         </CardContent>

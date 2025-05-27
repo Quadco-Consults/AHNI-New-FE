@@ -1,4 +1,5 @@
 import Card from "components/shared/Card";
+import { preAwardAssessmentColumns } from "components/Table/columns/c&g/sub-grant/pre-award-assessment";
 import { partnerSubmissionColumns } from "components/Table/columns/c&g/sub-grant/submission";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
@@ -17,7 +18,7 @@ export default function PreAwardAssessment() {
         <Card>
             <TableFilters>
                 <DataTable
-                    columns={partnerSubmissionColumns}
+                    columns={preAwardAssessmentColumns}
                     data={data?.data.results || []}
                     isLoading={isFetching}
                     pagination={{

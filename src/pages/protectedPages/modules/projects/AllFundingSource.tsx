@@ -56,9 +56,7 @@ export default function AllFundingSource() {
     return (
         <div>
             <div className="flex items-center justify-between py-6 mb-6">
-                <h1 className="text-[#D92D20] font-semibold text-sm">
-                    Funding Source
-                </h1>
+                <h1 className="text-[#D92D20] font-semibold text-sm">Donors</h1>
 
                 <Button
                     onClick={() =>
