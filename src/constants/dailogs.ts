@@ -89,6 +89,9 @@ export const DialogType = {
 
   // NEW LIST
   DOCUMENT_UPLOADS: "DOCUMENT_UPLOADS",
+
+  // HR
+  CREATE_INTERVIEW: "CREATE INTERVIEW",
 };
 
 export const largeDailogScreen = {

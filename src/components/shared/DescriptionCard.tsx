@@ -16,7 +16,7 @@ export default function DescriptionCard({
   return (
     <>
       {aside ? (
-        <div className='flex items-center'>
+        <div className='flex flex-col'>
           <p className='font-bold basis-1/4'>{label}</p>
           <p className='flex-1'>{description ? description : "---"}</p>
         </div>

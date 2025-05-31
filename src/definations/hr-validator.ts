@@ -1,8 +1,8 @@
 import { z } from "zod";
 const { object, string } = z;
 
-const isBrowser =
-  typeof window !== "undefined" && typeof FileList !== "undefined";
+// const isBrowser =
+//   typeof window !== "undefined" && typeof FileList !== "undefined";
 
 export const workforceQualificationSchema = object({
   certificate_name: string().min(1, "Field is required"),

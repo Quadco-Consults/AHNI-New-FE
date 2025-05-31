@@ -281,7 +281,7 @@ const BasicInformation = ({ info }: { info: any }) => {
             </SelectContent>
           </FormSelect>
 
-          <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+          <div className='grid grid-cols-1 gap-6 md:grid-cols-1'>
             <FormInput name='phone_number' label='Phone Number' required />
             <FormInput name='other_number' label='Other Phone Number' />
             <FormInput
@@ -292,7 +292,7 @@ const BasicInformation = ({ info }: { info: any }) => {
             />
           </div>
 
-          <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
+          <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
             <FormInput
               name='date_of_birth'
               type='date'
@@ -305,15 +305,15 @@ const BasicInformation = ({ info }: { info: any }) => {
               label='Date of Hire'
               required
             />
-            <FormInput
+            {/* <FormInput
               name='ss_number'
               label='SS #'
               placeholder='SS number'
               required
-            />
+            /> */}
           </div>
 
-          <FileUpload name='passport_file' label='Passport' />
+          <FileUpload name='passport_file' label='Passport Photograph' />
           <FileUpload name='signature_file' label='Signature' />
 
           <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
@@ -337,7 +337,7 @@ const BasicInformation = ({ info }: { info: any }) => {
                 )}
               </SelectContent>
             </FormSelect>
-            <FormInput name='serial_id_code' label='Serial ID Code' required />
+            {/* <FormInput name='serial_id_code' label='Serial ID Code' required /> */}
 
             <FormSelect
               name='marital_status'
@@ -353,7 +353,7 @@ const BasicInformation = ({ info }: { info: any }) => {
               options={jobTypeOptions}
             />
 
-            <FormInput name='group' label='Group' required />
+            {/* <FormInput name='group' label='Group' required /> */}
 
             <FormSelect
               name='location'
@@ -389,7 +389,9 @@ const BasicInformation = ({ info }: { info: any }) => {
                 ))}
               </SelectContent>
             </FormSelect>
+          </div>
 
+          <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
             <FormCheckBox name='own_computer' label='Own a Computer' />
             <FormCheckBox
               name='require_email_access'

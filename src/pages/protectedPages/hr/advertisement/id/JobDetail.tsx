@@ -30,7 +30,7 @@ const JobDetail = (props: JobAdvertisement) => {
     supervisor,
     title,
     created_datetime,
-    grade_level,
+    // grade_level,
     commencement_date,
     any_other_info,
     interviewers,
