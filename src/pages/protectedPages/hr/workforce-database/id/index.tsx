@@ -52,6 +52,11 @@ const WorkforceDetail = () => {
       value: "additional_information",
       children: <AdditionalInfo />,
     },
+    {
+      label: "Goals",
+      value: "goal",
+      children: <AdditionalInfo />,
+    },
   ];
 
   return (

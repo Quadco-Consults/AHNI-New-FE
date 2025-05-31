@@ -866,10 +866,10 @@ const getDeparmentalLinks = () => {
         {
           name: "Performance Management",
           sublinks: [
-            {
-              name: "Timesheet Management",
-              path: HrRoutes.TIMESHEET_MANAGEMENT,
-            },
+            // {
+            //   name: "Timesheet Management",
+            //   path: HrRoutes.TIMESHEET_MANAGEMENT,
+            // },
             {
               name: "Performance Appraisal",
               path: HrRoutes.PERFORMANCE_MANAGEMENT,

@@ -87,6 +87,8 @@ import ActivityPlanStatusModal from "./components/ActivityPlanStatusModal";
 import PreferredConsultantModal from "./components/PreferredConsultant";
 import DocumentUploadModal from "./DocumentUpload";
 import ViewLog from "pages/protectedPages/audit-log/ViewLog";
+import CreateInterviewModal from "pages/protectedPages/hr/advertisement/id/CreateInterview";
+// import CreateInterview from "pages/protectedPages/c&g/contract-management/consultant-management/id/CreateInterview";
 
 const sheets: Record<string, ReactNode> = {
   [DialogType.AuditLog]: <ViewLog />,
@@ -184,6 +186,9 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.ACTIVITY_PLAN_STATUS_MODAL]: <ActivityPlanStatusModal />,
   [DialogType.PREFERRED_CONSULTANT_MODAL]: <PreferredConsultantModal />,
   [DialogType.DOCUMENT_UPLOADS]: <DocumentUploadModal />,
+
+  // HR
+  [DialogType.CREATE_INTERVIEW]: <CreateInterviewModal />,
 };
 interface DialogPropsMap {
   [DialogType.FeedbackModal]: {
