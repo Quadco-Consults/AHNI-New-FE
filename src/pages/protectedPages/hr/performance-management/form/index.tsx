@@ -10,9 +10,14 @@ import { SelectContent } from "components/ui/select";
 import { HrRoutes } from "constants/RouterConstants";
 
 import { MinusCircle } from "lucide-react";
+import { useMemo } from "react";
 
 import { useFieldArray, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { useGetAllUsersQuery } from "services/auth/user";
+import { useGetEmployeeOnboardingsQuery } from "services/hrApi/hr-employee-onboarding";
+import { useCreatePerformanceAssesmentMutation } from "services/hrApi/hr-performance-assessment";
+import { toast } from "sonner";
 
 // import ItemsAPI from "services/configs/items";
 
@@ -33,15 +38,60 @@ const NewPerformance = () => {
   });
   const navigate = useNavigate();
 
-  //   const { fields, append, remove } = useFieldArray({
-  //     control,
-  //     name: "expenses",
-  //   });
+  const cycleOptions = useMemo(
+    () =>
+      ["365 Appraisal Cycle", "Probationary Cycle"].map((title) => ({
+        label: title,
+        value: title,
+      })),
+    []
+  );
+
+  const { data: user } = useGetAllUsersQuery({
+    page: 1,
+    size: 2000000,
+  });
+
+  const { data: employees } = useGetEmployeeOnboardingsQuery({
+    size: 2000000,
+  });
+
+  const [createPerformanceAssesment] = useCreatePerformanceAssesmentMutation();
+
+  const userOptions = useMemo(
+    () =>
+      user?.data.results.map(({ first_name, last_name, id }) => ({
+        label: `${first_name} ${last_name}`,
+        value: id,
+      })),
+    [user]
+  );
+
+  const employeeOptions = useMemo(
+    () =>
+      employees?.data.results.map(
+        ({ legal_firstname, legal_lastname, id }) => ({
+          label: `${legal_firstname} ${legal_lastname}`,
+          value: id,
+        })
+      ),
+    [employees]
+  );
+
+  console.log({ employees, user, employeeOptions });
 
   const onSubmit = async (data: any) => {
     console.log({ data });
+    try {
+      // Create new advertisement
+      await createPerformanceAssesment(data).unwrap();
+      toast.success("Job advertisement created successfully");
+    } catch (e) {
+      toast.error("Something went wrong");
+    }
 
-    navigate(HrRoutes.PERFORMANCE_MANAGEMENT);
+    //
+    // navigate(HrRoutes.PERFORMANCE_MANAGEMENT);
   };
 
   return (
@@ -69,11 +119,13 @@ const NewPerformance = () => {
                 type='text'
                 required
               />
-              <FormInput
+
+              <FormSelect
                 label='Cycle Name'
                 name='cycle_name'
-                type='text'
+                placeholder='Select Cycle'
                 required
+                options={cycleOptions}
               />
             </div>
             <div className=''>
@@ -83,11 +135,11 @@ const NewPerformance = () => {
             <div className='grid gap-5'>
               <FormSelect
                 label='Select Employee'
-                name='select_employee'
+                name='employee'
                 required
-              >
-                <SelectContent></SelectContent>
-              </FormSelect>{" "}
+                //   placeholder="Select Authorizer"
+                options={employeeOptions}
+              />
             </div>
             <div className=''>
               <h3 className='text-yellow-darker'>Evaluators</h3>
@@ -96,10 +148,12 @@ const NewPerformance = () => {
             <div className='grid gap-5'>
               {fields.map((field, index) => (
                 <div key={field.id} className='flex gap-4 items-center'>
+                  {/* AHNI STAFF for evaluators */}
                   <FormSelect
                     label={`Select Evaluator ${index + 1}`}
                     name={`evaluators.${index}.evaluator`}
                     required
+                    options={userOptions}
                   >
                     <SelectContent></SelectContent>
                   </FormSelect>

@@ -483,6 +483,29 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
               }
             })}
 
+            <NavLink
+              to={RouteEnum.AUDIT_LOG}
+              className={cn(
+                "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
+                location.pathname.startsWith(RouteEnum.AUDIT_LOG) &&
+                  "text-primary "
+              )}
+            >
+              <div className='flex w-[85%] items-center gap-2'>
+                <span className=''>
+                  <ProjectsIcon />
+                </span>
+                <h4
+                  className={cn(
+                    " w-[100%] truncate font-medium",
+                    sidebarWidth === false ? "block" : "hidden"
+                  )}
+                >
+                  Audit Log{" "}
+                </h4>
+              </div>
+            </NavLink>
+
             {/* modules */}
           </div>
 
@@ -843,10 +866,10 @@ const getDeparmentalLinks = () => {
         {
           name: "Performance Management",
           sublinks: [
-            {
-              name: "Timesheet Management",
-              path: HrRoutes.TIMESHEET_MANAGEMENT,
-            },
+            // {
+            //   name: "Timesheet Management",
+            //   path: HrRoutes.TIMESHEET_MANAGEMENT,
+            // },
             {
               name: "Performance Appraisal",
               path: HrRoutes.PERFORMANCE_MANAGEMENT,

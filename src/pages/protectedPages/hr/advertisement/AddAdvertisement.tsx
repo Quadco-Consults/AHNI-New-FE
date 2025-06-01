@@ -159,60 +159,59 @@ const AddEditAdvertisement = () => {
   const isSubmitting = isCreatingLoading || isUpdatingLoading;
 
   return (
-    <div className="space-y-4">
+    <div className='space-y-4'>
       <GoBack />
       <Card>
         {isLoading ? (
-          <div className="p-6 text-center">Loading data...</div>
+          <div className='p-6 text-center'>Loading data...</div>
         ) : (
           <Form {...form}>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              <h4 className="font-medium text-lg pb-4">
+            <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
+              <h4 className='font-medium text-lg pb-4'>
                 {isEditMode
                   ? "Edit Advertisement"
                   : "Initiate New Advertisement"}
               </h4>
 
-              <FormInput name="title" label="Title" required />
-              <FormInput name="grade_level" label="Grade Level" required />
-              <FormInput name="locations" label="Locations" required />
+              <FormInput name='title' label='Position' required />
+              <FormInput name='grade_level' label='Grade Level' required />
+              <FormInput name='locations' label='Locations' required />
               <FormSelect
-                name="job_type"
-                label="Job type"
-                placeholder="Select Project"
+                name='job_type'
+                label='Advert Status'
+                placeholder='Select Project'
                 options={jobTypeOptions}
               />
               <FormInput
-                name="duration"
-                label="Duration"
-                placeholder="Example: 9 months"
+                name='duration'
+                label='Duration (Weeks)'
+                placeholder='Example: 9 months'
                 required
               />
               <FormInput
-                name="commencement_date"
-                label="Commencement Date"
+                name='commencement_date'
+                label='Expiry Date'
                 required
-                type="date"
+                type='date'
               />
               <FormInput
-                name="number_of_positions"
-                label="Number of Consultants"
+                name='number_of_positions'
+                label='Number Required'
                 required
-                type="number"
+                type='number'
               />
-              <FormInput name="supervisor" label="Supervisor" required />
 
-              <FormMultiSelect
-                name="interviewers"
-                label="Interviewers"
+              {/* <FormMultiSelect
+                name='interviewers'
+                label='Interviewers'
                 required
-                placeholder="Select interviewers"
+                placeholder='Select interviewers'
                 options={interviewersOption}
-              />
-              <FormInput name="any_other_info" label="Info" />
-              <FormTextArea name="background" label="Background" required />
+              /> */}
+              {/* <FormInput name='any_other_info' label='Info' /> */}
+              <FormTextArea name='background' label='Background' required />
               <FileUpload
-                name="advert_document"
+                name='advert_document'
                 label={
                   isEditMode
                     ? "Upload New Advertisement Document (leave empty to keep current)"
@@ -221,7 +220,7 @@ const AddEditAdvertisement = () => {
                 required={!isEditMode}
               />
 
-              <div className="flex justify-end">
+              <div className='flex justify-end'>
                 <FormButton loading={isSubmitting} disabled={isSubmitting}>
                   {isEditMode ? "Update" : "Create"}
                 </FormButton>

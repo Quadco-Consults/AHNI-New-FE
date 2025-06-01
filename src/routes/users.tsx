@@ -15,4 +15,8 @@ export const users = [
     path: RouteEnum.AUTHORIZATION,
     element: lazy(() => import("pages/protectedPages/Users/Authorization")),
   },
+  {
+    path: RouteEnum.AUDIT_LOG,
+    element: lazy(() => import("pages/protectedPages/audit-log/index")),
+  },
 ];
