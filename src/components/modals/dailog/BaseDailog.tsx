@@ -27,8 +27,8 @@ export function BaseDailog({ children }: { children: React.ReactNode }) {
         )}
       >
         {header ? (
-          <DialogHeader className="py-5">
-            <DialogTitle className="font-semibold text-center">
+          <DialogHeader className='py-5'>
+            <DialogTitle className='font-semibold text-center'>
               {header}
             </DialogTitle>
           </DialogHeader>

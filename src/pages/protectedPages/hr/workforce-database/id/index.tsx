@@ -11,6 +11,7 @@ import { useParams } from "react-router-dom";
 import { LoadingSpinner } from "components/shared/Loading";
 import { useGetEmployeeOnboardingQuery } from "services/hrApi/hr-employee-onboarding";
 import { EmployeeOnboarding } from "definations/hr-types/employee-onboarding";
+import Goals from "./Goals";
 
 const WorkforceDetail = () => {
   const { id } = useParams();
@@ -55,7 +56,7 @@ const WorkforceDetail = () => {
     {
       label: "Goals",
       value: "goal",
-      children: <AdditionalInfo />,
+      children: <Goals />,
     },
   ];
 

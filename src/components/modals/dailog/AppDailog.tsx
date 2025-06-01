@@ -88,6 +88,7 @@ import PreferredConsultantModal from "./components/PreferredConsultant";
 import DocumentUploadModal from "./DocumentUpload";
 import ViewLog from "pages/protectedPages/audit-log/ViewLog";
 import CreateInterviewModal from "pages/protectedPages/hr/advertisement/id/CreateInterview";
+import CreateGoalsModal from "pages/protectedPages/hr/workforce-database/id/CreateGoals";
 // import CreateInterview from "pages/protectedPages/c&g/contract-management/consultant-management/id/CreateInterview";
 
 const sheets: Record<string, ReactNode> = {
@@ -189,6 +190,7 @@ const sheets: Record<string, ReactNode> = {
 
   // HR
   [DialogType.CREATE_INTERVIEW]: <CreateInterviewModal />,
+  [DialogType.CREATE_GOALS]: <CreateGoalsModal />,
 };
 interface DialogPropsMap {
   [DialogType.FeedbackModal]: {
