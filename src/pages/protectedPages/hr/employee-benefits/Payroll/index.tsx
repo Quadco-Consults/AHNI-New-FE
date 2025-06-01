@@ -125,7 +125,7 @@ const Payroll: React.FC = () => {
           //     navigate("/c-and-g/grant-details/" + row?.original?.id);
           //   }}
           data={[]}
-          isLoading={true}
+          // isLoading={true}
           pagination={{
             total: 10,
             pageSize: 10,

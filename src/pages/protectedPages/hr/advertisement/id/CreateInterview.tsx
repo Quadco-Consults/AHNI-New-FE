@@ -58,7 +58,6 @@ const CreateInterviewModal = () => {
   const { dialogProps } = useAppSelector(dailogSelector);
 
   const urlId = dialogProps?.data as unknown as string;
-  console.log({ urlId });
 
   //   const { id } = useParams();
 

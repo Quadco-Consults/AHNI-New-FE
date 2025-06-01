@@ -13,11 +13,22 @@ import SearchBar from "atoms/SearchBar";
 import { Checkbox } from "components/ui/checkbox";
 import IconButton from "components/shared/IconButton";
 import { Icon } from "@iconify/react";
+import { useGetPerformanceAssesmentsQuery } from "services/hrApi/hr-performance-assessment";
+import useDebounce from "utils/useDebounce";
 
 const PerformanceManagement: React.FC = () => {
   const navigate = useNavigate();
 
   const [isModalOpen, setModalOpen] = React.useState(false);
+  const debouncedAdvertSearch = useDebounce("advertSearchTerm", 1000);
+
+  // Fetch advertisements for dropdown
+  const { data: performanceAssesmentData, isLoading: isLoading } =
+    useGetPerformanceAssesmentsQuery({
+      search: debouncedAdvertSearch,
+    });
+
+  console.log({ performanceAssesmentData });
 
   const columns: ColumnDef<any>[] = [
     {
