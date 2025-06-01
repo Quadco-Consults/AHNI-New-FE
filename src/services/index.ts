@@ -50,6 +50,7 @@ const baseAPI = createApi({
   //  cache , The default time is seconds , Default duration 60 second
 
   tagTypes: [
+    "ACTIVITIES",
     "Users",
     "Roles",
     "Permission",
@@ -97,6 +98,7 @@ const baseAPI = createApi({
     "JOB_APPLICATIONS",
     "EMPLOYEE_ONBOARDING",
     "WORKFORCE_NEED_ANALYSIS",
+    "PERFORMANCE_ASSESMENST",
     "GRIEVIANCE_MANAGEMENT",
     "SUPPORT_MANAGEMENT",
     "LEAVE_PACKAGE",

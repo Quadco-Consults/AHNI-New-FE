@@ -6,13 +6,13 @@ import { cn } from "lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import { generatePath, Link, useNavigate, useParams } from "react-router-dom";
+import { generatePath, Link, useParams } from "react-router-dom";
 import { HrRoutes } from "constants/RouterConstants";
 import EyeIcon from "components/icons/EyeIcon";
 import ScanIcon from "components/icons/ScanIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import DataTable from "components/Table/DataTable";
-import SearchIcon from "components/icons/SearchIcon";
+// import SearchIcon from "components/icons/SearchIcon";
 import FilterIcon from "components/icons/FilterIcon";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import {
@@ -34,6 +34,9 @@ import {
   SelectValue,
 } from "components/ui/select";
 import SearchBar from "atoms/SearchBar";
+import { openDialog } from "store/ui";
+import { DialogType, mediumDailogScreen } from "constants/dailogs";
+import { useAppDispatch } from "hooks/useStore";
 
 const ApplicationsTable = ({
   linkTitle,
@@ -45,6 +48,8 @@ const ApplicationsTable = ({
   id?: string;
   status?: "SHORTLISTED" | "PREFERRED" | "ACCEPTED" | "";
 }) => {
+  const dispatch = useAppDispatch();
+
   // Get ID from URL params if available
   const params = useParams();
   const urlId = params?.id;
@@ -133,6 +138,30 @@ const ApplicationsTable = ({
                 <p>{linkTitle}</p>
               </Button>
             </Link>
+          </div>
+        )}
+
+        {status === "SHORTLISTED" && (
+          <div className='ml-auto'>
+            <Button
+              className='flex gap-2 py-6'
+              type='button'
+              onClick={() =>
+                dispatch(
+                  openDialog({
+                    type: DialogType.CREATE_INTERVIEW,
+                    dialogProps: {
+                      ...mediumDailogScreen,
+                      header: "Create Interview",
+                      data: urlId,
+                    },
+                  })
+                )
+              }
+            >
+              <AddSquareIcon />
+              <p>Create Interview</p>
+            </Button>
           </div>
         )}
       </div>
@@ -232,10 +261,10 @@ const columns: ColumnDef<AdvertisementResults>[] = [
 ];
 
 const ActionList = ({ data }: any) => {
-  const navigate = useNavigate();
-  const [patchJobApplicationAccepted, { isLoading: isUpdating }] =
+  // const navigate = useNavigate();
+  const [patchJobApplicationAccepted] =
     usePatchJobApplicationAcceptedMutation();
-  const [patchJobApplicationPreferred, { isLoading: isUpdatingPreferred }] =
+  const [patchJobApplicationPreferred] =
     usePatchJobApplicationPreferredMutation();
   const handleAccepted = async () => {
     try {
@@ -263,6 +292,7 @@ const ActionList = ({ data }: any) => {
       toast.error("Failed to update status");
     }
   };
+
   return (
     <div className='flex items-center gap-2'>
       <>
@@ -330,25 +360,38 @@ const ActionList = ({ data }: any) => {
                   </Button>
                 </Link>
               )}
-              {data?.status?.toLowerCase() !== "shortlisted" &&
-                data?.status?.toLowerCase() !== "interviewed" &&
-                data?.status?.toLowerCase() !== "preferred" &&
-                data?.status?.toLowerCase() !== "accepted" && (
-                  <Link
-                    to={generatePath(HrRoutes.ADVERTISEMENT_INTERVIEW_FORM, {
-                      id: data?.advertisement,
-                      appID: data?.id,
-                    })}
+              {data?.status?.toLowerCase() === "shortlisted" && (
+                <Link
+                  to={generatePath(HrRoutes.ADVERTISEMENT_INTERVIEW_FORM, {
+                    id: data?.advertisement,
+                    appID: data?.id,
+                  })}
+                >
+                  <Button
+                    className='w-full flex items-center justify-start gap-2'
+                    variant='ghost'
                   >
-                    <Button
-                      className='w-full flex items-center justify-start gap-2'
-                      variant='ghost'
-                    >
-                      <ScanIcon />
-                      Interview
-                    </Button>
-                  </Link>
-                )}
+                    <ScanIcon />
+                    Interview
+                  </Button>
+                </Link>
+              )}
+              {/* {data?.status?.toLowerCase() === "applied" && (
+                <Link
+                  to={generatePath(HrRoutes.ADVERTISEMENT_INTERVIEW_FORM, {
+                    id: data?.advertisement,
+                    appID: data?.id,
+                  })}
+                >
+                  <Button
+                    className='w-full flex items-center justify-start gap-2'
+                    variant='ghost'
+                  >
+                    <CheckCheck />
+                    Shortlist
+                  </Button>
+                </Link>
+              )} */}
 
               <Button
                 className='w-full flex items-center justify-start gap-2'
