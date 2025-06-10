@@ -479,6 +479,8 @@ export const HrRoutes = {
   PERFORMANCE_MANAGEMENT_CREATE: "/hr/performance-management/create",
   PERFORMANCE_MANAGEMENT_DETAIL: "/hr/performance-management/:id",
   EMPLOYEE_BENEFITS_COMPENSATION: "/hr/employee-benefit/compensation",
+  EMPLOYEE_BENEFITS_COMPENSATION_SPREAD:
+    "/hr/employee-benefit/compensation-spread",
   EMPLOYEE_BENEFITS_COMPENSATION_CREATE:
     "/hr/employee-benefit/compensation/create",
   EMPLOYEE_BENEFITS_PAY_ROLL: "/hr/employee-benefit/pay-roll",

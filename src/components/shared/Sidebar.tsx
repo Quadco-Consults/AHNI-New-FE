@@ -888,6 +888,11 @@ const getDeparmentalLinks = () => {
               path: HrRoutes.EMPLOYEE_BENEFITS_COMPENSATION,
             },
             {
+              name: "Compensation Spread",
+              path: HrRoutes.EMPLOYEE_BENEFITS_COMPENSATION_SPREAD,
+            },
+
+            {
               name: "Payroll",
               path: HrRoutes.EMPLOYEE_BENEFITS_PAY_ROLL,
             },
