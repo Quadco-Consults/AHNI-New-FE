@@ -93,6 +93,8 @@ export const DialogType = {
   // HR
   CREATE_INTERVIEW: "CREATE INTERVIEW",
   CREATE_GOALS: "CREATE GOALS",
+
+  PAY_ADVICE: "PAY ADVICE",
 };
 
 export const largeDailogScreen = {
