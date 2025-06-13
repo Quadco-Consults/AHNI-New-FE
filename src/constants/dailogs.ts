@@ -95,6 +95,7 @@ export const DialogType = {
   CREATE_GOALS: "CREATE GOALS",
 
   PAY_ADVICE: "PAY ADVICE",
+  COPY_ACTIVITIES: "COPY ACTIVITIES",
 };
 
 export const largeDailogScreen = {
