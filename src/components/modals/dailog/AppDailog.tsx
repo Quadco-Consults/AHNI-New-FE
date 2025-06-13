@@ -90,6 +90,7 @@ import ViewLog from "pages/protectedPages/audit-log/ViewLog";
 import CreateInterviewModal from "pages/protectedPages/hr/advertisement/id/CreateInterview";
 import CreateGoalsModal from "pages/protectedPages/hr/workforce-database/id/CreateGoals";
 import ViewPaymentModal from "pages/protectedPages/hr/employee-benefits/components/ViewPayment";
+import CopyActivitiesModal from "pages/protectedPages/hr/timesheet-management/id/CopyAcitivitiesModal";
 // import CreateInterview from "pages/protectedPages/c&g/contract-management/consultant-management/id/CreateInterview";
 
 const sheets: Record<string, ReactNode> = {
@@ -193,6 +194,7 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.CREATE_INTERVIEW]: <CreateInterviewModal />,
   [DialogType.CREATE_GOALS]: <CreateGoalsModal />,
   [DialogType.PAY_ADVICE]: <ViewPaymentModal />,
+  [DialogType.COPY_ACTIVITIES]: <CopyActivitiesModal />,
 };
 interface DialogPropsMap {
   [DialogType.FeedbackModal]: {

@@ -1,92 +1,13 @@
+import { useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import ApproveIcon from "components/icons/ApproveIcon";
 import Card from "components/shared/Card";
-import GoBack from "components/shared/GoBack";
 import DataTable from "components/Table/DataTable";
-import { Badge } from "components/ui/badge";
 import { Button } from "components/ui/button";
-import { DialogType } from "constants/dailogs";
-import { HrRoutes } from "constants/RouterConstants";
-import { useAppDispatch } from "hooks/useStore";
-import { generatePath, Link, useParams } from "react-router-dom";
+import { Badge } from "components/ui/badge";
+import CopyActivitiesModal from "./CopyAcitivitiesModal";
 import { openDialog } from "store/ui";
-
-const TimesheetManagementDetail = () => {
-  const admin = false;
-  const dispatch = useAppDispatch();
-  const { id } = useParams();
-
-  return (
-    <div className="space-y-4">
-      <div className="flex gap-x-6 items-center">
-        <GoBack />
-        <h4 className="text-xl font-bold">Timesheet Detail</h4>
-      </div>
-      <Card className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h4 className="font-medium text-lg">
-            Week 32 (May 26 – Jun 1, 2024)
-          </h4>
-          {admin ? (
-            <Button
-              onClick={() =>
-                dispatch(
-                  openDialog({
-                    type: DialogType.ApprovalModal,
-                    dialogProps: {
-                      label: "Approval for Timesheet submission",
-                      width: "max-w-lg",
-                    },
-                  })
-                )
-              }
-            >
-              <ApproveIcon fillColor /> Approval
-            </Button>
-          ) : (
-            <Link
-              to={generatePath(HrRoutes.TIMESHEET_MANAGEMENT_DETAIL_CREATE, {
-                id: id as string,
-              })}
-            >
-              <Button>
-                <AddSquareIcon /> Add
-              </Button>
-            </Link>
-          )}
-        </div>
-
-        <Card>
-          <DataTable data={data} columns={columns} footer />
-        </Card>
-        <Card className="space-y-4">
-          <h4 className="font-semibold">Status</h4>
-          <Badge variant="success">Approved</Badge>
-        </Card>
-        {admin && (
-          <Card className="space-y-4">
-            <h4 className="font-semibold">
-              Actions Performed on the Timesheet
-            </h4>
-            <Card className="space-y-4">
-              <div className="flex justify-between gap-5 items-center">
-                <h4 className="font-semibold">Amos Jeniffer</h4>
-                <p>2:00.pm, 20-10-2024 </p>
-              </div>
-              <p className="text-sm">
-                Reduce the time for the project, we cant approve with that large
-                amount of time
-              </p>
-            </Card>
-          </Card>
-        )}
-      </Card>
-    </div>
-  );
-};
-
-export default TimesheetManagementDetail;
+import { DialogType } from "constants/dailogs";
+import { useAppDispatch } from "hooks/useStore";
 
 type TTimesheetDetail = {
   name: string;
@@ -100,87 +21,165 @@ type TTimesheetDetail = {
   sun: string;
   total: string;
 };
-const data = Array(5).fill({
-  name: "ACEBAY",
-  activity: "111.0004 ACE Shared",
-  mon: "3:00",
-  tue: "3:00",
-  wed: "3:00",
-  thu: "3:00",
-  fri: "3:00",
-  sat: "3:00",
-  sun: "3:00",
-  total: "12:00",
-});
 
-const columns: ColumnDef<TTimesheetDetail>[] = [
-  {
-    header: "Project Name",
-    accessorKey: "name",
-    footer: () => {
-      return <p className="text-yellow-500">Total</p>;
+const initialRow: TTimesheetDetail = {
+  name: "",
+  activity: "",
+  mon: "0",
+  tue: "0",
+  wed: "0",
+  thu: "0",
+  fri: "0",
+  sat: "0",
+  sun: "0",
+  total: "0",
+};
+
+const TimesheetManagementFull = () => {
+  const dispatch = useAppDispatch();
+
+  const [timesheetData, setTimesheetData] = useState<TTimesheetDetail[]>([
+    initialRow,
+  ]);
+  const [savedTimesheet, setSavedTimesheet] = useState<TTimesheetDetail[]>([
+    initialRow,
+  ]);
+
+  const addRow = () => setTimesheetData((prev) => [...prev, { ...initialRow }]);
+
+  const removeRow = (index: number) => {
+    setTimesheetData((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const copyRow = (index: number) => {
+    setTimesheetData((prev) => [...prev, { ...prev[index] }]);
+  };
+
+  const resetTimesheet = () => setTimesheetData([{ ...initialRow }]);
+
+  const cancelChanges = () => setTimesheetData(savedTimesheet);
+
+  const handleSubmit = () => {
+    console.log("Submitted Timesheet:", timesheetData);
+    setSavedTimesheet(timesheetData);
+  };
+
+  const updateCell = (
+    index: number,
+    key: keyof TTimesheetDetail,
+    value: string
+  ) => {
+    const updated = [...timesheetData];
+    updated[index][key] = value;
+
+    // Update total automatically
+    if (["mon", "tue", "wed", "thu", "fri", "sat", "sun"].includes(key)) {
+      const totalHours = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+        .map((day) =>
+          parseFloat(updated[index][day as keyof TTimesheetDetail] || "0")
+        )
+        .reduce((acc, curr) => acc + curr, 0);
+      updated[index].total = totalHours.toFixed(2);
+    }
+
+    setTimesheetData(updated);
+  };
+  const handleOpenDialog = () => {
+    dispatch(
+      openDialog({
+        type: DialogType.COPY_ACTIVITIES,
+        dialogProps: {
+          header: "Copy Activities from Timesheet",
+          data: "1", // the timesheet ID or whatever you need here
+          onAddActivities: (activities) => {
+            const newRows = activities.map((a) => ({
+              ...a,
+              mon: "",
+              tue: "",
+              wed: "",
+              thu: "",
+              fri: "",
+              sat: "",
+              sun: "",
+              total: "0:00",
+            }));
+            setTimesheetData((prev) => [...prev, ...newRows]);
+          },
+        },
+      })
+    );
+  };
+  console.log({ timesheetData });
+
+  const columns: ColumnDef<TTimesheetDetail>[] = [
+    { header: "Project Name", accessorKey: "name" },
+    { header: "Activity", accessorKey: "activity" },
+    ...["mon", "tue", "wed", "thu", "fri", "sat", "sun"].map((day) => ({
+      header: day.charAt(0).toUpperCase() + day.slice(1),
+      accessorKey: day,
+      cell: ({ row }) => (
+        <input
+          type='number'
+          value={row.original[day as keyof TTimesheetDetail]}
+          className='w-16 px-1 border rounded text-sm'
+          onChange={(e) =>
+            updateCell(row.index, day as keyof TTimesheetDetail, e.target.value)
+          }
+        />
+      ),
+    })),
+    { header: "Total", accessorKey: "total" },
+    {
+      header: "Actions",
+      cell: ({ row }) => (
+        <div className='flex gap-2'>
+          <Button
+            variant='outline'
+            size='sm'
+            onClick={() => copyRow(row.index)}
+          >
+            Copy
+          </Button>
+          <Button
+            variant='destructive'
+            size='sm'
+            onClick={() => removeRow(row.index)}
+          >
+            Remove
+          </Button>
+        </div>
+      ),
     },
-    size: 200,
-  },
-  {
-    header: "Activity Name",
-    accessorKey: "activity",
-    size: 200,
-  },
-  {
-    header: "Mon",
-    accessorKey: "mon",
-    footer: () => {
-      return <p className="text-yellow-500">3:30</p>;
-    },
-  },
-  {
-    header: "Tue",
-    accessorKey: "tue",
-    footer: () => {
-      return <p className="text-yellow-500">3:30</p>;
-    },
-  },
-  {
-    header: "Wed",
-    accessorKey: "wed",
-    footer: () => {
-      return <p className="text-yellow-500">3:30</p>;
-    },
-  },
-  {
-    header: "Thu",
-    accessorKey: "thu",
-    footer: () => {
-      return <p className="text-yellow-500">3:30</p>;
-    },
-  },
-  {
-    header: "Fri",
-    accessorKey: "fri",
-    footer: () => {
-      return <p className="text-yellow-500">3:30</p>;
-    },
-  },
-  {
-    header: "Sat",
-    accessorKey: "sat",
-    footer: () => {
-      return <p className="text-yellow-500">3:30</p>;
-    },
-  },
-  {
-    header: "Sun",
-    accessorKey: "sun",
-    footer: () => {
-      return <p className="text-yellow-500">3:30</p>;
-    },
-  },
-  {
-    header: "Total",
-    accessorKey: "total",
-    footer: () => {
-      return <p className="text-yellow-500">40:30</p>;
-    },
-  },
-];
+  ];
+
+  return (
+    <div className='space-y-4'>
+      <h2 className='text-2xl font-bold'>Timesheet Management</h2>
+
+      <div className='flex gap-2'>
+        <Button onClick={addRow}>Add Row</Button>
+        <Button variant='outline' onClick={resetTimesheet}>
+          Reset
+        </Button>
+        <Button variant='outline' onClick={cancelChanges}>
+          Cancel
+        </Button>
+        <Button variant='default' onClick={handleSubmit}>
+          Submit
+        </Button>
+        <Button onClick={handleOpenDialog}>Copy Activities</Button>
+      </div>
+
+      <Card>
+        <DataTable columns={columns} data={timesheetData} />
+      </Card>
+
+      <Card className='space-y-2'>
+        <h4 className='font-semibold'>Status</h4>
+        <Badge variant='secondary'>Draft</Badge>
+      </Card>
+    </div>
+  );
+};
+
+export default TimesheetManagementFull;
