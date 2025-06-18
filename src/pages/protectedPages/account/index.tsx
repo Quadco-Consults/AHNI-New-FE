@@ -38,7 +38,7 @@ export default function Account() {
   const { data: profile } = useGetUserProfileQuery(null);
 
   const [updateUser, { isLoading: isUpdateLoading }] = useUpdateUserMutation();
-  console.log({ profile });
+  // console.log({ profile });
 
   const Profileform = useForm<TFormValues>({
     resolver: zodResolver(ProfileSchema),
@@ -49,6 +49,7 @@ export default function Account() {
       username: "",
       role: "",
       gender: "",
+      profile_picture: "",
     },
   });
   const Securityform = useForm<TFormValuesSecond>({
@@ -91,6 +92,7 @@ export default function Account() {
       setFile(e.target.files[0]);
     }
   };
+  // console.log({ file  });
 
   const onSubmitProfile = async (data: TFormValues) => {
     // Dispatch update profile action or API call

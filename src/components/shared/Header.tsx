@@ -17,11 +17,17 @@ import { AuthRoutes, RouteEnum } from "constants/RouterConstants";
 import { useAppDispatch } from "hooks/useStore";
 import { logOut } from "store/auth/authSlice";
 import { getPageTitleFromPath } from "utils/utls";
+import { useGetUserProfileQuery } from "services/auth/user";
+// import { useGetUserProfileQuery } from "services/auth/user";
 
 const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
   const { setTheme } = useTheme();
   const location = useLocation();
   const pageTitle = getPageTitleFromPath(location.pathname);
+
+  const { data: profile } = useGetUserProfileQuery(null);
+
+  // console.log({ profileCheck: profile?.data });
 
   const navigate = useNavigate();
 
@@ -90,8 +96,10 @@ const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
               <AvatarFallback>AD</AvatarFallback>
             </Avatar>
             <div className='flex flex-col items-center'>
-              <div className=''>John Doe</div>
-              <small className=''>johndoe@gmail.com</small>
+              <div className=''>
+                {profile?.data?.first_name} {profile?.data?.last_name}
+              </div>
+              <small className=''> {profile?.data?.email}</small>
             </div>
             <Button
               onClick={() => {
