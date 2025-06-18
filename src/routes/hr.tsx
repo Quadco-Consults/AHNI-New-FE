@@ -162,6 +162,13 @@ export const hr = [
     ),
   },
   {
+    path: HrRoutes.EMPLOYEE_BENEFITS_COMPENSATION_SPREAD,
+    element: lazy(
+      () =>
+        import("pages/protectedPages/hr/employee-benefits/CompensationSpread")
+    ),
+  },
+  {
     path: HrRoutes.EMPLOYEE_BENEFITS_COMPENSATION_CREATE,
     element: lazy(
       () => import("pages/protectedPages/hr/employee-benefits/NewCompensation")
