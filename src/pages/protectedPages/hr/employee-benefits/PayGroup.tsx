@@ -3,37 +3,38 @@ import { ColumnDef } from "@tanstack/react-table";
 import FormButton from "atoms/FormButton";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import DataTable from "components/Table/DataTable";
-import React from "react";
+import React, { useState } from "react";
 
 import FilterIcon2 from "assets/svgs/FilterIcon2";
 import { Button } from "components/ui/button";
-import { generatePath, Link, useNavigate } from "react-router-dom";
-import { RouteEnum } from "constants/RouterConstants";
+import { useNavigate } from "react-router-dom";
+
 import SearchBar from "atoms/SearchBar";
 import { Checkbox } from "components/ui/checkbox";
-import IconButton from "components/shared/IconButton";
-import { Icon } from "@iconify/react";
+
 import PayGroupModal from "./components/PayGroupModal";
+import { useGetPayGroupsQuery } from "services/hrApi/hr-pay-groups";
+import useDebounce from "utils/useDebounce";
 
 const PayGroup: React.FC = () => {
-  const navigate = useNavigate();
-
-  const [isModalOpen, setModalOpen] = React.useState(false);
+  const { data: payGroupsData, isLoading: isLoadingPayGroups } =
+    useGetPayGroupsQuery();
+  const [isModalOpen, setModalOpen] = useState(false);
 
   const columns: ColumnDef<any>[] = [
     {
       id: "select",
       size: 50,
-      header: ({ table }) => {
-        return (
-          <Checkbox
-            checked={table.getIsAllPageRowsSelected()}
-            onCheckedChange={(value) => {
-              table.toggleAllPageRowsSelected(!!value);
-            }}
-          />
-        );
-      },
+      // header: ({ table }) => {
+      //   return (
+      //     <Checkbox
+      //       checked={table?.getIsAllPageRowsSelected()}
+      //       onCheckedChange={(value) => {
+      //         table?.toggleAllPageRowsSelected(!!value);
+      //       }}
+      //     />
+      //   );
+      // },
       cell: ({ row }) => {
         return (
           <Checkbox
@@ -47,52 +48,25 @@ const PayGroup: React.FC = () => {
     },
     {
       header: "Position",
-      accessorKey: "position",
+      accessorKey: "position?.name",
+      cell: ({ row }) => <p>{row?.original?.position?.name}</p>,
+
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.project?.title}</p>,
     },
     {
       header: "Grade",
       accessorKey: "grade",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.location?.name}</p>,
     },
     {
       header: "Status",
       accessorKey: "Status",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.location?.name}</p>,
-    },
-    {
-      header: "Action",
-      id: "actions",
-      size: 150,
-      cell: ({ row }) => <ActionListAction data={row} />,
-    },
-    {
-      header: "",
-      id: "actions",
-      size: 150,
-      cell: ({ row }) => <ActionListAction data={row} />,
+      cell: ({ row }) => (
+        <p>{row?.original?.is_active ? "Active" : "In Active"}</p>
+      ),
     },
   ];
-
-  const ActionListAction = ({ data }: any) => {
-    return (
-      <div className='flex gap-2'>
-        <Link
-          to={generatePath(RouteEnum.VENDOR_MANAGEMENT_DETAILS, { id: "1" })}
-        >
-          <IconButton className='bg-[#F9F9F9] hover:text-primary'>
-            <Icon icon='ph:eye-duotone' fontSize={15} />
-          </IconButton>
-        </Link>
-        <IconButton className='bg-[#F9F9F9] hover:text-primary'>
-          <Icon icon='ant-design:delete-twotone' fontSize={15} />
-        </IconButton>
-      </div>
-    );
-  };
 
   return (
     <div className='flex flex-col justify-center items-center gap-y-[1rem]'>
@@ -114,11 +88,8 @@ const PayGroup: React.FC = () => {
       <div className='w-full'>
         <DataTable
           columns={columns}
-          //   onRowClick={(row) => {
-          //     navigate("/c-and-g/grant-details/" + row?.original?.id);
-          //   }}
-          data={[]}
-          isLoading={true}
+          data={payGroupsData?.data?.results || []} // ✅ Ensure data is always an array
+          isLoading={isLoadingPayGroups}
           pagination={{
             total: 10,
             pageSize: 10,
