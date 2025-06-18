@@ -132,6 +132,14 @@ const CreateUsers = () => {
                     options={locationOptions}
                   />
                 </div>
+                <div className='grid grid-cols-2 gap-x-7'>
+                  <FormSelect
+                    label='User Type'
+                    name='type'
+                    required
+                    options={positionOptions}
+                  />
+                </div>
 
                 <div className='grid grid-cols-2 gap-x-7'>
                   <FormInput
