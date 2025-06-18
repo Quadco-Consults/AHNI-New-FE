@@ -31,25 +31,45 @@ export default function UserTablePage() {
       </div>
       <div>
         <div className='col-span-3'>
-          <Tabs defaultValue='Admin Officer'>
+          <Tabs defaultValue='All'>
             <TabsList className='border-b !py-0 rounded-none border-[#E4E7EC] w-full justify-start '>
               <TabsTrigger
                 className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
                 value='All'
               >
-                All
+                All users
               </TabsTrigger>
               <TabsTrigger
                 className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
-                value='Admin Officer'
+                value='AHNi'
               >
-                Admin Officer
+                AHNi users
+              </TabsTrigger>
+
+              <TabsTrigger
+                className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
+                value='Adhoc'
+              >
+                Adhoc users
+              </TabsTrigger>
+
+              <TabsTrigger
+                className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
+                value='Consultants'
+              >
+                Consultants
               </TabsTrigger>
               <TabsTrigger
                 className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
-                value='Store Keeper'
+                value='Facilitators'
               >
-                Store Keeper
+                Facilitators
+              </TabsTrigger>
+              <TabsTrigger
+                className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
+                value='Vendors'
+              >
+                Vendors
               </TabsTrigger>
             </TabsList>
             <TabsContent className='w-full py-10' value='All'>
@@ -66,7 +86,7 @@ export default function UserTablePage() {
                 />
               </TableFilters>
             </TabsContent>
-            <TabsContent className='w-full py-10' value='Admin Officer'>
+            <TabsContent className='w-full py-10' value='AHNi'>
               <TableFilters>
                 <DataTable
                   columns={userColumns}
@@ -80,7 +100,49 @@ export default function UserTablePage() {
                 />
               </TableFilters>
             </TabsContent>
-            <TabsContent className='w-full py-10' value='Store Keeper'>
+            <TabsContent className='w-full py-10' value='Adhoc'>
+              <TableFilters>
+                <DataTable
+                  columns={userColumns}
+                  data={user?.data.results || []}
+                  isLoading={isFetching}
+                  pagination={{
+                    total: user?.data.pagination.count ?? 0,
+                    pageSize: user?.data.pagination.page_size ?? 0,
+                    onChange: (page: number) => setPage(page),
+                  }}
+                />
+              </TableFilters>
+            </TabsContent>
+            <TabsContent className='w-full py-10' value='Consultants'>
+              <TableFilters>
+                <DataTable
+                  columns={userColumns}
+                  data={user?.data.results || []}
+                  isLoading={isFetching}
+                  pagination={{
+                    total: user?.data.pagination.count ?? 0,
+                    pageSize: user?.data.pagination.page_size ?? 0,
+                    onChange: (page: number) => setPage(page),
+                  }}
+                />
+              </TableFilters>
+            </TabsContent>{" "}
+            <TabsContent className='w-full py-10' value='Facilitators'>
+              <TableFilters>
+                <DataTable
+                  columns={userColumns}
+                  data={user?.data.results || []}
+                  isLoading={isFetching}
+                  pagination={{
+                    total: user?.data.pagination.count ?? 0,
+                    pageSize: user?.data.pagination.page_size ?? 0,
+                    onChange: (page: number) => setPage(page),
+                  }}
+                />
+              </TableFilters>
+            </TabsContent>{" "}
+            <TabsContent className='w-full py-10' value='Vendors'>
               <TableFilters>
                 <DataTable
                   columns={userColumns}
