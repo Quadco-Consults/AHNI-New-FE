@@ -9,6 +9,9 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import Modal from "react-modal";
+import { useGetAllPositionsQuery } from "services/modules/config/position";
+import { useCreatePayGroupMutation } from "services/hrApi/hr-pay-groups";
+import { toast } from "sonner";
 
 type PropsType = {
   isOpen: boolean;
@@ -28,25 +31,35 @@ const customStyles = {
 };
 
 const FormSchema = z.object({
-  startYear: z.string().min(1, "Please select a start year"),
-  endYear: z.string().min(1, "Please select an end year"),
-  file: z.string().min(1, "Please select a file to upload"),
+  position: z.string().min(1, "Please selec a Position"),
+  grade: z.string().min(1, "Please add a group"),
 });
 
 const PayGroupModal = (props: PropsType) => {
+  const { data: position } = useGetAllPositionsQuery({
+    page: 1,
+    size: 2000000,
+  });
+
+  const [createPayGroup, { isLoading: isCreatingLoading }] =
+    useCreatePayGroupMutation();
+  const positionOptions = position?.data.results.map(({ name, id }) => ({
+    label: name,
+    value: id,
+  }));
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      startYear: "1",
-      endYear: "1",
-      file: "1",
+      position: "1",
+      grade: "1",
     },
   });
 
   const { handleSubmit } = form;
 
-  const onSubmit = () => {
-    console.log("hello");
+  const onSubmit = async (data: any) => {
+    await createPayGroup(data).unwrap();
+    toast.success("Pay Group created successfully");
   };
 
   return (
@@ -63,11 +76,18 @@ const PayGroupModal = (props: PropsType) => {
 
           <div className='mt-5 flex flex-col gap-5'>
             <div className='flex flex-col gap-2 w-full'>
-              <FormSelect label='Position' name='position' required />
+              <FormSelect
+                label='Position'
+                name='position'
+                required
+                placeholder='Select Position'
+                options={positionOptions}
+              />
               <FormInput
                 label='Grade'
                 name='grade'
                 required
+                type='number'
                 className='w-full'
               />
             </div>
@@ -80,7 +100,10 @@ const PayGroupModal = (props: PropsType) => {
               >
                 Cancel
               </Button>
-              <FormButton className='bg-primary text-white border-none'>
+              <FormButton
+                loading={isCreatingLoading}
+                disabled={isCreatingLoading}
+              >
                 Done
               </FormButton>
             </div>

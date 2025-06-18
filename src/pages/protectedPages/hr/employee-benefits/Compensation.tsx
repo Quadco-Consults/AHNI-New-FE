@@ -14,11 +14,15 @@ import { Checkbox } from "components/ui/checkbox";
 import IconButton from "components/shared/IconButton";
 import { Icon } from "@iconify/react";
 import PayGroupModal from "./components/PayGroupModal";
+import { useGetCompensationsQuery } from "services/hrApi/hr-compensations";
 
 const Compensation: React.FC = () => {
   const navigate = useNavigate();
 
   const [isModalOpen, setModalOpen] = React.useState(false);
+
+  const { data: compensationsData, isLoading: isLoadingCompensations } =
+    useGetCompensationsQuery();
 
   const columns: ColumnDef<any>[] = [
     {
@@ -49,37 +53,40 @@ const Compensation: React.FC = () => {
       header: "Name",
       accessorKey: "name",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.project?.title}</p>,
+      // cell: ({ row }) => <p>{row?.original?.project?.title}</p>,
     },
     {
       header: "Type",
       accessorKey: "type",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.location?.name}</p>,
     },
     {
       header: "Amount or %",
       accessorKey: "amount",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.location?.name}</p>,
+      cell: ({ row }) => (
+        <p>
+          {row?.original?.percentage
+            ? `${row?.original?.percentage}%`
+            : row?.original?.amount}
+        </p>
+      ),
     },
     {
       header: "Position",
       accessorKey: "position",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.project?.title}</p>,
+      cell: ({ row }) => <p>{row?.original?.position?.name}</p>,
     },
     {
       header: "Grade",
       accessorKey: "grade",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.location?.name}</p>,
     },
     {
       header: "Period",
       accessorKey: "period",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.location?.name}</p>,
     },
 
     {
@@ -136,8 +143,8 @@ const Compensation: React.FC = () => {
           //   onRowClick={(row) => {
           //     navigate("/c-and-g/grant-details/" + row?.original?.id);
           //   }}
-          data={[]}
-          isLoading={true}
+          data={compensationsData?.data?.results || []} // ✅ Ensure data is always an array
+          isLoading={isLoadingCompensations}
           pagination={{
             total: 10,
             pageSize: 10,

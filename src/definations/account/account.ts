@@ -7,6 +7,7 @@ export const ProfileSchema = z.object({
   username: z.string().min(1, "Please enter username"),
   role: z.string().min(1, "Select Role"),
   gender: z.string().min(1, "Select gender"),
+  profile_picture: z.string().optional(),
 });
 export const SecuritySchema = z
   .object({
