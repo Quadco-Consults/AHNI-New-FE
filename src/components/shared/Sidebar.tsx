@@ -915,6 +915,10 @@ const getDeparmentalLinks = () => {
           name: "Leave Management",
           sublinks: [
             {
+              name: "Apply",
+              path: HrRoutes.LEAVE_MANAGEMENT_REQUEST_LEAVE,
+            },
+            {
               name: "Assign",
               path: HrRoutes.LEAVE_MANAGEMENT_ASSIGN_LEAVE,
             },
