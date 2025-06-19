@@ -32,6 +32,8 @@ const CreateUsers = () => {
       password: "",
       position: "",
       confirm_password: "",
+      user_type: "",
+      location: "",
     },
   });
   const { data: department } = useGetAllDepartmentsQuery({
@@ -60,6 +62,16 @@ const CreateUsers = () => {
     label: name,
     value: id,
   }));
+
+  const userOptions = [
+    { value: "VENDOR", label: "Vendor" },
+    { value: "ADHOC_STAFF", label: "Adhoc Staff" },
+    { value: "FACILITATOR", label: "Facilitator" },
+    { value: "CONSULTANT", label: "Consultant" },
+
+    { value: "AHNI_STAFF", label: "Ahni Staff" },
+    { value: "ADMIN", label: "Admin" },
+  ];
 
   const [createUser, { isLoading }] = useCreateUserMutation();
 
@@ -135,9 +147,9 @@ const CreateUsers = () => {
                 <div className='grid grid-cols-2 gap-x-7'>
                   <FormSelect
                     label='User Type'
-                    name='type'
+                    name='user_type'
                     required
-                    options={positionOptions}
+                    options={userOptions}
                   />
                 </div>
 
