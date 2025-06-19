@@ -49,6 +49,24 @@ const Overview = (data: VendorsResultsData) => {
           <h4>{data?.state}</h4>
         </div>
         <div className='grid grid-cols-2 items-center'>
+          <h4 className='font-bold'>Account Name</h4>
+          {/* @ts-ignore */}
+          <h4>{data?.account_name}</h4>
+        </div>{" "}
+        <div className='grid grid-cols-2 items-center'>
+          <h4 className='font-bold'>Account Number</h4>
+          {/* @ts-ignore */}
+          <h4>{data?.account_number}</h4>
+        </div>{" "}
+        <div className='grid grid-cols-2 items-center'>
+          <h4 className='font-bold'>Bank Name</h4>
+          <h4>{data?.bank_name}</h4>
+        </div>{" "}
+        <div className='grid grid-cols-2 items-center'>
+          <h4 className='font-bold'>Bank Address</h4>
+          <h4>{data?.bank_address}</h4>
+        </div>
+        <div className='grid grid-cols-2 items-center'>
           <h4 className='font-bold'>Company Email</h4>
           <h4>{data?.email}</h4>
         </div>
