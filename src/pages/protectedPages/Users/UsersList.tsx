@@ -12,9 +12,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 
 export default function UserTablePage() {
   const [page, setPage] = useState(1);
+  const [tabParams, setTabParams] = useState("");
 
   const { data: user, isFetching } = useGetAllUsersQuery(
-    { page, size: 10 },
+    // @ts-ignore
+    { page, size: 10, user_type: tabParams },
     { refetchOnMountOrArgChange: true }
   );
 
@@ -36,12 +38,14 @@ export default function UserTablePage() {
               <TabsTrigger
                 className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
                 value='All'
+                onClick={() => setTabParams("")}
               >
                 All users
               </TabsTrigger>
               <TabsTrigger
                 className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
                 value='AHNi'
+                onClick={() => setTabParams("AHNI_STAFF")}
               >
                 AHNi users
               </TabsTrigger>
@@ -49,6 +53,7 @@ export default function UserTablePage() {
               <TabsTrigger
                 className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
                 value='Adhoc'
+                onClick={() => setTabParams("ADHOC_STAFF")}
               >
                 Adhoc users
               </TabsTrigger>
@@ -56,18 +61,21 @@ export default function UserTablePage() {
               <TabsTrigger
                 className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
                 value='Consultants'
+                onClick={() => setTabParams("CONSULTANT")}
               >
                 Consultants
               </TabsTrigger>
               <TabsTrigger
                 className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
                 value='Facilitators'
+                onClick={() => setTabParams("FACILITATOR")}
               >
                 Facilitators
               </TabsTrigger>
               <TabsTrigger
                 className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
                 value='Vendors'
+                onClick={() => setTabParams("VENDOR")}
               >
                 Vendors
               </TabsTrigger>
