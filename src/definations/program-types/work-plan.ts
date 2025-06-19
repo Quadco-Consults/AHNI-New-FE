@@ -23,6 +23,22 @@ export interface TWorkPlanSingleResponse {
     financial_year: TFinancialYearData;
 }
 
+export type TMonth =
+    | "Jan"
+    | "Feb"
+    | "Mar"
+    | "Apr"
+    | "May"
+    | "Jun"
+    | "Jul"
+    | "Aug"
+    | "Sep"
+    | "Oct"
+    | "Nov"
+    | "Dec";
+
+export type TMonthChart = Record<TMonth, number>;
+
 export interface TActivity {
     id: string;
     activity_number: string;
@@ -32,34 +48,8 @@ export interface TActivity {
     lead_person: string;
     intervention_area: string;
     cost_group: string;
-    gant_chart: {
-        Apr: number;
-        Aug: number;
-        Dec: number;
-        Feb: number;
-        Jan: number;
-        Jul: number;
-        Jun: number;
-        Mar: number;
-        May: number;
-        Nov: number;
-        Oct: number;
-        Sep: number;
-    };
-    budget_chart: {
-        Apr: number;
-        Aug: number;
-        Dec: number;
-        Feb: number;
-        Jan: number;
-        Jul: number;
-        Jun: number;
-        Mar: number;
-        May: number;
-        Nov: number;
-        Oct: number;
-        Sep: number;
-    };
+    gant_chart: TMonthChart;
+    budget_chart: TMonthChart;
     total_amount_ngn: string;
     total_amount_usd: string;
     expected_result: string;
