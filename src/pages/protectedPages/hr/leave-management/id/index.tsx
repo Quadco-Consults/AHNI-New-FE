@@ -36,6 +36,10 @@ const LeaveManagement: React.FC = () => {
                 <h4 className='font-bold mb-3 text-start'>No of Days</h4>
                 <p className='text-sm'>30</p>
               </section>
+              <section>
+                <h4 className='font-bold mb-3 text-start'>Balance of Leave</h4>
+                <p className='text-sm'>130</p>
+              </section>
 
               <section>
                 <h4 className='font-bold mb-3 text-start'>From</h4>

@@ -1,23 +1,23 @@
 import { ColumnDef } from "@tanstack/react-table";
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 } from "components/ui/alert-dialog";
 
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "components/ui/dropdown-menu";
 import { Button } from "components/ui/button";
 
@@ -25,218 +25,221 @@ import { MoreHorizontal, Edit, RefreshCw, UserMinus } from "lucide-react";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import {
-    DialogType,
-    largeDailogScreen,
-    mediumDailogScreen,
+  DialogType,
+  largeDailogScreen,
+  mediumDailogScreen,
 } from "constants/dailogs";
 import { useState } from "react";
 import {
-    useActivateUserMutation,
-    useDeactivateUserMutation,
+  useActivateUserMutation,
+  useDeactivateUserMutation,
 } from "services/auth/user";
 import { toast } from "sonner";
 import { Badge } from "components/ui/badge";
 import { IUser } from "definations/auth/user";
 
 const TableAction = ({
-    id,
-    first_name,
-    last_name,
-    mobile_number,
-    designation,
-    gender,
-    email,
-    is_active,
-    roles,
-    position,
-    department,
+  id,
+  first_name,
+  last_name,
+  mobile_number,
+  designation,
+  gender,
+  email,
+  is_active,
+  roles,
+  position,
+  department,
 }: IUser) => {
-    const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
 
-    const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-    const [activateUser, { isLoading: isActivateLoading }] =
-        useActivateUserMutation();
+  const [activateUser, { isLoading: isActivateLoading }] =
+    useActivateUserMutation();
 
-    const [deactivateUser, { isLoading: isDeactivateLoading }] =
-        useDeactivateUserMutation();
+  const [deactivateUser, { isLoading: isDeactivateLoading }] =
+    useDeactivateUserMutation();
 
-    const handleEdit = (id: string) => {
-        dispatch(
-            openDialog({
-                type: DialogType.EditUser,
-                dialogProps: {
-                    ...mediumDailogScreen,
-                    header: "Edit User",
-                    data: {
-                        id,
-                        first_name,
-                        last_name,
-                        mobile_number,
-                        designation,
-                        gender,
-                        email,
-                        position,
-                        department,
-                    },
-                },
-            })
-        );
-    };
-
-    const handleUpdate = (id: string) => {
-        dispatch(
-            openDialog({
-                type: DialogType.AssingRoleToUser,
-                dialogProps: {
-                    ...largeDailogScreen,
-                    id,
-                    roles: roles as unknown as string,
-                },
-            })
-        );
-    };
-
-    const handleToggleStatus = async () => {
-        try {
-            if (is_active) {
-                await deactivateUser(id).unwrap();
-                toast.success("User Deactivated");
-            } else {
-                await activateUser(id).unwrap();
-                toast.success("User Activated");
-            }
-        } catch (error: any) {
-            toast.error(error.data.message);
-        } finally {
-            setDialogOpen(false);
-        }
-    };
-    return (
-        <>
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="w-8 h-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="w-4 h-4" />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                        className="cursor-pointer "
-                        onClick={() => handleEdit(id)}
-                    >
-                        <Edit className="w-4 h-4 mr-2" />
-                        <span>Edit User</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                        className="cursor-pointer "
-                        onClick={() => handleUpdate(id)}
-                    >
-                        <RefreshCw className="w-4 h-4 mr-2" />
-                        <span>Update Role</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                        className="cursor-pointer"
-                        onClick={() => setDialogOpen(true)}
-                    >
-                        <UserMinus className="w-4 h-4 mr-2" />
-                        <span>
-                            {is_active ? "Deactivate User" : "Activate User"}
-                        </span>
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-
-            <AlertDialog open={dialogOpen}>
-                <AlertDialogTrigger asChild></AlertDialogTrigger>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>
-                            Are you certain you want to perform this action?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                            This action is irreversible, but you will have the
-                            option to reactivate/deactivate them later.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel onClick={() => setDialogOpen(false)}>
-                            Cancel
-                        </AlertDialogCancel>
-                        <AlertDialogAction onClick={handleToggleStatus}>
-                            Continue
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
-        </>
+  const handleEdit = (id: string) => {
+    dispatch(
+      openDialog({
+        type: DialogType.EditUser,
+        dialogProps: {
+          ...mediumDailogScreen,
+          header: "Edit User",
+          data: {
+            id,
+            first_name,
+            last_name,
+            mobile_number,
+            designation,
+            gender,
+            email,
+            position,
+            department,
+          },
+        },
+      })
     );
+  };
+
+  const handleUpdate = (id: string) => {
+    dispatch(
+      openDialog({
+        type: DialogType.AssingRoleToUser,
+        dialogProps: {
+          ...largeDailogScreen,
+          id,
+          roles: roles as unknown as string,
+        },
+      })
+    );
+  };
+
+  const handleToggleStatus = async () => {
+    try {
+      if (is_active) {
+        await deactivateUser(id).unwrap();
+        toast.success("User Deactivated");
+      } else {
+        await activateUser(id).unwrap();
+        toast.success("User Activated");
+      }
+    } catch (error: any) {
+      toast.error(error.data.message);
+    } finally {
+      setDialogOpen(false);
+    }
+  };
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant='ghost' className='w-8 h-8 p-0'>
+            <span className='sr-only'>Open menu</span>
+            <MoreHorizontal className='w-4 h-4' />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align='end'>
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            className='cursor-pointer '
+            onClick={() => handleEdit(id)}
+          >
+            <Edit className='w-4 h-4 mr-2' />
+            <span>Edit User</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className='cursor-pointer '
+            onClick={() => handleUpdate(id)}
+          >
+            <RefreshCw className='w-4 h-4 mr-2' />
+            <span>Update Role</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className='cursor-pointer'
+            onClick={() => setDialogOpen(true)}
+          >
+            <UserMinus className='w-4 h-4 mr-2' />
+            <span>{is_active ? "Deactivate User" : "Activate User"}</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <AlertDialog open={dialogOpen}>
+        <AlertDialogTrigger asChild></AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Are you certain you want to perform this action?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              This action is irreversible, but you will have the option to
+              reactivate/deactivate them later.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDialogOpen(false)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleToggleStatus}>
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
 };
 
 export const userColumns: ColumnDef<IUser>[] = [
-    {
-        header: "Full Name",
-        id: "full_name",
-        accessorFn: ({ first_name, last_name }) => `${first_name} ${last_name}`,
-    },
+  {
+    header: "Full Name",
+    id: "full_name",
+    accessorFn: ({ first_name, last_name }) => `${first_name} ${last_name}`,
+  },
 
-    {
-        header: "Email",
-        id: "email",
-        accessorKey: "email",
-    },
+  {
+    header: "Email",
+    id: "email",
+    accessorKey: "email",
+  },
 
-    {
-        header: "Phone Number",
-        id: "mobile_number",
-        accessorKey: "mobile_number",
-    },
+  {
+    header: "Phone Number",
+    id: "mobile_number",
+    accessorKey: "mobile_number",
+  },
 
-    {
-        header: "Gender",
-        id: "gender",
-        accessorKey: "gender",
-    },
+  {
+    header: "Gender",
+    id: "gender",
+    accessorKey: "gender",
+  },
+  {
+    header: "Location",
+    id: "location",
+    accessorKey: "location",
+  },
 
-    {
-        header: "Department",
-        id: "department",
-        accessorKey: "department",
-    },
+  {
+    header: "Department",
+    id: "department",
+    accessorKey: "department",
+  },
 
-    {
-        header: "Position",
-        id: "position",
-        accessorKey: "position",
-    },
+  {
+    header: "Position",
+    id: "position",
+    accessorKey: "position",
+  },
 
-    {
-        header: "Roles",
-        id: "roles",
-        accessorFn: ({ roles }) => roles.join(", "),
-    },
+  {
+    header: "Roles",
+    id: "roles",
+    accessorFn: ({ roles }) => roles.join(", "),
+  },
 
-    {
-        header: "Status",
-        id: "is_active",
-        cell: ({
-            row: {
-                original: { is_active },
-            },
-        }) => {
-            const className = is_active ? "bg-green-500" : "bg-red-500";
-            const label = is_active ? "Activated" : "Deactivated";
+  {
+    header: "Status",
+    id: "is_active",
+    cell: ({
+      row: {
+        original: { is_active },
+      },
+    }) => {
+      const className = is_active ? "bg-green-500" : "bg-red-500";
+      const label = is_active ? "Activated" : "Deactivated";
 
-            return <Badge className={className}>{label}</Badge>;
-        },
+      return <Badge className={className}>{label}</Badge>;
     },
+  },
 
-    {
-        header: "",
-        id: "action",
-        cell: ({ row }) => <TableAction {...row.original} />,
-    },
+  {
+    header: "",
+    id: "action",
+    cell: ({ row }) => <TableAction {...row.original} />,
+  },
 ];
