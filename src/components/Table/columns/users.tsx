@@ -203,6 +203,17 @@ export const userColumns: ColumnDef<IUser>[] = [
     id: "location",
     accessorKey: "location",
   },
+  {
+    header: "State",
+    id: "state",
+    accessorKey: "state",
+  },
+
+  {
+    header: "Address",
+    id: "address",
+    accessorKey: "address",
+  },
 
   {
     header: "Department",
