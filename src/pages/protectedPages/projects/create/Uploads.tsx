@@ -160,7 +160,7 @@ export default function ProjectUploads() {
                             onChange={(page: number) => setPage(page)}
                         />
                     </Card>
-                    <div className="flex justify-between gap-5 mt-10">
+                    <div className="flex items-center justify-end gap-5 mt-5">
                         <Link
                             to={{
                                 pathname: RouteEnum.PROJECTS_CREATE_SUMMARY,
@@ -169,12 +169,16 @@ export default function ProjectUploads() {
                         >
                             <Button
                                 type="button"
+                                size="lg"
                                 className="bg-[#FFF2F2] text-primary dark:text-gray-500"
                             >
                                 Previous
                             </Button>
                         </Link>
-                        <Button onClick={() => navigate(RouteEnum.PROJECTS)}>
+                        <Button
+                            onClick={() => navigate(RouteEnum.PROJECTS)}
+                            size="lg"
+                        >
                             Finish
                         </Button>
                     </div>

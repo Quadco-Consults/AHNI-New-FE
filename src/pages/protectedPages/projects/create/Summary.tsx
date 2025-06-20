@@ -73,16 +73,6 @@ export default function ProjectSummaryPage() {
         size: 2000000,
     });
 
-    // const { data: grants } = useGetAllGrantsQuery({
-    //     page: 1,
-    //     size: 2000000,
-    // });
-
-    // const grantOptions = grants?.data?.results?.map(({ name, id }) => ({
-    //     label: name,
-    //     value: id,
-    // }));
-
     const query = useQuery();
 
     const projectId = query.get("id");
@@ -586,7 +576,7 @@ export default function ProjectSummaryPage() {
                                 <ConsortiumPartners />
                             </Card>
 
-                            <div className="flex justify-end gap-5 mt-16">
+                            <div className="flex items-center justify-end gap-5 mt-5">
                                 <Button
                                     onClick={() => navigate(-1)}
                                     type="button"

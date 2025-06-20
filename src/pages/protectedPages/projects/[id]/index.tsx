@@ -19,23 +19,21 @@ import { useGetSingleProjectQuery } from "services/project";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import Performance from "./Performance";
 import Activity from "./Activity";
-
 import ObligationHistory from "pages/protectedPages/c&g/grant/_components/ObligationHistory";
 import { useGetSingleGrantQuery } from "services/c&g/grant/grant";
 
-const ProjectDetail = () => {
+export default function ProjectDetail() {
     const navigate = useNavigate();
     const { id } = useParams();
 
     localStorage.setItem("projectDetailID", id as string);
 
     const { data: project, isLoading } = useGetSingleProjectQuery(
-        id ?? skipToken
+        id ? id : skipToken
     );
 
-    const { data } = useGetSingleGrantQuery(
-        project?.data?.grant.grant_id ?? skipToken
-    );
+    // const { data } = useGetSingleGrantQuery(2);
+    // project?.data?.grant.grant_id ?? skipToken
 
     const goBack = () => {
         navigate(-1);
@@ -96,12 +94,12 @@ const ProjectDetail = () => {
 
                         <TabsContent value="obligation">
                             <Card>
-                                {data && (
+                                {/* {data && (
                                     <ObligationHistory
                                         grandID={project?.data?.grant.grant_id}
                                         {...data?.data}
                                     />
-                                )}
+                                )} */}
                             </Card>
                         </TabsContent>
 
@@ -123,6 +121,4 @@ const ProjectDetail = () => {
             </Tabs>
         </div>
     );
-};
-
-export default ProjectDetail;
+}
