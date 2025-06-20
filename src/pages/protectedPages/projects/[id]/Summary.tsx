@@ -17,7 +17,6 @@ export default function ProjectSummary(props: IProjectSingleData) {
         partners,
         currency,
         location,
-        grant: { name: grantName = "", grant_id = "" },
     } = props;
 
     return (
@@ -40,12 +39,12 @@ export default function ProjectSummary(props: IProjectSingleData) {
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <div className="space-y-1">
                     <h3 className="font-semibold">Grant Name</h3>
-                    <p className="text-sm text-gray-500">{grantName}</p>
+                    <p className="text-sm text-gray-500">N/A</p>
                 </div>
 
                 <div className="space-y-1">
                     <h3 className="font-semibold">Grant ID</h3>
-                    <p className="text-sm text-gray-500">{grant_id}</p>
+                    <p className="text-sm text-gray-500">N/A</p>
                 </div>
             </div>
 
