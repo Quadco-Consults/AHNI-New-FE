@@ -79,13 +79,13 @@ const EmployeeInformation = () => {
 
             <TabsContent value='basic_information'>
               <Card className='px-6'>
-                <BasicInformation info={undefined} />
+                {/* <BasicInformation info={undefined} /> */}
               </Card>
             </TabsContent>
 
             <TabsContent value='qualification'>
               <Card className='px-6'>
-                <Qualification data={undefined} />
+                {/* <Qualification data={undefined} /> */}
               </Card>
             </TabsContent>
           </Tabs>

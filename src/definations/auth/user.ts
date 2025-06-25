@@ -62,4 +62,5 @@ export interface IUser {
   position: string;
   actions: string;
   is_active: boolean;
+  profile_picture: string;
 }
