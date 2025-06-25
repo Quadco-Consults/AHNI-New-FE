@@ -4,8 +4,10 @@ export const ProfileSchema = z.object({
   first_name: z.string().min(1, "Please enter first name"),
   last_name: z.string().min(1, "Please enter last name"),
   email: z.string().min(1, "Please enter email"),
-  username: z.string().min(1, "Please enter username"),
-  role: z.string().min(1, "Select Role"),
+  username: z.string().optional(),
+  // username: z.string().min(1, "Please enter username").optional(),
+  // role: z.string().min(1, "Select Role"),
+  role: z.array(z.string().min(1)).min(1, "Select at least one role"), // Now expects an array of strings
   gender: z.string().min(1, "Select gender"),
   profile_picture: z.string().optional(),
 });

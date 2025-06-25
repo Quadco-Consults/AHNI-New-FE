@@ -181,7 +181,7 @@ const BasicInformation = ({ info }: { info: any }) => {
 
   React.useEffect(() => {
     // console.log(form.getValues());
-    if (info.data) {
+    if (info?.data) {
       console.log("-->", info);
       const { data } = info;
 
@@ -221,7 +221,7 @@ const BasicInformation = ({ info }: { info: any }) => {
   }, [info]);
 
   React.useEffect(() => {
-    if (info.data) {
+    if (info?.data) {
       const { data } = info;
       // console.log(">>>>", departments, locations, projects, positions);
 

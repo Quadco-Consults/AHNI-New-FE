@@ -5,7 +5,7 @@ import { Button } from "components/ui/button";
 import { Progress } from "components/ui/progress";
 import PriceIntelligenceAPI from "services/procurementApi/price-intelligence";
 import { ScrollArea } from "components/ui/scroll-area";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   AreaChart,
   Area,
@@ -40,13 +40,10 @@ const RatingCircle = ({ showInner }: any) => {
 const PriceIntelligence = () => {
   const [open, setOpen] = useState(false);
   const [priceId, setPriceId] = useState("");
-  const [selectedSources, setSelectedSources] = useState<string[]>();
-
   const onOpenDialog = (id: string) => {
     setOpen(!open);
     setPriceId(id);
   };
-
   const { data, isLoading } =
     PriceIntelligenceAPI.useGetPriceIntelligencesQuery({});
   const { data: priceDetails, isLoading: priceDetailsIsLoading } =
@@ -163,10 +160,7 @@ const PriceIntelligence = () => {
                       </div> */}
                     </div>
                     <PriceTrendChart
-                      // {...(priceDetails as PriceIntelligenceDetail)}
-                      selectedSources={selectedSources}
-                      setSelectedSources={setSelectedSources}
-                      data={priceDetails?.data?.source_prices}
+                      {...(priceDetails as PriceIntelligenceDetail)}
                     />
                     <div className='space-y-2'>
                       <h3 className='font-bold text-yellow-500'>
@@ -192,7 +186,7 @@ const PriceIntelligence = () => {
                           </thead>
                           <tbody>
                             {priceDetails?.data?.source_prices[
-                              selectedSources
+                              "Market Survey"
                             ]?.map((history, index) => (
                               <tr key={index} className='w-full border'>
                                 <td className='w-fit p-2 text-center '>
@@ -201,8 +195,7 @@ const PriceIntelligence = () => {
                                   </span>
                                 </td>
                                 <td className='w-fit p-2 text-center'>
-                                  {/* {history?.source} */}
-                                  {selectedSources}
+                                  {history?.source}
                                 </td>
                                 <td className='w-fit p-2 text-center'>
                                   ₦{history?.price?.toLocaleString()}
@@ -253,12 +246,9 @@ const CustomTooltip = ({
 };
 
 // Chart component
-// const PriceTrendChart = (data: PriceIntelligenceDetail) => {
-const PriceTrendChart = ({ data, selectedSources, setSelectedSources }) => {
-  console.log({ crackedData: data });
-
+const PriceTrendChart = (data: PriceIntelligenceDetail) => {
   // Extract price history from all sources
-  const priceEntries = Object.entries(data || {}).flatMap(
+  const priceEntries = Object.entries(data?.data?.source_prices || {}).flatMap(
     ([source, prices]: [string, any[]]) =>
       prices.map((entry) => ({
         source,
@@ -266,28 +256,18 @@ const PriceTrendChart = ({ data, selectedSources, setSelectedSources }) => {
         date: format(parseISO(entry?.created_datetime), "dd MMM, yy"), // Format date
       }))
   );
-  console.log({ priceEntries });
-
-  // useEffect(() => {
-  //   setSelectedSources(priceEntries);
-  // }, [priceEntries]);
-  console.log({ selectedSources });
 
   // Extract unique sources
   const allSources = Array.from(new Set(priceEntries.map((d) => d.source)));
 
-  // useEffect(() => {
-  //   setSelectedSources(allSources);
-  // }, [allSources]);
-
   // State to track selected sources
-  // const [selectedSources, setSelectedSources] = useState<string[]>(allSources);
+  const [selectedSources, setSelectedSources] = useState<string[]>(allSources);
 
   // Filter data based on selected sources
   const filteredData = priceEntries
-    ?.filter((d) => selectedSources?.includes(d?.source))
-    ?.map(({ price, date }) => ({ price, date })) // Keep only price and date
-    ?.sort((a, b) => new Date(a.date) - new Date(b.date));
+    .filter((d) => selectedSources.includes(d.source))
+    .map(({ price, date }) => ({ price, date })) // Keep only price and date
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
 
   return (
     <div className='p-4'>
@@ -296,7 +276,7 @@ const PriceTrendChart = ({ data, selectedSources, setSelectedSources }) => {
           <label key={source} className='flex items-center space-x-2'>
             <input
               type='checkbox'
-              checked={selectedSources?.includes(source)}
+              checked={selectedSources.includes(source)}
               onChange={() => {
                 setSelectedSources([source]);
               }}
