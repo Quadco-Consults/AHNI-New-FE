@@ -124,11 +124,13 @@ export const jobApplicationSchema = z.object({
   referees: z
     .array(
       z.object({
-        name: z.string().min(3, "Name must be at least 3 characters"),
-        email: z.string().email("Invalid email"),
+        // name: z.string().min(3, "Name must be at least 3 characters"),
+        name: z.string().optional(),
+        email: z.string().email("Invalid email").optional(),
       })
     )
-    .min(1, "At least one referee is required"),
+    .optional(),
+  // .min(1, "At least one referee is required"),
   resume: z.any().optional(), // File will be converted to Base64
   status: z.enum(["applied", "interviewed", "hired", "rejected"]),
 });

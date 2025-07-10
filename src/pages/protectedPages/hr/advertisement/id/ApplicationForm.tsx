@@ -38,11 +38,14 @@ const ApplicationForm = () => {
       advertisement: id,
       interview_date: "",
       position_applied: "",
-      referees: [{ name: "", email: "" }],
+      referees: [{ name: "Kelu", email: "grjshs@gmail.com" }], // we need to sort the refferee requirements
       resume: null,
       status: "applied",
     },
   });
+
+  const tramp = form.getValues();
+  console.log({ tramp });
 
   // Update form values when advertisement details load
   useEffect(() => {
@@ -65,6 +68,8 @@ const ApplicationForm = () => {
   const { handleSubmit } = form;
 
   const onSubmit: SubmitHandler<TFormValues> = async (data: any) => {
+    console.log({ data, cram: "rengoku" });
+
     try {
       const fileToBase64 = async (
         file: File | FileList | string

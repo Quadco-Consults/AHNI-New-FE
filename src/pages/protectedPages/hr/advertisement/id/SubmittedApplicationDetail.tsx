@@ -9,6 +9,7 @@ import { Button } from "components/ui/button";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   useGetJobApplicationQuery,
+  usePatchJobApplicationPreferredMutation,
   usePatchJobApplicationShortlistedMutation,
 } from "services/hrApi/hr-job-applications";
 import { toast } from "sonner";
@@ -24,11 +25,10 @@ const SubmittedApplicationDetail = () => {
   const [patchJobApplicationShortlisted, { isLoading: isUpdating }] =
     usePatchJobApplicationShortlistedMutation();
 
-  const handleShortlist = async () => {
-    // console.log({ data: data?.data?.status });
+  const [patchJobApplicationPreferred, { isLoading: isReUpdating }] =
+    usePatchJobApplicationPreferredMutation();
 
-    // @ts-ignore
-    // if (data?.data?.status !== "APPLIED") {
+  const handleShortlist = async () => {
     try {
       await patchJobApplicationShortlisted({
         id: params?.appID as string,
@@ -42,9 +42,21 @@ const SubmittedApplicationDetail = () => {
       toast.error("Failed to update status");
       console.error(error);
     }
-    // } else {
-    //   toast.error("Applicant needs to be interviewed first");
-    // }
+  };
+
+  const handlePreferred = async () => {
+    try {
+      await patchJobApplicationPreferred({
+        id: params?.appID as string,
+        body: {
+          status: "PREFERRED",
+        },
+      }).unwrap();
+      toast.success("Applicant preferred successfully");
+      navigate(-1);
+    } catch (error) {
+      toast.error("Failed to update status");
+    }
   };
 
   if (isLoading) {
@@ -73,9 +85,18 @@ const SubmittedApplicationDetail = () => {
     <div className='space-y-4'>
       <div className='flex justify-between items-center'>
         <GoBack />
-        <Button onClick={handleShortlist} disabled={isUpdating}>
-          <UserIcon /> {isUpdating ? "Shortlisting..." : "Shortlist Applicant"}
-        </Button>
+        {applicationData?.status === "APPLIED" && (
+          <Button onClick={handleShortlist} disabled={isUpdating}>
+            <UserIcon />{" "}
+            {isUpdating ? "Shortlisting..." : "Shortlist Applicant"}
+          </Button>
+        )}
+        {applicationData?.status === "ACCEPTED" && (
+          <Button onClick={handlePreferred} disabled={isReUpdating}>
+            <UserIcon />{" "}
+            {isUpdating ? "Marking as Preferred..." : "Mark as Preferred"}
+          </Button>
+        )}
       </div>
 
       <Card className='space-y-8'>
