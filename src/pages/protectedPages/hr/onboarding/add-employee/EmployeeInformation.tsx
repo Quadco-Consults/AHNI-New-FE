@@ -4,7 +4,7 @@ import BasicInformation from "./BasicInformation";
 import Qualification from "./Qualification";
 import { Button } from "components/ui/button";
 import { ChevronRight } from "lucide-react";
-import { useNavigate, useParams, generatePath, Link } from "react-router-dom";
+import { useParams, generatePath, Link } from "react-router-dom";
 import { HrRoutes } from "constants/RouterConstants";
 import GoBack from "components/shared/GoBack";
 import { useGetEmployeeOnboardingQuery } from "services/hrApi/hr-employee-onboarding";
@@ -12,7 +12,7 @@ import { useGetEmployeeOnboardingQualificationsListQuery } from "services/hrApi/
 
 const EmployeeInformation = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const { data, isLoading } = useGetEmployeeOnboardingQuery({
     id: id as string,
@@ -77,17 +77,9 @@ const EmployeeInformation = () => {
               <TabsTrigger value='qualification'>Qualification</TabsTrigger>
             </TabsList>
 
-            <TabsContent value='basic_information'>
-              <Card className='px-6'>
-                <BasicInformation info={undefined} />
-              </Card>
-            </TabsContent>
+            <TabsContent value='basic_information'></TabsContent>
 
-            <TabsContent value='qualification'>
-              <Card className='px-6'>
-                <Qualification data={undefined} />
-              </Card>
-            </TabsContent>
+            <TabsContent value='qualification'></TabsContent>
           </Tabs>
         )}
 

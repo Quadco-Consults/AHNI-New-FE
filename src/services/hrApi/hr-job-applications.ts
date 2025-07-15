@@ -87,7 +87,7 @@ const JobApplicationAPI = baseAPI.injectEndpoints({
       { id: string; body: Partial<JobApplication> }
     >({
       query: ({ id, body }) => ({
-        url: `hr/jobs/applications/${id}/mark-as-preferred/`,
+        url: `hr/jobs/applications/${id}/preferred/`,
         method: "PATCH",
         body,
       }),

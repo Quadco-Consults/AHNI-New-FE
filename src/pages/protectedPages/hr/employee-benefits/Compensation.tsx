@@ -80,7 +80,7 @@ const Compensation: React.FC = () => {
     },
     {
       header: "Grade",
-      accessorKey: "grade",
+      accessorKey: "grade.name",
       size: 200,
     },
     {
@@ -98,7 +98,6 @@ const Compensation: React.FC = () => {
   ];
 
   const ActionListAction = ({ data }: any) => {
-    console.log(data);
     return (
       <div className='flex gap-2'>
         <Link

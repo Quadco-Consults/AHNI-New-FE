@@ -29,6 +29,7 @@ import {
   useUpdateUserMutation,
 } from "services/auth/user";
 import { toast } from "sonner";
+import FormSelect from "atoms/FormSelect";
 
 export type TFormValues = z.infer<typeof ProfileSchema>;
 export type TFormValuesSecond = z.infer<typeof SecuritySchema>;
@@ -38,7 +39,6 @@ export default function Account() {
   const { data: profile } = useGetUserProfileQuery(null);
 
   const [updateUser, { isLoading: isUpdateLoading }] = useUpdateUserMutation();
-  // console.log({ profile });
 
   const Profileform = useForm<TFormValues>({
     resolver: zodResolver(ProfileSchema),
@@ -47,7 +47,7 @@ export default function Account() {
       last_name: "",
       email: "",
       username: "",
-      role: "",
+      role: [],
       gender: "",
       profile_picture: "",
     },
@@ -73,14 +73,12 @@ export default function Account() {
         // @ts-ignore
         username: profile.data.username || "",
         // @ts-ignore
-        role: profile.data.role || "",
+        role: profile.data.roles || [],
         gender: profile.data.gender || "",
+        profile_picture: profile.data.profile_picture || "",
       });
     }
   }, [profile, Profileform]);
-
-  const vn = Profileform.getValues();
-  console.log({ vn });
 
   const handlePaperclipClick = () => {
     if (fileInputRef.current) {
@@ -92,16 +90,28 @@ export default function Account() {
       setFile(e.target.files[0]);
     }
   };
-  // console.log({ file  });
 
   const onSubmitProfile = async (data: TFormValues) => {
     // Dispatch update profile action or API call
-    console.log("Profile Data Submitted:", data);
 
     try {
+      const formData = new FormData();
+
+      formData.append("first_name", data.first_name);
+      formData.append("last_name", data.last_name);
+      formData.append("email", data.email);
+      // formData.append("username", data.username);
+      formData.append("gender", data.gender);
+      data.role.forEach((role) => formData.append("role", role));
+
+      if (file) {
+        formData.append("profile_picture", file);
+      }
+
       await updateUser({
         id: profile?.data?.id as string,
-        body: data,
+        // body: data,
+        body: formData,
       }).unwrap();
       toast.success("User Updated");
     } catch (error: any) {
@@ -128,7 +138,7 @@ export default function Account() {
         <h2 className='text-[28px] font-semibold text-[#101928]'>Settings</h2>
         <div className='w-full grid grid-cols-1 lg:grid-cols-4 py-16 lg:py-36 gap-3'>
           <div className='col-span-1 py-20   px-2 flex flex-col items-center gap-3'>
-            <div
+            {/* <div
               className='w-[200px] h-[200px] flex-shrink-0 rounded-full bg-[#FF0000]'
               style={{
                 backgroundImage: file
@@ -137,7 +147,20 @@ export default function Account() {
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }}
+            /> */}
+            <div
+              className='w-[200px] h-[200px] flex-shrink-0 rounded-full bg-[#FF0000]'
+              style={{
+                backgroundImage: file
+                  ? `url(${URL.createObjectURL(file)})`
+                  : profile?.data?.profile_picture
+                  ? `url(${profile?.data?.profile_picture})`
+                  : "none",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
             />
+
             <div
               onClick={handlePaperclipClick}
               className='rounded-[8px] cursor-pointer border-[1.5px] w-fit p-2 flex justify-center items-center gap-1 border-[#FF0000] text-[#FF0000] text-[14px] font-semibold'
@@ -216,7 +239,16 @@ export default function Account() {
                       // disabled
                       placeholder='Role'
                     />
-
+                    <FormSelect
+                      label='Gender'
+                      placeholder='Select Gender'
+                      name='gender'
+                      required
+                      options={[
+                        { label: "Male", value: "MALE" },
+                        { label: "Female", value: "FEMALE" },
+                      ]}
+                    />
                     <div className='flex justify-end gap-5 mt-16'>
                       <FormButton
                         loading={isUpdateLoading}
