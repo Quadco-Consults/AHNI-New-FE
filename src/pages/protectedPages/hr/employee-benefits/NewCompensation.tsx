@@ -4,27 +4,19 @@ import { useForm } from "react-hook-form";
 import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelectField";
 import { ChevronRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import FormButton from "atoms/FormButton";
 import { Button } from "components/ui/button";
-
-// import { VendorsRegistrationSchema } from "definations/procurement-validator";
-// import { z } from "zod";
-// import { zodResolver } from "@hookform/resolvers/zod";
-// import { vendorsActions } from "store/formData/procurement-vendors";
-// import { useDispatch } from "react-redux";
 import { SelectContent, SelectItem } from "components/ui/select";
-import { useEffect, useMemo, useState } from "react";
-import PayGroupModal from "./components/CompensationModal";
+import { useEffect, useMemo } from "react";
 import { useGetPayGroupsQuery } from "services/hrApi/hr-pay-groups";
 import { useCreateCompensationMutation } from "services/hrApi/hr-compensations";
 import { toast } from "sonner";
+import { Grade } from "definations/hr-types/pay-group";
 
 const NewCompensation = () => {
-  const { data: payGroupsData, isLoading: isLoadingPayGroups } =
-    useGetPayGroupsQuery();
-  const [createCompensation, { isLoading: isCreatingLoading }] =
-    useCreateCompensationMutation();
+  const { data: payGroupsData } = useGetPayGroupsQuery();
+  const [createCompensation] = useCreateCompensationMutation();
   // @ts-ignore
   const form = useForm({
     // resolver: zodResolver(VendorsRegistrationSchema),
@@ -40,29 +32,33 @@ const NewCompensation = () => {
     },
   });
 
-  const [isModalOpen, setModalOpen] = useState(false);
+  // const [isModalOpen, setModalOpen] = useState(false);
 
   //   const dispatch = useDispatch();
 
   const navigate = useNavigate();
 
-  //   const { pathname } = useLocation();
+  const { pathname } = useLocation();
 
-  const { handleSubmit, watch, resetField, setValue } = form;
+  const { handleSubmit, watch, setValue } = form;
   // Watch the selected value of amount_or_percentage
 
   const selectedPayGroup = watch("position"); // watch selected Position
 
-  const grade = useMemo(() => {
+  const grade: Grade = useMemo(() => {
     const selected = payGroupsData?.data?.results?.find(
       (group) => group?.position?.id === selectedPayGroup
     );
-    console.log({ selected, grade: selected?.grade });
 
     return selected?.grade || []; // Assuming grade is an array in the pay group
   }, [selectedPayGroup, payGroupsData]);
 
   const amountOrPercentage = watch("amount_or_percentage");
+
+  const positionOptions = payGroupsData?.data.results.map((payGroup) => ({
+    label: `Position: ${payGroup?.position?.name}, Grade: ${payGroup?.grade?.name} `,
+    value: payGroup?.id,
+  }));
 
   const onSubmit = async (data: any) => {
     const formData = {
@@ -71,32 +67,31 @@ const NewCompensation = () => {
       amount_or_percentage: data.amount_or_percentage,
       percentage: data.percentage,
       amount: data.amount,
-      position: data.position,
-      grade: data.grade,
+      pay_group: data.position,
+      grade: grade?.id,
       period: data.period,
     };
 
-    console.log({ data, formData });
     await createCompensation(formData).unwrap();
     toast.success("Compensation created successfully");
 
     // () => setModalOpen(true);
     // dispatch(vendorsActions.addVendors({ ...data }));
 
-    // let path = pathname;
+    let path = pathname;
 
-    // // Remove the last segment of the path
-    // path = path.substring(0, path.lastIndexOf("/"));
+    // Remove the last segment of the path
+    path = path.substring(0, path.lastIndexOf("/"));
 
-    // // Append the new segment to the path
+    // Append the new segment to the path
     // path += "/the-company";
-    // navigate(path);
+    navigate(path);
   };
 
   // Clear the grade field whenever the position changes
   useEffect(() => {
     if (grade) {
-      setValue("grade", grade.toLocaleString()); // if grade is a number, convert to string for SelectField
+      setValue("grade", grade?.name?.toLocaleString()); // if grade is a number, convert to string for SelectField
     }
   }, [grade, setValue]);
 
@@ -161,33 +156,43 @@ const NewCompensation = () => {
               )}
 
               <div className=''>
-                <h2 className='text-md font-semibold mb-10'>Pay Group</h2>
+                {/* <h2 className='text-md font-semibold mb-10'>Pay Group</h2> */}
                 <div className='grid grid-cols-2 col-span-3 gap-x-6  mb-4'>
-                  <FormSelect name='position' label='Position'>
+                  {/* <FormSelect name='position' label='Position'>
                     <SelectContent>
                       {payGroupsData?.data?.results?.map((payGroup) => (
                         <SelectItem
                           key={payGroup.id}
                           value={payGroup.position?.id}
                         >
-                          {payGroup?.position?.name}{" "}
+                          {payGroup?.position?.name} {grade?.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </FormSelect> */}
+                  <FormSelect
+                    label='Pay Group'
+                    placeholder='Select Position'
+                    name='position'
+                    required
+                    options={positionOptions}
+                  />
+                  <FormSelect name='period' label='Period'>
+                    <SelectContent>
+                      {[
+                        "Daily",
+                        "Weekly",
+                        "Monthly",
+                        "Annually",
+                        "One-Off",
+                      ].map((value: string, index: number) => (
+                        <SelectItem key={index} value={value}>
+                          {value}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </FormSelect>
-                  <FormInput name='grade' label='Grade' disabled />{" "}
                 </div>
-                <FormSelect name='period' label='Period'>
-                  <SelectContent>
-                    {["Daily", "Weekly", "Monthly", "Annually", "One-Off"].map(
-                      (value: string, index: number) => (
-                        <SelectItem key={index} value={value}>
-                          {value}
-                        </SelectItem>
-                      )
-                    )}
-                  </SelectContent>
-                </FormSelect>
               </div>
 
               <div className='flex justify-end gap-6 mt-16'>
