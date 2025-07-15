@@ -189,7 +189,7 @@ const tableColumns = (editCell: () => void): ColumnDef<any>[] => [
       },
       {
         header: "Implementation Location",
-        accessorKey: "implementer",
+        accessorKey: "implementation_location",
         size: 200,
         cell: (cell) => (
           <EditableCell
@@ -228,7 +228,7 @@ const tableColumns = (editCell: () => void): ColumnDef<any>[] => [
       },
       {
         header: "Budget Reference Number",
-        accessorKey: "budget_line",
+        accessorKey: "budget_ref_num",
         size: 120,
         cell: (cell) => (
           <EditableCell
@@ -244,6 +244,23 @@ const tableColumns = (editCell: () => void): ColumnDef<any>[] => [
         accessorKey: "approved_budget_amount_usd",
         accessorFn: (data) =>
           formatNumberCurrency(data.approved_budget_amount_usd, "USD"),
+
+        size: 200,
+        cell: (cell) => (
+          <EditableCell
+            value={cell.getValue()}
+            row={cell.row}
+            column={cell.column}
+            onEditCell={editCell}
+          />
+        ),
+      },
+
+      {
+        header: "Approved Budget (N)",
+        accessorKey: "approved_budget_amount_ngn",
+        accessorFn: (data) =>
+          formatNumberCurrency(data.approved_budget_amount_ngn, "NGN"),
 
         size: 200,
         cell: (cell) => (

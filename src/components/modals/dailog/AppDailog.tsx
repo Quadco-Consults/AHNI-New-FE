@@ -67,6 +67,7 @@ import FundRequestBreakdown from "./components/FundRequestBreakdownModal";
 import ChangeRiskStatusModal from "./components/ChangeRiskStatusModal";
 import ChangeProjectStatusModal from "./components/ChangeProjectStatusModal";
 import AddPosition from "pages/protectedPages/modules/config/AddPosition";
+import AddGrade from "pages/protectedPages/modules/config/AddGrade";
 import AddAssetClassification from "pages/protectedPages/modules/admin/AddAssetClassification";
 import ChangeWorkPlanStatusModal from "./ChangeWorkPlanTrackerStatusModal";
 import EditValue from "pages/protectedPages/modules/hr/EditValue";
@@ -171,6 +172,7 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.ChangeProjectStatusModal]: <ChangeProjectStatusModal />,
 
   [DialogType.AddPosition]: <AddPosition />,
+  [DialogType.AddGrade]: <AddGrade />,
   [DialogType.AddAssetClassification]: <AddAssetClassification />,
   [DialogType.ChangeWorkPlanStatusModal]: <ChangeWorkPlanStatusModal />,
   [DialogType.ChangeProcurementTrackerStatusModal]: (

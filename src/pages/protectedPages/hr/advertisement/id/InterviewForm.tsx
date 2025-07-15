@@ -16,7 +16,9 @@ import { Textarea } from "components/ui/textarea";
 import { formatDate } from "date-fns";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
-import InterviewAPI, { useCreateInterviewMutation } from "services/hrApi/hr-interview"; 
+import InterviewAPI, {
+  useCreateInterviewMutation,
+} from "services/hrApi/hr-interview";
 import { useGetJobApplicationQuery } from "services/hrApi/hr-job-applications";
 import { toast } from "sonner";
 
@@ -43,9 +45,9 @@ const InterviewForm = () => {
 
   const onSubmit = async (formData: any) => {
     const payload = {
-      candidate_name: data?.data?.applicant_name,
-      position_applied: data?.data?.position_applied,
-      date_of_interview: data?.data?.created_datetime.split("T")[0],
+      // candidate_name: data?.data?.applicant_name,
+      // position_applied: data?.data?.position_applied,
+      // date_of_interview: data?.data?.created_datetime.split("T")[0],
       appearance_rating: formData["rating-0"],
       appearance_comments: formData["comments-0"],
       oral_communication_rating: formData["rating-1"],
@@ -60,12 +62,13 @@ const InterviewForm = () => {
       knowledge_comments: formData["comments-5"],
       experience_rating: formData["rating-6"],
       experience_comments: formData["comments-6"],
-      preferred_candidate: formData.preference,
-      recommendation: formData.recommendations, 
+      is_preferred: formData.preference,
+      // preferred_candidate: formData.preference,
+      recommendation: formData.recommendations,
       application: params?.appID as string,
     };
     try {
-      // @ts-ignore 
+      // @ts-ignore
       await createInterview(payload).unwrap();
       toast.success(" Interview Submitted successfully");
       navigate(-1);
