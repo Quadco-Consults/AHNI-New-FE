@@ -55,7 +55,7 @@ const PayGroup: React.FC = () => {
     },
     {
       header: "Grade",
-      accessorKey: "grade",
+      accessorKey: "grade.name",
       size: 200,
     },
     {

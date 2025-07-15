@@ -1,7 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import FormButton from "atoms/FormButton";
-import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelectField";
 import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";
@@ -12,6 +11,7 @@ import Modal from "react-modal";
 import { useGetAllPositionsQuery } from "services/modules/config/position";
 import { useCreatePayGroupMutation } from "services/hrApi/hr-pay-groups";
 import { toast } from "sonner";
+import { useGetAllGradesQuery } from "services/modules/config/grade";
 
 type PropsType = {
   isOpen: boolean;
@@ -41,9 +41,19 @@ const PayGroupModal = (props: PropsType) => {
     size: 2000000,
   });
 
+  const { data: grades } = useGetAllGradesQuery({
+    page: 1,
+    size: 2000000,
+  });
+
   const [createPayGroup, { isLoading: isCreatingLoading }] =
     useCreatePayGroupMutation();
   const positionOptions = position?.data.results.map(({ name, id }) => ({
+    label: name,
+    value: id,
+  }));
+
+  const gradeOptions = grades?.data.results.map(({ name, id }) => ({
     label: name,
     value: id,
   }));
@@ -60,6 +70,7 @@ const PayGroupModal = (props: PropsType) => {
   const onSubmit = async (data: any) => {
     await createPayGroup(data).unwrap();
     toast.success("Pay Group created successfully");
+    props.onCancel();
   };
 
   return (
@@ -83,12 +94,13 @@ const PayGroupModal = (props: PropsType) => {
                 placeholder='Select Position'
                 options={positionOptions}
               />
-              <FormInput
+
+              <FormSelect
                 label='Grade'
                 name='grade'
                 required
-                type='number'
-                className='w-full'
+                placeholder='Select Position'
+                options={gradeOptions}
               />
             </div>
 

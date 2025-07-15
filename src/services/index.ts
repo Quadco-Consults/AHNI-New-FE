@@ -124,6 +124,7 @@ const baseAPI = createApi({
     "ENGAGEMENT_PLAN",
     "PROJECTS",
     "ASSET_CLASSIFICATION",
+    "GRADE",
     "PROJECT_DOCUMENT",
     "ITEM_REQUISITION",
     "ASSET",
