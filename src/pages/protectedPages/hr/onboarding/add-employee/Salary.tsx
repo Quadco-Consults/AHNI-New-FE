@@ -3,7 +3,7 @@ import { Separator } from "components/ui/separator";
 import FormInput from "atoms/FormInput";
 import { Form } from "components/ui/form";
 import { useForm } from "react-hook-form";
-import { useNavigate, useParams, generatePath, Link } from "react-router-dom";
+import { generatePath, Link } from "react-router-dom";
 import { Button } from "components/ui/button";
 import { ChevronRight, Save } from "lucide-react";
 import { useAppDispatch } from "hooks/useStore";
@@ -27,8 +27,8 @@ import {
 import GoBack from "components/shared/GoBack";
 
 const Salary = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const id = localStorage.getItem("workforceID") || "";
+
   const dispatch = useAppDispatch();
 
   const [createEmployeeOnboardingBankAcct, { isLoading }] =
@@ -60,6 +60,7 @@ const Salary = () => {
       // console.log(data);
       try {
         await updateEmployeeOnboardingBankAcct({
+          // @ts-ignore
           id: bankData.data.results[0].id,
           body: data,
         }).unwrap();

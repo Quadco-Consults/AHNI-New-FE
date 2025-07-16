@@ -12,6 +12,7 @@ import { useGetAllPositionsQuery } from "services/modules/config/position";
 import { useCreatePayGroupMutation } from "services/hrApi/hr-pay-groups";
 import { toast } from "sonner";
 import { useGetAllGradesQuery } from "services/modules/config/grade";
+import { useGetAllLevelsQuery } from "services/modules/config/level";
 
 type PropsType = {
   isOpen: boolean;
@@ -32,11 +33,18 @@ const customStyles = {
 
 const FormSchema = z.object({
   position: z.string().min(1, "Please selec a Position"),
-  grade: z.string().min(1, "Please add a group"),
+  grade: z.string().min(1, "Please add a Group"),
+
+  level: z.string().min(1, "Please add a Level"),
 });
 
 const PayGroupModal = (props: PropsType) => {
   const { data: position } = useGetAllPositionsQuery({
+    page: 1,
+    size: 2000000,
+  });
+
+  const { data: levels } = useGetAllLevelsQuery({
     page: 1,
     size: 2000000,
   });
@@ -48,7 +56,13 @@ const PayGroupModal = (props: PropsType) => {
 
   const [createPayGroup, { isLoading: isCreatingLoading }] =
     useCreatePayGroupMutation();
+
   const positionOptions = position?.data.results.map(({ name, id }) => ({
+    label: name,
+    value: id,
+  }));
+
+  const levelOptions = levels?.data.results.map(({ name, id }) => ({
     label: name,
     value: id,
   }));
@@ -62,6 +76,7 @@ const PayGroupModal = (props: PropsType) => {
     defaultValues: {
       position: "1",
       grade: "1",
+      level: "",
     },
   });
 
@@ -101,6 +116,14 @@ const PayGroupModal = (props: PropsType) => {
                 required
                 placeholder='Select Position'
                 options={gradeOptions}
+              />
+
+              <FormSelect
+                label='Level'
+                name='level'
+                required
+                placeholder='Select level'
+                options={levelOptions}
               />
             </div>
 

@@ -3,8 +3,6 @@ import { VendorsResultsData } from "definations/procurement-types/vendors";
 import { cn } from "lib/utils";
 
 const Overview = (data: VendorsResultsData) => {
-  console.log({ data });
-
   return (
     <div className='bg-white border shadow-sm rounded-2xl dark:bg-[hsl(15,13%,6%)]'>
       <div className='p-5 flex justify-between items-center'>

@@ -29,9 +29,10 @@ const Qualification = ({
 }: {
   qualifications?: EmployeeOnboardingQualifications[];
 }) => {
-  const { id } = useParams();
+  // const { id } = useParams();
   const dispatch = useAppDispatch();
   const [file, setFile] = React.useState<any>({});
+  const id = localStorage.getItem("workforceID") || "";
 
   const [createEmployeeOnboardingQualifications, { isLoading: createLoading }] =
     useCreateEmployeeOnboardingQualificationsMutation();
@@ -160,6 +161,7 @@ const Qualification = ({
             loading={createLoading || updateLoading}
             disabled={createLoading || updateLoading}
             variant='outline'
+            type='submit'
           >
             <Save size={20} /> Save
           </FormButton>

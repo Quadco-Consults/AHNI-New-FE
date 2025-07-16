@@ -14,7 +14,8 @@ import { useGetEmployeeIdentityCardQuery } from "services/hrApi/hr-employee-onbo
 import moment from "moment";
 
 const IdCardInformation = () => {
-  const { id } = useParams();
+  const id = localStorage.getItem("workforceID") || "";
+
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 

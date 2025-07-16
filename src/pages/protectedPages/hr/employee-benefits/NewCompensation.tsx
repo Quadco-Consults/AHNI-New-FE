@@ -55,8 +55,10 @@ const NewCompensation = () => {
 
   const amountOrPercentage = watch("amount_or_percentage");
 
+  console.log({ payGroupsData });
+
   const positionOptions = payGroupsData?.data.results.map((payGroup) => ({
-    label: `Position: ${payGroup?.position?.name}, Grade: ${payGroup?.grade?.name} `,
+    label: `Position: ${payGroup?.position?.name}, Grade: ${payGroup?.grade?.name},  Level: ${payGroup?.level?.name}`,
     value: payGroup?.id,
   }));
 

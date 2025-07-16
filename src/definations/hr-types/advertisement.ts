@@ -7,6 +7,9 @@ export type AdvertisementResults = {
   position: string;
   email: string;
   status: string;
+  applicant_first_name?: string;
+  applicant_middle_name?: string;
+  applicant_last_name?: string;
 };
 
 export type InterviewResults = {
