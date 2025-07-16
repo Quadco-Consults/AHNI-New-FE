@@ -78,7 +78,7 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
             </div>
           </div>
 
-          {data?.passport_file.endsWith("pdf") ? (
+          {data?.passport_file?.endsWith("pdf") ? (
             <div className='bg-[#0000001A] py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden'>
               <Dialog>
                 <DialogTrigger>
@@ -125,7 +125,7 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
             </div>
           </div>
 
-          {data?.signature_file.endsWith("pdf") ? (
+          {data?.signature_file?.endsWith("pdf") ? (
             <div className='bg-[#0000001A] py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden'>
               <Dialog>
                 <DialogTrigger>
@@ -211,7 +211,7 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
                     </div>
                   </div>
 
-                  {qualification.certificate_file.endsWith("pdf") ? (
+                  {qualification.certificate_file?.endsWith("pdf") ? (
                     <div className='bg-[#0000001A] py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden'>
                       <Dialog>
                         <DialogTrigger>

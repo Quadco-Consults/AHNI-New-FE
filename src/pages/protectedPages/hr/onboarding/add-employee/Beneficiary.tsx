@@ -7,7 +7,7 @@ import { Separator } from "components/ui/separator";
 import { Button } from "components/ui/button";
 import FormInput from "atoms/FormInput";
 import { ChevronRight, Save } from "lucide-react";
-import { useNavigate, useParams, generatePath, Link } from "react-router-dom";
+import { generatePath, Link } from "react-router-dom";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
@@ -40,8 +40,7 @@ import FileUpload from "atoms/FileUpload";
 import { createFileObjectFromUrl } from "utils/get-file-extension";
 
 const Beneficiary = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const id = localStorage.getItem("workforceID") || "";
   const dispatch = useAppDispatch();
   const [signature, setSignature] = React.useState<any>({});
 
@@ -144,8 +143,12 @@ const Beneficiary = () => {
   };
 
   const submitHandler = async (data: HrContingentBeneficiaryFormValues) => {
+    const formData = {
+      ...data,
+      employee: id,
+    };
     try {
-      await createHrBeneficiaryMutation(data).unwrap();
+      await createHrBeneficiaryMutation(formData).unwrap();
       dispatch(
         updateStepCompletion({
           path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_BENEFICIARY,
@@ -370,8 +373,8 @@ const Beneficiary = () => {
 
             <FormButton
               loading={isLoading || updateLoading}
-              // disabled={isLoading || updateLoading}
-              disabled
+              disabled={isLoading || updateLoading}
+              // disabled
               variant='outline'
             >
               <Save size={20} /> Save

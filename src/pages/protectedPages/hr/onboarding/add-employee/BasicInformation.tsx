@@ -34,7 +34,15 @@ import { PositionsResultsData } from "definations/configs/positions";
 
 import { createFileObjectFromUrl } from "utils/get-file-extension";
 
-const BasicInformation = ({ info }: { info: any }) => {
+const BasicInformation = ({
+  info,
+  onNext,
+}: {
+  info: any;
+  onNext: () => void;
+}) => {
+  console.log({ info });
+
   const dispatch = useAppDispatch();
   const [passport, setPassport] = React.useState<any>({});
   const [signature, setSignature] = React.useState<any>({});
@@ -66,7 +74,7 @@ const BasicInformation = ({ info }: { info: any }) => {
       other_number: "",
       date_of_birth: "",
       date_of_hire: "",
-      ss_number: "",
+      // ss_number: "",
       serial_id_code: "",
       signature_file: "",
       passport_file: "",
@@ -74,15 +82,17 @@ const BasicInformation = ({ info }: { info: any }) => {
       own_computer: true,
       require_email_access: true,
       employment_type: "INTERNAL",
-      group: "",
+      // group: "",
       location: "",
       department: "",
       project: "",
     },
   });
-  const { handleSubmit, reset } = form;
+  const { handleSubmit, reset, getValues } = form;
 
   const onSubmit = async (data: WorkforceFormValues) => {
+    console.log({ data });
+
     const formData = new FormData();
     formData.append("legal_firstname", data.legal_firstname);
     formData.append("legal_lastname", data.legal_lastname);
@@ -95,7 +105,7 @@ const BasicInformation = ({ info }: { info: any }) => {
     formData.append("other_number", data.other_number);
     formData.append("date_of_birth", data.date_of_birth);
     formData.append("date_of_hire", data.date_of_hire);
-    formData.append("ss_number", data.ss_number);
+    // formData.append("ss_number", data.ss_number);
     formData.append("serial_id_code", data.serial_id_code);
 
     formData.append("marital_status", data.marital_status);
@@ -104,34 +114,35 @@ const BasicInformation = ({ info }: { info: any }) => {
     // @ts-ignore
     formData.append("require_email_access", data.require_email_access);
     formData.append("employment_type", data.employment_type);
-    formData.append("group", data.group);
+    // formData.append("group", data.group);
     formData.append("location", data.location);
     formData.append("project", data.project);
     formData.append("department", data.department);
+    formData.append("application", info?.data?.id);
 
-    if (info.data) {
-      if (typeof data.passport_file !== "string") {
-        // Has been changed [Backend returns string]
-        console.log(data.passport_file);
-        formData.append("passport_file", data.passport_file);
-        formData.append("signature_file", data.signature_file);
-      } else {
-        formData.append("passport_file", passport);
-        formData.append("signature_file", signature);
-      }
-    } else {
-      formData.append("passport_file", data.passport_file[0]);
-      formData.append("signature_file", data.signature_file[0]);
-    }
+    // if (info.data) {
+    //   if (typeof data.passport_file !== "string") {
+    //     // Has been changed [Backend returns string]
+    //     console.log(data.passport_file);
+    //     formData.append("passport_file", data.passport_file);
+    //     formData.append("signature_file", data.signature_file);
+    //   } else {
+    //     formData.append("passport_file", passport);
+    //     formData.append("signature_file", signature);
+    //   }
+    // } else {
+    //   // formData.append("passport_file", data.passport_file[0]);
+    //   // formData.append("signature_file", data.signature_file[0]);
+    // }
 
     console.log(formData);
 
-    if (info.data) {
+    if (!info.data) {
       // console.log("EDit");
       try {
         // @ts-ignore
         await updateEmployeeOnboarding({
-          id: info.data.id,
+          // id: info.data.id,
           body: formData,
         }).unwrap();
         dispatch(
@@ -171,7 +182,7 @@ const BasicInformation = ({ info }: { info: any }) => {
         );
         // @ts-ignore
         localStorage.setItem("workforceID", res.data.id);
-
+        onNext();
         reset();
       } catch (error) {
         toast.error("Something went wrong");
@@ -186,15 +197,15 @@ const BasicInformation = ({ info }: { info: any }) => {
       const { data } = info;
 
       form.reset({
-        legal_firstname: data.legal_firstname,
-        legal_middlename: data.legal_middlename,
-        legal_lastname: data.legal_lastname,
+        legal_firstname: data.applicant_first_name,
+        legal_middlename: data.applicant_middle_name,
+        legal_lastname: data.applicant_last_name,
         address: data.address,
         phone_number: data.phone_number,
         other_number: data.other_number,
         date_of_birth: data.date_of_birth,
         date_of_hire: data.date_of_hire,
-        ss_number: data.ss_number,
+        // ss_number: data.ss_number,
         serial_id_code: data.serial_id_code,
         signature_file: data.signature_file,
         passport_file: data.passport_file,
@@ -202,7 +213,7 @@ const BasicInformation = ({ info }: { info: any }) => {
         own_computer: data.own_computer,
         require_email_access: data.require_email_access,
         employment_type: data.employment_type,
-        group: data.group,
+        // group: data.group,
 
         // designation: data.designation.id,
         // location: data.location.id,
@@ -227,10 +238,10 @@ const BasicInformation = ({ info }: { info: any }) => {
 
       form.reset({
         ...form.getValues(),
-        designation: data.designation.id,
-        location: data.location.id,
-        department: data.department,
-        project: data.project,
+        designation: data?.designation?.id,
+        location: data?.location?.id,
+        department: data?.department,
+        project: data?.project,
       });
     }
   }, [departments, locations, projects, positions]);
@@ -246,6 +257,9 @@ const BasicInformation = ({ info }: { info: any }) => {
     { value: "married", label: "Married" },
     { value: "divorced", label: "Divorced" },
   ];
+  const newData = getValues();
+
+  console.log({ newData });
 
   return (
     <>
@@ -305,12 +319,12 @@ const BasicInformation = ({ info }: { info: any }) => {
               label='Date of Hire'
               required
             />
-            {/* <FormInput
-              name='ss_number'
-              label='SS #'
-              placeholder='SS number'
+            <FormInput
+              name='serial_id_code'
+              label='Serial ID Code'
+              placeholder='Serial ID Code'
               required
-            /> */}
+            />
           </div>
 
           <FileUpload name='passport_file' label='Passport Photograph' />
@@ -404,6 +418,7 @@ const BasicInformation = ({ info }: { info: any }) => {
               loading={isLoading || updateLoading}
               disabled={isLoading || updateLoading}
               variant='outline'
+              type='submit'
             >
               <Save size={20} /> Save
             </FormButton>

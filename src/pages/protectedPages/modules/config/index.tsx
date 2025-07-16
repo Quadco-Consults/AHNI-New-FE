@@ -8,6 +8,7 @@ import AllFinancialYear from "./AllFinancialYear";
 import AllLocations from "./AllLocations";
 import AllPositions from "./AllPositions";
 import AllGrades from "./AllGrades";
+import Levels from "./Levels";
 
 const Config = () => {
   return (
@@ -21,7 +22,8 @@ const Config = () => {
             {/* <TabsTrigger value="items">Items</TabsTrigger> */}
             <TabsTrigger value='locations'>Locations</TabsTrigger>
             <TabsTrigger value='position'>Positions</TabsTrigger>
-            <TabsTrigger value='grade'>Grade</TabsTrigger>
+            <TabsTrigger value='grade'>Grades</TabsTrigger>
+            <TabsTrigger value='level'>Levels</TabsTrigger>
           </TabsList>
           <TabsContent value='categories'>
             <Card className='mt-10 pb-8 px-6'>
@@ -56,6 +58,11 @@ const Config = () => {
           <TabsContent value='grade'>
             <Card className='mt-10 pb-8 px-6'>
               <AllGrades />
+            </Card>
+          </TabsContent>
+          <TabsContent value='level'>
+            <Card className='mt-10 pb-8 px-6'>
+              <Levels />
             </Card>
           </TabsContent>
         </Tabs>

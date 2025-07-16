@@ -45,8 +45,8 @@ const EmployeeOnboardingAPI = baseAPI.injectEndpoints({
       EmployeeOnboarding,
       { id: string; body: Partial<EmployeeOnboarding> }
     >({
-      query: ({ id, body }) => ({
-        url: `${BASE_URL}${id}/`,
+      query: ({ body }) => ({
+        url: `${BASE_URL}/`,
         method: "PUT",
         body,
       }),
@@ -57,8 +57,8 @@ const EmployeeOnboardingAPI = baseAPI.injectEndpoints({
       EmployeeOnboarding,
       { id: string; body: Partial<EmployeeOnboarding> }
     >({
-      query: ({ id, body }) => ({
-        url: `${BASE_URL}${id}/`,
+      query: ({ body }) => ({
+        url: `${BASE_URL}`,
         method: "PATCH",
         body,
       }),
