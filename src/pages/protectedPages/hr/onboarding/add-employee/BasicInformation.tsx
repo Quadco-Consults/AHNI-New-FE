@@ -41,8 +41,6 @@ const BasicInformation = ({
   info: any;
   onNext: () => void;
 }) => {
-  console.log({ info });
-
   const dispatch = useAppDispatch();
   const [passport, setPassport] = React.useState<any>({});
   const [signature, setSignature] = React.useState<any>({});
@@ -91,8 +89,6 @@ const BasicInformation = ({
   const { handleSubmit, reset, getValues } = form;
 
   const onSubmit = async (data: WorkforceFormValues) => {
-    console.log({ data });
-
     const formData = new FormData();
     formData.append("legal_firstname", data.legal_firstname);
     formData.append("legal_lastname", data.legal_lastname);
@@ -134,8 +130,6 @@ const BasicInformation = ({
     //   // formData.append("passport_file", data.passport_file[0]);
     //   // formData.append("signature_file", data.signature_file[0]);
     // }
-
-    console.log(formData);
 
     if (!info.data) {
       // console.log("EDit");
@@ -193,7 +187,7 @@ const BasicInformation = ({
   React.useEffect(() => {
     // console.log(form.getValues());
     if (info?.data) {
-      console.log("-->", info);
+      // console.log("-->", info);
       const { data } = info;
 
       form.reset({
@@ -257,9 +251,6 @@ const BasicInformation = ({
     { value: "married", label: "Married" },
     { value: "divorced", label: "Divorced" },
   ];
-  const newData = getValues();
-
-  console.log({ newData });
 
   return (
     <>
