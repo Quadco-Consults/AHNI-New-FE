@@ -2,7 +2,7 @@ import { Compensation } from "definations/hr-types/compensation";
 import baseAPI from "..";
 import { TPaginatedResponse } from "definations/index";
 
-const BASE_URL = "/hr/employee-benefits/compensation-spread/";
+const BASE_URL = "/hr/employee-benefits/employee-compensation-spread/";
 
 const CompensationSpreadAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({

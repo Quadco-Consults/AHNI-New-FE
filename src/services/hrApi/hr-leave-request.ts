@@ -3,9 +3,9 @@ import baseAPI from "..";
 
 const BASE_URL = "hr/leave-request/";
 
-const LeavePackageAPI = baseAPI.injectEndpoints({
+const LeaveRequestAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getLeavePackages: builder.query<
+    getLeaveRequests: builder.query<
       LeaveRequest[],
       { status?: string; search?: string }
     >({
@@ -19,12 +19,12 @@ const LeavePackageAPI = baseAPI.injectEndpoints({
       providesTags: ["LEAVE_REQUEST"],
     }),
 
-    getLeavePackage: builder.query<LeaveRequest, { id: string }>({
+    getLeaveRequest: builder.query<LeaveRequest, { id: string }>({
       query: ({ id }) => ({ url: `${BASE_URL}${id}/` }),
       providesTags: ["LEAVE_REQUEST"],
     }),
 
-    createLeavePackage: builder.mutation<LeaveRequest, Partial<LeaveRequest>>({
+    createLeaveRequest: builder.mutation<LeaveRequest, Partial<LeaveRequest>>({
       query: (body) => ({
         url: BASE_URL,
         method: "POST",
@@ -33,7 +33,7 @@ const LeavePackageAPI = baseAPI.injectEndpoints({
       invalidatesTags: ["LEAVE_REQUEST"],
     }),
 
-    updateLeavePackage: builder.mutation<
+    updateLeaveRequest: builder.mutation<
       LeaveRequest,
       { id: string; body: Partial<LeaveRequest> }
     >({
@@ -45,7 +45,7 @@ const LeavePackageAPI = baseAPI.injectEndpoints({
       invalidatesTags: ["LEAVE_REQUEST"],
     }),
 
-    patchLeavePackage: builder.mutation<
+    patchLeaveRequest: builder.mutation<
       LeaveRequest,
       { id: string; body: Partial<LeaveRequest> }
     >({
@@ -59,4 +59,4 @@ const LeavePackageAPI = baseAPI.injectEndpoints({
   }),
 });
 
-export default LeavePackageAPI;
+export default LeaveRequestAPI;
