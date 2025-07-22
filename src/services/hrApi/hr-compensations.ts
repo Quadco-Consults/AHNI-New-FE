@@ -21,8 +21,22 @@ const CompensationAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["COMPENSATIONS"],
     }),
+
+    deleteCompensation: builder.mutation<
+      TPaginatedResponse<Compensation>,
+      string
+    >({
+      query: (id) => ({
+        method: "DELETE",
+        url: `${BASE_URL}${id}`,
+      }),
+      invalidatesTags: ["COMPENSATIONS"],
+    }),
   }),
 });
 
-export const { useGetCompensationsQuery, useCreateCompensationMutation } =
-  CompensationAPI;
+export const {
+  useGetCompensationsQuery,
+  useCreateCompensationMutation,
+  useDeleteCompensationMutation,
+} = CompensationAPI;

@@ -58,6 +58,12 @@ const PayGroup: React.FC = () => {
       accessorKey: "grade.name",
       size: 200,
     },
+
+    {
+      header: "Level",
+      accessorKey: "level.name",
+      size: 200,
+    },
     {
       header: "Status",
       accessorKey: "Status",

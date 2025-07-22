@@ -12,89 +12,87 @@ import { LoadingSpinner } from "components/shared/Loading";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { skipToken } from "@reduxjs/toolkit/query";
 import ObligationHistory from "./_components/ObligationHistory";
-import { useGetSingleGrantQuery } from "services/c&g/grant/grant";
+// import { useGetSingleGrantQuery } from "services/c&g/grant/grant";
+import { useGetSingleProjectQuery } from "services/project";
 
 const GrantDetails: React.FC = () => {
-    const [tabValue, setTabValue] = useState("details");
+  const [tabValue, setTabValue] = useState("details");
 
-    const { id } = useParams();
+  const { id } = useParams();
 
-    const { data, isLoading } = useGetSingleGrantQuery(id ?? skipToken);
+  const { data, isLoading } = useGetSingleProjectQuery(id ?? skipToken);
 
-    const dispatch = useAppDispatch();
+  //   const { data } = useGetSingleGrantQuery(id ?? skipToken);
 
-    return (
-        <section className="space-y-5">
-            <div className="flex items-center justify-between">
-                <BackNavigation />
+  const dispatch = useAppDispatch();
+  console.log({ data, isLoading });
 
-                {(tabValue === "expenditure" || tabValue === "obligation") && (
-                    <Button
-                        className="flex gap-2 py-6"
-                        type="button"
-                        onClick={() => {
-                            dispatch(
-                                openDialog({
-                                    type:
-                                        tabValue === "expenditure"
-                                            ? DialogType.ExpenditureModal
-                                            : DialogType.ADD_OBLIGATION_MODAL,
-                                    dialogProps: {
-                                        header:
-                                            tabValue === "expenditure"
-                                                ? "Add Expenditure"
-                                                : "Add Obligation",
-                                        width: "max-w-lg",
-                                        grantId: id,
-                                    },
-                                })
-                            );
-                        }}
-                    >
-                        <AddSquareIcon />
-                        {tabValue === "expenditure"
-                            ? "Add Expenditure"
-                            : "Add Obligation"}
-                    </Button>
-                )}
-            </div>
+  return (
+    <section className='space-y-5'>
+      <div className='flex items-center justify-between'>
+        <BackNavigation />
 
-            {isLoading ? (
-                <LoadingSpinner />
-            ) : (
-                <Tabs
-                    defaultValue={tabValue}
-                    value={tabValue}
-                    onValueChange={(value) => setTabValue(value)}
-                    className="space-y-5"
-                >
-                    <TabsList className="ml-10">
-                        <TabsTrigger value="details">Details</TabsTrigger>
+        {(tabValue === "expenditure" || tabValue === "obligation") && (
+          <Button
+            className='flex gap-2 py-6'
+            type='button'
+            onClick={() => {
+              dispatch(
+                openDialog({
+                  type:
+                    tabValue === "expenditure"
+                      ? DialogType.ExpenditureModal
+                      : DialogType.ADD_OBLIGATION_MODAL,
+                  dialogProps: {
+                    header:
+                      tabValue === "expenditure"
+                        ? "Add Expenditure"
+                        : "Add Obligation",
+                    width: "max-w-lg",
+                    grantId: id,
+                  },
+                })
+              );
+            }}
+          >
+            <AddSquareIcon />
+            {tabValue === "expenditure" ? "Add Expenditure" : "Add Obligation"}
+          </Button>
+        )}
+      </div>
 
-                        <TabsTrigger value="expenditure">
-                            Expenditure History
-                        </TabsTrigger>
+      {isLoading ? (
+        <LoadingSpinner />
+      ) : (
+        <Tabs
+          defaultValue={tabValue}
+          value={tabValue}
+          onValueChange={(value) => setTabValue(value)}
+          className='space-y-5'
+        >
+          <TabsList className='ml-10'>
+            <TabsTrigger value='details'>Details</TabsTrigger>
 
-                        <TabsTrigger value="obligation">
-                            Obligations
-                        </TabsTrigger>
-                    </TabsList>
+            <TabsTrigger value='expenditure'>Expenditure History</TabsTrigger>
 
-                    <TabsContent value="details">
-                        {data && <GrantDetailsCard {...data?.data} />}
-                    </TabsContent>
+            <TabsTrigger value='obligation'>Obligations</TabsTrigger>
+          </TabsList>
 
-                    <TabsContent value="expenditure">
-                        {data && <ExpenditureHistory {...data?.data} />}
-                    </TabsContent>
+          <TabsContent value='details'>
+            {data && <GrantDetailsCard {...data?.data} />}
+          </TabsContent>
 
-                    <TabsContent value="obligation">
-                        {data && <ObligationHistory {...data?.data} />}
-                    </TabsContent>
-                </Tabs>
-            )}
-        </section>
-    );
+          <TabsContent value='expenditure'>
+            {data && <ExpenditureHistory {...data?.data} />}
+          </TabsContent>
+
+          <TabsContent value='obligation'>
+            {data && <ObligationHistory {...data?.data} />}
+          </TabsContent>
+        </Tabs>
+      )}
+    </section>
+  );
 };
 
 export default GrantDetails;

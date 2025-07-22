@@ -215,6 +215,13 @@ const columns: ColumnDef<AdvertisementResults>[] = [
     header: "Application Name",
     accessorKey: "applicant_name",
     size: 250,
+    cell: ({ row }) => (
+      <p>
+        {row?.original?.applicant_first_name}{" "}
+        {row?.original?.applicant_middle_name}{" "}
+        {row?.original?.applicant_last_name}
+      </p>
+    ),
   },
   {
     header: "Position Applied",
