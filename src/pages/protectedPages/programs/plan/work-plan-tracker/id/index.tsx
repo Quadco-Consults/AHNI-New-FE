@@ -3,14 +3,15 @@ import { useState } from "react";
 import DataTable from "components/Table/DataTable";
 import { useGetAllActivityTrackerQuery } from "services/programsApi/activity-tracker";
 import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
-import { workPlanTrackercolumns } from "components/Table/columns/program/plan/work-plan-tracker";
 import { useDebounce } from "ahooks";
 import TableFilters from "components/Table/TableFilters";
+import { workPlanTrackerDetailscolumns } from "components/Table/columns/program/plan/work-plan-tracker-details";
 
 const breadcrumbs: TBreadcrumbList[] = [
   { name: "Programs", icon: true },
   { name: "Plans", icon: true },
-  { name: "Work Plan Tracker", icon: false },
+  { name: "Work Plan Tracker", icon: true },
+  { name: "Work Plan Tracker Details", icon: false },
 ];
 
 export default function ActivityTracker() {
@@ -34,7 +35,7 @@ export default function ActivityTracker() {
         <TableFilters onSearchChange={(e) => setSearchQuery(e.target.value)}>
           <DataTable
             data={workPlanTracker?.data.results || []}
-            columns={workPlanTrackercolumns}
+            columns={workPlanTrackerDetailscolumns}
             isLoading={isFetching}
             pagination={{
               total: workPlanTracker?.data.pagination.count ?? 0,

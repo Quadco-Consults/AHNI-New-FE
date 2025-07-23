@@ -278,6 +278,7 @@ export const RouteEnum = {
   PROGRAM_CREATE_ACTIVITY_PLAN: "/program/plan/create-activity-plan",
 
   PROGRAM_ACTIVITY_TRACKER: "/program/plan/activity-tracker",
+  PROGRAM_ACTIVITY_TRACKER_DETAILS: "/program/plan/activity-tracker/:id",
   PROGRAM_ACTIVITY_TRACKER_CREATE:
     "/program/plan/activity-tracker/create-activity-tracker",
 
