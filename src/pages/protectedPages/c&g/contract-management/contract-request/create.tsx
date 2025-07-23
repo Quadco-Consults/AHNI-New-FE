@@ -1,183 +1,253 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import BackNavigation from "atoms/BackNavigation";
+import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelect";
 import Card from "components/shared/Card";
+import {
+  ContractRequestSchema,
+  TContractRequestFormData,
+} from "definations/c&g/contract-management/contract-request";
 import { UserCircle } from "lucide-react";
 import { useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { useSearchParams } from "react-router-dom";
 import { useGetAllUsersQuery } from "services/auth/user";
+import {
+  useCreateContractRequestMutation,
+  useModifyContractRequestMutation,
+} from "services/c&g/contract-management/contract";
 import { useGetAllDepartmentsQuery } from "services/modules/config/department";
 import { useGetAllLocationsQuery } from "services/modules/config/location";
 import { useGetAllFCONumbersQuery } from "services/modules/finance/fco-number";
+import { toast } from "sonner";
 
 export default function CreateContractRequest() {
-    const form = useForm();
+  const [searchParams] = useSearchParams();
 
-    const { data: department } = useGetAllDepartmentsQuery({
-        page: 1,
-        size: 2000000,
-    });
+  const id = searchParams.get("id");
 
-    const departmentOptions = useMemo(
-        () =>
-            department?.data.results.map(({ name, id }) => ({
-                label: name,
-                value: id,
-            })),
-        [department]
-    );
+  //   const navigate = useNavigate();
+  const form = useForm<TContractRequestFormData>({
+    resolver: zodResolver(ContractRequestSchema),
+    defaultValues: {
+      title: "",
+      request_type: "",
+      department: "",
+      consultants_count: "",
+      location: "",
+      fco: "",
+      technical_monitor: "",
+      email: "",
+      phone_number: "",
+      current_reviewer: "",
+      // authorizer: "",
+      // approver: "",
+    },
+  });
 
-    const { data: location } = useGetAllLocationsQuery({
-        page: 1,
-        size: 2000000,
-    });
+  const { data: department } = useGetAllDepartmentsQuery({
+    page: 1,
+    size: 2000000,
+  });
 
-    const locationOptions = useMemo(
-        () =>
-            location?.data.results.map(({ name, id }) => ({
-                label: name,
-                value: id,
-            })),
-        [location]
-    );
+  const departmentOptions = useMemo(
+    () =>
+      department?.data.results.map(({ name, id }) => ({
+        label: name,
+        value: id,
+      })),
+    [department]
+  );
 
-    const { data: fco } = useGetAllFCONumbersQuery({
-        page: 1,
-        size: 2000000,
-    });
+  const { data: location } = useGetAllLocationsQuery({
+    page: 1,
+    size: 2000000,
+  });
 
-    const fcoOptions = useMemo(
-        () =>
-            fco?.data.results.map(({ name, id }) => ({
-                label: name,
-                value: id,
-            })),
-        [fco]
-    );
+  const locationOptions = useMemo(
+    () =>
+      location?.data.results.map(({ name, id }) => ({
+        label: name,
+        value: id,
+      })),
+    [location]
+  );
 
-    const { data: user } = useGetAllUsersQuery({
-        page: 1,
-        size: 2000000,
-    });
+  const { data: fco } = useGetAllFCONumbersQuery({
+    page: 1,
+    size: 2000000,
+  });
 
-    const userOptions = useMemo(
-        () =>
-            user?.data.results.map(({ first_name, last_name, id }) => ({
-                label: `${first_name} ${last_name}`,
-                value: id,
-            })),
-        [UserCircle]
-    );
+  const fcoOptions = useMemo(
+    () =>
+      fco?.data.results.map(({ name, id }) => ({
+        label: name,
+        value: id,
+      })),
+    [fco]
+  );
 
-    return (
-        <section>
-            <BackNavigation />
+  const { data: user } = useGetAllUsersQuery({
+    page: 1,
+    size: 2000000,
+  });
 
-            <Card>
-                <FormProvider {...form}>
-                    <form className="grid grid-cols-2 gap-10">
-                        <FormInput
-                            label="Request Title"
-                            name="_"
-                            placeholder="Enter title"
-                            required
-                        />
+  const userOptions = useMemo(
+    () =>
+      user?.data.results.map(({ first_name, last_name, id }) => ({
+        label: `${first_name} ${last_name}`,
+        value: id,
+      })),
+    [UserCircle]
+  );
 
-                        <FormSelect
-                            label="Request Type"
-                            name="_"
-                            placeholder="Select type"
-                            required
-                            options={[
-                                { label: "SERVICE", value: "SERVICE" },
-                                { label: "CONSULTANT", value: "CONSULTANT" },
-                                { label: "ADHOC", value: "ADHOC" },
-                                { label: "FACILITATOR", value: "FACILITATOR" },
-                            ]}
-                        />
+  const [createContractRequest, { isLoading: isCreateLoading }] =
+    useCreateContractRequestMutation();
 
-                        <FormSelect
-                            label="Requesting Department"
-                            name="_"
-                            placeholder="Select department"
-                            required
-                            options={departmentOptions}
-                        />
+  const [modifyContractRequest, { isLoading: isModifyLoading }] =
+    useModifyContractRequestMutation();
 
-                        <FormInput
-                            type="number"
-                            label="No of Consultants"
-                            name="_"
-                            placeholder="Enter consultants number"
-                            required
-                        />
+  const onSubmit = async (data: any) => {
+    console.log("Form submitted with data:", data);
+    // Handle form submission logic here
 
-                        <FormSelect
-                            label="Location"
-                            name="_"
-                            placeholder="Select location"
-                            required
-                            options={locationOptions}
-                        />
+    try {
+      if (id) {
+        await modifyContractRequest({ id, body: data }).unwrap();
+        toast.success("Contract Updated Successfully");
+      } else {
+        await createContractRequest(data).unwrap();
+        toast.success("Contract Created Successfully");
+      }
 
-                        <FormSelect
-                            label="FCO"
-                            name="_"
-                            placeholder="Select FCO"
-                            required
-                            options={fcoOptions}
-                        />
+      //   navigate(CG_ROUTES.ContractRequest);
+    } catch (error: any) {
+      toast.error(error.data.message ?? "Something went wrong");
+    }
+  };
 
-                        <FormSelect
-                            label="Technical Monitor"
-                            name="_"
-                            placeholder="Select technical monitor"
-                            required
-                            options={userOptions}
-                        />
+  return (
+    <section>
+      <BackNavigation />
 
-                        <FormInput
-                            type="email"
-                            label="Email"
-                            name="_"
-                            placeholder="Enter email"
-                            required
-                        />
+      <Card>
+        <FormProvider {...form}>
+          <form
+            className='grid grid-cols-2 gap-10'
+            onSubmit={form.handleSubmit(onSubmit)}
+          >
+            <FormInput
+              label='Request Title'
+              name='title'
+              placeholder='Enter title'
+              required
+            />
 
-                        <FormInput
-                            type="number"
-                            label="Phone Number"
-                            name="_"
-                            placeholder="Enter phone number"
-                            required
-                        />
+            <FormSelect
+              label='Request Type'
+              name='request_type'
+              placeholder='Select type'
+              required
+              options={[
+                { label: "SERVICE", value: "SERVICE" },
+                { label: "CONSULTANT", value: "CONSULTANT" },
+                { label: "ADHOC", value: "ADHOC" },
+                { label: "FACILITATOR", value: "FACILITATOR" },
+              ]}
+            />
 
-                        <FormSelect
-                            label="Reviewer"
-                            name="_"
-                            placeholder="Select reviewer"
-                            required
-                            options={userOptions}
-                        />
+            <FormSelect
+              label='Requesting Department'
+              name='department'
+              placeholder='Select department'
+              required
+              options={departmentOptions}
+            />
 
-                        <FormSelect
-                            label="Authorizer"
-                            name="_"
-                            placeholder="Select authorizer"
-                            required
-                            options={userOptions}
-                        />
+            <FormInput
+              type='number'
+              label='No of Consultants'
+              name='consultants_count'
+              placeholder='Enter consultants number'
+              required
+            />
 
-                        <FormSelect
-                            label="Approver"
-                            name="_"
-                            placeholder="Select approver"
-                            required
-                            options={userOptions}
-                        />
-                    </form>
-                </FormProvider>
-            </Card>
-        </section>
-    );
+            <FormSelect
+              label='Location'
+              name='location'
+              placeholder='Select location'
+              required
+              options={locationOptions}
+            />
+
+            <FormSelect
+              label='FCO'
+              name='fco'
+              placeholder='Select FCO'
+              required
+              options={fcoOptions}
+            />
+
+            <FormSelect
+              label='Technical Monitor'
+              name='technical_monitor'
+              placeholder='Select technical monitor'
+              required
+              options={userOptions}
+            />
+
+            <FormInput
+              type='email'
+              label='Email'
+              name='email'
+              placeholder='Enter email'
+              required
+            />
+
+            <FormInput
+              type='number'
+              label='Phone Number'
+              name='phone_number'
+              placeholder='Enter phone number'
+              required
+            />
+
+            <FormSelect
+              label='Reviewer'
+              name='current_reviewer'
+              placeholder='Select reviewer'
+              required
+              options={userOptions}
+            />
+            {/* 
+
+            <FormSelect
+              label='Authorizer'
+              name='_'
+              placeholder='Select authorizer'
+              required
+              options={userOptions}
+            />
+
+            <FormSelect
+              label='Approver'
+              name='_'
+              placeholder='Select approver'
+              required
+              options={userOptions}
+            /> */}
+            <div className=''>
+              <FormButton
+                size='lg'
+                loading={isCreateLoading || isModifyLoading}
+              >
+                Submit
+              </FormButton>
+            </div>
+          </form>
+        </FormProvider>
+      </Card>
+    </section>
+  );
 }

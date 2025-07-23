@@ -144,6 +144,7 @@ const baseAPI = createApi({
     "TRAVEL_EXPENSE",
     "VENDOR_EVALUATION",
     "GRANT",
+    "CONTRACT_REQUEST",
     "EXPENDITURE",
     "OBLIGATION",
     "SUB_GRANT",
