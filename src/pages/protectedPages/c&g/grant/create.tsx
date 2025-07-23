@@ -9,7 +9,7 @@ import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { CG_ROUTES } from "constants/RouterConstants";
 import { GrantSchema, TGrantFormData } from "definations/c&g/grants";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
@@ -83,9 +83,12 @@ export default function CreateGrant() {
   useEffect(() => {
     if (grant) {
       form.reset({
+        // @ts-ignore
         project: grant?.data?.project?.id || "",
         award_type: grant?.data.award_type,
         award_amount: grant?.data.award_amount,
+        // @ts-ignore
+
         reference_number: grant?.data.reference_number,
       });
     }
