@@ -215,6 +215,13 @@ const columns: ColumnDef<AdvertisementResults>[] = [
     header: "Application Name",
     accessorKey: "applicant_name",
     size: 250,
+    cell: ({ row }) => (
+      <p>
+        {row?.original?.applicant_first_name}{" "}
+        {row?.original?.applicant_middle_name}{" "}
+        {row?.original?.applicant_last_name}
+      </p>
+    ),
   },
   {
     header: "Position Applied",
@@ -304,22 +311,21 @@ const ActionList = ({ data }: any) => {
           </PopoverTrigger>
           <PopoverContent className=' w-fit'>
             <div className='flex flex-col items-start justify-between gap-1'>
-              {data?.status?.toLowerCase() !== "accepted" && (
-                <Link
-                  to={generatePath(HrRoutes.ADVERTISEMENT_DETAIL_SUB_APP, {
-                    id: data?.advertisement,
-                    appID: data?.id,
-                  })}
+              <Link
+                to={generatePath(HrRoutes.ADVERTISEMENT_DETAIL_SUB_APP, {
+                  id: data?.advertisement,
+                  appID: data?.id,
+                })}
+              >
+                <Button
+                  className='w-full flex items-center justify-start gap-2'
+                  variant='ghost'
                 >
-                  <Button
-                    className='w-full flex items-center justify-start gap-2'
-                    variant='ghost'
-                  >
-                    <EyeIcon />
-                    View
-                  </Button>
-                </Link>
-              )}
+                  <EyeIcon />
+                  View
+                </Button>
+              </Link>
+
               {data?.status?.toLowerCase() === "shortlisted" && (
                 <Button
                   className='w-full flex items-center justify-start gap-2'
@@ -332,7 +338,7 @@ const ActionList = ({ data }: any) => {
                   Mark as Preferred
                 </Button>
               )}
-              {data?.status?.toLowerCase() === "preferred" && (
+              {data?.status?.toLowerCase() === "interviewed" && (
                 <Button
                   className='w-full flex items-center justify-start gap-2'
                   variant='ghost'
@@ -344,7 +350,7 @@ const ActionList = ({ data }: any) => {
                   Accept
                 </Button>
               )}
-              {data?.status?.toLowerCase() === "accepted" && (
+              {data?.status?.toLowerCase() === "preferred" && (
                 <Link
                   to={generatePath(HrRoutes.ONBOARDING_START, {
                     id: data?.id,

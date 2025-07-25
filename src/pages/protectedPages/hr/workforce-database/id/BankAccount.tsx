@@ -16,7 +16,8 @@ const BankAccount = () => {
   const { data: pension, isLoading: pensionLoading } =
     useGetEmployeeOnboardingPensionQuery({ employee: id });
 
-  console.log("Bank & Pension", data);
+  console.log("Bank & Pension", data, pension);
+  const pensionDetails = pension?.data.results[0];
 
   return (
     <div className='card-wrapper space-y-10'>
@@ -70,19 +71,19 @@ const BankAccount = () => {
           <div className='grid grid-cols-1 gap-8 md:grid-cols-2'>
             <DescriptionCard
               label='Name of selected PFA'
-              description={pension?.name}
+              description={pensionDetails?.pfa_name}
             />
             <DescriptionCard
               label='RSA Number'
-              description={pension?.rsa_number}
+              description={pensionDetails?.rsa_number}
             />
             <DescriptionCard
               label='PFC (Pension Fund Custodian) Account Name'
-              description={pension?.pfc_account_name}
+              description={pensionDetails?.pfc_account_name}
             />
             <DescriptionCard
               label='PFC Account Number'
-              description={pension?.pfc_account_number}
+              description={pensionDetails?.pfc_account_number}
             />
             {/* <DescriptionCard
                 label="Do you already have a Retirement Savings Account with any PFA?"
@@ -90,7 +91,7 @@ const BankAccount = () => {
               /> */}
             <DescriptionCard
               label='Date'
-              description={pension?.date_provided}
+              description={pensionDetails?.pfa_registeration_date}
             />
           </div>
         </>

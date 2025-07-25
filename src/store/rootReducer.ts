@@ -8,6 +8,7 @@ import consortiumPartnerReducer from "./formData/project-values";
 import objectives from "./formData/project-objective";
 import ssp from "./formData/ssp-values";
 import vendors from "./formData/procurement-vendors";
+import onboarding from "./formData/onboarding";
 import activity from "./formData/activity-memo";
 import assets from "./assets";
 import stakeholder from "./formData/stakeholders";
@@ -41,6 +42,7 @@ export const rootStore = combineReducers({
   stakeholder,
   teamMember,
   steps,
+  onboarding,
 });
 
 export const rootReducer = persistReducer(persistConfig, rootStore);

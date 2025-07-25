@@ -20,7 +20,6 @@ import { skipToken } from "@reduxjs/toolkit/query/react";
 import Performance from "./Performance";
 import Activity from "./Activity";
 import ObligationHistory from "pages/protectedPages/c&g/grant/_components/ObligationHistory";
-import { useGetSingleGrantQuery } from "services/c&g/grant/grant";
 
 export default function ProjectDetail() {
     const navigate = useNavigate();
@@ -93,14 +92,14 @@ export default function ProjectDetail() {
                         </TabsContent>
 
                         <TabsContent value="obligation">
-                            <Card>
-                                {/* {data && (
+                            {/* <Card>
+                                {data && (
                                     <ObligationHistory
                                         grandID={project?.data?.grant.grant_id}
                                         {...data?.data}
                                     />
-                                )} */}
-                            </Card>
+                                )}
+                            </Card> */}
                         </TabsContent>
 
                         <TabsContent value="performance">

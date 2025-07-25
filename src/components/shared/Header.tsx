@@ -27,8 +27,6 @@ const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
 
   const { data: profile } = useGetUserProfileQuery(null);
 
-  // console.log({ profileCheck: profile?.data });
-
   const navigate = useNavigate();
 
   const dispatch = useAppDispatch();
@@ -86,13 +84,14 @@ const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
         <Popover>
           <PopoverTrigger asChild>
             <Avatar>
-              <AvatarImage src={avatarPng} />
+              <AvatarImage src={profile?.data?.profile_picture || avatarPng} />
+
               <AvatarFallback>AD</AvatarFallback>
             </Avatar>
           </PopoverTrigger>
           <PopoverContent className='w-[250px] p-5 flex flex-col flex-shrink-0 gap-3 items-center'>
             <Avatar>
-              <AvatarImage src={avatarPng} />
+              <AvatarImage src={profile?.data?.profile_picture || avatarPng} />
               <AvatarFallback>AD</AvatarFallback>
             </Avatar>
             <div className='flex flex-col items-center'>

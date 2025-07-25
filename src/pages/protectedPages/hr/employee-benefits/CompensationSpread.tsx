@@ -17,6 +17,7 @@ import PayGroupModal from "./components/PayGroupModal";
 import { useAppDispatch } from "hooks/useStore";
 import { DialogType, mediumDailogScreen } from "constants/dailogs";
 import { openDialog } from "store/ui";
+import { useGetCompensationsSpreadQuery } from "services/hrApi/hr-compensationSpread";
 
 interface CompensationItem {
   id: string;
@@ -42,6 +43,14 @@ const Compensation: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [isModalOpen, setModalOpen] = React.useState(false);
+
+  const { data: compensationsData, isLoading: isLoadingCompensations } =
+    useGetCompensationsSpreadQuery();
+
+  console.log({
+    compensationsData,
+    isLoadingCompensations,
+  });
 
   const columns: ColumnDef<CompensationItem>[] = [
     {
@@ -79,15 +88,15 @@ const Compensation: React.FC = () => {
     { header: "Transport", accessorKey: "transport", size: 100 },
     { header: "Meal", accessorKey: "meal", size: 100 },
     { header: "Miscellaneous", accessorKey: "miscellaneous", size: 130 },
-    { header: "Total Allowance", accessorKey: "totalAllowance", size: 150 },
-    { header: "13th Month", accessorKey: "thirteenthMonth", size: 120 },
-    { header: "Gross Total", accessorKey: "grossTotal", size: 150 },
-    {
-      header: "Action",
-      id: "actions",
-      size: 100,
-      cell: ({ row }) => <ActionListAction id={row.original.id} />,
-    },
+    { header: "Total Allowance", accessorKey: "total_allowance", size: 150 },
+    { header: "13th Month", accessorKey: "thirteenth_month", size: 120 },
+    { header: "Gross Total", accessorKey: "gross_total", size: 150 },
+    // {
+    //   header: "Action",
+    //   id: "actions",
+    //   size: 100,
+    //   cell: ({ row }) => <ActionListAction id={row.original.id} />,
+    // },
   ];
 
   const handleOpenDialog = () => {
@@ -130,9 +139,11 @@ const Compensation: React.FC = () => {
 
       <div className='w-full'>
         <DataTable
+          // @ts-ignore
           columns={columns}
-          data={dummyData} // Replace with real data source
-          // isLoading={true}
+          // data={dummyData} // Replace with real data source
+          data={compensationsData?.data?.results || []} // ✅ Ensure data is always an array
+          isLoading={isLoadingCompensations}
           pagination={{
             total: 10,
             pageSize: 10,
