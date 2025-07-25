@@ -31,7 +31,7 @@ const SummaryCard = () => {
 
     {
       header: "Office Requesting",
-      accessorKey: "office_requesting",
+      accessorKey: "location",
       size: 200,
       //   cell: ({ row }) => {
       //     return <div>{row.original?.deparment}</div>;
@@ -45,6 +45,9 @@ const SummaryCard = () => {
           : "Procurement Officer Responsible"
       }`,
       accessorKey: "procurement_officer",
+      cell: ({ row }) => {
+        return <div>{row.original?.procurement_officer || "N/A"}</div>;
+      },
       size: 195,
     },
 

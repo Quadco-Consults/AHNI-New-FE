@@ -183,10 +183,6 @@ const CreateActivityMemo = () => {
     navigate(RouteEnum.SAMPLE_PREVIEW);
   };
 
-  const lom = form.getValues();
-
-  console.log({ lom });
-
   return (
     <div className='pt-5'>
       <Form {...form}>

@@ -10,40 +10,38 @@ import { Link } from "react-router-dom";
 import { useGetAllItemRequisitionsQuery } from "services/admin/inventory-management/item-requisition";
 
 export default function ItemRequisitionHomePage() {
-    const [page, setPage] = useState(1);
+  const [page, setPage] = useState(1);
 
-    const { data: itemRequisition, isFetching } =
-        useGetAllItemRequisitionsQuery({
-            page,
-            size: 10,
-        });
+  const { data: itemRequisition, isFetching } = useGetAllItemRequisitionsQuery({
+    page,
+    size: 10,
+  });
 
-    return (
-        <div className="space-y-10">
-            <div className="flex justify-end">
-                <Link to={AdminRoutes.CREATE_ITEM_REQUISITION}>
-                    <Button>
-                        <AddSquareIcon />
-                        Add Item Requisition
-                    </Button>
-                </Link>
-            </div>
+  return (
+    <div className='space-y-10'>
+      <div className='flex justify-end'>
+        <Link to={AdminRoutes.CREATE_ITEM_REQUISITION}>
+          <Button>
+            <AddSquareIcon />
+            Add Item Requisition
+          </Button>
+        </Link>
+      </div>
 
-            <Card>
-                <TableFilters>
-                    <DataTable
-                        data={itemRequisition?.data.results || []}
-                        columns={itemRequisitionColumns}
-                        isLoading={isFetching}
-                        pagination={{
-                            total: itemRequisition?.data.pagination.count ?? 0,
-                            pageSize:
-                                itemRequisition?.data.pagination.page_size ?? 0,
-                            onChange: (page: number) => setPage(page),
-                        }}
-                    />
-                </TableFilters>
-            </Card>
-        </div>
-    );
+      <Card>
+        <TableFilters>
+          <DataTable
+            data={itemRequisition?.data.results || []}
+            columns={itemRequisitionColumns}
+            isLoading={isFetching}
+            pagination={{
+              total: itemRequisition?.data.pagination.count ?? 0,
+              pageSize: itemRequisition?.data.pagination.page_size ?? 0,
+              onChange: (page: number) => setPage(page),
+            }}
+          />
+        </TableFilters>
+      </Card>
+    </div>
+  );
 }

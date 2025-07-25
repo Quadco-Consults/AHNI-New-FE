@@ -10,109 +10,104 @@ import { toast } from "sonner";
 import FormSelect from "atoms/FormSelect";
 import { useGetAllCategoriesQuery } from "services/modules/config/category";
 import {
-    useAddItemMutation,
-    useUpdateItemMutation,
+  useAddItemMutation,
+  useUpdateItemMutation,
 } from "services/modules/config/item";
 import {
-    ItemSchema,
-    TItemData,
-    TItemFormValues,
+  ItemSchema,
+  TItemData,
+  TItemFormValues,
 } from "definations/modules/config/item";
 import FormTextArea from "atoms/FormTextArea";
 
 const AddItems = () => {
-    const { data: categories } = useGetAllCategoriesQuery({
-        page: 1,
-        size: 2000000,
-    });
+  const { data: categories } = useGetAllCategoriesQuery({
+    page: 1,
+    size: 2000000,
+  });
 
-    const categoryOptions = categories?.data?.results?.map((cat) => ({
-        label: cat.name,
-        value: cat.id,
-    }));
+  const categoryOptions = categories?.data?.results?.map((cat) => ({
+    label: cat.name,
+    value: cat.id,
+  }));
 
-    const { dialogProps } = useAppSelector(dailogSelector);
+  const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TItemData;
-    const form = useForm<TItemFormValues>({
-        resolver: zodResolver(ItemSchema),
-        defaultValues: {
-            name: data?.name ?? "",
-            description: data?.description ?? "",
-            uom: data?.uom ?? "",
-            category: data?.category ?? "",
-        },
-    });
+  const data = dialogProps?.data as unknown as TItemData;
+  const form = useForm<TItemFormValues>({
+    resolver: zodResolver(ItemSchema),
+    defaultValues: {
+      name: data?.name ?? "",
+      description: data?.description ?? "",
+      uom: data?.uom ?? "",
+      category: data?.category ?? "",
+    },
+  });
 
-    const [items, { isLoading }] = useAddItemMutation();
-    const [updateItems, { isLoading: updateItemsLoading }] =
-        useUpdateItemMutation();
+  const [items, { isLoading }] = useAddItemMutation();
+  const [updateItems, { isLoading: updateItemsLoading }] =
+    useUpdateItemMutation();
 
-    const dispatch = useAppDispatch();
-    const onSubmit: SubmitHandler<TItemFormValues> = async (data) => {
-        try {
-            if (dialogProps?.type === "update") {
-                await updateItems({
-                    //@ts-ignore
-                    id: String(dialogProps?.data?.id),
-                    body: data,
-                }).unwrap();
-            } else {
-                await items(data).unwrap();
-            }
+  const dispatch = useAppDispatch();
+  const onSubmit: SubmitHandler<TItemFormValues> = async (data) => {
+    try {
+      if (dialogProps?.type === "update") {
+        await updateItems({
+          //@ts-ignore
+          id: String(dialogProps?.data?.id),
+          body: data,
+        }).unwrap();
+      } else {
+        await items(data).unwrap();
+      }
 
-            toast.success("Item Added Succesfully");
-            dispatch(closeDialog());
-            form.reset();
-        } catch (error: any) {
-            toast.error(error.data.message || "Something went wrong");
-        }
-    };
-    return (
-        <CardContent>
-            <Form {...form}>
-                <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex flex-col gap-y-7"
-                >
-                    <FormInput
-                        label="Name"
-                        name="name"
-                        placeholder="Enter Item Name"
-                        required
-                    />
+      toast.success("Item Added Succesfully");
+      dispatch(closeDialog());
+      form.reset();
+    } catch (error: any) {
+      toast.error(error.data.message || "Something went wrong");
+    }
+  };
+  return (
+    <CardContent>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className='flex flex-col gap-y-7'
+        >
+          <FormInput
+            label='Name'
+            name='name'
+            placeholder='Enter Item Name'
+            required
+          />
 
-                    <FormTextArea
-                        label="Description"
-                        placeholder="Enter Item Description"
-                        name="description"
-                        required
-                    />
+          <FormTextArea
+            label='Description'
+            placeholder='Enter Item Description'
+            name='description'
+            required
+          />
 
-                    <FormInput
-                        label="UOM"
-                        name="uom"
-                        required
-                        placeholder="Enter UOM"
-                    />
+          <FormInput label='UOM' name='uom' required placeholder='Enter UOM' />
 
-                    <FormSelect
-                        label="Category"
-                        name="category"
-                        required
-                        placeholder="Select Category"
-                        options={categoryOptions}
-                    />
+          <FormSelect
+            label='Category'
+            name='category'
+            required
+            placeholder='Select Category'
+            options={categoryOptions}
+          />
 
-                    <div className="flex justify-start gap-4">
-                        <FormButton loading={isLoading || updateItemsLoading}>
-                            Save
-                        </FormButton>
-                    </div>
-                </form>
-            </Form>
-        </CardContent>
-    );
+          <div className='flex justify-start gap-4'>
+            <FormButton loading={isLoading || updateItemsLoading}>
+              Save
+            </FormButton>
+          </div>
+        </form>
+      </Form>
+    </CardContent>
+  );
 };
 
 export default AddItems;
