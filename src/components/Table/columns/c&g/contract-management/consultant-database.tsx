@@ -14,220 +14,236 @@ import { useDeleteConsultancyReportMutation } from "services/c&g/contract-manage
 import EyeIcon from "components/icons/EyeIcon";
 
 export const consultantDatabaseColumns: ColumnDef<IConsultancyReportPaginatedData>[] =
-    [
-        {
-            header: "Name of Consultant",
-            id: "consultant",
-            accessorKey: "consultant",
-            size: 200,
-        },
+  [
+    {
+      header: "Surname",
+      id: "sur_name",
+      accessorKey: "sur_name",
+      size: 200,
+    },
 
-        {
-            header: "Phone Number",
-            id: "consultant",
-            accessorKey: "consultant",
-            size: 200,
-        },
+    {
+      header: "Other Names",
+      id: "other_names",
+      accessorKey: "other_names",
+      size: 200,
+    },
 
-        {
-            header: "Designation",
-            id: "consultant",
-            accessorKey: "consultant",
-            size: 200,
-        },
+    {
+      header: "Gender",
+      id: "gender",
+      accessorKey: "gender",
+      size: 200,
+    },
 
-        {
-            header: "Location",
-            id: "consultant",
-            accessorKey: "consultant",
-            size: 200,
-        },
+    {
+      header: "State of Origin",
+      id: "state_of_origin",
+      accessorKey: "state_of_origin",
+      size: 200,
+    },
 
-        {
-            header: "Project",
-            id: "consultant",
-            accessorKey: "consultant",
-            size: 200,
-        },
+    {
+      header: "Designation",
+      id: "designation",
+      accessorKey: "designation",
+      size: 200,
+    },
 
-        {
-            header: "Requesting Unit",
-            id: "consultant",
-            accessorKey: "consultant",
-            size: 200,
-        },
+    {
+      header: "Phone Number",
+      id: "phone_number",
+      accessorKey: "phone_number",
+      size: 200,
+    },
 
-        {
-            header: "Month",
-            id: "consultant",
-            accessorKey: "consultant",
-            size: 200,
-        },
+    {
+      header: "Email Address",
+      id: "email_address",
+      accessorKey: "email_address",
+      size: 200,
+    },
 
-        {
-            header: "Start Date",
-            id: "consultant",
-            accessorKey: "consultant",
-            size: 200,
-        },
+    {
+      header: "Qualifications",
+      id: "qualifications",
+      accessorKey: "qualifications",
+      size: 200,
+    },
 
-        {
-            header: "End Date",
-            id: "consultant",
-            accessorKey: "consultant",
-            size: 200,
-        },
+    {
+      header: "Health Facility/Assignment Location",
+      id: "health_facility",
+      accessorKey: "health_facility",
+      size: 200,
+    },
 
-        {
-            header: "Total Working Days",
-            id: "consultant",
-            accessorKey: "consultant",
-            size: 200,
-        },
+    {
+      header: "Spoke Site Name",
+      id: "spoke_site_name",
+      accessorKey: "spoke_site_name",
+      size: 200,
+    },
 
-        {
-            header: "Days Worked",
-            id: "consultant",
-            accessorKey: "consultant",
-            size: 200,
-        },
+    {
+      header: "LGA",
+      id: "lga",
+      accessorKey: "lga",
+      size: 200,
+    },
 
-        {
-            header: "Days Remaining",
-            id: "consultant",
-            accessorKey: "consultant",
-            size: 200,
-        },
+    {
+      header: "Status of Adhoc staff",
+      id: "status_of_adhoc_staff",
+      accessorKey: "status_of_adhoc_staff",
+      size: 200,
+    },
 
-        {
-            header: "Daily Rate",
-            id: "consultant",
-            accessorKey: "consultant",
-            size: 200,
-        },
+    {
+      header: "QMAP BACKSTOP",
+      id: "qmap_backstop",
+      accessorKey: "qmap_backstop",
+      size: 200,
+    },
 
-        {
-            header: "Contract Amount",
-            id: "consultant",
-            accessorKey: "consultant",
-            size: 200,
-        },
+    {
+      header: "Programs Officer",
+      id: "programs_officer",
+      accessorKey: "programs_officer",
+      size: 200,
+    },
 
-        {
-            header: "Amount Paid",
-            id: "consultant",
-            accessorKey: "consultant",
-            size: 200,
-        },
+    {
+      header: "STL",
+      id: "stl",
+      accessorKey: "stl",
+      size: 200,
+    },
 
-        {
-            header: "Balance",
-            id: "consultant",
-            accessorKey: "consultant",
-            size: 200,
-        },
+    {
+      header: "SEO",
+      id: "seo",
+      accessorKey: "seo",
+      size: 200,
+    },
 
-        {
-            header: "Payment Date",
-            id: "consultant",
-            accessorKey: "consultant",
-            size: 200,
-        },
+    {
+      header: "LGA2",
+      id: "lga2",
+      accessorKey: "lga2",
+      size: 200,
+    },
 
-        {
-            header: "Status",
-            id: "status",
-            accessorKey: "status",
-            size: 200,
-        },
+    {
+      header: "Cluster",
+      id: "cluster",
+      accessorKey: "cluster",
+      size: 200,
+    },
 
-        {
-            header: "Remarks",
-            id: "consultant",
-            accessorKey: "consultant",
-            size: 200,
-        },
+    {
+      header: "Account Name",
+      id: "account_name",
+      accessorKey: "account_name",
+      size: 200,
+    },
+    {
+      header: "Bank Name",
+      id: "bank_name",
+      accessorKey: "bank_name",
+      size: 200,
+    },
+    {
+      header: "Account Number",
+      id: "account_number",
+      accessorKey: "account_number",
+      size: 200,
+    },
 
-        {
-            header: "",
-            id: "action",
-            size: 80,
-            cell: ({ row }) => <TableMenu {...row.original} />,
-        },
-    ];
+    {
+      header: "SORT CODE",
+      id: "sort_code",
+      accessorKey: "sort_code",
+      size: 200,
+    },
+
+    {
+      header: "",
+      id: "action",
+      size: 80,
+      cell: ({ row }) => <TableMenu {...row.original} />,
+    },
+  ];
 
 const TableMenu = ({ id }: IConsultancyReportPaginatedData) => {
-    const [isDialogOpen, setDialogOpen] = useState(false);
+  const [isDialogOpen, setDialogOpen] = useState(false);
 
-    const [deleteConsultancyReport, { isLoading }] =
-        useDeleteConsultancyReportMutation();
+  const [deleteConsultancyReport, { isLoading }] =
+    useDeleteConsultancyReportMutation();
 
-    const handleDelete = async () => {
-        try {
-            await deleteConsultancyReport(id).unwrap();
-            toast.success("Consultancy Report Deleted");
-        } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
-        }
-    };
+  const handleDelete = async () => {
+    try {
+      await deleteConsultancyReport(id).unwrap();
+      toast.success("Consultancy Report Deleted");
+    } catch (error: any) {
+      toast.error(error.data.message ?? "Something went wrong");
+    }
+  };
 
-    return (
-        <div className="flex items-center gap-2">
-            <>
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <Button variant="ghost" className="flex gap-2 py-6">
-                            <MoreOptionsHorizontalIcon />
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-fit">
-                        <Link
-                            to={generatePath(
-                                CG_ROUTES.CONSULTANCY_REPORT_DETAILS,
-                                { id }
-                            )}
-                        >
-                            <Button
-                                className="w-full flex items-center justify-start gap-2"
-                                variant="ghost"
-                            >
-                                <EyeIcon />
-                                View
-                            </Button>
-                        </Link>
-                        <Link
-                            to={{
-                                pathname: CG_ROUTES.CREATE_CONSULTANCY_REPORT,
-                                search: `?id=${id}`,
-                            }}
-                        >
-                            <Button
-                                className="w-full flex items-center justify-start gap-2"
-                                variant="ghost"
-                            >
-                                <PencilIcon />
-                                Edit
-                            </Button>
-                        </Link>
-                        <Button
-                            className="w-full flex items-center justify-start gap-2"
-                            variant="ghost"
-                            onClick={() => setDialogOpen(true)}
-                        >
-                            <DeleteIcon />
-                            Delete
-                        </Button>
-                    </PopoverContent>
-                </Popover>
-            </>
+  return (
+    <div className='flex items-center gap-2'>
+      <>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant='ghost' className='flex gap-2 py-6'>
+              <MoreOptionsHorizontalIcon />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className='w-fit'>
+            <Link
+              to={generatePath(CG_ROUTES.CONSULTANCY_REPORT_DETAILS, { id })}
+            >
+              <Button
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
+              >
+                <EyeIcon />
+                View
+              </Button>
+            </Link>
+            <Link
+              to={{
+                pathname: CG_ROUTES.CREATE_CONSULTANCY_REPORT,
+                search: `?id=${id}`,
+              }}
+            >
+              <Button
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
+              >
+                <PencilIcon />
+                Edit
+              </Button>
+            </Link>
+            <Button
+              className='w-full flex items-center justify-start gap-2'
+              variant='ghost'
+              onClick={() => setDialogOpen(true)}
+            >
+              <DeleteIcon />
+              Delete
+            </Button>
+          </PopoverContent>
+        </Popover>
+      </>
 
-            <ConfirmationDialog
-                open={isDialogOpen}
-                title="Are you sure you want to delete this consultant?"
-                loading={isLoading}
-                onCancel={() => setDialogOpen(false)}
-                onOk={handleDelete}
-            />
-        </div>
-    );
+      <ConfirmationDialog
+        open={isDialogOpen}
+        title='Are you sure you want to delete this consultant?'
+        loading={isLoading}
+        onCancel={() => setDialogOpen(false)}
+        onOk={handleDelete}
+      />
+    </div>
+  );
 };

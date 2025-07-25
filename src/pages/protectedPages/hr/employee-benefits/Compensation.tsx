@@ -3,7 +3,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import FormButton from "atoms/FormButton";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import DataTable from "components/Table/DataTable";
-import React from "react";
+import React, { useState } from "react";
 
 import FilterIcon2 from "assets/svgs/FilterIcon2";
 import { Button } from "components/ui/button";
@@ -14,7 +14,12 @@ import { Checkbox } from "components/ui/checkbox";
 import IconButton from "components/shared/IconButton";
 import { Icon } from "@iconify/react";
 import PayGroupModal from "./components/PayGroupModal";
-import { useGetCompensationsQuery } from "services/hrApi/hr-compensations";
+import {
+  useDeleteCompensationMutation,
+  useGetCompensationsQuery,
+} from "services/hrApi/hr-compensations";
+import ConfirmationDialog from "components/modals/dailog/ConfirmationDialog";
+import { toast } from "sonner";
 
 const Compensation: React.FC = () => {
   const navigate = useNavigate();
@@ -74,14 +79,20 @@ const Compensation: React.FC = () => {
     },
     {
       header: "Position",
-      accessorKey: "position",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.position?.name}</p>,
+      cell: ({ row }) => <p>{row?.original?.pay_group?.position?.name}</p>,
     },
     {
       header: "Grade",
-      accessorKey: "grade",
+
       size: 200,
+      cell: ({ row }) => <p>{row?.original?.pay_group?.grade?.name}</p>,
+    },
+    {
+      header: "Level",
+      accessorKey: "level.name",
+      size: 200,
+      cell: ({ row }) => <p>{row?.original?.pay_group?.level?.name}</p>,
     },
     {
       header: "Period",
@@ -98,7 +109,18 @@ const Compensation: React.FC = () => {
   ];
 
   const ActionListAction = ({ data }: any) => {
-    console.log(data);
+    const [dialogOpen, setDialogOpen] = useState(false);
+
+    const [deleteCompensation, { isLoading }] = useDeleteCompensationMutation();
+
+    const handleDelete = async () => {
+      try {
+        await deleteCompensation(data?.id).unwrap();
+      } catch (error: any) {
+        toast.error(error.data.message ?? "Something went wrong");
+      }
+    };
+
     return (
       <div className='flex gap-2'>
         <Link
@@ -111,6 +133,13 @@ const Compensation: React.FC = () => {
         <IconButton className='bg-[#F9F9F9] hover:text-primary'>
           <Icon icon='ant-design:delete-twotone' fontSize={15} />
         </IconButton>
+        <ConfirmationDialog
+          open={dialogOpen}
+          title='Are you sure you want to delete this tr'
+          loading={isLoading}
+          onCancel={() => setDialogOpen(false)}
+          onOk={handleDelete}
+        />
       </div>
     );
   };

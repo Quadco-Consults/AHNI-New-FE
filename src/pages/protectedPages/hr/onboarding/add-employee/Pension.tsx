@@ -28,7 +28,8 @@ import FormCheckBox from "atoms/FormCheckBox";
 import GoBack from "components/shared/GoBack";
 
 const Pension = () => {
-  const { id } = useParams();
+  const id = localStorage.getItem("workforceID") || "";
+
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -39,6 +40,7 @@ const Pension = () => {
 
   const { data: pension, isLoading: pensionLoading } =
     useGetEmployeeOnboardingPensionQuery({ employee: id });
+  console.log({ pension });
 
   const form = useForm<WorkforcePensionFormValues>({
     resolver: zodResolver(workforcePensionSchema),
@@ -61,7 +63,7 @@ const Pension = () => {
   };
 
   const onSubmit = async (data: WorkforcePensionFormValues) => {
-    if (pension) {
+    if (pension && pension.data.results.length) {
       try {
         await updateEmployeeOnboardingPension(data).unwrap();
         dispatch(

@@ -4,17 +4,19 @@ import BasicInformation from "./BasicInformation";
 import Qualification from "./Qualification";
 import { Button } from "components/ui/button";
 import { ChevronRight } from "lucide-react";
-import { useNavigate, useParams, generatePath, Link } from "react-router-dom";
+import { useParams, generatePath, Link } from "react-router-dom";
 import { HrRoutes } from "constants/RouterConstants";
 import GoBack from "components/shared/GoBack";
-import { useGetEmployeeOnboardingQuery } from "services/hrApi/hr-employee-onboarding";
 import { useGetEmployeeOnboardingQualificationsListQuery } from "services/hrApi/hr-employee-onboarding-qualifications";
+import { useGetJobApplicationQuery } from "services/hrApi/hr-job-applications";
+import { useState } from "react";
 
 const EmployeeInformation = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
 
-  const { data, isLoading } = useGetEmployeeOnboardingQuery({
+  const [activeTab, setActiveTab] = useState("basic_information");
+
+  const { data, isLoading } = useGetJobApplicationQuery({
     id: id as string,
   });
 
@@ -42,7 +44,7 @@ const EmployeeInformation = () => {
         {id ? (
           <>
             {!isLoading && (
-              <Tabs defaultValue='basic_information'>
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList>
                   <TabsTrigger value='basic_information'>
                     Basic Information
@@ -52,17 +54,38 @@ const EmployeeInformation = () => {
 
                 <TabsContent value='basic_information'>
                   <Card className='px-6'>
-                    <BasicInformation info={data} />
+                    <BasicInformation
+                      info={data}
+                      onNext={() => setActiveTab("qualification")}
+                    />
                   </Card>
                 </TabsContent>
 
                 {!getLoading && (
                   <TabsContent value='qualification'>
-                    <Card className='px-6'>
-                      <Qualification
-                        qualifications={qualifications?.data.results}
-                      />
-                    </Card>
+                    <>
+                      <Card className='px-6'>
+                        <Qualification
+                          qualifications={qualifications?.data.results}
+                        />
+                      </Card>
+                      <div className='flex gap-x-6 justify-end mt-4'>
+                        <Link
+                          to={generatePath(
+                            HrRoutes.ONBOARDING_ADD_EMPLOYEE_ADD,
+                            {
+                              id,
+                            }
+                          )}
+                          className='flex flex-col items-start justify-between gap-1'
+                        >
+                          <Button type='button'>
+                            Next
+                            <ChevronRight size={20} />
+                          </Button>
+                        </Link>
+                      </div>
+                    </>
                   </TabsContent>
                 )}
               </Tabs>
@@ -77,33 +100,11 @@ const EmployeeInformation = () => {
               <TabsTrigger value='qualification'>Qualification</TabsTrigger>
             </TabsList>
 
-            <TabsContent value='basic_information'>
-              <Card className='px-6'>
-                <BasicInformation info={undefined} />
-              </Card>
-            </TabsContent>
+            <TabsContent value='basic_information'></TabsContent>
 
-            <TabsContent value='qualification'>
-              <Card className='px-6'>
-                <Qualification data={undefined} />
-              </Card>
-            </TabsContent>
+            <TabsContent value='qualification'></TabsContent>
           </Tabs>
         )}
-
-        <div className='flex gap-x-6 justify-end'>
-          <Link
-            to={generatePath(HrRoutes.ONBOARDING_ADD_EMPLOYEE_ADD, {
-              id,
-            })}
-            className='flex flex-col items-start justify-between gap-1'
-          >
-            <Button type='button'>
-              Next
-              <ChevronRight size={20} />
-            </Button>
-          </Link>
-        </div>
       </Card>
     </>
   );

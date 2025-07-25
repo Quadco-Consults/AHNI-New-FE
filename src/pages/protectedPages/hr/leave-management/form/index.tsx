@@ -17,6 +17,12 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
+import LeaveRequestAPI from "services/hrApi/hr-leave-request";
+import { toast } from "sonner";
+import { openDialog } from "store/ui";
+import { DialogType } from "constants/dailogs";
+import { useAppDispatch } from "hooks/useStore";
+
 // import ItemsAPI from "services/configs/items";
 
 // import PurchaseRequestAPI from "services/procurementApi/purchase-request";
@@ -26,6 +32,10 @@ import { useEffect } from "react";
 const LeaveForm = () => {
   // const { data: leaveTypes, isLoading: leaveTypesIsLoading } =
   //     useLeaveTypesQuery({});
+  const dispatch = useAppDispatch();
+
+  const [createLeaveRequest, { isLoading }] =
+    LeaveRequestAPI.useCreateLeaveRequestMutation();
 
   const leaveTypes = [
     "Sick Leave",
@@ -60,8 +70,28 @@ const LeaveForm = () => {
   //   });
 
   const onSubmit = async (data: any) => {
+    const formData = {
+      type: data.type,
+      reason: data.reason,
+      from_day: data.from,
+      to_day: data.to,
+      days: data.days,
+    };
+    try {
+      await createLeaveRequest(formData).unwrap();
+      dispatch(
+        openDialog({
+          type: DialogType.HrSuccessModal,
+          dialogProps: {
+            label: "Request Created",
+          },
+        })
+      );
+    } catch (error) {
+      toast.error("Something went wrong");
+    }
     console.log({ data });
-    navigate(HrRoutes.LEAVE_MANAGEMENT_LEAVE_LIST);
+    // navigate(HrRoutes.LEAVE_MANAGEMENT_LEAVE_LIST);
   };
 
   useEffect(() => {
@@ -148,8 +178,8 @@ const LeaveForm = () => {
                 Cancel
               </FormButton>
               <FormButton
-                // loading={isLoading}
-                // disabled={isLoading}
+                loading={isLoading}
+                disabled={isLoading}
                 type='submit'
                 className='flex items-center justify-center gap-2'
               >

@@ -14,9 +14,15 @@ import { Checkbox } from "components/ui/checkbox";
 import IconButton from "components/shared/IconButton";
 import { Icon } from "@iconify/react";
 import PayGroupModal from "../components/PayGroupModal";
+import { useGetPayRollsQuery } from "services/hrApi/hr-pay-roll";
 
 const Payroll: React.FC = () => {
   const navigate = useNavigate();
+
+  const { data: payRollsData, isLoading: isLoadingPayGroups } =
+    useGetPayRollsQuery();
+
+  console.log({ payRollsData, isLoadingPayGroups });
 
   const [isModalOpen, setModalOpen] = React.useState(false);
 

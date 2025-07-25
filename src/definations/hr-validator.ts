@@ -42,7 +42,7 @@ export const workforceSchema = object({
   other_number: z.string().optional(),
   date_of_birth: z.string().date("Field is required"),
   date_of_hire: z.string().min(1, "Field is required"),
-  ss_number: z.string().min(1, "Field is required"),
+  // ss_number: z.string().min(1, "Field is required"),
   serial_id_code: z.string().min(1, "Field is required"),
   signature_file: z.any(),
   passport_file: z.any(),
@@ -50,7 +50,7 @@ export const workforceSchema = object({
   own_computer: z.boolean(),
   require_email_access: z.boolean(),
   employment_type: z.enum(["INTERNAL", "EXTERNAL", "BOTH"]),
-  group: z.string().min(1, "Field is required"),
+  // group: z.string().min(1, "Field is required"),
   location: z.string().min(1, "Field is required"),
   // application: z.string().min(1, "Field is required"),
   department: z.string().min(1, "Field is required"),
@@ -113,7 +113,11 @@ export const jobAdvertismentSchema = z.object({
 });
 
 export const jobApplicationSchema = z.object({
-  applicant_name: z.string().min(3, "Name must be at least 3 characters"),
+  applicant_first_name: z.string().min(3, "Name must be at least 3 characters"),
+  applicant_last_name: z.string().min(3, "Name must be at least 3 characters"),
+  applicant_middle_name: z
+    .string()
+    .min(3, "Name must be at least 3 characters"),
   applicant_email: z.string().email("Invalid email"),
   application_notes: z.string().optional(),
   cover_letter: z.any().optional(),
@@ -124,11 +128,13 @@ export const jobApplicationSchema = z.object({
   referees: z
     .array(
       z.object({
-        name: z.string().min(3, "Name must be at least 3 characters"),
-        email: z.string().email("Invalid email"),
+        // name: z.string().min(3, "Name must be at least 3 characters"),
+        name: z.string().optional(),
+        email: z.string().email("Invalid email").optional(),
       })
     )
-    .min(1, "At least one referee is required"),
+    .optional(),
+  // .min(1, "At least one referee is required"),
   resume: z.any().optional(), // File will be converted to Base64
   status: z.enum(["applied", "interviewed", "hired", "rejected"]),
 });

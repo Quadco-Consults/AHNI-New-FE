@@ -4,17 +4,9 @@ import { useForm } from "react-hook-form";
 import FormInput from "atoms/FormInput";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
-import FormTextArea from "atoms/FormTextArea";
-import { useNavigate, useParams } from "react-router-dom";
 import FormCheckBox from "atoms/FormCheckBox";
 import { openDialog } from "store/ui";
 import { Save } from "lucide-react";
-
-import FormSelect from "atoms/FormSelect";
-import { Separator } from "components/ui/separator";
-import { Button } from "components/ui/button";
-import { HrRoutes } from "constants/RouterConstants";
-import Card from "components/shared/Card";
 
 import {
   hrSystemAuthorizationSchema,
@@ -28,17 +20,15 @@ import {
   useUpdateSystemAuthorizationMutation,
   useCreateSystemAuthorizationMutation,
 } from "services/hrApi/hr-employee-onboarding-add-authorization";
-import { HrSystemAuthorization } from "definations/hr-types/employee-onboarding";
 import { useGetSystemAuthorizationListQuery } from "services/hrApi/hr-employee-onboarding-add-authorization";
 
 export const AuthorizationForm = () => {
-  const { id } = useParams();
+  const id = localStorage.getItem("workforceID") || "";
   const dispatch = useAppDispatch();
 
-  const { data: authorization, isLoading: authorizationsLoading } =
-    useGetSystemAuthorizationListQuery({
-      employee: id as string,
-    });
+  const { data: authorization } = useGetSystemAuthorizationListQuery({
+    employee: id as string,
+  });
 
   const [createSystemAuhorization, { isLoading }] =
     useCreateSystemAuthorizationMutation();

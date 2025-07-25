@@ -30,7 +30,9 @@ const ApplicationForm = () => {
   const form = useForm<TFormValues>({
     resolver: zodResolver(jobApplicationSchema),
     defaultValues: {
-      applicant_name: "",
+      applicant_first_name: "",
+      applicant_last_name: "",
+      applicant_middle_name: "",
       applicant_email: "",
       application_notes: "",
       cover_letter: "",
@@ -38,11 +40,14 @@ const ApplicationForm = () => {
       advertisement: id,
       interview_date: "",
       position_applied: "",
-      referees: [{ name: "", email: "" }],
+      referees: [{ name: "Kelu", email: "grjshs@gmail.com" }], // we need to sort the refferee requirements
       resume: null,
       status: "applied",
     },
   });
+
+  const tramp = form.getValues();
+  console.log({ tramp });
 
   // Update form values when advertisement details load
   useEffect(() => {
@@ -65,6 +70,8 @@ const ApplicationForm = () => {
   const { handleSubmit } = form;
 
   const onSubmit: SubmitHandler<TFormValues> = async (data: any) => {
+    console.log({ data, cram: "rengoku" });
+
     try {
       const fileToBase64 = async (
         file: File | FileList | string
@@ -120,7 +127,23 @@ const ApplicationForm = () => {
               Applicant Details
             </h4>
             <div className='grid grid-cols-2 gap-4'>
-              <FormInput name='applicant_name' label='Name' required />
+              <FormInput
+                name='applicant_first_name'
+                label='First Name'
+                required
+              />
+              <FormInput
+                name='applicant_middle_name'
+                label='Middle Name'
+                required
+              />
+            </div>
+            <div className='grid grid-cols-2 gap-4'>
+              <FormInput
+                name='applicant_last_name'
+                label=' Last Name'
+                required
+              />
               <FormInput
                 name='applicant_email'
                 label='Email'
@@ -141,17 +164,6 @@ const ApplicationForm = () => {
                 label='Employment type'
                 disabled
               />
-            </div>
-
-            <div className='grid grid-cols-2 gap-4'>
-              <FormInput
-                name='dob'
-                label='Date of Birth'
-                required
-                type='date'
-              />
-              {/* Replaced dropdown with  input */}
-              <FormInput name='phone' label='Phone' />
             </div>
 
             {/* <div className='space-y-4'>
