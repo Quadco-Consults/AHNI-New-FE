@@ -23,6 +23,22 @@ export interface TWorkPlanSingleResponse {
   financial_year: TFinancialYearData;
 }
 
+export type TMonth =
+    | "Jan"
+    | "Feb"
+    | "Mar"
+    | "Apr"
+    | "May"
+    | "Jun"
+    | "Jul"
+    | "Aug"
+    | "Sep"
+    | "Oct"
+    | "Nov"
+    | "Dec";
+
+export type TMonthChart = Record<TMonth, number>;
+
 export interface TActivity {
   id: string;
   activity_number: string;
