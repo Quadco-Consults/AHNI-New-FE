@@ -70,20 +70,10 @@ export default function ProjectSummaryPage() {
     id: user.id,
   }));
 
-  const { data: partner } = useGetAllPartnersQuery({
-    page: 1,
-    size: 2000000,
-  });
-
-  // const { data: grants } = useGetAllGrantsQuery({
-  //     page: 1,
-  //     size: 2000000,
-  // });
-
-  // const grantOptions = grants?.data?.results?.map(({ name, id }) => ({
-  //     label: name,
-  //     value: id,
-  // }));
+    const { data: partner } = useGetAllPartnersQuery({
+        page: 1,
+        size: 2000000,
+    });
 
   const query = useQuery();
 
