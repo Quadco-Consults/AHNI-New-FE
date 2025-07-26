@@ -20,23 +20,23 @@ const DeliveryStageCard = () => {
   const columns: ColumnDef<any>[] = [
     {
       header: "Date Delivery Due",
-      accessorKey: "programme_requesting",
+      accessorKey: "purchase_order.delivery_due_date",
       size: 195,
     },
     {
       header: "Date Delivery Received",
-      accessorKey: "office_requesting",
+      accessorKey: "purchase_order.date_of_grn",
       size: 195,
     },
 
     {
       header: "GRN No.",
-      accessorKey: "procurement_officer_responsible",
+      accessorKey: "purchase_order.grn_details",
       size: 195,
     },
     {
       header: "Vendor Performance Rating",
-      accessorKey: "pr_no. ",
+      accessorKey: "vendor_performance",
       size: 250,
     },
     {
@@ -44,7 +44,7 @@ const DeliveryStageCard = () => {
       accessorKey: "date_pr_received",
       size: 200,
       // cell: ({ row }) => {
-      cell: () => {
+      cell: ({ row }) => {
         return (
           <Badge
             variant='default'
@@ -56,27 +56,28 @@ const DeliveryStageCard = () => {
               // getValue() === "AUTHORIZED" && "text-green-200 bg-green-500"
             )}
           >
-            {"ON GOING"}
+            {/* {"ON GOING"} */}
+            {row.original.purchase_order?.status}
           </Badge>
         );
       },
 
-      // cell: ({ row }) => {
-      //   const track = row?.original?.solicitation?.status;
-      //   console.log({ track });
+      // cell: ({ getValue }) => {
+      //   // const track = row?.original?.solicitation?.status;
+      //   // console.log({ track });
 
       //   return (
       //     <Badge
       //       variant='default'
       //       className={cn(
-      //         "p-1 rounded-lg"
-      //         // getValue() === "REVIEWED" && "bg-blue-200 text-blue-500",
-      //         // getValue() === "APPROVED" && "bg-green-200 text-green-500",
-      //         // getValue() === "PENDING" && "bg-yellow-200 text-yellow-500",
-      //         // getValue() === "AUTHORIZED" && "text-green-200 bg-green-500"
+      //         // "p-1 rounded-lg"
+      //         getValue() === "REVIEWED" && "bg-blue-200 text-blue-500",
+      //         getValue() === "APPROVED" && "bg-green-200 text-green-500",
+      //         getValue() === "PENDING" && "bg-yellow-200 text-yellow-500",
+      //         getValue() === "AUTHORIZED" && "text-green-200 bg-green-500"
       //       )}
       //     >
-      //       {/* {getValue() as string} */}
+      //       {getValue() as string}
       //     </Badge>
       //   );
       // },

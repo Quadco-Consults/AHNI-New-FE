@@ -67,11 +67,11 @@ export default function CreateItemRequisition() {
 
   const consumableOptions = useMemo(
     () =>
-      item?.data.results.map(({ name, id }) => ({
-        label: name,
+      consumable?.data.results.map(({ item, id }) => ({
+        label: item?.name,
         value: id,
       })),
-    [item]
+    [consumable]
   );
   console.log({ item, consumable });
 
