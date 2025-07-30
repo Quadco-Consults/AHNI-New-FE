@@ -9,15 +9,14 @@ import Card from "components/shared/Card";
 import { Form } from "components/ui/form";
 import { AdminRoutes } from "constants/RouterConstants";
 import {
-  ConsumableSchema,
-  EditConsumableSchema,
-  TConsumableFormValues,
-} from "definations/admin/inventory-management/consumable";
+  EditItemSchema,
+  ItemSchema,
+  TItemFormValues,
+} from "definations/modules/config/item";
 import useQuery from "hooks/useQuery";
 import { useEffect, useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { useGetSingleConsumableQuery } from "services/admin/inventory-management/consumable";
 import { useGetAllCategoriesQuery } from "services/modules/config/category";
 import {
   useAddItemMutation,
@@ -40,12 +39,6 @@ export default function CreateConsumablePage() {
 
   const { data: item } = useGetSingleItemQuery(consumableId ?? skipToken);
 
-  console.log({ item });
-
-  const { data: consumable } = useGetSingleConsumableQuery(
-    consumableId ?? skipToken
-  );
-
   const { data: category } = useGetAllCategoriesQuery({
     page: 1,
     size: 2000000,
@@ -60,7 +53,7 @@ export default function CreateConsumablePage() {
     [category]
   );
 
-  const Schema = consumableId ? EditConsumableSchema : ConsumableSchema;
+  const Schema = consumableId ? EditItemSchema : ItemSchema;
 
   const defaultValues = useMemo(() => {
     return consumableId
@@ -79,6 +72,7 @@ export default function CreateConsumablePage() {
           available_quantity: "",
           item_cost: "",
           grn_tracking_number: "",
+          uom: "",
         }
       : {
           name: "",
@@ -88,33 +82,34 @@ export default function CreateConsumablePage() {
         };
   }, [consumableId]);
 
-  const form = useForm<TConsumableFormValues>({
+  const form = useForm<TItemFormValues>({
     resolver: zodResolver(Schema),
     defaultValues,
   });
 
+  console.log({ consumableId });
+
   useEffect(() => {
     if (consumableId) {
       form.reset({
-        name: consumable?.data?.item?.name,
-        description: consumable?.data?.item?.description,
-        uom: consumable?.data?.item?.uom,
-        // @ts-ignore
-        quantity: String(consumable?.data?.quantity),
-        stock_control_method: consumable?.data?.stock_control_method,
-        category: consumable?.data?.category?.id,
-        expiry_date: consumable?.data?.expiry_date,
-        previous_quantity: String(consumable?.data?.previous_quantity ?? ""),
-        re_order_level: String(consumable?.data?.re_order_level ?? ""),
-        buffer_stock: String(consumable?.data?.buffer_stock ?? ""),
-        max_stock: String(consumable?.data?.max_stock ?? ""),
-        entry_date: consumable?.data?.entry_date,
-        available_quantity: String(consumable?.data?.available_quantity ?? ""),
-        item_cost: consumable?.data?.item_cost,
-        grn_tracking_number: consumable?.data?.grn_tracking_number,
+        name: item?.data?.name,
+        description: item?.data?.description,
+        uom: item?.data?.uom,
+        quantity: item?.data?.quantity ? String(item?.data?.quantity) : "0",
+        stock_control_method: item?.data?.stock_control_method,
+        category: item?.data?.category?.id,
+        expiry_date: item?.data?.expiry_date || "",
+        previous_quantity: String(item?.data?.previous_quantity ?? ""),
+        re_order_level: String(item?.data?.re_order_level ?? ""),
+        buffer_stock: String(item?.data?.buffer_stock ?? ""),
+        max_stock: String(item?.data?.max_stock ?? ""),
+        entry_date: item?.data?.entry_date,
+        available_quantity: String(item?.data?.available_quantity ?? ""),
+        item_cost: item?.data?.item_cost,
+        grn_tracking_number: item?.data?.grn_tracking_number,
       });
     }
-  }, [consumableId, consumable]);
+  }, [consumableId, item, form]);
 
   const [createConsumable, { isLoading: isCreateLoading }] =
     useAddItemMutation();
@@ -123,29 +118,31 @@ export default function CreateConsumablePage() {
 
   const navigate = useNavigate();
 
-  const onSubmit: SubmitHandler<TConsumableFormValues> = async (data) => {
+  const onSubmit: SubmitHandler<TItemFormValues> = async (data) => {
     const editConsumableData = {
-      item: {
-        name: data?.name,
-        description: data?.description,
-        uom: data?.uom,
-        price: data?.item_cost,
-        category: data?.category,
-      },
-      quantity: data?.quantity ? Number(data?.quantity) : 0,
-      stock_control_method: data?.stock_control_method,
+      name: data?.name,
+      description: data?.description,
+      uom: data?.uom,
+      price: data?.item_cost,
+      category: data?.category,
 
+      quantity: data?.quantity ? String(Number(data?.quantity)) : "0",
+      stock_control_method: data?.stock_control_method,
       expiry_date: data?.expiry_date,
       previous_quantity: data?.previous_quantity
-        ? Number(data?.previous_quantity)
-        : 0,
-      re_order_level: data?.re_order_level ? Number(data?.re_order_level) : 0,
-      buffer_stock: data?.buffer_stock ? Number(data?.buffer_stock) : 0,
-      max_stock: data?.max_stock ? Number(data?.max_stock) : 0,
+        ? String(Number(data?.previous_quantity))
+        : "0",
+      re_order_level: data?.re_order_level
+        ? String(Number(data?.re_order_level))
+        : "0",
+      buffer_stock: data?.buffer_stock
+        ? String(Number(data?.buffer_stock))
+        : "0",
+      max_stock: data?.max_stock ? String(Number(data?.max_stock)) : "0",
       entry_date: data?.entry_date,
       available_quantity: data?.available_quantity
-        ? Number(data?.available_quantity)
-        : 0,
+        ? String(Number(data?.available_quantity))
+        : "0",
       item_cost: data?.item_cost,
       grn_tracking_number: data?.grn_tracking_number || "",
     };
@@ -302,7 +299,7 @@ export default function CreateConsumablePage() {
 
             <div className='ml-auto'>
               <FormButton loading={isCreateLoading || isEditLoading}>
-                {consumable ? "Update Consumable" : "Create Consumable"}
+                {consumableId ? "Update Consumable" : "Create Consumable"}
               </FormButton>
             </div>
           </form>

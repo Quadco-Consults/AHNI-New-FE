@@ -1,88 +1,88 @@
 import baseAPI from "../..";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 import {
-    TConsumableFormValues,
-    TConsumablePaginatedData,
-    TConsumableSingleData,
+  TConsumableFormValues,
+  TConsumablePaginatedData,
+  TConsumableSingleData,
 } from "definations/admin/inventory-management/consumable";
 
 const BASE_URL = `/admins/inventory/consumables/`;
 
 const ConsumableAPI = baseAPI.injectEndpoints({
-    endpoints: (builder) => ({
-        createConsumable: builder.mutation<
-            TResponse<TConsumableSingleData>,
-            TConsumableFormValues
-        >({
-            query: (body) => ({
-                method: "POST",
-                url: `${BASE_URL}`,
-                body,
-            }),
-            invalidatesTags: ["CONSUMABLE"],
-        }),
-
-        getAllConsumables: builder.query<
-            TPaginatedResponse<TConsumablePaginatedData>,
-            TRequest
-        >({
-            query: (params) => ({
-                method: "GET",
-                url: `${BASE_URL}`,
-                params,
-            }),
-            providesTags: ["CONSUMABLE"],
-        }),
-
-        getSingleConsumable: builder.query<
-            TResponse<TConsumableSingleData>,
-            string
-        >({
-            query: (id) => ({
-                method: "GET",
-                url: `${BASE_URL}${id}`,
-            }),
-            providesTags: ["CONSUMABLE"],
-        }),
-
-        getAllConsumableStockCards: builder.query<TResponse<any>, string>({
-            query: (id) => ({
-                method: "GET",
-                url: `${BASE_URL}${id}/stock-cards/`,
-            }),
-            providesTags: ["CONSUMABLE"],
-        }),
-
-        editConsumable: builder.mutation<
-            TResponse<TConsumableSingleData>,
-            { id: string; body: TConsumableFormValues }
-        >({
-            query: ({ id, body }) => ({
-                method: "PUT",
-                url: `${BASE_URL}${id}/`,
-                body,
-            }),
-            invalidatesTags: ["CONSUMABLE"],
-        }),
-
-        deleteConsumable: builder.mutation<
-            TResponse<TConsumableSingleData>,
-            string
-        >({
-            query: (id) => ({
-                method: "DELETE",
-                url: `${BASE_URL}${id}`,
-            }),
-            invalidatesTags: ["CONSUMABLE"],
-        }),
+  endpoints: (builder) => ({
+    createConsumable: builder.mutation<
+      TResponse<TConsumableSingleData>,
+      TConsumableFormValues
+    >({
+      query: (body) => ({
+        method: "POST",
+        url: `${BASE_URL}`,
+        body,
+      }),
+      invalidatesTags: ["CONSUMABLE"],
     }),
+
+    getAllConsumables: builder.query<
+      TPaginatedResponse<TConsumablePaginatedData>,
+      TRequest
+    >({
+      query: (params) => ({
+        method: "GET",
+        url: `${BASE_URL}`,
+        params,
+      }),
+      providesTags: ["CONSUMABLE"],
+    }),
+
+    getSingleConsumable: builder.query<
+      TResponse<TConsumableSingleData>,
+      string
+    >({
+      query: (id) => ({
+        method: "GET",
+        url: `${BASE_URL}${id}`,
+      }),
+      providesTags: ["CONSUMABLE"],
+    }),
+
+    getAllConsumableStockCards: builder.query<TResponse<any>, string>({
+      query: (id) => ({
+        method: "GET",
+        url: `/config/items/${id}/stock-cards/`,
+      }),
+      providesTags: ["CONSUMABLE"],
+    }),
+
+    editConsumable: builder.mutation<
+      TResponse<TConsumableSingleData>,
+      { id: string; body: TConsumableFormValues }
+    >({
+      query: ({ id, body }) => ({
+        method: "PUT",
+        url: `${BASE_URL}${id}/`,
+        body,
+      }),
+      invalidatesTags: ["CONSUMABLE"],
+    }),
+
+    deleteConsumable: builder.mutation<
+      TResponse<TConsumableSingleData>,
+      string
+    >({
+      query: (id) => ({
+        method: "DELETE",
+        url: `${BASE_URL}${id}`,
+      }),
+      invalidatesTags: ["CONSUMABLE"],
+    }),
+  }),
 });
 
 export const {
-    useCreateConsumableMutation,
-    useGetAllConsumablesQuery,
-    useGetSingleConsumableQuery,
-    useGetAllConsumableStockCardsQuery,
-    useEditConsumableMutation,
-    useDeleteConsumableMutation,
+  useCreateConsumableMutation,
+  useGetAllConsumablesQuery,
+  useGetSingleConsumableQuery,
+  useGetAllConsumableStockCardsQuery,
+  useEditConsumableMutation,
+  useDeleteConsumableMutation,
 } = ConsumableAPI;
