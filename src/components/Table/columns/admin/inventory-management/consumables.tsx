@@ -1,7 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import MoreIcon from "assets/MoreIcon";
 
-import { DialogType, mediumDailogScreen } from "constants/dailogs";
+import { DialogType } from "constants/dailogs";
 import { AdminRoutes } from "constants/RouterConstants";
 import { useAppDispatch } from "hooks/useStore";
 
@@ -77,7 +77,8 @@ export const consumableColums: ColumnDef<TConsumablePaginatedData>[] = [
   },
   {
     header: "Category",
-    accessorKey: "category",
+    accessorKey: "category.name",
+    size: 200,
   },
   {
     header: "",
@@ -86,6 +87,7 @@ export const consumableColums: ColumnDef<TConsumablePaginatedData>[] = [
   },
 ];
 
+// eslint-disable-next-line react-refresh/only-export-components
 const TableAction = ({ id }: TConsumablePaginatedData) => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -249,7 +251,7 @@ export const stockColumns: ColumnDef<{}>[] = [
       return (
         <Badge
           variant={
-            getValue<string>().toLowerCase() === "untreated"
+            getValue<string>()?.toLowerCase() === "untreated"
               ? "secondary"
               : "success"
           }
@@ -262,6 +264,6 @@ export const stockColumns: ColumnDef<{}>[] = [
   {
     header: "Action",
     accessorKey: "id",
-    cell: ({ row }) => <StockAction />,
+    cell: () => <StockAction />,
   },
 ];
