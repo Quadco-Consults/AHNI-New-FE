@@ -1,19 +1,10 @@
-import { skipToken } from "@reduxjs/toolkit/query";
 import { stockColumns } from "components/Table/columns/admin/inventory-management/consumables";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { Card, CardContent } from "components/ui/card";
 import { Separator } from "components/ui/separator";
-import { useParams } from "react-router-dom";
-import { useGetAllConsumableStockCardsQuery } from "services/admin/inventory-management/consumable";
 
-export default function ConsumableStockCard() {
-  const { id } = useParams();
-
-  const { data: stockCard } = useGetAllConsumableStockCardsQuery(
-    id ? id : skipToken
-  );
-
+export default function ConsumableStockCard({ stockCard }: { stockCard: any }) {
   return (
     <div className='mt-6'>
       <Card>
@@ -25,8 +16,7 @@ export default function ConsumableStockCard() {
           <TableFilters>
             <DataTable
               columns={stockColumns}
-              data={[]}
-              //   data={stockCard?.data?.data?.results}
+              data={stockCard?.data?.data?.results}
             />
           </TableFilters>
         </CardContent>

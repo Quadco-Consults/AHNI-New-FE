@@ -33,7 +33,7 @@ import { skipToken } from "@reduxjs/toolkit/query";
 import { useGetAllItemsQuery } from "services/modules/config/item";
 
 export default function CreateItemRequisition() {
-  const { data: item } = useGetAllItemsQuery({
+  const { data: items } = useGetAllItemsQuery({
     page: 1,
     size: 2000000,
   });
@@ -67,13 +67,13 @@ export default function CreateItemRequisition() {
 
   const consumableOptions = useMemo(
     () =>
-      consumable?.data.results.map(({ item, id }) => ({
-        label: item?.name,
+      items?.data.results.map(({ name, id }) => ({
+        label: name,
         value: id,
       })),
-    [consumable]
+    [items]
   );
-  console.log({ item, consumable });
+  console.log({ items, consumable, consumableOptions });
 
   const departmentOptions = useMemo(
     () =>
