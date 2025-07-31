@@ -19,7 +19,7 @@ export const EditItemSchema = ItemSchema.extend({
   entry_date: z.string().optional(),
   available_quantity: z.string().optional(),
   item_cost: z.string().optional(),
-  grn_tracking_number: z.string().optional(),
+  // grn_tracking_number: z.string().optional(),
 });
 
 export type TItemFormValues = z.infer<typeof EditItemSchema>;
