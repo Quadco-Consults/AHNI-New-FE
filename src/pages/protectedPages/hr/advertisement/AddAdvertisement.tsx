@@ -93,7 +93,9 @@ const AddEditAdvertisement = () => {
     }
   }, [isEditMode, advertisementData, form]);
 
-  const { handleSubmit } = form;
+  const { handleSubmit, getValues } = form;
+  const values = getValues();
+  console.log({ values, advertisementData, interviewers });
 
   const onSubmit: SubmitHandler<TFormValues> = async (data: any) => {
     try {
@@ -201,13 +203,20 @@ const AddEditAdvertisement = () => {
                 type='number'
               />
 
-              {/* <FormMultiSelect
+              <FormMultiSelect
                 name='interviewers'
                 label='Interviewers'
                 required
                 placeholder='Select interviewers'
                 options={interviewersOption}
-              /> */}
+              />
+
+              <FormSelect
+                name='supervisor'
+                label='Supervisor'
+                placeholder='Select supervisor'
+                options={interviewersOption}
+              />
               {/* <FormInput name='any_other_info' label='Info' /> */}
               <FormTextArea name='background' label='Background' required />
               <FileUpload

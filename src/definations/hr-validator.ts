@@ -96,9 +96,11 @@ export const jobAdvertismentSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
   grade_level: z.string().min(1, "Grade Level is required"),
   locations: z.string().min(1, "Locations is required"),
-  interviewers: z
-    .array(z.string().uuid())
-    .min(1, "At least one interviewer is required"),
+  // interviewers: z
+  //   .array(z.string().uuid())
+  //   .min(1, "At least one interviewer is required"),
+
+  interviewers: z.array(z.string().uuid()).optional(),
   job_type: z.enum(["Internal", "External", "Both"]),
   duration: z.string().min(1, "Duration is required"),
   commencement_date: z.string().min(1, "Commencement Date is required"),
@@ -106,7 +108,8 @@ export const jobAdvertismentSchema = z.object({
     (val) => Number(val),
     z.number().positive("Must be a positive number")
   ),
-  supervisor: z.string().min(1, "Supervisor is required"),
+  supervisor: z.string().optional(),
+  // supervisor: z.string().min(1, "Supervisor is required"),
   any_other_info: z.string().optional(),
   background: z.string().min(1, "Background is required"),
   advert_document: z.any().optional(),

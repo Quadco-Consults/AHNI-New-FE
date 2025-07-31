@@ -8,237 +8,239 @@ import GoBack from "components/shared/GoBack";
 import { Button } from "components/ui/button";
 import { AdminRoutes } from "constants/RouterConstants";
 import {
-    ItemRequisitionSchema,
-    TItemRequisitionFormValues,
+  ItemRequisitionSchema,
+  TItemRequisitionFormValues,
 } from "definations/admin/inventory-management/item-requisition";
 import { Minus } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import {
-    FormProvider,
-    SubmitHandler,
-    useFieldArray,
-    useForm,
+  FormProvider,
+  SubmitHandler,
+  useFieldArray,
+  useForm,
 } from "react-hook-form";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useGetAllConsumablesQuery } from "services/admin/inventory-management/consumable";
 import {
-    useCreateItemRequisitionMutation,
-    useEditItemRequisitionMutation,
-    useGetSingleItemRequisitionQuery,
+  useCreateItemRequisitionMutation,
+  useEditItemRequisitionMutation,
+  useGetSingleItemRequisitionQuery,
 } from "services/admin/inventory-management/item-requisition";
 import { useGetAllDepartmentsQuery } from "services/modules/config/department";
 import { useGetAllUsersQuery } from "services/auth/user";
 import { toast } from "sonner";
 import { skipToken } from "@reduxjs/toolkit/query";
+import { useGetAllItemsQuery } from "services/modules/config/item";
 
 export default function CreateItemRequisition() {
-    const { data: consumable } = useGetAllConsumablesQuery({
-        page: 1,
-        size: 2000000,
-    });
+  const { data: items } = useGetAllItemsQuery({
+    page: 1,
+    size: 2000000,
+  });
 
-    const { data: user } = useGetAllUsersQuery({
-        page: 1,
-        size: 2000000,
-    });
+  const { data: consumable } = useGetAllConsumablesQuery({
+    page: 1,
+    size: 2000000,
+  });
 
-    const { data: department } = useGetAllDepartmentsQuery({
-        page: 1,
-        size: 2000000,
-    });
+  const { data: user } = useGetAllUsersQuery({
+    page: 1,
+    size: 2000000,
+  });
 
-    const userOptions = useMemo(
-        () =>
-            user?.data.results.map(({ first_name, last_name, id }) => ({
-                label: `${first_name} ${last_name}`,
-                value: id,
-            })),
-        [user]
-    );
+  const { data: department } = useGetAllDepartmentsQuery({
+    page: 1,
+    size: 2000000,
+  });
 
-    const [createItemRequisition, { isLoading: isCreateLoading }] =
-        useCreateItemRequisitionMutation();
+  const userOptions = useMemo(
+    () =>
+      user?.data.results.map(({ first_name, last_name, id }) => ({
+        label: `${first_name} ${last_name}`,
+        value: id,
+      })),
+    [user]
+  );
 
-    const consumableOptions = useMemo(
-        () =>
-            consumable?.data.results.map(({ item, id }) => ({
-                label: item?.name,
-                value: id,
-            })),
-        [consumable]
-    );
+  const [createItemRequisition, { isLoading: isCreateLoading }] =
+    useCreateItemRequisitionMutation();
 
-    const departmentOptions = useMemo(
-        () =>
-            department?.data.results.map(({ name, id }) => ({
-                label: name,
-                value: id,
-            })),
-        [department]
-    );
+  const consumableOptions = useMemo(
+    () =>
+      items?.data.results.map(({ name, id }) => ({
+        label: name,
+        value: id,
+      })),
+    [items]
+  );
+  console.log({ items, consumable, consumableOptions });
 
-    const [searchParams] = useSearchParams();
-    const id = searchParams.get("id");
+  const departmentOptions = useMemo(
+    () =>
+      department?.data.results.map(({ name, id }) => ({
+        label: name,
+        value: id,
+      })),
+    [department]
+  );
 
-    const { data: itemRequisition } = useGetSingleItemRequisitionQuery(
-        id ?? skipToken
-    );
+  const [searchParams] = useSearchParams();
+  const id = searchParams.get("id");
 
-    const [editItemRequisition, { isLoading: isEditLoading }] =
-        useEditItemRequisitionMutation();
+  const { data: itemRequisition } = useGetSingleItemRequisitionQuery(
+    id ?? skipToken
+  );
 
-    const navigate = useNavigate();
+  const [editItemRequisition, { isLoading: isEditLoading }] =
+    useEditItemRequisitionMutation();
 
-    const form = useForm<TItemRequisitionFormValues>({
-        resolver: zodResolver(ItemRequisitionSchema),
-        defaultValues: {
-            department: "",
-            consummables: [{ consummable: "", quantity: "0" }],
-        },
-    });
+  const navigate = useNavigate();
 
-    const { fields, append, remove } = useFieldArray({
-        control: form.control,
-        name: "consummables",
-    });
+  const form = useForm<TItemRequisitionFormValues>({
+    resolver: zodResolver(ItemRequisitionSchema),
+    defaultValues: {
+      department: "",
+      consummables: [{ consummable: "", quantity: "0" }],
+    },
+  });
 
-    const onSubmit: SubmitHandler<TItemRequisitionFormValues> = async ({
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "consummables",
+  });
+
+  const onSubmit: SubmitHandler<TItemRequisitionFormValues> = async ({
+    consummables,
+    ...rest
+  }) => {
+    try {
+      const payload = {
         consummables,
-        ...rest
-    }) => {
-        try {
-            const payload = {
-                consummables,
-                ...rest,
-            };
+        ...rest,
+      };
 
-            if (id) {
-                await editItemRequisition({ id, body: payload }).unwrap();
-                toast.success("Item Requisition Updated");
-            } else {
-                await createItemRequisition(payload).unwrap();
-                toast.success("Item Requisition Created");
-            }
+      if (id) {
+        await editItemRequisition({ id, body: payload }).unwrap();
+        toast.success("Item Requisition Updated");
+      } else {
+        await createItemRequisition(payload).unwrap();
+        toast.success("Item Requisition Created");
+      }
 
-            navigate(AdminRoutes.ITEM_REQUISITION);
-        } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
-        }
-    };
+      navigate(AdminRoutes.ITEM_REQUISITION);
+    } catch (error: any) {
+      toast.error(error.data.message ?? "Something went wrong");
+    }
+  };
 
-    useEffect(() => {
-        if (itemRequisition) {
-            form.reset({
-                department: itemRequisition?.data.department.id,
-                consummables: itemRequisition?.data.consummables.map(
-                    ({ quantity, consummable: { id } }) => ({
-                        consummable: id,
-                        quantity: String(quantity),
-                    })
-                ),
-            });
-        }
-    }, [itemRequisition]);
+  useEffect(() => {
+    if (itemRequisition) {
+      form.reset({
+        department: itemRequisition?.data.department.id,
+        consummables: itemRequisition?.data.consummables.map(
+          ({ quantity, consummable: { id } }) => ({
+            consummable: id,
+            quantity: String(quantity),
+          })
+        ),
+      });
+    }
+  }, [itemRequisition]);
 
-    return (
-        <div className="space-y-8">
-            <div className="flex items-center gap-x-5">
-                <GoBack />
-                <h4 className="text-xl font-bold">Item Requisition</h4>
+  return (
+    <div className='space-y-8'>
+      <div className='flex items-center gap-x-5'>
+        <GoBack />
+        <h4 className='text-xl font-bold'>Item Requisition</h4>
+      </div>
+      <Card>
+        <FormProvider {...form}>
+          <form className='space-y-6' onSubmit={form.handleSubmit(onSubmit)}>
+            {fields.map((field, index) => (
+              <div
+                key={field.id}
+                className='grid grid-cols-3 items-center gap-5'
+              >
+                <FormSelect
+                  label='Item Requested'
+                  name={`consummables.${index}.consummable`}
+                  placeholder='Select Item'
+                  options={consumableOptions}
+                  required
+                />
+
+                <FormInput
+                  label='Quantity Requested'
+                  name={`consummables.${index}.quantity`}
+                  placeholder='Enter Quantity'
+                  required
+                />
+
+                <Button
+                  type='button'
+                  variant='link'
+                  onClick={() => {
+                    remove(index);
+                  }}
+                >
+                  <Minus />
+                </Button>
+              </div>
+            ))}
+
+            <Button
+              type='button'
+              onClick={() => {
+                append({ consummable: "", quantity: "0" });
+              }}
+            >
+              <AddSquareIcon />
+              Add Item
+            </Button>
+            <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
+              <FormSelect
+                label='Department/Unit'
+                name='department'
+                placeholder='Select Department'
+                options={departmentOptions}
+                required
+              />
+
+              <FormSelect
+                label='Reviewer'
+                name='reviewer'
+                required
+                placeholder='Select Reviewer'
+                options={userOptions}
+              />
+
+              <FormSelect
+                label='Authorizer'
+                name='authorizer'
+                required
+                placeholder='Select Authorizer'
+                options={userOptions}
+              />
+
+              <FormSelect
+                label='Approver'
+                name='approver'
+                required
+                placeholder='Select Approver'
+                options={userOptions}
+              />
             </div>
-            <Card>
-                <FormProvider {...form}>
-                    <form
-                        className="space-y-6"
-                        onSubmit={form.handleSubmit(onSubmit)}
-                    >
-                        {fields.map((field, index) => (
-                            <div
-                                key={field.id}
-                                className="grid grid-cols-3 items-center gap-5"
-                            >
-                                <FormSelect
-                                    label="Item Requested"
-                                    name={`consummables.${index}.consummable`}
-                                    placeholder="Select Item"
-                                    options={consumableOptions}
-                                    required
-                                />
-
-                                <FormInput
-                                    label="Quantity Requested"
-                                    name={`consummables.${index}.quantity`}
-                                    placeholder="Enter Quantity"
-                                    required
-                                />
-
-                                <Button
-                                    type="button"
-                                    variant="link"
-                                    onClick={() => {
-                                        remove(index);
-                                    }}
-                                >
-                                    <Minus />
-                                </Button>
-                            </div>
-                        ))}
-
-                        <Button
-                            type="button"
-                            onClick={() => {
-                                append({ consummable: "", quantity: "0" });
-                            }}
-                        >
-                            <AddSquareIcon />
-                            Add Item
-                        </Button>
-                        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                            <FormSelect
-                                label="Department/Unit"
-                                name="department"
-                                placeholder="Select Department"
-                                options={departmentOptions}
-                                required
-                            />
-
-                            <FormSelect
-                                label="Reviewer"
-                                name="reviewer"
-                                required
-                                placeholder="Select Reviewer"
-                                options={userOptions}
-                            />
-
-                            <FormSelect
-                                label="Authorizer"
-                                name="authorizer"
-                                required
-                                placeholder="Select Authorizer"
-                                options={userOptions}
-                            />
-
-                            <FormSelect
-                                label="Approver"
-                                name="approver"
-                                required
-                                placeholder="Select Approver"
-                                options={userOptions}
-                            />
-                        </div>
-                        <div className="flex justify-end">
-                            <FormButton
-                                type="submit"
-                                loading={isCreateLoading || isEditLoading}
-                            >
-                                {id
-                                    ? "Update Item Requisition"
-                                    : "Create Item Requisition"}
-                            </FormButton>
-                        </div>
-                    </form>
-                </FormProvider>
-            </Card>
-        </div>
-    );
+            <div className='flex justify-end'>
+              <FormButton
+                type='submit'
+                loading={isCreateLoading || isEditLoading}
+              >
+                {id ? "Update Item Requisition" : "Create Item Requisition"}
+              </FormButton>
+            </div>
+          </form>
+        </FormProvider>
+      </Card>
+    </div>
+  );
 }
