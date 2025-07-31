@@ -64,12 +64,12 @@ export default function CreateConsumablePage() {
           stock_control_method: "STOCK_LEVEL",
           category: "",
           expiry_date: formatDate(String(new Date())),
-          previous_quantity: "",
+          // previous_quantity: "",
           re_order_level: "",
           buffer_stock: "",
           max_stock: "",
           entry_date: "",
-          available_quantity: "",
+          // available_quantity: "",
           item_cost: "",
           // grn_tracking_number: "",
           uom: "",
@@ -97,12 +97,12 @@ export default function CreateConsumablePage() {
         stock_control_method: item?.data?.stock_control_method,
         category: item?.data?.category?.id,
         expiry_date: item?.data?.expiry_date || "",
-        previous_quantity: String(item?.data?.previous_quantity ?? ""),
+        // previous_quantity: String(item?.data?.previous_quantity ?? ""),
         re_order_level: String(item?.data?.re_order_level ?? ""),
         buffer_stock: String(item?.data?.buffer_stock ?? ""),
         max_stock: String(item?.data?.max_stock ?? ""),
         entry_date: item?.data?.entry_date,
-        available_quantity: String(item?.data?.available_quantity ?? ""),
+        // available_quantity: String(item?.data?.available_quantity ?? ""),
         item_cost: item?.data?.item_cost,
         // grn_tracking_number: item?.data?.grn_tracking_number,
       });
@@ -125,9 +125,9 @@ export default function CreateConsumablePage() {
       quantity: data?.quantity ? String(Number(data?.quantity)) : "0",
       stock_control_method: data?.stock_control_method,
       expiry_date: data?.expiry_date,
-      previous_quantity: data?.previous_quantity
-        ? String(Number(data?.previous_quantity))
-        : "0",
+      // previous_quantity: data?.previous_quantity
+      //   ? String(Number(data?.previous_quantity))
+      //   : "0",
       re_order_level: data?.re_order_level
         ? String(Number(data?.re_order_level))
         : "0",
@@ -136,9 +136,9 @@ export default function CreateConsumablePage() {
         : "0",
       max_stock: data?.max_stock ? String(Number(data?.max_stock)) : "0",
       entry_date: data?.entry_date,
-      available_quantity: data?.available_quantity
-        ? String(Number(data?.available_quantity))
-        : "0",
+      // available_quantity: data?.available_quantity
+      //   ? String(Number(data?.available_quantity))
+      //   : "0",
       item_cost: data?.item_cost,
       // grn_tracking_number: data?.grn_tracking_number || "",
     };
@@ -206,14 +206,15 @@ export default function CreateConsumablePage() {
               required
             />
 
-            <FormSelect
-              name='category'
-              label='Category'
-              placeholder='Select Category'
-              options={categoryOptions}
-              required
-            />
-
+            {!consumableId && (
+              <FormSelect
+                name='category'
+                label='Category'
+                placeholder='Select Category'
+                options={categoryOptions}
+                required
+              />
+            )}
             {consumableId && (
               <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
                 <FormInput
@@ -238,12 +239,12 @@ export default function CreateConsumablePage() {
                   placeholder='Select Expiry Date'
                   required
                 />
-                <FormInput
+                {/* <FormInput
                   name='previous_quantity'
                   label='Previous Quantity'
                   placeholder='Enter Previous Quantity'
                   required
-                />
+                /> */}
 
                 <FormInput
                   name='re_order_level'
@@ -273,12 +274,12 @@ export default function CreateConsumablePage() {
                   required
                 />
 
-                <FormInput
+                {/* <FormInput
                   name='available_quantity'
                   label='Available Quantity'
                   placeholder='Enter Available Quantity'
                   required
-                />
+                /> */}
 
                 <FormInput
                   name='item_cost'
