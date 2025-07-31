@@ -90,7 +90,7 @@ export default function AllItems() {
                 <p className='flex-1'>{item.name}</p>
                 <p className='flex-1'>{item.description || "N/A"}</p>
                 <p className='flex-1'>{item.uom}</p>
-                <p className='flex-1'>{item.category}</p>
+                <p className='flex-1'>{item.category?.name}</p>
                 <div className='flex-1'>
                   <TableAction
                     update

@@ -31,7 +31,7 @@ const SummaryCard = () => {
 
     {
       header: "Office Requesting",
-      accessorKey: "office_requesting",
+      accessorKey: "location",
       size: 200,
       //   cell: ({ row }) => {
       //     return <div>{row.original?.deparment}</div>;
@@ -45,6 +45,9 @@ const SummaryCard = () => {
           : "Procurement Officer Responsible"
       }`,
       accessorKey: "procurement_officer",
+      cell: ({ row }) => {
+        return <div>{row.original?.procurement_officer || "N/A"}</div>;
+      },
       size: 195,
     },
 
@@ -74,22 +77,22 @@ const SummaryCard = () => {
 
     {
       header: "Date Goods are Required",
-      accessorKey: "date-goods-are-required",
+      accessorKey: "date_goods_required",
       size: 150,
     },
 
     {
       header: "Date Procurement Process Initiated",
-      accessorKey: "date-procurement-process-initiated",
+      accessorKey: "solicitation.date_procurement_initiated",
       size: 160,
     },
 
     {
       header: "FCO",
-      accessorKey: "f-c-o",
+      accessorKey: "purchase_order.fco_number",
       size: 150,
       cell: ({ row }) => {
-        return <div>{row.original?.purchse_order?.fco_number || "-"}</div>;
+        return <div>{row.original?.purchase_order?.fco_number || "N/A"}</div>;
       },
     },
     {
@@ -106,7 +109,7 @@ const SummaryCard = () => {
       size: 150,
 
       cell: ({ row }) => {
-        return <div>{row.original?.purchse_order?.uom || "-"}</div>;
+        return <div>{row.original?.purchase_order?.uom || "N/A"}</div>;
       },
     },
     {
