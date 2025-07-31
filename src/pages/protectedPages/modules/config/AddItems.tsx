@@ -40,7 +40,7 @@ const AddItems = () => {
       name: data?.name ?? "",
       description: data?.description ?? "",
       uom: data?.uom ?? "",
-      category: data?.category ?? "",
+      category: data?.category?.name ?? "",
     },
   });
 

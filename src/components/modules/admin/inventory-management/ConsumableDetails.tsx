@@ -30,7 +30,7 @@ export default function ConsumableDetails() {
                   <div className='space-y-2'>
                     <h4 className='text-base font-semibold '>Quantity</h4>
                     <p className='text-[#4D4545] text-sm'>
-                      {consumable?.data.quantity}
+                      {consumable?.data.quantity || "N/A"}
                     </p>
                   </div>
 

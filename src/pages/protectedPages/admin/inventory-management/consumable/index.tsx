@@ -15,7 +15,7 @@ export default function ConsumablesHomePage() {
   const { data: item, isFetching } = useGetAllItemsQuery({
     page,
     size: 20,
-    category: "b3fb7e09-deb2-4feb-b6d6-66595747350a",
+    category: "fadb6228-23de-4b04-9eac-b75940cf622f",
   });
 
   return (

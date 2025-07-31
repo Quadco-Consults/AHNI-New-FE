@@ -71,7 +71,7 @@ export default function CreateConsumablePage() {
           entry_date: "",
           available_quantity: "",
           item_cost: "",
-          grn_tracking_number: "",
+          // grn_tracking_number: "",
           uom: "",
         }
       : {
@@ -86,8 +86,6 @@ export default function CreateConsumablePage() {
     resolver: zodResolver(Schema),
     defaultValues,
   });
-
-  console.log({ consumableId });
 
   useEffect(() => {
     if (consumableId) {
@@ -106,15 +104,13 @@ export default function CreateConsumablePage() {
         entry_date: item?.data?.entry_date,
         available_quantity: String(item?.data?.available_quantity ?? ""),
         item_cost: item?.data?.item_cost,
-        grn_tracking_number: item?.data?.grn_tracking_number,
+        // grn_tracking_number: item?.data?.grn_tracking_number,
       });
     }
   }, [consumableId, item, form]);
 
-  const [createConsumable, { isLoading: isCreateLoading }] =
-    useAddItemMutation();
-  const [editConsumable, { isLoading: isEditLoading }] =
-    useUpdateItemMutation();
+  const [createItem, { isLoading: isCreateLoading }] = useAddItemMutation();
+  const [editItem, { isLoading: isEditLoading }] = useUpdateItemMutation();
 
   const navigate = useNavigate();
 
@@ -144,7 +140,7 @@ export default function CreateConsumablePage() {
         ? String(Number(data?.available_quantity))
         : "0",
       item_cost: data?.item_cost,
-      grn_tracking_number: data?.grn_tracking_number || "",
+      // grn_tracking_number: data?.grn_tracking_number || "",
     };
 
     const createConsumableData = {
@@ -156,13 +152,13 @@ export default function CreateConsumablePage() {
 
     try {
       if (consumableId) {
-        await editConsumable({
+        await editItem({
           id: consumableId,
           body: editConsumableData,
         }).unwrap();
         toast.success("Consumable Updated");
       } else {
-        await createConsumable(createConsumableData).unwrap();
+        await createItem(createConsumableData).unwrap();
         toast.success("Consumable Created");
       }
       navigate(AdminRoutes.INDEX_CONSUMABLE);
@@ -177,7 +173,10 @@ export default function CreateConsumablePage() {
         <div onClick={() => navigate(-1)}>
           <RoundBack />
         </div>
-        <h4 className='text-xl font-bold'>Create Consumable</h4>
+        <h4 className='text-xl font-bold'>
+          {" "}
+          {consumableId ? "Update Consumable" : "Create Consumable"}
+        </h4>
       </div>
       <Card>
         <Form {...form}>
@@ -288,12 +287,12 @@ export default function CreateConsumablePage() {
                   required
                 />
 
-                <FormInput
+                {/* <FormInput
                   label='GRN Tracking Number'
                   name='grn_tracking_number'
                   placeholder='Enter GRN Tracking Number'
                   // required
-                />
+                /> */}
               </div>
             )}
 
