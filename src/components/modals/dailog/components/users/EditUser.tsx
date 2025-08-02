@@ -43,15 +43,15 @@ export default function EditUserModal() {
   const form = useForm<TUpdateUserFormValues>({
     resolver: zodResolver(UpdateUserSchema),
     defaultValues: {
-      first_name: dialogProps?.data?.first_name,
-      last_name: dialogProps?.data?.last_name,
-      email: dialogProps?.data?.email,
-      mobile_number: dialogProps?.data?.mobile_number,
-      gender: dialogProps?.data?.gender,
-      position: dialogProps?.data?.position.id ?? "",
-      department: dialogProps?.data?.department.id ?? "",
+      first_name: dialogProps?.data?.first_name ?? "",
+      last_name: dialogProps?.data?.last_name ?? "",
+      email: dialogProps?.data?.email ?? "",
+      mobile_number: dialogProps?.data?.mobile_number ?? "",
+      gender: dialogProps?.data?.gender ?? "",
+      position: dialogProps?.data?.position?.id ?? "",
+      department: dialogProps?.data?.department?.id ?? "",
       roles:
-        dialogProps.data.roles?.map((role: { id: string }) => role.id) ?? [],
+        dialogProps?.data?.roles?.map((role: { id: string }) => role?.id) ?? [],
     },
   });
 
