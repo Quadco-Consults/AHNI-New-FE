@@ -56,7 +56,7 @@ const UserAPI = baseAPI.injectEndpoints({
     >({
       query: ({ id, body }) => ({
         url: `/users/${id}/`,
-        method: "PUT",
+        method: "PATCH",
         body: body,
       }),
       invalidatesTags: ["Users"],

@@ -55,11 +55,9 @@ const TableAction = ({
 
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const [activateUser, { isLoading: isActivateLoading }] =
-    useActivateUserMutation();
+  const [activateUser] = useActivateUserMutation();
 
-  const [deactivateUser, { isLoading: isDeactivateLoading }] =
-    useDeactivateUserMutation();
+  const [deactivateUser] = useDeactivateUserMutation();
 
   const handleEdit = (id: string) => {
     dispatch(
@@ -78,6 +76,7 @@ const TableAction = ({
             email,
             position,
             department,
+            roles,
           },
         },
       })
@@ -217,20 +216,24 @@ export const userColumns: ColumnDef<IUser>[] = [
 
   {
     header: "Department",
+    accessorKey: "department.name",
     id: "department",
-    accessorKey: "department",
   },
 
   {
     header: "Position",
+    accessorKey: "position.name",
     id: "position",
-    accessorKey: "position",
   },
 
   {
     header: "Roles",
     id: "roles",
-    accessorFn: ({ roles }) => roles.join(", "),
+
+    cell: ({ row: { original } }) => {
+      const roles = original.roles.map((role) => role.name).join(", ");
+      return <span>{roles}</span>;
+    },
   },
 
   {
@@ -249,7 +252,7 @@ export const userColumns: ColumnDef<IUser>[] = [
   },
 
   {
-    header: "",
+    header: "Actions",
     id: "action",
     cell: ({ row }) => <TableAction {...row.original} />,
   },
