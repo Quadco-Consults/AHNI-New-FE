@@ -33,19 +33,25 @@ export default function UserTablePage() {
       </div>
       <div>
         <div className='col-span-3'>
-          <Tabs defaultValue='All'>
+          <Tabs defaultValue=''>
             <TabsList className='border-b !py-0 rounded-none border-[#E4E7EC] w-full justify-start '>
               <TabsTrigger
                 className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
-                value='All'
-                onClick={() => setTabParams("")}
+                value=''
+                onClick={() => {
+                  setPage(1);
+                  setTabParams("");
+                }}
               >
                 All users
               </TabsTrigger>
               <TabsTrigger
                 className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
                 value='AHNi'
-                onClick={() => setTabParams("AHNI_STAFF")}
+                onClick={() => {
+                  setPage(1);
+                  setTabParams("AHNI_STAFF");
+                }}
               >
                 AHNi users
               </TabsTrigger>
@@ -53,7 +59,10 @@ export default function UserTablePage() {
               <TabsTrigger
                 className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
                 value='Adhoc'
-                onClick={() => setTabParams("ADHOC_STAFF")}
+                onClick={() => {
+                  setPage(1);
+                  setTabParams("ADHOC_STAFF");
+                }}
               >
                 Adhoc users
               </TabsTrigger>
@@ -61,26 +70,35 @@ export default function UserTablePage() {
               <TabsTrigger
                 className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
                 value='Consultants'
-                onClick={() => setTabParams("CONSULTANT")}
+                onClick={() => {
+                  setPage(1);
+                  setTabParams("CONSULTANT");
+                }}
               >
                 Consultants
               </TabsTrigger>
               <TabsTrigger
                 className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
                 value='Facilitators'
-                onClick={() => setTabParams("FACILITATOR")}
+                onClick={() => {
+                  setPage(1);
+                  setTabParams("FACILITATOR");
+                }}
               >
                 Facilitators
               </TabsTrigger>
               <TabsTrigger
                 className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
                 value='Vendors'
-                onClick={() => setTabParams("VENDOR")}
+                onClick={() => {
+                  setPage(1);
+                  setTabParams("VENDOR");
+                }}
               >
                 Vendors
               </TabsTrigger>
             </TabsList>
-            <TabsContent className='w-full py-10' value='All'>
+            <TabsContent className='w-full py-10' value=''>
               <TableFilters>
                 <DataTable
                   columns={userColumns}

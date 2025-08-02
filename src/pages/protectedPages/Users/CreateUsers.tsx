@@ -14,6 +14,8 @@ import { useCreateUserMutation } from "services/auth/user";
 import { toast } from "sonner";
 import { CreateUserSchema, TCreateUserFormValues } from "definations/auth/user";
 import { useGetLocationListQuery } from "services/configs/locationApi";
+import { useGetAllRolesQuery } from "services/auth/role";
+import FormMultiSelect from "atoms/FormMultiSelect";
 
 const genderOptions = [
   { label: "Male", value: "MALE" },
@@ -29,10 +31,9 @@ const CreateUsers = () => {
       last_name: "",
       email: "",
       mobile_number: "",
-      password: "",
       position: "",
-      confirm_password: "",
       user_type: "",
+      roles: [],
       location: "",
     },
   });
@@ -50,7 +51,10 @@ const CreateUsers = () => {
     page: 1,
     size: 2000000,
   });
-
+  const { data: role } = useGetAllRolesQuery({
+    page: 1,
+    size: 2000000,
+  });
   const { data: locations } = useGetLocationListQuery({});
 
   const positionOptions = position?.data.results.map(({ name, id }) => ({
@@ -59,6 +63,11 @@ const CreateUsers = () => {
   }));
   // @ts-ignore
   const locationOptions = locations?.data.results.map(({ name, id }) => ({
+    label: name,
+    value: id,
+  }));
+
+  const roleOptions = role?.data.results.map(({ name, id }) => ({
     label: name,
     value: id,
   }));
@@ -151,23 +160,13 @@ const CreateUsers = () => {
                     required
                     options={userOptions}
                   />
-                </div>
 
-                <div className='grid grid-cols-2 gap-x-7'>
-                  <FormInput
-                    type='password'
-                    label='Password'
-                    name='password'
-                    placeholder='Enter password'
+                  <FormMultiSelect
+                    label='User Roles'
+                    name='roles'
                     required
-                  />
-
-                  <FormInput
-                    type='password'
-                    label='Confirm Password'
-                    name='confirm_password'
-                    placeholder='Confirm Password'
-                    required
+                    placeholder='Select roles'
+                    options={roleOptions}
                   />
                 </div>
                 <div className='flex justify-end'>
