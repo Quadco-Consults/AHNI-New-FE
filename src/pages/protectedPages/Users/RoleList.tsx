@@ -12,110 +12,103 @@ import { toast } from "sonner";
 import { openDialog } from "store/ui";
 
 export default function AllRoles() {
-    const [roleId, setRoleId] = useState("");
+  const [roleId, setRoleId] = useState("");
 
-    const [dialogOpen, setDialogOpen] = useState(false);
+  const { data: role, isLoading } = useGetAllRolesQuery({
+    page: 1,
+    size: 2000000,
+  });
 
-    const { data: role, isLoading } = useGetAllRolesQuery({
-        page: 1,
-        size: 2000000,
-    });
+  const dispatch = useAppDispatch();
 
-    const dispatch = useAppDispatch();
-
-    const onRoleClick = (id: string, name: string, permission: string) => {
-        dispatch(
-            openDialog({
-                type: DialogType.AddPermissionToRole,
-                dialogProps: {
-                    ...largeDailogScreen,
-                    id,
-                    name,
-                    permission: permission,
-                },
-            })
-        );
-    };
-
-    const [deleteRole, { isLoading: isDeleteLoading }] =
-        useDeleteRoleMutation();
-
-    const onDeleteRole = async () => {
-        try {
-            await deleteRole(roleId).unwrap();
-            toast.success("Role Deleted");
-            setRoleId("");
-        } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
-        }
-    };
-
-    return (
-        <div className="mt-6">
-            <Card>
-                <CardContent className="p-4">
-                    {isLoading ? (
-                        <LoadingSpinner />
-                    ) : role?.data.results.length === 0 ? (
-                        <></>
-                    ) : (
-                        role?.data.results.map(
-                            ({ id, name, permissions }, i) => (
-                                <>
-                                    <div
-                                        key={id}
-                                        className="flex justify-between py-5 border-b clear-end"
-                                    >
-                                        <div className="flex item-center gap-x-4">
-                                            <p className=" rounded-full bg-[#DBDFE9] h-6 w-6 flex items-center justify-center text-sm ">
-                                                {i + 1}
-                                            </p>
-                                            <h4 className="text-lg font-bold capitalize">
-                                                {name}
-                                            </h4>
-                                        </div>
-                                        <div className="flex items-center">
-                                            <Button
-                                                variant="ghost"
-                                                title="Manage Permissions"
-                                                onClick={() =>
-                                                    onRoleClick(
-                                                        String(id),
-                                                        name,
-                                                        permissions as unknown as string
-                                                    )
-                                                }
-                                            >
-                                                <ChevronRight className="cursor-pointer " />
-                                            </Button>
-
-                                            <Button
-                                                variant="ghost"
-                                                title="Delete Role"
-                                                onClick={() => {
-                                                    setRoleId(id);
-                                                }}
-                                            >
-                                                <DeleteIcon />
-                                            </Button>
-                                        </div>
-                                    </div>
-
-                                    <ConfirmationDialog
-                                        open={Boolean(roleId)}
-                                        title="Are you sure you want to delete this role?"
-                                        loading={isDeleteLoading}
-                                        onCancel={() => {
-                                            setRoleId("");
-                                        }}
-                                        onOk={onDeleteRole}
-                                    />
-                                </>
-                            )
-                        )
-                    )}
-                </CardContent>
-            </Card>
-        </div>
+  const onRoleClick = (id: string, name: string, permission: string) => {
+    dispatch(
+      openDialog({
+        type: DialogType.AddPermissionToRole,
+        dialogProps: {
+          ...largeDailogScreen,
+          id,
+          name,
+          permission: permission,
+        },
+      })
     );
+  };
+
+  const [deleteRole, { isLoading: isDeleteLoading }] = useDeleteRoleMutation();
+
+  const onDeleteRole = async () => {
+    try {
+      await deleteRole(roleId).unwrap();
+      toast.success("Role Deleted");
+      setRoleId("");
+    } catch (error: any) {
+      toast.error(error.data.message ?? "Something went wrong");
+    }
+  };
+
+  return (
+    <div className='mt-6'>
+      <Card>
+        <CardContent className='p-4'>
+          {isLoading ? (
+            <LoadingSpinner />
+          ) : role?.data.results.length === 0 ? (
+            <></>
+          ) : (
+            role?.data.results.map(({ id, name, permissions }, i) => (
+              <>
+                <div
+                  key={id}
+                  className='flex justify-between py-5 border-b clear-end'
+                >
+                  <div className='flex item-center gap-x-4'>
+                    <p className=' rounded-full bg-[#DBDFE9] h-6 w-6 flex items-center justify-center text-sm '>
+                      {i + 1}
+                    </p>
+                    <h4 className='text-lg font-bold capitalize'>{name}</h4>
+                  </div>
+                  <div className='flex items-center'>
+                    <Button
+                      variant='ghost'
+                      title='Manage Permissions'
+                      onClick={() =>
+                        onRoleClick(
+                          String(id),
+                          name,
+                          permissions as unknown as string
+                        )
+                      }
+                    >
+                      <ChevronRight className='cursor-pointer ' />
+                    </Button>
+
+                    <Button
+                      variant='ghost'
+                      title='Delete Role'
+                      onClick={() => {
+                        setRoleId(id);
+                      }}
+                    >
+                      <DeleteIcon />
+                    </Button>
+                  </div>
+                </div>
+
+                <ConfirmationDialog
+                  open={Boolean(roleId)}
+                  title='Are you sure you want to delete this role?'
+                  loading={isDeleteLoading}
+                  onCancel={() => {
+                    setRoleId("");
+                  }}
+                  onOk={onDeleteRole}
+                />
+              </>
+            ))
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
 }

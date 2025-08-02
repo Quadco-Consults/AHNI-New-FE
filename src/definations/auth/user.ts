@@ -1,29 +1,26 @@
 import { z } from "zod";
 import { Permission } from "./permission";
 
-export const CreateUserSchema = z
-  .object({
-    first_name: z.string().min(1, "Please enter first name"),
-    last_name: z.string().min(1, "Please enter last name"),
-    email: z
-      .string()
-      .min(1, "Please enter an email")
-      .email("Email is not valid"),
-    last_login: z.string().datetime().optional(),
-    mobile_number: z.string().min(1, "Please enter a mobile number"),
-    gender: z.enum(["MALE", "FEMALE", "Other"]),
-    password: z.string().min(1, "Please enter a password").optional(),
-    department: z.string().min(1, "Please select a department"),
-    position: z.string().min(1, "Please select position"),
-    user_type: z.string().min(1, "Please select user type").optional(),
-    location: z.string().min(1, "Please select location").optional(),
+export const CreateUserSchema = z.object({
+  first_name: z.string().min(1, "Please enter first name"),
+  last_name: z.string().min(1, "Please enter last name"),
+  email: z.string().min(1, "Please enter an email").email("Email is not valid"),
+  last_login: z.string().datetime().optional(),
+  mobile_number: z.string().min(1, "Please enter a mobile number"),
+  gender: z.enum(["MALE", "FEMALE", "Other"]),
+  // password: z.string().min(1, "Please enter a password").optional(),
+  department: z.string().min(1, "Please select a department"),
+  position: z.string().min(1, "Please select position"),
+  user_type: z.string().min(1, "Please select user type").optional(),
+  roles: z.array(z.string().min(1, "Please select user roles")).optional(),
+  location: z.string().min(1, "Please select location").optional(),
 
-    confirm_password: z.string().min(1, "Please enter a password").optional(),
-  })
-  .refine((data) => data.password === data.confirm_password, {
-    message: "Passwords don't match",
-    path: ["confirm_password"],
-  });
+  // confirm_password: z.string().min(1, "Please enter a password").optional(),
+});
+// .refine((data) => data.password === data.confirm_password, {
+//   message: "Passwords don't match",
+//   path: ["confirm_password"],
+// });
 
 export type TCreateUserFormValues = z.infer<typeof CreateUserSchema>;
 
@@ -35,6 +32,7 @@ export const UpdateUserSchema = z.object({
   gender: z.string().min(1, "Please select a gender"),
   department: z.string().min(1, "Please select a department"),
   position: z.string().min(1, "Please select a position"),
+  roles: z.array(z.string().min(1, "Please select user roles")).optional(),
 });
 
 export type TUpdateUserFormValues = z.infer<typeof UpdateUserSchema>;
