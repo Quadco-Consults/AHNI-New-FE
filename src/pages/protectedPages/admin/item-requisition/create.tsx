@@ -36,6 +36,7 @@ export default function CreateItemRequisition() {
   const { data: items } = useGetAllItemsQuery({
     page: 1,
     size: 2000000,
+    category: "fadb6228-23de-4b04-9eac-b75940cf622f",
   });
 
   const { data: consumable } = useGetAllConsumablesQuery({
@@ -73,7 +74,6 @@ export default function CreateItemRequisition() {
       })),
     [items]
   );
-  console.log({ items, consumable, consumableOptions });
 
   const departmentOptions = useMemo(
     () =>
