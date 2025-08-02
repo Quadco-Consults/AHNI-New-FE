@@ -2,7 +2,7 @@ import { CardContent } from "components/ui/card";
 
 type ViewLogProps = {
   data: {
-    user?: string;
+    user?: { full_name: string };
     ip_address?: string;
     description?: string;
     user_agent?: string;
@@ -26,8 +26,10 @@ const InfoRow = ({ label, value }: { label: string; value?: string }) => (
 );
 
 const ViewLog = ({ data }: ViewLogProps) => {
+  // console.log({ data });
+
   const fields = [
-    { label: "User", value: data?.user },
+    { label: "User", value: data?.user?.full_name },
     { label: "IP Address", value: data?.ip_address },
     { label: "Description", value: data?.description },
     { label: "User Agent", value: data?.user_agent },

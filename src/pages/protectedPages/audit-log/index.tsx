@@ -35,8 +35,6 @@ const AuditLog = () => {
   };
 
   const Action = ({ data }: any) => {
-    console.log({ data });
-
     return (
       <div className=''>
         {" "}
@@ -53,7 +51,7 @@ const AuditLog = () => {
     {
       header: "User",
       id: "user",
-      accessorKey: "user",
+      accessorKey: "user.full_name",
     },
     {
       header: "Action",
