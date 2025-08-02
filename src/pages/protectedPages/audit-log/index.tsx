@@ -1,5 +1,5 @@
 import DataTable from "components/Table/DataTable";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useGetAllActivitesQuery } from "services/auth/auditLog";
 import { format } from "date-fns";
 
@@ -8,18 +8,35 @@ import { Icon } from "@iconify/react";
 import { openDialog } from "store/ui";
 import { useAppDispatch } from "hooks/useStore";
 import { DialogType } from "constants/dailogs";
+import TableFilters from "components/Table/TableFilters";
+import { useDebounce } from "ahooks";
+import { FilterForm } from "components/shared/FilterForm";
+
+import { useGetAllUsersQuery } from "services/auth/user";
+import { FilterField } from "src";
 
 const AuditLog = () => {
   const dispatch = useAppDispatch();
 
   const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isFilterDrawerOpen, setFilterDrawerOpen] = useState(false);
+  const [filters, setFilters] = useState({});
+
+  const debounceSearchQuery = useDebounce(searchQuery, {
+    wait: 500,
+  });
 
   const { data: activities, isFetching } = useGetAllActivitesQuery(
-    { page, size: 10 },
+    { page, size: 10, search: debounceSearchQuery, ...filters },
     { refetchOnMountOrArgChange: true }
   );
 
-  //   console.log({ activities });
+  const { data: user } = useGetAllUsersQuery(
+    // @ts-ignore
+    { page },
+    { refetchOnMountOrArgChange: true }
+  );
 
   const onViewAction = (item: any) => {
     dispatch(
@@ -47,6 +64,42 @@ const AuditLog = () => {
       </div>
     );
   };
+
+  const userOptions = useMemo(() => {
+    if (!user?.data?.results) return [];
+
+    return user.data.results.map(({ first_name, last_name, id }) => ({
+      label: `${first_name} ${last_name}`.trim(),
+      value: id,
+    }));
+  }, [user?.data?.results]);
+
+  const auditLogFilters: FilterField[] = useMemo(
+    () => [
+      {
+        name: "action_type",
+        label: "Action Type",
+        type: "enum",
+        enumValues: [
+          { label: "Create", value: "CREATE" },
+          { label: "Update", value: "UPDATE" },
+          { label: "Delete", value: "DELETE" },
+          { label: "View", value: "VIEW" },
+          { label: "Login", value: "LOGIN" },
+          { label: "Logout", value: "LOGOUT" },
+          { label: "Other", value: "OTHER" },
+        ],
+      },
+      {
+        name: "user",
+        label: "User",
+        type: "enum",
+        enumValues: userOptions,
+      },
+    ],
+    [userOptions]
+  );
+
   const audit_colum = [
     {
       header: "User",
@@ -84,16 +137,29 @@ const AuditLog = () => {
   return (
     <div>
       {" "}
-      <DataTable
-        columns={audit_colum}
-        data={activities?.data.results || []}
-        isLoading={isFetching}
-        pagination={{
-          total: activities?.data.pagination.count ?? 0,
-          pageSize: activities?.data.pagination.page_size ?? 0,
-          onChange: (page: number) => setPage(page),
-        }}
-      />{" "}
+      <TableFilters
+        onSearchChange={(e) => setSearchQuery(e.target.value)}
+        filterAction={() => setFilterDrawerOpen(true)}
+      >
+        <DataTable
+          columns={audit_colum}
+          data={activities?.data.results || []}
+          isLoading={isFetching}
+          pagination={{
+            total: activities?.data.pagination.count ?? 0,
+            pageSize: activities?.data.pagination.page_size ?? 0,
+            onChange: (page: number) => setPage(page),
+          }}
+        />{" "}
+        {isFilterDrawerOpen && (
+          <FilterForm
+            filters={auditLogFilters}
+            values={filters}
+            onChange={setFilters}
+            onClose={() => setFilterDrawerOpen(false)}
+          />
+        )}
+      </TableFilters>
     </div>
   );
 };
