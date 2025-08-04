@@ -1,6 +1,9 @@
 import DataTable from "components/Table/DataTable";
 import { useMemo, useState } from "react";
-import { useGetAllActivitesQuery } from "services/auth/auditLog";
+import {
+  useDownloadActivitiesMutation,
+  useGetAllActivitesQuery,
+} from "services/auth/auditLog";
 import { format } from "date-fns";
 
 import IconButton from "components/shared/IconButton";
@@ -14,6 +17,7 @@ import { FilterForm } from "components/shared/FilterForm";
 
 import { useGetAllUsersQuery } from "services/auth/user";
 import { FilterField } from "src";
+import { Button } from "components/ui/button";
 
 const AuditLog = () => {
   const dispatch = useAppDispatch();
@@ -31,6 +35,9 @@ const AuditLog = () => {
     { page, size: 10, search: debounceSearchQuery, ...filters },
     { refetchOnMountOrArgChange: true }
   );
+
+  const [downloadActivities, { isLoading: downloading }] =
+    useDownloadActivitiesMutation();
 
   const { data: user } = useGetAllUsersQuery(
     // @ts-ignore
@@ -134,13 +141,35 @@ const AuditLog = () => {
     },
   ];
 
+  const handleDownload = async () => {
+    try {
+      const blob = await downloadActivities({
+        search: debounceSearchQuery,
+        ...filters,
+      }).unwrap();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "activities.csv"; // Or correct extension
+      link.click();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Download failed", err);
+    }
+  };
+
   return (
-    <div>
+    <div className='relative'>
       {" "}
       <TableFilters
         onSearchChange={(e) => setSearchQuery(e.target.value)}
         filterAction={() => setFilterDrawerOpen(true)}
       >
+        <div className='absolute right-0 top-0'>
+          <Button onClick={handleDownload} disabled={downloading}>
+            {downloading ? "Downloading..." : "Download Activities"}
+          </Button>
+        </div>
         <DataTable
           columns={audit_colum}
           data={activities?.data.results || []}
