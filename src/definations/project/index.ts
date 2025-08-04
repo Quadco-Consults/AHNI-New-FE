@@ -8,7 +8,7 @@ import { IUser } from "definations/auth/user";
 export const ProjectSchema = z.object({
   title: z.string().min(1, "Please enter title"),
   project_id: z.string().min(1, "Please enter project id"),
-  location: z.string().min(1, "Please select project location"),
+  location: z.array(z.string().min(1, "Please select project location")),
   intervention_area: z.string().min(1, "Please select intervention area"),
 
   goal: z.string().min(1, "Please enter goal"),
