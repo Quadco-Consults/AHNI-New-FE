@@ -44,6 +44,7 @@ import { formatDate } from "utils/date";
 // import { nigerianStates } from "lib/index";
 import { useGetAllLocationsQuery } from "services/modules/config/location";
 import { useGetAllInterventionAreaQuery } from "services/modules/program/interventions";
+import FormMultiSelect from "atoms/FormMultiSelect";
 // import { useGetAllGrantsQuery } from "services/c&g/grant/grant";
 
 const breadcrumbs: TBreadcrumbList[] = [
@@ -70,10 +71,10 @@ export default function ProjectSummaryPage() {
     id: user.id,
   }));
 
-    const { data: partner } = useGetAllPartnersQuery({
-        page: 1,
-        size: 2000000,
-    });
+  const { data: partner } = useGetAllPartnersQuery({
+    page: 1,
+    size: 2000000,
+  });
 
   const query = useQuery();
 
@@ -97,7 +98,7 @@ export default function ProjectSummaryPage() {
     defaultValues: {
       title: "",
       project_id: "",
-      location: "",
+      location: [],
       goal: "",
       narrative: "",
       budget: "0",
@@ -173,7 +174,7 @@ export default function ProjectSummaryPage() {
 
       dispatch(addPartner(partners));
     }
-  }, [project, partner]);
+  }, [project, partner, dispatch, reset]);
 
   const { pathname } = useLocation();
 
@@ -326,7 +327,7 @@ export default function ProjectSummaryPage() {
                                         options={grantOptions}
                                     /> */}
 
-                  <FormSelect
+                  <FormMultiSelect
                     label='Project Location'
                     name='location'
                     placeholder='Select Location'
