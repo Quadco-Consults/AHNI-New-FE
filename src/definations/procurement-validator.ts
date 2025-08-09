@@ -254,7 +254,7 @@ export const SolicitationQuotationSchema = z.object({
   request_type: z.string().min(1, "Please select request type"),
   tender_type: z.string().min(1, "Please select tender type"),
   eoi_tender: z.string().optional(),
-  categories: z.array(z.string()),
+  categories: z.array(z.string()).optional(),
   documents: z.string().optional(),
   purchase_request: z
     .string()
