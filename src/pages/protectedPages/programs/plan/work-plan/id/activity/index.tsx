@@ -161,6 +161,11 @@ const activityPlanColumns: ColumnDef<TActivity>[] = [
     size: 250,
   },
   {
+    header: "Cost Grouping",
+    accessorKey: "cost_grouping.name",
+    size: 250,
+  },
+  {
     header: "Cost Input",
     accessorKey: "cost_input.name",
     size: 250,
