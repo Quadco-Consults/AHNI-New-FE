@@ -7,48 +7,46 @@ import { skipToken } from "@reduxjs/toolkit/query/react";
 import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
 import { LoadingSpinner } from "components/shared/Loading";
 import GoBack from "components/shared/GoBack";
-import { Card } from "components/ui/card";
+// import { Card } from "components/ui/card";
 
 const breadcrumbs: TBreadcrumbList[] = [
-    { name: "Programs", icon: true },
-    { name: "Plans", icon: true },
-    { name: "Work Plan", icon: true },
-    { name: "Details", icon: false },
+  { name: "Programs", icon: true },
+  { name: "Plans", icon: true },
+  { name: "Work Plan", icon: true },
+  { name: "Details", icon: false },
 ];
 
 export default function WorkPlanDetail() {
-    const { id } = useParams();
+  const { id } = useParams();
 
-    const { data, isLoading } = useGetSingleWorkPlanQuery(id ?? skipToken);
+  const { data, isLoading } = useGetSingleWorkPlanQuery(id ?? skipToken);
 
-    console.log(data?.data.activities[0].gant_chart["Apr"]);
+  console.log(data?.data.activities[0].gant_chart["Apr"]);
 
-    if (isLoading) return <LoadingSpinner />;
+  if (isLoading) return <LoadingSpinner />;
 
-    if (!data) return null;
+  if (!data) return null;
 
-    const { activities } = data.data;
+  const { activities } = data.data;
 
-    return (
-        <div className="space-y-10">
-            <BreadcrumbCard list={breadcrumbs} />
+  return (
+    <div className='space-y-10'>
+      <BreadcrumbCard list={breadcrumbs} />
 
-            <GoBack />
+      <GoBack />
 
-            <Tabs defaultValue="summary" className="space-y-10">
-                <TabsList>
-                    <TabsTrigger value="summary">Summary</TabsTrigger>
-                    <TabsTrigger value="activity-report">
-                        Activity/Report
-                    </TabsTrigger>
-                </TabsList>
-                <TabsContent value="summary">
-                    <Summary data={data.data} />
-                </TabsContent>
-                <TabsContent value="activity-report">
-                    <Activity activities={activities} />
-                </TabsContent>
-            </Tabs>
-        </div>
-    );
+      <Tabs defaultValue='summary' className='space-y-10'>
+        <TabsList>
+          <TabsTrigger value='summary'>Summary</TabsTrigger>
+          <TabsTrigger value='activity-report'>Activity/Report</TabsTrigger>
+        </TabsList>
+        <TabsContent value='summary'>
+          <Summary data={data.data} />
+        </TabsContent>
+        <TabsContent value='activity-report'>
+          <Activity activities={activities} />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
 }
