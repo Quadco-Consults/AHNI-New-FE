@@ -21,31 +21,26 @@ import { formatNumberCurrency } from "utils/utls";
 export const workPlanTrackerDetailscolumns: ColumnDef<TWorkPlanTrackerData>[] =
   [
     {
-      header: "Activity Name",
-      accessorKey: "activity_name",
-      size: 300,
-    },
-    {
-      header: "Activity Reference Number (As in WP)",
-      accessorKey: "activity_reference_number",
+      header: "Activity Code/ Number",
+      accessorKey: "activity_number",
       size: 200,
     },
 
     {
       header: "Budget Line",
-      accessorKey: "_",
+      accessorKey: "budget_line.name",
       size: 200,
     },
 
     {
       header: "Objectives/IR/Sub-Objectives",
-      accessorKey: "_",
+      accessorKey: "objectives_sub_objectives",
       size: 200,
     },
 
     {
       header: "Activities Plans for the Month",
-      accessorKey: "activity_plans",
+      accessorKey: "activity",
       size: 300,
     },
 
@@ -63,7 +58,7 @@ export const workPlanTrackerDetailscolumns: ColumnDef<TWorkPlanTrackerData>[] =
 
     {
       header: "Lead Partner",
-      accessorKey: "lead_partner",
+      accessorKey: "lead_person",
       size: 150,
     },
 
@@ -71,6 +66,13 @@ export const workPlanTrackerDetailscolumns: ColumnDef<TWorkPlanTrackerData>[] =
       header: "Frq. of Activity",
       accessorKey: "",
       size: 150,
+      cell: ({ row }) => {
+        // @ts-ignore
+        const { gant_chart } = row.original;
+        const length = Object.keys(gant_chart).length;
+
+        return <div className=''>{length}</div>;
+      },
     },
 
     {
