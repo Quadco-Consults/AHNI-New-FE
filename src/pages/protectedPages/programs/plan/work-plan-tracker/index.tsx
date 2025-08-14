@@ -6,6 +6,7 @@ import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
 import { workPlanTrackercolumns } from "components/Table/columns/program/plan/work-plan-tracker";
 import { useDebounce } from "ahooks";
 import TableFilters from "components/Table/TableFilters";
+import { useGetAllWorkPlanQuery } from "services/programsApi/work-plan";
 
 const breadcrumbs: TBreadcrumbList[] = [
   { name: "Programs", icon: true },
@@ -21,12 +22,19 @@ export default function ActivityTracker() {
     wait: 1000,
   });
 
-  const { data: workPlanTracker, isFetching } = useGetAllActivityTrackerQuery({
+  // const { data: workPlanTracker } = useGetAllActivityTrackerQuery({
+  //   page,
+  //   size: 10,
+  //   search: debouncedSearchQuery,
+  // });
+
+  const { data: workPlanTracker, isFetching } = useGetAllWorkPlanQuery({
     page,
     size: 10,
-    search: debouncedSearchQuery,
+    project_title: debouncedSearchQuery,
   });
 
+  console.log({ workPlanTracker });
   return (
     <div className='space-y-5'>
       <BreadcrumbCard list={breadcrumbs} />
