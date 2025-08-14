@@ -27,6 +27,7 @@ interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   placeholder?: string;
   required?: boolean;
   options?: IOptions[];
+  disabled: boolean;
 }
 const FormMultiSelect: FC<SelectProps> = ({
   name,
@@ -35,6 +36,7 @@ const FormMultiSelect: FC<SelectProps> = ({
   placeholder,
   options,
   className,
+  disabled,
 }) => {
   const { control, setValue, getValues } = useFormContext();
 
@@ -43,7 +45,9 @@ const FormMultiSelect: FC<SelectProps> = ({
   const handleSelect = (selectedValue: string) => {
     const currentValues: string[] = getValues(name) || [];
     if (!currentValues.includes(selectedValue)) {
-      setValue(name, [...currentValues, selectedValue], { shouldValidate: true });
+      setValue(name, [...currentValues, selectedValue], {
+        shouldValidate: true,
+      });
     }
   };
 
@@ -64,7 +68,6 @@ const FormMultiSelect: FC<SelectProps> = ({
         render={({ field }) => {
           const value = Array.isArray(field.value) ? field.value : [];
 
-
           return (
             <FormItem className='flex flex-col gap-0 mb-1.5'>
               <FormLabel>
@@ -75,7 +78,7 @@ const FormMultiSelect: FC<SelectProps> = ({
                   </span>
                 )}
               </FormLabel>
-              <Select onValueChange={handleSelect} value="">
+              <Select onValueChange={handleSelect} value='' disabled={disabled}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder={placeholder} />
@@ -93,9 +96,9 @@ const FormMultiSelect: FC<SelectProps> = ({
                   ))}
                 </SelectContent>
               </Select>
-              
+
               {value.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-2">
+                <div className='mt-2 flex flex-wrap gap-2'>
                   {value.map((selectedValue: string) => {
                     const selectedOption = options?.find(
                       (opt) => opt.value === selectedValue
@@ -103,13 +106,13 @@ const FormMultiSelect: FC<SelectProps> = ({
                     return (
                       <div
                         key={selectedValue}
-                        className="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-md text-sm"
+                        className='flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-md text-sm'
                       >
                         <span>{selectedOption?.label}</span>
                         <button
-                          type="button"
+                          type='button'
                           onClick={() => handleRemove(selectedValue)}
-                          className="text-gray-500 hover:text-gray-700"
+                          className='text-gray-500 hover:text-gray-700'
                         >
                           <X size={14} />
                         </button>
@@ -118,7 +121,7 @@ const FormMultiSelect: FC<SelectProps> = ({
                   })}
                 </div>
               )}
-              
+
               <FormMessage />
             </FormItem>
           );

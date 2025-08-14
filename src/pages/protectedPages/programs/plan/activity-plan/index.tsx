@@ -7,8 +7,8 @@ import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
 import DataTable from "components/Table/DataTable";
 import {
-    useGetAllActivityPlansQuery,
-    useLazyDownloadActivityPlanTemplateQuery,
+  useGetAllActivityPlansQuery,
+  useLazyDownloadActivityPlanTemplateQuery,
 } from "services/programsApi/activity-plan";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import UploadIcon from "components/icons/UploadIcon";
@@ -23,128 +23,125 @@ import TableFilters from "components/Table/TableFilters";
 import { useDebounce } from "ahooks";
 
 const breadcrumbs: TBreadcrumbList[] = [
-    { name: "Programs", icon: true },
-    { name: "Plans", icon: true },
-    { name: "Activity Plan", icon: false },
+  { name: "Programs", icon: true },
+  { name: "Plans", icon: true },
+  { name: "Activity Plan", icon: false },
 ];
 
 export default function ActivityPlan() {
-    const [page, setPage] = useState(1);
-    const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
 
-    const debouncedSearchQuery = useDebounce(searchQuery, {
-        wait: 1000,
-    });
+  const debouncedSearchQuery = useDebounce(searchQuery, {
+    wait: 1000,
+  });
 
-    const { data: activityPlan, isFetching } = useGetAllActivityPlansQuery({
-        page,
-        size: 10,
-        search: debouncedSearchQuery,
-    });
+  const { data: activityPlan, isFetching } = useGetAllActivityPlansQuery({
+    page,
+    size: 10,
+    search: debouncedSearchQuery,
+  });
 
-    const [downloadTemplate] = useLazyDownloadActivityPlanTemplateQuery();
+  const [downloadTemplate] = useLazyDownloadActivityPlanTemplateQuery();
 
-    const handleDownloadTemplate = async () => {
-        try {
-            const response = await downloadTemplate(null).unwrap();
+  const handleDownloadTemplate = async () => {
+    try {
+      const response = await downloadTemplate(null).unwrap();
 
-            const blob = new Blob([response], {
-                type: "application/vnd.ms-excel",
-            });
+      const blob = new Blob([response], {
+        type: "application/vnd.ms-excel",
+      });
 
-            const blobUrl = URL.createObjectURL(blob);
+      const blobUrl = URL.createObjectURL(blob);
 
-            const link = document.createElement("a");
-            link.href = blobUrl;
-            link.download = "activity_plan_template.xlsx";
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = "activity_plan_template.xlsx";
 
-            document.body.appendChild(link);
-            link.click();
+      document.body.appendChild(link);
+      link.click();
 
-            document.body.removeChild(link);
-            URL.revokeObjectURL(blobUrl);
-        } catch (error: any) {
-            toast.error(error.data.message || "Something went wrong");
-        }
-    };
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
+    } catch (error: any) {
+      toast.error(error.data.message || "Something went wrong");
+    }
+  };
 
-    const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
 
-    return (
-        <div className="space-y-5">
-            <BreadcrumbCard list={breadcrumbs} />
+  return (
+    <div className='space-y-5'>
+      <BreadcrumbCard list={breadcrumbs} />
 
-            <div className="flex justify-end">
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <Button className="flex gap-2 py-6 w-40">
-                            Actions
-                            <ArrowDownIcon />
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-fit">
-                        <div className="flex flex-col items-start justify-between gap-1">
-                            <Link to={RouteEnum.PROGRAM_CREATE_ACTIVITY_PLAN}>
-                                <Button
-                                    className="flex gap-2 py-6"
-                                    variant="ghost"
-                                    type="button"
-                                >
-                                    <AddSquareIcon fillColor="#FF0000" />
-                                    Create Manually
-                                </Button>
-                            </Link>
-
-                            <Button
-                                className="flex gap-2 py-6"
-                                variant="ghost"
-                                type="button"
-                                onClick={() => {
-                                    dispatch(
-                                        openDialog({
-                                            type: DialogType.ActivityUpload,
-                                            dialogProps: {
-                                                header: "Upload An Activity",
-                                                width: "max-w-lg",
-                                            },
-                                        })
-                                    );
-                                }}
-                            >
-                                <UploadIcon />
-                                Upload Activity Plan
-                            </Button>
-
-                            <Button
-                                className="flex items-center gap-2 justify-start"
-                                variant="ghost"
-                                onClick={handleDownloadTemplate}
-                            >
-                                <DownloadIcon className="text-green-500" />
-                                Download Template
-                            </Button>
-                        </div>
-                    </PopoverContent>
-                </Popover>
-            </div>
-
-            <Card>
-                <TableFilters
-                    onSearchChange={(e) => setSearchQuery(e.target.value)}
+      <div className='flex justify-end'>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button className='flex gap-2 py-6 w-40'>
+              Actions
+              <ArrowDownIcon />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className='w-fit'>
+            <div className='flex flex-col items-start justify-between gap-1'>
+              <Link to={RouteEnum.PROGRAM_CREATE_ACTIVITY_PLAN}>
+                <Button
+                  className='flex gap-2 py-6'
+                  variant='ghost'
+                  type='button'
                 >
-                    <DataTable
-                        columns={activityPlanColumns}
-                        data={activityPlan?.data.results || []}
-                        isLoading={isFetching}
-                        pagination={{
-                            total: activityPlan?.data.pagination.count ?? 0,
-                            pageSize:
-                                activityPlan?.data.pagination.page_size ?? 0,
-                            onChange: (page: number) => setPage(page),
-                        }}
-                    />
-                </TableFilters>
-            </Card>
-        </div>
-    );
+                  <AddSquareIcon fillColor='#FF0000' />
+                  Create Manually
+                </Button>
+              </Link>
+
+              <Button
+                className='flex gap-2 py-6'
+                variant='ghost'
+                type='button'
+                onClick={() => {
+                  dispatch(
+                    openDialog({
+                      type: DialogType.ActivityUpload,
+                      dialogProps: {
+                        header: "Upload An Activity",
+                        width: "max-w-lg",
+                      },
+                    })
+                  );
+                }}
+              >
+                <UploadIcon />
+                Upload Activity Plan
+              </Button>
+
+              <Button
+                className='flex items-center gap-2 justify-start'
+                variant='ghost'
+                onClick={handleDownloadTemplate}
+              >
+                <DownloadIcon className='text-green-500' />
+                Download Template
+              </Button>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
+
+      <Card>
+        <TableFilters onSearchChange={(e) => setSearchQuery(e.target.value)}>
+          <DataTable
+            columns={activityPlanColumns}
+            data={activityPlan?.data.results || []}
+            isLoading={isFetching}
+            pagination={{
+              total: activityPlan?.data.pagination.count ?? 0,
+              pageSize: activityPlan?.data.pagination.page_size ?? 0,
+              onChange: (page: number) => setPage(page),
+            }}
+          />
+        </TableFilters>
+      </Card>
+    </div>
+  );
 }
