@@ -30,6 +30,13 @@ import {
 } from "services/auth/user";
 import { toast } from "sonner";
 import FormSelect from "atoms/FormSelect";
+import FormMultiSelect from "atoms/FormMultiSelect";
+import { useGetAllRolesQuery } from "services/auth/role";
+import { useAuthChangePasswordMutation } from "services/auth/auth";
+import { useAppDispatch } from "hooks/useStore";
+import { logOut } from "store/auth/authSlice";
+import { AuthRoutes } from "constants/RouterConstants";
+import { useNavigate } from "react-router-dom";
 
 export type TFormValues = z.infer<typeof ProfileSchema>;
 export type TFormValuesSecond = z.infer<typeof SecuritySchema>;
@@ -37,8 +44,16 @@ export default function Account() {
   // const dispatch = useAppDispatch();
 
   const { data: profile } = useGetUserProfileQuery(null);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const [updateUser, { isLoading: isUpdateLoading }] = useUpdateUserMutation();
+  const { data: role } = useGetAllRolesQuery({
+    page: 1,
+    size: 2000000,
+  });
+
+  const [changePassword, { isLoading }] = useAuthChangePasswordMutation();
 
   const Profileform = useForm<TFormValues>({
     resolver: zodResolver(ProfileSchema),
@@ -52,6 +67,11 @@ export default function Account() {
       profile_picture: "",
     },
   });
+
+  const roleOptions = role?.data.results.map(({ name, id }) => ({
+    label: name,
+    value: id,
+  }));
   const Securityform = useForm<TFormValuesSecond>({
     resolver: zodResolver(SecuritySchema),
     // defaultValues: {},
@@ -66,6 +86,9 @@ export default function Account() {
 
   useEffect(() => {
     if (profile?.data) {
+      const roles = profile?.data?.roles || [];
+      const roleValues = roles.map((role: any) => role.id || role);
+
       Profileform.reset({
         first_name: profile.data.first_name || "",
         last_name: profile.data.last_name || "",
@@ -73,7 +96,7 @@ export default function Account() {
         // @ts-ignore
         username: profile.data.username || "",
         // @ts-ignore
-        role: profile.data.roles || [],
+        role: roleValues || [],
         gender: profile.data.gender || "",
         profile_picture: profile.data.profile_picture || "",
       });
@@ -102,7 +125,7 @@ export default function Account() {
       formData.append("email", data.email);
       // formData.append("username", data.username);
       formData.append("gender", data.gender);
-      data.role.forEach((role) => formData.append("role", role));
+      data.role.forEach((role) => formData.append("roles", role));
 
       if (file) {
         formData.append("profile_picture", file);
@@ -113,15 +136,36 @@ export default function Account() {
         // body: data,
         body: formData,
       }).unwrap();
+
       toast.success("User Updated");
     } catch (error: any) {
       toast.error(error.data.message ?? "Something went wrong");
     }
   };
 
-  const onSubmitSecurity = (data: TFormValuesSecond) => {
+  const onSubmitSecurity = async (data: TFormValuesSecond) => {
     // Dispatch update password action or API call
-    console.log("Security Data Submitted:", data);
+    const payload = {
+      new_password: data?.new_password,
+      confirm_password: data?.confirm_password,
+      current_password: data?.old_password,
+    };
+
+    try {
+      const res = await changePassword(payload).unwrap();
+      // toast.success("Password changed successfully");
+      // localStorage.removeItem("authToken");
+
+      console.log({ res });
+
+      // Only log out and redirect if password change is successful
+      dispatch(logOut());
+      navigate(AuthRoutes.LOGIN);
+      navigate("/login");
+    } catch (err: any) {
+      // On error, just show toast and do not log out or redirect
+      toast.error(err.data.message || "Something went wrong");
+    }
   };
 
   return (
@@ -224,21 +268,16 @@ export default function Account() {
                       placeholder='Enter Email address'
                       disabled={true}
                     />
-                    {/* <FormInput
-                      label='Username'
-                      name='username'
-                      className='bg-white h-[56px]'
-                      required
-                      placeholder='Enter username'
-                    /> */}
 
-                    <FormInput
+                    <FormMultiSelect
                       label='Role'
+                      placeholder='Select Role'
                       name='role'
-                      className='bg-white h-[56px]'
-                      // disabled
-                      placeholder='Role'
+                      required
+                      options={roleOptions}
+                      disabled={true}
                     />
+
                     <FormSelect
                       label='Gender'
                       placeholder='Select Gender'
@@ -302,9 +341,9 @@ export default function Account() {
 
                       <div className='flex justify-end gap-5 mt-16'>
                         <FormButton
-                          loading={false}
+                          loading={isLoading}
                           type='submit'
-                          disabled={false}
+                          disabled={isLoading}
                         >
                           Update Password
                         </FormButton>
