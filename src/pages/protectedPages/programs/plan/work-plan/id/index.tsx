@@ -21,8 +21,6 @@ export default function WorkPlanDetail() {
 
   const { data, isLoading } = useGetSingleWorkPlanQuery(id ?? skipToken);
 
-  console.log(data?.data.activities[0].gant_chart["Apr"]);
-
   if (isLoading) return <LoadingSpinner />;
 
   if (!data) return null;
