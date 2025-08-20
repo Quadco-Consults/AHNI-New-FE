@@ -40,6 +40,8 @@ export type TEngagementPlanPaginatedData = {
     start_date: string;
     project_managers: string[];
     end_date: string;
+    stakeholders: string[];
+    status: string;
 };
 
 export type TEngagementPlanSingleData = {

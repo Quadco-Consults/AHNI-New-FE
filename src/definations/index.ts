@@ -13,18 +13,18 @@ export interface TResponse<T> {
 }
 
 export interface TPaginatedResponse<T> {
-  status: boolean;
-  message: string;
-  data: {
-    pagination: {
-      count: number;
-      page: number;
-      page_size: number;
-      total_pages: number;
-      next_page_number: number | null;
-      previous: number | null;
-      previous_page_number: number | null;
-    };
-    results: T[];
+  number_of_pages: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+  pagination: {
+    count: number;
+    page: number;
+    page_size: number;
+    total_pages: number;
+    next: string | null;
+    next_page_number: number | null;
+    previous: string | null;
+    previous_page_number: number | null;
   };
 }

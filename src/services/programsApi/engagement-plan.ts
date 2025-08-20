@@ -29,6 +29,7 @@ const EngagementPlanAPI = baseAPI.injectEndpoints({
                 url: "/programs/stakeholders/engagement-plans/",
                 params,
             }),
+            transformResponse: (response: any) => response.data,
             providesTags: ["ENGAGEMENT_PLAN"],
         }),
 

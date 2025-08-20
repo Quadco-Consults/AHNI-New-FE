@@ -5,12 +5,9 @@ import { Loading } from "./Loading";
  *
  * @param {import('react').SuspenseProps} props
  */
-function Suspense(props: any) {
-  return <ReactSuspense {...props} />;
-}
 
-Suspense.defaultProps = {
-  fallback: <Loading />,
-};
+function Suspense({ fallback = <Loading />, ...props }: any) {
+  return <ReactSuspense fallback={fallback} {...props} />;
+}
 
 export default Suspense;
