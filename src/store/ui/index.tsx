@@ -58,4 +58,4 @@ const sheet = ({ ui: { sheet } }: RootState) => sheet;
 const dailog = ({ ui: { dailog } }: RootState) => dailog;
 
 export const sheetSelector = createSelector([sheet], (sheet) => sheet);
-export const dailogSelector = createSelector([dailog], (dailog) => dailog);
+export const dailogSelector = createSelector([dailog], (dailog) => ({ ...dailog }));

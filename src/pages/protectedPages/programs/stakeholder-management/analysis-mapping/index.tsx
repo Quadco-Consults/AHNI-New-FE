@@ -42,15 +42,14 @@ export default function StakeholderAnalysisMappingPage() {
                     onSearchChange={(e) => setSearchQuery(e.target.value)}
                 >
                     <DataTable
-                        data={stakeholderRegister?.data.results || []}
+                        data={stakeholderRegister?.results || []}
                         columns={columns}
                         isLoading={isFetching}
                         pagination={{
                             total:
-                                stakeholderRegister?.data.pagination.count ?? 0,
+                                stakeholderRegister?.pagination?.count ?? 0,
                             pageSize:
-                                stakeholderRegister?.data.pagination
-                                    .page_size ?? 0,
+                                stakeholderRegister?.pagination?.page_size ?? 0,
                             onChange: (page: number) => setPage(page),
                         }}
                     />

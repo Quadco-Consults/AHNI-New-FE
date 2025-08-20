@@ -10,6 +10,7 @@ import { RouteEnum } from "constants/RouterConstants";
 import EyeIcon from "components/icons/EyeIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { ColumnDef } from "@tanstack/react-table";
+import { Badge } from "components/ui/badge";
 import DataTable from "components/Table/DataTable";
 import BreadcrumbCard from "components/shared/Breadcrumb";
 import {
@@ -30,11 +31,19 @@ const breadcrumbs = [
 export default function EngagementPlan() {
     const [page, setPage] = useState(1);
 
-    const { data: stakeholderEngagement, isFetching } =
-        useGetAllEngagementPlansQuery({
-            page,
-            size: 10,
-        });
+    const {
+        data: stakeholderEngagement,
+        isFetching,
+        error,
+    } = useGetAllEngagementPlansQuery({
+        page,
+        size: 10,
+    });
+    // Debug logs for engagement plan table data and API state
+    console.log("Engagement Table Data (results):", stakeholderEngagement?.results);
+    console.log("Engagement Table Data (full):", stakeholderEngagement);
+    console.log("Engagement Table isFetching:", isFetching);
+    console.log("Engagement Table error:", error);
 
     return (
         <div className="space-y-5">
@@ -64,15 +73,14 @@ export default function EngagementPlan() {
                 </div>
 
                 <DataTable
-                    data={stakeholderEngagement?.data.results || []}
+                    data={stakeholderEngagement?.results || []}
                     columns={columns}
                     isLoading={isFetching}
                     pagination={{
                         total:
-                            stakeholderEngagement?.data.pagination.count ?? 0,
+                            stakeholderEngagement?.pagination?.count ?? 0,
                         pageSize:
-                            stakeholderEngagement?.data.pagination.page_size ??
-                            0,
+                            stakeholderEngagement?.pagination?.page_size ?? 0,
                         onChange: (page: number) => setPage(page),
                     }}
                 />
@@ -101,7 +109,9 @@ const columns: ColumnDef<TEngagementPlanPaginatedData>[] = [
 
     {
         header: "Stakeholders",
-        accessorKey: "_",
+        accessorFn: (row) => Array.isArray(row.stakeholders)
+            ? row.stakeholders.join(", ")
+            : "",
         size: 200,
     },
 
@@ -118,7 +128,27 @@ const columns: ColumnDef<TEngagementPlanPaginatedData>[] = [
 
     {
         header: "Status",
-        accessorKey: "_",
+        accessorFn: (row) => row.status,
+        cell: ({ row }) => {
+            const status = row.original.status;
+            let variant: any = "outline";
+            let label = status || "No Status";
+            if (status === "Active" || status === "ACTIVE") {
+                variant = "success";
+                label = "Active";
+            } else if (status === "Not Active" || status === "NOT_ACTIVE") {
+                variant = "destructive";
+                label = "Not Active";
+            } else if (!status || status.trim() === "") {
+                variant = "secondary";
+                label = "No Status";
+            } else {
+                // For any other status, show as outline with raw value
+                variant = "outline";
+                label = status;
+            }
+            return <Badge variant={variant}>{label}</Badge>;
+        },
         size: 150,
     },
 
