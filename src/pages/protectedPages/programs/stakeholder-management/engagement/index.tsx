@@ -73,14 +73,14 @@ export default function EngagementPlan() {
                 </div>
 
                 <DataTable
-                    data={stakeholderEngagement?.data?.results || []}
+                    data={stakeholderEngagement?.results || []}
                     columns={columns}
                     isLoading={isFetching}
                     pagination={{
                         total:
-                            stakeholderEngagement?.data?.pagination?.count ?? 0,
+                            stakeholderEngagement?.pagination?.count ?? 0,
                         pageSize:
-                            stakeholderEngagement?.data?.pagination?.page_size ?? 0,
+                            stakeholderEngagement?.pagination?.page_size ?? 0,
                         onChange: (page: number) => setPage(page),
                     }}
                 />
@@ -132,9 +132,22 @@ const columns: ColumnDef<TEngagementPlanPaginatedData>[] = [
         cell: ({ row }) => {
             const status = row.original.status;
             let variant: any = "outline";
-            if (status === "Active") variant = "success";
-            else if (status === "Not Active") variant = "destructive";
-            return <Badge variant={variant}>{status || "No Status"}</Badge>;
+            let label = status || "No Status";
+            if (status === "Active" || status === "ACTIVE") {
+                variant = "success";
+                label = "Active";
+            } else if (status === "Not Active" || status === "NOT_ACTIVE") {
+                variant = "destructive";
+                label = "Not Active";
+            } else if (!status || status.trim() === "") {
+                variant = "secondary";
+                label = "No Status";
+            } else {
+                // For any other status, show as outline with raw value
+                variant = "outline";
+                label = status;
+            }
+            return <Badge variant={variant}>{label}</Badge>;
         },
         size: 150,
     },
