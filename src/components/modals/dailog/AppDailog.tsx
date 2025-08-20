@@ -93,6 +93,7 @@ import CreateInterviewModal from "pages/protectedPages/hr/advertisement/id/Creat
 import CreateGoalsModal from "pages/protectedPages/hr/workforce-database/id/CreateGoals";
 import ViewPaymentModal from "pages/protectedPages/hr/employee-benefits/components/ViewPayment";
 import CopyActivitiesModal from "pages/protectedPages/hr/timesheet-management/id/CopyAcitivitiesModal";
+import AddModification from "components/Table/columns/c&g/grant/addModification";
 // import CreateInterview from "pages/protectedPages/c&g/contract-management/consultant-management/id/CreateInterview";
 
 const sheets: Record<string, ReactNode> = {
@@ -191,6 +192,8 @@ const sheets: Record<string, ReactNode> = {
   [DialogType.ADD_OBLIGATION_MODAL]: <AddObligationModal />,
   [DialogType.SUBGRANT_MANUAL_SUB_UPLOAD]: <SubGrantManualSubUploadModal />,
   [DialogType.ADD_PRE_AWARD_QUESTION_MODAL]: <AddPreAwardQuestion />,
+  [DialogType.MODIFY_GRANT]: <AddModification />,
+
   [DialogType.ACTIVITY_PLAN_STATUS_MODAL]: <ActivityPlanStatusModal />,
   [DialogType.PREFERRED_CONSULTANT_MODAL]: <PreferredConsultantModal />,
   [DialogType.DOCUMENT_UPLOADS]: <DocumentUploadModal />,
