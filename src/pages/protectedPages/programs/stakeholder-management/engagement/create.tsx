@@ -24,6 +24,7 @@ import {
     addStakeholders,
     removeStakeholder,
 } from "store/formData/stakeholders";
+import { useGetAllStakeholderRegisterQuery } from "services/programsApi/stakeholder";
 import {
     useCreateEngagementPlanMutation,
     useGetSingleEngagementPlanQuery,
@@ -59,6 +60,9 @@ const commitmentLevelOptions = [
 }));
 
 const CreateEngagement = () => {
+    // Fetch all stakeholders from API
+    const { data: stakeholderData, isLoading: isStakeholderLoading } = useGetAllStakeholderRegisterQuery({ page: 1, size: 100 });
+    const allStakeholders = Array.isArray(stakeholderData?.results) ? stakeholderData.results : [];
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
 
@@ -101,6 +105,9 @@ const CreateEngagement = () => {
     const { selectedStakeholders } = useAppSelector(
         (state) => state.stakeholder
     );
+
+    // Optionally, use allStakeholders for selection modal or list
+    // Example: pass allStakeholders to your stakeholder selection modal/component
 
     const [createEngagementPlan, { isLoading: isCreateLoading }] =
         useCreateEngagementPlanMutation();

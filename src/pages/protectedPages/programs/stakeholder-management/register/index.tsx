@@ -21,18 +21,23 @@ const breadcrumbs: TBreadcrumbList[] = [
 
 export default function StakeholderRegisterPage() {
     const [page, setPage] = useState(1);
-
     const [searchQuery, setSearchQuery] = useState("");
-
-    const debouncedSearchQuery = useDebounce(searchQuery, {
-        wait: 1000,
-    });
-
-    const { data, isFetching } = useGetAllStakeholderRegisterQuery({
-        page,
-        size: 10,
-        search: debouncedSearchQuery,
-    });
+    const debouncedSearchQuery = useDebounce(searchQuery, { wait: 1000 });
+    const { data, isFetching, refetch } = useGetAllStakeholderRegisterQuery(
+        {
+            page,
+            size: 10,
+            search: debouncedSearchQuery,
+        },
+        {
+            refetchOnMountOrArgChange: true,
+        }
+    );
+    // Robust debug logging for API response and table data
+    console.log('Full API Response:', data);
+    // Use the actual API response shape for table data
+    const tableData: any[] = Array.isArray(data?.results) ? data.results : [];
+    console.log('Table Data:', tableData);
 
     return (
         <div className="space-y-5">
@@ -55,16 +60,22 @@ export default function StakeholderRegisterPage() {
                 <TableFilters
                     onSearchChange={(e) => setSearchQuery(e.target.value)}
                 >
-                    <DataTable
-                        data={data?.data.results || []}
-                        columns={stakeholderRegisterColumnss}
-                        isLoading={isFetching}
-                        pagination={{
-                            total: data?.data.pagination.count ?? 0,
-                            pageSize: data?.data.pagination.page_size ?? 0,
-                            onChange: (page: number) => setPage(page),
-                        }}
-                    />
+                    {isFetching ? (
+                        <div className="py-10 text-center">Loading...</div>
+                    ) : tableData.length === 0 ? (
+                        <div className="py-10 text-center text-red-500">No stakeholder register data found. Please check API response and mapping.</div>
+                    ) : (
+                        <DataTable
+                            data={tableData}
+                            columns={stakeholderRegisterColumnss}
+                            isLoading={isFetching}
+                            pagination={{
+                                total: data?.data?.pagination?.count ?? 0,
+                                pageSize: data?.data?.pagination?.page_size ?? 0,
+                                onChange: (page: number) => setPage(page),
+                            }}
+                        />
+                    )}
                 </TableFilters>
             </Card>
         </div>
