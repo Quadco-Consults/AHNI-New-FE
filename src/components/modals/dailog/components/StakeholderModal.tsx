@@ -81,7 +81,7 @@ const StakeholderModal = () => {
                     <LoadingSpinner />
                 ) : (
                     <div className="grid grid-cols-1 gap-5 bg-gray-100 p-5 rounded-lg shadow-inner md:grid-cols-3">
-                        {data?.data.results.map((stakeholder) => {
+                        {Array.isArray(data?.results) && data.results.map((stakeholder) => {
                             const isChecked = stakeholders.some(
                                 (holder) => holder.id === stakeholder.id
                             );

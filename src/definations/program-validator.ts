@@ -143,22 +143,23 @@ export type TRiskManagementPlanData = Omit<
 };
 
 export const StakeholderRegisterSchema = z.object({
-  name: z.string().min(1, "Field is required"),
-  organization: z.string().min(1, "Field is required"),
-  office_address: z.string().min(1, "Field is required"),
-  state: z.string().min(1, "Field is required"),
-  designation: z.string().min(1, "Field is required"),
-  phone_number: z.string().min(1, "Field is required"),
-  email: z.string().min(1, "Field is required").email(),
-  project_role: z.string().min(1, "Field is required"),
-  importance: z.string().optional(),
-  influence: z.string().optional(),
-  score: z.string().optional(),
-  major_concerns: z.string().min(1, "Field is required"),
-  relationship_owner: z.string().min(1, "Field is required"),
-  contact_person_name: z.string().optional(),
-  contact_person_email: z.string().email().optional(),
-  contact_person_phone_number: z.string().optional(),
+    name: z.string().min(1, "Field is required"),
+    organization: z.string().min(1, "Field is required"),
+    office_address: z.string().min(1, "Field is required"),
+    state: z.string().min(1, "Field is required"),
+    designation: z.string().min(1, "Field is required"),
+    phone_number: z.string().min(1, "Field is required"),
+    email: z.string().min(1, "Field is required").email(),
+    project_role: z.string().min(1, "Field is required"),
+    importance: z.string().optional(),
+    influence: z.string().optional(),
+    score: z.string().optional(),
+    major_concerns: z.string().min(1, "Field is required"),
+    relationship_owner: z.string().min(1, "Field is required"),
+    contact_person_name: z.string().min(1, "Field is required"),
+    contact_person_email: z.string().min(1, "Field is required").email(),
+    contact_person_phone_number: z.string().min(1, "Field is required"),
+
 });
 
 export type TStakeholderRegisterFormValues = z.infer<
