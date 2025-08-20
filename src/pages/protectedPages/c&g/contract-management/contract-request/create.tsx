@@ -8,7 +8,7 @@ import {
   ContractRequestSchema,
   TContractRequestFormData,
 } from "definations/c&g/contract-management/contract-request";
-import { UserCircle } from "lucide-react";
+// import { UserCircle } from "lucide-react";
 import { useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useSearchParams } from "react-router-dom";
@@ -99,9 +99,9 @@ export default function CreateContractRequest() {
         label: `${first_name} ${last_name}`,
         value: id,
       })),
-    [UserCircle]
+    [user?.data.results]
   );
-
+  console.log("User Options:", userOptions);
   const [createContractRequest, { isLoading: isCreateLoading }] =
     useCreateContractRequestMutation();
 
