@@ -7,9 +7,20 @@ export const LoginSchema = z.object({
 
 export type TLoginFormValues = z.infer<typeof LoginSchema>;
 
+export interface IUser {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    last_login: string;
+    roles: string[];
+    permissions: string[];
+}
+
 export interface ILoginData {
     access_token: string;
     refresh_token: string;
+    user: IUser;
 }
 
 export const ChangePasswordSchema = z

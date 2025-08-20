@@ -156,6 +156,9 @@ export const StakeholderRegisterSchema = z.object({
     score: z.string().optional(),
     major_concerns: z.string().min(1, "Field is required"),
     relationship_owner: z.string().min(1, "Field is required"),
+    contact_person_name: z.string().min(1, "Field is required"),
+    contact_person_email: z.string().min(1, "Field is required").email(),
+    contact_person_phone_number: z.string().min(1, "Field is required"),
 });
 
 export type TStakeholderRegisterFormValues = z.infer<

@@ -1,9 +1,9 @@
 import { PayloadAction, createSelector, createSlice } from "@reduxjs/toolkit";
 
 import { RootState } from "..";
-import { LoginData } from "definations/auth/auth";
+import { ILoginData } from "definations/auth/auth";
 
-const initialState: LoginData = {
+const initialState: ILoginData = {
     access_token: "",
 
     refresh_token: "",
@@ -22,7 +22,7 @@ const authSlice = createSlice({
     name: "auth",
     initialState,
     reducers: {
-        setAuth: (state, { payload }: PayloadAction<LoginData>) => {
+    setAuth: (state, { payload }: PayloadAction<ILoginData>) => {
             return {
                 ...state,
                 ...payload,
@@ -42,4 +42,4 @@ export default authSlice.reducer;
 
 const auth = ({ auth }: RootState) => auth;
 
-export const authSelector = createSelector([auth], (auth) => auth);
+export const authSelector = createSelector([auth], (auth) => ({ ...auth }));

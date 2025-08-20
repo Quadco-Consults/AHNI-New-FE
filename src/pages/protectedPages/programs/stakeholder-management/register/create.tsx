@@ -72,6 +72,9 @@ const CreateRegister = () => {
             score: "",
             major_concerns: "",
             relationship_owner: "",
+            contact_person_name: "",
+            contact_person_email: "",
+            contact_person_phone_number: "",
         },
     });
 
@@ -228,21 +231,21 @@ const CreateRegister = () => {
 
                         <FormInput
                             label="Contact Person Name"
-                            name="_"
+                            name="contact_person_name"
                             placeholder="Enter Contact Person Name"
                             required
                         />
 
                         <FormInput
                             label="Contact Person Email"
-                            name="_"
+                            name="contact_person_email"
                             placeholder="Enter Contact Person Email"
                             required
                         />
 
                         <FormInput
                             label="Contact Person Phone Number"
-                            name="_"
+                            name="contact_person_phone_number"
                             placeholder="Enter Contact Person Phone Number"
                             required
                         />
