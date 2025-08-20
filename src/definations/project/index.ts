@@ -60,6 +60,7 @@ export interface IProjectSingleData {
   budget: number;
   currency: string;
   status: string;
+  total_obligation_amount: string;
 }
 
 export interface ProjectsData {

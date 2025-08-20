@@ -30,11 +30,12 @@ export default function CreateGrant() {
   const form = useForm<TGrantFormData>({
     resolver: zodResolver(GrantSchema),
     defaultValues: {
-      name: "",
-      grant_id: "",
+      // name: "",
+      // grant_id: "",
       award_type: "",
-      award_amount: "",
+      // award_amount: "",
       reference_number: "",
+      project_id: "",
     },
   });
 
@@ -84,24 +85,24 @@ export default function CreateGrant() {
     if (grant) {
       form.reset({
         // @ts-ignore
-        project: grant?.data?.project?.id || "",
+        // project: grant?.data?.project?.id || "",
         award_type: grant?.data.award_type,
-        award_amount: grant?.data.award_amount,
+        // award_amount: grant?.data.award_amount,
         // @ts-ignore
-
+        project_id: project?.data.results.project_id,
         reference_number: grant?.data.reference_number,
       });
     }
-  }, [grant, project]);
+  }, [grant, project, form]);
 
   return (
     <Card>
-      <BackNavigation extraText='New Grant' />
+      <BackNavigation extraText={grant ? "Update Grant" : "New Grant"} />
       <CardContent>
         <Form {...form}>
           <form className='space-y-5' onSubmit={form.handleSubmit(onSubmit)}>
             <div className='grid grid-cols-2 gap-8'>
-              <FormInput
+              {/* <FormInput
                 name='name'
                 label='Grant Name'
                 placeholder='Enter Grant Name'
@@ -113,7 +114,7 @@ export default function CreateGrant() {
                 label='Grant ID'
                 placeholder='Enter Grant ID'
                 required
-              />
+              /> */}
 
               <FormSelect
                 name='award_type'
@@ -123,13 +124,13 @@ export default function CreateGrant() {
                 placeholder='Select Award type'
               />
 
-              <FormInput
+              {/* <FormInput
                 name='award_amount'
                 label='Award Amount'
                 type='number'
                 required={true}
                 placeholder='Enter Award Amount'
-              />
+              /> */}
 
               <FormInput
                 label='Agreement/Contract Reference Number'
@@ -143,6 +144,7 @@ export default function CreateGrant() {
               <FormButton
                 size='lg'
                 loading={isCreateLoading || isModifyLoading}
+                disabled={isCreateLoading || isModifyLoading}
               >
                 Submit
               </FormButton>
