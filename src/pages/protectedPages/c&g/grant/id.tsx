@@ -25,7 +25,6 @@ const GrantDetails: React.FC = () => {
   //   const { data } = useGetSingleGrantQuery(id ?? skipToken);
 
   const dispatch = useAppDispatch();
-  console.log({ data, isLoading });
 
   return (
     <section className='space-y-5'>

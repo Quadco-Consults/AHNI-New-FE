@@ -208,6 +208,7 @@ export default function ProjectSummaryPage() {
       })),
     [location]
   );
+  console.log({ locationOptions, location });
 
   const interventionAreaOptions = useMemo(
     () =>

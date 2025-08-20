@@ -22,6 +22,7 @@ const GrantDetailsCard = ({
   pipeline,
   money_months_remaining,
   burn_rate,
+  modifications,
 }: IGrantSingleData) => {
   const CardDetails = useMemo(() => {
     return [
@@ -69,21 +70,18 @@ const GrantDetailsCard = ({
       <h3 className='text-xl font-bold'>Grant Details</h3>
       <Card>
         <div className='grid grid-cols-3 gap-10'>
-          {CardDetails.map((item, index) => {
-            return (
-              <DescriptionCard
-                key={index}
-                label={item.label}
-                description={item.value}
-              />
-            );
-          })}
+          {CardDetails.map((item, index) => (
+            <DescriptionCard
+              key={index}
+              label={item.label}
+              description={item.value}
+            />
+          ))}
         </div>
       </Card>
 
       <Card>
         <h3 className='font-semibold'>Grant Analytics</h3>
-
         <div className='grid grid-cols-2 gap-5 mt-5'>
           <DescriptionCard label='Pipeline' description={pipeline || "N/A"} />
           <DescriptionCard label='Burn Rate' description={burn_rate || "N/A"} />
@@ -93,6 +91,29 @@ const GrantDetailsCard = ({
           />
         </div>
       </Card>
+
+      {modifications && modifications.length > 0 && (
+        <Card>
+          <h3 className='font-semibold'>Modifications</h3>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-5 mt-5'>
+            {modifications.map((mod: any) => (
+              <div
+                key={mod.id}
+                className='border rounded-lg p-4 space-y-2 bg-gray-50'
+              >
+                <h4 className='font-bold text-base'>{mod.title}</h4>
+                <p className='text-sm text-gray-600'>
+                  Description: {mod.description}
+                </p>
+                <p className='text-sm'>
+                  Amount: {formatNumberCurrency(mod.amount, "USD")}
+                </p>
+                <p className='text-xs text-gray-400'>Date: {mod.date}</p>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
     </div>
   );
 };

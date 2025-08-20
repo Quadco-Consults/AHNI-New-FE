@@ -10,7 +10,8 @@ import { formatNumberCurrency } from "utils/utls";
 
 const ObligationHistory: React.FC<any> = ({
   total_obligation_amount,
-  total_expenditure_amount,
+  current_month_obligation_amount,
+  remaining_award_amount,
   grandID,
 }: IGrantSingleData) => {
   const StatsCard = useMemo(() => {
@@ -26,19 +27,26 @@ const ObligationHistory: React.FC<any> = ({
       {
         id: 3,
         name: "Balance ",
-        stat: "$100",
+        // stat: "$100",
+        stat: remaining_award_amount
+          ? formatNumberCurrency(remaining_award_amount, "USD")
+          : 0,
         icon: <TotalExpenditureSvg />,
       },
       {
         id: 2,
         name: "Obligated Amount",
-        stat: total_expenditure_amount
-          ? formatNumberCurrency(total_expenditure_amount)
+        stat: current_month_obligation_amount
+          ? formatNumberCurrency(current_month_obligation_amount)
           : 0,
         icon: <TotalExpenditureSvg />,
       },
     ];
-  }, [total_obligation_amount, total_expenditure_amount]);
+  }, [
+    total_obligation_amount,
+    current_month_obligation_amount,
+    remaining_award_amount,
+  ]);
 
   const [page, setPage] = useState(1);
 

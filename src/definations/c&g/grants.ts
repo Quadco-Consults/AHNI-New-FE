@@ -2,10 +2,11 @@
 import { z } from "zod";
 
 export const GrantSchema = z.object({
-  name: z.string().min(1, "Please select project"),
-  grant_id: z.string().min(1, "Please select project"),
+  name: z.string().min(1, "Please select project").optional(),
+  project_id: z.string().min(1, "Please select project").optional(),
+  grant_id: z.string().min(1, "Please select project").optional(),
   award_type: z.string().min(1, "Please select award type"),
-  award_amount: z.string().min(1, "Please enter award amount"),
+  award_amount: z.string().min(1, "Please enter award amount").optional(),
   reference_number: z.string().min(1, "Please enter reference number"),
 });
 
