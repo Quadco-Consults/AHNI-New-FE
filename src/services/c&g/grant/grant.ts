@@ -21,7 +21,17 @@ const GrantAPI = baseAPI.injectEndpoints({
       }),
       invalidatesTags: ["GRANT"],
     }),
-
+    createModification: builder.mutation<
+      TResponse<IGrantSingleData>,
+      { id: string; body: TGrantFormData }
+    >({
+      query: ({ id, body }) => ({
+        method: "POST",
+        url: `${BASE_URL}${id}/modifications/`,
+        body,
+      }),
+      invalidatesTags: ["GRANT"],
+    }),
     getAllGrants: builder.query<
       TPaginatedResponse<IGrantPaginatedData>,
       TRequest
@@ -47,7 +57,7 @@ const GrantAPI = baseAPI.injectEndpoints({
       { id: string; body: TGrantFormData }
     >({
       query: ({ id, body }) => ({
-        method: "PUT",
+        method: "PATCH",
         url: `${BASE_URL}${id}/`,
         body,
       }),
@@ -70,4 +80,5 @@ export const {
   useGetSingleGrantQuery,
   useModifyGrantMutation,
   useDeleteGrantMutation,
+  useCreateModificationMutation,
 } = GrantAPI;

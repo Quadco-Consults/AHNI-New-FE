@@ -15,6 +15,9 @@ import { useDeleteGrantMutation } from "services/c&g/grant/grant";
 import { formatNumberCurrency } from "utils/utls";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
+import { openDialog } from "store/ui";
+import { DialogType } from "constants/dailogs";
+import { useAppDispatch } from "hooks/useStore";
 
 export const grantColumns: ColumnDef<IGrantPaginatedData>[] = [
   {
@@ -53,7 +56,7 @@ export const grantColumns: ColumnDef<IGrantPaginatedData>[] = [
   {
     header: "Intervention Area",
     id: "intervention_area",
-    accessorKey: "intervention_area",
+    accessorKey: "intervention_area.code",
     size: 200,
   },
 
@@ -67,12 +70,17 @@ export const grantColumns: ColumnDef<IGrantPaginatedData>[] = [
   {
     header: "Modification",
     id: "modification",
-    // accessorKey: "modifications",
-    accessorFn: ({ modifications }) =>
-      modifications
-        ?.map((m) => m.name)
-        .filter(Boolean)
-        .join(", ") || "N/A",
+    accessorFn: ({ modifications }) => {
+      if (!modifications || modifications.length === 0) return "N/A";
+      // Sort by date descending
+      const sorted = [...modifications].sort(
+        (a, b) =>
+          new Date(b.created_datetime).getTime() -
+          new Date(a.created_datetime).getTime()
+      );
+
+      return formatNumberCurrency(sorted[0]?.amount, "USD") || "N/A";
+    },
     size: 200,
   },
 
@@ -141,8 +149,13 @@ export const grantColumns: ColumnDef<IGrantPaginatedData>[] = [
   },
 ];
 
-const TableMenu = ({ id }: IGrantPaginatedData) => {
+// const TableMenu = ({ id }: IGrantPaginatedData) => {
+const TableMenu = (data) => {
+  const { id } = data;
+
   const [isDialogOpen, setDialogOpen] = useState(false);
+
+  const dispatch = useAppDispatch();
 
   const [deleteGrant, { isLoading }] = useDeleteGrantMutation();
 
@@ -196,6 +209,24 @@ const TableMenu = ({ id }: IGrantPaginatedData) => {
                   Edit
                 </Button>
               </Link>
+              <Button
+                onClick={() =>
+                  dispatch(
+                    openDialog({
+                      type: DialogType.MODIFY_GRANT,
+                      dialogProps: {
+                        header: "Modify Grant",
+                        data: data,
+                      },
+                    })
+                  )
+                }
+                variant='ghost'
+                className='w-full flex items-center justify-start gap-2'
+                size='sm'
+              >
+                Modify Grant
+              </Button>
 
               <Button
                 className='w-full flex items-center justify-start gap-2'

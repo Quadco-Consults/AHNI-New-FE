@@ -1,20 +1,16 @@
 import Card from "components/shared/Card";
 import { TProjectData } from "definations/project";
-import { formatNumberCurrency } from "utils/utls";
+// import { formatNumberCurrency } from "utils/utls";
 
 export default function Performance(props: TProjectData) {
   const {
-    achievement_against_target,
+    // achievement_against_target,
     narrative,
-    budget_performance,
-    currency,
+    // budget_performance,
+    // currency,
+    budget_performance_calculated,
+    achievement_against_target_calculated,
   } = props;
-  console.log({
-    achievement_against_target,
-    narrative,
-    budget_performance,
-    currency,
-  });
 
   return (
     <Card className='space-y-7'>
@@ -24,7 +20,8 @@ export default function Performance(props: TProjectData) {
       <div className='space-y-3'>
         <h3 className='font-semibold'>Achievement against the target</h3>
         <p className='text-sm text-gray-500'>
-          {achievement_against_target || "N/A"}
+          {achievement_against_target_calculated &&
+            achievement_against_target_calculated?.achievement_percentage}
         </p>
       </div>
 
@@ -36,9 +33,8 @@ export default function Performance(props: TProjectData) {
       <div className='space-y-3'>
         <h3 className='font-semibold'>Budget performance</h3>
         <p className='text-sm text-gray-500'>
-          {budget_performance === "0"
-            ? "Null"
-            : formatNumberCurrency(budget_performance, currency)}
+          {budget_performance_calculated &&
+            budget_performance_calculated?.budget_performance_percentage}
         </p>
       </div>
     </Card>

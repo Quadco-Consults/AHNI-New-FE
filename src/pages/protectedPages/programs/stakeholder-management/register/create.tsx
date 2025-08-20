@@ -12,13 +12,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { nigerianStates } from "lib/index";
 import {
-    StakeholderRegisterSchema,
-    TStakeholderRegisterFormValues,
+  StakeholderRegisterSchema,
+  TStakeholderRegisterFormValues,
 } from "definations/program-validator";
 import {
-    useCreateStakeholderRegisterMutation,
-    useEditStakeholderRegisterMutation,
-    useGetSingleStakeholderRegisterQuery,
+  useCreateStakeholderRegisterMutation,
+  useEditStakeholderRegisterMutation,
+  useGetSingleStakeholderRegisterQuery,
 } from "services/programsApi/stakeholder";
 import { useEffect } from "react";
 import useQuery from "hooks/useQuery";
@@ -26,18 +26,19 @@ import { skipToken } from "@reduxjs/toolkit/query/react";
 import BreadcrumbCard, { TBreadcrumbList } from "components/shared/Breadcrumb";
 
 const importanceOptions = ["1", "2", "3", "4", "5"].map((option) => ({
-    label: option,
-    value: option,
+  label: option,
+  value: option,
 }));
 
 const breadcrumbs: TBreadcrumbList[] = [
-    { name: "Programs", icon: true },
-    { name: "Stakeholder Management", icon: true },
-    { name: "Stakeholder Register", icon: true },
-    { name: "Create", icon: false },
+  { name: "Programs", icon: true },
+  { name: "Stakeholder Management", icon: true },
+  { name: "Stakeholder Register", icon: true },
+  { name: "Create", icon: false },
 ];
 
 const CreateRegister = () => {
+
     const navigate = useNavigate();
 
     const [createStakeholderRegister, { isLoading }] =
@@ -271,6 +272,7 @@ const CreateRegister = () => {
             </Form>
         </div>
     );
+
 };
 
 export default CreateRegister;
