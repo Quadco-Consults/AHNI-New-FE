@@ -80,6 +80,27 @@ export const supportiveSupervisionPlanColumns: ColumnDef<TSupervisionPlanPaginat
       },
     },
     {
+      header: "Approval Status",
+      id: "approval_status",
+      accessorKey: "approval_status",
+      size: 100,
+      cell: ({ getValue }) => {
+        return (
+          <Badge
+            variant='default'
+            className={cn(
+              "p-1 rounded-lg",
+              getValue() === "APPROVED" && "bg-green-100 text-green-500",
+              getValue() === "Reject" && "bg-red-100 text-red-500"
+            )}
+          >
+            {getValue() as string}
+          </Badge>
+        );
+      },
+    },
+
+    {
       header: "",
       id: "actions",
       size: 80,

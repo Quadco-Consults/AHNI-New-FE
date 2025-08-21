@@ -128,8 +128,6 @@ const CreateCBA = () => {
       console.log(error);
     }
   };
-  const check = getValues();
-  console.log({ check, rfqData });
 
   return (
     <div className='bg-white p-4 h-full'>
