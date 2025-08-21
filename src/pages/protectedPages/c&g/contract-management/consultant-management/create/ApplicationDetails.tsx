@@ -13,7 +13,7 @@ import FormTextArea from "atoms/FormTextArea";
 import { FormField, FormItem, Form, FormControl } from "components/ui/form";
 import MultiSelectFormField from "components/ui/multiselect";
 import { useGetAllLocationsQuery } from "services/modules/config/location";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useGetAllUsersQuery } from "services/auth/user";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
@@ -21,6 +21,8 @@ import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
 import { useGetSingleConsultantManagementQuery } from "services/c&g/contract-management/consultancy-management/consultant-management";
 import { skipToken } from "@reduxjs/toolkit/query";
 import FormSelect from "atoms/FormSelect";
+import { useGetAllContractRequestsQuery } from "services/c&g/contract-management/contract";
+import { useGetAllGradesQuery } from "services/modules/config/grade";
 
 export default function ApplicationDetails() {
   const navigate = useNavigate();
@@ -36,7 +38,8 @@ export default function ApplicationDetails() {
       commencement_date: "",
       end_date: "",
       consultants_number: "",
-      background: "",
+      // background: "",
+      grade_level: "",
     },
   });
 
@@ -44,16 +47,32 @@ export default function ApplicationDetails() {
 
   const {
     formState: { errors },
+    getValues,
   } = form;
+  const vn = getValues();
+  console.log({ vn });
 
   const { data: location } = useGetAllLocationsQuery({
     page: 1,
     size: 2000000,
   });
 
-  const locationOptions = location?.data.results;
-
+  const { data: contractRequests, isFetchingContractRequests } =
+    useGetAllContractRequestsQuery({
+      page: 1,
+    });
   const { data: user } = useGetAllUsersQuery({ page: 1, size: 2000000 });
+
+  const contractRequestOptions = useMemo(
+    () =>
+      contractRequests?.data.results.map(({ title, id }) => ({
+        label: title,
+        value: id,
+      })),
+    [user]
+  );
+
+  const locationOptions = location?.data.results;
 
   const onSubmit: SubmitHandler<TConsultantanagementDetailsFormData> = async (
     data
@@ -89,6 +108,15 @@ export default function ApplicationDetails() {
   const { data } = useGetSingleConsultantManagementQuery(
     consultantId ?? skipToken
   );
+  const { data: grades } = useGetAllGradesQuery({
+    page: 1,
+    size: 2000000,
+  });
+
+  const gradeOptions = grades?.data.results.map(({ name, id }) => ({
+    label: name,
+    value: id,
+  }));
 
   useEffect(() => {
     if (data) {
@@ -121,6 +149,7 @@ export default function ApplicationDetails() {
             name='contract_request'
             placeholder='Select Contract Request'
             required
+            options={contractRequestOptions || []}
           />
 
           <FormTextArea
@@ -129,7 +158,13 @@ export default function ApplicationDetails() {
             placeholder='Enter Background'
             required
           />
-
+          <FormSelect
+            label='Grade'
+            name='grade_level'
+            required
+            placeholder='Select Position'
+            options={gradeOptions}
+          />
           <div>
             <Label className='font-semibold'>Locations</Label>
 
@@ -219,7 +254,12 @@ export default function ApplicationDetails() {
                         </div> */}
 
           <div className='flex justify-end items-center gap-5'>
-            <Button type='button' variant='outline' size='lg'>
+            <Button
+              type='button'
+              variant='outline'
+              size='lg'
+              onClick={() => navigate(-1)}
+            >
               Cancel
             </Button>
 

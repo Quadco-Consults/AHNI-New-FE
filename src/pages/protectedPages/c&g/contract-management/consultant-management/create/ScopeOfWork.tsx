@@ -11,9 +11,9 @@ import FormButton from "atoms/FormButton";
 import ConsultantManagementLayout from "./Layout";
 import FormSelect from "atoms/FormSelect";
 import {
-    ScopeOfWorkSchema,
-    TConsultantanagementDetailsFormData,
-    TScopeOfWorkFormData,
+  ScopeOfWorkSchema,
+  TConsultantanagementDetailsFormData,
+  TScopeOfWorkFormData,
 } from "definations/c&g/contract-management/consultancy-management/consultancy-management";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "components/ui/button";
@@ -21,9 +21,9 @@ import DeleteIcon from "components/icons/DeleteIcon";
 import { toast } from "sonner";
 import { fileToBase64 } from "utils/fileToBase64";
 import {
-    useCreateConsultantManagementMutation,
-    useGetSingleConsultantManagementQuery,
-    useModifyConsultantManagementMutation,
+  useCreateConsultantManagementMutation,
+  useGetSingleConsultantManagementQuery,
+  useModifyConsultantManagementMutation,
 } from "services/c&g/contract-management/consultancy-management/consultant-management";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
@@ -31,267 +31,258 @@ import { skipToken } from "@reduxjs/toolkit/query";
 import { useEffect } from "react";
 
 export default function ScopeOfWork() {
-    const { pathname } = useLocation();
+  const { pathname } = useLocation();
 
-    const [searchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
-    const consultantId = searchParams.get("id");
+  const consultantId = searchParams.get("id");
 
-    const type = pathname.includes("adhoc-management") ? "ADHOC" : "CONSULTANT";
+  const type = pathname.includes("adhoc-management") ? "ADHOC" : "CONSULTANT";
 
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const form = useForm<TScopeOfWorkFormData>({
-        resolver: zodResolver(ScopeOfWorkSchema),
-        defaultValues: {
-            description: "",
-            background: "",
-            objectives: "",
-            deliverables: [{ deliverable: "", number_of_days: "" }],
-            advertisement_document: [],
-            fee_rate: "",
-            payment_frequency: "",
-            location: "",
-            scope_of_work_document: [],
+  const form = useForm({
+    resolver: zodResolver(ScopeOfWorkSchema),
+    defaultValues: {
+      description: "",
+      background: "",
+      objectives: "",
+      //   deliverables: [{ deliverable: "", number_of_days: "" }],
+      advertisement_document: [],
+      //   fee_rate: "",
+      //   payment_frequency: "",
+      //   location: "",
+      //   scope_of_work_document: [],
+    },
+  });
+
+  //   const { fields, append, remove } = useFieldArray({
+  //     name: "deliverables",
+  //     control: form.control,
+  //   });
+
+  const handleFileChange = (files: FileList | null, name: string) => {
+    form.setValue(name as any, files);
+  };
+
+  const [createConsultantManagement, { isLoading: isCreateLoading }] =
+    useCreateConsultantManagementMutation();
+
+  const [modifyConsultantManagement, { isLoading: isModifyLoading }] =
+    useModifyConsultantManagementMutation();
+
+  const onSubmit: SubmitHandler<TScopeOfWorkFormData> = async (data) => {
+    console.log({ busy: "djjhjh" });
+
+    try {
+      const applicationDetails: TConsultantanagementDetailsFormData =
+        JSON.parse(
+          sessionStorage.getItem("consultantManagementFormData") || "{}"
+        );
+
+      const payload = {
+        ...applicationDetails,
+        scope_of_work: {
+          ...data,
+          advertisement_document:
+            typeof data.advertisement_document !== "string"
+              ? await fileToBase64(data.advertisement_document[0])
+              : null,
+          //   scope_of_work_document:
+          //     typeof data.scope_of_work_document !== "string"
+          //       ? await fileToBase64(data.scope_of_work_document[0])
+          //       : null,
         },
-    });
+      };
 
-    const { fields, append, remove } = useFieldArray({
-        name: "deliverables",
-        control: form.control,
-    });
+      if (consultantId) {
+        await modifyConsultantManagement({
+          id: consultantId,
+          body: { ...payload, type } as any,
+        }).unwrap();
+      } else {
+        await createConsultantManagement({
+          ...payload,
+          type,
+        } as any).unwrap();
+      }
+      if (type === "ADHOC") {
+        toast.success("Adhoc Created");
+      } else {
+        toast.success("Consultant Created");
+      }
 
-    const handleFileChange = (files: FileList | null, name: string) => {
-        form.setValue(name as any, files);
-    };
+      if (pathname.includes("adhoc-management")) {
+        navigate(ProgramRoutes.ADHOC_MANAGEMENT);
+      } else {
+        navigate(CG_ROUTES.CONSULTANCY);
+      }
+    } catch (error: any) {
+      console.log(error);
+      toast.error(error.data.message ?? "Something went wrong");
+    }
+  };
 
-    const [createConsultantManagement, { isLoading: isCreateLoading }] =
-        useCreateConsultantManagementMutation();
+  const { data } = useGetSingleConsultantManagementQuery(
+    consultantId ?? skipToken
+  );
 
-    const [modifyConsultantManagement, { isLoading: isModifyLoading }] =
-        useModifyConsultantManagementMutation();
+  useEffect(() => {
+    if (data) {
+      const {
+        // fee_rate,
+        // deliverables,
+        advertisement_document,
+        // scope_of_work_document,
+      } = data.data.scope_of_work;
 
-    const onSubmit: SubmitHandler<TScopeOfWorkFormData> = async (data) => {
-        try {
-            const applicationDetails: TConsultantanagementDetailsFormData =
-                JSON.parse(
-                    sessionStorage.getItem("consultantManagementFormData") ||
-                        "{}"
-                );
+      form.reset({
+        ...data.data.scope_of_work,
+        // fee_rate: String(fee_rate),
+        // deliverables: deliverables.map((item) => ({
+        //   ...item,
+        //   number_of_days: String(item.number_of_days),
+        // })),
+        advertisement_document: advertisement_document ?? "",
+        // scope_of_work_document: scope_of_work_document ?? "",
+      });
+    }
+  }, [data]);
 
-            const payload = {
-                ...applicationDetails,
-                scope_of_work: {
-                    ...data,
-                    advertisement_document:
-                        typeof data.advertisement_document !== "string"
-                            ? await fileToBase64(data.advertisement_document[0])
-                            : null,
-                    scope_of_work_document:
-                        typeof data.scope_of_work_document !== "string"
-                            ? await fileToBase64(data.scope_of_work_document[0])
-                            : null,
-                },
-            };
+  console.log(form.formState.errors);
+  console.log(form.getValues());
 
-            if (consultantId) {
-                await modifyConsultantManagement({
-                    id: consultantId,
-                    body: { ...payload, type } as any,
-                }).unwrap();
-            } else {
-                await createConsultantManagement({
-                    ...payload,
-                    type,
-                } as any).unwrap();
-            }
-            if (type === "ADHOC") {
-                toast.success("Adhoc Created");
-            } else {
-                toast.success("Consultant Created");
-            }
+  return (
+    <ConsultantManagementLayout>
+      <main className='w-full flex flex-col items-center justify-center gap-y-[2.5rem] bg-white p-[1.25rem] pt-[2rem]  rounded-2xl'>
+        <h2 className='font-semibold text-[1.25rem] w-full text-black'>
+          Scope Of Work
+        </h2>
+        <Form {...form}>
+          <form
+            className='w-full flex flex-col gap-y-[1.25rem]'
+            onSubmit={form.handleSubmit(onSubmit)}
+          >
+            <FormTextArea
+              label2='A descriptive information on the nature of the Contract and other information on how the Contract will be structured or accomplished'
+              label='Description'
+              name='description'
+              placeholder='Enter Description'
+              required
+            />
+            <FormTextArea
+              label='Background'
+              label2='A detailed information on the need for the Contract and the expected outcome from the Contract'
+              name='background'
+              placeholder='Enter Background'
+              required
+            />
+            <FormTextArea
+              label='Objectives'
+              name='objectives'
+              placeholder='Enter Objectives'
+              required
+            />
 
-            if (pathname.includes("adhoc-management")) {
-                navigate(ProgramRoutes.ADHOC_MANAGEMENT);
-            } else {
-                navigate(CG_ROUTES.CONSULTANCY);
-            }
-        } catch (error: any) {
-            console.log(error);
-            toast.error(error.data.message ?? "Something went wrong");
-        }
-    };
+            {/* <div className='border-y border-[#DBDFE9] py-[1.875rem] pt-[3rem] space-y-[2rem]'>
+              <div className='w-full flex flex-col gap-y-[1.25rem]'>
+                <p className='text-[#DEA004] font-semibold'>
+                  Specific Deliverables
+                </p>
+                <p className='text-[#4D4545] text-sm'>
+                  Based on the activities listed above, the Contractor is
+                  expected to produced or accomplish the following:
+                </p>
+              </div>
+              <div className='space-y-3'>
+                <div className='grid grid-cols-2 gap-5'>
+                  <h3 className='font-semibold'>Specific Deliverables</h3>
+                  <h3 className='font-semibold -ml-8'>
+                    Number of Days Required
+                  </h3>
+                </div>
 
-    const { data } = useGetSingleConsultantManagementQuery(
-        consultantId ?? skipToken
-    );
+                {fields.map((field, index) => (
+                  <div key={field.id} className='flex items-center gap-5'>
+                    <div className='flex-[1]'>
+                      <FormInput
+                        name={`deliverables.${index}.deliverable`}
+                        placeholder='Enter Deliverable'
+                      />
+                    </div>
+                    <div className='flex-[1]'>
+                      <FormInput
+                        type='number'
+                        name={`deliverables.${index}.number_of_days`}
+                        placeholder='Enter Number of Days'
+                      />
+                    </div>
 
-    useEffect(() => {
-        if (data) {
-            const {
-                fee_rate,
-                deliverables,
-                advertisement_document,
-                scope_of_work_document,
-            } = data.data.scope_of_work;
-
-            form.reset({
-                ...data.data.scope_of_work,
-                fee_rate: String(fee_rate),
-                deliverables: deliverables.map((item) => ({
-                    ...item,
-                    number_of_days: String(item.number_of_days),
-                })),
-                advertisement_document: advertisement_document ?? "",
-                scope_of_work_document: scope_of_work_document ?? "",
-            });
-        }
-    }, [data]);
-
-    console.log(form.formState.errors);
-
-    return (
-        <ConsultantManagementLayout>
-            <main className="w-full flex flex-col items-center justify-center gap-y-[2.5rem] bg-white p-[1.25rem] pt-[2rem]  rounded-2xl">
-                <h2 className="font-semibold text-[1.25rem] w-full text-black">
-                    Scope Of Work
-                </h2>
-                <Form {...form}>
-                    <form
-                        className="w-full flex flex-col gap-y-[1.25rem]"
-                        onSubmit={form.handleSubmit(onSubmit)}
+                    <Button
+                      type='button'
+                      variant='ghost'
+                      onClick={() => remove(index)}
                     >
-                        <FormTextArea
-                            label2="A descriptive information on the nature of the Contract and other information on how the Contract will be structured or accomplished"
-                            label="Description"
-                            name="description"
-                            placeholder="Enter Description"
-                            required
-                        />
-                        <FormTextArea
-                            label="Background"
-                            label2="A detailed information on the need for the Contract and the expected outcome from the Contract"
-                            name="background"
-                            placeholder="Enter Background"
-                            required
-                        />
-                        <FormTextArea
-                            label="Objectives"
-                            name="objectives"
-                            placeholder="Enter Objectives"
-                            required
-                        />
+                      <DeleteIcon />
+                    </Button>
+                  </div>
+                ))}
 
-                        <div className="border-y border-[#DBDFE9] py-[1.875rem] pt-[3rem] space-y-[2rem]">
-                            <div className="w-full flex flex-col gap-y-[1.25rem]">
-                                <p className="text-[#DEA004] font-semibold">
-                                    Specific Deliverables
-                                </p>
-                                <p className="text-[#4D4545] text-sm">
-                                    Based on the activities listed above, the
-                                    Contractor is expected to produced or
-                                    accomplish the following:
-                                </p>
-                            </div>
-                            <div className="space-y-3">
-                                <div className="grid grid-cols-2 gap-5">
-                                    <h3 className="font-semibold">
-                                        Specific Deliverables
-                                    </h3>
-                                    <h3 className="font-semibold -ml-8">
-                                        Number of Days Required
-                                    </h3>
-                                </div>
+                <FadedButton
+                  type='button'
+                  className='text-primary w-fit'
+                  onClick={() =>
+                    append({
+                      deliverable: "",
+                      number_of_days: "",
+                    })
+                  }
+                >
+                  <AddSquareIcon />
+                  Add More
+                </FadedButton>
 
-                                {fields.map((field, index) => (
-                                    <div
-                                        key={field.id}
-                                        className="flex items-center gap-5"
-                                    >
-                                        <div className="flex-[1]">
-                                            <FormInput
-                                                name={`deliverables.${index}.deliverable`}
-                                                placeholder="Enter Deliverable"
-                                            />
-                                        </div>
-                                        <div className="flex-[1]">
-                                            <FormInput
-                                                type="number"
-                                                name={`deliverables.${index}.number_of_days`}
-                                                placeholder="Enter Number of Days"
-                                            />
-                                        </div>
+                <div className='grid grid-cols-2 gap-5'>
+                  <FormInput
+                    name='total'
+                    placeholder='Total'
+                    disabled
+                    className='disabled:opacity-100 font-bold'
+                  />
+                  <FormInput name='total_sum' />
+                </div>
+              </div>
+            </div> */}
+            <div className='border-b border-[#DBDFE9] py-[1.875rem]  space-y-[2rem]'>
+              <div className='flex flex-col gap-y-[1rem]'>
+                <Label className='font-semibold'>
+                  Upload Complete Advertisement Document
+                </Label>
+                <div className='flex items-center w-full gap-x-[1rem]'>
+                  <label
+                    className='cursor-pointer shrink-0 border flex items-center gap-x-[1rem] w-fit rounded-lg border-[#DBDFE9] py-[.875rem] px-[1.125rem]'
+                    htmlFor='advertisement_document'
+                  >
+                    <UploadFileSvg />
+                    Select file
+                  </label>
+                  <input
+                    type='file'
+                    hidden
+                    id='advertisement_document'
+                    onChange={(e) =>
+                      handleFileChange(e.target.files, "advertisement_document")
+                    }
+                  />
+                  <p className='border flex items-center w-full gap-x-[1rem] rounded-lg border-[#DBDFE9] px-[1.125rem] h-[3.5rem]'>
+                    {form.watch("advertisement_document")[0]?.name ||
+                      data?.data.scope_of_work.advertisement_document}
+                  </p>
+                </div>
+              </div>
+            </div>
 
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            onClick={() => remove(index)}
-                                        >
-                                            <DeleteIcon />
-                                        </Button>
-                                    </div>
-                                ))}
-
-                                <FadedButton
-                                    type="button"
-                                    className="text-primary w-fit"
-                                    onClick={() =>
-                                        append({
-                                            deliverable: "",
-                                            number_of_days: "",
-                                        })
-                                    }
-                                >
-                                    <AddSquareIcon />
-                                    Add More
-                                </FadedButton>
-
-                                <div className="grid grid-cols-2 gap-5">
-                                    <FormInput
-                                        name="total"
-                                        placeholder="Total"
-                                        disabled
-                                        className="disabled:opacity-100 font-bold"
-                                    />
-                                    <FormInput name="total_sum" />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="border-b border-[#DBDFE9] py-[1.875rem]  space-y-[2rem]">
-                            <div className="flex flex-col gap-y-[1rem]">
-                                <Label className="font-semibold">
-                                    Upload Complete Advertisement Document
-                                </Label>
-                                <div className="flex items-center w-full gap-x-[1rem]">
-                                    <label
-                                        className="cursor-pointer shrink-0 border flex items-center gap-x-[1rem] w-fit rounded-lg border-[#DBDFE9] py-[.875rem] px-[1.125rem]"
-                                        htmlFor="advertisement_document"
-                                    >
-                                        <UploadFileSvg />
-                                        Select file
-                                    </label>
-                                    <input
-                                        type="file"
-                                        hidden
-                                        id="advertisement_document"
-                                        onChange={(e) =>
-                                            handleFileChange(
-                                                e.target.files,
-                                                "advertisement_document"
-                                            )
-                                        }
-                                    />
-                                    <p className="border flex items-center w-full gap-x-[1rem] rounded-lg border-[#DBDFE9] px-[1.125rem] h-[3.5rem]">
-                                        {form.watch("advertisement_document")[0]
-                                            ?.name ||
-                                            data?.data.scope_of_work
-                                                .advertisement_document}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <Card className="space-y-5">
+            {/* <Card className="space-y-5">
                             <p className="text-[#DEA004] font-semibold">
                                 Payment Schedule
                             </p>
@@ -372,44 +363,42 @@ export default function ScopeOfWork() {
                                     </div>
                                 </div>
                             </div>
-                        </Card>
+                        </Card> */}
 
-                        <Card>
-                            <div className="w-full flex flex-col gap-y-[1.25rem]">
-                                <p className="text-[#DEA004] font-semibold">
-                                    Confidential and Proprietary Information
-                                </p>
-                                <p className="text-[#4D4545] text-sm">
-                                    All information, documents and data
-                                    resulting from the performance of
-                                    Contractor's work under this Agreement shall
-                                    be the sole property of AHNi. Upon
-                                    termination of Agreement, Contractor agrees
-                                    to return to AHNi all property and materials
-                                    within Contractor's possession or control
-                                    which belong to AHNi or which contain
-                                    Confidential Information.
-                                </p>
-                            </div>
-                        </Card>
-                        <div className="flex justify-end items-center gap-x-[1rem]">
-                            <FadedButton
-                                type="button"
-                                className="text-primary"
-                                size="lg"
-                            >
-                                Cancel
-                            </FadedButton>
-                            <FormButton
-                                size="lg"
-                                loading={isCreateLoading || isModifyLoading}
-                            >
-                                Submit
-                            </FormButton>
-                        </div>
-                    </form>
-                </Form>
-            </main>
-        </ConsultantManagementLayout>
-    );
+            <Card>
+              <div className='w-full flex flex-col gap-y-[1.25rem]'>
+                <p className='text-[#DEA004] font-semibold'>
+                  Confidential and Proprietary Information
+                </p>
+                <p className='text-[#4D4545] text-sm'>
+                  All information, documents and data resulting from the
+                  performance of Contractor's work under this Agreement shall be
+                  the sole property of AHNi. Upon termination of Agreement,
+                  Contractor agrees to return to AHNi all property and materials
+                  within Contractor's possession or control which belong to AHNi
+                  or which contain Confidential Information.
+                </p>
+              </div>
+            </Card>
+            <div className='flex justify-end items-center gap-x-[1rem]'>
+              <FadedButton
+                type='button'
+                className='text-primary'
+                size='lg'
+                onClick={() => navigate(-1)}
+              >
+                Cancel
+              </FadedButton>
+              <FormButton
+                size='lg'
+                loading={isCreateLoading || isModifyLoading}
+              >
+                Submit
+              </FormButton>
+            </div>
+          </form>
+        </Form>
+      </main>
+    </ConsultantManagementLayout>
+  );
 }
