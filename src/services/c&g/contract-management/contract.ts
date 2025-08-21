@@ -9,6 +9,8 @@ import baseAPI from "services/index";
 // TEST COMMENT
 
 const BASE_URL = "/contract-grants/contract-requests/";
+const INTERVIEW_BASE_URL =
+  "/contract-grants/consultancy/applicant-interviews/bulk-create/";
 
 const ContractRequestAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
@@ -19,6 +21,29 @@ const ContractRequestAPI = baseAPI.injectEndpoints({
       query: (body) => ({
         method: "POST",
         url: `${BASE_URL}`,
+        body,
+      }),
+      invalidatesTags: ["CONTRACT_REQUEST"],
+    }),
+    createContractInterview: builder.mutation<
+      TResponse<IContractRequestSingleData>,
+      TContractRequestFormData
+    >({
+      query: (body) => ({
+        method: "POST",
+        url: `${INTERVIEW_BASE_URL}`,
+        body,
+      }),
+      invalidatesTags: ["CONTRACT_REQUEST"],
+    }),
+
+    modifyContractInterview: builder.mutation<
+      TResponse<IContractRequestSingleData>,
+      { id: string; body: TContractRequestFormData }
+    >({
+      query: ({ id, body }) => ({
+        method: "PUT",
+        url: `${INTERVIEW_BASE_URL}${id}/`,
         body,
       }),
       invalidatesTags: ["CONTRACT_REQUEST"],
@@ -59,6 +84,18 @@ const ContractRequestAPI = baseAPI.injectEndpoints({
       invalidatesTags: ["CONTRACT_REQUEST"],
     }),
 
+    modifyContractStatus: builder.mutation<
+      TResponse<IContractRequestSingleData>,
+      { id: string; body: TContractRequestFormData }
+    >({
+      query: ({ id, body }) => ({
+        method: "PATCH",
+        url: `/contract-grants/consultancy/applicants/${id}/`,
+        body,
+      }),
+      invalidatesTags: ["CONTRACT_REQUEST"],
+    }),
+
     deleteContractRequest: builder.mutation<
       TResponse<IContractRequestSingleData>,
       string
@@ -78,4 +115,8 @@ export const {
   useGetSingleContractRequestQuery,
   useModifyContractRequestMutation,
   useDeleteContractRequestMutation,
+  // interview request
+  useModifyContractStatusMutation,
+  useCreateContractInterviewMutation,
+  useModifyContractInterviewMutation,
 } = ContractRequestAPI;

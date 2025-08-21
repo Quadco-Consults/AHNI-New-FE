@@ -9,37 +9,38 @@ import { useParams } from "react-router-dom";
 import { useGetAllConsultancyStaffsQuery } from "services/c&g/contract-management/consultancy-management/consultancy-applicants";
 
 export default function ShortlistedAppplicants() {
-    const { id } = useParams();
+  const { id } = useParams();
 
-    const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
 
-    const { data, isFetching } = useGetAllConsultancyStaffsQuery(
-        id
-            ? {
-                  page: currentPage,
-                  size: 10,
-                  consultants: id,
-              }
-            : skipToken
-    );
+  const { data, isFetching } = useGetAllConsultancyStaffsQuery(
+    id
+      ? {
+          page: currentPage,
+          size: 10,
+          consultants: id,
+          status: "SHORTLISTED",
+        }
+      : skipToken
+  );
 
-    return (
-        <section className="space-y-5">
-            <h1 className="text-xl font-bold">Shortlisted Applicants</h1>
-            <Card>
-                <TableFilters>
-                    <DataTable
-                        columns={shortlistedApplicantColumn}
-                        data={data?.data.results || []}
-                        isLoading={isFetching}
-                        pagination={{
-                            total: data?.data.pagination.count ?? 0,
-                            pageSize: data?.data.pagination.page_size ?? 0,
-                            onChange: (page: number) => setCurrentPage(page),
-                        }}
-                    />
-                </TableFilters>
-            </Card>
-        </section>
-    );
+  return (
+    <section className='space-y-5'>
+      <h1 className='text-xl font-bold'>Shortlisted Applicants</h1>
+      <Card>
+        <TableFilters>
+          <DataTable
+            columns={shortlistedApplicantColumn}
+            data={data?.data.results || []}
+            isLoading={isFetching}
+            pagination={{
+              total: data?.data.pagination.count ?? 0,
+              pageSize: data?.data.pagination.page_size ?? 0,
+              onChange: (page: number) => setCurrentPage(page),
+            }}
+          />
+        </TableFilters>
+      </Card>
+    </section>
+  );
 }

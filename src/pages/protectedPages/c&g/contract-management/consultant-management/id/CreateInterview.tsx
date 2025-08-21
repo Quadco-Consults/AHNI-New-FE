@@ -1,70 +1,318 @@
+import { skipToken } from "@reduxjs/toolkit/query";
 import BackNavigation from "atoms/BackNavigation";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";
 import FormSelect from "atoms/FormSelectField";
 import Card from "components/shared/Card";
 import { Button } from "components/ui/button";
-import { Form } from "components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "components/ui/form";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate, useParams } from "react-router-dom";
+import { useGetSingleConsultantManagementQuery } from "services/c&g/contract-management/consultancy-management/consultant-management";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+  DialogHeader,
+  DialogDescription,
+  DialogClose,
+} from "components/ui/dialog";
+import { LoadingSpinner } from "components/shared/Loading";
+import { Input } from "components/ui/input";
+import { Icon } from "@iconify/react";
+import { Checkbox } from "components/ui/checkbox";
+import { useGetAllSolicitationsQuery } from "services/procurementApi/solicitation";
+import { useGetAllUsersQuery } from "services/auth/user";
+import { Badge } from "components/ui/badge";
+import { toast } from "sonner";
+import { useCreateContractInterviewMutation } from "services/c&g/contract-management/contract";
+import { useGetAllConsultancyStaffsQuery } from "services/c&g/contract-management/consultancy-management/consultancy-applicants";
 
 export default function CreateInterview() {
-    const form = useForm();
+  const navigate = useNavigate();
 
-    return (
-        <section>
-            <BackNavigation />
+  const applicantId = useParams();
 
-            <Card>
-                <Form {...form}>
-                    <form className="space-y-10">
-                        <FormInput
-                            label="Consultancy"
-                            name="_"
-                            placeholder="Select Consultancy"
-                            required
-                        />
+  const { data } = useGetSingleConsultantManagementQuery(
+    applicantId?.id ?? skipToken
+  );
 
-                        <div className="grid grid-cols-2 gap-10">
-                            <FormSelect
-                                label="Pre-Award Assessment Type"
-                                name="_"
-                                placeholder="Select type"
-                                required
-                                options={[
-                                    { label: "COMMITTEE", value: "COMMITTEE" },
-                                    {
-                                        label: "Non-COMMITTEE",
-                                        value: "NON-COMMITTEE",
-                                    },
-                                ]}
-                            />
+  const { data: applicants } = useGetAllConsultancyStaffsQuery(
+    applicantId?.id
+      ? {
+          page: 1,
+          size: 100000000,
+          consultants: applicantId?.id,
+          status: "SHORTLISTED",
+        }
+      : skipToken
+  );
+  const { data: users } = useGetAllUsersQuery({
+    page: 1,
+    size: 2000000,
+  });
 
-                            <FormInput
-                                type="date"
-                                label="Pre-Award Assessment Date"
-                                name="_"
-                                required
-                            />
+  console.log({ applicants: applicants?.data?.results });
+
+  const [createInterview, { isLoading }] = useCreateContractInterviewMutation();
+
+  const form = useForm({
+    defaultValues: {
+      consultancy: data?.data.title || "",
+      interview_type: "",
+      interview_date: "",
+      committee_members: [],
+    },
+  });
+
+  useEffect(() => {
+    if (data) {
+      form.reset({
+        consultancy: data.data.title,
+        interview_type: "",
+        interview_date: "",
+        committee_members: [],
+      });
+    }
+  }, [data, form]);
+
+  const { handleSubmit, watch } = form;
+
+  const matchedUsers =
+    users?.data?.results?.filter((user) =>
+      // @ts-ignore
+      form.watch("committee_members")?.includes(user?.id)
+    ) || [];
+
+  const onSubmit = async (interview_data: any) => {
+    const interviewData = {
+      consultancy: data?.data.id,
+      interview_type: interview_data.interview_type,
+      interview_date: interview_data.interview_date,
+      committee_members:
+        watch("interview_type") === "COMMITTEE"
+          ? interview_data.committee_members
+          : [],
+      applicants:
+        applicants?.data?.results?.map((applicant) => applicant.id) || [],
+    };
+
+    try {
+      // @ts-ignore
+      await createInterview(interviewData).unwrap();
+      toast.success("Successfully created.");
+      // navigate(RouteEnum.COMPETITIVE_BID_ANALYSIS);
+      navigate(-1);
+    } catch (error) {
+      toast.error("Something went wrong");
+      console.log(error);
+    }
+  };
+
+  return (
+    <section>
+      <BackNavigation />
+
+      <Card>
+        <Form {...form}>
+          <form className='space-y-10' onSubmit={handleSubmit(onSubmit)}>
+            <FormInput
+              label='Consultancy'
+              name='consultancy'
+              placeholder='Select Consultancy'
+              required
+            />
+
+            <div className='grid grid-cols-2 gap-10'>
+              <FormSelect
+                label='Interview Type'
+                name='interview_type'
+                placeholder='Select type'
+                required
+                options={[
+                  { label: "COMMITTEE", value: "COMMITTEE" },
+                  {
+                    label: "Non-COMMITTEE",
+                    value: "NON_COMMITTEE",
+                  },
+                ]}
+              />
+
+              <FormInput
+                type='date'
+                label='Interview Date'
+                name='interview_date'
+                required
+              />
+            </div>
+
+            {/* <Button
+              variant='outline'
+              size='lg'
+              className='text-[#DEA004] border-[#DEA004] border-solid '
+            >
+              Select Committes
+            </Button> */}
+
+            {watch("interview_type") === "COMMITTEE" && (
+              <div className='flex items-center gap-2 flex-wrap'>
+                <div className='flex items-center gap-2 flex-wrap'>
+                  {matchedUsers?.map((user) => (
+                    <Badge
+                      key={user?.id}
+                      className='py-2 rounded-lg bg-[#EBE8E1] text-black'
+                    >
+                      {user?.first_name} {user?.last_name}
+                    </Badge>
+                  ))}
+                </div>
+                <div>
+                  <Dialog>
+                    <DialogTrigger>
+                      <div className='text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm'>
+                        Click to select team members to make up the committee
+                      </div>
+                    </DialogTrigger>
+                    <DialogContent className='max-w-6xl max-h-[700px] overflow-auto'>
+                      <DialogHeader className='mt-10 space-y-5 text-center'>
+                        {/* <img
+                        src={logoPng}
+                        alt='logo'
+                        className='mx-auto'
+                        width={150}
+                      /> */}
+                        <DialogTitle className='text-2xl text-center'>
+                          Team Members
+                        </DialogTitle>
+                        <DialogDescription className='text-center'>
+                          Please select all team members needed to make up the
+                          committee
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className='flex justify-center'>
+                        <div className='flex items-center w-1/2 px-4 py-2 border rounded-lg'>
+                          <Input
+                            placeholder='Search team members'
+                            //   value={categorySearchParams}
+                            //   onChange={(e) => setCategorySearchParams(e.target.value)}
+                            type='search'
+                            className='h-6 border-none bg-none'
+                          />
+                          <Icon icon='iconamoon:search-light' fontSize={25} />
                         </div>
+                      </div>
 
-                        <Button
-                            variant="outline"
-                            size="lg"
-                            className="text-[#DEA004] border-[#DEA004] border-solid "
-                        >
-                            Select Committes
-                        </Button>
+                      <div className='space-y-5 '>
+                        {isLoading ? (
+                          <LoadingSpinner />
+                        ) : (
+                          <FormField
+                            control={form.control}
+                            name='committee_members'
+                            render={() => (
+                              <FormItem className='grid grid-cols-2 gap-5 bg-gray-100 mt-10 p-5 rounded-lg shadow-inner md:grid-cols-4'>
+                                {users?.data?.results?.map((user) => (
+                                  <FormField
+                                    key={user?.id}
+                                    control={form.control}
+                                    name='committee_members'
+                                    render={({ field }) => {
+                                      return (
+                                        <FormItem
+                                          key={user.id}
+                                          className='space-y-3 bg-white rounded-lg text-xs p-5'
+                                        >
+                                          <FormControl>
+                                            <Checkbox
+                                              checked={field.value?.includes(
+                                                // @ts-ignore
+                                                user?.id
+                                              )}
+                                              onCheckedChange={(checked) => {
+                                                return checked
+                                                  ? field.onChange([
+                                                      ...field.value,
+                                                      user?.id,
+                                                    ])
+                                                  : field.onChange(
+                                                      field.value?.filter(
+                                                        (value) =>
+                                                          value !== user?.id
+                                                      )
+                                                    );
+                                              }}
+                                            />
+                                          </FormControl>
+                                          <div className='space-y-4'>
+                                            <div className='flex items-center'>
+                                              <h6 className='w-24'>Name:</h6>
+                                              <h6>
+                                                {user?.first_name}{" "}
+                                                {user?.last_name}
+                                              </h6>
+                                            </div>
+                                            <div className='flex items-center'>
+                                              <h6 className='w-24'>
+                                                Position:
+                                              </h6>
+                                              <h6>{user?.designation}</h6>
+                                            </div>
+                                            <div className='flex items-center'>
+                                              <h6 className='w-24'>Tel:</h6>
+                                              {/* @ts-ignore */}
+                                              <h6>{user?.phone_number}</h6>
+                                            </div>
+                                          </div>
+                                        </FormItem>
+                                      );
+                                    }}
+                                  />
+                                ))}
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        )}
 
-                        <div className="flex items-center justify-between">
-                            <Button variant="outline" size="lg">
-                                Cancel
-                            </Button>
-
-                            <FormButton size="lg">Submit</FormButton>
+                        <div className='flex justify-end'>
+                          <div className='flex gap-4 items-center'>
+                            <h6 className='text-primary'>
+                              {watch("committee_members")?.length} members
+                              Selected
+                            </h6>
+                            <DialogClose>
+                              <div className='flex items-center bg-primary text-primary-foreground rounded-md text-sm font-medium h-11 px-4 py-3 hover:opacity-60'>
+                                Save & Continue
+                              </div>
+                            </DialogClose>
+                          </div>
                         </div>
-                    </form>
-                </Form>
-            </Card>
-        </section>
-    );
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </div>
+            )}
+            <div className='flex items-center justify-between'>
+              <Button variant='outline' size='lg'>
+                Cancel
+              </Button>
+
+              <FormButton size='lg' type='submit'>
+                Submit
+              </FormButton>
+            </div>
+          </form>
+        </Form>
+      </Card>
+    </section>
+  );
 }
