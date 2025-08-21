@@ -9,14 +9,23 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useGetAllUsersQuery } from "services/auth/user";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import useDebounce from "utils/useDebounce";
 
 export default function UserTablePage() {
   const [page, setPage] = useState(1);
   const [tabParams, setTabParams] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
   const { data: user, isFetching } = useGetAllUsersQuery(
     // @ts-ignore
-    { page, size: 10, user_type: tabParams },
+    {
+      page,
+      size: 10,
+      search: debouncedSearchQuery,
+      user_type: tabParams,
+    },
     { refetchOnMountOrArgChange: true }
   );
 
@@ -40,6 +49,7 @@ export default function UserTablePage() {
                 value=''
                 onClick={() => {
                   setPage(1);
+                  setSearchQuery("");
                   setTabParams("");
                 }}
               >
@@ -50,6 +60,7 @@ export default function UserTablePage() {
                 value='AHNi'
                 onClick={() => {
                   setPage(1);
+                  setSearchQuery("");
                   setTabParams("AHNI_STAFF");
                 }}
               >
@@ -61,6 +72,7 @@ export default function UserTablePage() {
                 value='Adhoc'
                 onClick={() => {
                   setPage(1);
+                  setSearchQuery("");
                   setTabParams("ADHOC_STAFF");
                 }}
               >
@@ -72,6 +84,7 @@ export default function UserTablePage() {
                 value='Consultants'
                 onClick={() => {
                   setPage(1);
+                  setSearchQuery("");
                   setTabParams("CONSULTANT");
                 }}
               >
@@ -82,6 +95,7 @@ export default function UserTablePage() {
                 value='Facilitators'
                 onClick={() => {
                   setPage(1);
+                  setSearchQuery("");
                   setTabParams("FACILITATOR");
                 }}
               >
@@ -92,6 +106,7 @@ export default function UserTablePage() {
                 value='Vendors'
                 onClick={() => {
                   setPage(1);
+                  setSearchQuery("");
                   setTabParams("VENDOR");
                 }}
               >
@@ -99,7 +114,9 @@ export default function UserTablePage() {
               </TabsTrigger>
             </TabsList>
             <TabsContent className='w-full py-10' value=''>
-              <TableFilters>
+              <TableFilters
+                onSearchChange={(e) => setSearchQuery(e.target.value)}
+              >
                 <DataTable
                   columns={userColumns}
                   data={user?.data.results || []}
@@ -113,7 +130,9 @@ export default function UserTablePage() {
               </TableFilters>
             </TabsContent>
             <TabsContent className='w-full py-10' value='AHNi'>
-              <TableFilters>
+              <TableFilters
+                onSearchChange={(e) => setSearchQuery(e.target.value)}
+              >
                 <DataTable
                   columns={userColumns}
                   data={user?.data.results || []}
@@ -127,7 +146,9 @@ export default function UserTablePage() {
               </TableFilters>
             </TabsContent>
             <TabsContent className='w-full py-10' value='Adhoc'>
-              <TableFilters>
+              <TableFilters
+                onSearchChange={(e) => setSearchQuery(e.target.value)}
+              >
                 <DataTable
                   columns={userColumns}
                   data={user?.data.results || []}
@@ -141,7 +162,9 @@ export default function UserTablePage() {
               </TableFilters>
             </TabsContent>
             <TabsContent className='w-full py-10' value='Consultants'>
-              <TableFilters>
+              <TableFilters
+                onSearchChange={(e) => setSearchQuery(e.target.value)}
+              >
                 <DataTable
                   columns={userColumns}
                   data={user?.data.results || []}
@@ -155,7 +178,9 @@ export default function UserTablePage() {
               </TableFilters>
             </TabsContent>{" "}
             <TabsContent className='w-full py-10' value='Facilitators'>
-              <TableFilters>
+              <TableFilters
+                onSearchChange={(e) => setSearchQuery(e.target.value)}
+              >
                 <DataTable
                   columns={userColumns}
                   data={user?.data.results || []}
@@ -169,7 +194,9 @@ export default function UserTablePage() {
               </TableFilters>
             </TabsContent>{" "}
             <TabsContent className='w-full py-10' value='Vendors'>
-              <TableFilters>
+              <TableFilters
+                onSearchChange={(e) => setSearchQuery(e.target.value)}
+              >
                 <DataTable
                   columns={userColumns}
                   data={user?.data.results || []}
