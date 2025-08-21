@@ -12,108 +12,101 @@ import { useParams } from "react-router-dom";
 import { useGetSingleItemRequisitionQuery } from "services/admin/inventory-management/item-requisition";
 
 export default function ItemRequisitionDetailPage() {
-    const { id } = useParams();
+  const { id } = useParams();
 
-    const { data: itemRequisition, isLoading } =
-        useGetSingleItemRequisitionQuery(id ?? skipToken);
+  const { data: itemRequisition, isLoading } = useGetSingleItemRequisitionQuery(
+    id ?? skipToken
+  );
 
-    const requestorName = `${itemRequisition?.data.created_by.first_name} ${itemRequisition?.data.created_by.last_name}`;
+  const requestorName = itemRequisition?.data.created_by.first_name
+    ? `${itemRequisition?.data.created_by.first_name} ${itemRequisition?.data.created_by.last_name}`
+    : itemRequisition?.data.created_by.email;
 
-    const itemsRequested = itemRequisition?.data.consummables
-        .map((con) => con.consummable.name)
-        .join(", ");
+  console.log({ itemRequisition });
 
-    const quantityRequested = itemRequisition?.data.consummables
-        .map((item) => item.quantity)
-        .reduce((accumulator, value) => {
-            return accumulator + value;
-        }, 0);
+  const itemsRequested = itemRequisition?.data.consummables
+    .map((con) => con?.consummable?.name)
+    .join(", ");
 
-    const form = useForm();
+  const quantityRequested = itemRequisition?.data.consummables
+    .map((item) => item.quantity)
+    .reduce((accumulator, value) => {
+      return accumulator + value;
+    }, 0);
 
-    return (
-        <div className="space-y-6">
-            <GoBack />
-            <Card className="space-y-6">
-                <h4 className="font-semibold text-lg">
-                    Item Requisition Detail
-                </h4>
-                <Separator />
+  const form = useForm();
+  //   return;
+  return (
+    <div className='space-y-6'>
+      <GoBack />
+      <Card className='space-y-6'>
+        <h4 className='font-semibold text-lg'>Item Requisition Detail</h4>
+        <Separator />
 
-                {isLoading ? (
-                    <LoadingSpinner />
-                ) : (
-                    itemRequisition?.data && (
-                        <div className="grid grid-cols-2 gap-8 mt-6">
-                            <DescriptionCard
-                                label="Requestor Name"
-                                description={requestorName}
-                            />
+        {isLoading ? (
+          <LoadingSpinner />
+        ) : (
+          itemRequisition?.data && (
+            <div className='grid grid-cols-2 gap-8 mt-6'>
+              <DescriptionCard
+                label='Requestor Name'
+                description={requestorName}
+              />
 
-                            <DescriptionCard
-                                label="Department/Unit"
-                                description={
-                                    itemRequisition?.data.department.name
-                                }
-                            />
+              <DescriptionCard
+                label='Department/Unit'
+                description={itemRequisition?.data.department.name}
+              />
 
-                            <DescriptionCard
-                                label="Date Requested"
-                                description={format(
-                                    itemRequisition?.data.created_datetime,
-                                    "yyyy-dd-MM"
-                                )}
-                            />
-
-                            <DescriptionCard
-                                label="Date Treated"
-                                description={format(
-                                    itemRequisition?.data.treatment_datetime ??
-                                        new Date(),
-                                    "yyyy-dd-MM"
-                                )}
-                            />
-
-                            <DescriptionCard
-                                label="Item Requested"
-                                description={itemsRequested}
-                            />
-                            <DescriptionCard
-                                label="Quantity Requested"
-                                description={quantityRequested}
-                            />
-                            <DescriptionCard
-                                label="Status"
-                                description={itemRequisition?.data.status}
-                            />
-
-                            <DescriptionCard
-                                label="Approved by"
-                                description="N/A"
-                            />
-                        </div>
-                    )
+              <DescriptionCard
+                label='Date Requested'
+                description={format(
+                  itemRequisition?.data.created_datetime,
+                  "yyyy-dd-MM"
                 )}
+              />
 
-                <FormProvider {...form}>
-                    <form className="space-y-5">
-                        <FormTextArea
-                            label="Comment"
-                            name="comment"
-                            placeholder="Enter Comment"
-                            required
-                        />
+              <DescriptionCard
+                label='Date Treated'
+                description={format(
+                  itemRequisition?.data.treatment_datetime ?? new Date(),
+                  "yyyy-dd-MM"
+                )}
+              />
 
-                        <FormButton
-                            size="lg"
-                            type="submit"
-                            className="bg-green-500"
-                        >
-                            Approve
-                        </FormButton>
-                    </form>
-                </FormProvider>
-            </Card>
-        </div>
-    );
+              <DescriptionCard
+                label='Item Requested'
+                description={itemsRequested}
+              />
+              <DescriptionCard
+                label='Quantity Requested'
+                description={quantityRequested}
+              />
+              <DescriptionCard
+                label='Status'
+                description={itemRequisition?.data.status}
+              />
+
+              <DescriptionCard label='Approved by' description='N/A' />
+            </div>
+          )
+        )}
+
+        <FormProvider {...form}>
+          <form className='space-y-5'>
+            <FormTextArea
+              label='Comment'
+              name='comment'
+              placeholder='Enter Comment'
+              required
+            />
+
+            <FormButton size='lg' type='submit' className='bg-green-500'>
+              Approve
+            </FormButton>
+          </form>
+        </FormProvider>
+      </Card>
+    </div>
+  );
 }
