@@ -1,6 +1,6 @@
 import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "..";
-import { TUser } from "definations/auth/user";
+import { TUser } from "features/auth/types/user";
 
 interface AssetsState {
     assets: string[];

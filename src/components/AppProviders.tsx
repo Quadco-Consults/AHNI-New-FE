@@ -4,7 +4,7 @@ import { Provider as ReduxProvider } from "react-redux";
 
 import AppDailog from "./modals/dailog/AppDailog";
 import { store } from "store/index";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter } 
 import { Toaster } from "sonner";
 
 type PageProps = {

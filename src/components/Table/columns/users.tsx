@@ -31,12 +31,12 @@ import {
 } from "constants/dailogs";
 import { useState } from "react";
 import {
-  useActivateUserMutation,
-  useDeactivateUserMutation,
-} from "services/auth/user";
+  useActivateUser,
+  useDeactivateUser,
+} from "@/features/auth/controllers/userController";
 import { toast } from "sonner";
 import { Badge } from "components/ui/badge";
-import { IUser } from "definations/auth/user";
+import { IUser } from "features/auth/types/user";
 
 const TableAction = ({
   id,
@@ -55,9 +55,9 @@ const TableAction = ({
 
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const [activateUser] = useActivateUserMutation();
+  const { activateUser } = useActivateUser();
 
-  const [deactivateUser] = useDeactivateUserMutation();
+  const { deactivateUser } = useDeactivateUser();
 
   const handleEdit = (id: string) => {
     dispatch(
@@ -99,10 +99,10 @@ const TableAction = ({
   const handleToggleStatus = async () => {
     try {
       if (is_active) {
-        await deactivateUser(id).unwrap();
+        await deactivateUser(id);
         toast.success("User Deactivated");
       } else {
-        await activateUser(id).unwrap();
+        await activateUser(id);
         toast.success("User Activated");
       }
     } catch (error: any) {
