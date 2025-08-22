@@ -1,9 +1,9 @@
-import { useLocation } from "react-router-dom";
+import { usePathname } from "next/navigation";
 
 type TJob = "adhoc" | "facilitator" | "consultant";
 
 export default function useJobAdvertType() {
-    const { pathname } = useLocation();
+    const pathname = usePathname();
 
     const getTypeFromPath = (path: string): TJob => {
         if (path.includes("adhoc-management")) return "adhoc";

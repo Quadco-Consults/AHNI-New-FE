@@ -1,6 +1,6 @@
 import { PaginationParamsDefault } from "constants/Global";
 import { useCallback, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from "next/navigation";
 import { urlSearchParamsExtractor } from "utils/URLUtils";
 
 function usePaginationParams() {
