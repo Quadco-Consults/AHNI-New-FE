@@ -36,7 +36,7 @@ import {
   useModifySupervisionPlanReview,
 } from "@/features/programs/controllers/supervisionPlanReviewController";
 import { fileToBase64 } from "utils/fileToBase64";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { RouteEnum } from "constants/RouterConstants";
 
 const breadcrumbs = [

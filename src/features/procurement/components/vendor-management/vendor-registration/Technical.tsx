@@ -8,7 +8,7 @@ import { ArrowLeft, ArrowRight, MinusCircle, PlusCircle } from "lucide-react";
 import { Label } from "components/ui/label";
 import { Form } from "components/ui/form";
 import { Separator } from "components/ui/separator";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { z } from "zod";
 import { VendorsTechnicalSchema } from "@/features/procurement/types/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";

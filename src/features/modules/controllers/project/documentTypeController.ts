@@ -130,3 +130,7 @@ export const useDeleteDocumentTypeeMutation = () => {
 };
 
 export const useDeleteDocumentType = DeleteDocumentTypeManager;
+
+// Additional missing exports
+export const useAddDocumentType = useAddDocumentTypeMutation;
+export const useUpdateDocumentType = useUpdateDocumentTypeMutation;

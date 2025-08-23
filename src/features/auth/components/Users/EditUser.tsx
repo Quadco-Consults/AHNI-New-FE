@@ -1,13 +1,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelect";
 import { Form } from "components/ui/form";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useGetAllDepartments } from "../../../admin/controllers/configController";
-import { useGetAllPositions } from "../../../admin/controllers/configController";
+import { useGetAllDepartments } from "@/features/modules/controllers/config/departmentController";
+import { useGetAllPositions } from "@/features/modules/controllers/config/positionController";
 import { useUpdateUser } from "../../controllers/userController";
 import { toast } from "sonner";
 import { closeDialog, dailogSelector } from "store/ui";

@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import FormInput from "components/atoms/FormInput";
 
 import { Form } from "components/ui/form";
@@ -11,7 +11,7 @@ import {
     FundingSourceSchema,
     TFundingSourceData,
     TFundingSourceFormValues,
-} from "components/modules-types/project/funding-source";
+} from "@/features/projects/types/project/funding-source";
 import {
     useAddFundingSource,
     useUpdateFundingSource,

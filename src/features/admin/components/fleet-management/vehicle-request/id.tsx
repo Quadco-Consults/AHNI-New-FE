@@ -1,7 +1,7 @@
 "use client";
 
 import BackNavigation from "components/atoms/BackNavigation";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import FormSelect from "components/atoms/FormSelect";
 import FormTextArea from "components/atoms/FormTextArea";
 import DeleteIcon from "components/icons/DeleteIcon";

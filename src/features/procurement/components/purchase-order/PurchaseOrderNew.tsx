@@ -24,7 +24,7 @@ import { PurchaseOrderListSchema } from "@/features/procurement/types/procuremen
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "components/atoms/FormInput";
 import { Form, FormControl, FormField, FormItem } from "components/ui/form";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import LongArrowRight from "components/icons/LongArrowRight";
 import BreadcrumbCard from "components/Breadcrumb";
 import { useGetDepartmentPaginate } from "@/features/modules/controllers/config/departmentController";

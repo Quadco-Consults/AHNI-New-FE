@@ -1,12 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormButton from "components/atoms/FormButton";
-import FormInput from "components/atoms/FormInput";
-import Upload from "components/Upload";
-import { Button } from "components/ui/button";
+import FormButton from "@/components/FormButton";
+import FormInput from "@/components/FormInput";
+import Upload from "@/components/Upload";
+import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { Upload as UploadIcon } from "lucide-react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { useCreateSubGrantUpload } from "@/features/contracts-grants/controllers/subgrant/submission-uploadController";
+import { useCreateSubGrantUpload } from "@/features/contracts-grants/controllers/submissionUploadController";
 import { toast } from "sonner";
 import { closeDialog } from "store/ui";
 import { ShorthandPropertyAssignment } from "typescript";

@@ -143,3 +143,7 @@ export const useDeleteFundingSourceMutation = () => {
   const { deleteFundingSource, data, isLoading, isSuccess, error } = DeleteFundingSourceManager();
   return [deleteFundingSource, { data, isLoading, isSuccess, error }] as const;
 };
+
+// Additional backward compatibility exports
+export const useUpdateFundingSource = useUpdateFundingSourceMutation;
+export const useAddFundingSource = useAddFundingSourceMutation;

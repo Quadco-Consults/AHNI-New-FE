@@ -1,4 +1,4 @@
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { CG_ROUTES } from "constants/RouterConstants";
 import { useAppDispatch } from "hooks/useStore";
 import { useRouter } from "next/navigation";

@@ -25,7 +25,7 @@ import FormSelect from "components/atoms/FormSelectField";
 import { useForm } from "react-hook-form";
 import { SelectContent, SelectItem } from "components/ui/select";
 import FormTextArea from "components/atoms/FormTextArea";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { z } from "zod";
 import { CbaApprovalSchema } from "@/features/procurement/types/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";

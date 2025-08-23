@@ -1,7 +1,7 @@
 "use client";
 
 import Card from "components/Card";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { useGetAllSubGrantUploads } from "@/features/contracts-grants/controllers/submissionUploadController";
 import FilePreview from "components/FilePreview";
 import Pagination from "components/Pagination";

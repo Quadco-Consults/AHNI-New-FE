@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 // import { skipToken } from "@reduxjs/toolkit/query/react";
 import FormSelect from "components/atoms/FormSelectField";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import FormInput from "components/atoms/FormInput";
 import Card from "components/Card";
 // import AddSquareIcon from "components/icons/AddSquareIcon";
