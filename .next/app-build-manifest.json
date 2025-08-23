@@ -76,6 +76,82 @@
       "static/chunks/main-app.js",
       "static/css/app/dashboard/projects/[id]/page.css",
       "static/chunks/app/dashboard/projects/[id]/page.js"
+    ],
+    "/dashboard/projects/create/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/projects/create/page.js"
+    ],
+    "/dashboard/programs/stakeholder-management/analysis&mapping/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/programs/stakeholder-management/analysis&mapping/page.js"
+    ],
+    "/dashboard/programs/plan/work-plan/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/programs/plan/work-plan/page.js"
+    ],
+    "/dashboard/programs/plan/work-plan/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/programs/plan/work-plan/[id]/page.js"
+    ],
+    "/dashboard/procurement/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/procurement/page.js"
+    ],
+    "/dashboard/procurement/vendor-management/prequalification/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/procurement/vendor-management/prequalification/page.js"
+    ],
+    "/dashboard/procurement/vendor-management/eoi/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/procurement/vendor-management/eoi/page.js"
+    ],
+    "/dashboard/procurement/vendor-management/eoi/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/dashboard/procurement/vendor-management/eoi/[id]/page.css",
+      "static/chunks/app/dashboard/procurement/vendor-management/eoi/[id]/page.js"
+    ],
+    "/dashboard/admin/inventory-management/consumable/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/admin/inventory-management/consumable/page.js"
+    ],
+    "/dashboard/admin/inventory-management/item-requisition/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/admin/inventory-management/item-requisition/page.js"
+    ],
+    "/dashboard/admin/item-requisition/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/admin/item-requisition/[id]/page.js"
+    ],
+    "/dashboard/admin/item-requisition/create/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/admin/item-requisition/create/page.js"
+    ],
+    "/dashboard/programs/plan/activity-tracker/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/programs/plan/activity-tracker/page.js"
+    ],
+    "/dashboard/programs/plan/activity/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/programs/plan/activity/page.js"
+    ],
+    "/_not-found/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/_not-found/page.js"
     ]
   }
 }

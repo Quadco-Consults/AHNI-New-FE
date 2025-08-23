@@ -110,6 +110,7 @@ export const DeleteMarketPriceManager = () => {
 
 // Backward compatibility exports - RTK Query style
 export const useGetAllMarketPricesQuery = useGetAllMarketPricesManager;
+export const useGetAllMarketPrices = useGetAllMarketPricesManager;
 
 export const useAddMarketPriceMutation = () => {
   const { createMarketPrice, data, isLoading, isSuccess, error } = CreateMarketPriceManager();
@@ -125,6 +126,11 @@ export const useUpdateMarketPriceMutation = () => {
 };
 
 export const useDeleteMarketPriceMutation = () => {
+  const { deleteMarketPrice, data, isLoading, isSuccess, error } = DeleteMarketPriceManager();
+  return [deleteMarketPrice, { data, isLoading, isSuccess, error }] as const;
+};
+
+export const useDeleteMarketPrice = () => {
   const { deleteMarketPrice, data, isLoading, isSuccess, error } = DeleteMarketPriceManager();
   return [deleteMarketPrice, { data, isLoading, isSuccess, error }] as const;
 };

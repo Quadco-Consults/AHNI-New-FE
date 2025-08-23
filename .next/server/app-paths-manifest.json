@@ -1,9 +1,10 @@
 {
-  "/dashboard/modules/c-and-g/page": "app/dashboard/modules/c-and-g/page.js",
-  "/dashboard/modules/programs/page": "app/dashboard/modules/programs/page.js",
-  "/dashboard/modules/admin/page": "app/dashboard/modules/admin/page.js",
-  "/dashboard/modules/config/page": "app/dashboard/modules/config/page.js",
-  "/dashboard/audit-log/page": "app/dashboard/audit-log/page.js",
-  "/dashboard/projects/page": "app/dashboard/projects/page.js",
-  "/dashboard/projects/[id]/page": "app/dashboard/projects/[id]/page.js"
+  "/_not-found/page": "app/_not-found/page.js",
+  "/dashboard/procurement/vendor-management/eoi/[id]/page": "app/dashboard/procurement/vendor-management/eoi/[id]/page.js",
+  "/dashboard/admin/inventory-management/item-requisition/page": "app/dashboard/admin/inventory-management/item-requisition/page.js",
+  "/dashboard/admin/item-requisition/[id]/page": "app/dashboard/admin/item-requisition/[id]/page.js",
+  "/dashboard/admin/item-requisition/create/page": "app/dashboard/admin/item-requisition/create/page.js",
+  "/dashboard/programs/plan/activity-tracker/page": "app/dashboard/programs/plan/activity-tracker/page.js",
+  "/dashboard/programs/plan/work-plan/page": "app/dashboard/programs/plan/work-plan/page.js",
+  "/dashboard/programs/plan/activity/page": "app/dashboard/programs/plan/activity/page.js"
 }

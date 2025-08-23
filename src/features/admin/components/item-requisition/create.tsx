@@ -21,7 +21,8 @@ import {
   useFieldArray,
   useForm,
 } from "react-hook-form";
-import { useNavigate, useSearchParams } from "next/navigation"; 
+import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation"; 
 import { useGetAllConsumablesQuery } from "@/features/admin/controllers/consumableController";
 import {
   useCreateItemRequisitionMutation,
@@ -64,7 +65,7 @@ export default function CreateItemRequisition() {
     [user]
   );
 
-  const [createItemRequisition, { isLoading: isCreateLoading }] =
+  const { createItemRequisition, isLoading: isCreateLoading } =
     useCreateItemRequisitionMutation();
 
   const consumableOptions = useMemo(
@@ -86,14 +87,14 @@ export default function CreateItemRequisition() {
   );
 
   const [searchParams] = useSearchParams();
-  const id = searchParams.get("id");
+  const id = searchParams?.get("id");
 
   const { data: itemRequisition } = useGetSingleItemRequisitionQuery(
     id || "", !!id
   );
 
-  const [editItemRequisition, { isLoading: isEditLoading }] =
-    useEditItemRequisitionMutation();
+  const { editItemRequisition, isLoading: isEditLoading } =
+    useEditItemRequisitionMutation(id || "");
 
   const router = useRouter();
 
@@ -121,10 +122,10 @@ export default function CreateItemRequisition() {
       };
 
       if (id) {
-        await editItemRequisition({ id, body: payload }).unwrap();
+        await editItemRequisition(payload);
         toast.success("Item Requisition Updated");
       } else {
-        await createItemRequisition(payload).unwrap();
+        await createItemRequisition(payload);
         toast.success("Item Requisition Created");
       }
 

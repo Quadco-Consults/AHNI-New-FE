@@ -22,12 +22,18 @@ import {
 import { Icon } from "@iconify/react";
 import GoBack from "components/GoBack";
 
+// Helper function to generate path with parameters
+const generatePath = (route: string, params?: Record<string, any>): string => {
+  if (!params) return route;
+  return Object.entries(params).reduce((path, [key, value]) => {
+    return path.replace(`:${key}`, value);
+  }, route);
+};
+
 const PrequalificationDetails = () => {
   const { id } = useParams();
 
-  const { data: vendorsData, isLoading } = VendorsAPI.useGetVendor({
-    path: { id: id as string },
-  });
+  const { data: vendorsData, isLoading } = VendorsAPI.useGetVendor(id as string);
 
   if (isLoading) {
     return <LoadingSpinner />;

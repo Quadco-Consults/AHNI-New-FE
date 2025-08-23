@@ -22,9 +22,7 @@ const ViewEOI = () => {
   const router = useRouter();
   const { id } = useParams();
 
-  const { data, isLoading } = EoiAPI.useGetEoi({
-    path: { id: id as string },
-  });
+  const { data, isLoading } = EoiAPI.useGetEoi(id as string);
 
   // @ts-ignore
   const responseData = data?.data;
@@ -58,7 +56,7 @@ const ViewEOI = () => {
       </Breadcrumb>
       <Tabs defaultValue='eoi-details'>
         <div className='flex items-start gap-x-4 '>
-          <div onClick={() => router.push(-1)} className='-mt-5'>
+          <div onClick={() => router.back()} className='-mt-5'>
             <RoundBack />
           </div>
           <TabsList>

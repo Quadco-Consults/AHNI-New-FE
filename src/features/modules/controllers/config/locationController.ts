@@ -122,6 +122,7 @@ export const DeleteLocationManager = () => {
 
 // Backward compatibility exports - RTK Query style
 export const useGetAllLocationsQuery = useGetAllLocationsManager;
+export const useGetAllLocations = useGetAllLocationsManager;
 export const useGetSingleLocationQuery = useGetSingleLocationManager;
 
 export const useAddLocationMutation = () => {

@@ -1,6 +1,7 @@
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { Link, useLocation, useNavigate } 
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import ProjectLayout from "./ProjectLayout";
 import { Button } from "components/ui/button";
 import FormButton from "components/atoms/FormButton";
@@ -15,7 +16,7 @@ import { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormTextArea from "components/atoms/FormTextArea";
 import { toast } from "sonner";
-import { useGetAllUsers } from "@/features/auth/controllers/user";
+import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import {
   addObjective,
   clearObjectives,
@@ -31,10 +32,10 @@ import {
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import { FaTimes } from "react-icons/fa";
 import FormSelect from "components/atoms/FormSelect";
-import { useGetAllBeneficiaries } from "@/features/modules/controllers/controllers/project/beneficiary";
-import { useGetAllFundingSources } from "@/features/modules/controllers/controllers/project/fundingSource";
-import { useGetAllPartners } from "@/features/modules/controllers/controllers/project/partner";
-import { ProjectSchema, TProjectFormValues } from "definations/project";
+import { useGetAllBeneficiaries } from "@/features/modules/controllers/project/beneficiaryController";
+import { useGetAllFundingSources } from "@/features/modules/controllers/project/fundingSourceController";
+import { useGetAllPartners } from "@/features/modules/controllers/project/partnerController";
+import { ProjectSchema, TProjectFormValues } from "@/features/projects/types/project";
 import ConsortiumPartners from "./ConsortiumPartners";
 import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
 import LongArrowLeft from "components/icons/LongArrowLeft";
@@ -42,8 +43,8 @@ import { RouteEnum } from "constants/RouterConstants";
 import DateInput from "components/DateInput";
 import { formatDate } from "utils/date";
 // import { nigerianStates } from "lib/index";
-import { useGetAllLocations } from "@/features/modules/controllers/controllers/config/location";
-import { useGetAllInterventionAreas } from "@/features/modules/controllers/controllers/program/interventionArea";
+import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
+import { useGetAllInterventionAreas } from "@/features/modules/controllers/program/interventionAreaController";
 import FormMultiSelect from "components/atoms/FormMultiSelect";
 // import { useGetAllGrants } from "@/features/c&g/grant/grant";
 
@@ -83,9 +84,8 @@ export default function ProjectSummaryPage() {
     search: ""
   });
 
-  const query = use();
-
-  const projectId = query.get("id");
+  const searchParams = useSearchParams();
+  const projectId = searchParams.get("id");
 
   const { data: project } = useGetSingleProject(projectId, !!projectId);
 
@@ -182,7 +182,7 @@ export default function ProjectSummaryPage() {
     }
   }, [project, partner, dispatch, reset]);
 
-  const { pathname } = useLocation();
+  const pathname = usePathname();
 
   const { consortiumPartners } = useAppSelector(
     (state) => state.consortiumPartner
@@ -576,7 +576,7 @@ export default function ProjectSummaryPage() {
 
               <div className='flex justify-end gap-5 mt-16'>
                 <Button
-                  onClick={() => router.push(-1)}
+                  onClick={() => router.back()}
                   type='button'
                   className='bg-[#FFF2F2] text-primary dark:text-gray-500'
                   size='lg'

@@ -9,6 +9,14 @@ import { Button } from "components/ui/button";
 import { Input } from "components/ui/input";
 import Link from "next/link";
 import { RouteEnum } from "constants/RouterConstants";
+
+// Helper function to generate path with parameters
+const generatePath = (route: string, params?: Record<string, any>): string => {
+  if (!params) return route;
+  return Object.entries(params).reduce((path, [key, value]) => {
+    return path.replace(`:${key}`, value);
+  }, route);
+};
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import { Plus } from "lucide-react";
@@ -26,8 +34,9 @@ type Data = {
 
 const EOIVendorSubmission = ({ status }: { status?: string }) => {
   const { data: vendorData } = VendorsAPI.useGetVendors({
-    // @ts-ignore
-    params: { status: status && status },
+    page: 1,
+    size: 20,
+    search: "",
   });
 
   return (
