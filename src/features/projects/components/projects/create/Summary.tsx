@@ -167,14 +167,14 @@ export default function ProjectSummaryPage() {
       const fundingSources = funding_sources.map((source) => source.id);
 
       const beneficiariesArr = beneficiaries.map((ben) => ben.id);
-      const interventionAreas = intervention_area.id;
+      const interventionAreaId = intervention_area?.id;
 
       reset({
         title,
         project_id,
         // @ts-ignore
         location: locations,
-        intervention_area: interventionAreas,
+        intervention_area: interventionAreaId,
         goal,
         narrative: narrative || "",
         budget_performance,

@@ -16,8 +16,9 @@ import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import ConfirmationDialog from "components/ConfirmationDialog";
 import { useState } from "react";
-import { IProjectSingleData } from "definations/project";
+// import { IProjectSingleData } from "definations/project";
 import { formatNumberCurrency } from "utils/utls";
+import { IProjectSingleData } from "../../types/project";
 
 export const projectColumns: ColumnDef<IProjectSingleData>[] = [
   {
@@ -159,14 +160,14 @@ const ProjectFundingSource = ({ data }: any) => {
 const TableMenu = ({ id, status }: IProjectSingleData) => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const { deleteProject, isLoading } = useDeleteProject();
+  const { deleteProject, isLoading } = useDeleteProject(id);
   const dispatch = useAppDispatch();
+
+  console.log({ id });
 
   const handleDeleteProject = async () => {
     try {
-      await deleteProject({
-        path: { id },
-      }).unwrap();
+      await deleteProject();
       toast.success("Project deleted.");
     } catch (error: any) {
       toast.error(error.data.message || "Something went wrong");
@@ -184,10 +185,7 @@ const TableMenu = ({ id, status }: IProjectSingleData) => {
           </PopoverTrigger>
           <PopoverContent className='w-fit'>
             <div className='flex flex-col items-start justify-between gap-1'>
-              <Link
-                className='w-full'
-                href={`/dashboard/projects/${id}`}
-              >
+              <Link className='w-full' href={`/dashboard/projects/${id}`}>
                 <Button
                   className='w-full flex items-center justify-start gap-2'
                   variant='ghost'

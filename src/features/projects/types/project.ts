@@ -32,6 +32,18 @@ export type TProjectFormValues = z.infer<typeof ProjectSchema>;
 export interface IProjectSingleData {
   id: string;
   name: string;
+  currency: string;
+  funding_sources: { id: string; name: string }[];
+  project_managers: { id: string; first_name: string; last_name: string }[];
+  beneficiaries: { id: string; name: string }[];
+  location: { id: number; name: string }[];
+  intervention_area: { id: string; code: string };
+  project_id: string;
+  goal: string;
+  narrative: string;
+  budget_performance: string;
+  achievement_against_target: string;
+  expected_results: string;
   description: string;
   start_date: string;
   end_date: string;
