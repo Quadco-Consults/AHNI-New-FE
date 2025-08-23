@@ -210,3 +210,20 @@ export const useCreateVendorMutation = useCreateVendor;
 export const useUpdateVendorMutation = useUpdateVendor;
 export const useModifyVendorMutation = useModifyVendor;
 export const useDeleteVendorMutation = useDeleteVendor;
+
+// Default API object export
+const VendorsAPI = {
+  useGetVendors,
+  useGetVendorList,
+  useGetVendor,
+  useCreateVendor,
+  useUpdateVendor,
+  useModifyVendor,
+  useDeleteVendor,
+  // Legacy naming for component compatibility
+  useGetVendorsQuery: useGetVendors,
+  useGetVendorListQuery: useGetVendorList,
+  useGetVendorQuery: useGetVendor,
+};
+
+export default VendorsAPI;

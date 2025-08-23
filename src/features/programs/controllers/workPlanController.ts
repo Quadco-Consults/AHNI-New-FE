@@ -97,7 +97,7 @@ export const useUploadWorkPlan = () => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     null,
     Error,
-    { project: string; file: File }
+    { project: string; financial_year: string; file: File }
   >({
     endpoint: `${BASE_URL}sheet/upload/`,
     queryKey: ["work-plans"],
@@ -106,11 +106,12 @@ export const useUploadWorkPlan = () => {
     contentType: null, // For FormData
   });
 
-  const uploadWorkPlan = async (details: { project: string; file: File }) => {
+  const uploadWorkPlan = async (details: { project: string; financial_year: string; file: File }) => {
     try {
       // Create FormData for file upload
       const formData = new FormData();
       formData.append("project", details.project);
+      formData.append("financial_year", details.financial_year);
       formData.append("file", details.file);
       
       await callApi(formData as any);

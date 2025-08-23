@@ -10,9 +10,9 @@ import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppDispatch } from "hooks/useStore";
 import { toast } from "sonner";
-import { useUploadWorkPlanController from "@/features/programsApi/work-plan";
-import { useGetAllFinancialYearsController from "@/features/modules/config/financial-year";
-import { useGetAllProjectsController from "@/features/project";
+import { useUploadWorkPlanMutation } from "@/features/programs/controllers/workPlanController";
+import { useGetAllFinancialYearsQuery } from "@/features/modules/controllers/config/financialYearController";
+import { useGetAllProjectsQuery } from "@/features/projects/controllers/projectController";
 
 const FormSchema = z.object({
     project: z.string().min(1, "This field is required"),
@@ -41,8 +41,7 @@ const WorkPlanUploadModal = () => {
         })
     );
 
-    const [uploadWorkPlan, { isLoading: isUploadLoading }] =
-        useUploadWorkPlanMutation();
+    const { uploadWorkPlan, isLoading: isUploadLoading } = useUploadWorkPlanMutation();
 
     const [file, setFile] = useState<File>();
 
@@ -76,18 +75,13 @@ const WorkPlanUploadModal = () => {
         }
 
         try {
-            const formData = new FormData();
-            formData.append("project", project);
-            formData.append("financial_year", financial_year);
-            formData.append("file", file);
-
-            await uploadWorkPlan(formData as any);
+            await uploadWorkPlan({ project, financial_year, file });
 
             toast.success("Work Plan Uploaded");
 
             dispatch(closeDialog());
         } catch (error: any) {
-            toast.error(error.data.message || "Something went wrong");
+            toast.error(error?.message || "Something went wrong");
         }
     };
 

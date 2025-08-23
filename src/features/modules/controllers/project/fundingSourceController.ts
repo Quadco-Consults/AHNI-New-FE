@@ -123,6 +123,7 @@ export const DeleteFundingSourceManager = () => {
 // Backward compatibility exports - RTK Query style
 // Note: Original service has typo "useUseGetAllFundingSourceQuery" - keeping backward compatibility
 export const useUseGetAllFundingSourceQuery = useGetAllFundingSourcesManager;
+export const useGetAllFundingSources = useGetAllFundingSourcesManager;
 export const useGetSingleFundingSourceQuery = useGetSingleFundingSourceManager;
 
 export const useAddFundingSourceMutation = () => {

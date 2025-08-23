@@ -160,3 +160,18 @@ export const useCreateEoiMutation = useCreateEoi;
 export const useUpdateEoiMutation = useUpdateEoi;
 export const useModifyEoiMutation = useModifyEoi;
 export const useDeleteEoiMutation = useDeleteEoi;
+
+// Default API object export
+const EoiAPI = {
+  useGetAllEois,
+  useGetSingleEoi,
+  useCreateEoi,
+  useUpdateEoi,
+  useModifyEoi,
+  useDeleteEoi,
+  // Legacy naming for component compatibility
+  useGetEoi: useGetSingleEoi,
+  useGetEois: useGetAllEois,
+};
+
+export default EoiAPI;

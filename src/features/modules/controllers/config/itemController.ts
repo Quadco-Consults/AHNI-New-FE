@@ -122,6 +122,7 @@ export const DeleteItemManager = () => {
 
 // Backward compatibility exports - RTK Query style
 export const useGetAllItemsQuery = useGetAllItemsManager;
+export const useGetAllItems = useGetAllItemsManager;
 export const useGetSingleItemQuery = useGetSingleItemManager;
 
 export const useAddItemMutation = () => {
@@ -138,6 +139,11 @@ export const useUpdateItemMutation = () => {
 };
 
 export const useDeleteItemMutation = () => {
+  const { deleteItem, data, isLoading, isSuccess, error } = DeleteItemManager();
+  return [deleteItem, { data, isLoading, isSuccess, error }] as const;
+};
+
+export const useDeleteItem = () => {
   const { deleteItem, data, isLoading, isSuccess, error } = DeleteItemManager();
   return [deleteItem, { data, isLoading, isSuccess, error }] as const;
 };

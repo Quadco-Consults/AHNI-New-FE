@@ -22,12 +22,15 @@ const steps: Step[] = [
 const ProjectsHeading = () => {
     const [completedSteps, setCompletedSteps] = useState<boolean[]>(() => {
         // Retrieve the completion state from local storage or initialize if not present
-        const savedSteps = sessionStorage.getItem("projectsCompletedSteps");
-        return savedSteps
-            ? JSON.parse(savedSteps)
-            : new Array(steps.length).fill(false);
+        if (typeof window !== 'undefined') {
+            const savedSteps = sessionStorage.getItem("projectsCompletedSteps");
+            return savedSteps
+                ? JSON.parse(savedSteps)
+                : new Array(steps.length).fill(false);
+        }
+        return new Array(steps.length).fill(false);
     });
-    const { pathname } = useLocation();
+    const pathname = usePathname();
 
     const currentPath = pathname.split("/").at(-1);
 
@@ -40,10 +43,12 @@ const ProjectsHeading = () => {
             setCompletedSteps((prev) => {
                 const updatedSteps = [...prev];
                 updatedSteps[currentStepIndex - 1] = true; // Mark the previous step as completed
-                sessionStorage.setItem(
-                    "projectsCompletedSteps",
-                    JSON.stringify(updatedSteps)
-                );
+                if (typeof window !== 'undefined') {
+                    sessionStorage.setItem(
+                        "projectsCompletedSteps",
+                        JSON.stringify(updatedSteps)
+                    );
+                }
                 return updatedSteps;
             });
         }
