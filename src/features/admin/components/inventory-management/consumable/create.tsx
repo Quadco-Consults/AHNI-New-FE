@@ -172,7 +172,7 @@ export default function CreateConsumablePage() {
   return (
     <div>
       <div className='flex items-center gap-x-2'>
-        <div onClick={() => router.push(-1)}>
+        <div onClick={() => router.back()}>
           <RoundBack />
         </div>
         <h4 className='text-xl font-bold'>

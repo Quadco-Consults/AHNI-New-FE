@@ -1,3 +1,5 @@
+"use client";
+
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import Card from "components/Card";
 import { Button } from "components/ui/button";
@@ -12,21 +14,21 @@ import { RouteEnum } from "constants/RouterConstants";
 import { useMemo } from "react";
 import Link from "next/link";
 import logoPng from "assets/svgs/logo-bg.svg";
-import PurchaseRequestAPI from "@/features/procurement/controllers/purchase-sample-request Controller";
-import { useGetSingleBudgetLine } from "@/features/modules/controllers/finance/budget-lineController";
-import { useGetSingleCostCategory } from "@/features/modules/controllers/finance/cost-categoryController";
-import { useGetSingleCostInput } from "@/features/modules/controllers/finance/cost-inputController";
-import { useGetSingleActivityPlan } from "@/features/programs/controllers/activity-planController";
-import useQuery from "hooks/use";
-import { useGetSingleFCONumber } from "@/features/modules/controllers/finance/fco-numberController";
-import { useGetSingleInterventionArea } from "@/features/modules/controllers/program/interventionsController";
+import PurchaseRequestAPI from "@/features/procurement/controllers/purchaseSampleRequestController";
+import { useGetSingleBudgetLine } from "@/features/modules/controllers/finance/budgetLineController";
+import { useGetSingleCostCategory } from "@/features/modules/controllers/finance/costCategoryController";
+import { useGetSingleCostInput } from "@/features/modules/controllers/finance/costInputController";
+import { useGetSingleActivityPlan } from "@/features/programs/controllers/activityPlanController";
+import { useSearchParams } from "next/navigation";
+import { useGetSingleFCONumber } from "@/features/modules/controllers/finance/fcoNumberController";
+import { useGetSingleInterventionArea } from "@/features/modules/controllers/program/interventionAreaController";
 import { skipToken } from "@reduxjs/toolkit/query";
 
 const Preview = () => {
-  const query = useQuery();
-  const id = query.get("id");
-  const request = query.get("request");
-  const created = query.get("created");
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
+  const request = searchParams.get("request");
+  const created = searchParams.get("created");
 
   const { data: requestsDetails } = PurchaseRequestAPI.useGetActivityMemo(
     useMemo(
@@ -97,9 +99,7 @@ const Preview = () => {
           {created !== "true" && (
             <Link
               className='w-fit'
-              href={generatePath(RouteEnum.PURCHASE_REQUEST_DETAILS, {
-                id: request,
-              })}
+              href={RouteEnum.PURCHASE_REQUEST_DETAILS.replace(":id", request as string)}
             >
               <Button className='flex gap-2 py-6'>View Purchase Request</Button>
             </Link>

@@ -1,9 +1,9 @@
 import DataTable from "components/Table/DataTable";
 import Card from "components/Card";
-import { useGetAllFundRequests } from "@/features/programs/controllers/fund-request";
+import { useGetAllFundRequests } from "@/features/programs/controllers/fundRequestController";
 import { useParams } from "next/navigation";
 import { skipToken } from "@reduxjs/toolkit/query/react";
-import { fundRequestSummaryColumns } from "components/Table/columns/program/fund-request/fund-request-summary";
+import { fundRequestSummaryColumns } from "@/features/programs/components/table-columns/fund-request/fund-request-summary";
 import TableFilters from "components/Table/TableFilters";
 
 export default function FundRequestSummary() {

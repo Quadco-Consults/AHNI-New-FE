@@ -1,3 +1,5 @@
+"use client";
+
 import { skipToken } from "@reduxjs/toolkit/query";
 import BackNavigation from "components/atoms/BackNavigation";
 import BreadcrumbCard from "components/Breadcrumb";
@@ -17,7 +19,7 @@ import { useParams } from "next/navigation";
 import {
   useGetAllSupervisionPlanReviews,
   useGetSingleSupervisionPlanReview,
-} from "@/features/program/plan/supervision-plan/supervision-plan-reviewController";
+} from "@/features/programs/controllers/supervisionPlanReviewController";
 
 const breadcrumbs = [
   { name: "Programs", icon: true },

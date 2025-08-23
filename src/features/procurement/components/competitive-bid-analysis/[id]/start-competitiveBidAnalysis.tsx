@@ -1,3 +1,5 @@
+"use client";
+
 import FormButton from "components/atoms/FormButton";
 import BreadcrumbCard from "components/Breadcrumb";
 import Card from "components/Card";
@@ -22,7 +24,7 @@ import {
   VendorSubmissionData,
 } from "definations/procurement-types/cba";
 import { ChangeEvent, useState } from "react";
-import { generatePath, useNavigate, useParams } 
+import { useRouter, useParams } from "next/navigation";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import { toast } from "sonner";
 
@@ -73,11 +75,7 @@ const CompetittveBidAnalysis = () => {
     try {
       await createSubmitCbaMutation(formData)();
       toast.success("Successfully created.");
-      router.push(
-        generatePath(RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS, {
-          id: id as string,
-        })
-      );
+      router.push(`/dashboard/procurement/competitive-bid-analysis/${id}`);
     } catch (error) {
       toast.error("Something went wrong");
       console.log(error);

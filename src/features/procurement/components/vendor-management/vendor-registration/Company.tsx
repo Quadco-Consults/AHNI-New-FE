@@ -351,7 +351,7 @@ const Company = () => {
               </div>
               <div className='flex justify-between pt-5'>
                 <FormButton
-                  onClick={() => router.push(-1)}
+                  onClick={() => router.back()}
                   preffix={<ArrowLeft size={14} />}
                   type='button'
                   className='bg-[#FFF2F2] text-primary dark:text-gray-500'

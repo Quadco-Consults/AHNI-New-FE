@@ -553,7 +553,7 @@ const Proposal = () => {
             </FadedButton>
             <div className='flex justify-between mt-16'>
               <Button
-                onClick={() => router.push(-1)}
+                onClick={() => router.back()}
                 type='button'
                 className='bg-[#FFF2F2] text-primary dark:text-gray-500'
               >

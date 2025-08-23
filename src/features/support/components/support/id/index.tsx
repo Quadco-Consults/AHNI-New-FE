@@ -1,5 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import { generatePath, Link, useNavigate, useParams } 
+"use client";
+
+import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import Card from "components/Card"; 
 import { Button } from "components/ui/button"; 
@@ -45,7 +48,7 @@ const TicketDetail = () => {
     const dispatch = useAppDispatch();
 
     const goBack = () => {
-        router.push(-1);
+        router.back();
     };
      const onSubmitRemark = async () => {
             if ( !remark.trim()) {

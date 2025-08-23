@@ -1,11 +1,13 @@
+"use client";
+
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
 import Card from "components/Card";
 import DescriptionCard from "components/DescriptionCard";
 import { LoadingSpinner } from "components/Loading";
-import { useNavigate, useParams } 
-import { useGetSingleStakeholderRegister } from "@/features/programs/controllers/stakeholder";
+import { useRouter, useParams } from "next/navigation";
+import { useGetSingleStakeholderRegister } from "@/features/programs/controllers/stakeholderController";
 
 const breadcrumbs: TBreadcrumbList[] = [
     { name: "Programs", icon: true },
@@ -23,7 +25,7 @@ const RegisterDetails = () => {
     );
 
     const goBack = () => {
-        router.push(-1);
+        router.back();
     };
 
     return (

@@ -196,7 +196,7 @@ export default function NewConsultancyStaffForm({
           ...data,
           documents,
         })();
-        router.push(-1);
+        router.back();
         toast.success("Consultancy Staff Created");
       }
     } catch (error: any) {
@@ -669,7 +669,7 @@ export default function NewConsultancyStaffForm({
             size='lg'
             className='text-primary'
             onClick={() => {
-              router.push(-1);
+              router.back();
             }}
           >
             Cancel

@@ -384,7 +384,7 @@ const Registration = () => {
               <div className='flex justify-between mt-16'>
                 <Button
                   type='button'
-                  onClick={() => router.push(-1)}
+                  onClick={() => router.back()}
                   className='bg-[#FFF2F2] text-primary dark:text-gray-500'
                 >
                   Cancel

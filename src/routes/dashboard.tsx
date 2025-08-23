@@ -1,7 +1,7 @@
 import { RouteEnum } from "constants/RouterConstants";
 
 import { lazy } from "react";
-import { Navigate } 
+import { Navigate } from "react-router-dom"; 
 
 export const dashboard = [
   {

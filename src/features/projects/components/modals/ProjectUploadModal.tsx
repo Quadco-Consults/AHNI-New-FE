@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";
 import React, { useState } from "react";
@@ -10,7 +12,7 @@ import FormInput from "components/atoms/FormInput";
 import { closeDialog } from "store/ui";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { useCreateProjectDocumentController } from "@/features/project/documentController";
-import use from "hooks/use";
+import { useSearchParams } from "next/navigation";
 import FormSelect from "components/atoms/FormSelect";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useGetAllDocumentType } from "@/features/modules/controllers/project/document-types";

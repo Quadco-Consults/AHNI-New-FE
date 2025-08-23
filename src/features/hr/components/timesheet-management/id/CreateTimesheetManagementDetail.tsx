@@ -91,7 +91,7 @@ const CreateTimesheetManagementDetail = () => {
 
             <div className="flex justify-between">
               <Button
-                onClick={() => router.push(-1)}
+                onClick={() => router.back()}
                 variant="custom"
                 type="button"
               >

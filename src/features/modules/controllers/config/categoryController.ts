@@ -107,6 +107,7 @@ export const DeleteCategoryManager = () => {
 };
 
 // Backward compatibility exports - RTK Query style
+export const useGetAllCategories = useGetAllCategoriesManager;
 export const useGetAllCategoriesQuery = useGetAllCategoriesManager;
 
 export const useAddCategoryMutation = () => {

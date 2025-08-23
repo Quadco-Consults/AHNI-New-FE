@@ -104,7 +104,7 @@ const ApplicationForm = () => {
 
       await createJobApplication(payload)();
       toast.success("Application Submitted successfully");
-      router.push(-1);
+      router.back();
     } catch (error) {
       toast.error("Something went wrong");
       console.error(error);
@@ -225,7 +225,7 @@ const ApplicationForm = () => {
               <Button
                 type='button'
                 className='bg-alternate text-primary'
-                onClick={() => router.push(-1)}
+                onClick={() => router.back()}
               >
                 Cancel
               </Button>

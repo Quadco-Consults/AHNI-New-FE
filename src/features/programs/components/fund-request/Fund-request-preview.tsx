@@ -136,7 +136,7 @@ export default function Summary() {
                 <Button
                     type="button"
                     className="bg-[#FFF2F2] text-primary dark:text-gray-500"
-                    onClick={() => router.push(-1)}
+                    onClick={() => router.back()}
                 >
                     Back
                 </Button>

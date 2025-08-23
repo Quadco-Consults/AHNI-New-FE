@@ -112,7 +112,7 @@ export default function CreateInterview() {
       await createInterview(interviewData)();
       toast.success("Successfully created.");
       // router.push(RouteEnum.COMPETITIVE_BID_ANALYSIS);
-      router.push(-1);
+      router.back();
     } catch (error) {
       toast.error("Something went wrong");
       console.log(error);

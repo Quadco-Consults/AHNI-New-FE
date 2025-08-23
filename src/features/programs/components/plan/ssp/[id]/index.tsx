@@ -1,14 +1,17 @@
+"use client";
+
 import Card from "components/Card";
 import { Button } from "components/ui/button";
 import { Label } from "components/ui/label";
 import { ArrowLeft } from "lucide-react";
-import { generatePath, Link, useNavigate, useParams } 
+import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
 import { Loading } from "components/Loading";
 import { skipToken } from "@reduxjs/toolkit/query/react";
-import { useGetSingleSupervisionPlan } from "@/features/program/plan/supervision-plan/supervision-plan";
+import { useGetSingleSupervisionPlan } from "@/features/programs/controllers/supervisionPlanController";
 import BreadcrumbCard from "components/Breadcrumb";
 import { ProgramRoutes, RouteEnum } from "constants/RouterConstants";
-import { useGetAllSupervisionPlanReviews } from "@/features/program/plan/supervision-plan/supervision-plan-review";
+import { useGetAllSupervisionPlanReviews } from "@/features/programs/controllers/supervisionPlanReviewController";
 import FadedButton from "components/atoms/FadedButton";
 
 const breadcrumbs = [
@@ -24,7 +27,7 @@ const SspDetails = () => {
     const router = useRouter();
 
     const goBack = () => {
-        router.push(-1);
+        router.back();
     };
 
     const { data: supervisionPlan, isLoading } =

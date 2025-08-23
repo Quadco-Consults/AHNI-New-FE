@@ -281,7 +281,7 @@ export default function ProcurementPlansForm() {
 //               <Button
 //                 type="button"
 //                 className="bg-[#FFF2F2] text-primary dark:text-gray-500"
-//                 onClick={() => router.push(-1)}
+//                 onClick={() => router.back()}
 //               >
 //                 Cancel
 //               </Button>

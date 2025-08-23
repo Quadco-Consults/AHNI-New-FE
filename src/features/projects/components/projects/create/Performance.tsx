@@ -1,6 +1,8 @@
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import { useForm } from "react-hook-form";
-import { useLocation, useNavigate } 
+"use client";
+
+import { useRouter, usePathname } from "next/navigation";
 import ProjectLayout from "./ProjectLayout";
 import { Form } from "components/ui/form";
 import Card from "components/Card";
@@ -14,7 +16,7 @@ const Performance = () => {
     const router = useRouter();
 
     const goBack = () => {
-        router.push(-1);
+        router.back();
     };
 
     const form = useForm();

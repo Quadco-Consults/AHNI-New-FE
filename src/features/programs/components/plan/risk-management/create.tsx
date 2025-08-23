@@ -1,3 +1,5 @@
+"use client";
+
 import { useRouter } from "next/navigation";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import Card from "components/Card";
@@ -27,13 +29,13 @@ import {
     useCreateRiskManagementPlanController,
     useGetSingleRiskPlanManagement,
     useUpdateRiskManagementPlan,
-} from "@/features/programs/controllers/risk-plansController";
+} from "@/features/programs/controllers/riskPlansController";
 import { toast } from "sonner";
-import use from "hooks/use";
+import { useSearchParams } from "next/navigation";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import { useEffect } from "react";
-import { useGetAllRiskCategoryController } from "@/features/modules/controllers/program/risk-categoryController";
-import { useGetAllDepartments } from "@/features/modules/controllers/controllers/config/department";
+import { useGetAllRiskCategoryController } from "@/features/modules/controllers/program/riskCategoryController";
+import { useGetAllDepartments } from "@/features/modules/controllers/config/departmentController";
 import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
 
 const levelOptions = ["VERY_LOW", "LOW", "MEDIUM", "HIGH", "VERY_HIGH"].map(
@@ -101,8 +103,8 @@ const CreateRickManagement = () => {
         value: dep.id,
     }));
 
-    const query = use();
-    const id = query.get("id");
+    const searchParams = useSearchParams();
+    const id = searchParams.get("id");
 
     const { data: prevRiskManagement } = useGetSingleRiskPlanManagement(
         id ?? skipToken
@@ -129,7 +131,7 @@ const CreateRickManagement = () => {
         useUpdateRiskManagementPlan();
 
     const goBack = () => {
-        router.push(-1);
+        router.back();
     };
 
     const onSubmit: SubmitHandler<TRiskPlanManagementFormValues> = async (
