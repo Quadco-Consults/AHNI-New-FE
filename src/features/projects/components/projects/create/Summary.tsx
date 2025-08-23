@@ -80,6 +80,7 @@ export default function ProjectSummaryPage() {
     name: user.first_name + " " + user.last_name,
     id: user.id,
   }));
+  console.log({ userOptions });
 
   const { data: partner } = useGetAllPartners({
     page: 1,
@@ -111,25 +112,22 @@ export default function ProjectSummaryPage() {
   const form = useForm<TProjectFormValues>({
     resolver: zodResolver(ProjectSchema),
     defaultValues: {
-      title: "Test Project Title - Healthcare Initiative",
-      project_id: "PROJ-2024-001",
-      location: [1],
-      goal: "To improve healthcare access and outcomes for underserved communities through comprehensive medical intervention programs.",
-      narrative:
-        "This project aims to address critical healthcare gaps in rural and underserved areas by establishing mobile health clinics, training local healthcare workers, and implementing preventive care programs. The initiative will focus on maternal health, child nutrition, and basic medical services to reduce mortality rates and improve overall community health indicators.",
-      budget: "500000",
-      funding_sources: [1],
-      project_managers: [1, 2],
-      expected_results:
-        "Improved access to healthcare for 10,000+ beneficiaries, reduced child mortality by 30%, increased immunization coverage to 90%, and established sustainable community health systems.",
-      budget_performance: "85",
-      achievement_against_target:
-        "Target: 10,000 beneficiaries reached. Achievement: 8,500 beneficiaries (85% of target achieved to date).",
-      beneficiaries: [1, 2],
+      title: "",
+      project_id: "",
+      location: [],
+      goal: "",
+      narrative: "",
+      budget: "",
+      funding_sources: [],
+      project_managers: [],
+      expected_results: "",
+      budget_performance: "",
+      achievement_against_target: "",
+      beneficiaries: [],
       currency: "USD",
-      start_date: "2024-01-01",
-      end_date: "2026-12-31",
-      intervention_area: 1,
+      start_date: "",
+      end_date: "",
+      intervention_area: [],
     },
   });
 
@@ -159,20 +157,24 @@ export default function ProjectSummaryPage() {
         objectives,
         partners,
         currency,
+        intervention_area,
         // eslint-disable-next-line no-unsafe-optional-chaining
       } = project?.data;
 
       const projectManagers = project_managers.map((manager) => manager.id);
+      const locations = location.map((loc) => loc.id);
 
       const fundingSources = funding_sources.map((source) => source.id);
 
       const beneficiariesArr = beneficiaries.map((ben) => ben.id);
+      const interventionAreas = intervention_area.id;
 
       reset({
         title,
         project_id,
         // @ts-ignore
-        location,
+        location: locations,
+        intervention_area: interventionAreas,
         goal,
         narrative: narrative || "",
         budget_performance,

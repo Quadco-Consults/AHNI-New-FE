@@ -11,25 +11,26 @@ import FormButton from "components/atoms/FormButton";
 import FormInput from "components/atoms/FormInput";
 import { closeDialog } from "store/ui";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { useCreateProjectDocumentController } from "@/features/project/documentController";
+// import { useCreateProjectDocumentController } from "@/features/project/documentController";
 import { useSearchParams } from "next/navigation";
 import FormSelect from "components/atoms/FormSelect";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useGetAllDocumentType } from "@/features/modules/controllers/project/document-types";
+// import { useGetAllDocumentType } from "@/features/modules/controllers/project/document-types";
 import {
   ProjectDocumentSchema,
   TProjectDocumentFormValues,
 } from "features/projects/types/project/document";
+import { useCreateProjectDocument } from "../../controllers";
+import { useGetAllDocumentTypes } from "@/features/modules/controllers";
 
 const ProjectUploadModal = () => {
   const [file, setFile] = useState<File | null>(null);
 
   const dispatch = useAppDispatch();
 
-  const [createProjectDocument, { isLoading }] =
-    useCreateProjectDocumentController();
+  const { createProjectDocument, isLoading } = useCreateProjectDocument();
 
-  const { data: documentTypes } = useGetAllDocumentType({
+  const { data: documentTypes } = useGetAllDocumentTypes({
     page: 1,
     size: 2000000,
   });
@@ -62,22 +63,41 @@ const ProjectUploadModal = () => {
   };
 
   const onSubmit: SubmitHandler<TProjectDocumentFormValues> = async (data) => {
+    console.log("=== DEBUG INFO ===");
+    console.log("file state:", file);
+    console.log("file type:", typeof file);
+    console.log("file instanceof File:", file instanceof File);
+    console.log("form data:", data);
+    console.log("projectId:", projectId);
+
+    if (!file) {
+      toast.error("Please select a file to upload");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("title", data.title);
-    formData.append("file", file as Blob);
+    formData.append("file", file);
     formData.append("document_type", data.document_type);
     formData.append("project", projectId);
 
+    console.log("=== FormData contents ===");
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+
     try {
-      await createProjectDocument(formData as any).unwrap();
+      await createProjectDocument(formData);
       toast.success("Document upload successfully.");
       dispatch(closeDialog());
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
+      toast.error(error?.message ?? "Something went wrong");
     }
 
     setFile(null);
   };
+  console.log({ form: form.getValues() });
+  console.log("i am here");
 
   return (
     <div className='w-full'>

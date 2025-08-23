@@ -40,21 +40,18 @@ export const useCreateProjectDocument = () => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     TResponse<TProjectDocumentData>,
     Error,
-    { title: string; project: string; file: File }
+    FormData
   >({
     endpoint: BASE_URL,
     queryKey: ["project-documents"],
     isAuth: true,
     method: "POST",
+    contentType: "multipart/form-data",
   });
 
-  const createProjectDocument = async (details: {
-    title: string;
-    project: string;
-    file: File;
-  }) => {
+  const createProjectDocument = async (formData: FormData) => {
     try {
-      await callApi(details);
+      await callApi(formData);
     } catch (error) {
       console.error("Project document create error:", error);
     }
