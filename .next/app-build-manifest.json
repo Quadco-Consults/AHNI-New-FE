@@ -148,6 +148,31 @@
       "static/chunks/main-app.js",
       "static/chunks/app/dashboard/programs/plan/activity/page.js"
     ],
+    "/dashboard/program/plan/create-activity-plan/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/program/plan/create-activity-plan/page.js"
+    ],
+    "/dashboard/program/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/program/layout.js"
+    ],
+    "/dashboard/programs/plan/activity-plan/create/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/programs/plan/activity-plan/create/page.js"
+    ],
+    "/dashboard/programs/plan/risk-management-plan/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/programs/plan/risk-management-plan/page.js"
+    ],
+    "/dashboard/programs/plan/risk-management-plan/create/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/programs/plan/risk-management-plan/create/page.js"
+    ],
     "/_not-found/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
