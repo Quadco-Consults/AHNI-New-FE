@@ -2,10 +2,7 @@ import useApiManager from "@/constants/mainController";
 import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
-import {
-  TProjectFormValues,
-  IProjectSingleData,
-} from "../types/project";
+import { TProjectFormValues, IProjectSingleData } from "../types/project";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
 const BASE_URL = "/projects/";
@@ -30,7 +27,9 @@ export const useGetAllProjects = ({
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled,
@@ -48,7 +47,9 @@ export const useGetSingleProject = (id: string, enabled: boolean = true) => {
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled && !!id,
@@ -132,6 +133,8 @@ export const usePatchProject = (id: string) => {
 
 // Delete Project
 export const useDeleteProject = (id: string) => {
+  console.log("djs", id);
+
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     TResponse<IProjectSingleData>,
     Error,

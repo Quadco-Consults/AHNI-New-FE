@@ -35,7 +35,8 @@ export type TProjectFormValues = z.infer<typeof ProjectSchema>;
 
 export interface IProjectSingleData {
   id: string;
-  location: { name: string; id: number };
+  location: { name: string; id: number }[];
+  intervention_area: { code: string; id: string };
   project_managers: IUser[];
   beneficiaries: TBeneficiaryData[];
   funding_sources: TFundingSourceData[];
