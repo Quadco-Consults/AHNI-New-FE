@@ -11,7 +11,7 @@ export default function ViewConsumable() {
   const { data: stockCard } = useGetAllConsumableStockCardsQuery(
     id ? id : skipToken
   );
-  console.log({ clapper: id, stockCard });
+
   return (
     <div>
       <BackNavigation />
