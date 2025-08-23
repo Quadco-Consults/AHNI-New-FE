@@ -1,3 +1,4 @@
+"use client";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "components/atoms/FormInput";
@@ -7,27 +8,27 @@ import { toast } from "sonner";
 import {
   ConsultancyManagementDetailSchema,
   TConsultantanagementDetailsFormData,
-} from "definations/c&g/contract-management/consultancy-management/consultancy-management";
+} from "@/features/contracts-grants/types/contract-management/consultancy-management/consultancy-management";
 import { Button } from "components/ui/button";
 import FormTextArea from "components/atoms/FormTextArea";
 import { FormField, FormItem, Form, FormControl } from "components/ui/form";
 import MultiSelectFormField from "components/ui/multiselect";
-import { useGetAllLocations } from "@/features/modules/controllers/config/location";
+import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
 import { useEffect, useMemo } from "react";
-import { useGetAllUsers } from "@/features/auth/controllers/user";
-import { useLocation, useNavigate, useSearchParams } 
+import { useGetAllUsers } from "@/features/auth/controllers/userController";
+import { useRouter, useSearchParams, usePathname } from "next/navigation"; 
 import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
 // import { fileToBase64 } from "utils/fileToBase64";
-import { useGetSingleConsultantManagement } from "@/features/contracts-grants/controllers/contract-management/consultancy-management/consultant-management";
+import { useGetSingleConsultantManagement } from "@/features/contracts-grants/controllers/consultantManagementController";
 import { skipToken } from "@reduxjs/toolkit/query";
 import FormSelect from "components/atoms/FormSelect";
-import { useGetAllContractRequests } from "@/features/contracts-grants/controllers/contract-management/contract";
-import { useGetAllGrades } from "@/features/modules/controllers/config/grade";
+import { useGetAllContractRequests } from "@/features/contracts-grants/controllers/contractController";
+import { useGetAllGrades } from "@/features/modules/controllers/config/gradeController";
 
 export default function ApplicationDetails() {
   const router = useRouter();
 
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams();
   const consultantId = searchParams.get("id");
 
   const form = useForm<TConsultantanagementDetailsFormData>({
@@ -43,7 +44,7 @@ export default function ApplicationDetails() {
     },
   });
 
-  const { pathname } = useLocation();
+  const pathname = usePathname();
 
   const {
     formState: { errors },
@@ -90,15 +91,9 @@ export default function ApplicationDetails() {
       const searchUrl = `${consultantId ? `?id=${consultantId}` : ""}`;
 
       if (pathname.includes("adhoc-management")) {
-        router.push({
-          pathname: ProgramRoutes.CREATE_ADHOC_WORK_SCOPE,
-          search: searchUrl,
-        });
+        router.push(`${ProgramRoutes.CREATE_ADHOC_WORK_SCOPE}${searchUrl}`);
       } else {
-        router.push({
-          pathname: CG_ROUTES.CREATE_CONSULTANCY_WORK_SCOPE,
-          search: searchUrl,
-        });
+        router.push(`${CG_ROUTES.CREATE_CONSULTANCY_WORK_SCOPE}${searchUrl}`);
       }
     } catch (error: any) {
       toast.error(error?.data.message ?? "Something went wrong");
@@ -258,7 +253,7 @@ export default function ApplicationDetails() {
               type='button'
               variant='outline'
               size='lg'
-              onClick={() => router.push(-1)}
+              onClick={() => router.back()}
             >
               Cancel
             </Button>

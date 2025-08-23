@@ -203,6 +203,7 @@ export const useDeleteConsultancyApplicant = (id: string) => {
 };
 
 // Legacy exports for backward compatibility with RTK Query naming
+export const useGetAllConsultancyStaffs = useGetAllConsultancyApplicants;
 export const useGetAllConsultancyStaffsQuery = useGetAllConsultancyApplicants;
 export const useGetSingleConsultancyStaffQuery = useGetSingleConsultancyApplicant;
 export const useCreateConsultancyStaffMutation = useCreateConsultancyApplicant;
