@@ -22,13 +22,14 @@ export const itemRequisitionColumns: ColumnDef<TItemRequisitionPaginatedData>[] 
     {
       header: "Employee ID Number",
       id: "_",
-      accessorKey: "_",
+      accessorKey: "created_by.employee_id",
       size: 250,
     },
 
     {
       header: "Employee Full Name",
-      id: "full_name",
+      id: "created_by.full_name",
+      accessorKey: "created_by.full_name",
 
       size: 250,
     },
@@ -36,21 +37,17 @@ export const itemRequisitionColumns: ColumnDef<TItemRequisitionPaginatedData>[] 
     {
       header: "Items Requested",
       accessorFn: ({ consummables }) =>
-        consummables.map((item) => item.consummable).join(", "),
+        consummables.map((c) => c.item?.name ?? "N/A").join(", "),
     },
     {
       header: "Quantity Requested",
       accessorFn: ({ consummables }) =>
-        consummables
-          .map((item) => item.quantity)
-          .reduce((accumulator, value) => {
-            return accumulator + value;
-          }, 0),
+        consummables.map((item) => item.quantity ?? "N/A").join(", "),
       size: 250,
     },
     {
       header: "Department/Unit",
-      accessorKey: "department",
+      accessorKey: "department.name",
     },
     {
       header: "Status",
@@ -88,8 +85,7 @@ export const itemRequisitionColumns: ColumnDef<TItemRequisitionPaginatedData>[] 
       },
     },
   ];
-
-const TableAction = ({ id }: TItemRequisitionPaginatedData) => {
+ const TableAction = ({ id }: TItemRequisiti onPaginatedData) => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const [deleteItemRequisition, { isLoading }] =
