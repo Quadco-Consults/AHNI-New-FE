@@ -1,7 +1,7 @@
 "use client";
 
 import Card from "components/Card";
-import { closeOutPlanColumns } from "@/features/contracts-grants/components/table-columns/closeout-plan/closeout-plan";
+import { facilitatorManagementColumns } from "@/features/contracts-grants/components/table-columns/facilitator-management/facilitator-management";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { Button } from "components/ui/button";
@@ -9,12 +9,12 @@ import { CG_ROUTES } from "constants/RouterConstants";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
-import { useGetAllCloseoutPlans } from "@/features/contracts-grants/controllers/closeoutPlanController";
+import { useGetAllFacilitators } from "@/features/contracts-grants/controllers/facilitatorManagementController";
 
-export default function CloseOutPlan() {
+export default function FacilitatorManagement() {
     const [page, setPage] = useState(1);
 
-    const { data, isFetching } = useGetAllCloseoutPlans({
+    const { data, isFetching } = useGetAllFacilitators({
         page,
         size: 10,
     });
@@ -22,10 +22,10 @@ export default function CloseOutPlan() {
     return (
         <section className="space-y-10">
             <div className="flex justify-end">
-                <Link href={CG_ROUTES.NEW_CLOSE_OUT_PLAN}>
+                <Link href="/dashboard/c-and-g/facilitator-management/create/application-details">
                     <Button size="lg">
                         <PlusIcon />
-                        New Plan
+                        New Facilitator
                     </Button>
                 </Link>
             </div>
@@ -33,7 +33,7 @@ export default function CloseOutPlan() {
             <Card>
                 <TableFilters>
                     <DataTable
-                        columns={closeOutPlanColumns}
+                        columns={facilitatorManagementColumns}
                         data={data?.data.results || []}
                         isLoading={isFetching}
                         pagination={{
