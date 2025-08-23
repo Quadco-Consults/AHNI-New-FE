@@ -10,8 +10,8 @@ import FormSelect from "components/atoms/FormSelect";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useUploadActivityPlanController from "@/features/programsApi/activity-plan";
-import { useGetAllProjectsController from "@/features/project";
+import { useUploadActivityPlanMutation } from "@/features/programs/controllers/activityPlanController";
+import { useGetAllProjectsQuery } from "@/features/projects/controllers/projectController";
 
 const FormSchema = z.object({
     project: z.string().min(1, "This field is required"),
@@ -49,7 +49,7 @@ const ActivityUploadModal = () => {
 
     const dispatch = useAppDispatch();
 
-    const [uploadActivityPlan, { isLoading }] = useUploadActivityPlanMutation();
+    const { uploadActivityPlan, isLoading } = useUploadActivityPlanMutation();
 
     const onSubmit: SubmitHandler<TFormValues> = async ({ project }) => {
         if (!file) {
@@ -66,7 +66,7 @@ const ActivityUploadModal = () => {
 
             dispatch(closeDialog());
         } catch (error: any) {
-            toast.error(error.data.message);
+            toast.error(error?.message || "Something went wrong");
         }
     };
 

@@ -8,11 +8,13 @@ import { DialogType } from "constants/dailogs";
 import ProjectObjectiveModal from "@/features/projects/components/modals/ProjectObjectiveModal";
 import ConsortiumModal from "@/features/projects/components/modals/ConsortiumModal";
 import WorkPlanUploadModal from "@/features/programs/components/modals/WorkPlanUploadModal";
+import ActivityUploadModal from "@/features/programs/components/modals/ActivityUploadModal";
 
 const dialogs: Record<string, ReactNode> = {
     [DialogType.ProjectObjectiveModal]: <ProjectObjectiveModal />,
     [DialogType.ConsortiumModal]: <ConsortiumModal />,
     [DialogType.WorkPlanUpload]: <WorkPlanUploadModal />,
+    [DialogType.ActivityUpload]: <ActivityUploadModal />,
     // Add more modals here as needed
 };
 

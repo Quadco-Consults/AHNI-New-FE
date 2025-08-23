@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "components/atoms/FormButton";
 import FormInput from "components/atoms/FormInput";
@@ -40,7 +42,7 @@ const breadcrumbs: TBreadcrumbList[] = [
 ];
 
 export default function CreateActivityPlan() {
-    const { data: project } = useGetAllProjectsQuery({
+    const { data: project } = useGetAllProjects({
         page: 1,
         size: 2000000,
     });
@@ -61,7 +63,7 @@ export default function CreateActivityPlan() {
         useCreateActivityPlan();
 
     const { editActivityPlan, isLoading: isUpdateLoading } =
-        useEditActivityPlan();
+        useEditActivityPlan(id || "");
 
     const router = useRouter();
 
@@ -92,7 +94,7 @@ export default function CreateActivityPlan() {
 
             reset({
                 ...prevFields,
-                project: prevFields.project.id,
+                project: prevFields.project?.id || "",
                 is_resources_requied: String(prevFields.is_resources_requied),
                 is_memo_required: String(prevFields.is_memo_required),
                 is_ea_required: String(prevFields.is_ea_required),
@@ -102,17 +104,17 @@ export default function CreateActivityPlan() {
     }, [activityPlan]);
 
     const goBack = () => {
-        router.push(-1);
+        router.back();
     };
 
     const onSubmit: SubmitHandler<TActivityPlanFormValues> = async (data) => {
         try {
             if (id) {
-                await editActivityPlan({ id, body: data }).unwrap();
+                await editActivityPlan(data);
                 toast.success("Activity Plan Updated");
             } else {
-                await createActivityPlan(data).unwrap();
-                toast.success("Acitivity Plan Created");
+                await createActivityPlan(data);
+                toast.success("Activity Plan Created");
             }
 
             router.push(RouteEnum.PROGRAM_ACTIVITY);
