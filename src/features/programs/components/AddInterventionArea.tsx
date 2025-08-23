@@ -1,23 +1,23 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormButton from "components/atoms/FormButton";
-import FormInput from "components/atoms/FormInput";
-import { CardContent } from "components/ui/card";
-import { Form } from "components/ui/form";
+import FormButton from "@/components/FormButton";
+import FormInput from "@/components/FormInput";
+import { CardContent } from "@/components/ui/card";
+import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
 
-import FormTextArea from "components/atoms/FormTextArea";
+import FormTextArea from "@/components/FormTextArea";
 import {
   InterventionAreaSchema,
   TInterventionAreaData,
   TInterventionAreaFormValues,
-} from "components/modules-types/program/intervention-area";
+} from "@/features/programs/types/program/intervention-area";
 import {
   useAddInterventionArea,
   useUpdateInterventionArea,
-} from "@/features/modules/controllers/program/interventionController";
+} from "@/features/modules/controllers/program/interventionAreaController";
 
 const AddInterventionArea = () => {
   const { dialogProps } = useAppSelector(dailogSelector);

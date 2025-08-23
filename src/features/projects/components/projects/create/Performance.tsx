@@ -9,7 +9,7 @@ import Card from "components/Card";
 import FormInput from "components/atoms/FormInput";
 import FormTextArea from "components/atoms/FormTextArea";
 import { Button } from "components/ui/button";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { ChevronRight } from "lucide-react";
 
 const Performance = () => {

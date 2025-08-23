@@ -1,4 +1,4 @@
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelectField";
 // import GoBack from "components/GoBack";

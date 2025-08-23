@@ -7,7 +7,7 @@ import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelectField";
 import { ChevronRight } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { Button } from "components/ui/button";
 import { SelectContent, SelectItem } from "components/ui/select";
 import { useEffect, useMemo } from "react";

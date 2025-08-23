@@ -6,7 +6,7 @@ import { Form } from "components/ui/form";
 import FormInput from "components/atoms/FormInput";
 import FormTextArea from "components/atoms/FormTextArea";
 import FormSelect from "components/atoms/FormSelect";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useParams, useSearchParams } from "next/navigation";

@@ -19,7 +19,7 @@ import { DialogType } from "constants/dailogs";
 import ConfirmationDialog from "components/ConfirmationDialog";
 import { useState } from "react";
 import { IProjectSingleData } from "definations/project";
-import { TPartnerData } from "components/modules-types/project/partners";
+import { TPartnerData } from "@/features/projects/types/project/partners";
 import { useDeletePartner } from "@/features/modules/controllers/project/partnerController";
 
 export const modulePartnerColumn: ColumnDef<TPartnerData>[] = [

@@ -7,7 +7,7 @@ import FormInput from "components/atoms/FormInput";
 import { Separator } from "components/ui/separator";
 import { ArrowLeft, ArrowRight, MinusCircle, PlusCircle } from "lucide-react";
 import { Label } from "components/ui/label";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { useRouter, usePathname } from "next/navigation";
 import { z } from "zod";
 import { VendorsQuestionnaireSchema } from "@/features/procurement/types/procurement-validator";

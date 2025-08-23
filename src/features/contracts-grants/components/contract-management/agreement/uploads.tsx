@@ -1,7 +1,7 @@
 import ServiceLevelAgreementLayout from "./Layout";
 import { Button } from "components/ui/button";
 import AddSquareIcon from "components/icons/AddSquareIcon";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";

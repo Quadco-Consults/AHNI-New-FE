@@ -23,7 +23,7 @@ import {
     useGetSingleConsultancyReport,
     useModifyConsultancyReport,
 } from "@/features/contracts-grants/controllers/consultancyReportController";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import FormSelect from "components/atoms/FormSelectField";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { useGetAllConsultantManagements } from "@/features/contracts-grants/controllers/consultantManagementController";

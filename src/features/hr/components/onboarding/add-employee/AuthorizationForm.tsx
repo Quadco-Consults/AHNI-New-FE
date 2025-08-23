@@ -15,7 +15,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { toast } from "sonner";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import {
   useUpdateSystemAuthorization,
   useCreateSystemAuthorization,

@@ -16,7 +16,7 @@ import { closeDialog } from "store/ui";
 import { nigerianStates } from "lib/index";
 import { useGetAllPartnersManager } from "@/features/modules/controllers/project/partnerController";
 import { useState } from "react";
-import { TPartnerData } from "components/modules-types/project/partners";
+import { TPartnerData } from "@/features/projects/types/project/partners";
 import { useAppSelector } from "hooks/useStore";
 import Pagination from "components/Pagination";
 import { LoadingSpinner } from "components/Loading";

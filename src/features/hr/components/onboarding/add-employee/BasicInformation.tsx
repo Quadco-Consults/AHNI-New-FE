@@ -18,7 +18,7 @@ import { useGetLocationList } from "@/features/modules/controllers/config/locati
 import { useGetDepartmentPaginate } from "@/features/modules/controllers/config/departmentController";
 import { LocationResultsData } from "definations/configs/location";
 import { DepartmentsResultsData } from "definations/configs/departments";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 
 import { HrRoutes } from "constants/RouterConstants";
 import { updateStepCompletion } from "store/stepTracker";

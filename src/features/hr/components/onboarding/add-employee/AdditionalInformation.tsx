@@ -14,7 +14,7 @@ import { HrRoutes } from "constants/RouterConstants";
 import Card from "components/Card";
 import { LoadingSpinner } from "components/Loading";
 
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import GoBack from "components/GoBack";
 import { useGetHrEmergencyList } from "@/features/hrApi/hr-employee-onboarding-add-info";
 

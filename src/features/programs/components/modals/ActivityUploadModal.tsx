@@ -3,7 +3,7 @@ import { ChangeEvent, useState } from "react";
 import { Input } from "components/ui/input";
 import { Upload as UploadFile } from "lucide-react";
 import { toast } from "sonner";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { useAppDispatch } from "hooks/useStore";
 import { closeDialog } from "store/ui";
 import FormSelect from "components/atoms/FormSelect";

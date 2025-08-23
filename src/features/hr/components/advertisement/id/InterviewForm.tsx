@@ -1,4 +1,4 @@
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import Card from "components/Card";
 import GoBack from "components/GoBack";
 import { Loading } from "components/Loading";

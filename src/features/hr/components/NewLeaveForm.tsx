@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 // import FormInput from "components/atoms/FormInput";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
@@ -11,7 +11,7 @@ import {
   CostCategorySchema,
   TCostCategoryData,
   TCostCategoryFormValues,
-} from "components/modules-types/finance/cost-category";
+} from "@/features/admin/types/finance/cost-category";
 import FormRadio from "components/atoms/FormRadio";
 import FormInput from "components/atoms/FormInput";
 // import {

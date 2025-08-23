@@ -126,3 +126,6 @@ export const useDeleteAssetConditionMutation = () => {
   const { deleteAssetCondition, data, isLoading, isSuccess, error } = DeleteAssetConditionManager();
   return [deleteAssetCondition, { data, isLoading, isSuccess, error }] as const;
 };
+
+// Additional missing exports
+export const useGetAllAssetConditions = useGetAllAssetConditionsManager;

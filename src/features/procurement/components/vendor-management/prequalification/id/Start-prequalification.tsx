@@ -20,7 +20,7 @@ import { Form, FormControl, FormField, FormItem } from "components/ui/form";
 import { z } from "zod";
 import { VendorPrequalificationSchema } from "definations/procurement-types/vendor-prequalification";
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { useGetAllPrequalificationCriteria } from "@/features/modules/controllers/procurement/prequalification-criteriaController";
 import { RouteEnum } from "constants/RouterConstants";
 

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import ProjectLayout from "./ProjectLayout";
 import { Button } from "components/ui/button";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { Label } from "components/ui/label";
 import { openDialog } from "store/ui";
 import { DialogType, mediumDailogScreen } from "constants/dailogs";

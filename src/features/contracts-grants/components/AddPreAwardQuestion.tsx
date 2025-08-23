@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormButton from "components/atoms/FormButton";
-import FormInput from "components/atoms/FormInput";
-import { Form } from "components/ui/form";
+import FormButton from "@/components/FormButton";
+import FormInput from "@/components/FormInput";
+import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
@@ -10,12 +10,12 @@ import {
     AssetClassificationSchema,
     IAssetClassificationData,
     TAssetClassificationFormValues,
-} from "components/modules-types/admin/asset-classification";
+} from "@/features/admin/types/admin/asset-classification";
 import {
     useCreateAssetClassification,
     useEditAssetClassification,
-} from "@/features/modules/controllers/config/asset-classificationController";
-import FormTextArea from "components/atoms/FormTextArea";
+} from "@/features/modules/controllers/config/assetClassificationController";
+import FormTextArea from "@/components/FormTextArea";
 
 export default function AddPreAwardQuestion() {
     const { dialogProps } = useAppSelector(dailogSelector);

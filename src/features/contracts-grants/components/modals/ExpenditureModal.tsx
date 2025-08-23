@@ -1,20 +1,20 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormButton from "components/atoms/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelect";
-import FormTextArea from "components/atoms/FormTextArea";
-import { Form } from "components/ui/form";
+import FormButton from "@/components/FormButton";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelect";
+import FormTextArea from "@/components/FormTextArea";
+import { Form } from "@/components/ui/form";
 import {
   ExpenditureSchema,
   IExpenditurePaginatedData,
   TExpenditureFormData,
-} from "features/contracts-grants/types/grants";
+} from "@/features/contracts-grants/types/grants";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { SubmitHandler, useForm } from "react-hook-form";
 import {
   useCreateExpenditure,
   useModifyExpenditure,
-} from "@/features/contracts-grants/controllers/grant/expenditureController";
+} from "@/features/contracts-grants/controllers/expenditureController";
 import { toast } from "sonner";
 import { closeDialog } from "store/ui";
 

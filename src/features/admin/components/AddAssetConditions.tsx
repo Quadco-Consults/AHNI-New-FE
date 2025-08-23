@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import FormInput from "components/atoms/FormInput";
 
 import { Form } from "components/ui/form";
@@ -15,7 +15,7 @@ import {
     AssetConditionSchema,
     TAssetConditionData,
     TAssetConditionFormValues,
-} from "components/modules-types/admin/asset-condition";
+} from "@/features/admin/types/admin/asset-condition";
 import FormTextArea from "components/atoms/FormTextArea";
 
 const AddAssetConditions = () => {

@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import FormInput from "components/atoms/FormInput";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -7,10 +7,10 @@ import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
 import {
-  PositionSchema,
-  TPositionData,
-  TPositionFormValues,
-} from "components/modules-types/config/position";
+  GradeSchema,
+  TGradeData,
+  TGradeFormValues,
+} from "@/features/admin/types/config/grade";
 
 import FormTextArea from "components/atoms/FormTextArea";
 import {
@@ -21,10 +21,10 @@ import {
 const Addgrade = () => {
   const { dialogProps } = useAppSelector(dailogSelector);
 
-  const data = dialogProps?.data as unknown as TPositionData;
+  const data = dialogProps?.data as unknown as TGradeData;
 
-  const form = useForm<TPositionFormValues>({
-    resolver: zodResolver(PositionSchema),
+  const form = useForm<TGradeFormValues>({
+    resolver: zodResolver(GradeSchema),
     defaultValues: {
       name: data?.name ?? "",
       description: data?.description ?? "",
@@ -38,7 +38,7 @@ const Addgrade = () => {
   const [updategrade, { isLoading: isUpdateLoading }] =
     useUpdateGradeMutation();
 
-  const onSubmit: SubmitHandler<TPositionFormValues> = async (data) => {
+  const onSubmit: SubmitHandler<TGradeFormValues> = async (data) => {
     try {
       if (dialogProps?.type === "update") {
         await updategrade({

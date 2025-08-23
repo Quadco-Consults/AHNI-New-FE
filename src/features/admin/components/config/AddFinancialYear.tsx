@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelect";
 import { CardContent } from "components/ui/card";
@@ -12,7 +12,7 @@ import {
     FinancialYearSchema,
     TFinancialYearData,
     TFinancialYearFormValues,
-} from "components/modules-types/config/financial-year";
+} from "@/features/admin/types/config/financial-year";
 import {
     useAddFinancialYearMutation,
     useUpdateFinancialYearMutation,

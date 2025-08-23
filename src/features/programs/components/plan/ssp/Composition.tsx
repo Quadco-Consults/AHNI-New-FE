@@ -7,7 +7,7 @@ import { Form, FormControl, FormField, FormItem } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelectField";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { Button } from "components/ui/button";
 import { Label } from "components/ui/label";
 import { SelectContent, SelectItem } from "components/ui/select";
