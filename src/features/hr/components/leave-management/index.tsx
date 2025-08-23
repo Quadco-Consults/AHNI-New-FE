@@ -19,7 +19,7 @@ import SearchBar from "components/atoms/SearchBar";
 import { Checkbox } from "components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 
 const LeaveManagement: React.FC = () => {
   const router = useRouter();

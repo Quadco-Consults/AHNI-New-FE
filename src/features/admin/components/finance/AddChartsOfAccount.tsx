@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import FormInput from "components/atoms/FormInput";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
@@ -11,7 +11,7 @@ import {
     ChartAccountSchema,
     TChartAccountData,
     TChartAccountFormValues,
-} from "components/modules-types/finance/chart-account";
+} from "@/features/admin/types/finance/chart-account";
 import {
     useAddChartAccountMutation,
     useUpdateChartAccountMutation,

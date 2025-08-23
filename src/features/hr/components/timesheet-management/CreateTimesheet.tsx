@@ -25,7 +25,7 @@ import logoPng from "assets/imgs/logo.png";
 import { LoadingSpinner } from "components/Loading";
 import { Checkbox } from "components/ui/checkbox";
 import { StakeholderResultsData } from "definations/program-types/stakeholder";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { useEffect, useState } from "react";
 
 const CreateTimesheet = () => {

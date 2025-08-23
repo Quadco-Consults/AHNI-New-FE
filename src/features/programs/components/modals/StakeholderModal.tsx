@@ -1,10 +1,10 @@
 import logoPng from "assets/imgs/logo.png";
-import { ScrollArea } from "components/ui/scroll-area";
-import { Button } from "components/ui/button";
-import { Input } from "components/ui/input";
-import { Checkbox } from "components/ui/checkbox";
-import { useGetAllStakeholderRegister } from "@/features/programs/controllers/stakeholder";
-import { LoadingSpinner } from "components/Loading";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useGetAllStakeholderRegister } from "@/features/programs/controllers/stakeholderController";
+import { LoadingSpinner } from "@/components/Loading";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { addStakeholders } from "store/formData/stakeholders";
 import { CheckedState } from "@radix-ui/react-checkbox";

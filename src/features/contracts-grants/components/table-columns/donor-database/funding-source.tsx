@@ -7,7 +7,7 @@ import { Button } from "components/ui/button";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import { CG_ROUTES } from "constants/RouterConstants";
 import EyeIcon from "components/icons/EyeIcon";
-import { TFundingSourceData } from "components/modules-types/project/funding-source";
+import { TFundingSourceData } from "@/features/projects/types/project/funding-source";
 
 export const fundingSourceColumns: ColumnDef<TFundingSourceData>[] = [
     {

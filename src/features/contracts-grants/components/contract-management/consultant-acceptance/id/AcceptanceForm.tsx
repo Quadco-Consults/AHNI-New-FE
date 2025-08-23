@@ -1,5 +1,5 @@
 import { UploadFileSvg } from "assets/svgs/CAndGSvgs";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import FormInput from "components/atoms/FormInput";
 import { Form } from "components/ui/form";
 import { Label } from "components/ui/label";

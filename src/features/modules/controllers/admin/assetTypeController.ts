@@ -126,3 +126,6 @@ export const useDeleteAssetTypeMutation = () => {
   const { deleteAssetType, data, isLoading, isSuccess, error } = DeleteAssetTypeManager();
   return [deleteAssetType, { data, isLoading, isSuccess, error }] as const;
 };
+
+// Additional missing exports
+export const useGetAllAssetTypes = useGetAllAssetTypesManager;

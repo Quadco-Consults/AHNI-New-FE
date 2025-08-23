@@ -129,3 +129,7 @@ export const useDeletePartnerMutation = () => {
   const { deletePartner, data, isLoading, isSuccess, error } = DeletePartnerManager();
   return [deletePartner, { data, isLoading, isSuccess, error }] as const;
 };
+
+// Additional backward compatibility exports
+export const useUpdatePartner = useUpdatePartnerMutation;
+export const useAddPartner = useAddPartnerMutation;

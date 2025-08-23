@@ -2,7 +2,7 @@
 
 import { Separator } from "components/ui/separator";
 import PerformanceEvaluationForm from "../components/EvaluationForm";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { FileIcon } from "lucide-react";
 import GoBack from "components/GoBack";
 import { useState } from "react";

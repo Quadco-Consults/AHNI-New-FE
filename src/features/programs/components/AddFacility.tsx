@@ -1,9 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormButton from "components/atoms/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelect";
-import { CardContent } from "components/ui/card";
-import { Form } from "components/ui/form";
+import FormButton from "@/components/FormButton";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelect";
+import { CardContent } from "@/components/ui/card";
+import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
@@ -13,7 +13,7 @@ import {
     FacilitySchema,
     TFacilityData,
     TFacilityFormValues,
-} from "components/modules-types/program/facility";
+} from "@/features/programs/types/program/facility";
 import {
     useAddFacility,
     useUpdateFacility,

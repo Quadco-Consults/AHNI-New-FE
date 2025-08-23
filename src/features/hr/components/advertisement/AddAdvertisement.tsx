@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FileUpload from "components/atoms/FileUpload";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import FormInput from "components/atoms/FormInput";
 import FormMultiSelect from "components/atoms/FormMultiSelect";
 import FormSelect from "components/atoms/FormSelect";

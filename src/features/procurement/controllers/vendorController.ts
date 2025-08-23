@@ -20,3 +20,6 @@ const VendorsAPI = {
 };
 
 export default VendorsAPI;
+
+// Additional missing exports
+export const useGetVendors = useGetVendorsQuery;

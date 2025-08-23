@@ -127,3 +127,8 @@ export const useDeleteBeneficiaryMutation = () => {
   const { deleteBeneficiary, data, isLoading, isSuccess, error } = DeleteBeneficiaryManager();
   return [deleteBeneficiary, { data, isLoading, isSuccess, error }] as const;
 };
+
+// Additional missing exports
+export const useUpdateBeneficiary = useUpdateBeneficiaryMutation;
+export const useAddBeneficiary = useAddBeneficiaryMutation;
+export const useDeleteBeneficiary = useDeleteBeneficiaryMutation;

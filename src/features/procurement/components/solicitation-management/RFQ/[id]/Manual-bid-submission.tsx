@@ -14,7 +14,7 @@ import { z } from "zod";
 import { SolicitationSubmissionSchema } from "definations/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { useCreateSolicitationSubmission } from "@/features/procurementApi/vendor-bid-submissions";
 import { useGetSingleSolicitation } from "@/features/procurementApi/solicitation";
 import { useGetAllSolicitationEvaluationCriteria } from "@/features/modules/procurement/solicitation-evaluation-criteria";

@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import FormInput from "components/atoms/FormInput";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
@@ -17,7 +17,7 @@ import {
   ItemSchema,
   TItemData,
   TItemFormValues,
-} from "components/modules-types/config/item";
+} from "@/features/admin/types/config/item";
 import FormTextArea from "components/atoms/FormTextArea";
 
 const AddItems = () => {

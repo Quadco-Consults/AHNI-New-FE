@@ -1,15 +1,15 @@
-import FormButton from "components/atoms/FormButton";
-import { Button } from "components/ui/button";
+import FormButton from "@/components/FormButton";
+import { Button } from "@/components/ui/button";
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "components/ui/select";
+} from "@/components/ui/select";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { FormEvent, useState } from "react";
-import { usePatchRiskManagementPlanController from "@/features/programsApi/risk-plans";
+import { usePatchRiskManagementPlanController } from "@/features/programs/controllers/riskManagementController";
 import { toast } from "sonner";
 import { closeDialog } from "store/ui";
 

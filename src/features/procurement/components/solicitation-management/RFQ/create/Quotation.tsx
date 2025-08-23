@@ -8,7 +8,7 @@ import FormInput from "components/atoms/FormInput";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { useRouter, useParams, usePathname } from "next/navigation"; 
 import { Button } from "components/ui/button";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { LoadingSpinner } from "components/Loading";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useGetPurchaseRequests } from "@/features/procurement/controllers/purchaseRequestController";

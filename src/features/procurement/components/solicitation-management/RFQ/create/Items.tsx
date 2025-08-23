@@ -7,7 +7,7 @@ import { Button } from "components/ui/button";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { generatePath, useNavigate } 
 import { RouteEnum } from "constants/RouterConstants";
 import { z } from "zod";

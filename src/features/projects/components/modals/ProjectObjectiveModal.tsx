@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import FormTextArea from "components/atoms/FormTextArea";
 import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";

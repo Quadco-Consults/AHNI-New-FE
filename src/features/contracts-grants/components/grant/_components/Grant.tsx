@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { ColumnDef } from "@tanstack/react-table";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import DataTable from "components/Table/DataTable";
 import React, { useMemo } from "react";

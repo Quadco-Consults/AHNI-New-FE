@@ -126,3 +126,6 @@ export const useDeleteAssetClassificationMutation = () => {
   const { deleteAssetClassification, data, isLoading, isSuccess, error } = DeleteAssetClassificationManager();
   return [deleteAssetClassification, { data, isLoading, isSuccess, error }] as const;
 };
+
+// Additional missing exports
+export const useGetAllAssetClassifications = useGetAllAssetClassificationsManager;

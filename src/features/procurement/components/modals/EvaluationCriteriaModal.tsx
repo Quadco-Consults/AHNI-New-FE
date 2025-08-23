@@ -10,7 +10,7 @@ import {
 import { Checkbox } from "components/ui/checkbox";
 import { useEffect, useMemo, useState } from "react";
 import { LoadingSpinner } from "components/Loading";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog } from "store/ui";
 import { useGetAllSupervisionCriteria } from "@/features/modules/controllers/program/supervision-criteria";

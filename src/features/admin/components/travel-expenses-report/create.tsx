@@ -11,7 +11,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelect";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { Link, useNavigate, useSearchParams } from "next/navigation"; 
 import { Button } from "components/ui/button";
 import { AdminRoutes } from "constants/RouterConstants";

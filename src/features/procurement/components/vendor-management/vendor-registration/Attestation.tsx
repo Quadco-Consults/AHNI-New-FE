@@ -3,7 +3,7 @@
 import { Label } from "components/ui/label";
 import VendorRegistationLayout from "./VendorRegistationLayout";
 import { Checkbox } from "components/ui/checkbox";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { useState } from "react";

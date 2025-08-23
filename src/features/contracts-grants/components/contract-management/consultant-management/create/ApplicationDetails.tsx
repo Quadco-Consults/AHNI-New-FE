@@ -2,7 +2,7 @@
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "components/atoms/FormInput";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { Label } from "components/ui/label";
 import { toast } from "sonner";
 import {

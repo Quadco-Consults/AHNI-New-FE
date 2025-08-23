@@ -2,7 +2,7 @@ import { Button } from "components/ui/button";
 import { useForm } from "react-hook-form";
 import { Form } from "components/ui/form";
 import { useRouter } from "next/navigation";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import FormInput from "components/atoms/FormInput";
 import ProcurementPlanLayout from "../ProcurementPlanLayout";
 import FormTextArea from "components/atoms/FormTextArea";

@@ -13,7 +13,7 @@ import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import FormTextArea from "components/atoms/FormTextArea";
 import { Button } from "components/ui/button";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 
 export default function PaymentRequestDetails() {
     const { id } = useParams();

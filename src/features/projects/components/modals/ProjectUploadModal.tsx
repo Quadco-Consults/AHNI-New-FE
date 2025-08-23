@@ -1,19 +1,19 @@
 "use client";
 
-import { Button } from "components/ui/button";
-import { Form } from "components/ui/form";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
 import React, { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { Input } from "components/ui/input";
+import { Input } from "@/components/ui/input";
 import { Upload as UploadFile } from "lucide-react";
 import { toast } from "sonner";
-import FormButton from "components/atoms/FormButton";
-import FormInput from "components/atoms/FormInput";
+import FormButton from "@/components/FormButton";
+import FormInput from "@/components/FormInput";
 import { closeDialog } from "store/ui";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 // import { useCreateProjectDocumentController } from "@/features/project/documentController";
 import { useSearchParams } from "next/navigation";
-import FormSelect from "components/atoms/FormSelect";
+import FormSelect from "@/components/FormSelect";
 import { zodResolver } from "@hookform/resolvers/zod";
 // import { useGetAllDocumentType } from "@/features/modules/controllers/project/document-types";
 import {

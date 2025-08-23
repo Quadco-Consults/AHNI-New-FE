@@ -1,8 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormButton from "components/atoms/FormButton";
-import FormInput from "components/atoms/FormInput";
-import { CardContent } from "components/ui/card";
-import { Form } from "components/ui/form";
+import FormButton from "@/components/FormButton";
+import FormInput from "@/components/FormInput";
+import { CardContent } from "@/components/ui/card";
+import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
@@ -11,12 +11,12 @@ import {
     SupervisionCategorySchema,
     TSupervisionCategoryData,
     TSupervisionCategoryFormValues,
-} from "components/modules-types/program/supervision-category";
+} from "@/features/programs/types/program/supervision-category";
 import {
     useAddSupervisionCategory,
     useUpdateSupervisionCategory,
-} from "@/features/modules/controllers/program/supervision-categoryController";
-import FormTextArea from "components/atoms/FormTextArea";
+} from "@/features/modules/controllers/program/supervisionCategoryController";
+import FormTextArea from "@/components/FormTextArea";
 
 const AddSupervisionCategory = () => {
     const { dialogProps } = useAppSelector(dailogSelector);

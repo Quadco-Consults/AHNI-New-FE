@@ -19,7 +19,7 @@ export default function ProcurementPlansForm() {
 // import { zodResolver } from "@hookform/resolvers/zod";
 // import VendorsAPI from "@/features/procurement/controllers/vendorsController";
 // import { VendorsResultsData } from "definations/procurement-types/vendors";
-// import FormButton from "components/atoms/FormButton";
+// import FormButton from "@/components/FormButton";
 // import { MinusCircle } from "lucide-react";
 // import AddSquareIcon from "components/icons/AddSquareIcon";
 // import ProcurementPlanLayout from "../ProcurementPlanLayout";

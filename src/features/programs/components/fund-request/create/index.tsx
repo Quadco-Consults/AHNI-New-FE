@@ -4,7 +4,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import FormSelect from "components/atoms/FormSelectField";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { Button } from "components/ui/button";
 import Card from "components/Card";
 import FundRequstLayout from "./Layout";
