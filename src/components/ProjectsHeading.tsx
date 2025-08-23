@@ -20,16 +20,21 @@ const steps: Step[] = [
 ];
 
 const ProjectsHeading = () => {
-    const [completedSteps, setCompletedSteps] = useState<boolean[]>(() => {
-        // Retrieve the completion state from local storage or initialize if not present
+    const [completedSteps, setCompletedSteps] = useState<boolean[]>(
+        new Array(steps.length).fill(false)
+    );
+    const [isClient, setIsClient] = useState(false);
+
+    // Handle client-side hydration
+    useEffect(() => {
+        setIsClient(true);
         if (typeof window !== 'undefined') {
             const savedSteps = sessionStorage.getItem("projectsCompletedSteps");
-            return savedSteps
-                ? JSON.parse(savedSteps)
-                : new Array(steps.length).fill(false);
+            if (savedSteps) {
+                setCompletedSteps(JSON.parse(savedSteps));
+            }
         }
-        return new Array(steps.length).fill(false);
-    });
+    }, []);
     const pathname = usePathname();
 
     const currentPath = pathname.split("/").at(-1);

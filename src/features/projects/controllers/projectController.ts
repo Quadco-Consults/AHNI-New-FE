@@ -71,9 +71,11 @@ export const useAddProject = () => {
 
   const addProject = async (details: TProjectFormValues) => {
     try {
-      await callApi(details);
+      const response = await callApi(details);
+      return response;
     } catch (error) {
       console.error("Project create error:", error);
+      throw error;
     }
   };
 
