@@ -1,3 +1,5 @@
+"use client";
+
 /* eslint-disable no-unused-vars */
 import React from "react";
 import { cn, truncateStringLength } from "lib/utils";
@@ -118,12 +120,7 @@ const LeaveManagement: React.FC = () => {
             <PopoverContent className=' w-fit'>
               <div className='flex flex-col items-start justify-between gap-1'>
                 <Link
-                  href={generatePath(
-                    HrRoutes.LEAVE_MANAGEMENT_LEAVE_LIST_DETAIL,
-                    {
-                      id: data.original.id,
-                    }
-                  )}
+                  href={`/dashboard/hr/leave-management/leave-list/${data.original.id}`}
                 >
                   <Button
                     className='w-full flex items-center justify-start gap-2'
@@ -206,7 +203,7 @@ const LeaveManagement: React.FC = () => {
         {/* <div className='flex items-center'>
           <FormButton
             onClick={() => {
-              router.push(HrRoutes.LEAVE_MANAGEMENT_DETAIL);
+              router.push("/dashboard/hr/leave-management");
             }}
           >
             <AddSquareIcon />

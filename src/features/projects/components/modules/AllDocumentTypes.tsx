@@ -35,7 +35,7 @@ export default function AllDocumentTypes() {
             await deleteDocumentType(id);
             toast.success("Deleted Successfully");
         } catch (error) {
-            toast.error("Error deleteing item");
+            toast.error("Error deleting item");
         }
     };
 

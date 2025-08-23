@@ -1,13 +1,14 @@
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
-import { Button } from "components/ui/button";
-import { AdminRoutes } from "constants/RouterConstants";
+"use client";
+
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
+import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import Card from "components/Card";
+import Card from "@/components/Card";
 import { useGetAllAssetsQuery } from "@/features/admin/controllers/assetController";
 import { useState } from "react";
-import { assetColumn } from "components/Table/columns/admin/inventory-management/asset";
+import { assetColumn } from "@/features/admin/components/table-columns/inventory-management/asset";
 import { useGetAllItemsQuery } from "@/features/modules/controllers/config/itemController";
 
 export default function AssetHomePage() {
@@ -24,7 +25,7 @@ export default function AssetHomePage() {
   return (
     <div className='space-y-5'>
       <div className='flex justify-end'>
-        <Link href={generatePath(AdminRoutes.CreateAssets)}>
+        <Link href="/dashboard/admin/assets/create">
           <Button>
             <Plus size={20} />
             Create Asset

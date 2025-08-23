@@ -1,18 +1,20 @@
+"use client";
+
 import { Form } from "components/ui/form";
 // import VendorRegistationLayout from "./VendorRegistationLayout";
 import { useForm } from "react-hook-form";
 import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelectField";
 import { ChevronRight } from "lucide-react";
-import { useLocation, useNavigate } 
+import { useRouter, usePathname } from "next/navigation";
 import FormButton from "components/atoms/FormButton";
 import { Button } from "components/ui/button";
 import { SelectContent, SelectItem } from "components/ui/select";
 import { useEffect, useMemo } from "react";
-import { useGetPayGroups } from "@/features/hrApi/hr-pay-groups";
-import { useCreateCompensation } from "@/features/hrApi/hr-compensations";
+import { useGetPayGroups } from "@/features/hr/controllers/payGroupController";
+import { useCreateCompensation } from "@/features/hr/controllers/compensationController";
 import { toast } from "sonner";
-import { Grade } from "definations/hr-types/pay-group";
+import { Grade } from "@/features/hr/types/pay-group";
 
 const NewCompensation = () => {
   const { data: payGroupsData } = useGetPayGroups();
@@ -38,7 +40,7 @@ const NewCompensation = () => {
 
   const router = useRouter();
 
-  const { pathname } = useLocation();
+  const pathname = usePathname();
 
   const { handleSubmit, watch, setValue } = form;
   // Watch the selected value of amount_or_percentage

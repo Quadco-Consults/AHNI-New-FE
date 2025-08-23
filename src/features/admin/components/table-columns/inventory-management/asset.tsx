@@ -105,13 +105,13 @@ export const assetColumn: ColumnDef<TAssetPaginatedData>[] = [
 const TableAction = ({ id }: TAssetPaginatedData) => {
   const [isDialogOpen, setDialogOpen] = useState(false);
 
-  const [deleteAsset, { isLoading }] = useDeleteAssetMutation();
+  const { deleteAsset, isLoading } = useDeleteAsset(id);
 
   const handleDeleteAsset = async () => {
     try {
-      await deleteAsset(id).unwrap();
+      deleteAsset();
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something wrong");
+      toast.error(error?.data?.message ?? "Something wrong");
     }
   };
 

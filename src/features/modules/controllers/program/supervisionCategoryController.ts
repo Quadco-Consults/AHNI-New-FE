@@ -108,6 +108,7 @@ export const DeleteSupervisionCategoryManager = () => {
 
 // Backward compatibility exports - RTK Query style
 export const useGetAllSupervisionCategoryQuery = useGetAllSupervisionCategoriesManager;
+export const useGetAllSupervisionCategory = useGetAllSupervisionCategoriesManager;
 
 export const useAddSupervisionCategoryMutation = () => {
   const { createSupervisionCategory, data, isLoading, isSuccess, error } = CreateSupervisionCategoryManager();
@@ -123,6 +124,11 @@ export const useUpdateSupervisionCategoryMutation = () => {
 };
 
 export const useDeleteSupervisionCategoryMutation = () => {
+  const { deleteSupervisionCategory, data, isLoading, isSuccess, error } = DeleteSupervisionCategoryManager();
+  return [deleteSupervisionCategory, { data, isLoading, isSuccess, error }] as const;
+};
+
+export const useDeleteSupervisionCategory = () => {
   const { deleteSupervisionCategory, data, isLoading, isSuccess, error } = DeleteSupervisionCategoryManager();
   return [deleteSupervisionCategory, { data, isLoading, isSuccess, error }] as const;
 };

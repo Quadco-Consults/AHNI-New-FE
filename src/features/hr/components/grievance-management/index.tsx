@@ -1,3 +1,5 @@
+"use client";
+
 /* eslint-disable no-unused-vars */
 import { ColumnDef } from "@tanstack/react-table";
 import FormButton from "components/atoms/FormButton";
@@ -15,8 +17,8 @@ import { Checkbox } from "components/ui/checkbox";
 import IconButton from "components/IconButton";
 import { Icon } from "@iconify/react";
 import {
-  useDeleteGrievianceManagement,
-  useGetGrievianceManagements,
+  useDeleteGrievance,
+  useGetGrievances,
 } from "@/features/hr/controllers/grievanceController";
 import moment from "moment";
 import { Badge } from "components/ui/badge";
@@ -28,15 +30,16 @@ const GrievanceManagement: React.FC = () => {
   const [selectedId, setSelectedId] = useState<string>("");
   const [isDialogOpen, setDialogOpen] = useState(false);
   const { data: grievants, isLoading: isLoadingCompliants } =
-    useGetGrievianceManagements({ page: 1, size: 20 });
-  const [deleteGrievianceManagement, { isLoading: deleting }] =
-    useDeleteGrievianceManagementMutation({});
+    useGetGrievances({ page: 1, size: 20 });
+  const { deleteGrievance, isLoading: deleting } = useDeleteGrievance(
+    selectedId
+  );
 
   const onDelete = async () => {
-    await deleteGrievianceManagement({
-      id: selectedId as string,
-    });
-    setDialogOpen(false);
+    if (selectedId) {
+      await deleteGrievance();
+      setDialogOpen(false);
+    }
   };
 
   const columns: ColumnDef<any>[] = [
@@ -113,9 +116,7 @@ const GrievanceManagement: React.FC = () => {
     return (
       <div className='flex gap-2'>
         <Link
-          href={generatePath(HrRoutes.GRIEVANCE_MANAGEMENT_DETAILS, {
-            id: data?.id,
-          })}
+          href={`/dashboard/hr/grievance-management/${data?.id}`}
         >
           <IconButton className='bg-[#F9F9F9] hover:text-primary'>
             <Icon icon='ph:eye-duotone' fontSize={15} />
@@ -147,7 +148,7 @@ const GrievanceManagement: React.FC = () => {
         <div className='flex items-center'>
           <FormButton
             onClick={() => {
-              router.push(HrRoutes.GRIEVANCE_MANAGEMENT_CREATE);
+              router.push("/dashboard/hr/grievance-management/create");
             }}
           >
             <AddSquareIcon />

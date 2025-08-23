@@ -6,7 +6,8 @@ import BackNavigation from "components/atoms/BackNavigation";
 import { Card, CardContent } from "components/ui/card";
 import { toast } from "sonner";
 import { Button } from "components/ui/button";
-import { useNavigate, useSearchParams } 
+import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation"; 
 import { CG_ROUTES } from "constants/RouterConstants";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { useEffect, useMemo } from "react";
@@ -14,17 +15,17 @@ import FormTextArea from "components/atoms/FormTextArea";
 import {
     ConsultancyReportSchema,
     TConsultancyReportFormData,
-} from "definations/c&g/contract-management/consultancy-report";
+} from "@/features/contracts-grants/types/contract-management/consultancy-report";
 import {
     useCreateConsultancyReport,
     useGetSingleConsultancyReport,
     useModifyConsultancyReport,
-} from "@/features/contracts-grants/controllers/contract-management/consultancy-reportController";
+} from "@/features/contracts-grants/controllers/consultancyReportController";
 import FormButton from "components/atoms/FormButton";
 import FormSelect from "components/atoms/FormSelectField";
-import { useGetAllUsers } from "@/features/auth/controllers/user";
-import { useGetAllConsultantManagements } from "@/features/contracts-grants/controllers/contract-management/consultancy-management/consultant-management";
-import { useGetAllProjects } from "@/features/projects/controllers/project";
+import { useGetAllUsers } from "@/features/auth/controllers/userController";
+import { useGetAllConsultantManagements } from "@/features/contracts-grants/controllers/consultantManagementController";
+import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 
 export default function CreateConsultancyReport() {
     const form = useForm<TConsultancyReportFormData>({

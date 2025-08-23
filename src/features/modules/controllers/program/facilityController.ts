@@ -122,6 +122,7 @@ export const DeleteFacilityManager = () => {
 
 // Backward compatibility exports - RTK Query style
 export const useGetAllFacilityQuery = useGetAllFacilitiesManager;
+export const useGetAllFacility = useGetAllFacilitiesManager;
 export const useGetSingleFacilityQuery = useGetSingleFacilityManager;
 export const useLazyGetSingleFacilityQuery = useGetSingleFacilityManager;
 
@@ -142,3 +143,10 @@ export const useDeleteFacilityMutation = () => {
   const { deleteFacility, data, isLoading, isSuccess, error } = DeleteFacilityManager();
   return [deleteFacility, { data, isLoading, isSuccess, error }] as const;
 };
+
+export const useDeleteFacility = () => {
+  const { deleteFacility, data, isLoading, isSuccess, error } = DeleteFacilityManager();
+  return [deleteFacility, { data, isLoading, isSuccess, error }] as const;
+};
+
+export const useGetAllFacilities = useGetAllFacilitiesManager;

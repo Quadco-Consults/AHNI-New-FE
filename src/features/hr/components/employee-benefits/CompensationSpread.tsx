@@ -17,7 +17,7 @@ import PayGroupModal from "./components/PayGroupModal";
 import { useAppDispatch } from "hooks/useStore";
 import { DialogType, mediumDailogScreen } from "constants/dailogs";
 import { openDialog } from "store/ui";
-import { useGetCompensationsSpread } from "@/features/hr/controllers/hr-compensationSpreadController";
+import { useGetCompensationsSpread } from "@/features/hr/controllers/hrCompensationSpreadController";
 
 interface CompensationItem {
   id: string;

@@ -149,10 +149,7 @@ const ActionListAction = ({ data }: { data: IProjectSingleData }) => {
                         <div className="flex flex-col items-start justify-between gap-1">
                             <Link
                                 className="w-full"
-                                href={generatePath(
-                                    RouteEnum.PROGRAM_FUND_REQUEST_DETAILS,
-                                    { id: data?.id }
-                                )}
+                                href={`/dashboard/programs/fund-request/${data?.id}`}
                             >
                                 <Button
                                     className="w-full flex items-center justify-start gap-2"

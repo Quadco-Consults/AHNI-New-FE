@@ -1,3 +1,5 @@
+"use client";
+
 import FormButton from "components/atoms/FormButton";
 import Card from "components/Card";
 import GoBack from "components/GoBack";
@@ -15,8 +17,9 @@ import {
 import { Textarea } from "components/ui/textarea";
 // import { formatDate } from "date-fns";
 import { useForm } from "react-hook-form";
-import VendorsEvaluaionAndPerformanceAPI from "@/features/procurement/controllers/vendors-evaluation-performanceController";
-import { useNavigate, useParams } 
+import VendorsEvaluaionAndPerformanceAPI from "@/features/procurement/controllers/vendorPerformanceEvaluationController";
+import { useRouter } from "next/navigation";
+import { useParams } from "next/navigation"; 
 import { toast } from "sonner";
 
 const InterviewForm = () => {

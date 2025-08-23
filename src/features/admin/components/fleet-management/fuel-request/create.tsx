@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import BackNavigation from "components/atoms/BackNavigation";
 import FormButton from "components/atoms/FormButton";
@@ -12,7 +14,7 @@ import {
 } from "features/admin/types/fleet-management/fuel-request";
 import { useEffect, useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useNavigate, useSearchParams } 
+import { useNavigate, useSearchParams } from "next/navigation";
 import {
     useCreateFuelRequest,
     useGetSingleFuelRequest,

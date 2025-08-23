@@ -8,11 +8,11 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import Modal from "react-modal";
-import { useGetAllPositions } from "@/features/modules/config/position";
-import { useCreatePayGroup } from "@/features/hr/controllers/hr-pay-groups";
+import { useGetAllPositionsManager } from "@/features/modules/controllers/config/positionController";
+import { useCreatePayGroup } from "@/features/hr/controllers/payGroupController";
 import { toast } from "sonner";
-import { useGetAllGrades } from "@/features/modules/config/grade";
-import { useGetAllLevels } from "@/features/modules/config/level";
+import { useGetAllGradesManager } from "@/features/modules/controllers/config/gradeController";
+import { useGetAllLevelsManager } from "@/features/modules/controllers/config/levelController";
 
 type PropsType = {
   isOpen: boolean;
@@ -39,17 +39,17 @@ const FormSchema = z.object({
 });
 
 const PayGroupModal = (props: PropsType) => {
-  const { data: position } = useGetAllPositions({
+  const { data: position } = useGetAllPositionsManager({
     page: 1,
     size: 2000000,
   });
 
-  const { data: levels } = useGetAllLevels({
+  const { data: levels } = useGetAllLevelsManager({
     page: 1,
     size: 2000000,
   });
 
-  const { data: grades } = useGetAllGrades({
+  const { data: grades } = useGetAllGradesManager({
     page: 1,
     size: 2000000,
   });
@@ -57,17 +57,17 @@ const PayGroupModal = (props: PropsType) => {
   const { createPayGroup, isLoading: isCreatingLoading } =
     useCreatePayGroup();
 
-  const positionOptions = position?.data.results.map(({ name, id }) => ({
+  const positionOptions = position?.results?.map(({ name, id }) => ({
     label: name,
     value: id,
   }));
 
-  const levelOptions = levels?.data.results.map(({ name, id }) => ({
+  const levelOptions = levels?.results?.map(({ name, id }) => ({
     label: name,
     value: id,
   }));
 
-  const gradeOptions = grades?.data.results.map(({ name, id }) => ({
+  const gradeOptions = grades?.results?.map(({ name, id }) => ({
     label: name,
     value: id,
   }));

@@ -35,7 +35,7 @@ const PurchaseOrder = () => {
     <div className="space-y-10">
       <BreadcrumbCard list={breadcrumbs} />
       <div className="flex justify-end">
-        <Link href={generatePath(RouteEnum.PURCHASE_ORDER_NEW)}>
+        <Link href="/dashboard/procurement/purchase-order/new">
           <Button className="flex py-6 items-center gap-x-3">
             <p className="flex h-[20.5px] w-[20.5px] items-center justify-center rounded  bg-white/30">
               <PlusIcon size={14} />
@@ -133,9 +133,7 @@ const ActionListAction = ({ data }: any) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <Link
-            href={generatePath(RouteEnum.PURCHASE_ORDER_ID, {
-              id: data.id,
-            })}
+            href={`/dashboard/procurement/purchase-order/${data.id}`}
           >
             <DropdownMenuItem key="print" className="flex gap-2">
               <EyeIcon /> View

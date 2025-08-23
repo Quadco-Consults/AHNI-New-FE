@@ -1,3 +1,5 @@
+"use client";
+
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import { useRouter } from "next/navigation";
 

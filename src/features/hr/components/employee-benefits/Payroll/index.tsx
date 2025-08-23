@@ -14,7 +14,7 @@ import { Checkbox } from "components/ui/checkbox";
 import IconButton from "components/IconButton";
 import { Icon } from "@iconify/react";
 import PayGroupModal from "../components/PayGroupModal";
-import { useGetPayRolls } from "@/features/hrApi/hr-pay-roll";
+import { useGetPayRolls } from "@/features/hr/controllers/hrPayRollController";
 
 const Payroll: React.FC = () => {
   const router = useRouter();
@@ -89,7 +89,7 @@ const Payroll: React.FC = () => {
     return (
       <div className='flex gap-2'>
         <Link
-          href={generatePath(RouteEnum.VENDOR_MANAGEMENT_DETAILS, { id: "1" })}
+          href="/dashboard/hr/employee-benefit/pay-roll/1"
         >
           <IconButton className='bg-[#F9F9F9] hover:text-primary'>
             <Icon icon='ph:eye-duotone' fontSize={15} />
@@ -115,7 +115,7 @@ const Payroll: React.FC = () => {
         <div className='flex items-center'>
           <Link
             className='w-full'
-            href={generatePath(HrRoutes.EMPLOYEE_BENEFITS_PAY_ROLL_CREATE)}
+            href="/dashboard/hr/employee-benefit/pay-roll/create"
           >
             <Button>
               <AddSquareIcon />

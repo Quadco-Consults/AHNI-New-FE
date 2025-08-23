@@ -108,6 +108,7 @@ export const DeletePrequalificationCriteriaManager = () => {
 
 // Backward compatibility exports - RTK Query style
 export const useGetAllPrequalificationCriteriaQuery = useGetAllPrequalificationCriteriaManager;
+export const useGetAllPrequalificationCriteria = useGetAllPrequalificationCriteriaManager;
 
 export const useAddPrequalificationCriteriaMutation = () => {
   const { createPrequalificationCriteria, data, isLoading, isSuccess, error } = CreatePrequalificationCriteriaManager();
@@ -126,3 +127,5 @@ export const useDeletePrequalificationCriteriaMutation = () => {
   const { deletePrequalificationCriteria, data, isLoading, isSuccess, error } = DeletePrequalificationCriteriaManager();
   return [deletePrequalificationCriteria, { data, isLoading, isSuccess, error }] as const;
 };
+
+export const useDeletePrequalificationCriteria = DeletePrequalificationCriteriaManager;

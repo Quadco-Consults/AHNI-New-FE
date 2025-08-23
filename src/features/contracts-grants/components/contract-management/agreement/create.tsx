@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Form } from "components/ui/form";
@@ -9,7 +11,7 @@ import FormButton from "components/atoms/FormButton";
 import {
     AgreementSchema,
     TAgreementFormData,
-} from "definations/c&g/contract-management/agreement";
+} from "@/features/contracts-grants/types/contract-management/agreement";
 import { toast } from "sonner";
 import { Button } from "components/ui/button";
 import {
@@ -17,13 +19,14 @@ import {
     useGetSingleAgreement,
     useModifyAgreement,
 } from "@/features/contracts-grants/controllers/agreementController";
-import { useNavigate, useSearchParams } 
+import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation"; 
 import { CG_ROUTES } from "constants/RouterConstants";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { useEffect, useMemo } from "react";
 import ServiceLevelAgreementLayout from "./Layout";
 import VendorsAPI from "@/features/procurement/controllers/vendorsController";
-import { useGetAllLocations } from "@/features/modules/controllers/config/location";
+import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
 
 const agreementTypeOptions = [
     { label: "LEASE", value: "LEASE" },

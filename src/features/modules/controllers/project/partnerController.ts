@@ -110,6 +110,7 @@ export const DeletePartnerManager = () => {
 
 // Backward compatibility exports - RTK Query style
 export const useGetAllPartnersQuery = useGetAllPartnersManager;
+export const useGetAllPartners = useGetAllPartnersManager;
 
 export const useAddPartnerMutation = () => {
   const { createPartner, data, isLoading, isSuccess, error } = CreatePartnerManager();

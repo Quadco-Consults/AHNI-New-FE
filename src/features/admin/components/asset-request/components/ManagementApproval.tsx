@@ -1,7 +1,9 @@
+"use client";
+
 import DescriptionCard from "components/DescriptionCard";
 import { Card, CardContent, CardHeader } from "components/ui/card";
 import { Separator } from "components/ui/separator";
-import { useSearchParams } 
+import { useSearchParams } from "next/navigation";
 import { useGetSingleAssetQuery } from "@/features/admin/controllers/assetController";
 import { LoadingSpinner } from "components/Loading";
 import { useGetSingleAssetRequestQuery } from "@/features/admin/controllers/assetRequestController";

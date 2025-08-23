@@ -8,7 +8,7 @@ import TableAction from "components/atoms/TableAction";
 
 import { LoadingSpinner } from "components/Loading";
 import {
-    useDeleteBeneficiary,
+    useDeleteBeneficiaryMutation,
     useGetAllBeneficiaries,
 } from "@/features/modules/controllers/project/beneficiaryController";
 import { useState } from "react";
@@ -34,10 +34,10 @@ export default function AllBeneficiary() {
 
     const onSubmit = async (id: string) => {
         try {
-            await deleteBeneficiary(id).unwrap();
+            await deleteBeneficiary(id);
             toast.success("Deleted Successfully");
         } catch (error) {
-            toast.error("Error deleteing item");
+            toast.error("Error deleting item");
         }
     };
 

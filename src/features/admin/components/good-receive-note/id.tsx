@@ -1,8 +1,10 @@
+"use client";
+
 import logoPng from "assets/svgs/logo-bg.svg";
 import Card from "components/Card";
 import DataTable from "components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
-import { Link, useParams } 
+import { Link, useParams } from "next/navigation";
 import { Button } from "components/ui/button";
 import { BsFiletypeCsv, BsFiletypeDoc } from "react-icons/bs";
 import { useGetSingleGoodReceiveNoteQuery } from "@/features/admin/controllers/goodReceiveNoteController";

@@ -10,7 +10,7 @@ import { useState } from "react";
 import {
     useDeletePrequalificationCriteria,
     useGetAllPrequalificationCriteria,
-} from "@/features/modules/controllers/procurement/prequalification-criteriaController";
+} from "@/features/modules/controllers/procurement/prequalificationCriteriaController";
 import Pagination from "components/Pagination";
 
 export default function PrequalificationCriteria() {

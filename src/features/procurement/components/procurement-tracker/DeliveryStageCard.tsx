@@ -5,7 +5,7 @@ import DataTable from "components/Table/DataTable";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import ProcurementTrackerAPI from "@/features/procurement/controllers/procurement-trackerController";
+import { useGetAllProcurementTrackers } from "@/features/procurement/controllers/procurementTrackerController";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import { Button } from "components/ui/button";
 import EditIcon from "components/icons/EditIcon";
@@ -15,7 +15,7 @@ import PencilIcon from "components/icons/PencilIcon";
 import { useAppDispatch } from "hooks/useStore";
 
 const DeliveryStageCard = () => {
-  const { data } = ProcurementTrackerAPI.useGetProcurementTrackers({});
+  const { data } = useGetAllProcurementTrackers({});
 
   const columns: ColumnDef<any>[] = [
     {

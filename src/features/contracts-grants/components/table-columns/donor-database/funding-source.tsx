@@ -1,3 +1,5 @@
+"use client";
+
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
@@ -70,9 +72,7 @@ const TableMenu = ({ id }: TFundingSourceData) => {
                     <PopoverContent className="w-fit">
                         <Link
                             className="w-full"
-                            href={generatePath(CG_ROUTES.VIEW_DONOR_DATABASE, {
-                                id,
-                            })}
+                            href={`/dashboard/c-and-g/donor-database/${id}`}
                         >
                             <Button
                                 className="w-full flex items-center justify-start gap-2"

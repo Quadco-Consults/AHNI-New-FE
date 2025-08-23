@@ -108,6 +108,7 @@ export const DeleteSolicitationEvaluationCriteriaManager = () => {
 
 // Backward compatibility exports - RTK Query style
 export const useGetAllSolicitationEvaluationCriteriaQuery = useGetAllSolicitationEvaluationCriteriaManager;
+export const useGetAllSolicitationEvaluationCriteria = useGetAllSolicitationEvaluationCriteriaManager;
 
 export const useAddSolicitationEvaluationCriteriaMutation = () => {
   const { createSolicitationEvaluationCriteria, data, isLoading, isSuccess, error } = CreateSolicitationEvaluationCriteriaManager();
@@ -126,3 +127,5 @@ export const useDeleteSolicitationEvaluationCriteriaMutation = () => {
   const { deleteSolicitationEvaluationCriteria, data, isLoading, isSuccess, error } = DeleteSolicitationEvaluationCriteriaManager();
   return [deleteSolicitationEvaluationCriteria, { data, isLoading, isSuccess, error }] as const;
 };
+
+export const useDeleteSolicitationEvaluationCriteria = DeleteSolicitationEvaluationCriteriaManager;

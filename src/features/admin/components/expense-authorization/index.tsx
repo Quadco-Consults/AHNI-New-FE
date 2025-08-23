@@ -1,6 +1,8 @@
+"use client";
+
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import Card from "components/Card";
-import { expenseAuthorizationColumns } from "components/Table/columns/admin/expense-authorization/expense-authorization";
+import { expenseAuthorizationColumns } from "@/features/admin/components/table-columns/expense-authorization/expense-authorization";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { Button } from "components/ui/button";

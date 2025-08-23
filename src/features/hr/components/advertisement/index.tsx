@@ -1,3 +1,5 @@
+"use client";
+
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import Card from "components/Card";
 import { Loading } from "components/Loading";
@@ -59,7 +61,13 @@ const Advertisement = () => {
                 {format(job?.created_datetime, "dd-MMM-yyyy")}
               </Badge>
               <Badge variant='md'>
-                <MapPin size={15} /> {job?.locations}
+                <MapPin size={15} /> {
+                  typeof job?.locations === 'object' && job?.locations?.name 
+                    ? job.locations.name 
+                    : Array.isArray(job?.locations) 
+                      ? job.locations.map(loc => typeof loc === 'object' ? loc.name : loc).join(', ')
+                      : String(job?.locations || 'N/A')
+                }
                 {/* <MapPin size={15} /> Various LGAs of {BADGES.lga} */}
               </Badge>
               <Badge variant='md'>
@@ -74,9 +82,7 @@ const Advertisement = () => {
 
             <div className='flex justify-center'>
               <Link
-                href={generatePath(HrRoutes.ADVERTISEMENT_DETAIL, {
-                  id: job?.id,
-                })}
+                href={`/dashboard/hr/advertisement/${job?.id}`}
               >
                 <Button variant='outline' className='text-red-600'>
                   Tap to View

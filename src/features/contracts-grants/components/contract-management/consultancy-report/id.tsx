@@ -1,3 +1,5 @@
+"use client";
+
 import { skipToken } from "@reduxjs/toolkit/query";
 import BackNavigation from "components/atoms/BackNavigation";
 import Card from "components/Card";
@@ -5,7 +7,7 @@ import DescriptionCard from "components/DescriptionCard";
 import { LoadingSpinner } from "components/Loading";
 import { Button } from "components/ui/button";
 import { useParams } from "next/navigation";
-import { useGetSingleConsultancyReport } from "@/features/contracts-grants/controllers/contract-management/consultancy-report";
+import { useGetSingleConsultancyReport } from "@/features/contracts-grants/controllers/consultancyReportController";
 
 export default function ConsultancyReportDetails() {
     const { id } = useParams();

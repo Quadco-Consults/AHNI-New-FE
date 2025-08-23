@@ -1,7 +1,9 @@
+"use client";
+
 import BackNavigation from "components/atoms/BackNavigation";
 import FormButton from "components/atoms/FormButton";
 import Card from "components/Card";
-import applicantInterviewColumns from "components/Table/columns/c&g/contract-management/consultant-management/consultant-interview";
+import applicantInterviewColumns from "@/features/contracts-grants/components/table-columns/contract-management/consultant-management/consultant-interview";
 import DataTable from "components/Table/DataTable";
 import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";

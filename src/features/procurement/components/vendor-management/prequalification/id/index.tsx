@@ -1,10 +1,13 @@
+"use client";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import Overview from "./Overview";
 import Uploads from "./Uploads";
 import Questionnaire from "./Questionnaire";
 import TechnicalCapability from "./Technical-capability";
 import { Button } from "components/ui/button";
-import { Link, generatePath, useParams } 
+import Link from "next/link";
+import { useParams } from "next/navigation"; 
 import { RouteEnum } from "constants/RouterConstants";
 import VendorsAPI from "@/features/procurement/controllers/vendorsController";
 import { LoadingSpinner } from "components/Loading";

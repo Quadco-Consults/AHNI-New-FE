@@ -1,10 +1,11 @@
+"use client";
 import Card from "components/Card";
 import { Button } from "components/ui/button";
 import SearchIcon from "components/icons/SearchIcon";
 import FilterIcon from "components/icons/FilterIcon";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
-import { useGetAllStakeholderRegisterQuery } from "@/features/programs/controllers/stakeholder/stakeholderController";
+import { useGetAllStakeholderRegisterQuery } from "@/features/programs/controllers/stakeholderController";
 import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
 import { useState } from "react";
 import { TStakeholderRegisterData } from "features/programs/types/program-validator";

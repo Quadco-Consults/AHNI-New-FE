@@ -32,17 +32,15 @@ const AuditLog = () => {
   });
 
   const { data: activities, isFetching } = useGetAllActivitesQuery(
-    { page, size: 10, search: debounceSearchQuery, ...filters },
-    { refetchOnMountOrArgChange: true }
+    { page, size: 10, search: debounceSearchQuery, ...filters }
   );
 
-  const [downloadActivities, { isLoading: downloading }] =
+  const { downloadActivities, isLoading: downloading } =
     useDownloadActivitiesMutation();
 
   const { data: user } = useGetAllUsersQuery(
     // @ts-ignore
-    { page },
-    { refetchOnMountOrArgChange: true }
+    { page }
   );
 
   const onViewAction = (item: any) => {

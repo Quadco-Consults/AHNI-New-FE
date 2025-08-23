@@ -19,7 +19,7 @@ export default function ActivityTracker() {
   const [page, setPage] = useState(1);
   const [searchController, setSearchController] = useState("");
 
-  const debouncedSearchController = useDebounce(search, {
+  const debouncedSearchController = useDebounce(searchController, {
     wait: 1000,
   });
 

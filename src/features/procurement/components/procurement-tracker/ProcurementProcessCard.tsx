@@ -5,10 +5,10 @@ import DataTable from "components/Table/DataTable";
 // import { Button } from "components/ui/button";
 // import { SearchIcon } from "lucide-react";
 // import React from "react";
-import ProcurementTrackerAPI from "@/features/procurement/controllers/procurement-trackerController";
+import { useGetAllProcurementTrackers } from "@/features/procurement/controllers/procurementTrackerController";
 
 const ProcurementProcessCard = () => {
-  const { data } = ProcurementTrackerAPI.useGetProcurementTrackers({});
+  const { data } = useGetAllProcurementTrackers({});
 
   //   const columns: ColumnDef<ProcurementTrackerResults>[] = [
   const columns: ColumnDef<any>[] = [

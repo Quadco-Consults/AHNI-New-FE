@@ -1,3 +1,5 @@
+"use client";
+
 import BackNavigation from "components/atoms/BackNavigation";
 import { Tabs, TabsList, TabsContent, TabsTrigger } from "components/ui/tabs";
 import { Card, CardContent, CardHeader } from "components/ui/card";
@@ -6,7 +8,7 @@ import { useParams } from "next/navigation";
 import { useGetSinglePaymentRequestQuery } from "@/features/admin/controllers/paymentRequestController";
 import { LoadingSpinner } from "components/Loading";
 import DescriptionCard from "components/DescriptionCard";
-import DocumentCard from "pages/protectedPages/projects/create/DocumentCard";
+import DocumentCard from "@/features/projects/components/projects/create/DocumentCard";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import FormTextArea from "components/atoms/FormTextArea";

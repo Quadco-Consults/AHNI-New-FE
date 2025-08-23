@@ -1,5 +1,7 @@
-import logoPng from "assets/svgs/logo-bg.svg";
-import Card from "components/Card";
+"use client";
+
+import logoPng from "@/assets/svgs/logo-bg.svg";
+import Card from "@/components/Card";
 import {
   PieChart,
   Pie,
@@ -19,12 +21,12 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Checkbox } from "components/ui/checkbox";
-import { Switch } from "components/ui/switch";
-import { Label } from "components/ui/label";
-import { Button } from "components/ui/button";
+} from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 const Report = () => {
   return (
@@ -41,7 +43,7 @@ const Report = () => {
 
       <Card className="flex gap-5 py-10">
         <div>
-          <img src={logoPng} alt="logo" width={200} />
+          <img src={logoPng.src} alt="logo" width={200} />
         </div>
         <div className="space-y-2 max-w-3xl">
           <h4 className="text-base font-bold">Reporting and Analytics</h4>

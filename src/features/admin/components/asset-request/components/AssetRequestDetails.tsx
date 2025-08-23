@@ -1,8 +1,10 @@
+"use client";
+
 import { LoadingSpinner } from "components/Loading";
 import DescriptionCard from "components/DescriptionCard";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader } from "components/ui/card";
-import { useSearchParams } 
+import { useSearchParams } from "next/navigation";
 import { useGetSingleAssetRequestQuery } from "@/features/admin/controllers/assetRequestController";
 import { Separator } from "components/ui/separator";
 

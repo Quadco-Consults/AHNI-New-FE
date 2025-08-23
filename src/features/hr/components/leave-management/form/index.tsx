@@ -1,3 +1,5 @@
+"use client";
+
 // import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "components/atoms/FormButton";
 import FormInput from "components/atoms/FormInput";
@@ -17,7 +19,7 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-import LeaveRequestAPI from "@/features/hrApi/hr-leave-requestController";
+import { useCreateLeaveRequest } from "@/features/hr/controllers/leaveRequestController";
 import { toast } from "sonner";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
@@ -34,8 +36,7 @@ const LeaveForm = () => {
   //     useLeaveTypesQuery({});
   const dispatch = useAppDispatch();
 
-  const { createLeaveRequest, isLoading } =
-    LeaveRequestAPI.useCreateLeaveRequest();
+  const { createLeaveRequest, isLoading } = useCreateLeaveRequest();
 
   const leaveTypes = [
     "Sick Leave",
@@ -78,7 +79,7 @@ const LeaveForm = () => {
       days: data.days,
     };
     try {
-      await createLeaveRequest(formData)();
+      await createLeaveRequest(formData);
       dispatch(
         openDialog({
           type: DialogType.HrSuccessModal,
@@ -173,7 +174,7 @@ const LeaveForm = () => {
                 // disabled={isLoading}
                 type='button'
                 className='flex items-center justify-center gap-2 bg-alternate text-primary'
-                onClick={() => router.push(HrRoutes.GRIEVANCE_MANAGEMENT)}
+                onClick={() => router.push("/dashboard/hr/leave-management")}
               >
                 Cancel
               </FormButton>

@@ -1,12 +1,14 @@
+"use client";
+
 import { skipToken } from "@reduxjs/toolkit/query";
 import BackNavigation from "components/atoms/BackNavigation";
 import Card from "components/Card";
 import DescriptionCard from "components/DescriptionCard";
 import { LoadingSpinner } from "components/Loading";
-import { closeOutPlanTaskColumns } from "components/Table/columns/c&g/closeout-plan/closeout-plan-tasks";
+import { closeOutPlanTaskColumns } from "@/features/contracts-grants/components/table-columns/closeout-plan/closeout-plan-tasks";
 import DataTable from "components/Table/DataTable";
 import { useParams } from "next/navigation";
-import { useGetSingleCloseOutPlan } from "@/features/contracts-grants/controllers/closeout-planController";
+import { useGetSingleCloseOutPlan } from "@/features/contracts-grants/controllers/closeoutPlanController";
 
 export default function CloseOutPlan() {
     const { id } = useParams();

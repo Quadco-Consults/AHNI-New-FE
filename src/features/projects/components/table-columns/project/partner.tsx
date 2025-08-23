@@ -11,6 +11,7 @@ import { cn } from "lib/utils";
 import { toast } from "sonner";
 import EditIcon from "components/icons/EditIcon";
 import { useDeleteProject } from "@/features/projects/controllers/projectController";
+import { useDeletePartnerMutation } from "@/features/modules/controllers/project/partnerController";
 import PencilIcon from "components/icons/PencilIcon";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
@@ -79,7 +80,7 @@ const TableMenu = ({ id, ...rest }: TPartnerData) => {
 
     const handleDeleteProject = async () => {
         try {
-            await deletePartner(id).unwrap();
+            await deletePartner(id);
             toast.success("Partner deleted.");
         } catch (error: any) {
             toast.error(error.data.message || "Something went wrong");

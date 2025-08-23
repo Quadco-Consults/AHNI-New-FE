@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Form,
   FormControl,
@@ -10,7 +12,8 @@ import { useForm } from "react-hook-form";
 import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelectField";
 import { ChevronRight } from "lucide-react";
-import { useLocation, useNavigate } 
+import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation"; 
 import FormButton from "components/atoms/FormButton";
 import { Button } from "components/ui/button";
 import FormTextArea from "components/atoms/FormTextArea";
@@ -31,14 +34,14 @@ import { Icon } from "@iconify/react";
 import { LoadingSpinner } from "components/Loading";
 import { CategoryResultsData } from "definations/configs/category";
 import { Checkbox } from "components/ui/checkbox";
-import { VendorsRegistrationSchema } from "definations/procurement-validator";
+import { VendorsRegistrationSchema } from "@/features/procurement/types/procurement-validator";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { vendorsActions } from "store/formData/procurement-vendors";
 import { useDispatch } from "react-redux";
 import { SelectContent, SelectItem } from "components/ui/select";
 import { Badge } from "components/ui/badge";
-import useQuery from "hooks/use";
+import useQuery from "hooks/useQuery";
 import VendorsAPI from "@/features/procurement/controllers/vendorsController";
 // import { skipToken } from "@reduxjs/toolkit/query";
 

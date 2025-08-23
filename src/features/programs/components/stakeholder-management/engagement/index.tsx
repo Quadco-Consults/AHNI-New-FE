@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import Card from "components/Card";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
@@ -16,7 +17,7 @@ import BreadcrumbCard from "components/Breadcrumb";
 import {
     useDeleteEngagementPlan,
     useGetAllEngagementPlans,
-} from "@/features/programs/controllers/engagement-planController";
+} from "@/features/programs/controllers/engagementPlanController";
 import ConfirmationDialog from "components/ConfirmationDialog";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -49,7 +50,7 @@ export default function EngagementPlan() {
         <div className="space-y-5">
             <BreadcrumbCard list={breadcrumbs} />
             <div className="flex justify-end">
-                <Link href={RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN_CREATE}>
+                <Link href="/dashboard/programs/stakeholder-management/engagement-plan/create">
                     <Button className="flex gap-2 py-6">
                         <AddSquareIcon />
                         New Engagement Plan
@@ -163,15 +164,16 @@ const columns: ColumnDef<TEngagementPlanPaginatedData>[] = [
 const ActionListAction = ({ data }: { data: TEngagementPlanPaginatedData }) => {
     const [dialogOpen, setDialogOpen] = useState(false);
 
-    const [deleteEngagementPlan, { isLoading }] =
-        useDeleteEngagementPlan();
+    const { deleteEngagementPlan, isLoading } =
+        useDeleteEngagementPlan(data?.id);
 
     const handleDeleteEngagementPlan = async () => {
         try {
-            await deleteEngagementPlan(data?.id);
+            await deleteEngagementPlan();
+            toast.success("Engagement Plan Deleted");
             setDialogOpen(false);
         } catch (error: any) {
-            toast.error(error.data.message || "Something went wrong");
+            toast.error(error?.message || "Something went wrong");
         }
     };
 
@@ -188,12 +190,7 @@ const ActionListAction = ({ data }: { data: TEngagementPlanPaginatedData }) => {
                         <div className="flex flex-col items-start justify-between gap-1">
                             <Link
                                 className="w-full"
-                                href={generatePath(
-                                    RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN_DETAILS,
-                                    {
-                                        id: data?.id,
-                                    }
-                                )}
+                                href={`/dashboard/programs/stakeholder-management/engagement-plan/${data?.id}`}
                             >
                                 <Button
                                     className="w-full flex items-center justify-start gap-2"
@@ -205,11 +202,7 @@ const ActionListAction = ({ data }: { data: TEngagementPlanPaginatedData }) => {
                             </Link>
 
                             <Link
-                                href={{
-                                    pathname:
-                                        RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN_CREATE,
-                                    search: `?id=${data?.id}`,
-                                }}
+                                href={`/dashboard/programs/stakeholder-management/engagement-plan/create?id=${data?.id}`}
                             >
                                 <Button
                                     className="w-full flex items-center justify-start gap-2"

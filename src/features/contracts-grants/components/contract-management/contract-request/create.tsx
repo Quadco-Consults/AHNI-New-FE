@@ -7,19 +7,19 @@ import Card from "components/Card";
 import {
   ContractRequestSchema,
   TContractRequestFormData,
-} from "definations/c&g/contract-management/contract-request";
+} from "@/features/contracts-grants/types/contract-management/contract-request";
 // import { UserCircle } from "lucide-react";
 import { useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { useSearchParams } 
-import { useGetAllUsers } from "@/features/auth/controllers/user";
+import { useSearchParams } from "next/navigation"; 
+import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import {
   useCreateContractRequest,
   useModifyContractRequest,
-} from "@/features/contracts-grants/controllers/contract-management/contractController";
-import { useGetAllDepartments } from "@/features/modules/controllers/config/department";
-import { useGetAllLocations } from "@/features/modules/controllers/config/location";
-import { useGetAllFCONumbers } from "@/features/modules/controllers/finance/fco-number";
+} from "@/features/contracts-grants/controllers/contractController";
+import { useGetAllDepartments } from "@/features/modules/controllers/config/departmentController";
+import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
+import { useGetAllFCONumbers } from "@/features/modules/controllers/finance/fcoNumberController";
 import { toast } from "sonner";
 
 export default function CreateContractRequest() {

@@ -9,7 +9,7 @@ import { useState } from "react";
 import {
     useDeleteSolicitationEvaluationCriteria,
     useGetAllSolicitationEvaluationCriteria,
-} from "@/features/modules/controllers/procurement/solicitation-evaluation-criteriaController";
+} from "@/features/modules/controllers/procurement/solicitationEvaluationCriteriaController";
 import Pagination from "components/Pagination";
 
 export default function AllSolicitationEvaluationCriteria() {

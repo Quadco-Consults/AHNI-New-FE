@@ -1,10 +1,11 @@
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
-import { assestRequestColum } from "components/Table/columns/admin/inventory-management/asset-request";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import { AdminRoutes } from "constants/RouterConstants";
+"use client";
+
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
+import { assestRequestColum } from "@/features/admin/components/table-columns/inventory-management/asset-request";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import Link from "next/link";
 import { useGetAllAssetRequestsQuery } from "@/features/admin/controllers/assetRequestController";
@@ -20,7 +21,7 @@ export default function AssestRequestTable() {
     return (
         <div className="space-y-4">
             <div className="flex justify-end">
-                <Link href={AdminRoutes.ASSETS_REQUEST_CREATE}>
+                <Link href="/dashboard/admin/asset-request/create">
                     <Button>
                         <AddSquareIcon /> Asset Request
                     </Button>

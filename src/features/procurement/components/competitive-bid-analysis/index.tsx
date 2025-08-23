@@ -1,4 +1,5 @@
-/* eslint-disable react/prop-types */
+"use client";
+
 import Card from "components/Card";
 import { Button } from "components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
@@ -14,7 +15,7 @@ import { RouteEnum } from "constants/RouterConstants";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { Badge } from "components/ui/badge";
 import { Checkbox } from "components/ui/checkbox";
-import CbaAPI from "@/features/procurement/controllers/cbaController";
+import { useGetAllCbas } from "@/features/procurement/controllers/cbaController";
 import { CbaResultsData } from "definations/procurement-types/cba";
 import PrinterIcon from "components/icons/PrinterIcon";
 import SendIcon from "components/icons/SendIcon";
@@ -24,7 +25,7 @@ import { Plus } from "lucide-react";
 
 const CompetitiveAnalysis = () => {
   const [page, setPage] = useState(1);
-  const { data, isLoading } = CbaAPI.useGetCbaList({
+  const { data, isLoading } = useGetAllCbas({
     page,
     size: 10,
   });

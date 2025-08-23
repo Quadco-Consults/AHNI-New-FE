@@ -1,3 +1,5 @@
+"use client";
+
 import { SubmitHandler, useForm } from "react-hook-form";
 import ManualSubGrantStepWrapper from "./Layout";
 import { Form } from "components/ui/form";
@@ -6,25 +8,21 @@ import FormTextArea from "components/atoms/FormTextArea";
 import FormSelect from "components/atoms/FormSelect";
 import FormButton from "components/atoms/FormButton";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-    generatePath,
-    useNavigate,
-    useParams,
-    useSearchParams,
-} 
+import { useRouter } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { CG_ROUTES } from "constants/RouterConstants";
 import {
     SubGrantSubmissionSchema,
     TSubGrantSubmissionFormData,
-} from "definations/c&g/contract-management/sub-grant/sub-grant";
-import { useGetAllPartners } from "@/features/modules/controllers/project/partners";
+} from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
+import { useGetAllPartners } from "@/features/modules/controllers/project/partnerController";
 import { useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import {
     useCreateSubGrantManualSub,
     useGetSingleSubGrantManualSub,
     useModifySubGrantManualSub,
-} from "@/features/contracts-grants/controllers/subgrant/submissionController";
+} from "@/features/contracts-grants/controllers/submissionController";
 import { skipToken } from "@reduxjs/toolkit/query";
 
 export default function CreateSubGrantSubDetails() {
@@ -92,15 +90,7 @@ export default function CreateSubGrantSubDetails() {
                 toast.success("Manual Submission Created");
             }
 
-            router.push({
-                pathname: generatePath(
-                    CG_ROUTES.CREATE_SUBGRANT_SUBMISSION_UPLOADS,
-                    {
-                        id: subGrantId,
-                    }
-                ),
-                search: `?partnerSubId=${submissionId ?? ""}`,
-            });
+            router.push(`/dashboard/c-and-g/sub-grant/awards/submission/create/upload?partnerSubId=${submissionId ?? ""}`);
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }
@@ -246,7 +236,7 @@ export default function CreateSubGrantSubDetails() {
                                 variant="outline"
                                 type="button"
                                 size="lg"
-                                onClick={() => router.push(-1)}
+                                onClick={() => router.back()}
                             >
                                 Cancel
                             </FormButton>

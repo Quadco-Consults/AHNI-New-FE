@@ -1,12 +1,14 @@
+"use client";
+
 import BackNavigation from "components/atoms/BackNavigation";
 import Card from "components/Card";
-import { fuelRequestConsumptionColumns } from "components/Table/columns/admin/fleet-management/fuel-request-consumption";
+import { fuelRequestConsumptionColumns } from "@/features/admin/components/table-columns/fleet-management/fuel-request-consumption";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { Button } from "components/ui/button";
 import { DownloadIcon } from "lucide-react";
 import { useState } from "react";
-import { useParams, useSearchParams } 
+import { useParams, useSearchParams } from "next/navigation";
 import { useGetAllFuelRequestsQuery } from "@/features/admin/controllers/fuelRequestController";
 import VendorsAPI from "@/features/procurement/controllers/vendorController";
 
@@ -20,19 +22,19 @@ export default function ViewVehicleFuelConsumption() {
     const type = searchParams.get("type");
 
     const { data: vendor } = VendorsAPI.useGetVendorQuery(
-        id && type === "vendor"  || "", !!? { path: { id } } : "", false
+        { path: { id } },
+        !!(id && type === "vendor")
     );
 
     const filter = type === "vehicle" ? { asset: id } : { vendor: id };
 
     const { data, isFetching } = useGetAllFuelRequestsQuery(
-        id
-            ? {
-                  page,
-                  size: 10,
-                  ...filter,
-              }
-            : "", false
+        {
+            page,
+            size: 10,
+            ...filter,
+        },
+        !!id
     );
 
     return (

@@ -27,7 +27,7 @@ type SidebarProps = {
 };
 
 const globalHubMenu = [
-  { label: "Purchase Requests", path: "/dashboard/procurement-management/purchase-request/pending" },
+  { label: "Purchase Requests", path: "/dashboard/procurement/purchase-request" },
   { label: "Support", path: "/dashboard/support", icon: <HeartHandshake /> },
   {
     label: "Item Requisition",
@@ -681,54 +681,47 @@ const getDeparmentalLinks = () => {
     },
     {
       name: "Procurement Management",
-      path: "/dashboard/procurement-management",
+      path: "/dashboard/procurement",
       icon: <ProcurementManagementIcon />,
       link: [
-        { name: "Overview", path: "/dashboard/procurement-management/overview" },
+        { name: "Overview", path: "/dashboard/procurement" },
         {
           name: "Vendor Management",
-          path: "/dashboard/procurement-management/vendor-management",
+          path: "/dashboard/procurement/vendor-management/prequalification",
           sublinks: [
             {
               name: "Prequalification",
-              path: "/dashboard/procurement-management/vendor-management/prequalification",
+              path: "/dashboard/procurement/vendor-management/prequalification",
             },
-            { name: "EOI", path: "/dashboard/procurement-management/vendor-management/eoi" },
+            { name: "EOI", path: "/dashboard/procurement/vendor-management/eoi" },
             {
               name: "Vendor Evaluation",
-              path: "/dashboard/procurement-management/vendor-performance-evaluation",
+              path: "/dashboard/procurement/vendor-performance",
             },
           ],
         },
-        {
-          name: "Supplier Database",
-          path: "/dashboard/procurement-management/supplier-database",
-        },
-        {
-          name: "Price Intelligence",
-          path: "/dashboard/procurement-management/price-intelligence",
-        },
-        { name: "Procurement Plan", path: "/dashboard/procurement-management/procurement-plan" },
+        { name: "Supplier Database", path: "/dashboard/procurement/supplier-database" },
+        { name: "Price Intelligence", path: "/dashboard/procurement/price-intelligence" },
+        { name: "Procurement Plan", path: "/dashboard/procurement/procurement-plan" },
         {
           name: "Procurement Tracker",
-          path: "/dashboard/procurement-management/procurement-tracker",
+          path: "/dashboard/procurement/procurement-tracker",
         },
-        { name: "Purchase Requests", path: "/dashboard/procurement-management/purchase-request" },
+        { name: "Purchase Request", path: "/dashboard/procurement/purchase-request" },
         {
           name: "Solicitation Management",
-          path: "/dashboard/procurement-management/solicitation",
+          path: "/dashboard/procurement/solicitation-management",
           sublinks: [
-            { name: "RFQ", path: "/dashboard/procurement-management/solicitation/rfq" },
-            { name: "RFP", path: "/dashboard/procurement-management/solicitation/rfp" },
+            { name: "RFQ", path: "/dashboard/procurement/solicitation-management/rfq" },
+            { name: "RFP", path: "/dashboard/procurement/solicitation-management/rfp" },
           ],
         },
-
         {
           name: "Competitive Bid Analysis",
-          path: "/dashboard/procurement-management/competitive-bid-analysis",
+          path: "/dashboard/procurement/competitive-bid-analysis",
         },
-        { name: "Purchase Order", path: "/dashboard/procurement-management/purchase-order" },
-        { name: "Procurement Report", path: "/dashboard/procurement-management/report" },
+        { name: "Purchase Order", path: "/dashboard/procurement/purchase-order" },
+        { name: "Procurement Report", path: "/dashboard/procurement/procurement-report" },
       ],
     },
 
@@ -738,7 +731,7 @@ const getDeparmentalLinks = () => {
       link: [
         {
           name: "Inventory Management",
-          path: "/dashboard/admin/inventory-managment",
+          path: "/dashboard/admin/inventory-management",
           sublinks: [
             {
               name: "Consumable",
@@ -769,8 +762,8 @@ const getDeparmentalLinks = () => {
 
         {
           name: "Solicitation Management",
-          path: "/procurement-management/solicitation",
-          sublinks: [{ name: "RFQ", path: "/dashboard/procurement-management/solicitation/rfq" }],
+          path: "/dashboard/admin/solicitation-management",
+          sublinks: [{ name: "RFQ", path: "/dashboard/admin/solicitation-management/rfq" }],
         },
 
         {

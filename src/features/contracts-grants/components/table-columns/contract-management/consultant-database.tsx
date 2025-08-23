@@ -10,7 +10,7 @@ import ConfirmationDialog from "components/ConfirmationDialog";
 import Link from "next/link";
 import { CG_ROUTES } from "constants/RouterConstants";
 import { IConsultancyReportPaginatedData } from "definations/c&g/contract-management/consultancy-report";
-import { useDeleteConsultancyReport } from "@/features/contracts-grants/controllers/contract-management/consultancy-report";
+import { useDeleteConsultancyReport } from "@/features/contracts-grants/controllers/consultancyReportController";
 import EyeIcon from "components/icons/EyeIcon";
 
 export const consultantDatabaseColumns: ColumnDef<IConsultancyReportPaginatedData>[] =

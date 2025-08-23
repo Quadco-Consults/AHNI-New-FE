@@ -1,11 +1,13 @@
+"use client";
+
 import React, { useMemo, useState } from "react";
 import { TotalExpenditureSvg, TotalIncomeSvg } from "assets/svgs/CAndGSvgs";
 import DataTable from "components/Table/DataTable";
-import { expenditureColumns } from "components/Table/columns/c&g/grant/expenditure";
+import { expenditureColumns } from "@/features/contracts-grants/components/table-columns/grant/expenditure";
 import { IGrantSingleData } from "features/contracts-grants/types/grants";
 import { useParams } from "next/navigation";
 import { skipToken } from "@reduxjs/toolkit/query";
-import { useGetAllExpenditures } from "@/features/contracts-grants/controllers/grant/expenditure";
+import { useGetAllExpenditures } from "@/features/contracts-grants/controllers/expenditureController";
 import { formatNumberCurrency } from "utils/utls";
 
 const ExpenditureHistory: React.FC<any> = ({

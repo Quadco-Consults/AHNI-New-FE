@@ -1,3 +1,5 @@
+"use client";
+
 import FormButton from "components/atoms/FormButton";
 import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelectField";
@@ -14,9 +16,9 @@ import { useRouter } from "next/navigation";
 import {
   useGetAllUsers,
   useGetUserProfile,
-} from "@/features/auth/controllers/user";
+} from "@/features/auth/controllers/userController";
 import VendorsAPI from "@/features/procurement/controllers/vendorsController";
-import VendorsEvaluaionAndPerformanceAPI from "@/features/procurement/controllers/vendors-evaluation-performanceController";
+import VendorsEvaluaionAndPerformanceAPI from "@/features/procurement/controllers/vendorPerformanceEvaluationController";
 import { toast } from "sonner";
 
 const CreateVendorEvaluation = () => {

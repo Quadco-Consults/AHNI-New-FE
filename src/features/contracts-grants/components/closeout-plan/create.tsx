@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { skipToken } from "@reduxjs/toolkit/query";
 import BackNavigation from "components/atoms/BackNavigation";
@@ -16,10 +18,11 @@ import { CG_ROUTES } from "constants/RouterConstants";
 import {
     CloseOutPlanSchema,
     TCloseOutPlanFormData,
-} from "definations/c&g/closeout-plan";
+} from "@/features/contracts-grants/types/closeout-plan";
 import { useEffect, useMemo } from "react";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
-import { useNavigate, useSearchParams } 
+import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation"; 
 import {
     useCreateCloseOutPlan,
     useGetSingleCloseOutPlan,

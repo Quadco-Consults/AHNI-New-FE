@@ -1,4 +1,4 @@
-import { stockColumns } from "components/Table/columns/admin/inventory-management/consumables";
+import { stockColumns } from "@/features/admin/components/table-columns/inventory-management/consumables";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { Card, CardContent } from "components/ui/card";

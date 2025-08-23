@@ -11,7 +11,7 @@ import EyeIcon from "components/icons/EyeIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
-import PurchaseRequestAPI from "@/features/procurement/controllers/purchaseRequestController";
+import { useGetPurchaseRequests, useDeletePurchaseRequest } from "@/features/procurement/controllers/purchaseRequestController";
 import { PurchaseRequestResultsData } from "definations/procurement-types/purchase-request";
 import { toast } from "sonner";
 import { useAppDispatch } from "hooks/useStore";
@@ -26,9 +26,7 @@ function PurchaseRequest({
 }) {
   const dispatch = useAppDispatch();
 
-  const { data, isLoading } = PurchaseRequestAPI.useGetPurchaseRequests(
-    {}
-  );
+  const { data, isLoading } = useGetPurchaseRequests({});
 
   const sortedResults = data?.data?.results
     ?.slice()
@@ -102,12 +100,11 @@ function PurchaseRequest({
   ];
 
   const ActionListAction = ({ data }: any) => {
-    const [deletePurchaseRequestMutation] =
-      PurchaseRequestAPI.useDeletePurchaseRequest();
+    const { deletePurchaseRequest } = useDeletePurchaseRequest(data?.id);
 
     const deletePurchaseRequestHandler = async () => {
       try {
-        await deletePurchaseRequestMutation({ path: { id: data?.id } }).unwrap;
+        deletePurchaseRequest();
         toast.success("Document successfully deleted.");
       } catch (error) {
         toast.error("Something went wrong");
@@ -131,10 +128,7 @@ function PurchaseRequest({
                   // href={generatePath(RouteEnum.PURCHASE_REQUEST_DETAILS, {
                   //   id: data?.id,
                   // })}
-                  href={{
-                    pathname: RouteEnum.PREVIEW_LETTER,
-                    search: `?id=${data?.request_memo}&request=${data?.id}`,
-                  }}
+                  href={`/dashboard/procurement/purchase-request/preview-letter?id=${data?.request_memo}&request=${data?.id}`}
                 >
                   <Button
                     className='flex w-full items-center justify-start gap-2'
@@ -195,7 +189,7 @@ function PurchaseRequest({
   return (
     <section className='min-h-screen space-y-8'>
       <div className='flex w-full items-center justify-end gap-4'>
-        <Link className='w-fit' href={generatePath(RouteEnum.CREATE_SAMPLE_MEMO)}>
+        <Link className='w-fit' href="/dashboard/procurement/purchase-request/activity-memo">
           <Button className='flex gap-2 py-6'>
             <AddSquareIcon />
             Activity Memo

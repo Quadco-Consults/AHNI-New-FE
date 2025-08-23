@@ -122,6 +122,7 @@ export const DeleteInterventionAreaManager = () => {
 
 // Backward compatibility exports - RTK Query style
 export const useGetAllInterventionAreaQuery = useGetAllInterventionAreasManager;
+export const useGetAllInterventionAreas = useGetAllInterventionAreasManager;
 export const useGetSingleInterventionAreaQuery = useGetSingleInterventionAreaManager;
 
 export const useAddInterventionAreaMutation = () => {
@@ -138,6 +139,11 @@ export const useUpdateInterventionAreaMutation = () => {
 };
 
 export const useDeleteInterventionAreaMutation = () => {
+  const { deleteInterventionArea, data, isLoading, isSuccess, error } = DeleteInterventionAreaManager();
+  return [deleteInterventionArea, { data, isLoading, isSuccess, error }] as const;
+};
+
+export const useDeleteInterventionArea = () => {
   const { deleteInterventionArea, data, isLoading, isSuccess, error } = DeleteInterventionAreaManager();
   return [deleteInterventionArea, { data, isLoading, isSuccess, error }] as const;
 };

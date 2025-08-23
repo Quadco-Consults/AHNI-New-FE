@@ -1,5 +1,7 @@
+"use client";
+
 import { ColumnDef } from "@tanstack/react-table";
-import { ISubGrantPaginatedData } from "definations/c&g/contract-management/sub-grant/sub-grant";
+import { ISubGrantPaginatedData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
@@ -10,7 +12,7 @@ import Link from "next/link";
 import EyeIcon from "components/icons/EyeIcon";
 import { CG_ROUTES } from "constants/RouterConstants";
 import { toast } from "sonner";
-import { useDeleteSubGrant } from "@/features/contracts-grants/controllers/subgrant/sub-grant";
+import { useDeleteSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
 import ConfirmationDialog from "components/ConfirmationDialog";
 import { formatNumberCurrency } from "utils/utls";
 

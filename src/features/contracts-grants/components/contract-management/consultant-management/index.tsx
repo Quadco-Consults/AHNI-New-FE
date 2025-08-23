@@ -1,10 +1,13 @@
+"use client";
+
 import { useState } from "react";
 import { Button } from "components/ui/button";
 import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
 import { Plus } from "lucide-react";
-import { Link, useLocation } 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import ConsultancyCard from "./ConsultantCard";
-import { useGetAllConsultantManagements } from "@/features/contracts-grants/controllers/contract-management/consultancy-management/consultant-management";
+import { useGetAllConsultantManagements } from "@/features/contracts-grants/controllers/consultantManagementController";
 import { LoadingSpinner } from "components/Loading";
 import Pagination from "components/Pagination";
 import UserAdvertType from "hooks/useJobAdvertType";

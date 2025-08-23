@@ -1,10 +1,12 @@
+"use client";
+
 import FormButton from "components/atoms/FormButton";
 import FormTextArea from "components/atoms/FormTextArea";
 import Card from "components/Card";
 import DescriptionCard from "components/DescriptionCard";
 import GoBack from "components/GoBack";
 import { LoadingSpinner } from "components/Loading";
-import { expenseAuthorizationDestinationColumns } from "components/Table/columns/admin/expense-authorization/expense-authorization-destinations";
+// import { expenseAuthorizationDestinationColumns } from "components/Table/columns/admin/expense-authorization/expense-authorization-destinations";
 import DataTable from "components/Table/DataTable";
 import { CardContent, CardHeader } from "components/ui/card";
 import { Form } from "components/ui/form";

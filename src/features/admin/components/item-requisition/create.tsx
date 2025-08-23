@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "components/atoms/FormButton";
 import FormInput from "components/atoms/FormInput";
@@ -19,7 +21,7 @@ import {
   useFieldArray,
   useForm,
 } from "react-hook-form";
-import { useNavigate, useSearchParams } 
+import { useNavigate, useSearchParams } from "next/navigation"; 
 import { useGetAllConsumablesQuery } from "@/features/admin/controllers/consumableController";
 import {
   useCreateItemRequisitionMutation,

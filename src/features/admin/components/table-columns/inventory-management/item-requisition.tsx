@@ -11,7 +11,7 @@ import { Button } from "components/ui/button";
 import { AdminRoutes } from "constants/RouterConstants";
 import ConfirmationDialog from "components/ConfirmationDialog";
 import { useState } from "react";
-import { useDeleteItemRequisitionMutation } from "@/features/admin/controllers/itemRequisitionController";
+import { useDeleteItemRequisition } from "@/features/admin/controllers/itemRequisitionController";
 import { toast } from "sonner";
 import PencilIcon from "components/icons/PencilIcon";
 import { Badge } from "components/ui/badge";
@@ -92,15 +92,14 @@ export const itemRequisitionColumns: ColumnDef<TItemRequisitionPaginatedData>[] 
 const TableAction = ({ id }: TItemRequisitionPaginatedData) => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const [deleteItemRequisition, { isLoading }] =
-    useDeleteItemRequisitionMutation();
+  const { deleteItemRequisition, isLoading } = useDeleteItemRequisition(id);
 
   const handleDelete = async () => {
     try {
-      await deleteItemRequisition(id).unwrap();
+      deleteItemRequisition();
       toast.success("Item Requisition Deleted");
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
+      toast.error(error?.data?.message ?? "Something went wrong");
     }
   };
 
@@ -115,7 +114,7 @@ const TableAction = ({ id }: TItemRequisitionPaginatedData) => {
         <PopoverContent className='w-fit'>
           <div className='flex flex-col items-start justify-between gap-1'>
             <Link
-              href={generatePath(AdminRoutes.ITEM_REQUISITION_DETAIL, { id })}
+              href={`/dashboard/admin/item-requisition/${id}`}
               className='block w-full'
             >
               <Button

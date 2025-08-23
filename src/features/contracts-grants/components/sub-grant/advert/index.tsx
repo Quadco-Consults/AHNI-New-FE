@@ -1,9 +1,11 @@
+"use client";
+
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { useState } from "react";
 import Card from "components/Card";
-import { subGrantAwardColumns } from "components/Table/columns/c&g/sub-grant/awards";
-import { useGetAllSubGrants } from "@/features/contracts-grants/controllers/subgrant/sub-grantController";
+import { subGrantAwardColumns } from "@/features/contracts-grants/components/table-columns/sub-grant/awards";
+import { useGetAllSubGrants } from "@/features/contracts-grants/controllers/subGrantController";
 
 export default function SubGrantAward() {
     const [page, setPage] = useState(1);

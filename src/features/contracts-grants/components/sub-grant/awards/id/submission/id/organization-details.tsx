@@ -1,9 +1,11 @@
+"use client";
+
 import { skipToken } from "@reduxjs/toolkit/query";
 import Card from "components/Card";
 import { LoadingSpinner } from "components/Loading";
 import { useMemo } from "react";
 import { useParams } from "next/navigation";
-import { useGetSingleSubGrantManualSub } from "@/features/contracts-grants/controllers/subgrant/submission";
+import { useGetSingleSubGrantManualSub } from "@/features/contracts-grants/controllers/submissionController";
 
 export default function PartnerSubmissionDetails() {
     const { subGrantId, partnerSubId: submissionId } = useParams();

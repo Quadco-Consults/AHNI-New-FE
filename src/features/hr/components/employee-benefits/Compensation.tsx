@@ -17,7 +17,7 @@ import PayGroupModal from "./components/PayGroupModal";
 import {
   useDeleteCompensation,
   useGetCompensations,
-} from "@/features/hr/controllers/hr-compensationsController";
+} from "@/features/hr/controllers/compensationController";
 import ConfirmationDialog from "components/ConfirmationDialog";
 import { toast } from "sonner";
 
@@ -157,7 +157,7 @@ const Compensation: React.FC = () => {
         <div className='flex items-center'>
           <Link
             className='w-full'
-            href={generatePath(HrRoutes.EMPLOYEE_BENEFITS_COMPENSATION_CREATE)}
+            href="/dashboard/hr/employee-benefit/new-compensation"
           >
             <Button>
               <AddSquareIcon />

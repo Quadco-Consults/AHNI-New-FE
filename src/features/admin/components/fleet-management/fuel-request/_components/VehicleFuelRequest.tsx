@@ -1,6 +1,8 @@
-import { fuelRequestAssetColumns } from "components/Table/columns/admin/fleet-management/fuel-request-asset";
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
+"use client";
+
+import { fuelRequestAssetColumns } from "@/features/admin/components/table-columns/fleet-management/fuel-request-asset";
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
 import { useState } from "react";
 import { useGetAllAssetsQuery } from "@/features/admin/controllers/assetController";
 

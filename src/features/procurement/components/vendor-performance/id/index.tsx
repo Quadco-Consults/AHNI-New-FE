@@ -1,3 +1,5 @@
+"use client";
+
 import Card from "components/Card";
 import {
   Table,
@@ -9,7 +11,7 @@ import {
 import logoPng from "assets/svgs/logo-bg.svg";
 import GoBack from "components/GoBack";
 import { useParams } from "next/navigation";
-import VendorsEvaluaionAndPerformanceAPI from "@/features/procurement/controllers/vendors-evaluation-performanceController";
+import VendorsEvaluaionAndPerformanceAPI from "@/features/procurement/controllers/vendorPerformanceEvaluationController";
 import { Button } from "components/ui/button";
 import { BsFiletypePdf } from "react-icons/bs";
 

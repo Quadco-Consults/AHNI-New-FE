@@ -1,3 +1,5 @@
+"use client";
+
 import BackNavigation from "components/atoms/BackNavigation";
 import FormButton from "components/atoms/FormButton";
 import FormTextArea from "components/atoms/FormTextArea";

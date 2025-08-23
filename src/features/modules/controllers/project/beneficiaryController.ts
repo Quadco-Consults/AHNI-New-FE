@@ -108,6 +108,7 @@ export const DeleteBeneficiaryManager = () => {
 
 // Backward compatibility exports - RTK Query style
 export const useGetAllBeneficiaryQuery = useGetAllBeneficiariesManager;
+export const useGetAllBeneficiaries = useGetAllBeneficiariesManager;
 
 export const useAddBeneficiaryMutation = () => {
   const { createBeneficiary, data, isLoading, isSuccess, error } = CreateBeneficiaryManager();

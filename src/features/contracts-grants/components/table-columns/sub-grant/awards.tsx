@@ -1,5 +1,7 @@
+"use client";
+
 import { ColumnDef } from "@tanstack/react-table";
-import { IGrantPaginatedData } from "features/contracts-grants/types/grants";
+import { IGrantPaginatedData } from "@/features/contracts-grants/types/grants";
 import Link from "next/link";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
@@ -11,7 +13,7 @@ import DeleteIcon from "components/icons/DeleteIcon";
 import ConfirmationDialog from "components/ConfirmationDialog";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useDeleteGrant } from "@/features/contracts-grants/controllers/grant/grant";
+import { useDeleteGrant } from "@/features/contracts-grants/controllers/grantController";
 import { formatNumberCurrency } from "utils/utls";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";

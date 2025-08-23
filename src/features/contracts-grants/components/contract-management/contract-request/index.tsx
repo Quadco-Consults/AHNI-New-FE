@@ -1,5 +1,7 @@
+"use client";
+
 import Card from "components/Card";
-import { contractRequestColumns } from "components/Table/columns/c&g/contract-management/contract-request";
+import { contractRequestColumns } from "@/features/contracts-grants/components/table-columns/contract-management/contract-request";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { Button } from "components/ui/button";
@@ -7,7 +9,7 @@ import { CG_ROUTES } from "constants/RouterConstants";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
-import { useGetAllContractRequests } from "@/features/contracts-grants/controllers/contract-management/contract";
+import { useGetAllContractRequests } from "@/features/contracts-grants/controllers/contractController";
 
 export default function ContractRequest() {
   const [page, setPage] = useState(1);

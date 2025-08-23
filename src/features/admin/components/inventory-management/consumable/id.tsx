@@ -1,3 +1,5 @@
+"use client";
+
 import BackNavigation from "components/atoms/BackNavigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import ConsumableDetails from "features/admin/components/inventory-management/ConsumableDetails";

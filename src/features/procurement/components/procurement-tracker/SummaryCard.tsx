@@ -2,12 +2,12 @@ import { ColumnDef } from "@tanstack/react-table";
 import Card from "components/Card";
 import DataTable from "components/Table/DataTable";
 import { usePathname } from "next/navigation";
-import ProcurementTrackerAPI from "@/features/procurement/controllers/procurement-trackerController";
+import { useGetAllProcurementTrackers } from "@/features/procurement/controllers/procurementTrackerController";
 
 const SummaryCard = () => {
-  const { data } = ProcurementTrackerAPI.useGetProcurementTrackers({});
+  const { data } = useGetAllProcurementTrackers({});
 
-  const { pathname } = useLocation();
+  const pathname = usePathname();
 
   const isAdminTracker = pathname.includes("admin-tracker");
 

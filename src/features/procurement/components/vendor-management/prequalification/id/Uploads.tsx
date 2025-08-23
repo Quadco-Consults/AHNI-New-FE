@@ -23,7 +23,7 @@ import {
   DialogTrigger,
 } from "components/ui/dialog";
 import { useState } from "react";
-import VendorsDocumentAPI from "@/features/procurement/controllers/vendors-documentController";
+import VendorsDocumentAPI from "@/features/procurement/controllers/vendorDocumentsController";
 import { VendorsDocumentResultsData } from "definations/procurement-types/vendors-document";
 import { Button } from "components/ui/button";
 import { toast } from "sonner";
