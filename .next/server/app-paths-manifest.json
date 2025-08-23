@@ -1,8 +1,0 @@
-{
-  "/_not-found/page": "app/_not-found/page.js",
-  "/dashboard/page": "app/dashboard/page.js",
-  "/dashboard/programs/plan/activity-plan/create/page": "app/dashboard/programs/plan/activity-plan/create/page.js",
-  "/dashboard/programs/plan/activity/page": "app/dashboard/programs/plan/activity/page.js",
-  "/dashboard/programs/plan/risk-management-plan/page": "app/dashboard/programs/plan/risk-management-plan/page.js",
-  "/dashboard/program/plan/create-activity-plan/page": "app/dashboard/program/plan/create-activity-plan/page.js"
-}
