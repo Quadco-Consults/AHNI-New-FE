@@ -8,7 +8,7 @@ import AddSquareIcon from "components/icons/AddSquareIcon";
 import { Label } from "components/ui/label";
 import { UploadFileSvg } from "assets/svgs/CAndGSvgs";
 import Card from "components/Card";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import ConsultantManagementLayout from "./Layout";
 import FormSelect from "components/atoms/FormSelect";
 import {

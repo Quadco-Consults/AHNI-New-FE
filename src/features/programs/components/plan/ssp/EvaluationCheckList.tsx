@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import SupportiveSupervisionPlanLayout from "./SupportiveSupervisionPlanLayout";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { openDialog } from "store/ui";
 import { DialogType, largeDailogScreen } from "constants/dailogs";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";

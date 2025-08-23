@@ -1,4 +1,4 @@
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { Form } from "components/ui/form";
 import { cn } from "lib/utils";
 import { Angry, Smile } from "lucide-react";

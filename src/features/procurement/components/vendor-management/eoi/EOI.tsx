@@ -48,7 +48,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loading, LoadingSpinner } from "components/Loading";
 import { useGetAllEois, useCreateEoi, useDeleteEoi } from "@/features/procurement/controllers/eoiController";
 import { toast } from "sonner";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { EOIResultsData } from "@/features/procurement/types/eoi";
 import FormSelect from "components/atoms/FormSelectField";
 import { SelectContent, SelectItem } from "components/ui/select";

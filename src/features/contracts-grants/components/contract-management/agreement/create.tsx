@@ -7,7 +7,7 @@ import FormInput from "components/atoms/FormInput";
 import BackNavigation from "components/atoms/BackNavigation";
 import FormSelect from "components/atoms/FormSelect";
 import { Card, CardContent } from "components/ui/card";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import {
     AgreementSchema,
     TAgreementFormData,

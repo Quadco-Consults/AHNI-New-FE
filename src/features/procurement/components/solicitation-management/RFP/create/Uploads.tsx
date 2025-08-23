@@ -3,7 +3,7 @@ import { Button } from "components/ui/button";
 
 import { Form } from "components/ui/form";
 import { useForm } from "react-hook-form";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { generatePath, useNavigate } 
 import { motion } from "framer-motion";
 

@@ -147,3 +147,8 @@ export const useDeleteItem = () => {
   const { deleteItem, data, isLoading, isSuccess, error } = DeleteItemManager();
   return [deleteItem, { data, isLoading, isSuccess, error }] as const;
 };
+
+// Additional missing exports
+export const useGetSingleItem = useGetSingleItemManager;
+export const useAddItem = useAddItemMutation;
+export const useUpdateItem = useUpdateItemMutation;

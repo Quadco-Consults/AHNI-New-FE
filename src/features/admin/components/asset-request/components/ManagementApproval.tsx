@@ -9,7 +9,7 @@ import { LoadingSpinner } from "components/Loading";
 import { useGetSingleAssetRequestQuery } from "@/features/admin/controllers/assetRequestController";
 import { FormProvider, useForm } from "react-hook-form";
 import FormTextArea from "components/atoms/FormTextArea";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 
 export default function ManagementApproval() {
     const form = useForm();

@@ -2,7 +2,7 @@
 
 import Card from "components/Card";
 import AddSquareIcon from "components/icons/AddSquareIcon";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import ManualSubGrantStepWrapper from "./Layout";
 import { Button } from "components/ui/button";
 import { useAppDispatch } from "hooks/useStore";

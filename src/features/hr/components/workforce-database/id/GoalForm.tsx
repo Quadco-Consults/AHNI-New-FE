@@ -1,22 +1,22 @@
-import FormInput from "components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-} from "components/ui/form";
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "components/ui/select";
+} from "@/components/ui/select";
 import { MinusCircle } from "lucide-react";
 import { useFormContext } from "react-hook-form";
-import { useGetAllItems } from "@/features/modules/config/item";
+import { useGetAllItems } from "@/features/modules/controllers/config/itemController";
 
 const GoalForm = ({ fields, remove }: { fields: any; remove: any }) => {
   const { control } = useFormContext();

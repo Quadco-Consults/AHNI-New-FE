@@ -1,8 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormButton from "components/atoms/FormButton";
-import FormInput from "components/atoms/FormInput";
-import { CardContent } from "components/ui/card";
-import { Form } from "components/ui/form";
+import FormButton from "@/components/FormButton";
+import FormInput from "@/components/FormInput";
+import { CardContent } from "@/components/ui/card";
+import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
@@ -11,12 +11,12 @@ import {
     PrequalificationCategorySchema,
     TPrequalificationCategoryData,
     TPrequalificationCategoryFormValues,
-} from "components/modules-types/procurement/prequalification-category";
+} from "@/features/procurement/types/procurement/prequalification-category";
 import {
     useAddPrequalificationCategory,
     useUpdatePrequalificationCategory,
-} from "@/features/modules/controllers/procurement/prequalification-categoryController";
-import FormTextArea from "components/atoms/FormTextArea";
+} from "@/features/modules/controllers/procurement/prequalificationCategoryController";
+import FormTextArea from "@/components/FormTextArea";
 
 const AddPrequalificationCategory = () => {
     const { dialogProps } = useAppSelector(dailogSelector);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { Button } from "components/ui/button";
 import FundRequstLayout from "./Layout";
 import React, { useState } from "react";

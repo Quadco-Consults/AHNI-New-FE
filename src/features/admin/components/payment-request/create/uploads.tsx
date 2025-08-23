@@ -1,4 +1,4 @@
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { Button } from "components/ui/button";
 import PaymentRequestLayout from "./Layout";
 import { toast } from "sonner";

@@ -1,14 +1,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormButton from "components/atoms/FormButton";
-import FormInput from "components/atoms/FormInput";
-import { CardContent } from "components/ui/card";
-import { Form } from "components/ui/form";
+import FormButton from "@/components/FormButton";
+import FormInput from "@/components/FormInput";
+import { CardContent } from "@/components/ui/card";
+import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
 import { toast } from "sonner";
-import FormSelect from "components/atoms/FormSelect";
-import { useGetAllCategories } from "@/features/modules/controllers/config/category";
+import FormSelect from "@/components/FormSelect";
+import { useGetAllCategories } from "@/features/modules/controllers/config/categoryController";
 import {
   useAddItem,
   useUpdateItem,
@@ -17,8 +17,8 @@ import {
   ItemSchema,
   TItemData,
   TItemFormValues,
-} from "components/modules-types/config/item";
-import FormTextArea from "components/atoms/FormTextArea";
+} from "@/features/admin/types/config/item";
+import FormTextArea from "@/components/FormTextArea";
 
 const AddNewItems = () => {
   const { data: categories } = useGetAllCategories({

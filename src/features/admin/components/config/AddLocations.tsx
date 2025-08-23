@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelect";
 import FormTextArea from "components/atoms/FormTextArea";
@@ -14,7 +14,7 @@ import {
     LocationSchema,
     TLocationData,
     TLocationFormValues,
-} from "components/modules-types/config/location";
+} from "@/features/admin/types/config/location";
 import {
     useAddLocationMutation,
     useUpdateLocationMutation,

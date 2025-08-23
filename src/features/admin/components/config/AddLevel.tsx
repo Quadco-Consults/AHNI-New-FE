@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import FormInput from "components/atoms/FormInput";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -7,10 +7,10 @@ import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
 import {
-  PositionSchema,
-  TPositionData,
-  TPositionFormValues,
-} from "components/modules-types/config/position";
+  LevelSchema,
+  TLevelData,
+  TLevelFormValues,
+} from "@/features/admin/types/config/level";
 
 import FormTextArea from "components/atoms/FormTextArea";
 import {
@@ -21,10 +21,10 @@ import {
 const AddLevel = () => {
   const { dialogProps } = useAppSelector(dailogSelector);
 
-  const data = dialogProps?.data as unknown as TPositionData;
+  const data = dialogProps?.data as unknown as TLevelData;
 
-  const form = useForm<TPositionFormValues>({
-    resolver: zodResolver(PositionSchema),
+  const form = useForm<TLevelFormValues>({
+    resolver: zodResolver(LevelSchema),
     defaultValues: {
       name: data?.name ?? "",
       description: data?.description ?? "",
@@ -38,7 +38,7 @@ const AddLevel = () => {
   const [updategrade, { isLoading: isUpdateLoading }] =
     useUpdateLevelMutation();
 
-  const onSubmit: SubmitHandler<TPositionFormValues> = async (data) => {
+  const onSubmit: SubmitHandler<TLevelFormValues> = async (data) => {
     try {
       if (dialogProps?.type === "update") {
         await updategrade({

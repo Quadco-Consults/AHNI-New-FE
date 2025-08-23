@@ -1,4 +1,4 @@
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 
 import { Card, CardContent } from "components/ui/card";
 import { Checkbox } from "components/ui/checkbox";

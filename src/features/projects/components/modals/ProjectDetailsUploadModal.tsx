@@ -4,21 +4,21 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "components/ui/select";
-import { Button } from "components/ui/button";
-import { Form } from "components/ui/form";
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
 import { ProjectDocumentSchema } from "definations/project-validator";
 import React, { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import projectDocumentTypesAPi from "@/features/projectsApi/project-document-typesController";
-import { Input } from "components/ui/input";
+import { useGetAllDocumentTypes } from "@/features/modules/controllers/project/documentTypeController";
+import { Input } from "@/components/ui/input";
 import { Upload as UploadFile } from "lucide-react";
 import { z } from "zod";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import { ProjectDocumentTypesResultsData } from "definations/project-types/project-document-types";
 import { toast } from "sonner";
-import FormButton from "components/atoms/FormButton";
-import { useCreateProjectDocumentController } from "@/features/project/documentController";
+import FormButton from "@/components/FormButton";
+import { useCreateProjectDocument } from "@/features/projects/controllers/projectDocumentController";
 
 const ProjectDetailsUploadModal = () => {
     const [locationValue, setLocationValue] = useState("");

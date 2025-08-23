@@ -8,7 +8,7 @@ import { generatePath, useNavigate, useParams }
 import { Upload as UploadFile } from "lucide-react";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { Button } from "components/ui/button";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { LoadingSpinner } from "components/Loading";
 import { motion } from "framer-motion";
 import { zodResolver } from "@hookform/resolvers/zod";

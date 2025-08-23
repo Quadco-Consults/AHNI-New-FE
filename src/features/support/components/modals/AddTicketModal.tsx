@@ -2,7 +2,7 @@ import { Button } from "components/ui/button";
 import { ChangeEvent, useState } from "react";
 import { Input } from "components/ui/input";
 import { Upload as UploadFile } from "lucide-react";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { closeDialog } from "store/ui";
 import { z } from "zod";
 import FormSelect from "components/atoms/FormSelect";

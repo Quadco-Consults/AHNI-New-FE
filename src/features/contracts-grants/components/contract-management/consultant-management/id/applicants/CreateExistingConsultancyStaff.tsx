@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { skipToken } from "@reduxjs/toolkit/query";
 import FadedButton from "components/atoms/FadedButton";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import FormSelect from "components/atoms/FormSelectField";
 import { Form } from "components/ui/form";
 import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";

@@ -207,3 +207,10 @@ export const useCreateRoleMutation = useCreateRole;
 export const useUpdateRoleMutation = useUpdateRole;
 export const useAddPermissionToRoleMutation = useAddPermissionToRole;
 export const useDeleteRoleMutation = useDeleteRole;
+
+// Additional missing exports
+export const useGetAllPermissionsManager = useGetAllPermissions;
+export const useUpdateRoleManager = useUpdateRole;
+export const useGetSingleRoleManager = useGetSingleRole;
+export const useGetAllRolesManager = useGetAllRoles;
+export const useAddUserToRoleManager = useAddPermissionToRole;

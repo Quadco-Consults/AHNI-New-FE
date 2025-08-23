@@ -12,7 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelect";
 import FormTextArea from "components/atoms/FormTextArea";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { useGetAllPurchaseOrdersQuery } from "@/features/procurement/controllers/purchaseOrderController";
 import { useEffect, useMemo } from "react";
 

@@ -7,7 +7,7 @@ import { z } from "zod";
 
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import GoalForm from "./GoalForm";
 

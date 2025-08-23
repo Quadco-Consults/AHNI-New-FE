@@ -20,7 +20,7 @@ import {
 } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import {
     RiskPlanManagementSchema,
     TRiskPlanManagementFormValues,

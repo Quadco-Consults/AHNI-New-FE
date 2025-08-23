@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import FundRequstLayout from "./create/Layout";
 import DataTable from "components/Table/DataTable";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { Button } from "components/ui/button";
 import { ChevronRight } from "lucide-react";
 import { toast } from "sonner";
