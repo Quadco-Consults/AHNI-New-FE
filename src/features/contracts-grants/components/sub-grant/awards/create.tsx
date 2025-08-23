@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { skipToken } from "@reduxjs/toolkit/query";
 import BackNavigation from "components/atoms/BackNavigation";
@@ -13,17 +15,17 @@ import { CG_ROUTES } from "constants/RouterConstants";
 import {
     SubGrantSchema,
     TSubGrantFormData,
-} from "definations/c&g/contract-management/sub-grant/sub-grant";
+} from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { useEffect, useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useNavigate, useSearchParams } 
+import { useNavigate, useSearchParams } from "next/navigation";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import {
     useCreateSubGrant,
     useGetSingleSubGrant,
     useModifySubGrant,
-} from "@/features/contracts-grants/controllers/sub-grant/subGrantController";
+} from "@/features/contracts-grants/controllers/subGrantController";
 import { useGetAllDepartments } from "@/features/modules/controllers/config/departmentController";
 import { useGetAllPartners } from "@/features/modules/controllers/project/partnerController";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";

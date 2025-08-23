@@ -8,8 +8,8 @@ import ProcurementPlanLayout from "../ProcurementPlanLayout";
 import FormTextArea from "components/atoms/FormTextArea";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ProcurementMilestoneSchema } from "definations/procurement-validator";
-import ProcurementPlanAPI from "@/features/procurement/controllers/procurement-planController";
+import { ProcurementMilestoneSchema } from "@/features/procurement/types/procurement-validator";
+import ProcurementPlanAPI from "@/features/procurement/controllers/procurementPlanController";
 import { toast } from "sonner";
 import { RouteEnum } from "constants/RouterConstants";
 

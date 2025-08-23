@@ -16,7 +16,7 @@ import {
   DialogTrigger,
 } from "components/ui/dialog";
 import { useState } from "react";
-import VendorsDocumentAPI from "@/features/procurementApi/vendors-documentController";
+import VendorsDocumentAPI from "@/features/procurement/controllers/vendorController";
 import { VendorsDocumentResultsData } from "definations/procurement-types/vendors-document";
 import { Button } from "components/ui/button";
 import { toast } from "sonner";
@@ -26,9 +26,9 @@ import AddSquareIcon from "components/icons/AddSquareIcon";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useAppDispatch } from "hooks/useStore";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DocumentGrievianceManagementSchema, GrievianceManagementDocument } from "definations/hr-types/grieviance-management/";
-import { useCreateGrievianceManagementDocument, useDeleteGrievianceManagementDocument, useGetGrievianceManagementDocuments } from "@/features/hr/controllers/hr-grieviance-management/-document";
-import UploadDocumentDialog from "components/modals/dailog/UploadDocumentDailog";
+import { DocumentGrievianceManagementSchema, GrievianceManagementDocument } from "@/features/hr/types/grieviance-management/";
+import { useCreateGrievianceManagementDocument, useDeleteGrievianceManagementDocument, useGetGrievianceManagementDocuments } from "@/features/hr/controllers/hrGrievianceManagementDocumentController";
+import UploadDocumentDialog from "components/ui/dialog";
 import moment from "moment";
 import ConfirmationDialog from "components/ConfirmationDialog";
 

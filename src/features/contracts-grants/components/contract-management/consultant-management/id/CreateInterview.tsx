@@ -1,3 +1,5 @@
+"use client";
+
 import { skipToken } from "@reduxjs/toolkit/query";
 import BackNavigation from "components/atoms/BackNavigation";
 import FormButton from "components/atoms/FormButton";
@@ -14,8 +16,8 @@ import {
 } from "components/ui/form";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate, useParams } 
-import { useGetSingleConsultantManagement } from "@/features/contracts-grants/controllers/contract-management/consultancy-management/consultant-management";
+import { useNavigate, useParams } from "next/navigation";
+import { useGetSingleConsultantManagement } from "@/features/contracts-grants/controllers/consultantManagementController";
 import {
   Dialog,
   DialogContent,
@@ -29,12 +31,12 @@ import { LoadingSpinner } from "components/Loading";
 import { Input } from "components/ui/input";
 import { Icon } from "@iconify/react";
 import { Checkbox } from "components/ui/checkbox";
-import { useGetAllSolicitations } from "@/features/procurement/controllers/solicitation";
-import { useGetAllUsers } from "@/features/auth/controllers/user";
+import { useGetAllSolicitations } from "@/features/procurement/controllers/solicitationController";
+import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { Badge } from "components/ui/badge";
 import { toast } from "sonner";
-import { useCreateContractInterview } from "@/features/contracts-grants/controllers/contract-management/contract";
-import { useGetAllConsultancyStaffs } from "@/features/contracts-grants/controllers/contract-management/consultancy-management/consultancy-applicants";
+import { useCreateContractInterview } from "@/features/contracts-grants/controllers/contractController";
+import { useGetAllConsultancyStaffs } from "@/features/contracts-grants/controllers/consultantManagementController";
 
 export default function CreateInterview() {
   const router = useRouter();

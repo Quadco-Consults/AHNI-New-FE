@@ -1,11 +1,13 @@
+"use client";
+
 import BackNavigation from "components/atoms/BackNavigation";
 import Card from "components/Card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { useEffect, useState } from "react";
 import NewApplicantStaffForm from "./NewConsultancyStaffForm";
 import CreateExistingApplicantStaff from "./CreateExistingConsultancyStaff";
-import { useSearchParams } 
-import { useGetSingleConsultancyStaff } from "@/features/contracts-grants/controllers/contract-management/consultancy-management/consultancy-applicants";
+import { useSearchParams } from "next/navigation";
+import { useGetSingleConsultancyStaff } from "@/features/contracts-grants/controllers/consultantManagementController";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { LoadingSpinner } from "components/Loading";
 

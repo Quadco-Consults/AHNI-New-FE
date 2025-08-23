@@ -1,3 +1,5 @@
+"use client";
+
 import FormButton from "components/atoms/FormButton";
 import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelectField";
@@ -14,9 +16,9 @@ import { useMemo } from "react";
 
 import { useFieldArray, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { useGetAllUsers } from "@/features/auth/controllers/user";
-import { useGetEmployeeOnboardings } from "@/features/hr/controllers/hrEmployeeOnboarding";
-import { useCreatePerformanceAssesment } from "@/features/hr/controllers/hrPerformanceAssessment";
+import { useGetAllUsers } from "@/features/auth/controllers/userController";
+import { useGetEmployeeOnboardings } from "@/features/hr/controllers/employeeOnboardingController";
+import { useCreatePerformanceAssesment } from "@/features/hr/controllers/hrPerformanceAssessmentController";
 import { toast } from "sonner";
 
 // import ItemsAPI from "@/features/modules/controllers/config/itemsController";

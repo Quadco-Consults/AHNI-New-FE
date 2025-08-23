@@ -3,8 +3,8 @@ import { LoadingSpinner } from "components/Loading";
 import { Separator } from "components/ui/separator";
 import { useParams } from "next/navigation";
 
-import { useGetEmployeeOnboardingBankAcct } from "@/features/hr/controllers/hr-employee-onboarding-bank-accountController";
-import { useGetEmployeeOnboardingPension } from "@/features/hr/controllers/hr-employee-onboarding-pensionController";
+import { useGetEmployeeOnboardingBankAcct } from "@/features/hr/controllers/hrEmployeeOnboardingBankAccountController";
+import { useGetEmployeeOnboardingPension } from "@/features/hr/controllers/hrEmployeeOnboardingPensionController";
 
 const BankAccount = () => {
   const { id } = useParams();

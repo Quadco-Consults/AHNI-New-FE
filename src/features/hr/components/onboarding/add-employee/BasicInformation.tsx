@@ -7,15 +7,15 @@ import { Save } from "lucide-react";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
-import { WorkforceFormValues, workforceSchema } from "features/hr/types/hr-validator";
+import { WorkforceFormValues, workforceSchema } from "@/features/hr/types/hr-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SelectContent, SelectItem } from "components/ui/select";
 import { LoadingSpinner } from "components/Loading";
 
 import FileUpload from "components/atoms/FileUpload";
 import { toast } from "sonner";
-import { useGetLocationList } from "@/features/modules/controllers/config/locationApi";
-import { useGetDepartmentPaginate } from "@/features/modules/controllers/config/departments";
+import { useGetLocationList } from "@/features/modules/controllers/config/locationController";
+import { useGetDepartmentPaginate } from "@/features/modules/controllers/config/departmentController";
 import { LocationResultsData } from "definations/configs/location";
 import { DepartmentsResultsData } from "definations/configs/departments";
 import FormButton from "components/atoms/FormButton";
@@ -23,13 +23,13 @@ import FormButton from "components/atoms/FormButton";
 import { HrRoutes } from "constants/RouterConstants";
 import { updateStepCompletion } from "store/stepTracker";
 import FormCheckBox from "components/atoms/FormCheckBox";
-import { useGetAllProjects } from "@/features/project";
+import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { IProjectSingleData } from "definations/project";
 import {
   useCreateEmployeeOnboarding,
   usePatchEmployeeOnboarding,
 } from "@/features/hr/controllers/employeeOnboardingController";
-import { useGetPositionPaginate } from "@/features/modules/controllers/config/positions";
+import { useGetPositionPaginate } from "@/features/modules/controllers/config/positionController";
 import { PositionsResultsData } from "definations/configs/positions";
 
 import { createFileObjectFromUrl } from "utils/get-file-extension";

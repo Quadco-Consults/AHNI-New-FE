@@ -1,18 +1,20 @@
+"use client";
+
 import { skipToken } from "@reduxjs/toolkit/query";
 import BackNavigation from "components/atoms/BackNavigation";
 import Card from "components/Card";
 import DescriptionCard from "components/DescriptionCard";
 import { LoadingSpinner } from "components/Loading";
-import { projectColumns } from "components/Table/columns/project/project-columns";
+import { projectColumns } from "@/features/projects/components/table-columns/project-columns";
 import DataTable from "components/Table/DataTable";
 import { Separator } from "components/ui/separator";
 import { useParams } from "next/navigation";
-import { useGetSingleFundingSource } from "@/features/modules/controllers/project/funding-source";
+import { useGetSingleProject } from "@/features/projects/controllers/projectController";
 
 export default function DonorDatabaseDetails() {
     const { id } = useParams();
 
-    const { data, isLoading } = useGetSingleFundingSource(
+    const { data, isLoading } = useGetSingleProject(
         id ? id : skipToken
     );
 

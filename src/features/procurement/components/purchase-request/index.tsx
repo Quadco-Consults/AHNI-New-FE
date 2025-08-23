@@ -1,3 +1,5 @@
+"use client";
+
 import BreadcrumbCard from "components/Breadcrumb";
 import PurchaseRequest from "./PurchaseRequest";
 import TabState from "components/ui/TabState";

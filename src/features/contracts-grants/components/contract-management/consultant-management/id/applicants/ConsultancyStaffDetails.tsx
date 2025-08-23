@@ -1,15 +1,17 @@
+"use client";
+
 import BackNavigation from "components/atoms/BackNavigation";
 
-import { useGetSingleConsultancyStaff } from "@/features/contracts-grants/controllers/contract-management/consultancy-management/consultancy-applicants";
+import { useGetSingleConsultancyStaff } from "@/features/contracts-grants/controllers/consultantManagementController";
 import { skipToken } from "@reduxjs/toolkit/query";
-import { useNavigate, useParams } 
+import { useNavigate, useParams } from "next/navigation";
 import { Button } from "components/ui/button";
 import PersonIcon from "components/icons/Person";
 import SingleConsultancyStaffDetails from "./SingleConsultancyStaffDetails";
 import { LoadingSpinner } from "components/Loading";
 import Card from "components/Card";
 import { toast } from "sonner";
-import { useModifyContractStatus } from "@/features/contracts-grants/controllers/contract-management/contract";
+import { useModifyContractStatus } from "@/features/contracts-grants/controllers/contractController";
 
 export default function ConsultancyStaffDetails() {
   const { applicantId } = useParams();

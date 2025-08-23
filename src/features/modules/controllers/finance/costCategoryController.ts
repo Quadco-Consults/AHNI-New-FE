@@ -121,6 +121,7 @@ export const DeleteCostCategoryManager = () => {
 };
 
 // Backward compatibility exports - RTK Query style
+export const useGetAllCostCategories = useGetAllCostCategoriesManager;
 export const useGetAllCostCategoriesQuery = useGetAllCostCategoriesManager;
 export const useGetSingleCostCategoryQuery = useGetSingleCostCategoryManager;
 

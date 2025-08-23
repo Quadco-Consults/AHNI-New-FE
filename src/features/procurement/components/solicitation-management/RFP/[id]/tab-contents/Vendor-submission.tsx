@@ -6,7 +6,7 @@ import { Checkbox } from "components/ui/checkbox";
 import { cn } from "lib/utils";
 import { Button } from "components/ui/button";
 import { Input } from "components/ui/input";
-import { Link, generatePath, useParams } 
+import { Link, generatePath, useParams } from "next/navigation";
 import { RouteEnum } from "constants/RouterConstants";
 import DataTable from "components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";

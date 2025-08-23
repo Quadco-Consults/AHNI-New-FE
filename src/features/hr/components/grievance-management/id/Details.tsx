@@ -1,10 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import WriteDialog from "components/modals/dailog/WriteDialog";
+import WriteDialog from "components/ui/dialog";
 import Card from "components/Card";
 import { Badge } from "components/ui/badge";
 import { Button } from "components/ui/button";
 import { DialogType } from "constants/dailogs";
-import { FindingsGrievianceManagementSchema, GrievianceManagementSchema } from "definations/hr-types/grieviance-management";
+import { FindingsGrievianceManagementSchema, GrievianceManagementSchema } from "@/features/hr/types/grieviance-management";
 import { useAppDispatch } from "hooks/useStore";
 import { cn } from "lib/utils";
 

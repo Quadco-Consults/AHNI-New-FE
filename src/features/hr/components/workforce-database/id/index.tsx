@@ -1,3 +1,5 @@
+"use client";
+
 import Card from "components/Card";
 import GoBack from "components/GoBack";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";

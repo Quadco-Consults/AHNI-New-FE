@@ -4,7 +4,7 @@ import GoBack from "components/GoBack";
 import { Loading } from "components/Loading";
 import PdfContent from "components/PdfContent";
 import { useParams } from "next/navigation";
-import { useGetInterview } from "@/features/hrApi/hr-interview";
+import { useGetInterview } from "@/features/hr/controllers/interviewController";
 
 const InterviewDetail = () => {
   const params = useParams();

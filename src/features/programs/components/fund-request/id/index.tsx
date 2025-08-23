@@ -1,5 +1,8 @@
+"use client";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import { generatePath, Link, useNavigate, useParams } 
+import { useParams } from "next/navigation";
+import Link from "next/link"; 
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import Card from "components/Card";
 import Summary from "./Summary";

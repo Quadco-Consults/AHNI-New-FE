@@ -1,3 +1,5 @@
+"use client";
+
 import DeleteIcon from "components/icons/DeleteIcon";
 import { Button } from "components/ui/button";
 import { format } from "date-fns";

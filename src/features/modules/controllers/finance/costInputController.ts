@@ -81,6 +81,7 @@ export const DeleteCostInputManager = () => {
 };
 
 // Backward compatibility exports
+export const useGetAllCostInputs = useGetAllCostInputsManager;
 export const useGetAllCostInputsQuery = useGetAllCostInputsManager;
 
 export const useAddCostInputMutation = () => {

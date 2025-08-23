@@ -1,5 +1,7 @@
 "use client";
 
+"use client";
+
 /* eslint-disable react/prop-types */
 import { Icon } from "@iconify/react";
 import Card from "components/Card";

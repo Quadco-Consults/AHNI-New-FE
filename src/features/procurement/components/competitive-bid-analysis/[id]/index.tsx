@@ -1,5 +1,8 @@
+"use client";
+
 import { Button } from "components/ui/button";
-import { Link, generatePath, useParams } 
+import { useParams } from "next/navigation";
+import Link from "next/link";
 import { LoadingSpinner } from "components/Loading";
 import BreadcrumbCard from "components/Breadcrumb";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
@@ -24,7 +27,7 @@ import { SelectContent, SelectItem } from "components/ui/select";
 import FormTextArea from "components/atoms/FormTextArea";
 import FormButton from "components/atoms/FormButton";
 import { z } from "zod";
-import { CbaApprovalSchema } from "definations/procurement-validator";
+import { CbaApprovalSchema } from "@/features/procurement/types/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useState } from "react";

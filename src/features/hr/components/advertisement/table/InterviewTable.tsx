@@ -1,3 +1,5 @@
+"use client";
+
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "components/ui/checkbox";
 import { InterviewResults } from "definations/hr-types/advertisement";
@@ -5,7 +7,7 @@ import { InterviewResults } from "definations/hr-types/advertisement";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import { generatePath, Link, useParams } 
+import { generatePath, Link, useParams } from "next/navigation";
 import { HrRoutes } from "constants/RouterConstants";
 import EyeIcon from "components/icons/EyeIcon";
 
@@ -14,7 +16,7 @@ import DataTable from "components/Table/DataTable";
 import SearchIcon from "components/icons/SearchIcon";
 import FilterIcon from "components/icons/FilterIcon";
 import { Loading } from "components/Loading";
-import { useGetInterviews } from "@/features/hrApi/hr-interview";
+import { useGetInterviews } from "@/features/hr/controllers/hrInterviewController";
 
 const InterviewTable = () => {
   const { id: paramsID } = useParams();

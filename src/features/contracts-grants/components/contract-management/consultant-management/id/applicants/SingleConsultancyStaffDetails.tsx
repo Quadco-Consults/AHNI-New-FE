@@ -1,4 +1,4 @@
-import { IConsultancyStaffSingleData } from "definations/c&g/contract-management/consultancy-management/consultancy-application";
+import { IConsultancyStaffSingleData } from "@/features/contracts-grants/types/contract-management/consultancy-management/consultancy-application";
 import DescriptionCard from "components/DescriptionCard";
 import FilePreview from "components/FilePreview";
 

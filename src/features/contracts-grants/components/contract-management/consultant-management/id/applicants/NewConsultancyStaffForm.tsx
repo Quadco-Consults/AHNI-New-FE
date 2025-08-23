@@ -14,7 +14,7 @@ import {
   ConsultancyStaffSchema,
   IConsultancyStaffSingleData,
   TConsultancyStaffFormData,
-} from "definations/c&g/contract-management/consultancy-management/consultancy-application";
+} from "@/features/contracts-grants/types/contract-management/consultancy-management/consultancy-application";
 import { useEffect, useMemo, useState } from "react";
 import {
   FormProvider,
@@ -23,11 +23,11 @@ import {
   useForm,
 } from "react-hook-form";
 import { AiFillPlusCircle } from "react-icons/ai";
-import { useNavigate, useParams } 
+import { useNavigate, useParams } from "next/navigation";
 import {
   useCreateConsultancyStaff,
   useModifyConsultancyStaff,
-} from "@/features/contracts-grants/controllers/contract-management/consultancy-management/consultancy-applicantsController";
+} from "@/features/contracts-grants/controllers/consultantManagementController";
 import { toast } from "sonner";
 import { fileToBase64 } from "utils/fileToBase64";
 

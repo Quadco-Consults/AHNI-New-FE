@@ -1,3 +1,5 @@
+"use client";
+
 // import { zodResolver } from "@hookform/resolvers/zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
@@ -18,7 +20,7 @@ import { HrRoutes } from "constants/RouterConstants";
 import { SelectContent, SelectItem } from "components/ui/select";
 import { LocationResultsData } from "definations/configs/location";
 import { PositionsResultsData } from "definations/configs/positions";
-import { workforceNeedAnalysisSchema } from "features/hr/types/hr-validator";
+import { workforceNeedAnalysisSchema } from "@/features/hr/types/hr-validator";
 
 import { UploadIcon } from "lucide-react";
 // import { ItemsResultsData } from "definations/configs/itmes";
@@ -26,15 +28,15 @@ import { UploadIcon } from "lucide-react";
 // import { MinusCircle } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
 
-import { useGetDepartmentPaginate } from "@/features/modules/controllers/config/departments";
-import { useGetLocationList } from "@/features/modules/controllers/config/locationApi";
-import { useGetPositionPaginate } from "@/features/modules/controllers/config/positions";
+import { useGetDepartmentPaginate } from "@/features/modules/controllers/config/departmentController";
+import { useGetLocationList } from "@/features/modules/controllers/config/locationController";
+import { useGetPositionPaginate } from "@/features/modules/controllers/config/positionController";
 import {
   useCreateWorkforceNeedAnalysis,
   useGetWorkforceNeedAnalysisId,
-} from "@/features/hrApi/hr-workforce-need-analysisController";
+} from "@/features/hr/controllers/hrWorkforceNeedAnalysisController";
 import { z } from "zod";
-import useQuery from "hooks/use";
+import useQuery from "hooks/useStore";
 
 export type TFormValues = z.infer<typeof workforceNeedAnalysisSchema>;
 

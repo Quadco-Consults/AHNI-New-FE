@@ -1,3 +1,5 @@
+"use client";
+
 import BackNavigation from "components/atoms/BackNavigation";
 import React, { useState } from "react";
 import GrantDetailsCard from "./_components/GrantDetailsCard";
@@ -13,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { skipToken } from "@reduxjs/toolkit/query";
 import ObligationHistory from "./_components/ObligationHistory";
 // import { useGetSingleGrant } from "@/features/contracts-grants/controllers/grant/grant";
-import { useGetSingleProject } from "@/features/projects/controllers/project";
+import { useGetSingleProject } from "@/features/projects/controllers/projectController";
 
 const GrantDetails: React.FC = () => {
   const [tabValue, setTabValue] = useState("details");

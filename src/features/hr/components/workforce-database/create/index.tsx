@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
@@ -18,8 +20,8 @@ import { LoadingSpinner } from "components/Loading";
 
 import FileUpload from "components/atoms/FileUpload";
 import { toast } from "sonner";
-import { useGetLocationList } from "@/features/modules/controllers/config/locationApi";
-import { useGetDepartmentPaginate } from "@/features/modules/controllers/config/departments";
+import { useGetLocationList } from "@/features/modules/controllers/config/locationController";
+import { useGetDepartmentPaginate } from "@/features/modules/controllers/config/departmentController";
 import { LocationResultsData } from "definations/configs/location";
 import { DepartmentsResultsData } from "definations/configs/departments";
 import FormButton from "components/atoms/FormButton";
@@ -27,10 +29,10 @@ import FormButton from "components/atoms/FormButton";
 import { HrRoutes } from "constants/RouterConstants";
 import { updateStepCompletion } from "store/stepTracker";
 import FormCheckBox from "components/atoms/FormCheckBox";
-import { useGetAllProjects } from "@/features/project";
+import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { IProjectSingleData } from "definations/project";
-import { useCreateEmployeeOnboarding } from "@/features/hr/controllers/hr-employee-onboarding";
-import { useGetPositionPaginate } from "@/features/modules/controllers/config/positions";
+import { useCreateEmployeeOnboarding } from "@/features/hr/controllers/employeeOnboardingController";
+import { useGetPositionPaginate } from "@/features/modules/controllers/config/positionController";
 import { PositionsResultsData } from "definations/configs/positions";
 
 const CreateEmployee = () => {

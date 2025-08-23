@@ -1,5 +1,8 @@
-import { Link, useParams } 
-import PurchaseRequestAPI from "@/features/procurement/controllers/purchase-requestController";
+"use client";
+
+import { useParams } from "next/navigation";
+import Link from "next/link"; 
+import { useGetPurchaseRequestById } from "@/features/procurement/controllers/purchaseRequestController";
 import { LoadingSpinner } from "components/Loading";
 import Card from "components/Card";
 import { Badge } from "components/ui/badge";

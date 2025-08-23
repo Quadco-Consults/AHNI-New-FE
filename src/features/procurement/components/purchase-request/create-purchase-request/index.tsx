@@ -1,29 +1,24 @@
+"use client";
+
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import { useRouter } from "next/navigation";
 import CreatePurchaseRequestForm from "./form";
 import BreadcrumbCard from "components/Breadcrumb";
-import useQuery from "hooks/use";
+import useQuery from "hooks/useStore";
 import { useMemo } from "react";
-import PurchaseRequestAPI from "@/features/procurement/controllers/purchase-sample-request Controller";
+import { useGetPurchaseRequestById } from "@/features/procurement/controllers/purchaseRequestController";
 
 function CreatePurchaseRequest() {
   const query = useQuery();
   const id = query.get("request");
   const router = useRouter();
 
-  const { data: requestsDetails } = PurchaseRequestAPI.useGetActivityMemo(
-    useMemo(
-      () => ({
-        path: { id: id as string },
-      }),
-      [id]
-    )
-  );
+  const { data: requestsDetails } = useGetPurchaseRequestById({ id: id as string, enabled: !!id });
 
   console.log({ requestsDetails });
 
   const goBack = () => {
-    router.push(-1);
+    router.back();
   };
 
   const breadcrumbs = [

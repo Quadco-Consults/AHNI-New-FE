@@ -1,3 +1,4 @@
+"use client";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { Form } from "components/ui/form";
 import FormTextArea from "components/atoms/FormTextArea";
@@ -14,7 +15,7 @@ import {
   ScopeOfWorkSchema,
   TConsultantanagementDetailsFormData,
   TScopeOfWorkFormData,
-} from "definations/c&g/contract-management/consultancy-management/consultancy-management";
+} from "@/features/contracts-grants/types/contract-management/consultancy-management/consultancy-management";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "components/ui/button";
 import DeleteIcon from "components/icons/DeleteIcon";
@@ -24,16 +25,16 @@ import {
   useCreateConsultantManagement,
   useGetSingleConsultantManagement,
   useModifyConsultantManagement,
-} from "@/features/contracts-grants/controllers/contract-management/consultancy-management/consultant-managementController";
-import { useLocation, useNavigate, useSearchParams } 
+} from "@/features/contracts-grants/controllers/consultantManagementController";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { useEffect } from "react";
 
 export default function ScopeOfWork() {
-  const { pathname } = useLocation();
+  const pathname = usePathname();
 
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams();
 
   const consultantId = searchParams.get("id");
 
@@ -385,7 +386,7 @@ export default function ScopeOfWork() {
                 type='button'
                 className='text-primary'
                 size='lg'
-                onClick={() => router.push(-1)}
+                onClick={() => router.back()}
               >
                 Cancel
               </FadedButton>

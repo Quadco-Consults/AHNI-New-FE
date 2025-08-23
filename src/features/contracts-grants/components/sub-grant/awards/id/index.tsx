@@ -1,12 +1,14 @@
+"use client";
+
 import BackNavigation from "components/atoms/BackNavigation";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import { Button } from "components/ui/button";
 import { CG_ROUTES } from "constants/RouterConstants";
 import SubGrantAwardDetails from "./SubGrantAwardDetails";
 import SubGrantSubmissionDetails from "./submission";
-import { generatePath, Link, useParams } 
+import { generatePath, Link, useParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import { useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subgrant/sub-grantController";
+import { useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { LoadingSpinner } from "components/Loading";
 import { useState } from "react";

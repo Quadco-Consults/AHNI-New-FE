@@ -1,15 +1,15 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import WriteDialog from "components/modals/dailog/WriteDialog";
+import WriteDialog from "components/ui/dialog";
 import Card from "components/Card";
 import { Button } from "components/ui/button";
-import { FindingsGrievianceManagementSchema, ResolutionGrievianceManagementSchema } from "definations/hr-types/grieviance-management/";
+import { FindingsGrievianceManagementSchema, ResolutionGrievianceManagementSchema } from "@/features/hr/types/grieviance-management/";
 import { VendorsResultsData } from "definations/procurement-types/vendors";
 import { useAppDispatch } from "hooks/useStore";
 
 import { EditIcon } from "lucide-react";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useUpdateGrievianceManagementMutation } from "@/features/hr/controllers/grievance-management//grievanceManagementController";
+import { useUpdateGrievianceManagementMutation } from "@/features/hr/controllers/grievanceController";
 import { toast } from "sonner";
 
 const Resolutions = (data: VendorsResultsData) => {

@@ -1,5 +1,7 @@
 "use client";
 
+"use client";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import Overview from "./Overview";
 import Uploads from "./Uploads";

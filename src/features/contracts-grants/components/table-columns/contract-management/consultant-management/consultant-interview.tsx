@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { IConsultancyStaffPaginatedData } from "definations/c&g/contract-management/consultancy-management/consultancy-application";
+import { IConsultancyStaffPaginatedData } from "@/features/contracts-grants/types/contract-management/consultancy-management/consultancy-application";
 import FormSelect from "components/atoms/FormSelect";
 
 const scoreOptions = ["1", "2", "3", "4", "5"].map((value) => ({

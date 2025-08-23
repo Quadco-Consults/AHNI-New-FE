@@ -3,7 +3,7 @@ import SearchIcon from "components/icons/SearchIcon";
 import { Column, ColumnDef, Row } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import BreadcrumbCard from "components/Breadcrumb";
-import ProcurementPlanAPI from "@/features/procurement/controllers/procurement-planController";
+import ProcurementPlanAPI from "@/features/procurement/controllers/procurementPlanController";
 import { useState } from "react";
 import { Textarea } from "components/ui/textarea";
 import {
