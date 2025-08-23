@@ -131,7 +131,7 @@ export const AdminRoutes = {
 export const RouteEnum = {
   // MODULES
   MODULES_PROJECTS: "/modules/project",
-  MODULES_PROGRAMS: "/modules/program",
+  MODULES_PROGRAMS: "/modules/programs",
   MODULES_ADMIN: "/modules/admin",
   MODULES_CONFIG: "/modules/config",
   MODULES_PROCUREMENT: "/modules/procurement",
@@ -271,71 +271,71 @@ export const RouteEnum = {
     "/procurement-management/vendor-performance-evaluation/form",
 
   //program routes
-  PROGRAM_WORK_PLAN: "/program/plan/work-plan",
-  PROGRAM_WORK_PLAN_DETAILS: "/program/plan/work-plan/:id",
+  PROGRAM_WORK_PLAN: "/dashboard/programs/plan/work-plan",
+  PROGRAM_WORK_PLAN_DETAILS: "/dashboard/programs/plan/work-plan/:id",
 
-  PROGRAM_ACTIVITY: "/program/plan/activity",
-  PROGRAM_CREATE_ACTIVITY_PLAN: "/dashboard/program/plan/create-activity-plan",
+  PROGRAM_ACTIVITY: "/dashboard/programs/plan/activity-plan",
+  PROGRAM_CREATE_ACTIVITY_PLAN: "/dashboard/programs/plan/activity-plan/create",
 
-  PROGRAM_ACTIVITY_TRACKER: "/program/plan/activity-tracker",
-  PROGRAM_ACTIVITY_TRACKER_DETAILS: "/program/plan/activity-tracker/:id",
+  PROGRAM_ACTIVITY_TRACKER: "/dashboard/programs/plan/activity-tracker",
+  PROGRAM_ACTIVITY_TRACKER_DETAILS: "/dashboard/programs/plan/activity-tracker/:id",
   PROGRAM_ACTIVITY_TRACKER_CREATE:
-    "/program/plan/activity-tracker/create-activity-tracker",
+    "/dashboard/programs/plan/activity-tracker/create",
 
-  PROGRAM_RISK_MANAGEMENT: "/program/plan/risk-management-plan",
+  PROGRAM_RISK_MANAGEMENT: "/dashboard/programs/plan/risk-management-plan",
   PROGRAM_RISK_MANAGEMENT_CREATE:
-    "/program/plan/risk-management-plan/create-risk-management",
-  PROGRAM_VALUE_MANAGEMENT: "/program/plan/value-management-plan",
-  PROGRAM_SUPPORTIVE_SUPERVISION: "/program/plan/supportive-supervision-plan",
+    "/dashboard/programs/plan/risk-management-plan/create",
+  PROGRAM_VALUE_MANAGEMENT: "/dashboard/programs/plan/value-management-plan",
+  PROGRAM_SUPPORTIVE_SUPERVISION: "/dashboard/programs/plan/supportive-supervision-plan",
   PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS:
-    "/program/plan/supportive-supervision-plan/:id",
+    "/dashboard/programs/plan/supportive-supervision-plan/:id",
   PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS_APPROVAL:
-    "/program/plan/supportive-supervision-plan/:id/approval-status",
+    "/dashboard/programs/plan/supportive-supervision-plan/:id/approval-status",
   PROGRAM_SUPPORTIVE_SUPERVISION_MANAGEMENT:
-    "/program/plan/supportive-supervision-plan/:id/evaluation",
+    "/dashboard/programs/plan/supportive-supervision-plan/:id/evaluation-criteria-process",
   PROGRAM_SUPPORTIVE_SUPERVISION_COMPOSITION:
-    "/program/plan/supportive-supervision-plan/create/facility&team-composition",
+    "/dashboard/programs/plan/supportive-supervision-plan/composition",
   PROGRAM_SUPPORTIVE_SUPERVISION_CHECKLIST:
-    "/program/plan/supportive-supervision-plan/create/evolution-checklist",
+    "/dashboard/programs/plan/supportive-supervision-plan/evaluation-checklist",
 
-  PROGRAM_FUND_REQUEST: "/program/fund-request",
-  PROGRAM_FUND_REQUEST_DETAILS: "/program/fund-request/:id/",
-  PROGRAM_FUND_REQUEST_CREATE: "/program/fund-request/create/project-details",
+  PROGRAM_FUND_REQUEST: "/dashboard/programs/fund-request",
+  PROGRAM_FUND_REQUEST_DETAILS: "/dashboard/programs/fund-request/:id/",
+  PROGRAM_FUND_REQUEST_CREATE: "/dashboard/programs/fund-request/create/project-details",
   PROGRAM_FUND_REQUEST_FUND_SUMMARY:
-    "/program/fund-request/create/fund-request-summary",
+    "/dashboard/programs/fund-request/create/fund-request-summary",
   PROGRAM_FUND_REQUEST_PREVIEW:
-    "/program/fund-request/create/fund-request-preview",
+    "/dashboard/programs/fund-request/create/fund-request-preview",
 
   PROGRAM_FUND_REQUEST_VIEW_ACTIVITY:
-    "/program/fund-request/create/fund-request-preview/:id/fund-request-activity",
+    "/dashboard/programs/fund-request/create/fund-request-preview/:id/fund-request-activity",
 
   PROGRAM_FUND_REQUEST_VIEW_ALL_FUND_REQUESTS:
-    "/program/fund-request/create/fund-request-preview/:id/view-all-fund-request",
+    "/dashboard/programs/fund-request/create/fund-request-preview/:id/view-all-fund-request",
 
   PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS:
-    "/program/stakeholder-management/analysis&mapping",
+    "/dashboard/programs/stakeholder-management/analysis&mapping",
   PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS_DETAILS:
-    "/program/stakeholder-management/analysis&mapping/:id",
+    "/dashboard/programs/stakeholder-management/analysis&mapping/:id",
   PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS_CREATE:
-    "/program/stakeholder-management/analysis&mapping/create-analysis/:id",
+    "/dashboard/programs/stakeholder-management/analysis&mapping/create",
   PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER:
-    "/program/stakeholder-management/stakeholder-register",
+    "/dashboard/programs/stakeholder-management/stakeholder-register",
   PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER_CREATE:
-    "/program/stakeholder-management/stakeholder-register/create-stakeholder",
+    "/dashboard/programs/stakeholder-management/stakeholder-register/create",
   PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER_EDIT:
-    "/program/stakeholder-management/stakeholder-register/edit-stakeholder/:id",
+    "/dashboard/programs/stakeholder-management/stakeholder-register/edit/:id",
   PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER_DETAILS:
-    "/program/stakeholder-management/stakeholder-register/:id",
+    "/dashboard/programs/stakeholder-management/stakeholder-register/:id",
   PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN:
-    "/program/stakeholder-management/engagement-plan",
+    "/dashboard/programs/stakeholder-management/engagement-plan",
   PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN_CREATE:
-    "/program/stakeholder-management/engagement-plan/create-engagement-plan",
+    "/dashboard/programs/stakeholder-management/engagement-plan/create",
   PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN_DETAILS:
-    "/program/stakeholder-management/engagement-plan/:id",
-  PROGRAM_REPORT: "/program/reports",
-  PROGRAM_PAYMENT_REQUEST: "/program/payment-request",
+    "/dashboard/programs/stakeholder-management/engagement-plan/:id",
+  PROGRAM_REPORT: "/dashboard/programs/reports",
+  PROGRAM_PAYMENT_REQUEST: "/dashboard/programs/payment-request",
 
-  TRAINING: "/program/training-and-procurement",
+  TRAINING: "/dashboard/programs/training-and-procurement",
   REPORT: "/procurement-management/report",
 
   // users
@@ -508,18 +508,18 @@ export const HrRoutes = {
 
 /* *************** PROGRAM ROUTES *************** */
 export enum ProgramRoutes {
-  SUPERVISION_PLAN_EVALUATION_DETAILS = "/program/plan/supportive-supervsion-plan/:supervisionPlanId/view-evaluation/",
+  SUPERVISION_PLAN_EVALUATION_DETAILS = "/dashboard/programs/plan/supportive-supervsion-plan/:supervisionPlanId/view-evaluation/",
 
-  ADHOC_MANAGEMENT = "/program/adhoc-management/",
-  CREATE_ADHOC_DETAILS = "/program/adhoc-management/create-adhoc-details/",
-  CREATE_ADHOC_WORK_SCOPE = "/program/adhoc-management/create-scope-of-work/",
-  ADHOC_DETAILS = "/program/adhoc-management/:id/details/",
-  CREATE_ADHOC_INTERVIEW = "/program/adhoc-management/:id/create-interview/",
-  CREATE_ADHOC_APPLICANT = "/program/adhoc-management/:id/applicant/create/",
-  ADHOC_APPLICANT_DETAILS = "/program/adhoc-management/:adhocId/applicant/:applicantId/details/",
-  ADHOC_APPLICANT_INTERVIEW = "/program/adhoc-management/:adhocId/applicant/:applicantId/adhoc-interview/",
-  ADHOC_DATABASE = "/program/adhoc-database/",
+  ADHOC_MANAGEMENT = "/dashboard/programs/adhoc-management/",
+  CREATE_ADHOC_DETAILS = "/dashboard/programs/adhoc-management/create-adhoc-details/",
+  CREATE_ADHOC_WORK_SCOPE = "/dashboard/programs/adhoc-management/create-scope-of-work/",
+  ADHOC_DETAILS = "/dashboard/programs/adhoc-management/:id/details/",
+  CREATE_ADHOC_INTERVIEW = "/dashboard/programs/adhoc-management/:id/create-interview/",
+  CREATE_ADHOC_APPLICANT = "/dashboard/programs/adhoc-management/:id/applicant/create/",
+  ADHOC_APPLICANT_DETAILS = "/dashboard/programs/adhoc-management/:adhocId/applicant/:applicantId/details/",
+  ADHOC_APPLICANT_INTERVIEW = "/dashboard/programs/adhoc-management/:adhocId/applicant/:applicantId/adhoc-interview/",
+  ADHOC_DATABASE = "/dashboard/programs/adhoc-database/",
 
-  ADHOC_ACCEPTANCE = "/program/adhoc/adhoc-acceptance",
-  ADHOC_ACCEPTANCE_DETAILS = "/program/adhoc/adhoc-acceptance/details",
+  ADHOC_ACCEPTANCE = "/dashboard/programs/adhoc/adhoc-acceptance",
+  ADHOC_ACCEPTANCE_DETAILS = "/dashboard/programs/adhoc/adhoc-acceptance/details",
 }

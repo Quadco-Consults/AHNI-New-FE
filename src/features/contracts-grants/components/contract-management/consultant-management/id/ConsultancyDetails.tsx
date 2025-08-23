@@ -26,7 +26,7 @@ export default function ConsultancyDetailsPage() {
     id ?? skipToken
   );
 
-  const { pathname } = useLocation();
+  const pathname = usePathname();
 
   const type = pathname.includes("adhoc-management") ? "ADHOC" : "CONSULTANT";
 

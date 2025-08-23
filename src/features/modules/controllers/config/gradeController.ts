@@ -107,6 +107,7 @@ export const DeleteGradeManager = () => {
 };
 
 // Backward compatibility exports - RTK Query style
+export const useGetAllGrades = useGetAllGradesManager;
 export const useGetAllGradesQuery = useGetAllGradesManager;
 
 export const useAddGradeMutation = () => {
