@@ -8,7 +8,7 @@ import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
 import {
     ExistingApplicantSchema,
     TExistingApplicantFormData,
-} from "definations/c&g/contract-management/consultancy-management/consultancy-application";
+} from "@/features/contracts-grants/types/contract-management/consultancy-management/consultancy-application";
 import { useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import {
@@ -16,12 +16,12 @@ import {
     useLocation,
     useNavigate,
     useParams,
-} 
+} from "next/navigation";
 import {
     useCreateExistingApplicantStaff,
     useGetAllConsultancyStaffs,
     useGetSingleConsultancyStaff,
-} from "@/features/contracts-grants/controllers/contract-management/consultancy-management/consultancy-applicantsController";
+} from "@/features/contracts-grants/controllers/consultantManagementController";
 import { toast } from "sonner";
 import ConsultancyStaffDetailsWrapper from "./SingleConsultancyStaffDetails";
 import { LoadingSpinner } from "components/Loading";

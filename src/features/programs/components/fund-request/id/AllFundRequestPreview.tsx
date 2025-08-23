@@ -1,4 +1,5 @@
-import { skipToken } from "@reduxjs/toolkit/query/react";
+"use client";
+
 import { ColumnDef } from "@tanstack/react-table";
 import logoPng from "assets/imgs/logo.png";
 import BackNavigation from "components/atoms/BackNavigation";
@@ -7,10 +8,10 @@ import DataTable from "components/Table/DataTable";
 import {
     FundRequestPaginatedData,
     TFundRequestResponseData,
-} from "features/programs/types/fund-request";
+} from "@/features/programs/types/fund-request";
 import { useParams } from "next/navigation";
-import { useGetAllFundRequests } from "@/features/programs/controllers/fund-request";
-import { useGetSingleProject } from "@/features/projects/controllers/project";
+import { useGetFundRequestsPaginate } from "@/features/programs/controllers/fundRequestController";
+import { useGetProjectById } from "@/features/projects/controllers/projectController";
 
 import {
     Table as ShadTable,

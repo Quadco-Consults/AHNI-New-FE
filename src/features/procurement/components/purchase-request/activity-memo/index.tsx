@@ -1,3 +1,5 @@
+"use client";
+
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import { useRouter } from "next/navigation";
 import CreateActivityMemo from "./form";
@@ -9,7 +11,7 @@ function CreatePurchaseRequest() {
   const router = useRouter();
 
   const goBack = () => {
-    router.push(-1);
+    router.back();
   };
 
   const breadcrumbs = [

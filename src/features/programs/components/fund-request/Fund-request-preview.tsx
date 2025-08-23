@@ -1,3 +1,5 @@
+"use client";
+
 import { useRouter } from "next/navigation";
 import FundRequstLayout from "./create/Layout";
 import DataTable from "components/Table/DataTable";
@@ -8,17 +10,16 @@ import { toast } from "sonner";
 import { RouteEnum } from "constants/RouterConstants";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { useGetSingleProject } from "@/features/projects/controllers/project";
+import { useGetProjectById } from "@/features/projects/controllers/projectController";
 import {
     TFundRequestActivity,
     TFundRequestActivityFormValues,
     TFundRequestFormValues,
-} from "features/programs/types/program-validator";
-import { skipToken } from "@reduxjs/toolkit/query/react";
-import { useGetSingleUser } from "@/features/auth/controllers/user";
-import { useCreateFundRequestController } from "@/features/programs/controllers/fund-requestController";
-import { useGetSingleFinancialYear } from "@/features/modules/controllers/config/financial-year";
-import { useGetSingleLocation } from "@/features/modules/controllers/config/location";
+} from "@/features/programs/types/program-validator";
+import { useGetUserById } from "@/features/auth/controllers/userController";
+import { useCreateFundRequest } from "@/features/programs/controllers/fundRequestController";
+import { useGetFinancialYearById } from "@/features/modules/controllers/config/financialYearController";
+import { useGetLocationById } from "@/features/modules/controllers/config/locationController";
 
 export default function Summary() {
     const router = useRouter();

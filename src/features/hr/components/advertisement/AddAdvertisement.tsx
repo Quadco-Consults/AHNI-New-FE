@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import FileUpload from "components/atoms/FileUpload";
 import FormButton from "components/atoms/FormButton";
@@ -12,12 +14,12 @@ import { HrRoutes } from "constants/RouterConstants";
 import { jobAdvertismentSchema } from "features/hr/types/hr-validator";
 import { useEffect } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useLocation, useNavigate } 
+import { useLocation, useNavigate } from "next/navigation";
 import {
   useCreateJobAdvertisement,
   useUpdateJobAdvertisement,
-} from "@/features/hr/controllers/jobAdvertisementControllerController";
-import { useGetUsers } from "@/features/usersAPI";
+} from "@/features/hr/controllers/jobAdvertisementController";
+import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { toast } from "sonner";
 import { z } from "zod";
 

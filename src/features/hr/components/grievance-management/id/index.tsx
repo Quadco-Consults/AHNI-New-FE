@@ -1,3 +1,5 @@
+"use client";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import Uploads from "./Uploads";
 import { useParams } from "next/navigation";
@@ -8,7 +10,7 @@ import GoBack from "components/GoBack";
 import Details from "./Details";
 import Resolutions from "./Resolutions";
 import Feedback from "./Feedback";
-import { useGetGrievianceManagement } from "@/features/hr/controllers/grievance-management//grievanceManagement";
+import { useGetGrievianceManagement } from "@/features/hr/controllers/grievanceController";
 
 const PrequalificationDetails = () => {
   const { id } = useParams();

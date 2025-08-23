@@ -1,3 +1,5 @@
+"use client";
+
 import { Separator } from "components/ui/separator";
 import PerformanceEvaluationForm from "../components/EvaluationForm";
 import FormButton from "components/atoms/FormButton";

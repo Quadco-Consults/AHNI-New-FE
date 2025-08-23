@@ -1,10 +1,13 @@
+"use client";
+
 import logoPng from "assets/svgs/logo-bg.svg";
 import Card from "components/Card";
 import DataTable from "components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import { toWords } from "number-to-words";
-import { Link, useParams } 
-import { useGetSinglePurchaseOrder } from "@/features/procurement/controllers/purchase-order";
+import { useParams } from "next/navigation";
+import Link from "next/link"; 
+import { useGetPurchaseOrderById } from "@/features/procurement/controllers/purchaseOrderController";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { formatDate } from "date-fns";
 import { Button } from "components/ui/button";

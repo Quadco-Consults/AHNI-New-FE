@@ -1,14 +1,15 @@
+"use client";
+
 import logoPng from "assets/imgs/logo.png";
-import { skipToken } from "@reduxjs/toolkit/query/react";
-import use from "hooks/use";
-import { useGetSingleFundRequest } from "@/features/programs/controllers/fund-request";
-import { useGetSingleProject } from "@/features/projects/controllers/project";
+import useQuery from "hooks/useStore";
+import { useGetFundRequestById } from "@/features/programs/controllers/fundRequestController";
+import { useGetProjectById } from "@/features/projects/controllers/projectController";
 import Card from "components/Card";
 import FundActivityTable from "./FundActivityTable";
 import { LoadingSpinner } from "components/Loading";
 
 export default function ViewFundRequestActivity() {
-    const query = use();
+    const query = useQuery();
 
     const id = query.get("fundRequestId");
 

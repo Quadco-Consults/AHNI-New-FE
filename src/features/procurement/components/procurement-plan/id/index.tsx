@@ -1,3 +1,5 @@
+"use client";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { useParams } from "next/navigation";
 import ProcurementPlan from "./ProcurementPlan";
@@ -5,7 +7,7 @@ import ProcurementMilestones from "./ProcurementMilestones";
 import BreadcrumbCard from "components/Breadcrumb";
 import GoBack from "components/GoBack";
 import Card from "components/Card";
-import ProcurementPlanAPI from "@/features/procurement/controllers/procurement-planController";
+import ProcurementPlanAPI from "@/features/procurement/controllers/procurementPlanController";
 import { LoadingSpinner } from "components/Loading";
 import { ProcurementPlanResultsData } from "definations/procurement-types/procurementPlan";
 

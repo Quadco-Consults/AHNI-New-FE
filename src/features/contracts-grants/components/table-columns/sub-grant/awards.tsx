@@ -17,7 +17,7 @@ import { useDeleteGrant } from "@/features/contracts-grants/controllers/grantCon
 import { formatNumberCurrency } from "utils/utls";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
-import { ISubGrantPaginatedData } from "definations/c&g/contract-management/sub-grant/sub-grant";
+import { ISubGrantPaginatedData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
 
 export const subGrantAwardColumns: ColumnDef<ISubGrantPaginatedData>[] = [
     {

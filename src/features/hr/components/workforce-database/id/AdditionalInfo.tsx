@@ -2,7 +2,7 @@ import DescriptionCard from "components/DescriptionCard";
 import { LoadingSpinner } from "components/Loading";
 import { Separator } from "components/ui/separator";
 import { useParams } from "next/navigation";
-import { useGetHrEmergencyList } from "@/features/hr/controllers/hr-employee-onboarding-add-infoController";
+import { useGetHrEmergencyList } from "@/features/hr/controllers/hrEmployeeOnboardingAddInfoController";
 
 const AdditionalInfo = () => {
   const { id } = useParams();

@@ -1,5 +1,7 @@
 "use client";
 
+"use client";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import EoIDetails from "../eoi-tabs-contents/EoIDetails";
 import EOIVendorSubmission from "../eoi-tabs-contents/EOIVendorSubmission";

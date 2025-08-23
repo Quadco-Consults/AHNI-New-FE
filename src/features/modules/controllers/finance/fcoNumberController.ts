@@ -81,6 +81,7 @@ export const DeleteFCONumberManager = () => {
 };
 
 // Backward compatibility exports
+export const useGetAllFCONumbers = useGetAllFCONumbersManager;
 export const useGetAllFCONumbersQuery = useGetAllFCONumbersManager;
 
 export const useAddFCONumberMutation = () => {

@@ -1,5 +1,7 @@
 "use client";
 
+"use client";
+
 import Card from "components/Card";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";

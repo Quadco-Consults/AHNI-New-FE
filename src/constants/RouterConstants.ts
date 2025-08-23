@@ -3,94 +3,121 @@ export const AuthRoutes = {
 };
 
 export const AdminRoutes = {
-  OVERVIEW: "/admin/overview",
+  OVERVIEW: "/dashboard/admin/overview",
 
   // CONSUMABLE
-  INDEX_CONSUMABLE: "/admin/inventory-management/consumable",
-  CREATE_CONSUMABLE: "/admin/inventory-management/create",
-  VIEW_CONSUMABLE: "/admin/inventory-management/consumables/:id",
+  INDEX_CONSUMABLE: "/dashboard/admin/inventory-management/consumable",
+  CREATE_CONSUMABLE: "/dashboard/admin/inventory-management/consumable/create",
+  VIEW_CONSUMABLE:
+    "/dashboard/admin/inventory-management/consumable/:id/details",
 
   // ASSET REQUEST
-  ASSETS_REQUEST: "/admin/inventory-management/asset-request",
-  ASSETS_REQUEST_CREATE: "/admin/inventory-management/asset-request/summary",
-  ASSETS_REQUEST_UPLOAD: "/admin/inventory-management/asset-request/uploads",
-  ASSETS_REQUEST_VIEW: "/admin/inventory-management/asset-request/:id",
+  ASSETS_REQUEST: "/dashboard/admin/inventory-management/asset-request",
+  ASSETS_REQUEST_CREATE:
+    "/dashboard/admin/inventory-management/asset-request/summary",
+  ASSETS_REQUEST_UPLOAD:
+    "/dashboard/admin/inventory-management/asset-request/uploads",
+  ASSETS_REQUEST_VIEW:
+    "/dashboard/admin/inventory-management/asset-request/:id",
+
+  // ASSETS
+  ASSETS: "/dashboard/admin/assets",
+  CREATE_ASSETS: "/dashboard/admin/assets/create",
+  VIEW_ASSETS: "/dashboard/admin/assets/:id/details",
 
   // VEHICLE REQUEST
-  INDEX_VEHICLE_REQUEST: "/admin/fleet-management/vehicle-request",
-  CREATE_VEHICLE_REQUEST: "/admin/fleet-management/vehicle-request/create",
-  VIEW_VEHICLE_REQUEST: "/admin/fleet-management/vehicle-request/:id",
+  INDEX_VEHICLE_REQUEST: "/dashboard/admin/fleet-management/vehicle-request",
+  CREATE_VEHICLE_REQUEST:
+    "/dashboard/admin/fleet-management/vehicle-request/create",
+  VIEW_VEHICLE_REQUEST: "/dashboard/admin/fleet-management/vehicle-request/:id",
+
+  // VEHICLE
+  INDEX_VEHICLE: "/dashboard/admin/fleet-management/vehicle",
+  CREATE_VEHICLE: "/dashboard/admin/fleet-management/vehicle/create",
+  VIEW_VEHICLE: "/dashboard/admin/fleet-management/vehicle/:id/details",
 
   // VEHICLE MAINTENANCE
-  INDEX_VEHICLE_MAINTENANCE: "/admin/fleet-management/vehicle-maintenance",
+  INDEX_VEHICLE_MAINTENANCE:
+    "/dashboard/admin/fleet-management/vehicle-maintenance",
   CREATE_VEHICLE_MAINTENANCE:
-    "/admin/fleet-management/vehicle-maintenance-create",
-  VIEW_VEHICLE_MAINTENANCE: "/admin/fleet-management/vehicle-maintenance/:id",
+    "/dashboard/admin/fleet-management/vehicle-maintenance/create",
+  VIEW_VEHICLE_MAINTENANCE:
+    "/dashboard/admin/fleet-management/vehicle-maintenance/:id",
 
   // FUEL CONSUMPTION RECORD
-  INDEX_FUEL_CONSUMPTION: "/admin/fleet-management/fuel-request",
-  CREATE_FUEL_CONSUMPTION: "/admin/fleet-management/fuel-request/create",
-  VIEW_FUEL_CONSUMPTION: "/admin/fleet-management/fuel-request/:id",
+  INDEX_FUEL_CONSUMPTION: "/dashboard/admin/fleet-management/fuel-request",
+  CREATE_FUEL_CONSUMPTION:
+    "/dashboard/admin/fleet-management/fuel-request/create",
+  VIEW_FUEL_CONSUMPTION: "/dashboard/admin/fleet-management/fuel-request/:id",
+
+  // FACILITY MANAGEMENT
+  INDEX_FACILITY_MANAGEMENT: "/dashboard/admin/facility-management",
+  CREATE_FACILITY_MANAGEMENT: "/dashboard/admin/facility-management/create",
+  VIEW_FACILITY_MANAGEMENT: "/dashboard/admin/facility-management/:id/details",
 
   // FACILITY MAINTENANCE TICKET
-  INDEX_FACILITY_MAINTENANCE: "/admin/facility-management/facility-maintenance",
+  INDEX_FACILITY_MAINTENANCE:
+    "/dashboard/admin/facility-management/facility-maintenance",
   CREATE_FACILITY_MAINTENANCE:
-    "/admin/facility-management/facility-maintenance/create",
+    "/dashboard/admin/facility-management/facility-maintenance/create",
   VIEW_FACILITY_MAINTENANCE:
-    "/admin/facility-management/facility-maintenance/:id",
+    "/dashboard/admin/facility-management/facility-maintenance/:id",
 
   // PAYMENT REQUEST
-  INDEX_PAYMENT_REQUEST: "/admin/payment-request",
-  CREATE_PAYMENT_REQUEST_SUMMARY: "/admin/payment-request/create/summary",
-  CREATE_PAYMENT_REQUEST_UPLOADS: "/admin/payment-request/create/uploads",
-  VIEW_PAYMENT_REQUEST: "/admin/payment-request/:id",
+  INDEX_PAYMENT_REQUEST: "/dashboard/admin/payment-request",
+  CREATE_PAYMENT_REQUEST_SUMMARY:
+    "/dashboard/admin/payment-request/create/summary",
+  CREATE_PAYMENT_REQUEST_UPLOADS:
+    "/dashboard/admin/payment-request/create/uploads",
+  VIEW_PAYMENT_REQUEST: "/dashboard/admin/payment-request/:id",
 
   // AGREEMENT
-  AGREEMENT: "/admin/agreements/",
+  AGREEMENT: "/dashboard/admin/agreement",
 
   // ASSET MAINTENANCE
-  INDEX_ASSET_MAINTENANCE: "/admin/asset-maintenance",
-  CREATE_ASSET_MAINTENANCE: "/admin/asset-maintenance/create",
-  VIEW_ASSET_MAINTENANCE: "/admin/asset-maintenance/:id",
+  INDEX_ASSET_MAINTENANCE: "/dashboard/admin/asset-maintenance",
+  CREATE_ASSET_MAINTENANCE: "/dashboard/admin/asset-maintenance/create",
+  VIEW_ASSET_MAINTENANCE: "/dashboard/admin/asset-maintenance/:id",
 
   // EXPENSE AUTHORIZATION
-  EXPENSE_AUTHORIZATION: "/admin/expense-authorization",
-  EXPENSE_AUTHORIZATION_CREATE: "/admin/expense-authorization/create",
-  EXPENSE_AUTHORIZATION_DETAIL: "/admin/expense-authorization/:id",
+  EXPENSE_AUTHORIZATION: "/dashboard/admin/expense-authorization",
+  EXPENSE_AUTHORIZATION_CREATE: "/dashboard/admin/expense-authorization/create",
+  EXPENSE_AUTHORIZATION_DETAIL: "/dashboard/admin/expense-authorization/:id",
 
   // TRAVEL EXPENSE REPORT
-  TRAVEL_EXPENSE_REPORT: "/admin/travel-expenses-report",
-  TRAVEL_EXPENSE_REPORT_CREATE: "/admin/travel-expenses-report/create",
-  TRAVEL_EXPENSE_REPORT_DETAIL: "/admin/travel-expenses-report/:id",
+  TRAVEL_EXPENSE_REPORT: "/dashboard/admin/travel-expenses-report",
+  TRAVEL_EXPENSE_REPORT_CREATE:
+    "/dashboard/admin/travel-expenses-report/create",
+  TRAVEL_EXPENSE_REPORT_DETAIL: "/dashboard/admin/travel-expenses-report/:id",
 
   // ---------------------
 
   /* GOOD RECEIVE NOTES START */
-  GRN: "/admin/inventory-management/good-receive-note",
-  GRN_CREATE_SUMMARY: "/admin/inventory-management/good-receive-note/create",
+  GRN: "/dashboard/admin/inventory-management/good-receive-note",
+  GRN_CREATE_SUMMARY:
+    "/dashboard/admin/inventory-management/good-receive-note/create",
   GRN_CREATE_UPLOADS:
-    "/admin/inventory-management/good-receive-note/create/uploads",
-  GRN_DETAIL: "/admin/inventory-management/good-receive-note/:id",
+    "/dashboard/admin/inventory-management/good-receive-note/create/uploads",
+  GRN_DETAIL: "/dashboard/admin/inventory-management/good-receive-note/:id",
   /* GOOD RECEIVE NOTES END */
 
-  ITEM_REQUISITION: "/admin/inventory-management/item-requisition",
-  ITEM_REQUISITION_DETAIL: "/admin/inventory-management/item-requisition/:id",
+  ITEM_REQUISITION: "/dashboard/admin/inventory-management/item-requisition",
+  ITEM_REQUISITION_DETAIL:
+    "/dashboard/admin/inventory-management/item-requisition/:id",
   CREATE_ITEM_REQUISITION:
-    "/admin/inventory-management/item-requisition/create",
-  ASSETS: "/admin/inventory-management/assets",
+    "/dashboard/admin/inventory-management/item-requisition/create",
 
-  CreateAssets: "/admin/inventory-management/create-assets",
-  ViewAssets: "/admin/inventory-management/view-assets",
+  INVENTORY_ASSETS: "/dashboard/admin/inventory-management/assets",
 
-  HMO: "/admin/agrements/HM0",
-  SLA: "/admin/agrements/SLA",
-  Security: "/admin/agrements/security",
-  Insurance: "/admin/agrements/insurance",
-  Ticketing: "/admin/agrements/ticketing",
-  ViewAggrement: "/admin/agrements/View-Aggrement",
+  HMO: "/dashboard/admin/agreement/hmo",
+  SLA: "/dashboard/admin/agreement/sla",
+  Security: "/dashboard/admin/agreement/security",
+  Insurance: "/dashboard/admin/agreement/insurance",
+  Ticketing: "/dashboard/admin/agreement/ticketing",
+  ViewAggrement: "/dashboard/admin/agreement/view",
 
   //rfq routes
-  RFQ: "/admin/solicitation/rfq",
+  RFQ: "/dashboard/admin/solicitation-management/rfq",
   RFQ_CREATE_QUOTATION: "/admin/solicitation/rfq/create/quotation",
   RFQ_CREATE_ITEMS: "/admin/solicitation/rfq/create/items",
   RFQ_DETAILS: "/admin/solicitation/rfq/:id",
@@ -130,57 +157,63 @@ export const AdminRoutes = {
 
 export const RouteEnum = {
   // MODULES
-  MODULES_PROJECTS: "/modules/project",
-  MODULES_PROGRAMS: "/modules/programs",
-  MODULES_ADMIN: "/modules/admin",
-  MODULES_CONFIG: "/modules/config",
-  MODULES_PROCUREMENT: "/modules/procurement",
-  MODULES_FINANCE: "/modules/finance",
-  MODULES_HR: "/modules/hr",
+  MODULES_PROJECTS: "/dashboard/modules/project",
+  MODULES_PROGRAMS: "/dashboard/modules/programs",
+  MODULES_ADMIN: "/dashboard/modules/admin",
+  MODULES_CONFIG: "/dashboard/modules/config",
+  MODULES_PROCUREMENT: "/dashboard/modules/procurement",
+  MODULES_FINANCE: "/dashboard/modules/finance",
+  MODULES_HR: "/dashboard/modules/hr",
 
   // ----------------------------
   //projects routes
-  PROJECTS: "/projects",
-  PROJECTS_DETAILS: "/projects/:id",
-  PROJECTS_CREATE_SUMMARY: "/projects/create/summary",
-  PROJECTS_CREATE_UPLOADS: "/projects/create/uploads",
-  PROJECTS_EDIT_SUMMARY: "/projects/:id/create/summary",
-  PROJECTS_EDIT_UPLOADS: "/projects/:id/create/uploads",
+  PROJECTS: "/dashboard/projects",
+  PROJECTS_DETAILS: "/dashboard/projects/:id",
+  PROJECTS_CREATE_SUMMARY: "/dashboard/projects/create/summary",
+  PROJECTS_CREATE_UPLOADS: "/dashboard/projects/create/uploads",
+  PROJECTS_EDIT_SUMMARY: "/dashboard/projects/:id/create/summary",
+  PROJECTS_EDIT_UPLOADS: "/dashboard/projects/:id/create/uploads",
   // PROJECTS_CREATE_PERFORMANCE: "/projects/create/performance",
 
   /* -------------------------------------------- */
 
   // procurement routes
-  DASHBOARD: "/",
+  DASHBOARD: "/dashboard",
 
-  OVERVIEW: "/procurement-management/overview",
+  PROCUREMENT_OVERVIEW: "/dashboard/procurement/overview",
 
   COMPETITIVE_SELECTION:
-    "/procurement-management/competitive-bid-analysis/selection",
+    "/dashboard/procurement/competitive-bid-analysis/selection",
 
-  PAYMENT_REQUEST: "/procurement-management/payment-request",
+  PROCUREMENT_PAYMENT_REQUEST: "/dashboard/procurement/payment-request",
 
   //purchase request routes
-  PURCHASE_REQUEST: "/procurement-management/purchase-request",
-  PENDING_PURCHASE_REQUEST: "/procurement-management/purchase-request/pending",
-  PURCHASE_REQUEST_DETAILS: "/procurement-management/purchase-request/:id",
-  PURCHASE_REQUEST_FORM: "/procurement-management/purchase-request/form",
-  CREATE_PURCHASE_REQUEST: "/procurement-management/create-purchase-request",
-  CREATE_SAMPLE_MEMO: "/procurement-management/purchase-request/activity-memo",
-  SAMPLE_PREVIEW: "/procurement-management/purchase-request/sample-preview",
-  PREVIEW_LETTER: "/procurement-management/purchase-request/preview-letter",
-  FINAL_PREVIEW: "/procurement-management/purchase-request/final-preview",
+  PURCHASE_REQUEST: "/dashboard/procurement/purchase-request",
+  PENDING_PURCHASE_REQUEST: "/dashboard/procurement/purchase-request/pending",
+  PURCHASE_REQUEST_DETAILS:
+    "/dashboard/procurement/purchase-request/:id/details",
+  PURCHASE_REQUEST_FORM: "/dashboard/procurement/purchase-request/form",
+  CREATE_PURCHASE_REQUEST: "/dashboard/procurement/purchase-request/create",
+  CREATE_SAMPLE_MEMO: "/dashboard/procurement/purchase-request/activity-memo",
+  SAMPLE_PREVIEW: "/dashboard/procurement/purchase-request/sample-preview",
+  PREVIEW_LETTER: "/dashboard/procurement/purchase-request/preview-letter",
+  FINAL_PREVIEW: "/dashboard/procurement/purchase-request/final-preview",
+
+  //purchase order routes
+  PURCHASE_ORDER: "/dashboard/procurement/purchase-order",
+  PURCHASE_ORDER_DETAILS: "/dashboard/procurement/purchase-order/:id/details",
+  CREATE_PURCHASE_ORDER: "/dashboard/procurement/purchase-order/create",
 
   //procurement routes
-  PROCUREMENT_PLAN: "/procurement-management/procurement-plan",
+  PROCUREMENT_PLAN: "/dashboard/procurement/procurement-plan",
   PROCUREMENT_PLAN_FINANCIAL_YEAR:
-    "/procurement-management/procurement-plan/financial-year",
-  PROCUREMENT_DETAILS: "/procurement-management/procurement-plan/:id",
+    "/dashboard/procurement/procurement-plan/financial-year",
+  PROCUREMENT_DETAILS: "/dashboard/procurement/procurement-plan/:id",
   CREATE_PROCUREMENT:
-    "/procurement-management/procurement-plan/create/procurement-plan",
+    "/dashboard/procurement/procurement-plan/create/procurement-plan",
   CREATE_PROCUREMENT_MILESTONE:
-    "/procurement-management/procurement-plan/create/procurement-milestones",
-  PROCUREMENT_TRACKER: "/procurement-management/procurement-tracker",
+    "/dashboard/procurement/procurement-plan/create/procurement-milestones",
+  PROCUREMENT_TRACKER: "/dashboard/procurement/procurement-tracker",
 
   //rfq routes
   RFQ: "/procurement-management/solicitation/rfq",
@@ -278,7 +311,8 @@ export const RouteEnum = {
   PROGRAM_CREATE_ACTIVITY_PLAN: "/dashboard/programs/plan/activity-plan/create",
 
   PROGRAM_ACTIVITY_TRACKER: "/dashboard/programs/plan/activity-tracker",
-  PROGRAM_ACTIVITY_TRACKER_DETAILS: "/dashboard/programs/plan/activity-tracker/:id",
+  PROGRAM_ACTIVITY_TRACKER_DETAILS:
+    "/dashboard/programs/plan/activity-tracker/:id",
   PROGRAM_ACTIVITY_TRACKER_CREATE:
     "/dashboard/programs/plan/activity-tracker/create",
 
@@ -286,7 +320,8 @@ export const RouteEnum = {
   PROGRAM_RISK_MANAGEMENT_CREATE:
     "/dashboard/programs/plan/risk-management-plan/create",
   PROGRAM_VALUE_MANAGEMENT: "/dashboard/programs/plan/value-management-plan",
-  PROGRAM_SUPPORTIVE_SUPERVISION: "/dashboard/programs/plan/supportive-supervision-plan",
+  PROGRAM_SUPPORTIVE_SUPERVISION:
+    "/dashboard/programs/plan/supportive-supervision-plan",
   PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS:
     "/dashboard/programs/plan/supportive-supervision-plan/:id",
   PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS_APPROVAL:
@@ -300,7 +335,8 @@ export const RouteEnum = {
 
   PROGRAM_FUND_REQUEST: "/dashboard/programs/fund-request",
   PROGRAM_FUND_REQUEST_DETAILS: "/dashboard/programs/fund-request/:id/",
-  PROGRAM_FUND_REQUEST_CREATE: "/dashboard/programs/fund-request/create/project-details",
+  PROGRAM_FUND_REQUEST_CREATE:
+    "/dashboard/programs/fund-request/create/project-details",
   PROGRAM_FUND_REQUEST_FUND_SUMMARY:
     "/dashboard/programs/fund-request/create/fund-request-summary",
   PROGRAM_FUND_REQUEST_PREVIEW:
@@ -353,21 +389,21 @@ export const RouteEnum = {
 };
 
 export const CG_ROUTES = {
-  OVERVIEW: "/c-and-g/overview",
+  OVERVIEW: "/dashboard/c-and-g/overview",
 
   /* DONOR DATABASE */
-  DONOR_DATABSE: "/c-and-g/donor-database",
-  VIEW_DONOR_DATABASE: "/c-and-g/donor-database/:id",
+  DONOR_DATABSE: "/dashboard/c-and-g/donor-database",
+  VIEW_DONOR_DATABASE: "/dashboard/c-and-g/donor-database/:id",
   /* DONOR DATABASE */
 
-  GRANT: "/c-and-g/grant",
-  GRANT_CREATE: "/c-and-g/create-grant",
-  GRANT_DETAILS: "/c-and-g/grant-details/:id",
+  GRANT: "/dashboard/c-and-g/grant",
+  CREATE_GRANT: "/dashboard/c-and-g/grant/create",
+  GRANT_DETAILS: "/dashboard/c-and-g/grant/:id/details",
 
   /* SUB GRANT */
-  SUBGRANT_ADVERT: "/c-and-g/sub-grant",
-  CREATE_SUBGRANT_ADVERT: "/c-and-g/sub-grant/create-sub-grant",
-  SUBGRANT_ADVERT_DETAILS: "/c-and-g/sub-grant/:id",
+  SUBGRANT_ADVERT: "/dashboard/c-and-g/sub-grant",
+  CREATE_SUBGRANT_ADVERT: "/dashboard/c-and-g/sub-grant/create",
+  SUBGRANT_ADVERT_DETAILS: "/dashboard/c-and-g/sub-grant/:id/details",
   SUBGRANT_CREATE_PRE_AWARD_ASSESSMENT:
     "/c-and-g/sub-grant/:id/create-pre-award-assessment",
   CREATE_SUBGRANT_SUBMISSION_DETAILS:
@@ -443,9 +479,9 @@ export const CG_ROUTES = {
 };
 
 export const HrRoutes = {
-  ADVERTISEMENT: "/hr/advertisement",
-  ADVERTISEMENT_ADD: "/hr/advertisement/add-advertisement",
-  ADVERTISEMENT_DETAIL: "/hr/advertisement/:id",
+  ADVERTISEMENT: "/dashboard/hr/advertisement",
+  ADVERTISEMENT_ADD: "/dashboard/hr/advertisement/add-advertisement",
+  ADVERTISEMENT_DETAIL: "/dashboard/hr/advertisement/:id",
   ADVERTISEMENT_DETAIL_SUB_APP:
     "/hr/advertisement/:id/submitted-applications/:appID",
   ADVERTISEMENT_MANUAL_APPLICATION_SUBMISSION:
@@ -457,8 +493,10 @@ export const HrRoutes = {
     "/hr/advertisement/:id/interview-details/:appID",
 
   SELECTION: "hr/selection",
-  ONBOARDING: "/hr/onboarding",
-  ONBOARDING_START: "/hr/onboarding/start-onboarding/:id/",
+  ONBOARDING: "/dashboard/hr/onboarding",
+  CREATE_ONBOARDING: "/dashboard/hr/onboarding/create",
+  ONBOARDING_DETAILS: "/dashboard/hr/onboarding/:id/details",
+  ONBOARDING_START: "/dashboard/hr/onboarding/start-onboarding/:id/",
   ONBOARDING_ADD_EMPLOYEE_INFO:
     "/hr/onboarding/add-employee/employee-information/:id/",
   ONBOARDING_ADD_EMPLOYEE_ADD:
@@ -473,31 +511,33 @@ export const HrRoutes = {
     "/hr/onboarding/add-employee/pension-scheme-enrolment/:id/",
   WORKFORCE_NEED_ANALYSIS: "/hr/workforce-need-analysis",
   WORKFORCE_NEED_ANALYSIS_CREATE: "/hr/workforce-need-analysis/create",
-  WORKFORCE_DATABASE: "/hr/workforce-database",
-  WORKFORCE_DATABASE_CREATE: "/hr/workforce-database/create",
-  WORKFORCE_DATABASE_DETAIL: "/hr/workforce-database/:id",
+  WORKFORCE_DATABASE: "/dashboard/hr/workforce-database",
+  WORKFORCE_DATABASE_CREATE: "/dashboard/hr/workforce-database/employee/create",
+  WORKFORCE_DATABASE_DETAIL: "/dashboard/hr/workforce-database/employee/:id/details",
   PERFORMANCE_MANAGEMENT: "/hr/performance-management",
   PERFORMANCE_MANAGEMENT_CREATE: "/hr/performance-management/create",
   PERFORMANCE_MANAGEMENT_DETAIL: "/hr/performance-management/:id",
-  EMPLOYEE_BENEFITS_COMPENSATION: "/hr/employee-benefit/compensation",
-  EMPLOYEE_BENEFITS_COMPENSATION_SPREAD:
-    "/hr/employee-benefit/compensation-spread",
-  EMPLOYEE_BENEFITS_COMPENSATION_CREATE:
-    "/hr/employee-benefit/compensation/create",
-  EMPLOYEE_BENEFITS_PAY_ROLL: "/hr/employee-benefit/pay-roll",
-  EMPLOYEE_BENEFITS_PAY_ROLL_INFO: "/hr/employee-benefit/pay-roll/:id",
-  EMPLOYEE_BENEFITS_PAY_ROLL_CREATE: "/hr/employee-benefit/pay-roll/create",
-  EMPLOYEE_BENEFITS_PAY_GROUP: "/hr/employee-benefit/pay-group",
+  EMPLOYEE_BENEFITS_COMPENSATION: "/dashboard/hr/employee-benefit/compensation",
+  EMPLOYEE_BENEFITS_COMPENSATION_SPREAD: "/dashboard/hr/employee-benefit/compensation-spread",
+  EMPLOYEE_BENEFITS_COMPENSATION_CREATE: "/dashboard/hr/employee-benefit/compensation/create",
+  EMPLOYEE_BENEFITS_PAY_ROLL: "/dashboard/hr/employee-benefit/pay-roll",
+  EMPLOYEE_BENEFITS_PAY_ROLL_INFO: "/dashboard/hr/employee-benefit/pay-roll/:id",
+  EMPLOYEE_BENEFITS_PAY_ROLL_CREATE: "/dashboard/hr/employee-benefit/pay-roll/create",
+  EMPLOYEE_BENEFITS_PAY_GROUP: "/dashboard/hr/employee-benefit/pay-group",
   SEPARATION_MANAGEMENT: "/hr/separation-management",
   SEPARATION_MANAGEMENT_CREATE: "/hr/separation-management/create",
   SEPARATION_MANAGEMENT_DETAIL: "/hr/separation-management/:id",
-  GRIEVANCE_MANAGEMENT: "/hr/grievance-management",
-  GRIEVANCE_MANAGEMENT_CREATE: "/hr/grievance-management/create",
-  GRIEVANCE_MANAGEMENT_DETAILS: "/hr/grievance-management/:id",
-  LEAVE_MANAGEMENT_REQUEST_LEAVE: "/hr/leave-management/request-leave",
-  LEAVE_MANAGEMENT_LEAVE_LIST: "/hr/leave-management/leave-list",
-  LEAVE_MANAGEMENT_ASSIGN_LEAVE: "/hr/leave-management/assign-leave",
-  LEAVE_MANAGEMENT_LEAVE_LIST_DETAIL: "/hr/leave-management/leave-list/:id",
+  GRIEVANCE_MANAGEMENT: "/dashboard/hr/grievance-management",
+  GRIEVANCE_MANAGEMENT_CREATE: "/dashboard/hr/grievance-management/create",
+  GRIEVANCE_MANAGEMENT_DETAILS: "/dashboard/hr/grievance-management/:id/details",
+  LEAVE_MANAGEMENT: "/dashboard/hr/leave-management",
+  LEAVE_MANAGEMENT_CREATE: "/dashboard/hr/leave-management/create",
+  LEAVE_MANAGEMENT_DETAILS: "/dashboard/hr/leave-management/:id/details",
+  LEAVE_MANAGEMENT_ASSIGNMENT: "/dashboard/hr/leave-management/assignment",
+  LEAVE_MANAGEMENT_REQUEST_LEAVE: "/dashboard/hr/leave-management/request-leave",
+  LEAVE_MANAGEMENT_LEAVE_LIST: "/dashboard/hr/leave-management/leave-list",
+  LEAVE_MANAGEMENT_ASSIGN_LEAVE: "/dashboard/hr/leave-management/assign-leave",
+  LEAVE_MANAGEMENT_LEAVE_LIST_DETAIL: "/dashboard/hr/leave-management/leave-list/:id",
   LEAVE_MANAGEMENT_LEAVE_SETTINGS: "hr/leave-management/leave-settings",
   TIMESHEET_MANAGEMENT: "/hr/timesheet-management",
   TIMESHEET_MANAGEMENT_DETAIL: "/hr/timesheet-management/:id",
@@ -508,7 +548,7 @@ export const HrRoutes = {
 
 /* *************** PROGRAM ROUTES *************** */
 export enum ProgramRoutes {
-  SUPERVISION_PLAN_EVALUATION_DETAILS = "/dashboard/programs/plan/supportive-supervsion-plan/:supervisionPlanId/view-evaluation/",
+  SUPERVISION_PLAN_EVALUATION_DETAILS = "/dashboard/programs/plan/supportive-supervision-plan/:id/view-evaluation/",
 
   ADHOC_MANAGEMENT = "/dashboard/programs/adhoc-management/",
   CREATE_ADHOC_DETAILS = "/dashboard/programs/adhoc-management/create-adhoc-details/",
@@ -516,8 +556,8 @@ export enum ProgramRoutes {
   ADHOC_DETAILS = "/dashboard/programs/adhoc-management/:id/details/",
   CREATE_ADHOC_INTERVIEW = "/dashboard/programs/adhoc-management/:id/create-interview/",
   CREATE_ADHOC_APPLICANT = "/dashboard/programs/adhoc-management/:id/applicant/create/",
-  ADHOC_APPLICANT_DETAILS = "/dashboard/programs/adhoc-management/:adhocId/applicant/:applicantId/details/",
-  ADHOC_APPLICANT_INTERVIEW = "/dashboard/programs/adhoc-management/:adhocId/applicant/:applicantId/adhoc-interview/",
+  ADHOC_APPLICANT_DETAILS = "/dashboard/programs/adhoc-management/:id/applicant/:applicantId/details/",
+  ADHOC_APPLICANT_INTERVIEW = "/dashboard/programs/adhoc-management/:id/applicant/:applicantId/adhoc-interview/",
   ADHOC_DATABASE = "/dashboard/programs/adhoc-database/",
 
   ADHOC_ACCEPTANCE = "/dashboard/programs/adhoc/adhoc-acceptance",

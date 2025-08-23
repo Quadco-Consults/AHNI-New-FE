@@ -1,4 +1,5 @@
-import { Link, useNavigate } 
+import Link from "next/link";
+import { useRouter } from "next/navigation"; 
 import ProjectLayout from "./ProjectLayout";
 import Card from "components/Card";
 import { Button } from "components/ui/button";

@@ -1,8 +1,10 @@
+"use client";
+
 import { useState } from "react";
-import StepHeader from "./StepHeader";
+import StepHeader from "@/components/StepHeader";
 import ProcurementPlansForm from "./forms/ProcurementPlansForm";
 import ProcurementMilestonesForm from "./forms/ProcurementMilestonesForm";
-import SuccessModal from "./SuccessModal";
+import SuccessModal from "@/features/programs/components/modals/FundSuccessModal";
 
 const CreateProcurement = () => {
   const [formData, setFormData] = useState<any>({});

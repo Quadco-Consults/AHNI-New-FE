@@ -1,3 +1,5 @@
+"use client";
+
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import { Label } from "components/ui/label";
 import { useRouter } from "next/navigation";
@@ -13,26 +15,26 @@ import {
 } from "components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { useEffect, useMemo, useState } from "react";
-import { useGetVendors } from "@/features/procurement/controllers/vendor";
-import { useGetAllPurchaseRequests } from "@/features/procurement/controllers/purchaseRequest";
+import { useGetVendorsPaginate } from "@/features/procurement/controllers/vendorController";
+import { useGetPurchaseRequestsPaginate } from "@/features/procurement/controllers/purchaseRequestController";
 import { LoadingSpinner } from "components/Loading";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
-import { PurchaseOrderListSchema } from "features/procurement/types/procurement-validator";
+import { PurchaseOrderListSchema } from "@/features/procurement/types/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "components/atoms/FormInput";
 import { Form, FormControl, FormField, FormItem } from "components/ui/form";
 import FormButton from "components/atoms/FormButton";
 import LongArrowRight from "components/icons/LongArrowRight";
 import BreadcrumbCard from "components/Breadcrumb";
-import { useGetAllDepartments } from "@/features/modules/controllers/config/department";
+import { useGetDepartmentPaginate } from "@/features/modules/controllers/config/departmentController";
 import { toast } from "sonner";
-import { useCreatePurchaseOrder } from "@/features/procurement/controllers/purchaseOrder";
+import { useCreatePurchaseOrder } from "@/features/procurement/controllers/purchaseOrderController";
 import { RouteEnum } from "constants/RouterConstants";
-import { useGetAllFCONumbers } from "@/features/modules/controllers/finance/fco-number";
+import { useGetFcoNumberPaginate } from "@/features/modules/controllers/config/gradeController";
 import MultiSelectFormField from "components/ui/multiselect";
 import FormSelect from "components/atoms/FormSelect";
-import { useGetAllItems } from "@/features/modules/controllers/config/item";
+import { useGetItemsPaginate } from "@/features/modules/controllers/config/itemController";
 
 const PurchaseOrderNew = () => {
   const [open, setOpen] = useState(false);

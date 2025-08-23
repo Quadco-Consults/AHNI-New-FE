@@ -1,3 +1,5 @@
+"use client";
+
 // import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "components/atoms/FormButton";
 import FormInput from "components/atoms/FormInput";
@@ -16,11 +18,11 @@ import { UploadIcon } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import FileUpload from "components/atoms/FileUpload";
-import { useCreateGrievianceManagement } from "@/features/hr/controllers/hrGrievianceManagement";
+import { useCreateGrievance } from "@/features/hr/controllers/grievanceController";
 import {
   GrievianceManagementSchema,
   TGrievianceManagementFormData,
-} from "definations/hr-types/grieviance-management";
+} from "@/features/hr/types/grieviance-management";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 

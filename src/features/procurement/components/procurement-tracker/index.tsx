@@ -1,5 +1,7 @@
 "use client";
 
+"use client";
+
 import { Button } from "components/ui/button";
 import BreadcrumbCard from "components/Breadcrumb";
 import { useGetAllProcurementTrackers } from "@/features/procurement/controllers/procurementTrackerController";

@@ -1,3 +1,5 @@
+"use client";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { useParams } from "next/navigation";
 
@@ -6,16 +8,15 @@ import { LoadingSpinner } from "components/Loading";
 import DetailsContent from "./tab-contents/Details-content";
 import VendorSubmission from "./tab-contents/Vendor-submission";
 import BreadcrumbCard from "components/Breadcrumb";
-import { useGetSingleSolicitation } from "@/features/procurementApi/solicitation";
-import { skipToken } from "@reduxjs/toolkit/query/react";
+import { useGetSolicitationById } from "@/features/procurement/controllers/solicitationController";
 import GoBack from "components/GoBack";
-import EOIVendorSubmission from "pages/protectedPages/procurement-management/vendor-management/eoi/eoi-tabs-contents/EOIVendorSubmission";
-import SummaryOfTechnicalPrequalification from "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/SummaryOfTechnicalPrequalification";
+import EOIVendorSubmission from "@/features/procurement/components/vendor-management/eoi/EOIVendorSubmission";
+import SummaryOfTechnicalPrequalification from "@/features/procurement/components/competitive-bid-analysis/[id]/SummaryOfTechnicalPrequalification";
 
 const RFQDetails = () => {
   const { id } = useParams();
 
-  const { data, isLoading } = useGetSingleSolicitation(id ?? skipToken);
+  const { data, isLoading } = useGetSolicitationById({ id: id as string, enabled: !!id });
 
   if (isLoading) return <LoadingSpinner />;
 

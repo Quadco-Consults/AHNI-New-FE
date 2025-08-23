@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { skipToken } from "@reduxjs/toolkit/query";
 import BackNavigation from "components/atoms/BackNavigation";
@@ -11,13 +13,13 @@ import { CG_ROUTES } from "constants/RouterConstants";
 import { GrantSchema, TGrantFormData } from "features/contracts-grants/types/grants";
 import { useEffect } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useNavigate, useSearchParams } 
+import { useNavigate, useSearchParams } from "next/navigation";
 import {
   useCreateGrant,
   useGetSingleGrant,
   useModifyGrant,
-} from "@/features/contracts-grants/controllers/grant/grantController";
-import { useGetAllProjects } from "@/features/projects/controllers/project";
+} from "@/features/contracts-grants/controllers/grantController";
+import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { toast } from "sonner";
 
 const awardTypeOptions = [

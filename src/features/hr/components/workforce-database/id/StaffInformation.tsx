@@ -16,7 +16,7 @@ import {
 
 import PdfIcon from "components/icons/PdfIcon";
 import { EmployeeOnboarding } from "definations/hr-types/employee-onboarding";
-import { useGetEmployeeOnboardingQualificationsList } from "@/features/hr/controllers/hr-employee-onboarding-qualificationsController";
+import { useGetEmployeeOnboardingQualificationsList } from "@/features/hr/controllers/hrEmployeeOnboardingQualificationsController";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",

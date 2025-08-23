@@ -12,7 +12,7 @@ import SearchIcon from "components/icons/SearchIcon";
 import { Column, ColumnDef, Row } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import BreadcrumbCard from "components/Breadcrumb";
-import ProcurementPlanAPI from "@/features/procurement/controllers/procurement-planController";
+import ProcurementPlanAPI from "@/features/procurement/controllers/procurementPlanController";
 // import { ProcurementPlanResultsData } from "definations/procurement-types/procurementPlan";
 import UploadIcon from "components/icons/UploadIcon";
 // import { useAppDispatch } from "hooks/useStore";

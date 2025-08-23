@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "components/atoms/FormButton";
 import FormInput from "components/atoms/FormInput";
@@ -14,7 +16,7 @@ import MultiSelectFormField from "components/ui/multiselect";
 import { Separator } from "components/ui/separator";
 import { RouteEnum } from "constants/RouterConstants";
 
-import { SampleMemoSchema } from "definations/procurement-validator";
+import { SampleMemoSchema } from "@/features/procurement/types/procurement-validator";
 
 // import { MinusCircle } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -29,14 +31,14 @@ import { useGetAllBudgetLines } from "@/features/modules/controllers/finance/bud
 import { useGetAllCostCategories } from "@/features/modules/controllers/finance/costCategoryController";
 import { useGetAllCostInputs } from "@/features/modules/controllers/finance/costInputController";
 import { useGetAllFCONumbers } from "@/features/modules/controllers/finance/fcoNumberController";
-import { useGetAllInterventionAreas } from "@/features/modules/controllers/program/interventionController";
+import { useGetAllInterventionAreas } from "@/features/modules/controllers/program/interventionAreaController";
 
 import { useGetAllFundingSources } from "@/features/modules/controllers/project/fundingSourceController";
 
 import { activityActions } from "store/formData/activity-memo";
 import { z } from "zod";
 import ExpensesForm from "./ExpensesForm";
-import { useGetAllActivityPlans } from "@/features/programs/controllers/activity-plan/activityPlanController";
+import { useGetAllActivityPlans } from "@/features/programs/controllers/activityPlanController";
 import { useEffect } from "react";
 import { Button } from "components/ui/button";
 import { openDialog } from "store/ui";

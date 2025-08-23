@@ -18,7 +18,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate, useParams } 
 import InterviewAPI, {
   useCreateInterview,
-} from "@/features/hrApi/hr-interviewController";
+} from "@/features/hr/controllers/interviewControllerController";
 import { useGetJobApplication } from "@/features/hrApi/hr-job-applications";
 import { toast } from "sonner";
 

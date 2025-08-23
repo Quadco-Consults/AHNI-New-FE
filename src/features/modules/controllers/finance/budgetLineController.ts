@@ -121,6 +121,7 @@ export const DeleteBudgetLineManager = () => {
 };
 
 // Backward compatibility exports - RTK Query style
+export const useGetAllBudgetLines = useGetAllBudgetLinesManager;
 export const useGetAllBudgetLinesQuery = useGetAllBudgetLinesManager;
 export const useGetSingleBudgetLineQuery = useGetSingleBudgetLineManager;
 

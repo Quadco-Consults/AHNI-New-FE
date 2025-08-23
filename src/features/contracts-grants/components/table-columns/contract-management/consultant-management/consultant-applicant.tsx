@@ -13,7 +13,7 @@ import Link from "next/link";
 import { usePathname, useParams } from "next/navigation";
 import { useDeleteAgreement } from "@/features/contracts-grants/controllers/agreementController";
 import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
-import { IConsultancyStaffPaginatedData } from "definations/c&g/contract-management/consultancy-management/consultancy-application";
+import { IConsultancyStaffPaginatedData } from "@/features/contracts-grants/types/contract-management/consultancy-management/consultancy-application";
 import EyeIcon from "components/icons/EyeIcon";
 
 export const consultancyStaffColumns: ColumnDef<IConsultancyStaffPaginatedData>[] =

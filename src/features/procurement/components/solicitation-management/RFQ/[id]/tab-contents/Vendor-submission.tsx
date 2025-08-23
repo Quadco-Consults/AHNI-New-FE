@@ -6,12 +6,13 @@ import { Checkbox } from "components/ui/checkbox";
 import { cn } from "lib/utils";
 import { Button } from "components/ui/button";
 import { Input } from "components/ui/input";
-import { Link, generatePath, useParams } 
+import { useParams } from "next/navigation";
+import Link from "next/link";
 import { RouteEnum } from "constants/RouterConstants";
 import DataTable from "components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import { SolicitationSubmissionResultsData } from "definations/procurement-types/solicitation";
-import { useGetSolicitationSubmission } from "@/features/procurementApi/vendor-bid-submissions";
+import { useGetVendorBidSubmissions } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 import IconButton from "components/IconButton";
 
 const VendorSubmission = () => {

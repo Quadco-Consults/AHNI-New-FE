@@ -15,7 +15,7 @@ export default function ProcurementPlansForm() {
 // import FormTextArea from "components/atoms/FormTextArea";
 // import FormInput from "components/atoms/FormInput";
 // import { z } from "zod";
-// import { ProcurementPlanSchema } from "definations/procurement-validator";
+// import { ProcurementPlanSchema } from "@/features/procurement/types/procurement-validator";
 // import { zodResolver } from "@hookform/resolvers/zod";
 // import VendorsAPI from "@/features/procurement/controllers/vendorsController";
 // import { VendorsResultsData } from "definations/procurement-types/vendors";

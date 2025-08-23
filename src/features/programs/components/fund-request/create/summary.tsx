@@ -1,4 +1,6 @@
-import { useRouter } from "next/navigation"; import { usePathname } from "next/navigation";
+"use client";
+
+import { useRouter, usePathname } from "next/navigation";
 import FormButton from "components/atoms/FormButton";
 import { Button } from "components/ui/button";
 import FundRequstLayout from "./Layout";
@@ -20,7 +22,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelect";
-import { useGetAllCostCategories } from "@/features/modules/controllers/finance/cost-category";
+import { useGetCostCategoryPaginate } from "@/features/modules/controllers/finance/costCategoryController";
 
 const FundSummary: React.FC = () => {
     const router = useRouter();

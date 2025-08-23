@@ -1,5 +1,7 @@
 "use client";
 
+"use client";
+
 import Card from "components/Card";
 import {
   Table,

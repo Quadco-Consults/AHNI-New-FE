@@ -1,3 +1,5 @@
+"use client";
+
 import { LoadingSpinner } from "components/Loading";
 import { Card, CardContent, CardHeader } from "components/ui/card";
 import { useParams } from "next/navigation";
