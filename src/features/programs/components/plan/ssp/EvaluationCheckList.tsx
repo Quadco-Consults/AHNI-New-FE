@@ -1,4 +1,6 @@
-import { useNavigate, useSearchParams } 
+"use client";
+
+import { useRouter, useSearchParams } from "next/navigation";
 import SupportiveSupervisionPlanLayout from "./SupportiveSupervisionPlanLayout";
 import FormButton from "components/atoms/FormButton";
 import { openDialog } from "store/ui";
@@ -11,7 +13,7 @@ import {
   useCreateSupervisionPlanController,
   useGetSingleSupervisionPlan,
   useModifySupervisionPlan,
-} from "@/features/program/plan/supervision-plan/supervision-planController";
+} from "@/features/programs/controllers/supervisionPlanController";
 import { TSSPCompositionFormValues } from "definations/program/plan/supervision-plan/supervision-plan";
 import { formatDate } from "utils/date";
 import { RouteEnum } from "constants/RouterConstants";
@@ -142,7 +144,7 @@ export default function EvaluationCheckList() {
         <div className='mt-10'>
           <div className='flex justify-end gap-5 pt-24'>
             <FormButton
-              onClick={() => router.push(-1)}
+              onClick={() => router.back()}
               type='button'
               size='lg'
               className='bg-[#FFF2F2] text-primary dark:text-gray-500'

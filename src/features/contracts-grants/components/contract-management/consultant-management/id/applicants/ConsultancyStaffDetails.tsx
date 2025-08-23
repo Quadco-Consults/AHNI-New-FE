@@ -37,7 +37,7 @@ export default function ConsultancyStaffDetails() {
       })();
       toast.success("Contract Updated Successfully");
 
-      router.push(-1);
+      router.back();
     } catch (error: any) {
       toast.error(error.data.message ?? "Something went wrong");
     }

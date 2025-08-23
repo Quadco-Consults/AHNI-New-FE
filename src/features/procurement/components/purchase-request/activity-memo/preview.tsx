@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
@@ -10,7 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "store/index";
 
 import { toast } from "sonner";
-import PurchaseRequestAPI from "@/features/procurement/controllers/purchase-sample-request Controller";
+import PurchaseRequestAPI from "@/features/procurement/controllers/purchaseSampleRequestController";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import {
   Table,
@@ -21,9 +23,9 @@ import {
 } from "components/ui/table";
 // import FormInput from "components/atoms/FormInput";
 import { Form } from "components/ui/form";
-import { Link, useNavigate } 
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { RouteEnum } from "constants/RouterConstants";
-import useQuery from "hooks/use";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { activityActions } from "store/formData/activity-memo";
 
@@ -55,9 +57,9 @@ const UploadSchema = z.object({
 type FormData = z.infer<typeof UploadSchema>;
 
 const CheckboxForm = () => {
-  const query = useQuery();
-  const id = query.get("id");
-  const request = query.get("request");
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
+  const request = searchParams.get("request");
 
   const router = useRouter();
   const dispatch = useDispatch();

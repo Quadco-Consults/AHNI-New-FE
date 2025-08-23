@@ -83,7 +83,7 @@ const InterviewForm = () => {
       }).unwrap();
 
       toast.success(" Interview Submitted successfully");
-      router.push(-1);
+      router.back();
       // router.push(RouteEnum.VENDOR_PERFORMANCE_EVALUATION);
     } catch (error) {
       toast.error("Something went wrong");

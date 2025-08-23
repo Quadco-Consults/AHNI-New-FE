@@ -84,7 +84,7 @@ const CreateFundRequest = () => {
   const { pathname } = useLocation();
 
   const goBack = () => {
-    router.push(-1);
+    router.back();
   };
 
   const { data: project } = useGetAllProjects({

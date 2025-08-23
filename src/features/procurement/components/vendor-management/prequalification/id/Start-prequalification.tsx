@@ -131,7 +131,7 @@ const StartPrequalification = () => {
       </Breadcrumb>
 
       <Button
-        onClick={() => router.push(-1)}
+        onClick={() => router.back()}
         variant='outline'
         className='gap-2 text-primary border-primary'
       >

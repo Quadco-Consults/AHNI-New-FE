@@ -32,7 +32,7 @@ import {
   useUpdateEngagementPlan,
 } from "@/features/programs/controllers/engagementPlanController";
 import { toast } from "sonner";
-import useQuery from "hooks/useStore";
+import { useSearchParams } from "next/navigation";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { RouteEnum } from "constants/RouterConstants";
 
@@ -70,7 +70,7 @@ const CreateEngagement = () => {
   const router = useRouter();
 
   const goBack = () => {
-    router.push(-1);
+    router.back();
   };
 
   const form = useForm<TEngagementPlanFormValues>({
@@ -114,8 +114,8 @@ const CreateEngagement = () => {
 
   const { updateEngagementPlan, isLoading: isUpdateLoading } = useUpdateEngagementPlan();
 
-  const query = useQuery();
-  const id = query.get("id");
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
 
   const { data: engagementPlan } = useGetSingleEngagementPlan({ id: id as string, enabled: !!id });
 

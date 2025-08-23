@@ -1,3 +1,5 @@
+"use client";
+
 import { ColumnDef } from "@tanstack/react-table";
 import logoPng from "assets/svgs/logo-bg.svg";
 import Card from "components/Card";
@@ -8,7 +10,7 @@ import { ChevronRight } from "lucide-react";
 import TenderChecklist from "./TenderCheckList";
 import { useForm } from "react-hook-form";
 import GoBack from "components/GoBack";
-import { useNavigate, useParams } 
+import { useRouter, useParams } from "next/navigation";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendor-bid-submissionsController";
 import { useEffect, useState } from "react";

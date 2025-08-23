@@ -167,7 +167,7 @@ const FundSummary: React.FC = () => {
 
                     <div className="flex justify-end gap-5 pt-24">
                         <FormButton
-                            onClick={() => router.push(-1)}
+                            onClick={() => router.back()}
                             type="button"
                             className="bg-[#FFF2F2] text-primary dark:text-gray-500"
                         >

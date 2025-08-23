@@ -1,7 +1,7 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import { useParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link"; 
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import Card from "components/Card";
@@ -12,7 +12,7 @@ import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
 import { LoadingSpinner } from "components/Loading";
 import { skipToken } from "@reduxjs/toolkit/query/react";
-import { useGetSingleProject } from "@/features/projects/controllers/project";
+import { useGetSingleProject } from "@/features/projects/controllers/projectController";
 import { RouteEnum } from "constants/RouterConstants";
 import FundRequestSummary from "./FundRequestSummary";
 
@@ -27,7 +27,7 @@ export default function FundRequestDetail() {
     const dispatch = useAppDispatch();
 
     const goBack = () => {
-        router.push(-1);
+        router.back();
     };
 
     if (isLoading) {

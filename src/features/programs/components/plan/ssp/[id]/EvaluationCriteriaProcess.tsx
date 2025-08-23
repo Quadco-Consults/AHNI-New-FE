@@ -1,7 +1,9 @@
+"use client";
+
 import Card from "components/Card";
 import { Button } from "components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { useNavigate, useParams } 
+import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LoadingSpinner } from "components/Loading";
 import { toast } from "sonner";
@@ -18,21 +20,21 @@ import {
 } from "react-hook-form";
 import FormTextArea from "components/atoms/FormTextArea";
 import AddSquareIcon from "components/icons/AddSquareIcon";
-import { IObjective } from "definations/program/plan/supervision-plan/supervision-plan";
-import { useGetSingleSupervisionPlan } from "@/features/program/plan/supervision-plan/supervision-plan";
+import { IObjective } from "@/features/programs/types/program/plan/supervision-plan/supervision-plan";
+import { useGetSingleSupervisionPlan } from "@/features/programs/controllers/supervisionPlanController";
 import FormRadio from "components/atoms/FormRadio";
 import FormInput from "components/atoms/FormInput";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   SupervisionPlanReviewSchema,
   TSupervisionPlanReviewFormData,
-} from "definations/program/plan/supervision-plan/supervision-plan-review";
+} from "@/features/programs/types/program/plan/supervision-plan/supervision-plan-review";
 import {
   useCreateSupervisionPlanReviewController,
   useGetAllSupervisionPlanReviews,
   useGetSingleSupervisionPlanReview,
   useModifySupervisionPlanReview,
-} from "@/features/program/plan/supervision-plan/supervision-plan-reviewController";
+} from "@/features/programs/controllers/supervisionPlanReviewController";
 import { fileToBase64 } from "utils/fileToBase64";
 import FormButton from "components/atoms/FormButton";
 import { RouteEnum } from "constants/RouterConstants";

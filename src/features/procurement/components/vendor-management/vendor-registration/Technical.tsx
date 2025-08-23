@@ -1,4 +1,6 @@
-import { useLocation, useNavigate } 
+"use client";
+
+import { useRouter, usePathname } from "next/navigation";
 import VendorRegistationLayout from "./VendorRegistationLayout";
 import { useFieldArray, useForm } from "react-hook-form";
 import FormInput from "components/atoms/FormInput";
@@ -8,7 +10,7 @@ import { Form } from "components/ui/form";
 import { Separator } from "components/ui/separator";
 import FormButton from "components/atoms/FormButton";
 import { z } from "zod";
-import { VendorsTechnicalSchema } from "definations/procurement-validator";
+import { VendorsTechnicalSchema } from "@/features/procurement/types/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDispatch } from "react-redux";
 import { vendorsActions } from "store/formData/procurement-vendors";
@@ -140,7 +142,7 @@ const Technical = () => {
             </div>
             <div className='flex justify-between pt-24'>
               <FormButton
-                onClick={() => router.push(-1)}
+                onClick={() => router.back()}
                 preffix={<ArrowLeft size={14} />}
                 type='button'
                 className='bg-[#FFF2F2] text-primary dark:text-gray-500'

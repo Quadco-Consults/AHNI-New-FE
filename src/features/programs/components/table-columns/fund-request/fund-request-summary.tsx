@@ -8,8 +8,9 @@ import { RouteEnum } from "constants/RouterConstants";
 import { FundRequestPaginatedData } from "definations/program-types/fund-request";
 import { cn } from "lib/utils";
 import { useState } from "react";
-import { generatePath, Link, useParams } 
-import { useDeleteFundRequest } from "@/features/programs/controllers/fund-request";
+import { useParams } from "next/navigation";
+import Link from "next/link";
+import { useDeleteFundRequest } from "@/features/programs/controllers/fundRequestController";
 import { toast } from "sonner";
 import { formatNumberCurrency } from "utils/utls";
 
@@ -100,7 +101,7 @@ const TableMenu = ({ data }: { data: FundRequestPaginatedData }) => {
 
   const handleDeleteFundRequest = async () => {
     try {
-      await deleteFundRequest(data.id).unwrap();
+      await deleteFundRequest(data.id);
       toast.success("Fund Request Deleted");
       setDialogOpen(false);
     } catch (error: any) {
@@ -112,9 +113,7 @@ const TableMenu = ({ data }: { data: FundRequestPaginatedData }) => {
     <div>
       <Link
         href={{
-          pathname: generatePath(RouteEnum.PROGRAM_FUND_REQUEST_VIEW_ACTIVITY, {
-            id,
-          }),
+          pathname: RouteEnum.PROGRAM_FUND_REQUEST_VIEW_ACTIVITY.replace(":id", id as string),
           search: `?fundRequestId=${data?.id}`,
         }}
       >

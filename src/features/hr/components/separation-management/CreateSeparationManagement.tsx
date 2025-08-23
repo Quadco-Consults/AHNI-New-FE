@@ -90,7 +90,7 @@ const CreateSeparationManagement = () => {
 
             <div className='flex gap-x-6 justify-end'>
               <Button
-                onClick={() => router.push(-1)}
+                onClick={() => router.back()}
                 type='button'
                 variant='custom'
               >

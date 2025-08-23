@@ -1,15 +1,17 @@
+"use client";
+
 import React, { useEffect, useMemo, useState } from "react";
 import RfqLayout from "./RfqLayout";
 import FormSelect from "components/atoms/FormSelectField";
 import { SelectContent, SelectItem } from "components/ui/select";
 import FormInput from "components/atoms/FormInput";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
-import { useLocation, useNavigate, useParams } 
+import { useRouter, useParams, usePathname } from "next/navigation"; 
 import { Button } from "components/ui/button";
 import FormButton from "components/atoms/FormButton";
 import { LoadingSpinner } from "components/Loading";
 import { zodResolver } from "@hookform/resolvers/zod";
-import PurchaseRequestAPI from "@/features/procurementApi/purchase-requestController";
+import { useGetPurchaseRequests } from "@/features/procurement/controllers/purchaseRequestController";
 import {
   Dialog,
   DialogContent,
@@ -33,13 +35,13 @@ import { Checkbox } from "components/ui/checkbox";
 import {
   SolicitationQuotationSchema,
   TSolicitationQuotationFormData,
-} from "definations/procurement-validator";
+} from "@/features/procurement/types/procurement-validator";
 import FormTextArea from "components/atoms/FormTextArea";
-import EoiAPI from "@/features/procurementApi/eoiController";
-import { VendorsResultsData } from "definations/procurement-types/vendors";
-import VendorsAPI from "@/features/procurementApi/vendorsController";
-import CategoryAPI from "@/features/modules/controllers/config/categoryController";
-import { CategoryResultsData } from "definations/configs/category";
+import { useGetAllEois } from "@/features/procurement/controllers/eoiController";
+import { VendorsResultsData } from "@/features/procurement/types/vendors";
+import { useGetVendors } from "@/features/procurement/controllers/vendorsController";
+import { useGetAllCategories } from "@/features/modules/controllers/config/categoryController";
+import { CategoryResultsData } from "@/features/modules/types/category";
 import { Input } from "components/ui/input";
 import { Icon } from "@iconify/react";
 import { DialogClose } from "@radix-ui/react-dialog";
@@ -52,22 +54,22 @@ import { Upload as UploadFile } from "lucide-react";
 const Quotation = () => {
   const [categorySearchParams, setCategorySearchParams] = useState("");
 
-  const { pathname } = useLocation();
+  const pathname = usePathname();
   const router = useRouter();
   const { id } = useParams();
 
   const { data: vendors, isLoading: vendorsIsLoading } =
-    VendorsAPI.useGetVendorList({
-      params: { status: "Approved" },
+    useGetVendors({
+      status: "Approved",
     });
 
-  const { data: eoiData } = EoiAPI.useGetEois(
-    useMemo(() => ({ params: { type: "OPEN_TENDER" } }), [])
+  const { data: eoiData } = useGetAllEois(
+    useMemo(() => ({ type: "OPEN_TENDER" }), [])
   );
 
-  const categoryQueryResult = CategoryAPI.useGetCategories(
+  const categoryQueryResult = useGetAllCategories(
     useMemo(
-      () => ({ params: { no_paginate: true, search: categorySearchParams } }),
+      () => ({ no_paginate: true, search: categorySearchParams }),
       [categorySearchParams]
     )
   );
@@ -117,7 +119,7 @@ const Quotation = () => {
   }, [id, eoiOptions, form]);
 
   const { data: purchaseRequest, isLoading: isPurchaseRequestLoading } =
-    PurchaseRequestAPI.useGetPurchaseRequests({});
+    useGetPurchaseRequests({});
 
   const purchaseRequestOptions = useMemo(
     () =>
@@ -603,7 +605,7 @@ const Quotation = () => {
 
             <div className='flex justify-between mt-16'>
               <Button
-                onClick={() => router.push(-1)}
+                onClick={() => router.back()}
                 type='button'
                 className='bg-[#FFF2F2] text-primary dark:text-gray-500'
               >

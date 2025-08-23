@@ -1,16 +1,18 @@
+"use client";
+
 import { Label } from "components/ui/label";
 import VendorRegistationLayout from "./VendorRegistationLayout";
 import { Checkbox } from "components/ui/checkbox";
 import FormButton from "components/atoms/FormButton";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { useLocation, useNavigate } 
+import { useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
 import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";
 import { useForm } from "react-hook-form";
 import FormInput from "components/atoms/FormInput";
 import { z } from "zod";
-import { VendorAttestationSchema } from "definations/procurement-validator";
+import { VendorAttestationSchema } from "@/features/procurement/types/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const Attestation = () => {
@@ -141,7 +143,7 @@ const Attestation = () => {
               </div>
               <div className='flex justify-between pt-24'>
                 <FormButton
-                  onClick={() => router.push(-1)}
+                  onClick={() => router.back()}
                   preffix={<ArrowLeft size={14} />}
                   type='button'
                   className='bg-[#FFF2F2] text-primary dark:text-gray-500'

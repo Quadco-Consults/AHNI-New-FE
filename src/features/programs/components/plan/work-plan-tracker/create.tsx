@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "components/atoms/FormButton";
 import FormInput from "components/atoms/FormInput";
@@ -7,13 +9,12 @@ import Card from "components/Card";
 import { Form } from "components/ui/form";
 import { RouteEnum } from "constants/RouterConstants";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import {
     useGetSingleActivityTracker,
     useUpdateActivityTracker,
-} from "@/features/programs/controllers/activity-trackerController";
-import use from "hooks/use";
+} from "@/features/programs/controllers/activityTrackerController";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import { useEffect } from "react";
 import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
@@ -35,8 +36,8 @@ export default function CreateActivityTracker() {
 
     const router = useRouter();
 
-    const query = use();
-    const id = query.get("id");
+    const searchParams = useSearchParams();
+    const id = searchParams.get("id");
 
     const { data: workPlanTracker } = useGetSingleActivityTracker(
         id ?? skipToken
@@ -110,7 +111,7 @@ export default function CreateActivityTracker() {
     const { handleSubmit } = form;
 
     const goBack = () => {
-        router.push(-1);
+        router.back();
     };
 
     const onSubmit: SubmitHandler<TWorkPlanTrackerFormValues> = async (

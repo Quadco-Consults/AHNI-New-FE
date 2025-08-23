@@ -1,9 +1,7 @@
-import {
-    Link,
-    useLocation,
-    useNavigate,
-    useSearchParams,
-} 
+"use client";
+
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import SupportiveSupervisionPlanLayout from "./SupportiveSupervisionPlanLayout";
 import { Form, FormControl, FormField, FormItem } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -20,7 +18,7 @@ import { useEffect } from "react";
 import {
     SSPCompositionSchema,
     TSSPCompositionFormValues,
-} from "definations/program/plan/supervision-plan/supervision-plan";
+} from "@/features/programs/types/program/plan/supervision-plan/supervision-plan";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import Card from "components/Card";
@@ -28,10 +26,10 @@ import {
     useGetAllFacility,
     useLazyGetSingleFacility,
 } from "@/features/modules/controllers/program/facilityController";
-import { useGetAllUsers } from "@/features/auth/controllers/user";
+import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { RouteEnum } from "constants/RouterConstants";
 import DateInput from "components/DateInput";
-import { useGetSingleSupervisionPlan } from "@/features/program/plan/supervision-plan/supervision-plan";
+import { useGetSingleSupervisionPlan } from "@/features/programs/controllers/supervisionPlanController";
 import { skipToken } from "@reduxjs/toolkit/query";
 
 const Composition = () => {

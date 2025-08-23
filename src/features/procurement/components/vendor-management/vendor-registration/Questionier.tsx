@@ -1,3 +1,5 @@
+"use client";
+
 import { Form } from "components/ui/form";
 import VendorRegistationLayout from "./VendorRegistationLayout";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -6,14 +8,14 @@ import { Separator } from "components/ui/separator";
 import { ArrowLeft, ArrowRight, MinusCircle, PlusCircle } from "lucide-react";
 import { Label } from "components/ui/label";
 import FormButton from "components/atoms/FormButton";
-import { useLocation, useNavigate } 
+import { useRouter, usePathname } from "next/navigation";
 import { z } from "zod";
-import { VendorsQuestionnaireSchema } from "definations/procurement-validator";
+import { VendorsQuestionnaireSchema } from "@/features/procurement/types/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { vendorsActions } from "store/formData/procurement-vendors";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "store/index";
-import QuestionairAPI from "@/features/procurement/controllers/questionairController";
+import QuestionairAPI from "@/features/procurement/controllers/questionnaireController";
 import React, { useState } from "react";
 import { LoadingSpinner } from "components/Loading";
 import { QuestionairData } from "definations/procurement-types/questionairs";
@@ -233,7 +235,7 @@ const Questionier = () => {
 
               <div className='flex justify-between pt-10'>
                 <FormButton
-                  onClick={() => router.push(-1)}
+                  onClick={() => router.back()}
                   preffix={<ArrowLeft size={14} />}
                   type='button'
                   className='bg-[#FFF2F2] text-primary dark:text-gray-500'

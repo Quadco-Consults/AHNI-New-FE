@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "components/atoms/FormButton";
 import FormInput from "components/atoms/FormInput";
@@ -8,7 +10,7 @@ import Card from "components/Card";
 import { Form } from "components/ui/form";
 import { RouteEnum } from "constants/RouterConstants";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useNavigate, useParams } 
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { nigerianStates } from "lib/index";
 import {
@@ -21,7 +23,6 @@ import {
   useGetSingleStakeholderRegister,
 } from "@/features/programs/controllers/stakeholderController";
 import { useEffect } from "react";
-import use from "hooks/use";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
 
@@ -44,8 +45,8 @@ const CreateRegister = () => {
     const [createStakeholderRegister, { isLoading }] =
         useCreateStakeholderRegisterController();
 
-    const query = use();
-    const id = query.get("id");
+    const searchParams = useSearchParams();
+    const id = searchParams.get("id");
 
     const { data: prevStakeholder } = useGetSingleStakeholderRegister(
         id ?? skipToken
@@ -91,7 +92,7 @@ const CreateRegister = () => {
     }, [prevStakeholder]);
 
     const goBack = () => {
-        router.push(-1);
+        router.back();
     };
 
     const importance = Number(watch("importance") || 0);
@@ -113,7 +114,7 @@ const CreateRegister = () => {
                 toast.success("Stakeholder Register Updated");
             }
 
-            router.push(RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER);
+            router.push("/dashboard/programs/stakeholder-management/register");
         } catch (error: any) {
             toast.error(error.data.message || "Something went wrong");
         }

@@ -112,7 +112,7 @@ const Items = () => {
     }
   };
 
-  const goBack = () => router.push(-1);
+  const goBack = () => router.back();
 
   const [fileStatuses, setFileStatuses] = useState<
     Record<string, Record<number, boolean>>

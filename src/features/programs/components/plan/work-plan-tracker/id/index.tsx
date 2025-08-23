@@ -1,17 +1,19 @@
+"use client";
+
 import Card from "components/Card";
 import { useState } from "react";
 import DataTable from "components/Table/DataTable";
 import {
   // useGetAllActivityTracker,
   useGetSingleActivityTracker,
-} from "@/features/programs/controllers/activity-trackerController";
+} from "@/features/programs/controllers/activityTrackerController";
 import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
 import { useDebounce } from "ahooks";
 import TableFilters from "components/Table/TableFilters";
-import { workPlanTrackerDetailscolumns } from "components/Table/columns/program/plan/work-plan-tracker-details";
+import { workPlanTrackerDetailscolumns } from "@/features/programs/components/table-columns/plan/work-plan-tracker-details";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { useParams } from "next/navigation";
-import { useGetSingleWorkPlan } from "@/features/programs/controllers/work-plan";
+import { useGetSingleWorkPlan } from "@/features/programs/controllers/workPlanController";
 import { LoadingSpinner } from "components/Loading";
 
 const breadcrumbs: TBreadcrumbList[] = [

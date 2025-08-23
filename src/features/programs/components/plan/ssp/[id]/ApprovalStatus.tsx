@@ -1,3 +1,5 @@
+"use client";
+
 import CheckIcon from "assets/svgs/CheckIcon";
 import PendingIcon from "assets/svgs/PendingIcon";
 import { Checkbox } from "components/ui/checkbox";

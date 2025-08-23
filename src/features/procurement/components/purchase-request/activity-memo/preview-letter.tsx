@@ -1,26 +1,28 @@
+"use client";
+
 import LongArrowRight from "components/icons/LongArrowRight";
 import { Button } from "components/ui/button";
 import { RouteEnum } from "constants/RouterConstants";
 import logoPng from "assets/svgs/logo-bg.svg";
 
 import Link from "next/link";
-import PurchaseRequestAPI from "@/features/procurement/controllers/purchase-sample-request Controller";
+import PurchaseRequestAPI from "@/features/procurement/controllers/purchaseSampleRequestController";
 import { useMemo } from "react";
-import { useGetSingleBudgetLine } from "@/features/modules/controllers/finance/budget-lineController";
+import { useGetSingleBudgetLine } from "@/features/modules/controllers/finance/budgetLineController";
 
-// import { useGetSingleFCONumber } from "@/features/modules/controllers/finance/fco-numberController";
-import { useGetSingleInterventionArea } from "@/features/modules/controllers/program/interventionsController";
-import { useGetSingleCostCategory } from "@/features/modules/controllers/finance/cost-categoryController";
-import { useGetSingleCostInput } from "@/features/modules/controllers/finance/cost-inputController";
-import { useGetSingleFCONumber } from "@/features/modules/controllers/finance/fco-numberController";
-import useQuery from "hooks/use";
+// import { useGetSingleFCONumber } from "@/features/modules/controllers/finance/fcoNumberController";
+import { useGetSingleInterventionArea } from "@/features/modules/controllers/program/interventionAreaController";
+import { useGetSingleCostCategory } from "@/features/modules/controllers/finance/costCategoryController";
+import { useGetSingleCostInput } from "@/features/modules/controllers/finance/costInputController";
+import { useGetSingleFCONumber } from "@/features/modules/controllers/finance/fcoNumberController";
+import { useSearchParams } from "next/navigation";
 import { skipToken } from "@reduxjs/toolkit/query";
 
 const Preview = () => {
-  const query = useQuery();
-  const id = query.get("id");
-  const created = query.get("created");
-  const request = query.get("request");
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
+  const created = searchParams.get("created");
+  const request = searchParams.get("request");
 
   const { data: requestsDetails } = PurchaseRequestAPI.useGetActivityMemo(
     useMemo(

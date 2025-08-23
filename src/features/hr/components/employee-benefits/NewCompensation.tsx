@@ -202,7 +202,7 @@ const NewCompensation = () => {
               <div className='flex justify-end gap-6 mt-16'>
                 <Button
                   type='button'
-                  onClick={() => router.push(-1)}
+                  onClick={() => router.back()}
                   className='bg-[#FFF2F2] text-primary dark:text-gray-500'
                 >
                   Cancel

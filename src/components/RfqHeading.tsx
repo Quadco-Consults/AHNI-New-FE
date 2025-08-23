@@ -25,13 +25,16 @@ const steps: Step[] = [
 
 const RfqHeading = () => {
   const [completedSteps, setCompletedSteps] = useState<boolean[]>(() => {
-    // Retrieve the completion state from local storage or initialize if not present
-    const savedSteps = sessionStorage.getItem("rfqCompletedSteps");
-    return savedSteps
-      ? JSON.parse(savedSteps)
-      : new Array(steps.length).fill(false);
+    // Retrieve the completion state from session storage or initialize if not present
+    if (typeof window !== 'undefined') {
+      const savedSteps = sessionStorage.getItem("rfqCompletedSteps");
+      return savedSteps
+        ? JSON.parse(savedSteps)
+        : new Array(steps.length).fill(false);
+    }
+    return new Array(steps.length).fill(false);
   });
-  const { pathname } = useLocation();
+  const pathname = usePathname();
 
   const currentPath = pathname.split("/").at(-1);
 
@@ -44,10 +47,12 @@ const RfqHeading = () => {
       setCompletedSteps((prev) => {
         const updatedSteps = [...prev];
         updatedSteps[currentStepIndex - 1] = true; // Mark the previous step as completed
-        sessionStorage.setItem(
-          "rfqCompletedSteps",
-          JSON.stringify(updatedSteps)
-        );
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem(
+            "rfqCompletedSteps",
+            JSON.stringify(updatedSteps)
+          );
+        }
         return updatedSteps;
       });
     }

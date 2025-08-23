@@ -1,3 +1,5 @@
+"use client";
+
 import { ColumnDef } from "@tanstack/react-table";
 import logoPng from "assets/svgs/logo-bg.svg";
 import DataTable from "components/Table/DataTable";
@@ -7,7 +9,7 @@ import { ChevronRight } from "lucide-react";
 import TenderChecklist from "./TenderCheckList";
 import { useForm } from "react-hook-form";
 import { RouteEnum } from "constants/RouterConstants";
-import { generatePath, useLocation, useNavigate } 
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import ManualBidCbaPrequalificationAPI from "@/features/procurement/controllers/manual-bid-cba-prequalificationController";
 import { toast } from "sonner";
 import GoBack from "components/GoBack";
@@ -25,8 +27,14 @@ const criteriaData = [
   },
 ];
 const FinancialBid = () => {
+  const router = useRouter();
   const pathname = usePathname();
-  const { cba, bid_submission, solicitation } = location.state || {}; // Handle undefined state
+  const searchParams = useSearchParams();
+  
+  // Get parameters from URL search params instead of location.state
+  const cba = searchParams.get('cba');
+  const bid_submission = searchParams.get('bid_submission');
+  const solicitation = searchParams.get('solicitation');
 
   console.log("CBA:", cba);
   console.log("Bid Submission:", bid_submission, solicitation);
@@ -76,12 +84,7 @@ const FinancialBid = () => {
     } catch (error) {
       console.error("Error submitting data:", error);
     }
-    router.push(
-      generatePath(RouteEnum.RFQ_DETAILS, {
-        // @ts-ignore
-        id: cbaData?.data?.solicitation?.id,
-      })
-    );
+    router.push(`/dashboard/procurement/solicitation-management/rfq/${cbaData?.data?.solicitation?.id}`);
     // router.push(RouteEnum.SUMMARY_OF_TECHNICAL_PREQUALIFICATION, {
     //   state: {
     //     cba: data.cba,

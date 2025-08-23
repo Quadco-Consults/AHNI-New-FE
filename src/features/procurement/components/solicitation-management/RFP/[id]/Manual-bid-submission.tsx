@@ -108,7 +108,7 @@ const ManualBidSubmission = () => {
       await createSolicitationSubmission(data)();
 
       toast.success("Successfully created.");
-      router.push(-1);
+      router.back();
     } catch (error) {
       toast.error("Something went wrong");
       console.log(error);

@@ -116,43 +116,22 @@ export const AdminRoutes = {
   Ticketing: "/dashboard/admin/agreement/ticketing",
   ViewAggrement: "/dashboard/admin/agreement/view",
 
-  //rfq routes
-  RFQ: "/dashboard/admin/solicitation-management/rfq",
-  RFQ_CREATE_QUOTATION: "/admin/solicitation/rfq/create/quotation",
-  RFQ_CREATE_ITEMS: "/admin/solicitation/rfq/create/items",
-  RFQ_DETAILS: "/admin/solicitation/rfq/:id",
-  RFQ_CREATE_CBA: "/admin/solicitation/rfq/create/create-cba",
-  RFQ_COMPETITIVE_BID_ANALYSIS:
-    "/admin/solicitation/rfq/competitive-bid-analysis/:id",
-  RFQ_DETAILS_BID_SUBMISSION:
-    "/admin/solicitation/rfq/:id/manual-bid-submission",
-  RFQ_VENDOR: "/admin/rfq-vendor",
-  RFQ_CREATE_QUOTATION_OPEN_TENDER:
-    "/procurement-management/solicitation/rfq/create/quotation/:id",
-  //purchase order routes
-  PURCHASE_ORDER: "/admin/purchase-order",
-  PURCHASE_ORDER_ID: "/admin/purchase-order/:id",
-  PURCHASE_ORDER_ID_TERMS: "/admin/purchase-order/:id/terms-and-conditions",
-  PURCHASE_ORDER_NEW: "/admin/purchase-order-new",
-
-  SUBMISSION_OF_BIDS: "/admin/submission-of-bids",
-  PRICE_INTELLIGENCE: "/admin/price-intelligence",
 
   //competitive bid analysis routes
-  COMPETITIVE_BID_ANALYSIS: "/admin/competitive-bid-analysis",
-  COMPETITIVE_BID_ANALYSIS_DETAILS: "/admin/competitive-bid-analysis/:id",
+  COMPETITIVE_BID_ANALYSIS: "/dashboard/admin/competitive-bid-analysis",
+  COMPETITIVE_BID_ANALYSIS_DETAILS: "/dashboard/admin/competitive-bid-analysis/:id",
   COMPETITIVE_BID_ANALYSIS_DETAILS_APPROVAL_CHECK:
-    "/admin/competitive-bid-analysis/:id/check-approval",
+    "/dashboard/admin/competitive-bid-analysis/:id/check-approval",
   COMPETITIVE_BID_ANALYSIS_DETAILS_START:
-    "/admin/competitive-bid-analysis/:id/start/:appID",
+    "/dashboard/admin/competitive-bid-analysis/:id/start/:appID",
   COMPETITIVE_BID_ANALYSIS_DETAILS_FINANCIAL_BID_OPENING:
-    "/admin/competitive-bid-analysis/:id/financial-bid-opening",
+    "/dashboard/admin/competitive-bid-analysis/:id/financial-bid-opening",
   SUMMARY_OF_TECHNICAL_PREQUALIFICATION:
-    "/admin/competitive-bid-analysis/:id/summary-of-technical-prequalification",
+    "/dashboard/admin/competitive-bid-analysis/:id/summary-of-technical-prequalification",
 
   //ending
 
-  ADMIN_TRACKER: "/admin/admin-tracker",
+  ADMIN_TRACKER: "/dashboard/admin/admin-tracker",
 };
 
 export const RouteEnum = {
@@ -216,92 +195,91 @@ export const RouteEnum = {
   PROCUREMENT_TRACKER: "/dashboard/procurement/procurement-tracker",
 
   //rfq routes
-  RFQ: "/procurement-management/solicitation/rfq",
+  RFQ: "/dashboard/procurement/solicitation-management/rfq",
   RFQ_CREATE_QUOTATION:
-    "/procurement-management/solicitation/rfq/create/quotation",
-  RFQ_CREATE_ITEMS: "/procurement-management/solicitation/rfq/create/items",
-  RFQ_DETAILS: "/procurement-management/solicitation/rfq/:id",
+    "/dashboard/procurement/solicitation-management/rfq/create/quotation",
+  RFQ_CREATE_ITEMS: "/dashboard/procurement/solicitation-management/rfq/create/items",
+  RFQ_DETAILS: "/dashboard/procurement/solicitation-management/rfq/:id",
   RFQ_CREATE_CBA:
-    "/procurement-management/solicitation/rfq/create/create-cba/:id",
+    "/dashboard/procurement/solicitation-management/rfq/create/create-cba/:id",
   RFQ_COMPETITIVE_BID_ANALYSIS:
-    "/procurement-management/solicitation/rfq/competitive-bid-analysis/:id",
+    "/dashboard/procurement/solicitation-management/rfq/competitive-bid-analysis/:id",
   RFQ_DETAILS_BID_SUBMISSION:
-    "/procurement-management/solicitation/rfq/:id/manual-bid-submission",
-  RFQ_VENDOR: "/procurement-management/rfq-vendor",
+    "/dashboard/procurement/solicitation-management/rfq/:id/manual-bid-submission",
+  RFQ_VENDOR: "/dashboard/procurement/rfq-vendor",
   RFQ_CREATE_QUOTATION_OPEN_TENDER:
-    "/procurement-management/solicitation/rfq/create/quotation/:id",
+    "/dashboard/procurement/solicitation-management/rfq/create/quotation/:id",
 
   // rfp routes
-  RFP: "/procurement-management/solicitation/rfp",
+  RFP: "/dashboard/procurement/solicitation-management/rfp",
   RFP_CREATE_PROPOSAL:
-    "/procurement-management/solicitation/rfp/create/proposal",
-  RFP_CREATE_UPLOADS: "/procurement-management/solicitation/rfp/create/uploads",
-  RFP_DETAILS: "/procurement-management/solicitation/rfp/:id",
+    "/dashboard/procurement/solicitation-management/rfp/create/proposal",
+  RFP_CREATE_UPLOADS: "/dashboard/procurement/solicitation-management/rfp/create/uploads",
+  RFP_DETAILS: "/dashboard/procurement/solicitation-management/rfp/:id",
   RFP_DETAILS_BID_SUBMISSION:
-    "/procurement-management/solicitation/rfp/:id/manual-bid-submission",
-  RFP_VENDOR: "/procurement-management/rfp-vendor",
+    "/dashboard/procurement/solicitation-management/rfp/:id/manual-bid-submission",
+  RFP_VENDOR: "/dashboard/procurement/rfp-vendor",
   RFP_CREATE_PROPOSAL_OPEN_TENDER:
-    "/procurement-management/solicitation/rfp/create/proposal/:id",
+    "/dashboard/procurement/solicitation-management/rfp/create/proposal/:id",
 
   //competitive bid analysis routes
-  COMPETITIVE_BID_ANALYSIS: "/procurement-management/competitive-bid-analysis",
+  COMPETITIVE_BID_ANALYSIS: "/dashboard/procurement/competitive-bid-analysis",
   COMPETITIVE_BID_ANALYSIS_DETAILS:
-    "/procurement-management/competitive-bid-analysis/:id",
+    "/dashboard/procurement/competitive-bid-analysis/:id",
   COMPETITIVE_BID_ANALYSIS_DETAILS_APPROVAL_CHECK:
-    "/procurement-management/competitive-bid-analysis/:id/check-approval",
+    "/dashboard/procurement/competitive-bid-analysis/:id/check-approval",
   COMPETITIVE_BID_ANALYSIS_DETAILS_START:
-    "/procurement-management/competitive-bid-analysis/:id/start/:appID",
+    "/dashboard/procurement/competitive-bid-analysis/:id/start/:appID",
   COMPETITIVE_BID_ANALYSIS_DETAILS_FINANCIAL_BID_OPENING:
-    "/procurement-management/competitive-bid-analysis/:id/financial-bid-opening",
+    "/dashboard/procurement/competitive-bid-analysis/:id/financial-bid-opening",
   SUMMARY_OF_TECHNICAL_PREQUALIFICATION:
-    "/procurement-management/competitive-bid-analysis/:id/summary-of-technical-prequalification",
+    "/dashboard/procurement/competitive-bid-analysis/:id/summary-of-technical-prequalification",
   //eoi routes
-  EOI: "/procurement-management/vendor-management/eoi",
-  EOI_VIEW: "/procurement-management/vendor-management/eoi/:id",
-  EOI_VENDOR: "/procurement-management/vendor-management/eoi-vendor",
+  EOI: "/dashboard/procurement/vendor-management/eoi",
+  EOI_VIEW: "/dashboard/procurement/vendor-management/eoi/:id",
+  EOI_VENDOR: "/dashboard/procurement/vendor-management/eoi-vendor",
 
   //vendor-management routes
   VENDOR_MANAGEMENT:
-    "/procurement-management/vendor-management/prequalification",
+    "/dashboard/procurement/vendor-management/prequalification",
   VENDOR_REGISTRATION:
-    "/procurement-management/vendor-management/vendor-registration",
-  VENDOR_COMPANY: "/procurement-management/vendor-management/the-company",
+    "/dashboard/procurement/vendor-management/vendor-registration",
+  VENDOR_COMPANY: "/dashboard/procurement/vendor-management/the-company",
   VENDOR_TECHNICAL:
-    "/procurement-management/vendor-management/technical-capacity",
-  VENDOR_QUESTIONER: "/procurement-management/vendor-management/questionnaire",
-  VENDOR_ATTESTATION: "/procurement-management/vendor-management/attestation",
-  VENDOR_UPLOAD: "/procurement-management/vendor-management/upload",
+    "/dashboard/procurement/vendor-management/technical-capacity",
+  VENDOR_QUESTIONER: "/dashboard/procurement/vendor-management/questionnaire",
+  VENDOR_ATTESTATION: "/dashboard/procurement/vendor-management/attestation",
+  VENDOR_UPLOAD: "/dashboard/procurement/vendor-management/upload",
   VENDOR_MANAGEMENT_DETAILS:
-    "/procurement-management/vendor-management/prequalification/:id",
+    "/dashboard/procurement/vendor-management/prequalification/:id",
   VENDOR_MANAGEMENT_START_PREQUALIFICATION:
-    "/procurement-management/vendor-management/prequalification/:id/start-prequalification",
+    "/dashboard/procurement/vendor-management/prequalification/:id/start-prequalification",
 
   //purchase order routes
-  PURCHASE_ORDER: "/procurement-management/purchase-order",
-  PURCHASE_ORDER_ID: "/procurement-management/purchase-order/:id",
+  PURCHASE_ORDER_ID: "/dashboard/procurement/purchase-order/:id/details",
   PURCHASE_ORDER_ID_TERMS:
-    "/procurement-management/purchase-order/:id/terms-and-conditions",
-  PURCHASE_ORDER_NEW: "/procurement-management/purchase-order-new",
+    "/dashboard/procurement/purchase-order/:id/details/terms-and-conditions",
+  PURCHASE_ORDER_NEW: "/dashboard/procurement/purchase-order/create",
 
-  SUBMISSION_OF_BIDS: "/procurement-management/submission-of-bids",
-  PRICE_INTELLIGENCE: "/procurement-management/price-intelligence",
+  SUBMISSION_OF_BIDS: "/dashboard/procurement/submission-of-bids",
+  PRICE_INTELLIGENCE: "/dashboard/procurement/price-intelligence",
 
   //supplier database routes
-  SUPPLIER_DATABASE: "/procurement-management/supplier-database",
-  SUPPLIER_DATABASE_DETAIL: "/procurement-management/supplier-database/:id",
+  SUPPLIER_DATABASE: "/dashboard/procurement/supplier-database",
+  SUPPLIER_DATABASE_DETAIL: "/dashboard/procurement/supplier-database/:id/details",
 
   // vendor performance evaluation
   VENDOR_PERFORMANCE_EVALUATION:
-    "/procurement-management/vendor-performance-evaluation",
+    "/dashboard/procurement/vendor-performance",
 
   VENDOR_PERFORMANCE_EVALUATION_ID:
-    "/procurement-management/vendor-performance-evaluation/:id",
+    "/dashboard/procurement/vendor-performance/:id",
 
   VENDOR_PERFORMANCE_START_EVALUATION:
-    "/procurement-management/vendor-performance-evaluation/:id/form",
+    "/dashboard/procurement/vendor-performance/:id/form",
 
   VENDOR_PERFORMANCE_EVALUATION_FORM:
-    "/procurement-management/vendor-performance-evaluation/form",
+    "/dashboard/procurement/vendor-performance/form",
 
   //program routes
   PROGRAM_WORK_PLAN: "/dashboard/programs/plan/work-plan",
@@ -372,20 +350,20 @@ export const RouteEnum = {
   PROGRAM_PAYMENT_REQUEST: "/dashboard/programs/payment-request",
 
   TRAINING: "/dashboard/programs/training-and-procurement",
-  REPORT: "/procurement-management/report",
+  REPORT: "/dashboard/procurement/report",
 
   // users
-  USERS: "/users",
-  CREATE_USERS: "/users/create",
-  AUTHORIZATION: "/authorization",
+  USERS: "/dashboard/users",
+  CREATE_USERS: "/dashboard/users/create",
+  AUTHORIZATION: "/dashboard/authorization",
 
-  NOTIFICATIONS: "/notifications",
-  SUPPORT: "/support",
-  SUPPORT_DETAILS: "/support/:id",
-  ACCOUNT: "/account",
+  NOTIFICATIONS: "/dashboard/notifications",
+  SUPPORT: "/dashboard/support",
+  SUPPORT_DETAILS: "/dashboard/support/:id",
+  ACCOUNT: "/dashboard/account",
 
   // Audit
-  AUDIT_LOG: "/audit-log",
+  AUDIT_LOG: "/dashboard/audit-log",
 };
 
 export const CG_ROUTES = {
@@ -405,77 +383,77 @@ export const CG_ROUTES = {
   CREATE_SUBGRANT_ADVERT: "/dashboard/c-and-g/sub-grant/create",
   SUBGRANT_ADVERT_DETAILS: "/dashboard/c-and-g/sub-grant/:id/details",
   SUBGRANT_CREATE_PRE_AWARD_ASSESSMENT:
-    "/c-and-g/sub-grant/:id/create-pre-award-assessment",
+    "/dashboard/c-and-g/sub-grant/:id/create-pre-award-assessment",
   CREATE_SUBGRANT_SUBMISSION_DETAILS:
-    "/c-and-g/sub-grant/manual-submission/organization-details/:id",
+    "/dashboard/c-and-g/sub-grant/manual-submission/organization-details/:id",
   CREATE_SUBGRANT_SUBMISSION_UPLOADS:
-    "/c-and-g/sub-grant/manual-submission/document-upload/:id",
+    "/dashboard/c-and-g/sub-grant/manual-submission/document-upload/:id",
   SUBGRANT_SUBMISSION_DETAILS:
-    "/c-and-g/sub-grant/:subGrantId/submission/:partnerSubId",
+    "/dashboard/c-and-g/sub-grant/:subGrantId/submission/:partnerSubId",
 
-  PRE_AWARD_ASSESSMENT: "/c-and-g/sub-grant/preaward-assessment",
+  PRE_AWARD_ASSESSMENT: "/dashboard/c-and-g/sub-grant/preaward-assessment",
 
   START_PRE_AWARD_ASSESSMENT:
-    "/c-and-g/sub-grant/:subGrantId/submission/:partnerSubId/preaward-assessment",
+    "/dashboard/c-and-g/sub-grant/:subGrantId/submission/:partnerSubId/preaward-assessment",
 
-  SUBGRANT_AWARD: "/c-and-g/sub-grant/awards",
-  SUBGRANT_AWARD_DETAILS: "/c-and-g/sub-grant/awards/:id",
+  SUBGRANT_AWARD: "/dashboard/c-and-g/sub-grant/awards",
+  SUBGRANT_AWARD_DETAILS: "/dashboard/c-and-g/sub-grant/awards/:id",
   /* SUB GRANT */
 
   // close out
-  CLOSE_OUT: "/c-and-g/close-out-plan",
-  CLOSE_OUT_DETAILS: "/c-and-g/close-out-plan/details/:id",
-  NEW_CLOSE_OUT_PLAN: "/c-and-g/close-out-plan/new-close-out-plan",
+  CLOSE_OUT: "/dashboard/c-and-g/close-out-plan",
+  CLOSE_OUT_DETAILS: "/dashboard/c-and-g/close-out-plan/details/:id",
+  NEW_CLOSE_OUT_PLAN: "/dashboard/c-and-g/close-out-plan/new-close-out-plan",
 
   // CONTRACT MANAGEMENT
-  AGREEMENT: "/c-and-g/agreements",
-  CREATE_AGREEMENT_DETAILS: "/c-and-g/agreements/create/summary",
-  CREATE_AGREEMENT_UPLOADS: "/c-and-g/agreements/create/uploads",
+  AGREEMENT: "/dashboard/c-and-g/agreements",
+  CREATE_AGREEMENT_DETAILS: "/dashboard/c-and-g/agreements/create/summary",
+  CREATE_AGREEMENT_UPLOADS: "/dashboard/c-and-g/agreements/create/uploads",
   // -------------
 
   // CONSULTANCY
-  CONSULTANCY: "/c-and-g/consultancy",
-  CREATE_CONSULTANCY_DETAILS: "/c-and-g/consultancy/application-details",
-  CREATE_CONSULTANCY_WORK_SCOPE: "/c-and-g/consultancy/create/scope-of-work",
-  CONSULTANCY_DETAILS: "/c-and-g/consultancy/:id",
-  CREATE_CONSULTANCY_APPLICANT: "/c-and-g/consultancy/:id/applicant/create",
+  CONSULTANCY: "/dashboard/c-and-g/consultancy",
+  CREATE_CONSULTANCY_DETAILS: "/dashboard/c-and-g/consultancy/application-details",
+  CREATE_CONSULTANCY_WORK_SCOPE: "/dashboard/c-and-g/consultancy/create/scope-of-work",
+  CONSULTANCY_DETAILS: "/dashboard/c-and-g/consultancy/:id",
+  CREATE_CONSULTANCY_APPLICANT: "/dashboard/c-and-g/consultancy/:id/applicant/create",
 
   CONSULTANCY_APPLICATION_DETAILS:
     "/api/v1/contract-grants/consultancy-applications_details/:id",
   CONSULTANCY_SHORTLIST_METRIC:
     "/api/v1/consultancy/shortlisted-applications-metrics/:id",
-  CONSULTANCY_SLA: "/c-and-g/consultancy/sla",
+  CONSULTANCY_SLA: "/dashboard/c-and-g/consultancy/sla",
 
-  CONSULTANT_ACCEPTANCE: "/c-and-g/consultant/consultance-acceptance",
+  CONSULTANT_ACCEPTANCE: "/dashboard/c-and-g/consultant/consultance-acceptance",
   CONSULTANT_ACCEPTANCE_DETAILS:
-    "/c-and-g/consultant/consultance-acceptance/details",
+    "/dashboard/c-and-g/consultant/consultance-acceptance/details",
 
   // CONSULTANCY REPORT
-  CONSULTANCY_REPORT: "/c-and-g/consultancy-report",
-  CREATE_CONSULTANCY_REPORT: "/c-and-g/consultancy-report/create/",
-  CONSULTANCY_REPORT_DETAILS: "/c-and-g/consultancy-report/:id/",
+  CONSULTANCY_REPORT: "/dashboard/c-and-g/consultancy-report",
+  CREATE_CONSULTANCY_REPORT: "/dashboard/c-and-g/consultancy-report/create/",
+  CONSULTANCY_REPORT_DETAILS: "/dashboard/c-and-g/consultancy-report/:id/",
 
   /* FACILITATOR MANAGEMENT */
-  FACILITATOR_ADVERT: "/c-and-g/facilitator-management",
+  FACILITATOR_ADVERT: "/dashboard/c-and-g/facilitator-management",
   CREATE_FACILITATOR_ADVERT_DETAILS:
-    "/c-and-g/facilitator-management/create/application-details",
+    "/dashboard/c-and-g/facilitator-management/create/application-details",
   CREATE_FACILITATOR_ADVERT_WORK_SCOPE:
-    "/c-and-g/facilitator-management/create/scope-of-work",
-  FACILITATOR_ADVERT_DETAILS: "/c-and-g/facilitator-management/:id",
+    "/dashboard/c-and-g/facilitator-management/create/scope-of-work",
+  FACILITATOR_ADVERT_DETAILS: "/dashboard/c-and-g/facilitator-management/:id",
   CREATE_FACILITATOR_ADVERT_APPLICANT:
-    "/c-and-g/facilitator-management/:id/applicant/create",
-  FACILITATOR_DATABASE: "/c-and-g/facilitator-database",
+    "/dashboard/c-and-g/facilitator-management/:id/applicant/create",
+  FACILITATOR_DATABASE: "/dashboard/c-and-g/facilitator-database",
   /* FACILITATOR MANAGEMENT */
 
-  CG_MODULES: "/modules/c-and-g",
+  CG_MODULES: "/dashboard/modules/c-and-g",
 
-  AWARDED_BENEFICIARIES: "/c-and-g/awarded-beneficiaries",
+  AWARDED_BENEFICIARIES: "/dashboard/c-and-g/awarded-beneficiaries",
 
-  CONSULTANCY_DATABASE: "/c-and-g/consultancy-database",
+  CONSULTANCY_DATABASE: "/dashboard/c-and-g/consultancy-database",
 
-  CONTRACT_REQUEST: "/c-and-g/contract-request/",
-  CREATE_CONTRACT_REQUEST: "/c-and-g/contract-request/create-contract-request",
-  CONTRACT_REQUEST_DETAILS: "/c-and-g/contract-request/:id/",
+  CONTRACT_REQUEST: "/dashboard/c-and-g/contract-request/",
+  CREATE_CONTRACT_REQUEST: "/dashboard/c-and-g/contract-request/create-contract-request",
+  CONTRACT_REQUEST_DETAILS: "/dashboard/c-and-g/contract-request/:id/",
 };
 
 export const HrRoutes = {
@@ -483,40 +461,40 @@ export const HrRoutes = {
   ADVERTISEMENT_ADD: "/dashboard/hr/advertisement/add-advertisement",
   ADVERTISEMENT_DETAIL: "/dashboard/hr/advertisement/:id",
   ADVERTISEMENT_DETAIL_SUB_APP:
-    "/hr/advertisement/:id/submitted-applications/:appID",
+    "/dashboard/hr/advertisement/:id/submitted-applications/:appID",
   ADVERTISEMENT_MANUAL_APPLICATION_SUBMISSION:
-    "/hr/advertisement/:id/application-form",
+    "/dashboard/hr/advertisement/:id/application-form",
 
-  ADVERTISEMENT_INTERVIEW_FORM: "/hr/advertisement/:id/interview-form/:appID",
+  ADVERTISEMENT_INTERVIEW_FORM: "/dashboard/hr/advertisement/:id/interview-form/:appID",
 
   ADVERTISEMENT_INTERVIEW_DETAILS:
-    "/hr/advertisement/:id/interview-details/:appID",
+    "/dashboard/hr/advertisement/:id/interview-details/:appID",
 
-  SELECTION: "hr/selection",
+  SELECTION: "/dashboard/hr/selection",
   ONBOARDING: "/dashboard/hr/onboarding",
   CREATE_ONBOARDING: "/dashboard/hr/onboarding/create",
   ONBOARDING_DETAILS: "/dashboard/hr/onboarding/:id/details",
   ONBOARDING_START: "/dashboard/hr/onboarding/start-onboarding/:id/",
   ONBOARDING_ADD_EMPLOYEE_INFO:
-    "/hr/onboarding/add-employee/employee-information/:id/",
+    "/dashboard/hr/onboarding/add-employee/employee-information/:id/",
   ONBOARDING_ADD_EMPLOYEE_ADD:
-    "/hr/onboarding/add-employee/additional-information/:id/",
+    "/dashboard/hr/onboarding/add-employee/additional-information/:id/",
   ONBOARDING_ADD_EMPLOYEE_BENEFICIARY:
-    "/hr/onboarding/add-employee/beneficiary-designation/:id/",
+    "/dashboard/hr/onboarding/add-employee/beneficiary-designation/:id/",
   ONBOARDING_ADD_EMPLOYEE_ID_CARD:
-    "/hr/onboarding/add-employee/id-card-information/:id/",
+    "/dashboard/hr/onboarding/add-employee/id-card-information/:id/",
   ONBOARDING_ADD_EMPLOYEE_SALARY:
-    "/hr/onboarding/add-employee/salary-account-details/:id/",
+    "/dashboard/hr/onboarding/add-employee/salary-account-details/:id/",
   ONBOARDING_ADD_EMPLOYEE_PENSION:
-    "/hr/onboarding/add-employee/pension-scheme-enrolment/:id/",
-  WORKFORCE_NEED_ANALYSIS: "/hr/workforce-need-analysis",
-  WORKFORCE_NEED_ANALYSIS_CREATE: "/hr/workforce-need-analysis/create",
+    "/dashboard/hr/onboarding/add-employee/pension-scheme-enrolment/:id/",
+  WORKFORCE_NEED_ANALYSIS: "/dashboard/hr/workforce-need-analysis",
+  WORKFORCE_NEED_ANALYSIS_CREATE: "/dashboard/hr/workforce-need-analysis/create",
   WORKFORCE_DATABASE: "/dashboard/hr/workforce-database",
   WORKFORCE_DATABASE_CREATE: "/dashboard/hr/workforce-database/employee/create",
   WORKFORCE_DATABASE_DETAIL: "/dashboard/hr/workforce-database/employee/:id/details",
-  PERFORMANCE_MANAGEMENT: "/hr/performance-management",
-  PERFORMANCE_MANAGEMENT_CREATE: "/hr/performance-management/create",
-  PERFORMANCE_MANAGEMENT_DETAIL: "/hr/performance-management/:id",
+  PERFORMANCE_MANAGEMENT: "/dashboard/hr/performance-management",
+  PERFORMANCE_MANAGEMENT_CREATE: "/dashboard/hr/performance-management/create",
+  PERFORMANCE_MANAGEMENT_DETAIL: "/dashboard/hr/performance-management/:id",
   EMPLOYEE_BENEFITS_COMPENSATION: "/dashboard/hr/employee-benefit/compensation",
   EMPLOYEE_BENEFITS_COMPENSATION_SPREAD: "/dashboard/hr/employee-benefit/compensation-spread",
   EMPLOYEE_BENEFITS_COMPENSATION_CREATE: "/dashboard/hr/employee-benefit/compensation/create",
@@ -524,9 +502,9 @@ export const HrRoutes = {
   EMPLOYEE_BENEFITS_PAY_ROLL_INFO: "/dashboard/hr/employee-benefit/pay-roll/:id",
   EMPLOYEE_BENEFITS_PAY_ROLL_CREATE: "/dashboard/hr/employee-benefit/pay-roll/create",
   EMPLOYEE_BENEFITS_PAY_GROUP: "/dashboard/hr/employee-benefit/pay-group",
-  SEPARATION_MANAGEMENT: "/hr/separation-management",
-  SEPARATION_MANAGEMENT_CREATE: "/hr/separation-management/create",
-  SEPARATION_MANAGEMENT_DETAIL: "/hr/separation-management/:id",
+  SEPARATION_MANAGEMENT: "/dashboard/hr/separation-management",
+  SEPARATION_MANAGEMENT_CREATE: "/dashboard/hr/separation-management/create",
+  SEPARATION_MANAGEMENT_DETAIL: "/dashboard/hr/separation-management/:id",
   GRIEVANCE_MANAGEMENT: "/dashboard/hr/grievance-management",
   GRIEVANCE_MANAGEMENT_CREATE: "/dashboard/hr/grievance-management/create",
   GRIEVANCE_MANAGEMENT_DETAILS: "/dashboard/hr/grievance-management/:id/details",
@@ -538,12 +516,12 @@ export const HrRoutes = {
   LEAVE_MANAGEMENT_LEAVE_LIST: "/dashboard/hr/leave-management/leave-list",
   LEAVE_MANAGEMENT_ASSIGN_LEAVE: "/dashboard/hr/leave-management/assign-leave",
   LEAVE_MANAGEMENT_LEAVE_LIST_DETAIL: "/dashboard/hr/leave-management/leave-list/:id",
-  LEAVE_MANAGEMENT_LEAVE_SETTINGS: "hr/leave-management/leave-settings",
-  TIMESHEET_MANAGEMENT: "/hr/timesheet-management",
-  TIMESHEET_MANAGEMENT_DETAIL: "/hr/timesheet-management/:id",
-  TIMESHEET_MANAGEMENT_DETAIL_CREATE: "/hr/timesheet-management/:id/create",
+  LEAVE_MANAGEMENT_LEAVE_SETTINGS: "/dashboard/hr/leave-management/leave-settings",
+  TIMESHEET_MANAGEMENT: "/dashboard/hr/timesheet-management",
+  TIMESHEET_MANAGEMENT_DETAIL: "/dashboard/hr/timesheet-management/:id",
+  TIMESHEET_MANAGEMENT_DETAIL_CREATE: "/dashboard/hr/timesheet-management/:id/create",
   TIMESHEET_MANAGEMENT_CREATE:
-    "/hr/timesheet-management/create-timesheet-management",
+    "/dashboard/hr/timesheet-management/create-timesheet-management",
 };
 
 /* *************** PROGRAM ROUTES *************** */
