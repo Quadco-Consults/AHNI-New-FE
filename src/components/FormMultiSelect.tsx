@@ -19,7 +19,8 @@ import {
 } from "components/ui/select";
 
 import { SelectHTMLAttributes } from "react";
-import { IOptions } from "definations/schema";
+import { IOptions } from "./schema";
+// import { IOptions } from "definations/schema";
 
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   name: string;
@@ -27,7 +28,7 @@ interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   placeholder?: string;
   required?: boolean;
   options?: IOptions[];
-  disabled: boolean;
+  disabled?: boolean;
 }
 const FormMultiSelect: FC<SelectProps> = ({
   name,
