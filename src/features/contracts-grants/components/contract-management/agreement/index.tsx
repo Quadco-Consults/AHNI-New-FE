@@ -1,3 +1,5 @@
+"use client";
+
 import BackNavigation from "components/atoms/BackNavigation";
 import Card from "components/Card";
 import { agreementColumns } from "@/features/contracts-grants/components/table-columns/contract-management/agreement";

@@ -1,3 +1,5 @@
+"use client";
+
 import Card from "components/Card";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
@@ -143,10 +145,7 @@ const ActionListAction = ({ data }: any) => {
   return (
     <div className='flex gap-2 items-center justify-center'>
       <Link
-        href={generatePath(RouteEnum.PROCUREMENT_PLAN_FINANCIAL_YEAR, {
-          id: 1,
-          // id: data.id,
-        })}
+        href={`/dashboard/procurement/procurement-plan/${data?.id || 1}`}
       >
         <IconButton className='bg-[#F9F9F9] hover:text-primary border'>
           <Icon icon='ph:eye-duotone' fontSize={15} />

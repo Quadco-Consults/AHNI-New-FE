@@ -136,16 +136,17 @@ export const activityPlanColumns: ColumnDef<TActivityPlanData>[] = [
 const TableAction = ({ id }: TActivityPlanData) => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const [deleteActivityPlan, { isLoading }] = useDeleteActivityPlan();
+  const { deleteActivityPlan, isLoading } = useDeleteActivityPlan(id);
 
   const dispatch = useAppDispatch();
 
   const handleDelete = async () => {
     try {
-      await deleteActivityPlan(id).unwrap();
+      await deleteActivityPlan();
       toast.success("Activity Plan Deleted");
+      setDialogOpen(false);
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
+      toast.error(error?.message ?? "Something went wrong");
     }
   };
 
@@ -161,10 +162,7 @@ const TableAction = ({ id }: TActivityPlanData) => {
           <PopoverContent className=' w-fit'>
             <div className='flex flex-col items-start justify-between gap-1'>
               <Link
-                href={{
-                  pathname: RouteEnum.PROGRAM_CREATE_ACTIVITY_PLAN,
-                  search: `?id=${id}`,
-                }}
+                href={`/dashboard/programs/plan/activity-plan/create?id=${id}`}
               >
                 <Button
                   className='w-full flex items-center justify-start gap-2'
@@ -181,7 +179,7 @@ const TableAction = ({ id }: TActivityPlanData) => {
                   dispatch(
                     openDialog({
                       type: DialogType.ACTIVITY_PLAN_STATUS_MODAL,
-                      dialogProps: { id, status },
+                      dialogProps: { id },
                     })
                   );
                 }}

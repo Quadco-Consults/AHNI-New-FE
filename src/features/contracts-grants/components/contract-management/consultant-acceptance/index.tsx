@@ -1,8 +1,10 @@
+"use client";
+
 import Card from "components/Card";
-import { consultancyAcceptanceColumns } from "components/Table/columns/c&g/contract-management/consultancy-acceptance";
+import { consultancyAcceptanceColumns } from "@/features/contracts-grants/components/table-columns/contract-management/consultancy-acceptance";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
-import { useGetAllConsultantManagements } from "@/features/contracts-grants/controllers/contract-management/consultancy-management/consultant-management";
+import { useGetAllConsultantManagements } from "@/features/contracts-grants/controllers/consultantManagementController";
 
 export default function ConsultancyAcceptance() {
     const { data, isFetching } = useGetAllConsultantManagements({

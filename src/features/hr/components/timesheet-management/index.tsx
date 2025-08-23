@@ -1,3 +1,5 @@
+"use client";
+
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { Checkbox } from "components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
@@ -32,7 +34,7 @@ const TimesheetManagement = () => {
             <FilterIcon />
           </Button>
         </div>
-        <Link href={HrRoutes.TIMESHEET_MANAGEMENT_CREATE}>
+        <Link href="/dashboard/hr/timesheet-management/create">
           <Button>
             <AddSquareIcon /> Create Timesheet
           </Button>
@@ -137,9 +139,7 @@ const ActionList = () => {
           <PopoverContent className=" w-fit">
             <div className="flex flex-col items-start justify-between gap-1">
               <Link
-                href={generatePath(HrRoutes.TIMESHEET_MANAGEMENT_DETAIL, {
-                  id: 1,
-                })}
+                href="/dashboard/hr/timesheet-management/1"
               >
                 <Button
                   className="w-full flex items-center justify-start gap-2"

@@ -13,7 +13,7 @@ import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
 import { format } from "date-fns";
 import { AdminRoutes } from "constants/RouterConstants";
-import { useDeleteAssetRequestMutation } from "@/features/admin/controllers/assetController-request";
+import { useDeleteAssetRequest } from "@/features/admin/controllers/assetRequestController";
 import { toast } from "sonner";
 
 export const assestRequestColum: ColumnDef<IAssetRequestPaginatedData>[] = [
@@ -110,14 +110,14 @@ export const assestRequestColum: ColumnDef<IAssetRequestPaginatedData>[] = [
 const TableAction = ({ id }: IAssetRequestPaginatedData) => {
     const [isDialogOpen, setDialogOpen] = useState(false);
 
-    const [deleteAssetRequest, { isLoading }] = useDeleteAssetRequestMutation();
+    const { deleteAssetRequest, isLoading } = useDeleteAssetRequest(id);
 
     const onDelete = async () => {
         try {
-            await deleteAssetRequest(id).unwrap();
+            deleteAssetRequest();
             toast.success("Asset Request Deleted");
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error?.data?.message ?? "Something went wrong");
         }
     };
 

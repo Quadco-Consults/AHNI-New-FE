@@ -11,12 +11,12 @@ import { z } from "zod";
 // import * as XLSX from "xlsx";
 import { Input } from "components/ui/input";
 import Modal from "react-modal";
-import ProcurementPlanAPI from "@/features/procurement/controllers/procurement-planController";
+import { useCreateProcurementPlan } from "@/features/procurement/controllers/procurementPlanController";
 import { toast } from "sonner";
-import FinancialAPI from "@/features/modules/controllers/config/financial-yearController";
+import { useGetAllFinancialYearsManager } from "@/features/modules/controllers/config/financialYearController";
 import { closeDialog } from "store/ui";
 import { useDispatch } from "react-redux";
-import { useGetAllProjects } from "@/features/projects/controllers/project";
+import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 
 type PropsType = {
   isOpen: boolean;
@@ -46,11 +46,10 @@ const ProcurementPlanUploadModal = (props: PropsType) => {
 
   const [file, setFile] = useState<File | Blob | null>(null);
 
-  const [createProcurementPlanMutation] =
-    ProcurementPlanAPI.useCreateProcurementPlan();
+  const { createProcurementPlan, isLoading: creatingPlan } = useCreateProcurementPlan();
 
-  const { data: financialYear } = FinancialAPI.useGetFinancialYears({
-    params: { no_paginate: true },
+  const { data: financialYear } = useGetAllFinancialYearsManager({
+    size: 1000,
   });
 
   const { data: project } = useGetAllProjects({
@@ -95,11 +94,11 @@ const ProcurementPlanUploadModal = (props: PropsType) => {
     formData.append("file", file as Blob);
     formData.append("financial_year", data?.financial_year);
     try {
-      await createProcurementPlanMutation(formData as any)();
+      createProcurementPlan(formData as any);
       props.onCancel();
       dispatch(closeDialog());
     } catch (error: any) {
-      toast.error(error.data.message);
+      toast.error(error?.data?.message || "An error occurred");
     }
 
     // const reader = new FileReader();

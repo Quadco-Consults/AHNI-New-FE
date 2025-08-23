@@ -13,7 +13,7 @@ import Link from "next/link";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
 import { RouteEnum } from "constants/RouterConstants";
-import { useDeleteSupervisionPlan } from "@/features/program/plan/supervision-plan/supervision-plan";
+import { useDeleteSupervisionPlan } from "@/features/programs/controllers/supervisionPlanController";
 import ConfirmationDialog from "components/ConfirmationDialog";
 import { useState } from "react";
 import PencilIcon from "components/icons/PencilIcon";
@@ -114,15 +114,15 @@ const TableMenu = ({ id }: TSupervisionPlanPaginatedData) => {
   const dispatch = useAppDispatch();
 
   const { deleteSupervisionPlan, isLoading } =
-    useDeleteSupervisionPlan();
+    useDeleteSupervisionPlan(id);
 
   const onDelete = async () => {
     try {
-      await deleteSupervisionPlan(id)();
+      await deleteSupervisionPlan();
       toast.success("Supervision Plan Deleted");
       setDialogOpen(false);
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
+      toast.error(error?.message ?? "Something went wrong");
     }
   };
   return (
@@ -138,10 +138,7 @@ const TableMenu = ({ id }: TSupervisionPlanPaginatedData) => {
             <div className='flex flex-col items-start justify-between gap-1'>
               <Link
                 className='w-full'
-                href={generatePath(
-                  RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS,
-                  { id }
-                )}
+                href={`/dashboard/programs/plan/supportive-supervision-plan/${id}`}
               >
                 <Button
                   className='w-full flex items-center justify-start gap-2'
@@ -153,11 +150,7 @@ const TableMenu = ({ id }: TSupervisionPlanPaginatedData) => {
               </Link>
               <Link
                 className='w-full'
-                href={{
-                  pathname:
-                    RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_COMPOSITION,
-                  search: `?id=${id}`,
-                }}
+                href={`/dashboard/programs/plan/supportive-supervision-plan/create?id=${id}`}
               >
                 <Button
                   className='w-full flex items-center justify-start gap-2'
@@ -186,7 +179,7 @@ const TableMenu = ({ id }: TSupervisionPlanPaginatedData) => {
                 Approve
               </Button>
               <Link
-                href={RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS_APPROVAL}
+                href={`/dashboard/programs/plan/supportive-supervision-plan/${id}/approval`}
               >
                 <Button
                   className='w-full flex items-center justify-start gap-2'

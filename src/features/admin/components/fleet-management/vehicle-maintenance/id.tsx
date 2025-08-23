@@ -1,3 +1,5 @@
+"use client";
+
 import BackNavigation from "components/atoms/BackNavigation";
 import { Card } from "components/ui/card";
 import { useParams } from "next/navigation";

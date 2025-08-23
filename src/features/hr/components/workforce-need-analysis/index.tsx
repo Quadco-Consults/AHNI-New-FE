@@ -1,3 +1,5 @@
+"use client";
+
 /* eslint-disable no-unused-vars */
 import { ColumnDef } from "@tanstack/react-table";
 import FormButton from "components/atoms/FormButton";
@@ -14,7 +16,7 @@ import { Checkbox } from "components/ui/checkbox";
 import PencilIcon from "components/icons/PencilIcon";
 import IconButton from "components/IconButton";
 import FilterIcon from "components/icons/FilterIcon";
-import { useGetWorkforceNeedAnalysis } from "@/features/hrApi/hr-workforce-need-analysis";
+import { useGetWorkforceNeedAnalysis } from "@/features/hr/controllers/hrWorkforceNeedAnalysisController";
 
 import Card from "components/Card";
 import {
@@ -24,8 +26,8 @@ import {
   AccordionTrigger,
 } from "components/ui/accordion";
 import { SelectContent, SelectItem } from "components/ui/select";
-import { useGetLocationList } from "@/features/modules/controllers/config/locationApi";
-import { useGetPositionPaginate } from "@/features/modules/controllers/config/positions";
+import { useGetAllLocationsManager } from "@/features/modules/controllers/config/locationController";
+import { useGetAllPositionsManager } from "@/features/modules/controllers/config/positionController";
 import { LocationResultsData } from "definations/configs/location";
 import { PositionsResultsData } from "definations/configs/positions";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -61,19 +63,19 @@ const WFNA: React.FC = () => {
   });
 
   const { handleSubmit, reset, getValues } = form;
-  const { location, position } = getValues();
+  const { location: selectedLocation, position: selectedPosition } = getValues();
 
   const { data, isLoading: loadingWorkforce } =
     useGetWorkforceNeedAnalysis({
-      ...(location && { location }),
-      ...(position && { position }),
+      ...(selectedLocation && { location: selectedLocation }),
+      ...(selectedPosition && { position: selectedPosition }),
     });
   // const { deleteWorkforceNeedAnalysis, isLoading: deleting } =
   //     useWorkforceNeedAnalysis({});
   const { data: locations, isLoading: locationIsLoading } =
-    useGetLocationList({});
+    useGetAllLocationsManager({});
   const { data: positions, isLoading: positionIsLoading } =
-    useGetPositionPaginate({});
+    useGetAllPositionsManager({});
 
   const onSubmit: SubmitHandler<TFormValues> = (values) => {
     console.log("filter; ", values);
@@ -113,13 +115,25 @@ const WFNA: React.FC = () => {
     },
     {
       header: "Position",
-      accessorKey: "position.name",
+      accessorKey: "position",
       size: 200,
+      cell: ({ getValue }) => {
+        const position = getValue();
+        return typeof position === 'object' && position?.name 
+          ? String(position.name) 
+          : String(position || '');
+      },
     },
     {
       header: "Location",
-      accessorKey: "location.name",
+      accessorKey: "location",
       size: 200,
+      cell: ({ getValue }) => {
+        const location = getValue();
+        return typeof location === 'object' && location?.name 
+          ? String(location.name) 
+          : String(location || '');
+      },
     },
     {
       header: "Current Staff",
@@ -255,11 +269,11 @@ const WFNA: React.FC = () => {
                               Loading...
                             </p>
                           </div>
-                        ) : (locations?.data?.results || []).length > 0 ? (
-                          (locations?.data?.results || []).map(
+                        ) : (locations?.results || []).length > 0 ? (
+                          (locations?.results || []).map(
                             (location: LocationResultsData) => (
-                              <SelectItem key={location.id} value={location.id}>
-                                {location.name}
+                              <SelectItem key={location.id} value={String(location.id)}>
+                                {String(location.name)}
                               </SelectItem>
                             )
                           )
@@ -287,11 +301,11 @@ const WFNA: React.FC = () => {
                               Loading...
                             </p>
                           </div>
-                        ) : (positions?.data?.results || []).length > 0 ? (
-                          (positions?.data?.results || []).map(
+                        ) : (positions?.results || []).length > 0 ? (
+                          (positions?.results || []).map(
                             (position: PositionsResultsData) => (
-                              <SelectItem key={position.id} value={position.id}>
-                                {position.name}
+                              <SelectItem key={position.id} value={String(position.id)}>
+                                {String(position.name)}
                               </SelectItem>
                             )
                           )
@@ -339,7 +353,7 @@ const WFNA: React.FC = () => {
       <div className='w-full'>
         <DataTable
           columns={columns}
-          data={data?.data?.results ?? []}
+          data={data?.results ?? []}
           isLoading={loadingWorkforce}
           pagination={{
             total: 10,

@@ -1,3 +1,5 @@
+"use client";
+
 import { ColumnDef } from "@tanstack/react-table";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
@@ -178,9 +180,7 @@ const ActionList = () => {
           <PopoverContent className=' w-fit'>
             <div className='flex flex-col items-start justify-between gap-1'>
               <Link
-                href={generatePath(HrRoutes.SEPARATION_MANAGEMENT_DETAIL, {
-                  id: 1,
-                })}
+                href="/dashboard/hr/separation-management/1"
               >
                 <Button
                   className='w-full flex items-center justify-start gap-2'

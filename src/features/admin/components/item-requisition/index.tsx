@@ -1,10 +1,11 @@
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import Card from "components/Card";
-import { itemRequisitionColumns } from "components/Table/columns/admin/inventory-management/item-requisition";
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
-import { Button } from "components/ui/button";
-import { AdminRoutes } from "constants/RouterConstants";
+"use client";
+
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import Card from "@/components/Card";
+import { itemRequisitionColumns } from "@/features/admin/components/table-columns/inventory-management/item-requisition";
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import Link from "next/link";
 import { useGetAllItemRequisitionsQuery } from "@/features/admin/controllers/itemRequisitionController";
@@ -20,7 +21,7 @@ export default function ItemRequisitionHomePage() {
   return (
     <div className='space-y-10'>
       <div className='flex justify-end'>
-        <Link href={AdminRoutes.CREATE_ITEM_REQUISITION}>
+        <Link href="/dashboard/admin/item-requisition/create">
           <Button>
             <AddSquareIcon />
             Add Item Requisition

@@ -1,13 +1,14 @@
+"use client";
 import Link from "next/link";
 import Card from "components/Card";
 import { Button } from "components/ui/button";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import { RouteEnum } from "constants/RouterConstants";
 import DataTable from "components/Table/DataTable";
-import { useGetAllRiskManagementPlans } from "@/features/programs/controllers/risk-plans";
+import { useGetAllRiskManagementPlans } from "@/features/programs/controllers/riskPlansController";
 import { useState } from "react";
 import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
-import { riskManagementPlanColumns } from "components/Table/columns/program/plan/risk-management-plan";
+import { riskManagementPlanColumns } from "@/features/programs/components/table-columns/plan/risk-management-plan";
 import TableFilters from "components/Table/TableFilters";
 import { useDebounce } from "ahooks";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
@@ -25,7 +26,7 @@ export default function RiskManagementPage() {
   const [page, setPage] = useState(1);
   const [searchController, setSearchController] = useState("");
 
-  const debouncedSearchController = useDebounce(search, {
+  const debouncedSearchController = useDebounce(searchController, {
     wait: 1000,
   });
 
@@ -51,7 +52,7 @@ export default function RiskManagementPage() {
           <PopoverContent className='w-fit'>
             <div className='flex flex-col items-start justify-between gap-1'>
               <Link
-                href={RouteEnum.PROGRAM_RISK_MANAGEMENT_CREATE}
+                href="/dashboard/programs/plan/risk-management-plan/create"
                 className='block w-full'
               >
                 <Button

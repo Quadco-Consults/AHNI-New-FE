@@ -13,7 +13,7 @@ import SearchBar from "components/atoms/SearchBar";
 import { Checkbox } from "components/ui/checkbox";
 
 import PayGroupModal from "./components/PayGroupModal";
-import { useGetPayGroups } from "@/features/hr/controllers/hr-pay-groupsController";
+import { useGetPayGroups } from "@/features/hr/controllers/payGroupController";
 import useDebounce from "utils/useDebounce";
 
 const PayGroup: React.FC = () => {

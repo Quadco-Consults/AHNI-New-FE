@@ -1,9 +1,9 @@
 {
   "pages": {
-    "/dashboard/programs/plan/work-plan/page": [
+    "/dashboard/modules/project/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/programs/plan/work-plan/page.js"
+      "static/chunks/app/dashboard/modules/project/page.js"
     ],
     "/dashboard/layout": [
       "static/chunks/webpack.js",
@@ -16,15 +16,66 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/dashboard/programs/plan/work-plan/[id]/page": [
+    "/dashboard/modules/programs/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/programs/plan/work-plan/[id]/page.js"
+      "static/chunks/app/dashboard/modules/programs/page.js"
     ],
-    "/_not-found/page": [
+    "/dashboard/modules/admin/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/_not-found/page.js"
+      "static/chunks/app/dashboard/modules/admin/page.js"
+    ],
+    "/dashboard/modules/config/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/modules/config/page.js"
+    ],
+    "/dashboard/modules/procurement/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/modules/procurement/page.js"
+    ],
+    "/dashboard/modules/finance/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/modules/finance/page.js"
+    ],
+    "/dashboard/modules/hr/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/modules/hr/page.js"
+    ],
+    "/dashboard/modules/c-and-g/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/modules/c-and-g/page.js"
+    ],
+    "/auth/login/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/auth/login/page.js"
+    ],
+    "/dashboard/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/page.js"
+    ],
+    "/dashboard/audit-log/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/audit-log/page.js"
+    ],
+    "/dashboard/projects/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/projects/page.js"
+    ],
+    "/dashboard/projects/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/dashboard/projects/[id]/page.css",
+      "static/chunks/app/dashboard/projects/[id]/page.js"
     ]
   }
 }

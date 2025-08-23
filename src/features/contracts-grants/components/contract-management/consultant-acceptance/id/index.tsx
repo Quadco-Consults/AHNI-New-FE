@@ -1,10 +1,10 @@
-import { useGetSingleConsultancyStaff } from "@/features/contracts-grants/controllers/contract-management/consultancy-management/consultancy-applicants";
+import { useGetSingleConsultancyStaff } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import SingleConsultancyStaffDetails from "../../consultant-management/id/applicants/SingleConsultancyStaffDetails";
 import Card from "components/Card";
 import BackNavigation from "components/atoms/BackNavigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import ScopeOfWork from "../../consultant-management/id/ScopeOfWork";
-import { useGetSingleConsultantManagement } from "@/features/contracts-grants/controllers/contract-management/consultancy-management/consultant-management";
+import { useGetSingleConsultantManagement } from "@/features/contracts-grants/controllers/consultantManagementController";
 import JobDetails from "../../consultant-management/id/JobDetails";
 import AcceptanceForm from "./AcceptanceForm";
 

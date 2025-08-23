@@ -109,6 +109,7 @@ export const DeleteSupervisionCriteriaManager = () => {
 
 // Backward compatibility exports - RTK Query style
 export const useGetAllSupervisionCriteriaQuery = useGetAllSupervisionCriteriaManager;
+export const useGetAllSupervisionCriteriaController = useGetAllSupervisionCriteriaManager;
 
 export const useAddSupervisionCriteriaMutation = () => {
   const { createSupervisionCriteria, data, isLoading, isSuccess, error } = CreateSupervisionCriteriaManager();
@@ -124,6 +125,11 @@ export const useUpdateSupervisionCriteriaMutation = () => {
 };
 
 export const useDeleteSupervisionCriteriaMutation = () => {
+  const { deleteSupervisionCriteria, data, isLoading, isSuccess, error } = DeleteSupervisionCriteriaManager();
+  return [deleteSupervisionCriteria, { data, isLoading, isSuccess, error }] as const;
+};
+
+export const useDeleteSupervisionCriteriaController = () => {
   const { deleteSupervisionCriteria, data, isLoading, isSuccess, error } = DeleteSupervisionCriteriaManager();
   return [deleteSupervisionCriteria, { data, isLoading, isSuccess, error }] as const;
 };

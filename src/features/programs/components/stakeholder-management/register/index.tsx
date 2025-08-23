@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import Card from "components/Card";
 import { Button } from "components/ui/button";
@@ -6,10 +7,10 @@ import SearchIcon from "components/icons/SearchIcon";
 import FilterIcon from "components/icons/FilterIcon";
 import { RouteEnum } from "constants/RouterConstants";
 import DataTable from "components/Table/DataTable";
-import { useGetAllStakeholderRegister } from "@/features/programs/controllers/stakeholder";
+import { useGetAllStakeholderRegister } from "@/features/programs/controllers/stakeholderController";
 import { useState } from "react";
 import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
-import { stakeholderRegisterColumnss } from "components/Table/columns/program/stakeholder-management/stakeholder-register";
+import { stakeholderRegisterColumnss } from "@/features/programs/components/table-columns/stakeholder-management/stakeholder-register";
 import TableFilters from "components/Table/TableFilters";
 import { useDebounce } from "ahooks";
 
@@ -22,7 +23,7 @@ const breadcrumbs: TBreadcrumbList[] = [
 export default function StakeholderRegisterPage() {
     const [page, setPage] = useState(1);
     const [searchController, setSearchController] = useState("");
-    const debouncedSearchController = useDebounce(search, { wait: 1000 });
+    const debouncedSearchController = useDebounce(searchController, { wait: 1000 });
     const { data, isFetching, refetch } = useGetAllStakeholderRegister(
         {
             page,
@@ -45,9 +46,7 @@ export default function StakeholderRegisterPage() {
 
             <div className="flex justify-end">
                 <Link
-                    href={
-                        RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER_CREATE
-                    }
+                    href="/dashboard/programs/stakeholder-management/stakeholder-register/create"
                 >
                     <Button className="flex gap-2 py-6">
                         <AddSquareIcon />

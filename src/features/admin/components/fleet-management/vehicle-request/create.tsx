@@ -1,3 +1,5 @@
+"use client";
+
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import BackNavigation from "components/atoms/BackNavigation";
@@ -25,7 +27,7 @@ import {
     useEditVehicleRequestMutation,
     useGetSingleVehicleRequestQuery,
 } from "@/features/admin/controllers/vehicleRequestController";
-import { useNavigate, useSearchParams } 
+import { useRouter, useSearchParams } from "next/navigation";
 import { AdminRoutes } from "constants/RouterConstants";
 import { addTeamMembers } from "store/admin/team-members";
 import { useGetAllProjectsQuery } from "@/features/projects/controllers/projectController";

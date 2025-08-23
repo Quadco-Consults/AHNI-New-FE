@@ -1,6 +1,8 @@
+"use client";
+
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
-import { paymentRequestColumns } from "components/Table/columns/admin/payment-request";
+import { paymentRequestColumns } from "@/features/admin/components/table-columns/payment-request";
 import Card from "components/Card";
 import { Button } from "components/ui/button";
 import { AdminRoutes } from "constants/RouterConstants";
@@ -22,9 +24,7 @@ export default function PaymentRequestHome() {
         <>
             <div className="flex justify-end">
                 <Link
-                    href={generatePath(
-                        AdminRoutes.CREATE_PAYMENT_REQUEST_SUMMARY
-                    )}
+                    href="/dashboard/admin/payment-request/create/summary"
                 >
                     <Button>
                         <Plus size={20} /> Raise Payment Request

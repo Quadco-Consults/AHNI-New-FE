@@ -77,15 +77,15 @@ export const consumableColums: ColumnDef<TConsumablePaginatedData>[] = [
 const TableAction = ({ id }: TConsumablePaginatedData) => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const [deleteConsumable, { isLoading }] = useDeleteConsumableMutation();
+  const { deleteConsumable, isLoading } = useDeleteConsumable();
 
   const handleDeleteConsumable = async () => {
     try {
-      await deleteConsumable(id).unwrap();
+      await deleteConsumable(id);
       toast.success("Consumable Deleted");
       setDialogOpen(false);
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
+      toast.error(error?.message ?? "Something went wrong");
     }
   };
 
@@ -102,9 +102,7 @@ const TableAction = ({ id }: TConsumablePaginatedData) => {
             <div className='flex flex-col items-start justify-between gap-1'>
               <Link
                 className='w-full'
-                href={generatePath(AdminRoutes.VIEW_CONSUMABLE, {
-                  id,
-                })}
+                href={`/dashboard/admin/inventory-management/consumable/${id}`}
               >
                 <Button
                   className='w-full flex items-center justify-start gap-2'
@@ -116,10 +114,7 @@ const TableAction = ({ id }: TConsumablePaginatedData) => {
               </Link>
               <Link
                 className='w-full'
-                href={{
-                  pathname: AdminRoutes.CREATE_CONSUMABLE,
-                  search: `?id=${id}`,
-                }}
+                href={`/dashboard/admin/inventory-management/consumable/create?id=${id}`}
               >
                 <Button
                   className='w-full flex items-center justify-start gap-2'

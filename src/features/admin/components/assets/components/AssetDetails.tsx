@@ -1,3 +1,5 @@
+"use client";
+
 import { Card, CardContent, CardHeader } from "components/ui/card";
 import { Separator } from "components/ui/separator";
 import TableFilters from "components/Table/TableFilters";
@@ -6,7 +8,7 @@ import { TAssetSingleData } from "features/admin/types/inventory-management/asse
 import { ColumnDef } from "@tanstack/react-table";
 import DescriptionCard from "components/DescriptionCard";
 import { LoadingSpinner } from "components/Loading";
-import { useSearchParams } 
+import { useSearchParams } from "next/navigation";
 import { useGetSingleAsset } from "@/features/admin/controllers/assetController";
 import BackNavigation from "components/atoms/BackNavigation";
 

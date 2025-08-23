@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "components/atoms/FormButton";
 import FormInput from "components/atoms/FormInput";
@@ -15,7 +17,8 @@ import {
 } from "features/admin/types/inventory-management/good-receive-note";
 import { useEffect, useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useNavigate, useSearchParams } 
+import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation"; 
 import {
   useCreateGoodReceiveNote,
   useGetSingleGoodReceiveNote,

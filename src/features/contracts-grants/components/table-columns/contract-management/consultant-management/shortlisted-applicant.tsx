@@ -1,10 +1,13 @@
+"use client";
+
 import { ColumnDef } from "@tanstack/react-table";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import { generatePath, Link, useLocation, useParams } 
+import { useParams, usePathname } from "next/navigation";
+import Link from "next/link";
 import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
-import { IConsultancyStaffPaginatedData } from "definations/c&g/contract-management/consultancy-management/consultancy-application";
+import { IConsultancyStaffPaginatedData } from "@/features/contracts-grants/types/contract-management/consultancy-management/consultancy-application";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
@@ -67,7 +70,7 @@ const TableMenu = ({ id }: IConsultancyStaffPaginatedData) => {
 
     const { id: adhocId } = useParams();
 
-    const { pathname } = useLocation();
+    const pathname = usePathname();
 
     const type = pathname.includes("adhoc-management") ? "ADHOC" : "CONSULTANT";
 
@@ -89,12 +92,10 @@ const TableMenu = ({ id }: IConsultancyStaffPaginatedData) => {
                     </PopoverTrigger>
                     <PopoverContent className="w-fit">
                         <Link
-                            href={{
-                                pathname: generatePath(path, {
-                                    adhocId,
-                                    applicantId: id,
-                                }),
-                            }}
+                            href={type === "ADHOC" 
+                                ? `/dashboard/programs/stakeholder-management/adhoc-management/${adhocId}/interview/${id}`
+                                : `/dashboard/c-and-g/consultant-management/${adhocId}/applicant/${id}`
+                            }
                         >
                             <Button
                                 className="w-full flex items-center justify-start gap-2"

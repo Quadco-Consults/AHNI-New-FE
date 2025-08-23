@@ -1,15 +1,17 @@
+"use client";
+
 import { useDebounce } from "ahooks";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import Card from "components/Card";
 import { LoadingSpinner } from "components/Loading";
-import { subGrantAwardColumns } from "components/Table/columns/c&g/sub-grant/awards";
+import { subGrantAwardColumns } from "@/features/contracts-grants/components/table-columns/sub-grant/awards";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { Button } from "components/ui/button";
 import { CG_ROUTES } from "constants/RouterConstants";
 import { useState } from "react";
 import Link from "next/link";
-import { useGetAllSubGrants } from "@/features/contracts-grants/controllers/subgrant/sub-grantController";
+import { useGetAllSubGrants } from "@/features/contracts-grants/controllers/subGrantController";
 import ConsultantCard from "../../contract-management/consultant-management/ConsultantCard";
 import SubgrantAdvertCard from "./SubGrantAdvertCard";
 

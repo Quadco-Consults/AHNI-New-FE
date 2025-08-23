@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
 import { toast } from "sonner";
-import { useDeleteRiskManagementPlan } from "@/features/programs/controllers/risk-plans";
+import { useDeleteRiskManagementPlan } from "@/features/programs/controllers/riskPlansController";
 import EditIcon from "components/icons/EditIcon";
 import PencilIcon from "components/icons/PencilIcon";
 import { useAppDispatch } from "hooks/useStore";
@@ -164,17 +164,18 @@ export const riskManagementPlanColumns: ColumnDef<TRiskManagementPlanData>[] = [
 const TableAction = ({ id, risk_status }: TRiskManagementPlanData) => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const [deleteRiskManagementPlan, { isLoading }] =
-    useDeleteRiskManagementPlan();
+  const { deleteRiskManagementPlan, isLoading } =
+    useDeleteRiskManagementPlan(id);
 
   const dispatch = useAppDispatch();
 
   const handleDelete = async () => {
     try {
-      await deleteRiskManagementPlan(id).unwrap();
+      await deleteRiskManagementPlan();
       toast.success("Risk Management Plan Deleted");
+      setDialogOpen(false);
     } catch (error: any) {
-      toast.error(error.data.message || "Something went wrong");
+      toast.error(error?.message || "Something went wrong");
     }
   };
 
@@ -208,10 +209,7 @@ const TableAction = ({ id, risk_status }: TRiskManagementPlanData) => {
                 Change Risk Status
               </Button>
               <Link
-                href={{
-                  pathname: RouteEnum.PROGRAM_RISK_MANAGEMENT_CREATE,
-                  search: `?id=${id}`,
-                }}
+                href={`/dashboard/programs/plan/risk-management-plan/create?id=${id}`}
                 className='w-full'
               >
                 <Button

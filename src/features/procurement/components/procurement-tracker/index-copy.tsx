@@ -13,7 +13,7 @@ import BreadcrumbCard from "components/Breadcrumb";
 //     DialogTitle,
 //     DialogTrigger,
 // } from "components/ui/dialog";
-import ProcurementTrackerAPI from "@/features/procurement/controllers/procurement-trackerController";
+import ProcurementTrackerAPI from "@/features/procurement/controllers/procurementTrackerController";
 import { ProcurementTrackerResults } from "definations/procurement-types/procurementPlan";
 
 // interface TableDataType {

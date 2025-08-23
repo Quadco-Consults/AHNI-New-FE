@@ -1,12 +1,14 @@
+"use client";
+
 import { skipToken } from "@reduxjs/toolkit/query";
 import Card from "components/Card";
-import { consultancyStaffColumns } from "components/Table/columns/c&g/contract-management/consultant-management/consultant-applicant";
-import { shortlistedApplicantColumn } from "components/Table/columns/c&g/contract-management/consultant-management/shortlisted-applicant";
+import { consultancyStaffColumns } from "@/features/contracts-grants/components/table-columns/contract-management/consultant-management/consultant-applicant";
+import { shortlistedApplicantColumn } from "@/features/contracts-grants/components/table-columns/contract-management/consultant-management/shortlisted-applicant";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import { useGetAllConsultancyStaffs } from "@/features/contracts-grants/controllers/contract-management/consultancy-management/consultancy-applicants";
+import { useGetAllConsultancyStaffs } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 
 export default function ShortlistedAppplicants() {
   const { id } = useParams();

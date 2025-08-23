@@ -1,8 +1,11 @@
+"use client";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import EoIDetails from "../eoi-tabs-contents/EoIDetails";
 import EOIVendorSubmission from "../eoi-tabs-contents/EOIVendorSubmission";
 import RoundBack from "assets/svgs/RoundBack";
-import { useNavigate, useParams } 
+import { useRouter } from "next/navigation";
+import { useParams } from "next/navigation"; 
 import EoiAPI from "@/features/procurement/controllers/eoiController";
 import { LoadingSpinner } from "components/Loading";
 import { EOIResultsData } from "definations/procurement-types/eoi";

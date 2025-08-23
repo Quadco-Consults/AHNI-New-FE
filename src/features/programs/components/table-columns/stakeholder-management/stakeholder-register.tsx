@@ -3,7 +3,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import EyeIcon from "components/icons/EyeIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { ColumnDef } from "@tanstack/react-table";
-import { useDeleteStakeholderRegister } from "@/features/programs/controllers/stakeholder";
+import { useDeleteStakeholderRegister } from "@/features/programs/controllers/stakeholderController";
 import { toast } from "sonner";
 import ConfirmationDialog from "components/ConfirmationDialog";
 import { TStakeholderRegisterData } from "definations/program-validator";
@@ -122,16 +122,16 @@ export const stakeholderRegisterColumnss: ColumnDef<TStakeholderRegisterData>[] 
 const TableMenu = ({ id }: TStakeholderRegisterData) => {
     const [dialogOpen, setDialogOpen] = useState(false);
 
-    const [deleteStakeholderRegister, { isLoading: isDeleteLoading }] =
-        useDeleteStakeholderRegister();
+    const { deleteStakeholderRegister, isLoading: isDeleteLoading } =
+        useDeleteStakeholderRegister(id);
 
     const handleDeleteStakeholderRegister = async () => {
         try {
-            await deleteStakeholderRegister(id).unwrap();
+            await deleteStakeholderRegister();
             toast.success("Stakeholder Register Deleted");
             setDialogOpen(false);
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error?.message ?? "Something went wrong");
         }
     };
 
@@ -148,10 +148,7 @@ const TableMenu = ({ id }: TStakeholderRegisterData) => {
                         <div className="flex flex-col items-start justify-between gap-1">
                             <Link
                                 className="w-full"
-                                href={generatePath(
-                                    RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER_DETAILS,
-                                    { id }
-                                )}
+                                href={`/dashboard/programs/stakeholder-management/stakeholder-register/${id}`}
                             >
                                 <Button
                                     className="w-full flex items-center justify-start gap-2"
@@ -163,11 +160,7 @@ const TableMenu = ({ id }: TStakeholderRegisterData) => {
                             </Link>
                             <Link
                                 className="w-full"
-                                href={{
-                                    pathname:
-                                        RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_REGISTER_CREATE,
-                                    search: `?id=${id}`,
-                                }}
+                                href={`/dashboard/programs/stakeholder-management/stakeholder-register/create?id=${id}`}
                             >
                                 <Button
                                     className="w-full flex items-center justify-start gap-2"

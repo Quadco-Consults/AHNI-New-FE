@@ -68,13 +68,7 @@ const TableMenu = ({ id }: VendorsResultsData) => {
                 <PopoverContent className=" w-fit">
                     <div className="flex flex-col items-start justify-between gap-1">
                         <Link
-                            href={{
-                                pathname: generatePath(
-                                    AdminRoutes.VIEW_FUEL_CONSUMPTION,
-                                    { id }
-                                ),
-                                search: "?type=vendor",
-                            }}
+                            href={`/dashboard/admin/fleet-management/fuel-request/${id}?type=vendor`}
                         >
                             <Button
                                 className="w-full flex items-center justify-start gap-2"

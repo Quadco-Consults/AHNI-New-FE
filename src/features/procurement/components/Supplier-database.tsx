@@ -1,23 +1,22 @@
-/* eslint-disable react/prop-types */
+"use client";
+
 import { Icon } from "@iconify/react";
-import Card from "components/Card";
-import IconButton from "components/IconButton";
-import { Badge } from "components/ui/badge";
-import { Checkbox } from "components/ui/checkbox";
-import { cn } from "lib/utils";
-import { Avatar, AvatarFallback, AvatarImage } from "components/ui/avatar";
+import Card from "@/components/Card";
+import IconButton from "@/components/IconButton";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ColumnDef } from "@tanstack/react-table";
-import DataTable from "components/Table/DataTable";
-import VendorsAPI from "@/features/procurement/controllers/vendorsController";
-import { VendorsResultsData } from "definations/procurement-types/vendors";
+import DataTable from "@/components/Table/DataTable";
+import { useGetVendors, useDeleteVendor } from "@/features/procurement/controllers/vendorsController";
+import { VendorsResultsData } from "@/definations/procurement-types/vendors";
 import Link from "next/link";
-import { RouteEnum } from "constants/RouterConstants";
 import { toast } from "sonner";
 
 const SupplierDatabase = () => {
-  const { data, isLoading } = VendorsAPI.useGetVendors({
-    // @ts-ignore
-    params: { status: "Approved" },
+  const { data, isLoading } = useGetVendors({
+    status: "Approved",
   });
 
   return (
@@ -99,13 +98,13 @@ const columns: ColumnDef<VendorsResultsData>[] = [
     accessorKey: "area_of_specialization",
     cell: ({ row }) => (
       <div className='space-y-2'>
-        {row.original.approved_categories_details.map(({ name }, idx) => {
+        {row.original.approved_categories_details?.map(({ name }, idx) => {
           return (
             <div className='' key={idx}>
               {idx + 1}. {name}
             </div>
           );
-        })}
+        }) || "-"}
       </div>
     ),
   },
@@ -120,13 +119,13 @@ const columns: ColumnDef<VendorsResultsData>[] = [
     accessorKey: "other_opt_addresses",
     cell: ({ row }) => (
       <div className='space-y-2'>
-        {row.original.branches.map(({ address }, idx) => {
+        {row.original.branches?.map(({ address }, idx) => {
           return (
             <div className='' key={idx}>
               {idx + 1}. {address}
             </div>
           );
-        })}
+        }) || "-"}
       </div>
     ),
   },
@@ -136,7 +135,9 @@ const columns: ColumnDef<VendorsResultsData>[] = [
     size: 200,
     accessorKey: "point_of_contact_person",
     cell: ({ row }) => (
-      <div className='space-y-2'>{row.original.key_staff[0].name}</div>
+      <div className='space-y-2'>
+        {row.original.key_staff?.length > 0 ? row.original.key_staff[0]?.name : "-"}
+      </div>
     ),
   },
 
@@ -151,8 +152,8 @@ const columns: ColumnDef<VendorsResultsData>[] = [
     accessorKey: "mobile_number_1",
     cell: ({ row }) => (
       <div className='space-y-2'>
-        {(row.original.key_staff.length > 0 &&
-          row.original.key_staff[0].phone_number) ||
+        {(row.original.key_staff?.length > 0 &&
+          row.original.key_staff[0]?.phone_number) ||
           "-"}
       </div>
     ),
@@ -163,8 +164,8 @@ const columns: ColumnDef<VendorsResultsData>[] = [
     accessorKey: "mobile_number_2",
     cell: ({ row }) => (
       <div className='space-y-2'>
-        {(row.original.key_staff.length > 1 &&
-          row.original.key_staff[1].phone_number) ||
+        {(row.original.key_staff?.length > 1 &&
+          row.original.key_staff[1]?.phone_number) ||
           "-"}
       </div>
     ),
@@ -175,8 +176,8 @@ const columns: ColumnDef<VendorsResultsData>[] = [
     accessorKey: "mobile_number_3",
     cell: ({ row }) => (
       <div className='space-y-2'>
-        {(row.original.key_staff.length > 2 &&
-          row.original.key_staff[2].phone_number) ||
+        {(row.original.key_staff?.length > 2 &&
+          row.original.key_staff[2]?.phone_number) ||
           "-"}
       </div>
     ),
@@ -213,11 +214,11 @@ const columns: ColumnDef<VendorsResultsData>[] = [
 ];
 
 const ActionListAction = ({ data }: any) => {
-  const [deleteVendorMutation] = VendorsAPI.useDeleteVendor();
+  const { deleteVendor } = useDeleteVendor(data.id);
 
   const deleteVendorHandler = async (id: string) => {
     try {
-      await deleteVendorMutation({ path: { id: id } }).unwrap;
+      deleteVendor();
       toast.success("Document successfully deleted.");
     } catch (error) {
       toast.error("Something went wrong");
@@ -228,10 +229,7 @@ const ActionListAction = ({ data }: any) => {
     <div className='flex gap-1'>
       <Link
         className='w-full'
-        href={{
-          pathname: RouteEnum.VENDOR_REGISTRATION,
-          search: `?id=${data?.id}`,
-        }}
+        href={`/dashboard/procurement/vendor-management/vendor-registration?id=${data?.id}`}
       >
         <IconButton className='bg-[#F9F9F9] hover:text-primary'>
           <Icon icon='solar:pen-bold-duotone' fontSize={15} />
@@ -239,7 +237,7 @@ const ActionListAction = ({ data }: any) => {
       </Link>
 
       <Link
-        href={generatePath(RouteEnum.VENDOR_MANAGEMENT_DETAILS, { id: data.id })}
+        href={`/dashboard/procurement/vendor-management/prequalification/${data.id}`}
       >
         <IconButton className='bg-[#F9F9F9] hover:text-primary'>
           <Icon icon='ph:eye-duotone' fontSize={15} />
@@ -261,11 +259,11 @@ const VendorAction = ({ data }: any) => {
       <div>
         <Avatar>
           <AvatarImage src={data?.vendor?.png} />
-          <AvatarFallback>{data?.company_name.charAt(0)}</AvatarFallback>
+          <AvatarFallback>{data?.company_name?.charAt(0) || "?"}</AvatarFallback>
         </Avatar>
       </div>
       <div>
-        <h4 className='font-bold'>{data?.company_name}</h4>
+        <h4 className='font-bold'>{data?.company_name || "N/A"}</h4>
         {/* <h6>{data?.company_address}</h6> */}
       </div>
     </div>

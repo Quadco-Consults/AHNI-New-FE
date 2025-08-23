@@ -1,3 +1,5 @@
+"use client";
+
 /* eslint-disable react/prop-types */
 import { Icon } from "@iconify/react";
 import Card from "components/Card";
@@ -13,12 +15,12 @@ import Link from "next/link";
 import { RouteEnum } from "constants/RouterConstants";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
-import VendorsAPI from "@/features/procurement/controllers/vendorsController";
+import { useGetVendors, useDeleteVendor } from "@/features/procurement/controllers/vendorsController";
 import { VendorsResultsData } from "definations/procurement-types/vendors";
 import { toast } from "sonner";
 
 const VendorManagement = () => {
-  const { data, isLoading } = VendorsAPI.useGetVendors({});
+  const { data, isLoading } = useGetVendors({});
 
   return (
     <div className='space-y-10'>
@@ -191,11 +193,11 @@ const columns: ColumnDef<VendorsResultsData>[] = [
 ];
 
 const ActionListAction = ({ data }: any) => {
-  const [deleteVendorMutation] = VendorsAPI.useDeleteVendor();
+  const { deleteVendor } = useDeleteVendor(data.id);
 
   const deleteVendorHandler = async (id: string) => {
     try {
-      await deleteVendorMutation({ path: { id: id } }).unwrap;
+      await deleteVendor();
       toast.success("Document successfully deleted.");
     } catch (error) {
       toast.error("Something went wrong");
@@ -206,10 +208,7 @@ const ActionListAction = ({ data }: any) => {
     <div className='flex gap-2'>
       <Link
         className='w-full'
-        href={{
-          pathname: RouteEnum.VENDOR_REGISTRATION,
-          search: `?id=${data?.id}`,
-        }}
+        href={`/dashboard/procurement/vendor-management/vendor-registration?id=${data?.id}`}
       >
         <IconButton className='bg-[#F9F9F9] hover:text-primary'>
           <Icon icon='solar:pen-bold-duotone' fontSize={15} />
@@ -217,7 +216,7 @@ const ActionListAction = ({ data }: any) => {
       </Link>
 
       <Link
-        href={generatePath(RouteEnum.VENDOR_MANAGEMENT_DETAILS, { id: data.id })}
+        href={`/dashboard/procurement/vendor-management/prequalification/${data.id}`}
       >
         <IconButton className='bg-[#F9F9F9] hover:text-primary'>
           <Icon icon='ph:eye-duotone' fontSize={15} />

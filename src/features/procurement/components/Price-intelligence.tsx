@@ -1,10 +1,11 @@
-/* eslint-disable react/prop-types */
-import Card from "components/Card";
-import { LoadingSpinner } from "components/Loading";
-import { Button } from "components/ui/button";
-import { Progress } from "components/ui/progress";
-import PriceIntelligenceAPI from "@/features/procurement/controllers/price-intelligence/priceIntelligenceController";
-import { ScrollArea } from "components/ui/scroll-area";
+"use client";
+
+import Card from "@/components/Card";
+import { LoadingSpinner } from "@/components/Loading";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { useGetAllPriceIntelligence, useGetSinglePriceIntelligence } from "@/features/procurement/controllers/priceIntelligenceController";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useEffect, useMemo, useState } from "react";
 import {
   AreaChart,
@@ -21,11 +22,10 @@ import {
   DialogContent,
   DialogHeader,
   DialogTrigger,
-} from "components/ui/dialog";
-import BreadcrumbCard from "components/Breadcrumb";
-import { PriceIntelligenceDetail } from "features/procurement/types/price-intelligence";
+} from "@/components/ui/dialog";
+import BreadcrumbCard from "@/components/Breadcrumb";
+import { PriceIntelligenceDetail } from "@/features/procurement/types/price-intelligence";
 import { format, parseISO } from "date-fns";
-import { skipToken } from "@reduxjs/toolkit/query";
 
 const RatingCircle = ({ showInner }: any) => {
   return (
@@ -47,17 +47,10 @@ const PriceIntelligence = () => {
     setPriceId(id);
   };
 
-  const { data, isLoading } =
-    PriceIntelligenceAPI.useGetPriceIntelligencesQuery({});
-  const { data: priceDetails, isLoading: priceDetailsIsLoading } =
-    PriceIntelligenceAPI.useGetPriceIntelligenceQuery(
-      useMemo(
-        () => ({
-          path: { id: (priceId as string) ?? skipToken },
-        }),
-        [priceId]
-      )
-    );
+  const { data, isLoading } = useGetAllPriceIntelligence({});
+  const { data: priceDetails, isLoading: priceDetailsIsLoading } = useGetSinglePriceIntelligence(
+    priceId, !!priceId
+  );
 
   if (isLoading) {
     return <LoadingSpinner />;

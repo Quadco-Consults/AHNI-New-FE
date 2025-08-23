@@ -1,3 +1,5 @@
+"use client";
+
 import RoundBack from "assets/svgs/RoundBack";
 import { FC } from "react";
 import { useRouter } from "next/navigation";

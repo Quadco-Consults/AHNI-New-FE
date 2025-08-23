@@ -1,3 +1,5 @@
+"use client";
+
 import Card from "components/Card";
 import { CardContent } from "components/ui/card";
 import PaymentRequestLayout from "./Layout";
@@ -19,7 +21,7 @@ import {
     useLocation,
     useNavigate,
     useSearchParams,
-} 
+} from "next/navigation"; 
 import { useGetAllUsersQuery } from "@/features/auth/controllers/userController";
 import { Button } from "components/ui/button";
 import { AdminRoutes } from "constants/RouterConstants";

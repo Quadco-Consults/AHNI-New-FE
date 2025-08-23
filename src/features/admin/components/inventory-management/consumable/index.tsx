@@ -1,12 +1,12 @@
+"use client";
 import { useState } from "react";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import { AdminRoutes } from "constants/RouterConstants";
-import DataTable from "components/Table/DataTable";
-import { consumableColums } from "components/Table/columns/admin/inventory-management/consumables";
-import TableFilters from "components/Table/TableFilters";
+import DataTable from "@/components/Table/DataTable";
+import { consumableColums } from "@/features/admin/components/table-columns/inventory-management/consumables";
+import TableFilters from "@/components/Table/TableFilters";
 import { useGetAllItemsQuery } from "@/features/modules/controllers/config/itemController";
 
 export default function ConsumablesHomePage() {
@@ -19,11 +19,11 @@ export default function ConsumablesHomePage() {
   });
 
   return (
-    <div className='space-y-10'>
-      <Card className='space-y-10'>
-        <div className='space-y-5'>
-          <div className='flex justify-end'>
-            <Link href={generatePath(AdminRoutes.CREATE_CONSUMABLE)}>
+    <div className="space-y-10">
+      <Card className="space-y-10">
+        <div className="space-y-5">
+          <div className="flex justify-end">
+            <Link href="/dashboard/admin/inventory-management/consumable/create">
               <Button>
                 <Plus size={20} />
                 Add Consumable

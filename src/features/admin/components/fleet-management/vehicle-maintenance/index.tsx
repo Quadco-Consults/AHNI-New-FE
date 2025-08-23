@@ -1,13 +1,14 @@
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
-import { Button } from "components/ui/button";
-import { AdminRoutes } from "constants/RouterConstants";
+"use client";
+
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useGetAllVehicleMaintenanceQuery } from "@/features/admin/controllers/vehicleMaintenanceController";
-import { vehicleMaintenanceColumns } from "components/Table/columns/admin/fleet-management/vehicle-maintenance";
-import Card from "components/Card";
+import { vehicleMaintenanceColumns } from "@/features/admin/components/table-columns/fleet-management/vehicle-maintenance";
+import Card from "@/components/Card";
 
 export default function VehicleMaintenanceHomePage() {
     const [page, setPage] = useState(1);
@@ -21,7 +22,7 @@ export default function VehicleMaintenanceHomePage() {
     return (
         <div>
             <div className="flex justify-end">
-                <Link href={AdminRoutes.CREATE_VEHICLE_MAINTENANCE}>
+                <Link href="/dashboard/admin/fleet-management/vehicle-maintenance/create">
                     <Button>
                         <Plus size={20} />
                         Create New Record

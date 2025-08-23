@@ -9,7 +9,7 @@ import { useState } from "react";
 import {
     useDeletePrequalificationCategory,
     useGetAllPrequalificationCategory,
-} from "@/features/modules/controllers/procurement/prequalification-categoryController";
+} from "@/features/modules/controllers/procurement/prequalificationCategoryController";
 import Pagination from "components/Pagination";
 
 export default function AllPrequalificationCategory() {

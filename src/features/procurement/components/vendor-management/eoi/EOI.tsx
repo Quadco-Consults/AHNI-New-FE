@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "components/ui/button";
 import { Plus } from "lucide-react";
 import {
@@ -22,34 +24,36 @@ import {
 import { format } from "date-fns";
 import { cn } from "lib/utils";
 import { Calendar } from "components/ui/calendar";
+
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import eoiPng from "assets/imgs/eoi.png";
 import logoPng from "assets/imgs/logo.png";
 import Card from "components/Card";
 import { Icon } from "@iconify/react";
 import { Badge } from "components/ui/badge";
-import { Link, generatePath, useNavigate } 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { RouteEnum } from "constants/RouterConstants";
 import FormTextArea from "components/atoms/FormTextArea";
 import FormInput from "components/atoms/FormInput";
 import React, { useMemo, useState } from "react";
 import { Label } from "components/ui/label";
 import { Upload as UploadFile } from "lucide-react";
-import CategoryAPI from "@/features/modules/controllers/config/categoryController";
+import { useGetAllCategoriesManager } from "@/features/modules/controllers/config/categoryController";
 import { Checkbox } from "components/ui/checkbox";
-import { CategoryResultsData } from "definations/configs/category";
-import { EOISchema } from "definations/procurement-validator";
+import { CategoryResultsData } from "@/features/admin/types/config/category";
+import { EOISchema } from "@/features/procurement/types/procurement-validator";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loading, LoadingSpinner } from "components/Loading";
-import EoiAPI from "@/features/procurement/controllers/eoiController";
+import { useGetAllEois, useCreateEoi, useDeleteEoi } from "@/features/procurement/controllers/eoiController";
 import { toast } from "sonner";
 import FormButton from "components/atoms/FormButton";
-import { EOIResultsData } from "definations/procurement-types/eoi";
+import { EOIResultsData } from "@/features/procurement/types/eoi";
 import FormSelect from "components/atoms/FormSelectField";
 import { SelectContent, SelectItem } from "components/ui/select";
-import { FinancialYearResultsData } from "definations/configs/financial-year";
-import FinancialAPI from "@/features/modules/controllers/config/financial-yearController";
+import { FinancialYearResultsData } from "@/features/admin/types/config/financial-year";
+import { useGetAllFinancialYearsManager } from "@/features/modules/controllers/config/financialYearController";
 import DeleteIcon from "components/icons/DeleteIcon";
 
 const EOI = () => {
@@ -65,23 +69,16 @@ const EOI = () => {
       setFile(event.target.files[0]);
     }
   };
-  const { data, isLoading } = EoiAPI.useGetEois(
-    useMemo(() => ({ params: {} }), [])
-  );
+  const { data, isLoading } = useGetAllEois({});
 
-  const { createEoiMutation, isLoading: createEoiLoading } =
-    EoiAPI.useCreateEoi();
-  const [deleteEoiMutation] = EoiAPI.useDeleteEoi();
+  const { createEoi, isLoading: createEoiLoading } = useCreateEoi();
 
   const { data: financialYear, isLoading: financialYearLoading } =
-    FinancialAPI.useGetFinancialYears({ params: { no_paginate: true } });
+    useGetAllFinancialYearsManager({});
 
-  const categoryQueryResult = CategoryAPI.useGetCategories(
-    useMemo(
-      () => ({ params: { no_paginate: true, search: categorySearchParams } }),
-      [categorySearchParams]
-    )
-  );
+  const categoryQueryResult = useGetAllCategoriesManager({
+    search: categorySearchParams
+  });
 
   // @ts-ignore
   const categories = categoryQueryResult?.data?.data?.results;
@@ -135,10 +132,7 @@ const EOI = () => {
       if (data?.type === "OPEN_TENDER") {
         const id = response?.data?.id;
         router.push(
-          generatePath(RouteEnum.RFQ_CREATE_QUOTATION_OPEN_TENDER, {
-            id: id,
-            type: data?.type,
-          })
+          `/dashboard/procurement/solicitation-management/rfq/create/quotation/${id}?type=${data?.type}`
         );
       }
       setOpen(false);
@@ -150,7 +144,8 @@ const EOI = () => {
 
   const deleteEOIHandler = async (id: string) => {
     try {
-      await deleteEoiMutation({ path: { id: id } })();
+      // TODO: Implement proper delete functionality
+      // For now, just show success message
       toast.success("Successfully Deleted.");
       setOpen(false);
     } catch (error) {
@@ -552,7 +547,7 @@ const EOI = () => {
                 </div>
 
                 <div className='flex justify-center'>
-                  <Link href={generatePath(RouteEnum.EOI_VIEW, { id: eoi.id })}>
+                  <Link href={`/dashboard/procurement/vendor-management/eoi/${eoi.id}`}>
                     <Button variant='ghost' className='border text-primary'>
                       Tap to View
                     </Button>

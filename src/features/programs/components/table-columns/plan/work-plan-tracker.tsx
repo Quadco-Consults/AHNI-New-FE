@@ -35,16 +35,16 @@ export const workPlanTrackercolumns: ColumnDef<TWorkPlanTrackerData>[] = [
 const TableAction = ({ id }: TWorkPlanTrackerData) => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const [deleteWorkPlanTracker, { isLoading }] =
+  const { deleteActivityTracker: deleteWorkPlanTracker, isLoading } =
     useDeleteActivityTracker();
 
   const handleDeleteWorkPlanTracker = async () => {
     try {
-      await deleteWorkPlanTracker(id).unwrap();
+      await deleteWorkPlanTracker(id);
       toast.success("Work Plan Tracker Deleted");
       setDialogOpen(false);
     } catch (error: any) {
-      toast.error(error.data.message || "Something went wrong");
+      toast.error(error?.message || "Something went wrong");
     }
   };
 
@@ -61,9 +61,7 @@ const TableAction = ({ id }: TWorkPlanTrackerData) => {
             <div className='flex flex-col items-start justify-between gap-1'>
               <Link
                 className='w-full'
-                href={generatePath(RouteEnum.PROGRAM_ACTIVITY_TRACKER_DETAILS, {
-                  id: id,
-                })}
+                href={`/dashboard/programs/plan/activity-tracker/${id}`}
               >
                 <Button
                   className='w-full flex items-center justify-start gap-2'

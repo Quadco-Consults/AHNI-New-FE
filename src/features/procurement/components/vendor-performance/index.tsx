@@ -1,3 +1,5 @@
+"use client";
+
 /* eslint-disable react/prop-types */
 import { Icon } from "@iconify/react";
 import Card from "components/Card";
@@ -12,13 +14,12 @@ import { RouteEnum } from "constants/RouterConstants";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import GoBack from "components/GoBack";
-import VendorsEvaluaionAndPerformanceAPI from "@/features/procurement/controllers/vendors-evaluation-performanceController";
+import { useGetAllVendorEvaluations, useDeleteVendorEvaluation } from "@/features/procurement/controllers/vendorPerformanceEvaluationController";
 import IconButton from "components/IconButton";
 import { toast } from "sonner";
 
 const VendorPerformance = () => {
-  const { data, isLoading } =
-    VendorsEvaluaionAndPerformanceAPI.useGetVendorsEvaluation({});
+  const { data, isLoading } = useGetAllVendorEvaluations({});
 
   return (
     <div className='space-y-10'>
@@ -38,7 +39,7 @@ const VendorPerformance = () => {
               </div>
             </div>
             <Link
-              href={generatePath(RouteEnum.VENDOR_PERFORMANCE_EVALUATION_FORM)}
+              href="/dashboard/procurement/vendor-performance/form"
             >
               <Button>
                 <span>
@@ -163,12 +164,11 @@ const columns: ColumnDef<any>[] = [
 ];
 
 const ActionListAction = ({ data }: any) => {
-  const [deleteVendorMutation] =
-    VendorsEvaluaionAndPerformanceAPI.useDeleteVendorEvaluation();
+  const { deleteVendorEvaluation } = useDeleteVendorEvaluation(data.id);
 
   const deleteVendorHandler = async (id: string) => {
     try {
-      await deleteVendorMutation({ path: { id: id } }).unwrap;
+      await deleteVendorEvaluation();
       toast.success("Document successfully deleted.");
     } catch (error) {
       toast.error("Something went wrong");
@@ -179,9 +179,7 @@ const ActionListAction = ({ data }: any) => {
   return (
     <div className='flex gap-2'>
       <Link
-        href={generatePath(RouteEnum.VENDOR_PERFORMANCE_EVALUATION_ID, {
-          id: data.id,
-        })}
+        href={`/dashboard/procurement/vendor-performance/${data.id}`}
       >
         <IconButton className='bg-[#F9F9F9] hover:text-primary'>
           <Icon icon='ph:eye-duotone' fontSize={15} />
@@ -195,9 +193,7 @@ const ActionListAction = ({ data }: any) => {
       </IconButton>
 
       <Link
-        href={generatePath(RouteEnum.VENDOR_PERFORMANCE_START_EVALUATION, {
-          id: data.id,
-        })}
+        href={`/dashboard/procurement/vendor-performance/${data.id}/form`}
       >
         <IconButton className='bg-[#F9F9F9] hover:text-primary'>
           Evaluate

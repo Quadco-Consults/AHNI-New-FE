@@ -1,10 +1,11 @@
-import BackNavigation from "components/atoms/BackNavigation";
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
-import { vehicleRequestColumns } from "components/Table/columns/admin/fleet-management/vehicle-request";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import { AdminRoutes } from "constants/RouterConstants";
+"use client";
+
+import BackNavigation from "@/components/BackNavigation";
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
+import { vehicleRequestColumns } from "@/features/admin/components/table-columns/fleet-management/vehicle-request";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
@@ -23,7 +24,7 @@ export default function VehicleRequestHomePage() {
             <div className="flex items-center justify-between">
                 <BackNavigation extraText="Vehicle Request" />
                 <div>
-                    <Link href={generatePath(AdminRoutes.CREATE_VEHICLE_REQUEST)}>
+                    <Link href="/dashboard/admin/fleet-management/vehicle-request/create">
                         <Button>
                             <Plus size={20} />
                             New Vehicle Request

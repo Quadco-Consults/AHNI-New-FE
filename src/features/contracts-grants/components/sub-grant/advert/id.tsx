@@ -13,7 +13,7 @@ import { useGetSingleGrant } from "@/features/contracts-grants/controllers/grant
 import GrantDetailsCard from "../../grant/_components/GrantDetailsCard";
 import ExpenditureHistory from "../../grant/_components/ExpenditureHistory";
 import ObligationHistory from "../../grant/_components/ObligationHistory";
-import { useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subgrant/sub-grantController";
+import { useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
 
 export default function SubGrantAwardDetails() {
   const [tabValue, setTabValue] = useState("details");

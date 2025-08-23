@@ -1,12 +1,14 @@
+"use client";
+
 import Card from "components/Card";
-import { consultancyReportColumns } from "components/Table/columns/c&g/contract-management/consultancy-report";
-import { consultantDatabaseColumns } from "components/Table/columns/c&g/contract-management/consultant-database";
+import { consultancyReportColumns } from "@/features/contracts-grants/components/table-columns/contract-management/consultancy-report";
+import { consultantDatabaseColumns } from "@/features/contracts-grants/components/table-columns/contract-management/consultant-database";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
-import { Link, useLocation } 
+import { usePathname } from "next/navigation";
 
 export default function AdhocDatabase() {
-    const { pathname } = useLocation();
+    const pathname = usePathname();
 
     const type = pathname.includes("adhoc") ? "ADHOC" : "CONSULTANT";
 

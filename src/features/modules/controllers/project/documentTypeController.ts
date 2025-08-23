@@ -108,6 +108,7 @@ export const DeleteDocumentTypeManager = () => {
 
 // Backward compatibility exports - RTK Query style
 export const useGetAllDocumentTypeQuery = useGetAllDocumentTypesManager;
+export const useGetAllDocumentTypes = useGetAllDocumentTypesManager;
 
 export const useAddDocumentTypeMutation = () => {
   const { createDocumentType, data, isLoading, isSuccess, error } = CreateDocumentTypeManager();
@@ -127,3 +128,5 @@ export const useDeleteDocumentTypeeMutation = () => {
   const { deleteDocumentType, data, isLoading, isSuccess, error } = DeleteDocumentTypeManager();
   return [deleteDocumentType, { data, isLoading, isSuccess, error }] as const;
 };
+
+export const useDeleteDocumentType = DeleteDocumentTypeManager;

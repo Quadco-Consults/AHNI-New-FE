@@ -1,6 +1,8 @@
+"use client";
+
 import { Button } from "components/ui/button";
 import BreadcrumbCard from "components/Breadcrumb";
-import ProcurementTrackerAPI from "@/features/procurement/controllers/procurement-trackerController";
+import { useGetAllProcurementTrackers } from "@/features/procurement/controllers/procurementTrackerController";
 import TabState from "components/ui/TabState";
 import { useMemo, useState } from "react";
 import { FileDown } from "lucide-react";
@@ -11,7 +13,7 @@ import ProcurementProcessCard from "./ProcurementProcessCard";
 import { usePathname } from "next/navigation";
 
 function ProcurementTracker() {
-    const { pathname } = useLocation();
+    const pathname = usePathname();
 
     const isAdminTracker = pathname.includes("admin-tracker");
 
@@ -29,9 +31,7 @@ function ProcurementTracker() {
         [isAdminTracker]
     );
 
-    const { isLoading } = ProcurementTrackerAPI.useGetProcurementTrackers(
-        {}
-    );
+    const { data, isLoading } = useGetAllProcurementTrackers({});
 
     const tabDetails = [
         {
@@ -81,6 +81,13 @@ function ProcurementTracker() {
             </section>
             {isLoading ? (
                 <Loading />
+            ) : !data?.data?.results || data.data.results.length === 0 ? (
+                <div className="flex items-center justify-center min-h-[400px]">
+                    <div className="text-center">
+                        <h3 className="text-lg font-semibold text-gray-600 mb-2">No Data Available</h3>
+                        <p className="text-gray-500">There are no procurement tracker records to display.</p>
+                    </div>
+                </div>
             ) : (
                 <section className="w-full">
                     {tabDetails.map((item, index) => {

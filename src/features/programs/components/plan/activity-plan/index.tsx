@@ -43,29 +43,14 @@ export default function ActivityPlan() {
     search: debouncedSearchQuery,
   });
 
-  const [downloadTemplate] = useLazyDownloadActivityPlanTemplateQuery();
+  const { refetch: downloadTemplate, isFetching: isDownloading } = useDownloadActivityPlanTemplate(false);
 
   const handleDownloadTemplate = async () => {
     try {
-      const response = await downloadTemplate(null).unwrap();
-
-      const blob = new Blob([response], {
-        type: "application/vnd.ms-excel",
-      });
-
-      const blobUrl = URL.createObjectURL(blob);
-
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.download = "activity_plan_template.xlsx";
-
-      document.body.appendChild(link);
-      link.click();
-
-      document.body.removeChild(link);
-      URL.revokeObjectURL(blobUrl);
+      await downloadTemplate();
+      toast.success("Template downloaded successfully");
     } catch (error: any) {
-      toast.error(error.data.message || "Something went wrong");
+      toast.error(error?.message || "Something went wrong");
     }
   };
 
@@ -120,6 +105,7 @@ export default function ActivityPlan() {
                 className='flex items-center gap-2 justify-start'
                 variant='ghost'
                 onClick={handleDownloadTemplate}
+                disabled={isDownloading}
               >
                 <DownloadIcon className='text-green-500' />
                 Download Template

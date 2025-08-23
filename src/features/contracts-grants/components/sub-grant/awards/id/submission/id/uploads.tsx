@@ -1,6 +1,8 @@
+"use client";
+
 import Card from "components/Card";
 import FormButton from "components/atoms/FormButton";
-import { useGetAllSubGrantUploads } from "@/features/contracts-grants/controllers/subgrant/submission-upload";
+import { useGetAllSubGrantUploads } from "@/features/contracts-grants/controllers/submissionUploadController";
 import FilePreview from "components/FilePreview";
 import Pagination from "components/Pagination";
 import { useState } from "react";

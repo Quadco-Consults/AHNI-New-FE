@@ -1,3 +1,5 @@
+"use client";
+
 import { ColumnDef } from "@tanstack/react-table";
 import { IGrantPaginatedData } from "features/contracts-grants/types/grants";
 import Link from "next/link";
@@ -11,7 +13,7 @@ import DeleteIcon from "components/icons/DeleteIcon";
 import ConfirmationDialog from "components/ConfirmationDialog";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useDeleteGrant } from "@/features/contracts-grants/controllers/grant/grant";
+import { useDeleteGrant } from "@/features/contracts-grants/controllers/grantController";
 import { formatNumberCurrency } from "utils/utls";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
@@ -181,9 +183,7 @@ const TableMenu = (data) => {
             <div className='flex flex-col items-start justify-between gap-1'>
               <Link
                 className='w-full'
-                href={generatePath(CG_ROUTES.GRANT_DETAILS, {
-                  id,
-                })}
+                href={`/dashboard/c-and-g/grant/${id}`}
               >
                 <Button
                   className='w-full flex items-center justify-start gap-2'

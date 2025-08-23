@@ -1,3 +1,5 @@
+"use client";
+
 import FormButton from "components/atoms/FormButton";
 import FormCheckBox from "components/atoms/FormCheckBox";
 import FormInput from "components/atoms/FormInput";
@@ -18,7 +20,8 @@ import { useGetAllProjectsQuery } from "@/features/projects/controllers/projectC
 import { useEffect, useMemo } from "react";
 import { useGetAllDepartmentsQuery } from "@/features/modules/controllers/config/departmentController";
 import { useGetAllFCONumbersQuery } from "@/features/modules/controllers/finance/fcoNumberController";
-import { Link, useNavigate, useSearchParams } 
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { AdminRoutes } from "constants/RouterConstants";
 import { Button } from "components/ui/button";
 import {

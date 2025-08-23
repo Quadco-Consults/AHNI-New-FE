@@ -1,15 +1,19 @@
+"use client";
+
 import BackNavigation from "components/atoms/BackNavigation";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import { Button } from "components/ui/button";
 import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
-import { generatePath, Link, useLocation, useParams } 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useParams } from "next/navigation"; 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { LoadingSpinner } from "components/Loading";
 import { useState } from "react";
 import JobDetails from "./JobDetails";
 import Card from "components/Card";
-import { useGetSingleConsultantManagement } from "@/features/contracts-grants/controllers/contract-management/consultancy-management/consultant-management";
+import { useGetSingleConsultantManagement } from "@/features/contracts-grants/controllers/consultantManagementController";
 import Applications from "./applicants/ConsultancyStaffList";
 import ShortlistedAppplicants from "./ShortlistedApplicants";
 

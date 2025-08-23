@@ -1,3 +1,5 @@
+"use client";
+
 import {
     ClockTimingSvg,
     DataCalenderSvg,
@@ -13,10 +15,10 @@ import Card from "components/Card";
 import { Button } from "components/ui/button";
 import { CardTitle } from "components/ui/card";
 import { format } from "date-fns";
-import { ISubGrantPaginatedData } from "definations/c&g/contract-management/sub-grant/sub-grant";
+import { ISubGrantPaginatedData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
 import React, { useState } from "react";
 import Link from "next/link";
-import { useDeleteSubGrant } from "@/features/contracts-grants/controllers/subgrant/sub-grantController";
+import { useDeleteSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
 import { toast } from "sonner";
 
 export default function SubgrantAdvertCard({

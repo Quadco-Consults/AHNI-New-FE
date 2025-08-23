@@ -8,7 +8,7 @@ import { LoadingSpinner } from "components/Loading";
 import Pagination from "components/Pagination";
 import {
     useUseGetAllFundingSourceQuery,
-    useDeleteFundingSource,
+    useDeleteFundingSourceMutation,
 } from "@/features/modules/controllers/project/fundingSourceController";
 import { useState } from "react";
 
@@ -29,11 +29,11 @@ export default function AllFundingSource() {
     const dispatch = useAppDispatch();
 
     const [deleteFunding, { isLoading: isDeleteLoading }] =
-        useDeleteFundingSource();
+        useDeleteFundingSourceMutation();
 
     const onSubmit = async (id: string) => {
         try {
-            await deleteFunding(id)();
+            await deleteFunding(id);
             toast.success("Deleted Successfully");
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");

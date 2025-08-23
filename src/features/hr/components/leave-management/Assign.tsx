@@ -1,3 +1,5 @@
+"use client";
+
 // import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "components/atoms/FormButton";
 import FormInput from "components/atoms/FormInput";
@@ -16,7 +18,7 @@ import { UploadIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useGetAllEmployeeOnboardings } from "../../controllers/employeeOnboarding";
+import { useGetEmployeeOnboardings } from "../../controllers/employeeOnboardingController";
 
 import { LoadingSpinner } from "components/Loading";
 import { EmployeeOnboarding } from "definations/hr-types/employee-onboarding";
@@ -29,7 +31,7 @@ import { EmployeeOnboarding } from "definations/hr-types/employee-onboarding";
 
 const Assign = () => {
   const { data: employeeData, isLoading: fetchingEmployeeData } =
-    useGetAllEmployeeOnboardings({ page: 1, size: 1000 });
+    useGetEmployeeOnboardings({ page: 1, size: 1000 });
   // const { data: leaveTypes, isLoading: leaveTypesIsLoading } =
   //     useLeaveTypesQuery({});
 
@@ -67,7 +69,7 @@ const Assign = () => {
 
   const onSubmit = async (data: any) => {
     console.log({ data });
-    router.push(HrRoutes.LEAVE_MANAGEMENT_LEAVE_LIST);
+    router.push("/dashboard/hr/leave-management");
   };
 
   useEffect(() => {

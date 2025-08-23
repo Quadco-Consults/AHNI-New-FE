@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import RoundBack from "assets/svgs/RoundBack";
 import FormButton from "components/atoms/FormButton";
@@ -11,7 +13,7 @@ import {
   EditItemSchema,
   ItemSchema,
   TItemFormValues,
-} from "components/modules-types/config/item";
+} from "@/features/admin/types/config/item";
 import useQuery from "hooks/useQuery";
 import { useEffect, useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";

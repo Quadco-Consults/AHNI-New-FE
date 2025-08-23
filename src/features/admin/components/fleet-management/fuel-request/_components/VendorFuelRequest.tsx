@@ -1,13 +1,15 @@
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
+"use client";
+
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
 import { useState } from "react";
-import { fuelRequestVendorColumns } from "components/Table/columns/admin/fleet-management/fuel-request-vendor";
-import VendorsAPI from "@/features/procurement/controllers/vendorController";
+import { fuelRequestVendorColumns } from "@/features/admin/components/table-columns/fleet-management/fuel-request-vendor";
+import { useGetVendors } from "@/features/procurement/controllers/vendorsController";
 
 export default function VendorFuelRequest() {
     const [page, setPage] = useState(1);
 
-    const { data, isFetching } = VendorsAPI.useGetVendorsQuery({
+    const { data, isFetching } = useGetVendors({
         page,
         size: 10,
     });

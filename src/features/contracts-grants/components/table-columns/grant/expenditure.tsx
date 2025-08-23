@@ -1,5 +1,7 @@
+"use client";
+
 import { ColumnDef } from "@tanstack/react-table";
-import { IExpenditurePaginatedData } from "features/contracts-grants/types/grants";
+import { IExpenditurePaginatedData } from "@/features/contracts-grants/types/grants";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
 import { toast } from "sonner";
@@ -12,7 +14,7 @@ import { useParams } from "next/navigation";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
-import { useDeleteExpenditure } from "@/features/contracts-grants/controllers/grant/expenditure";
+import { useDeleteExpenditure } from "@/features/contracts-grants/controllers/expenditureController";
 import { formatNumberCurrency } from "utils/utls";
 
 export const expenditureColumns: ColumnDef<IExpenditurePaginatedData>[] = [

@@ -108,6 +108,7 @@ export const DeleteQuestionnaireManager = () => {
 
 // Backward compatibility exports - RTK Query style
 export const useGetAllQuestionnairesQuery = useGetAllQuestionnairesManager;
+export const useGetAllQuestionnaires = useGetAllQuestionnairesManager;
 
 export const useAddQuestionnaireMutation = () => {
   const { createQuestionnaire, data, isLoading, isSuccess, error } = CreateQuestionnaireManager();
@@ -123,6 +124,11 @@ export const useUpdateQuestionnaireMutation = () => {
 };
 
 export const useDeleteQuestionnaireMutation = () => {
+  const { deleteQuestionnaire, data, isLoading, isSuccess, error } = DeleteQuestionnaireManager();
+  return [deleteQuestionnaire, { data, isLoading, isSuccess, error }] as const;
+};
+
+export const useDeleteQuestionnaire = () => {
   const { deleteQuestionnaire, data, isLoading, isSuccess, error } = DeleteQuestionnaireManager();
   return [deleteQuestionnaire, { data, isLoading, isSuccess, error }] as const;
 };

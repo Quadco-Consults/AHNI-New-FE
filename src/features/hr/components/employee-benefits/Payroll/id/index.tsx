@@ -1,7 +1,9 @@
+"use client";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 
 import { useParams } from "next/navigation";
-import VendorsAPI from "@/features/procurementApi/vendorsController";
+import { useGetSinglePayroll } from "@/features/hr/controllers/hrPayRollController";
 // import { LoadingSpinner } from "components/Loading";
 
 import GoBack from "components/GoBack";
@@ -12,9 +14,7 @@ import BreakDown from "./DetailedBreakdown";
 const PayRollDetails = () => {
   const { id } = useParams();
 
-  const { data: grData } = VendorsAPI.useGetVendor({
-    path: { id: id as string },
-  });
+  const { data: grData } = useGetSinglePayroll(id as string);
 
   console.log({ grData });
 

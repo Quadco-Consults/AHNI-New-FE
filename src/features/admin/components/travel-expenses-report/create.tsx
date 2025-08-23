@@ -1,3 +1,5 @@
+"use client";
+
 import Card from "components/Card";
 import { CardContent } from "components/ui/card";
 import {
@@ -10,7 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelect";
 import FormButton from "components/atoms/FormButton";
-import { Link, useNavigate, useSearchParams } 
+import { Link, useNavigate, useSearchParams } from "next/navigation"; 
 import { Button } from "components/ui/button";
 import { AdminRoutes } from "constants/RouterConstants";
 import BackNavigation from "components/atoms/BackNavigation";

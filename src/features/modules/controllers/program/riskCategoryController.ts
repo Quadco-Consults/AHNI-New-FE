@@ -108,6 +108,7 @@ export const DeleteRiskCategoryManager = () => {
 
 // Backward compatibility exports - RTK Query style
 export const useGetAllRiskCategoryQuery = useGetAllRiskCategoriesManager;
+export const useGetAllRiskCategory = useGetAllRiskCategoriesManager;
 
 export const useAddRiskCategoryMutation = () => {
   const { createRiskCategory, data, isLoading, isSuccess, error } = CreateRiskCategoryManager();
@@ -123,6 +124,11 @@ export const useUpdateRiskCategoryMutation = () => {
 };
 
 export const useDeleteRiskCategoryMutation = () => {
+  const { deleteRiskCategory, data, isLoading, isSuccess, error } = DeleteRiskCategoryManager();
+  return [deleteRiskCategory, { data, isLoading, isSuccess, error }] as const;
+};
+
+export const useDeleteRiskCategory = () => {
   const { deleteRiskCategory, data, isLoading, isSuccess, error } = DeleteRiskCategoryManager();
   return [deleteRiskCategory, { data, isLoading, isSuccess, error }] as const;
 };

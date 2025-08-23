@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "components/ui/button";
 import { toast } from "sonner";
 import { useAppDispatch } from "hooks/useStore";
@@ -6,40 +8,40 @@ import { DialogType } from "constants/dailogs";
 import TableAction from "components/atoms/TableAction";
 import { LoadingSpinner } from "components/Loading";
 import {
-    useDeleteAssetType,
-    useGetAllAssetType,
-} from "@/features/modules/controllers/admin/assetTypeController";
+    useGetAllPreAwardQuestionsManager,
+    DeletePreAwardQuestionManager,
+} from "@/features/modules/controllers/cg/preAwardQuestionController";
 import { useState } from "react";
 import Pagination from "components/Pagination";
 
 export default function AllPreAwardQuestions() {
     const [page, setPage] = useState(1);
 
-    const { data: assetType, isFetching } = useGetAllAssetType({
+    const { data: preAwardQuestions, isLoading: isFetching } = useGetAllPreAwardQuestionsManager({
         page,
         size: 20,
     });
 
     const dispatch = useAppDispatch();
 
-    const { deleteAssetTypes, isLoading: isDeleteLoading } =
-        useDeleteAssetType();
+    const { deletePreAwardQuestion, isLoading: isDeleteLoading } =
+        DeletePreAwardQuestionManager();
 
     const onSubmit = async (id: string) => {
         try {
-            await deleteAssetTypes(id)();
+            await deletePreAwardQuestion(id);
             toast.success("Deleted Successfully");
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error.data?.message ?? "Something went wrong");
         }
     };
 
     const onUpdate = (item: any) => {
         dispatch(
             openDialog({
-                type: DialogType.AddAssetTypes,
+                type: DialogType.ADD_PRE_AWARD_QUESTION_MODAL,
                 dialogProps: {
-                    header: "Update Asset Types",
+                    header: "Update Pre-Award Question",
                     data: item,
                     type: "update",
                 },
@@ -73,10 +75,10 @@ export default function AllPreAwardQuestions() {
             </div>
             <div>
                 <div className="flex justify-between text-[#756D6D] font-semibold text-sm mb-10">
-                    <h1 className="flex-1">Name</h1>
-                    <h1 className="flex-1">Manufacturer</h1>
-                    <h1 className="flex-1">Model</h1>
-                    <h1 className="flex-1">Serial Number</h1>
+                    <h1 className="flex-1">Question</h1>
+                    <h1 className="flex-1">Type</h1>
+                    <h1 className="flex-1">Required</h1>
+                    <h1 className="flex-1">Status</h1>
                     <h1 className="flex-1"></h1>
                 </div>
 
@@ -84,19 +86,19 @@ export default function AllPreAwardQuestions() {
                     <LoadingSpinner />
                 ) : (
                     <div>
-                        {assetType?.data?.results.map((item) => {
+                        {preAwardQuestions?.results?.map((item) => {
                             return (
                                 <div
                                     key={item.id}
                                     className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
                                 >
-                                    <p className="flex-1">{item.name}</p>
+                                    <p className="flex-1">{item.question}</p>
                                     <p className="flex-1">
-                                        {item.manufacturer}
+                                        {item.question_type}
                                     </p>
-                                    <p className="flex-1">{item.model}</p>
+                                    <p className="flex-1">{item.is_required ? "Yes" : "No"}</p>
                                     <p className="flex-1">
-                                        {item.serial_number}
+                                        {item.is_active ? "Active" : "Inactive"}
                                     </p>
                                     <div className="flex-1">
                                         <TableAction
@@ -113,8 +115,8 @@ export default function AllPreAwardQuestions() {
                 )}
 
                 <Pagination
-                    total={assetType?.data.pagination.count ?? 0}
-                    itemsPerPage={assetType?.data.pagination.page_size ?? 0}
+                    total={preAwardQuestions?.pagination?.count ?? 0}
+                    itemsPerPage={preAwardQuestions?.pagination?.page_size ?? 0}
                     onChange={(page: number) => setPage(page)}
                 />
             </div>

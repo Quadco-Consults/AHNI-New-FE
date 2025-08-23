@@ -1,3 +1,5 @@
+"use client";
+
 /* eslint-disable no-unused-vars */
 import { ColumnDef } from "@tanstack/react-table";
 import FormButton from "components/atoms/FormButton";
@@ -113,7 +115,7 @@ const PerformanceManagement: React.FC = () => {
     return (
       <div className='flex gap-2'>
         <Link
-          href={generatePath(HrRoutes.PERFORMANCE_MANAGEMENT_DETAIL, { id: "1" })}
+          href="/dashboard/hr/performance-management/1"
         >
           <IconButton className='bg-[#F9F9F9] hover:text-primary'>
             <Icon icon='ph:eye-duotone' fontSize={15} />

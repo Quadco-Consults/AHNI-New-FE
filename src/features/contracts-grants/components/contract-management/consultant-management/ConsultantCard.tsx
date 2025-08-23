@@ -1,3 +1,5 @@
+"use client";
+
 import {
     ClockTimingSvg,
     DataCalenderSvg,
@@ -17,8 +19,9 @@ import { format } from "date-fns";
 import { IConsultantPaginatedData } from "definations/c&g/contract-management/consultancy-management/consultancy-management";
 import useJobAdvertType from "hooks/useJobAdvertType";
 import React, { useState } from "react";
-import { generatePath, Link, useLocation } 
-import { useDeleteConsultantManagement } from "@/features/contracts-grants/controllers/contract-management/consultancy-management/consultant-management";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useDeleteConsultantManagement } from "@/features/contracts-grants/controllers/consultantManagementController";
 import { toast } from "sonner";
 
 export default function ConsultantCard({
@@ -136,7 +139,7 @@ export default function ConsultantCard({
                     <p className="text-sm">{evaluation_comments}</p>
                     <div className="w-full flex flex-col items-center justify-center absolute bottom-0 left-0 py-[.75rem] bg-gradient-to-b from-white/50 via-white/60 to-white/90">
                         <div className="bg-white w-fit">
-                            <Link href={generatePath(advertDetailsPath, { id })}>
+                            <Link href={advertDetailsPath.replace(':id', id)}>
                                 <Button className="bg-white text-primary z-[99] border border-[#00000012]">
                                     Tap to View
                                 </Button>

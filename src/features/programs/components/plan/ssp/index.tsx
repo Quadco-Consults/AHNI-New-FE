@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import Card from "components/Card";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
@@ -10,10 +11,10 @@ import { DialogType } from "constants/dailogs";
 import { openDialog } from "store/ui";
 import UploadIcon from "components/icons/UploadIcon";
 import DataTable from "components/Table/DataTable";
-import { useGetAllSupervisionPlans } from "@/features/programs/controllers/supervisionPlanController";
+import { useGetAllSupervisionPlan } from "@/features/programs/controllers/supervisionPlanController";
 import BreadcrumbCard from "components/Breadcrumb";
 import { useState } from "react";
-import { supportiveSupervisionPlanColumns } from "components/Table/columns/program/plan/supportive-supervision-plan";
+import { supportiveSupervisionPlanColumns } from "@/features/programs/components/table-columns/plan/supportive-supervision-plan";
 import TableFilters from "components/Table/TableFilters";
 import { useDebounce } from "ahooks";
 
@@ -31,7 +32,7 @@ export default function SupportiveSupervisionPlan() {
         wait: 1000,
     });
 
-    const { data: supervisionPlan, isFetching } = useGetAllSupervisionPlans(
+    const { data: supervisionPlan, isFetching } = useGetAllSupervisionPlan(
         { page, size: 10, search: debouncedSearchQuery }
     );
 

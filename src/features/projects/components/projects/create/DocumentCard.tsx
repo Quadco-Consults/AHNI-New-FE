@@ -5,7 +5,7 @@ import { Button } from "components/ui/button";
 import { format } from "date-fns";
 import { useState } from "react";
 import { Document, Page } from "react-pdf";
-import { useDeleteProjectDocument } from "@/features/project/documentController";
+import { useDeleteProjectDocument } from "@/features/projects/controllers/projectDocumentController";
 import { toast } from "sonner";
 
 type TProps = {

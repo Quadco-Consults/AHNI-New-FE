@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "components/atoms/FormButton";
 import FormInput from "components/atoms/FormInput";
@@ -13,7 +15,7 @@ import {
 } from "features/admin/types/inventory-management/asset-request";
 import { useEffect, useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useLocation, useNavigate, useSearchParams } 
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useGetAllAssetsQuery } from "@/features/admin/controllers/assetController";
 import {
     useCreateAssetRequestMutation,
@@ -55,7 +57,7 @@ export default function CreateAssetRequestDetails() {
     );
 
     const router = useRouter();
-    const { pathname } = useLocation();
+    const pathname = usePathname();
 
     const form = useForm<TAssetRequestFormValues>({
         resolver: zodResolver(AssetRequestSchema),

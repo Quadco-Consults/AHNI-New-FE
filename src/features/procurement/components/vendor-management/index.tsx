@@ -1,6 +1,11 @@
+"use client";
+
 import { TabsContent } from "@radix-ui/react-tabs";
 import { Tabs, TabsList, TabsTrigger } from "components/ui/tabs";
 import { Card } from "components/ui/card";
+import VendorRegistration from "./vendor-registration/Registration";
+import Prequalification from "./prequalification/index";
+import EOI from "./eoi/EOI";
 
 const VendorManagement = () => {
   return (
@@ -14,17 +19,17 @@ const VendorManagement = () => {
           </TabsList>
           <TabsContent value='vendor-registration'>
             <Card className='mt-10 pb-8 px-6'>
-              <div>Vendor Registration Content</div>
+              <VendorRegistration />
             </Card>
           </TabsContent>
           <TabsContent value='prequalification'>
             <Card className='mt-10 pb-8 px-6'>
-              <div>Prequalification Content</div>
+              <Prequalification />
             </Card>
           </TabsContent>
           <TabsContent value='eoi'>
             <Card className='mt-10 pb-8 px-6'>
-              <div>Expression of Interest Content</div>
+              <EOI />
             </Card>
           </TabsContent>
         </Tabs>

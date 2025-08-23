@@ -1,3 +1,5 @@
+"use client";
+
 import FormButton from "components/atoms/FormButton";
 import FormTextArea from "components/atoms/FormTextArea";
 import Card from "components/Card";

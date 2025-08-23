@@ -108,6 +108,7 @@ export const DeleteLotManager = () => {
 
 // Backward compatibility exports - RTK Query style
 export const useGetAllLotsQuery = useGetAllLotsManager;
+export const useGetAllLots = useGetAllLotsManager;
 
 export const useAddLotMutation = () => {
   const { createLot, data, isLoading, isSuccess, error } = CreateLotManager();
@@ -123,6 +124,11 @@ export const useUpdateLotMutation = () => {
 };
 
 export const useDeleteLotMutation = () => {
+  const { deleteLot, data, isLoading, isSuccess, error } = DeleteLotManager();
+  return [deleteLot, { data, isLoading, isSuccess, error }] as const;
+};
+
+export const useDeleteLot = () => {
   const { deleteLot, data, isLoading, isSuccess, error } = DeleteLotManager();
   return [deleteLot, { data, isLoading, isSuccess, error }] as const;
 };

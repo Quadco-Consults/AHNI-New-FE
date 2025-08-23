@@ -1,12 +1,14 @@
+"use client";
+
 import { skipToken } from "@reduxjs/toolkit/query";
 import Card from "components/Card";
-import { partnerSubmissionColumns } from "components/Table/columns/c&g/sub-grant/submission";
+import { partnerSubmissionColumns } from "@/features/contracts-grants/components/table-columns/sub-grant/submission";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
-import { ISubGrantSingleData } from "definations/c&g/contract-management/sub-grant/sub-grant";
+import { ISubGrantSingleData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import { useGetAllSubGrantManualSub } from "@/features/contracts-grants/controllers/subgrant/submission";
+import { useGetAllSubGrantManualSub } from "@/features/contracts-grants/controllers/submissionController";
 
 export default function PartnerSubmissionList({}: ISubGrantSingleData) {
     const [page, setPage] = useState(1);
