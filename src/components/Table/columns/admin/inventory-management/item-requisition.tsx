@@ -85,7 +85,7 @@ export const itemRequisitionColumns: ColumnDef<TItemRequisitionPaginatedData>[] 
       },
     },
   ];
- const TableAction = ({ id }: TItemRequisiti onPaginatedData) => {
+const TableAction = ({ id }: TItemRequisitionPaginatedData) => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const [deleteItemRequisition, { isLoading }] =
