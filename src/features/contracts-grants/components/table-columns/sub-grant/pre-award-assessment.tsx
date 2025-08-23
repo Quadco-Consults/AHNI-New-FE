@@ -1,3 +1,5 @@
+"use client";
+
 import { ColumnDef } from "@tanstack/react-table";
 import DeleteIcon from "components/icons/DeleteIcon";
 import EyeIcon from "components/icons/EyeIcon";
@@ -5,11 +7,12 @@ import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIco
 import { Button } from "components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { CG_ROUTES } from "constants/RouterConstants";
-import { ISubGrantSubmissionPaginatedData } from "definations/c&g/contract-management/sub-grant/sub-grant";
-import { generatePath, Link, useLocation, useParams } 
+import { ISubGrantSubmissionPaginatedData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
+import { useParams, usePathname } from "next/navigation";
+import Link from "next/link";
 import PencilIcon from "components/icons/PencilIcon";
 import { toast } from "sonner";
-import { useDeleteSubGrantManualSub } from "@/features/contracts-grants/controllers/subgrant/submission";
+import { useDeleteSubGrantSubmission } from "@/features/contracts-grants/controllers/submissionController";
 import { useState } from "react";
 import ConfirmationDialog from "components/ConfirmationDialog";
 
@@ -56,16 +59,16 @@ const TableMenu = ({
 
     const { id: subGrantId = "" } = useParams();
 
-    const { pathname } = useLocation();
+    const pathname = usePathname();
 
     const isPreawardPath = pathname.includes("/preaward-assessment");
 
-    const { deletePartnerSubmission, isLoading: isDeleteLoading } =
-        useDeleteSubGrantManualSub();
+    const { deleteSubGrantSubmission, isLoading: isDeleteLoading } =
+        useDeleteSubGrantSubmission(partnerSubId);
 
     const handleDelete = async () => {
         try {
-            await deletePartnerSubmission(partnerSubId)();
+            await deleteSubGrantSubmission();
             toast.success("Submission Deleted");
             setDialogOpen(false);
         } catch (error: any) {
@@ -74,14 +77,8 @@ const TableMenu = ({
     };
 
     const path = isPreawardPath
-        ? generatePath(CG_ROUTES.SUBGRANT_SUBMISSION_DETAILS, {
-              subGrantId: sub_grant_id,
-              partnerSubId,
-          })
-        : generatePath(CG_ROUTES.SUBGRANT_SUBMISSION_DETAILS, {
-              subGrantId,
-              partnerSubId,
-          });
+        ? `/dashboard/c-and-g/sub-grant/awards/submission/${partnerSubId}`
+        : `/dashboard/c-and-g/sub-grant/awards/submission/${partnerSubId}`;
 
     return (
         <div className="flex items-center gap-2">
@@ -104,13 +101,7 @@ const TableMenu = ({
                         </Link>
 
                         <Link
-                            href={{
-                                pathname: generatePath(
-                                    CG_ROUTES.CREATE_SUBGRANT_SUBMISSION_DETAILS,
-                                    { id: subGrantId }
-                                ),
-                                search: `?partnerSubId=${partnerSubId}`,
-                            }}
+                            href={`/dashboard/c-and-g/sub-grant/awards/submission/create?partnerSubId=${partnerSubId}`}
                         >
                             <Button
                                 className="w-full flex items-center justify-start gap-2"

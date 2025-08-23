@@ -1,3 +1,5 @@
+"use client";
+
 import { ColumnDef } from "@tanstack/react-table";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
@@ -7,9 +9,10 @@ import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIco
 import DeleteIcon from "components/icons/DeleteIcon";
 import PencilIcon from "components/icons/PencilIcon";
 import ConfirmationDialog from "components/ConfirmationDialog";
-import { Link, useLocation } 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { IAgreementPaginatedData } from "definations/c&g/contract-management/agreement";
-import { useDeleteAgreement } from "@/features/contracts-grants/controllers/contract-management/agreement";
+import { useDeleteAgreement } from "@/features/contracts-grants/controllers/agreementController";
 import { CG_ROUTES } from "constants/RouterConstants";
 
 export const contractRequestColumns: ColumnDef<IAgreementPaginatedData>[] = [
@@ -59,7 +62,7 @@ export const contractRequestColumns: ColumnDef<IAgreementPaginatedData>[] = [
 const TableMenu = ({ id }: IAgreementPaginatedData) => {
   const [isDialogOpen, setDialogOpen] = useState(false);
 
-  const { pathname } = useLocation();
+  const pathname = usePathname();
 
   console.log({ pathname });
 
