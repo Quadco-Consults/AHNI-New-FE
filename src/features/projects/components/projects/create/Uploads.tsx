@@ -11,6 +11,7 @@ import {
     useDeleteProjectDocument,
     useGetAllProjectDocuments,
 } from "@/features/projects/controllers/projectDocumentController";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { Loading } from "components/Loading";
 import { useState } from "react";
 import { pdfjs } from "react-pdf";
@@ -52,16 +53,21 @@ export default function ProjectUploads() {
         { enabled: !!projectId }
     );
 
-    const [deleteProjectDocumentMutation, { isLoading }] =
-        useDeleteProjectDocumentMutation();
+    const [documentToDelete, setDocumentToDelete] = useState<string | null>(null);
+    const { deleteProjectDocument, isLoading: isDeleting } = useDeleteProjectDocument(documentToDelete || "");
 
     const handleDeleteDocument = async (id: string) => {
         try {
-            await deleteProjectDocumentMutation({ path: { id: id } }).unwrap();
+            setDocumentToDelete(id);
+            await deleteProjectDocument();
             sessionStorage.removeItem("projectsCompletedSteps");
             toast.success("Project Document Deleted.");
+            setDocumentToDelete(null);
+            // Refresh the page to update the document list
+            window.location.reload();
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error?.message ?? "Something went wrong");
+            setDocumentToDelete(null);
         }
     };
 
