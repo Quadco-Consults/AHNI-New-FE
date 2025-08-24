@@ -63,13 +63,6 @@ const ProjectUploadModal = () => {
   };
 
   const onSubmit: SubmitHandler<TProjectDocumentFormValues> = async (data) => {
-    console.log("=== DEBUG INFO ===");
-    console.log("file state:", file);
-    console.log("file type:", typeof file);
-    console.log("file instanceof File:", file instanceof File);
-    console.log("form data:", data);
-    console.log("projectId:", projectId);
-
     if (!file) {
       toast.error("Please select a file to upload");
       return;
@@ -81,7 +74,6 @@ const ProjectUploadModal = () => {
     formData.append("document_type", data.document_type);
     formData.append("project", projectId);
 
-    console.log("=== FormData contents ===");
     for (let [key, value] of formData.entries()) {
       console.log(key, value);
     }
@@ -97,7 +89,6 @@ const ProjectUploadModal = () => {
     setFile(null);
   };
   console.log({ form: form.getValues() });
-  console.log("i am here");
 
   return (
     <div className='w-full'>

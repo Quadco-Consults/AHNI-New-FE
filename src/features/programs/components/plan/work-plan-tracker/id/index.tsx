@@ -10,7 +10,7 @@ import {
 import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
 import { useDebounce } from "ahooks";
 import TableFilters from "components/Table/TableFilters";
-import { workPlanTrackerDetailscolumns } from "@/features/programs/components/table-columns/plan/work-plan-tracker-details";
+import { getWorkPlanTrackerDetailsColumns } from "@/features/programs/components/table-columns/plan/work-plan-tracker-details";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { useParams } from "next/navigation";
 import { useGetSingleWorkPlan } from "@/features/programs/controllers/workPlanController";
@@ -28,18 +28,6 @@ export default function ActivityTracker() {
   const [searchController, setSearchController] = useState("");
   const { id } = useParams();
 
-  // const debouncedSearchController = useDebounce(search, {
-  //   wait: 1000,
-  // });
-
-  // const { data: workPlanTracker, isFetching } = useGetAllActivityTracker({
-  //   page,
-  //   size: 10,
-  //   search: debouncedSearchController,
-  // });
-
-  const { data: workPlanTrackerw, isFetching } =
-    useGetSingleActivityTracker(id ?? skipToken);
   const { data, isLoading } = useGetSingleWorkPlan(id ?? skipToken);
   if (isLoading) return <LoadingSpinner />;
 
@@ -47,17 +35,17 @@ export default function ActivityTracker() {
 
   const { activities } = data.data;
 
-  console.log({ activities });
-
   return (
     <div className='space-y-5'>
       <BreadcrumbCard list={breadcrumbs} />
       <Card>
-        <TableFilters onSearchChange={(e) => setSearchController(e.target.value)}>
+        <TableFilters
+          onSearchChange={(e) => setSearchController(e.target.value)}
+        >
           <DataTable
             data={activities || []}
-            columns={workPlanTrackerDetailscolumns}
-            isLoading={isFetching}
+            columns={getWorkPlanTrackerDetailsColumns(id as string)}
+            isLoading={isLoading}
             pagination={{
               // total: workPlanTracker?.data.pagination.count ?? 0,
               // pageSize: workPlanTracker?.data.pagination.page_size ?? 0,

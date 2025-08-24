@@ -18,10 +18,13 @@ export const useDownloadWorkPlanTemplate = (enabled: boolean = true) => {
     queryKey: ["work-plan-template"],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`${BASE_URL}sheet/template/`, {
-          responseType: "blob",
-        });
-        
+        const response = await AxiosWithToken.get(
+          `${BASE_URL}sheet/template/`,
+          {
+            responseType: "blob",
+          }
+        );
+
         // Create download link
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement("a");
@@ -31,11 +34,13 @@ export const useDownloadWorkPlanTemplate = (enabled: boolean = true) => {
         link.click();
         link.remove();
         window.URL.revokeObjectURL(url);
-        
+
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled,
@@ -66,7 +71,9 @@ export const useGetAllWorkPlan = ({
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled,
@@ -84,10 +91,38 @@ export const useGetSingleWorkPlan = (id: string, enabled: boolean = true) => {
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled && !!id,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get Single Work Plan Activity
+export const useGetSingleWorkPlanActivity = (
+  workPlanId: string,
+  activityId: string,
+  enabled: boolean = true
+) => {
+  return useQuery({
+    queryKey: ["work-plan-activity", workPlanId, activityId],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(
+          `${BASE_URL}${workPlanId}/activities/${activityId}/`
+        );
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
+      }
+    },
+    enabled: enabled && !!workPlanId && !!activityId,
     refetchOnWindowFocus: false,
   });
 };
@@ -103,17 +138,21 @@ export const useUploadWorkPlan = () => {
     queryKey: ["work-plans"],
     isAuth: true,
     method: "POST",
-    contentType: null, // For FormData
+    contentType: "multipart/form-data",
   });
 
-  const uploadWorkPlan = async (details: { project: string; financial_year: string; file: File }) => {
+  const uploadWorkPlan = async (details: {
+    project: string;
+    financial_year: string;
+    file: File;
+  }) => {
     try {
       // Create FormData for file upload
       const formData = new FormData();
       formData.append("project", details.project);
       formData.append("financial_year", details.financial_year);
       formData.append("file", details.file);
-      
+
       await callApi(formData as any);
     } catch (error) {
       console.error("Work plan upload error:", error);
@@ -153,4 +192,5 @@ export const useDownloadWorkPlanTemplateQuery = useDownloadWorkPlanTemplate;
 export const useUploadWorkPlanMutation = useUploadWorkPlan;
 export const useGetAllWorkPlanQuery = useGetAllWorkPlan;
 export const useGetSingleWorkPlanQuery = useGetSingleWorkPlan;
+export const useGetSingleWorkPlanActivityQuery = useGetSingleWorkPlanActivity;
 export const useDeleteWorkPlanMutation = useDeleteWorkPlan;

@@ -18,243 +18,283 @@ import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { formatNumberCurrency } from "utils/utls";
 
-export const workPlanTrackerDetailscolumns: ColumnDef<TWorkPlanTrackerData>[] =
-  [
-    {
-      header: "Activity Code/ Number",
-      accessorKey: "activity_number",
-      size: 200,
+export const getWorkPlanTrackerDetailsColumns = (
+  workPlanId: string
+): ColumnDef<TWorkPlanTrackerData>[] => [
+  {
+    header: "Activity Code/ Number",
+    accessorKey: "activity_number",
+    size: 200,
+  },
+
+  {
+    header: "Budget Line",
+    accessorKey: "budget_line.name",
+    size: 200,
+  },
+
+  {
+    header: "Objectives/IR/Sub-Objectives",
+    accessorKey: "objectives_sub_objectives",
+    size: 200,
+  },
+
+  {
+    header: "Activities Plans for the Month",
+    accessorKey: "activity",
+    size: 300,
+  },
+
+  {
+    header: "Location",
+    accessorKey: "location",
+    size: 150,
+  },
+
+  {
+    header: "Lead Dept",
+    accessorKey: "lead_dept",
+    size: 150,
+  },
+
+  {
+    header: "Lead Partner",
+    accessorKey: "lead_person",
+    size: 150,
+  },
+
+  {
+    header: "Frq. of Activity",
+    accessorKey: "",
+    size: 150,
+    cell: ({ row }) => {
+      // @ts-ignore
+      const { gant_chart } = row.original;
+      const totalFrequency = Object.values(gant_chart).reduce(
+        (sum: number, value) => sum + (Number(value) || 0),
+        0
+      );
+
+      // Determine frequency type based on total value
+      let frequencyType = "";
+      if (totalFrequency === 12) {
+        frequencyType = "Monthly";
+      } else if (totalFrequency === 4) {
+        frequencyType = "Quarterly";
+      } else if (totalFrequency === 2) {
+        frequencyType = "Bi-annually";
+      } else if (totalFrequency === 48) {
+        frequencyType = "Weekly";
+      } else if (totalFrequency === 1) {
+        frequencyType = "Annually";
+      } else {
+        frequencyType = `${totalFrequency}x`;
+      }
+
+      return <div className=''>{frequencyType}</div>;
     },
+  },
 
-    {
-      header: "Budget Line",
-      accessorKey: "budget_line.name",
-      size: 200,
+  {
+    header: "Planned Output",
+    accessorKey: "planned_output",
+    size: 300,
+    cell: ({ row }) => {
+      // @ts-ignore
+      const { gant_chart } = row.original;
+      const totalFrequency = Object.values(gant_chart).reduce(
+        (sum, value) => sum + (Number(value) || 0),
+        0
+      );
+
+      return <div className=''>{totalFrequency}</div>;
     },
+  },
 
-    {
-      header: "Objectives/IR/Sub-Objectives",
-      accessorKey: "objectives_sub_objectives",
-      size: 200,
+  {
+    header: "Description of Output",
+    accessorKey: "description_of_output",
+    size: 300,
+  },
+
+  {
+    header: "Achieved Output",
+    accessorKey: "achieved_output",
+    size: 300,
+  },
+
+  {
+    header: "% Achievement",
+    accessorFn: (data) => `${data.achievement_percentage ?? 0}%`,
+    size: 150,
+  },
+
+  {
+    header: "Cost Input",
+    accessorKey: "cost_input.name",
+    size: 200,
+  },
+
+  {
+    header: "Cost Grouping",
+    accessorKey: "cost_grouping.name",
+
+    size: 200,
+  },
+
+  {
+    header: "Status",
+    accessorKey: "status",
+    size: 150,
+    cell: ({ getValue }) => {
+      const status = getValue();
+
+      return (
+        <Badge
+          className={`${
+            status === "PENDING" ? "bg-yellow-500" : "bg-green-500"
+          }`}
+        >
+          {getValue() as string}
+        </Badge>
+      );
     },
+  },
 
-    {
-      header: "Activities Plans for the Month",
-      accessorKey: "activity",
-      size: 300,
-    },
+  {
+    header: "Total NGN",
+    accessorKey: "total_amount_ngn",
+    accessorFn: (data) => formatNumberCurrency(data.total_amount_ngn, "NGN"),
+    size: 150,
+  },
 
-    {
-      header: "Location",
-      accessorKey: "location",
-      size: 150,
-    },
+  {
+    header: "Total USD",
+    accessorKey: "total_amount_usd",
+    accessorFn: (data) => formatNumberCurrency(data.total_amount_usd, "USD"),
 
-    {
-      header: "Lead Dept",
-      accessorKey: "lead_dept",
-      size: 150,
-    },
+    size: 150,
+  },
 
-    {
-      header: "Lead Partner",
-      accessorKey: "lead_person",
-      size: 150,
-    },
+  {
+    header: "Amount Expended (NGN)",
+    accessorKey: "amount_expended_ngn",
+    accessorFn: (data) => formatNumberCurrency(data.amount_expended_ngn, "NGN"),
 
-    {
-      header: "Frq. of Activity",
-      accessorKey: "",
-      size: 150,
-      cell: ({ row }) => {
-        // @ts-ignore
-        const { gant_chart } = row.original;
-        const length = Object.keys(gant_chart).length;
+    size: 150,
+  },
 
-        return <div className=''>{length}</div>;
-      },
-    },
+  {
+    header: "Amount Expended (USD)",
+    accessorKey: "amount_expended_usd",
+    accessorFn: (data) => formatNumberCurrency(data.amount_expended_usd, "USD"),
 
-    {
-      header: "Planned Output",
-      accessorKey: "planned_output",
-      size: 300,
-    },
+    size: 150,
+  },
 
-    {
-      header: "Description of Output",
-      accessorKey: "output_description",
-      size: 300,
-    },
+  {
+    header: "Implementation USD Rate",
+    accessorKey: "implementation_usd_rate",
+    accessorFn: (data) =>
+      formatNumberCurrency(data.implementation_usd_rate, "USD"),
 
-    {
-      header: "Achieved Output",
-      accessorKey: "achieved_output",
-      size: 300,
-    },
+    size: 150,
+  },
 
-    {
-      header: "% Achievement",
-      accessorFn: (data) => `${data.achievement_percentage ?? 0}%`,
-      size: 150,
-    },
+  {
+    header: "Expenditure Rate (NGN)",
+    accessorKey: "expenditure_ngn_rate",
+    accessorFn: (data) =>
+      formatNumberCurrency(data.expenditure_ngn_rate, "NGN"),
 
-    {
-      header: "Cost Input",
-      accessorKey: "_",
-      size: 200,
-    },
+    size: 150,
+  },
 
-    {
-      header: "Cost Grouping",
-      accessorKey: "_",
-      size: 200,
-    },
+  {
+    header: "Expenditure Rate (USD)",
+    accessorKey: "expenditure_usd_rate",
+    accessorFn: (data) =>
+      formatNumberCurrency(data.expenditure_usd_rate, "USD"),
 
-    {
-      header: "Status",
-      accessorKey: "status",
-      size: 150,
-      cell: ({ getValue }) => {
-        const status = getValue();
+    size: 150,
+  },
 
-        return (
-          <Badge
-            className={`${
-              status === "PENDING" ? "bg-yellow-500" : "bg-green-500"
-            }`}
-          >
-            {getValue() as string}
-          </Badge>
-        );
-      },
-    },
+  {
+    header: "Variance (NGN)",
+    accessorFn: (data) => formatNumberCurrency(data.variance_ngn, "NGN"),
 
-    {
-      header: "Total NGN",
-      accessorKey: "total_amount_ngn",
-      accessorFn: (data) => formatNumberCurrency(data.total_amount_ngn, "NGN"),
-      size: 150,
-    },
+    accessorKey: "variance_ngn",
+    size: 150,
+  },
 
-    {
-      header: "Total USD",
-      accessorKey: "total_amount_usd",
-      accessorFn: (data) => formatNumberCurrency(data.total_amount_usd, "USD"),
+  {
+    header: "Variance (USD)",
+    accessorKey: "variance_usd",
+    accessorFn: (data) => formatNumberCurrency(data.variance_usd, "USD"),
 
-      size: 150,
-    },
+    size: 150,
+  },
 
-    {
-      header: "Amount Expended (NGN)",
-      accessorKey: "amount_expended_ngn",
-      accessorFn: (data) =>
-        formatNumberCurrency(data.amount_expended_ngn, "NGN"),
+  {
+    header: "% of Variance (NGN)",
+    accessorFn: (data) => `${data.percentage_variance_ngn ?? 0}%`,
+    size: 150,
+  },
 
-      size: 150,
-    },
+  {
+    header: "% ofVariance (USD)",
+    accessorFn: (data) => `${data.percentage_variance_usd ?? 0}%`,
+    size: 150,
+  },
 
-    {
-      header: "Amount Expended (USD)",
-      accessorKey: "amount_expended_usd",
-      accessorFn: (data) =>
-        formatNumberCurrency(data.amount_expended_usd, "USD"),
+  {
+    header: "Efficiency Output vs Expenditure (Ratio)",
+    accessorKey: "efficiency_output_expenditure_ratio",
+    size: 150,
+  },
 
-      size: 150,
-    },
+  {
+    header: "Efficiency Output vs Expenditure (Level)",
+    accessorKey: "efficiency_output_expenditure_level",
+    size: 150,
+  },
 
-    {
-      header: "Implementation USD Rate",
-      accessorKey: "implementation_usd_rate",
-      accessorFn: (data) =>
-        formatNumberCurrency(data.implementation_usd_rate, "USD"),
+  {
+    header: "Comments (e.g Provide reasons for non completion, variance)",
+    accessorKey: "comments",
+    size: 300,
+  },
 
-      size: 150,
-    },
+  {
+    header: "",
+    size: 80,
+    id: "actions",
+    cell: ({ row }) => (
+      <TableAction {...row.original} workPlanId={workPlanId} />
+    ),
+  },
+];
 
-    {
-      header: "Expenditure Rate (NGN)",
-      accessorKey: "expenditure_ngn_rate",
-      accessorFn: (data) =>
-        formatNumberCurrency(data.expenditure_ngn_rate, "NGN"),
+// Backward compatibility export
+export const workPlanTrackerDetailscolumns =
+  getWorkPlanTrackerDetailsColumns("");
 
-      size: 150,
-    },
+const TableAction = ({
+  id,
+  status,
+  workPlanId,
+}: TWorkPlanTrackerData & { workPlanId: string }) => {
+  console.log({ id, workPlanId });
 
-    {
-      header: "Expenditure Rate (USD)",
-      accessorKey: "expenditure_usd_rate",
-      accessorFn: (data) =>
-        formatNumberCurrency(data.expenditure_usd_rate, "USD"),
-
-      size: 150,
-    },
-
-    {
-      header: "Variance (NGN)",
-      accessorFn: (data) => formatNumberCurrency(data.variance_ngn, "NGN"),
-
-      accessorKey: "variance_ngn",
-      size: 150,
-    },
-
-    {
-      header: "Variance (USD)",
-      accessorKey: "variance_usd",
-      accessorFn: (data) => formatNumberCurrency(data.variance_usd, "USD"),
-
-      size: 150,
-    },
-
-    {
-      header: "% of Variance (NGN)",
-      accessorFn: (data) => `${data.percentage_variance_ngn ?? 0}%`,
-      size: 150,
-    },
-
-    {
-      header: "% ofVariance (USD)",
-      accessorFn: (data) => `${data.percentage_variance_usd ?? 0}%`,
-      size: 150,
-    },
-
-    {
-      header: "Efficiency Output vs Expenditure (Ratio)",
-      accessorKey: "efficiency_output_expenditure_ratio",
-      size: 150,
-    },
-
-    {
-      header: "Efficiency Output vs Expenditure (Level)",
-      accessorKey: "efficiency_output_expenditure_level",
-      size: 150,
-    },
-
-    {
-      header: "Comments (e.g Provide reasons for non completion, variance)",
-      accessorKey: "comments",
-      size: 300,
-    },
-
-    {
-      header: "",
-      size: 80,
-      id: "actions",
-      cell: ({ row }) => <TableAction {...row.original} />,
-    },
-  ];
-
-const TableAction = ({ id, status }: TWorkPlanTrackerData) => {
   const dispatch = useAppDispatch();
 
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const [deleteWorkPlanTracker, { isLoading }] =
-    useDeleteActivityTracker();
+  const { deleteActivityTracker, isLoading } = useDeleteActivityTracker(id);
 
   const handleDeleteWorkPlanTracker = async () => {
     try {
-      await deleteWorkPlanTracker(id).unwrap();
+      await deleteActivityTracker();
       toast.success("Work Plan Tracker Deleted");
       setDialogOpen(false);
     } catch (error: any) {
@@ -277,7 +317,7 @@ const TableAction = ({ id, status }: TWorkPlanTrackerData) => {
                 className='w-full'
                 href={{
                   pathname: RouteEnum.PROGRAM_ACTIVITY_TRACKER_CREATE,
-                  search: `?id=${id}`,
+                  search: `?plan=${workPlanId}&id=${id}`,
                 }}
               >
                 <Button
