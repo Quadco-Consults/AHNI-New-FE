@@ -20,7 +20,11 @@ interface FundRequestFilterParams {
   page?: number;
   size?: number;
   search?: string;
-  project: string;
+  project?: string;
+  status?: "PENDING" | "REVIEWED" | "ADMIN_APPROVED" | "MANAGER_APPROVED" | "REJECTED";
+  month?: string;
+  year?: number;
+  type?: string;
   enabled?: boolean;
 }
 
@@ -34,17 +38,25 @@ export const useGetAllFundRequests = ({
   size = 20,
   search = "",
   project,
+  status,
+  month,
+  year,
+  type,
   enabled = true,
 }: FundRequestFilterParams) => {
   return useQuery<TFundRequestPaginatedResponse>({
-    queryKey: ["fund-requests", page, size, search, project],
+    queryKey: ["fund-requests", page, size, search, project, status, month, year, type],
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(BASE_URL, {
           params: {
             page,
             size,
-            project,
+            ...(project && { project }),
+            ...(status && { status }),
+            ...(month && { month }),
+            ...(year && { year }),
+            ...(type && { type }),
             ...(search && { search }),
           },
         });
@@ -54,7 +66,7 @@ export const useGetAllFundRequests = ({
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
-    enabled: enabled && !!project,
+    enabled: enabled && (!!project || !!status),
     refetchOnWindowFocus: false,
   });
 };
@@ -74,6 +86,22 @@ export const useGetSingleFundRequest = (id: string, enabled: boolean = true) => 
     },
     enabled: enabled && !!id,
     refetchOnWindowFocus: false,
+  });
+};
+
+// Get Pending Fund Requests (for project office review)
+export const useGetPendingFundRequests = ({
+  page = 1,
+  size = 20,
+  project,
+  enabled = true,
+}: Omit<FundRequestFilterParams, 'status'>) => {
+  return useGetAllFundRequests({
+    page,
+    size,
+    project,
+    status: "PENDING",
+    enabled,
   });
 };
 

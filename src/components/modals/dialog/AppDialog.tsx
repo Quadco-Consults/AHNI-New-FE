@@ -94,6 +94,8 @@ import CreateGoalsModal from "@/features/hr/components/modals/CreateGoalsModal";
 import ViewPaymentModal from "@/features/hr/components/modals/ViewPaymentModal";
 // import CopyActivitiesModal from "@/features/programs/components/modals/CopyActivitiesModal"; // Modal not found
 import ProcurementUploadModal from "@/features/procurement/components/modals/ProcurementUploadModal";
+import FundRequestApprovalModal from "@/features/programs/components/modals/FundRequestApprovalModal";
+import FundRequestRejectModal from "@/features/programs/components/modals/FundRequestRejectModal";
 
 const dialogs: Record<string, ReactNode> = {
   //
@@ -203,6 +205,10 @@ const dialogs: Record<string, ReactNode> = {
   [DialogType.CREATE_GOALS]: <CreateGoalsModal />,
   [DialogType.PAY_ADVICE]: <ViewPaymentModal />,
   // [DialogType.COPY_ACTIVITIES]: <CopyActivitiesModal />, // Modal not found
+
+  // Fund Request Workflow
+  [DialogType.FundRequestApproval]: <FundRequestApprovalModal />,
+  [DialogType.FundRequestReject]: <FundRequestRejectModal />,
 };
 
 const AppDialog = () => {
