@@ -129,3 +129,7 @@ export const useDeletePrequalificationCategoryMutation = () => {
 };
 
 export const useDeletePrequalificationCategory = DeletePrequalificationCategoryManager;
+
+// Missing named exports
+export const useAddPrequalificationCategory = CreatePrequalificationCategoryManager;
+export const useUpdatePrequalificationCategory = UpdatePrequalificationCategoryManager;

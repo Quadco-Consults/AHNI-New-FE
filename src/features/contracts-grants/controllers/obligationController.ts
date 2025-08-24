@@ -151,3 +151,6 @@ export const useGetAllObligationsQuery = useGetAllObligations;
 export const useCreateObligationMutation = useCreateObligation;
 export const useModifyObligationMutation = useUpdateObligation;
 export const useDeleteObligationMutation = useDeleteObligation;
+
+// Missing named export
+export const useModifyObligation = useUpdateObligation;

@@ -7,7 +7,8 @@ import {
 } from "../../types/finance";
 import { 
   FilterParams,
-  TPaginatedResponse
+  TPaginatedResponse,
+  TResponse
 } from "../../types";
 
 export const useGetAllFCONumbersManager = ({ 
@@ -25,6 +26,19 @@ export const useGetAllFCONumbersManager = ({
       return response.data;
     },
     enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// GET Single FCO Number
+export const useGetSingleFCONumberManager = (id: string, enabled: boolean = true) => {
+  return useQuery<TResponse<FCONumberData>>({
+    queryKey: ["fco-number", id],
+    queryFn: async () => {
+      const response = await AxiosWithToken.get(`/finance/fco-numbers/${id}/`);
+      return response.data;
+    },
+    enabled: enabled && !!id,
     refetchOnWindowFocus: false,
   });
 };
@@ -98,3 +112,6 @@ export const useDeleteFCONumberMutation = () => {
   const { deleteFCONumber } = DeleteFCONumberManager();
   return [deleteFCONumber, { isLoading: false }] as const;
 };
+
+// Missing named export
+export const useGetSingleFCONumber = useGetSingleFCONumberManager;

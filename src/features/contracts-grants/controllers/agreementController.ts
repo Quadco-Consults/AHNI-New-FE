@@ -173,3 +173,6 @@ export const useGetSingleAgreementQuery = useGetSingleAgreement;
 export const useCreateAgreementMutation = useCreateAgreement;
 export const useModifyAgreementMutation = useUpdateAgreement;
 export const useDeleteAgreementMutation = useDeleteAgreement;
+
+// Missing named export
+export const useModifyAgreement = useUpdateAgreement;

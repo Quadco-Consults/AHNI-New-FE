@@ -127,3 +127,18 @@ export const useDeleteCategoryMutation = () => {
   const { deleteCategory, data, isLoading, isSuccess, error } = DeleteCategoryManager();
   return [deleteCategory, { data, isLoading, isSuccess, error }] as const;
 };
+
+// Default export for backward compatibility
+const CategoryAPI = {
+  useGetAllCategoriesManager,
+  CreateCategoryManager,
+  UpdateCategoryManager,
+  DeleteCategoryManager,
+  useGetAllCategories,
+  useGetAllCategoriesQuery,
+  useAddCategoryMutation,
+  useUpdateCategoryMutation,
+  useDeleteCategoryMutation,
+};
+
+export default CategoryAPI;

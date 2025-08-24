@@ -151,3 +151,6 @@ export const useGetAllExpendituresQuery = useGetAllExpenditures;
 export const useCreateExpenditureMutation = useCreateExpenditure;
 export const useModifyExpenditureMutation = useUpdateExpenditure;
 export const useDeleteExpenditureMutation = useDeleteExpenditure;
+
+// Missing named export
+export const useModifyExpenditure = useUpdateExpenditure;

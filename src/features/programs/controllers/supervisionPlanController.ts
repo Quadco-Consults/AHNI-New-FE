@@ -134,3 +134,6 @@ export const useGetAllSupervisionPlanQuery = useGetAllSupervisionPlan;
 export const useGetSingleSupervisionPlanQuery = useGetSingleSupervisionPlan;
 export const useModifySupervisionPlanMutation = useModifySupervisionPlan;
 export const useDeleteSupervisionPlanMutation = useDeleteSupervisionPlan;
+
+// Missing named export
+export const useCreateSupervisionPlanController = useCreateSupervisionPlan;

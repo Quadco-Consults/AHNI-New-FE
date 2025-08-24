@@ -28,7 +28,7 @@ import { useAppDispatch } from "hooks/useStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DocumentGrievianceManagementSchema, GrievianceManagementDocument } from "@/features/hr/types/grieviance-management/";
 import { useCreateGrievianceManagementDocument, useDeleteGrievianceManagementDocument, useGetGrievianceManagementDocuments } from "@/features/hr/controllers/hrGrievianceManagementDocumentController";
-import UploadDocumentDialog from "components/ui/dialog";
+import UploadDocumentDialog from "@/components/modals/dialog/UploadDocumentDialog";
 import moment from "moment";
 import ConfirmationDialog from "components/ConfirmationDialog";
 

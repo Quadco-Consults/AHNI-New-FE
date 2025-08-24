@@ -142,3 +142,6 @@ export const useDeleteBudgetLineMutation = () => {
   const { deleteBudgetLine, data, isLoading, isSuccess, error } = DeleteBudgetLineManager();
   return [deleteBudgetLine, { data, isLoading, isSuccess, error }] as const;
 };
+
+// Missing named export
+export const useGetSingleBudgetLine = useGetSingleBudgetLineManager;

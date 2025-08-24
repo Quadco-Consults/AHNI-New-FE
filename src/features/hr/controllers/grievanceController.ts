@@ -176,3 +176,6 @@ export const useCreateGrievianceManagementMutation = useCreateGrievance;
 export const useUpdateGrievianceManagementMutation = useUpdateGrievance;
 export const usePatchGrievianceManagementMutation = usePatchGrievance;
 export const useDeleteGrievianceManagementMutation = useDeleteGrievance;
+
+// Missing named export
+export const useGetGrievianceManagement = useGetGrievances;

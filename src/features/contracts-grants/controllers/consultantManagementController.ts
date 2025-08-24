@@ -214,3 +214,11 @@ export const useGetAllExistingConsultantsQuery = useGetAllExistingConsultants;
 export const useCreateConsultantManagementMutation = useCreateConsultantManagement;
 export const useModifyConsultantManagementMutation = useUpdateConsultantManagement;
 export const useDeleteConsultantManagementMutation = useDeleteConsultantManagement;
+
+// Missing named exports
+export const useModifyConsultantManagement = useUpdateConsultantManagement;
+export const useGetAllConsultancyStaffs = useGetAllExistingConsultants;
+export const useGetSingleConsultancyStaff = useGetSingleConsultantManagement;
+export const useCreateExistingApplicantStaff = useCreateConsultantManagement;
+export const useCreateConsultancyStaff = useCreateConsultantManagement;
+export const useModifyConsultancyStaff = useUpdateConsultantManagement;

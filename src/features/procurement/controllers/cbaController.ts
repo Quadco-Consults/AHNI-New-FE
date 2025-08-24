@@ -213,3 +213,25 @@ export const useCreateApprovalCbaMutation = useApproveCba;
 export const useUpdateCbaMutation = useUpdateCba;
 export const useModifyCbaMutation = useModifyCba;
 export const useDeleteCbaMutation = useDeleteCba;
+
+// Default export for backward compatibility
+const CbaAPI = {
+  useGetAllCbas,
+  useGetSingleCba,
+  useCreateCba,
+  useSubmitCba,
+  useApproveCba,
+  useUpdateCba,
+  useModifyCba,
+  useDeleteCba,
+  useGetCbaListQuery,
+  useGetCbaQuery,
+  useCreateCbaMutation,
+  useCreateSubmitCbaMutation,
+  useCreateApprovalCbaMutation,
+  useUpdateCbaMutation,
+  useModifyCbaMutation,
+  useDeleteCbaMutation,
+};
+
+export default CbaAPI;

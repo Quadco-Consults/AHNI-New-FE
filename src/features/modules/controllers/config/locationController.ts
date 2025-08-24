@@ -142,3 +142,6 @@ export const useDeleteLocationMutation = () => {
   const { deleteLocation, data, isLoading, isSuccess, error } = DeleteLocationManager();
   return [deleteLocation, { data, isLoading, isSuccess, error }] as const;
 };
+
+// Missing named export
+export const useGetLocationList = useGetAllLocationsManager;

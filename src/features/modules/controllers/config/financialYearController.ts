@@ -141,3 +141,6 @@ export const useDeleteFinancialYearMutation = () => {
   const { deleteFinancialYear, data, isLoading, isSuccess, error } = DeleteFinancialYearManager();
   return [deleteFinancialYear, { data, isLoading, isSuccess, error }] as const;
 };
+
+// Missing named export
+export const useGetAllFinancialYears = useGetAllFinancialYearsManager;

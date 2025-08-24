@@ -147,3 +147,8 @@ export const useDeleteInterventionArea = () => {
   const { deleteInterventionArea, data, isLoading, isSuccess, error } = DeleteInterventionAreaManager();
   return [deleteInterventionArea, { data, isLoading, isSuccess, error }] as const;
 };
+
+// Missing named exports
+export const useAddInterventionArea = CreateInterventionAreaManager;
+export const useUpdateInterventionArea = UpdateInterventionAreaManager;
+export const useGetSingleInterventionArea = useGetSingleInterventionAreaManager;

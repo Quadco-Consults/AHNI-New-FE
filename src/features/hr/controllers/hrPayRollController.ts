@@ -70,6 +70,24 @@ export const useGetPayRolls = ({
   });
 };
 
+// Get Single Pay Roll
+export const useGetSinglePayroll = (id: string, enabled: boolean = true) => {
+  return useQuery<ApiResponse<PayGroup>>({
+    queryKey: ["pay-roll", id],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${BASE_URL}${id}/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled && !!id,
+    refetchOnWindowFocus: false,
+  });
+};
+
 // Create Pay Roll
 export const useCreatePayRoll = () => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<

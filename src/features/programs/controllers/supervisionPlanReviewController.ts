@@ -114,3 +114,6 @@ export const useCreateSupervisionPlanReviewMutation = useCreateSupervisionPlanRe
 export const useGetAllSupervisionPlanReviewsQuery = useGetAllSupervisionPlanReviews;
 export const useGetSingleSupervisionPlanReviewQuery = useGetSingleSupervisionPlanReview;
 export const useModifySupervisionPlanReviewMutation = useModifySupervisionPlanReview;
+
+// Missing named export
+export const useCreateSupervisionPlanReviewController = useCreateSupervisionPlanReview;

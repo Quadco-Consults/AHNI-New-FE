@@ -36,13 +36,13 @@ import {
   useGetWorkforceNeedAnalysisId,
 } from "@/features/hr/controllers/hrWorkforceNeedAnalysisController";
 import { z } from "zod";
-import useQuery from "hooks/useStore";
+import { useSearchParams } from "next/navigation";
 
 export type TFormValues = z.infer<typeof workforceNeedAnalysisSchema>;
 
 const CreateActivityMemo = () => {
-  const query = useQuery();
-  const analysisId = query.get("id");
+  const searchParams = useSearchParams();
+  const analysisId = searchParams.get("id");
 
   const form = useForm<TFormValues>({
     resolver: zodResolver(workforceNeedAnalysisSchema),

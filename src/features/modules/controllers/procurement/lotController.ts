@@ -132,3 +132,7 @@ export const useDeleteLot = () => {
   const { deleteLot, data, isLoading, isSuccess, error } = DeleteLotManager();
   return [deleteLot, { data, isLoading, isSuccess, error }] as const;
 };
+
+// Missing named exports
+export const useAddLot = CreateLotManager;
+export const useUpdateLot = UpdateLotManager;

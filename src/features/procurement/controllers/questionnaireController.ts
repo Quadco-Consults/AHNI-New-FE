@@ -162,3 +162,21 @@ export const useCreateQuestionairMutation = useCreateQuestionnaire;
 export const useUpdateQuestionairMutation = useUpdateQuestionnaire;
 export const useModifyQuestionairMutation = useModifyQuestionnaire;
 export const useDeleteQuestionairMutation = useDeleteQuestionnaire;
+
+// Default export for backward compatibility
+const QuestionairAPI = {
+  useGetAllQuestionnaires,
+  useGetSingleQuestionnaire,
+  useCreateQuestionnaire,
+  useUpdateQuestionnaire,
+  useModifyQuestionnaire,
+  useDeleteQuestionnaire,
+  useGetQuestionairsQuery,
+  useGetQuestionairQuery,
+  useCreateQuestionairMutation,
+  useUpdateQuestionairMutation,
+  useModifyQuestionairMutation,
+  useDeleteQuestionairMutation,
+};
+
+export default QuestionairAPI;

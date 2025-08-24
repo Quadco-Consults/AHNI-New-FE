@@ -173,3 +173,6 @@ export const useGetSingleCloseOutPlanQuery = useGetSingleCloseoutPlan;
 export const useCreateCloseOutPlanMutation = useCreateCloseoutPlan;
 export const useModifyCloseOutPlanMutation = useUpdateCloseoutPlan;
 export const useDeleteCloseOutPlanMutation = useDeleteCloseoutPlan;
+
+// Missing named export
+export const useGetSingleCloseOutPlan = useGetSingleCloseoutPlan;

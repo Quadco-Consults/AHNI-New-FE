@@ -218,3 +218,6 @@ export const useCreatePurchaseRequestMutation = useCreatePurchaseRequest;
 export const useUpdatePurchaseRequestMutation = useUpdatePurchaseRequest;
 export const useModifyPurchaseRequestMutation = useModifyPurchaseRequest;
 export const useDeletePurchaseRequestMutation = useDeletePurchaseRequest;
+
+// Missing named export
+export const useGetPurchaseRequestById = useGetPurchaseRequest;

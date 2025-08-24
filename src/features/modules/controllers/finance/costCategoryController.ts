@@ -142,3 +142,6 @@ export const useDeleteCostCategoryMutation = () => {
   const { deleteCostCategory, data, isLoading, isSuccess, error } = DeleteCostCategoryManager();
   return [deleteCostCategory, { data, isLoading, isSuccess, error }] as const;
 };
+
+// Missing named export
+export const useGetSingleCostCategory = useGetSingleCostCategoryManager;

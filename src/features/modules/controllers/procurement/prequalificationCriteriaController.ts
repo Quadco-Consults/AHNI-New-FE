@@ -129,3 +129,7 @@ export const useDeletePrequalificationCriteriaMutation = () => {
 };
 
 export const useDeletePrequalificationCriteria = DeletePrequalificationCriteriaManager;
+
+// Missing named exports
+export const useAddPrequalificationCriteria = CreatePrequalificationCriteriaManager;
+export const useUpdatePrequalificationCriteria = UpdatePrequalificationCriteriaManager;
