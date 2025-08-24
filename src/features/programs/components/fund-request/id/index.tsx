@@ -57,12 +57,9 @@ export default function FundRequestDetail() {
 
                     <div className="flex items-center gap-2">
                         <Link
-                            href={{
-                                pathname: generatePath(
-                                    RouteEnum.PROGRAM_FUND_REQUEST_VIEW_ALL_FUND_REQUESTS,
-                                    { id }
-                                ),
-                            }}
+                            href={
+                                RouteEnum.PROGRAM_FUND_REQUEST_VIEW_ALL_FUND_REQUESTS.replace(':id', id || '')
+                            }
                         >
                             <Button
                                 variant="ghost"

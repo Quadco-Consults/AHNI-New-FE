@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, usePathname } from "next/navigation"; 
+import { useRouter, usePathname } from "next/navigation";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import FormSelect from "components/atoms/FormSelectField";
@@ -19,8 +19,14 @@ import { Separator } from "components/ui/separator";
 import FormInput from "components/atoms/FormInput";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 // import { useGetAllPartners } from "@/features/modules/controllers/project/partners";
-import { useGetFinancialYearPaginate } from "@/features/modules/controllers/config/financialYearController";
-import { useGetLocationList } from "@/features/modules/controllers/config/locationController";
+import {
+  useGetAllFinancialYearsManager,
+  useGetFinancialYearPaginate,
+} from "@/features/modules/controllers/config/financialYearController";
+import {
+  useGetAllLocationsManager,
+  useGetLocationList,
+} from "@/features/modules/controllers/config/locationController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { useMemo } from "react";
 
@@ -81,7 +87,7 @@ const CreateFundRequest = () => {
 
   const router = useRouter();
 
-  const { pathname } = useLocation();
+  const pathname = usePathname();
 
   const goBack = () => {
     router.back();
@@ -102,7 +108,7 @@ const CreateFundRequest = () => {
     [project]
   );
 
-  const { data: financialYear } = useGetAllFinancialYears({
+  const { data: financialYear } = useGetAllFinancialYearsManager({
     page: 1,
     size: 2000000,
     search: "",
@@ -117,7 +123,7 @@ const CreateFundRequest = () => {
     [financialYear]
   );
 
-  const { data: location } = useGetAllLocations({
+  const { data: location } = useGetAllLocationsManager({
     page: 1,
     size: 2000000,
     search: "",
@@ -148,11 +154,11 @@ const CreateFundRequest = () => {
   const onSubmit: SubmitHandler<TFundRequestFormValues> = async (data) => {
     localStorage.setItem("programFundRequest", JSON.stringify(data));
 
-    let path = pathname;
+    let path = pathname || "";
 
     path = path.substring(0, path.lastIndexOf("/"));
 
-    path += "/fund-request-summary";
+    path += "/create/summary";
     router.push(path);
   };
 

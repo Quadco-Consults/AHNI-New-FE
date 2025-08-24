@@ -60,6 +60,8 @@ const commitmentLevelOptions = [
 }));
 
 const CreateEngagement = () => {
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
   // Fetch all stakeholders from API
   const { data: stakeholderData, isLoading: isStakeholderLoading } =
     useGetAllStakeholderRegister({ page: 1, size: 100 });
@@ -110,14 +112,13 @@ const CreateEngagement = () => {
   // Optionally, use allStakeholders for selection modal or list
   // Example: pass allStakeholders to your stakeholder selection modal/component
 
-  const { createEngagementPlan, isLoading: isCreateLoading } = useCreateEngagementPlan();
+  const { createEngagementPlan, isLoading: isCreateLoading } =
+    useCreateEngagementPlan();
 
-  const { updateEngagementPlan, isLoading: isUpdateLoading } = useUpdateEngagementPlan();
+  const { updateEngagementPlan, isLoading: isUpdateLoading } =
+    useUpdateEngagementPlan(id);
 
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id");
-
-  const { data: engagementPlan } = useGetSingleEngagementPlan({ id: id as string, enabled: !!id });
+  const { data: engagementPlan } = useGetSingleEngagementPlan(id as string);
 
   useEffect(() => {
     const newStakeholders = selectedStakeholders.filter(
@@ -183,58 +184,59 @@ const CreateEngagement = () => {
   const onSubmit: SubmitHandler<TEngagementPlanFormValues> = async (data) => {
     try {
       if (id) {
-        await updateEngagementPlan({ id, body: data }).unwrap();
+        await updateEngagementPlan(data);
         toast.success("Engagement Plan Updated");
       } else {
-        await createEngagementPlan(data).unwrap();
+        await createEngagementPlan(data);
         toast.success("Engagement Plan Created");
       }
-      router.push(RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN);
+      // router.push(RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN);
+      goBack();
     } catch (error: any) {
       toast.error(error.data.message ?? "Something went wrong");
     }
   };
 
   return (
-    <div className="space-y-6 min-h-screen">
+    <div className='space-y-6 min-h-screen'>
       <BreadcrumbCard list={breadcrumbs} />
       <button
         onClick={goBack}
-        className="w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center"
+        className='w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center'
       >
         <LongArrowLeft />
       </button>
 
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <Card className="space-y-5 p-10">
+          <Card className='space-y-5 p-10'>
             <FormSelect
-              name="project"
-              label="Project Name"
-              placeholder="Select Project"
+              name='project'
+              label='Project Name'
+              placeholder='Select Project'
               required
               options={projectOptions}
             />
 
             <FormTextArea
-              name="project_deliverables"
-              label="Project Deliverables"
-              placeholder="Enter Project Deliverables"
+              name='project_deliverables'
+              label='Project Deliverables'
+              placeholder='Enter Project Deliverables'
               required
             />
 
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-              <FormInput type="date" name="start_date" label="Start Date" />
+            <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
+              <FormInput type='date' name='start_date' label='Start Date' />
 
-              <FormInput type="date" name="end_date" label="End Date" />
+              <FormInput type='date' name='end_date' label='End Date' />
             </div>
 
-            <div className="flex flex-col space-y-3">
-              <Label className="font-semibold">
+            <div className='flex flex-col space-y-3'>
+              <Label className='font-semibold'>
                 {selectedStakeholders?.length} Stakeholders selected
               </Label>
 
-              <div className="space-y-3">
+              <div className='space-y-3'>
                 {fields.map((field, index) => {
                   const stakeholder = selectedStakeholders.find(
                     (stakeholder) => stakeholder.id === field.stakeholder
@@ -243,75 +245,75 @@ const CreateEngagement = () => {
                   return (
                     <div
                       key={field.id}
-                      className="flex flex-col items-center gap-5 md:flex-row"
+                      className='flex flex-col items-center gap-5 md:flex-row'
                     >
-                      <div className="bg-[#EBE8E1] space-y-4 rounded-lg p-3 flex-1">
-                        <h4 className="font-semibold">{stakeholder?.name}</h4>
+                      <div className='bg-[#EBE8E1] space-y-4 rounded-lg p-3 flex-1'>
+                        <h4 className='font-semibold'>{stakeholder?.name}</h4>
 
-                        <div className="text-sm">
-                          <h4 className="font-semibold">
+                        <div className='text-sm'>
+                          <h4 className='font-semibold'>
                             Institution/Organization:
                           </h4>
                           <p>{stakeholder?.organization}</p>
                         </div>
 
-                        <div className="grid text-xs grid-cols-2 gap-3">
+                        <div className='grid text-xs grid-cols-2 gap-3'>
                           <div>
-                            <h4 className="font-semibold">Project Role:</h4>
+                            <h4 className='font-semibold'>Project Role:</h4>
                             <p>{stakeholder?.project_role}</p>
                           </div>
                           <div>
-                            <h4 className="font-semibold">Designation:</h4>
+                            <h4 className='font-semibold'>Designation:</h4>
                             <p>{stakeholder?.designation}</p>
                           </div>
                         </div>
 
-                        <div className="grid text-xs grid-cols-2 gap-3">
+                        <div className='grid text-xs grid-cols-2 gap-3'>
                           <div>
-                            <h4 className="font-semibold">Phone Number:</h4>
+                            <h4 className='font-semibold'>Phone Number:</h4>
                             <p>{stakeholder?.phone_number}</p>
                           </div>
                           <div>
-                            <h4 className="font-semibold">E-mail:</h4>
+                            <h4 className='font-semibold'>E-mail:</h4>
                             <p>{stakeholder?.email}</p>
                           </div>
                         </div>
                       </div>
-                      <div className=" flex-[2] grid grid-cols-1 gap-3 md:grid-cols-3">
+                      <div className=' flex-[2] grid grid-cols-1 gap-3 md:grid-cols-3'>
                         <FormSelect
                           name={`stakeholders.${index}.influence`}
-                          label="Influence"
-                          placeholder="Medium"
+                          label='Influence'
+                          placeholder='Medium'
                           required
                           options={influenceOptions}
                         />
                         <FormInput
                           name={`stakeholders.${index}.information_type`}
-                          label="Information Type"
+                          label='Information Type'
                         />
                         <FormInput
                           name={`stakeholders.${index}.decision_maker`}
-                          label="Decision Maker"
+                          label='Decision Maker'
                         />
                         <FormInput
                           name={`stakeholders.${index}.frequency`}
-                          label="Frequency"
+                          label='Frequency'
                         />
                         <FormInput
                           name={`stakeholders.${index}.type`}
-                          label="Type"
+                          label='Type'
                         />
 
                         <FormSelect
-                          label="Commitment Level"
+                          label='Commitment Level'
                           name={`stakeholders.${index}.commitment_level`}
-                          placeholder="Select Commitment Level"
+                          placeholder='Select Commitment Level'
                           options={commitmentLevelOptions}
                         />
                         <div>
                           <Button
-                            type="button"
-                            className="flex gap-2 mt-3 py-6 bg-[#FFF2F2] text-red-500"
+                            type='button'
+                            className='flex gap-2 mt-3 py-6 bg-[#FFF2F2] text-red-500'
                             onClick={() => {
                               dispatch(removeStakeholder(field.stakeholder));
 
@@ -329,11 +331,11 @@ const CreateEngagement = () => {
               </div>
             </div>
 
-            <div className="mt-5 flex flex-col items-start">
+            <div className='mt-5 flex flex-col items-start'>
               <Button
-                type="button"
-                variant="outline"
-                className="text-[#DEA004]"
+                type='button'
+                variant='outline'
+                className='text-[#DEA004]'
                 onClick={() => {
                   dispatch(
                     openDialog({
@@ -350,24 +352,24 @@ const CreateEngagement = () => {
               </Button>
 
               {errors["stakeholders"]?.message && (
-                <span className="text-red-500 font-medium text-sm">
+                <span className='text-red-500 font-medium text-sm'>
                   {errors["stakeholders"]?.message}
                 </span>
               )}
             </div>
           </Card>
 
-          <div className="flex justify-end gap-5 pt-10">
+          <div className='flex justify-end gap-5 pt-10'>
             <FormButton
               onClick={goBack}
-              type="button"
-              className="bg-[#FFF2F2] text-primary dark:text-gray-500"
-              size="lg"
+              type='button'
+              className='bg-[#FFF2F2] text-primary dark:text-gray-500'
+              size='lg'
             >
               Cancel
             </FormButton>
 
-            <FormButton type="submit" loading={isCreateLoading} size="lg">
+            <FormButton type='submit' loading={isCreateLoading} size='lg'>
               Submit
             </FormButton>
           </div>

@@ -20,7 +20,7 @@ export const BaseDialog: FC<PageProps> = ({ children }) => {
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
             <DialogContent
-                className={dialogProps?.className || "max-w-lg"}
+                className={dialogProps?.width || dialogProps?.className || "max-w-lg"}
                 {...(dialogProps || {})}
             >
                 {dialogProps?.header && (
