@@ -23,7 +23,7 @@ const StakeholderModal = () => {
 
     const [searchController, setSearchController] = useState("");
 
-    const debouncedSearchController = useDebounce(search, {
+    const debouncedSearchController = useDebounce(searchController, {
         wait: 500,
     });
 

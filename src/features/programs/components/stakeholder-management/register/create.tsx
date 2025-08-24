@@ -69,12 +69,13 @@ const CreateRegister = () => {
       phone_number: "",
       email: "",
       project_role: "",
-      score: "",
+      score: 0,
       major_concerns: "",
       relationship_owner: "",
       contact_person_name: "",
       contact_person_email: "",
       contact_person_phone_number: "",
+      importance: 0,
     },
   });
 
@@ -105,20 +106,20 @@ const CreateRegister = () => {
   ) => {
     try {
       if (id) {
-        await editStakeholderRegister({ body: data });
-        toast.success("Stakeholder Register Created");
+        await editStakeholderRegister(data);
+        // toast.success("Stakeholder Register Created");
       } else {
         await createStakeholderRegister(data);
-        toast.success("Stakeholder Register Updated");
+        // toast.success("Stakeholder Register Updated");
       }
 
-      router.push("/dashboard/programs/stakeholder-management/register");
+      router.push(
+        "/dashboard/programs/stakeholder-management/stakeholder-register"
+      );
     } catch (error: any) {
       toast.error(error.data.message || "Something went wrong");
     }
   };
-
-  console.log(form.formState.errors);
 
   return (
     <div className='space-y-6 min-h-screen'>
