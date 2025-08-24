@@ -41,8 +41,6 @@ const Composition = () => {
   const searchParams = useSearchParams();
   const id = searchParams?.get("id");
 
-  console.log({ id });
-
   const { data: user } = useGetAllUsers({ page: 1, size: 2000000 });
 
   const form = useForm<TSSPCompositionFormValues>({

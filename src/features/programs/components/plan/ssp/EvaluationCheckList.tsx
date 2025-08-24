@@ -51,7 +51,7 @@ export default function EvaluationCheckList() {
     useCreateSupervisionPlanController();
 
   const { modifySupervisionPlan, isLoading: isModifyLoading } =
-    useModifySupervisionPlan(id);
+    useModifySupervisionPlan(id || "");
 
   const onSubmit = async () => {
     const prevFormData = JSON.parse(
