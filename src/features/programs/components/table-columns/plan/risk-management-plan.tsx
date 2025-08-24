@@ -11,12 +11,11 @@ import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import ConfirmationDialog from "components/ConfirmationDialog";
-import { TRiskManagementPlanData } from "definations/program-validator";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { useState } from "react";
 import { Button } from "components/ui/button";
 import Link from "next/link";
-import { RouteEnum } from "constants/RouterConstants";
+import { TRiskManagementPlanData } from "@/features/programs/types/program-validator";
 
 export const riskManagementPlanColumns: ColumnDef<TRiskManagementPlanData>[] = [
   {
