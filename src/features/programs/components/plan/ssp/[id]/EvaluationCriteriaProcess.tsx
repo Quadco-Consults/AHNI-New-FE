@@ -30,6 +30,7 @@ import {
   TSupervisionPlanReviewFormData,
 } from "@/features/programs/types/program/plan/supervision-plan/supervision-plan-review";
 import {
+  useCreateSupervisionPlanReview,
   useCreateSupervisionPlanReviewController,
   useGetAllSupervisionPlanReviews,
   useGetSingleSupervisionPlanReview,
@@ -235,11 +236,11 @@ export default function EvaluationCriteriaProcess() {
 
   const documents = form.watch("documents");
 
-  const [createSupervisionPlanReview, { isLoading: isCreateLoading }] =
-    useCreateSupervisionPlanReviewController();
+  const { createSupervisionPlanReview, isLoading: isCreateLoading } =
+    useCreateSupervisionPlanReview(planId);
 
-  const [modifySupervisionPlanReview, { isLoading: isModifyLoading }] =
-    useModifySupervisionPlanReview();
+  const { modifySupervisionPlanReview, isLoading: isModifyLoading } =
+    useModifySupervisionPlanReview(planId, currentPlan?.data.id);
 
   const onSubmit: SubmitHandler<TSupervisionPlanReviewFormData> = async (
     data
@@ -248,16 +249,9 @@ export default function EvaluationCriteriaProcess() {
 
     try {
       if (planId && currentPlan) {
-        await modifySupervisionPlanReview({
-          planId,
-          reviewId: currentPlan?.data.id,
-          body: data as any,
-        });
+        await modifySupervisionPlanReview(data as any);
       } else {
-        await createSupervisionPlanReview({
-          id: planId ?? "",
-          body: data as any,
-        });
+        await createSupervisionPlanReview(data as any);
 
         // router.push(RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION);
       }

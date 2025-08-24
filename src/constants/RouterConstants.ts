@@ -336,12 +336,15 @@ export const RouteEnum = {
     "/dashboard/programs/plan/supportive-supervision-plan/:id",
   PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS_APPROVAL:
     "/dashboard/programs/plan/supportive-supervision-plan/:id/approval-status",
+  // PROGRAM_SUPPORTIVE_SUPERVISION_MANAGEMENT:
+  //   "/dashboard/programs/plan/supportive-supervision-plan/:id/evaluation-criteria-process",
   PROGRAM_SUPPORTIVE_SUPERVISION_MANAGEMENT:
-    "/dashboard/programs/plan/supportive-supervision-plan/:id/evaluation-criteria-process",
+    "/dashboard/programs/plan/supportive-supervision-plan/:id/evaluation",
   PROGRAM_SUPPORTIVE_SUPERVISION_COMPOSITION:
-    "/dashboard/programs/plan/supportive-supervision-plan/composition",
+    "/dashboard/programs/plan/supportive-supervision-plan/create/composition",
+
   PROGRAM_SUPPORTIVE_SUPERVISION_CHECKLIST:
-    "/dashboard/programs/plan/supportive-supervision-plan/evaluation-checklist",
+    "/dashboard/programs/plan/supportive-supervision-plan/create/checklist",
 
   PROGRAM_FUND_REQUEST: "/dashboard/programs/fund-request",
   PROGRAM_FUND_REQUEST_DETAILS: "/dashboard/programs/fund-request/:id/",
@@ -565,7 +568,7 @@ export const HrRoutes = {
 
 /* *************** PROGRAM ROUTES *************** */
 export enum ProgramRoutes {
-  SUPERVISION_PLAN_EVALUATION_DETAILS = "/dashboard/programs/plan/supportive-supervsion-plan/:supervisionPlanId/view-evaluation/",
+  SUPERVISION_PLAN_EVALUATION_DETAILS = "/dashboard/programs/plan/supportive-supervision-plan/:supervisionPlanId/view-evaluation/",
 
   ADHOC_MANAGEMENT = "/dashboard/programs/adhoc-management/",
   CREATE_ADHOC_DETAILS = "/dashboard/programs/adhoc-management/create-adhoc-details/",

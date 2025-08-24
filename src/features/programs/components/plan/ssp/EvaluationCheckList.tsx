@@ -24,11 +24,11 @@ export default function EvaluationCheckList() {
     { name: string; id: string }[]
   >([]);
 
-  const [searchParams] = useSearchParams();
-  const id = searchParams.get("id");
+  const searchParams = useSearchParams();
+  const id = searchParams?.get("id");
 
   const { data: supervisionPlan } = useGetSingleSupervisionPlan(
-    id ?? skipToken
+    id || skipToken
   );
 
   const router = useRouter();
@@ -47,11 +47,11 @@ export default function EvaluationCheckList() {
     );
   }, [isOpen]);
 
-  const [createSupervisionPlan, { isLoading: isCreateLoading }] =
+  const { createSupervisionPlan, isLoading: isCreateLoading } =
     useCreateSupervisionPlanController();
 
-  const [modifySupervisionPlan, { isLoading: isModifyLoading }] =
-    useModifySupervisionPlan();
+  const { modifySupervisionPlan, isLoading: isModifyLoading } =
+    useModifySupervisionPlan(id);
 
   const onSubmit = async () => {
     const prevFormData = JSON.parse(
@@ -68,10 +68,7 @@ export default function EvaluationCheckList() {
 
     try {
       if (id) {
-        await modifySupervisionPlan({
-          id,
-          body: formData as TSSPCompositionFormValues,
-        });
+        await modifySupervisionPlan(formData as TSSPCompositionFormValues);
         toast.success("Supportive Supervision Plan Updated");
       } else {
         await createSupervisionPlan(formData);

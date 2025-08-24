@@ -73,10 +73,9 @@ export default function EvaluationDetails() {
   const reviewId = planReviewsData?.data.results[0].id;
   const shouldFetchReviewDetails = planId && reviewId;
 
-  const { data: supervisionPlanReview } =
-    useGetSingleSupervisionPlanReview(
-      shouldFetchReviewDetails ? { planId, reviewId } : skipToken
-    );
+  const { data: supervisionPlanReview } = useGetSingleSupervisionPlanReview(
+    shouldFetchReviewDetails ? { planId, reviewId } : skipToken
+  );
 
   const reviews = supervisionPlanReview?.data.reviews ?? [];
   const documents = supervisionPlanReview?.data.documents ?? [];
@@ -111,6 +110,8 @@ export default function EvaluationDetails() {
   if (isPlanReviewsDataLoading) {
     return <LoadingSpinner />;
   }
+
+  console.log({ hsjhw: "hsjhf", page });
 
   if (page !== null) {
     return (
