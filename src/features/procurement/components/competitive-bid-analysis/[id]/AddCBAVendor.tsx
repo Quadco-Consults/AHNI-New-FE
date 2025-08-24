@@ -1,3 +1,5 @@
+"use client";
+
 import FormButton from "@/components/FormButton";
 
 import { CardContent } from "components/ui/card";

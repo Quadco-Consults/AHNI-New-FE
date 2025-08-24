@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useMemo, useState } from "react";
 import RfqLayout from "./RfpLayout";
 import FormSelect from "components/atoms/FormSelectField";

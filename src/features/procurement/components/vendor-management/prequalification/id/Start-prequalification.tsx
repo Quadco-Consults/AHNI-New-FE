@@ -1,3 +1,5 @@
+"use client";
+
 import Card from "components/Card";
 import { LoadingSpinner } from "components/Loading";
 import { Button } from "components/ui/button";

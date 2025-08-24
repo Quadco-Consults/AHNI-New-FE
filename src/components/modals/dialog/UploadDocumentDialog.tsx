@@ -1,3 +1,5 @@
+"use client";
+
 import FileUpload from "atoms/FileUpload";
 import FormButton from "atoms/FormButton";
 import FormInput from "atoms/FormInput";

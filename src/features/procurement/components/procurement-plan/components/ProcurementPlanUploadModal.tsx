@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UploadFileSvg } from "assets/svgs/CAndGSvgs";
 import FormButton from "@/components/FormButton";

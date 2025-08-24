@@ -1,3 +1,5 @@
+"use client";
+
 import FormInput from "components/atoms/FormInput";
 import Card from "components/Card";
 import { Button } from "components/ui/button";

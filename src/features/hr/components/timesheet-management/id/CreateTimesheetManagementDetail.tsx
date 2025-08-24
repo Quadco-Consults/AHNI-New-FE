@@ -1,3 +1,5 @@
+"use client";
+
 import FormButton from "@/components/FormButton";
 import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelect";

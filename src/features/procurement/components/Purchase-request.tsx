@@ -1,3 +1,5 @@
+"use client";
+
 import { Checkbox } from "components/ui/checkbox";
 import Card from "components/Card";
 import { Button } from "components/ui/button";

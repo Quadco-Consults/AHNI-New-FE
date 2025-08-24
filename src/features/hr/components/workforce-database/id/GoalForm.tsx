@@ -1,3 +1,5 @@
+"use client";
+
 import FormInput from "@/components/FormInput";
 
 import { Button } from "@/components/ui/button";

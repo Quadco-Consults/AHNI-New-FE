@@ -1,3 +1,5 @@
+"use client";
+
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/no-unknown-property */
 

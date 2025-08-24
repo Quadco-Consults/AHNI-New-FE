@@ -1,3 +1,5 @@
+"use client";
+
 import { ColumnDef } from "@tanstack/react-table";
 import { Controller } from "react-hook-form";
 import DataTable from "components/Table/DataTable";

@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import RoundBack from "assets/svgs/RoundBack";
 import FormButton from "@/components/FormButton";

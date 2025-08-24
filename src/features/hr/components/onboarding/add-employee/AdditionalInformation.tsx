@@ -1,3 +1,5 @@
+"use client";
+
 import { Form } from "components/ui/form";
 import { useForm } from "react-hook-form";
 import FormInput from "components/atoms/FormInput";

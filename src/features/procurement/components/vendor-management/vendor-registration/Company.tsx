@@ -1,3 +1,5 @@
+"use client";
+
 import { Form } from "components/ui/form";
 import VendorRegistationLayout from "./VendorRegistationLayout";
 import { useFieldArray, useForm } from "react-hook-form";
