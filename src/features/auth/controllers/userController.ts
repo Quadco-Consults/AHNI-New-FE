@@ -203,3 +203,8 @@ export const useUpdateUserMutation = useUpdateUser;
 export const useAddUserToRoleMutation = useAddUserToRole;
 export const useActivateUserMutation = useActivateUser;
 export const useDeactivateUserMutation = useDeactivateUser;
+
+// Missing named exports
+export const useAddUserToRoleManager = useAddUserToRole;
+export const useGetSingleUserManager = useGetSingleUser;
+export const useGetAllUsersManager = useGetAllUsers;

@@ -160,3 +160,21 @@ export const useCreateVendorDocumentMutation = useCreateVendorDocument;
 export const useUpdateVendorDocumentMutation = useUpdateVendorDocument;
 export const useModifyVendorDocumentMutation = useModifyVendorDocument;
 export const useDeleteVendorDocumentMutation = useDeleteVendorDocument;
+
+// Default export for backward compatibility
+const VendorsDocumentAPI = {
+  useGetAllVendorDocuments,
+  useGetSingleVendorDocument,
+  useCreateVendorDocument,
+  useUpdateVendorDocument,
+  useModifyVendorDocument,
+  useDeleteVendorDocument,
+  useGetVendorDocumentsQuery,
+  useGetVendorDocumentQuery,
+  useCreateVendorDocumentMutation,
+  useUpdateVendorDocumentMutation,
+  useModifyVendorDocumentMutation,
+  useDeleteVendorDocumentMutation,
+};
+
+export default VendorsDocumentAPI;

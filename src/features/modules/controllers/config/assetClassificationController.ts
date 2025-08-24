@@ -129,3 +129,5 @@ export const useDeleteAssetClassificationMutation = () => {
 
 // Additional missing exports
 export const useGetAllAssetClassifications = useGetAllAssetClassificationsManager;
+export const useCreateAssetClassification = CreateAssetClassificationManager;
+export const useEditAssetClassification = UpdateAssetClassificationManager;

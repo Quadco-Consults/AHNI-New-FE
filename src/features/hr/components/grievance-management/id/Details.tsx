@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import WriteDialog from "components/ui/dialog";
+import WriteDialog from "@/components/modals/dialog/WriteDialog";
 import Card from "components/Card";
 import { Badge } from "components/ui/badge";
 import { Button } from "components/ui/button";

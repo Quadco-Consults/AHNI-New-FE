@@ -4,13 +4,13 @@ import LongArrowLeft from "components/icons/LongArrowLeft";
 import { useRouter } from "next/navigation";
 import CreatePurchaseRequestForm from "./form";
 import BreadcrumbCard from "components/Breadcrumb";
-import useQuery from "hooks/useStore";
+import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { useGetPurchaseRequestById } from "@/features/procurement/controllers/purchaseRequestController";
 
 function CreatePurchaseRequest() {
-  const query = useQuery();
-  const id = query.get("request");
+  const searchParams = useSearchParams();
+  const id = searchParams.get("request");
   const router = useRouter();
 
   const { data: requestsDetails } = useGetPurchaseRequestById({ id: id as string, enabled: !!id });

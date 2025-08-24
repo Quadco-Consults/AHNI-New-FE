@@ -105,3 +105,6 @@ export const useGetAllSolicitationsQuery = useGetAllSolicitations;
 export const useGetSingleSolicitationQuery = useGetSingleSolicitation;
 export const useGetPassedSolicitationQuery = useGetPassedSolicitation;
 export const useCreateSolicitationMutation = useCreateSolicitation;
+
+// Missing named export
+export const useGetSolicitationById = useGetSingleSolicitation;

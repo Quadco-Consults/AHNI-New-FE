@@ -132,3 +132,7 @@ export const useDeleteQuestionnaire = () => {
   const { deleteQuestionnaire, data, isLoading, isSuccess, error } = DeleteQuestionnaireManager();
   return [deleteQuestionnaire, { data, isLoading, isSuccess, error }] as const;
 };
+
+// Missing named exports
+export const useAddQuestionnaire = CreateQuestionnaireManager;
+export const useUpdateQuestionnaire = UpdateQuestionnaireManager;

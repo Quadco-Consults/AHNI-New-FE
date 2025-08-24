@@ -178,3 +178,10 @@ export const useGetSingleSubGrantManualSubQuery = useGetSingleSubGrantSubmission
 export const useCreateSubGrantManualSubMutation = useCreateSubGrantSubmission;
 export const useModifySubGrantManualSubMutation = useUpdateSubGrantSubmission;
 export const useDeleteSubGrantManualSubMutation = useDeleteSubGrantSubmission;
+
+// Missing named exports
+export const useCreateSubGrantManualSub = useCreateSubGrantSubmission;
+export const useModifySubGrantManualSub = useUpdateSubGrantSubmission;
+export const useGetSingleSubGrantManualSub = useGetSingleSubGrantSubmission;
+export const useGetAllSubGrantManualSub = useGetAllSubGrantSubmissions;
+export const useDeleteSubGrantManualSub = useDeleteSubGrantSubmission;

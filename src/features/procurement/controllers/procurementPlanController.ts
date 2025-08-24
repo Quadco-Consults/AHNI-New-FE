@@ -167,3 +167,21 @@ export const useCreateProcurementPlanMutation = useCreateProcurementPlan;
 export const useUpdateProcurementPlanMutation = useUpdateProcurementPlan;
 export const useModifyProcurementPlanMutation = useModifyProcurementPlan;
 export const useDeleteProcurementPlanMutation = useDeleteProcurementPlan;
+
+// Default export for backward compatibility
+const ProcurementPlanAPI = {
+  useGetAllProcurementPlans,
+  useGetSingleProcurementPlan,
+  useCreateProcurementPlan,
+  useUpdateProcurementPlan,
+  useModifyProcurementPlan,
+  useDeleteProcurementPlan,
+  useGetProcurementPlansQuery,
+  useGetProcurementPlanQuery,
+  useCreateProcurementPlanMutation,
+  useUpdateProcurementPlanMutation,
+  useModifyProcurementPlanMutation,
+  useDeleteProcurementPlanMutation,
+};
+
+export default ProcurementPlanAPI;

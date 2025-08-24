@@ -126,3 +126,7 @@ export const useDeleteDepartmentMutation = () => {
   const { deleteDepartment, data, isLoading, isSuccess, error } = DeleteDepartmentManager();
   return [deleteDepartment, { data, isLoading, isSuccess, error }] as const;
 };
+
+// Missing named exports
+export const useGetAllDepartments = useGetAllDepartmentsManager;
+export const useGetDepartmentPaginate = useGetAllDepartmentsManager;

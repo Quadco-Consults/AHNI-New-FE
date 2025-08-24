@@ -132,3 +132,7 @@ export const useDeleteSupervisionCategory = () => {
   const { deleteSupervisionCategory, data, isLoading, isSuccess, error } = DeleteSupervisionCategoryManager();
   return [deleteSupervisionCategory, { data, isLoading, isSuccess, error }] as const;
 };
+
+// Missing named exports
+export const useAddSupervisionCategory = CreateSupervisionCategoryManager;
+export const useUpdateSupervisionCategory = UpdateSupervisionCategoryManager;

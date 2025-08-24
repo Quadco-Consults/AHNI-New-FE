@@ -132,3 +132,8 @@ export const useDeleteRiskCategory = () => {
   const { deleteRiskCategory, data, isLoading, isSuccess, error } = DeleteRiskCategoryManager();
   return [deleteRiskCategory, { data, isLoading, isSuccess, error }] as const;
 };
+
+// Missing named exports
+export const useAddRiskCategory = CreateRiskCategoryManager;
+export const useUpdateRiskCategory = UpdateRiskCategoryManager;
+export const useGetAllRiskCategoryController = useGetAllRiskCategoriesManager;

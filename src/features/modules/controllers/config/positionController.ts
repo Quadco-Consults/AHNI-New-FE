@@ -126,3 +126,7 @@ export const useDeletePositionMutation = () => {
   const { deletePosition, data, isLoading, isSuccess, error } = DeletePositionManager();
   return [deletePosition, { data, isLoading, isSuccess, error }] as const;
 };
+
+// Missing named exports
+export const useGetAllPositions = useGetAllPositionsManager;
+export const useGetPositionPaginate = useGetAllPositionsManager;

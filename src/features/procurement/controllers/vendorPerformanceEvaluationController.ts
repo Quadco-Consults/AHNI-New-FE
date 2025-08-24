@@ -202,3 +202,25 @@ export const useCreateVendorEvaluationByIdMutation = useSubmitVendorEvaluation;
 export const useUpdateVendorMutation = useUpdateVendorEvaluation;
 export const useModifyVendorMutation = useModifyVendorEvaluation;
 export const useDeleteVendorEvaluationMutation = useDeleteVendorEvaluation;
+
+// Default export for backward compatibility
+const VendorsEvaluaionAndPerformanceAPI = {
+  useGetAllVendorEvaluations,
+  useGetVendorList,
+  useGetSingleVendorEvaluation,
+  useCreateVendorEvaluation,
+  useSubmitVendorEvaluation,
+  useUpdateVendorEvaluation,
+  useModifyVendorEvaluation,
+  useDeleteVendorEvaluation,
+  useGetVendorsEvaluationQuery,
+  useGetVendorListQuery,
+  useGetVendorEvaluationQuery,
+  useCreateVendorEvaluationMutation,
+  useCreateVendorEvaluationByIdMutation,
+  useUpdateVendorMutation,
+  useModifyVendorMutation,
+  useDeleteVendorEvaluationMutation,
+};
+
+export default VendorsEvaluaionAndPerformanceAPI;

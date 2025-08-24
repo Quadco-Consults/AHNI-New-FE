@@ -57,3 +57,13 @@ export const useCreateActivityMemo = () => {
 // Legacy exports for backward compatibility
 export const useGetActivityMemoQuery = useGetActivityMemo;
 export const useCreateActivityMemoMutation = useCreateActivityMemo;
+
+// Default export for backward compatibility
+const PurchaseRequestAPI = {
+  useGetActivityMemo,
+  useCreateActivityMemo,
+  useGetActivityMemoQuery,
+  useCreateActivityMemoMutation,
+};
+
+export default PurchaseRequestAPI;

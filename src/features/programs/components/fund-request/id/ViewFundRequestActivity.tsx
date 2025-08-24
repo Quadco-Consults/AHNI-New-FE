@@ -1,7 +1,7 @@
 "use client";
 
 import logoPng from "assets/imgs/logo.png";
-import useQuery from "hooks/useStore";
+import { useSearchParams } from "next/navigation";
 import { useGetFundRequestById } from "@/features/programs/controllers/fundRequestController";
 import { useGetProjectById } from "@/features/projects/controllers/projectController";
 import Card from "components/Card";
@@ -9,9 +9,9 @@ import FundActivityTable from "./FundActivityTable";
 import { LoadingSpinner } from "components/Loading";
 
 export default function ViewFundRequestActivity() {
-    const query = useQuery();
+    const searchParams = useSearchParams();
 
-    const id = query.get("fundRequestId");
+    const id = searchParams.get("fundRequestId");
 
     const { data: fundRequest, isLoading } = useGetSingleFundRequest(
         id ?? skipToken

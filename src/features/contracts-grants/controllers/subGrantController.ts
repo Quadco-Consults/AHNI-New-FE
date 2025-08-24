@@ -173,3 +173,6 @@ export const useGetSingleSubGrantQuery = useGetSingleSubGrant;
 export const useCreateSubGrantMutation = useCreateSubGrant;
 export const useModifySubGrantMutation = useUpdateSubGrant;
 export const useDeleteSubGrantMutation = useDeleteSubGrant;
+
+// Missing named export
+export const useModifySubGrant = useUpdateSubGrant;

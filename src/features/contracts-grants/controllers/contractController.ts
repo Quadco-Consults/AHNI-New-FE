@@ -249,3 +249,7 @@ export const useDeleteContractRequestMutation = useDeleteContractRequest;
 export const useCreateContractInterviewMutation = useCreateContractInterview;
 export const useModifyContractInterviewMutation = useUpdateContractInterview;
 export const useModifyContractStatusMutation = useUpdateContractStatus;
+
+// Missing named exports
+export const useModifyContractStatus = useUpdateContractStatus;
+export const useModifyContractRequest = useUpdateContractRequest;

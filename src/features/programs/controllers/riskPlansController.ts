@@ -160,3 +160,6 @@ export const useGetSingleRiskPlanManagementQuery = useGetSingleRiskPlanManagemen
 export const useUpdateRiskManagementPlanMutation = useUpdateRiskManagementPlan;
 export const usePatchRiskManagementPlanMutation = usePatchRiskManagementPlan;
 export const useDeleteRiskManagementPlanMutation = useDeleteRiskManagementPlan;
+
+// Missing named export
+export const useCreateRiskManagementPlanController = useCreateRiskManagementPlan;

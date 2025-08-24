@@ -150,3 +150,8 @@ export const useDeleteFacility = () => {
 };
 
 export const useGetAllFacilities = useGetAllFacilitiesManager;
+
+// Missing named exports
+export const useAddFacility = CreateFacilityManager;
+export const useUpdateFacility = UpdateFacilityManager;
+export const useLazyGetSingleFacility = useGetSingleFacilityManager;

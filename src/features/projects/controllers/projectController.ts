@@ -157,6 +157,24 @@ export const useDeleteProject = (id: string) => {
   return { deleteProject, data, isLoading, isSuccess, error };
 };
 
+// Missing named export - Partners function (placeholder)
+export const useGetAllPartners = ({ page = 1, size = 20, search = "", enabled = true } = {}) => {
+  // This function might need to be implemented based on the actual API endpoint for partners
+  // For now, returning an empty query as a placeholder
+  return useQuery({
+    queryKey: ["partners", page, size, search],
+    queryFn: async () => {
+      // Placeholder implementation - may need actual API endpoint
+      const response = await AxiosWithToken.get("/projects/partners/", {
+        params: { page, size, search }
+      });
+      return response.data;
+    },
+    enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
 // Maintain legacy exports for backward compatibility
 export const useGetAllProjectsQuery = useGetAllProjects;
 export const useGetSingleProjectQuery = useGetSingleProject;

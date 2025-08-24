@@ -173,3 +173,6 @@ export const useGetSingleConsultancyReportQuery = useGetSingleConsultancyReport;
 export const useCreateConsultancyReportMutation = useCreateConsultancyReport;
 export const useModifyConsultancyReportMutation = useUpdateConsultancyReport;
 export const useDeleteConsultancyReportMutation = useDeleteConsultancyReport;
+
+// Missing named export
+export const useModifyConsultancyReport = useUpdateConsultancyReport;

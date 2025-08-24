@@ -18,7 +18,7 @@ import { RouteEnum } from "constants/RouterConstants";
 import { DepartmentsResultsData } from "definations/configs/departments";
 import { ItemsResultsData } from "definations/configs/itmes";
 import { PurchaseRequestSchema } from "definations/procurement-validator";
-import useQuery from "hooks/useStore";
+import { useQuery } from "@tanstack/react-query";
 import { MinusCircle } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";

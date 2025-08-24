@@ -7,7 +7,8 @@ import {
 } from "../../types/finance";
 import { 
   FilterParams,
-  TPaginatedResponse
+  TPaginatedResponse,
+  TResponse
 } from "../../types";
 
 export const useGetAllCostInputsManager = ({ 
@@ -25,6 +26,19 @@ export const useGetAllCostInputsManager = ({
       return response.data;
     },
     enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// GET Single Cost Input
+export const useGetSingleCostInputManager = (id: string, enabled: boolean = true) => {
+  return useQuery<TResponse<CostInputData>>({
+    queryKey: ["cost-input", id],
+    queryFn: async () => {
+      const response = await AxiosWithToken.get(`/finance/cost-inputs/${id}/`);
+      return response.data;
+    },
+    enabled: enabled && !!id,
     refetchOnWindowFocus: false,
   });
 };
@@ -98,3 +112,6 @@ export const useDeleteCostInputMutation = () => {
   const { deleteCostInput } = DeleteCostInputManager();
   return [deleteCostInput, { isLoading: false }] as const;
 };
+
+// Missing named export
+export const useGetSingleCostInput = useGetSingleCostInputManager;
