@@ -15,7 +15,7 @@ import ActivityUploadModal from "@/features/programs/components/modals/ActivityU
 import ViewLog from "@/features/admin/components/audit-log/ViewLog";
 import CategoriesModal from "@/features/procurement/components/modals/CategoriesModal";
 import PriceModal from "@/features/procurement/components/modals/PriceModal";
-// import ChecklistModal from "@/features/programs/components/modals/ChecklistModal"; // Modal not found
+import ChecklistModal from "@/features/procurement/components/modals/EvaluationCriteriaModal"; // Modal not found
 import AddTicketModal from "@/features/support/components/modals/AddTicketModal";
 import ActivityTrackerModal from "@/features/programs/components/modals/ActivityTrackerModal";
 import SspUploadModal from "@/features/programs/components/modals/SspUploadModal";
@@ -102,7 +102,7 @@ const dialogs: Record<string, ReactNode> = {
 
   [DialogType.Categories]: <CategoriesModal />,
   [DialogType.PriceInteligence]: <PriceModal />,
-  // [DialogType.Checklist]: <ChecklistModal />, // Modal not found
+  [DialogType.Checklist]: <ChecklistModal />,
   [DialogType.WorkPlanUpload]: <WorkPlanUploadModal />,
   [DialogType.AddTicket]: <AddTicketModal />,
   [DialogType.ActivityUpload]: <ActivityUploadModal />,
