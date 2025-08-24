@@ -127,6 +127,33 @@ export const useGetSingleWorkPlanActivity = (
   });
 };
 
+// Update Work Plan Activity
+export const useUpdateWorkPlanActivity = (
+  workPlanId: string,
+  activityId: string
+) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    any,
+    Error,
+    any
+  >({
+    endpoint: `${BASE_URL}${workPlanId}/activities/${activityId}/`,
+    queryKey: ["work-plan-activity", workPlanId, activityId],
+    isAuth: true,
+    method: "PATCH",
+  });
+
+  const updateWorkPlanActivity = async (details: any) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("Work plan activity update error:", error);
+    }
+  };
+
+  return { updateWorkPlanActivity, data, isLoading, isSuccess, error };
+};
+
 // Upload Work Plan
 export const useUploadWorkPlan = () => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
@@ -193,4 +220,5 @@ export const useUploadWorkPlanMutation = useUploadWorkPlan;
 export const useGetAllWorkPlanQuery = useGetAllWorkPlan;
 export const useGetSingleWorkPlanQuery = useGetSingleWorkPlan;
 export const useGetSingleWorkPlanActivityQuery = useGetSingleWorkPlanActivity;
+export const useUpdateWorkPlanActivityMutation = useUpdateWorkPlanActivity;
 export const useDeleteWorkPlanMutation = useDeleteWorkPlan;

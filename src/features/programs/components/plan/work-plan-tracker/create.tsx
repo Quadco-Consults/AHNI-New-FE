@@ -11,12 +11,10 @@ import { RouteEnum } from "constants/RouterConstants";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useRouter, useSearchParams, useParams } from "next/navigation";
 import { toast } from "sonner";
-import {
-  useGetSingleActivityTracker,
-  useUpdateActivityTracker,
-} from "@/features/programs/controllers/activityTrackerController";
-import { useGetSingleWorkPlanActivity } from "@/features/programs/controllers/workPlanController";
-import { skipToken } from "@reduxjs/toolkit/query/react";
+import { 
+  useGetSingleWorkPlanActivity,
+  useUpdateWorkPlanActivity 
+} from "@/features/programs/controllers/workPlanController";
 import { useEffect } from "react";
 import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
 import {
@@ -37,8 +35,8 @@ export default function CreateActivityTracker() {
   const activityId = searchParams.get("id");
   const workPlanId = searchParams.get("plan") || (params.id as string);
 
-  const { updateActivityTracker, isLoading } =
-    useUpdateActivityTracker(activityId);
+  const { updateWorkPlanActivity, isLoading } =
+    useUpdateWorkPlanActivity(workPlanId, activityId || "");
 
   const router = useRouter();
 
@@ -82,17 +80,22 @@ export default function CreateActivityTracker() {
     const activityData = workPlanActivity?.data?.data;
     console.log("camp", { activityData });
 
-    if (activityData) {
+    if (activityData && activityData.activity_trackers?.length > 0) {
       console.log({ ds: "hejhnn" });
 
+      // Get the latest activity tracker data
+      const latestTracker = activityData.activity_trackers[0];
+
+      // Use description_of_output from main activity data and other fields from tracker
+      const { description_of_output: output_description } = activityData;
+
       const {
-        description_of_output: output_description,
-        achieved_output,
-        achievement_percentage,
+        achieved_output_number: achieved_output,
+        auto_calculated_achievement_percentage,
         amount_expended_ngn,
         amount_expended_usd,
         implementation_usd_rate,
-        expenditure_usd_rate,
+        expenditure_usd_rate: expenditure_usd_rate,
         expenditure_ngn_rate,
         variance_ngn,
         variance_usd,
@@ -101,12 +104,16 @@ export default function CreateActivityTracker() {
         efficiency_output_expenditure_ratio,
         efficiency_output_expenditure_level,
         comments,
-      } = activityData;
+      } = latestTracker;
+
+      console.log({ latestTracker });
 
       form.reset({
         output_description: String(output_description || ""),
         achieved_output: String(achieved_output || ""),
-        achievement_percentage: String(achievement_percentage || ""),
+        achievement_percentage: String(
+          auto_calculated_achievement_percentage || ""
+        ),
         amount_expended_ngn: String(amount_expended_ngn || ""),
         amount_expended_usd: String(amount_expended_usd || ""),
         implementation_usd_rate: String(implementation_usd_rate || ""),
@@ -127,29 +134,6 @@ export default function CreateActivityTracker() {
     }
   }, [workPlanActivity, form]);
 
-  console.log({ djs: form.getValues() });
-
-  //   const form = useForm<TWorkPlanTrackerFormValues>({
-  //     resolver: zodResolver(WorkPlanTrackerSchema),
-  //     defaultValues: {
-  //       output_description: "",
-  //       achieved_output: "",
-  //       achievement_percentage: "",
-  //       amount_expended_ngn: "",
-  //       amount_expended_usd: "",
-  //       implementation_usd_rate: "",
-  //       expenditure_usd_rate: "",
-  //       expenditure_ngn_rate: "",
-  //       variance_ngn: "",
-  //       variance_usd: "",
-  //       percentage_variance_ngn: "",
-  //       percentage_variance_usd: "",
-  //       efficiency_output_expenditure_ratio: "",
-  //       efficiency_output_expenditure_level: "",
-  //       comments: "",
-  //     },
-  //   });
-
   const { handleSubmit } = form;
 
   const goBack = () => {
@@ -158,9 +142,7 @@ export default function CreateActivityTracker() {
 
   const onSubmit: SubmitHandler<TWorkPlanTrackerFormValues> = async (data) => {
     try {
-      await updateActivityTracker({
-        body: data,
-      });
+      await updateWorkPlanActivity(data);
       toast.success("Activity Tracker Updated");
       router.push(RouteEnum.PROGRAM_ACTIVITY_TRACKER);
     } catch (error: any) {

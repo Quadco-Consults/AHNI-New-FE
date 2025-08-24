@@ -10,6 +10,7 @@ import DataTable from "components/Table/DataTable";
 import {
   useGetAllActivityPlans,
   useDownloadActivityPlanTemplate,
+  useDownloadActivityPlansMutation,
 } from "@/features/programs/controllers/activityPlanController";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import UploadIcon from "components/icons/UploadIcon";
@@ -22,6 +23,12 @@ import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
 import { activityPlanColumns } from "@/features/programs/components/table-columns/plan/activity-plan";
 import TableFilters from "components/Table/TableFilters";
 import { useDebounce } from "ahooks";
+import { FilterForm } from "@/components/FilterForm";
+
+import { FilterField } from "src";
+import { useGetAllFinancialYears } from "@/features/modules/controllers";
+import { useGetAllProjects } from "@/features/projects/controllers";
+import { useGetAllWorkPlanQuery } from "@/features/programs/controllers/workPlanController";
 
 const breadcrumbs: TBreadcrumbList[] = [
   { name: "Programs", icon: true },
@@ -32,18 +39,149 @@ const breadcrumbs: TBreadcrumbList[] = [
 export default function ActivityPlan() {
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isFilterDrawerOpen, setFilterDrawerOpen] = useState(false);
+  const [filters, setFilters] = useState({});
 
   const debouncedSearchQuery = useDebounce(searchQuery, {
     wait: 1000,
   });
 
+  const { downloadActivityPlans, isLoading: downloading } =
+    useDownloadActivityPlansMutation();
+
   const { data: activityPlan, isFetching } = useGetAllActivityPlans({
     page,
     size: 10,
     search: debouncedSearchQuery,
+    ...filters,
   });
 
-  const { refetch: downloadTemplate, isFetching: isDownloading } = useDownloadActivityPlanTemplate(false);
+  const { data: financialYear } = useGetAllFinancialYears({
+    page: 1,
+    size: 1000000,
+  });
+  const { data: project } = useGetAllProjects({
+    page: 1,
+    size: 1000000,
+  });
+
+  const { data: workPlan } = useGetAllWorkPlanQuery({
+    page,
+    size: 10,
+    project_title: debouncedSearchQuery,
+  });
+
+  // @ts-ignore
+  const financialYearOptions = financialYear?.data.results.map(
+    // @ts-ignore
+    ({ year, id }) => ({
+      label: year,
+      value: id,
+    })
+  );
+
+  // @ts-ignore
+  const projectOptions = project?.data.results.map(({ title, id }) => ({
+    label: title,
+    value: id,
+  }));
+
+  // @ts-ignore
+  const workPlanOptions = workPlan?.data.results.map(
+    // @ts-ignore
+    ({ financial_year, project, id }) => ({
+      label: `${project}-${financial_year}`,
+      value: id,
+    })
+  );
+
+  const activityPlanFilters: FilterField[] = [
+    {
+      name: "approval_status",
+      label: "Approval Status",
+      type: "enum",
+      enumValues: [
+        { label: "Pending", value: "PENDING" },
+        { label: "Approved", value: "APPROVED" },
+        { label: "Rejected", value: "REJECTED" },
+      ],
+    },
+    {
+      name: "status",
+      label: "Activity Status",
+      type: "enum",
+      enumValues: [
+        { label: "Done", value: "DONE" },
+        { label: "Ongoing", value: "ONGOING" },
+        {
+          label: "Started but not Finished",
+          value: "STARTED_BUT_NOT_FINISHED",
+        },
+        { label: "Not Done", value: "NOT_DONE" },
+        { label: "No Longer Applicable", value: "NO_LONGER_APPLICABLE" },
+      ],
+    },
+    {
+      name: "urgency_level",
+      label: "Urgency Level",
+      type: "enum",
+      enumValues: [
+        { label: "Low", value: "LOW" },
+        { label: "Medium", value: "MEDIUM" },
+        { label: "High", value: "HIGH" },
+        { label: "Emergency", value: "EMERGENCY" },
+      ],
+    },
+    {
+      name: "is_unplanned",
+      label: "Activity Type",
+      type: "enum",
+      enumValues: [
+        { label: "Planned", value: "false" },
+        { label: "Unplanned", value: "true" },
+      ],
+    },
+    {
+      name: "month",
+      label: "Month",
+      type: "enum",
+      enumValues: [
+        { label: "January", value: "January" },
+        { label: "February", value: "February" },
+        { label: "March", value: "March" },
+        { label: "April", value: "April" },
+        { label: "May", value: "May" },
+        { label: "June", value: "June" },
+        { label: "July", value: "July" },
+        { label: "August", value: "August" },
+        { label: "September", value: "September" },
+        { label: "October", value: "October" },
+        { label: "November", value: "November" },
+        { label: "December", value: "December" },
+      ],
+    },
+    {
+      name: "financial_year",
+      label: "Financial Year",
+      type: "enum",
+      enumValues: financialYearOptions || [],
+    },
+    {
+      name: "project",
+      label: "Project",
+      type: "enum",
+      enumValues: projectOptions || [],
+    },
+    {
+      name: "work_plan",
+      label: "Work Plan",
+      type: "enum",
+      enumValues: workPlanOptions || [],
+    },
+  ];
+
+  const { refetch: downloadTemplate, isFetching: isDownloading } =
+    useDownloadActivityPlanTemplate(false);
 
   const handleDownloadTemplate = async () => {
     try {
@@ -56,11 +194,37 @@ export default function ActivityPlan() {
 
   const dispatch = useAppDispatch();
 
+  const handleDownload = async () => {
+    try {
+      const blob = await downloadActivityPlans({
+        search: debouncedSearchQuery,
+        ...filters,
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "activityPlans.csv"; // Or correct extension
+      link.click();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Download failed", err);
+    }
+  };
+
   return (
     <div className='space-y-5'>
       <BreadcrumbCard list={breadcrumbs} />
 
-      <div className='flex justify-end'>
+      <div className='flex justify-end gap-2'>
+        <div className=''>
+          <Button
+            onClick={handleDownload}
+            disabled={downloading}
+            className='flex gap-2 py-6'
+          >
+            {downloading ? "Downloading..." : "Download ActivityPlans"}
+          </Button>
+        </div>
         <Popover>
           <PopoverTrigger asChild>
             <Button className='flex gap-2 py-6 w-40'>
@@ -116,7 +280,10 @@ export default function ActivityPlan() {
       </div>
 
       <Card>
-        <TableFilters onSearchChange={(e) => setSearchQuery(e.target.value)}>
+        <TableFilters
+          onSearchChange={(e) => setSearchQuery(e.target.value)}
+          filterAction={() => setFilterDrawerOpen(true)}
+        >
           <DataTable
             columns={activityPlanColumns}
             data={activityPlan?.data.results || []}
@@ -127,6 +294,14 @@ export default function ActivityPlan() {
               onChange: (page: number) => setPage(page),
             }}
           />
+          {isFilterDrawerOpen && (
+            <FilterForm
+              filters={activityPlanFilters}
+              values={filters}
+              onChange={setFilters}
+              onClose={() => setFilterDrawerOpen(false)}
+            />
+          )}
         </TableFilters>
       </Card>
     </div>

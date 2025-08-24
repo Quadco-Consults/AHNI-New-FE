@@ -1,35 +1,21 @@
 import { z } from "zod";
 
 export const WorkPlanTrackerSchema = z.object({
-    output_description: z.string().min(1, "Please enter output description"),
-    achieved_output: z.string().min(1, "Please enter achieved output"),
-    achievement_percentage: z
-        .string()
-        .min(1, "Please enter achievement percentage"),
-    amount_expended_ngn: z.string().min(1, "Please enter amount expended NGN"),
-    amount_expended_usd: z.string().min(1, "Please enter amount expended USD"),
-    implementation_usd_rate: z
-        .string()
-        .min(1, "Please enter implementation rate USD"),
-    expenditure_usd_rate: z
-        .string()
-        .min(1, "Please enter expenditure rate USD"),
-    expenditure_ngn_rate: z
-        .string()
-        .min(1, "Please enter expenditure rate NGN"),
-    variance_ngn: z.string().min(1, "Please enter variance NGN"),
-    variance_usd: z.string().min(1, "Please enter variance USD"),
-    percentage_variance_ngn: z
-        .string()
-        .min(1, "Please enter percentage variance NGN"),
-    percentage_variance_usd: z.string().min(1, "Please enter variance USD"),
-    efficiency_output_expenditure_ratio: z
-        .string()
-        .min(1, "Please enter efficiency output expenditure ratio"),
-    efficiency_output_expenditure_level: z
-        .string()
-        .min(1, "Please enter efficiency output expenditure level"),
-    comments: z.string().min(1, "Please enter comment"),
+    output_description: z.string().nullable().optional(),
+    achieved_output: z.string().nullable().optional(),
+    achievement_percentage: z.string().nullable().optional(),
+    amount_expended_ngn: z.string().nullable().optional(),
+    amount_expended_usd: z.string().nullable().optional(),
+    implementation_usd_rate: z.string().nullable().optional(),
+    expenditure_usd_rate: z.string().nullable().optional(),
+    expenditure_ngn_rate: z.string().nullable().optional(),
+    variance_ngn: z.string().nullable().optional(),
+    variance_usd: z.string().nullable().optional(),
+    percentage_variance_ngn: z.string().nullable().optional(),
+    percentage_variance_usd: z.string().nullable().optional(),
+    efficiency_output_expenditure_ratio: z.string().nullable().optional(),
+    efficiency_output_expenditure_level: z.string().nullable().optional(),
+    comments: z.string().nullable().optional(),
 });
 
 export type TWorkPlanTrackerFormValues = z.infer<typeof WorkPlanTrackerSchema>;

@@ -31,9 +31,12 @@ const AuditLog = () => {
     wait: 500,
   });
 
-  const { data: activities, isFetching } = useGetAllActivitesQuery(
-    { page, size: 10, search: debounceSearchQuery, ...filters }
-  );
+  const { data: activities, isFetching } = useGetAllActivitesQuery({
+    page,
+    size: 10,
+    search: debounceSearchQuery,
+    ...filters,
+  });
 
   const { downloadActivities, isLoading: downloading } =
     useDownloadActivitiesMutation();
@@ -144,7 +147,7 @@ const AuditLog = () => {
       const blob = await downloadActivities({
         search: debounceSearchQuery,
         ...filters,
-      }).unwrap();
+      });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;

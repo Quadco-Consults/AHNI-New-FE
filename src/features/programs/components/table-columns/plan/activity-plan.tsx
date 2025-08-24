@@ -5,16 +5,17 @@ import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIco
 import DeleteIcon from "components/icons/DeleteIcon";
 import PencilIcon from "components/icons/PencilIcon";
 import ConfirmationDialog from "components/ConfirmationDialog";
-import { TActivityPlanData } from "definations/program-types/activity-plan";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
 import Link from "next/link";
-import { RouteEnum } from "constants/RouterConstants";
+
 import { useState } from "react";
 import { toast } from "sonner";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
+import { TActivityPlanData } from "@/features/programs/types/activity-plan";
+import { format } from "date-fns";
 
 export const activityPlanColumns: ColumnDef<TActivityPlanData>[] = [
   // {
@@ -41,7 +42,7 @@ export const activityPlanColumns: ColumnDef<TActivityPlanData>[] = [
 
   {
     header: "Budget Line",
-    accessorKey: "_",
+    accessorKey: "budget_line",
     size: 200,
   },
   {
@@ -52,20 +53,20 @@ export const activityPlanColumns: ColumnDef<TActivityPlanData>[] = [
 
   {
     header: "Month",
-    accessorKey: "_",
+    accessorKey: "month",
     size: 200,
   },
 
   {
     header: "Start Date",
     accessorKey: "start_date",
-    // accessorFn: (data) => `${format(new Date(data.start_date), "dd MMM yyyy")}`,
+    accessorFn: (data) => `${format(new Date(data.start_date), "dd MMM yyyy")}`,
     size: 150,
   },
   {
     header: "End Date",
     accessorKey: "end_date",
-    // accessorFn: (data) => `${format(new Date(data.end_date), "dd MMM yyyy")}`,
+    accessorFn: (data) => `${format(new Date(data.end_date), "dd MMM yyyy")}`,
     size: 150,
   },
   {
@@ -96,7 +97,7 @@ export const activityPlanColumns: ColumnDef<TActivityPlanData>[] = [
   },
   {
     header: "Status",
-    accessorKey: "_",
+    accessorKey: "status",
     size: 200,
   },
 

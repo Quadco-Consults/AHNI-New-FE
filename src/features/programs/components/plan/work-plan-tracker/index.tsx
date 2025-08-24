@@ -40,7 +40,9 @@ export default function ActivityTracker() {
     <div className='space-y-5'>
       <BreadcrumbCard list={breadcrumbs} />
       <Card>
-        <TableFilters onSearchChange={(e) => setSearchController(e.target.value)}>
+        <TableFilters
+          onSearchChange={(e) => setSearchController(e.target.value)}
+        >
           <DataTable
             data={workPlanTracker?.data.results || []}
             columns={workPlanTrackercolumns}
