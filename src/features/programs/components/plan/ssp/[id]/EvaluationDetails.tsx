@@ -14,8 +14,7 @@ import { Separator } from "components/ui/separator";
 import { Textarea } from "components/ui/textarea";
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Fa500Px } from "react-icons/fa";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   useGetAllSupervisionPlanReviews,
   useGetSingleSupervisionPlanReview,
@@ -47,9 +46,10 @@ const documentConstants = [
 ];
 
 export default function EvaluationDetails() {
-  const { supervisionPlanId: planId } = useParams();
+  const { id: planId } = useParams();
+  const router = useRouter();
 
-  const [page, setPage] = useState<number | null>(null);
+  const [page, setPage] = useState<number | null>(1);
 
   const handlePrev = () => {
     if (page !== null && page > 1) {
@@ -58,6 +58,7 @@ export default function EvaluationDetails() {
   };
 
   const handleNext = () => {
+    if (page === totalPages) router.back();
     if (page !== null && page < totalPages) {
       setPage(page + 1);
     }
@@ -71,10 +72,10 @@ export default function EvaluationDetails() {
     );
 
   const reviewId = planReviewsData?.data.results[0].id;
-  const shouldFetchReviewDetails = planId && reviewId;
 
   const { data: supervisionPlanReview } = useGetSingleSupervisionPlanReview(
-    shouldFetchReviewDetails ? { planId, reviewId } : skipToken
+    planId,
+    reviewId
   );
 
   const reviews = supervisionPlanReview?.data.reviews ?? [];
@@ -110,8 +111,6 @@ export default function EvaluationDetails() {
   if (isPlanReviewsDataLoading) {
     return <LoadingSpinner />;
   }
-
-  console.log({ hsjhw: "hsjhf", page });
 
   if (page !== null) {
     return (
@@ -197,7 +196,8 @@ export default function EvaluationDetails() {
                   <>
                     <Card key={id} className='space-y-3'>
                       <h4 className='text-semibold font-light'>
-                        {documentConstants[index].label}
+                        {documentConstants[index]?.label ||
+                          `Document ${index + 1}`}
                       </h4>
 
                       <div className='flex justify-between pb-3 gap-5'>
@@ -213,7 +213,7 @@ export default function EvaluationDetails() {
                       {evaluationTimeStamp && (
                         <div className='w-1/3'>
                           <FilePreview
-                            name={documentConstants[index].title}
+                            name={documentConstants[index]?.title}
                             timestamp={evaluationTimeStamp}
                             file={document}
                             showDeleteIcon={false}
@@ -269,9 +269,9 @@ export default function EvaluationDetails() {
             type='button'
             className='px-8'
             onClick={handleNext}
-            disabled={page === totalPages}
+            // disabled={page === totalPages}
           >
-            Next
+            {page === totalPages ? "Finish" : "Next"}
           </Button>
         </div>
       </section>

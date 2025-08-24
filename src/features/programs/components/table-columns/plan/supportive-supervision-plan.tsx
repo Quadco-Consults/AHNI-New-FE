@@ -6,9 +6,8 @@ import { cn } from "lib/utils";
 import ApproveIcon from "components/icons/ApproveIcon";
 import ApprovalStatusIcon from "components/icons/ApprovalStatusIcon";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import SupportiveSupervisionAPI from "@/features/programs/controllers/suportive-supervisionController";
 import { toast } from "sonner";
-import { TSupervisionPlanPaginatedData } from "definations/program/plan/supervision-plan/supervision-plan";
+// import { TSupervisionPlanPaginatedData } from "definations/program/plan/supervision-plan/supervision-plan";
 import Link from "next/link";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
@@ -20,6 +19,7 @@ import PencilIcon from "components/icons/PencilIcon";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
+import { TSupervisionPlanPaginatedData } from "@/features/programs/types/program/plan/supervision-plan/supervision-plan";
 
 export const supportiveSupervisionPlanColumns: ColumnDef<TSupervisionPlanPaginatedData>[] =
   [
@@ -113,8 +113,7 @@ const TableMenu = ({ id }: TSupervisionPlanPaginatedData) => {
 
   const dispatch = useAppDispatch();
 
-  const { deleteSupervisionPlan, isLoading } =
-    useDeleteSupervisionPlan(id);
+  const { deleteSupervisionPlan, isLoading } = useDeleteSupervisionPlan(id);
 
   const onDelete = async () => {
     try {
@@ -150,7 +149,7 @@ const TableMenu = ({ id }: TSupervisionPlanPaginatedData) => {
               </Link>
               <Link
                 className='w-full'
-                href={`/dashboard/programs/plan/supportive-supervision-plan/create?id=${id}`}
+                href={`${RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_COMPOSITION}?id=${id}`}
               >
                 <Button
                   className='w-full flex items-center justify-start gap-2'

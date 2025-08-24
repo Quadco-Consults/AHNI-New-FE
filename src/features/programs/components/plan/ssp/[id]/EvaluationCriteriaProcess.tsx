@@ -31,7 +31,6 @@ import {
 } from "@/features/programs/types/program/plan/supervision-plan/supervision-plan-review";
 import {
   useCreateSupervisionPlanReview,
-  useCreateSupervisionPlanReviewController,
   useGetAllSupervisionPlanReviews,
   useGetSingleSupervisionPlanReview,
   useModifySupervisionPlanReview,
@@ -76,11 +75,9 @@ export default function EvaluationCriteriaProcess() {
   );
 
   const { data: currentPlan } = useGetSingleSupervisionPlanReview(
-    planId && planReview?.data?.results[0]?.id
-      ? { planId, reviewId: planReview?.data?.results[0]?.id }
-      : skipToken
+    planId && planReview?.data?.results[0]?.id ? planId : skipToken,
+    planReview?.data?.results[0]?.id
   );
-  // console.log({ planId, currentPlan, planReview });
 
   const form = useForm<TSupervisionPlanReviewFormData>({
     resolver: zodResolver(SupervisionPlanReviewSchema),
@@ -185,19 +182,12 @@ export default function EvaluationCriteriaProcess() {
   // };
 
   const handleNext = () => {
-    console.log({ jdh: "hies" });
-
     form.handleSubmit(async (data) => {
-      console.log({ jdh: "hiskjses", data });
-
       try {
         // Save data before moving forward
         await onSubmit(data);
 
-        // Move to next page only if save was successful
-        if (page < totalPages) {
-          setPage(page + 1);
-        }
+        setPage(page + 1);
       } catch (error) {
         console.error("Error saving data:", error);
         toast.error("Could not save progress. Please try again.");
@@ -259,8 +249,6 @@ export default function EvaluationCriteriaProcess() {
       toast.error(error.data.message ?? "Something went wrong");
     }
   };
-  const vn = form.getValues();
-  console.log({ vn });
 
   if (!groupedCriteria) {
     return <LoadingSpinner />;
@@ -293,8 +281,8 @@ export default function EvaluationCriteriaProcess() {
           <BackNavigation />
 
           <div className='flex justify-end'>
-            <div className='py-2 px-4 rounded-lg border text-green-500 border-green-500 bg-green-50'>
-              Page {page}/{totalPages}
+            <div className='py-2 px-4 rounded-lg border text-blue-500 border-blue-500 bg-blue-50'>
+              All Categories Shown
             </div>
           </div>
 
@@ -306,55 +294,64 @@ export default function EvaluationCriteriaProcess() {
             <hr />
 
             {!isUploadPage ? (
-              <Card className='space-y-3'>
-                <h4 className='font-semibold text-red-600'>{categoryName}</h4>
+              <div className='space-y-6'>
+                {categoryEntries.map(([currentCategoryName, categoryItems]) => (
+                  <Card key={currentCategoryName} className='space-y-3'>
+                    <h4 className='font-semibold text-red-600'>
+                      {currentCategoryName}
+                    </h4>
 
-                <h6 className='font-light text-gray-500'>
-                  Verify the following
-                </h6>
+                    <h6 className='font-light text-gray-500'>
+                      Verify the following
+                    </h6>
 
-                {items.map((item, index) => {
-                  const globalIndex =
-                    supervisionPlan?.data.objectives.findIndex(
-                      (obj) => obj.id === item.id
-                    );
+                    {categoryItems.map((item, itemIndex) => {
+                      const globalIndex =
+                        supervisionPlan?.data.objectives.findIndex(
+                          (obj) => obj.id === item.id
+                        );
 
-                  return (
-                    <Card key={item.id} className='space-y-3 border-yellow-600'>
-                      <h4 className='text-semibold text-yellow-600'>
-                        {item.name}
-                      </h4>
+                      return (
+                        <Card
+                          key={item.id}
+                          className='space-y-3 border-yellow-600'
+                        >
+                          <h4 className='text-semibold text-yellow-600'>
+                            {item.name}
+                          </h4>
 
-                      <div className='flex justify-between pb-3 gap-5'>
-                        <h2>{item.description}</h2>
+                          <div className='flex justify-between pb-3 gap-5'>
+                            <h2>{item.description}</h2>
 
-                        <FormRadio
-                          name={`reviews.${globalIndex}.is_selected`}
-                          options={[
-                            {
-                              label: "Yes",
-                              value: true,
-                            },
-                            {
-                              label: "No",
-                              value: false,
-                            },
-                          ]}
-                        />
-                      </div>
+                            <FormRadio
+                              name={`reviews.${globalIndex}.is_selected`}
+                              options={[
+                                {
+                                  label: "Yes",
+                                  value: true,
+                                },
+                                {
+                                  label: "No",
+                                  value: false,
+                                },
+                              ]}
+                            />
+                          </div>
 
-                      <FormInput
-                        name={`reviews.${globalIndex}.comment`}
-                        className='flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-gray-100 dark:bg-background'
-                        type='text'
-                        placeholder='Comment...'
-                      />
+                          <FormInput
+                            name={`reviews.${globalIndex}.comment`}
+                            className='flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-gray-100 dark:bg-background'
+                            type='text'
+                            placeholder='Comment...'
+                          />
 
-                      <hr />
-                    </Card>
-                  );
-                })}
-              </Card>
+                          <hr />
+                        </Card>
+                      );
+                    })}
+                  </Card>
+                ))}
+              </div>
             ) : (
               documentFields.map((field, index) => {
                 const currentDocInfo = documents?.find(
@@ -468,11 +465,7 @@ export default function EvaluationCriteriaProcess() {
                 className='px-8'
                 // loading={isCreateLoading || isModifyLoading}
                 onClick={async () => {
-                  console.log(`Submitting data:`, form.getValues());
-
                   await form.handleSubmit(async (data) => {
-                    console.log(`Submitting data:`, data);
-
                     await onSubmit(data);
                     router.push(RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION); // ✅ only after final submit
                   })();
