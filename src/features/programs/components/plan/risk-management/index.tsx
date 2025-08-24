@@ -3,7 +3,6 @@ import Link from "next/link";
 import Card from "components/Card";
 import { Button } from "components/ui/button";
 import AddSquareIcon from "components/icons/AddSquareIcon";
-import { RouteEnum } from "constants/RouterConstants";
 import DataTable from "components/Table/DataTable";
 import { useGetAllRiskManagementPlans } from "@/features/programs/controllers/riskPlansController";
 import { useState } from "react";
@@ -30,12 +29,13 @@ export default function RiskManagementPage() {
     wait: 1000,
   });
 
-  const { data: riskManagementPlan, isFetching } =
-    useGetAllRiskManagementPlans({
+  const { data: riskManagementPlan, isFetching } = useGetAllRiskManagementPlans(
+    {
       page,
       size: 10,
       search: debouncedSearchController,
-    });
+    }
+  );
 
   return (
     <div className='space-y-5'>
@@ -52,7 +52,7 @@ export default function RiskManagementPage() {
           <PopoverContent className='w-fit'>
             <div className='flex flex-col items-start justify-between gap-1'>
               <Link
-                href="/dashboard/programs/plan/risk-management-plan/create"
+                href='/dashboard/programs/plan/risk-management-plan/create'
                 className='block w-full'
               >
                 <Button
@@ -84,7 +84,9 @@ export default function RiskManagementPage() {
       </div>
 
       <Card>
-        <TableFilters onSearchChange={(e) => setSearchController(e.target.value)}>
+        <TableFilters
+          onSearchChange={(e) => setSearchController(e.target.value)}
+        >
           <DataTable
             data={riskManagementPlan?.data.results || []}
             columns={riskManagementPlanColumns}

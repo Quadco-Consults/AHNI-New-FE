@@ -133,8 +133,6 @@ export const usePatchProject = (id: string) => {
 
 // Delete Project
 export const useDeleteProject = (id: string) => {
-  console.log("djs", id);
-
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     TResponse<IProjectSingleData>,
     Error,
@@ -158,7 +156,12 @@ export const useDeleteProject = (id: string) => {
 };
 
 // Missing named export - Partners function (placeholder)
-export const useGetAllPartners = ({ page = 1, size = 20, search = "", enabled = true } = {}) => {
+export const useGetAllPartners = ({
+  page = 1,
+  size = 20,
+  search = "",
+  enabled = true,
+} = {}) => {
   // This function might need to be implemented based on the actual API endpoint for partners
   // For now, returning an empty query as a placeholder
   return useQuery({
@@ -166,7 +169,7 @@ export const useGetAllPartners = ({ page = 1, size = 20, search = "", enabled = 
     queryFn: async () => {
       // Placeholder implementation - may need actual API endpoint
       const response = await AxiosWithToken.get("/projects/partners/", {
-        params: { page, size, search }
+        params: { page, size, search },
       });
       return response.data;
     },
