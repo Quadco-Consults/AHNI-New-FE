@@ -69,8 +69,8 @@ export default function ScopeOfWork() {
   const { createConsultantManagement, isLoading: isCreateLoading } =
     useCreateConsultantManagement();
 
-  const { modifyConsultantManagement, isLoading: isModifyLoading } =
-    useModifyConsultantManagement();
+  const { updateConsultantManagement, isLoading: isModifyLoading } =
+    useModifyConsultantManagement(consultantId);
 
   const onSubmit: SubmitHandler<TScopeOfWorkFormData> = async (data) => {
     console.log({ busy: "djjhjh" });
@@ -83,37 +83,28 @@ export default function ScopeOfWork() {
 
       const payload = {
         ...applicationDetails,
-        scope_of_work: {
-          ...data,
-          advertisement_document:
-            typeof data.advertisement_document !== "string"
-              ? await fileToBase64(data.advertisement_document[0])
-              : null,
-          //   scope_of_work_document:
-          //     typeof data.scope_of_work_document !== "string"
-          //       ? await fileToBase64(data.scope_of_work_document[0])
-          //       : null,
-        },
+        ...data,
+        advertisement_document:
+          typeof data.advertisement_document !== "string"
+            ? await fileToBase64(data.advertisement_document[0])
+            : null,
+        // Add type field for create operations
+        ...(consultantId ? {} : { type: type as "CONSULTANT" | "ADHOC" }),
       };
 
       if (consultantId) {
-        await modifyConsultantManagement({
-          id: consultantId,
-          body: { ...payload, type } as any,
-        })();
+        await updateConsultantManagement(payload);
       } else {
-        await createConsultantManagement({
-          ...payload,
-          type,
-        } as any)();
+        await createConsultantManagement(payload);
       }
       if (type === "ADHOC") {
         toast.success("Adhoc Created");
       } else {
         toast.success("Consultant Created");
       }
+      console.log({ pathname });
 
-      if (pathname.includes("adhoc-management")) {
+      if (pathname?.includes("adhoc-management")) {
         router.push(ProgramRoutes.ADHOC_MANAGEMENT);
       } else {
         router.push(CG_ROUTES.CONSULTANCY);
@@ -123,10 +114,9 @@ export default function ScopeOfWork() {
       toast.error(error.data.message ?? "Something went wrong");
     }
   };
+  console.log({ pathname, jd: pathname?.includes("adhoc-management") });
 
-  const { data } = useGetSingleConsultantManagement(
-    consultantId ?? skipToken
-  );
+  const { data } = useGetSingleConsultantManagement(consultantId || skipToken);
 
   useEffect(() => {
     if (data) {
@@ -144,14 +134,11 @@ export default function ScopeOfWork() {
         //   ...item,
         //   number_of_days: String(item.number_of_days),
         // })),
-        advertisement_document: advertisement_document ?? "",
+        advertisement_document: advertisement_document ?? [] as any,
         // scope_of_work_document: scope_of_work_document ?? "",
       });
     }
-  }, [data]);
-
-  console.log(form.formState.errors);
-  console.log(form.getValues());
+  }, [data, form]);
 
   return (
     <ConsultantManagementLayout>
@@ -276,7 +263,7 @@ export default function ScopeOfWork() {
                     }
                   />
                   <p className='border flex items-center w-full gap-x-[1rem] rounded-lg border-[#DBDFE9] px-[1.125rem] h-[3.5rem]'>
-                    {form.watch("advertisement_document")[0]?.name ||
+                    {(form.watch("advertisement_document") as FileList)?.[0]?.name ||
                       data?.data.scope_of_work.advertisement_document}
                   </p>
                 </div>

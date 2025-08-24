@@ -20,7 +20,8 @@ import ShortlistedAppplicants from "./ShortlistedApplicants";
 export default function ConsultancyDetailsPage() {
   const [tabValue, setTabValue] = useState("job-details");
 
-  const { id } = useParams();
+  const params = useParams();
+  const id = params?.id as string;
 
   const { data, isLoading } = useGetSingleConsultantManagement(
     id ?? skipToken
@@ -66,9 +67,7 @@ export default function ConsultancyDetailsPage() {
           <div>
             <Link
               className='w-full'
-              href={generatePath(path, {
-                id,
-              })}
+              href={path.replace(':id', id)}
             >
               <Button className='flex gap-2 py-6' type='button'>
                 <AddSquareIcon />
@@ -82,9 +81,7 @@ export default function ConsultancyDetailsPage() {
           <div>
             <Link
               className='w-full'
-              href={generatePath(interviewPath, {
-                id,
-              })}
+              href={interviewPath.replace(':id', id)}
             >
               <Button className='flex gap-2 py-6' type='button'>
                 <AddSquareIcon />
