@@ -17,18 +17,51 @@ export const useGetAllActivityPlans = ({
   search = "",
   status = "",
   enabled = true,
+  urgency_level,
+  is_unplanned,
+  month,
+  financial_year,
+  project,
+  work_plan,
+  approval_status,
 }: TRequest & { enabled?: boolean }) => {
   return useQuery<TPaginatedResponse<TActivityPlanData>>({
-    queryKey: ["activity-plans", page, size, search, status],
+    queryKey: [
+      "activity-plans",
+      page,
+      size,
+      search,
+      status,
+      urgency_level,
+      month,
+      financial_year,
+      project,
+      work_plan,
+      approval_status,
+    ],
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get("/programs/plans/activity/", {
-          params: { page, size, search, status },
+          params: {
+            page,
+            size,
+            search,
+            status,
+            urgency_level,
+            is_unplanned,
+            month,
+            financial_year,
+            project,
+            work_plan,
+            approval_status,
+          },
         });
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled,
@@ -37,16 +70,23 @@ export const useGetAllActivityPlans = ({
 };
 
 // Get Single Activity Plan
-export const useGetSingleActivityPlan = (id: string, enabled: boolean = true) => {
+export const useGetSingleActivityPlan = (
+  id: string,
+  enabled: boolean = true
+) => {
   return useQuery<TResponse<TActivityPlanData>>({
     queryKey: ["activity-plan", id],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`/programs/plans/activity/${id}`);
+        const response = await AxiosWithToken.get(
+          `/programs/plans/activity/${id}`
+        );
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled && !!id,
@@ -60,10 +100,13 @@ export const useDownloadActivityPlanTemplate = (enabled: boolean = true) => {
     queryKey: ["activity-plan-template"],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get("/programs/plans/activity/sheet/template/", {
-          responseType: "blob",
-        });
-        
+        const response = await AxiosWithToken.get(
+          "/programs/plans/activity/sheet/template/",
+          {
+            responseType: "blob",
+          }
+        );
+
         // Create download link
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement("a");
@@ -73,11 +116,13 @@ export const useDownloadActivityPlanTemplate = (enabled: boolean = true) => {
         link.click();
         link.remove();
         window.URL.revokeObjectURL(url);
-        
+
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled,
@@ -123,13 +168,16 @@ export const useUploadActivityPlan = () => {
     contentType: null, // For FormData
   });
 
-  const uploadActivityPlan = async (details: { project: string; file: File }) => {
+  const uploadActivityPlan = async (details: {
+    project: string;
+    file: File;
+  }) => {
     try {
       // Create FormData for file upload
       const formData = new FormData();
       formData.append("project", details.project);
       formData.append("file", details.file);
-      
+
       await callApi(formData as any);
     } catch (error) {
       console.error("Activity plan upload error:", error);
@@ -187,12 +235,60 @@ export const useDeleteActivityPlan = (id: string) => {
   return { deleteActivityPlan, data, isLoading, isSuccess, error };
 };
 
+// Download Activities
+export const useDownloadActivities = () => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    Blob,
+    Error,
+    any
+  >({
+    endpoint: "/activities/download/",
+    queryKey: [],
+    isAuth: true,
+    method: "GET" as any, // Note: This is a special case for download
+    showSuccessToast: false,
+  });
+
+  const downloadActivityPlans = async (params: any) => {
+    try {
+      // For file downloads, we need to handle this differently
+      const response = await AxiosWithToken.get(
+        "/programs/plans/activity/download/?format=csv",
+        {
+          params,
+          responseType: "blob",
+        }
+      );
+
+      // Create download link
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "activity_plan.csv");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      return response.data;
+    } catch (error) {
+      console.error("Download activities error:", error);
+      throw error;
+    }
+  };
+
+  return { downloadActivityPlans, data, isLoading, isSuccess, error };
+};
+
 // Legacy exports for backward compatibility
 export const useGetAllActivityPlansQuery = useGetAllActivityPlans;
 export const useGetSingleActivityPlanQuery = useGetSingleActivityPlan;
-export const useDownloadActivityPlanTemplateQuery = useDownloadActivityPlanTemplate;
-export const useLazyDownloadActivityPlanTemplateQuery = useDownloadActivityPlanTemplate; // Note: lazy queries work differently in TanStack Query
+export const useDownloadActivityPlanTemplateQuery =
+  useDownloadActivityPlanTemplate;
+export const useLazyDownloadActivityPlanTemplateQuery =
+  useDownloadActivityPlanTemplate; // Note: lazy queries work differently in TanStack Query
 export const useCreateActivityPlanMutation = useCreateActivityPlan;
 export const useUploadActivityPlanMutation = useUploadActivityPlan;
 export const useEditActivityPlanMutation = useEditActivityPlan;
 export const useDeleteActivityPlanMutation = useDeleteActivityPlan;
+export const useDownloadActivityPlansMutation = useDownloadActivities;
