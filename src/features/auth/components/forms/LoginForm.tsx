@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import FormButton from "components/FormButton";
 import FormInput from "components/FormInput";

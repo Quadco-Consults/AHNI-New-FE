@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
 import FormTextArea from "components/atoms/FormTextArea";

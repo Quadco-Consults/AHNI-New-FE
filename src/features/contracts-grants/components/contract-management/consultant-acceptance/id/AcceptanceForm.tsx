@@ -1,3 +1,5 @@
+"use client";
+
 import { UploadFileSvg } from "assets/svgs/CAndGSvgs";
 import FormButton from "@/components/FormButton";
 import FormInput from "components/atoms/FormInput";

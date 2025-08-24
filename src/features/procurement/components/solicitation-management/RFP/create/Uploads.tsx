@@ -1,3 +1,5 @@
+"use client";
+
 import RfqLayout from "./RfpLayout";
 import { Button } from "components/ui/button";
 

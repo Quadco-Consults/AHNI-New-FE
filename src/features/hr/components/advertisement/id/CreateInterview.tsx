@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
 import { CardContent } from "components/ui/card";

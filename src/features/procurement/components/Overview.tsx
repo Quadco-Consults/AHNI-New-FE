@@ -1,3 +1,5 @@
+"use client";
+
 import logoPng from "assets/svgs/logo-bg.svg";
 import iconSvg from "assets/svgs/svg.svg";
 import iconSvg1 from "assets/svgs/I [ki-duotone](5).svg";

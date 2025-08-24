@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import FileUpload from "components/atoms/FileUpload";
 import FormButton from "@/components/FormButton";

@@ -1,3 +1,5 @@
+"use client";
+
 import FormButton from "@/components/FormButton";
 import Card from "components/Card";
 import GoBack from "components/GoBack";

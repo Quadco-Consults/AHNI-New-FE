@@ -11,7 +11,7 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  webpack: (config, { dev, isServer }) => {
+  webpack: (config, { isServer }) => {
     // Ignore PDF worker files for now to avoid build issues
     config.resolve.alias = {
       ...config.resolve.alias,

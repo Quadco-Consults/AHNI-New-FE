@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useMemo } from "react";
 import RfqLayout from "./RfqLayout";
 import FormInput from "components/atoms/FormInput";

@@ -1,3 +1,5 @@
+"use client";
+
 import FormButton from "atoms/FormButton";
 import FormTextArea from "atoms/FormTextArea";
 import {

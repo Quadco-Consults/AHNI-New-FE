@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import FormInput from "components/atoms/FormInput";
 import FormRadio from "components/atoms/FormRadio";

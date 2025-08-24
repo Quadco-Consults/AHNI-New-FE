@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import WriteDialog from "@/components/modals/dialog/WriteDialog";
 import Card from "components/Card";

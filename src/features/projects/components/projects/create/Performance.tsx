@@ -1,6 +1,7 @@
+"use client";
+
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import { useForm } from "react-hook-form";
-"use client";
 
 import { useRouter, usePathname } from "next/navigation";
 import ProjectLayout from "./ProjectLayout";

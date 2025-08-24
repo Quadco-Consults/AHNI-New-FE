@@ -1,3 +1,5 @@
+"use client";
+
 import FormButton from "@/components/FormButton";
 import { Form } from "components/ui/form";
 import { cn } from "lib/utils";

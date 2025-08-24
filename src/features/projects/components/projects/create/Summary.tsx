@@ -1,3 +1,5 @@
+"use client";
+
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { SubmitHandler, useForm } from "react-hook-form";
 import Link from "next/link";

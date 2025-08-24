@@ -1,3 +1,5 @@
+"use client";
+
 import { Label } from "components/ui/label";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import LocationSvg from "assets/svgs/LocationSvg";
