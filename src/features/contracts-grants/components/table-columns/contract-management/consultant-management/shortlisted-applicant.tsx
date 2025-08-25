@@ -102,7 +102,7 @@ const TableMenu = ({ id }: IConsultancyStaffPaginatedData) => {
             <Link
               href={
                 type === "ADHOC"
-                  ? `/dashboard/programs/stakeholder-management/adhoc-management/${adhocId}/interview/${id}`
+                  ? `/dashboard/programs/adhoc-management/${adhocId}/applicant/${id}/adhoc-interview`
                   : `/dashboard/c-and-g/consultant-management/${adhocId}/applicant/${id}`
               }
             >

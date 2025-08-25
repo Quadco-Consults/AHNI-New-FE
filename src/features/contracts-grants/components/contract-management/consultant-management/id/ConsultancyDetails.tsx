@@ -6,7 +6,7 @@ import { Button } from "components/ui/button";
 import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useParams } from "next/navigation"; 
+import { useParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { LoadingSpinner } from "components/Loading";
@@ -23,9 +23,7 @@ export default function ConsultancyDetailsPage() {
   const params = useParams();
   const id = params?.id as string;
 
-  const { data, isLoading } = useGetSingleConsultantManagement(
-    id ?? skipToken
-  );
+  const { data, isLoading } = useGetSingleConsultantManagement(id ?? skipToken);
 
   const pathname = usePathname();
 
@@ -65,10 +63,7 @@ export default function ConsultancyDetailsPage() {
         </div>
         {tabValue === "applications" && (
           <div>
-            <Link
-              className='w-full'
-              href={path.replace(':id', id)}
-            >
+            <Link className='w-full' href={path.replace(":id", id)}>
               <Button className='flex gap-2 py-6' type='button'>
                 <AddSquareIcon />
                 Add Applicant
@@ -79,10 +74,7 @@ export default function ConsultancyDetailsPage() {
 
         {tabValue === "shortlisted" && (
           <div>
-            <Link
-              className='w-full'
-              href={interviewPath.replace(':id', id)}
-            >
+            <Link className='w-full' href={interviewPath.replace(":id", id)}>
               <Button className='flex gap-2 py-6' type='button'>
                 <AddSquareIcon />
                 Create Interview
