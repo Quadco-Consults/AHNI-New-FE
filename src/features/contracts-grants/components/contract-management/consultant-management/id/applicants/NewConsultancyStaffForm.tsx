@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UploadFileSvg } from "assets/svgs/CAndGSvgs";
 import FadedButton from "components/atoms/FadedButton";
@@ -25,11 +26,11 @@ import {
   useForm,
 } from "react-hook-form";
 import { AiFillPlusCircle } from "react-icons/ai";
-import { useNavigate, useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
-  useCreateConsultancyStaff,
-  useModifyConsultancyStaff,
-} from "@/features/contracts-grants/controllers/consultantManagementController";
+  useCreateConsultancyStaffMutation,
+  useModifyConsultancyStaffMutation,
+} from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import { toast } from "sonner";
 import { fileToBase64 } from "utils/fileToBase64";
 
@@ -39,7 +40,8 @@ export default function NewConsultancyStaffForm({
   consultancyStaffData: IConsultancyStaffSingleData | undefined;
 }) {
   const router = useRouter();
-  const { id } = useParams();
+  const params = useParams();
+  const id = params?.id as string;
 
   const prevCoverLetter = consultancyStaffData?.documents[0]?.document;
   const prevResume = consultancyStaffData?.documents[1]?.document;
@@ -165,13 +167,15 @@ export default function NewConsultancyStaffForm({
     control: form.control,
   });
 
-  const { createConsultancyStaff, isLoading: isCreateLoading } =
-    useCreateConsultancyStaff();
+  const { createConsultancyApplicant, isLoading: isCreateLoading } =
+    useCreateConsultancyStaffMutation();
 
-  const { modifyConsultantStaff, isLoading: isModifyLoading } =
-    useModifyConsultancyStaff();
+  const { updateConsultancyApplicant, isLoading: isModifyLoading } =
+    useModifyConsultancyStaffMutation(consultancyStaffData?.id || "");
 
   const onSubmit: SubmitHandler<TConsultancyStaffFormData> = async (data) => {
+    console.log({ data });
+
     try {
       const resume = files[0].document
         ? await fileToBase64(files[0].document)
@@ -187,17 +191,11 @@ export default function NewConsultancyStaffForm({
       ];
 
       if (consultancyStaffData?.id) {
-        await modifyConsultantStaff({
-          id: consultancyStaffData.id,
-          body: { ...data, documents },
-        });
+        await updateConsultancyApplicant({ ...data, documents });
 
         toast.success("Consultancy Staff Updated");
       } else {
-        await createConsultancyStaff({
-          ...data,
-          documents,
-        })();
+        await createConsultancyApplicant({ ...data, documents });
         router.back();
         toast.success("Consultancy Staff Created");
       }
@@ -211,7 +209,7 @@ export default function NewConsultancyStaffForm({
     if (consultancyStaffData) {
       form.reset(consultancyStaffData);
     }
-  }, [consultancyStaffData]);
+  }, [consultancyStaffData, form]);
 
   console.log(form.formState.errors);
 

@@ -12,8 +12,8 @@ import { skipToken } from "@reduxjs/toolkit/query";
 import { LoadingSpinner } from "components/Loading";
 
 export default function CreateApplicantStaff() {
-    const [searchParams] = useSearchParams();
-    const consultancyStaffId = searchParams.get("id");
+    const searchParams = useSearchParams();
+    const consultancyStaffId = searchParams?.get("id");
 
     const [tabValue, setTabValue] = useState<string | null>(null);
 
@@ -27,7 +27,7 @@ export default function CreateApplicantStaff() {
     }, [consultancyStaffId]);
 
     const { data, isLoading } = useGetSingleConsultancyStaff(
-        consultancyStaffId ? consultancyStaffId : skipToken
+        consultancyStaffId || skipToken
     );
 
     return (

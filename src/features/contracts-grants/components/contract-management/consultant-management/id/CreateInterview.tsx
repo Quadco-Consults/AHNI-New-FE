@@ -16,7 +16,7 @@ import {
 } from "components/ui/form";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate, useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useGetSingleConsultantManagement } from "@/features/contracts-grants/controllers/consultantManagementController";
 import {
   Dialog,
@@ -41,22 +41,19 @@ import { useGetAllConsultancyStaffs } from "@/features/contracts-grants/controll
 export default function CreateInterview() {
   const router = useRouter();
 
-  const applicantId = useParams();
+  const params = useParams();
+  const applicantId = params?.id as string;
 
   const { data } = useGetSingleConsultantManagement(
-    applicantId?.id ?? skipToken
+    applicantId || skipToken
   );
 
-  const { data: applicants } = useGetAllConsultancyStaffs(
-    applicantId?.id
-      ? {
-          page: 1,
-          size: 100000000,
-          consultants: applicantId?.id,
-          status: "SHORTLISTED",
-        }
-      : skipToken
-  );
+  const { data: applicants } = useGetAllConsultancyStaffs({
+    page: 1,
+    size: 100000000,
+    search: applicantId || "",
+    enabled: !!applicantId,
+  });
   const { data: users } = useGetAllUsers({
     page: 1,
     size: 2000000,

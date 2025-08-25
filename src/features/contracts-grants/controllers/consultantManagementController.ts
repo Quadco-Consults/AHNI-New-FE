@@ -44,12 +44,16 @@ interface ConsultantManagementFilterParams {
 }
 
 // Combined form data interface for creation
-interface TConsultantManagementCreateFormData extends TConsultantanagementDetailsFormData, TScopeOfWorkFormData {
+interface TConsultantManagementCreateFormData
+  extends TConsultantanagementDetailsFormData,
+    TScopeOfWorkFormData {
   type: "CONSULTANT" | "ADHOC";
 }
 
 // Combined form data interface for updates
-interface TConsultantManagementUpdateFormData extends TConsultantanagementDetailsFormData, TScopeOfWorkFormData {}
+interface TConsultantManagementUpdateFormData
+  extends TConsultantanagementDetailsFormData,
+    TScopeOfWorkFormData {}
 
 const BASE_URL = "/contract-grants/consultants/"; // From original service
 
@@ -78,7 +82,9 @@ export const useGetAllConsultantManagements = ({
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled,
@@ -98,18 +104,23 @@ export const useGetAllExistingConsultants = ({
     queryKey: ["existingConsultants", page, size, search, type],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`${BASE_URL}applicants/existing`, {
-          params: {
-            page,
-            size,
-            ...(search && { search }),
-            ...(type && { type }),
-          },
-        });
+        const response = await AxiosWithToken.get(
+          `${BASE_URL}applicants/existing`,
+          {
+            params: {
+              page,
+              size,
+              ...(search && { search }),
+              ...(type && { type }),
+            },
+          }
+        );
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled,
@@ -118,7 +129,10 @@ export const useGetAllExistingConsultants = ({
 };
 
 // Get Single Consultant Management
-export const useGetSingleConsultantManagement = (id: string, enabled: boolean = true) => {
+export const useGetSingleConsultantManagement = (
+  id: string,
+  enabled: boolean = true
+) => {
   return useQuery<ApiResponse<IConsultantSingleData>>({
     queryKey: ["consultantManagement", id],
     queryFn: async () => {
@@ -127,7 +141,9 @@ export const useGetSingleConsultantManagement = (id: string, enabled: boolean = 
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled && !!id,
@@ -148,7 +164,9 @@ export const useCreateConsultantManagement = () => {
     method: "POST",
   });
 
-  const createConsultantManagement = async (details: TConsultantManagementCreateFormData) => {
+  const createConsultantManagement = async (
+    details: TConsultantManagementCreateFormData
+  ) => {
     try {
       await callApi(details);
     } catch (error) {
@@ -172,7 +190,9 @@ export const useUpdateConsultantManagement = (id: string) => {
     method: "PATCH",
   });
 
-  const updateConsultantManagement = async (details: TConsultantManagementUpdateFormData) => {
+  const updateConsultantManagement = async (
+    details: TConsultantManagementUpdateFormData
+  ) => {
     try {
       await callApi(details);
     } catch (error) {
@@ -208,12 +228,17 @@ export const useDeleteConsultantManagement = (id: string) => {
 };
 
 // Legacy exports for backward compatibility with RTK Query naming
-export const useGetAllConsultantManagementsQuery = useGetAllConsultantManagements;
-export const useGetSingleConsultantManagementQuery = useGetSingleConsultantManagement;
+export const useGetAllConsultantManagementsQuery =
+  useGetAllConsultantManagements;
+export const useGetSingleConsultantManagementQuery =
+  useGetSingleConsultantManagement;
 export const useGetAllExistingConsultantsQuery = useGetAllExistingConsultants;
-export const useCreateConsultantManagementMutation = useCreateConsultantManagement;
-export const useModifyConsultantManagementMutation = useUpdateConsultantManagement;
-export const useDeleteConsultantManagementMutation = useDeleteConsultantManagement;
+export const useCreateConsultantManagementMutation =
+  useCreateConsultantManagement;
+export const useModifyConsultantManagementMutation =
+  useUpdateConsultantManagement;
+export const useDeleteConsultantManagementMutation =
+  useDeleteConsultantManagement;
 
 // Missing named exports
 export const useModifyConsultantManagement = useUpdateConsultantManagement;
