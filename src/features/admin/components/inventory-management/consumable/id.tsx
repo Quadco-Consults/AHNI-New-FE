@@ -12,7 +12,7 @@ export default function ViewConsumable() {
   const { data: stockCard } = useGetAllConsumableStockCardsQuery(
     id || "", !!id
   );
-  console.log({ clapper: id, stockCard });
+
   return (
     <div>
       <BackNavigation />
