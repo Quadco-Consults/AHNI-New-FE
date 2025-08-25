@@ -1,8 +1,8 @@
 import useScrollToTop from "hooks/useScrollToTop";
 import Login from "pages/Auth/Login";
 import ProtectedPage from "pages/protectedPages/ProtectedPage";
-import { Route, useLocation, Routes, Navigate } from "react-router-dom";
-import getRoutes from "./routes";
+import { Route, useLocation, Routes, Navigate } 
+// Routes removed - using Next.js App Router instead
 import { useAppSelector } from "hooks/useStore";
 import { authSelector } from "store/auth/authSlice";
 import ForgotPassword from "pages/Auth/ForgotPassword";
@@ -10,8 +10,8 @@ import ChangePassword from "pages/Auth/ChangePassword";
 import VerifyOTP from "pages/Auth/VerifyOTP";
 
 function App() {
-    const routes = getRoutes();
-    const location = useLocation();
+    // const routes = getRoutes(); // Removed - using Next.js App Router
+    const pathname = usePathname();
     useScrollToTop(location);
 
     const { access_token } = useAppSelector(authSelector);
@@ -28,7 +28,7 @@ function App() {
                 <Route
                     path="/"
                     element={
-                        token ? <ProtectedPage /> : <Navigate to="/login" />
+                        token ? <ProtectedPage /> : <Navigate href="/login" />
                     }
                 >
                     {routes.map(({ path, element, children }) => (
@@ -45,7 +45,7 @@ function App() {
                 </Route>
                 <Route
                     path="*"
-                    element={<Navigate to={token ? "/dashboard" : "/login"} />}
+                    element={<Navigate href={token ? "/dashboard" : "/login"} />}
                 />
             </Routes>
         </div>

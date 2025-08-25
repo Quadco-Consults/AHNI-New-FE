@@ -3,7 +3,7 @@ export default function Test() {
 }
 
 // import { ColumnDef } from "@tanstack/react-table";
-// import TableAction from "atoms/TableAction";
+// import TableAction from "components/atoms/TableAction";
 // import { AdminRoutes } from "constants/RouterConstants";
 // import { toast } from "sonner";
 

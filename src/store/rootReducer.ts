@@ -1,6 +1,6 @@
 import { combineReducers } from "@reduxjs/toolkit";
 import { persistReducer } from "redux-persist";
-import baseAPI from "../services";
+// Services removed - using TanStack Query instead
 import storage from "redux-persist/es/storage/session";
 import auth from "./auth/authSlice";
 import ui from "./ui";
@@ -19,7 +19,6 @@ const persistConfig = {
   storage,
   key: "ahni",
   blacklist: [
-    baseAPI.reducerPath,
     "objectives",
     "partnerLocation",
     "stakeholder",
@@ -29,8 +28,7 @@ const persistConfig = {
 };
 
 export const rootStore = combineReducers({
-  // ...your reducers here
-  [baseAPI.reducerPath]: baseAPI.reducer,
+  // RTK Query services removed - using TanStack Query instead
   auth,
   ui,
   consortiumPartner: consortiumPartnerReducer,

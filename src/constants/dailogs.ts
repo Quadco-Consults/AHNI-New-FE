@@ -99,6 +99,10 @@ export const DialogType = {
 
   PAY_ADVICE: "PAY ADVICE",
   COPY_ACTIVITIES: "COPY ACTIVITIES",
+  
+  // Fund Request Workflow
+  FundRequestApproval: "FundRequestApproval",
+  FundRequestReject: "FundRequestReject",
 };
 
 export const largeDailogScreen = {

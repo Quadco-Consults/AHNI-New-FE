@@ -1,12 +1,12 @@
 import { RouteEnum, AdminRoutes } from "constants/RouterConstants";
 
 import { lazy } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom"; 
 
 export const adminRoutes = [
   {
     path: "*",
-    element: <Navigate to={RouteEnum.DASHBOARD} />,
+    element: <Navigate href={RouteEnum.DASHBOARD} />,
   },
 
   // CONSUMABLE

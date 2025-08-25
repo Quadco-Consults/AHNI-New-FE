@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { IUser } from "definations/auth/user";
+import { IUser } from "features/auth/types/user";
 
 type InitialState = {
     teamMembers: IUser[];
