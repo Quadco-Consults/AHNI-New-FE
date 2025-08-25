@@ -1,4 +1,11 @@
-import CreateOnboardingProcess from "@/features/hr/components/onboarding/add-employee/EmployeeRegistrationLayout";
+"use client";
+
+import dynamic from "next/dynamic";
+
+const CreateOnboardingProcess = dynamic(() => import("@/features/hr/components/onboarding/add-employee/EmployeeRegistrationLayout"), {
+  ssr: false,
+  loading: () => <div>Loading...</div>
+});
 
 export default function CreateOnboardingProcessPage() {
   return <CreateOnboardingProcess />;
