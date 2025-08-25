@@ -1,7 +1,5 @@
 [build]
-  publish = "dist" # Make sure this matches your output directory
+  command = "npm run build"
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
