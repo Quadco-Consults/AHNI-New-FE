@@ -1,6 +1,6 @@
 "use client";
 
-import BackNavigation from "components/atoms/BackNavigation";
+// import BackNavigation from "components/atoms/BackNavigation";
 
 // import { useGetSingleConsultancyStaff } from "@/features/contracts-grants/controllers/consultantManagementController";
 import { useParams, useRouter } from "next/navigation";
@@ -10,8 +10,11 @@ import SingleConsultancyStaffDetails from "./SingleConsultancyStaffDetails";
 import { LoadingSpinner } from "components/Loading";
 import Card from "components/Card";
 import { toast } from "sonner";
-import { useModifyContractStatus } from "@/features/contracts-grants/controllers/contractController";
-import { useGetSingleConsultancyStaff } from "@/features/contracts-grants/controllers";
+import BackNavigation from "components/BackNavigation";
+import { useGetSingleConsultancyStaff } from "src/features/contracts-grants/controllers/consultantManagementController";
+import { useModifyContractStatus } from "src/features/contracts-grants/controllers";
+// import { useModifyContractStatus } from "@/features/contracts-grants/controllers/contractController";
+// import { useGetSingleConsultancyStaff } from "@/features/contracts-grants/controllers";
 
 export default function ConsultancyStaffDetails() {
   const params = useParams();
