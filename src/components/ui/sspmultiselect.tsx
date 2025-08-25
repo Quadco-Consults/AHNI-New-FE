@@ -14,7 +14,7 @@ import {
     CommandList,
     CommandSeparator,
 } from "components/ui/command";
-import { UsersResultsData } from "definations/auth/user";
+import { UsersResultsData } from "features/auth/types/user";
 
 const multiSelectVariants = cva("m-1", {
     variants: {

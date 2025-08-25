@@ -1,0 +1,173 @@
+"use client";
+
+import FormButton from "@/components/FormButton";
+import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { IRole } from "@/features/auth/types/user";
+import { cn } from "@/lib/utils";
+import { Search } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { useGetAllRolesManager } from "@/features/auth/controllers/roleController";
+import { useGetSingleUserManager, useAddUserToRoleManager } from "@/features/auth/controllers/userController";
+import { toast } from "sonner";
+
+const RoleCheckbox: React.FC<{
+  role: IRole;
+  checked: boolean;
+  onChange: () => void;
+}> = ({ role, checked, onChange }) => {
+  return (
+    <div
+      className={cn(
+        "flex items-center space-x-2 rounded-md border px-4 py-3 cursor-pointer",
+        checked
+          ? "border-red-500 bg-red-50"
+          : "border-gray-200 bg-white"
+      )}
+      onClick={onChange}
+    >
+      <Checkbox
+        checked={checked}
+        className={cn(
+          "h-4 w-4 rounded-sm border-2",
+          checked ? "border-red-500 bg-red-500" : "border-gray-300"
+        )}
+      />
+      <span className="text-sm font-medium capitalize">{role.name}</span>
+    </div>
+  );
+};
+
+type TRoleSelector = {
+  selectedRoles: string[];
+  onSelectRole: (roleId: string) => void;
+};
+
+const RoleSelector: React.FC<TRoleSelector> = ({
+  selectedRoles,
+  onSelectRole,
+}) => {
+  const { data } = useGetAllRolesManager({ page: 1, size: 2000000 });
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {data?.data?.results?.map((role: IRole) => (
+        <RoleCheckbox
+          key={role.id}
+          role={role}
+          checked={selectedRoles.includes(role.id)}
+          onChange={() => onSelectRole(role.id)}
+        />
+      ))}
+    </div>
+  );
+};
+
+const SearchMembers = () => {
+  return (
+    <div className="relative w-[40%] mx-auto">
+      <Search className="absolute w-5 h-5 text-gray-500 -translate-y-1/2 right-2 top-1/2" />
+      <Input
+        type="text"
+        placeholder="Search roles"
+        className="w-full py-2 pl-4 pr-8 border border-gray-300"
+      />
+    </div>
+  );
+};
+
+interface AssignRoleProps {
+  userId?: string;
+  onClose?: () => void;
+}
+
+const AssignRole = ({ userId, onClose }: AssignRoleProps) => {
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+
+  const { addUserToRole, isLoading } = useAddUserToRoleManager();
+  const { data: user } = useGetSingleUserManager(userId || "");
+
+  useEffect(() => {
+    const roles = user?.data?.roles?.map((role: IRole) => role.id);
+    if (roles) {
+      setSelectedRoles((prevState) => [...prevState, ...roles]);
+    }
+  }, [user]);
+
+  const handleSelectRole = (roleId: string) => {
+    const isSelected = selectedRoles.indexOf(roleId);
+
+    if (isSelected > -1) {
+      setSelectedRoles(selectedRoles.filter((role) => role !== roleId));
+      return;
+    }
+
+    setSelectedRoles([...selectedRoles, roleId]);
+  };
+
+  const handleAddRole = async () => {
+    if (!userId) return;
+
+    try {
+      await addUserToRole(userId, {
+        roles: selectedRoles,
+      });
+      toast.success("Role Added Successfully");
+      if (onClose) {
+        onClose();
+      }
+    } catch (error: any) {
+      toast.error(error?.message || "Something went wrong");
+    }
+  };
+
+  return (
+    <div className="pb-10">
+      <ScrollArea className="h-[80vh]">
+        <div className="flex items-center justify-center w-full py-7">
+          <div className="w-full space-y-7">
+            <div className="flex justify-center">
+              <img
+                src="/imgs/logo.png"
+                alt="logo"
+                className="text-center"
+              />
+            </div>
+            <h2 className="text-3xl font-bold text-center">
+              Roles
+            </h2>
+            <p className="text-center text-gray-400">
+              You can search with name, institution
+            </p>
+            <SearchMembers />
+          </div>
+        </div>
+        <Card className="mx-auto w-[75%] min-h-56">
+          <CardContent className="w-full p-4">
+            <RoleSelector
+              selectedRoles={selectedRoles}
+              onSelectRole={handleSelectRole}
+            />
+          </CardContent>
+        </Card>
+        <div className="flex items-center justify-end gap-x-3 mt-7 px-7">
+          <p className="text-primary">
+            {selectedRoles?.length} Roles Selected
+          </p>
+          <div>
+            <FormButton
+              loading={isLoading}
+              onClick={handleAddRole}
+            >
+              Save & Continue
+            </FormButton>
+          </div>
+        </div>
+      </ScrollArea>
+    </div>
+  );
+};
+
+export default AssignRole;

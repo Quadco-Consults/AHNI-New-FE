@@ -1,0 +1,84 @@
+"use client";
+
+// import BackNavigation from "components/atoms/BackNavigation";
+
+// import { useGetSingleConsultancyStaff } from "@/features/contracts-grants/controllers/consultantManagementController";
+import { useParams, useRouter } from "next/navigation";
+import { Button } from "components/ui/button";
+import PersonIcon from "components/icons/Person";
+import SingleConsultancyStaffDetails from "./SingleConsultancyStaffDetails";
+import { LoadingSpinner } from "components/Loading";
+import Card from "components/Card";
+import { toast } from "sonner";
+import BackNavigation from "components/BackNavigation";
+import { useGetSingleConsultancyStaff } from "src/features/contracts-grants/controllers/consultantManagementController";
+import { useModifyContractStatus } from "src/features/contracts-grants/controllers";
+// import { useModifyContractStatus } from "@/features/contracts-grants/controllers/contractController";
+// import { useGetSingleConsultancyStaff } from "@/features/contracts-grants/controllers";
+
+export default function ConsultancyStaffDetails() {
+  const params = useParams();
+  const applicantId = params?.applicantId as string;
+
+  const router = useRouter();
+
+  const { data: consultancyStaff, isLoading } =
+    useGetSingleConsultancyStaff(applicantId);
+
+  const { updateContractStatus, isLoading: isModifyLoading } =
+    useModifyContractStatus(applicantId);
+
+  const handleShortListing = async () => {
+    // console.log("Form submitted with data:", data);
+    // Handle form submission logic here
+
+    try {
+      await updateContractStatus({
+        title: consultancyStaff?.data?.name || "",
+        request_type: "SHORTLIST",
+        department: "",
+        consultants_count: "1",
+        location: "",
+        fco: "",
+        technical_monitor: "",
+        email: consultancyStaff?.data?.email || "",
+        phone_number: consultancyStaff?.data?.phone_number || "",
+        current_reviewer: "",
+      });
+      toast.success("Contract Updated Successfully");
+
+      router.back();
+    } catch (error: any) {
+      toast.error(error.data.message ?? "Something went wrong");
+    }
+  };
+  console.log({ consultancyStaff });
+
+  return (
+    <section className=''>
+      <div className='flex items-center justify-between'>
+        <BackNavigation />
+        <Button
+          className='flex gap-x-[.5rem] items-center'
+          disabled={isModifyLoading}
+          onClick={() => handleShortListing()}
+        >
+          <PersonIcon />
+          <span>Shortlist Consultant</span>
+        </Button>
+      </div>
+
+      {isLoading ? (
+        <LoadingSpinner />
+      ) : (
+        consultancyStaff && (
+          <Card>
+            <SingleConsultancyStaffDetails
+              {...(consultancyStaff?.data as any)}
+            />
+          </Card>
+        )
+      )}
+    </section>
+  );
+}

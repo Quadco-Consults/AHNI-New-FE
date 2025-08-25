@@ -3,7 +3,7 @@ export default function Test() {
 }
 
 // import { ColumnDef, Row } from "@tanstack/react-table";
-// import TableAction from "atoms/TableAction";
+// import TableAction from "components/atoms/TableAction";
 // import DeleteIcon from "components/icons/DeleteIcon";
 // import EyeIcon from "components/icons/EyeIcon";
 // import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
@@ -11,7 +11,7 @@ export default function Test() {
 // import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 // import { AdminRoutes } from "constants/RouterConstants";
 // import { formatCurrency } from "lib/utils";
-// import { generatePath, Link } from "react-router-dom";
+// import Link from "next/link";
 // import { toast } from "sonner";
 
 // export type IFuelVehicle = {
@@ -44,7 +44,7 @@ export default function Test() {
 //                 <div className="flex flex-col items-start justify-between gap-1">
 //                     <Link
 //                         className="w-full"
-//                         to={generatePath(AdminRoutes.FuelViewDetail, {
+//                         href={generatePath(AdminRoutes.FuelViewDetail, {
 //                             id: 1,
 //                         })}
 //                     >

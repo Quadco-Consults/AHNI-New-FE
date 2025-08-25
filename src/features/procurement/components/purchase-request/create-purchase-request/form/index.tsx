@@ -1,0 +1,543 @@
+"use client";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import FormButton from "@/components/FormButton";
+import FormInput from "components/atoms/FormInput";
+import FormSelect from "components/atoms/FormSelectField";
+import AddSquareIcon from "components/icons/AddSquareIcon";
+import LongArrowRight from "components/icons/LongArrowRight";
+import { LoadingSpinner } from "components/Loading";
+import { Button } from "components/ui/button";
+import { Upload as UploadFile } from "lucide-react";
+
+import { Form, FormControl, FormField, FormItem } from "components/ui/form";
+import { Label } from "components/ui/label";
+import MultiSelectFormField from "components/ui/multiselect";
+import { SelectContent, SelectItem } from "components/ui/select";
+import { RouteEnum } from "constants/RouterConstants";
+import { DepartmentsResultsData } from "definations/configs/departments";
+import { ItemsResultsData } from "definations/configs/itmes";
+import { PurchaseRequestSchema } from "definations/procurement-validator";
+import { useQuery } from "@tanstack/react-query";
+import { MinusCircle } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
+import { useGetAllUsers } from "@/features/auth/controllers/userController";
+import { useGetDepartmentPaginate } from "@/features/modules/controllers/config/departmentController";
+import { useGetItemsPaginate } from "@/features/modules/controllers/config/itemController";
+import { useGetLocationList } from "@/features/modules/controllers/config/locationController";
+import { useGetPositionPaginate } from "@/features/modules/controllers/config/positionController";
+import { useGetFcoNumberPaginate } from "@/features/modules/controllers/config/gradeController";
+import { useGetAllPartners } from "@/features/projects/controllers/projectController";
+import { useCreatePurchaseRequest } from "@/features/procurement/controllers/purchaseRequestController";
+import { toast } from "sonner";
+import { z } from "zod";
+import { Input } from "components/ui/input";
+
+const CreatePurchaseRequestForm = ({ expenses }) => {
+  const query = useQuery();
+  const request = query.get("request");
+  const { data: departments, isLoading: departmentsIsLoading } =
+    useGetDepartments({});
+  const { isLoading: partnersIsLoading } = useGetAllPartners({
+    page: 1,
+    size: 2000000,
+  });
+  const { data: items, isLoading: itemsIsLoading } = ItemsAPI.useGetItems(
+    {}
+  );
+  const { createPurchaseRequestMutation, isLoading } =
+    PurchaseRequestAPI.useCreatePurchaseRequest();
+
+  const fco = useGetAllFCONumbers({
+    page: 1,
+    size: 2000000,
+  });
+  const { data: position, isFetching: positionLoading } =
+    useGetAllPositions({
+      page: 1,
+      size: 20000,
+    });
+
+  const { data: users } = useGetAllUsers({
+    page: 1,
+    size: 2000000,
+  });
+
+  const { data: locations } = useGetLocationList({
+    params: { no_paginate: true },
+  });
+
+  const [file, setFile] = useState<File | null>(null);
+
+  // const form = useForm<z.infer<typeof PurchaseRequestSchema>>({
+  const form = useForm({
+    // const form = useForm({
+    // resolver: zodResolver(PurchaseRequestSchema),
+    defaultValues: {
+      reviewed_by: "",
+      authorised_by: "",
+      approved_by: "",
+      requested_by: "",
+      requesting_department: "",
+      deliver_to: "",
+      ref_number: "",
+      date_of_request: "",
+      date_required: "",
+      // total cost
+      special_instruction: "ewecd",
+      // request_id
+      // status
+      // reviewed_date
+      // authorized_date
+      // approved_date
+      request_memo: request!,
+      // location
+      role_requested_by: "",
+      role_reviewed_by: "",
+      role_authorised_by: "",
+      role_approved_by: "",
+      file: "",
+    },
+  });
+
+  const router = useRouter();
+
+  const { control, handleSubmit, setValue } = form;
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "items",
+  });
+
+  const usersOptions = users?.data.results.map(
+    ({ first_name, last_name, id }) => ({
+      label: `${first_name} ${last_name}`,
+      value: id,
+    })
+  );
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      setFile(event.target.files[0]);
+      setValue("file", event.target.files[0].name);
+    }
+  };
+
+  const onSubmit = async (data: z.infer<typeof PurchaseRequestSchema>) => {
+    const payload = {
+      items: data.items,
+      requested_by: data.requested_by,
+      reviewed_by: data.reviewed_by,
+
+      authorised_by: data.authorised_by,
+
+      approved_by: data.approved_by,
+
+      ref_number: data.ref_number,
+      date_of_request: data.date_of_request,
+      date_required: data.date_required,
+      special_instruction: data.special_instruction,
+      request_id: "string",
+      status: "Pending",
+      reviewed_date: null,
+      authorised_date: null,
+      approved_date: null,
+      request_memo: data.request_memo,
+      requesting_department: data.requesting_department,
+      location: data.deliver_to,
+      role_requested_by: data.role_requested_by,
+      role_reviewed_by: data.role_reviewed_by,
+      role_authorised_by: data.role_authorised_by,
+      role_approved_by: data.role_approved_by,
+    };
+
+    try {
+      // @ts-ignore
+      await createPurchaseRequestMutation(payload)();
+      router.push(RouteEnum.PURCHASE_REQUEST);
+      toast.success("Successfully created.");
+    } catch (error) {
+      toast.error("Something went wrong");
+      console.log(error);
+    }
+  };
+
+  const expensesData = useMemo(() => {
+    //   // @ts-ignore
+    return expenses?.map((exp) => ({
+      quantity: exp?.quantity,
+      unit_cost: exp?.unit_cost,
+      amount: exp?.total_cost,
+      item: exp?.item,
+      fco_number: "",
+    }));
+  }, [expenses]);
+
+  useEffect(() => {
+    if (expensesData) {
+      setValue("items", expensesData);
+    }
+  }, [expensesData, setValue]);
+
+  return (
+    <div className='pt-5'>
+      <Form {...form}>
+        <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-6'>
+          <div className='grid  gap-5'>
+            <FormInput
+              label='Ref'
+              name='ref_number'
+              type='text'
+              placeholder=''
+            />
+          </div>
+          <div className='grid grid-cols-2 gap-5'>
+            <FormInput
+              label='Date of Request'
+              name='date_of_request'
+              type='date'
+              placeholder='01/01/2024'
+            />
+            <FormInput
+              label='Required Date'
+              name='date_required'
+              type='date'
+              placeholder='01/01/2024'
+            />
+          </div>
+          <div className='grid grid-cols-2 gap-5'>
+            <FormSelect
+              label='Requesting Dept.'
+              name='requesting_department'
+              required
+            >
+              <SelectContent>
+                {departmentsIsLoading ? (
+                  <LoadingSpinner />
+                ) : (
+                  // @ts-ignore
+                  departments?.data?.results?.map(
+                    (department: DepartmentsResultsData) => (
+                      <SelectItem key={department?.id} value={department?.id}>
+                        {department?.name}
+                      </SelectItem>
+                    )
+                  )
+                )}
+              </SelectContent>
+            </FormSelect>
+            <FormSelect label='Deliver to' name='deliver_to' required>
+              <SelectContent>
+                {partnersIsLoading ? (
+                  <LoadingSpinner />
+                ) : (
+                  locations?.data.results?.map((location) => (
+                    <SelectItem key={location?.id} value={location?.id}>
+                      {location?.name}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </FormSelect>
+          </div>
+          <div>
+            <label htmlFor=''>Specification/ Instructions</label>
+            <div className='w-full px-4 relative gap-x-3 h-[52px] rounded-[16.2px] border flex justify-center items-center'>
+              <UploadFile size={20} />
+              <Input
+                type='file'
+                onChange={handleFileChange}
+                className='bg-inherit border-none cursor-pointer '
+              />
+            </div>
+
+            <FormInput type='hidden' name='file' />
+          </div>
+
+          <div>
+            <table className='w-full border'>
+              <thead>
+                <tr className='text-amber-500 whitespace-nowrap border-b-2 text-xs font-semibold'>
+                  <th className='px-2 py-5'>S/N</th>
+                  <th className='px-2 py-5'>Description of items/services</th>
+                  {/* <th className='px-2 py-5'>NO of Persons/Unit</th> */}
+                  {/* <th className="px-2 py-5">No of Days</th> */}
+                  <th className='px-2 py-5'>FCO</th>
+                  <th className='px-2 py-5'>Quantity</th>
+                  <th className='px-2 py-5'>Unit Cost</th>
+                  <th className='px-2 py-5'>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {fields.map((field, index) => {
+                  return (
+                    <tr key={index} className='w-full'>
+                      <td className='w-fit p-2 text-center '>
+                        <span className='p-2 px-4 text-xs bg-black text-white rounded'>
+                          {index + 1}.
+                        </span>
+                      </td>
+                      <td className='w-fit p-2 text-center'>
+                        <FormSelect label='' name={`items.[${index}].item`}>
+                          <SelectContent>
+                            {itemsIsLoading ? (
+                              <LoadingSpinner />
+                            ) : (
+                              // @ts-ignore
+                              items?.data?.results?.map(
+                                (item: ItemsResultsData) => (
+                                  <SelectItem key={item?.id} value={item?.id}>
+                                    {item?.name}
+                                  </SelectItem>
+                                )
+                              )
+                            )}
+                          </SelectContent>
+                        </FormSelect>
+                      </td>
+
+                      <td className='w-fit p-2 text-center'>
+                        {/* <FormSelect
+                          label=''
+                          name={`items.[${index}].fco_number`}
+                        >
+                          <SelectContent>
+                            {itemsIsLoading ? (
+                              <LoadingSpinner />
+                            ) : (
+                              // @ts-ignore
+                              fco?.data?.data?.results?.map((item) => {
+                                return (
+                                  <SelectItem key={item?.id} value={item?.id}>
+                                    {item?.name}
+                                  </SelectItem>
+                                );
+                              })
+                            )}
+                          </SelectContent>
+                        </FormSelect> */}
+
+                        <FormField
+                          control={form.control}
+                          name={`items.[${index}].fco_number`}
+                          render={({ field }) => (
+                            <FormItem className=' mt-2'>
+                              <FormControl>
+                                <MultiSelectFormField
+                                  options={fco?.data?.data?.results || []}
+                                  // defaultValue={field.value}
+                                  onValueChange={field.onChange}
+                                  placeholder='Select fcos'
+                                  variant='inverted'
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* {errors.fconumber && (
+                            <span className='text-sm text-red-500 font-medium'>
+                              {errors.fconumber.message}
+                            </span>
+                          )} */}
+                      </td>
+                      <td className='w-fit p-2 text-center'>
+                        <FormInput
+                          label=''
+                          type='number'
+                          name={`items.[${index}].quantity`}
+                          className='w-24'
+                        />
+                      </td>
+                      <td className='w-fit p-2 text-center'>
+                        <FormInput
+                          label=''
+                          type='number'
+                          name={`items.[${index}].unit_cost`}
+                          className='w-24'
+                        />
+                      </td>
+                      <td className='w-fit p-2 text-center'>
+                        <FormInput label='' name={`items.[${index}].amount`} />
+                      </td>
+                      <td className='flex items-center justify-center py-5'>
+                        <Button variant='ghost' size='icon'>
+                          <MinusCircle
+                            onClick={() => remove(index)}
+                            className='cursor-pointer text-primary'
+                          />
+                        </Button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            <div className='flex justify-end mt-2'>
+              <Button
+                type='button'
+                className='text-primary bg-[#FFF2F2] flex gap-2 items-center justify-center'
+                onClick={() =>
+                  append({
+                    item: "",
+                    fco_number: "",
+                    amount: 0,
+                    // number_of_days: 0,
+                    unit_cost: 0,
+                  })
+                }
+              >
+                <AddSquareIcon />
+                Add
+              </Button>
+            </div>
+          </div>
+
+          {/* <div className='flex items-center justify-end'>
+            <div className='text-primary border-primary flex items-center justify-start gap-2 rounded border-2 px-6 py-3 text-base font-semibold'>
+              <span>Total:</span>
+              <span>N0.00</span>
+            </div>
+          </div> */}
+
+          <div className='my-2'>
+            <h3 className='mb-4'>Requested By</h3>
+            <div className='flex flex-col gap-6'>
+              <div className='grid grid-cols-2 gap-5'>
+                {usersOptions && (
+                  <FormSelect
+                    label='Name'
+                    name='requested_by'
+                    required
+                    options={usersOptions}
+                  />
+                )}
+                <FormSelect label='Role' name='role_requested_by' required>
+                  <SelectContent>
+                    {positionLoading ? (
+                      <LoadingSpinner />
+                    ) : (
+                      position?.data.results?.map((p) => (
+                        <SelectItem key={p?.id} value={p?.id}>
+                          {p?.name}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </FormSelect>
+              </div>
+            </div>
+          </div>
+          <div className='my-2'>
+            <h3 className='mb-4'>Reviewed By</h3>
+            <div className='flex flex-col gap-6'>
+              <div className='grid grid-cols-2 gap-5'>
+                {usersOptions && (
+                  <FormSelect
+                    label='Name'
+                    name='reviewed_by'
+                    required
+                    options={usersOptions}
+                  />
+                )}
+                <FormSelect label='Role' name='role_reviewed_by' required>
+                  <SelectContent>
+                    {positionLoading ? (
+                      <LoadingSpinner />
+                    ) : (
+                      position?.data.results?.map((p) => (
+                        <SelectItem key={p?.id} value={p?.id}>
+                          {p?.name}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </FormSelect>
+              </div>
+            </div>
+          </div>
+          <div className='my-2'>
+            <h3 className='mb-4'>Approved By</h3>
+            <div className='flex flex-col gap-6'>
+              <div className='grid grid-cols-2 gap-5'>
+                {usersOptions && (
+                  <FormSelect
+                    label='Name'
+                    name='approved_by'
+                    required
+                    options={usersOptions}
+                  />
+                )}
+                <FormSelect label='Role' name='role_approved_by' required>
+                  <SelectContent>
+                    {positionLoading ? (
+                      <LoadingSpinner />
+                    ) : (
+                      position?.data.results?.map((p) => (
+                        <SelectItem key={p?.id} value={p?.id}>
+                          {p?.name}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </FormSelect>
+              </div>
+            </div>
+          </div>
+          <div className='my-2'>
+            <h3 className='mb-4'>Authorized By</h3>
+            <div className='flex flex-col gap-6'>
+              <div className='grid grid-cols-2 gap-5'>
+                {usersOptions && (
+                  <FormSelect
+                    label='Name'
+                    name='authorised_by'
+                    required
+                    options={usersOptions}
+                  />
+                )}
+                <FormSelect label='Role' name='role_authorised_by' required>
+                  <SelectContent>
+                    {positionLoading ? (
+                      <LoadingSpinner />
+                    ) : (
+                      position?.data.results?.map((p) => (
+                        <SelectItem key={p?.id} value={p?.id}>
+                          {p?.name}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </FormSelect>
+              </div>
+            </div>
+          </div>
+          <div className='flex items-center justify-end'>
+            <FormButton
+              loading={isLoading}
+              disabled={isLoading}
+              type='submit'
+              className='flex items-center justify-center gap-2'
+            >
+              Submit
+              <LongArrowRight />
+            </FormButton>
+            {/* <Link
+              className='w-fit'
+              href={generatePath(RouteEnum.PURCHASE_REQUEST_FORM)}
+            > */}
+            {/* <Button className='flex gap-2 py-6'>
+              Submit
+              <LongArrowRight />
+            </Button> */}
+            {/* </Link> */}
+          </div>
+        </form>
+      </Form>
+    </div>
+  );
+};
+
+export default CreatePurchaseRequestForm;

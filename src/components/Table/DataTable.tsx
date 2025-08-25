@@ -5,8 +5,8 @@ import {
   ColumnDef,
   flexRender,
 } from "@tanstack/react-table";
-import { LoadingSpinner } from "components/shared/Loading";
-import Pagination from "components/shared/Pagination";
+import { LoadingSpinner } from "components/Loading";
+import Pagination from "components/Pagination";
 
 import {
   Table as ShadTable,

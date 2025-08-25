@@ -1,0 +1,175 @@
+import useApiManager from "@/constants/mainController";
+import { useQuery } from "@tanstack/react-query";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
+import { AxiosError } from "axios";
+import {
+  IAssetRequestPaginatedData,
+  IAssetRequestSingleSData,
+  TAssetRequestFormValues,
+} from "../types/inventory-management/asset-request";
+
+// API Response interfaces
+interface ApiResponse<TData = unknown> {
+  status: boolean;
+  message: string;
+  data: TData;
+}
+
+interface PaginatedResponse<T> {
+  status: boolean;
+  message: string;
+  data: {
+    paginator: {
+      count: number;
+      page: number;
+      page_size: number;
+      total_pages: number;
+      next_page_number?: number | null;
+      next?: string | null;
+      previous?: string | null;
+      previous_page_number?: number | null;
+    };
+    results: T[];
+  };
+}
+
+// Filter parameters interface
+interface AssetRequestFilterParams {
+  page?: number;
+  size?: number;
+  search?: string;
+  status?: string;
+  enabled?: boolean;
+}
+
+const BASE_URL = "/admins/inventory/assets/requests/";
+
+// ===== ASSET REQUEST HOOKS =====
+
+// Get All Asset Requests (Paginated)
+export const useGetAllAssetRequests = ({
+  page = 1,
+  size = 20,
+  search = "",
+  status = "",
+  enabled = true,
+}: AssetRequestFilterParams) => {
+  return useQuery<PaginatedResponse<IAssetRequestPaginatedData>>({
+    queryKey: ["assetRequests", page, size, search, status],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(BASE_URL, {
+          params: {
+            page,
+            size,
+            ...(search && { search }),
+            ...(status && { status }),
+          },
+        });
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get Single Asset Request
+export const useGetSingleAssetRequest = (id: string, enabled: boolean = true) => {
+  return useQuery<ApiResponse<IAssetRequestSingleSData>>({
+    queryKey: ["assetRequest", id],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${BASE_URL}${id}`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled && !!id,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Create Asset Request
+export const useCreateAssetRequest = () => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IAssetRequestSingleSData,
+    Error,
+    TAssetRequestFormValues
+  >({
+    endpoint: BASE_URL,
+    queryKey: ["assetRequests"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const createAssetRequest = async (details: TAssetRequestFormValues) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("Asset request create error:", error);
+    }
+  };
+
+  return { createAssetRequest, data, isLoading, isSuccess, error };
+};
+
+// Edit Asset Request (Full Update)
+export const useEditAssetRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IAssetRequestSingleSData,
+    Error,
+    TAssetRequestFormValues
+  >({
+    endpoint: `${BASE_URL}${id}/`,
+    queryKey: ["assetRequests", "assetRequest"],
+    isAuth: true,
+    method: "PUT",
+  });
+
+  const editAssetRequest = async (details: TAssetRequestFormValues) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("Asset request edit error:", error);
+    }
+  };
+
+  return { editAssetRequest, data, isLoading, isSuccess, error };
+};
+
+// Delete Asset Request
+export const useDeleteAssetRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IAssetRequestSingleSData,
+    Error,
+    Record<string, never>
+  >({
+    endpoint: `${BASE_URL}${id}`,
+    queryKey: ["assetRequests"],
+    isAuth: true,
+    method: "DELETE",
+  });
+
+  const deleteAssetRequest = async () => {
+    try {
+      await callApi({} as Record<string, never>);
+    } catch (error) {
+      console.error("Asset request delete error:", error);
+    }
+  };
+
+  return { deleteAssetRequest, data, isLoading, isSuccess, error };
+};
+
+// Legacy exports for backward compatibility
+export const useGetAllAssetRequestsQuery = useGetAllAssetRequests;
+export const useGetSingleAssetRequestQuery = useGetSingleAssetRequest;
+export const useCreateAssetRequestMutation = useCreateAssetRequest;
+export const useEditAssetRequestMutation = useEditAssetRequest;
+export const useDeleteAssetRequestMutation = useDeleteAssetRequest;

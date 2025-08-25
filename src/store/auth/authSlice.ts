@@ -1,7 +1,7 @@
 import { PayloadAction, createSelector, createSlice } from "@reduxjs/toolkit";
 
 import { RootState } from "..";
-import { ILoginData } from "definations/auth/auth";
+import { ILoginData } from "features/auth/types/auth";
 
 const initialState: ILoginData = {
     access_token: "",
