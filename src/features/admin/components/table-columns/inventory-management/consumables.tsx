@@ -41,12 +41,12 @@ export const consumableColums: ColumnDef<TConsumablePaginatedData>[] = [
       return row.original.expiry_date || "N/A";
     },
   },
-  {
-    header: "Entry Date",
-    size: 200,
-    accessorFn: ({ created_datetime }) =>
-      format(created_datetime, "yyyy-MM-dd"),
-  },
+  // {
+  //   header: "Entry Date",
+  //   size: 200,
+  //   accessorFn: ({ created_datetime }) =>
+  //     format(created_datetime, "yyyy-MM-dd"),
+  // },
   {
     header: "Vendor",
     accessorKey: "created_by",
