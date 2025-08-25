@@ -61,7 +61,7 @@ export default function CreateInterview() {
 
   console.log({ applicants: applicants?.data?.results });
 
-  const { createInterview, isLoading } = useCreateContractInterview();
+  const { createContractInterview, isLoading } = useCreateContractInterview();
 
   const form = useForm({
     defaultValues: {
@@ -105,8 +105,7 @@ export default function CreateInterview() {
     };
 
     try {
-      // @ts-ignore
-      await createInterview(interviewData)();
+      await createContractInterview(interviewData as any);
       toast.success("Successfully created.");
       // router.push(RouteEnum.COMPETITIVE_BID_ANALYSIS);
       router.back();
