@@ -1,6 +1,11 @@
 "use client";
 
-import { VerifyOTP } from "features/auth/components";
+import dynamic from "next/dynamic";
+
+const VerifyOTP = dynamic(() => import("features/auth/components").then(mod => ({ default: mod.VerifyOTP })), {
+  ssr: false,
+  loading: () => <div>Loading...</div>
+});
 
 export default function VerifyOTPPage() {
     return <VerifyOTP />;

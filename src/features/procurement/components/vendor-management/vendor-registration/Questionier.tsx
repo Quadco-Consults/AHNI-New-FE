@@ -33,7 +33,7 @@ const Questionier = () => {
   const [showSubmit, setShowSubmit] = useState(false);
 
   const router = useRouter();
-  const { pathname } = useLocation();
+  const pathname = usePathname();
   const dispatch = useDispatch();
 
   const { createVendorMutation, isLoading: createVendorMutationLoading } =
@@ -126,7 +126,9 @@ const Questionier = () => {
 
     try {
       const res = await createVendorMutation(finalData)();
-      localStorage.setItem("vendorID", res?.data?.id);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem("vendorID", res?.data?.id);
+      }
       toast.success("Successfully created.");
       let path = pathname;
       path = path.substring(0, path.lastIndexOf("/"));

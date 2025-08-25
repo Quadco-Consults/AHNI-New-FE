@@ -34,7 +34,7 @@ const Technical = () => {
 
   const router = useRouter();
 
-  const { pathname } = useLocation();
+  const pathname = usePathname();
 
   const { fields, append, remove } = useFieldArray({
     control,

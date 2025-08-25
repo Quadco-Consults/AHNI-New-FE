@@ -55,7 +55,7 @@ const FundSummary: React.FC = () => {
     activities,
   }) => {
     const programFundRequest = JSON.parse(
-      localStorage.getItem("programFundRequest") || "{}"
+      typeof window !== 'undefined' ? localStorage.getItem("programFundRequest") || "{}" : "{}"
     );
 
     const payload = {
@@ -63,7 +63,9 @@ const FundSummary: React.FC = () => {
       activities,
     };
 
-    localStorage.setItem("programFundRequest", JSON.stringify(payload));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem("programFundRequest", JSON.stringify(payload));
+    }
 
     let path = pathname || "";
 

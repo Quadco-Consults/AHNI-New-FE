@@ -19,7 +19,7 @@ const Attestation = () => {
   const [showSubmit, setShowSubmit] = useState(false);
 
   const router = useRouter();
-  const { pathname } = useLocation();
+  const pathname = usePathname();
   // const dispatch = useDispatch();
 
   const form = useForm<z.infer<typeof VendorAttestationSchema>>({

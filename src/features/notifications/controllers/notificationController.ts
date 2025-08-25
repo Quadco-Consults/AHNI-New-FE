@@ -23,12 +23,14 @@ interface NotificationResponse {
 // ===== NOTIFICATION HOOKS =====
 
 // Get All Notifications
-export const useGetNotifications = (enabled: boolean = true) => {
+export const useGetNotifications = (params?: { page?: number; size?: number; enabled?: boolean }) => {
+  const { page = 1, size = 100, enabled = true } = params || {};
+  
   return useQuery<NotificationResponse>({
-    queryKey: ["notifications"],
+    queryKey: ["notifications", page, size],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get("/notifications");
+        const response = await AxiosWithToken.get(`/notifications?page=${page}&size=${size}`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
