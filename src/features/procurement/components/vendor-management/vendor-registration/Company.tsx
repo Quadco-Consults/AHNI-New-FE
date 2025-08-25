@@ -8,7 +8,8 @@ import { Separator } from "components/ui/separator";
 import { Label } from "components/ui/label";
 import { ArrowLeft, ArrowRight, MinusCircle, PlusCircle } from "lucide-react";
 import FormButton from "@/components/FormButton";
-import { useLocation, useNavigate } 
+import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation"; 
 import FormSelect from "components/atoms/FormSelectField";
 import { VendorsCompanySchema } from "definations/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,7 +21,7 @@ import { vendorsActions } from "store/formData/procurement-vendors";
 const Company = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { pathname } = useLocation();
+  const pathname = usePathname();
 
   const form = useForm<z.infer<typeof VendorsCompanySchema>>({
     resolver: zodResolver(VendorsCompanySchema),

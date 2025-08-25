@@ -27,9 +27,9 @@ export default function Summary() {
   const router = useRouter();
 
   const programFundRequest: TFundRequestFormValues &
-    TFundRequestActivityFormValues = JSON.parse(
-    localStorage.getItem("programFundRequest") || "{}"
-  );
+    TFundRequestActivityFormValues = typeof window !== 'undefined' 
+      ? JSON.parse(localStorage.getItem("programFundRequest") || "{}")
+      : {};
 
   const { data: project } = useGetSingleProject(programFundRequest.project);
 
@@ -51,7 +51,9 @@ export default function Summary() {
       await createFundRequest(programFundRequest);
       toast.success("Fund Request Created");
       router.push(RouteEnum.PROGRAM_FUND_REQUEST);
-      localStorage.removeItem("programFundRequest");
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem("programFundRequest");
+      }
     } catch (error: any) {
       toast.error(error.data.message || "Something went wring");
     }

@@ -125,7 +125,7 @@ const Registration = () => {
 
   const router = useRouter();
 
-  const { pathname } = useLocation();
+  const pathname = usePathname();
 
   const { handleSubmit, watch } = form;
 

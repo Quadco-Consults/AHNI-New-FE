@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useLocation, useNavigate } 
+import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation"; 
 import { Form } from "components/ui/form";
 import Card from "components/Card";
 import { Button } from "components/ui/button";
@@ -52,8 +53,7 @@ const UploadSchema = z.object({
 const Upload = () => {
   const router = useRouter();
 
-  // eslint-disable-next-line no-unused-vars
-  const { pathname } = useLocation();
+  const pathname = usePathname();
   const [createVendorDocumentMutation] =
     VendorsDocumentAPI.useCreateVendorDocument();
 
@@ -178,7 +178,7 @@ const Upload = () => {
     }));
   };
 
-  const vendor = localStorage.getItem("vendorID") as string;
+  const vendor = typeof window !== 'undefined' ? localStorage.getItem("vendorID") as string : "";
 
   const onSubmit = async (data: {
     files: any[];

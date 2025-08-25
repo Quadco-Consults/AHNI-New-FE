@@ -152,7 +152,9 @@ const CreateFundRequest = () => {
   const { handleSubmit } = form;
 
   const onSubmit: SubmitHandler<TFundRequestFormValues> = async (data) => {
-    localStorage.setItem("programFundRequest", JSON.stringify(data));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem("programFundRequest", JSON.stringify(data));
+    }
 
     let path = pathname || "";
 

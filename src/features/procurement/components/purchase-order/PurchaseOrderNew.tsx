@@ -15,8 +15,8 @@ import {
 } from "components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { useEffect, useMemo, useState } from "react";
-import { useGetVendorsPaginate } from "@/features/procurement/controllers/vendorController";
-import { useGetPurchaseRequestsPaginate } from "@/features/procurement/controllers/purchaseRequestController";
+import { useGetVendors } from "@/features/procurement/controllers/vendorController";
+import { useGetPurchaseRequests, useGetPurchaseRequest } from "@/features/procurement/controllers/purchaseRequestController";
 import { LoadingSpinner } from "components/Loading";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -27,14 +27,14 @@ import { Form, FormControl, FormField, FormItem } from "components/ui/form";
 import FormButton from "@/components/FormButton";
 import LongArrowRight from "components/icons/LongArrowRight";
 import BreadcrumbCard from "components/Breadcrumb";
-import { useGetDepartmentPaginate } from "@/features/modules/controllers/config/departmentController";
+import { useGetAllDepartments } from "@/features/modules/controllers/config/departmentController";
 import { toast } from "sonner";
 import { useCreatePurchaseOrder } from "@/features/procurement/controllers/purchaseOrderController";
 import { RouteEnum } from "constants/RouterConstants";
-import { useGetFcoNumberPaginate } from "@/features/modules/controllers/config/gradeController";
+import { useGetAllGrades } from "@/features/modules/controllers/config/gradeController";
 import MultiSelectFormField from "components/ui/multiselect";
 import FormSelect from "components/atoms/FormSelect";
-import { useGetItemsPaginate } from "@/features/modules/controllers/config/itemController";
+import { useGetAllItems } from "@/features/modules/controllers/config/itemController";
 
 const PurchaseOrderNew = () => {
   const [open, setOpen] = useState(false);
@@ -53,21 +53,15 @@ const PurchaseOrderNew = () => {
     useGetVendors({
       page: 1,
       size: 2000000,
-      status: "Approved",
     });
   const { data: requests, isLoading: requestsIsLoading } =
-    useGetAllPurchaseRequests({ page: 1, size: 2000000 });
-  const { data: requestsDetails } =
-    PurchaseRequestAPI.useGetPurchaseRequest(
-      useMemo(
-        () => ({
-          path: { id: purchaseValue as string },
-        }),
-        [purchaseValue]
-      )
-    );
+    useGetPurchaseRequests({ page: 1, size: 2000000 });
+  const { data: requestsDetails } = useGetPurchaseRequest(
+    purchaseValue as string,
+    !!purchaseValue
+  );
 
-  const fco = useGetAllFCONumbers({
+  const fco = useGetAllGrades({
     page: 1,
     size: 2000000,
   });
@@ -98,16 +92,18 @@ const PurchaseOrderNew = () => {
   const { setValue, control, handleSubmit } = form;
 
   const data = useMemo(() => {
-    // @ts-ignore
-    return requestsDetails?.data?.items.map((data) => ({
+    const items = requestsDetails?.data?.items || requestsDetails?.items;
+    if (!items) return [];
+    
+    return items.map((data: any) => ({
       item_id: data?.item || "",
       fco: data?.fco || "",
       quantity: data?.quantity || 0,
       unit_cost: data?.unit_cost || 0,
-      description: data?.item?.name || "",
-      uom: data?.item?.uom === null ? "" : data?.item?.uom,
-      total: data?.sub_total_amount || 0,
-      name: data?.item_detail?.name,
+      description: data?.item?.name || data?.name || "",
+      uom: data?.item?.uom === null ? "" : data?.item?.uom || data?.uom || "",
+      total: data?.sub_total_amount || data?.total || 0,
+      name: data?.item_detail?.name || data?.item?.name || data?.name || "",
     }));
   }, [requestsDetails]);
 
@@ -462,7 +458,7 @@ const PurchaseOrderNew = () => {
                           <FormItem className=' mt-2'>
                             <FormControl>
                               <MultiSelectFormField
-                                options={fco?.data?.data?.results || []}
+                                options={fco?.data?.results || []}
                                 // defaultValue={field.value}
                                 onValueChange={field.onChange}
                                 placeholder='Select'

@@ -157,6 +157,7 @@ export const useDeleteQuestionnaire = (id: string) => {
 
 // Legacy exports for backward compatibility
 export const useGetQuestionairsQuery = useGetAllQuestionnaires;
+export const useGetQuestionairs = useGetAllQuestionnaires;
 export const useGetQuestionairQuery = useGetSingleQuestionnaire;
 export const useCreateQuestionairMutation = useCreateQuestionnaire;
 export const useUpdateQuestionairMutation = useUpdateQuestionnaire;
@@ -172,6 +173,7 @@ const QuestionairAPI = {
   useModifyQuestionnaire,
   useDeleteQuestionnaire,
   useGetQuestionairsQuery,
+  useGetQuestionairs,
   useGetQuestionairQuery,
   useCreateQuestionairMutation,
   useUpdateQuestionairMutation,

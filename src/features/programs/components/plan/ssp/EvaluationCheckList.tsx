@@ -38,9 +38,9 @@ export default function EvaluationCheckList() {
   const { isOpen } = useAppSelector((state) => state.ui.dailog);
 
   useEffect(() => {
-    const prevFormData = JSON.parse(
+    const prevFormData = typeof window !== 'undefined' ? JSON.parse(
       sessionStorage.getItem("compositionData") || "{}"
-    );
+    ) : {};
 
     setChosenCriterias(
       prevFormData.objectives || supervisionPlan?.data.objectives
@@ -54,9 +54,9 @@ export default function EvaluationCheckList() {
     useModifySupervisionPlan(id || "");
 
   const onSubmit = async () => {
-    const prevFormData = JSON.parse(
+    const prevFormData = (typeof window !== 'undefined' ? JSON.parse(
       sessionStorage.getItem("compositionData") || "{}"
-    ) as TSSPCompositionFormValues & {
+    ) : {}) as TSSPCompositionFormValues & {
       objectives: { name: string; id: string }[];
     };
 
@@ -85,7 +85,7 @@ export default function EvaluationCheckList() {
   useEffect(() => {
     if (id && supervisionPlan) {
       const prevFormData = JSON.parse(
-        sessionStorage.getItem("compositionData") || "{}"
+        typeof window !== 'undefined' ? sessionStorage.getItem("compositionData") || "{}" : "{}"
       ) as TSSPCompositionFormValues & {
         objectives: { name: string; id: string }[];
       };
