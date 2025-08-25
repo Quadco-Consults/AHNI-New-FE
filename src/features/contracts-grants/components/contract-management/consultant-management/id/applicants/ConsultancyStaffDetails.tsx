@@ -2,9 +2,8 @@
 
 import BackNavigation from "components/atoms/BackNavigation";
 
-import { useGetSingleConsultancyStaff } from "@/features/contracts-grants/controllers/consultantManagementController";
-import { skipToken } from "@reduxjs/toolkit/query";
-import { useNavigate, useParams } from "next/navigation";
+// import { useGetSingleConsultancyStaff } from "@/features/contracts-grants/controllers/consultantManagementController";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "components/ui/button";
 import PersonIcon from "components/icons/Person";
 import SingleConsultancyStaffDetails from "./SingleConsultancyStaffDetails";
@@ -12,29 +11,37 @@ import { LoadingSpinner } from "components/Loading";
 import Card from "components/Card";
 import { toast } from "sonner";
 import { useModifyContractStatus } from "@/features/contracts-grants/controllers/contractController";
+import { useGetSingleConsultancyStaff } from "@/features/contracts-grants/controllers";
 
 export default function ConsultancyStaffDetails() {
-  const { applicantId } = useParams();
+  const params = useParams();
+  const applicantId = params?.applicantId as string;
 
   const router = useRouter();
 
   const { data: consultancyStaff, isLoading } =
-    useGetSingleConsultancyStaff(applicantId ? applicantId : skipToken);
+    useGetSingleConsultancyStaff(applicantId);
 
-  const { modifyContractRequest, isLoading: isModifyLoading } =
-    useModifyContractStatus();
+  const { updateContractStatus, isLoading: isModifyLoading } =
+    useModifyContractStatus(applicantId);
 
   const handleShortListing = async () => {
     // console.log("Form submitted with data:", data);
     // Handle form submission logic here
 
     try {
-      await modifyContractRequest({
-        id: applicantId,
-        body: {
-          status: "SHORTLISTED",
-        },
-      })();
+      await updateContractStatus({
+        title: consultancyStaff?.data?.name || "",
+        request_type: "SHORTLIST",
+        department: "",
+        consultants_count: "1",
+        location: "",
+        fco: "",
+        technical_monitor: "",
+        email: consultancyStaff?.data?.email || "",
+        phone_number: consultancyStaff?.data?.phone_number || "",
+        current_reviewer: "",
+      });
       toast.success("Contract Updated Successfully");
 
       router.back();
@@ -42,6 +49,8 @@ export default function ConsultancyStaffDetails() {
       toast.error(error.data.message ?? "Something went wrong");
     }
   };
+  console.log({ consultancyStaff });
+
   return (
     <section className=''>
       <div className='flex items-center justify-between'>
@@ -61,7 +70,9 @@ export default function ConsultancyStaffDetails() {
       ) : (
         consultancyStaff && (
           <Card>
-            <SingleConsultancyStaffDetails {...consultancyStaff?.data} />
+            <SingleConsultancyStaffDetails
+              {...(consultancyStaff?.data as any)}
+            />
           </Card>
         )
       )}

@@ -13,12 +13,7 @@ import {
 } from "@/features/contracts-grants/types/contract-management/consultancy-management/consultancy-application";
 import { useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import {
-    generatePath,
-    useLocation,
-    useNavigate,
-    useParams,
-} from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import {
     useCreateExistingApplicantStaff,
     useGetAllConsultancyStaffs,
@@ -29,13 +24,14 @@ import ConsultancyStaffDetailsWrapper from "./SingleConsultancyStaffDetails";
 import { LoadingSpinner } from "components/Loading";
 
 export default function CreateExistingConsultancyStaff() {
-    const { id } = useParams();
+    const params = useParams();
+    const id = params?.id as string;
 
-    const { pathname } = useLocation();
+    const pathname = usePathname();
 
     const router = useRouter();
 
-    const type = pathname.includes("adhoc-management") ? "ADHOC" : "CONSULTANT";
+    const type = pathname?.includes("adhoc-management") ? "ADHOC" : "CONSULTANT";
 
     const path =
         type === "ADHOC"
@@ -87,7 +83,7 @@ export default function CreateExistingConsultancyStaff() {
 
             toast.success("Applicant created successfully");
 
-            router.push(generatePath(path, { id }));
+            router.push(path.replace(':id', id));
         } catch (error: any) {
             toast.error(error.data.message || "Something went wrong");
         }

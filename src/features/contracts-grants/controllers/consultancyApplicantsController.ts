@@ -64,9 +64,17 @@ export const useGetAllConsultancyApplicants = ({
   search = "",
   consultants = "",
   enabled = true,
+  status,
 }: ConsultancyApplicantsFilterParams) => {
   return useQuery<PaginatedResponse<IConsultancyStaffPaginatedData>>({
-    queryKey: ["consultancyApplicants", page, size, search, consultants],
+    queryKey: [
+      "consultancyApplicants",
+      page,
+      size,
+      search,
+      consultants,
+      status,
+    ],
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(BASE_URL, {
@@ -75,12 +83,15 @@ export const useGetAllConsultancyApplicants = ({
             size,
             ...(search && { search }),
             ...(consultants && { consultants }),
+            status,
           },
         });
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled,
@@ -89,7 +100,10 @@ export const useGetAllConsultancyApplicants = ({
 };
 
 // Get Single Consultancy Staff
-export const useGetSingleConsultancyApplicant = (id: string, enabled: boolean = true) => {
+export const useGetSingleConsultancyApplicant = (
+  id: string,
+  enabled: boolean = true
+) => {
   return useQuery<ApiResponse<IConsultancyStaffSingleData>>({
     queryKey: ["consultancyApplicant", id],
     queryFn: async () => {
@@ -98,7 +112,9 @@ export const useGetSingleConsultancyApplicant = (id: string, enabled: boolean = 
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled && !!id,
@@ -119,7 +135,9 @@ export const useCreateConsultancyApplicant = () => {
     method: "POST",
   });
 
-  const createConsultancyApplicant = async (details: TConsultancyStaffCreateFormData) => {
+  const createConsultancyApplicant = async (
+    details: TConsultancyStaffCreateFormData
+  ) => {
     try {
       await callApi(details);
     } catch (error) {
@@ -143,7 +161,9 @@ export const useCreateExistingConsultancyApplicant = () => {
     method: "POST",
   });
 
-  const createExistingConsultancyApplicant = async (details: TExistingApplicantFormData) => {
+  const createExistingConsultancyApplicant = async (
+    details: TExistingApplicantFormData
+  ) => {
     try {
       await callApi(details);
     } catch (error) {
@@ -151,7 +171,13 @@ export const useCreateExistingConsultancyApplicant = () => {
     }
   };
 
-  return { createExistingConsultancyApplicant, data, isLoading, isSuccess, error };
+  return {
+    createExistingConsultancyApplicant,
+    data,
+    isLoading,
+    isSuccess,
+    error,
+  };
 };
 
 // Update Consultancy Staff
@@ -167,7 +193,9 @@ export const useUpdateConsultancyApplicant = (id: string) => {
     method: "PATCH",
   });
 
-  const updateConsultancyApplicant = async (details: TConsultancyStaffUpdateFormData) => {
+  const updateConsultancyApplicant = async (
+    details: TConsultancyStaffUpdateFormData
+  ) => {
     try {
       await callApi(details);
     } catch (error) {
@@ -206,8 +234,10 @@ export const useDeleteConsultancyApplicant = (id: string) => {
 export const useGetAllConsultancyStaffs = useGetAllConsultancyApplicants;
 export const useGetAllConsultancyStaffsQuery = useGetAllConsultancyApplicants;
 export const useGetSingleConsultancyStaff = useGetSingleConsultancyApplicant;
-export const useGetSingleConsultancyStaffQuery = useGetSingleConsultancyApplicant;
+export const useGetSingleConsultancyStaffQuery =
+  useGetSingleConsultancyApplicant;
 export const useCreateConsultancyStaffMutation = useCreateConsultancyApplicant;
-export const useCreateExistingApplicantStaffMutation = useCreateExistingConsultancyApplicant;
+export const useCreateExistingApplicantStaffMutation =
+  useCreateExistingConsultancyApplicant;
 export const useModifyConsultancyStaffMutation = useUpdateConsultancyApplicant;
 export const useDeleteConsultancyStaffMutation = useDeleteConsultancyApplicant;
