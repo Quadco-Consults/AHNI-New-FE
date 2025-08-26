@@ -286,7 +286,7 @@ export const RouteEnum = {
     "/dashboard/procurement-management/vendor-management/prequalification/:id/start-prequalification",
 
   //purchase order routes
-  PURCHASE_ORDER: "/dashboard/procurement-management/purchase-order",
+  // PURCHASE_ORDER: "/dashboard/procurement-management/purchase-order",
   PURCHASE_ORDER_ID: "/dashboard/procurement-management/purchase-order/:id",
   PURCHASE_ORDER_ID_TERMS:
     "/dashboard/procurement-management/purchase-order/:id/terms-and-conditions",

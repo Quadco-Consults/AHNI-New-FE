@@ -34,21 +34,21 @@ const PurchaseOrder = () => {
   const { data } = useGetAllPurchaseOrders({ page: 1, size: 20 });
 
   return (
-    <div className="space-y-10">
+    <div className='space-y-10'>
       <BreadcrumbCard list={breadcrumbs} />
-      <div className="flex justify-end">
-        <Link href="/dashboard/procurement/purchase-order/new">
-          <Button className="flex py-6 items-center gap-x-3">
-            <p className="flex h-[20.5px] w-[20.5px] items-center justify-center rounded  bg-white/30">
+      <div className='flex justify-end'>
+        <Link href='/dashboard/procurement/purchase-order/create'>
+          <Button className='flex py-6 items-center gap-x-3'>
+            <p className='flex h-[20.5px] w-[20.5px] items-center justify-center rounded  bg-white/30'>
               <PlusIcon size={14} />
             </p>
             New Purchase Order
           </Button>
         </Link>
       </div>
-      <Card className="space-y-5">
+      <Card className='space-y-5'>
         <div>
-          <Input type="Search" placeholder="search" className="w-[30%]" />
+          <Input type='Search' placeholder='search' className='w-[30%]' />
         </div>
 
         <DataTable data={data?.data?.results || []} columns={columns} />
@@ -126,7 +126,7 @@ const columns: ColumnDef<IPurchaseOrderPaginatedData>[] = [
 ];
 const ActionListAction = ({ data }: any) => {
   return (
-    <div className="flex gap-2">
+    <div className='flex gap-2'>
       <DropdownMenu>
         <DropdownMenuTrigger>
           <IconButton>
@@ -134,10 +134,8 @@ const ActionListAction = ({ data }: any) => {
           </IconButton>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <Link
-            href={`/dashboard/procurement/purchase-order/${data.id}`}
-          >
-            <DropdownMenuItem key="print" className="flex gap-2">
+          <Link href={`/dashboard/procurement/purchase-order/${data.id}`}>
+            <DropdownMenuItem key='print' className='flex gap-2'>
               <EyeIcon /> View
             </DropdownMenuItem>
           </Link>

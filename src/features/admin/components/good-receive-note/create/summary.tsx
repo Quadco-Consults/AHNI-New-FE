@@ -74,18 +74,18 @@ export default function CreateGoodReceiveNote() {
     control: form.control,
     name: "items",
   });
-  console.log({ form: form.getValues() });
 
   const onSubmit: SubmitHandler<TGoodReceiveNoteFormValues> = async (data) => {
-    console.log({ data });
     try {
       // Transform the data to match backend expectations
       const transformedData = {
         ...data,
-        grn_items: data.items?.map(item => ({
+        grn_items: data.items?.map((item) => ({
           ...item,
           purchase_order_item: item.item_id, // Backend expects 'purchase_order_item' instead of 'item_id'
+          received_quantity: item.quantity_received, // Backend expects 'received_quantity' instead of 'quantity_received'
           item_id: undefined, // Remove the original 'item_id' field
+          quantity_received: undefined, // Remove the original 'quantity_received' field
         })),
         items: undefined, // Remove the original 'items' field
       };

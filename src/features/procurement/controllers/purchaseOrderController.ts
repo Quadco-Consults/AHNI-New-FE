@@ -3,12 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
 import { z } from "zod";
-import { PurchaseOrderSchema } from "definations/procurement-validator";
+// import { PurchaseOrderSchema } from "definations/procurement-validator";
 import {
   IPurchaseOrderPaginatedData,
   IPurchaseOrderSingleData,
 } from "../types/purchase-order";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
+import { PurchaseOrderSchema } from "../types/procurement-validator";
 
 const BASE_URL = "/procurements/purchase-order/";
 
@@ -32,7 +33,9 @@ export const useGetAllPurchaseOrders = ({
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled,
@@ -41,7 +44,10 @@ export const useGetAllPurchaseOrders = ({
 };
 
 // Get Single Purchase Order
-export const useGetSinglePurchaseOrder = (id: string, enabled: boolean = true) => {
+export const useGetSinglePurchaseOrder = (
+  id: string,
+  enabled: boolean = true
+) => {
   return useQuery<TResponse<IPurchaseOrderSingleData>>({
     queryKey: ["purchase-order", id],
     queryFn: async () => {
@@ -50,7 +56,9 @@ export const useGetSinglePurchaseOrder = (id: string, enabled: boolean = true) =
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled && !!id,
@@ -71,9 +79,12 @@ export const useCreatePurchaseOrder = () => {
     method: "POST",
   });
 
-  const createPurchaseOrder = async (details: z.infer<typeof PurchaseOrderSchema>) => {
+  const createPurchaseOrder = async (
+    details: z.infer<typeof PurchaseOrderSchema>
+  ) => {
     try {
-      await callApi(details);
+      const res = await callApi(details);
+      return res;
     } catch (error) {
       console.error("Purchase order create error:", error);
     }
