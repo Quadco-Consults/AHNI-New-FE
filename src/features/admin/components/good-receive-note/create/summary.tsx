@@ -6,19 +6,15 @@ import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelect";
 import FormTextArea from "components/atoms/FormTextArea";
 import Card from "components/Card";
-import GoBack from "components/GoBack";
 import { Form } from "components/ui/form";
-import { Input } from "components/ui/input";
-import { Label } from "components/ui/label";
-import { AdminRoutes } from "constants/RouterConstants";
 import {
   GoodReceiveNoteSchema,
   TGoodReceiveNoteFormValues,
 } from "features/admin/types/inventory-management/good-receive-note";
 import { useEffect, useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
-import { useSearchParams } from "next/navigation"; 
+
+import { useSearchParams } from "next/navigation";
 import {
   useCreateGoodReceiveNote,
   useGetSingleGoodReceiveNote,
@@ -42,9 +38,8 @@ export default function CreateGoodReceiveNote() {
     },
   });
 
-  const router = useRouter();
-
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams();
+  // @ts-ignore
   const id = searchParams.get("id");
 
   const { data: purchaseOrder } = useGetAllPurchaseOrders({
@@ -54,6 +49,7 @@ export default function CreateGoodReceiveNote() {
 
   const purchaseOrderOptions = useMemo(
     () =>
+      // @ts-ignore
       purchaseOrder?.data.results.map(({ purchase_order_number, id }) => ({
         label: purchase_order_number,
         value: id,
@@ -64,21 +60,21 @@ export default function CreateGoodReceiveNote() {
   const purchaseOrderId = form.watch("purchase_order");
 
   const { data: singlePurchaseOrder } = useGetSinglePurchaseOrder(
-    purchaseOrderId || "", { enabled: !!purchaseOrderId }
+    purchaseOrderId || ""
   );
 
   const { createGoodReceiveNote, isLoading: isCreateLoading } =
     useCreateGoodReceiveNote();
 
   const { modifyGoodReceiveNote, isLoading: isModifyLoading } =
-    useModifyGoodReceiveNote();
+    useModifyGoodReceiveNote(id!);
 
   const onSubmit: SubmitHandler<TGoodReceiveNoteFormValues> = async (data) => {
     try {
       console.log({ data });
 
       if (id) {
-        await modifyGoodReceiveNote({ id, body: data });
+        await modifyGoodReceiveNote(data);
         toast.success("Good Received Note Updated");
       } else {
         await createGoodReceiveNote(data);
@@ -93,7 +89,7 @@ export default function CreateGoodReceiveNote() {
     }
   };
 
-  const { data: goodNote } = useGetSingleGoodReceiveNote(id || "", { enabled: !!id });
+  const { data: goodNote } = useGetSingleGoodReceiveNote(id || "");
 
   useEffect(() => {
     if (goodNote) {
@@ -104,7 +100,7 @@ export default function CreateGoodReceiveNote() {
         remark: goodNote.data.remark,
       });
     }
-  }, [goodNote, purchaseOrder]);
+  }, [goodNote, purchaseOrder, form]);
 
   return (
     <GoodReceiveNoteLayout>
