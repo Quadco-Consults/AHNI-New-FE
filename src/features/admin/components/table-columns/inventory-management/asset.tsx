@@ -12,6 +12,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useDeleteAsset } from "@/features/admin/controllers/assetController";
 import { toast } from "sonner";
+import { DeleteItemManager } from "@/features/modules/controllers";
 
 export const assetColumn: ColumnDef<TAssetPaginatedData>[] = [
   {
@@ -30,7 +31,7 @@ export const assetColumn: ColumnDef<TAssetPaginatedData>[] = [
   {
     header: "Classification",
     id: "classification",
-    accessorKey: "classification",
+    accessorKey: "classification.name",
     size: 200,
   },
 
@@ -68,31 +69,31 @@ export const assetColumn: ColumnDef<TAssetPaginatedData>[] = [
   {
     header: "Project",
     id: "project",
-    accessorKey: "project",
+    accessorKey: "project.title",
   },
 
   {
     header: "Donor",
     id: "donor",
-    accessorKey: "donor",
+    accessorKey: "donor.name",
   },
 
   {
     header: "Assignee",
     id: "assignee",
-    accessorKey: "assignee",
+    accessorKey: "assignee.full_name",
   },
 
   {
     header: "Asset Condition",
     id: "asset_condition",
-    accessorKey: "asset_condition",
+    accessorKey: "asset_condition.name",
   },
 
   {
     header: "Location",
     id: "location",
-    accessorKey: "location",
+    accessorKey: "location.name",
   },
 
   {
@@ -105,11 +106,13 @@ export const assetColumn: ColumnDef<TAssetPaginatedData>[] = [
 const TableAction = ({ id }: TAssetPaginatedData) => {
   const [isDialogOpen, setDialogOpen] = useState(false);
 
-  const { deleteAsset, isLoading } = useDeleteAsset(id);
+  const { deleteItem, isLoading } = DeleteItemManager();
 
   const handleDeleteAsset = async () => {
     try {
-      deleteAsset();
+      deleteItem(id);
+      toast.success("Asset Deleted");
+      setDialogOpen(false);
     } catch (error: any) {
       toast.error(error?.data?.message ?? "Something wrong");
     }
@@ -127,7 +130,7 @@ const TableAction = ({ id }: TAssetPaginatedData) => {
           <div className='flex flex-col items-start justify-between gap-1'>
             <Link
               href={{
-                pathname: AdminRoutes.ViewAssets,
+                pathname: AdminRoutes.VIEW_ASSETS,
                 search: `?id=${id}`,
               }}
             >
@@ -141,7 +144,7 @@ const TableAction = ({ id }: TAssetPaginatedData) => {
             </Link>
             <Link
               href={{
-                pathname: AdminRoutes.CreateAssets,
+                pathname: AdminRoutes.CREATE_ASSETS,
                 search: `?id=${id}`,
               }}
             >
