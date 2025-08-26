@@ -133,7 +133,7 @@ export default function CreateFacilityManagementTicket() {
             }
             router.push(AdminRoutes.INDEX_FACILITY_MAINTENANCE);
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error?.data?.message ?? "Something went wrong");
         }
     };
 

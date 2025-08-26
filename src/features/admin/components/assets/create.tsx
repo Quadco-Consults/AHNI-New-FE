@@ -257,7 +257,7 @@ export default function CreateAsset() {
 
       router.push(AdminRoutes.ASSETS);
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
+      toast.error(error?.data?.message ?? "Something went wrong");
     }
   };
   console.log(form.getValues());
