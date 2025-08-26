@@ -97,11 +97,11 @@ const TableMenu = ({ data }: { data: FundRequestPaginatedData }) => {
 
   const { id } = useParams();
 
-  const [deleteFundRequest, { isLoading }] = useDeleteFundRequest();
+  const { deleteFundRequest, isLoading } = useDeleteFundRequest(data?.id);
 
   const handleDeleteFundRequest = async () => {
     try {
-      await deleteFundRequest(data.id);
+      await deleteFundRequest();
       toast.success("Fund Request Deleted");
       setDialogOpen(false);
     } catch (error: any) {
@@ -113,7 +113,10 @@ const TableMenu = ({ data }: { data: FundRequestPaginatedData }) => {
     <div>
       <Link
         href={{
-          pathname: RouteEnum.PROGRAM_FUND_REQUEST_VIEW_ACTIVITY.replace(":id", id as string),
+          pathname: RouteEnum.PROGRAM_FUND_REQUEST_VIEW_ACTIVITY.replace(
+            ":id",
+            id as string
+          ),
           search: `?fundRequestId=${data?.id}`,
         }}
       >

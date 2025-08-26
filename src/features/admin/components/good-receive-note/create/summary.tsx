@@ -12,7 +12,7 @@ import {
   TGoodReceiveNoteFormValues,
 } from "features/admin/types/inventory-management/good-receive-note";
 import { useEffect, useMemo } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useForm, useFieldArray } from "react-hook-form";
 
 import { useSearchParams } from "next/navigation";
 import {
@@ -35,6 +35,7 @@ export default function CreateGoodReceiveNote() {
       invoice_number: "",
       waybill_number: "",
       remark: "",
+      items: [],
     },
   });
 
@@ -69,23 +70,37 @@ export default function CreateGoodReceiveNote() {
   const { modifyGoodReceiveNote, isLoading: isModifyLoading } =
     useModifyGoodReceiveNote(id!);
 
+  const { fields, replace } = useFieldArray({
+    control: form.control,
+    name: "items",
+  });
+  console.log({ form: form.getValues() });
+
   const onSubmit: SubmitHandler<TGoodReceiveNoteFormValues> = async (data) => {
+    console.log({ data });
     try {
-      console.log({ data });
+      // Transform the data to match backend expectations
+      const transformedData = {
+        ...data,
+        grn_items: data.items?.map(item => ({
+          ...item,
+          purchase_order_item: item.item_id, // Backend expects 'purchase_order_item' instead of 'item_id'
+          item_id: undefined, // Remove the original 'item_id' field
+        })),
+        items: undefined, // Remove the original 'items' field
+      };
 
       if (id) {
-        await modifyGoodReceiveNote(data);
+        await modifyGoodReceiveNote(transformedData);
         toast.success("Good Received Note Updated");
       } else {
-        await createGoodReceiveNote(data);
+        await createGoodReceiveNote(transformedData);
         toast.success("Good Received Note Created");
       }
 
       // router.push(AdminRoutes.GRN_CREATE_UPLOADS);
-
-      toast.success("Good Received Note Created");
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
+      toast.error(error?.data?.message ?? "Something went wrong");
     }
   };
 
@@ -101,6 +116,21 @@ export default function CreateGoodReceiveNote() {
       });
     }
   }, [goodNote, purchaseOrder, form]);
+
+  // Populate items array when purchase order is selected
+  useEffect(() => {
+    if (singlePurchaseOrder?.data?.purchase_order_items) {
+      const items = singlePurchaseOrder.data.purchase_order_items.map(
+        (item: any) => ({
+          item_id: item.id,
+          quantity_ordered: String(item.quantity),
+          quantity_received: "",
+          comment: "",
+        })
+      );
+      replace(items);
+    }
+  }, [singlePurchaseOrder, replace]);
 
   return (
     <GoodReceiveNoteLayout>
@@ -120,33 +150,41 @@ export default function CreateGoodReceiveNote() {
                 <h3 className='font-bold text-xl'>Description of Goods</h3>
               )}
 
-              {singlePurchaseOrder?.data?.purchase_order_items?.map(
-                ({ id, item_detail, quantity }) => (
-                  <div key={id} className='grid grid-cols-4 gap-6 items-center'>
-                    <span className='font-medium'>{item_detail?.name}</span>
+              {fields.map((field, index) => {
+                const purchaseOrderItem =
+                  singlePurchaseOrder?.data?.purchase_order_items?.[index];
+                return (
+                  <div
+                    key={field.id}
+                    className='grid grid-cols-4 gap-6 items-center'
+                  >
+                    <span className='font-medium'>
+                      {purchaseOrderItem?.item_detail?.name ||
+                        purchaseOrderItem?.description}
+                    </span>
 
                     <FormInput
                       label='Quantity Ordered'
-                      name='_'
-                      placeholder={String(quantity)}
+                      name={`items.${index}.quantity_ordered`}
                       disabled
                     />
 
                     <FormInput
                       label='Quantity Received'
-                      name='_'
+                      name={`items.${index}.quantity_received`}
                       placeholder='Enter Quantity Received'
+                      required
                     />
 
                     <FormInput
                       label='Comment'
-                      name='_'
+                      name={`items.${index}.comment`}
                       placeholder='Enter Comment'
                       required
                     />
                   </div>
-                )
-              )}
+                );
+              })}
 
               <FormInput
                 label='Invoice Number'
@@ -171,7 +209,9 @@ export default function CreateGoodReceiveNote() {
               <div className='flex justify-end'>
                 <FormButton
                   size='lg'
+                  type='submit'
                   loading={isCreateLoading || isModifyLoading}
+                  disabled={isCreateLoading || isModifyLoading}
                 >
                   Next
                 </FormButton>
