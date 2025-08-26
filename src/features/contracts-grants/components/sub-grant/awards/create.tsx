@@ -142,7 +142,7 @@ export default function CreateSubGrant() {
 
             router.push(CG_ROUTES.SUBGRANT_ADVERT);
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error?.data?.message ?? "Something went wrong");
         }
     };
 

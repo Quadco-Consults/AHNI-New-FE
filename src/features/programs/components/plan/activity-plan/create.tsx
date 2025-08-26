@@ -119,7 +119,7 @@ export default function CreateActivityPlan() {
 
             router.push(RouteEnum.PROGRAM_ACTIVITY);
         } catch (error: any) {
-            toast.error(error.data.message || "Something went wrong");
+            toast.error(error?.data?.message ?? "Something went wrong");
         }
     };
 

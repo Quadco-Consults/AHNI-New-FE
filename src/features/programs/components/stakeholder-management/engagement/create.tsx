@@ -193,7 +193,7 @@ const CreateEngagement = () => {
       // router.push(RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN);
       goBack();
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
+      toast.error(error?.data?.message ?? "Something went wrong");
     }
   };
 

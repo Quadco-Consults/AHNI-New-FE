@@ -178,7 +178,7 @@ export default function CreateExpenseAuthorization() {
 
       router.push(AdminRoutes.EXPENSE_AUTHORIZATION);
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
+      toast.error(error?.data?.message ?? "Something went wrong");
     }
   };
 
