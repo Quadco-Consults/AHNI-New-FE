@@ -125,7 +125,7 @@ export default function CreateContractRequest() {
 
       //   router.push(CG_ROUTES.ContractRequest);
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
+      toast.error(error?.data?.message ?? "Something went wrong");
     }
   };
 

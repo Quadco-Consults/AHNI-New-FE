@@ -117,7 +117,7 @@ export default function CreateAssetMaintenance() {
             toast.success("Asset Maintenance Ticket Raised");
             router.push(AdminRoutes.INDEX_ASSET_MAINTENANCE);
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error?.data?.message ?? "Something went wrong");
         }
     };
 

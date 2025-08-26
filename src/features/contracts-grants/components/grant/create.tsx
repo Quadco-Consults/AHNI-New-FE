@@ -77,7 +77,7 @@ export default function CreateGrant() {
 
       router.push(CG_ROUTES.GRANT);
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
+      toast.error(error?.data?.message ?? "Something went wrong");
     }
   };
 

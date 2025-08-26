@@ -116,7 +116,7 @@ export default function CreateVehicleMaintenance() {
 
             router.push(AdminRoutes.INDEX_VEHICLE_MAINTENANCE);
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error?.data?.message ?? "Something went wrong");
         }
     };
 

@@ -1,12 +1,10 @@
 import { ColumnDef } from "@tanstack/react-table";
 
-import { AdminRoutes } from "constants/RouterConstants";
-
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 
 import { toast } from "sonner";
 import { Badge } from "components/ui/badge";
-import { TConsumablePaginatedData } from "definations/admin/inventory-management/consumable";
+// import { TConsumablePaginatedData } from "definations/admin/inventory-management/consumable";
 import { Button } from "components/ui/button";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import Link from "next/link";
@@ -14,9 +12,10 @@ import EyeIcon from "components/icons/EyeIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import EditIcon from "components/icons/EditIcon";
 import ConfirmationDialog from "components/ConfirmationDialog";
-import { format, formatDate } from "date-fns";
+import { formatDate } from "date-fns";
 import { useState } from "react";
-import { useDeleteConsumable } from "@/features/admin/controllers/consumableController";
+import { DeleteItemManager } from "@/features/modules/controllers";
+import { TConsumablePaginatedData } from "@/features/admin/types/inventory-management/consumable";
 
 export const consumableColums: ColumnDef<TConsumablePaginatedData>[] = [
   {
@@ -77,11 +76,11 @@ export const consumableColums: ColumnDef<TConsumablePaginatedData>[] = [
 const TableAction = ({ id }: TConsumablePaginatedData) => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const { deleteConsumable, isLoading } = useDeleteConsumable();
+  const { deleteItem, isLoading } = DeleteItemManager();
 
   const handleDeleteConsumable = async () => {
     try {
-      await deleteConsumable(id);
+      await deleteItem(id);
       toast.success("Consumable Deleted");
       setDialogOpen(false);
     } catch (error: any) {

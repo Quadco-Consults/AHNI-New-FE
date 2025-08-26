@@ -117,7 +117,7 @@ const CreateRegister = () => {
         "/dashboard/programs/stakeholder-management/stakeholder-register"
       );
     } catch (error: any) {
-      toast.error(error.data.message || "Something went wrong");
+      toast.error(error?.data?.message ?? "Something went wrong");
     }
   };
 

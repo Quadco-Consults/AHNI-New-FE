@@ -104,8 +104,8 @@ export const AdminRoutes = {
   ITEM_REQUISITION: "/dashboard/admin/inventory-management/item-requisition",
   ITEM_REQUISITION_DETAIL:
     "/dashboard/admin/inventory-management/item-requisition/:id",
-  CREATE_ITEM_REQUISITION:
-    "/dashboard/admin/inventory-management/item-requisition/create",
+  CREATE_ITEM_REQUISITION: "/dashboard/admin/item-requisition/create",
+  // "/dashboard/admin/inventory-management/item-requisition/create",
 
   INVENTORY_ASSETS: "/dashboard/admin/inventory-management/assets",
 

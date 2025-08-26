@@ -146,7 +146,7 @@ export default function CreateActivityTracker() {
       toast.success("Activity Tracker Updated");
       router.push(RouteEnum.PROGRAM_ACTIVITY_TRACKER);
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
+      toast.error(error?.data?.message ?? "Something went wrong");
     }
   };
 
