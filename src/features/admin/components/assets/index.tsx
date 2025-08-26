@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import Card from "@/components/Card";
-import { useGetAllAssetsQuery } from "@/features/admin/controllers/assetController";
 import { useState } from "react";
 import { assetColumn } from "@/features/admin/components/table-columns/inventory-management/asset";
 import { useGetAllItemsQuery } from "@/features/modules/controllers/config/itemController";
@@ -20,12 +19,11 @@ export default function AssetHomePage() {
     search: "",
     category: "17ca9ee7-603a-43a9-91e8-979652a8231c",
   });
-  console.log({ asse: asset?.data });
 
   return (
     <div className='space-y-5'>
       <div className='flex justify-end'>
-        <Link href="/dashboard/admin/assets/create">
+        <Link href='/dashboard/admin/assets/create'>
           <Button>
             <Plus size={20} />
             Create Asset

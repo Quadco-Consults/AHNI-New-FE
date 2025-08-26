@@ -10,264 +10,267 @@ import GoBack from "components/GoBack";
 import { Form } from "components/ui/form";
 import { AdminRoutes } from "constants/RouterConstants";
 import {
-    AssetRequestSchema,
-    TAssetRequestFormValues,
+  AssetRequestSchema,
+  TAssetRequestFormValues,
 } from "features/admin/types/inventory-management/asset-request";
 import { useEffect, useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useGetAllAssetsQuery } from "@/features/admin/controllers/assetController";
 import {
-    useCreateAssetRequestMutation,
-    useEditAssetRequestMutation,
-    useGetSingleAssetRequestQuery,
+  useCreateAssetRequestMutation,
+  useEditAssetRequestMutation,
+  useGetSingleAssetRequestQuery,
 } from "@/features/admin/controllers/assetRequestController";
 import { useGetAllUsersQuery } from "@/features/auth/controllers/userController";
 import { toast } from "sonner";
 import AssetRequestLayout from "./Layout";
 import { useGetAllLocationsQuery } from "@/features/modules/controllers/config/locationController";
+import { useGetAllItemsQuery } from "@/features/modules/controllers";
 
 export default function CreateAssetRequestDetails() {
-    const { data: asset } = useGetAllAssetsQuery({
-        page: 1,
-        size: 2000000,
-    });
+  const { data: asset } = useGetAllItemsQuery({
+    page: 1,
+    size: 20000000,
+    search: "",
+    category: "17ca9ee7-603a-43a9-91e8-979652a8231c",
+  });
 
-    const { data: user } = useGetAllUsersQuery({
-        page: 1,
-        size: 2000000,
-    });
+  const { data: user } = useGetAllUsersQuery({
+    page: 1,
+    size: 2000000,
+  });
 
-    const assetOptions = useMemo(
-        () =>
-            asset?.data.results.map(({ name, id }) => ({
-                label: name,
-                value: id,
-            })),
-        [asset]
-    );
+  const assetOptions = useMemo(
+    () =>
+      // @ts-ignore
+      asset?.data.results.map(({ name, id }) => ({
+        label: name,
+        value: id,
+      })),
+    [asset]
+  );
 
-    const userOptions = useMemo(
-        () =>
-            user?.data.results.map(({ first_name, last_name, id }) => ({
-                label: `${first_name} ${last_name}`,
-                value: id,
-            })),
-        [user]
-    );
+  const userOptions = useMemo(
+    () =>
+      // @ts-ignore
+      user?.data.results.map(({ first_name, last_name, id }) => ({
+        label: `${first_name} ${last_name}`,
+        value: id,
+      })),
+    [user]
+  );
 
-    const router = useRouter();
-    const pathname = usePathname();
+  const router = useRouter();
+  const pathname = usePathname();
 
-    const form = useForm<TAssetRequestFormValues>({
-        resolver: zodResolver(AssetRequestSchema),
-        defaultValues: {
-            asset: "",
-            reviewer: "",
-            authorizer: "",
-            approver: "",
-            type: "",
-            recommendation: "",
-            description: "",
-        },
-    });
+  const form = useForm<TAssetRequestFormValues>({
+    resolver: zodResolver(AssetRequestSchema),
+    defaultValues: {
+      asset: "",
+      reviewer: "",
+      authorizer: "",
+      approver: "",
+      type: "",
+      recommendation: "",
+      description: "",
+    },
+  });
 
-    const [searchParams] = useSearchParams();
-    const id = searchParams.get("id");
+  const searchParams = useSearchParams();
+  // @ts-ignore
+  const id = searchParams.get("id");
 
-    const { data: assetRequest } = useGetSingleAssetRequestQuery(
-        id || "", !!id
-    );
+  const { data: assetRequest } = useGetSingleAssetRequestQuery(id || "", !!id);
 
-    const { data: location } = useGetAllLocationsQuery({
-        page: 1,
-        size: 2000000,
-    });
+  const { data: location } = useGetAllLocationsQuery({
+    page: 1,
+    size: 2000000,
+  });
 
-    const locationOptions = useMemo(
-        () =>
-            location?.data.results.map(({ name, id }) => ({
-                label: name,
-                value: id,
-            })),
-        [location]
-    );
+  const locationOptions = useMemo(
+    () =>
+      // @ts-ignore
+      location?.data.results.map(({ name, id }) => ({
+        label: name,
+        value: id,
+      })),
+    [location]
+  );
 
-    const [editAssetRequest, { isLoading: isEditLoading }] =
-        useEditAssetRequestMutation();
+  const { editAssetRequest, isLoading: isEditLoading } =
+    useEditAssetRequestMutation(id!);
 
-    const [createAssetRequest, { isLoading: isCreateLoading }] =
-        useCreateAssetRequestMutation();
+  const { createAssetRequest, isLoading: isCreateLoading } =
+    useCreateAssetRequestMutation();
 
-    const onSubmit: SubmitHandler<TAssetRequestFormValues> = async (data) => {
-        let newAssetRequestId;
+  const onSubmit: SubmitHandler<TAssetRequestFormValues> = async (data) => {
+    let newAssetRequestId;
 
-        try {
-            if (id) {
-                await editAssetRequest({ id, body: data }).unwrap();
-                toast.success("Asset Request Updated");
-            } else {
-                let response = await createAssetRequest(data).unwrap();
-                newAssetRequestId = response.data.id;
-                toast.success("Asset Request Created");
-            }
+    try {
+      if (id) {
+        await editAssetRequest(data);
+        toast.success("Asset Request Updated");
+      } else {
+        let response = await createAssetRequest(data);
+        // @ts-ignore
+        newAssetRequestId = response.data.id;
+        toast.success("Asset Request Created");
+      }
 
-            if (form.watch("type") === "DISPOSAL") {
-                let path = pathname;
+      if (form.watch("type") === "DISPOSAL") {
+        let path = pathname;
+        // @ts-ignore
+        path = path.substring(0, path.lastIndexOf("/"));
 
-                path = path.substring(0, path.lastIndexOf("/"));
+        path += `/uploads?id=${id ?? newAssetRequestId}`;
 
-                path += `/uploads?id=${id ?? newAssetRequestId}`;
+        router.push(path);
+        return;
+      }
 
-                router.push(path);
-                return;
-            }
+      router.push(AdminRoutes.ASSETS_REQUEST);
+    } catch (error: any) {
+      toast.error(error.data.message ?? "Something went wrong");
+    }
+  };
 
-            router.push(AdminRoutes.ASSETS_REQUEST);
-        } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
-        }
-    };
+  console.log({ fs: form.getValues() });
 
-    useEffect(() => {
-        if (assetRequest) {
-            form.reset({
-                asset: assetRequest?.data.asset.id,
-                type: assetRequest?.data.type,
-                recommendation: assetRequest?.data.recommendation,
-                description: assetRequest?.data.description,
-                disposal_justification:
-                    assetRequest?.data.disposal_justification,
-                from_location: assetRequest?.data.from_location.id,
-                to_location: assetRequest?.data.to_location.id,
-            });
-        }
-    }, [assetRequest]);
+  useEffect(() => {
+    if (assetRequest) {
+      form.reset({
+        asset: assetRequest?.data.asset.id,
+        type: assetRequest?.data.type,
+        recommendation: assetRequest?.data.recommendation,
+        description: assetRequest?.data.description,
+        disposal_justification: assetRequest?.data.disposal_justification,
+        from_location: assetRequest?.data.from_location.id,
+        to_location: assetRequest?.data.to_location.id,
+      });
+    }
+  }, [assetRequest, form]);
 
-    const requestType = form.watch("type");
+  const requestType = form.watch("type");
 
-    return (
-        <AssetRequestLayout>
-            <div className="space-y-6">
-                <div className="flex items-center gap-x-5">
-                    <GoBack />
-                    <h4 className="text-xl font-bold">Asset Request</h4>
+  return (
+    <AssetRequestLayout>
+      <div className='space-y-6'>
+        <div className='flex items-center gap-x-5'>
+          <GoBack />
+          <h4 className='text-xl font-bold'>Asset Request</h4>
+        </div>
+        <Card>
+          <Form {...form}>
+            <form className='space-y-6' onSubmit={form.handleSubmit(onSubmit)}>
+              <div className='grid grid-cols-2 gap-10'>
+                <FormSelect
+                  label='Asset'
+                  name='asset'
+                  required
+                  placeholder='Select Asset'
+                  options={assetOptions}
+                />
+
+                <FormSelect
+                  label='Request Type'
+                  name='type'
+                  placeholder='Select Request Type'
+                  required
+                  options={[
+                    {
+                      label: "Movement",
+                      value: "MOVEMENT",
+                    },
+                    {
+                      label: "Disposal",
+                      value: "DISPOSAL",
+                    },
+                  ]}
+                />
+              </div>
+
+              {requestType === "MOVEMENT" && (
+                <div className='grid grid-cols-2 gap-10'>
+                  <FormSelect
+                    label='From'
+                    name='from_location'
+                    id='from_location'
+                    placeholder='Select Location'
+                    required
+                    options={locationOptions}
+                  />
+
+                  <FormSelect
+                    label='To'
+                    name='to_location'
+                    id='to_location'
+                    placeholder='Select Location'
+                    required
+                    options={locationOptions}
+                  />
                 </div>
-                <Card>
-                    <Form {...form}>
-                        <form
-                            className="space-y-6"
-                            onSubmit={form.handleSubmit(onSubmit)}
-                        >
-                            <div className="grid grid-cols-2 gap-10">
-                                <FormSelect
-                                    label="Asset"
-                                    name="asset"
-                                    required
-                                    placeholder="Select Asset"
-                                    options={assetOptions}
-                                />
+              )}
 
-                                <FormSelect
-                                    label="Request Type"
-                                    name="type"
-                                    placeholder="Select Request Type"
-                                    required
-                                    options={[
-                                        {
-                                            label: "Movement",
-                                            value: "MOVEMENT",
-                                        },
-                                        {
-                                            label: "Disposal",
-                                            value: "DISPOSAL",
-                                        },
-                                    ]}
-                                />
-                            </div>
+              <FormInput
+                label='Recommendation'
+                name='recommendation'
+                placeholder='Enter Recommendation'
+                required
+              />
 
-                            {requestType === "MOVEMENT" && (
-                                <div className="grid grid-cols-2 gap-10">
-                                    <FormSelect
-                                        label="From"
-                                        name="from_location"
-                                        id="from_location"
-                                        placeholder="Select Location"
-                                        required
-                                        options={locationOptions}
-                                    />
+              <FormTextArea
+                label='Description'
+                name='description'
+                placeholder='Enter Description'
+                required
+              />
 
-                                    <FormSelect
-                                        label="To"
-                                        name="to_location"
-                                        id="to_location"
-                                        placeholder="Select Location"
-                                        required
-                                        options={locationOptions}
-                                    />
-                                </div>
-                            )}
+              <div className='grid grid-cols-2 gap-10'>
+                <FormInput
+                  label='Justification'
+                  name='disposal_justification'
+                  placeholder='Enter Justification'
+                  required
+                />
 
-                            <FormInput
-                                label="Recommendation"
-                                name="recommendation"
-                                placeholder="Enter Recommendation"
-                                required
-                            />
+                <FormSelect
+                  label='Reviewer'
+                  name='reviewer'
+                  required
+                  placeholder='Select Reviewer'
+                  options={userOptions}
+                />
 
-                            <FormTextArea
-                                label="Description"
-                                name="description"
-                                placeholder="Enter Description"
-                                required
-                            />
+                <FormSelect
+                  label='Authorizer'
+                  name='authorizer'
+                  required
+                  placeholder='Select Authorizer'
+                  options={userOptions}
+                />
 
-                            <div className="grid grid-cols-2 gap-10">
-                                <FormInput
-                                    label="Justification"
-                                    name="disposal_justification"
-                                    placeholder="Enter Justification"
-                                    required
-                                />
+                <FormSelect
+                  label='Approver'
+                  name='approver'
+                  required
+                  placeholder='Select Approver'
+                  options={userOptions}
+                />
+              </div>
 
-                                <FormSelect
-                                    label="Reviewer"
-                                    name="reviewer"
-                                    required
-                                    placeholder="Select Reviewer"
-                                    options={userOptions}
-                                />
-
-                                <FormSelect
-                                    label="Authorizer"
-                                    name="authorizer"
-                                    required
-                                    placeholder="Select Authorizer"
-                                    options={userOptions}
-                                />
-
-                                <FormSelect
-                                    label="Approver"
-                                    name="approver"
-                                    required
-                                    placeholder="Select Approver"
-                                    options={userOptions}
-                                />
-                            </div>
-
-                            <div className="flex justify-end">
-                                <FormButton
-                                    type="submit"
-                                    size="lg"
-                                    loading={isCreateLoading || isEditLoading}
-                                >
-                                    Submit
-                                </FormButton>
-                            </div>
-                        </form>
-                    </Form>
-                </Card>
-            </div>
-        </AssetRequestLayout>
-    );
+              <div className='flex justify-end'>
+                <FormButton
+                  type='submit'
+                  size='lg'
+                  loading={isCreateLoading || isEditLoading}
+                >
+                  Submit
+                </FormButton>
+              </div>
+            </form>
+          </Form>
+        </Card>
+      </div>
+    </AssetRequestLayout>
+  );
 }
