@@ -114,7 +114,7 @@ export default function CreateConsultancyReport() {
 
             router.push(CG_ROUTES.CONSULTANCY_REPORT);
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error?.data?.message ?? "Something went wrong");
         }
     };
 

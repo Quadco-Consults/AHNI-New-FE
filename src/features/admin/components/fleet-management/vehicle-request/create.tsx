@@ -143,7 +143,7 @@ const NewVehicleRequest = () => {
 
             router.push(AdminRoutes.INDEX_VEHICLE_REQUEST);
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error?.data?.message ?? "Something went wrong");
         }
     };
 

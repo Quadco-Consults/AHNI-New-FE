@@ -1,28 +1,21 @@
 import useApiManager from "@/constants/mainController";
 import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
-import { 
-  ItemData, 
-  ItemFormValues 
-} from "../../types/config";
-import { 
-  FilterParams,
-  TPaginatedResponse,
-  TResponse
-} from "../../types";
+import { ItemData, ItemFormValues } from "../../types/config";
+import { FilterParams, TPaginatedResponse, TResponse } from "../../types";
 
 // GET Operations (Queries)
-export const useGetAllItemsManager = ({ 
-  page = 1, 
-  size = 20, 
+export const useGetAllItemsManager = ({
+  page = 1,
+  size = 20,
   search = "",
-  enabled = true 
+  enabled = true,
 }: FilterParams & { enabled?: boolean } = {}) => {
   return useQuery<TPaginatedResponse<ItemData>>({
     queryKey: ["items", page, size, search],
     queryFn: async () => {
       const response = await AxiosWithToken.get("/config/items/", {
-        params: { page, size, search }
+        params: { page, size, search },
       });
       return response.data;
     },
@@ -32,7 +25,10 @@ export const useGetAllItemsManager = ({
 };
 
 // GET Single Item
-export const useGetSingleItemManager = (id: string, enabled: boolean = true) => {
+export const useGetSingleItemManager = (
+  id: string,
+  enabled: boolean = true
+) => {
   return useQuery<TResponse<ItemData>>({
     queryKey: ["item", id],
     queryFn: async () => {
@@ -58,6 +54,8 @@ export const CreateItemManager = () => {
   });
 
   const createItem = async (details: ItemFormValues) => {
+    console.log("det", { details });
+
     try {
       await callApi(details);
     } catch (error) {
@@ -69,22 +67,21 @@ export const CreateItemManager = () => {
 };
 
 // UPDATE Operations (Mutations)
-export const UpdateItemManager = () => {
+export const UpdateItemManager = (id: string) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     ItemData,
     Error,
     ItemFormValues
   >({
-    endpoint: "/config/items/",
+    endpoint: `/config/items/${id}/`,
     queryKey: ["items", "item"],
     isAuth: true,
     method: "PATCH",
   });
 
-  const updateItem = async (id: string, details: ItemFormValues) => {
+  const updateItem = async (details: ItemFormValues) => {
     try {
-      const response = await AxiosWithToken.patch(`/config/items/${id}/`, details);
-      return response.data;
+      await callApi(details);
     } catch (error) {
       console.error("Item update error:", error);
       throw error;
@@ -133,8 +130,9 @@ export const useAddItemMutation = () => {
 export const useUpdateItemMutation = () => {
   const { updateItem, data, isLoading, isSuccess, error } = UpdateItemManager();
   return [
-    (params: { id: string; body: ItemFormValues }) => updateItem(params.id, params.body),
-    { data, isLoading, isSuccess, error }
+    (params: { id: string; body: ItemFormValues }) =>
+      updateItem(params.id, params.body),
+    { data, isLoading, isSuccess, error },
   ] as const;
 };
 
@@ -150,5 +148,5 @@ export const useDeleteItem = () => {
 
 // Additional missing exports
 export const useGetSingleItem = useGetSingleItemManager;
-export const useAddItem = useAddItemMutation;
-export const useUpdateItem = useUpdateItemMutation;
+export const useAddItem = CreateItemManager;
+export const useUpdateItem = UpdateItemManager;

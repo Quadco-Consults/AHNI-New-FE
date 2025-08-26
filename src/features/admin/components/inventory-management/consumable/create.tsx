@@ -38,7 +38,9 @@ export default function CreateConsumablePage() {
   const query = useQuery();
   const consumableId = query.get("id");
 
-  const { data: item } = useGetSingleItem(consumableId || "", { enabled: !!consumableId });
+  const { data: item } = useGetSingleItem(consumableId || "", {
+    enabled: !!consumableId,
+  });
 
   const { data: category } = useGetAllCategories({
     page: 1,
@@ -111,8 +113,10 @@ export default function CreateConsumablePage() {
     }
   }, [consumableId, item, form]);
 
-  const { addItem: createItem, isLoading: isCreateLoading } = useAddItem();
-  const { updateItem: editItem, isLoading: isEditLoading } = useUpdateItem();
+  const { createItem, isLoading: isCreateLoading } = useAddItem();
+  const { updateItem: editItem, isLoading: isEditLoading } = useUpdateItem(
+    consumableId!
+  );
 
   const router = useRouter();
 
@@ -154,10 +158,7 @@ export default function CreateConsumablePage() {
 
     try {
       if (consumableId) {
-        await editItem({
-          id: consumableId,
-          body: editConsumableData,
-        });
+        await editItem(editConsumableData);
         toast.success("Consumable Updated");
       } else {
         await createItem(createConsumableData);
@@ -165,7 +166,7 @@ export default function CreateConsumablePage() {
       }
       router.push(AdminRoutes.INDEX_CONSUMABLE);
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
+      toast.error(error?.data?.message ?? "Something went wrong");
     }
   };
 

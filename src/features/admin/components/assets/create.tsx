@@ -16,11 +16,6 @@ import { nigerianStates } from "lib/index";
 import { useEffect, useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import {
-  useCreateAsset,
-  useEditAsset,
-  useGetSingleAsset,
-} from "@/features/admin/controllers/assetController";
 import { useGetAllAssetConditions } from "@/features/modules/controllers/admin/assetConditionController";
 import { useGetAllAssetTypes } from "@/features/modules/controllers/admin/assetTypeController";
 import { useGetAllAssetClassifications } from "@/features/modules/controllers/config/assetClassificationController";
@@ -199,7 +194,9 @@ export default function CreateAsset() {
   const assetId = query.get("id");
 
   //   const { data: asset } = useGetSingleAsset(assetId , !! || "", true);
-  const { data: asset } = useGetSingleItem(assetId || "", { enabled: !!assetId });
+  const { data: asset } = useGetSingleItem(assetId || "", {
+    enabled: !!assetId,
+  });
 
   useEffect(() => {
     if (asset) {
@@ -242,25 +239,24 @@ export default function CreateAsset() {
     value: cat.id,
   }));
 
-  const { addItem: createItem, isLoading: isCreateLoading } = useAddItem();
-  const { updateItem: editItem, isLoading: isEditLoading } = useUpdateItem(assetId || "");
+  const { createItem, isLoading: isCreateLoading } = useAddItem();
+  const { updateItem: editItem, isLoading: isEditLoading } = useUpdateItem(
+    assetId || ""
+  );
 
   const onSubmit: SubmitHandler<TAssetFormValues> = async (data) => {
     try {
       if (assetId) {
         await editItem(data);
-        toast.success("Asset Updated");
       } else {
         await createItem(data);
-        toast.success("Asset Created");
       }
 
       router.push(AdminRoutes.ASSETS);
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
+      toast.error(error?.data?.message ?? "Something went wrong");
     }
   };
-  console.log(form.getValues());
 
   const selectedAssetTypeId = form.watch("asset_type");
   const selectedAssetTypeName = assetType?.data.results.find(
@@ -269,7 +265,9 @@ export default function CreateAsset() {
 
   return (
     <div className='space-y-6'>
-      <BackNavigation extraText='Asset Registration' />
+      <BackNavigation
+        extraText={asset ? "Asset Update" : "Asset Registration"}
+      />
       <div>
         <Form {...form}>
           <form

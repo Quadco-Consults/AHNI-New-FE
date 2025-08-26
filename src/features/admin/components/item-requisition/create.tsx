@@ -22,7 +22,7 @@ import {
   useForm,
 } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { useSearchParams } from "next/navigation"; 
+import { useSearchParams } from "next/navigation";
 import { useGetAllConsumablesQuery } from "@/features/admin/controllers/consumableController";
 import {
   useCreateItemRequisitionMutation,
@@ -39,11 +39,6 @@ export default function CreateItemRequisition() {
     page: 1,
     size: 2000000,
     category: "fadb6228-23de-4b04-9eac-b75940cf622f",
-  });
-
-  const { data: consumable } = useGetAllConsumablesQuery({
-    page: 1,
-    size: 2000000,
   });
 
   const { data: user } = useGetAllUsersQuery({
@@ -86,11 +81,12 @@ export default function CreateItemRequisition() {
     [department]
   );
 
-  const [searchParams] = useSearchParams();
-  const id = searchParams?.get("id");
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
 
   const { data: itemRequisition } = useGetSingleItemRequisitionQuery(
-    id || "", !!id
+    id || "",
+    !!id
   );
 
   const { editItemRequisition, isLoading: isEditLoading } =
@@ -121,6 +117,8 @@ export default function CreateItemRequisition() {
         ...rest,
       };
 
+      console.log({ payload, rest, consummables });
+
       if (id) {
         await editItemRequisition(payload);
         toast.success("Item Requisition Updated");
@@ -131,17 +129,19 @@ export default function CreateItemRequisition() {
 
       router.push(AdminRoutes.ITEM_REQUISITION);
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
+      toast.error(error?.data?.message ?? "Something went wrong");
     }
   };
 
   useEffect(() => {
     if (itemRequisition) {
+      console.log({ itemRequisition });
+
       form.reset({
         department: itemRequisition?.data.department.id,
         consummables: itemRequisition?.data.consummables.map(
-          ({ quantity, consummable: { id } }) => ({
-            consummable: id,
+          ({ quantity, consummable }) => ({
+            consummable: consummable?.id,
             quantity: String(quantity),
           })
         ),

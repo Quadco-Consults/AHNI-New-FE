@@ -121,7 +121,7 @@ export default function CreateTravelExpenseReportPage() {
 
             router.push(AdminRoutes.TRAVEL_EXPENSE_REPORT);
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error?.data?.message ?? "Something went wrong");
         }
     };
 

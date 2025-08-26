@@ -132,7 +132,7 @@ export default function CreateCloseOutPlan() {
 
             router.push(CG_ROUTES.CLOSE_OUT);
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error?.data?.message ?? "Something went wrong");
         }
     };
 

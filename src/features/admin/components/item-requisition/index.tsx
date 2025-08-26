@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import Link from "next/link";
 import { useGetAllItemRequisitionsQuery } from "@/features/admin/controllers/itemRequisitionController";
+import { AdminRoutes } from "@/constants/RouterConstants";
 
 export default function ItemRequisitionHomePage() {
   const [page, setPage] = useState(1);
@@ -21,7 +22,7 @@ export default function ItemRequisitionHomePage() {
   return (
     <div className='space-y-10'>
       <div className='flex justify-end'>
-        <Link href="/dashboard/admin/item-requisition/create">
+        <Link href={AdminRoutes.CREATE_ITEM_REQUISITION}>
           <Button>
             <AddSquareIcon />
             Add Item Requisition
