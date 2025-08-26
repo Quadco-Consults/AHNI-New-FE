@@ -355,7 +355,8 @@ export const RouteEnum = {
     "/dashboard/programs/fund-request/create/fund-request-preview",
 
   PROGRAM_FUND_REQUEST_VIEW_ACTIVITY:
-    "/dashboard/programs/fund-request/create/fund-request-preview/:id/fund-request-activity",
+    // "/dashboard/programs/fund-request/create/fund-request-preview/:id/fund-request-activity",
+    "/dashboard/programs/fund-request/:id/activity",
 
   PROGRAM_FUND_REQUEST_VIEW_ALL_FUND_REQUESTS:
     "/dashboard/programs/fund-request/:id/all-requests",
