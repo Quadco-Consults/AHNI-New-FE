@@ -80,8 +80,6 @@ export const UpdateItemManager = (id: string) => {
   });
 
   const updateItem = async (details: ItemFormValues) => {
-    console.log({ details });
-
     try {
       await callApi(details);
     } catch (error) {
