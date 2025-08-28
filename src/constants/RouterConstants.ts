@@ -17,8 +17,7 @@ export const AdminRoutes = {
     "/dashboard/admin/inventory-management/asset-request/summary",
   ASSETS_REQUEST_UPLOAD:
     "/dashboard/admin/inventory-management/asset-request/uploads",
-  ASSETS_REQUEST_VIEW:
-    "/dashboard/admin/inventory-management/asset-request/:id",
+  ASSETS_REQUEST_VIEW: "/dashboard/admin/asset-request/:id",
 
   // ASSETS
   ASSETS: "/dashboard/admin/assets",
@@ -96,8 +95,7 @@ export const AdminRoutes = {
   GRN: "/dashboard/admin/inventory-management/good-receive-note",
   GRN_CREATE_SUMMARY:
     "/dashboard/admin/inventory-management/good-receive-note/create",
-  GRN_CREATE_UPLOADS:
-    "/dashboard/admin/inventory-management/good-receive-note/create/uploads",
+  GRN_CREATE_UPLOADS: "/dashboard/admin/good-receive-note/create/uploads",
   GRN_DETAIL: "/dashboard/admin/inventory-management/good-receive-note/:id",
   /* GOOD RECEIVE NOTES END */
 

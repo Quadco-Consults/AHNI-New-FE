@@ -16,9 +16,7 @@ import { SubmitHandler, useForm, useFieldArray } from "react-hook-form";
 
 import { useSearchParams } from "next/navigation";
 import {
-  useCreateGoodReceiveNote,
   useGetSingleGoodReceiveNote,
-  useModifyGoodReceiveNote,
 } from "@/features/admin/controllers/goodReceiveNoteController";
 import {
   useGetAllPurchaseOrders,
@@ -26,8 +24,12 @@ import {
 } from "@/features/procurement/controllers/purchaseOrderController";
 import { toast } from "sonner";
 import GoodReceiveNoteLayout from "./Layout";
+import { useRouter } from "next/navigation";
+import { AdminRoutes } from "@/constants/RouterConstants";
 
 export default function CreateGoodReceiveNote() {
+  const router = useRouter();
+
   const form = useForm<TGoodReceiveNoteFormValues>({
     resolver: zodResolver(GoodReceiveNoteSchema),
     defaultValues: {
@@ -64,11 +66,6 @@ export default function CreateGoodReceiveNote() {
     purchaseOrderId || ""
   );
 
-  const { createGoodReceiveNote, isLoading: isCreateLoading } =
-    useCreateGoodReceiveNote();
-
-  const { modifyGoodReceiveNote, isLoading: isModifyLoading } =
-    useModifyGoodReceiveNote(id!);
 
   const { fields, replace } = useFieldArray({
     control: form.control,
@@ -90,15 +87,15 @@ export default function CreateGoodReceiveNote() {
         items: undefined, // Remove the original 'items' field
       };
 
-      if (id) {
-        await modifyGoodReceiveNote(transformedData);
-        toast.success("Good Received Note Updated");
-      } else {
-        await createGoodReceiveNote(transformedData);
-        toast.success("Good Received Note Created");
-      }
+      // Store data in localStorage for uploads page
+      localStorage.setItem('grnFormData', JSON.stringify({
+        formData: transformedData,
+        isEdit: !!id,
+        editId: id
+      }));
 
-      // router.push(AdminRoutes.GRN_CREATE_UPLOADS);
+      // Navigate to uploads page
+      router.push(AdminRoutes.GRN_CREATE_UPLOADS);
     } catch (error: any) {
       toast.error(error?.data?.message ?? "Something went wrong");
     }
@@ -210,8 +207,6 @@ export default function CreateGoodReceiveNote() {
                 <FormButton
                   size='lg'
                   type='submit'
-                  loading={isCreateLoading || isModifyLoading}
-                  disabled={isCreateLoading || isModifyLoading}
                 >
                   Next
                 </FormButton>

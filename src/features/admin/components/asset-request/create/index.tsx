@@ -112,6 +112,7 @@ export default function CreateAssetRequestDetails() {
         toast.success("Asset Request Updated");
       } else {
         let response = await createAssetRequest(data);
+
         // @ts-ignore
         newAssetRequestId = response.data.id;
         toast.success("Asset Request Created");
@@ -122,7 +123,7 @@ export default function CreateAssetRequestDetails() {
         // @ts-ignore
         path = path.substring(0, path.lastIndexOf("/"));
 
-        path += `/uploads?id=${id ?? newAssetRequestId}`;
+        path += `/create/uploads?id=${id ?? newAssetRequestId}`;
 
         router.push(path);
         return;
@@ -133,8 +134,6 @@ export default function CreateAssetRequestDetails() {
       toast.error(error.data.message ?? "Something went wrong");
     }
   };
-
-  console.log({ fs: form.getValues() });
 
   useEffect(() => {
     if (assetRequest) {
