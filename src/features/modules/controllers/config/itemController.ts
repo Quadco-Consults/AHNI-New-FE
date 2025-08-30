@@ -10,12 +10,13 @@ export const useGetAllItemsManager = ({
   size = 20,
   search = "",
   enabled = true,
+  category,
 }: FilterParams & { enabled?: boolean } = {}) => {
   return useQuery<TPaginatedResponse<ItemData>>({
-    queryKey: ["items", page, size, search],
+    queryKey: ["items", page, size, search, category],
     queryFn: async () => {
       const response = await AxiosWithToken.get("/config/items/", {
-        params: { page, size, search },
+        params: { page, size, search, category },
       });
       return response.data;
     },

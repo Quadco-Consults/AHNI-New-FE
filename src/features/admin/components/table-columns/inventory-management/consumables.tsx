@@ -48,7 +48,7 @@ export const consumableColums: ColumnDef<TConsumablePaginatedData>[] = [
   // },
   {
     header: "Vendor",
-    accessorKey: "created_by",
+    accessorKey: "most_recent_vendor",
     cell: ({ row }) => {
       return row.original.created_by || "N/A";
     },
