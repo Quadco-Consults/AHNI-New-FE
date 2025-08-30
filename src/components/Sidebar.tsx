@@ -18,7 +18,7 @@ import ProcurementManagementIcon from "components/icons/sidebar-icons/Procuremen
 import AdminIcon from "components/icons/sidebar-icons/AdminIcon";
 import CGIcon from "components/icons/sidebar-icons/CGIcon";
 import HRIcon from "components/icons/sidebar-icons/HRIcon";
-import FinanceIcon from "components/icons/sidebar-icons/FinanceIcon";
+// import FinanceIcon from "components/icons/sidebar-icons/FinanceIcon";
 // import { useGetUserProfile } from "@/features/auth/controllers/user";
 
 type SidebarProps = {
@@ -27,7 +27,10 @@ type SidebarProps = {
 };
 
 const globalHubMenu = [
-  { label: "Purchase Requests", path: "/dashboard/procurement/purchase-request" },
+  {
+    label: "Purchase Requests",
+    path: "/dashboard/procurement/purchase-request",
+  },
   { label: "Support", path: "/dashboard/support", icon: <HeartHandshake /> },
   {
     label: "Item Requisition",
@@ -94,8 +97,8 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
         sidebarWidth === false ? "w-[19%]" : "w-[5%]"
       )}
     >
-      <section className='flex flex-col w-full gap-2'>
-        <div className='relative h-[5rem] overflow-hidden'>
+      <section className="flex flex-col w-full gap-2">
+        <div className="relative h-[5rem] overflow-hidden">
           <div
             className={cn(
               "bg-background z-20 mx-auto duration-200 ",
@@ -104,8 +107,8 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
           >
             <img
               src={logoSvg.src}
-              alt='logo'
-              className='object-cover w-24 mx-auto'
+              alt="logo"
+              className="object-cover w-24 mx-auto"
             />
             <IconButton
               onClick={() => setSidebarWidth(!sidebarWidth)}
@@ -114,12 +117,12 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                 sidebarWidth && "right-3 rotate-180 duration-200"
               )}
             >
-              <Icon icon='ph:arrow-left-duotone' fontSize={15} />
+              <Icon icon="ph:arrow-left-duotone" fontSize={15} />
             </IconButton>
           </div>
         </div>
 
-        <div className='px-2 pt-5 space-y-6'>
+        <div className="px-2 pt-5 space-y-6">
           {/* Dashboard button */}
 
           <Link
@@ -144,7 +147,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
           </Link>
 
           {/* Departmental Links */}
-          <div className=''>
+          <div className="">
             <h4
               className={cn(
                 "text-black/40 px-2 py-3 text-xs font-semibold uppercase duration-200",
@@ -158,12 +161,11 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
               href="/dashboard/projects"
               className={cn(
                 "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
-                pathname.startsWith("/projects") &&
-                  "text-primary "
+                pathname.startsWith("/projects") && "text-primary "
               )}
             >
-              <div className='flex w-[85%] items-center gap-2'>
-                <span className=''>
+              <div className="flex w-[85%] items-center gap-2">
+                <span className="">
                   <ProjectsIcon />
                 </span>
                 <h4
@@ -179,7 +181,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
             {/* @ts-ignore */}
             {getDeparmentalLinks(["procurement"]).map(
               (link: any, index: number) => (
-                <div key={index} className='w-full '>
+                <div key={index} className="w-full ">
                   <div
                     onClick={() => {
                       setShowMenu(!showMenu);
@@ -190,8 +192,8 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                       pathname.startsWith(link.path) && "text-primary "
                     )}
                   >
-                    <div className='flex w-[85%] items-center gap-2'>
-                      <span className=''>{link.icon}</span>
+                    <div className="flex w-[85%] items-center gap-2">
+                      <span className="">{link.icon}</span>
                       <h4
                         className={cn(
                           " w-[100%] truncate font-medium",
@@ -206,7 +208,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                         "h-5 w-5 -rotate-90 transition duration-200",
                         showMenu && selectedLinkIndex === index && "rotate-0"
                       )}
-                      aria-hidden='true'
+                      aria-hidden="true"
                     />
                   </div>
                   <motion.ul
@@ -219,12 +221,12 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                             height: 0,
                           }
                     }
-                    className='h-0 overflow-hidden list-none pl-14'
+                    className="h-0 overflow-hidden list-none pl-14"
                   >
                     {link?.link?.map((el: any, i: number) =>
                       el?.sublinks ? (
                         <div key={i}>
-                          <li className='text-sm list-none hover:text-amber-400 hover:cursor-pointer'>
+                          <li className="text-sm list-none hover:text-amber-400 hover:cursor-pointer">
                             <div
                               onClick={() => {
                                 setShowSubMenu(!showSubMenu);
@@ -243,7 +245,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                                     " bg-amber-400 border-amber-400 hover:bg-amber-400"
                                 )}
                               ></span>
-                              <h6 className='py-2'>{el.name}</h6>
+                              <h6 className="py-2">{el.name}</h6>
                               <ChevronDown
                                 className={cn(
                                   "h-3 w-3 transition duration-200",
@@ -251,7 +253,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                                     selectedLinkSubIndex === i &&
                                     "rotate-180"
                                 )}
-                                aria-hidden='true'
+                                aria-hidden="true"
                               />
                             </div>
                           </li>
@@ -266,7 +268,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                                     height: 0,
                                   }
                             }
-                            className='h-0 overflow-hidden text-sm'
+                            className="h-0 overflow-hidden text-sm"
                           >
                             {el?.sublinks?.map((sublink: any) => (
                               <Link
@@ -276,7 +278,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                                   return isActive ? "text-amber-400" : "";
                                 }}
                               >
-                                <li className='py-2 ml-8 list-none hover:text-amber-400 hover:cursor-pointer'>
+                                <li className="py-2 ml-8 list-none hover:text-amber-400 hover:cursor-pointer">
                                   {sublink.name}
                                 </li>
                               </Link>
@@ -294,8 +296,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                           <li
                             className={cn(
                               "hover:text-amber-400 flex items-center justify-start gap-2 text-sm",
-                              pathname.startsWith(el.path) &&
-                                " text-amber-400 "
+                              pathname.startsWith(el.path) && " text-amber-400 "
                             )}
                           >
                             <span
@@ -305,7 +306,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                                   " bg-amber-400 border-amber-400 hover:bg-amber-400"
                               )}
                             ></span>
-                            <h6 className='py-2'>{el.name}</h6>
+                            <h6 className="py-2">{el.name}</h6>
                           </li>
                         </Link>
                       )
@@ -330,7 +331,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
             {MODULE_LINKS.map((link: any, index: number) => {
               if (link) {
                 return (
-                  <div key={index} className='w-full '>
+                  <div key={index} className="w-full ">
                     <div
                       onClick={() => {
                         setShowSettings(!showSettings);
@@ -338,12 +339,11 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                       }}
                       className={cn(
                         "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
-                        pathname.startsWith(link.path) &&
-                          "text-primary "
+                        pathname.startsWith(link.path) && "text-primary "
                       )}
                     >
-                      <div className='flex w-[85%] items-center gap-2'>
-                        <span className=''>{link.icon}</span>
+                      <div className="flex w-[85%] items-center gap-2">
+                        <span className="">{link.icon}</span>
                         <h4
                           className={cn(
                             " w-[100%] truncate font-medium",
@@ -360,7 +360,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                             selectedLinkIndex === index &&
                             "rotate-0"
                         )}
-                        aria-hidden='true'
+                        aria-hidden="true"
                       />
                     </div>
                     <motion.ul
@@ -373,12 +373,12 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                               height: 0,
                             }
                       }
-                      className='h-0 overflow-hidden list-none pl-14'
+                      className="h-0 overflow-hidden list-none pl-14"
                     >
                       {link?.link?.map((el: any, i: number) =>
                         el?.sublinks ? (
                           <div key={i}>
-                            <li className='text-sm list-none hover:text-amber-400 hover:cursor-pointer'>
+                            <li className="text-sm list-none hover:text-amber-400 hover:cursor-pointer">
                               <div
                                 onClick={() => {
                                   setShowSubMenu(!showSubMenu);
@@ -397,7 +397,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                                       " bg-amber-400 border-amber-400 hover:bg-amber-400"
                                   )}
                                 ></span>
-                                <h6 className='py-2'>{el.name}</h6>
+                                <h6 className="py-2">{el.name}</h6>
                                 <ChevronDown
                                   className={cn(
                                     "h-3 w-3 transition duration-200",
@@ -405,7 +405,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                                       selectedLinkSubIndex === i &&
                                       "rotate-180"
                                   )}
-                                  aria-hidden='true'
+                                  aria-hidden="true"
                                 />
                               </div>
                             </li>
@@ -420,7 +420,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                                       height: 0,
                                     }
                               }
-                              className='h-0 overflow-hidden text-sm'
+                              className="h-0 overflow-hidden text-sm"
                             >
                               {el?.sublinks?.map((sublink: any) => (
                                 <Link
@@ -430,7 +430,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                                     return isActive ? "text-amber-400" : "";
                                   }}
                                 >
-                                  <li className='py-2 ml-8 list-none hover:text-amber-400 hover:cursor-pointer'>
+                                  <li className="py-2 ml-8 list-none hover:text-amber-400 hover:cursor-pointer">
                                     {sublink.name}
                                   </li>
                                 </Link>
@@ -459,7 +459,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                                     " bg-amber-400 border-amber-400 hover:bg-amber-400"
                                 )}
                               ></span>
-                              <h6 className='py-2'>{el.name}</h6>
+                              <h6 className="py-2">{el.name}</h6>
                             </li>
                           </Link>
                         )
@@ -474,12 +474,11 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
               href="/dashboard/audit-log"
               className={cn(
                 "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
-                pathname.startsWith("/audit-log") &&
-                  "text-primary "
+                pathname.startsWith("/audit-log") && "text-primary "
               )}
             >
-              <div className='flex w-[85%] items-center gap-2'>
-                <span className=''>
+              <div className="flex w-[85%] items-center gap-2">
+                <span className="">
                   <ProjectsIcon />
                 </span>
                 <h4
@@ -497,7 +496,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
           </div>
 
           {/* Global Hub */}
-          <div className=''>
+          <div className="">
             <h4
               className={cn(
                 "text-black/40 px-2 py-3 text-xs font-semibold uppercase duration-200",
@@ -517,8 +516,8 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                     pathname.startsWith(path) && "text-primary "
                   )}
                 >
-                  <div className='flex w-[85%] items-center gap-2'>
-                    <span className=''>{icon ? icon : <FaDotCircle />}</span>
+                  <div className="flex w-[85%] items-center gap-2">
+                    <span className="">{icon ? icon : <FaDotCircle />}</span>
                     <h4
                       className={cn(
                         " w-[100%] truncate font-medium uppercase",
@@ -581,10 +580,10 @@ const MODULE_LINKS = [
         name: "Procurement",
         path: "/dashboard/modules/procurement",
       },
-      {
-        name: "Finance",
-        path: "/dashboard/modules/finance",
-      },
+      // {
+      //   name: "Finance",
+      //   path: "/dashboard/modules/finance",
+      // },
       {
         name: "HR",
         path: "/dashboard/modules/hr",
@@ -693,35 +692,62 @@ const getDeparmentalLinks = () => {
               name: "Prequalification",
               path: "/dashboard/procurement/vendor-management/prequalification",
             },
-            { name: "EOI", path: "/dashboard/procurement/vendor-management/eoi" },
+            {
+              name: "EOI",
+              path: "/dashboard/procurement/vendor-management/eoi",
+            },
             {
               name: "Vendor Evaluation",
               path: "/dashboard/procurement/vendor-performance",
             },
           ],
         },
-        { name: "Supplier Database", path: "/dashboard/procurement/supplier-database" },
-        { name: "Price Intelligence", path: "/dashboard/procurement/price-intelligence" },
-        { name: "Procurement Plan", path: "/dashboard/procurement/procurement-plan" },
+        {
+          name: "Supplier Database",
+          path: "/dashboard/procurement/supplier-database",
+        },
+        {
+          name: "Price Intelligence",
+          path: "/dashboard/procurement/price-intelligence",
+        },
+        {
+          name: "Procurement Plan",
+          path: "/dashboard/procurement/procurement-plan",
+        },
         {
           name: "Procurement Tracker",
           path: "/dashboard/procurement/procurement-tracker",
         },
-        { name: "Purchase Request", path: "/dashboard/procurement/purchase-request" },
+        {
+          name: "Purchase Request",
+          path: "/dashboard/procurement/purchase-request",
+        },
         {
           name: "Solicitation Management",
           path: "/dashboard/procurement/solicitation-management",
           sublinks: [
-            { name: "RFQ", path: "/dashboard/procurement/solicitation-management/rfq" },
-            { name: "RFP", path: "/dashboard/procurement/solicitation-management/rfp" },
+            {
+              name: "RFQ",
+              path: "/dashboard/procurement/solicitation-management/rfq",
+            },
+            {
+              name: "RFP",
+              path: "/dashboard/procurement/solicitation-management/rfp",
+            },
           ],
         },
         {
           name: "Competitive Bid Analysis",
           path: "/dashboard/procurement/competitive-bid-analysis",
         },
-        { name: "Purchase Order", path: "/dashboard/procurement/purchase-order" },
-        { name: "Procurement Report", path: "/dashboard/procurement/procurement-report" },
+        {
+          name: "Purchase Order",
+          path: "/dashboard/procurement/purchase-order",
+        },
+        {
+          name: "Procurement Report",
+          path: "/dashboard/procurement/procurement-report",
+        },
       ],
     },
 
@@ -743,7 +769,10 @@ const getDeparmentalLinks = () => {
               path: "/dashboard/admin/inventory-management/item-requisition",
             },
 
-            { name: "Assets", path: "/dashboard/admin/inventory-management/assets" },
+            {
+              name: "Assets",
+              path: "/dashboard/admin/inventory-management/assets",
+            },
             {
               name: "Asset Requests",
               path: "/dashboard/admin/inventory-management/asset-request",
@@ -763,7 +792,12 @@ const getDeparmentalLinks = () => {
         {
           name: "Solicitation Management",
           path: "/dashboard/admin/solicitation-management",
-          sublinks: [{ name: "RFQ", path: "/dashboard/admin/solicitation-management/rfq" }],
+          sublinks: [
+            {
+              name: "RFQ",
+              path: "/dashboard/admin/solicitation-management/rfq",
+            },
+          ],
         },
 
         {
@@ -939,7 +973,12 @@ const getDeparmentalLinks = () => {
 
         {
           name: "Closeout",
-          sublinks: [{ name: "Closeout Plan", path: "/dashboard/c-and-g/close-out-plan" }],
+          sublinks: [
+            {
+              name: "Closeout Plan",
+              path: "/dashboard/c-and-g/close-out-plan",
+            },
+          ],
         },
         {
           name: "Contract Management",
@@ -986,40 +1025,40 @@ const getDeparmentalLinks = () => {
         { name: "C&G Reports", path: "/" },
       ],
     },
-    {
-      name: "Finance",
-      icon: <FinanceIcon />,
-      link: [
-        {
-          name: "Overview",
-          sublinks: [
-            {
-              name: "Documents Submitted to be Reviewed",
-              path: "/",
-            },
-            {
-              name: "Documents Awaiting Payment Vouchers",
-              path: "/",
-            },
-            {
-              name: "Documents Awaiting Final Approval",
-              path: "/",
-            },
-          ],
-        },
-        { name: "Employee Compensation & Benefits", path: "/" },
-        { name: "Payment Requests", path: "/" },
-        { name: "Payment Voucher", path: "/" },
-        { name: "General Leger", path: "/" },
-        { name: "Employee Compensation & Benefits", path: "/" },
-        { name: "Time Sheet Management", path: "/" },
-        { name: "Trial Balance", path: "/" },
-        { name: "Audit", path: "/" },
-        { name: "Budget", path: "/" },
-        { name: "Petty Cash Request", path: "/" },
-        { name: "Bank Reconciliation", path: "/" },
-        { name: "Invoice", path: "/" },
-      ],
-    },
+    // {
+    //   name: "Finance",
+    //   icon: <FinanceIcon />,
+    //   link: [
+    //     {
+    //       name: "Overview",
+    //       sublinks: [
+    //         {
+    //           name: "Documents Submitted to be Reviewed",
+    //           path: "/",
+    //         },
+    //         {
+    //           name: "Documents Awaiting Payment Vouchers",
+    //           path: "/",
+    //         },
+    //         {
+    //           name: "Documents Awaiting Final Approval",
+    //           path: "/",
+    //         },
+    //       ],
+    //     },
+    //     { name: "Employee Compensation & Benefits", path: "/" },
+    //     { name: "Payment Requests", path: "/" },
+    //     { name: "Payment Voucher", path: "/" },
+    //     { name: "General Leger", path: "/" },
+    //     { name: "Employee Compensation & Benefits", path: "/" },
+    //     { name: "Time Sheet Management", path: "/" },
+    //     { name: "Trial Balance", path: "/" },
+    //     { name: "Audit", path: "/" },
+    //     { name: "Budget", path: "/" },
+    //     { name: "Petty Cash Request", path: "/" },
+    //     { name: "Bank Reconciliation", path: "/" },
+    //     { name: "Invoice", path: "/" },
+    //   ],
+    // },
   ];
 };
