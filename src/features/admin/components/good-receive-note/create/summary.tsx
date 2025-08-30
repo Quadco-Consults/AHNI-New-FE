@@ -16,9 +16,7 @@ import { SubmitHandler, useForm, useFieldArray } from "react-hook-form";
 
 import { useSearchParams } from "next/navigation";
 import {
-  useCreateGoodReceiveNote,
   useGetSingleGoodReceiveNote,
-  useModifyGoodReceiveNote,
 } from "@/features/admin/controllers/goodReceiveNoteController";
 import {
   useGetAllPurchaseOrders,
@@ -26,8 +24,12 @@ import {
 } from "@/features/procurement/controllers/purchaseOrderController";
 import { toast } from "sonner";
 import GoodReceiveNoteLayout from "./Layout";
+import { useRouter } from "next/navigation";
+import { AdminRoutes } from "@/constants/RouterConstants";
 
 export default function CreateGoodReceiveNote() {
+  const router = useRouter();
+
   const form = useForm<TGoodReceiveNoteFormValues>({
     resolver: zodResolver(GoodReceiveNoteSchema),
     defaultValues: {
@@ -64,41 +66,36 @@ export default function CreateGoodReceiveNote() {
     purchaseOrderId || ""
   );
 
-  const { createGoodReceiveNote, isLoading: isCreateLoading } =
-    useCreateGoodReceiveNote();
-
-  const { modifyGoodReceiveNote, isLoading: isModifyLoading } =
-    useModifyGoodReceiveNote(id!);
 
   const { fields, replace } = useFieldArray({
     control: form.control,
     name: "items",
   });
-  console.log({ form: form.getValues() });
 
   const onSubmit: SubmitHandler<TGoodReceiveNoteFormValues> = async (data) => {
-    console.log({ data });
     try {
       // Transform the data to match backend expectations
       const transformedData = {
         ...data,
-        grn_items: data.items?.map(item => ({
+        grn_items: data.items?.map((item) => ({
           ...item,
           purchase_order_item: item.item_id, // Backend expects 'purchase_order_item' instead of 'item_id'
+          received_quantity: item.quantity_received, // Backend expects 'received_quantity' instead of 'quantity_received'
           item_id: undefined, // Remove the original 'item_id' field
+          quantity_received: undefined, // Remove the original 'quantity_received' field
         })),
         items: undefined, // Remove the original 'items' field
       };
 
-      if (id) {
-        await modifyGoodReceiveNote(transformedData);
-        toast.success("Good Received Note Updated");
-      } else {
-        await createGoodReceiveNote(transformedData);
-        toast.success("Good Received Note Created");
-      }
+      // Store data in localStorage for uploads page
+      localStorage.setItem('grnFormData', JSON.stringify({
+        formData: transformedData,
+        isEdit: !!id,
+        editId: id
+      }));
 
-      // router.push(AdminRoutes.GRN_CREATE_UPLOADS);
+      // Navigate to uploads page
+      router.push(AdminRoutes.GRN_CREATE_UPLOADS);
     } catch (error: any) {
       toast.error(error?.data?.message ?? "Something went wrong");
     }
@@ -210,8 +207,6 @@ export default function CreateGoodReceiveNote() {
                 <FormButton
                   size='lg'
                   type='submit'
-                  loading={isCreateLoading || isModifyLoading}
-                  disabled={isCreateLoading || isModifyLoading}
                 >
                   Next
                 </FormButton>

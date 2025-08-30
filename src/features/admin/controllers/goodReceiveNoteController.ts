@@ -69,7 +69,9 @@ export const useGetAllGoodReceiveNote = ({
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled,
@@ -78,7 +80,10 @@ export const useGetAllGoodReceiveNote = ({
 };
 
 // Get Single Good Receive Note
-export const useGetSingleGoodReceiveNote = (id: string, enabled: boolean = true) => {
+export const useGetSingleGoodReceiveNote = (
+  id: string,
+  enabled: boolean = true
+) => {
   return useQuery<ApiResponse<IGoodReceiveNoteSingleData>>({
     queryKey: ["goodReceiveNote", id],
     queryFn: async () => {
@@ -87,7 +92,9 @@ export const useGetSingleGoodReceiveNote = (id: string, enabled: boolean = true)
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled && !!id,
@@ -100,17 +107,19 @@ export const useCreateGoodReceiveNote = () => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     IGoodReceiveNoteSingleData,
     Error,
-    TGoodReceiveNoteFormValues
+    TGoodReceiveNoteFormValues | FormData
   >({
     endpoint: BASE_URL,
     queryKey: ["goodReceiveNote"],
     isAuth: true,
     method: "POST",
+    contentType: null, // Let browser set content type for FormData
   });
 
-  const createGoodReceiveNote = async (details: TGoodReceiveNoteFormValues) => {
+  const createGoodReceiveNote = async (details: TGoodReceiveNoteFormValues | FormData) => {
     try {
-      await callApi(details);
+      const res = await callApi(details);
+      return res;
     } catch (error) {
       console.error("Good receive note create error:", error);
     }
@@ -124,17 +133,19 @@ export const useModifyGoodReceiveNote = (id: string) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     IGoodReceiveNoteSingleData,
     Error,
-    TGoodReceiveNoteFormValues
+    TGoodReceiveNoteFormValues | FormData
   >({
     endpoint: `${BASE_URL}${id}/`,
     queryKey: ["goodReceiveNote", "goodReceiveNoteItem"],
     isAuth: true,
     method: "PUT",
+    contentType: null, // Let browser set content type for FormData
   });
 
-  const modifyGoodReceiveNote = async (details: TGoodReceiveNoteFormValues) => {
+  const modifyGoodReceiveNote = async (details: TGoodReceiveNoteFormValues | FormData) => {
     try {
-      await callApi(details);
+      const res = await callApi(details);
+      return res;
     } catch (error) {
       console.error("Good receive note modify error:", error);
     }
@@ -158,7 +169,8 @@ export const useDeleteGoodReceiveNote = (id: string) => {
 
   const deleteGoodReceiveNote = async () => {
     try {
-      await callApi({} as Record<string, never>);
+      const res = await callApi({} as Record<string, never>);
+      return res;
     } catch (error) {
       console.error("Good receive note delete error:", error);
     }
