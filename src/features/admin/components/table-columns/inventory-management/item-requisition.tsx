@@ -11,7 +11,10 @@ import { Button } from "components/ui/button";
 import { AdminRoutes } from "constants/RouterConstants";
 import ConfirmationDialog from "components/ConfirmationDialog";
 import { useState } from "react";
-import { useDeleteItemRequisition } from "@/features/admin/controllers/itemRequisitionController";
+import {
+  useDeleteItemRequisition,
+  useApproveItemRequisition,
+} from "@/features/admin/controllers/itemRequisitionController";
 import { toast } from "sonner";
 import PencilIcon from "components/icons/PencilIcon";
 import { Badge } from "components/ui/badge";
@@ -88,7 +91,7 @@ export const itemRequisitionColumns: ColumnDef<TItemRequisitionPaginatedData>[] 
     {
       header: "Approved by",
       id: "approved_by",
-      accessorFn: ({ approved_by }) => `${approved_by ?? "N/A"}`,
+      accessorFn: ({ approved_by }) => `${approved_by?.full_name ?? "N/A"}`,
     },
     {
       header: "Date Requested",
@@ -107,13 +110,26 @@ export const itemRequisitionColumns: ColumnDef<TItemRequisitionPaginatedData>[] 
   ];
 const TableAction = ({ id }: TItemRequisitionPaginatedData) => {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [approveDialogOpen, setApproveDialogOpen] = useState(false);
 
   const { deleteItemRequisition, isLoading } = useDeleteItemRequisition(id);
+  const { approveItemRequisition, isLoading: isApproving } =
+    useApproveItemRequisition(id);
 
   const handleDelete = async () => {
     try {
       deleteItemRequisition();
       toast.success("Item Requisition Deleted");
+    } catch (error: any) {
+      toast.error(error?.data?.message ?? "Something went wrong");
+    }
+  };
+
+  const handleApprove = async () => {
+    try {
+      approveItemRequisition();
+
+      setApproveDialogOpen(false);
     } catch (error: any) {
       toast.error(error?.data?.message ?? "Something went wrong");
     }
@@ -159,6 +175,7 @@ const TableAction = ({ id }: TItemRequisitionPaginatedData) => {
             <Button
               className='w-full flex items-center justify-start gap-2'
               variant='ghost'
+              onClick={() => setApproveDialogOpen(true)}
             >
               <ApproveIcon />
               Approve
@@ -181,6 +198,14 @@ const TableAction = ({ id }: TItemRequisitionPaginatedData) => {
         loading={isLoading}
         onCancel={() => setDialogOpen(false)}
         onOk={handleDelete}
+      />
+
+      <ConfirmationDialog
+        open={approveDialogOpen}
+        title='Are you sure you want to approve this item requisition?'
+        loading={isApproving}
+        onCancel={() => setApproveDialogOpen(false)}
+        onOk={handleApprove}
       />
     </>
   );
