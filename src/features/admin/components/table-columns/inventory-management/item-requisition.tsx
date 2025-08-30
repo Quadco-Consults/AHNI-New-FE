@@ -36,13 +36,33 @@ export const itemRequisitionColumns: ColumnDef<TItemRequisitionPaginatedData>[] 
 
     {
       header: "Items Requested",
-      accessorFn: ({ consummables }) =>
-        consummables.map((c) => c.item?.name ?? "N/A").join(", "),
+      cell: ({ row }) => {
+        const consummables = row.original.consummables;
+        return (
+          <div className='space-y-1'>
+            {consummables.map((item, index: number) => (
+              <div key={index} className='text-sm'>
+                {`${index + 1}) ${item.item?.name}` ?? "N/A"}
+              </div>
+            ))}
+          </div>
+        );
+      },
     },
     {
       header: "Quantity Requested",
-      accessorFn: ({ consummables }) =>
-        consummables.map((item) => item.quantity ?? "N/A").join(", "),
+      cell: ({ row }) => {
+        const consummables = row.original.consummables;
+        return (
+          <div className='space-y-1'>
+            {consummables.map((item, index: number) => (
+              <div key={index} className='text-sm'>
+                {`${index + 1}) ${item.quantity}` ?? "N/A"}
+              </div>
+            ))}
+          </div>
+        );
+      },
       size: 250,
     },
     {

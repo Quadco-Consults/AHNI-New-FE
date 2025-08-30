@@ -56,4 +56,5 @@ export interface IAssetRequestSingleSData {
   comments: string;
   created_by: string;
   updated_by: string;
+  document?: string;
 }
