@@ -113,6 +113,7 @@ export const useCreateAssetRequest = () => {
     queryKey: ["assetRequests"],
     isAuth: true,
     method: "POST",
+    contentType: "multipart/form-data",
   });
 
   const createAssetRequest = async (details: TAssetRequestFormValues) => {
@@ -175,9 +176,37 @@ export const useDeleteAssetRequest = (id: string) => {
   return { deleteAssetRequest, data, isLoading, isSuccess, error };
 };
 
+// Upload Document to Asset Request
+export const useUploadAssetRequestDocument = (assetRequestId: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    ApiResponse<any>,
+    Error,
+    FormData
+  >({
+    endpoint: `${BASE_URL}${assetRequestId}/upload-document/`,
+    queryKey: ["assetRequests", "documents"],
+    isAuth: true,
+    method: "POST",
+    contentType: "multipart/form-data",
+  });
+
+  const uploadDocument = async (formData: FormData) => {
+    try {
+      const response = await callApi(formData);
+      return response;
+    } catch (error) {
+      console.error("Asset request document upload error:", error);
+      throw error;
+    }
+  };
+
+  return { uploadDocument, data, isLoading, isSuccess, error };
+};
+
 // Legacy exports for backward compatibility
 export const useGetAllAssetRequestsQuery = useGetAllAssetRequests;
 export const useGetSingleAssetRequestQuery = useGetSingleAssetRequest;
 export const useCreateAssetRequestMutation = useCreateAssetRequest;
 export const useEditAssetRequestMutation = useEditAssetRequest;
 export const useDeleteAssetRequestMutation = useDeleteAssetRequest;
+export const useUploadAssetRequestDocumentMutation = useUploadAssetRequestDocument;
