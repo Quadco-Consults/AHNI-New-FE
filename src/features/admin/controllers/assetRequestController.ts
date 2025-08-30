@@ -69,7 +69,9 @@ export const useGetAllAssetRequests = ({
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled,
@@ -78,7 +80,10 @@ export const useGetAllAssetRequests = ({
 };
 
 // Get Single Asset Request
-export const useGetSingleAssetRequest = (id: string, enabled: boolean = true) => {
+export const useGetSingleAssetRequest = (
+  id: string,
+  enabled: boolean = true
+) => {
   return useQuery<ApiResponse<IAssetRequestSingleSData>>({
     queryKey: ["assetRequest", id],
     queryFn: async () => {
@@ -87,7 +92,9 @@ export const useGetSingleAssetRequest = (id: string, enabled: boolean = true) =>
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled && !!id,
@@ -106,11 +113,13 @@ export const useCreateAssetRequest = () => {
     queryKey: ["assetRequests"],
     isAuth: true,
     method: "POST",
+    contentType: "multipart/form-data",
   });
 
   const createAssetRequest = async (details: TAssetRequestFormValues) => {
     try {
-      await callApi(details);
+      const res = await callApi(details);
+      return res;
     } catch (error) {
       console.error("Asset request create error:", error);
     }
@@ -167,9 +176,37 @@ export const useDeleteAssetRequest = (id: string) => {
   return { deleteAssetRequest, data, isLoading, isSuccess, error };
 };
 
+// Upload Document to Asset Request
+export const useUploadAssetRequestDocument = (assetRequestId: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    ApiResponse<any>,
+    Error,
+    FormData
+  >({
+    endpoint: `${BASE_URL}${assetRequestId}/upload-document/`,
+    queryKey: ["assetRequests", "documents"],
+    isAuth: true,
+    method: "POST",
+    contentType: "multipart/form-data",
+  });
+
+  const uploadDocument = async (formData: FormData) => {
+    try {
+      const response = await callApi(formData);
+      return response;
+    } catch (error) {
+      console.error("Asset request document upload error:", error);
+      throw error;
+    }
+  };
+
+  return { uploadDocument, data, isLoading, isSuccess, error };
+};
+
 // Legacy exports for backward compatibility
 export const useGetAllAssetRequestsQuery = useGetAllAssetRequests;
 export const useGetSingleAssetRequestQuery = useGetSingleAssetRequest;
 export const useCreateAssetRequestMutation = useCreateAssetRequest;
 export const useEditAssetRequestMutation = useEditAssetRequest;
 export const useDeleteAssetRequestMutation = useDeleteAssetRequest;
+export const useUploadAssetRequestDocumentMutation = useUploadAssetRequestDocument;
