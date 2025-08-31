@@ -5,7 +5,7 @@ import FormButton from "@/components/FormButton";
 import FormInput from "@/components/FormInput";
 import FormSelect from "@/components/FormSelect";
 import FormTextArea from "@/components/FormTextArea";
-import FormDatePicker from "@/components/FormDatePicker";
+import DateInput from "@/components/DateInput";
 import { Form } from "@/components/ui/form";
 import {
   ExpenditureSchema,
@@ -85,6 +85,21 @@ export default function ExpenditureModal() {
     if (!submitData.work_plan_activity || submitData.work_plan_activity.trim() === "") {
       delete submitData.work_plan_activity;
     }
+
+    // Format date to YYYY-MM-DD if it's a Date object
+    if (submitData.date) {
+      let formattedDate = submitData.date;
+      if (typeof formattedDate === 'object' && (formattedDate as Date).toISOString) {
+        // Safely cast and format if it's a Date object
+        formattedDate = (formattedDate as Date).toISOString().split('T')[0];
+      } else if (typeof formattedDate === 'string' && !/^\d{4}-\d{2}-\d{2}$/.test(formattedDate)) {
+        const dateObj = new Date(formattedDate);
+        if (!isNaN(dateObj.getTime())) {
+          formattedDate = dateObj.toISOString().slice(0, 10);
+        }
+      }
+      submitData.date = formattedDate;
+    }
     
     console.log("Final submit data:", submitData);
     
@@ -107,10 +122,9 @@ export default function ExpenditureModal() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-5'>
-        <FormDatePicker
+        <DateInput
           label='Date'
           name='date'
-          placeholder='Select Date'
           required
         />
 
