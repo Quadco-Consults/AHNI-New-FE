@@ -81,8 +81,14 @@ export default function ExpenditureModal() {
     // Prepare submit data with correct field names
     const submitData = { ...data };
     
-    // If work_plan_activity is empty, remove it from the data
-    if (!submitData.work_plan_activity || submitData.work_plan_activity.trim() === "") {
+    // If work_plan_activity is empty or not a valid UUID, remove it from the data
+    const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    if (
+      !submitData.work_plan_activity ||
+      typeof submitData.work_plan_activity !== "string" ||
+      submitData.work_plan_activity.trim() === "" ||
+      !uuidRegex.test(submitData.work_plan_activity)
+    ) {
       delete submitData.work_plan_activity;
     }
 
