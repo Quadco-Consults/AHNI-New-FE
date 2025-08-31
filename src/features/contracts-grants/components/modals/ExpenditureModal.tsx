@@ -21,7 +21,9 @@ import {
 import { toast } from "sonner";
 import { closeDialog } from "store/ui";
 import { useGetAllActivityPlans } from "@/features/programs/controllers/activityPlanController";
+import { useGetSingleProject } from "@/features/projects/controllers/projectController";
 import { useMemo } from "react";
+import { formatNumberCurrency } from "utils/utls";
 
 export default function ExpenditureModal() {
   const { dialogProps } = useAppSelector((state) => state.ui.dailog);
@@ -49,6 +51,9 @@ export default function ExpenditureModal() {
   const { updateExpenditure, isLoading: isModifyLoading } =
     useModifyExpenditure(grantId || "", expenditure?.id || "");
 
+  // Get project data to calculate balance
+  const { data: projectData } = useGetSingleProject(grantId || "");
+
   // Fetch work plan activities for the project/grant
   const { data: activitiesData } = useGetAllActivityPlans({
     project: grantId, // Using grantId as project ID
@@ -63,10 +68,18 @@ export default function ExpenditureModal() {
     console.log("Available activities:", activitiesData.data.results);
     
     return activitiesData.data.results.map((activity) => ({
-      value: activity.id,
-      label: `${activity.activity_code} - ${activity.activity_description}`,
+      value: activity.work_plan_activity,
+      label: `${activity.work_plan_activity_identifier} - ${activity.activity_name}`,
     }));
   }, [activitiesData]);
+
+  // Calculate current balance
+  const currentBalance = useMemo(() => {
+    if (!projectData?.data) return 0;
+    const obligation = parseFloat(projectData.data.total_obligation_amount || "0");
+    const expenditure = parseFloat(projectData.data.total_expenditure_amount || "0");
+    return obligation - expenditure;
+  }, [projectData]);
 
   const onSubmit: SubmitHandler<TExpenditureFormData> = async (data) => {
     if (!grantId) {
@@ -128,6 +141,13 @@ export default function ExpenditureModal() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-5'>
+        {/* Balance Display */}
+        <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+          <p className="text-sm text-blue-700 font-medium">
+            Available Balance: {formatNumberCurrency(currentBalance.toString(), "USD")}
+          </p>
+        </div>
+
         <DateInput
           label='Date'
           name='date'

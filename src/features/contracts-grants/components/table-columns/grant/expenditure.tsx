@@ -40,7 +40,7 @@ export const expenditureColumns: ColumnDef<IExpenditurePaginatedData>[] = [
         header: "Activity",
         id: "work_plan_activity",
         accessorFn: ({ work_plan_activity_details, work_plan_activity }) => 
-            work_plan_activity_details?.activity_name || work_plan_activity || "N/A",
+            work_plan_activity_details?.activity_name || (work_plan_activity ? `Activity: ${work_plan_activity.slice(0, 8)}...` : "N/A"),
         size: 200,
     },
 
