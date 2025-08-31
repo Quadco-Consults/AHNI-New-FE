@@ -50,6 +50,9 @@ const ExpenditureHistory: React.FC<any> = ({
         grantId ? { grantId: grantId, page, size: 10, enabled: true } : { grantId: "", enabled: false }
     );
 
+    // Debug logging
+    console.log("Expenditure data:", data?.data?.results);
+
     return (
         <section className="w-full flex flex-col px-5 space-y-[1.25rem]">
             <div className="grid grid-cols-3 gap-5">
