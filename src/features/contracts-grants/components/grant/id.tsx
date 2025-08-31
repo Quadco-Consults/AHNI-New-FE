@@ -21,6 +21,8 @@ const GrantDetails: React.FC = () => {
   const [tabValue, setTabValue] = useState("details");
 
   const { id } = useParams();
+  const grantId = typeof id === 'string' ? id : Array.isArray(id) ? id[0] : undefined;
+  
 
   const { data, isLoading } = useGetSingleProject(id ?? skipToken);
 
@@ -33,7 +35,7 @@ const GrantDetails: React.FC = () => {
       <div className='flex items-center justify-between'>
         <BackNavigation />
 
-        {(tabValue === "expenditure" || tabValue === "obligation") && (
+        {(tabValue === "expenditure" || tabValue === "obligation") && grantId && (
           <Button
             className='flex gap-2 py-6'
             type='button'
@@ -50,7 +52,7 @@ const GrantDetails: React.FC = () => {
                         ? "Add Expenditure"
                         : "Add Obligation",
                     width: "max-w-lg",
-                    grantId: id,
+                    grantId: grantId,
                   },
                 })
               );

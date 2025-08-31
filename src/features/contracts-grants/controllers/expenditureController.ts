@@ -82,7 +82,7 @@ export const useCreateExpenditure = (grantId: string) => {
     TExpenditureFormData
   >({
     endpoint: `/projects/${grantId}/expenditures/`,
-    queryKey: ["expenditures", "grants"],
+    queryKey: ["expenditures", grantId],
     isAuth: true,
     method: "POST",
   });
@@ -106,7 +106,7 @@ export const useUpdateExpenditure = (grantId: string, expenditureId: string) => 
     TExpenditureFormData
   >({
     endpoint: `/projects/${grantId}/expenditures/${expenditureId}/`,
-    queryKey: ["expenditures", "grants"],
+    queryKey: ["expenditures", grantId],
     isAuth: true,
     method: "PUT",
   });
@@ -130,7 +130,7 @@ export const useDeleteExpenditure = (grantId: string, expenditureId: string) => 
     Record<string, never>
   >({
     endpoint: `/projects/${grantId}/expenditures/${expenditureId}/`,
-    queryKey: ["expenditures", "grants"],
+    queryKey: ["expenditures", grantId],
     isAuth: true,
     method: "DELETE",
   });

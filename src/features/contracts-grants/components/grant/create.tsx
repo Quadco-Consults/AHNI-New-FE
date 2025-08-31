@@ -13,7 +13,7 @@ import { CG_ROUTES } from "constants/RouterConstants";
 import { GrantSchema, TGrantFormData } from "features/contracts-grants/types/grants";
 import { useEffect } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useNavigate, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   useCreateGrant,
   useGetSingleGrant,
@@ -41,8 +41,8 @@ export default function CreateGrant() {
     },
   });
 
-  const [searchParams] = useSearchParams();
-  const id = searchParams.get("id");
+  const searchParams = useSearchParams();
+  const id = searchParams?.get("id");
 
   const router = useRouter();
 
@@ -63,15 +63,15 @@ export default function CreateGrant() {
     useCreateGrant();
 
   const { modifyGrant, isLoading: isModifyLoading } =
-    useModifyGrant();
+    useModifyGrant(id || "");
 
   const onSubmit: SubmitHandler<TGrantFormData> = async (data) => {
     try {
       if (id) {
-        await modifyGrant({ id, body: data })();
+        await modifyGrant(data);
         toast.success("Grant Updated Successfully");
       } else {
-        await createGrant(data)();
+        await createGrant(data);
         toast.success("Grant Created Successfully");
       }
 

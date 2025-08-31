@@ -6,6 +6,7 @@ import FormInput from "components/atoms/FormInput";
 
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
@@ -30,25 +31,55 @@ const AddFundingSource = () => {
         defaultValues: {
             name: data?.name ?? "",
             description: data?.description ?? "",
+            email_donor: data?.email_donor ?? "",
+            address_donor: data?.address_donor ?? "",
+            contact_person_name: data?.contact_person_name ?? "",
+            email_contact_person: data?.email_contact_person ?? "",
+            contact_person_phone: data?.contact_person_phone ?? "",
         },
     });
 
     const dispatch = useAppDispatch();
-    const { addFundingSource: fundingSource, isLoading } = useAddFundingSource();
+    const [addFundingSource, { isLoading }] = useAddFundingSource();
 
     const [updateFunding, { isLoading: updateFundingLoading }] =
         useUpdateFundingSource();
+
+    // Update form values when data changes (for update mode)
+    useEffect(() => {
+        if (data && dialogProps?.type === "update") {
+            form.reset({
+                name: data.name ?? "",
+                description: data.description ?? "",
+                email_donor: data.email_donor ?? "",
+                address_donor: data.address_donor ?? "",
+                contact_person_name: data.contact_person_name ?? "",
+                email_contact_person: data.email_contact_person ?? "",
+                contact_person_phone: data.contact_person_phone ?? "",
+            });
+        } else if (dialogProps?.type !== "update") {
+            // Reset form for new entries
+            form.reset({
+                name: "",
+                description: "",
+                email_donor: "",
+                address_donor: "",
+                contact_person_name: "",
+                email_contact_person: "",
+                contact_person_phone: "",
+            });
+        }
+    }, [data, dialogProps?.type, form]);
 
     const onSubmit: SubmitHandler<TFundingSourceFormValues> = async (data) => {
         try {
             dialogProps?.type === "update"
                 ? await updateFunding({
-                      //@ts-ignore
                       id: String(dialogProps?.data?.id),
                       body: data,
                   })
-                : await fundingSource(data);
-            toast.success("Funding Source Added Succesfully");
+                : await addFundingSource(data);
+            toast.success(dialogProps?.type === "update" ? "Funding Source Updated Successfully" : "Funding Source Added Successfully");
             dispatch(closeDialog());
             form.reset();
         } catch (error: any) {
@@ -70,34 +101,40 @@ const AddFundingSource = () => {
                     required
                 />
 
+                <FormTextArea
+                    label="Description"
+                    name="description"
+                    placeholder="Enter description"
+                />
+
                 <FormInput
                     label="Donor Email"
-                    name="email"
-                    placeholder="Enter email"
+                    name="email_donor"
+                    placeholder="Enter donor email"
                 />
 
                 <FormTextArea
                     label="Donor Address"
-                    name="address"
-                    placeholder="Enter address"
+                    name="address_donor"
+                    placeholder="Enter donor address"
                 />
 
                 <FormInput
                     label="Donor Contact Person"
-                    name="description"
-                    placeholder="Enter name"
+                    name="contact_person_name"
+                    placeholder="Enter contact person name"
                 />
 
                 <FormInput
                     label="Donor Contact Person Email"
-                    name="email"
-                    placeholder="Enter email"
+                    name="email_contact_person"
+                    placeholder="Enter contact person email"
                 />
 
                 <FormInput
                     label="Donor Contact Person Phone Number"
-                    name="phone_number"
-                    placeholder="Enter phone number"
+                    name="contact_person_phone"
+                    placeholder="Enter contact person phone number"
                 />
                 <div className="flex justify-start gap-4">
                     <FormButton loading={isLoading || updateFundingLoading}>

@@ -5,6 +5,7 @@ import FormButton from "@/components/FormButton";
 import FormInput from "@/components/FormInput";
 import FormSelect from "@/components/FormSelect";
 import FormTextArea from "@/components/FormTextArea";
+import FormDatePicker from "@/components/FormDatePicker";
 import { Form } from "@/components/ui/form";
 import {
   ExpenditureSchema,
@@ -19,6 +20,8 @@ import {
 } from "@/features/contracts-grants/controllers/expenditureController";
 import { toast } from "sonner";
 import { closeDialog } from "store/ui";
+import { useGetAllActivityPlans } from "@/features/programs/controllers/activityPlanController";
+import { useMemo } from "react";
 
 export default function ExpenditureModal() {
   const { dialogProps } = useAppSelector((state) => state.ui.dailog);
@@ -31,6 +34,8 @@ export default function ExpenditureModal() {
     defaultValues: {
       amount: expenditure?.amount ?? "",
       description: expenditure?.description ?? "",
+      work_plan_activity: expenditure?.work_plan_activity ?? "",
+      date: expenditure?.date ?? "",
     },
   });
 
@@ -39,53 +44,82 @@ export default function ExpenditureModal() {
   const grantId = dialogProps?.grantId as string;
 
   const { createExpenditure, isLoading: isCreateLoading } =
-    useCreateExpenditure();
+    useCreateExpenditure(grantId || "");
 
-  const { modifyExpenditure, isLoading: isModifyLoading } =
-    useModifyExpenditure();
+  const { updateExpenditure, isLoading: isModifyLoading } =
+    useModifyExpenditure(grantId || "", expenditure?.id || "");
+
+  // Fetch work plan activities for the project/grant
+  const { data: activitiesData } = useGetAllActivityPlans({
+    project: grantId, // Using grantId as project ID
+    size: 1000, // Get all activities
+    enabled: !!grantId,
+  });
+
+  // Create options for the activity dropdown
+  const activityOptions = useMemo(() => {
+    if (!activitiesData?.data?.results) return [];
+    
+    console.log("Available activities:", activitiesData.data.results);
+    
+    return activitiesData.data.results.map((activity) => ({
+      value: activity.id,
+      label: `${activity.activity_code} - ${activity.activity_description}`,
+    }));
+  }, [activitiesData]);
 
   const onSubmit: SubmitHandler<TExpenditureFormData> = async (data) => {
+    if (!grantId) {
+      toast.error("Grant ID is required");
+      return;
+    }
+    
+    console.log("Submitting expenditure data:", data);
+    console.log("Grant ID:", grantId);
+    console.log("Available activity options:", activityOptions);
+    
+    // Prepare submit data with correct field names
+    const submitData = { ...data };
+    
+    // If work_plan_activity is empty, remove it from the data
+    if (!submitData.work_plan_activity || submitData.work_plan_activity.trim() === "") {
+      delete submitData.work_plan_activity;
+    }
+    
+    console.log("Final submit data:", submitData);
+    
     try {
       if (expenditure?.id) {
-        await modifyExpenditure({
-          grantId,
-          expenditureId: expenditure?.id,
-          body: data,
-        })();
+        await updateExpenditure(submitData);
         toast.success("Expenditure Updated");
       } else {
-        await createExpenditure({
-          grantId,
-          body: data,
-        })();
+        await createExpenditure(submitData);
         toast.success("Expenditure Created");
       }
 
       dispatch(closeDialog());
     } catch (error: any) {
       console.log(error);
-      toast.error(error.data?.message ?? "Something went wrong");
+      toast.error(error?.data?.message ?? error?.message ?? "Something went wrong");
     }
   };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-5'>
-        {/* <FormSelect
-          label='Project'
-          name='amount'
-          placeholder='Select Project'
+        <FormDatePicker
+          label='Date'
+          name='date'
+          placeholder='Select Date'
           required
-          options={[]}
-        /> */}
-        {/* 
+        />
+
         <FormSelect
-          label='Activity'
-          name='amount'
-          placeholder='Select Activity'
-          required
-          options={[]}
-        /> */}
+          label='Work Plan Activity (Optional)'
+          name='work_plan_activity'
+          placeholder='Select Work Plan Activity (Optional)'
+          options={activityOptions}
+        />
 
         <FormInput
           type='number'

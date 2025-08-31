@@ -21,18 +21,34 @@ export const expenditureColumns: ColumnDef<IExpenditurePaginatedData>[] = [
     {
         header: "Date",
         id: "date",
+        accessorKey: "created_datetime",
+        cell: ({ getValue }) => {
+            const date = getValue() as string;
+            return date ? new Date(date).toLocaleDateString() : "N/A";
+        },
         size: 200,
     },
 
     {
         header: "Project",
         id: "project",
+        accessorKey: "grant",
+        cell: ({ getValue }) => {
+            // For now just show the grant ID, this might need to be resolved to project name
+            const grantId = getValue() as string;
+            return grantId || "N/A";
+        },
         size: 200,
     },
 
     {
         header: "Activity",
-        id: "activity",
+        id: "work_plan_activity",
+        accessorKey: "work_plan_activity",
+        cell: ({ getValue }) => {
+            const activityId = getValue() as string;
+            return activityId || "N/A";
+        },
         size: 200,
     },
 
@@ -66,15 +82,16 @@ const TableMenu = ({
     const dispatch = useAppDispatch();
 
     const { id: grantId } = useParams();
+    const processedGrantId = typeof grantId === 'string' ? grantId : Array.isArray(grantId) ? grantId[0] : "";
 
-    const { deleteExpenditure, isLoading } = useDeleteExpenditure();
+    const { deleteExpenditure, isLoading } = useDeleteExpenditure(processedGrantId, expenditureId);
 
     const handleDelete = async () => {
         try {
-            await deleteExpenditure({ grantId: grantId ?? "", expenditureId });
+            await deleteExpenditure();
             toast.success("Expenditure Deleted");
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error?.data?.message ?? error?.message ?? "Something went wrong");
         }
     };
 
@@ -98,7 +115,7 @@ const TableMenu = ({
                                         dialogProps: {
                                             header: "Update Expenditure",
                                             width: "max-w-lg",
-                                            grantId,
+                                            grantId: processedGrantId,
                                             expenditure: {
                                                 id: expenditureId,
                                                 ...rest,
