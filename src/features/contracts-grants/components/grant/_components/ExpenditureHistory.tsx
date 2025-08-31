@@ -6,7 +6,6 @@ import DataTable from "components/Table/DataTable";
 import { expenditureColumns } from "@/features/contracts-grants/components/table-columns/grant/expenditure";
 import { IGrantSingleData } from "features/contracts-grants/types/grants";
 import { useParams } from "next/navigation";
-import { skipToken } from "@reduxjs/toolkit/query";
 import { useGetAllExpenditures } from "@/features/contracts-grants/controllers/expenditureController";
 import { formatNumberCurrency } from "utils/utls";
 
@@ -44,9 +43,11 @@ const ExpenditureHistory: React.FC<any> = ({
     const [page, setPage] = useState(1);
 
     const { id } = useParams();
+    const grantId = typeof id === 'string' ? id : Array.isArray(id) ? id[0] : undefined;
+    
 
     const { data, isFetching } = useGetAllExpenditures(
-        id ? { grantId: id, page, size: 10 } : skipToken
+        grantId ? { grantId: grantId, page, size: 10, enabled: true } : { grantId: "", enabled: false }
     );
 
     return (
@@ -76,11 +77,11 @@ const ExpenditureHistory: React.FC<any> = ({
             <div className="w-full bg-white border rounded-lg p-2">
                 <DataTable
                     columns={expenditureColumns}
-                    data={data?.data.results || []}
+                    data={data?.data?.results || []}
                     isLoading={isFetching}
                     pagination={{
-                        total: data?.data.pagination.count ?? 0,
-                        pageSize: data?.data.pagination.page_size ?? 0,
+                        total: data?.data?.paginator?.count ?? 0,
+                        pageSize: data?.data?.paginator?.page_size ?? 0,
                         onChange: (page: number) => setPage(page),
                     }}
                 />

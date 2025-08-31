@@ -61,6 +61,8 @@ export interface IGrantSingleData {
 export const ExpenditureSchema = z.object({
   amount: z.string().min(1, "Please enter amount"),
   description: z.string().min(1, "Please enter description"),
+  work_plan_activity: z.string().optional(),
+  date: z.string().min(1, "Please select date"),
 });
 
 export type TExpenditureFormData = z.infer<typeof ExpenditureSchema>;
@@ -71,6 +73,8 @@ export interface IExpenditurePaginatedData {
   updated_datetime: string;
   description: string;
   amount: string;
+  work_plan_activity?: string;
+  date: string;
   created_by: null;
   updated_by: null;
   grant: string;
