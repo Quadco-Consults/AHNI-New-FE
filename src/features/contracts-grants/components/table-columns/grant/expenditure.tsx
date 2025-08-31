@@ -32,23 +32,15 @@ export const expenditureColumns: ColumnDef<IExpenditurePaginatedData>[] = [
     {
         header: "Project",
         id: "project",
-        accessorKey: "grant",
-        cell: ({ getValue }) => {
-            // For now just show the grant ID, this might need to be resolved to project name
-            const grantId = getValue() as string;
-            return grantId || "N/A";
-        },
+        accessorFn: ({ project_details }) => project_details?.title || "N/A",
         size: 200,
     },
 
     {
         header: "Activity",
         id: "work_plan_activity",
-        accessorKey: "work_plan_activity",
-        cell: ({ getValue }) => {
-            const activityId = getValue() as string;
-            return activityId || "N/A";
-        },
+        accessorFn: ({ work_plan_activity_details, work_plan_activity }) => 
+            work_plan_activity_details?.activity_name || work_plan_activity || "N/A",
         size: 200,
     },
 

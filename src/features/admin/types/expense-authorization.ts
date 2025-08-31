@@ -61,8 +61,21 @@ export interface IExpenseAuthorizationPaginatedData {
     department: string;
     fco: string;
     project: string;
+    project_details: {
+        id: string;
+        project_id: string;
+        title: string;
+        status: string;
+        currency: string;
+        budget: number;
+        award_amount: number;
+    } | null;
+    work_plan_activity_details: any | null;
     created_datetime: string;
     updated_datetime: string;
+    description: string;
+    amount: string;
+    date: string;
     full_name: string;
     address: string;
     phone_number: string;
