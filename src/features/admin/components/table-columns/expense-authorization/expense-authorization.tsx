@@ -21,7 +21,15 @@ export const expenseAuthorizationColumns: ColumnDef<IExpenseAuthorizationPaginat
     [
         {
             header: "Project",
-            accessorKey: "project",
+            id: "project",
+            accessorFn: ({ project_details }) => project_details?.title || "N/A",
+            size: 250,
+        },
+
+        {
+            header: "Activity",
+            id: "activity",
+            accessorFn: ({ work_plan_activity_details }) => work_plan_activity_details?.activity_name || "N/A",
             size: 250,
         },
 
@@ -120,12 +128,12 @@ export const expenseAuthorizationColumns: ColumnDef<IExpenseAuthorizationPaginat
 const TableMenu = ({ id }: IExpenseAuthorizationPaginatedData) => {
     const [isDialogOpen, setDialogOpen] = useState(false);
 
-    const [deleteExpenseAuthorization, { isLoading }] =
-        useDeleteExpenseAuthorizationMutation();
+    const { deleteExpenseAuthorization, isLoading } =
+        useDeleteExpenseAuthorizationMutation(id);
 
     const handleDelete = async () => {
         try {
-            await deleteExpenseAuthorization(id).unwrap();
+            await deleteExpenseAuthorization();
             toast.success("Expense Authorization Deleted");
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
@@ -142,10 +150,7 @@ const TableMenu = ({ id }: IExpenseAuthorizationPaginatedData) => {
             <PopoverContent className="w-fit">
                 <div className="flex flex-col items-start justify-between gap-1">
                     <Link
-                        href={generatePath(
-                            AdminRoutes.EXPENSE_AUTHORIZATION_DETAIL,
-                            { id }
-                        )}
+                        href={`${AdminRoutes.EXPENSE_AUTHORIZATION_DETAIL}/${id}`}
                         className="w-full"
                     >
                         <Button
