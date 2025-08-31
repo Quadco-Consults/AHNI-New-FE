@@ -14,19 +14,24 @@ const ExpenditureHistory: React.FC<any> = ({
     total_obligation_amount,
 }: IGrantSingleData) => {
     const StatsCard = useMemo(() => {
+        // Calculate balance: Total Obligation - Total Expenditure
+        const obligation = parseFloat(total_obligation_amount || "0");
+        const expenditure = parseFloat(total_expenditure_amount || "0");
+        const balance = obligation - expenditure;
+
         return [
             {
                 id: 1,
                 name: "Total Obligation",
                 stat: total_obligation_amount
                     ? formatNumberCurrency(total_obligation_amount, "USD")
-                    : 0,
+                    : formatNumberCurrency("0", "USD"),
                 icon: <TotalIncomeSvg />,
             },
             {
                 id: 2,
                 name: "Balance",
-                stat: "$1000",
+                stat: formatNumberCurrency(balance.toString(), "USD"),
                 icon: <TotalIncomeSvg />,
             },
             {
@@ -34,7 +39,7 @@ const ExpenditureHistory: React.FC<any> = ({
                 name: "Total Expenditure",
                 stat: total_expenditure_amount
                     ? formatNumberCurrency(total_expenditure_amount, "USD")
-                    : 0,
+                    : formatNumberCurrency("0", "USD"),
                 icon: <TotalExpenditureSvg />,
             },
         ];
