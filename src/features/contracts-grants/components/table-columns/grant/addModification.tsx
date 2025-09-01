@@ -16,7 +16,7 @@ import {
   ModificationSchema,
   TModificationFormData,
 } from "features/contracts-grants/types/modification";
-import { useCreateModification } from "@/features/contracts-grants/controllers/grant/grant";
+import { useCreateModification } from "@/features/contracts-grants/controllers/grantController";
 
 const AddModification = () => {
   const { dialogProps } = useAppSelector(dailogSelector);
@@ -38,29 +38,28 @@ const AddModification = () => {
   console.log({ vn });
 
   const dispatch = useAppDispatch();
-  const { modification, isLoading } = useCreateModification();
+  const { createModification, isLoading } = useCreateModification(String(dialogProps?.data?.id));
 
   const onSubmit: SubmitHandler<TModificationFormData> = async (data) => {
     console.log({ crakcen: data });
 
     try {
-      await modification({
-        //@ts-ignore
-        id: String(dialogProps?.data?.id),
-        body: {
-          project: dialogProps?.data?.id,
-          title: data.title,
-          amount: data.amount,
-          description: data.description,
-          date: data.date,
-        },
-      })();
+      // Send the modification data as expected by the API
+      await createModification({
+        title: data.title,
+        amount: data.amount,
+        description: data.description,
+        date: data.date,
+        project: String(dialogProps?.data?.id),
+      } as any);
 
-      toast.success("Location Added Succesfully");
+      toast.success("Grant Modified Successfully");
       dispatch(closeDialog());
       form.reset();
     } catch (error: any) {
-      toast.error(error.data.message || "Something went wrong");
+      console.error("Modification error:", error);
+      const errorMessage = error?.response?.data?.message || error?.data?.message || error?.message || "Something went wrong";
+      toast.error(errorMessage);
     }
   };
 
@@ -74,37 +73,37 @@ const AddModification = () => {
           <FormInput
             label='Project'
             name='project'
-            required
             placeholder='Enter Project'
+            disabled={true}
           />
 
           <FormInput
             name='title'
-            label='Title'
+            label='Modification Title'
             required
-            placeholder='Enter Amount'
+            placeholder='Enter modification title'
           />
 
           <FormInput
             name='amount'
-            label='Amount'
+            label='Modification Amount'
             required
-            placeholder='Enter Amount'
+            placeholder='Enter modification amount'
             type='number'
           />
 
           <FormTextArea
-            label='Description'
+            label='Modification Description'
             name='description'
             required
-            placeholder='Enter description'
+            placeholder='Enter modification description'
           />
 
           <FormInput
-            label='Date'
+            label='Modification Date'
             name='date'
             required
-            placeholder='Enter Date'
+            placeholder='Select modification date'
             type='date'
           />
 
