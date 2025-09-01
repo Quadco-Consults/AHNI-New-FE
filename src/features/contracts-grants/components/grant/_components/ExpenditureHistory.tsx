@@ -15,9 +15,19 @@ const ExpenditureHistory: React.FC<any> = ({
 }: IGrantSingleData) => {
     const StatsCard = useMemo(() => {
         // Calculate balance: Total Obligation - Total Expenditure
-        const obligation = parseFloat(total_obligation_amount || "0");
-        const expenditure = parseFloat(total_expenditure_amount || "0");
-        const balance = obligation - expenditure;
+        // Handle potential type conversion issues that might occur in backend
+        let obligation = 0;
+        let expenditure = 0;
+        let balance = 0;
+        
+        try {
+            obligation = parseFloat(total_obligation_amount?.toString() || "0") || 0;
+            expenditure = parseFloat(total_expenditure_amount?.toString() || "0") || 0;
+            balance = obligation - expenditure;
+        } catch (error) {
+            console.warn("Error calculating balance:", error);
+            balance = 0;
+        }
 
         return [
             {
@@ -51,12 +61,19 @@ const ExpenditureHistory: React.FC<any> = ({
     const grantId = typeof id === 'string' ? id : Array.isArray(id) ? id[0] : undefined;
     
 
-    const { data, isFetching } = useGetAllExpenditures(
+    const { data, isFetching, error } = useGetAllExpenditures(
         grantId ? { grantId: grantId, page, size: 10, enabled: true } : { grantId: "", enabled: false }
     );
 
-    // Debug logging
+    // Enhanced debug logging
+    console.log("Base URL:", process.env.NEXT_PUBLIC_BASE_URL);
+    console.log("Grant ID:", grantId);
+    console.log("Full API URL would be:", `${process.env.NEXT_PUBLIC_BASE_URL}projects/${grantId}/expenditures/`);
+    console.log("Is fetching:", isFetching);
+    console.log("API Error:", error);
+    console.log("Full API response:", data);
     console.log("Expenditure data:", data?.data?.results);
+    console.log("Results count:", data?.data?.results?.length || 0);
 
     return (
         <section className="w-full flex flex-col px-5 space-y-[1.25rem]">
@@ -83,6 +100,24 @@ const ExpenditureHistory: React.FC<any> = ({
                 })}
             </div>
             <div className="w-full bg-white border rounded-lg p-2">
+                {error && (
+                    <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="text-red-800 font-medium">Error loading expenditure data:</p>
+                        <p className="text-red-600 text-sm mt-1">{error.message}</p>
+                        {error.message.includes("Backend calculation error") && (
+                            <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded">
+                                <p className="text-yellow-800 text-xs font-medium">Technical Note:</p>
+                                <p className="text-yellow-700 text-xs">This is a backend server issue with data type handling in financial calculations. The development team needs to fix the Python backend to properly handle Decimal/Float conversions.</p>
+                            </div>
+                        )}
+                    </div>
+                )}
+                {!grantId && (
+                    <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <p className="text-yellow-800 font-medium">No Grant ID found</p>
+                        <p className="text-yellow-600 text-sm mt-1">Unable to load expenditure data without a valid grant ID</p>
+                    </div>
+                )}
                 <DataTable
                     columns={expenditureColumns}
                     data={data?.data?.results || []}
