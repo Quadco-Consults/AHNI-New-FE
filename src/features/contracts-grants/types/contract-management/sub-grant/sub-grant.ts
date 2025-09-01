@@ -4,17 +4,16 @@ import { TPartnerData } from "definations/modules/project/partners";
 import { IUser } from "definations/auth/user";
 
 export const SubGrantSchema = z.object({
-    grant: z.string().min(1, "Please select grant"),
-    partners: z.array(z.string()).nonempty("Please select partner"),
+    project: z.string().min(1, "Please select project"),
     title: z.string().min(1, "Please enter title"),
-    sub_grant_administrator: z.string().min(1, "Please select administrator"),
     award_type: z.string().min(1, "Please select award type"),
-    technical_staff: z.string().min(1, "Please select technical staff"),
-    business_unit: z.string().min(1, "Please enter business unit"),
     amount_usd: z.string().min(1, "Please enter amount in USD"),
     amount_ngn: z.string().min(1, "Please enter amount in NGN"),
-    start_date: z.string().min(1, "Please select start date"),
-    end_date: z.string().min(1, "Please select end date"),
+    submission_start_date: z.string().min(1, "Please select submission start date"),
+    submission_end_date: z.string().min(1, "Please select submission end date"),
+    sub_grant_administrator: z.string().min(1, "Please select administrator"),
+    technical_staff: z.string().min(1, "Please select technical staff"),
+    business_unit: z.string().min(1, "Please select department"),
 });
 
 export type TSubGrantFormData = z.infer<typeof SubGrantSchema>;
