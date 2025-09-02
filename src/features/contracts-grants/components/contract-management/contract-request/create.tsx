@@ -18,6 +18,7 @@ import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import {
   useCreateContractRequest,
   useModifyContractRequest,
+  useUpdateContractRequest,
 } from "@/features/contracts-grants/controllers/contractController";
 import { useGetAllDepartments } from "@/features/modules/controllers/config/departmentController";
 import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
@@ -25,7 +26,7 @@ import { useGetAllFCONumbers } from "@/features/modules/controllers/finance/fcoN
 import { toast } from "sonner";
 
 export default function CreateContractRequest() {
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams();
 
   const id = searchParams.get("id");
 
@@ -43,8 +44,8 @@ export default function CreateContractRequest() {
       email: "",
       phone_number: "",
       current_reviewer: "",
-      // authorizer: "",
-      // approver: "",
+      authorizer: "",
+      approver: "",
     },
   });
 
@@ -107,19 +108,29 @@ export default function CreateContractRequest() {
   const { createContractRequest, isLoading: isCreateLoading } =
     useCreateContractRequest();
 
-  const { modifyContractRequest, isLoading: isModifyLoading } =
-    useModifyContractRequest();
+  const { updateContractRequest: modifyContractRequest, isLoading: isModifyLoading } =
+    useUpdateContractRequest(id || "");
 
   const onSubmit = async (data: any) => {
-    // console.log("Form submitted with data:", data);
-    // Handle form submission logic here
+    console.log("Form submitted with data:", data);
+    
+    // Validate required fields before submission
+    if (!data.location || data.location === "") {
+      toast.error("Please select a location");
+      return;
+    }
+    
+    if (!data.current_reviewer || data.current_reviewer === "") {
+      toast.error("Please select a current reviewer");
+      return;
+    }
 
     try {
       if (id) {
-        await modifyContractRequest({ id, body: data })();
+        await modifyContractRequest({ id, body: data });
         toast.success("Contract Updated Successfully");
       } else {
-        await createContractRequest(data)();
+        await createContractRequest(data);
         toast.success("Contract Created Successfully");
       }
 
@@ -222,23 +233,20 @@ export default function CreateContractRequest() {
               required
               options={userOptions}
             />
-            {/* 
 
             <FormSelect
               label='Authorizer'
-              name='_'
-              placeholder='Select authorizer'
-              required
+              name='authorizer'
+              placeholder='Select authorizer (optional)'
               options={userOptions}
             />
 
             <FormSelect
               label='Approver'
-              name='_'
-              placeholder='Select approver'
-              required
+              name='approver'
+              placeholder='Select approver (optional)'
               options={userOptions}
-            /> */}
+            />
             <div className=''>
               <FormButton
                 size='lg'

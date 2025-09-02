@@ -27,14 +27,17 @@ import {
     useCreateCloseOutPlan,
     useGetSingleCloseOutPlan,
     useModifyCloseOutPlan,
+    useCreateCloseOutPlanMutation,
+    useModifyCloseOutPlanMutation,
+    useGetSingleCloseOutPlanQuery,
 } from "@/features/contracts-grants/controllers/closeoutPlanController";
 import { useGetAllDepartments } from "@/features/modules/controllers/config/departmentController";
 import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
-import { useGetAllProjects } from "@/features/projects/controllers/projectController";
+import { useGetAllProjects, useGetAllProjectsQuery } from "@/features/projects/controllers/projectController";
 import { toast } from "sonner";
 
 export default function CreateCloseOutPlan() {
-    const [searchParams] = useSearchParams();
+    const searchParams = useSearchParams();
 
     const id = searchParams.get("id");
 
@@ -114,10 +117,10 @@ export default function CreateCloseOutPlan() {
         [project]
     );
 
-    const [createCloseOutPlan, { isLoading: isCreateLoading }] =
+    const { createCloseoutPlan: createCloseOutPlan, isLoading: isCreateLoading } =
         useCreateCloseOutPlanMutation();
 
-    const [modifyCloseOutPlan, { isLoading: isModifyLoading }] =
+    const { updateCloseoutPlan: modifyCloseOutPlan, isLoading: isModifyLoading } =
         useModifyCloseOutPlanMutation();
 
     const onSubmit: SubmitHandler<TCloseOutPlanFormData> = async (data) => {
