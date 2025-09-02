@@ -15,7 +15,7 @@ import { ICloseOutPlanPaginatedData } from "@/features/contracts-grants/types/cl
 import { useAppDispatch } from "hooks/useStore";
 import { cn } from "lib/utils";
 import { useState } from "react";
-import Link from "next/link"; import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useDeleteCloseoutPlan } from "@/features/contracts-grants/controllers/closeoutPlanController";
 import { closeoutPlanAPis } from "@/features/contracts-grants/controllers/closeOutPlanController";
 import { toast } from "sonner";
@@ -32,8 +32,23 @@ export const closeOutPlanColumns: ColumnDef<ICloseOutPlanPaginatedData>[] = [
     {
         header: "Donor",
         id: "donor",
-        accessorKey: "donor",
+        accessorKey: "project",
         size: 250,
+        cell: ({ row }) => {
+            const project = row.original.project as any;
+            if (typeof project === 'object' && project?.funding_sources) {
+                return (
+                    <div className='flex gap-2 flex-wrap'>
+                        {project.funding_sources.map((source: any) => (
+                            <Badge key={source.id} className='bg-[#EBE8E1] text-[#1a0000ad]'>
+                                {source.name}
+                            </Badge>
+                        ))}
+                    </div>
+                );
+            }
+            return <span>-</span>;
+        },
     },
 
     {
@@ -103,9 +118,7 @@ const TableMenu = ({ id }: ICloseOutPlanPaginatedData) => {
                     </PopoverTrigger>
                     <PopoverContent className="w-fit">
                         <Link
-                            href={generatePath(CG_ROUTES.CLOSE_OUT_DETAILS, {
-                                id,
-                            })}
+                            href={CG_ROUTES.CLOSE_OUT_DETAILS.replace(':id', id)}
                         >
                             <Button
                                 className="w-full flex items-center justify-start gap-2"

@@ -1,7 +1,5 @@
-"use client";
-
-import ContractRequestDetail from "@/features/contracts-grants/components/contract-management/contract-request/id";
+import ContractRequestDetail from "@/features/contracts-grants/components/contract-management/ContractRequestDetail";
 
 export default function ContractRequestDetailPage() {
-    return <ContractRequestDetail />;
+  return <ContractRequestDetail />;
 }
