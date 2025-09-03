@@ -43,20 +43,20 @@ function ProcurementTracker() {
       state: "summary",
       name: "Summary",
 
-      tabComponent: <SummaryCard />,
+      tabComponent: <SummaryCard data={data} />,
     },
     {
       id: 2,
       state: "procurement_process_stage",
       name: "Procurement Process Stage",
-      tabComponent: <ProcurementProcessCard />,
+      tabComponent: <ProcurementProcessCard data={data} />,
     },
 
     {
       id: 1,
       state: "delivery_stage_and_vendor_performance_mangement",
       name: "Delivery Stage and Vendor Performance Mangement",
-      tabComponent: <DeliveryStageCard />,
+      tabComponent: <DeliveryStageCard data={data} />,
     },
   ];
   const [tabState, setTabState] = useState<string | number>(
