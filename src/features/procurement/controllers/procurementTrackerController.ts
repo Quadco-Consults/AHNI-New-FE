@@ -16,18 +16,28 @@ export const useGetAllProcurementTrackers = ({
   search = "",
   status = "",
   enabled = true,
+  item_category,
 }: TRequest & { enabled?: boolean }) => {
   return useQuery<TBasePaginatedResponse<ProcurementTrackerResults[]>>({
-    queryKey: ["procurement-trackers", page, size, search, status],
+    queryKey: [
+      "procurement-trackers",
+      page,
+      size,
+      search,
+      status,
+      item_category,
+    ],
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(BASE_URL, {
-          params: { page, size, search, status },
+          params: { page, size, search, status, item_category },
         });
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled,

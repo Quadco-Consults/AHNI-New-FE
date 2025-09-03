@@ -4,6 +4,7 @@ export interface TRequest {
   search?: string;
   status?: string;
   category?: string;
+  item_category?: string;
 }
 
 export interface TResponse<T> {

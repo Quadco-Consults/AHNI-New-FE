@@ -82,6 +82,19 @@ export default function GoodReceiveNoteDetails() {
       
       // Items
       purchase_order_items: purchaseOrder?.purchase_order_items || [],
+      
+      // Approval/Signature fields
+      created_by: grnData?.created_by,
+      accepted_by: grnData?.accepted_by,
+      rejected_by: grnData?.rejected_by,
+      accepted_datetime: grnData?.accepted_datetime,
+      rejected_datetime: grnData?.rejected_datetime,
+      
+      // Purchase Order approval fields
+      authorized_by: purchaseOrder?.authorized_by,
+      authorized_datetime: purchaseOrder?.authorized_datetime,
+      approved_date: purchaseOrder?.approved_date,
+      agreed_date: purchaseOrder?.agreed_date,
     };
   }, [data]);
 
@@ -180,67 +193,89 @@ export default function GoodReceiveNoteDetails() {
           <div className='space-y-2'>
             <div className='flex gap-2 text-[12px]'>
               <p className=' w-[122px] font-semibold'>Signature:</p>
-              <p className=''>-</p>
+              <p className=''>{details?.authorized_by ? '✓ Authorized' : 'Pending'}</p>
             </div>
 
             <div className='flex gap-2 text-[12px]'>
-              <p className=' w-[122px] font-semibold'>Date</p>
-              <p className=''>-</p>
+              <p className=' w-[122px] font-semibold'>Date:</p>
+              <p className=''>
+                {details?.authorized_datetime 
+                  ? new Date(details.authorized_datetime).toLocaleDateString()
+                  : '-'
+                }
+              </p>
             </div>
           </div>
-          <p></p>
         </Card>
 
         <Card className='flex-1 border-primary'>
-          <p className='text-[16px] font-semibold mb-2'>Requestor Name:</p>
+          <p className='text-[16px] font-semibold mb-2'>Purchase Order Approver</p>
           <div className='space-y-2'>
             <div className='flex gap-2 text-[12px]'>
               <p className=' w-[122px] font-semibold'>Signature:</p>
-              <p className=''>-</p>
+              <p className=''>{details?.approved_date ? '✓ Approved' : 'Pending'}</p>
             </div>
 
             <div className='flex gap-2 text-[12px]'>
-              <p className=' w-[122px] font-semibold'>Date</p>
-              <p className=''>-</p>
+              <p className=' w-[122px] font-semibold'>Date:</p>
+              <p className=''>
+                {details?.approved_date 
+                  ? new Date(details.approved_date).toLocaleDateString()
+                  : '-'
+                }
+              </p>
             </div>
           </div>
-          <p></p>
         </Card>
 
         <Card className='flex-1 border-primary'>
           <p className='text-[16px] font-semibold mb-2'>
-            Inventory Officer Name:
+            GRN Created By:
           </p>
           <div className='space-y-2'>
             <div className='flex gap-2 text-[12px]'>
               <p className=' w-[122px] font-semibold'>Signature:</p>
-              <p className=''>
-                <p className=''></p>
-              </p>
+              <p className=''>{details?.created_by ? '✓ Created' : '-'}</p>
             </div>
             <div className='flex gap-2 text-[12px]'>
-              <p className=' w-[122px] font-semibold'>Date</p>
-              <p className=''>-</p>
+              <p className=' w-[122px] font-semibold'>Date:</p>
+              <p className=''>
+                {details?.created_datetime 
+                  ? new Date(details.created_datetime).toLocaleDateString()
+                  : '-'
+                }
+              </p>
             </div>
           </div>
-          <p></p>
         </Card>
 
         <Card className='flex-1 border-primary'>
-          <p className='text-[16px] font-semibold mb-2'>Goods received by:</p>
+          <p className='text-[16px] font-semibold mb-2'>Goods Acceptance Status:</p>
           <div className='space-y-2'>
             <div className='flex gap-2 text-[12px]'>
-              <p className=' w-[122px] font-semibold'>Signature:</p>
+              <p className=' w-[122px] font-semibold'>Status:</p>
               <p className=''>
-                <p className=''></p>
+                {details?.accepted_by ? (
+                  <span className='text-green-600 font-semibold'>✓ Accepted</span>
+                ) : details?.rejected_by ? (
+                  <span className='text-red-600 font-semibold'>✗ Rejected</span>  
+                ) : (
+                  <span className='text-yellow-600 font-semibold'>⏳ Pending</span>
+                )}
               </p>
             </div>
             <div className='flex gap-2 text-[12px]'>
-              <p className=' w-[122px] font-semibold'>Date</p>
-              <p className=''>-</p>
+              <p className=' w-[122px] font-semibold'>Date:</p>
+              <p className=''>
+                {details?.accepted_datetime 
+                  ? new Date(details.accepted_datetime).toLocaleDateString()
+                  : details?.rejected_datetime
+                  ? new Date(details.rejected_datetime).toLocaleDateString()
+                  : '-'
+                }
+              </p>
             </div>
           </div>
-          <p></p>
         </Card>
       </div>
 
