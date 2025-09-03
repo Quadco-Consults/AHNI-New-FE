@@ -96,7 +96,7 @@ export const AdminRoutes = {
   GRN_CREATE_SUMMARY:
     "/dashboard/admin/inventory-management/good-receive-note/create",
   GRN_CREATE_UPLOADS: "/dashboard/admin/good-receive-note/create/uploads",
-  GRN_DETAIL: "/dashboard/admin/inventory-management/good-receive-note/:id",
+  GRN_DETAIL: "/dashboard/admin/good-receive-note/:id",
   /* GOOD RECEIVE NOTES END */
 
   ITEM_REQUISITION: "/dashboard/admin/inventory-management/item-requisition",
