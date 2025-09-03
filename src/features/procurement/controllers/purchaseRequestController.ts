@@ -70,7 +70,9 @@ export const useGetPurchaseRequests = ({
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled,
@@ -88,7 +90,9 @@ export const useGetPurchaseRequestList = (enabled: boolean = true) => {
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled,
@@ -106,7 +110,9 @@ export const useGetPurchaseRequest = (id: string, enabled: boolean = true) => {
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled && !!id,
@@ -127,7 +133,9 @@ export const useCreatePurchaseRequest = () => {
     method: "POST",
   });
 
-  const createPurchaseRequest = async (details: z.infer<typeof PurchaseRequestSchema>) => {
+  const createPurchaseRequest = async (
+    details: z.infer<typeof PurchaseRequestSchema>
+  ) => {
     try {
       await callApi(details);
     } catch (error) {
@@ -146,7 +154,11 @@ export const useUpdatePurchaseRequest = (id: string) => {
     any
   >({
     endpoint: `${BASE_URL}${id}/`,
-    queryKey: ["purchase-requests", "purchase-request-list", "purchase-request"],
+    queryKey: [
+      "purchase-requests",
+      "purchase-request-list",
+      "purchase-request",
+    ],
     isAuth: true,
     method: "PUT",
   });
@@ -170,7 +182,11 @@ export const useModifyPurchaseRequest = (id: string) => {
     any
   >({
     endpoint: `${BASE_URL}${id}/`,
-    queryKey: ["purchase-requests", "purchase-request-list", "purchase-request"],
+    queryKey: [
+      "purchase-requests",
+      "purchase-request-list",
+      "purchase-request",
+    ],
     isAuth: true,
     method: "PATCH",
   });

@@ -9,7 +9,8 @@ export default function ConsumableDetails() {
   const { id: consumableId } = useParams();
 
   const { data: consumable, isLoading } = useGetSingleItemQuery(
-    consumableId || "", !!consumableId
+    consumableId || "",
+    !!consumableId
   );
 
   return (
@@ -94,7 +95,7 @@ export default function ConsumableDetails() {
                       {consumable?.data.entry_date || "N/A"}
                     </p>
                   </div>
-
+                  {/* 
                   <div className='space-y-2'>
                     <h4 className='text-base font-semibold '>
                       Available Quantity
@@ -102,7 +103,7 @@ export default function ConsumableDetails() {
                     <p className='text-[#4D4545] text-sm'>
                       {consumable?.data.available_quantity || "N/A"}
                     </p>
-                  </div>
+                  </div> */}
 
                   <div className='space-y-2'>
                     <h4 className='text-base font-semibold '>Cost of Item</h4>
@@ -123,7 +124,7 @@ export default function ConsumableDetails() {
                   <div className='space-y-2'>
                     <h4 className='text-base font-semibold '>Vendor</h4>
                     <p className='text-[#4D4545] text-sm'>
-                      {consumable?.data.created_by}
+                      {consumable?.data.most_recent_vendor || "N/A"}
                     </p>
                   </div>
                 </div>

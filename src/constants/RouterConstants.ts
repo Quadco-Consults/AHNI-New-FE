@@ -218,13 +218,12 @@ export const RouteEnum = {
 
   //rfq routes
   RFQ: "/dashboard/procurement-management/solicitation/rfq",
-  RFQ_CREATE_QUOTATION:
-    "/dashboard/procurement-management/solicitation/rfq/create/quotation",
+  RFQ_CREATE_QUOTATION: "/dashboard/procurement/solicitation-management/create",
   RFQ_CREATE_ITEMS:
     "/dashboard/procurement-management/solicitation/rfq/create/items",
   RFQ_DETAILS: "/dashboard/procurement-management/solicitation/rfq/:id",
   RFQ_CREATE_CBA:
-    "/dashboard/procurement-management/solicitation/rfq/create/create-cba/:id",
+    "/dashboard/procurement/solicitation-management/create/create-cba?id=:id",
   RFQ_COMPETITIVE_BID_ANALYSIS:
     "/dashboard/procurement-management/solicitation/rfq/competitive-bid-analysis/:id",
   RFQ_DETAILS_BID_SUBMISSION:

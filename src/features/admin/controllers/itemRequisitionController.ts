@@ -69,7 +69,9 @@ export const useGetAllItemRequisitions = ({
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled,
@@ -78,7 +80,10 @@ export const useGetAllItemRequisitions = ({
 };
 
 // Get Single Item Requisition
-export const useGetSingleItemRequisition = (id: string, enabled: boolean = true) => {
+export const useGetSingleItemRequisition = (
+  id: string,
+  enabled: boolean = true
+) => {
   return useQuery<ApiResponse<TItemRequisitionSingleData>>({
     queryKey: ["itemRequisition", id],
     queryFn: async () => {
@@ -87,7 +92,9 @@ export const useGetSingleItemRequisition = (id: string, enabled: boolean = true)
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled && !!id,
@@ -143,6 +150,78 @@ export const useEditItemRequisition = (id: string) => {
   return { editItemRequisition, data, isLoading, isSuccess, error };
 };
 
+// Approve Item Requisition
+export const useApproveItemRequisition = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    TItemRequisitionSingleData,
+    Error,
+    Record<string, never>
+  >({
+    endpoint: `${BASE_URL}${id}/approve/`,
+    queryKey: ["itemRequisitions", "itemRequisition"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const approveItemRequisition = async () => {
+    try {
+      await callApi({} as Record<string, never>);
+    } catch (error) {
+      console.error("Item requisition approve error:", error);
+    }
+  };
+
+  return { approveItemRequisition, data, isLoading, isSuccess, error };
+};
+
+// Reject Item Requisition
+export const useRejectItemRequisition = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    TItemRequisitionSingleData,
+    Error,
+    Record<string, never>
+  >({
+    endpoint: `${BASE_URL}${id}/reject/`,
+    queryKey: ["itemRequisitions", "itemRequisition"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const rejectItemRequisition = async () => {
+    try {
+      await callApi({} as Record<string, never>);
+    } catch (error) {
+      console.error("Item requisition reject error:", error);
+    }
+  };
+
+  return { rejectItemRequisition, data, isLoading, isSuccess, error };
+};
+
+// Issue Item Requisition
+export const useIssueItemRequisition = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    TItemRequisitionSingleData,
+    Error,
+    Record<string, never>
+  >({
+    endpoint: `${BASE_URL}${id}/issue/`,
+    queryKey: ["itemRequisitions", "itemRequisition"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const issueItemRequisition = async () => {
+    try {
+      await callApi({} as Record<string, never>);
+    } catch (error) {
+      console.error("Item requisition issue error:", error);
+    }
+  };
+
+  return { issueItemRequisition, data, isLoading, isSuccess, error };
+};
+
 // Delete Item Requisition
 export const useDeleteItemRequisition = (id: string) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
@@ -172,4 +251,7 @@ export const useGetAllItemRequisitionsQuery = useGetAllItemRequisitions;
 export const useGetSingleItemRequisitionQuery = useGetSingleItemRequisition;
 export const useCreateItemRequisitionMutation = useCreateItemRequisition;
 export const useEditItemRequisitionMutation = useEditItemRequisition;
+export const useApproveItemRequisitionMutation = useApproveItemRequisition;
+export const useRejectItemRequisitionMutation = useRejectItemRequisition;
+export const useIssueItemRequisitionMutation = useIssueItemRequisition;
 export const useDeleteItemRequisitionMutation = useDeleteItemRequisition;
