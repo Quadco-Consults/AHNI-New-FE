@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import FileUpload from "components/atoms/FileUpload";
 import FormButton from "@/components/FormButton";
 import FormInput from "components/atoms/FormInput";
-import FormMultiSelect from "components/atoms/FormMultiSelect";
 import FormSelect from "components/atoms/FormSelect";
 import FormTextArea from "components/atoms/FormTextArea";
 import Card from "components/Card";
@@ -12,37 +11,19 @@ import GoBack from "components/GoBack";
 import { Form } from "components/ui/form";
 import { HrRoutes } from "constants/RouterConstants";
 import { jobAdvertismentSchema } from "features/hr/types/hr-validator";
-import { useEffect } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useLocation, useNavigate } from "next/navigation";
-import {
-  useCreateJobAdvertisement,
-  useUpdateJobAdvertisement,
-} from "@/features/hr/controllers/jobAdvertisementController";
-import { useGetAllUsers } from "@/features/auth/controllers/userController";
+import { useRouter } from "next/navigation";
+import { useCreateJobAdvertisement } from "@/features/hr/controllers/jobAdvertisementController";
 import { toast } from "sonner";
 import { z } from "zod";
 
 export type TFormValues = z.infer<typeof jobAdvertismentSchema>;
 
 const AddEditAdvertisement = () => {
-  // Get router state which may contain advertisement data
-  const pathname = usePathname();
   const router = useRouter();
-
-  // Check if we're in edit mode
-  const isEditMode = location.state?.isEditing || false;
-
-  // Get advertisement data from state if available
-  const advertisementData = location.state?.advertisementData || null;
-
-  const { data: interviewers, isLoading: isGettingUsers } = useGetUsers();
 
   const { createJobAdvertisement, isLoading: isCreatingLoading } =
     useCreateJobAdvertisement();
-
-  const { updateJobAdvertisement, isLoading: isUpdatingLoading } =
-    useUpdateJobAdvertisement();
 
   const form = useForm<TFormValues>({
     resolver: zodResolver(jobAdvertismentSchema),
@@ -54,92 +35,27 @@ const AddEditAdvertisement = () => {
       duration: "",
       commencement_date: "",
       number_of_positions: 1,
-      supervisor: "",
       any_other_info: "",
       background: "",
-      interviewers: [],
       advert_document: null,
     },
   });
 
-  // Populate form when advertisement data is available in edit mode
-  useEffect(() => {
-    if (isEditMode && advertisementData) {
-      const ad = advertisementData;
 
-      // Format the date to YYYY-MM-DD for the date input
-      const formattedDate = ad.commencement_date
-        ? new Date(ad.commencement_date).toISOString().split("T")[0]
-        : "";
+  const { handleSubmit } = form;
 
-      // Get interviewer IDs
-      const interviewerIds = ad.interviewers
-        ? ad.interviewers.map((interviewer) => interviewer.id)
-        : [];
-
-      // Set form values from the data passed via state
-      form.reset({
-        title: ad.title || "",
-        grade_level: ad.grade_level || "",
-        locations: ad.locations || "",
-        job_type: ad.job_type || "Internal",
-        duration: ad.duration || "",
-        commencement_date: formattedDate,
-        number_of_positions: ad.number_of_positions || 1,
-        supervisor: ad.supervisor || "",
-        any_other_info: ad.any_other_info || "",
-        background: ad.background || "",
-        interviewers: interviewerIds,
-        advert_document: null, // Can't pre-fill file inputs
-      });
-    }
-  }, [isEditMode, advertisementData, form]);
-
-  const { handleSubmit, getValues } = form;
-  const values = getValues();
-  console.log({ values, advertisementData, interviewers });
-
-  const onSubmit: SubmitHandler<TFormValues> = async (data: any) => {
+  const onSubmit: SubmitHandler<TFormValues> = async (data: TFormValues) => {
     try {
-      const formData = new FormData();
+      // Convert form data to the expected format, excluding interviewers and supervisor
+      const { interviewers, supervisor, ...cleanData } = data;
+      const submitData = {
+        ...cleanData,
+        commencement_date: new Date(cleanData.commencement_date),
+        advert_document: data.advert_document?.[0] || null,
+      };
 
-      Object.entries(data).forEach(([key, value]) => {
-        // Handle file upload
-        if (key === "advert_document") {
-          // Only append file if a new one was selected
-          if (value && value.length) {
-            formData.append(key, value[0]);
-          } else if (!isEditMode) {
-            // In create mode, document is required
-            formData.append(key, value);
-          }
-          // In edit mode, if no new file, don't append to keep the existing file
-        }
-        // Handle interviewers array
-        else if (key === "interviewers" && Array.isArray(value)) {
-          value.forEach((uuid) => {
-            formData.append(key, uuid);
-          });
-        }
-        // Handle all other fields
-        else {
-          formData.append(key, value);
-        }
-      });
-
-      if (isEditMode) {
-        // Update existing advertisement
-        await updateJobAdvertisement({
-          id: advertisementData.id,
-          body: formData,
-        })();
-        toast.success("Job advertisement updated successfully");
-      } else {
-        // Create new advertisement
-        await createJobAdvertisement(formData)();
-        toast.success("Job advertisement created successfully");
-      }
-
+      await createJobAdvertisement(submitData);
+      toast.success("Job advertisement created successfully");
       router.push(HrRoutes.ADVERTISEMENT);
     } catch (error) {
       toast.error("Something went wrong");
@@ -153,14 +69,8 @@ const AddEditAdvertisement = () => {
     { value: "Both", label: "Both" },
   ];
 
-  const interviewersOption =
-    interviewers?.data?.results?.map((el) => ({
-      value: el?.id,
-      label: `${el?.first_name} ${el?.last_name}`,
-    })) || [];
-
-  const isLoading = isGettingUsers;
-  const isSubmitting = isCreatingLoading || isUpdatingLoading;
+  const isLoading = false;
+  const isSubmitting = isCreatingLoading;
 
   return (
     <div className='space-y-4'>
@@ -172,9 +82,7 @@ const AddEditAdvertisement = () => {
           <Form {...form}>
             <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
               <h4 className='font-medium text-lg pb-4'>
-                {isEditMode
-                  ? "Edit Advertisement"
-                  : "Initiate New Advertisement"}
+                Initiate New Advertisement
               </h4>
 
               <FormInput name='title' label='Position' required />
@@ -205,35 +113,16 @@ const AddEditAdvertisement = () => {
                 type='number'
               />
 
-              <FormMultiSelect
-                name='interviewers'
-                label='Interviewers'
-                required
-                placeholder='Select interviewers'
-                options={interviewersOption}
-              />
-
-              <FormSelect
-                name='supervisor'
-                label='Supervisor'
-                placeholder='Select supervisor'
-                options={interviewersOption}
-              />
               {/* <FormInput name='any_other_info' label='Info' /> */}
               <FormTextArea name='background' label='Background' required />
               <FileUpload
                 name='advert_document'
-                label={
-                  isEditMode
-                    ? "Upload New Advertisement Document (leave empty to keep current)"
-                    : "Upload Complete Advertisement Document"
-                }
-                required={!isEditMode}
+                label="Upload Complete Advertisement Document"
               />
 
               <div className='flex justify-end'>
                 <FormButton loading={isSubmitting} disabled={isSubmitting}>
-                  {isEditMode ? "Update" : "Create"}
+                  Create
                 </FormButton>
               </div>
             </form>

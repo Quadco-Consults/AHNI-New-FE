@@ -52,8 +52,8 @@ const GrievanceManagementForm = () => {
   //     name: "expenses",
   //   });
 
-  const { createGrievianceManagement, isLoading: isCreateLoading } =
-    useCreateGrievianceManagement();
+  const { createGrievance, isLoading: isCreateLoading } =
+    useCreateGrievance();
 
   const onSubmit: SubmitHandler<TGrievianceManagementFormData> = async (
     data
@@ -64,7 +64,7 @@ const GrievanceManagementForm = () => {
       formData.append("description", data.description);
       formData.append("document_name", data.document_name);
       formData.append("document", data.document[0]);
-      await createGrievianceManagement(formData);
+      await createGrievance(formData);
       toast.success("Complaint Submitted");
       router.push(HrRoutes.GRIEVANCE_MANAGEMENT);
     } catch (error: any) {

@@ -13,7 +13,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "components/ui/badge";
 import { cn, truncateStringLength } from "lib/utils";
 import { Checkbox } from "components/ui/checkbox";
-import Link from "next/link"; import { useRouter } from "next/navigation";
+import Link from "next/link"; 
+import { useRouter } from "next/navigation";
 import { HrRoutes } from "constants/RouterConstants";
 import IconButton from "components/IconButton";
 
@@ -26,9 +27,7 @@ const LeaveHistory: React.FC = () => {
     return (
       <div className='flex gap-2'>
         <Link
-          href={generatePath(HrRoutes.LEAVE_MANAGEMENT_LEAVE_LIST_DETAIL, {
-            id: "1",
-          })}
+          href={HrRoutes.LEAVE_MANAGEMENT_LEAVE_LIST_DETAIL.replace(":id", "1")}
         >
           <IconButton className='bg-[#F9F9F9] hover:text-primary'>
             <Icon icon='ph:eye-duotone' fontSize={15} />
