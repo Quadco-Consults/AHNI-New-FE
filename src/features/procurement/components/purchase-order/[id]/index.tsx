@@ -6,14 +6,16 @@ import DataTable from "components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import { toWords } from "number-to-words";
 import { useParams } from "next/navigation";
-import Link from "next/link"; 
-import { useGetPurchaseOrderById } from "@/features/procurement/controllers/purchaseOrderController";
-import { skipToken } from "@reduxjs/toolkit/query";
+import Link from "next/link";
+// import { useGetPurchaseOrderById } from "@/features/procurement/controllers/purchaseOrderController";
+// import { skipToken } from "@reduxjs/toolkit/query";
 import { formatDate } from "date-fns";
 import { Button } from "components/ui/button";
 import { RouteEnum } from "constants/RouterConstants";
 import { useEffect, useState } from "react";
 import { BsFiletypeCsv, BsFiletypeDoc } from "react-icons/bs";
+import { useGetSinglePurchaseOrder } from "@/features/procurement/controllers";
+import Image from "next/image";
 
 const Order = () => {
   const params = useParams();
@@ -163,7 +165,7 @@ const Order = () => {
   return (
     <div className='bg-white p-8'>
       <div className='flex justify-center items-center flex-col'>
-        <img src={logoPng} alt='logo' width={200} />
+        <Image src={logoPng} alt='logo' height={200} width={200} />
         <h1>Achieving Health Nigeria Initiative (AHNI)</h1>
       </div>
       <div className='mt-14 w-full flex justify-between items-center'>

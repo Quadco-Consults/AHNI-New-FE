@@ -34,7 +34,7 @@ function ProcurementTracker() {
   );
 
   const { data, isLoading } = useGetAllProcurementTrackers({
-    item_category: "SERVICE",
+    item_type: "SERVICE",
   });
 
   const tabDetails = [
