@@ -450,9 +450,11 @@ export const CG_ROUTES = {
     "/dashboard/c-and-g/consultancy/application-details",
   CREATE_CONSULTANCY_WORK_SCOPE:
     "/dashboard/c-and-g/consultancy/create/scope-of-work",
-  CONSULTANCY_DETAILS: "/dashboard/c-and-g/consultancy/:id",
+  CONSULTANCY_DETAILS: "/dashboard/c-and-g/consultancy/:id/details",
   CREATE_CONSULTANCY_APPLICANT:
     "/dashboard/c-and-g/consultancy/:id/applicant/create",
+  CREATE_CONSULTANCY_INTERVIEW:
+    "/dashboard/c-and-g/consultancy/:id/create-interview",
 
   CONSULTANCY_APPLICATION_DETAILS:
     "/api/v1/contract-grants/consultancy-applications_details/:id",

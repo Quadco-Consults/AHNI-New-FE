@@ -11,7 +11,6 @@ import { Button } from "components/ui/button";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation"; 
 import { CG_ROUTES } from "constants/RouterConstants";
-import { skipToken } from "@reduxjs/toolkit/query";
 import { useEffect, useMemo } from "react";
 import FormTextArea from "components/atoms/FormTextArea";
 import {
@@ -46,8 +45,8 @@ export default function CreateConsultancyReport() {
         },
     });
 
-    const [searchParams] = useSearchParams();
-    const id = searchParams.get("id");
+    const searchParams = useSearchParams();
+    const id = searchParams?.get("id") || null;
 
     const router = useRouter();
 
@@ -118,7 +117,7 @@ export default function CreateConsultancyReport() {
         }
     };
 
-    const { data } = useGetSingleConsultancyReport(id ?? skipToken);
+    const { data } = useGetSingleConsultancyReport(id || "", !!id);
 
     useEffect(() => {
         if (data) {
