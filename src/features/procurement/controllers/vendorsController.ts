@@ -35,6 +35,7 @@ interface VendorFilterParams {
   size?: number;
   search?: string;
   enabled?: boolean;
+  status?: string;
 }
 
 const BASE_URL = "/procurements/vendors/";
@@ -47,22 +48,26 @@ export const useGetVendors = ({
   size = 20,
   search = "",
   enabled = true,
+  status = "",
 }: VendorFilterParams) => {
   return useQuery<PaginatedResponse<VendorsResultsData>>({
-    queryKey: ["vendors", page, size, search],
+    queryKey: ["vendors", page, size, search, status],
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(BASE_URL, {
           params: {
             page,
             size,
+            status,
             ...(search && { search }),
           },
         });
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled,
@@ -80,7 +85,9 @@ export const useGetVendorList = (enabled: boolean = true) => {
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled,
@@ -98,7 +105,9 @@ export const useGetVendor = (id: string, enabled: boolean = true) => {
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled && !!id,

@@ -28,6 +28,7 @@ export interface FilterParams {
   search?: string;
   status?: string;
   category?: string;
+  category__job_category?: string;
 }
 
 // Standard CRUD response types
@@ -43,10 +44,10 @@ export type TResponse<T> = CrudResponse<T>;
 export type TPaginatedResponse<T> = PaginatedResponse<T>;
 
 // Export domain-specific types
-export * from './admin';
-export * from './cg';
-export * from './config';
-export * from './finance';
-export * from './procurement';
-export * from './program';
-export * from './project';
+export * from "./admin";
+export * from "./cg";
+export * from "./config";
+export * from "./finance";
+export * from "./procurement";
+export * from "./program";
+export * from "./project";
