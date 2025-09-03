@@ -203,6 +203,89 @@ export const useUploadAssetRequestDocument = (assetRequestId: string) => {
   return { uploadDocument, data, isLoading, isSuccess, error };
 };
 
+// ===== APPROVAL WORKFLOW HOOKS =====
+
+// Review Asset Request
+export const useReviewAssetRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    ApiResponse<IAssetRequestSingleSData>,
+    Error,
+    { comments: string }
+  >({
+    endpoint: `${BASE_URL}${id}/review/`,
+    queryKey: ["assetRequests", "assetRequest"],
+    isAuth: true,
+    method: "POST",
+    contentType: "application/x-www-form-urlencoded",
+  });
+
+  const reviewAssetRequest = async (comments: string) => {
+    try {
+      const response = await callApi({ comments });
+      return response;
+    } catch (error) {
+      console.error("Asset request review error:", error);
+      throw error;
+    }
+  };
+
+  return { reviewAssetRequest, data, isLoading, isSuccess, error };
+};
+
+// Authorize Asset Request
+export const useAuthorizeAssetRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    ApiResponse<IAssetRequestSingleSData>,
+    Error,
+    { comments: string }
+  >({
+    endpoint: `${BASE_URL}${id}/authorize/`,
+    queryKey: ["assetRequests", "assetRequest"],
+    isAuth: true,
+    method: "POST",
+    contentType: "application/x-www-form-urlencoded",
+  });
+
+  const authorizeAssetRequest = async (comments: string) => {
+    try {
+      const response = await callApi({ comments });
+      return response;
+    } catch (error) {
+      console.error("Asset request authorize error:", error);
+      throw error;
+    }
+  };
+
+  return { authorizeAssetRequest, data, isLoading, isSuccess, error };
+};
+
+// Approve Asset Request
+export const useApproveAssetRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    ApiResponse<IAssetRequestSingleSData>,
+    Error,
+    { comments: string }
+  >({
+    endpoint: `${BASE_URL}${id}/approve/`,
+    queryKey: ["assetRequests", "assetRequest"],
+    isAuth: true,
+    method: "POST",
+    contentType: "application/x-www-form-urlencoded",
+  });
+
+  const approveAssetRequest = async (comments: string) => {
+    try {
+      const response = await callApi({ comments });
+      return response;
+    } catch (error) {
+      console.error("Asset request approve error:", error);
+      throw error;
+    }
+  };
+
+  return { approveAssetRequest, data, isLoading, isSuccess, error };
+};
+
 // Legacy exports for backward compatibility
 export const useGetAllAssetRequestsQuery = useGetAllAssetRequests;
 export const useGetSingleAssetRequestQuery = useGetSingleAssetRequest;
@@ -210,3 +293,6 @@ export const useCreateAssetRequestMutation = useCreateAssetRequest;
 export const useEditAssetRequestMutation = useEditAssetRequest;
 export const useDeleteAssetRequestMutation = useDeleteAssetRequest;
 export const useUploadAssetRequestDocumentMutation = useUploadAssetRequestDocument;
+export const useReviewAssetRequestMutation = useReviewAssetRequest;
+export const useAuthorizeAssetRequestMutation = useAuthorizeAssetRequest;
+export const useApproveAssetRequestMutation = useApproveAssetRequest;

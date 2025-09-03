@@ -9,15 +9,32 @@ import { LoadingSpinner } from "components/Loading";
 import { useSearchParams } from "next/navigation";
 import BackNavigation from "components/atoms/BackNavigation";
 import { useGetSingleItemQuery } from "@/features/modules/controllers";
+import { ColumnDef } from "@tanstack/react-table";
+import TableFilters from "@/components/TableFilters";
+import DataTable from "@/components/DataTable";
+import {
+  useGetAssetHistoryQuery,
+  AssetHistoryData,
+} from "@/features/admin/controllers/assetHistoryController";
+import { useState } from "react";
 
 export default function AssetDetails() {
   const params = useSearchParams();
   const assetId = params.get("id");
+  const [historyPage, setHistoryPage] = useState(1);
 
   const { data: asset, isLoading } = useGetSingleItemQuery(
     assetId || "",
     !!assetId
   );
+
+  const { data: assetHistory, isLoading: isHistoryLoading } =
+    useGetAssetHistoryQuery({
+      asset_id: assetId || "",
+      page: historyPage,
+      size: 10,
+      enabled: !!assetId,
+    });
 
   return (
     <>
@@ -42,8 +59,12 @@ export default function AssetDetails() {
 
                 <DescriptionCard
                   label='Assignee'
-                  description={`${asset?.data?.assignee}` || "N/A"}
-                  // description={`${asset?.data?.assignee?.first_name} ${asset?.data?.assignee?.last_name}`}
+                  description={
+                    asset?.data?.assignee?.first_name &&
+                    asset?.data?.assignee?.last_name
+                      ? `${asset?.data?.assignee?.first_name} ${asset?.data?.assignee?.last_name}`
+                      : asset?.data?.assignee?.name || "N/A"
+                  }
                 />
 
                 <DescriptionCard
@@ -57,26 +78,55 @@ export default function AssetDetails() {
                 />
 
                 <DescriptionCard
+                  label='Asset Type'
+                  description={asset?.data?.asset_type?.name || "N/A"}
+                />
+                <DescriptionCard
+                  label='Serial Number'
+                  description={asset?.data?.asset_type?.serial_number || "N/A"}
+                />
+                <DescriptionCard
+                  label='Funding Source'
+                  description={
+                    asset?.data?.project?.funding_sources?.length > 0
+                      ? asset.data?.project?.funding_sources
+                          .map((source) => source.name)
+                          .join(", ")
+                      : "N/A"
+                  }
+                />
+
+                <DescriptionCard
                   label='State'
                   description={asset?.data?.state || "N/A"}
+                />
+                <DescriptionCard
+                  label='Model'
+                  description={asset?.data?.model || "N/A"}
+                />
+
+                <DescriptionCard
+                  label='Assigned To'
+                  description={asset?.data?.assignee?.full_name || "N/A"}
                 />
 
                 <DescriptionCard
                   label='Asset Condtion'
-                  // description={asset?.data?.asset_condition.name}
-                  description={asset?.data?.asset_condition || "N/A"}
+                  description={asset?.data?.asset_condition?.name || "N/A"}
                 />
 
                 <DescriptionCard
                   label='Manufacturer'
-                  description={asset?.data?.asset_type || "N/A"}
-                  // description={asset?.data?.asset_type?.manufacturer || "N/A"}
+                  description={
+                    asset?.data?.asset_type?.name ||
+                    asset?.data?.asset_type?.manufacturer ||
+                    "N/A"
+                  }
                 />
 
                 <DescriptionCard
                   label='Location'
-                  description={asset?.data?.location || "N/A"}
-                  // description={asset?.data?.location.name}
+                  description={asset?.data?.location?.name || "N/A"}
                 />
 
                 <DescriptionCard
@@ -86,8 +136,7 @@ export default function AssetDetails() {
 
                 <DescriptionCard
                   label='Asset Classification'
-                  description={asset?.data?.classification || "N/A"}
-                  // description={asset?.data?.classification.name}
+                  description={asset?.data?.classification?.name || "N/A"}
                 />
 
                 <DescriptionCard
@@ -107,8 +156,7 @@ export default function AssetDetails() {
 
                 <DescriptionCard
                   label='Implementer'
-                  description={`${asset?.data?.implementer}` || "N/A"}
-                  // description={`${asset?.data?.implementer.last_name} ${asset?.data?.implementer.last_name}`}
+                  description={asset?.data?.implementer?.name || "N/A"}
                 />
 
                 {asset?.data?.asset_type?.name?.toLowerCase() === "vehicle" && (
@@ -133,16 +181,25 @@ export default function AssetDetails() {
                 </div>
               </CardContent>
 
-              {/* <CardHeader className='font-bold text-lg'>
+              <CardHeader className='font-bold text-lg'>
                 <Separator className='my-4' />
                 Asset History Movement
               </CardHeader>
 
               <div className='px-5'>
                 <TableFilters>
-                  <DataTable data={[]} columns={columns} />
+                  <DataTable
+                    data={assetHistory?.data.results || []}
+                    columns={columns}
+                    isLoading={isHistoryLoading}
+                    pagination={{
+                      total: assetHistory?.data.pagination.count ?? 0,
+                      pageSize: assetHistory?.data.pagination.page_size ?? 10,
+                      onChange: (page: number) => setHistoryPage(page),
+                    }}
+                  />
                 </TableFilters>
-              </div> */}
+              </div>
             </>
           )
         )}
@@ -151,21 +208,75 @@ export default function AssetDetails() {
   );
 }
 
-// const columns: ColumnDef<TAssetSingleData>[] = [
-//   {
-//     header: "Date",
-//     accessorKey: "date",
-//   },
-//   {
-//     header: "Description",
-//     accessorKey: "description",
-//   },
-//   {
-//     header: "Status",
-//     accessorKey: "status",
-//   },
-//   {
-//     header: "Remark",
-//     accessorKey: "remark",
-//   },
-// ];
+const columns: ColumnDef<AssetHistoryData>[] = [
+  {
+    header: "Date",
+    accessorKey: "date",
+    cell: ({ row }) => {
+      const date = new Date(row.original.date);
+      return date.toLocaleDateString();
+    },
+  },
+  {
+    header: "Action Type",
+    accessorKey: "action_type",
+    cell: ({ row }) => {
+      const actionType = row.original.type;
+      const badgeColor =
+        {
+          MOVEMENT: "bg-blue-100 text-blue-800",
+          DISPOSAL: "bg-red-100 text-red-800",
+          ASSIGNMENT: "bg-green-100 text-green-800",
+          MAINTENANCE: "bg-yellow-100 text-yellow-800",
+          OTHER: "bg-gray-100 text-gray-800",
+        }[actionType] || "bg-gray-100 text-gray-800";
+
+      return (
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-medium ${badgeColor}`}
+        >
+          {actionType}
+        </span>
+      );
+    },
+  },
+  {
+    header: "Description",
+    accessorKey: "asset.description",
+    // cell: ({ row }) => row.original.from_location?.name || "N/A",
+  },
+  {
+    header: "Status",
+    accessorKey: "status",
+    cell: ({ row }) => {
+      const status = row.original.status;
+      const badgeColor = {
+        APPROVED: "bg-green-100 text-green-800",
+        IN_TRANSIT: "bg-yellow-100 text-yellow-800", 
+        DELIVERED: "bg-blue-100 text-blue-800",
+        PENDING: "bg-gray-100 text-gray-800",
+        CANCELLED: "bg-red-100 text-red-800",
+      }[status] || "bg-gray-100 text-gray-800";
+      
+      return (
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-medium ${badgeColor}`}
+        >
+          {status}
+        </span>
+      );
+    },
+  },
+  {
+    header: "From Location",
+    cell: ({ row }) => row.original.from_location?.name || "N/A",
+  },
+  {
+    header: "To Location",
+    cell: ({ row }) => row.original.to_location?.name || "N/A",
+  },
+  {
+    header: "Remark",
+    accessorKey: "remark",
+  },
+];
