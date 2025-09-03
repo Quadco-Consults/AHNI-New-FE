@@ -17,162 +17,153 @@ import { useState } from "react";
 import PencilIcon from "components/icons/PencilIcon";
 
 export const vehicleRequestColumns: ColumnDef<IVehicleRequestPaginatedData>[] =
-    [
-        {
-            header: "Requesting Staff",
-            id: "requesting_staff",
-            accessorKey: "requesting_staff",
-        },
+  [
+    {
+      header: "Requesting Staff",
+      id: "requesting_staff",
+      accessorKey: "created_by",
+    },
 
-        {
-            header: "Location",
-            id: "location",
-            accessorKey: "location",
-        },
+    {
+      header: "Location",
+      id: "location",
+      accessorKey: "location",
+    },
 
-        {
-            header: "Request Date",
-            id: "created_datetime",
-            accessorFn: ({ created_datetime }) =>
-                formatDate(created_datetime, "dd-MMM-yyyy"),
-        },
+    {
+      header: "Request Date",
+      id: "created_datetime",
+      accessorFn: ({ created_datetime }) =>
+        formatDate(created_datetime, "dd-MMM-yyyy"),
+    },
 
-        {
-            header: "Departure Date",
-            id: "departure_datetime",
-            accessorFn: ({ departure_datetime }) =>
-                formatDate(departure_datetime, "dd-MMM-yyyy"),
-        },
+    {
+      header: "Departure Date",
+      id: "departure_datetime",
+      accessorFn: ({ departure_datetime }) =>
+        formatDate(departure_datetime, "dd-MMM-yyyy"),
+    },
 
-        {
-            header: "Return Date",
-            id: "return_datetime",
-            accessorFn: ({ return_datetime }) =>
-                formatDate(return_datetime, "dd-MMM-yyyy"),
-        },
+    {
+      header: "Return Date",
+      id: "return_datetime",
+      accessorFn: ({ return_datetime }) =>
+        formatDate(return_datetime, "dd-MMM-yyyy"),
+    },
 
-        {
-            header: "Point of Departure",
-            id: "departure_point",
-            accessorKey: "departure_point",
-            size: 200,
-        },
+    {
+      header: "Point of Departure",
+      id: "departure_point",
+      accessorKey: "departure_point",
+      size: 200,
+    },
 
-        {
-            header: "Point of Return",
-            id: "return_point",
-            accessorKey: "return_point",
-        },
+    {
+      header: "Point of Return",
+      id: "return_point",
+      accessorKey: "return_point",
+    },
 
-        {
-            header: "Purpose of Travel",
-            accessorKey: "_",
-            size: 200,
-        },
-        {
-            header: "Status",
-            id: "status",
-            accessorKey: "status",
-            cell: ({ getValue }) => {
-                const status = "PENDING";
+    {
+      header: "Purpose of Travel",
+      accessorKey: "purpose_of_travel",
+      size: 200,
+    },
+    {
+      header: "Status",
+      id: "status",
+      accessorKey: "status",
+      cell: ({ getValue }) => {
+        const status = "PENDING";
 
-                return (
-                    <Badge
-                        variant="default"
-                        className={cn(
-                            "p-1 rounded-lg bg-yellow-200 text-yellow-500"
-                        )}
-                    >
-                        {status}
-                    </Badge>
-                );
-            },
-        },
+        return (
+          <Badge
+            variant='default'
+            className={cn("p-1 rounded-lg bg-yellow-200 text-yellow-500")}
+          >
+            {status}
+          </Badge>
+        );
+      },
+    },
 
-        {
-            header: "No. of Personnel",
-            id: "travel_team_members_names",
-            accessorFn: ({ travel_team_members_names }) =>
-                travel_team_members_names.length,
-        },
+    {
+      header: "No. of Personnel",
+      id: "travel_team_members_names",
+      accessorFn: ({ travel_team_members_names }) =>
+        travel_team_members_names.length,
+    },
 
-        {
-            header: "",
-            accessorKey: "action",
-            cell: ({ row }) => <TableMenu {...row.original} />,
-        },
-    ];
+    {
+      header: "",
+      accessorKey: "action",
+      cell: ({ row }) => <TableMenu {...row.original} />,
+    },
+  ];
 
 const TableMenu = ({ id }: IVehicleRequestPaginatedData) => {
-    const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-    const [deleteVehicleRequest, { isLoading }] =
-        useDeleteVehicleRequestMutation();
+  const { deleteVehicleRequest, isLoading } =
+    useDeleteVehicleRequestMutation(id);
 
-    const handleDelete = async () => {
-        try {
-            await deleteVehicleRequest(id).unwrap();
-            toast.success("Vehicle Request Deleted");
-        } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
-        }
-    };
+  const handleDelete = async () => {
+    try {
+      await deleteVehicleRequest();
+      toast.success("Vehicle Request Deleted");
+    } catch (error: any) {
+      toast.error(error.data.message ?? "Something went wrong");
+    }
+  };
 
-    return (
-        <div className="flex items-center gap-2">
-            <Popover>
-                <PopoverTrigger asChild>
-                    <Button variant="ghost" className="flex gap-2 py-6">
-                        <MoreOptionsHorizontalIcon />
-                    </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-fit">
-                    <div className="flex flex-col items-start justify-between gap-1">
-                        <Link
-                            href={{
-                                pathname: generatePath(
-                                    AdminRoutes.VIEW_VEHICLE_REQUEST,
-                                    { id }
-                                ),
-                            }}
-                        >
-                            <Button variant="ghost" className="w-full">
-                                <EyeIcon />
-                                View
-                            </Button>
-                        </Link>
+  return (
+    <div className='flex items-center gap-2'>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant='ghost' className='flex gap-2 py-6'>
+            <MoreOptionsHorizontalIcon />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className='w-fit'>
+          <div className='flex flex-col items-start justify-between gap-1'>
+            <Link href={AdminRoutes.VIEW_VEHICLE_REQUEST.replace(":id", id)}>
+              <Button variant='ghost' className='w-full'>
+                <EyeIcon />
+                View
+              </Button>
+            </Link>
 
-                        <Link
-                            href={{
-                                pathname: AdminRoutes.CREATE_VEHICLE_REQUEST,
-                                search: `?id=${id}`,
-                            }}
-                        >
-                            <Button variant="ghost" className="w-full">
-                                <PencilIcon />
-                                Edit
-                            </Button>
-                        </Link>
+            <Link
+              href={{
+                pathname: AdminRoutes.CREATE_VEHICLE_REQUEST,
+                search: `?id=${id}`,
+              }}
+            >
+              <Button variant='ghost' className='w-full'>
+                <PencilIcon />
+                Edit
+              </Button>
+            </Link>
 
-                        <Button
-                            variant="ghost"
-                            className="w-full"
-                            onClick={() => setDialogOpen(true)}
-                        >
-                            <DeleteIcon />
-                            Delete
-                        </Button>
-                    </div>
-                </PopoverContent>
-            </Popover>
+            <Button
+              variant='ghost'
+              className='w-full'
+              onClick={() => setDialogOpen(true)}
+            >
+              <DeleteIcon />
+              Delete
+            </Button>
+          </div>
+        </PopoverContent>
+      </Popover>
 
-            <ConfirmationDialog
-                open={dialogOpen}
-                title="Are you sure you want to delete this vehicle request?"
-                loading={isLoading}
-                onCancel={() => setDialogOpen(false)}
-                onOk={handleDelete}
-            />
-        </div>
-    );
+      <ConfirmationDialog
+        open={dialogOpen}
+        title='Are you sure you want to delete this vehicle request?'
+        loading={isLoading}
+        onCancel={() => setDialogOpen(false)}
+        onOk={handleDelete}
+      />
+    </div>
+  );
 };
