@@ -16,21 +16,14 @@ export const useGetAllProcurementTrackers = ({
   search = "",
   status = "",
   enabled = true,
-  item_category,
+  item_type,
 }: TRequest & { enabled?: boolean }) => {
   return useQuery<TBasePaginatedResponse<ProcurementTrackerResults[]>>({
-    queryKey: [
-      "procurement-trackers",
-      page,
-      size,
-      search,
-      status,
-      item_category,
-    ],
+    queryKey: ["procurement-trackers", page, size, search, status, item_type],
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(BASE_URL, {
-          params: { page, size, search, status, item_category },
+          params: { page, size, search, status, item_type },
         });
         return response.data;
       } catch (error) {
