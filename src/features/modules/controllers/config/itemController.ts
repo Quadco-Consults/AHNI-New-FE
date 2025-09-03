@@ -11,12 +11,13 @@ export const useGetAllItemsManager = ({
   search = "",
   enabled = true,
   category,
+  category__job_category,
 }: FilterParams & { enabled?: boolean } = {}) => {
   return useQuery<TPaginatedResponse<ItemData>>({
-    queryKey: ["items", page, size, search, category],
+    queryKey: ["items", page, size, search, category, category__job_category],
     queryFn: async () => {
       const response = await AxiosWithToken.get("/config/items/", {
-        params: { page, size, search, category },
+        params: { page, size, search, category, category__job_category },
       });
       return response.data;
     },
@@ -55,8 +56,6 @@ export const CreateItemManager = () => {
   });
 
   const createItem = async (details: ItemFormValues) => {
-    console.log("det", { details });
-
     try {
       await callApi(details);
     } catch (error) {
@@ -94,13 +93,13 @@ export const UpdateItemManager = (id: string) => {
 
 // DELETE Operations (Mutations)
 export const DeleteItemManager = () => {
-  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+  const { isLoading, isSuccess, error, data } = useApiManager<
     ItemData,
     Error,
     Record<string, never>
   >({
     endpoint: "/config/items/",
-    queryKey: ["items"],
+    queryKey: ["items", "item"],
     isAuth: true,
     method: "DELETE",
   });

@@ -10,18 +10,23 @@ import AddSquareIcon from "components/icons/AddSquareIcon";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import FormButton from "@/components/FormButton";
-import { generatePath, useNavigate } 
+import { useRouter } from "next/navigation";
 import { RouteEnum } from "constants/RouterConstants";
 import { z } from "zod";
 import { MinusCircle } from "lucide-react";
 import { Label } from "components/ui/label";
 import { LoadingSpinner } from "components/Loading";
-import PurchaseRequestAPI from "@/features/procurementApi/purchase-requestController";
+// import PurchaseRequestAPI from "@/features/procurementApi/purchase-requestController";
 import { toast } from "sonner";
-import { useGetAllLots } from "@/features/modules/procurement/lot";
-import { useGetAllSolicitationEvaluationCriteria } from "@/features/modules/procurement/solicitation-evaluation-criteria";
-import { useCreateSolicitation } from "@/features/procurementApi/solicitation";
-import { useGetAllItems } from "@/features/modules/config/item";
+import {
+  useGetAllItems,
+  useGetAllLots,
+  useGetAllSolicitationEvaluationCriteria,
+} from "@/features/modules/controllers";
+import {
+  useCreateSolicitation,
+  useGetPurchaseRequest,
+} from "@/features/procurement/controllers";
 
 const ItemSchema = z.object({
   solicitation_evaluations: z.array(
@@ -65,6 +70,7 @@ const Items = () => {
   const { data: item } = useGetAllItems({
     page: 1,
     size: 2000000,
+    category__job_category: "SERVICE",
   });
 
   const itemOptions = useMemo(
@@ -112,9 +118,10 @@ const Items = () => {
     sessionStorage.getItem("rfqQuotationFormData") || "{}"
   );
 
-  const { data } = PurchaseRequestAPI.useGetPurchaseRequest({
-    path: { id: quotationData?.purchase_request as string },
-  });
+  const { data } = useGetPurchaseRequest(
+    quotationData?.purchase_request as string
+  );
+  console.log({ data, quotationData });
 
   const itemsData = useMemo(() => {
     // @ts-ignore
@@ -140,18 +147,25 @@ const Items = () => {
     const payload = { ...quotationData, ...data };
 
     try {
-      const response = await createSolicitation(payload)();
+      const response = await createSolicitation(payload);
       sessionStorage.removeItem("rfqQuotationFormData");
-      toast.success("Solicitation Created Successfully");
-      // router.push(RouteEnum.RFQ);
-      console.log({ response });
 
       // router.push(RouteEnum.RFQ_CREATE_CBA);
-      router.push(
-        generatePath(RouteEnum.RFQ_CREATE_CBA, {
-          id: response?.data?.id,
-        })
-      );
+      // router.push(
+      //   generatePath(RouteEnum.RFQ_CREATE_CBA, {
+      //     id: response?.data?.id,
+      //   })
+      // );
+
+      console.log(response);
+
+      if (response?.status === "success") {
+        sessionStorage.removeItem("rfqQuotationFormData");
+        console.log({ I_AM_HERE: "djhjsk" });
+        router.push(
+          RouteEnum.RFQ_CREATE_CBA.replace(":id", response?.data?.id as string)
+        );
+      }
     } catch (error: any) {
       toast.error(error.data.message ?? "Something went wrong");
     }
@@ -174,7 +188,7 @@ const Items = () => {
                       required
                       options={itemOptions}
                       value={form.watch(`solicitation_items.${index}.item`)}
-                      disabled={true}
+                      // disabled={true}
                     />
                   ) : (
                     <FormInput

@@ -28,6 +28,7 @@ const AddItems = () => {
     size: 2000000,
   });
 
+  // @ts-ignore
   const categoryOptions = categories?.data?.results?.map((cat) => ({
     label: cat.name,
     value: cat.id,
@@ -58,9 +59,9 @@ const AddItems = () => {
           //@ts-ignore
           id: String(dialogProps?.data?.id),
           body: data,
-        }).unwrap();
+        });
       } else {
-        await items(data).unwrap();
+        await items(data);
       }
 
       toast.success("Item Added Succesfully");

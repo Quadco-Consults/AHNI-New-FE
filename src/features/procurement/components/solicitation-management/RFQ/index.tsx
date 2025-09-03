@@ -75,7 +75,7 @@ const RFQ = () => {
 
                 <div className='flex justify-center'>
                   <Link
-                    href={generatePath(RouteEnum.RFQ_DETAILS, { id: item?.id })}
+                    href={RouteEnum.RFQ_DETAILS.replace(":id", item?.id as string)}
                   >
                     <Button variant='ghost' className='border text-primary'>
                       Tap to View

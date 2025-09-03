@@ -6,7 +6,7 @@ import FormSelect from "components/atoms/FormSelectField";
 import { SelectContent, SelectItem } from "components/ui/select";
 import FormInput from "components/atoms/FormInput";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
-import { useRouter, useParams, usePathname } from "next/navigation"; 
+import { useRouter, useParams, usePathname } from "next/navigation";
 import { Button } from "components/ui/button";
 import FormButton from "@/components/FormButton";
 import { LoadingSpinner } from "components/Loading";
@@ -41,7 +41,7 @@ import { useGetAllEois } from "@/features/procurement/controllers/eoiController"
 import { VendorsResultsData } from "@/features/procurement/types/vendors";
 import { useGetVendors } from "@/features/procurement/controllers/vendorsController";
 import { useGetAllCategories } from "@/features/modules/controllers/config/categoryController";
-import { CategoryResultsData } from "@/features/modules/types/category";
+// import { CategoryResultsData } from "@/features/modules/types/category";
 import { Input } from "components/ui/input";
 import { Icon } from "@iconify/react";
 import { DialogClose } from "@radix-ui/react-dialog";
@@ -50,6 +50,8 @@ import FadedButton from "components/atoms/FadedButton";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { motion } from "framer-motion";
 import { Upload as UploadFile } from "lucide-react";
+import { CategoryResultsData } from "@/features/admin/types/configs-types/category";
+import Image from "next/image";
 
 const Quotation = () => {
   const [categorySearchParams, setCategorySearchParams] = useState("");
@@ -58,10 +60,9 @@ const Quotation = () => {
   const router = useRouter();
   const { id } = useParams();
 
-  const { data: vendors, isLoading: vendorsIsLoading } =
-    useGetVendors({
-      status: "Approved",
-    });
+  const { data: vendors, isLoading: vendorsIsLoading } = useGetVendors({
+    status: "Approved",
+  });
 
   const { data: eoiData } = useGetAllEois(
     useMemo(() => ({ type: "OPEN_TENDER" }), [])
@@ -96,9 +97,12 @@ const Quotation = () => {
       procurement_type: "",
       eoi_tender: "",
       categories: [],
-      documents: "",
+      documents: [],
     },
   });
+  console.log({ form: form.getValues() });
+  console.log("Form errors:", form.formState.errors);
+  console.log("Form is valid:", form.formState.isValid);
 
   const { fields, append, remove } = useFieldArray({
     name: "documents",
@@ -152,7 +156,7 @@ const Quotation = () => {
     }
 
     // Append the new segment to the path
-    path += "/items";
+    path += "/create/items";
     router.push(path);
   };
 
@@ -453,11 +457,12 @@ const Quotation = () => {
                       </DialogTrigger>
                       <DialogContent className='max-w-6xl max-h-[700px] overflow-auto'>
                         <DialogHeader className='mt-10 space-y-5 text-center'>
-                          <img
+                          <Image
                             src={logoPng}
                             alt='logo'
                             className='mx-auto'
                             width={150}
+                            height={150}
                           />
                           <DialogTitle className='text-2xl text-center'>
                             Select your Category
