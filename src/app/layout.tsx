@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "@/utils/polyfills";
 import AppProviders from "./providers";
 import StoreProvider from "./StoreProvider";
 

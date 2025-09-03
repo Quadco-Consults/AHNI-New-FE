@@ -14,9 +14,7 @@ import { useParams } from "next/navigation";
 const AdvertisementDetail = () => {
   const { id } = useParams();
 
-  const { data, isLoading } = useGetJobAdvertisement({
-    id: id as string,
-  });
+  const { data, isLoading } = useGetJobAdvertisement(id as string);
 
   const TABS = [
     {

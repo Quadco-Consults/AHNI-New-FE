@@ -32,7 +32,7 @@ import { useMemo, useState } from "react";
 import FormSelect from "components/atoms/FormSelectField";
 import { SelectContent, SelectItem } from "components/ui/select";
 import { z } from "zod";
-import { useGetAllUsers } from "@/features/auth/user";
+import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { Label } from "components/ui/label";
 import MultiSelectFormField from "components/ui/multiselect";
 import FormInput from "components/atoms/FormInput";
@@ -94,14 +94,14 @@ const CreateInterviewModal = () => {
 
   const userOptions = useMemo(
     () =>
-      user?.data.results.map(({ first_name, last_name, id }) => ({
+      user?.results?.map(({ first_name, last_name, id }) => ({
         label: `${first_name} ${last_name}`,
         value: id,
       })),
     [user]
   );
 
-  const usersOptions = user?.data.results.map(
+  const usersOptions = user?.results?.map(
     ({ first_name, last_name, id }) => ({
       name: `${first_name} ${last_name}`,
       id,
