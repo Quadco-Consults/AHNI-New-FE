@@ -39,7 +39,7 @@ export default function GrantHomePage() {
   return (
     <section className='space-y-5'>
       <div className='flex justify-end'>
-        <Link href={CG_ROUTES.GRANT_CREATE}>
+        <Link href={CG_ROUTES.CREATE_GRANT}>
           <Button>
             <Plus size={20} /> New Grant
           </Button>

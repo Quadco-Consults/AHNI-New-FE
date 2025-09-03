@@ -7,9 +7,9 @@ import { Button } from "components/ui/button";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import { CG_ROUTES } from "constants/RouterConstants";
 import EyeIcon from "components/icons/EyeIcon";
-import { TFundingSourceData } from "@/features/projects/types/project/funding-source";
+import { FundingSourceData } from "@/features/modules/types/project";
 
-export const fundingSourceColumns: ColumnDef<TFundingSourceData>[] = [
+export const fundingSourceColumns: ColumnDef<FundingSourceData>[] = [
     {
         header: "Donor Name",
         id: "name",
@@ -19,37 +19,57 @@ export const fundingSourceColumns: ColumnDef<TFundingSourceData>[] = [
 
     {
         header: "Donor Email",
-        id: "email",
-        accessorKey: "email",
+        id: "contact_email",
+        accessorKey: "email_donor",
         size: 200,
+        cell: ({ row }) => {
+            const data = row.original as any;
+            return data.contact_information?.email || data.email_donor || "N/A";
+        },
     },
 
     {
         header: "Donor Address",
-        id: "address",
-        accessorKey: "address",
+        id: "contact_address",
+        accessorKey: "address_donor",
         size: 200,
+        cell: ({ row }) => {
+            const data = row.original as any;
+            return data.contact_information?.address || data.address_donor || "N/A";
+        },
     },
 
     {
         header: "Donor Contact Person",
-        id: "email",
-        accessorKey: "email",
+        id: "contact_person",
+        accessorKey: "contact_person_name",
         size: 200,
+        cell: ({ row }) => {
+            const data = row.original as any;
+            return data.contact_information?.contact_person || data.contact_person_name || "N/A";
+        },
     },
 
     {
         header: "Donor Contact Person Email",
-        id: "email",
-        accessorKey: "email",
+        id: "contact_person_email",
+        accessorKey: "email_contact_person",
         size: 200,
+        cell: ({ row }) => {
+            const data = row.original as any;
+            return data.contact_information?.email || data.email_contact_person || "N/A";
+        },
     },
 
     {
         header: "Donor Contact Person Phone Number",
-        id: "email",
-        accessorKey: "email",
+        id: "contact_phone",
+        accessorKey: "contact_person_phone",
         size: 200,
+        cell: ({ row }) => {
+            const data = row.original as any;
+            return data.contact_information?.phone || data.contact_person_phone || "N/A";
+        },
     },
 
     {
@@ -59,7 +79,7 @@ export const fundingSourceColumns: ColumnDef<TFundingSourceData>[] = [
     },
 ];
 
-const TableMenu = ({ id }: TFundingSourceData) => {
+const TableMenu = ({ id }: FundingSourceData) => {
     return (
         <div className="flex items-center gap-2">
             <>

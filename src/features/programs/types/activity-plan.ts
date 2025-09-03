@@ -23,11 +23,16 @@ export interface TActivityPlanData {
     project: {
         id: string;
     };
+    work_plan_title: string;
+    work_plan_activity_identifier: string;
+    activity_name: string;
+    activity_description: string;
+    work_plan_activity: string;
+    work_plan: string;
     created_datetime: string;
     updated_datetime: string;
     ir: string;
     activity_code: string;
-    activity_description: string;
     start_date: string;
     end_date: string;
     responsible_person: string;
@@ -39,4 +44,10 @@ export interface TActivityPlanData {
     comments: string;
     created_by: string;
     updated_by: string;
+    approval_status: string;
+    status: string;
+    justification: string;
+    urgency_level: string | null;
+    approval_date: string | null;
+    approved_by: string | null;
 }

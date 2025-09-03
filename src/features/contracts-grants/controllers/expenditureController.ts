@@ -66,7 +66,14 @@ export const useGetAllExpenditures = ({
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        const errorData = axiosError.response?.data as any;
+        
+        // Handle specific backend errors
+        if (errorData?.message?.includes("unsupported operand type")) {
+          throw new Error("Backend calculation error: Data type mismatch in financial calculations. Please contact support.");
+        }
+        
+        throw new Error("API Error: " + (errorData?.message || axiosError.message || "Unknown error"));
       }
     },
     enabled: enabled && !!grantId,
@@ -82,7 +89,7 @@ export const useCreateExpenditure = (grantId: string) => {
     TExpenditureFormData
   >({
     endpoint: `/projects/${grantId}/expenditures/`,
-    queryKey: ["expenditures", "grants"],
+    queryKey: ["expenditures", grantId],
     isAuth: true,
     method: "POST",
   });
@@ -106,7 +113,7 @@ export const useUpdateExpenditure = (grantId: string, expenditureId: string) => 
     TExpenditureFormData
   >({
     endpoint: `/projects/${grantId}/expenditures/${expenditureId}/`,
-    queryKey: ["expenditures", "grants"],
+    queryKey: ["expenditures", grantId],
     isAuth: true,
     method: "PUT",
   });
@@ -130,7 +137,7 @@ export const useDeleteExpenditure = (grantId: string, expenditureId: string) => 
     Record<string, never>
   >({
     endpoint: `/projects/${grantId}/expenditures/${expenditureId}/`,
-    queryKey: ["expenditures", "grants"],
+    queryKey: ["expenditures", grantId],
     isAuth: true,
     method: "DELETE",
   });

@@ -6,14 +6,14 @@ export const ContractRequestSchema = z.object({
   request_type: z.string().min(1, "Please select request type"),
   department: z.string().min(1, "Please select request department"),
   consultants_count: z.string().min(1, "Please enter no of consultants"),
-  location: z.string().min(1, "Please select request location"),
+  location: z.string().min(1, "Please select request location").refine(val => val !== "", "Please select request location"),
   fco: z.string().min(1, "Please select FCO"),
   technical_monitor: z.string().min(1, "Please select technical monitor"),
   email: z.string().email("Please enter a valid email"),
   phone_number: z.string().min(1, "Please enter phone number"),
-  current_reviewer: z.string().min(1, "Please select current reviewer"),
-  // authorizer: z.string().min(1, "Please select authorizer"),
-  // approver: z.string().min(1, "Please select approver"),
+  current_reviewer: z.string().min(1, "Please select current reviewer").refine(val => val !== "", "Please select current reviewer"),
+  authorizer: z.string().optional(),
+  approver: z.string().optional(),
   // reference_number: z.string().min(1, "Please enter reference number"),
 });
 
@@ -21,44 +21,131 @@ export type TContractRequestFormData = z.infer<typeof ContractRequestSchema>;
 
 export interface IContractRequestPaginatedData {
   id: string;
-  contract_request_id: string;
-  name: string;
+  contract_request_id?: string;
+  name?: string;
+  title: string;
+  request_type: string;
+  request_type_display?: string;
   status: string;
-  funding_sources: { name: string }[];
-  beneficiaries: string[];
-  current_month_expenditure_amount: string | null;
-  current_month_obligation_amount: string | null;
-  total_obligation_amount: string;
-  total_expenditure_amount: string;
+  status_display?: string;
+  department?: {
+    id: string;
+    name: string;
+  };
+  location_detail?: {
+    id: string;
+    name: string;
+  };
+  consultants_count: number;
+  email: string;
+  phone_number: string;
+  fco?: string;
+  technical_monitor?: string;
+  
+  // Workflow assignment fields
+  current_reviewer?: string;
+  current_reviewer_detail?: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+  authorizer?: string;
+  authorizer_detail?: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+  approver?: string;
+  approver_detail?: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+  
+  // Existing fields
+  funding_sources?: { name: string }[];
+  beneficiaries?: string[];
+  current_month_expenditure_amount?: string | null;
+  current_month_obligation_amount?: string | null;
+  total_obligation_amount?: string;
+  total_expenditure_amount?: string;
   created_datetime: string;
   updated_datetime: string;
-  award_type: string;
-  award_amount: string;
-  reference_number: string;
-  created_by: string;
-  updated_by: null;
-  modifications: { name: string }[];
+  award_type?: string;
+  award_amount?: string;
+  reference_number?: string;
+  created_by?: string | {
+    id: string;
+    first_name: string;
+    last_name: string;
+    full_name: string;
+  };
+  updated_by?: null;
+  modifications?: { name: string }[];
 }
 
 export interface IContractRequestSingleData {
-  // id: string;
-  // name: string;
-  // contract_request_id: string;
-  // created_datetime: string;
-  // updated_datetime: string;
-  // award_type: string;
-  // award_amount: string;
-  // reference_number: string;
-  // created_by: string;
-  // updated_by: null;
-  // total_obligation_amount: string | null;
-  // total_expenditure_amount: string | null;
-
-  title?: string;
-  award_type: string;
+  id: string;
+  title: string;
+  request_type: string;
+  request_type_display?: string;
+  status: string;
+  status_display?: string;
+  department?: {
+    id: string;
+    name: string;
+  };
+  location_detail?: {
+    id: string;
+    name: string;
+  };
+  consultants_count: number;
+  email: string;
+  phone_number: string;
+  fco?: string;
+  technical_monitor?: string;
+  
+  // Workflow assignment fields
+  current_reviewer?: string;
+  current_reviewer_detail?: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+  authorizer?: string;
+  authorizer_detail?: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+  approver?: string;
+  approver_detail?: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+  
+  created_datetime: string;
+  updated_datetime: string;
+  created_by?: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    full_name: string;
+  };
+  updated_by?: null;
+  
+  // Legacy fields for compatibility
+  award_type?: string;
   project_id?: string;
   award_reference_number?: string;
-  award_amount: string;
+  award_amount?: string;
   funding_source?: string;
   pipeline?: string;
   money_months_remaining?: string;

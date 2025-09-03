@@ -77,10 +77,14 @@ export default function AllFundingSource() {
                 </Button>
             </div>
             <div>
-                <div className="flex justify-between text-[#756D6D] font-semibold text-sm mb-10">
-                    <h1 className="flex-1">Name</h1>
-                    <h1 className="flex-1">Description</h1>
-                    <h1 className="flex-1"></h1>
+                <div className="grid grid-cols-7 gap-4 text-[#756D6D] font-semibold text-sm mb-10">
+                    <h1>Name</h1>
+                    <h1>Email</h1>
+                    <h1>Address</h1>
+                    <h1>Contact Person</h1>
+                    <h1>Contact Email</h1>
+                    <h1>Contact Phone</h1>
+                    <h1>Actions</h1>
                 </div>
 
                 {isFetching || isDeleteLoading ? (
@@ -91,13 +95,25 @@ export default function AllFundingSource() {
                             return (
                                 <div
                                     key={item.id}
-                                    className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
+                                    className="grid grid-cols-7 gap-4 mt-6 text-[#756D6D] font-normal text-xs items-center"
                                 >
-                                    <p className="flex-1">{item.name}</p>
-                                    <p className="flex-1">
-                                        {item.description || "N/A"}
+                                    <p className="truncate" title={item.name}>{item.name}</p>
+                                    <p className="truncate" title={item.email_donor || "N/A"}>
+                                        {item.email_donor || "N/A"}
                                     </p>
-                                    <div className="flex-1">
+                                    <p className="truncate" title={item.address_donor || "N/A"}>
+                                        {item.address_donor || "N/A"}
+                                    </p>
+                                    <p className="truncate" title={item.contact_person_name || "N/A"}>
+                                        {item.contact_person_name || "N/A"}
+                                    </p>
+                                    <p className="truncate" title={item.email_contact_person || "N/A"}>
+                                        {item.email_contact_person || "N/A"}
+                                    </p>
+                                    <p className="truncate" title={item.contact_person_phone || "N/A"}>
+                                        {item.contact_person_phone || "N/A"}
+                                    </p>
+                                    <div>
                                         <TableAction
                                             update
                                             removeView

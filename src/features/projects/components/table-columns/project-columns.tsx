@@ -185,53 +185,61 @@ const TableMenu = ({ id, status }: IProjectSingleData) => {
           </PopoverTrigger>
           <PopoverContent className='w-fit'>
             <div className='flex flex-col items-start justify-between gap-1'>
-              <Link className='w-full' href={`/dashboard/projects/${id}`}>
+              {id && (
+                <Link className='w-full' href={`/dashboard/projects/${id}`}>
+                  <Button
+                    className='w-full flex items-center justify-start gap-2'
+                    variant='ghost'
+                  >
+                    <EyeIcon />
+                    View
+                  </Button>
+                </Link>
+              )}
+              {id && (
+                <Link
+                  className='w-full'
+                  href={`/dashboard/projects/create?id=${id}`}
+                >
+                  <Button
+                    className='w-full flex items-center justify-start gap-2'
+                    variant='ghost'
+                  >
+                    <EditIcon />
+                    Edit
+                  </Button>
+                </Link>
+              )}
+              {id && (
+                <Button
+                  variant='ghost'
+                  type='button'
+                  onClick={() => {
+                    dispatch(
+                      openDialog({
+                        type: DialogType.ChangeProjectStatusModal,
+                        dialogProps: {
+                          status,
+                          id,
+                        },
+                      })
+                    );
+                  }}
+                >
+                  <PencilIcon />
+                  Change Status
+                </Button>
+              )}
+              {id && (
                 <Button
                   className='w-full flex items-center justify-start gap-2'
                   variant='ghost'
+                  onClick={() => setDialogOpen(true)}
                 >
-                  <EyeIcon />
-                  View
+                  <DeleteIcon />
+                  Delete
                 </Button>
-              </Link>
-              <Link
-                className='w-full'
-                href={`/dashboard/projects/create?id=${id}`}
-              >
-                <Button
-                  className='w-full flex items-center justify-start gap-2'
-                  variant='ghost'
-                >
-                  <EditIcon />
-                  Edit
-                </Button>
-              </Link>
-              <Button
-                variant='ghost'
-                type='button'
-                onClick={() => {
-                  dispatch(
-                    openDialog({
-                      type: DialogType.ChangeProjectStatusModal,
-                      dialogProps: {
-                        status,
-                        id,
-                      },
-                    })
-                  );
-                }}
-              >
-                <PencilIcon />
-                Change Status
-              </Button>
-              <Button
-                className='w-full flex items-center justify-start gap-2'
-                variant='ghost'
-                onClick={() => setDialogOpen(true)}
-              >
-                <DeleteIcon />
-                Delete
-              </Button>
+              )}
             </div>
           </PopoverContent>
         </Popover>

@@ -85,7 +85,7 @@ import NewLeaveForm from "@/features/hr/components/NewLeaveForm";
 import AddObligationModal from "@/features/contracts-grants/components/modals/ObligationModal";
 import SubGrantManualSubUploadModal from "@/features/contracts-grants/components/modals/SubGrantSubUploadModal";
 import AddPreAwardQuestion from "@/features/contracts-grants/components/AddPreAwardQuestion";
-// import AddModification from "@/features/contracts-grants/components/modals/AddModification"; // Modal not found
+import AddModification from "@/features/contracts-grants/components/table-columns/grant/addModification";
 import ActivityPlanStatusModal from "@/features/programs/components/modals/ActivityPlanStatusModal";
 import PreferredConsultantModal from "@/features/contracts-grants/components/modals/PreferredConsultantModal";
 import DocumentUploadModal from "@/features/common/components/modals/DocumentUploadModal";
@@ -194,7 +194,7 @@ const dialogs: Record<string, ReactNode> = {
   [DialogType.ADD_OBLIGATION_MODAL]: <AddObligationModal />,
   [DialogType.SUBGRANT_MANUAL_SUB_UPLOAD]: <SubGrantManualSubUploadModal />,
   [DialogType.ADD_PRE_AWARD_QUESTION_MODAL]: <AddPreAwardQuestion />,
-  // [DialogType.MODIFY_GRANT]: <AddModification />, // Modal not found
+  [DialogType.MODIFY_GRANT]: <AddModification />,
 
   [DialogType.ACTIVITY_PLAN_STATUS_MODAL]: <ActivityPlanStatusModal />,
   [DialogType.PREFERRED_CONSULTANT_MODAL]: <PreferredConsultantModal />,
