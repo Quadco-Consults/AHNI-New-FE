@@ -1,11 +1,19 @@
-import { IAssetClassificationData } from "definations/modules/admin/asset-classification";
-import { TAssetConditionData } from "definations/modules/admin/asset-condition";
-import { TLocationData } from "definations/modules/config/location";
+// import { IAssetClassificationData } from "definations/modules/admin/asset-classification";
+// import { TAssetConditionData } from "definations/modules/admin/asset-condition";
+// import { TLocationData } from "definations/modules/config/location";
+import {
+  IAssetClassificationData,
+  TAssetConditionData,
+  TAssetTypeData,
+  TFundingSourceData,
+  TLocationData,
+} from "@/features/modules/types";
+import { IProjectSingleData } from "@/features/projects/types/project";
 import { IUser } from "features/auth/types/user";
 import { z } from "zod";
-import { TAssetTypeData } from "definations/modules/admin/asset-type";
-import { TFundingSourceData } from "definations/modules/project/funding-source";
-import { IProjectSingleData } from "definations/project";
+// import { TAssetTypeData } from "definations/modules/admin/asset-type";
+// import { TFundingSourceData } from "definations/modules/project/funding-source";
+// import { IProjectSingleData } from "definations/project";
 
 // export const AssetSchema = z.object({
 //     name: z.string().min(1, "Please enter a name"),
@@ -37,7 +45,7 @@ import { IProjectSingleData } from "definations/project";
 // });
 
 export const AssetSchema = z.object({
-  name: z.string().optional().nullable(),
+  name: z.string().min(1, "Please enter a name"),
   assignee: z.string().optional().nullable(),
   asset_code: z.string().optional().nullable(),
   plate_number: z.string().optional().nullable(),
@@ -55,9 +63,11 @@ export const AssetSchema = z.object({
   classification: z.string().optional().nullable(),
   usd_cost: z.string().optional().nullable(),
   ngn_cost: z.string().optional().nullable(),
-  unit: z.string().optional().nullable(),
+  unit: z.string().min(1, "Please enter unit"),
   implementer: z.string().optional().nullable(),
   insurance_duration: z.string().optional().nullable(),
+  category: z.string().min(1, "Please select a Category"),
+  uom: z.string().min(1, "Please enter uom"),
 });
 
 export type TAssetFormValues = z.infer<typeof AssetSchema>;
