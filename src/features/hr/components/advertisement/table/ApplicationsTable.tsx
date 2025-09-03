@@ -267,18 +267,15 @@ const columns: ColumnDef<AdvertisementResults>[] = [
 
 const ActionList = ({ data }: any) => {
   // const router = useRouter();
-  const [patchJobApplicationAccepted] =
-    usePatchJobApplicationAccepted();
-  const [patchJobApplicationPreferred] =
-    usePatchJobApplicationPreferred();
+  const { patchJobApplicationAccepted } =
+    usePatchJobApplicationAccepted(data?.id as string);
+  const { patchJobApplicationPreferred } =
+    usePatchJobApplicationPreferred(data?.id as string);
   const handleAccepted = async () => {
     try {
       await patchJobApplicationAccepted({
-        id: data?.id as string,
-        body: {
-          status: "ACCEPTED",
-        },
-      })();
+        status: "ACCEPTED",
+      });
       toast.success("Applicant accepted successfully");
     } catch (error) {
       toast.error("Failed to update status");
@@ -287,11 +284,8 @@ const ActionList = ({ data }: any) => {
   const handlePreferred = async () => {
     try {
       await patchJobApplicationPreferred({
-        id: data?.id as string,
-        body: {
-          status: "PREFERRED",
-        },
-      })();
+        status: "PREFERRED",
+      });
       toast.success("Applicant preferred successfully");
     } catch (error) {
       toast.error("Failed to update status");
