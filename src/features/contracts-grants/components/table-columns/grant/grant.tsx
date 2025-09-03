@@ -170,6 +170,11 @@ const TableMenu = (data) => {
     }
   };
 
+  // Don't render anything if there's no valid id
+  if (!id) {
+    return null;
+  }
+
   return (
     <div className='flex items-center gap-2'>
       <>
@@ -181,61 +186,69 @@ const TableMenu = (data) => {
           </PopoverTrigger>
           <PopoverContent className='w-fit'>
             <div className='flex flex-col items-start justify-between gap-1'>
-              <Link
-                className='w-full'
-                href={`/dashboard/c-and-g/grant/${id}`}
-              >
+              {id && (
+                <Link
+                  className='w-full'
+                  href={`/dashboard/c-and-g/grant/${id}`}
+                >
+                  <Button
+                    className='w-full flex items-center justify-start gap-2'
+                    variant='ghost'
+                  >
+                    <EyeIcon />
+                    View
+                  </Button>
+                </Link>
+              )}
+
+              {id && (
+                <Link
+                  className='w-full'
+                  href={{
+                    pathname: CG_ROUTES.CREATE_GRANT,
+                    search: `?id=${id}`,
+                  }}
+                >
+                  <Button
+                    className='w-full flex items-center justify-start gap-2'
+                    variant='ghost'
+                  >
+                    <PencilIcon />
+                    Edit
+                  </Button>
+                </Link>
+              )}
+              {id && (
+                <Button
+                  onClick={() =>
+                    dispatch(
+                      openDialog({
+                        type: DialogType.MODIFY_GRANT,
+                        dialogProps: {
+                          header: "Modify Grant",
+                          data: data,
+                        },
+                      })
+                    )
+                  }
+                  variant='ghost'
+                  className='w-full flex items-center justify-start gap-2'
+                  size='sm'
+                >
+                  Modify Grant
+                </Button>
+              )}
+
+              {id && (
                 <Button
                   className='w-full flex items-center justify-start gap-2'
                   variant='ghost'
+                  onClick={() => setDialogOpen(true)}
                 >
-                  <EyeIcon />
-                  View
+                  <DeleteIcon />
+                  Delete
                 </Button>
-              </Link>
-
-              <Link
-                className='w-full'
-                href={{
-                  pathname: CG_ROUTES.GRANT_CREATE,
-                  search: `?id=${id}`,
-                }}
-              >
-                <Button
-                  className='w-full flex items-center justify-start gap-2'
-                  variant='ghost'
-                >
-                  <PencilIcon />
-                  Edit
-                </Button>
-              </Link>
-              <Button
-                onClick={() =>
-                  dispatch(
-                    openDialog({
-                      type: DialogType.MODIFY_GRANT,
-                      dialogProps: {
-                        header: "Modify Grant",
-                        data: data,
-                      },
-                    })
-                  )
-                }
-                variant='ghost'
-                className='w-full flex items-center justify-start gap-2'
-                size='sm'
-              >
-                Modify Grant
-              </Button>
-
-              <Button
-                className='w-full flex items-center justify-start gap-2'
-                variant='ghost'
-                onClick={() => setDialogOpen(true)}
-              >
-                <DeleteIcon />
-                Delete
-              </Button>
+              )}
             </div>
           </PopoverContent>
         </Popover>

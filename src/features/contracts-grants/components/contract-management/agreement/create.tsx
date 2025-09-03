@@ -22,7 +22,6 @@ import {
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation"; 
 import { CG_ROUTES } from "constants/RouterConstants";
-import { skipToken } from "@reduxjs/toolkit/query";
 import { useEffect, useMemo } from "react";
 import ServiceLevelAgreementLayout from "./Layout";
 import VendorsAPI from "@/features/procurement/controllers/vendorsController";
@@ -48,8 +47,8 @@ export default function CreateAgreement() {
         },
     });
 
-    const [searchParams] = useSearchParams();
-    const id = searchParams.get("id");
+    const searchParams = useSearchParams();
+    const id = searchParams?.get("id") || null;
 
     const router = useRouter();
 
@@ -84,8 +83,8 @@ export default function CreateAgreement() {
     const { createAgreement, isLoading: isCreateLoading } =
         useCreateAgreement();
 
-    const { modifyAgreement, isLoading: isModifyLoading } =
-        useModifyAgreement();
+    const { updateAgreement, isLoading: isModifyLoading } =
+        useModifyAgreement(id || "");
 
     const onSubmit: SubmitHandler<TAgreementFormData> = async (data) => {
         // try {
@@ -105,7 +104,7 @@ export default function CreateAgreement() {
         router.push(CG_ROUTES.CREATE_AGREEMENT_UPLOADS);
     };
 
-    const { data } = useGetSingleAgreement(id ?? skipToken);
+    const { data } = useGetSingleAgreement(id || "", !!id);
 
     useEffect(() => {
         if (data) {

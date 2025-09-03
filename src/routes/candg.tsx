@@ -204,7 +204,7 @@ export const candg = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/c&g/contract-management/consultant-management/id/applicants/CreateConsultancyStaff"
+                    "features/contracts-grants/components/contract-management/consultant-management/create/ApplicationDetails"
                 )
         ),
     },
@@ -214,7 +214,7 @@ export const candg = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/c&g/contract-management/consultant-management/id/ConsultancyDetails"
+                    "features/contracts-grants/components/contract-management/consultant-management/id/ConsultancyDetails"
                 )
         ),
     },
@@ -285,7 +285,7 @@ export const candg = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/c&g/contract-management/consultant-management/create/ApplicationDetails"
+                    "features/contracts-grants/components/contract-management/consultant-management/create/ApplicationDetails"
                 )
         ),
     },
@@ -305,7 +305,7 @@ export const candg = [
         element: lazy(
             () =>
                 import(
-                    "pages/protectedPages/c&g/contract-management/consultant-management/id/ConsultancyDetails"
+                    "features/contracts-grants/components/contract-management/consultant-management/id/ConsultancyDetails"
                 )
         ),
     },

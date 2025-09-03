@@ -4,6 +4,7 @@ import BackNavigation from "components/atoms/BackNavigation";
 import React, { useState } from "react";
 import GrantDetailsCard from "./_components/GrantDetailsCard";
 import ExpenditureHistory from "./_components/ExpenditureHistory";
+import ModificationHistory from "./_components/ModificationHistory";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import { Button } from "components/ui/button";
 import { openDialog } from "store/ui";
@@ -21,6 +22,8 @@ const GrantDetails: React.FC = () => {
   const [tabValue, setTabValue] = useState("details");
 
   const { id } = useParams();
+  const grantId = typeof id === 'string' ? id : Array.isArray(id) ? id[0] : undefined;
+  
 
   const { data, isLoading } = useGetSingleProject(id ?? skipToken);
 
@@ -33,7 +36,7 @@ const GrantDetails: React.FC = () => {
       <div className='flex items-center justify-between'>
         <BackNavigation />
 
-        {(tabValue === "expenditure" || tabValue === "obligation") && (
+        {(tabValue === "expenditure" || tabValue === "obligation" || tabValue === "modifications") && grantId && (
           <Button
             className='flex gap-2 py-6'
             type='button'
@@ -43,21 +46,30 @@ const GrantDetails: React.FC = () => {
                   type:
                     tabValue === "expenditure"
                       ? DialogType.ExpenditureModal
-                      : DialogType.ADD_OBLIGATION_MODAL,
+                      : tabValue === "obligation"
+                      ? DialogType.ADD_OBLIGATION_MODAL
+                      : DialogType.MODIFY_GRANT,
                   dialogProps: {
                     header:
                       tabValue === "expenditure"
                         ? "Add Expenditure"
-                        : "Add Obligation",
+                        : tabValue === "obligation"
+                        ? "Add Obligation"
+                        : "Add Modification",
                     width: "max-w-lg",
-                    grantId: id,
+                    grantId: grantId,
+                    data: { id: grantId, title: data?.data?.title },
                   },
                 })
               );
             }}
           >
             <AddSquareIcon />
-            {tabValue === "expenditure" ? "Add Expenditure" : "Add Obligation"}
+            {tabValue === "expenditure" 
+              ? "Add Expenditure" 
+              : tabValue === "obligation" 
+              ? "Add Obligation"
+              : "Add Modification"}
           </Button>
         )}
       </div>
@@ -77,6 +89,8 @@ const GrantDetails: React.FC = () => {
             <TabsTrigger value='expenditure'>Expenditure History</TabsTrigger>
 
             <TabsTrigger value='obligation'>Obligations</TabsTrigger>
+
+            <TabsTrigger value='modifications'>Modifications</TabsTrigger>
           </TabsList>
 
           <TabsContent value='details'>
@@ -89,6 +103,10 @@ const GrantDetails: React.FC = () => {
 
           <TabsContent value='obligation'>
             {data && <ObligationHistory {...data?.data} />}
+          </TabsContent>
+
+          <TabsContent value='modifications'>
+            <ModificationHistory />
           </TabsContent>
         </Tabs>
       )}

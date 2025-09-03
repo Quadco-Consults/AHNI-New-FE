@@ -37,33 +37,32 @@ export default function AObligationModal() {
   const dispatch = useAppDispatch();
 
   const grantId = dialogProps?.grantId as string;
+  
 
   const { createObligation, isLoading: isCreateLoading } =
-    useCreateObligation();
+    useCreateObligation(grantId || "");
 
-  const { modifyObligation, isLoading: isModifyLoading } =
-    useModifyObligation();
+  const { updateObligation, isLoading: isModifyLoading } =
+    useModifyObligation(grantId || "", obligation?.id || "");
 
   const onSubmit: SubmitHandler<TObligationFormData> = async (data) => {
+    if (!grantId) {
+      toast.error("Grant ID is required");
+      return;
+    }
+    
     try {
       if (obligation?.id) {
-        await modifyObligation({
-          grantId,
-          obligationId: obligation?.id,
-          body: data,
-        })();
+        await updateObligation(data);
       } else {
-        await createObligation({
-          grantId,
-          body: data,
-        })();
+        await createObligation(data);
 
         toast.success("Obligation Created");
       }
 
       dispatch(closeDialog());
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
+      toast.error(error?.data?.message ?? error?.message ?? "Something went wrong");
     }
   };
 

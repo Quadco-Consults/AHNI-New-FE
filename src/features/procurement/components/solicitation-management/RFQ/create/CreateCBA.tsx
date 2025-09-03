@@ -105,10 +105,18 @@ const CreateCBA = () => {
     ) || [];
 
   const onSubmit = async (data: z.infer<typeof CbaSchema>) => {
+    // Ensure cba_date is in 'YYYY-MM-DD' format
+    let formattedDate = data?.cba_date;
+    if (formattedDate && !/^\d{4}-\d{2}-\d{2}$/.test(formattedDate)) {
+      const dateObj = new Date(formattedDate);
+      if (!isNaN(dateObj.getTime())) {
+        formattedDate = dateObj.toISOString().slice(0, 10);
+      }
+    }
     const payload = {
       committee_members: data.committee_members,
       cba_type: data?.cba_type,
-      cba_date: data?.cba_date,
+      cba_date: formattedDate,
       assignee: data?.assignee,
       status: "PENDING",
       solicitation: data?.solicitation,

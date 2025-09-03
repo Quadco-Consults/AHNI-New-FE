@@ -35,7 +35,7 @@ export default function ConsultancyDetailsPage() {
       : CG_ROUTES.CREATE_CONSULTANCY_APPLICANT;
 
   const interviewPath =
-    type === "ADHOC" ? ProgramRoutes.CREATE_ADHOC_INTERVIEW : "";
+    type === "ADHOC" ? ProgramRoutes.CREATE_ADHOC_INTERVIEW : CG_ROUTES.CREATE_CONSULTANCY_INTERVIEW;
 
   if (isLoading) {
     return <LoadingSpinner />;
