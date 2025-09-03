@@ -86,9 +86,9 @@ export const useCreateGrievance = () => {
     method: "POST",
   });
 
-  const createGrievance = async (details: Partial<GrievianceManagement>) => {
+  const createGrievance = async (details: Partial<GrievianceManagement> | FormData) => {
     try {
-      await callApi(details);
+      await callApi(details as any);
     } catch (error) {
       console.error("Grievance create error:", error);
     }

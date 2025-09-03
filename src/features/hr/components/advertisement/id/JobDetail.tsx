@@ -82,13 +82,13 @@ const JobDetail = (props: JobAdvertisement) => {
           {moment(created_datetime!).format("DD-MM-YYYY")}
         </Badge>
         <Badge variant='md'>
-          <MapPin size={15} /> {locations}
+          <MapPin size={15} /> {typeof locations === 'object' ? locations?.name || 'N/A' : locations}
         </Badge>
         <Badge variant='md'>
           <Briefcase size={15} /> {job_type}
         </Badge>
         <Badge variant='md'>
-          <PersonStanding size={15} /> {supervisor}
+          <PersonStanding size={15} /> {typeof supervisor === 'object' ? supervisor?.name || 'N/A' : supervisor}
         </Badge>
         {commencement_date && (
           <Badge variant='md'>

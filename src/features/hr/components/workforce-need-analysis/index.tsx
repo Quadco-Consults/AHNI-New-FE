@@ -65,11 +65,18 @@ const WFNA: React.FC = () => {
   const { handleSubmit, reset, getValues } = form;
   const { location: selectedLocation, position: selectedPosition } = getValues();
 
-  const { data, isLoading: loadingWorkforce } =
+  const { data, isLoading: loadingWorkforce, error } =
     useGetWorkforceNeedAnalysis({
       ...(selectedLocation && { location: selectedLocation }),
       ...(selectedPosition && { position: selectedPosition }),
     });
+
+  // Debug logging
+  React.useEffect(() => {
+    console.log('Workforce data:', data);
+    console.log('Loading:', loadingWorkforce);
+    console.log('Error:', error);
+  }, [data, loadingWorkforce, error]);
   // const { deleteWorkforceNeedAnalysis, isLoading: deleting } =
   //     useWorkforceNeedAnalysis({});
   const { data: locations, isLoading: locationIsLoading } =
@@ -78,6 +85,7 @@ const WFNA: React.FC = () => {
     useGetAllPositionsManager({});
 
   const onSubmit: SubmitHandler<TFormValues> = (values) => {
+    // Filter values are automatically applied through getValues() in the query
     console.log("filter; ", values);
   };
 
@@ -119,8 +127,8 @@ const WFNA: React.FC = () => {
       size: 200,
       cell: ({ getValue }) => {
         const position = getValue();
-        return typeof position === 'object' && position?.name 
-          ? String(position.name) 
+        return typeof position === 'object' && position !== null && 'name' in position 
+          ? String((position as any).name) 
           : String(position || '');
       },
     },
@@ -130,8 +138,8 @@ const WFNA: React.FC = () => {
       size: 200,
       cell: ({ getValue }) => {
         const location = getValue();
-        return typeof location === 'object' && location?.name 
-          ? String(location.name) 
+        return typeof location === 'object' && location !== null && 'name' in location 
+          ? String((location as any).name) 
           : String(location || '');
       },
     },
@@ -312,7 +320,7 @@ const WFNA: React.FC = () => {
                         ) : (
                           <div className='flex justify-center items-center p-4'>
                             <p className='text-sm text-muted-foreground'>
-                              No locations found
+                              No positions found
                             </p>
                           </div>
                         )}
@@ -353,7 +361,7 @@ const WFNA: React.FC = () => {
       <div className='w-full'>
         <DataTable
           columns={columns}
-          data={data?.results ?? []}
+          data={data?.data ?? []}
           isLoading={loadingWorkforce}
           pagination={{
             total: 10,
