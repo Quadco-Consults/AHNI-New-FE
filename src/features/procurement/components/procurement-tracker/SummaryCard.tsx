@@ -2,10 +2,14 @@ import { ColumnDef } from "@tanstack/react-table";
 import Card from "components/Card";
 import DataTable from "components/Table/DataTable";
 import { usePathname } from "next/navigation";
-import { useGetAllProcurementTrackers } from "@/features/procurement/controllers/procurementTrackerController";
+import { TPaginatedResponse } from "definations/index";
+import { ProcurementTrackerResults } from "../../types/procurementPlan";
 
-const SummaryCard = () => {
-  const { data } = useGetAllProcurementTrackers({});
+interface SummaryCardProps {
+  data: { data: TPaginatedResponse<ProcurementTrackerResults> } | undefined;
+}
+
+const SummaryCard = ({ data }: SummaryCardProps) => {
 
   const pathname = usePathname();
 
