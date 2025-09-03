@@ -12,7 +12,7 @@ const IdCard = ({ info }: { info: EmployeeOnboarding }) => {
     <div className='space-y-10'>
       <div className='card-wrapper space-y-6'>
         <div className='flex items-center gap-x-4'>
-          <img src={data.passport_file} alt='avatar' width={100} />
+          <img src={data?.passport_file || data?.passport_url || '/default-avatar.png'} alt='avatar' width={100} />
           <h4 className='font-semibold'>
             {data?.legal_firstname} {data?.legal_lastname}
           </h4>
@@ -22,7 +22,7 @@ const IdCard = ({ info }: { info: EmployeeOnboarding }) => {
           <div className='space-y-6'>
             <DescriptionCard
               label='Position Title'
-              description={data.designation.name}
+              description={data?.designation?.name || data?.position || "N/A"}
             />
             <DescriptionCard
               label='Phone Number'
@@ -39,7 +39,7 @@ const IdCard = ({ info }: { info: EmployeeOnboarding }) => {
             <div className='space-y-2'>
               <p className='font-bold'>Employee Signature</p>
 
-              <img src={data.signature_file} alt='avatar' width={100} />
+              <img src={data?.signature_file || data?.signature_url || '/default-signature.png'} alt='signature' width={100} />
             </div>
           </div>
 

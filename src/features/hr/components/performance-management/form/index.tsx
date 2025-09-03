@@ -55,12 +55,12 @@ const NewPerformance = () => {
     search: "",
   });
 
-  const { data: employees } = useGetEmployeeOnboardings({
+  const { data: employees, isLoading: isLoadingEmployees } = useGetEmployeeOnboardings({
     page: 1,
     size: 2000000,
   });
 
-  const [createPerformanceAssesment] = useCreatePerformanceAssesment();
+  const { createPerformanceAssesment } = useCreatePerformanceAssesment();
 
   const userOptions = useMemo(
     () =>
@@ -72,13 +72,18 @@ const NewPerformance = () => {
   );
 
   const employeeOptions = useMemo(
-    () =>
-      employees?.data.results.map(
+    () => {
+      if (!employees?.data?.results) {
+        console.log("No employee data available:", employees);
+        return [];
+      }
+      return employees.data.results.map(
         ({ legal_firstname, legal_lastname, id }) => ({
           label: `${legal_firstname} ${legal_lastname}`,
           value: id,
         })
-      ),
+      );
+    },
     [employees]
   );
 
@@ -88,7 +93,7 @@ const NewPerformance = () => {
     console.log({ data });
     try {
       // Create new advertisement
-      await createPerformanceAssesment(data)();
+      await createPerformanceAssesment(data);
       toast.success("Job advertisement created successfully");
     } catch (e) {
       toast.error("Something went wrong");
@@ -141,7 +146,7 @@ const NewPerformance = () => {
                 label='Select Employee'
                 name='employee'
                 required
-                //   placeholder="Select Authorizer"
+                placeholder={isLoadingEmployees ? "Loading employees..." : "Select Employee"}
                 options={employeeOptions}
               />
             </div>

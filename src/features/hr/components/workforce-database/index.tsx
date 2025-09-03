@@ -20,6 +20,7 @@ import {
   useGetEmployeeOnboardings,
   useDeleteEmployeeOnboarding,
 } from "@/features/hr/controllers/employeeOnboardingController";
+import { useGetAllUsers } from "@/features/auth/controllers/userController";
 
 import { toast } from "sonner";
 import ConfirmationDialog from "components/ConfirmationDialog";
@@ -28,12 +29,48 @@ const WorkforceDatabase = () => {
   const [employeeID, setEmployeedId] = useState("");
   const [isDialogOpen, setDialogOpen] = useState(false);
 
-  const { data, isLoading: getLoading } = useGetEmployeeOnboardings({ page: 1, size: 20 });
+  const { data: employeeData, isLoading: getEmployeeLoading } = useGetEmployeeOnboardings({ page: 1, size: 200 });
+  const { data: userData, isLoading: getUserLoading } = useGetAllUsers({ page: 1, size: 200 });
 
   const { deleteEmployeeOnboarding, isLoading } =
-    useDeleteEmployeeOnboarding();
+    useDeleteEmployeeOnboarding(employeeID);
 
-  // console.log(data);
+  console.log("Employee data:", employeeData);
+  console.log("User data:", userData);
+  
+  // Filter users to only include AHNI staff (exclude consultants)
+  const filteredUsers = userData?.data.results?.filter((user: any) => {
+    // Filter logic: exclude consultants based on role or department
+    const isConsultant = user.roles?.some((role: any) => 
+      role.name?.toLowerCase().includes('consultant') ||
+      role.name?.toLowerCase().includes('contractor')
+    ) || (typeof user.department === 'string' && user.department.toLowerCase().includes('consultant')) ||
+       (typeof user.position === 'string' && user.position.toLowerCase().includes('consultant'));
+    
+    return !isConsultant; // Only include non-consultants (AHNI staff)
+  }) || [];
+
+  console.log("All users:", userData?.data.results?.length || 0);
+  console.log("Filtered AHNI staff:", filteredUsers.length);
+  console.log("Excluded consultants:", (userData?.data.results?.length || 0) - filteredUsers.length);
+
+  // Combine employee onboarding data with filtered user data
+  const combinedData = [
+    ...(employeeData?.data?.results || []),
+    ...filteredUsers.map((user: any) => ({
+      id: user.id,
+      legal_firstname: user.first_name,
+      legal_lastname: user.last_name,
+      email: user.email,
+      employment_type: "Staff",
+      position: user.position,
+      serial_id_code: `AHNI-${user.id.slice(0, 8)}`, // Generate staff ID for users
+      designation: { name: user.position },
+      location: { email: user.email }
+    }))
+  ];
+
+  console.log("Combined workforce data:", combinedData);
 
   const handleDelete = (id: string) => {
     setEmployeedId(id);
@@ -42,8 +79,8 @@ const WorkforceDatabase = () => {
 
   const confirmHandleDelete = async () => {
     try {
-      await deleteEmployeeOnboarding(employeeID);
-      toast.success("Payment Request Deleted");
+      await deleteEmployeeOnboarding();
+      toast.success("Employee Deleted");
     } catch (error: any) {
       console.log("Employee delete: ", error);
       toast.error(error.data.message ?? "Something went wrong");
@@ -66,7 +103,7 @@ const WorkforceDatabase = () => {
     {
       header: "Position",
       accessorKey: "position",
-      accessorFn: (data) => `${data.designation.name}`,
+      accessorFn: (data) => data.designation?.name || data.position || "N/A",
       size: 100,
     },
     {
@@ -77,7 +114,7 @@ const WorkforceDatabase = () => {
     {
       header: "Email",
       id: "email",
-      accessorFn: (data) => `${data.location.email}`,
+      accessorFn: (data) => data.location?.email || data.email || "N/A",
       size: 130,
     },
     {
@@ -103,9 +140,7 @@ const WorkforceDatabase = () => {
             <PopoverContent className=' w-fit'>
               <div className='flex flex-col items-start justify-between gap-1'>
                 <Link
-                  href={generatePath(HrRoutes.WORKFORCE_DATABASE_DETAIL, {
-                    id: data.original.id,
-                  })}
+                  href={HrRoutes.WORKFORCE_DATABASE_DETAIL.replace(":id", data.original.id)}
                 >
                   <Button
                     className='w-full flex items-center justify-start gap-2'
@@ -167,9 +202,9 @@ const WorkforceDatabase = () => {
         </div>
 
         <DataTable
-          data={data?.data.results || []}
+          data={combinedData}
           columns={columns}
-          isLoading={getLoading}
+          isLoading={getEmployeeLoading || getUserLoading}
         />
       </Card>
 
