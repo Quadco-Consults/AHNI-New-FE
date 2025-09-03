@@ -58,6 +58,7 @@ export default function CreateAsset() {
       unit: "",
       implementer: "",
       insurance_duration: "",
+      category: "",
     },
   });
 
@@ -222,6 +223,8 @@ export default function CreateAsset() {
         chasis_number: asset?.data?.chasis_number,
         plate_number: asset?.data?.plate_number,
         description: asset?.data?.description,
+        uom: asset?.data?.uom,
+        category: asset?.data?.category,
       });
     }
   }, [asset, user]);
@@ -246,10 +249,23 @@ export default function CreateAsset() {
 
   const onSubmit: SubmitHandler<TAssetFormValues> = async (data) => {
     try {
+      // Filter out empty, null, undefined, and whitespace-only string values
+      const filteredData = Object.entries(data).reduce((acc, [key, value]) => {
+        if (
+          value !== null &&
+          value !== undefined &&
+          value !== "" &&
+          String(value).trim() !== ""
+        ) {
+          acc[key as keyof TAssetFormValues] = value;
+        }
+        return acc;
+      }, {} as Partial<TAssetFormValues>);
+
       if (assetId) {
-        await editItem(data);
+        await editItem(filteredData as any);
       } else {
-        await createItem(data);
+        await createItem(filteredData as any);
       }
 
       router.push(AdminRoutes.ASSETS);
@@ -435,11 +451,16 @@ export default function CreateAsset() {
             </div>
 
             <div className='grid grid-cols-2 gap-x-5 gap-y-10'>
-              <FormInput label='UOM' name='' required placeholder='Enter UOM' />
+              <FormInput
+                label='UOM'
+                name='uom'
+                required
+                placeholder='Enter UOM'
+              />
 
               <FormSelect
                 label='Category'
-                name=''
+                name='category'
                 required
                 placeholder='Select Category'
                 options={categoryOptions}
