@@ -23,12 +23,7 @@ import {
   DialogClose,
 } from "components/ui/dialog";
 import { useForm } from "react-hook-form";
-import {
-  generatePath,
-  useNavigate,
-  useParams,
-  // useSearchParams,
-} 
+
 import logoPng from "assets/imgs/logo.png";
 import { Input } from "components/ui/input";
 import { Icon } from "@iconify/react";
@@ -36,28 +31,36 @@ import { LoadingSpinner } from "components/Loading";
 import { Checkbox } from "components/ui/checkbox";
 
 import { z } from "zod";
-import { CbaSchema } from "definations/procurement-validator";
+// import { CbaSchema } from "definations/procurement-validator";
 // import { TUser } from "features/auth/types/user";
-import CbaAPI from "@/features/procurementApi/cbaController";
+// import CbaAPI from "@/features/procurementApi/cbaController";
 import { toast } from "sonner";
 import { RouteEnum } from "constants/RouterConstants";
 import { Badge } from "components/ui/badge";
-import LotsAPI from "@/features/procurementApi/lotsController";
-import { LotsResultsData } from "definations/procurement-types/lots";
-import { useGetAllUsers } from "@/features/auth/user";
+// import LotsAPI from "@/features/procurementApi/lotsController";
+// import { LotsResultsData } from "definations/procurement-types/lots";
+// import { useGetAllUsers } from "@/features/auth/user";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { useGetAllSolicitations } from "@/features/procurementApi/solicitation";
+// import { useGetAllSolicitations } from "@/features/procurementApi/solicitation";
 import { useEffect } from "react";
+import {
+  useCreateCba,
+  useGetAllSolicitations,
+  useGetLotList,
+} from "@/features/procurement/controllers";
+import { useGetAllUsers } from "@/features/auth/controllers";
+import { useRouter, useSearchParams } from "next/navigation";
+import { CbaSchema } from "@/features/procurement/types/procurement-validator";
+import { LotsResultsData } from "@/features/procurement/types/lots";
 
 const CreateCBA = () => {
   const router = useRouter();
-  // const [searchParams] = useSearchParams();
-  // const rfqId = searchParams.get("id");
+  const searchParams = useSearchParams();
+  const rfqId = searchParams?.get("id");
   // const name = searchParams.get("name");
-  const { id: rfqId } = useParams();
-  // console.log({ id });
+
   console.log({ rfqId });
 
   const { data: rfqData, isLoading } = useGetAllSolicitations({
@@ -73,11 +76,10 @@ const CreateCBA = () => {
     size: 2000000,
   });
 
-  const { data: lots, isLoading: lotIsLoading } = LotsAPI.useGetLotList({
+  const { data: lots, isLoading: lotIsLoading } = useGetLotList({
     params: { no_paginate: true },
   });
-  const { createCbaMutation, isLoading: createCbaIsLoading } =
-    CbaAPI.useCreateCba();
+  const { createCbaMutation, isLoading: createCbaIsLoading } = useCreateCba();
 
   const form = useForm<z.infer<typeof CbaSchema>>({
     resolver: zodResolver(CbaSchema),
@@ -90,13 +92,13 @@ const CreateCBA = () => {
       committee_members: [],
     },
   });
-  const { handleSubmit, watch, getValues } = form;
+  const { handleSubmit, watch } = form;
 
   useEffect(() => {
     if (rfqId) {
       form.setValue("solicitation", rfqId);
     }
-  }, [rfqId]);
+  }, [rfqId, form]);
 
   const matchedUsers =
     users?.data?.results?.filter((user) =>
@@ -129,9 +131,7 @@ const CreateCBA = () => {
       toast.success("Successfully created.");
       // router.push(RouteEnum.COMPETITIVE_BID_ANALYSIS);
       router.push(
-        generatePath(RouteEnum.RFQ_DETAILS, {
-          id: data?.solicitation,
-        })
+        RouteEnum.RFQ_DETAILS.replace(":id", data?.solicitation as string)
       );
     } catch (error) {
       toast.error("Something went wrong");

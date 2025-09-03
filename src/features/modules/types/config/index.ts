@@ -175,6 +175,18 @@ export interface MarketPriceFormValues {
   vendor?: string;
 }
 
+// Job Category types
+export interface JobCategoryData {
+  label: string;
+  value: string;
+}
+
+export interface JobCategoryResponse {
+  status: string;
+  message: string;
+  data: JobCategoryData[];
+}
+
 // Legacy type exports for backward compatibility
 export type TCategoryData = CategoryData;
 export type TCategoryFormValues = CategoryFormValues;
@@ -196,3 +208,5 @@ export type TLevelData = LevelData;
 export type TLevelFormValues = LevelFormValues;
 export type TMarketPriceData = MarketPriceData;
 export type TMarketPriceFormValues = MarketPriceFormValues;
+export type TJobCategoryData = JobCategoryData;
+export type TJobCategoryResponse = JobCategoryResponse;

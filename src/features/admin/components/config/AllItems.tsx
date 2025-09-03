@@ -26,8 +26,7 @@ export default function AllItems() {
 
   const onSubmit = async (id: string) => {
     try {
-      await deleteItem(id).unwrap();
-      toast.success("Deleted Successfully");
+      await deleteItem(id);
     } catch (error: any) {
       toast.error(error.data.message ?? "Something went wrong");
     }

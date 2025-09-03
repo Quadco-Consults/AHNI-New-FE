@@ -32,7 +32,9 @@ export const useGetAllSolicitations = ({
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled,
@@ -41,7 +43,10 @@ export const useGetAllSolicitations = ({
 };
 
 // Get Single Solicitation
-export const useGetSingleSolicitation = (id: string, enabled: boolean = true) => {
+export const useGetSingleSolicitation = (
+  id: string,
+  enabled: boolean = true
+) => {
   return useQuery<TResponse<ISolicitationRFQData>>({
     queryKey: ["solicitation", id],
     queryFn: async () => {
@@ -50,7 +55,9 @@ export const useGetSingleSolicitation = (id: string, enabled: boolean = true) =>
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled && !!id,
@@ -59,16 +66,23 @@ export const useGetSingleSolicitation = (id: string, enabled: boolean = true) =>
 };
 
 // Get Passed Solicitation
-export const useGetPassedSolicitation = (id: string, enabled: boolean = true) => {
+export const useGetPassedSolicitation = (
+  id: string,
+  enabled: boolean = true
+) => {
   return useQuery<SolicitationSubmissionData>({
     queryKey: ["passed-solicitation", id],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`/by-solicitation/${id}/?status=PASSED`);
+        const response = await AxiosWithToken.get(
+          `/by-solicitation/${id}/?status=PASSED`
+        );
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled && !!id,
@@ -89,9 +103,12 @@ export const useCreateSolicitation = () => {
     method: "POST",
   });
 
-  const createSolicitation = async (details: TSolicitationQuotationFormData) => {
+  const createSolicitation = async (
+    details: TSolicitationQuotationFormData
+  ) => {
     try {
-      await callApi(details);
+      const res = await callApi(details);
+      return res;
     } catch (error) {
       console.error("Solicitation create error:", error);
     }
