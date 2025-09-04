@@ -133,6 +133,6 @@ export const useDeleteQuestionnaire = () => {
   return [deleteQuestionnaire, { data, isLoading, isSuccess, error }] as const;
 };
 
-// Missing named exports
-export const useAddQuestionnaire = CreateQuestionnaireManager;
-export const useUpdateQuestionnaire = UpdateQuestionnaireManager;
+// Missing named exports - RTK Query style
+export const useAddQuestionnaire = useAddQuestionnaireMutation;
+export const useUpdateQuestionnaire = useUpdateQuestionnaireMutation;

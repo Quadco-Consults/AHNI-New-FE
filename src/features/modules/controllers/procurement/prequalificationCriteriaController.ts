@@ -130,6 +130,6 @@ export const useDeletePrequalificationCriteriaMutation = () => {
 
 export const useDeletePrequalificationCriteria = DeletePrequalificationCriteriaManager;
 
-// Missing named exports
-export const useAddPrequalificationCriteria = CreatePrequalificationCriteriaManager;
-export const useUpdatePrequalificationCriteria = UpdatePrequalificationCriteriaManager;
+// Missing named exports - RTK Query style
+export const useAddPrequalificationCriteria = useAddPrequalificationCriteriaMutation;
+export const useUpdatePrequalificationCriteria = useUpdatePrequalificationCriteriaMutation;

@@ -28,7 +28,7 @@ export default function AllItems() {
     try {
       await deleteItem(id);
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
+      toast.error(error.response?.data?.message ?? error.message ?? "Something went wrong");
     }
   };
 
