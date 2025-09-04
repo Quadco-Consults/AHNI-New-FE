@@ -40,7 +40,7 @@ const VendorRegistrationHeading = () => {
       ? JSON.parse(savedSteps)
       : new Array(steps.length).fill(false);
   });
-  const { pathname } = useLocation();
+  const pathname = usePathname();
 
   const currentPath = pathname.split("/").at(-1);
 
