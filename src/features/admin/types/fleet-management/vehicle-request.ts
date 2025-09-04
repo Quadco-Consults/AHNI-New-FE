@@ -20,7 +20,22 @@ export const VehicleRequestSchema = z.object({
   request_type: z.string().min(1, "Please enter a recommendation"),
 });
 
+export const VehicleRequestApprovalSchema = z.object({
+  vehicles: z.array(z.object({
+    vehicle: z.string().min(1, "Please select a vehicle"),
+    driver: z.string().min(1, "Please select a driver"),
+  })).min(1, "Please add at least one vehicle"),
+  comment: z.string().optional(),
+});
+
+// API payload type - actual backend format
+export interface VehicleRequestApprovalPayload {
+  vehicles: {vehicle: string, driver: string}[]; // Array of vehicle-driver pair objects
+  comment?: string;
+}
+
 export type TVehicleRequestFormValues = z.infer<typeof VehicleRequestSchema>;
+export type TVehicleRequestApprovalFormValues = z.infer<typeof VehicleRequestApprovalSchema>;
 
 export interface IVehicleRequestPaginatedData {
   id: string;

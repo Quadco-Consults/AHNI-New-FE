@@ -6,6 +6,7 @@ import {
   IVehicleRequestPaginatedData,
   IVehicleSingleData,
   TVehicleRequestFormValues,
+  VehicleRequestApprovalPayload,
 } from "../types/fleet-management/vehicle-request";
 
 // API Response interfaces
@@ -167,9 +168,34 @@ export const useDeleteVehicleRequest = (id: string) => {
   return { deleteVehicleRequest, data, isLoading, isSuccess, error };
 };
 
+// Approve Vehicle Request
+export const useApproveVehicleRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IVehicleSingleData,
+    Error,
+    VehicleRequestApprovalPayload
+  >({
+    endpoint: `${BASE_URL}${id}/approve/`,
+    queryKey: ["vehicleRequest", "vehicleRequestItem"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const approveVehicleRequest = async (details: VehicleRequestApprovalPayload) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("Vehicle request approval error:", error);
+    }
+  };
+
+  return { approveVehicleRequest, data, isLoading, isSuccess, error };
+};
+
 // Legacy exports for backward compatibility
 export const useGetAllVehicleRequestQuery = useGetAllVehicleRequest;
 export const useGetSingleVehicleRequestQuery = useGetSingleVehicleRequest;
 export const useCreateVehicleRequestMutation = useCreateVehicleRequest;
 export const useEditVehicleRequestMutation = useEditVehicleRequest;
 export const useDeleteVehicleRequestMutation = useDeleteVehicleRequest;
+export const useApproveVehicleRequestMutation = useApproveVehicleRequest;
