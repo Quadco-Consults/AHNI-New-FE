@@ -58,9 +58,16 @@ const useApiManager = <TData = unknown, TError = Error, TVariables = unknown>({
   ): Promise<ApiResponse<TData>> => {
     try {
       let response: AxiosResponse<ApiResponse<TData>>;
-      const config = {
-        headers: contentType ? { "Content-Type": contentType } : undefined,
-      };
+      // For FormData uploads, we need to explicitly remove the Content-Type header
+      // so axios can set the proper multipart/form-data boundary
+      const config = contentType === null
+        ? { 
+            headers: { "Content-Type": undefined },
+            transformRequest: [(data: any) => data] // Prevent axios from transforming FormData
+          }
+        : contentType 
+        ? { headers: { "Content-Type": contentType } }
+        : {};
 
       switch (method.toUpperCase()) {
         case "POST":

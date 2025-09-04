@@ -68,8 +68,14 @@ const EOI = () => {
   const router = useRouter();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("File change event triggered");
+    console.log("Files:", event.target.files);
     if (event.target.files && event.target.files.length > 0) {
-      setFile(event.target.files[0]);
+      const selectedFile = event.target.files[0];
+      console.log("File selected:", selectedFile);
+      console.log("File name:", selectedFile.name);
+      console.log("File size:", selectedFile.size);
+      setFile(selectedFile);
     }
   };
   const { data, isLoading } = useGetAllEois({});
@@ -109,10 +115,20 @@ const EOI = () => {
     ) || [];
 
   const onSubmit = async (data: z.infer<typeof EOISchema>) => {
+    console.log("onSubmit called with data:", data);
+    console.log("File state:", file);
+
     if (!file) {
+      console.log("No file selected, returning early");
       toast.error("No file selected");
       return;
     }
+
+    console.log("File selected:", file);
+    console.log("File name:", file.name);
+    console.log("File size:", file.size);
+    console.log("File type:", file.type);
+
     const opening_date = startDate ? format(startDate, "yyy-MM-dd") : "";
     const closing_date = endDate ? format(endDate, "yyy-MM-dd") : "";
 
@@ -131,6 +147,11 @@ const EOI = () => {
     }
 
     data.categories.forEach((item) => formData.append("categories", item));
+
+    console.log("FormData entries:");
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
 
     try {
       await createEoi(formData);
