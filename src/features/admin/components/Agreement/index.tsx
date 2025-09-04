@@ -15,6 +15,8 @@ export default function Agreement() {
         status: ""
     });
 
+    console.log("Agreement data:", data);
+
     return (
         <section className="space-y-5">
             <h1 className="text-xl font-bold">Agreements</h1>
@@ -25,8 +27,8 @@ export default function Agreement() {
                         data={data?.data.results || []}
                         isLoading={isLoading}
                         pagination={{
-                            total: data?.data.paginator.count ?? 0,
-                            pageSize: data?.data.paginator.page_size ?? 0,
+                            total: data?.data?.paginator?.count ?? 0,
+                            pageSize: data?.data?.paginator?.page_size ?? 0,
                             onChange: (page: number) => setPage(page),
                         }}
                     />
