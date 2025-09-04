@@ -29,12 +29,12 @@ import { ChangeEvent, useEffect, useRef, useState } from "react";
 import {
   useGetUserProfile,
   useUpdateUser,
-} from "@/features/auth/controllers/user";
+} from "@/features/auth/controllers/userController";
 import { toast } from "sonner";
 import FormSelect from "components/FormSelect";
 import FormMultiSelect from "components/FormMultiSelect";
-import { useGetAllRoles } from "@/features/auth/controllers/role";
-import { useAuthChangePassword } from "@/features/auth/controllers/auth";
+import { useGetAllRoles } from "@/features/auth/controllers/roleController";
+import { useAuthChangePassword } from "@/features/auth/controllers/authController";
 import { useAppDispatch } from "hooks/useStore";
 import { logOut } from "store/auth/authSlice";
 import { AuthRoutes } from "constants/RouterConstants";
@@ -49,13 +49,13 @@ export default function Account() {
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const [updateUser, { isLoading: isUpdateLoading }] = useUpdateUser();
+  const { updateUser, isLoading: isUpdateLoading } = useUpdateUser(profile?.data?.id || "");
   const { data: role } = useGetAllRoles({
     page: 1,
     size: 2000000,
   });
 
-  const [changePassword, { isLoading }] = useAuthChangePassword();
+  const { changePassword, isLoading } = useAuthChangePassword();
 
   const Profileform = useForm<TFormValues>({
     resolver: zodResolver(ProfileSchema),
@@ -133,11 +133,7 @@ export default function Account() {
         formData.append("profile_picture", file);
       }
 
-      await updateUser({
-        id: profile?.data?.id as string,
-        // body: data,
-        body: formData,
-      }).unwrap();
+      await updateUser(formData);
 
       toast.success("User Updated");
     } catch (error: any) {
@@ -154,11 +150,8 @@ export default function Account() {
     };
 
     try {
-      const res = await changePassword(payload).unwrap();
-      // toast.success("Password changed successfully");
-      // localStorage.removeItem("authToken");
-
-      console.log({ res });
+      await changePassword(payload);
+      toast.success("Password changed successfully");
 
       // Only log out and redirect if password change is successful
       dispatch(logOut());

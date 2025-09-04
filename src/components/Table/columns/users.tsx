@@ -51,15 +51,53 @@ const TableAction = ({
   position,
   department,
 }: IUser) => {
+  // Don't render if no valid ID
+  if (!id || id === "" || id === "undefined") {
+    return (
+      <div className="text-red-500 text-xs">
+        Invalid ID
+      </div>
+    );
+  }
+
+  return (
+    <TableActionWithHooks 
+      id={id}
+      first_name={first_name}
+      last_name={last_name}
+      mobile_number={mobile_number}
+      designation={designation}
+      gender={gender}
+      email={email}
+      is_active={is_active}
+      roles={roles}
+      position={position}
+      department={department}
+    />
+  );
+};
+
+const TableActionWithHooks = ({
+  id,
+  first_name,
+  last_name,
+  mobile_number,
+  designation,
+  gender,
+  email,
+  is_active,
+  roles,
+  position,
+  department,
+}: IUser) => {
   const dispatch = useAppDispatch();
 
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const { activateUser } = useActivateUser();
+  const { activateUser } = useActivateUser(id);
+  const { deactivateUser } = useDeactivateUser(id);
 
-  const { deactivateUser } = useDeactivateUser();
-
-  const handleEdit = (id: string) => {
+  const handleEdit = () => {
     dispatch(
       openDialog({
         type: DialogType.EditUser,
@@ -83,7 +121,7 @@ const TableAction = ({
     );
   };
 
-  const handleUpdate = (id: string) => {
+  const handleUpdate = () => {
     dispatch(
       openDialog({
         type: DialogType.AssingRoleToUser,
@@ -99,14 +137,14 @@ const TableAction = ({
   const handleToggleStatus = async () => {
     try {
       if (is_active) {
-        await deactivateUser(id);
+        await deactivateUser();
         toast.success("User Deactivated");
       } else {
-        await activateUser(id);
+        await activateUser();
         toast.success("User Activated");
       }
     } catch (error: any) {
-      toast.error(error.data.message);
+      toast.error(error?.response?.data?.message ?? error?.message ?? "Something went wrong");
     } finally {
       setDialogOpen(false);
     }
