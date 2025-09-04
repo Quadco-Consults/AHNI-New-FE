@@ -203,6 +203,19 @@ export const useUploadAssetRequestDocument = (assetRequestId: string) => {
   return { uploadDocument, data, isLoading, isSuccess, error };
 };
 
+// Get Asset Request Documents
+export const useGetAssetRequestDocuments = (assetRequestId: string, enabled: boolean = true) => {
+  return useQuery<ApiResponse<any[]>>({
+    queryKey: ["assetRequestDocuments", assetRequestId],
+    queryFn: async () => {
+      const response = await AxiosWithToken.get(`${BASE_URL}${assetRequestId}/documents/`);
+      return response.data;
+    },
+    enabled: enabled && !!assetRequestId,
+    refetchOnWindowFocus: false,
+  });
+};
+
 // ===== APPROVAL WORKFLOW HOOKS =====
 
 // Review Asset Request
