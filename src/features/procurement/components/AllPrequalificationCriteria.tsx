@@ -32,7 +32,7 @@ export default function PrequalificationCriteria() {
             await deletePrequalificationCriteria(id)();
             toast.success("Deleted Successfully");
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error.response?.data?.message ?? error.message ?? "Something went wrong");
         }
     };
 

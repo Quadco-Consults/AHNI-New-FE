@@ -151,7 +151,7 @@ export const useDeleteFacility = () => {
 
 export const useGetAllFacilities = useGetAllFacilitiesManager;
 
-// Missing named exports
-export const useAddFacility = CreateFacilityManager;
-export const useUpdateFacility = UpdateFacilityManager;
+// Missing named exports - RTK Query style
+export const useAddFacility = useAddFacilityMutation;
+export const useUpdateFacility = useUpdateFacilityMutation;
 export const useLazyGetSingleFacility = useGetSingleFacilityManager;
