@@ -12,7 +12,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelect";
 import FormButton from "@/components/FormButton";
-import { Link, useNavigate, useSearchParams } from "next/navigation"; 
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link"; 
 import { Button } from "components/ui/button";
 import { AdminRoutes } from "constants/RouterConstants";
 import BackNavigation from "components/atoms/BackNavigation";
@@ -100,8 +101,8 @@ export default function CreateTravelExpenseReportPage() {
 
     const router = useRouter();
 
-    const [searchParams] = useSearchParams();
-    const id = searchParams.get("id");
+    const searchParams = useSearchParams();
+    const id = searchParams?.get("id");
 
     const { createTravelExpense, isLoading: isCreateLoading } =
         useCreateTravelExpense();

@@ -155,8 +155,8 @@ export default function CreateExpenseAuthorization() {
     [user]
   );
 
-  const [searchParams] = useSearchParams();
-  const id = searchParams.get("id");
+  const searchParams = useSearchParams();
+  const id = searchParams?.get("id");
 
   const { createExpenseAuthorization, isLoading: isCreateLoading } =
     useCreateExpenseAuthorizationMutation();
