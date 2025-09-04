@@ -15,7 +15,7 @@ import VendorRegistationLayout from "./VendorRegistationLayout";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import VendorsDocumentAPI from "@/features/procurement/controllers/vendors-documentController";
+import VendorsDocumentAPI from "@/features/procurement/controllers/vendorDocumentsController";
 
 import { Badge } from "components/ui/badge";
 
@@ -54,7 +54,7 @@ const Upload = () => {
   const router = useRouter();
 
   const pathname = usePathname();
-  const [createVendorDocumentMutation] =
+  const { createVendorDocument: createVendorDocumentMutation } =
     VendorsDocumentAPI.useCreateVendorDocument();
 
   const form = useForm({
@@ -232,7 +232,7 @@ const Upload = () => {
         formData.append(`vendor`, vendor || "");
 
         // Send the request
-        await createVendorDocumentMutation(formData)();
+        await createVendorDocumentMutation(formData);
         toast.success(`Successfully uploaded file`);
         setError(field, index, false); // Mark the file as failed
       } catch (error) {
