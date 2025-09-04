@@ -1,5 +1,6 @@
 "use client";
 
+import "@/utils/polyfills";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FileUpload from "components/atoms/FileUpload";
 import FormButton from "@/components/FormButton";
@@ -14,19 +15,20 @@ import { Form } from "components/ui/form";
 import { jobApplicationSchema } from "features/hr/types/hr-validator";
 import { useEffect } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useNavigate, useParams } 
+import { useParams, useRouter } from "next/navigation";
 import { useGetJobAdvertisement } from "@/features/hr/controllers/jobAdvertisementController";
-import { useCreateJobApplication } from "@/features/hrApi/hr-job-applications";
+import { useCreateJobApplication } from "@/features/hr/controllers/hrJobApplicationsController";
 import { toast } from "sonner";
 import { z } from "zod";
 export type TFormValues = z.infer<typeof jobApplicationSchema>;
 
 const ApplicationForm = () => {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params?.id as string;
 
   const { createJobApplication, isLoading } =
     useCreateJobApplication();
-  const { data: adDetails } = useGetJobAdvertisement({ id: id! });
+  const { data: adDetails } = useGetJobAdvertisement(id);
   const router = useRouter();
 
   const form = useForm<TFormValues>({
@@ -39,7 +41,7 @@ const ApplicationForm = () => {
       application_notes: "",
       cover_letter: "",
       employment_type: "INTERNAL",
-      advertisement: id,
+      advertisement: id || "",
       interview_date: "",
       position_applied: "",
       referees: [{ name: "Kelu", email: "grjshs@gmail.com" }], // we need to sort the refferee requirements
@@ -104,7 +106,7 @@ const ApplicationForm = () => {
         cover_letter: coverLetterBase64,
       };
 
-      await createJobApplication(payload)();
+      await createJobApplication(payload);
       toast.success("Application Submitted successfully");
       router.back();
     } catch (error) {

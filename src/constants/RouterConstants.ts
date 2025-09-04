@@ -265,22 +265,22 @@ export const RouteEnum = {
 
   //vendor-management routes
   VENDOR_MANAGEMENT:
-    "/dashboard/procurement-management/vendor-management/prequalification",
+    "/dashboard/procurement/vendor-management/prequalification",
   VENDOR_REGISTRATION:
-    "/dashboard/procurement-management/vendor-management/vendor-registration",
+    "/dashboard/procurement/vendor-management/vendor-registration",
   VENDOR_COMPANY:
-    "/dashboard/procurement-management/vendor-management/the-company",
+    "/dashboard/procurement/vendor-management/the-company",
   VENDOR_TECHNICAL:
-    "/dashboard/procurement-management/vendor-management/technical-capacity",
+    "/dashboard/procurement/vendor-management/technical-capacity",
   VENDOR_QUESTIONER:
-    "/dashboard/procurement-management/vendor-management/questionnaire",
+    "/dashboard/procurement/vendor-management/questionnaire",
   VENDOR_ATTESTATION:
-    "/dashboard/procurement-management/vendor-management/attestation",
-  VENDOR_UPLOAD: "/dashboard/procurement-management/vendor-management/upload",
+    "/dashboard/procurement/vendor-management/attestation",
+  VENDOR_UPLOAD: "/dashboard/procurement/vendor-management/upload",
   VENDOR_MANAGEMENT_DETAILS:
-    "/dashboard/procurement-management/vendor-management/prequalification/:id",
+    "/dashboard/procurement/vendor-management/prequalification/:id",
   VENDOR_MANAGEMENT_START_PREQUALIFICATION:
-    "/dashboard/procurement-management/vendor-management/prequalification/:id/start-prequalification",
+    "/dashboard/procurement/vendor-management/prequalification/:id/start-prequalification",
 
   //purchase order routes
   // PURCHASE_ORDER: "/dashboard/procurement-management/purchase-order",
@@ -299,16 +299,16 @@ export const RouteEnum = {
 
   // vendor performance evaluation
   VENDOR_PERFORMANCE_EVALUATION:
-    "/dashboard/procurement-management/vendor-performance-evaluation",
+    "/dashboard/procurement/vendor-performance",
 
   VENDOR_PERFORMANCE_EVALUATION_ID:
-    "/dashboard/procurement-management/vendor-performance-evaluation/:id",
+    "/dashboard/procurement/vendor-performance/:id",
 
   VENDOR_PERFORMANCE_START_EVALUATION:
-    "/dashboard/procurement-management/vendor-performance-evaluation/:id/form",
+    "/dashboard/procurement/vendor-performance/:id/form",
 
   VENDOR_PERFORMANCE_EVALUATION_FORM:
-    "/dashboard/procurement-management/vendor-performance-evaluation/form",
+    "/dashboard/procurement/vendor-performance/form",
 
   //program routes
   PROGRAM_WORK_PLAN: "/dashboard/programs/plan/work-plan",

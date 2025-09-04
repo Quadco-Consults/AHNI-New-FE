@@ -6,8 +6,8 @@ import { Button } from "components/ui/button";
 import { Checkbox } from "components/ui/checkbox";
 import { ArrowLeft } from "lucide-react";
 import React, { useState } from "react";
-import { useNavigate, useParams } 
-import VendorPrequalificationAPI from "@/features/procurement/controllers/vendor-prequalificationController";
+import { useParams } from "next/navigation";
+import VendorPrequalificationAPI from "@/features/procurement/controllers/vendorPrequalificationController";
 import { toast } from "sonner";
 import {
   Breadcrumb,
@@ -20,10 +20,10 @@ import { Icon } from "@iconify/react";
 import { useForm } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem } from "components/ui/form";
 import { z } from "zod";
-import { VendorPrequalificationSchema } from "definations/procurement-types/vendor-prequalification";
+import { VendorPrequalificationSchema } from "@/features/procurement/types/vendor-prequalification";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import { useGetAllPrequalificationCriteria } from "@/features/modules/controllers/procurement/prequalification-criteriaController";
+import { useGetAllPrequalificationCriteria } from "@/features/procurement/controllers/prequalificationCriteriaController";
 import { RouteEnum } from "constants/RouterConstants";
 
 type FormData = {

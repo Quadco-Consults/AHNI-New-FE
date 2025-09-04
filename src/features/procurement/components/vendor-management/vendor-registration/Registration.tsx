@@ -55,7 +55,7 @@ const Registration = () => {
     isLoading,
     error,
     // @ts-ignore
-  } = VendorsAPI.useGetVendor({ path: { id: vendorId } });
+  } = VendorsAPI.useGetVendor(vendorId);
 
   if (isLoading) {
     console.log("Loading...");
@@ -67,12 +67,11 @@ const Registration = () => {
 
   const [categorySearchParams, setCategorySearchParams] = useState("");
 
-  const categoryQueryResult = CategoryAPI.useGetCategories(
-    useMemo(
-      () => ({ params: { no_paginate: true, search: categorySearchParams } }),
-      [categorySearchParams]
-    )
-  );
+  const categoryQueryResult = CategoryAPI.useGetAllCategories({
+    page: 1,
+    size: 1000,
+    search: categorySearchParams
+  });
   // @ts-ignore
   const categories = categoryQueryResult?.data?.data?.results;
 

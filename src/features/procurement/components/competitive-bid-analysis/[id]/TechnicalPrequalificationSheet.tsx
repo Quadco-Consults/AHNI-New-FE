@@ -33,9 +33,7 @@ const TPS = () => {
   //   },
   // });
 
-  const { data: grData, isLoading } = VendorsAPI.useGetVendor({
-    path: { id: id as string },
-  });
+  const { data: grData, isLoading } = VendorsAPI.useGetVendor(id as string);
 
   const { data } = useGetSolicitationSubmission({
     // @ts-ignore

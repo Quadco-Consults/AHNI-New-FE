@@ -68,10 +68,19 @@ export const useCreateEoi = () => {
     queryKey: ["eois"],
     isAuth: true,
     method: "POST",
+    contentType: null, // This allows multipart/form-data for file uploads
   });
 
   const createEoi = async (details: any) => {
     try {
+      console.log("Creating EOI with data:", details);
+      console.log("Is FormData?", details instanceof FormData);
+      if (details instanceof FormData) {
+        console.log("FormData entries in controller:");
+        for (let [key, value] of details.entries()) {
+          console.log(key, value);
+        }
+      }
       await callApi(details);
     } catch (error) {
       console.error("EOI create error:", error);

@@ -108,12 +108,12 @@ export default function CreateAssetMaintenance() {
         [asset]
     );
 
-    const [createAssetMaintenance, { isLoading: isCreateLoading }] =
+    const { createAssetMaintenance, isLoading: isCreateLoading } =
         useCreateAssetMaintenanceMutation();
 
     const onSubmit: SubmitHandler<TAssetMaintenanceFormData> = async (data) => {
         try {
-            await createAssetMaintenance(data).unwrap();
+            await createAssetMaintenance(data);
             toast.success("Asset Maintenance Ticket Raised");
             router.push(AdminRoutes.INDEX_ASSET_MAINTENANCE);
         } catch (error: any) {

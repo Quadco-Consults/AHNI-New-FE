@@ -7,7 +7,8 @@ import React from "react";
 
 import FilterIcon2 from "assets/svgs/FilterIcon2";
 import { Button } from "components/ui/button";
-import Link from "next/link"; import { useRouter } from "next/navigation";
+import Link from "next/link"; 
+import { useRouter } from "next/navigation";
 import { HrRoutes, RouteEnum } from "constants/RouterConstants";
 import SearchBar from "components/atoms/SearchBar";
 import { Checkbox } from "components/ui/checkbox";
@@ -115,9 +116,7 @@ const LeaveManagement: React.FC = () => {
     return (
       <div className='flex gap-2'>
         <Link
-          href={generatePath(HrRoutes.LEAVE_MANAGEMENT_LEAVE_LIST_DETAIL, {
-            id: "1",
-          })}
+          href={HrRoutes.LEAVE_MANAGEMENT_LEAVE_LIST_DETAIL.replace(":id", "1")}
         >
           <IconButton className='bg-[#F9F9F9] hover:text-primary'>
             <Icon icon='ph:eye-duotone' fontSize={15} />

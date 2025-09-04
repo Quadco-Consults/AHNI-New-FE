@@ -25,7 +25,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 
 const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
   // const [data, setData] = useState<EmployeeOnboarding | {}>({});
-  const { data } = info;
+  const data = info?.data || info;
   const [numPages, setNumPages] = useState<number>();
   const [pageNumber] = useState<number>(1);
   const { id } = useParams();
@@ -39,20 +39,26 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
     setNumPages(numPages);
   }
 
-  // console.log("Info ", qualifications);
+  console.log("StaffInformation - info prop:", info);
+  console.log("StaffInformation - data:", data);
+  console.log("StaffInformation - qualifications:", qualifications);
+
+  if (!data && !info) {
+    return <div className="p-4">No employee information available</div>;
+  }
 
   return (
     <div className='space-y-6'>
       <DescriptionCard
         label='Employee Legal Name'
-        description={`${data?.legal_firstname} ${data?.legal_lastname}`}
+        description={`${data?.legal_firstname || "N/A"} ${data?.legal_lastname || "N/A"}`}
       />
 
       <Separator />
       <div className='grid grid-cols-1 gap-8 md:grid-cols-2'>
         <DescriptionCard
           label='Designation'
-          description={data?.designation.name}
+          description={data?.designation?.name || data?.position || "N/A"}
         />
       </div>
       <Separator />
