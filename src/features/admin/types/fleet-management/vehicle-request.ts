@@ -79,4 +79,11 @@ export interface IVehicleSingleData {
   requesting_staff: IUser;
   approved_by: string | null;
   vehicles: [];
+  vehicle_assignments?: {
+    id: string;
+    vehicle: string;
+    vehicle_name: string;
+    assigned_driver: string;
+    driver_name: string;
+  }[];
 }

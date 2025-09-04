@@ -51,6 +51,22 @@ export default function VehicleRequestDetails() {
     },
   });
 
+  // Auto-populate form when data loads
+  useEffect(() => {
+    if (data?.data?.vehicle_assignments && data.data.vehicle_assignments.length > 0) {
+      // Map existing vehicle assignments to form format
+      const existingAssignments = data.data.vehicle_assignments.map((assignment: any) => ({
+        vehicle: assignment.vehicle,
+        driver: assignment.assigned_driver,
+      }));
+      
+      form.reset({
+        vehicles: existingAssignments,
+        comment: "",
+      });
+    }
+  }, [data, form]);
+
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "vehicles",
@@ -89,9 +105,9 @@ export default function VehicleRequestDetails() {
       // Send vehicle-driver pairs directly as expected by backend
       const payload = {
         vehicles: formData.vehicles, // Array of {vehicle: "id", driver: "id"} objects
-        comment: formData.comment
+        comment: formData.comment,
       };
-      
+
       await approveVehicleRequest(payload);
     } catch (error) {
       console.error("Approval failed:", error);
@@ -179,17 +195,16 @@ export default function VehicleRequestDetails() {
               </h3>
               <div className='grid grid-cols-4 gap-4 mb-6'>
                 {data?.data.travel_team_members.map(
-                  ({ id, first_name, last_name, position, mobile_number }) => (
+                  ({ id, full_name, mobile_number, email }) => (
                     <Card key={id} className='p-2 space-y-3 bg-amber-50'>
                       <p>
                         <span className='font-bold'>Name:&nbsp;</span>
-                        {first_name}&nbsp;
-                        {last_name}
+                        {full_name}&nbsp;
                       </p>
                       <p>
-                        <span className='font-bold'>Position:</span>
+                        <span className='font-bold'>Email:</span>
                         &nbsp;
-                        {position || "N/A"}
+                        {email || "N/A"}
                       </p>
                       <p>
                         <span className='font-bold'>Tel:&nbsp;</span>
@@ -206,38 +221,68 @@ export default function VehicleRequestDetails() {
                   className='space-y-5'
                 >
                   <h3 className='mb-2 text-lg font-bold'>
-                    Vehicles & Drivers
+                    {data?.data?.vehicle_assignments?.length ? 'Update Vehicle Assignments' : 'Assign Vehicles & Drivers'}
                   </h3>
 
-                  {fields.map((field, index) => (
-                    <div key={field.id} className='flex items-center gap-5'>
-                      <FormSelect
-                        name={`vehicles.${index}.vehicle`}
-                        className='flex-1'
-                        placeholder='Select Vehicle'
-                        options={vehicleOptions}
-                        label={index === 0 ? "Vehicle" : ""}
-                      />
-
-                      <FormSelect
-                        name={`vehicles.${index}.driver`}
-                        className='flex-1'
-                        placeholder='Select Driver'
-                        options={driverOptions}
-                        label={index === 0 ? "Driver" : ""}
-                      />
-
-                      <Button
-                        type='button'
-                        variant='ghost'
-                        onClick={() => removeVehicle(index)}
-                        disabled={fields.length === 1}
-                        className='mt-6'
-                      >
-                        <DeleteIcon />
-                      </Button>
+                  {(data?.data?.vehicle_assignments?.length ?? 0) > 0 && (
+                    <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
+                      <p className="text-sm text-blue-700 font-medium">
+                        ℹ️ Existing assignments have been loaded. You can modify or add new assignments below.
+                      </p>
                     </div>
-                  ))}
+                  )}
+
+                  {fields.map((field, index) => {
+                    // Find the corresponding vehicle assignment for display name
+                    const currentVehicleId = form.watch(`vehicles.${index}.vehicle`);
+                    const vehicleAssignment = data?.data?.vehicle_assignments?.find(
+                      (assignment: any) => assignment.vehicle === currentVehicleId
+                    );
+
+                    return (
+                      <div key={field.id} className='flex items-center gap-5'>
+                        <div className="flex-1">
+                          <FormSelect
+                            name={`vehicles.${index}.vehicle`}
+                            className='w-full'
+                            placeholder='Select Vehicle'
+                            options={vehicleOptions}
+                            label={index === 0 ? "Vehicle" : ""}
+                          />
+                          {vehicleAssignment && (
+                            <p className="text-xs text-gray-600 mt-1">
+                              Current: {vehicleAssignment.vehicle_name}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="flex-1">
+                          <FormSelect
+                            name={`vehicles.${index}.driver`}
+                            className='w-full'
+                            placeholder='Select Driver'
+                            options={driverOptions}
+                            label={index === 0 ? "Driver" : ""}
+                          />
+                          {vehicleAssignment && (
+                            <p className="text-xs text-gray-600 mt-1">
+                              Current: {vehicleAssignment.driver_name}
+                            </p>
+                          )}
+                        </div>
+
+                        <Button
+                          type='button'
+                          variant='ghost'
+                          onClick={() => removeVehicle(index)}
+                          disabled={fields.length === 1}
+                          className='mt-6'
+                        >
+                          <DeleteIcon />
+                        </Button>
+                      </div>
+                    );
+                  })}
 
                   <Button type='button' onClick={addVehicle}>
                     Add Vehicle <PlusIcon />
