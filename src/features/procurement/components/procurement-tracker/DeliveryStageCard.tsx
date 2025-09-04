@@ -5,7 +5,8 @@ import DataTable from "components/Table/DataTable";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { useGetAllProcurementTrackers } from "@/features/procurement/controllers/procurementTrackerController";
+import { TPaginatedResponse } from "definations/index";
+import { ProcurementTrackerResults } from "../../types/procurementPlan";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import { Button } from "components/ui/button";
 import EditIcon from "components/icons/EditIcon";
@@ -14,8 +15,11 @@ import { DialogType } from "constants/dailogs";
 import PencilIcon from "components/icons/PencilIcon";
 import { useAppDispatch } from "hooks/useStore";
 
-const DeliveryStageCard = () => {
-  const { data } = useGetAllProcurementTrackers({});
+interface DeliveryStageCardProps {
+  data: { data: TPaginatedResponse<ProcurementTrackerResults> } | undefined;
+}
+
+const DeliveryStageCard = ({ data }: DeliveryStageCardProps) => {
 
   const columns: ColumnDef<any>[] = [
     {
