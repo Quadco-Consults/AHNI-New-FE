@@ -211,9 +211,9 @@ export default function AssetDetails() {
 const columns: ColumnDef<AssetHistoryData>[] = [
   {
     header: "Date",
-    accessorKey: "date",
+    accessorKey: "date_created",
     cell: ({ row }) => {
-      const dateValue = row.original.date;
+      const dateValue = row.original.date_created;
       if (!dateValue) return "N/A";
       
       const date = new Date(dateValue);
