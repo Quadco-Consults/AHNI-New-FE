@@ -68,6 +68,7 @@ export const useCreateEoi = () => {
     queryKey: ["eois"],
     isAuth: true,
     method: "POST",
+    contentType: null, // This allows multipart/form-data for file uploads
   });
 
   const createEoi = async (details: any) => {
