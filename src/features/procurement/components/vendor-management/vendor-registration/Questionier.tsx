@@ -36,7 +36,7 @@ const Questionier = () => {
   const pathname = usePathname();
   const dispatch = useDispatch();
 
-  const { createVendorMutation, isLoading: createVendorMutationLoading } =
+  const { createVendor: createVendorMutation, isLoading: createVendorMutationLoading } =
     VendorsAPI.useCreateVendor();
 
   const vendorsData = useSelector((state: RootState) => state.vendors.vendors);
@@ -125,7 +125,7 @@ const Questionier = () => {
     };
 
     try {
-      const res = await createVendorMutation(finalData)();
+      const res = await createVendorMutation(finalData);
       if (typeof window !== 'undefined') {
         localStorage.setItem("vendorID", res?.data?.id);
       }
