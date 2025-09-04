@@ -39,6 +39,7 @@ interface AssetFilterParams {
   size?: number;
   search?: string;
   status?: string;
+  category?: string;
   enabled?: boolean;
 }
 
@@ -52,10 +53,11 @@ export const useGetAllAssets = ({
   size = 20,
   search = "",
   status = "",
+  category = "",
   enabled = true,
 }: AssetFilterParams) => {
   return useQuery<PaginatedResponse<TAssetPaginatedData>>({
-    queryKey: ["assets", page, size, search, status],
+    queryKey: ["assets", page, size, search, status, category],
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(BASE_URL, {
@@ -64,6 +66,7 @@ export const useGetAllAssets = ({
             size,
             ...(search && { search }),
             ...(status && { status }),
+            ...(category && { category }),
           },
         });
         return response.data;
