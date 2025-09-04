@@ -299,16 +299,16 @@ export const RouteEnum = {
 
   // vendor performance evaluation
   VENDOR_PERFORMANCE_EVALUATION:
-    "/dashboard/procurement-management/vendor-performance-evaluation",
+    "/dashboard/procurement/vendor-performance",
 
   VENDOR_PERFORMANCE_EVALUATION_ID:
-    "/dashboard/procurement-management/vendor-performance-evaluation/:id",
+    "/dashboard/procurement/vendor-performance/:id",
 
   VENDOR_PERFORMANCE_START_EVALUATION:
-    "/dashboard/procurement-management/vendor-performance-evaluation/:id/form",
+    "/dashboard/procurement/vendor-performance/:id/form",
 
   VENDOR_PERFORMANCE_EVALUATION_FORM:
-    "/dashboard/procurement-management/vendor-performance-evaluation/form",
+    "/dashboard/procurement/vendor-performance/form",
 
   //program routes
   PROGRAM_WORK_PLAN: "/dashboard/programs/plan/work-plan",

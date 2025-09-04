@@ -45,7 +45,7 @@ export type TFormValuesSecond = z.infer<typeof SecuritySchema>;
 export default function Account() {
   // const dispatch = useAppDispatch();
 
-  const { data: profile } = useGetUserProfile(null);
+  const { data: profile } = useGetUserProfile();
   const dispatch = useAppDispatch();
   const router = useRouter();
 

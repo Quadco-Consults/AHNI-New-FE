@@ -21,9 +21,7 @@ const VendorPerformance = () => {
   const { id } = useParams();
 
   const { data: vendorEvaluationData } =
-    VendorsEvaluaionAndPerformanceAPI.useGetVendorEvaluation({
-      path: { id: id as string },
-    });
+    VendorsEvaluaionAndPerformanceAPI.useGetSingleVendorEvaluation(id as string);
 
   // @ts-ignore
   const totals = vendorEvaluationData?.data?.criteria_scores.reduce(
