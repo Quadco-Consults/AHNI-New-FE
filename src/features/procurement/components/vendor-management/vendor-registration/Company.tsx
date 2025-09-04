@@ -11,7 +11,7 @@ import FormButton from "@/components/FormButton";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation"; 
 import FormSelect from "components/atoms/FormSelectField";
-import { VendorsCompanySchema } from "definations/procurement-validator";
+import { VendorsCompanySchema } from "@/features/procurement/types/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { SelectContent, SelectItem } from "components/ui/select";
