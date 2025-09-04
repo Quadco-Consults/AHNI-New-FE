@@ -74,14 +74,19 @@ export const vehicleRequestColumns: ColumnDef<IVehicleRequestPaginatedData>[] =
       id: "status",
       accessorKey: "status",
       cell: ({ getValue }) => {
-        const status = "PENDING";
-
         return (
           <Badge
             variant='default'
-            className={cn("p-1 rounded-lg bg-yellow-200 text-yellow-500")}
+            className={cn(
+              "p-1 rounded-lg",
+              getValue() === "IN_PROGRESS" && "bg-green-200 text-green-500",
+              getValue() === "APPROVED" && "bg-blue-200 text-blue-500",
+              getValue() === "CLOSED" && "bg-red-200 text-red-500",
+              getValue() === "PENDING" && "bg-yellow-200 text-yellow-500",
+              getValue() === "On Hold" && "text-grey-200 bg-grey-500"
+            )}
           >
-            {status}
+            {getValue() as string}
           </Badge>
         );
       },
