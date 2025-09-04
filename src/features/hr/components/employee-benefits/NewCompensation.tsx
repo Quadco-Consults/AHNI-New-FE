@@ -18,7 +18,7 @@ import { Grade } from "@/features/hr/types/pay-group";
 
 const NewCompensation = () => {
   const { data: payGroupsData } = useGetPayGroups();
-  const [createCompensation] = useCreateCompensation();
+  const { createCompensation } = useCreateCompensation();
   // @ts-ignore
   const form = useForm({
     // resolver: zodResolver(VendorsRegistrationSchema),
@@ -76,7 +76,7 @@ const NewCompensation = () => {
       period: data.period,
     };
 
-    await createCompensation(formData)();
+    await createCompensation(formData);
     toast.success("Compensation created successfully");
 
     // () => setModalOpen(true);

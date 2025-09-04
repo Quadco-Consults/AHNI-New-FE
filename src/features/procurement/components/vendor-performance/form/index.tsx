@@ -31,10 +31,10 @@ const CreateVendorEvaluation = () => {
     // @ts-ignore
   } = VendorsAPI.useGetVendors({});
 
-  const [
-    createVendorEvaluationMutation,
-    { isLoading: createVendorEvaluationMutationLoading },
-  ] = VendorsEvaluaionAndPerformanceAPI.useCreateVendorEvaluation();
+  const {
+    createVendorEvaluation: createVendorEvaluationMutation,
+    isLoading: createVendorEvaluationMutationLoading,
+  } = VendorsEvaluaionAndPerformanceAPI.useCreateVendorEvaluation();
   // VendorsEvaluaionAndPerformanceAPI.useGetVendors({});
 
   const { data: users } = useGetAllUsers({
@@ -42,7 +42,7 @@ const CreateVendorEvaluation = () => {
     size: 2000000,
   });
 
-  const { data: profile } = useGetUserProfile(null);
+  const { data: profile } = useGetUserProfile();
 
   const form = useForm<any>({
     // resolver: zodResolver(),
@@ -106,7 +106,7 @@ const CreateVendorEvaluation = () => {
     };
 
     try {
-      await createVendorEvaluationMutation(payload).unwrap();
+      await createVendorEvaluationMutation(payload);
       toast.success("Successfully created.");
       router.push(RouteEnum.VENDOR_PERFORMANCE_EVALUATION);
     } catch (error) {
@@ -115,65 +115,65 @@ const CreateVendorEvaluation = () => {
   };
 
   return (
-    <div className=''>
+    <div className="">
       <GoBack />
 
-      <div className='pt-20'>
+      <div className="pt-20">
         <Form {...form}>
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className='flex flex-col gap-6'
+            className="flex flex-col gap-6"
           >
-            <div className='grid gap-5'>
+            <div className="grid gap-5">
               {vendorsOptions && (
                 <FormSelect
-                  label='Vendor Name'
-                  name='vendor'
+                  label="Vendor Name"
+                  name="vendor"
                   required
                   options={vendorsOptions}
                 />
               )}
             </div>
-            <div className='grid grid-cols-2 gap-5'>
+            <div className="grid grid-cols-2 gap-5">
               <FormInput
-                label='Vendor Service'
-                name='vendor_service'
-                type='text'
+                label="Vendor Service"
+                name="vendor_service"
+                type="text"
               />
               <FormInput
-                label='Location of Service'
-                name='location_of_service'
-                type='text'
-              />
-            </div>
-
-            <div className='grid gap-5'>
-              <FormInput
-                label='Review Start Period'
-                name='reviewed_period_start'
-                type='date'
-                placeholder='01/01/2024'
-              />
-              <FormInput
-                label='Review End Period'
-                name='reviewed_period_end'
-                type='date'
-                placeholder='01/01/2024'
+                label="Location of Service"
+                name="location_of_service"
+                type="text"
               />
             </div>
 
-            <span className='block space-y-2'>
-              <h3 className='font-semibold text-xl text-black'>EVALUATION</h3>
+            <div className="grid gap-5">
+              <FormInput
+                label="Review Start Period"
+                name="reviewed_period_start"
+                type="date"
+                placeholder="01/01/2024"
+              />
+              <FormInput
+                label="Review End Period"
+                name="reviewed_period_end"
+                type="date"
+                placeholder="01/01/2024"
+              />
+            </div>
+
+            <span className="block space-y-2">
+              <h3 className="font-semibold text-xl text-black">EVALUATION</h3>
             </span>
-            <Separator className='my-4' />
-            <div className='grid grid-cols-2 gap-5'>
+            <Separator className="my-4" />
+            <div className="grid grid-cols-2 gap-5">
               {usersOptions && (
                 <>
-                  <div className=''>
-                    <Label className='font-semibold'>Evaluators</Label>
+                  <div className="">
+                    <Label className="font-semibold">Evaluators</Label>
                     <FormField
                       control={form.control}
-                      name='evaluators'
+                      name="evaluators"
                       render={({ field }) => {
                         return (
                           <FormItem>
@@ -182,8 +182,8 @@ const CreateVendorEvaluation = () => {
                                 options={usersOptions || []}
                                 defaultValue={field.value}
                                 onValueChange={field.onChange}
-                                placeholder='Please Select'
-                                variant='inverted'
+                                placeholder="Please Select"
+                                variant="inverted"
                               />
                             </FormControl>
                           </FormItem>
@@ -192,11 +192,11 @@ const CreateVendorEvaluation = () => {
                     />
                   </div>
 
-                  <div className=''>
-                    <Label className='font-semibold'>Supervisor</Label>
+                  <div className="">
+                    <Label className="font-semibold">Supervisor</Label>
                     <FormField
                       control={form.control}
-                      name='supervisors'
+                      name="supervisors"
                       render={({ field }) => {
                         return (
                           <FormItem>
@@ -205,8 +205,8 @@ const CreateVendorEvaluation = () => {
                                 options={usersOptions || []}
                                 defaultValue={field.value}
                                 onValueChange={field.onChange}
-                                placeholder='Please Select'
-                                variant='inverted'
+                                placeholder="Please Select"
+                                variant="inverted"
                               />
                             </FormControl>
                           </FormItem>
@@ -220,8 +220,8 @@ const CreateVendorEvaluation = () => {
             <FormButton
               loading={createVendorEvaluationMutationLoading}
               disabled={createVendorEvaluationMutationLoading}
-              type='submit'
-              className='flex items-center justify-center gap-2'
+              type="submit"
+              className="flex items-center justify-center gap-2"
             >
               <LongArrowRight />
               Save

@@ -14,9 +14,9 @@ import { ProcurementPlanResultsData } from "definations/procurement-types/procur
 const ProcurementDetails = () => {
   const { id } = useParams();
 
-  const { data, isLoading } = ProcurementPlanAPI.useGetProcurementPlan({
-    path: { id: id as string },
-  });
+  const { data, isLoading } = ProcurementPlanAPI.useGetSingleProcurementPlan(
+    id as string
+  );
 
   const breadcrumbs = [
     { name: "Procurement", icon: true },

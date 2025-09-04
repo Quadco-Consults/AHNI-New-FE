@@ -10,7 +10,7 @@ type PropsType = {
 export default function NotificationContent({ active }: PropsType) {
     const { message, title, created_datetime } = active;
 
-    const { data: profile } = useGetUserProfile(null);
+    const { data: profile } = useGetUserProfile();
 
     const { user } = useAppSelector((state) => state.auth);
 

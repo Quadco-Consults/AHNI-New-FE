@@ -29,6 +29,7 @@ import { Button } from "components/ui/button";
 import { toast } from "sonner";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { Icon } from "@iconify/react";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -45,19 +46,19 @@ const Uploads = (data: VendorsResultsData) => {
   }
 
   const vendorDocumentsQueryResult =
-    VendorsDocumentAPI.useGetVendorDocuments({
-      params: { vendor_id: data?.id as string },
+    VendorsDocumentAPI.useGetAllVendorDocuments({
+      page: 1,
+      size: 1000,
+      search: "",
+      vendor: data?.id as string,
     });
 
   // @ts-ignore
   const vendorDocuments = vendorDocumentsQueryResult?.data?.data?.results;
 
-  const [deleteVendorDocumentMutation] =
-    VendorsDocumentAPI.useDeleteVendorDocument();
-
   const deleteDocHandler = async (id: string) => {
     try {
-      await deleteVendorDocumentMutation({ path: { id: id } }).unwrap;
+      await AxiosWithToken.delete(`/procurements/vendor-documents/${id}/`);
       toast.success("Document successfully deleted.");
     } catch (error) {
       toast.error("Something went wrong");

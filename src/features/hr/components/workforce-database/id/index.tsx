@@ -12,23 +12,45 @@ import Compensation from "./Compensation";
 import { useParams } from "next/navigation";
 import { LoadingSpinner } from "components/Loading";
 import { useGetEmployeeOnboarding } from "@/features/hr/controllers/employeeOnboardingController";
+import { useGetSingleUser } from "@/features/auth/controllers/userController";
 import { EmployeeOnboarding } from "definations/hr-types/employee-onboarding";
 import Goals from "./Goals";
 
 const WorkforceDetail = () => {
   const { id } = useParams();
 
-  const { data, isLoading } = useGetEmployeeOnboarding(
-    id as string, { enabled: !!id }
-  );
+  const { data: employeeData, isLoading: employeeLoading, error: employeeError } = useGetEmployeeOnboarding(id as string, !!id);
+  const { data: userData, isLoading: userLoading, error: userError } = useGetSingleUser(id as string, !!employeeError && !!id);
 
-  // console.log(data);
+  // Use employee data if available, otherwise transform user data to employee format
+  const data = employeeData || (userData ? {
+    data: {
+      id: userData.data.id,
+      legal_firstname: userData.data.first_name,
+      legal_lastname: userData.data.last_name,
+      email: userData.data.email,
+      employment_type: "Staff",
+      position: userData.data.position,
+      serial_id_code: `AHNI-${userData.data.id.slice(0, 8)}`,
+      designation: { name: userData.data.position },
+      location: { email: userData.data.email },
+      department: userData.data.department
+    }
+  } : null);
+
+  const isLoading = employeeLoading || userLoading;
+  const error = employeeError && userError ? userError : null;
+
+  console.log("Employee data:", employeeData);
+  console.log("User data:", userData);
+  console.log("Combined data:", data);
+  console.log("ID from params:", id);
 
   const TABS = [
     {
       label: "Staff Information",
       value: "staff_information",
-      children: <StaffInformation info={data as EmployeeOnboarding} />,
+      children: <StaffInformation info={data?.data || data as EmployeeOnboarding} />,
     },
     {
       label: "Beneficiary",
@@ -38,7 +60,7 @@ const WorkforceDetail = () => {
     {
       label: "ID Card",
       value: "id_card",
-      children: <IdCard info={data as EmployeeOnboarding} />,
+      children: <IdCard info={data?.data || data as EmployeeOnboarding} />,
     },
     {
       label: "Compensation and Benefit",
@@ -76,7 +98,7 @@ const WorkforceDetail = () => {
         </TabsList>
         {isLoading ? (
           <LoadingSpinner />
-        ) : (
+        ) : data ? (
           <>
             {TABS.map((tab) => (
               <TabsContent key={tab.value} value={tab.value}>
@@ -84,6 +106,14 @@ const WorkforceDetail = () => {
               </TabsContent>
             ))}
           </>
+        ) : error ? (
+          <div className="p-4 text-center text-red-600">
+            Error loading employee data: {error.message}
+            <br />
+            <small>Employee ID: {id}</small>
+          </div>
+        ) : (
+          <div className="p-4 text-center">No employee data found</div>
         )}
       </Tabs>
     </div>
