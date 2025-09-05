@@ -238,6 +238,96 @@ export const useRejectFuelConsumption = (id: string) => {
   return { rejectFuelConsumption, data, isLoading, isSuccess, error };
 };
 
+// Get Fuel Consumption Totals
+export const useGetFuelConsumptionTotals = (filters: {
+  vendor?: string;
+  vehicle?: string;
+  location?: string;
+  status?: string;
+  date_from?: string;
+  date_to?: string;
+} = {}) => {
+  const queryParams = new URLSearchParams();
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value) queryParams.append(key, value);
+  });
+
+  return useQuery({
+    queryKey: ["fuelConsumptionTotals", filters],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(
+          `${BASE_URL}totals/?${queryParams.toString()}`
+        );
+        return response.data;
+      } catch (error) {
+        console.error("Fuel consumption totals error:", error);
+        throw error;
+      }
+    },
+  });
+};
+
+// Get Vendor Fuel Statistics
+export const useGetVendorFuelStatistics = (vendorId: string, filters: {
+  date_from?: string;
+  date_to?: string;
+} = {}) => {
+  const queryParams = new URLSearchParams();
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value) queryParams.append(key, value);
+  });
+
+  return useQuery({
+    queryKey: ["vendorFuelStatistics", vendorId, filters],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(
+          `${BASE_URL}vendor/${vendorId}/statistics/?${queryParams.toString()}`
+        );
+        return response.data;
+      } catch (error) {
+        console.error("Vendor fuel statistics error:", error);
+        throw error;
+      }
+    },
+    enabled: !!vendorId,
+  });
+};
+
+// Get Vendor Fuel Purchases
+export const useGetVendorFuelPurchases = (vendorId: string, filters: {
+  date_from?: string;
+  date_to?: string;
+  page?: number;
+  size?: number;
+} = {}) => {
+  const { page = 1, size = 20, ...otherFilters } = filters;
+  const queryParams = new URLSearchParams();
+  queryParams.append('page', page.toString());
+  queryParams.append('size', size.toString());
+  
+  Object.entries(otherFilters).forEach(([key, value]) => {
+    if (value) queryParams.append(key, value);
+  });
+
+  return useQuery({
+    queryKey: ["vendorFuelPurchases", vendorId, filters],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(
+          `${BASE_URL}vendor/${vendorId}/purchases/?${queryParams.toString()}`
+        );
+        return response.data;
+      } catch (error) {
+        console.error("Vendor fuel purchases error:", error);
+        throw error;
+      }
+    },
+    enabled: !!vendorId,
+  });
+};
+
 // Get Vehicle Fuel History
 export const useGetVehicleFuelHistory = (vehicleId: string, enabled: boolean = true) => {
   return useQuery<PaginatedResponse<IFuelRequestPaginatedData>>({
