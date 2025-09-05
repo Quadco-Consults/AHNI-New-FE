@@ -246,7 +246,7 @@ export default function EvaluationCriteriaProcess() {
         // router.push(RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION);
       }
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
+      toast.error(error.response?.data?.message ?? error.message ?? "Something went wrong");
     }
   };
 

@@ -130,6 +130,6 @@ export const useDeletePrequalificationCategoryMutation = () => {
 
 export const useDeletePrequalificationCategory = DeletePrequalificationCategoryManager;
 
-// Missing named exports
-export const useAddPrequalificationCategory = CreatePrequalificationCategoryManager;
-export const useUpdatePrequalificationCategory = UpdatePrequalificationCategoryManager;
+// Missing named exports - RTK Query style
+export const useAddPrequalificationCategory = useAddPrequalificationCategoryMutation;
+export const useUpdatePrequalificationCategory = useUpdatePrequalificationCategoryMutation;

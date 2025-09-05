@@ -22,6 +22,7 @@ export interface TSupportPaginatedData {
   issue_description: string;
   email: string;
   phone_number: string;
+  sender: string;
   priority: string;
   status: string;
   remark: string;

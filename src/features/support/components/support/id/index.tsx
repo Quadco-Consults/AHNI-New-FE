@@ -1,171 +1,284 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 "use client";
 
-import { useRouter, useParams } from "next/navigation";
-import Link from "next/link";
-import LongArrowLeft from "components/icons/LongArrowLeft";
-import Card from "components/Card"; 
-import { Button } from "components/ui/button"; 
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import { useAppDispatch } from "hooks/useStore";
+import { Card, CardContent, CardHeader } from "components/ui/card";
+import { Separator } from "components/ui/separator";
+import { useParams, useRouter } from "next/navigation";
+import { useGetSingleTicket, useEditTicket } from "@/features/support/controllers/supportController";
 import { LoadingSpinner } from "components/Loading";
-import { skipToken } from "@reduxjs/toolkit/query/react";
-import { useGetSingleProject } from "@/features/projects/controllers/project";
-import { RouteEnum } from "constants/RouterConstants";
-import { useCreateTicket, useEditTicket, useGetSingleTicket } from "@/features/support/controllers/supportController";
-import FundSummary from "pages/protectedPages/programs/fund-request/Fund-summary";
-import Summary from "pages/protectedPages/programs/fund-request/Fund-request-preview";
-import moment from "moment";
-import { Paperclip, Send } from "lucide-react";
-import { ChangeEvent, useRef, useState } from "react";
+import DescriptionCard from "components/DescriptionCard";
+import { Badge } from "components/ui/badge";
+import { cn } from "lib/utils";
+import BackNavigation from "components/atoms/BackNavigation";
+import { Button } from "components/ui/button";
+import { CheckCircle, Clock } from "lucide-react";
 import { toast } from "sonner";
+import { useState } from "react";
 
-const TicketDetail = () => {
-    const router = useRouter();
-    const [remark, setRemark] = useState<string>(""); 
-    const [status, setStatus] = useState<string>("");
-    const [file, setFile] = useState<File>();
-    const { id } = useParams(); 
-    const fileInputRef = useRef<HTMLInputElement>(null);
+export default function SupportDetails() {
+  const params = useParams();
+  const router = useRouter();
+  const id = params.id as string;
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  const handlePaperclipClick = () => {
-    if (fileInputRef.current) {
-        fileInputRef.current.click();
-      }
-  
-  };
-  const handleChangeFile = (e: ChangeEvent<HTMLInputElement>) => {
-          if (e.target.files) {
-              setFile(e.target.files[0]);
-          }
-      };
-    const { data: ticket, isLoading } = useGetSingleTicket(
-        id ?? skipToken
-    );
-    const { editTicket, isLoading: isEditLoading } =
-    useEditTicket();
-    const dispatch = useAppDispatch();
+  const { data: ticket, isLoading, refetch } = useGetSingleTicket(id, !!id);
+  const { editTicket } = useEditTicket(id);
 
-    const goBack = () => {
-        router.back();
-    };
-     const onSubmitRemark = async () => {
-            if ( !remark.trim()) {
-                toast.error("Please write a remark");
-                return;
-            }
-            if (!file ) {
-                toast.error("Please choose a file to upload");
-                return;
-            }
+  const handleCloseTicket = async () => {
+    if (!ticket) return;
     
-            try {
-                const formData = new FormData(); 
-                formData.append("remark", remark);  
-                formData.append("remark_file", file);
-    
-                 
-                await editTicket({ 
-                    id: id!,  
-                    body: formData 
-                })();
-        
-                toast.success("Remark Sent");
-     
-            } catch (error: any) {
-                toast.error(error.data.message || "Something went wrong");
-            }
-        };
-    
-    if (isLoading) {
-        return <LoadingSpinner />;
+    setIsUpdating(true);
+    try {
+      await editTicket({
+        status: "RESOLVED"
+      });
+      
+      toast.success("Ticket closed successfully");
+      await refetch(); // Refresh the ticket data
+    } catch (error: any) {
+      toast.error(error.response?.data?.message ?? error.message ?? "Failed to close ticket");
+    } finally {
+      setIsUpdating(false);
     }
+  };
 
+  const handleReopenTicket = async () => {
+    if (!ticket) return;
+    
+    setIsUpdating(true);
+    try {
+      await editTicket({
+        status: "PENDING"
+      });
+      
+      toast.success("Ticket reopened successfully");
+      await refetch(); // Refresh the ticket data
+    } catch (error: any) {
+      toast.error(error.response?.data?.message ?? error.message ?? "Failed to reopen ticket");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  if (isLoading) {
     return (
-        <div className="space-y-6 relative flex flex-col gap-20 min-h-screen">
-            <button
-                onClick={goBack}
-                className="w-[3rem]  top-0 left-0 aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center"
-            >
-                <LongArrowLeft />
-            </button>
-
-            <div className="w-full h-fit flex items-center justify-center">
-            <div  className="space-y-10   flex flex-col gap-1 items-end w-[80%]">
-                <div className="relative flex justify-between gap-5 ">
-                     
-
-                    <div className="flex items-center gap-2">
-                         
-                        <Button
-                            onClick={async () => {
-                                 
-                                try {
-                                    editTicket({
-                                        id: id!,
-                                        body: {status: ticket?.data?.status === "RESOLVED" ? "PENDING" : "RESOLVED"}
-                                    })
-                                    toast.success(`Marked as ${ticket?.data?.status === "RESOLVED" ? "Unresolved" : "Resolved"}`);
-                                    goBack()
-                                } catch (error: any) {
-                                    toast.error(error.data.message || "Something went wrong");
-                                }
-                            }}
-                        >
-                            Mark as {ticket?.data?.status === "RESOLVED" ? "Unresolved" : "Resolved"}
-                        </Button>
-                    </div>
-                </div>
-                {isLoading ? (
-                    <LoadingSpinner />
-                ) : (
-                    ticket?.data && (
-                        <div className=" bg-white border-[#E5E7EB] rounded-[4px] w-full flex flex-col border">
-                                <div className="flex flex-col py-24 px-[39px]"> 
-                                    <div className="w-full h-fit py-5 border-b flex flex-col gap-3 border-[#E5E7EB]">
-                                        {
-                                            [{title: "Subject" , value: ticket?.data?.subject },
-                                            {title: "Sender" , value: ticket?.data?.sender },
-                                            {title: "Email" , value: ticket?.data?.email },
-                                            {title: "Date Created" , value: moment(ticket?.data?.created_datetime).format("DD-MMM-YYYY, HH-MM-SS") },   
-                                            ].map((el,l) => (
-                                                <div key={l} className="w-full flex justify-between items-center"> 
-                                                    <h2 className="text-[12px] font-normal text-[#344054] leading-[125%]">{el.title}</h2>
-                                                    <h2 className="text-[14px] font-medium text-[#101928] leading-[100%]">{el.value}</h2>
-                                                </div>
-                                            ))
-                                        }
-                                    </div>
-                                    <div className="w-full flex flex-col py-5 gap-3"> 
-                                        <h2 className="text-[12px] font-normal text-[#101928] leading-[125%]">Message</h2>
-                                        <h2 className="text-[10px] font-normal text-[#344054] leading-[125%]">{ticket?.data?.issue_description}</h2>
-                                    </div>
-                                </div>    
-                                <div className="border-[#E5E7EB] border-t flex items-center gap-[20px] px-[59px] py-5"> 
-                                    <div className="w-full px-3 border cursor-pointer border-[#E4E7EC] py-2 rounded-[8px] gap-3   flex items-center">
-                                        <div className="p-2 "> 
-                                            <Paperclip  className="cursor-pointer" onClick={handlePaperclipClick} />
-                                            
-                                            <input ref={fileInputRef}
-                                                 type="file"
-                                                onChange={handleChangeFile} className="hidden" />
-                                        </div>    
-                                         <input type="text" value={remark} onChange={(e) => {setRemark(e.target.value)}} className="text-black w-full h-[50px] m-0 p-0 top-0  border-none outline-none placeholder:text-[#101928] text-[16px] font-medium" placeholder="Type your message" />
-                                    </div>    
-                                    <div className="cursor-pointer bg-[#F99494] h-[62px] w-[62px] flex-shrink-0 rounded-full flex justify-center items-center"> 
-                                        <div onClick={() => {onSubmitRemark()}} className="cursor-pointer bg-[#FD4A36] h-[44px] w-[44px] rounded-full flex justify-center items-center"> 
-                                            <Send color="white" />
-                                        </div>  
-                                    </div>       
-                                </div>
-                        </div>
-                    )
-                )}
-            </div>
-            </div>
-        </div>
+      <div className="space-y-6">
+        <BackNavigation />
+        <Card>
+          <CardHeader className="font-bold">
+            Support Ticket Details
+            <Separator className="mt-4" />
+          </CardHeader>
+          <CardContent>
+            <LoadingSpinner />
+          </CardContent>
+        </Card>
+      </div>
     );
-};
+  }
 
-export default TicketDetail;
+  if (!ticket) {
+    return (
+      <div className="space-y-6">
+        <BackNavigation />
+        <Card>
+          <CardHeader className="font-bold">
+            Support Ticket Details
+            <Separator className="mt-4" />
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-500">Support ticket not found</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case "LOW":
+        return "bg-green-200 text-green-500";
+      case "MEDIUM":
+        return "bg-yellow-200 text-yellow-500";
+      case "HIGH":
+        return "text-red-500 bg-red-200";
+      default:
+        return "bg-gray-200 text-gray-500";
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "RESOLVED":
+        return "bg-green-200 text-green-500";
+      case "PENDING":
+        return "bg-yellow-200 text-yellow-500";
+      case "IN_PROGRESS":
+        return "bg-blue-200 text-blue-500";
+      default:
+        return "bg-gray-200 text-gray-500";
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <BackNavigation />
+      
+      <Card>
+        <CardHeader className="font-bold">
+          Support Ticket Details
+          <Separator className="mt-4" />
+        </CardHeader>
+
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <DescriptionCard
+            label="Subject"
+            description={ticket.data.subject}
+          />
+
+          <DescriptionCard
+            label="Sender"
+            description={ticket.data.sender || "N/A"}
+          />
+
+          <DescriptionCard
+            label="Email"
+            description={ticket.data.email}
+          />
+
+          <DescriptionCard
+            label="Phone Number"
+            description={ticket.data.phone_number || "N/A"}
+          />
+
+          <DescriptionCard
+            label="Department"
+            description={ticket.data.department}
+          />
+
+          <div>
+            <label className="text-sm font-medium text-gray-700">Priority</label>
+            <div className="mt-1">
+              <Badge
+                variant="default"
+                className={cn(
+                  "p-2 rounded-lg",
+                  getPriorityColor(ticket.data.priority)
+                )}
+              >
+                {ticket.data.priority}
+              </Badge>
+            </div>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-700">Status</label>
+            <div className="mt-1">
+              <Badge
+                variant="default"
+                className={cn(
+                  "p-2 rounded-lg",
+                  getStatusColor(ticket.data.status)
+                )}
+              >
+                {ticket.data.status}
+              </Badge>
+            </div>
+          </div>
+
+          <DescriptionCard
+            label="Created Date"
+            description={
+              ticket.data.created_datetime
+                ? new Date(ticket.data.created_datetime).toLocaleDateString()
+                : "N/A"
+            }
+          />
+        </CardContent>
+      </Card>
+
+      {/* Action Buttons */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-wrap gap-4">
+            {ticket.data.status === "RESOLVED" ? (
+              <Button
+                onClick={handleReopenTicket}
+                disabled={isUpdating}
+                variant="outline"
+                className="flex items-center gap-2 border-blue-500 text-blue-600 hover:bg-blue-50"
+              >
+                <Clock className="h-4 w-4" />
+                {isUpdating ? "Reopening..." : "Reopen Ticket"}
+              </Button>
+            ) : (
+              <Button
+                onClick={handleCloseTicket}
+                disabled={isUpdating}
+                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
+              >
+                <CheckCircle className="h-4 w-4" />
+                {isUpdating ? "Closing..." : "Close Ticket"}
+              </Button>
+            )}
+            
+            <Button
+              onClick={() => router.back()}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              Back to Support
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Issue Description */}
+      <Card>
+        <CardHeader className="font-bold">
+          Issue Description
+          <Separator className="mt-4" />
+        </CardHeader>
+        <CardContent>
+          <p className="text-gray-700 leading-relaxed">
+            {ticket.data.issue_description || "No description provided"}
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Remarks */}
+      {ticket.data.remark && (
+        <Card>
+          <CardHeader className="font-bold">
+            Remarks
+            <Separator className="mt-4" />
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-700 leading-relaxed">
+              {ticket.data.remark}
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Attachment */}
+      {ticket.data.remark_file && (
+        <Card>
+          <CardHeader className="font-bold">
+            Attachment
+            <Separator className="mt-4" />
+          </CardHeader>
+          <CardContent>
+            <a
+              href={ticket.data.remark_file}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-800 underline"
+            >
+              Download Attachment
+            </a>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}

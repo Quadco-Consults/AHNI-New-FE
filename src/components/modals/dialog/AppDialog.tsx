@@ -144,6 +144,7 @@ const dialogs: Record<string, ReactNode> = {
   [DialogType.AddRiskCategory]: <AddRiskCategory />,
   [DialogType.AddInterventionArea]: <AddInterventionArea />,
   [DialogType.AddSupervisionCategory]: <AddSupervisionCategory />,
+  [DialogType.AddSupervisionCriteria]: <AddSupervisionCriteria />,
   [DialogType.AddFacility]: <AddFacility />,
   [DialogType.AddAssetConditions]: <AddAssetConditions />,
   [DialogType.AddAssetTypes]: <AddAssetTypes />,
