@@ -1,5 +1,5 @@
 export default function Test() {
-    return <></>;
+  return <></>;
 }
 
 // import { ColumnDef } from "@tanstack/react-table";
@@ -12,7 +12,7 @@ export default function Test() {
 // //     const [deleteAgrement] = useDeleteAgreementMutation();
 // //     const onSubmit = async () => {
 // //         try {
-// //             await deleteAgrement(row.id).unwrap();
+// //             await deleteAgrement(row.id) ;
 // //             toast.success("Agreement deleted successfully");
 // //         } catch (error) {
 // //             toast.error("Error deleting");

@@ -47,8 +47,7 @@ const AddNewItems = () => {
   });
 
   const [items, { isLoading }] = useAddItem();
-  const [updateItems, { isLoading: updateItemsLoading }] =
-    useUpdateItem();
+  const [updateItems, { isLoading: updateItemsLoading }] = useUpdateItem();
 
   const dispatch = useAppDispatch();
   const onSubmit: SubmitHandler<TItemFormValues> = async (data) => {
@@ -58,16 +57,18 @@ const AddNewItems = () => {
           //@ts-ignore
           id: String(dialogProps?.data?.id),
           body: data,
-        }).unwrap();
+        });
       } else {
-        await items(data).unwrap();
+        await items(data);
       }
 
       toast.success("Item Added Succesfully");
       dispatch(closeDialog());
       form.reset();
     } catch (error: any) {
-      toast.error(error.response?.data?.message ?? error.message ?? "Something went wrong");
+      toast.error(
+        error.response?.data?.message ?? error.message ?? "Something went wrong"
+      );
     }
   };
   return (

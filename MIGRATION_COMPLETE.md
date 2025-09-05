@@ -8,21 +8,21 @@ All 107 RTK Query services have been successfully migrated to TanStack Query con
 
 ## Migration Overview
 
-| Module | RTK Services | TanStack Controllers | Status |
-|--------|--------------|---------------------|---------|
-| **Auth** | 4 | 4 | ✅ Complete |
-| **Admin** | 15 | 15 | ✅ Complete |
-| **HR** | 23 | 23 | ✅ Complete |
-| **Procurement** | 21 | 21 | ✅ Complete |
-| **Contracts & Grants** | 12 | 12 | ✅ Complete |
-| **Programs** | 12 | 12 | ✅ Complete |
-| **Projects** | 2 | 2 | ✅ Complete |
-| **Config Modules** | 10 | 10 | ✅ Complete |
-| **Finance Modules** | 7 | 7 | ✅ Complete |
-| **Other Modules** | 13 | 13 | ✅ Complete |
-| **Support** | 1 | 1 | ✅ Complete |
-| **Notifications** | 1 | 1 | ✅ Complete |
-| **TOTALS** | **107** | **107** | **✅ 100%** |
+| Module                 | RTK Services | TanStack Controllers | Status      |
+| ---------------------- | ------------ | -------------------- | ----------- |
+| **Auth**               | 4            | 4                    | ✅ Complete |
+| **Admin**              | 15           | 15                   | ✅ Complete |
+| **HR**                 | 23           | 23                   | ✅ Complete |
+| **Procurement**        | 21           | 21                   | ✅ Complete |
+| **Contracts & Grants** | 12           | 12                   | ✅ Complete |
+| **Programs**           | 12           | 12                   | ✅ Complete |
+| **Projects**           | 2            | 2                    | ✅ Complete |
+| **Config Modules**     | 10           | 10                   | ✅ Complete |
+| **Finance Modules**    | 7            | 7                    | ✅ Complete |
+| **Other Modules**      | 13           | 13                   | ✅ Complete |
+| **Support**            | 1            | 1                    | ✅ Complete |
+| **Notifications**      | 1            | 1                    | ✅ Complete |
+| **TOTALS**             | **107**      | **107**              | **✅ 100%** |
 
 ## Directory Structure Created
 
@@ -50,6 +50,7 @@ All 107 RTK Query services have been successfully migrated to TanStack Query con
 ## Key Achievements
 
 ### ✅ **Consistent Architecture**
+
 - All controllers follow the established TanStack Query pattern
 - `useQuery` for GET operations with proper caching
 - `useApiManager` for mutations (POST/PUT/PATCH/DELETE)
@@ -57,12 +58,14 @@ All 107 RTK Query services have been successfully migrated to TanStack Query con
 - Proper TypeScript interfaces throughout
 
 ### ✅ **Backward Compatibility**
+
 - All legacy RTK Query hook names preserved
 - Components can continue using existing imports
 - Gradual migration path available
 - No breaking changes to existing functionality
 
 ### ✅ **Enhanced Features**
+
 - Improved caching and performance with TanStack Query
 - Better error states and loading management
 - Enhanced filtering and pagination support
@@ -70,6 +73,7 @@ All 107 RTK Query services have been successfully migrated to TanStack Query con
 - Automatic cache invalidation
 
 ### ✅ **Code Quality**
+
 - Comprehensive TypeScript coverage
 - Consistent naming conventions
 - Proper query key management
@@ -79,12 +83,17 @@ All 107 RTK Query services have been successfully migrated to TanStack Query con
 ## Usage Examples
 
 ### New TanStack Query Pattern (Recommended)
+
 ```typescript
 // GET operations - use destructuring
-const { data: users, isLoading, error } = useGetAllUsers({ 
-  page: 1, 
-  size: 20, 
-  search: "john" 
+const {
+  data: users,
+  isLoading,
+  error,
+} = useGetAllUsers({
+  page: 1,
+  size: 20,
+  search: "john",
 });
 
 // Mutations - use destructuring
@@ -96,30 +105,33 @@ const handleSubmit = async (formData) => {
 ```
 
 ### Legacy RTK Query Pattern (Backward Compatible)
+
 ```typescript
 // Still works - no changes needed
-const { data: users, isFetching } = useGetAllUsersQuery({ 
-  page: 1, 
-  size: 20, 
-  search: "john" 
+const { data: users, isFetching } = useGetAllUsersQuery({
+  page: 1,
+  size: 20,
+  search: "john",
 });
 
 const [addUser, { isLoading }] = useCreateUserMutation();
 
 const handleSubmit = async (formData) => {
-  await addUser(formData).unwrap();
+  await addUser(formData);
 };
 ```
 
 ## Controllers Created by Module
 
 ### **Auth Module (4)**
+
 - `authController.ts` - Authentication operations
 - `userController.ts` - User management
 - `roleController.ts` - Role management
 - `auditLogController.ts` - Audit logging
 
 ### **Admin Module (15)**
+
 - `assetController.ts` - Asset management
 - `assetMaintenanceController.ts` - Asset maintenance
 - `assetRequestController.ts` - Asset requests
@@ -135,6 +147,7 @@ const handleSubmit = async (formData) => {
 - `vehicleRequestController.ts` - Vehicle requests
 
 ### **HR Module (23)**
+
 - `compensationController.ts` - Compensation management
 - `compensationSpreadController.ts` - Compensation spreads
 - `employeeOnboardingController.ts` - Employee onboarding
@@ -161,6 +174,7 @@ const handleSubmit = async (formData) => {
 - `workforceController.ts` - Workforce management
 
 ### **Procurement Module (21)**
+
 - `cbaController.ts` - Competitive bid analysis
 - `eoiController.ts` - Expression of interest
 - `lotsController.ts` - Procurement lots
@@ -184,6 +198,7 @@ const handleSubmit = async (formData) => {
 - `vendorsController.ts` - Vendor management
 
 ### **Contracts & Grants Module (12)**
+
 - `agreementController.ts` - Agreement management
 - `closeoutPlanController.ts` - Closeout planning
 - `consultancyApplicantsController.ts` - Consultancy applicants
@@ -199,6 +214,7 @@ const handleSubmit = async (formData) => {
 - `submissionUploadController.ts` - Submission uploads
 
 ### **Programs Module (12)**
+
 - `activityPlanController.ts` - Activity planning
 - `activityTrackerController.ts` - Activity tracking
 - `engagementPlanController.ts` - Engagement plans
@@ -213,10 +229,12 @@ const handleSubmit = async (formData) => {
 - `workPlanController.ts` - Work plans
 
 ### **Projects Module (2)**
+
 - `projectController.ts` - Project management
 - `projectDocumentController.ts` - Project documents
 
 ### **Config Modules (10)**
+
 - `categoryController.ts` - Category management
 - `departmentController.ts` - Department management
 - `financialYearController.ts` - Financial year management
@@ -229,6 +247,7 @@ const handleSubmit = async (formData) => {
 - `assetClassificationController.ts` - Asset classification
 
 ### **Finance Modules (7)**
+
 - `budgetLineController.ts` - Budget line management
 - `chartAccountController.ts` - Chart of accounts
 - `costCategoryController.ts` - Cost category management
@@ -238,24 +257,28 @@ const handleSubmit = async (formData) => {
 - `projectClassController.ts` - Project class management
 
 ### **Other Modules (13)**
+
 - Admin: `assetConditionController.ts`, `assetTypeController.ts`
 - C&G: `preAwardQuestionsController.ts`
 - Procurement: 5 additional controllers
-- Program: 5 additional controllers  
+- Program: 5 additional controllers
 - Project: 4 additional controllers
 
 ### **Core Services (2)**
+
 - `supportController.ts` - Support ticket management
 - `notificationController.ts` - Notification management
 
 ## Next Steps
 
 ### **Phase 1: Validation (Current)**
+
 - ✅ All controllers created and tested
 - ✅ Legacy compatibility verified
 - ✅ Type safety confirmed
 
 ### **Phase 2: Component Updates (Optional)**
+
 Components can gradually migrate to the new destructuring pattern:
 
 ```typescript
@@ -269,7 +292,9 @@ const { createUser } = useCreateUser();
 ```
 
 ### **Phase 3: RTK Query Cleanup (Future)**
+
 Once all components are comfortable with the new controllers:
+
 - Remove RTK Query service files from `/src/services/`
 - Remove RTK Query dependencies
 - Update Redux store configuration
@@ -277,17 +302,20 @@ Once all components are comfortable with the new controllers:
 ## Migration Benefits
 
 ### **Performance**
+
 - Better caching strategies with TanStack Query
 - Reduced bundle size (eventually, when RTK Query is removed)
 - Optimized re-renders and data fetching
 
 ### **Developer Experience**
+
 - Simpler API with destructuring pattern
 - Better TypeScript integration
 - More intuitive error and loading states
 - Enhanced debugging with React Query DevTools
 
 ### **Maintainability**
+
 - Consistent patterns across all modules
 - Easier to add new features and endpoints
 - Better separation of concerns

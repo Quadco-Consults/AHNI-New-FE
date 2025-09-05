@@ -6,7 +6,10 @@ import Card from "components/Card";
 import { Badge } from "components/ui/badge";
 import { Button } from "components/ui/button";
 import { DialogType } from "constants/dailogs";
-import { FindingsGrievianceManagementSchema, GrievianceManagementSchema } from "@/features/hr/types/grieviance-management";
+import {
+  FindingsGrievianceManagementSchema,
+  GrievianceManagementSchema,
+} from "@/features/hr/types/grieviance-management";
 import { useAppDispatch } from "hooks/useStore";
 import { cn } from "lib/utils";
 
@@ -20,41 +23,41 @@ import { openDialog } from "store/ui";
 import { z } from "zod";
 export type TFormValues = z.infer<typeof FindingsGrievianceManagementSchema>;
 
-const Details = (data: any) => { 
+const Details = (data: any) => {
   type FindingsFormValues = {
     // Define your form fields here
-    findings: string; 
+    findings: string;
   };
-  
-    const [isDialogOpen, setDialogOpen] = useState(false);
+
+  const [isDialogOpen, setDialogOpen] = useState(false);
   const form = useForm<FindingsFormValues>({
     defaultValues: {
-      findings: '', 
+      findings: "",
     },
     resolver: zodResolver(FindingsGrievianceManagementSchema),
   });
-  
+
   const dispatch = useAppDispatch();
-  const [updateGrievianceManagement, {isLoading: isLoading}] = useUpdateGrievianceManagementMutation({})
-  const onSubmit: SubmitHandler<FindingsFormValues> =  async (details: any) => {
-     
-      try {
-        const formData = new FormData();
-        formData.append("title", data.title);  
-        formData.append("description", data.description);   
-        formData.append("findings", details.findings);  
-    
-        // @ts-ignore
-        await updateGrievianceManagement({
-          id: data?.id,
-          body: formData
-        }).unwrap();
-        toast.success("Findings submitted successfully"); 
-        setDialogOpen(false)
-      } catch (error) {
-        toast.error("Something went wrong"); ;
-      }
-    };
+  const [updateGrievianceManagement, { isLoading: isLoading }] =
+    useUpdateGrievianceManagementMutation({});
+  const onSubmit: SubmitHandler<FindingsFormValues> = async (details: any) => {
+    try {
+      const formData = new FormData();
+      formData.append("title", data.title);
+      formData.append("description", data.description);
+      formData.append("findings", details.findings);
+
+      // @ts-ignore
+      await updateGrievianceManagement({
+        id: data?.id,
+        body: formData,
+      });
+      toast.success("Findings submitted successfully");
+      setDialogOpen(false);
+    } catch (error) {
+      toast.error("Something went wrong");
+    }
+  };
   return (
     <div className='bg-white border shadow-sm rounded-2xl dark:bg-[hsl(15,13%,6%)]'>
       <div className='p-5 flex justify-between items-center'>
@@ -63,18 +66,18 @@ const Details = (data: any) => {
       <div className='flex flex-col p-5 gap-4'>
         <Card>
           <h4 className='font-bold text-md'>Description</h4>
-          <p className='py-4 text-sm'>
-            {data?.description}
-          </p>
-          
+          <p className='py-4 text-sm'>{data?.description}</p>
         </Card>
         <Card className='grid grid-cols-2'>
           <div className='flex flex-col gap-2'>
             <h4 className='font-bold text-md'>Submission Date</h4>
-            <p className='text-sm'>{moment(data?.created_datetime).format("DD-MMM-YYYY")}</p>
+            <p className='text-sm'>
+              {moment(data?.created_datetime).format("DD-MMM-YYYY")}
+            </p>
           </div>
           <div className='flex flex-col gap-2'>
-            <h4 className='font-bold text-md'>Status</h4>{/* 
+            <h4 className='font-bold text-md'>Status</h4>
+            {/* 
             <p className='text-sm'>{data?.is_resolved ? "Resolved" : "Unresolved"}</p> */}
             <Badge
               className={cn(
@@ -84,7 +87,9 @@ const Details = (data: any) => {
                   : "bg-red-50 text-red-500"
               )}
             >
-              {data?.is_resolved === true ? "Resolved" : "Unresolved" as string}
+              {data?.is_resolved === true
+                ? "Resolved"
+                : ("Unresolved" as string)}
             </Badge>
           </div>
         </Card>
@@ -92,28 +97,27 @@ const Details = (data: any) => {
           <div className='flex w-full justify-between'>
             <h4 className='font-bold text-md'>Investigation</h4>
             <Button
-              onClick={() => { setDialogOpen(true)}}  
-            
-                className='bg-alternate text-primary py-2 px-4 rounded-md'>
+              onClick={() => {
+                setDialogOpen(true);
+              }}
+              className='bg-alternate text-primary py-2 px-4 rounded-md'
+            >
               <EditIcon />
               Edit
             </Button>
           </div>
           <h4 className='font-bold text-md'>Findings</h4>
-          <p className='text-sm'>
-            {data?.findings}
-          </p>
-          
+          <p className='text-sm'>{data?.findings}</p>
         </Card>
       </div>
-      <WriteDialog 
-         open={isDialogOpen}
-         form={form}
-         name={"findings"}  
-         title={"Findings"}
-         onCancel={() => setDialogOpen(false)}
-         onSubmit={onSubmit} 
-         loading={isLoading}
+      <WriteDialog
+        open={isDialogOpen}
+        form={form}
+        name={"findings"}
+        title={"Findings"}
+        onCancel={() => setDialogOpen(false)}
+        onSubmit={onSubmit}
+        loading={isLoading}
       />
     </div>
   );

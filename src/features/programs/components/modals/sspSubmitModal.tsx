@@ -28,7 +28,7 @@ const SspSubmitModal = () => {
     // try {
     //   await createSupportiveSupervisionResponseDataController({
     //     responses: combinedArray,
-    //   }).unwrap();
+    //   }) ;
     //   toast.success("Document upload successfully.");
     //   dispatch(supportiveSupervisionActions.clearSupportiveSupervision());
     //   router.push(RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION);
@@ -40,8 +40,8 @@ const SspSubmitModal = () => {
   };
 
   return (
-    <div className="text-center space-y-5">
-      <img className="mx-auto" src={successProcess} alt="success" width={150} />
+    <div className='text-center space-y-5'>
+      <img className='mx-auto' src={successProcess} alt='success' width={150} />
       <h4>Click to submit</h4>
 
       <FormButton loading={isLoading} disabled={isLoading} onClick={onSubmit}>

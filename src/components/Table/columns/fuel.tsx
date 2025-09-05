@@ -1,5 +1,5 @@
 export default function Test() {
-    return <></>;
+  return <></>;
 }
 
 // import { ColumnDef, Row } from "@tanstack/react-table";
@@ -26,7 +26,7 @@ export default function Test() {
 // const ActionList = () => {
 //     const onFuelDelete = async () => {
 //         // try {
-//         //     await deleteFuel(row.original.id).unwrap();
+//         //     await deleteFuel(row.original.id) ;
 //         //     toast.success("Fuel Record Deleted");
 //         // } catch (error) {
 //         //     toast.error("Failed to delete fuel record");

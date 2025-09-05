@@ -14,113 +14,110 @@ import { format } from "date-fns";
 import { useDeleteAssetMaintenanceMutation } from "@/features/admin/controllers/assetMaintenanceController";
 
 export const assetMaintenanceColumn: ColumnDef<IAssetMaintenancePaginatedData>[] =
-    [
-        {
-            header: "Asset",
-            id: "asset",
-            accessorKey: "asset",
-        },
-        {
-            header: "Classification",
-            id: "asset_classification",
-            accessorKey: "asset_classification",
-        },
+  [
+    {
+      header: "Asset",
+      id: "asset",
+      accessorKey: "asset",
+    },
+    {
+      header: "Classification",
+      id: "asset_classification",
+      accessorKey: "asset_classification",
+    },
 
-        {
-            header: "Maintenance Type",
-            id: "maintenance_type",
-            accessorKey: "maintenance_type",
-        },
+    {
+      header: "Maintenance Type",
+      id: "maintenance_type",
+      accessorKey: "maintenance_type",
+    },
 
-        {
-            header: "Problem Description",
-            id: "description",
-            accessorKey: "description",
-            size: 250,
-        },
+    {
+      header: "Problem Description",
+      id: "description",
+      accessorKey: "description",
+      size: 250,
+    },
 
-        {
-            header: "Status",
-            accessorFn: () => "N/A",
-        },
+    {
+      header: "Status",
+      accessorFn: () => "N/A",
+    },
 
-        {
-            header: "Date Created",
-            accessorFn: ({ created_datetime }) =>
-                format(created_datetime, "dd-MMM-yyyy"),
-        },
+    {
+      header: "Date Created",
+      accessorFn: ({ created_datetime }) =>
+        format(created_datetime, "dd-MMM-yyyy"),
+    },
 
-        {
-            header: "",
-            accessorKey: "action",
-            cell: ({ row }) => <TableMenu {...row.original} />,
-        },
-    ];
+    {
+      header: "",
+      accessorKey: "action",
+      cell: ({ row }) => <TableMenu {...row.original} />,
+    },
+  ];
 
 const TableMenu = ({ id }: IAssetMaintenancePaginatedData) => {
-    const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-    const [deleteAssetMaintenance, { isLoading }] =
-        useDeleteAssetMaintenanceMutation();
+  const [deleteAssetMaintenance, { isLoading }] =
+    useDeleteAssetMaintenanceMutation();
 
-    const handleDelete = async () => {
-        try {
-            await deleteAssetMaintenance(id).unwrap();
-            toast.success("Asset Maintenance Ticket Deleted");
-        } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
-        }
-    };
+  const handleDelete = async () => {
+    try {
+      await deleteAssetMaintenance(id);
+      toast.success("Asset Maintenance Ticket Deleted");
+    } catch (error: any) {
+      toast.error(error.data.message ?? "Something went wrong");
+    }
+  };
 
-    return (
-        <div className="flex items-center gap-2">
-            <>
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <Button variant="ghost" className="flex gap-2 py-6">
-                            <MoreOptionsHorizontalIcon />
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-fit">
-                        <div className="flex flex-col items-start justify-between gap-1">
-                            <Link
-                                className="w-full"
-                                href={generatePath(
-                                    AdminRoutes.VIEW_ASSET_MAINTENANCE,
-                                    {
-                                        id,
-                                    }
-                                )}
-                            >
-                                <Button
-                                    className="w-full flex items-center justify-start gap-2"
-                                    variant="ghost"
-                                >
-                                    <EyeIcon />
-                                    View
-                                </Button>
-                            </Link>
+  return (
+    <div className='flex items-center gap-2'>
+      <>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant='ghost' className='flex gap-2 py-6'>
+              <MoreOptionsHorizontalIcon />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className='w-fit'>
+            <div className='flex flex-col items-start justify-between gap-1'>
+              <Link
+                className='w-full'
+                href={generatePath(AdminRoutes.VIEW_ASSET_MAINTENANCE, {
+                  id,
+                })}
+              >
+                <Button
+                  className='w-full flex items-center justify-start gap-2'
+                  variant='ghost'
+                >
+                  <EyeIcon />
+                  View
+                </Button>
+              </Link>
 
-                            <Button
-                                className="w-full flex items-center justify-start gap-2"
-                                variant="ghost"
-                                onClick={() => setDialogOpen(true)}
-                            >
-                                <DeleteIcon />
-                                Delete
-                            </Button>
-                        </div>
-                    </PopoverContent>
-                </Popover>
-            </>
+              <Button
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
+                onClick={() => setDialogOpen(true)}
+              >
+                <DeleteIcon />
+                Delete
+              </Button>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </>
 
-            <ConfirmationDialog
-                open={dialogOpen}
-                title="Are you sure you want to delete this maintenance ticket?"
-                loading={isLoading}
-                onCancel={() => setDialogOpen(false)}
-                onOk={handleDelete}
-            />
-        </div>
-    );
+      <ConfirmationDialog
+        open={dialogOpen}
+        title='Are you sure you want to delete this maintenance ticket?'
+        loading={isLoading}
+        onCancel={() => setDialogOpen(false)}
+        onOk={handleDelete}
+      />
+    </div>
+  );
 };

@@ -47,16 +47,18 @@ const Addgrade = () => {
           // @ts-ignore
           id: String(dialogProps?.data?.id),
           body: data,
-        }).unwrap();
+        });
       } else {
-        await addGrade(data).unwrap();
+        await addGrade(data);
       }
 
       toast.success("Department Added Succesfully");
       dispatch(closeDialog());
       form.reset();
     } catch (error: any) {
-      toast.error(error.response?.data?.message ?? error.message ?? "Something went wrong");
+      toast.error(
+        error.response?.data?.message ?? error.message ?? "Something went wrong"
+      );
     }
   };
   return (
