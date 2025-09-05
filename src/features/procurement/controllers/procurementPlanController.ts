@@ -73,6 +73,7 @@ export const useCreateProcurementPlan = () => {
     queryKey: ["procurement-plans"],
     isAuth: true,
     method: "POST",
+    contentType: null,
   });
 
   const createProcurementPlan = async (
@@ -82,6 +83,7 @@ export const useCreateProcurementPlan = () => {
       await callApi(details);
     } catch (error) {
       console.error("Procurement plan create error:", error);
+      throw error; // Re-throw the error so it can be caught by the component
     }
   };
 

@@ -47,7 +47,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
   const { data: items, isLoading: itemsIsLoading } = ItemsAPI.useGetItems(
     {}
   );
-  const { createPurchaseRequestMutation, isLoading } =
+  const { createPurchaseRequest, isLoading } =
     PurchaseRequestAPI.useCreatePurchaseRequest();
 
   const fco = useGetAllFCONumbers({
@@ -154,8 +154,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
     };
 
     try {
-      // @ts-ignore
-      await createPurchaseRequestMutation(payload)();
+      await createPurchaseRequest(payload);
       router.push(RouteEnum.PURCHASE_REQUEST);
       toast.success("Successfully created.");
     } catch (error) {
