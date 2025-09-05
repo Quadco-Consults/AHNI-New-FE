@@ -1,5 +1,5 @@
-import ConsultancyDatabase from "@/features/contracts-grants/components/contract-management/consultancy-database";
+import FacilitatorDatabase from "@/features/contracts-grants/components/facilitator-database";
 
 export default function FacilitatorDatabasePage() {
-    return <ConsultancyDatabase />;
+    return <FacilitatorDatabase />;
 }
