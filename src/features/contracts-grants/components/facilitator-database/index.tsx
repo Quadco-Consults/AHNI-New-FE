@@ -5,15 +5,14 @@ import { consultantDatabaseColumns } from "@/features/contracts-grants/component
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { useState } from "react";
-import { useGetAllExistingConsultants } from "@/features/contracts-grants/controllers/consultantManagementController";
+import { useGetAllFacilitators } from "@/features/contracts-grants/controllers/facilitatorManagementController";
 
 export default function FacilitatorDatabase() {
     const [page, setPage] = useState(1);
 
-    const { data, isLoading } = useGetAllExistingConsultants({
+    const { data, isLoading } = useGetAllFacilitators({
         page,
         size: 10,
-        type: "CONSULTANT", // Using CONSULTANT type for facilitators
     });
 
     const results = data?.data?.results || [];
