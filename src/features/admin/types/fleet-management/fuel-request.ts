@@ -14,7 +14,8 @@ export const FuelRequestSchema = z.object({
     price_per_litre: z.string().min(1, "Please enter price per litre"),
     quantity: z.string().min(1, "Please enter quantity"),
     amount: z.string().min(1, "Please enter amount"),
-    fco: z.string().min(1, "Please select fco").min(1, "Please select fco"),
+    fco: z.string().min(1, "Please select fco"),
+    fuel_coupon: z.string().min(1, "Please enter fuel coupon"),
 });
 
 export type TFuelRequestFormValues = z.infer<typeof FuelRequestSchema>;
@@ -26,6 +27,7 @@ export interface IFuelRequestPaginatedData {
     location: string;
     vendor: string;
     fco: string;
+    fuel_coupon: string;
     created_datetime: string;
     updated_datetime: string;
     odometer: number;
@@ -52,6 +54,7 @@ export interface IFuelRequestSingleData {
         id: string;
     };
     fco: TFCONumberData;
+    fuel_coupon: string;
     created_datetime: string;
     updated_datetime: string;
     odometer: number;

@@ -29,7 +29,7 @@ export default function UserTablePage() {
     <div>
       <div className='flex items-center justify-between'>
         <BackNavigation extraText='Users' />
-        <Link href={RouteEnum.CREATE_USERS}>
+        <Link href={`/dashboard${RouteEnum.CREATE_USERS}`}>
           <Button className='gap-x-2' size='sm'>
             <AddSquareIcon />
             Add User
