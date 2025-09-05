@@ -11,20 +11,38 @@ import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
 // ===== USER HOOKS =====
 
+// Get Current User
+export const useGetCurrentUser = () => {
+  return useQuery<TResponse<IUser>>({
+    queryKey: ["currentUser"],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get("/auth/me/");
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    refetchOnWindowFocus: false,
+  });
+};
+
 // Get All Users (Paginated)
 export const useGetAllUsers = ({
   page = 1,
   size = 20,
   search = "",
   status = "",
+  user_type = "",
   enabled = true,
-}: TRequest & { enabled?: boolean }) => {
+}: TRequest & { user_type?: string; enabled?: boolean }) => {
   return useQuery<TPaginatedResponse<IUser>>({
-    queryKey: ["users", page, size, search, status],
+    queryKey: ["users", page, size, search, status, user_type],
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get("/users/", {
-          params: { page, size, search, status },
+          params: { page, size, search, status, user_type },
         });
         return response.data;
       } catch (error) {

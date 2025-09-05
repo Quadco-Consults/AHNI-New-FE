@@ -167,6 +167,83 @@ export const useDeleteVehicleMaintenance = (id: string) => {
   return { deleteVehicleMaintenance, data, isLoading, isSuccess, error };
 };
 
+// Approval interface
+interface ApprovalPayload {
+  comments: string;
+}
+
+// Review Vehicle Maintenance (PENDING → REVIEWED)
+export const useReviewVehicleMaintenance = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IVehicleMaintenanceSingleData,
+    Error,
+    ApprovalPayload
+  >({
+    endpoint: `${BASE_URL}${id}/review/`,
+    queryKey: ["vehicleMaintenance", "vehicleMaintenanceItem"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const reviewVehicleMaintenance = async (details: ApprovalPayload) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("Vehicle maintenance review error:", error);
+    }
+  };
+
+  return { reviewVehicleMaintenance, data, isLoading, isSuccess, error };
+};
+
+// Authorize Vehicle Maintenance (REVIEWED → AUTHORIZED)
+export const useAuthorizeVehicleMaintenance = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IVehicleMaintenanceSingleData,
+    Error,
+    ApprovalPayload
+  >({
+    endpoint: `${BASE_URL}${id}/authorize/`,
+    queryKey: ["vehicleMaintenance", "vehicleMaintenanceItem"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const authorizeVehicleMaintenance = async (details: ApprovalPayload) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("Vehicle maintenance authorize error:", error);
+    }
+  };
+
+  return { authorizeVehicleMaintenance, data, isLoading, isSuccess, error };
+};
+
+// Approve Vehicle Maintenance (AUTHORIZED → APPROVED)
+export const useApproveVehicleMaintenance = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IVehicleMaintenanceSingleData,
+    Error,
+    ApprovalPayload
+  >({
+    endpoint: `${BASE_URL}${id}/approve/`,
+    queryKey: ["vehicleMaintenance", "vehicleMaintenanceItem"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const approveVehicleMaintenance = async (details: ApprovalPayload) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("Vehicle maintenance approve error:", error);
+    }
+  };
+
+  return { approveVehicleMaintenance, data, isLoading, isSuccess, error };
+};
+
 // Legacy exports for backward compatibility
 export const useGetAllVehicleMaintenanceQuery = useGetAllVehicleMaintenance;
 export const useGetSingleVehicleMaintenanceQuery = useGetSingleVehicleMaintenance;

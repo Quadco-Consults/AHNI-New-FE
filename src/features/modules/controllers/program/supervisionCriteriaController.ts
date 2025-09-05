@@ -133,3 +133,7 @@ export const useDeleteSupervisionCriteriaController = () => {
   const { deleteSupervisionCriteria, data, isLoading, isSuccess, error } = DeleteSupervisionCriteriaManager();
   return [deleteSupervisionCriteria, { data, isLoading, isSuccess, error }] as const;
 };
+
+// Missing named exports - RTK Query style  
+export const useAddSupervisionCriteriaController = useAddSupervisionCriteriaMutation;
+export const useUpdateSupervisionCriteriaController = useUpdateSupervisionCriteriaMutation;

@@ -133,6 +133,7 @@ export const useDeleteSupervisionCategory = () => {
   return [deleteSupervisionCategory, { data, isLoading, isSuccess, error }] as const;
 };
 
-// Missing named exports
-export const useAddSupervisionCategory = CreateSupervisionCategoryManager;
-export const useUpdateSupervisionCategory = UpdateSupervisionCategoryManager;
+// Missing named exports - RTK Query style
+export const useAddSupervisionCategory = useAddSupervisionCategoryMutation;
+export const useUpdateSupervisionCategory = useUpdateSupervisionCategoryMutation;
+export const useGetAllSupervisionCategoryController = useGetAllSupervisionCategoriesManager;

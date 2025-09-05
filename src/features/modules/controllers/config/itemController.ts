@@ -2,7 +2,7 @@ import useApiManager from "@/constants/mainController";
 import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { ItemData, ItemFormValues } from "../../types/config";
-import { FilterParams, TPaginatedResponse, TResponse } from "../../types";
+import { FilterParams, TPaginatedResponse, TResponse, ApiResponse } from "../../types";
 
 // GET Operations (Queries)
 export const useGetAllItemsManager = ({
@@ -13,7 +13,7 @@ export const useGetAllItemsManager = ({
   category,
   category__job_category,
 }: FilterParams & { enabled?: boolean } = {}) => {
-  return useQuery<TPaginatedResponse<ItemData>>({
+  return useQuery<ApiResponse<TPaginatedResponse<ItemData>>>({
     queryKey: ["items", page, size, search, category, category__job_category],
     queryFn: async () => {
       const response = await AxiosWithToken.get("/config/items/", {
@@ -106,7 +106,7 @@ export const DeleteItemManager = () => {
 
   const deleteItem = async (id: string) => {
     try {
-      const response = await AxiosWithToken.delete(`/config/items/${id}`);
+      const response = await AxiosWithToken.delete(`/config/items/${id}/`);
       return response.data;
     } catch (error) {
       console.error("Item delete error:", error);

@@ -3,7 +3,7 @@ import EyeIcon from "components/icons/EyeIcon";
 import { Badge } from "components/ui/badge";
 import { Button } from "components/ui/button"; 
 import { AdminRoutes, RouteEnum } from "constants/RouterConstants"; 
-import { TSupportPaginatedData } from "definations/support/support";
+import { TSupportPaginatedData } from "../types/support/support";
 import { cn } from "lib/utils";
 import { useState } from "react";
 import Link from "next/link";
@@ -12,13 +12,35 @@ export const supportColumn: ColumnDef<TSupportPaginatedData>[] = [
     {
         header: "User",
         id: "user",
-        accessorKey: "user",
+        cell: ({ row }) => {
+            const email = row.original.email;
+            const sender = row.original.sender;
+            
+            // Extract name from email if sender is not available
+            const displayName = sender && sender !== 'N/A' 
+                ? sender 
+                : email ? email.split('@')[0] : 'Unknown User';
+            
+            return (
+                <div>
+                    <p className="font-medium">{displayName}</p>
+                    <p className="text-sm text-gray-500">{email}</p>
+                </div>
+            );
+        },
     },
 
     {
-        header: "Email",
-        id: "email",
-        accessorKey: "email", 
+        header: "Department",
+        id: "department",
+        cell: ({ row }) => {
+            const department = row.original.department;
+            return (
+                <div className="px-2 py-1 bg-gray-100 rounded-md text-sm">
+                    {department || 'N/A'}
+                </div>
+            );
+        },
     },
 
     {
@@ -29,7 +51,15 @@ export const supportColumn: ColumnDef<TSupportPaginatedData>[] = [
     {
         header: "Date",
         id: "created_datetime",
-        accessorKey: "created_datetime",
+        cell: ({ row }) => {
+            const dateString = row.original.created_datetime;
+            if (!dateString) return 'N/A';
+            
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return 'Invalid Date';
+            
+            return date.toLocaleDateString();
+        },
     },
     {
         header: "Priority",
@@ -95,23 +125,15 @@ const TableAction = ({ id }: TSupportPaginatedData) => {
 
     return (
         <div className="flex items-center gap-2">
-                    <Link
-                            href={generatePath(
-                                 RouteEnum.SUPPORT_DETAILS, 
-                                {id: id},)
-                                 
-                            }
-                        >
-                            <Button
-                                className="w-full flex items-center justify-start gap-2"
-                                variant="ghost"
-                            >
-                                <EyeIcon />
-                                View
-                            </Button>
-                        </Link>
-
-            
+            <Link href={RouteEnum.SUPPORT_DETAILS.replace(':id', id)}>
+                <Button
+                    className="w-full flex items-center justify-start gap-2"
+                    variant="ghost"
+                >
+                    <EyeIcon />
+                    View
+                </Button>
+            </Link>
         </div>
     );
 };

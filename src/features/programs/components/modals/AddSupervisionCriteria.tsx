@@ -19,8 +19,8 @@ import {
 import {
     useAddSupervisionCriteriaController,
     useUpdateSupervisionCriteriaController,
-} from "@/features/modules/controllers/program/supervision-criteriaController";
-import { useGetAllSupervisionCategoryController } from "@/features/modules/controllers/program/supervision-categoryController";
+} from "@/features/modules/controllers/program/supervisionCriteriaController";
+import { useGetAllSupervisionCategoryController } from "@/features/modules/controllers/program/supervisionCategoryController";
 import FormTextArea from "components/atoms/FormTextArea";
 
 const AddSupervisionCriteria = () => {
@@ -64,13 +64,13 @@ const AddSupervisionCriteria = () => {
                       //@ts-ignore
                       id: String(dialogProps?.data?.id),
                       body: data,
-                  }).unwrap()
-                : await addSupervisionCriteria(data).unwrap();
+                  })
+                : await addSupervisionCriteria(data);
             toast.success("Supervision Category Added Succesfully");
             dispatch(closeDialog());
             form.reset();
         } catch (error: any) {
-            toast.error(error.data.message || "Something went wrong");
+            toast.error(error.response?.data?.message ?? error.message ?? "Something went wrong");
         }
     };
 
