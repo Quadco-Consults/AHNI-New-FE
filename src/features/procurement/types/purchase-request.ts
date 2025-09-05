@@ -35,6 +35,7 @@ export type PurchaseRequestResultsData = {
   request_id: string;
   title: string;
   status: string;
+  request_memo?: string;
   requesting_department_detail: {
     name: string;
     id: string;
