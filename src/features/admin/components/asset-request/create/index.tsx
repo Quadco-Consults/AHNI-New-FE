@@ -118,20 +118,16 @@ export default function CreateAssetRequestDetails() {
         toast.success("Asset Request Created");
       }
 
-      if (form.watch("type") === "DISPOSAL") {
-        let path = pathname;
-        // @ts-ignore
-        path = path.substring(0, path.lastIndexOf("/"));
+      // Always redirect to uploads page after creating/updating asset request
+      let path = pathname;
+      // @ts-ignore
+      path = path.substring(0, path.lastIndexOf("/"));
 
-        path += `/create/uploads?id=${id ?? newAssetRequestId}`;
+      path += `/create/uploads?id=${id ?? newAssetRequestId}`;
 
-        router.push(path);
-        return;
-      }
-
-      router.push(AdminRoutes.ASSETS_REQUEST);
+      router.push(path);
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
+      toast.error(error.response?.data?.message ?? error.message ?? "Something went wrong");
     }
   };
 
@@ -143,8 +139,8 @@ export default function CreateAssetRequestDetails() {
         recommendation: assetRequest?.data.recommendation,
         description: assetRequest?.data.description,
         disposal_justification: assetRequest?.data.disposal_justification,
-        from_location: assetRequest?.data.from_location.id,
-        to_location: assetRequest?.data.to_location.id,
+        from_location: assetRequest?.data.from_location?.id || "",
+        to_location: assetRequest?.data.to_location?.id || "",
       });
     }
   }, [assetRequest, form]);

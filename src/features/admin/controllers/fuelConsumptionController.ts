@@ -1,0 +1,230 @@
+import useApiManager from "@/constants/mainController";
+import { useQuery } from "@tanstack/react-query";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
+import { AxiosError } from "axios";
+import {
+  IFuelRequestPaginatedData,
+  IFuelRequestSingleData,
+  TFuelRequestFormValues,
+} from "../types/fleet-management/fuel-request";
+
+// API Response interfaces
+interface ApiResponse<TData = unknown> {
+  status: boolean;
+  message: string;
+  data: TData;
+}
+
+interface PaginatedResponse<T> {
+  status: boolean;
+  message: string;
+  data: {
+    paginator: {
+      count: number;
+      page: number;
+      page_size: number;
+      total_pages: number;
+      next_page_number?: number | null;
+      next?: string | null;
+      previous?: string | null;
+      previous_page_number?: number | null;
+    };
+    results: T[];
+  };
+}
+
+// Filter parameters interface
+interface FuelConsumptionFilterParams {
+  page?: number;
+  size?: number;
+  search?: string;
+  status?: string;
+  enabled?: boolean;
+}
+
+// Approval payload interface
+interface ApprovalPayload {
+  comments?: string;
+}
+
+const BASE_URL = "/admins/fleets/fuel-consumptions/";
+
+// ===== FUEL CONSUMPTION HOOKS =====
+
+// Get All Fuel Consumptions (Paginated)
+export const useGetAllFuelConsumptions = ({
+  page = 1,
+  size = 20,
+  search = "",
+  status = "",
+  enabled = true,
+}: FuelConsumptionFilterParams) => {
+  return useQuery<PaginatedResponse<IFuelRequestPaginatedData>>({
+    queryKey: ["fuelConsumptions", page, size, search, status],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(BASE_URL, {
+          params: {
+            page,
+            size,
+            ...(search && { search }),
+            ...(status && { status }),
+          },
+        });
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get Single Fuel Consumption
+export const useGetSingleFuelConsumption = (id: string, enabled: boolean = true) => {
+  return useQuery<ApiResponse<IFuelRequestSingleData>>({
+    queryKey: ["fuelConsumption", id],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${BASE_URL}${id}/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled && !!id,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Create Fuel Consumption
+export const useCreateFuelConsumption = () => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IFuelRequestSingleData,
+    Error,
+    TFuelRequestFormValues
+  >({
+    endpoint: BASE_URL,
+    queryKey: ["fuelConsumptions"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const createFuelConsumption = async (details: TFuelRequestFormValues) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("Fuel consumption create error:", error);
+    }
+  };
+
+  return { createFuelConsumption, data, isLoading, isSuccess, error };
+};
+
+// Edit Fuel Consumption (Full Update)
+export const useEditFuelConsumption = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IFuelRequestSingleData,
+    Error,
+    TFuelRequestFormValues
+  >({
+    endpoint: `${BASE_URL}${id}/`,
+    queryKey: ["fuelConsumptions", "fuelConsumptionItem"],
+    isAuth: true,
+    method: "PUT",
+  });
+
+  const editFuelConsumption = async (details: TFuelRequestFormValues) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("Fuel consumption edit error:", error);
+    }
+  };
+
+  return { editFuelConsumption, data, isLoading, isSuccess, error };
+};
+
+// Delete Fuel Consumption
+export const useDeleteFuelConsumption = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IFuelRequestSingleData,
+    Error,
+    Record<string, never>
+  >({
+    endpoint: `${BASE_URL}${id}/`,
+    queryKey: ["fuelConsumptions"],
+    isAuth: true,
+    method: "DELETE",
+  });
+
+  const deleteFuelConsumption = async () => {
+    try {
+      await callApi({} as Record<string, never>);
+    } catch (error) {
+      console.error("Fuel consumption delete error:", error);
+    }
+  };
+
+  return { deleteFuelConsumption, data, isLoading, isSuccess, error };
+};
+
+// Approve Fuel Consumption
+export const useApproveFuelConsumption = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IFuelRequestSingleData,
+    Error,
+    ApprovalPayload
+  >({
+    endpoint: `${BASE_URL}${id}/approve/`,
+    queryKey: ["fuelConsumptions", "fuelConsumptionItem"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const approveFuelConsumption = async (details: ApprovalPayload = {}) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("Fuel consumption approve error:", error);
+    }
+  };
+
+  return { approveFuelConsumption, data, isLoading, isSuccess, error };
+};
+
+// Reject Fuel Consumption
+export const useRejectFuelConsumption = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IFuelRequestSingleData,
+    Error,
+    ApprovalPayload
+  >({
+    endpoint: `${BASE_URL}${id}/reject/`,
+    queryKey: ["fuelConsumptions", "fuelConsumptionItem"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const rejectFuelConsumption = async (details: ApprovalPayload = {}) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("Fuel consumption reject error:", error);
+    }
+  };
+
+  return { rejectFuelConsumption, data, isLoading, isSuccess, error };
+};
+
+// Legacy exports for backward compatibility
+export const useGetAllFuelConsumptionsQuery = useGetAllFuelConsumptions;
+export const useGetSingleFuelConsumptionQuery = useGetSingleFuelConsumption;
+export const useCreateFuelConsumptionMutation = useCreateFuelConsumption;
+export const useEditFuelConsumptionMutation = useEditFuelConsumption;
+export const useDeleteFuelConsumptionMutation = useDeleteFuelConsumption;
+export const useApproveFuelConsumptionMutation = useApproveFuelConsumption;
+export const useRejectFuelConsumptionMutation = useRejectFuelConsumption;

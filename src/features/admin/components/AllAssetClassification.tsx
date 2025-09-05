@@ -27,10 +27,10 @@ export default function AllAssetClassification() {
 
     const onSubmit = async (id: string) => {
         try {
-            await deleteAssetClassification(id).unwrap();
+            await deleteAssetClassification(id);
             toast.success("Asset Classification Deleted");
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error.response?.data?.message ?? error.message ?? "Something went wrong");
         }
     };
 

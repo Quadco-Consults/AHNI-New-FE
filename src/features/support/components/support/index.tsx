@@ -24,12 +24,37 @@ export default function Notifications() {
     const dispatch = useAppDispatch();
     const [searchValue, setSearchValue] = useState<string>()
    const [page, setPage] = useState(1);
+    // Filter logic: 
+    // - Closed Tickets tab: only show RESOLVED tickets
+    // - Open Tickets tab: show all non-RESOLVED tickets (PENDING, IN_PROGRESS, etc.)
+    const getStatusFilter = () => {
+        if (isClosed) {
+            return "RESOLVED"; // Only show resolved tickets
+        } else {
+            return ""; // Show all tickets, then we'll filter out resolved ones on frontend if needed
+        }
+    };
+
     const { data: tickets, isFetching } = useGetAllTickets({
         page,
         size: 10,
-        status: isClosed ? "RESOLVED" : "PENDING" ,
+        status: getStatusFilter(),
         search: searchValue,
-    }); 
+    });
+
+    // Filter tickets on frontend if needed for Open Tickets tab
+    const filteredTickets = () => {
+        if (!tickets?.data?.results) return [];
+        
+        if (isClosed) {
+            // For closed tickets tab, show only resolved tickets (backend should handle this)
+            return tickets.data.results;
+        } else {
+            // For open tickets tab, exclude resolved tickets
+            return tickets.data.results.filter(ticket => ticket.status !== "RESOLVED");
+        }
+    };
+    
     return (
         <div className="space-y-5">
             <Breadcrumb>
@@ -101,7 +126,7 @@ export default function Notifications() {
                         }
                     </div>
                     <DataTable
-                        data={tickets?.data.results ?? []}
+                        data={filteredTickets()}
                         headClass="bg-[#FFF2F2]"
                         columns={supportColumn}
                         isLoading={isFetching}

@@ -15,6 +15,8 @@ import PencilIcon from "components/icons/PencilIcon";
 import { toast } from "sonner";
 import { useDeleteVehicleMaintenance } from "@/features/admin/controllers/vehicleMaintenanceController";
 import { formatNumberCurrency } from "utils/utls";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 export const vehicleMaintenanceColumns: ColumnDef<IVehicleMaintenancePaginatedData>[] =
   [
@@ -56,6 +58,26 @@ export const vehicleMaintenanceColumns: ColumnDef<IVehicleMaintenancePaginatedDa
       header: "Status",
       id: "status",
       accessorKey: "status",
+      cell: ({ getValue }) => {
+        const status = getValue() as string;
+        return (
+          <Badge
+            variant='default'
+            className={cn(
+              "p-1 rounded-lg font-medium",
+              status === "PENDING" && "bg-yellow-100 text-yellow-800 border-yellow-200",
+              status === "REVIEWED" && "bg-blue-100 text-blue-800 border-blue-200",
+              status === "AUTHORIZED" && "bg-purple-100 text-purple-800 border-purple-200", 
+              status === "APPROVED" && "bg-green-100 text-green-800 border-green-200",
+              status === "IN_PROGRESS" && "bg-green-200 text-green-700",
+              status === "CLOSED" && "bg-red-100 text-red-800 border-red-200",
+              status === "ON_HOLD" && "bg-gray-100 text-gray-700 border-gray-200"
+            )}
+          >
+            {status}
+          </Badge>
+        );
+      },
     },
     {
       header: "Date Created",
@@ -77,11 +99,11 @@ const TableMenu = ({ id }: IVehicleMaintenancePaginatedData) => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const { deleteVehicleMaintenance, isLoading } =
-    useDeleteVehicleMaintenance();
+    useDeleteVehicleMaintenance(id);
 
   const onDelete = async () => {
     try {
-      await deleteVehicleMaintenance(id);
+      await deleteVehicleMaintenance();
       toast.success("Vehicle Maintenance Request Deleted");
     } catch (error: any) {
       toast.error(error.data.message ?? "Something went wrong");
@@ -89,21 +111,21 @@ const TableMenu = ({ id }: IVehicleMaintenancePaginatedData) => {
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className='flex items-center gap-2'>
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="ghost" className="flex gap-2 py-6">
+          <Button variant='ghost' className='flex gap-2 py-6'>
             <MoreOptionsHorizontalIcon />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-fit">
-          <div className="flex flex-col items-start justify-between gap-1">
+        <PopoverContent className='w-fit'>
+          <div className='flex flex-col items-start justify-between gap-1'>
             <Link
               href={`/dashboard/admin/fleet-management/vehicle-maintenance/${id}`}
             >
               <Button
-                className="w-full flex items-center justify-start gap-2"
-                variant="ghost"
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
               >
                 <EyeIcon />
                 View
@@ -116,16 +138,16 @@ const TableMenu = ({ id }: IVehicleMaintenancePaginatedData) => {
               }}
             >
               <Button
-                className="w-full flex items-center justify-start gap-2"
-                variant="ghost"
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
               >
                 <PencilIcon />
                 Edit
               </Button>
             </Link>
             <Button
-              className="w-full flex items-center justify-start gap-2"
-              variant="ghost"
+              className='w-full flex items-center justify-start gap-2'
+              variant='ghost'
               onClick={() => setDialogOpen(true)}
             >
               <DeleteIcon />
@@ -137,7 +159,7 @@ const TableMenu = ({ id }: IVehicleMaintenancePaginatedData) => {
 
       <ConfirmationDialog
         open={dialogOpen}
-        title="Are you sure you want to delete this request?"
+        title='Are you sure you want to delete this request?'
         loading={isLoading}
         onCancel={() => setDialogOpen(false)}
         onOk={onDelete}

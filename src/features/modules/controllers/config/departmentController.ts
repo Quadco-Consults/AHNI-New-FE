@@ -7,7 +7,8 @@ import {
 } from "../../types/config";
 import { 
   FilterParams,
-  TPaginatedResponse
+  TPaginatedResponse,
+  ApiResponse
 } from "../../types";
 
 // GET Operations (Queries)
@@ -17,7 +18,7 @@ export const useGetAllDepartmentsManager = ({
   search = "",
   enabled = true 
 }: FilterParams & { enabled?: boolean } = {}) => {
-  return useQuery<TPaginatedResponse<DepartmentData>>({
+  return useQuery<ApiResponse<TPaginatedResponse<DepartmentData>>>({
     queryKey: ["departments", page, size, search],
     queryFn: async () => {
       const response = await AxiosWithToken.get("/config/departments/", {
@@ -95,7 +96,7 @@ export const DeleteDepartmentManager = () => {
 
   const deleteDepartment = async (id: string) => {
     try {
-      const response = await AxiosWithToken.delete(`/config/departments/${id}`);
+      const response = await AxiosWithToken.delete(`/config/departments/${id}/`);
       return response.data;
     } catch (error) {
       console.error("Department delete error:", error);
