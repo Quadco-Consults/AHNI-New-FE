@@ -23,15 +23,15 @@ export default function AllSolicitationEvaluationCriteria() {
 
     const dispatch = useAppDispatch();
 
-    const { deleteSolicitation, isLoading: isDeleteLoading } =
+    const { deleteSolicitationEvaluationCriteria, isLoading: isDeleteLoading } =
         useDeleteSolicitationEvaluationCriteria();
 
     const onSubmit = async (id: string) => {
         try {
-            await deleteSolicitation(id)();
+            await deleteSolicitationEvaluationCriteria(id);
             toast.success("Deleted Successfully");
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error?.data?.message ?? "Something went wrong");
         }
     };
 

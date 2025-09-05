@@ -5,6 +5,7 @@ import StepHeader from "@/components/StepHeader";
 import ProcurementPlansForm from "./forms/ProcurementPlansForm";
 import ProcurementMilestonesForm from "./forms/ProcurementMilestonesForm";
 import SuccessModal from "@/features/programs/components/modals/FundSuccessModal";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 
 const CreateProcurement = () => {
   const [formData, setFormData] = useState<any>({});
@@ -13,17 +14,9 @@ const CreateProcurement = () => {
 
   // Function to handle form submission
   const handleSubmit = async () => {
-    const endpoint = process.env.REACT_APP_SERVER_API + "/procurements/create";
     try {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          // Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify(formData),
-      });
-      if (response.ok) {
+      const response = await AxiosWithToken.post("procurements/create/", formData);
+      if (response.status === 200 || response.status === 201) {
         console.log("Form submitted successfully.");
       } else {
         console.error("Failed to submit form.");

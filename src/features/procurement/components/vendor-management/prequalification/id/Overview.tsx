@@ -70,9 +70,13 @@ const Overview = (data: VendorsResultsData) => {
         </div>
         <div className='grid grid-cols-2 items-center'>
           <h4 className='font-bold'>Company Website</h4>
-          <a href={data?.website} className='hover:underline'>
-            {data?.website}
-          </a>
+          {data?.website ? (
+            <a href={data.website} className='hover:underline'>
+              {data.website}
+            </a>
+          ) : (
+            <h4>-</h4>
+          )}
         </div>
         {/* <div className='grid grid-cols-2 items-center'>
           <h4 className='font-bold'>Active Company Telephone Number</h4>

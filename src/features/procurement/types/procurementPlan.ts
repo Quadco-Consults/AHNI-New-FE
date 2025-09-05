@@ -1,28 +1,32 @@
 export type ProcurementPlanResultsData = {
-  id: string;
-  created_at: string;
-  updated_at: string;
-  workplan_activity_object: {
+  id?: string;
+  created_at?: string;
+  updated_at?: string;
+  project?: string;
+  financial_year?: string;
+  budget_line?: string;
+  implementer?: string;
+  implementation_location?: string;
+  workplan_activity_reference?: string;
+  workplan_activity_object?: {
     id: string;
     description: string;
   };
-  description: string;
-  approved_budget: number;
-  pr_staff: string;
-  mode_of_procurement: string;
-  procurement_committee_review: string;
-  is_ppm: boolean;
-  procurement_process: string;
-  donor_remarks: string;
-  implenter_remarks: string;
-  start_date: string;
-  expected_delivery_date_1: string;
-  expected_delivery_date_2: string;
-  ware_houses: string;
-  project: string;
-  workplan_activity: string;
-  financial_year: string;
-  selected_supplier: string;
+  description?: string;
+  approved_budget?: number;
+  pr_staff?: string;
+  mode_of_procurement?: string;
+  procurement_committee_review?: string;
+  is_ppm?: boolean;
+  procurement_process?: string;
+  donor_remarks?: string;
+  implenter_remarks?: string;
+  start_date?: string;
+  expected_delivery_date_1?: string;
+  expected_delivery_date_2?: string;
+  ware_houses?: string;
+  workplan_activity?: string;
+  selected_supplier?: string;
 };
 
 export interface ProcurementPlanData {
