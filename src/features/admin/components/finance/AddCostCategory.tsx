@@ -10,89 +10,89 @@ import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
 import { toast } from "sonner";
 import {
-    CostCategorySchema,
-    TCostCategoryData,
-    TCostCategoryFormValues,
+  CostCategorySchema,
+  TCostCategoryData,
+  TCostCategoryFormValues,
 } from "@/features/admin/types/finance/cost-category";
 import {
-    useAddCostCategoryMutation,
-    useUpdateCostCategoryMutation,
+  useAddCostCategoryMutation,
+  useUpdateCostCategoryMutation,
 } from "@/features/modules/controllers/finance/costCategoryController";
 import FormTextArea from "components/atoms/FormTextArea";
 
 const AddCostCategory = () => {
-    const { dialogProps } = useAppSelector(dailogSelector);
+  const { dialogProps } = useAppSelector(dailogSelector);
 
-    const data = dialogProps?.data as unknown as TCostCategoryData;
+  const data = dialogProps?.data as unknown as TCostCategoryData;
 
-    const form = useForm<TCostCategoryFormValues>({
-        resolver: zodResolver(CostCategorySchema),
-        defaultValues: {
-            name: data?.name ?? "",
-            description: data?.description ?? "",
-            code: data?.code ?? "",
-        },
-    });
+  const form = useForm<TCostCategoryFormValues>({
+    resolver: zodResolver(CostCategorySchema),
+    defaultValues: {
+      name: data?.name ?? "",
+      description: data?.description ?? "",
+      code: data?.code ?? "",
+    },
+  });
 
-    const [addCostCategory, { isLoading }] = useAddCostCategoryMutation();
-    const [updateCostCategory, { isLoading: updateLoading }] =
-        useUpdateCostCategoryMutation();
+  const [addCostCategory, { isLoading }] = useAddCostCategoryMutation();
+  const [updateCostCategory, { isLoading: updateLoading }] =
+    useUpdateCostCategoryMutation();
 
-    const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
 
-    const onSubmit: SubmitHandler<TCostCategoryFormValues> = async (data) => {
-        try {
-            dialogProps?.type === "update"
-                ? await updateCostCategory({
-                      //@ts-ignore
-                      id: String(dialogProps?.data?.id),
-                      body: data,
-                  }).unwrap()
-                : await addCostCategory(data).unwrap();
-            toast.success("Category Added Succesfully");
-            dispatch(closeDialog());
-            form.reset();
-        } catch (error: any) {
-            toast.error(error.response?.data?.message ?? error.message ?? "Something went wrong");
-        }
-    };
-    return (
-        <CardContent>
-            <Form {...form}>
-                <form
-                    action=""
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex flex-col gap-y-7"
-                >
-                    <FormInput
-                        label="Name"
-                        name="name"
-                        placeholder="Enter Name"
-                        required
-                    />
-                    
-                    <FormTextArea
-                        label="Description"
-                        name="description"
-                        placeholder="Enter Description"
-                    />
+  const onSubmit: SubmitHandler<TCostCategoryFormValues> = async (data) => {
+    try {
+      dialogProps?.type === "update"
+        ? await updateCostCategory({
+            //@ts-ignore
+            id: String(dialogProps?.data?.id),
+            body: data,
+          })
+        : await addCostCategory(data);
+      toast.success("Category Added Succesfully");
+      dispatch(closeDialog());
+      form.reset();
+    } catch (error: any) {
+      toast.error(
+        error.response?.data?.message ?? error.message ?? "Something went wrong"
+      );
+    }
+  };
+  return (
+    <CardContent>
+      <Form {...form}>
+        <form
+          action=''
+          onSubmit={form.handleSubmit(onSubmit)}
+          className='flex flex-col gap-y-7'
+        >
+          <FormInput
+            label='Name'
+            name='name'
+            placeholder='Enter Name'
+            required
+          />
 
-                    <FormInput
-                        label="Code"
-                        name="code"
-                        required
-                        placeholder="Enter Code"
-                    />
+          <FormTextArea
+            label='Description'
+            name='description'
+            placeholder='Enter Description'
+          />
 
-                    <div className="flex justify-start">
-                        <FormButton loading={isLoading || updateLoading}>
-                            Save
-                        </FormButton>
-                    </div>
-                </form>
-            </Form>
-        </CardContent>
-    );
+          <FormInput
+            label='Code'
+            name='code'
+            required
+            placeholder='Enter Code'
+          />
+
+          <div className='flex justify-start'>
+            <FormButton loading={isLoading || updateLoading}>Save</FormButton>
+          </div>
+        </form>
+      </Form>
+    </CardContent>
+  );
 };
 
 export default AddCostCategory;

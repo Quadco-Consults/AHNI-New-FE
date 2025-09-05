@@ -195,7 +195,7 @@ const Items = () => {
         // formData.append(`vendor`, vendor || "");
 
         // Send the request
-        // await createVendorDocumentMutation(formData).unwrap();
+        // await createVendorDocumentMutation(formData) ;
         toast.success(`Successfully uploaded file`);
         setError(field, index, false); // Mark the file as failed
       } catch (error) {

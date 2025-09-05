@@ -47,13 +47,15 @@ const AddCostInput = () => {
             //@ts-ignore
             id: String(dialogProps?.data?.id),
             body: data,
-          }).unwrap()
-        : await addCostInput(data).unwrap();
+          })
+        : await addCostInput(data);
       toast.success("Category Added Succesfully");
       dispatch(closeDialog());
       form.reset();
     } catch (error: any) {
-      toast.error(error.response?.data?.message ?? error.message ?? "Something went wrong");
+      toast.error(
+        error.response?.data?.message ?? error.message ?? "Something went wrong"
+      );
     }
   };
   return (

@@ -19,7 +19,7 @@ import { Textarea } from "components/ui/textarea";
 import { useForm } from "react-hook-form";
 import VendorsEvaluaionAndPerformanceAPI from "@/features/procurement/controllers/vendorPerformanceEvaluationController";
 import { useRouter } from "next/navigation";
-import { useParams } from "next/navigation"; 
+import { useParams } from "next/navigation";
 import { toast } from "sonner";
 
 const InterviewForm = () => {
@@ -80,7 +80,7 @@ const InterviewForm = () => {
       await createVendorEvaluationMutationById({
         path: { id: params.id! },
         body: payload,
-      }).unwrap();
+      });
 
       toast.success(" Interview Submitted successfully");
       router.back();

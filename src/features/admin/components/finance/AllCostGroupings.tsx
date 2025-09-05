@@ -25,10 +25,12 @@ export default function AllCostGroupings() {
 
   const onSubmit = async (id: string) => {
     try {
-      await deleteCostInput(id).unwrap();
+      await deleteCostInput(id);
       toast.success("Deleted Successfully");
     } catch (error: any) {
-      toast.error(error.response?.data?.message ?? error.message ?? "Something went wrong");
+      toast.error(
+        error.response?.data?.message ?? error.message ?? "Something went wrong"
+      );
     }
   };
 

@@ -78,7 +78,7 @@ const ProjectDetailsUploadModal = () => {
     formData.append("project", data?.project);
 
     try {
-      // await projectDocumentController(formData).unwrap();
+      // await projectDocumentController(formData) ;
       toast.success("Document upload successfully.");
     } catch (error) {
       console.log(error);

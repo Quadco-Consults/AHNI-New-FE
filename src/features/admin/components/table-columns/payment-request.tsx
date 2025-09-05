@@ -66,7 +66,7 @@ export const paymentRequestColumns: ColumnDef<IPaymentRequestPaginatedData>[] =
       cell: ({ getValue }) => {
         return (
           <Badge
-            variant="default"
+            variant='default'
             className={cn(
               "p-1 rounded-lg",
               getValue() === "IN_PROGRESS" && "bg-green-200 text-green-500",
@@ -96,7 +96,7 @@ const TableMenu = ({ id, status }: IPaymentRequestPaginatedData) => {
 
   const handleDelete = async () => {
     try {
-      await deletePaymentRequest(id).unwrap();
+      await deletePaymentRequest(id);
       toast.success("Payment Request Deleted");
     } catch (error: any) {
       toast.error(error.data.message ?? "Something went wrong");
@@ -104,25 +104,25 @@ const TableMenu = ({ id, status }: IPaymentRequestPaginatedData) => {
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className='flex items-center gap-2'>
       <>
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost" className="flex gap-2 py-6">
+            <Button variant='ghost' className='flex gap-2 py-6'>
               <MoreOptionsHorizontalIcon />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-fit">
-            <div className="flex flex-col items-start justify-between gap-1">
+          <PopoverContent className='w-fit'>
+            <div className='flex flex-col items-start justify-between gap-1'>
               <Link
-                className="w-full"
+                className='w-full'
                 href={generatePath(AdminRoutes.VIEW_PAYMENT_REQUEST, {
                   id,
                 })}
               >
                 <Button
-                  className="w-full flex items-center justify-start gap-2"
-                  variant="ghost"
+                  className='w-full flex items-center justify-start gap-2'
+                  variant='ghost'
                 >
                   <EyeIcon />
                   View
@@ -130,15 +130,15 @@ const TableMenu = ({ id, status }: IPaymentRequestPaginatedData) => {
               </Link>
 
               <Link
-                className="w-full"
+                className='w-full'
                 href={{
                   pathname: AdminRoutes.CREATE_PAYMENT_REQUEST_SUMMARY,
                   search: `?id=${id}`,
                 }}
               >
                 <Button
-                  className="w-full flex items-center justify-start gap-2"
-                  variant="ghost"
+                  className='w-full flex items-center justify-start gap-2'
+                  variant='ghost'
                 >
                   <PencilIcon />
                   Edit
@@ -146,8 +146,8 @@ const TableMenu = ({ id, status }: IPaymentRequestPaginatedData) => {
               </Link>
 
               <Button
-                className="w-full flex items-center justify-start gap-2"
-                variant="ghost"
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
                 onClick={() => setDialogOpen(true)}
               >
                 <DeleteIcon />
@@ -160,7 +160,7 @@ const TableMenu = ({ id, status }: IPaymentRequestPaginatedData) => {
 
       <ConfirmationDialog
         open={isDialogOpen}
-        title="Are you sure you want to delete this payment request?"
+        title='Are you sure you want to delete this payment request?'
         loading={isLoading}
         onCancel={() => setDialogOpen(false)}
         onOk={handleDelete}
