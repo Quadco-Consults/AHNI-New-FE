@@ -39,6 +39,12 @@ interface FuelConsumptionFilterParams {
   size?: number;
   search?: string;
   status?: string;
+  date_from?: string;
+  date_to?: string;
+  vendor?: string;
+  location?: string;
+  driver?: string;
+  asset?: string;
   enabled?: boolean;
 }
 
@@ -57,10 +63,16 @@ export const useGetAllFuelConsumptions = ({
   size = 20,
   search = "",
   status = "",
+  date_from = "",
+  date_to = "",
+  vendor = "",
+  location = "",
+  driver = "",
+  asset = "",
   enabled = true,
 }: FuelConsumptionFilterParams) => {
   return useQuery<PaginatedResponse<IFuelRequestPaginatedData>>({
-    queryKey: ["fuelConsumptions", page, size, search, status],
+    queryKey: ["fuelConsumptions", page, size, search, status, date_from, date_to, vendor, location, driver, asset],
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(BASE_URL, {
@@ -69,6 +81,12 @@ export const useGetAllFuelConsumptions = ({
             size,
             ...(search && { search }),
             ...(status && { status }),
+            ...(date_from && { date_from }),
+            ...(date_to && { date_to }),
+            ...(vendor && { vendor }),
+            ...(location && { location }),
+            ...(driver && { driver }),
+            ...(asset && { asset }),
           },
         });
         return response.data;
@@ -218,6 +236,24 @@ export const useRejectFuelConsumption = (id: string) => {
   };
 
   return { rejectFuelConsumption, data, isLoading, isSuccess, error };
+};
+
+// Get Vehicle Fuel History
+export const useGetVehicleFuelHistory = (vehicleId: string, enabled: boolean = true) => {
+  return useQuery<PaginatedResponse<IFuelRequestPaginatedData>>({
+    queryKey: ["vehicleFuelHistory", vehicleId],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${BASE_URL}vehicle/${vehicleId}/history/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled && !!vehicleId,
+    refetchOnWindowFocus: false,
+  });
 };
 
 // Legacy exports for backward compatibility

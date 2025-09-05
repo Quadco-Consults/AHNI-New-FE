@@ -2,15 +2,14 @@ import { ColumnDef } from "@tanstack/react-table";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import { Button } from "components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { AdminRoutes } from "constants/RouterConstants";
 import Link from "next/link";
-import { IFuelRequestPaginatedData } from "definations/admin/fleet-management/fuel-request";
+import { IFuelRequestPaginatedData } from "@/features/admin/types/fleet-management/fuel-request";
 import ApproveIcon from "components/icons/ApproveIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { useState } from "react";
 import ConfirmationDialog from "components/ConfirmationDialog";
 import { toast } from "sonner";
-import { useDeleteFuelRequestMutation } from "@/features/admin/controllers/fuelRequestController";
+import { useDeleteFuelConsumption } from "@/features/admin/controllers/fuelConsumptionController";
 import PencilIcon from "components/icons/PencilIcon";
 import { formatNumberCurrency } from "utils/utls";
 
@@ -94,14 +93,14 @@ export const fuelRequestConsumptionColumns: ColumnDef<IFuelRequestPaginatedData>
 const TableMenu = ({ id }: IFuelRequestPaginatedData) => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const [deleteFuelRequest, { isLoading }] = useDeleteFuelRequestMutation();
+  const { deleteFuelConsumption, isLoading } = useDeleteFuelConsumption(id);
 
   const handleDelete = async () => {
     try {
-      await deleteFuelRequest(id);
-      toast.success("Fuel Request Deleted");
+      await deleteFuelConsumption();
+      toast.success("Fuel consumption deleted successfully");
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
+      toast.error(error?.data?.message ?? "Something went wrong");
     }
   };
 
@@ -115,13 +114,7 @@ const TableMenu = ({ id }: IFuelRequestPaginatedData) => {
         </PopoverTrigger>
         <PopoverContent className='w-fit'>
           <div className='flex flex-col items-start justify-between gap-1'>
-            <Link
-              href={{
-                pathname: generatePath(AdminRoutes.VIEW_FUEL_CONSUMPTION, {
-                  id,
-                }),
-              }}
-            >
+            <Link href={`/dashboard/admin/fleet-management/fuel-request/${id}`}>
               <Button
                 className='w-full flex items-center justify-start gap-2'
                 variant='ghost'
@@ -131,12 +124,7 @@ const TableMenu = ({ id }: IFuelRequestPaginatedData) => {
               </Button>
             </Link>
 
-            <Link
-              href={{
-                pathname: AdminRoutes.CREATE_FUEL_CONSUMPTION,
-                search: `?id=${id}`,
-              }}
-            >
+            <Link href={`/dashboard/admin/fleet-management/fuel-request/create?id=${id}`}>
               <Button
                 className='w-full flex items-center justify-start gap-2'
                 variant='ghost'
