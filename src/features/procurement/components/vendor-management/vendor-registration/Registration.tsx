@@ -151,7 +151,7 @@ const Registration = () => {
     path = path.substring(0, path.lastIndexOf("/"));
 
     // Append the new segment to the path
-    path += "/the-company";
+    path += `/the-company?id=${vendorId}`;
     router.push(path);
   };
 
