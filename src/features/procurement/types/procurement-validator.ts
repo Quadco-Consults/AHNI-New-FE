@@ -94,7 +94,7 @@ export const VendorsTechnicalSchema = z.object({
       year: z.string().min(1, "Field is required"),
     })
   ),
-  number_of_operational_work_shift: z.string().min(1, "Field is required"),
+  number_of_operational_work_shift: z.any().optional(),
   installed_capacity: z.string().min(1, "Field is required"),
   lagest_capacity_and_utilization: z.string().min(1, "Field is required"),
   brief_of_quality_control: z.string().min(1, "Field is required"),
