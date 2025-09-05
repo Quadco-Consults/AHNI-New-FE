@@ -16,7 +16,8 @@ import { vendorsActions } from "store/formData/procurement-vendors";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "store/index";
 import QuestionairAPI from "@/features/procurement/controllers/questionnaireController";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import useQuery from "hooks/useQuery";
 import { LoadingSpinner } from "components/Loading";
 import { QuestionairData } from "definations/procurement-types/questionairs";
 import { Input } from "components/ui/input";
@@ -35,9 +36,16 @@ const Questionier = () => {
   const router = useRouter();
   const pathname = usePathname();
   const dispatch = useDispatch();
+  const query = useQuery();
+  const vendorId = query.get("id");
 
-  const { createVendor: createVendorMutation, isLoading: createVendorMutationLoading } =
-    VendorsAPI.useCreateVendor();
+  const { data: vendor, isLoading: vendorLoading } =
+    VendorsAPI.useGetVendor(vendorId);
+
+  const {
+    createVendor: createVendorMutation,
+    isLoading: createVendorMutationLoading,
+  } = VendorsAPI.useCreateVendor();
 
   const vendorsData = useSelector((state: RootState) => state.vendors.vendors);
   const mergedObject = vendorsData.reduce((acc: any, obj: any) => {
@@ -75,6 +83,28 @@ const Questionier = () => {
     control,
     name: "key_clients",
   });
+
+  useEffect(() => {
+    if (vendorId && vendor?.data && !vendorLoading) {
+      // Auto-populate key clients form
+      form.reset({
+        key_clients: vendor?.data?.key_client || [
+          { name: "", address: "", phone_number: "" },
+        ],
+      });
+
+      // Auto-populate questionnaire responses
+      if (vendor?.data?.questionnaires) {
+        const questionnaireResponses: FormData = {};
+        vendor.data.questionnaires.forEach((q: any) => {
+          if (q.questionaire && q.response) {
+            questionnaireResponses[q.questionaire] = q.response;
+          }
+        });
+        setFormData(questionnaireResponses);
+      }
+    }
+  }, [vendorId, vendor, vendorLoading, form]);
 
   const onSubmit = (data: z.infer<typeof VendorsQuestionnaireSchema>) => {
     const values = {
@@ -126,14 +156,14 @@ const Questionier = () => {
 
     try {
       const res = await createVendorMutation(finalData);
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         localStorage.setItem("vendorID", res?.data?.id);
       }
-      toast.success("Successfully created.");
-      let path = pathname;
-      path = path.substring(0, path.lastIndexOf("/"));
-      path += "/attestation";
-      router.push(path);
+      // toast.success("Successfully created.");
+      // let path = pathname;
+      // path = path.substring(0, path.lastIndexOf("/"));
+      // path += `/attestation?id=${vendorId || res?.data?.id}`;
+      // router.push(path);
     } catch (error) {
       toast.error("Something went wrong");
       console.log(error);
