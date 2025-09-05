@@ -68,7 +68,7 @@ const AddItems = () => {
       dispatch(closeDialog());
       form.reset();
     } catch (error: any) {
-      toast.error(error.data.message || "Something went wrong");
+      toast.error(error.response?.data?.message ?? error.message ?? "Something went wrong");
     }
   };
   return (

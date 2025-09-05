@@ -55,7 +55,7 @@ export default function Summary() {
         localStorage.removeItem("programFundRequest");
       }
     } catch (error: any) {
-      toast.error(error.data.message || "Something went wring");
+      toast.error(error.response?.data?.message ?? error.message ?? "Something went wrong");
     }
   };
 

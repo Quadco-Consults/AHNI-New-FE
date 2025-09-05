@@ -26,10 +26,10 @@ export default function AllItems() {
 
   const onSubmit = async (id: string) => {
     try {
-      await deleteItem(id).unwrap();
+      await deleteItem(id);
       toast.success("Deleted Successfully");
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
+      toast.error(error.response?.data?.message ?? error.message ?? "Something went wrong");
     }
   };
 
@@ -82,21 +82,21 @@ export default function AllItems() {
           <LoadingSpinner />
         ) : (
           <div>
-            {item?.data?.results?.map((item) => (
+            {item?.data?.results?.map((itemData: any) => (
               <div
-                key={item.id}
+                key={itemData.id}
                 className='flex justify-between mt-6 text-[#756D6D] font-normal text-xs'
               >
-                <p className='flex-1'>{item.name}</p>
-                <p className='flex-1'>{item.description || "N/A"}</p>
-                <p className='flex-1'>{item.uom}</p>
-                <p className='flex-1'>{item.category?.name}</p>
+                <p className='flex-1'>{itemData.name}</p>
+                <p className='flex-1'>{itemData.description || "N/A"}</p>
+                <p className='flex-1'>{itemData.uom}</p>
+                <p className='flex-1'>{itemData.category?.name}</p>
                 <div className='flex-1'>
                   <TableAction
                     update
                     removeView
-                    action={() => onSubmit(item.id)}
-                    updateAction={() => onUpdate(item)}
+                    action={() => onSubmit(itemData.id)}
+                    updateAction={() => onUpdate(itemData)}
                   />
                 </div>
               </div>
@@ -105,8 +105,8 @@ export default function AllItems() {
         )}
 
         <Pagination
-          total={item?.data.pagination.count ?? 0}
-          itemsPerPage={item?.data.pagination.page_size ?? 0}
+          total={item?.data?.pagination?.count ?? 0}
+          itemsPerPage={item?.data?.pagination?.page_size ?? 0}
           onChange={(page: number) => setPage(page)}
         />
       </div>
