@@ -6,7 +6,7 @@ import { Badge } from "components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
 import { cn } from "@/lib/utils";
 import DataTable from "@/components/Table/DataTable";
-import { useGetAllFuelConsumptions } from "@/features/admin/controllers/fuelConsumptionController";
+import { useGetVendorFuelStatistics, useGetVendorFuelPurchases } from "@/features/admin/controllers/fuelConsumptionController";
 import { IFuelRequestPaginatedData } from "@/features/admin/types/fleet-management/fuel-request";
 import { Button } from "components/ui/button";
 import Link from "next/link";
@@ -25,23 +25,20 @@ export default function VendorFuelTracking({
   showTitle = true,
   maxHeight = "600px",
 }: VendorFuelTrackingProps) {
-  const { data: vendorFuelData, isLoading } = useGetAllFuelConsumptions({
+  // Use proper backend APIs
+  const { data: vendorStats, isLoading: statsLoading } = useGetVendorFuelStatistics(vendorId);
+  const { data: vendorPurchases, isLoading: purchasesLoading } = useGetVendorFuelPurchases(vendorId, {
     page: 1,
-    size: 10000, // Get all records for vendor calculations
-    vendor: vendorId,
-    enabled: !!vendorId,
+    size: 1000,
   });
 
-  // Calculate vendor totals
-  const records = vendorFuelData?.data?.results || [];
-  const totalLiters = records.reduce((sum: number, record: any) => sum + (record.quantity || 0), 0);
-  const totalValue = records.reduce((sum: number, record: any) => sum + parseFloat(record.amount || '0'), 0);
+  const isLoading = statsLoading || purchasesLoading;
   
   console.log({ 
-    vendorFuelData,
-    totalLiters: `${totalLiters.toLocaleString()} L`,
-    totalValue: `₦${totalValue.toLocaleString()}`,
-    recordCount: records.length
+    vendorStats,
+    vendorPurchases,
+    totalLiters: vendorStats?.statistics?.total_liters,
+    totalValue: vendorStats?.statistics?.total_amount,
   });
 
   const vendorColumns: ColumnDef<IFuelRequestPaginatedData>[] = [
@@ -158,44 +155,16 @@ export default function VendorFuelTracking({
     },
   ];
 
-  // Calculate vendor metrics
-  const calculateVendorMetrics = () => {
-    const records = vendorFuelData?.data?.results || [];
-    if (records.length === 0) return null;
-
-    const totalQuantity = records.reduce(
-      (sum: number, record: any) => sum + (record.quantity || 0),
-      0
-    );
-    const totalAmount = records.reduce(
-      (sum: number, record: any) => sum + parseFloat(record.amount || '0'),
-      0
-    );
-
-    const averagePricePerLiter = totalQuantity > 0 ? totalAmount / totalQuantity : 0;
-    const uniqueVehicles = new Set(records.map((r: any) => r.asset?.id)).size;
-    const uniqueLocations = new Set(records.map((r: any) => r.location?.id)).size;
-
-    return {
-      totalRecords: records.length,
-      totalQuantity,
-      totalAmount,
-      averagePricePerLiter,
-      uniqueVehicles,
-      uniqueLocations,
-      approvedRecords: records.filter((r: any) => r.status === "APPROVED").length,
-      pendingRecords: records.filter((r: any) => r.status === "PENDING").length,
-      rejectedRecords: records.filter((r: any) => r.status === "REJECTED").length,
-      approvedQuantity: records
-        .filter((r: any) => r.status === "APPROVED")
-        .reduce((sum: number, record: any) => sum + (record.quantity || 0), 0),
-      approvedAmount: records
-        .filter((r: any) => r.status === "APPROVED")
-        .reduce((sum: number, record: any) => sum + parseFloat(record.amount || '0'), 0),
-    };
-  };
-
-  const metrics = calculateVendorMetrics();
+  // Use backend statistics directly
+  const metrics = vendorStats?.statistics && vendorStats?.status_breakdown ? {
+    totalRecords: vendorStats.statistics.total_purchases,
+    totalQuantity: vendorStats.statistics.total_liters,
+    totalAmount: vendorStats.statistics.total_amount,
+    averagePricePerLiter: vendorStats.statistics.average_price_per_liter,
+    approvedRecords: vendorStats.status_breakdown.APPROVED || 0,
+    pendingRecords: vendorStats.status_breakdown.PENDING || 0,
+    rejectedRecords: vendorStats.status_breakdown.REJECTED || 0,
+  } : null;
 
   if (isLoading) {
     return (
@@ -222,7 +191,7 @@ export default function VendorFuelTracking({
                     {metrics.totalQuantity?.toLocaleString()} L
                   </p>
                   <p className='text-xs text-gray-400'>
-                    Approved: {metrics.approvedQuantity?.toLocaleString()} L
+                    {metrics.approvedRecords} approved transactions
                   </p>
                 </div>
               </div>
@@ -239,7 +208,7 @@ export default function VendorFuelTracking({
                     ₦{metrics.totalAmount?.toLocaleString()}
                   </p>
                   <p className='text-xs text-gray-400'>
-                    Approved: ₦{metrics.approvedAmount?.toLocaleString()}
+                    Avg per transaction: ₦{metrics.totalRecords > 0 ? Math.round(metrics.totalAmount / metrics.totalRecords).toLocaleString() : 0}
                   </p>
                 </div>
               </div>
@@ -256,7 +225,7 @@ export default function VendorFuelTracking({
                     ₦{metrics.averagePricePerLiter.toFixed(2)}
                   </p>
                   <p className='text-xs text-gray-400'>
-                    {metrics.uniqueVehicles} vehicles, {metrics.uniqueLocations} locations
+                    {metrics.totalRecords} total transactions
                   </p>
                 </div>
               </div>
@@ -310,13 +279,13 @@ export default function VendorFuelTracking({
           <div style={{ maxHeight }} className='overflow-auto'>
             <DataTable
               columns={vendorColumns}
-              data={vendorFuelData?.data?.results || []}
+              data={vendorPurchases?.results || []}
               isLoading={isLoading}
             />
           </div>
 
-          {(!vendorFuelData?.data?.results ||
-            vendorFuelData?.data?.results.length === 0) && (
+          {(!vendorPurchases?.results ||
+            vendorPurchases?.results.length === 0) && (
             <div className='text-center py-8'>
               <Building2 className='mx-auto text-gray-400 mb-4' size={48} />
               <p className='text-gray-500'>
