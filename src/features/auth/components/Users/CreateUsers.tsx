@@ -11,10 +11,19 @@ import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { CreateUserSchema, TCreateUserFormValues } from "features/auth/types/user";
+import {
+  CreateUserSchema,
+  TCreateUserFormValues,
+} from "features/auth/types/user";
 import { useCreateUser } from "../../controllers/userController";
 import { useGetAllRoles } from "../../controllers/roleController";
 import FormMultiSelect from "components/atoms/FormMultiSelect";
+import { useMemo } from "react";
+import {
+  useGetAllDepartmentsQuery,
+  useGetAllLocationsQuery,
+  useGetAllPositions,
+} from "@/features/modules/controllers";
 
 const genderOptions = [
   { label: "Male", value: "MALE" },
@@ -40,6 +49,19 @@ const CreateUsers = () => {
     page: 1,
     size: 2000000,
   });
+  const { data: department } = useGetAllDepartmentsQuery({
+    page: 1,
+    size: 2000000,
+  });
+  const { data: position } = useGetAllPositions({
+    page: 1,
+    size: 2000000,
+  });
+
+  const { data: location } = useGetAllLocationsQuery({
+    page: 1,
+    size: 2000000,
+  });
 
   const roleOptions = role?.data?.results?.map(({ name, id }) => ({
     label: name,
@@ -47,9 +69,28 @@ const CreateUsers = () => {
   }));
 
   // TODO: Add department, position, and location controllers when config services are converted
-  const departmentOptions: any[] = [];
-  const positionOptions: any[] = [];
-  const locationOptions: any[] = [];
+  const departmentOptions = useMemo(
+    () =>
+      department?.data.results.map(({ name, id }) => ({
+        label: name,
+        value: id,
+      })),
+    [department]
+  );
+
+  const locationOptions = useMemo(
+    () =>
+      // @ts-ignore
+      location?.data.results.map(({ name, id }) => ({
+        label: name,
+        value: id,
+      })),
+    [location]
+  );
+  const positionOptions = position?.data.results.map(({ name, id }) => ({
+    label: name,
+    value: id,
+  }));
 
   const userOptions = [
     { value: "VENDOR", label: "Vendor" },
@@ -68,7 +109,7 @@ const CreateUsers = () => {
   const onSubmit: SubmitHandler<TCreateUserFormValues> = async (data) => {
     await createUser(data);
     form.reset();
-    router.push("/users");
+    router.push("/dashboard/users");
   };
   return (
     <div>
