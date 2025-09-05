@@ -123,21 +123,32 @@ function PurchaseRequest({
             </PopoverTrigger>
             <PopoverContent className=' w-fit'>
               <div className='flex flex-col items-start justify-between gap-1'>
-                <Link
-                  className='w-full'
-                  // href={generatePath(RouteEnum.PURCHASE_REQUEST_DETAILS, {
-                  //   id: data?.id,
-                  // })}
-                  href={`/dashboard/procurement/purchase-request/preview-letter?id=${data?.request_memo}&request=${data?.id}`}
-                >
+                {data?.request_memo ? (
+                  <Link
+                    className='w-full'
+                    // href={generatePath(RouteEnum.PURCHASE_REQUEST_DETAILS, {
+                    //   id: data?.id,
+                    // })}
+                    href={`/dashboard/procurement/purchase-request/preview-letter?id=${data?.request_memo}&request=${data?.id}`}
+                  >
+                    <Button
+                      className='flex w-full items-center justify-start gap-2'
+                      variant='ghost'
+                    >
+                      <EyeIcon />
+                      View
+                    </Button>
+                  </Link>
+                ) : (
                   <Button
                     className='flex w-full items-center justify-start gap-2'
                     variant='ghost'
+                    disabled
                   >
                     <EyeIcon />
                     View
                   </Button>
-                </Link>
+                )}
                 {status === "approved" && (
                   <Button
                     className='flex w-full items-center justify-start gap-2'

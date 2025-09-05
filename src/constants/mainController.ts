@@ -93,8 +93,33 @@ const useApiManager = <TData = unknown, TError = Error, TVariables = unknown>({
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
+      console.error("API Error Details:", {
+        status: axiosError.response?.status,
+        statusText: axiosError.response?.statusText,
+        data: axiosError.response?.data,
+        headers: axiosError.response?.headers
+      });
+      console.error("Full error response data:", JSON.stringify(axiosError.response?.data, null, 2));
+      // Handle validation errors (field-specific errors)
+      const data = axiosError.response?.data;
+      if (data && typeof data === 'object' && !data.message && !data.error) {
+        // Check if it's a field validation error object
+        const fieldErrors = Object.entries(data).map(([field, errors]) => {
+          if (Array.isArray(errors)) {
+            return `${field}: ${errors.join(', ')}`;
+          }
+          return `${field}: ${errors}`;
+        });
+        if (fieldErrors.length > 0) {
+          throw new Error(fieldErrors.join('\n')) as TError;
+        }
+      }
+      
       throw new Error(
-        axiosError.response?.data?.message || "An unexpected error occurred"
+        axiosError.response?.data?.message || 
+        axiosError.response?.data?.error ||
+        `HTTP ${axiosError.response?.status}: ${axiosError.response?.statusText}` ||
+        "An unexpected error occurred"
       ) as TError;
     }
   };

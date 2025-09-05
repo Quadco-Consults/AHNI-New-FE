@@ -126,7 +126,7 @@ export const AdminRoutes = {
     "/dashboard/admin/solicitation/rfq/:id/manual-bid-submission",
   RFQ_VENDOR: "/dashboard/admin/rfq-vendor",
   RFQ_CREATE_QUOTATION_OPEN_TENDER:
-    "/dashboard/procurement-management/solicitation/rfq/create/quotation/:id",
+    "/dashboard/procurement/solicitation-management/rfq/create/quotation/:id",
 
   //purchase order routes
   PURCHASE_ORDER: "/dashboard/admin/purchase-order",
@@ -217,20 +217,20 @@ export const RouteEnum = {
   PROCUREMENT_TRACKER: "/dashboard/procurement/procurement-tracker",
 
   //rfq routes
-  RFQ: "/dashboard/procurement-management/solicitation/rfq",
-  RFQ_CREATE_QUOTATION: "/dashboard/procurement/solicitation-management/create",
+  RFQ: "/dashboard/procurement/solicitation-management/rfq",
+  RFQ_CREATE_QUOTATION: "/dashboard/procurement/solicitation-management/rfq/create/quotation",
   RFQ_CREATE_ITEMS:
-    "/dashboard/procurement-management/solicitation/rfq/create/items",
-  RFQ_DETAILS: "/dashboard/procurement-management/solicitation/rfq/:id",
+    "/dashboard/procurement/solicitation-management/create/items",
+  RFQ_DETAILS: "/dashboard/procurement/solicitation-management/rfq/:id",
   RFQ_CREATE_CBA:
     "/dashboard/procurement/solicitation-management/create/create-cba?id=:id",
   RFQ_COMPETITIVE_BID_ANALYSIS:
-    "/dashboard/procurement-management/solicitation/rfq/competitive-bid-analysis/:id",
+    "/dashboard/procurement/competitive-bid-analysis/:id",
   RFQ_DETAILS_BID_SUBMISSION:
-    "/dashboard/procurement-management/solicitation/rfq/:id/manual-bid-submission",
-  RFQ_VENDOR: "/dashboard/procurement-management/rfq-vendor",
+    "/dashboard/procurement/solicitation-management/rfq/:id/manual-bid-submission",
+  RFQ_VENDOR: "/dashboard/procurement/rfq-vendor",
   RFQ_CREATE_QUOTATION_OPEN_TENDER:
-    "/dashboard/procurement-management/solicitation/rfq/create/quotation/:id",
+    "/dashboard/procurement/solicitation-management/rfq/create/quotation/:id",
 
   // rfp routes
   RFP: "/dashboard/procurement-management/solicitation/rfp",

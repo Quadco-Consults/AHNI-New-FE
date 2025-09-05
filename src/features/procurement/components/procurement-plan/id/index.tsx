@@ -9,7 +9,7 @@ import GoBack from "components/GoBack";
 import Card from "components/Card";
 import ProcurementPlanAPI from "@/features/procurement/controllers/procurementPlanController";
 import { LoadingSpinner } from "components/Loading";
-import { ProcurementPlanResultsData } from "definations/procurement-types/procurementPlan";
+import { ProcurementPlanResultsData } from "@/features/procurement/types/procurementPlan";
 
 const ProcurementDetails = () => {
   const { id } = useParams();
@@ -42,12 +42,12 @@ const ProcurementDetails = () => {
         {isLoading && <LoadingSpinner />}
         <TabsContent value="procurement_plan">
           <Card>
-            <ProcurementPlan {...(data as ProcurementPlanResultsData)} />
+            <ProcurementPlan {...(data?.data as ProcurementPlanResultsData)} />
           </Card>
         </TabsContent>
         <TabsContent value="procurement_milestones">
           <Card>
-            <ProcurementMilestones {...(data as ProcurementPlanResultsData)} />
+            <ProcurementMilestones {...(data?.data as ProcurementPlanResultsData)} />
           </Card>
         </TabsContent>
       </Tabs>

@@ -7,7 +7,7 @@ import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelectField";
 import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 // import * as XLSX from "xlsx";
@@ -48,6 +48,7 @@ const ProcurementPlanUploadModal = (props: PropsType) => {
 
   const [file, setFile] = useState<File | Blob | null>(null);
 
+
   const { createProcurementPlan, isLoading: creatingPlan } = useCreateProcurementPlan();
 
   const { data: financialYear } = useGetAllFinancialYearsManager({
@@ -86,21 +87,56 @@ const ProcurementPlanUploadModal = (props: PropsType) => {
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files && e.target.files[0];
+    
+    if (file) {
+      // Check if file is Excel
+      const allowedTypes = [
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+        'application/vnd.ms-excel', // .xls
+      ];
+      
+      if (!allowedTypes.includes(file.type)) {
+        toast.error("Only Excel files (.xlsx, .xls) are allowed.");
+        e.target.value = ""; // Reset the input
+        setFile(null);
+        return;
+      }
+    }
 
     setFile(file);
   };
 
-  const onSubmit = async (data: { financial_year: string | Blob }) => {
+  const onSubmit = async (data: { financial_year: string | Blob; project: string | Blob }) => {
+    if (!file) {
+      toast.error("Please select a file to upload");
+      return;
+    }
+    
     const formData = new FormData();
-
     formData.append("file", file as Blob);
-    formData.append("financial_year", data?.financial_year);
+    formData.append("financial_year", data?.financial_year as string);
+    formData.append("project", data?.project as string);
+    
+    // Debug logging
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+    
     try {
-      createProcurementPlan(formData as any);
+      await createProcurementPlan(formData as any);
       props.onCancel();
       dispatch(closeDialog());
     } catch (error: any) {
-      toast.error(error?.data?.message || "An error occurred");
+      const errorMessage = error?.message || error?.data?.message || "An error occurred";
+      
+      // If it's a column validation error, show it more clearly
+      if (errorMessage.includes("Missing required columns")) {
+        toast.error(errorMessage, {
+          duration: 8000, // Show longer for column errors
+        });
+      } else {
+        toast.error(errorMessage);
+      }
     }
 
     // const reader = new FileReader();
@@ -124,6 +160,7 @@ const ProcurementPlanUploadModal = (props: PropsType) => {
       isOpen={props.isOpen}
       onRequestClose={props.onCancel}
       style={customStyles}
+      ariaHideApp={false}
     >
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -155,6 +192,7 @@ const ProcurementPlanUploadModal = (props: PropsType) => {
                   type='file'
                   className='bg-inherit border-none cursor-pointer'
                   multiple={false}
+                  accept='.xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel'
                   onChange={handleFileChange}
                   name=''
                 />

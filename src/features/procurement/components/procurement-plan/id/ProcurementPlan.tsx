@@ -1,136 +1,273 @@
-import { ProcurementPlanResultsData } from "definations/procurement-types/procurementPlan";
+import { ProcurementPlanResultsData } from "../../../definations/procurement-types/procurementPlan";
 
 const ProcurementPlan = (data: ProcurementPlanResultsData) => {
   return (
-    <div className="w-[95%] mx-auto space-y-4">
+    <div className="w-[95%] mx-auto space-y-6">
       <h3 className="text-primary text-xl font-semibold py-5">
         Procurement Plan Details
       </h3>
-      <div className="w-full grid grid-cols-2 gap-5 border-b pb-16">
-        <span className="space-y-2">
-          <h4 className="text-lg font-semibold">Workplan Activity Reference</h4>
-          <p className="text-sm text-gray-500">
-            {data?.workplan_activity_object?.description}
-          </p>
-        </span>
-        <span className="space-y-2">
-          <h4 className="text-lg font-semibold">
-            Description Of Procurement Activities
-          </h4>
-          <p className="text-sm text-gray-500">{data?.description}</p>
-        </span>
-      </div>
-      <h3 className="text-base font-semibold text-[#DEA004]">
-        Budget Allocation Over Three Years (USD)
-      </h3>
-      <div className="w-full grid grid-cols-3 gap-5 border-b pb-16">
-        <span className="space-y-2">
-          <h4 className="text-lg font-semibold">Year 1 (2021) </h4>
-          <p className="text-sm text-gray-500">$68,125.26</p>
-        </span>
-        <span className="space-y-2">
-          <h4 className="text-lg font-semibold">Year 2 (2021) </h4>
-          <p className="text-sm text-gray-500">$68,125.26</p>
-        </span>
-        <span className="space-y-2">
-          <h4 className="text-lg font-semibold">Year 3 (2021) </h4>
-          <p className="text-sm text-gray-500">$68,125.26</p>
-        </span>
-        <span className="space-y-2">
-          <h4 className="text-lg font-semibold">Approved Budget Amount</h4>
-          <p className="text-sm text-gray-500">
-            ${data?.approved_budget?.toLocaleString()}
-          </p>
-        </span>
-      </div>
-      <h3 className="text-base font-semibold text-[#DEA004]">
-        Quantity Targets Over Three Years
-      </h3>
-      <div className="w-full grid grid-cols-3 gap-5 border-b pb-16">
-        <span className="space-y-2">
-          <h4 className="text-lg font-semibold">Year 1 (2021) </h4>
-          <p className="text-sm text-gray-500">0.3</p>
-        </span>
-        <span className="space-y-2">
-          <h4 className="text-lg font-semibold">Year 2 (2021) </h4>
-          <p className="text-sm text-gray-500">0.3</p>
-        </span>
-        <span className="space-y-2">
-          <h4 className="text-lg font-semibold">Year 3 (2021) </h4>
-          <p className="text-sm text-gray-500">0.3</p>
-        </span>
-        <span className="space-y-2">
-          <h4 className="text-lg font-semibold">Total Quantity (1-3 Years)</h4>
-          <p className="text-sm text-gray-500">1.0</p>
-        </span>
-      </div>
-      <div className="w-full grid grid-cols-2 gap-5 border-b pb-16">
-        <span className="space-y-2">
-          <h4 className="text-lg font-semibold">Responsible PR Staff</h4>
-          <p className="text-sm text-gray-500">{data?.pr_staff}</p>
-        </span>
-        <span className="space-y-2">
-          <h4 className="text-lg font-semibold">Mode Of Procurement</h4>
-          <p className="text-sm text-gray-500">{data?.mode_of_procurement}</p>
-        </span>
-        <span className="space-y-2">
-          <h4 className="text-lg font-semibold">
-            Procurement Committee Review (Yes - existing, new; No)
-          </h4>
-          <p className="text-sm text-gray-500">
-            {data?.procurement_committee_review}
-          </p>
-        </span>
-        <span className="space-y-2">
-          <h4 className="text-lg font-semibold">Selected Supplier</h4>
-          <p className="text-sm text-gray-500">{data?.selected_supplier}</p>
-        </span>
-      </div>
-      <div className="w-full grid grid-cols-1 gap-5 border-b pb-16">
-        <span className="space-y-2">
-          <h4 className="text-lg font-semibold">
-            PROCUREMENT PROCESS (EOI, RFP, RFQ, Minimum Quotes, Open or Limited
-            Bidding etc. as per organizational Procurement Policy, refer
-            relevant section)
-          </h4>
-          <p className="text-sm text-gray-500">{data?.procurement_process}</p>
-        </span>
-      </div>
-      <div className="w-full grid grid-cols-3 gap-5 border-b pb-16">
-        <span className="space-y-2">
-          <h4 className="text-lg font-semibold">
-            Start Date (at least week of the month)
-          </h4>
-          <p className="text-sm text-gray-500">{data?.start_date}</p>
-        </span>
-        <span className="space-y-2">
-          <h4 className="text-lg font-semibold">Expected Delivery Date 1</h4>
-          <p className="text-sm text-gray-500">
-            {data?.expected_delivery_date_1}
-          </p>
-        </span>
-        <span className="space-y-2">
-          <h4 className="text-lg font-semibold">Expected Delivery Date 2</h4>
-          <p className="text-sm text-gray-500">
-            {data?.expected_delivery_date_2}
-          </p>
-        </span>
-        <span className="space-y-2 col-span-3">
-          <h4 className="text-lg font-semibold">
-            DELIVERY TO (Central warehouse, State warehouse, treatment site, SR)
-          </h4>
-          <p className="text-sm text-gray-500">{data?.ware_houses}</p>
-        </span>
-      </div>
-      <div className="w-full grid grid-cols-2 gap-5 pb-16">
-        <span className="space-y-2">
-          <h4 className="text-lg font-semibold">Donor Remarks</h4>
-          <p className="text-sm text-gray-500">{data?.donor_remarks}</p>
-        </span>
-        <span className="space-y-2">
-          <h4 className="text-lg font-semibold">Implementer Remarks</h4>
-          <p className="text-sm text-gray-500">{data?.implenter_remarks}</p>
-        </span>
+
+      <div className="flex data?s-start gap-8 overflow-x-auto pb-6">
+        <div className="flex flex-row gap-6 min-w-[400px] flex-shrink-0">
+          {/* Details Table */}
+          <div className="overflow-x-auto">
+            <table className="table-auto min-w-max border border-gray-300 text-left border-collapse">
+              <thead>
+                {/* Row 1: Procurement Milestones */}
+                <tr className="bg-gray-100">
+                  <th
+                    colSpan={31}
+                    className="px-4 py-2 border text-center text-base font-semibold"
+                  >
+                    Procurement Plan- <span>{}</span>
+                  </th>
+                </tr>
+
+                {/* Row 2: Date Info */}
+                <tr className="bg-gray-50">
+                  <th
+                    colSpan={31}
+                    className="text-red-500 px-4 py-2 border text-center text-sm font-semibold whitespace-nowrap"
+                  >
+                    FY25 (<span>{}</span>)
+                  </th>
+                </tr>
+
+                {/* Row 3: Main Headers */}
+                <tr className="bg-gray-100">
+                  <th className="px-4 py-2 border text-sm font-semibold">SN</th>
+                  <th className="px-4 py-2 border text-sm font-semibold">
+                    IMPLEMENTER (OWNER)
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold">
+                    Implementation Location
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold bg-red-300">
+                    Workplan Activity Reference
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold">
+                    Description Of Procurement Activities
+                  </th>
+                  <th
+                    colSpan={3}
+                    className="px-4 py-2 border text-center font-semibold text-[#DEA004]"
+                  >
+                    BUDGET REFERENCE NUMBER
+                  </th>
+                  <th
+                    colSpan={2}
+                    className="px-4 py-2 border text-center font-semibold "
+                  >
+                    APPROVED BUDGET AMOUNT- USD
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold">
+                    PPM
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold">
+                    NON-PPM
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold">
+                    FY25 TARGETS
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold">
+                    QUANTITY
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold">
+                    RESPONSIBLE PR STAFF
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold">
+                    MODE OF PROCUREMENT
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold">
+                    PROCURMENT COMMITTEE REVIEW (Yes - existing, new; No)
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold">
+                    APPLICABLE SOLICITATION METHOD (EOI, RFP, RFQ, as per
+                    organizational Procurement Policy)
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold">
+                    PROCUREMENT START DATE(This is date PR is due or to be
+                    submitted to Procurement unit)
+                  </th>
+                  <th
+                    colSpan={7}
+                    className="px-4 py-2 border text-sm font-semibold text-center text-[#DEA004]"
+                  >
+                    PROCURMENT MILESTONES
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold">
+                    SELECTED SUPPLIER
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold">
+                    DELIVERY LEADTIME
+                  </th>
+
+                  <th className="px-4 py-2 border text-sm font-semibold">
+                    EXPECTED DELIVERY DUE DATE
+                  </th>
+
+                  <th className="px-4 py-2 border text-sm font-semibold">
+                    PROUCREMENT PERFORMANCE/MONITORING REMARKS
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold">
+                    PROCUREMENT PERFORMANCE SOCRE
+                  </th>
+                </tr>
+
+                {/* Row 4: Sub-Headers */}
+                <tr className="bg-gray-50">
+                  <th colSpan={5}></th>
+                  <th className="px-4 py-2 border text-sm font-semibold">
+                    Year 1
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold">
+                    Year 2
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold">
+                    Year 3
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold bg-blue-300">
+                    Year 1
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold bg-cyan-300">
+                    Year 2
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold">
+                    Year 3
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold">
+                    Total Quantity (1–3 Years)
+                  </th>
+                  <th colSpan={7}></th>
+                  <th className="px-4 py-2 border text-sm font-semibold bg-[#c4bd97]">
+                    Procurement Method (ICB, ILCB, NCB, NLCB, National Shopping,
+                    Local Shopping, Micro Purchase, Single Source, Sole Source)
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold bg-[#c4bd97]">
+                    Start Date of RFQ
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold bg-[#c4bd97]">
+                    Closing Date of RFQ
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold bg-[#c4bd97]">
+                    Evaluation
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold bg-[#c4bd97]">
+                    Negotiation (if Applicable)
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold bg-[#c4bd97]">
+                    Date CBA and Report is Finalised
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold bg-[#c4bd97]">
+                    Date Purchase Order/PC is issued
+                  </th>
+                </tr>
+              </thead>
+
+              {/* Table Body */}
+              <tbody>
+                <tr>
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    {data?.budget_line}
+                  </td>
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    {data?.implementer}
+                  </td>
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    {data?.implementation_location}
+                  </td>
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    {data?.workplan_activity_reference}
+                  </td>
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    {data?.description}
+                  </td>
+                  {/* Budget Allocation */}
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    $68,125.26
+                  </td>
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    $68,125.26
+                  </td>
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    $68,125.26
+                  </td>
+                  <td className="px-4 py-2 border text-sm bg-blue-300">
+                    ${data?.approved_budget?.toLocaleString()}
+                  </td>
+                  {/* Quantity Targets */}
+                  <td className="px-4 py-2 border text-sm text-gray-500 bg-cyan-300">
+                    0.3
+                  </td>
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    0.3
+                  </td>
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    0.3
+                  </td>
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    1.0
+                  </td>
+                  {/* Other Details */}
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    {data?.pr_staff}
+                  </td>
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    {data?.mode_of_procurement}
+                  </td>
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    {data?.procurement_committee_review}
+                  </td>
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    {data?.selected_supplier}
+                  </td>
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    {data?.procurement_process}
+                  </td>
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    {data?.start_date}
+                  </td>
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    {data?.expected_delivery_date_1}
+                  </td>
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    {data?.expected_delivery_date_2}
+                  </td>
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    {data?.ware_houses}
+                  </td>
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    {data?.donor_remarks}
+                  </td>
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    {data?.implenter_remarks}
+                  </td>
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    {data?.implenter_remarks}
+                  </td>{" "}
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    {data?.implenter_remarks}
+                  </td>{" "}
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    {data?.implenter_remarks}
+                  </td>{" "}
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    {data?.implenter_remarks}
+                  </td>{" "}
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    {data?.implenter_remarks}
+                  </td>{" "}
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    {data?.implenter_remarks}
+                  </td>{" "}
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    {data?.implenter_remarks}
+                  </td>{" "}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   );
