@@ -143,7 +143,12 @@ const Registration = () => {
   const onSubmit = (data: z.infer<typeof VendorsRegistrationSchema>) => {
     console.log({ fhgdf: "anm" });
 
-    dispatch(vendorsActions.addVendors({ ...data }));
+    dispatch(
+      vendorsActions.addVendors({
+        ...data,
+        approved_categories: vendor?.data.approved_categories_details, // Include approved_categories to trigger pending status
+      })
+    );
 
     let path = pathname;
 
@@ -162,11 +167,6 @@ const Registration = () => {
       watch("submitted_categories")
     );
   };
-
-  console.log({
-    form: form.getValues(),
-    vendor: vendor?.data?.submitted_categories_details,
-  });
 
   return (
     <VendorRegistationLayout>
