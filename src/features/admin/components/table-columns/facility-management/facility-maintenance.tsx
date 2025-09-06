@@ -1,7 +1,7 @@
-import { ColumnDef, Row } from "@tanstack/react-table";
+import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "components/ui/badge";
 import { toast } from "sonner";
-import { IFacilityMaintenancePaginatedData } from "definations/admin/facility-management/facility-maintenance";
+// import { IFacilityMaintenancePaginatedData } from "definations/admin/facility-management/facility-maintenance";
 import { useDeleteFacilityMaintenanceMutation } from "@/features/admin/controllers/facilityMaintenanceController";
 import { useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
@@ -14,6 +14,7 @@ import DeleteIcon from "components/icons/DeleteIcon";
 import ConfirmationDialog from "components/ConfirmationDialog";
 import PencilIcon from "components/icons/PencilIcon";
 import { cn } from "lib/utils";
+import { IFacilityMaintenancePaginatedData } from "@/features/admin/types/facility-management/facility-maintenance";
 
 export const facilityMaintenanceColumns: ColumnDef<IFacilityMaintenancePaginatedData>[] =
   [
@@ -36,7 +37,7 @@ export const facilityMaintenanceColumns: ColumnDef<IFacilityMaintenancePaginated
 
     {
       header: "Status",
-      cell: ({ getValue }) => {
+      cell: () => {
         const status = "PENDING";
 
         return (
@@ -57,15 +58,15 @@ export const facilityMaintenanceColumns: ColumnDef<IFacilityMaintenancePaginated
     },
   ];
 
-const TableMenu = ({ id, status }: IFacilityMaintenancePaginatedData) => {
+const TableMenu = ({ id }: IFacilityMaintenancePaginatedData) => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const [deleteFacilityMaintenance, { isLoading }] =
-    useDeleteFacilityMaintenanceMutation();
+  const { deleteFacilityMaintenance, isLoading } =
+    useDeleteFacilityMaintenanceMutation(id);
 
   const handleDelete = async () => {
     try {
-      await deleteFacilityMaintenance(id);
+      await deleteFacilityMaintenance();
       toast.success("Facility Maintenance Ticket Deleted");
     } catch (error: any) {
       toast.error(error.data.message ?? "Something went wrong");
@@ -85,9 +86,7 @@ const TableMenu = ({ id, status }: IFacilityMaintenancePaginatedData) => {
             <div className='flex flex-col items-start justify-between gap-1'>
               <Link
                 className='w-full'
-                href={generatePath(AdminRoutes.VIEW_FACILITY_MAINTENANCE, {
-                  id,
-                })}
+                href={AdminRoutes.VIEW_FACILITY_MAINTENANCE.replace(":id", id)}
               >
                 <Button
                   className='w-full flex items-center justify-start gap-2'
