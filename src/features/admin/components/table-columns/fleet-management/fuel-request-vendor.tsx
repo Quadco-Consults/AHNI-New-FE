@@ -32,8 +32,6 @@ export const fuelRequestVendorColumns: ColumnDef<VendorsResultsData>[] = [
     header: "Total Fuel Supplied",
     id: "total_fuel",
     cell: ({ row }) => {
-      console.log({ row: row.original });
-
       return <VendorFuelSummary vendorId={row.original.id} type='fuel' />;
     },
     size: 150,
@@ -85,7 +83,6 @@ const VendorFuelSummary = ({
   }
 
   const { statistics, status_breakdown } = stats?.data;
-  console.log(">>>>> I am here", { stats });
 
   if (type === "fuel") {
     return (
