@@ -92,12 +92,20 @@ export default function CreateExpenseAuthorization() {
     },
   });
 
-  const { fields: destinationFields, append: appendDestination, remove: removeDestination } = useFieldArray({
+  const {
+    fields: destinationFields,
+    append: appendDestination,
+    remove: removeDestination,
+  } = useFieldArray({
     name: "destinations",
     control: form.control,
   });
 
-  const { fields: travelerFields, append: appendTraveler, remove: removeTraveler } = useFieldArray({
+  const {
+    fields: travelerFields,
+    append: appendTraveler,
+    remove: removeTraveler,
+  } = useFieldArray({
     name: "travelers",
     control: form.control,
   });
@@ -181,16 +189,17 @@ export default function CreateExpenseAuthorization() {
       const transformedData = {
         ...data,
       };
+      let res;
 
       if (id) {
-        await modifyExpenseAuthorization(transformedData);
-        toast.success("Expense Authorization Updated");
+        res = await modifyExpenseAuthorization(transformedData);
+        console.log({ res });
       } else {
-        await createExpenseAuthorization(transformedData);
-        toast.success("Expense Authorization Created");
+        res = await createExpenseAuthorization(transformedData);
       }
+      console.log({ res });
 
-      router.push(AdminRoutes.EXPENSE_AUTHORIZATION);
+      // router.push(AdminRoutes.EXPENSE_AUTHORIZATION);
     } catch (error: any) {
       toast.error(error?.data?.message ?? "Something went wrong");
     }
@@ -225,24 +234,26 @@ export default function CreateExpenseAuthorization() {
         hotel_transport_comment: "",
         justification: "",
         address: "", // Will need to be extracted from legacy data
-        destinations: [{
-          project: "", // Will need to be extracted from legacy data
-          city: "",
-          state: "",
-          arrival_date: data.arrival_date || "",
-          departure_date: data.departure_date || "",
-          purpose: "",
-          accommodation_required: false,
-          transport_required: false,
-          travel_fee: {
-            lodging: 0,
-            meals: 0,
-            number_of_nights: 1,
-            interstate: 0,
-            airport_taxi: 0,
-            car_hire: 0,
+        destinations: [
+          {
+            project: "", // Will need to be extracted from legacy data
+            city: "",
+            state: "",
+            arrival_date: data.arrival_date || "",
+            departure_date: data.departure_date || "",
+            purpose: "",
+            accommodation_required: false,
+            transport_required: false,
+            travel_fee: {
+              lodging: 0,
+              meals: 0,
+              number_of_nights: 1,
+              interstate: 0,
+              airport_taxi: 0,
+              car_hire: 0,
+            },
           },
-        }],
+        ],
         travelers: [],
         reviewer: "",
         authorizer: "",
@@ -400,7 +411,8 @@ export default function CreateExpenseAuthorization() {
                 <Label className='text-lg font-bold'>Travelers:</Label>
                 <div className='p-4 bg-blue-50 border border-blue-200 rounded-lg'>
                   <p className='text-blue-700'>
-                    Multiple travelers functionality is coming soon. Please use Single Traveler mode for now.
+                    Multiple travelers functionality is coming soon. Please use
+                    Single Traveler mode for now.
                   </p>
                 </div>
               </div>
@@ -410,12 +422,14 @@ export default function CreateExpenseAuthorization() {
             {form.watch("traveler_type") === "SINGLE" && (
               <div className='space-y-4'>
                 <Label className='text-lg font-bold'>Destinations:</Label>
-                
+
                 <section className='space-y-5'>
                   {destinationFields?.map((field, index) => (
                     <Card key={field.id} className='space-y-5 p-6'>
                       <div className='flex items-center justify-between'>
-                        <Label className='text-lg'>Destination {index + 1}</Label>
+                        <Label className='text-lg'>
+                          Destination {index + 1}
+                        </Label>
                         {destinationFields.length > 1 && (
                           <Button
                             variant='ghost'
@@ -486,8 +500,10 @@ export default function CreateExpenseAuthorization() {
 
                       {/* Travel Fee for this destination */}
                       <div className='space-y-4'>
-                        <Label className='text-lg font-bold'>Travel Fees:</Label>
-                        
+                        <Label className='text-lg font-bold'>
+                          Travel Fees:
+                        </Label>
+
                         <div className='grid grid-cols-1 gap-5 md:grid-cols-3'>
                           <FormInput
                             label='Lodging'
