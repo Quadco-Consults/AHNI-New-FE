@@ -37,13 +37,28 @@ export const facilityMaintenanceColumns: ColumnDef<IFacilityMaintenancePaginated
 
     {
       header: "Status",
-      cell: () => {
-        const status = "PENDING";
-
+      id: "status",
+      accessorKey: "status",
+      cell: ({ getValue }) => {
+        const status = getValue() as string;
         return (
           <Badge
             variant='default'
-            className={cn("p-1 rounded-lg bg-yellow-200 text-yellow-500")}
+            className={cn(
+              "p-1 rounded-lg font-medium",
+              status === "PENDING" &&
+                "bg-yellow-100 text-yellow-800 border-yellow-200",
+              status === "REVIEWED" &&
+                "bg-blue-100 text-blue-800 border-blue-200",
+              status === "AUTHORIZED" &&
+                "bg-purple-100 text-purple-800 border-purple-200",
+              status === "APPROVED" &&
+                "bg-green-100 text-green-800 border-green-200",
+              status === "IN_PROGRESS" && "bg-green-200 text-green-700",
+              status === "CLOSED" && "bg-red-100 text-red-800 border-red-200",
+              status === "ON_HOLD" &&
+                "bg-gray-100 text-gray-700 border-gray-200"
+            )}
           >
             {status}
           </Badge>
