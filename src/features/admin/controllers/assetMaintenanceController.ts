@@ -129,6 +129,80 @@ export const useDeleteAssetMaintenance = (id: string) => {
   return { deleteAssetMaintenance, data, isLoading, isSuccess, error };
 };
 
+// ===== ASSET MAINTENANCE APPROVAL HOOKS =====
+
+// Review Asset Maintenance
+export const useReviewAssetMaintenance = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    TResponse<IAssetMaintenanceSingleData>,
+    Error,
+    { comments: string }
+  >({
+    endpoint: `${BASE_URL}${id}/review/`,
+    queryKey: ["asset-maintenance", "assetMaintenanceItem"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const reviewAssetMaintenance = async (details: { comments: string }) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("Asset maintenance review error:", error);
+    }
+  };
+
+  return { reviewAssetMaintenance, data, isLoading, isSuccess, error };
+};
+
+// Authorize Asset Maintenance
+export const useAuthorizeAssetMaintenance = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    TResponse<IAssetMaintenanceSingleData>,
+    Error,
+    { comments: string }
+  >({
+    endpoint: `${BASE_URL}${id}/authorize/`,
+    queryKey: ["asset-maintenance", "assetMaintenanceItem"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const authorizeAssetMaintenance = async (details: { comments: string }) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("Asset maintenance authorize error:", error);
+    }
+  };
+
+  return { authorizeAssetMaintenance, data, isLoading, isSuccess, error };
+};
+
+// Approve Asset Maintenance
+export const useApproveAssetMaintenance = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    TResponse<IAssetMaintenanceSingleData>,
+    Error,
+    { comments: string }
+  >({
+    endpoint: `${BASE_URL}${id}/approve/`,
+    queryKey: ["asset-maintenance", "assetMaintenanceItem"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const approveAssetMaintenance = async (details: { comments: string }) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("Asset maintenance approve error:", error);
+    }
+  };
+
+  return { approveAssetMaintenance, data, isLoading, isSuccess, error };
+};
+
 // Maintain legacy exports for backward compatibility
 export const useGetAllAssetMaintenanceQuery = useGetAllAssetMaintenance;
 export const useGetSingleAssetMaintenanceQuery = useGetSingleAssetMaintenance;
