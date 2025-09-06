@@ -408,6 +408,7 @@ export const useGetFuelVendors = ({
               amount: record.amount,
               quantity: record?.quantity,
               status: record?.status,
+              request_id: record?.id,
             });
           } else if (record.vendor && vendorMap.has(record.vendor.id)) {
             const existingVendor = vendorMap.get(record.vendor.id);

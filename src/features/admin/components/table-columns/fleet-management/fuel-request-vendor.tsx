@@ -138,7 +138,7 @@ const VendorFuelSummary = ({
   return null;
 };
 
-const TableMenu = ({ id }: VendorsResultsData) => {
+const TableMenu = ({ request_id }: VendorsResultsData) => {
   return (
     <div className='flex items-center gap-2'>
       <Popover>
@@ -150,7 +150,7 @@ const TableMenu = ({ id }: VendorsResultsData) => {
         <PopoverContent className=' w-fit'>
           <div className='flex flex-col items-start justify-between gap-1'>
             <Link
-              href={`/dashboard/admin/fleet-management/fuel-request/${id}?type=vendor`}
+              href={`/dashboard/admin/fleet-management/fuel-request/${request_id}?type=vendor`}
             >
               <Button
                 className='w-full flex items-center justify-start gap-2'
