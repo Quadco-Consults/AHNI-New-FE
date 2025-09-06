@@ -11,8 +11,8 @@ import BreadcrumbCard from "components/Breadcrumb";
 import { useGetSingleSolicitation } from "@/features/procurement/controllers/solicitationController";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import GoBack from "components/GoBack";
-import EOIVendorSubmission from "pages/protectedPages/procurement-management/vendor-management/eoi/eoi-tabs-contents/EOIVendorSubmission";
-import SummaryOfTechnicalPrequalification from "pages/protectedPages/procurement-management/competitive-bid-analysis/[id]/SummaryOfTechnicalPrequalification";
+import EOIVendorSubmission from "@/features/procurement/components/vendor-management/eoi/eoi-tabs-contents/EOIVendorSubmission";
+import SummaryOfTechnicalPrequalification from "@/features/procurement/components/competitive-bid-analysis/[id]/SummaryOfTechnicalPrequalification";
 
 const RFQDetails = () => {
   const { id } = useParams();
