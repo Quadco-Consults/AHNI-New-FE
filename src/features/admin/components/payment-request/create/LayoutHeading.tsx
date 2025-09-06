@@ -27,9 +27,9 @@ export default function PaymentRequestLayoutHeading() {
             ? JSON.parse(savedSteps)
             : new Array(steps.length).fill(false);
     });
-    const { pathname } = useLocation();
+    const pathname = usePathname();
 
-    const currentPath = pathname.split("/").at(-1);
+    const currentPath = pathname?.split("/").at(-1);
 
     useEffect(() => {
         const currentStepIndex = steps.findIndex(
