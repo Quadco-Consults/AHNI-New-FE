@@ -140,7 +140,6 @@ export default function AssetMaintenanceDetailsPage() {
   };
 
   const nextAction = getNextAction();
-  console.log({ vm: assetMaintenance?.data.approvals, assetMaintenance });
 
   return (
     <div className='space-y-4'>
