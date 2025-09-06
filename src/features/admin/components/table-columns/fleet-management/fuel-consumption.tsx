@@ -37,7 +37,7 @@ export const fuelConsumptionColumns: ColumnDef<IFuelRequestPaginatedData>[] = [
   {
     header: "Vendor",
     id: "vendor",
-    accessorKey: "vendor",
+    accessorKey: "vendor.name",
     size: 120,
   },
   {

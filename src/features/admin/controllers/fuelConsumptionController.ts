@@ -72,7 +72,19 @@ export const useGetAllFuelConsumptions = ({
   enabled = true,
 }: FuelConsumptionFilterParams) => {
   return useQuery<PaginatedResponse<IFuelRequestPaginatedData>>({
-    queryKey: ["fuelConsumptions", page, size, search, status, date_from, date_to, vendor, location, driver, asset],
+    queryKey: [
+      "fuelConsumptions",
+      page,
+      size,
+      search,
+      status,
+      date_from,
+      date_to,
+      vendor,
+      location,
+      driver,
+      asset,
+    ],
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(BASE_URL, {
@@ -92,7 +104,9 @@ export const useGetAllFuelConsumptions = ({
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled,
@@ -101,7 +115,10 @@ export const useGetAllFuelConsumptions = ({
 };
 
 // Get Single Fuel Consumption
-export const useGetSingleFuelConsumption = (id: string, enabled: boolean = true) => {
+export const useGetSingleFuelConsumption = (
+  id: string,
+  enabled: boolean = true
+) => {
   return useQuery<ApiResponse<IFuelRequestSingleData>>({
     queryKey: ["fuelConsumption", id],
     queryFn: async () => {
@@ -110,7 +127,9 @@ export const useGetSingleFuelConsumption = (id: string, enabled: boolean = true)
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled && !!id,
@@ -239,14 +258,16 @@ export const useRejectFuelConsumption = (id: string) => {
 };
 
 // Get Fuel Consumption Totals
-export const useGetFuelConsumptionTotals = (filters: {
-  vendor?: string;
-  vehicle?: string;
-  location?: string;
-  status?: string;
-  date_from?: string;
-  date_to?: string;
-} = {}) => {
+export const useGetFuelConsumptionTotals = (
+  filters: {
+    vendor?: string;
+    vehicle?: string;
+    location?: string;
+    status?: string;
+    date_from?: string;
+    date_to?: string;
+  } = {}
+) => {
   const queryParams = new URLSearchParams();
   Object.entries(filters).forEach(([key, value]) => {
     if (value) queryParams.append(key, value);
@@ -269,10 +290,13 @@ export const useGetFuelConsumptionTotals = (filters: {
 };
 
 // Get Vendor Fuel Statistics
-export const useGetVendorFuelStatistics = (vendorId: string, filters: {
-  date_from?: string;
-  date_to?: string;
-} = {}) => {
+export const useGetVendorFuelStatistics = (
+  vendorId: string,
+  filters: {
+    date_from?: string;
+    date_to?: string;
+  } = {}
+) => {
   const queryParams = new URLSearchParams();
   Object.entries(filters).forEach(([key, value]) => {
     if (value) queryParams.append(key, value);
@@ -296,17 +320,20 @@ export const useGetVendorFuelStatistics = (vendorId: string, filters: {
 };
 
 // Get Vendor Fuel Purchases
-export const useGetVendorFuelPurchases = (vendorId: string, filters: {
-  date_from?: string;
-  date_to?: string;
-  page?: number;
-  size?: number;
-} = {}) => {
+export const useGetVendorFuelPurchases = (
+  vendorId: string,
+  filters: {
+    date_from?: string;
+    date_to?: string;
+    page?: number;
+    size?: number;
+  } = {}
+) => {
   const { page = 1, size = 20, ...otherFilters } = filters;
   const queryParams = new URLSearchParams();
-  queryParams.append('page', page.toString());
-  queryParams.append('size', size.toString());
-  
+  queryParams.append("page", page.toString());
+  queryParams.append("size", size.toString());
+
   Object.entries(otherFilters).forEach(([key, value]) => {
     if (value) queryParams.append(key, value);
   });
@@ -329,19 +356,86 @@ export const useGetVendorFuelPurchases = (vendorId: string, filters: {
 };
 
 // Get Vehicle Fuel History
-export const useGetVehicleFuelHistory = (vehicleId: string, enabled: boolean = true) => {
+export const useGetVehicleFuelHistory = (
+  vehicleId: string,
+  enabled: boolean = true
+) => {
   return useQuery<PaginatedResponse<IFuelRequestPaginatedData>>({
     queryKey: ["vehicleFuelHistory", vehicleId],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`${BASE_URL}vehicle/${vehicleId}/history/`);
+        const response = await AxiosWithToken.get(
+          `${BASE_URL}vehicle/${vehicleId}/history/`
+        );
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled && !!vehicleId,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get Unique Vendors from Fuel Consumption Records
+export const useGetFuelVendors = ({
+  enabled = true,
+}: { enabled?: boolean } = {}) => {
+  return useQuery({
+    queryKey: ["fuelVendors"],
+    queryFn: async () => {
+      try {
+        // Fetch all fuel consumption records with a large page size to get all records
+        const response = await AxiosWithToken.get(BASE_URL, {
+          params: { page: 1, size: 1000 }, // Increase size to get more records
+        });
+
+        const fuelRecords = response.data.data.results;
+
+        // Extract unique vendors
+        const vendorMap = new Map();
+
+        fuelRecords.forEach((record: IFuelRequestPaginatedData) => {
+          if (record.vendor && !vendorMap.has(record.vendor)) {
+            vendorMap.set(record.vendor, {
+              id: record.vendor?.id,
+              name: record.vendor?.name, // Use vendor field as name
+              company_name: record.vendor?.name,
+              recordCount: 1,
+              amount: record.amount,
+              quantity: record?.quantity,
+              status: record?.status,
+            });
+          } else if (record.vendor && vendorMap.has(record.vendor)) {
+            const existingVendor = vendorMap.get(record.vendor);
+            existingVendor.recordCount++;
+          }
+        });
+
+        return {
+          status: true,
+          message: "Fuel vendors retrieved successfully",
+          data: {
+            results: Array.from(vendorMap.values()),
+            pagination: {
+              count: vendorMap.size,
+              page: 1,
+              page_size: vendorMap.size,
+              total_pages: 1,
+            },
+          },
+        };
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
+      }
+    },
+    enabled: enabled,
     refetchOnWindowFocus: false,
   });
 };
