@@ -12,6 +12,8 @@ import ConfirmationDialog from "components/ConfirmationDialog";
 import { IAssetMaintenancePaginatedData } from "definations/admin/asset-maintenance";
 import { format } from "date-fns";
 import { useDeleteAssetMaintenanceMutation } from "@/features/admin/controllers/assetMaintenanceController";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 export const assetMaintenanceColumn: ColumnDef<IAssetMaintenancePaginatedData>[] =
   [
@@ -41,7 +43,33 @@ export const assetMaintenanceColumn: ColumnDef<IAssetMaintenancePaginatedData>[]
 
     {
       header: "Status",
-      accessorFn: () => "N/A",
+      id: "status",
+      accessorKey: "status",
+      cell: ({ getValue }) => {
+        const status = getValue() as string;
+        return (
+          <Badge
+            variant='default'
+            className={cn(
+              "p-1 rounded-lg font-medium",
+              status === "PENDING" &&
+                "bg-yellow-100 text-yellow-800 border-yellow-200",
+              status === "REVIEWED" &&
+                "bg-blue-100 text-blue-800 border-blue-200",
+              status === "AUTHORIZED" &&
+                "bg-purple-100 text-purple-800 border-purple-200",
+              status === "APPROVED" &&
+                "bg-green-100 text-green-800 border-green-200",
+              status === "IN_PROGRESS" && "bg-green-200 text-green-700",
+              status === "CLOSED" && "bg-red-100 text-red-800 border-red-200",
+              status === "ON_HOLD" &&
+                "bg-gray-100 text-gray-700 border-gray-200"
+            )}
+          >
+            {status}
+          </Badge>
+        );
+      },
     },
 
     {
@@ -60,12 +88,12 @@ export const assetMaintenanceColumn: ColumnDef<IAssetMaintenancePaginatedData>[]
 const TableMenu = ({ id }: IAssetMaintenancePaginatedData) => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const [deleteAssetMaintenance, { isLoading }] =
-    useDeleteAssetMaintenanceMutation();
+  const { deleteAssetMaintenance, isLoading } =
+    useDeleteAssetMaintenanceMutation(id);
 
   const handleDelete = async () => {
     try {
-      await deleteAssetMaintenance(id);
+      await deleteAssetMaintenance();
       toast.success("Asset Maintenance Ticket Deleted");
     } catch (error: any) {
       toast.error(error.data.message ?? "Something went wrong");
@@ -85,9 +113,7 @@ const TableMenu = ({ id }: IAssetMaintenancePaginatedData) => {
             <div className='flex flex-col items-start justify-between gap-1'>
               <Link
                 className='w-full'
-                href={generatePath(AdminRoutes.VIEW_ASSET_MAINTENANCE, {
-                  id,
-                })}
+                href={AdminRoutes.VIEW_ASSET_MAINTENANCE.replace(":id", id)}
               >
                 <Button
                   className='w-full flex items-center justify-start gap-2'
