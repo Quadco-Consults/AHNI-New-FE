@@ -31,7 +31,9 @@ export const useGetAllExpenseAuthorizations = ({
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled,
@@ -40,7 +42,10 @@ export const useGetAllExpenseAuthorizations = ({
 };
 
 // Get Single Expense Authorization
-export const useGetSingleExpenseAuthorization = (id: string, enabled: boolean = true) => {
+export const useGetSingleExpenseAuthorization = (
+  id: string,
+  enabled: boolean = true
+) => {
   return useQuery<TResponse<IExpenseAuthorizationSingleData>>({
     queryKey: ["expense-authorization", id],
     queryFn: async () => {
@@ -49,7 +54,9 @@ export const useGetSingleExpenseAuthorization = (id: string, enabled: boolean = 
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled && !!id,
@@ -70,9 +77,12 @@ export const useCreateExpenseAuthorization = () => {
     method: "POST",
   });
 
-  const createExpenseAuthorization = async (details: TExpenseAuthorizationFormData) => {
+  const createExpenseAuthorization = async (
+    details: TExpenseAuthorizationFormData
+  ) => {
     try {
-      await callApi(details);
+      const res = await callApi(details);
+      return res;
     } catch (error) {
       console.error("Expense authorization create error:", error);
     }
@@ -94,9 +104,12 @@ export const useModifyExpenseAuthorization = (id: string) => {
     method: "PUT",
   });
 
-  const modifyExpenseAuthorization = async (details: TExpenseAuthorizationFormData) => {
+  const modifyExpenseAuthorization = async (
+    details: TExpenseAuthorizationFormData
+  ) => {
     try {
-      await callApi(details);
+      const res = await callApi(details);
+      return res;
     } catch (error) {
       console.error("Expense authorization update error:", error);
     }
@@ -130,8 +143,13 @@ export const useDeleteExpenseAuthorization = (id: string) => {
 };
 
 // Maintain legacy exports for backward compatibility
-export const useGetAllExpenseAuthorizationsQuery = useGetAllExpenseAuthorizations;
-export const useGetSingleExpenseAuthorizationQuery = useGetSingleExpenseAuthorization;
-export const useCreateExpenseAuthorizationMutation = useCreateExpenseAuthorization;
-export const useModifyExpenseAuthorizationMutation = useModifyExpenseAuthorization;
-export const useDeleteExpenseAuthorizationMutation = useDeleteExpenseAuthorization;
+export const useGetAllExpenseAuthorizationsQuery =
+  useGetAllExpenseAuthorizations;
+export const useGetSingleExpenseAuthorizationQuery =
+  useGetSingleExpenseAuthorization;
+export const useCreateExpenseAuthorizationMutation =
+  useCreateExpenseAuthorization;
+export const useModifyExpenseAuthorizationMutation =
+  useModifyExpenseAuthorization;
+export const useDeleteExpenseAuthorizationMutation =
+  useDeleteExpenseAuthorization;
