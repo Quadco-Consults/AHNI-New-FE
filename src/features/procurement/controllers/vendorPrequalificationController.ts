@@ -21,18 +21,21 @@ export const useGetAllVendorPrequalifications = ({
   search = "",
   status = "",
   enabled = true,
+  vendor,
 }: TRequest & { enabled?: boolean }) => {
   return useQuery<TPaginatedResponse<VendorPrequalificationData>>({
-    queryKey: ["vendor-prequalifications", page, size, search, status],
+    queryKey: ["vendor-prequalifications", page, size, search, status, vendor],
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(BASE_URL, {
-          params: { page, size, search, status },
+          params: { page, size, search, status, vendor },
         });
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled,
@@ -67,5 +70,7 @@ export const useCreateVendorPrequalification = () => {
 };
 
 // Legacy exports for backward compatibility
-export const useGetVendorPrequalificationsQuery = useGetAllVendorPrequalifications;
-export const useCreateVendorPrequalificationMutation = useCreateVendorPrequalification;
+export const useGetVendorPrequalificationsQuery =
+  useGetAllVendorPrequalifications;
+export const useCreateVendorPrequalificationMutation =
+  useCreateVendorPrequalification;

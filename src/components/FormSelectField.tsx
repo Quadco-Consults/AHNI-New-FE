@@ -1,6 +1,6 @@
 "use client";
 
-import React, { FC } from "react";
+import React, { forwardRef } from "react";
 import { useFormContext } from "react-hook-form";
 
 import {
@@ -31,7 +31,7 @@ interface SelectProps {
   disabled?: boolean;
   children?: React.ReactNode;
 }
-const FormSelect: FC<SelectProps> = ({
+const FormSelect = forwardRef<HTMLButtonElement, SelectProps>(({
   name,
   label,
   required,
@@ -40,7 +40,7 @@ const FormSelect: FC<SelectProps> = ({
   options,
   disabled,
   ...props
-}) => {
+}, ref) => {
   const { control } = useFormContext();
 
   return (
@@ -70,7 +70,7 @@ const FormSelect: FC<SelectProps> = ({
               {...props}
             >
               <FormControl>
-                <SelectTrigger disabled={disabled}>
+                <SelectTrigger ref={ref} disabled={disabled}>
                   <SelectValue placeholder={placeholder} />
                 </SelectTrigger>
               </FormControl>
@@ -99,6 +99,8 @@ const FormSelect: FC<SelectProps> = ({
       }}
     />
   );
-};
+});
+
+FormSelect.displayName = "FormSelect";
 
 export default FormSelect;

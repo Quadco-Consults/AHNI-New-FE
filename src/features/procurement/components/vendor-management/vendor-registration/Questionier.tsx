@@ -8,7 +8,7 @@ import { Separator } from "components/ui/separator";
 import { ArrowLeft, ArrowRight, MinusCircle, PlusCircle } from "lucide-react";
 import { Label } from "components/ui/label";
 import FormButton from "@/components/FormButton";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { VendorsQuestionnaireSchema } from "@/features/procurement/types/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,7 +16,8 @@ import { vendorsActions } from "store/formData/procurement-vendors";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "store/index";
 import QuestionairAPI from "@/features/procurement/controllers/questionnaireController";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import useQuery from "hooks/useQuery";
 import { LoadingSpinner } from "components/Loading";
 import { QuestionairData } from "definations/procurement-types/questionairs";
 import { Input } from "components/ui/input";
@@ -33,11 +34,22 @@ const Questionier = () => {
   const [showSubmit, setShowSubmit] = useState(false);
 
   const router = useRouter();
-  const pathname = usePathname();
   const dispatch = useDispatch();
+  const query = useQuery();
+  const vendorId = query.get("id");
 
-  const { createVendor: createVendorMutation, isLoading: createVendorMutationLoading } =
-    VendorsAPI.useCreateVendor();
+  const { data: vendor, isLoading: vendorLoading } =
+    VendorsAPI.useGetVendor(vendorId);
+
+  const {
+    createVendor: createVendorMutation,
+    isLoading: createVendorMutationLoading,
+  } = VendorsAPI.useCreateVendor();
+
+  const {
+    updateVendor: updateVendorMutation,
+    isLoading: updateVendorMutationLoading,
+  } = VendorsAPI.useUpdateVendor(vendorId || "");
 
   const vendorsData = useSelector((state: RootState) => state.vendors.vendors);
   const mergedObject = vendorsData.reduce((acc: any, obj: any) => {
@@ -75,6 +87,28 @@ const Questionier = () => {
     control,
     name: "key_clients",
   });
+
+  useEffect(() => {
+    if (vendorId && vendor?.data && !vendorLoading) {
+      // Auto-populate key clients form
+      form.reset({
+        key_clients: vendor?.data?.key_client || [
+          { name: "", address: "", phone_number: "" },
+        ],
+      });
+
+      // Auto-populate questionnaire responses
+      if (vendor?.data?.questionairs) {
+        const questionnaireResponses: FormData = {};
+        vendor.data.questionairs.forEach((q: any) => {
+          if (q.questionaire && q.response) {
+            questionnaireResponses[q.questionaire] = q.response;
+          }
+        });
+        setFormData(questionnaireResponses);
+      }
+    }
+  }, [vendorId, vendor, vendorLoading, form]);
 
   const onSubmit = (data: z.infer<typeof VendorsQuestionnaireSchema>) => {
     const values = {
@@ -117,6 +151,7 @@ const Questionier = () => {
       questionnaires: mergedObject?.questionairs,
       share_holders: mergedObject?.share_holders,
       submitted_categories: mergedObject?.submitted_categories,
+      approved_categories: mergedObject?.submitted_categories, // Include approved_categories to trigger pending status
       tin: mergedObject?.tin,
       type_of_business: mergedObject?.type_of_business,
       website: mergedObject?.website,
@@ -125,15 +160,24 @@ const Questionier = () => {
     };
 
     try {
-      const res = await createVendorMutation(finalData);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem("vendorID", res?.data?.id);
+      let res: any;
+
+      if (vendorId) {
+        // Update existing vendor
+        res = await updateVendorMutation(finalData);
+        toast.success("Successfully updated.");
+      } else {
+        // Create new vendor
+        res = await createVendorMutation(finalData);
+        toast.success("Successfully created.");
+        if (typeof window !== "undefined") {
+          localStorage.setItem("vendorID", res?.data?.id);
+        }
       }
-      toast.success("Successfully created.");
-      let path = pathname;
-      path = path.substring(0, path.lastIndexOf("/"));
-      path += "/attestation";
-      router.push(path);
+
+      const currentPath = window.location.pathname;
+      const path = currentPath.substring(0, currentPath.lastIndexOf("/"));
+      router.push(`${path}/attestation?id=${vendorId || res?.data?.id}`);
     } catch (error) {
       toast.error("Something went wrong");
       console.log(error);
@@ -251,11 +295,15 @@ const Questionier = () => {
                   <FormButton
                     type='button'
                     onClick={submitHandler}
-                    loading={createVendorMutationLoading}
-                    disabled={createVendorMutationLoading}
+                    loading={
+                      createVendorMutationLoading || updateVendorMutationLoading
+                    }
+                    disabled={
+                      createVendorMutationLoading || updateVendorMutationLoading
+                    }
                     suffix={<ArrowRight size={14} />}
                   >
-                    Proceed
+                    {vendorId ? "Update & Proceed" : "Proceed"}
                   </FormButton>
                 )}{" "}
               </div>
