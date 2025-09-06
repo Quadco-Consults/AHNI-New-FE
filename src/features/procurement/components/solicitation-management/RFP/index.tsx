@@ -12,6 +12,16 @@ import { useGetAllSolicitations } from "@/features/procurement/controllers/solic
 import Pagination from "components/Pagination";
 import { useState } from "react";
 
+const generatePath = (route: string, params?: Record<string, any>): string => {
+  let path = route;
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      path = path.replace(`[${key}]`, String(value));
+    });
+  }
+  return path;
+};
+
 const RFQ = () => {
   const [page, setPage] = useState(1);
 
