@@ -185,10 +185,20 @@ export default function CreateExpenseAuthorization() {
     data
   ) => {
     try {
-      // Data is already in the correct format for the new API
+      // Transform data to match API expectations
       const transformedData = {
         ...data,
+        destinations: data.destinations?.map((dest) => ({
+          ...dest,
+          // Convert travel_fee object to array format
+          travel_fee: [dest.travel_fee],
+        })),
       };
+
+      console.log(
+        "Transformed data:",
+        JSON.stringify(transformedData, null, 2)
+      );
       let res;
 
       if (id) {
@@ -197,10 +207,12 @@ export default function CreateExpenseAuthorization() {
       } else {
         res = await createExpenseAuthorization(transformedData);
       }
-      console.log({ res });
-
-      // router.push(AdminRoutes.EXPENSE_AUTHORIZATION);
+      if (res?.status === "success") {
+        // toast.success("Good Receive Note saved successfully");
+        router.push(AdminRoutes.EXPENSE_AUTHORIZATION);
+      }
     } catch (error: any) {
+      console.error("API Error:", error);
       toast.error(error?.data?.message ?? "Something went wrong");
     }
   };
