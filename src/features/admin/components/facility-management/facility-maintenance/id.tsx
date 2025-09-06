@@ -175,7 +175,7 @@ export default function ViewFacilityMaintenance() {
               <div className='grid grid-cols-3 gap-5 mb-6'>
                 <DescriptionCard
                   label='Name of Staff'
-                  description={`${facilityMaintenance?.data?.staff?.first_name} ${facilityMaintenance?.data?.staff?.last_name}`}
+                  description={`${facilityMaintenance?.data?.created_by?.full_name}`}
                 />
 
                 <DescriptionCard
@@ -256,83 +256,91 @@ export default function ViewFacilityMaintenance() {
                     </h3>
                     <div className='space-y-3'>
                       {facilityMaintenance.data.approvals
-                        .sort((a, b) => new Date(a.created_datetime).getTime() - new Date(b.created_datetime).getTime())
+                        .sort(
+                          (a, b) =>
+                            new Date(a.created_datetime).getTime() -
+                            new Date(b.created_datetime).getTime()
+                        )
                         .map((approval) => (
-                        <div
-                          key={approval.id}
-                          className='bg-gray-50 p-4 rounded-lg border-l-4 border-l-blue-400'
-                        >
-                          <div className='flex justify-between items-start'>
-                            <div className='flex-1'>
-                              <div className='flex items-center gap-2 mb-2'>
-                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                  approval.approval_level === 'REVIEW' 
-                                    ? 'bg-blue-100 text-blue-800'
-                                    : approval.approval_level === 'AUTHORIZE'
-                                    ? 'bg-purple-100 text-purple-800' 
-                                    : 'bg-green-100 text-green-800'
-                                }`}>
-                                  {approval.approval_level}
+                          <div
+                            key={approval.id}
+                            className='bg-gray-50 p-4 rounded-lg border-l-4 border-l-blue-400'
+                          >
+                            <div className='flex justify-between items-start'>
+                              <div className='flex-1'>
+                                <div className='flex items-center gap-2 mb-2'>
+                                  <span
+                                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                      approval.approval_level === "REVIEW"
+                                        ? "bg-blue-100 text-blue-800"
+                                        : approval.approval_level ===
+                                          "AUTHORIZE"
+                                        ? "bg-purple-100 text-purple-800"
+                                        : "bg-green-100 text-green-800"
+                                    }`}
+                                  >
+                                    {approval.approval_level}
+                                  </span>
+                                </div>
+
+                                {approval.user && (
+                                  <div className='text-sm text-gray-700 mb-1'>
+                                    <span className='font-medium'>
+                                      {approval.approval_level === "REVIEW"
+                                        ? "Reviewed by:"
+                                        : approval.approval_level ===
+                                          "AUTHORIZE"
+                                        ? "Authorized by:"
+                                        : "Approved by:"}
+                                    </span>{" "}
+                                    {approval.user.full_name}
+                                    {approval.user.email && (
+                                      <span className='text-gray-500 ml-2'>
+                                        ({approval.user.email})
+                                      </span>
+                                    )}
+                                    {approval.user.employee_id && (
+                                      <span className='text-gray-500 ml-1'>
+                                        - ID: {approval.user.employee_id}
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
+
+                                {approval.comments ? (
+                                  <div className='mt-2'>
+                                    <span className='text-sm font-medium text-gray-700'>
+                                      Comments:
+                                    </span>
+                                    <p className='text-sm text-gray-600 mt-1 bg-white p-2 rounded border'>
+                                      {approval.comments}
+                                    </p>
+                                  </div>
+                                ) : (
+                                  <p className='text-sm text-gray-500 italic'>
+                                    No comments provided
+                                  </p>
+                                )}
+                              </div>
+
+                              <div className='text-right ml-4'>
+                                <span className='text-xs text-gray-500'>
+                                  {format(
+                                    new Date(approval.created_datetime),
+                                    "dd-MMM-yyyy"
+                                  )}
+                                </span>
+                                <br />
+                                <span className='text-xs text-gray-400'>
+                                  {format(
+                                    new Date(approval.created_datetime),
+                                    "HH:mm"
+                                  )}
                                 </span>
                               </div>
-                              
-                              {approval.reviewed_by && (
-                                <div className='text-sm text-gray-700 mb-1'>
-                                  <span className='font-medium'>Reviewed by:</span> {approval.reviewed_by.first_name} {approval.reviewed_by.last_name}
-                                  {approval.reviewed_by.email && (
-                                    <span className='text-gray-500 ml-2'>({approval.reviewed_by.email})</span>
-                                  )}
-                                </div>
-                              )}
-                              
-                              {approval.authorized_by && (
-                                <div className='text-sm text-gray-700 mb-1'>
-                                  <span className='font-medium'>Authorized by:</span> {approval.authorized_by.first_name} {approval.authorized_by.last_name}
-                                  {approval.authorized_by.email && (
-                                    <span className='text-gray-500 ml-2'>({approval.authorized_by.email})</span>
-                                  )}
-                                </div>
-                              )}
-                              
-                              {approval.approved_by && (
-                                <div className='text-sm text-gray-700 mb-1'>
-                                  <span className='font-medium'>Approved by:</span> {approval.approved_by.first_name} {approval.approved_by.last_name}
-                                  {approval.approved_by.email && (
-                                    <span className='text-gray-500 ml-2'>({approval.approved_by.email})</span>
-                                  )}
-                                </div>
-                              )}
-                              
-                              {approval.comments ? (
-                                <div className='mt-2'>
-                                  <span className='text-sm font-medium text-gray-700'>Comments:</span>
-                                  <p className='text-sm text-gray-600 mt-1 bg-white p-2 rounded border'>
-                                    {approval.comments}
-                                  </p>
-                                </div>
-                              ) : (
-                                <p className='text-sm text-gray-500 italic'>No comments provided</p>
-                              )}
-                            </div>
-                            
-                            <div className='text-right ml-4'>
-                              <span className='text-xs text-gray-500'>
-                                {format(
-                                  new Date(approval.created_datetime),
-                                  "dd-MMM-yyyy"
-                                )}
-                              </span>
-                              <br />
-                              <span className='text-xs text-gray-400'>
-                                {format(
-                                  new Date(approval.created_datetime),
-                                  "HH:mm"
-                                )}
-                              </span>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
                     </div>
                   </div>
                 )}
