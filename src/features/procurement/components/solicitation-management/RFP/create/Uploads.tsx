@@ -6,7 +6,7 @@ import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";
 import { useForm } from "react-hook-form";
 import FormButton from "@/components/FormButton";
-import { generatePath, useNavigate } 
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
 import { Upload as UploadFile } from "lucide-react";
@@ -213,7 +213,7 @@ const Items = () => {
     // path += "/prequalification";
     // router.push(path);
 
-    router.push(generatePath(RouteEnum.RFP));
+    router.push(RouteEnum.RFP);
   };
 
   const documentFields = [
@@ -303,7 +303,7 @@ const Items = () => {
           i: React.Key | null | undefined
         ) => {
           return (
-            <Badge key={i} className='py-2 rounded-lg bg-[#EBE8E1] text-black'>
+            <Badge key={i} className="py-2 rounded-lg bg-[#EBE8E1] text-black">
               {file.name}
             </Badge>
           );
@@ -314,36 +314,36 @@ const Items = () => {
       "";
 
     return (
-      <div key={index} className='mb-4 w-full'>
-        <h5 className='font-bold text-[12px] mb-2'>{label}</h5>
-        <div className='flex items-center w-full gap-2 h-[50px]'>
-          <div className='w-full max-w-[142px] h-[52px] rounded-[8px] border flex justify-center items-center text-gray-800'>
+      <div key={index} className="mb-4 w-full">
+        <h5 className="font-bold text-[12px] mb-2">{label}</h5>
+        <div className="flex items-center w-full gap-2 h-[50px]">
+          <div className="w-full max-w-[142px] h-[52px] rounded-[8px] border flex justify-center items-center text-gray-800">
             <>
               <input
                 // id={`fileInput-${index}`}
                 id={`fileInput-${field}-${index}`}
-                type='file'
+                type="file"
                 multiple={multiple}
                 onChange={(e) =>
                   handleFileChange(field, index, e || null, document_type)
                 }
-                className='hidden'
+                className="hidden"
                 name={`fileInput-${field}-${index}`}
               />
               <motion.label
                 htmlFor={`fileInput-${field}-${index}`}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className='cursor-pointer flex gap-4 text-sm px-1 py-2 rounded'
+                className="cursor-pointer flex gap-4 text-sm px-1 py-2 rounded"
               >
                 {fileName ? (
-                  <div className='overflow-hidden max-w-[120px]  w-full'>
-                    <span className=' ml-2 text-sm text-gray-500 whitespace-nowrap'>
+                  <div className="overflow-hidden max-w-[120px]  w-full">
+                    <span className=" ml-2 text-sm text-gray-500 whitespace-nowrap">
                       {fileName}
                     </span>
                   </div>
                 ) : (
-                  <div className='px-3 flex gap-4 w-full '>
+                  <div className="px-3 flex gap-4 w-full ">
                     <UploadFile size={20} />
                     Select File
                   </div>
@@ -353,21 +353,21 @@ const Items = () => {
           </div>
 
           <Input
-            type='text'
+            type="text"
             name={`${field}-${index}-description`}
             // {...register(`${field}.${index}.description`)}
             placeholder={placeholder || "Enter description (if any)"}
-            className='h-[52px] rounded-[8px] bg-white relative top-[1px]'
+            className="h-[52px] rounded-[8px] bg-white relative top-[1px]"
             onChange={(e) => handleInputChange(field, index, e)}
           />
 
-          {isLoading && <span className='loader'>Uploading...</span>}
-          {hasError && !isLoading && <span className='error'>Failed</span>}
+          {isLoading && <span className="loader">Uploading...</span>}
+          {hasError && !isLoading && <span className="error">Failed</span>}
         </div>
         {fileNamex && multiple && (
-          <div className='  w-full'>
+          <div className="  w-full">
             {/* <span className=' ml-2 text-sm text-gray-500 whitespace-nowrap'> */}
-            <div className='flex items-center gap-2 flex-wrap mt-2'>
+            <div className="flex items-center gap-2 flex-wrap mt-2">
               {fileNamex}
             </div>
             {/* </span> */}
@@ -380,9 +380,9 @@ const Items = () => {
   return (
     <RfqLayout>
       <Form {...form}>
-        <form className='space-y-8 p-5' onSubmit={handleSubmit(onSubmit)}>
-          <div className='space-y-5'>
-            <h6 className='text-yellow-600'>Uploads</h6>
+        <form className="space-y-8 p-5" onSubmit={handleSubmit(onSubmit)}>
+          <div className="space-y-5">
+            <h6 className="text-yellow-600">Uploads</h6>
 
             {documentFields.map(({ label, doc_type, multiple }, index) => {
               return renderFileUploadRow(
@@ -398,11 +398,11 @@ const Items = () => {
             })}
           </div>
 
-          <div className='flex justify-between mt-16'>
+          <div className="flex justify-between mt-16">
             <Button
               onClick={goBack}
-              type='button'
-              className='bg-[#FFF2F2] text-primary dark:text-gray-500'
+              type="button"
+              className="bg-[#FFF2F2] text-primary dark:text-gray-500"
             >
               Cancel
             </Button>
@@ -410,7 +410,7 @@ const Items = () => {
             <FormButton
               // loading={isCreateLoading}
               // disabled={isCreateLoading}
-              type='submit'
+              type="submit"
             >
               Save Changes
             </FormButton>

@@ -98,9 +98,7 @@ const TPS = () => {
         console.log({ payload });
 
         // @ts-ignore
-        const response = await createManualBidCBAPrequalification(
-          payload
-        )();
+        const response = await createManualBidCBAPrequalification(payload)();
         console.log({ response: response?.passed });
 
         if (!response?.passed) {
@@ -117,15 +115,16 @@ const TPS = () => {
     } catch (error) {
       console.error("Error submitting data:", error);
     }
-    router.push(RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_FINANCIAL_BID_OPENING, {
-      state: {
-        // cba: data.cba,
-        cba: matchedItem?.id,
-
-        bid_submission: data.bid_submission,
-        solicitation: id!,
-      },
+    const params = new URLSearchParams({
+      cba: matchedItem?.id?.toString() || "",
+      bid_submission: data.bid_submission?.toString() || "",
+      solicitation: id?.toString() || "",
     });
+    router.push(
+      `${
+        RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_FINANCIAL_BID_OPENING
+      }?${params.toString()}`
+    );
   };
 
   if (isLoading) return <Loading />;
@@ -133,33 +132,33 @@ const TPS = () => {
   return (
     <>
       <GoBack />
-      <form onSubmit={handleSubmit(onSubmit)} className='mx-auto p-5'>
-        <div className='bg-white p-8 h-full flex flex-col gap-8'>
-          <div className=''>
-            <div className='flex justify-center items-center flex-col'>
-              <img src={logoPng} alt='logo' width={200} />
+      <form onSubmit={handleSubmit(onSubmit)} className="mx-auto p-5">
+        <div className="bg-white p-8 h-full flex flex-col gap-8">
+          <div className="">
+            <div className="flex justify-center items-center flex-col">
+              <img src={logoPng} alt="logo" width={200} />
             </div>
-            <div className='p-4 w-full h-[70px] flex justify-between items-center text-xl'>
-              <h3 className='w-[250px] whitespace-nowrap text-primary'>
+            <div className="p-4 w-full h-[70px] flex justify-between items-center text-xl">
+              <h3 className="w-[250px] whitespace-nowrap text-primary">
                 STAGE 1 & 2
               </h3>
-              <div className='flex w-full items-center justify-start ml-6'>
-                <p className='font-semibold'>
+              <div className="flex w-full items-center justify-start ml-6">
+                <p className="font-semibold">
                   TECHNICAL PREQUALIFICATION SHEET
                 </p>
               </div>
             </div>
             <Separator />
-            <div className='p-4 w-full h-[70px] flex justify-between items-center'>
-              <h3 className='w-[250px] whitespace-nowrap'>Project Title</h3>
-              <div className='flex w-full items-center justify-start ml-6'>
+            <div className="p-4 w-full h-[70px] flex justify-between items-center">
+              <h3 className="w-[250px] whitespace-nowrap">Project Title</h3>
+              <div className="flex w-full items-center justify-start ml-6">
                 <p>{data?.data?.results[0]?.solicitation?.title}</p>
               </div>
             </div>{" "}
             <Separator />
-            <div className='p-4 w-full h-[70px] flex justify-between items-center'>
-              <h3 className='w-[250px] whitespace-nowrap'>Company Accessed:</h3>
-              <div className='flex w-full items-center justify-start ml-6'>
+            <div className="p-4 w-full h-[70px] flex justify-between items-center">
+              <h3 className="w-[250px] whitespace-nowrap">Company Accessed:</h3>
+              <div className="flex w-full items-center justify-start ml-6">
                 {/* <VendorSelect
                   vendorId={vendorId}
                   setVendorId={setVendorId}
@@ -175,21 +174,21 @@ const TPS = () => {
               getValues={getValues}
             />
           </div>
-          <div className=''>
-            <Card className='border-yellow-darker space-y-3'>
+          <div className="">
+            <Card className="border-yellow-darker space-y-3">
               <p>
                 <strong>Note:</strong>
               </p>
               <p>
                 BIDDER MUST
-                <span className='text-primary mx-1'>
+                <span className="text-primary mx-1">
                   PASS Criteria 1-6(summarized as stages 1&2)
                 </span>
                 which formed the Technical Prequalification before consideration
                 for stage 3. Once a bidder failed to
-                <span className='text-primary mx-1'>Pass Stages 1&2</span>, such
+                <span className="text-primary mx-1">Pass Stages 1&2</span>, such
                 must not be graduated to
-                <span className='text-primary mx-1'>Stage 3</span>
+                <span className="text-primary mx-1">Stage 3</span>
                 of this exercise.
               </p>
             </Card>
@@ -235,8 +234,8 @@ const TPS = () => {
               />
             </div>
           </div> */}
-          <div className=' flex-col justify-center  items-center w-full p-2'>
-            <h3 className='underline font-semibold'>
+          <div className=" flex-col justify-center  items-center w-full p-2">
+            <h3 className="underline font-semibold">
               Review Conducted, Scores Awarded as agreed by the Procurement
               Committee Members:
             </h3>
@@ -246,10 +245,10 @@ const TPS = () => {
               data={[]}
             />
           </div>
-          <div className='w-full'>
+          <div className="w-full">
             <Button
-              type='submit'
-              className='w-full bg-alternate text-primary my-4 mt-10'
+              type="submit"
+              className="w-full bg-alternate text-primary my-4 mt-10"
             >
               <ChevronRight size={20} />
               Next
