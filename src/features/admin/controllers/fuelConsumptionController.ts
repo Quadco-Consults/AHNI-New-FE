@@ -399,8 +399,8 @@ export const useGetFuelVendors = ({
         const vendorMap = new Map();
 
         fuelRecords.forEach((record: IFuelRequestPaginatedData) => {
-          if (record.vendor && !vendorMap.has(record.vendor)) {
-            vendorMap.set(record.vendor, {
+          if (record.vendor && !vendorMap.has(record.vendor.id)) {
+            vendorMap.set(record.vendor.id, {
               id: record.vendor?.id,
               name: record.vendor?.name, // Use vendor field as name
               company_name: record.vendor?.name,
@@ -409,8 +409,8 @@ export const useGetFuelVendors = ({
               quantity: record?.quantity,
               status: record?.status,
             });
-          } else if (record.vendor && vendorMap.has(record.vendor)) {
-            const existingVendor = vendorMap.get(record.vendor);
+          } else if (record.vendor && vendorMap.has(record.vendor.id)) {
+            const existingVendor = vendorMap.get(record.vendor.id);
             existingVendor.recordCount++;
           }
         });
