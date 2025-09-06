@@ -13,7 +13,7 @@ import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelectField";
 import { ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { usePathname } from "next/navigation"; 
+import { usePathname } from "next/navigation";
 import FormButton from "@/components/FormButton";
 import { Button } from "components/ui/button";
 import FormTextArea from "components/atoms/FormTextArea";
@@ -26,7 +26,7 @@ import {
   DialogDescription,
   DialogClose,
 } from "components/ui/dialog";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import CategoryAPI from "@/features/modules/controllers/config/categoryController";
 import logoPng from "assets/imgs/logo.png";
 import { Input } from "components/ui/input";
@@ -70,7 +70,7 @@ const Registration = () => {
   const categoryQueryResult = CategoryAPI.useGetAllCategories({
     page: 1,
     size: 1000,
-    search: categorySearchParams
+    search: categorySearchParams,
   });
   // @ts-ignore
   const categories = categoryQueryResult?.data?.data?.results;
@@ -98,27 +98,34 @@ const Registration = () => {
   });
 
   useEffect(() => {
-    if (vendorId) {
+    if (vendorId && vendor?.data && !isLoading) {
       form.reset({
-        company_name: vendor?.data?.company_name,
-        type_of_business: vendor?.data?.type_of_business,
-        year_or_incorperation: vendor?.data?.year_or_incorperation,
-        company_registration_number: vendor?.data?.company_registration_number,
-        website: vendor?.data?.website,
-        email: vendor?.data?.email,
-        phone_numbers: vendor?.data?.phone_number,
-        nature_of_business: vendor?.data?.nature_of_business,
-        company_address: vendor?.data?.company_address,
-        tin: vendor?.data?.tin,
-        number_of_permanent_staff: vendor?.data?.number_of_permanent_staff,
-        company_chairman: vendor?.data?.company_chairman,
-        bank_address: vendor?.data?.bank_address,
-        bank_name: vendor?.data?.bank_name,
-        submitted_categories: [],
-        state: vendor?.data?.state,
+        company_name: vendor?.data?.company_name || "",
+        type_of_business: vendor?.data?.type_of_business || "",
+        year_or_incorperation: vendor?.data?.year_or_incorperation || "",
+        company_registration_number:
+          vendor?.data?.company_registration_number || "",
+        website: vendor?.data?.website || "",
+        email: vendor?.data?.email || "",
+        phone_numbers: vendor?.data?.phone_numbers || "",
+        nature_of_business: vendor?.data?.nature_of_business || "",
+        company_address: vendor?.data?.company_address || "",
+        tin: vendor?.data?.tin || "",
+        // number_of_permanent_staff: vendor?.data?.number_of_permanent_staff,
+        number_of_permanent_staff:
+          vendor?.data?.number_of_operational_work_shift || "",
+
+        company_chairman: vendor?.data?.company_chairman || "",
+        bank_address: vendor?.data?.bank_address || "",
+        bank_name: vendor?.data?.bank_name || "",
+        submitted_categories:
+          vendor?.data?.submitted_categories_details?.map(
+            (cat: any) => cat?.cat_id || cat
+          ) || [],
+        state: vendor?.data?.state || "",
       });
     }
-  }, [vendorId, vendor]);
+  }, [vendorId, vendor, isLoading, form]);
 
   const dispatch = useDispatch();
 
@@ -130,11 +137,18 @@ const Registration = () => {
 
   const matchedCategories =
     categories?.filter((category: CategoryResultsData) =>
-      watch("submitted_categories").includes(category?.id)
+      watch("submitted_categories").includes(String(category?.id))
     ) || [];
 
   const onSubmit = (data: z.infer<typeof VendorsRegistrationSchema>) => {
-    dispatch(vendorsActions.addVendors({ ...data }));
+    console.log({ fhgdf: "anm" });
+
+    dispatch(
+      vendorsActions.addVendors({
+        ...data,
+        approved_categories: vendor?.data.approved_categories_details, // Include approved_categories to trigger pending status
+      })
+    );
 
     let path = pathname;
 
@@ -142,16 +156,28 @@ const Registration = () => {
     path = path.substring(0, path.lastIndexOf("/"));
 
     // Append the new segment to the path
-    path += "/the-company";
+    path += `/the-company?id=${vendorId}`;
     router.push(path);
   };
+
+  const onError = (errors: any) => {
+    console.log("Form validation errors:", errors);
+    console.log(
+      "Current submitted_categories value:",
+      watch("submitted_categories")
+    );
+  };
+
   return (
     <VendorRegistationLayout>
       <div className='px-3 '>
         <h2 className='text-lg font-bold'>Vendor Registration</h2>
         <div className='mt-10'>
           <Form {...form}>
-            <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
+            <form
+              onSubmit={handleSubmit(onSubmit, onError)}
+              className='space-y-4'
+            >
               <FormInput name='company_name' label='Company Name' required />
               <div className='grid grid-cols-2 gap-6'>
                 <FormSelect
@@ -327,19 +353,24 @@ const Registration = () => {
                                             <FormControl>
                                               <Checkbox
                                                 checked={field.value?.includes(
-                                                  category?.id
+                                                  String(category?.id)
                                                 )}
                                                 onCheckedChange={(checked) => {
+                                                  const categoryId = String(
+                                                    category?.id
+                                                  );
+                                                  const currentValue =
+                                                    field.value || [];
                                                   return checked
                                                     ? field.onChange([
-                                                        ...field.value,
-                                                        category?.id,
+                                                        ...currentValue,
+                                                        categoryId,
                                                       ])
                                                     : field.onChange(
-                                                        field.value?.filter(
+                                                        currentValue.filter(
                                                           (value) =>
-                                                            value !==
-                                                            category?.id
+                                                            String(value) !==
+                                                            categoryId
                                                         )
                                                       );
                                                 }}
@@ -391,7 +422,7 @@ const Registration = () => {
                 {/* <Button className="bg-primary">
                   Proceed <ChevronRight size={14} />{" "}
                 </Button> */}
-                <FormButton suffix={<ChevronRight size={14} type='submit' />}>
+                <FormButton type='submit' suffix={<ChevronRight size={14} />}>
                   Proceed
                 </FormButton>
               </div>

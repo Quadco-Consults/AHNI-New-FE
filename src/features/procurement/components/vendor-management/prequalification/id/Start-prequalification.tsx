@@ -6,8 +6,11 @@ import { Button } from "components/ui/button";
 import { Checkbox } from "components/ui/checkbox";
 import { ArrowLeft } from "lucide-react";
 import React, { useState } from "react";
-import { useParams } from "next/navigation";
-import VendorPrequalificationAPI from "@/features/procurement/controllers/vendorPrequalificationController";
+import { useParams, useRouter } from "next/navigation";
+import {
+  useGetAllVendorPrequalifications,
+  useCreateVendorPrequalification,
+} from "@/features/procurement/controllers/vendorPrequalificationController";
 import { toast } from "sonner";
 import {
   Breadcrumb,
@@ -37,19 +40,19 @@ const StartPrequalification = () => {
   const { id } = useParams();
   const router = useRouter();
 
-  const { data: vendors, isLoading } =
-    VendorPrequalificationAPI.useGetVendorPrequalifications({
-      params: { vendor: id as string },
-    });
+  const { data: vendors, isLoading } = useGetAllVendorPrequalifications({
+    page: 1,
+    size: 20,
+    vendor: id as string,
+  });
 
-  const { data: prequalificationCriteria } =
-    useGetAllPrequalificationCriteria({
-      page: 1,
-      size: 20,
-    });
+  const { data: prequalificationCriteria } = useGetAllPrequalificationCriteria({
+    page: 1,
+    size: 20,
+  });
 
-  const { createVendorPrequalificationMutation, isLoading: loading } =
-    VendorPrequalificationAPI.useCreateVendorPrequalification();
+  const { createVendorPrequalification, isLoading: loading } =
+    useCreateVendorPrequalification();
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = event.target;
@@ -100,7 +103,7 @@ const StartPrequalification = () => {
           approved_categories: data.approved_categories,
         };
 
-        await createVendorPrequalificationMutation(finalData)();
+        await createVendorPrequalification(finalData);
         toast.success("Successfully created.");
       }
     } catch (error) {
