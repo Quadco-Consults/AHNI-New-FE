@@ -25,7 +25,10 @@ export interface IFuelRequestPaginatedData {
     asset: string;
     assigned_driver: string;
     location: string;
-    vendor: string;
+    vendor: {
+        id: string;
+        name: string;
+    };
     fco: string;
     fuel_coupon: string;
     created_datetime: string;
