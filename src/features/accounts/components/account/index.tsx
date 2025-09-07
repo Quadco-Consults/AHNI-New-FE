@@ -9,7 +9,8 @@ import {
   BreadcrumbItem,
   BreadcrumbList,
   BreadcrumbPage,
-  // BreadcrumbSeparator,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
 } from "components/ui/breadcrumb";
 // import { useAppDispatch } from "hooks/useStore";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
@@ -55,7 +56,7 @@ export default function Account() {
     size: 2000000,
   });
 
-  const { changePassword, isLoading } = useAuthChangePassword();
+  const { authChangePassword, isLoading } = useAuthChangePassword();
 
   const Profileform = useForm<TFormValues>({
     resolver: zodResolver(ProfileSchema),
@@ -67,13 +68,18 @@ export default function Account() {
       role: [],
       gender: "",
       profile_picture: "",
+      mobile_number: "",
+      department: "",
+      position: "",
+      location: "",
+      user_type: "",
     },
   });
 
-  const roleOptions = role?.data.results.map(({ name, id }) => ({
+  const roleOptions = role?.data?.results?.map(({ name, id }: any) => ({
     label: name,
     value: id,
-  }));
+  })) || [];
   const Securityform = useForm<TFormValuesSecond>({
     resolver: zodResolver(SecuritySchema),
     // defaultValues: {},
@@ -101,6 +107,11 @@ export default function Account() {
         role: roleValues || [],
         gender: profile.data.gender || "",
         profile_picture: profile.data.profile_picture || "",
+        mobile_number: profile.data.mobile_number || "",
+        department: profile.data.department || "",
+        position: profile.data.position || "",
+        location: profile.data.location || "",
+        user_type: profile.data.user_type || "",
       });
     }
   }, [profile, Profileform]);
@@ -127,6 +138,11 @@ export default function Account() {
       formData.append("email", data.email);
       // formData.append("username", data.username);
       formData.append("gender", data.gender);
+      formData.append("mobile_number", data.mobile_number);
+      if (data.department) formData.append("department", data.department);
+      if (data.position) formData.append("position", data.position);
+      if (data.location) formData.append("location", data.location);
+      if (data.user_type) formData.append("user_type", data.user_type);
       data.role.forEach((role) => formData.append("roles", role));
 
       if (file) {
@@ -150,7 +166,7 @@ export default function Account() {
     };
 
     try {
-      await changePassword(payload);
+      await authChangePassword(payload);
       toast.success("Password changed successfully");
 
       // Only log out and redirect if password change is successful
@@ -167,6 +183,12 @@ export default function Account() {
     <div className='space-y-5'>
       <Breadcrumb>
         <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator>
+            /
+          </BreadcrumbSeparator>
           <BreadcrumbItem>
             <BreadcrumbPage>Account</BreadcrumbPage>
           </BreadcrumbItem>
@@ -283,6 +305,50 @@ export default function Account() {
                         { label: "Female", value: "FEMALE" },
                       ]}
                     />
+
+                    <FormInput
+                      label='Mobile Number'
+                      name='mobile_number'
+                      className='bg-white h-[56px]'
+                      required
+                      placeholder='Enter mobile number'
+                      type='tel'
+                    />
+
+                    <div className='w-full grid grid-cols-1 lg:grid-cols-2 gap-[20px]'>
+                      <FormInput
+                        label='Department'
+                        name='department'
+                        className='bg-white h-[56px]'
+                        placeholder='Department'
+                        disabled={true}
+                      />
+                      <FormInput
+                        label='Position'
+                        name='position'
+                        className='bg-white h-[56px]'
+                        placeholder='Position'
+                        disabled={true}
+                      />
+                    </div>
+
+                    <div className='w-full grid grid-cols-1 lg:grid-cols-2 gap-[20px]'>
+                      <FormInput
+                        label='Location'
+                        name='location'
+                        className='bg-white h-[56px]'
+                        placeholder='Location'
+                        disabled={true}
+                      />
+                      <FormInput
+                        label='User Type'
+                        name='user_type'
+                        className='bg-white h-[56px]'
+                        placeholder='User Type'
+                        disabled={true}
+                      />
+                    </div>
+
                     <div className='flex justify-end gap-5 mt-16'>
                       <FormButton
                         loading={isUpdateLoading}

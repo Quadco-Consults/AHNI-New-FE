@@ -10,7 +10,7 @@ import TenderChecklist from "./TenderCheckList";
 import { useForm } from "react-hook-form";
 import { RouteEnum } from "constants/RouterConstants";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import ManualBidCbaPrequalificationAPI from "@/features/procurement/controllers/manual-bid-cba-prequalificationController";
+import ManualBidCbaPrequalificationAPI from "@/features/procurement/controllers/manualBidCbaPrequalificationController";
 import { toast } from "sonner";
 import GoBack from "components/GoBack";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
@@ -55,10 +55,8 @@ const FinancialBid = () => {
     },
   });
 
-  const [createManualBidCBAPrequalification] =
+  const { createManualBidCbaPrequalification } =
     ManualBidCbaPrequalificationAPI.useCreateManualBidCbaPrequalification();
-
-  const router = useRouter();
 
   const lon = getValues();
   console.log({ lon, cbaData });
@@ -76,7 +74,7 @@ const FinancialBid = () => {
         };
 
         // @ts-ignore
-        await createManualBidCBAPrequalification(payload)();
+        await createManualBidCbaPrequalification(payload);
       }
       toast.success("Successfully created.");
 
@@ -84,14 +82,12 @@ const FinancialBid = () => {
     } catch (error) {
       console.error("Error submitting data:", error);
     }
-    router.push(`/dashboard/procurement/solicitation-management/rfq/${cbaData?.data?.solicitation?.id}`);
-    // router.push(RouteEnum.SUMMARY_OF_TECHNICAL_PREQUALIFICATION, {
-    //   state: {
-    //     cba: data.cba,
-    //     bid_submission: data.bid_submission,
-    //     solicitation,
-    //   },
-    // });
+    // Option 1: Go back to RFQ details
+    // router.push(`/dashboard/procurement/solicitation-management/rfq/${cbaData?.data?.solicitation?.id}`);
+    
+    // Option 2: Go to Technical Prequalification Summary
+    const summaryUrl = RouteEnum.PROCUREMENT_CBA_TECHNICAL_PREQUALIFICATION.replace(':id', cba || '');
+    router.push(`${summaryUrl}?id=${cbaData?.data?.solicitation?.id}&cba=${cba}`);
   };
 
   return (

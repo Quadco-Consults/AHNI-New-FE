@@ -19,6 +19,7 @@ import { useAppDispatch } from "hooks/useStore";
 import { logOut } from "store/auth/authSlice";
 import { getPageTitleFromPath } from "utils/utls";
 import { useGetUserProfile } from "features/auth/controllers/userController";
+import { useGetUnreadCount } from "@/features/notifications/controllers/notificationController";
 
 const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
   const { setTheme } = useTheme();
@@ -26,6 +27,7 @@ const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
   const pageTitle = getPageTitleFromPath(pathname);
 
   const { data: profile } = useGetUserProfile();
+  const { data: unreadCount } = useGetUnreadCount();
 
   const router = useRouter();
 
@@ -72,12 +74,17 @@ const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
         <Link
           href={RouteEnum.NOTIFICATIONS}
           className={cn(
-            "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer"
+            "hover:text-primary relative flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer"
           )}
         >
           <div className='flex w-[85%] items-center gap-2'>
-            <span className=''>
+            <span className='relative'>
               <Bell />
+              {unreadCount && unreadCount.count > 0 && (
+                <span className='absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center min-w-[20px] px-1'>
+                  {unreadCount.count > 99 ? '99+' : unreadCount.count}
+                </span>
+              )}
             </span>
           </div>
         </Link>

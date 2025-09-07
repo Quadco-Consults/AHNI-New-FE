@@ -4,35 +4,75 @@ import { Loading } from "components/Loading";
 import { Button } from "components/ui/button";
 import { Textarea } from "components/ui/textarea";
 import { RouteEnum } from "constants/RouterConstants";
-import useQuery from "hooks/use";
+import { useSearchParams } from "next/navigation";
 import { useAppDispatch } from "hooks/useStore";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import ManualBidCbaPrequalificationAPI from "@/features/procurement/controllers/manual-bid-cba-prequalificationController";
+import ManualBidCbaPrequalificationAPI from "@/features/procurement/controllers/manualBidCbaPrequalificationController";
+import CbaAPI from "@/features/procurement/controllers/cbaController";
 import { toast } from "sonner";
 import logoPng from "assets/svgs/logo-bg.svg";
 import { FileDown } from "lucide-react";
 import { BsFiletypeCsv } from "react-icons/bs";
 
 const TableComponent = () => {
-  const query = useQuery();
-  const id = query.get("id");
-  const cba = query.get("cba");
+  const searchParams = useSearchParams();
+  const id = searchParams?.get("id");
+  const cba = searchParams?.get("cba");
 
   const router = useRouter();
   const dispatch = useAppDispatch();
 
   const { data: summaryData, isLoading } =
-    ManualBidCbaPrequalificationAPI.useGetManualBidPrequalifications({
-      path: {
-        id: id ?? skipToken,
-      },
-    });
+    ManualBidCbaPrequalificationAPI.useGetManualBidPrequalificationsBySolicitation(
+      id || '', true
+    );
 
-  const { createVendorBidAnalysis, isLoading: submissionLoading } =
-    ManualBidCbaPrequalificationAPI.useCreateVendorBidAnalysis();
+  const { submitCbaAnalysis, isLoading: submissionLoading } =
+    CbaAPI.useCbaAnalysisSubmission();
 
   const [recommendationNote, setRecommendationNote] = useState("");
+
+  // 2-Stage Prequalification Status Check
+  const checkPrequalificationStatus = (vendor, extraData) => {
+    // Stage 1: Technical (6 required criteria)
+    const technicalCriteria = extraData?.filter(criteria => 
+      criteria.title.toLowerCase().includes('technical') || 
+      criteria.title.toLowerCase().includes('specification') ||
+      criteria.title.toLowerCase().includes('qualification')
+    ) || [];
+    
+    const technicalPassed = technicalCriteria.length >= 6 && 
+      technicalCriteria.every(criteria => 
+        criteria[vendor?.name]?.text?.toLowerCase().includes('pass') ||
+        criteria[vendor?.name]?.text?.toLowerCase().includes('yes') ||
+        criteria[vendor?.name]?.text?.toLowerCase().includes('compliant')
+      );
+
+    // Stage 2: Financial criteria
+    const financialCriteria = extraData?.filter(criteria => 
+      criteria.title.toLowerCase().includes('financial') || 
+      criteria.title.toLowerCase().includes('price') ||
+      criteria.title.toLowerCase().includes('cost')
+    ) || [];
+    
+    const financialPassed = financialCriteria.every(criteria => 
+      criteria[vendor?.name]?.text?.toLowerCase().includes('pass') ||
+      criteria[vendor?.name]?.text?.toLowerCase().includes('yes') ||
+      criteria[vendor?.name]?.text?.toLowerCase().includes('compliant')
+    );
+
+    // Overall status: PASSED only if both stages pass
+    const overallStatus = technicalPassed && financialPassed ? 'PASSED' : 'FAILED';
+    
+    return {
+      technicalStatus: technicalPassed ? 'PASSED' : 'FAILED',
+      financialStatus: financialPassed ? 'PASSED' : 'FAILED',
+      overallStatus,
+      technicalCriteriaCount: technicalCriteria.length,
+      financialCriteriaCount: financialCriteria.length
+    };
+  };
   function formatBidData(inputData) {
     if (inputData) {
       const companies = [
@@ -247,19 +287,35 @@ const TableComponent = () => {
     }
 
     try {
-      const apiCalls = selectedVendors.map((vendor) => {
-        const payload = {
-          cba_id: cba,
-          vendor_id: vendor?.id, // Assuming `vendor` is the vendor ID
-          recommendation_note: recommendationNote,
-          selected_items: getSelectedItemsForVendor(vendor),
-          solicitation_id: id,
-        };
+      // Process each vendor separately
+      for (const vendor of selectedVendors) {
+        const selectedItems = getSelectedItemsForVendor(vendor);
+        const prequalificationStatus = checkPrequalificationStatus(vendor, formattedData?.extraData);
+        
+        // Only submit if vendor passed prequalification
+        if (prequalificationStatus.overallStatus === 'PASSED') {
+          const payload = {
+            cba_id: cba,
+            solicitation_id: id,
+            vendor_id: vendor?.id,
+            recommendation_note: `${recommendationNote} | Prequalification: ${prequalificationStatus.overallStatus} (Technical: ${prequalificationStatus.technicalStatus}, Financial: ${prequalificationStatus.financialStatus})`,
+            selected_items: selectedItems || [], // If empty array, will trigger rejection as per API spec
+          };
 
-        return createVendorBidAnalysis(payload)();
-      });
+          await submitCbaAnalysis(payload);
+        } else {
+          // Submit with empty items to trigger automatic rejection
+          const payload = {
+            cba_id: cba,
+            solicitation_id: id,
+            vendor_id: vendor?.id,
+            recommendation_note: `${recommendationNote} | Prequalification: FAILED - Vendor did not meet requirements`,
+            selected_items: [], // Empty array triggers rejection
+          };
 
-      await Promise.all(apiCalls);
+          await submitCbaAnalysis(payload);
+        }
+      }
       router.push(`${RouteEnum.COMPETITIVE_BID_ANALYSIS}`);
 
       toast.success("Analysis submitted successfully!");
