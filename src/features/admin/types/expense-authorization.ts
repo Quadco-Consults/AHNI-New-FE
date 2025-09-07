@@ -126,26 +126,121 @@ export interface IExpenseAuthorizationPaginatedData {
     updated_by: string | null;
 }
 
+// Destination interface for API response
+interface IDestination {
+    id: string;
+    project: IProjectSingleData;
+    created_datetime: string;
+    updated_datetime: string;
+    city: string;
+    state: string;
+    arrival_date: string;
+    departure_date: string;
+    purpose: string;
+    accommodation_required: boolean;
+    transport_required: boolean;
+    travel_fee: {
+        id: string;
+        created_datetime: string;
+        updated_datetime: string;
+        lodging: string;
+        meals: string;
+        number_of_nights: number;
+        interstate: string;
+        airport_taxi: string;
+        car_hire: string;
+    }[];
+}
+
+// Traveler interface for API response
+interface ITraveler {
+    id: string;
+    user: IUser;
+    address: string;
+    destinations: IDestination[];
+}
+
+// Approval interface for API response
+interface IApproval {
+    id: string;
+    user: IUser;
+    created_datetime: string;
+    updated_datetime: string;
+    approval_level: "REVIEW" | "AUTHORIZE" | "APPROVE";
+    comments: string | null;
+    justification: string | null;
+    approved: boolean | null;
+}
+
+// Requestor details interface
+interface IRequestorDetails {
+    id: string;
+    name: string;
+    email: string;
+    phone: string | null;
+}
+
 export interface IExpenseAuthorizationSingleData {
     id: string;
     department: TDepartmentData;
     fco: TFCONumberData;
-    project: IProjectSingleData;
+    project: IProjectSingleData | null;
     created_by: IUser;
+    destinations: IDestination[];
+    travelers: ITraveler[];
+    travel_fee: {
+        id: string;
+        created_datetime: string;
+        updated_datetime: string;
+        lodging: string;
+        meals: string;
+        number_of_nights: number;
+        interstate: string;
+        airport_taxi: string;
+        car_hire: string;
+    };
+    travel_fees: {
+        id: string;
+        created_datetime: string;
+        updated_datetime: string;
+        lodging: string;
+        meals: string;
+        number_of_nights: number;
+        interstate: string;
+        airport_taxi: string;
+        car_hire: string;
+    }[];
+    number_of_nights_list: number[];
+    approvals: IApproval[];
+    activity: any | null;
+    security_clearance: any | null;
+    employee_phone: string | null;
+    activities: any[];
+    requestor_details: IRequestorDetails;
+    employee_details: any | null;
     created_datetime: string;
     updated_datetime: string;
     address: string;
     ta_number: string;
-    city: string;
-    arrival_date: string;
-    departure_date: string;
     is_managing_director_notified: boolean;
     is_travel_advances_dependent: boolean;
+    travel_advance_percentage: number | null;
+    travel_advances_dependent_comment: string;
     is_document_needed: boolean;
+    document_needed_comment: string;
     is_car_rental_allowed: boolean;
+    car_rental_comment: string;
     is_hotel_reservation_required: boolean;
+    hotel_reservation_comment: string;
     is_hotel_transport_required: boolean;
-    destination: string;
+    hotel_transport_comment: string;
+    justification: string;
+    destination: string | null;
+    traveler_type: "SINGLE" | "MULTIPLE";
+    is_international_travel: boolean;
+    special_instructions: string | null;
+    document_submission_deadline: string | null;
     status: string;
+    security_clearance_status: string;
     updated_by: string | null;
 }
