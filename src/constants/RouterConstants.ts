@@ -81,7 +81,7 @@ export const AdminRoutes = {
   // EXPENSE AUTHORIZATION
   EXPENSE_AUTHORIZATION: "/dashboard/admin/expense-authorization",
   EXPENSE_AUTHORIZATION_CREATE: "/dashboard/admin/expense-authorization/create",
-  EXPENSE_AUTHORIZATION_DETAIL: "/dashboard/admin/expense-authorization/:id",
+  EXPENSE_AUTHORIZATION_DETAIL: "/dashboard/admin/expense-authorization",
 
   // TRAVEL EXPENSE REPORT
   TRAVEL_EXPENSE_REPORT: "/dashboard/admin/travel-expenses-report",
@@ -218,7 +218,8 @@ export const RouteEnum = {
 
   //rfq routes
   RFQ: "/dashboard/procurement/solicitation-management/rfq",
-  RFQ_CREATE_QUOTATION: "/dashboard/procurement/solicitation-management/rfq/create/quotation",
+  RFQ_CREATE_QUOTATION:
+    "/dashboard/procurement/solicitation-management/rfq/create/quotation",
   RFQ_CREATE_ITEMS:
     "/dashboard/procurement/solicitation-management/create/items",
   RFQ_DETAILS: "/dashboard/procurement/solicitation-management/rfq/:id",
@@ -268,14 +269,11 @@ export const RouteEnum = {
     "/dashboard/procurement/vendor-management/prequalification",
   VENDOR_REGISTRATION:
     "/dashboard/procurement/vendor-management/vendor-registration",
-  VENDOR_COMPANY:
-    "/dashboard/procurement/vendor-management/the-company",
+  VENDOR_COMPANY: "/dashboard/procurement/vendor-management/the-company",
   VENDOR_TECHNICAL:
     "/dashboard/procurement/vendor-management/technical-capacity",
-  VENDOR_QUESTIONER:
-    "/dashboard/procurement/vendor-management/questionnaire",
-  VENDOR_ATTESTATION:
-    "/dashboard/procurement/vendor-management/attestation",
+  VENDOR_QUESTIONER: "/dashboard/procurement/vendor-management/questionnaire",
+  VENDOR_ATTESTATION: "/dashboard/procurement/vendor-management/attestation",
   VENDOR_UPLOAD: "/dashboard/procurement/vendor-management/upload",
   VENDOR_MANAGEMENT_DETAILS:
     "/dashboard/procurement/vendor-management/prequalification/:id",
@@ -298,8 +296,7 @@ export const RouteEnum = {
     "/dashboard/procurement-management/supplier-database/:id",
 
   // vendor performance evaluation
-  VENDOR_PERFORMANCE_EVALUATION:
-    "/dashboard/procurement/vendor-performance",
+  VENDOR_PERFORMANCE_EVALUATION: "/dashboard/procurement/vendor-performance",
 
   VENDOR_PERFORMANCE_EVALUATION_ID:
     "/dashboard/procurement/vendor-performance/:id",

@@ -20,10 +20,32 @@ import { toast } from "sonner";
 export const expenseAuthorizationColumns: ColumnDef<IExpenseAuthorizationPaginatedData>[] =
   [
     {
-      header: "Project",
-      id: "project",
-      accessorFn: ({ project_details }) => project_details?.title || "N/A",
-      size: 250,
+      header: "Projects",
+      id: "projects",
+      accessorFn: ({ destinations }) => {
+        if (!destinations || destinations.length === 0) return "N/A";
+        return destinations.map((dest) => dest.project_title).join(", ");
+      },
+      size: 300,
+      cell: ({ row }) => {
+        const destinations = row.original.destinations;
+
+        if (!destinations || destinations.length === 0) return "N/A";
+
+        if (destinations.length === 1) {
+          return destinations[0].project_title || "N/A";
+        }
+
+        return (
+          <div className='space-y-1'>
+            {destinations.map((dest, index) => (
+              <div key={dest.id || index} className='text-sm'>
+                {`${index + 1}) ${dest.project_title}` || "N/A"}
+              </div>
+            ))}
+          </div>
+        );
+      },
     },
 
     {
@@ -111,9 +133,25 @@ export const expenseAuthorizationColumns: ColumnDef<IExpenseAuthorizationPaginat
 
     {
       header: "Security Clearance",
-      id: "_",
-      accessorKey: "_",
+      id: "security_clearance_status",
+      accessorKey: "security_clearance_status",
       size: 250,
+      cell: ({ getValue }) => {
+        return (
+          <Badge
+            variant='default'
+            className={cn(
+              "p-1 rounded-lg",
+              getValue() === "IN_PROGRESS" && "bg-green-200 text-green-500",
+              getValue() === "CLOSED" && "bg-red-200 text-red-500",
+              getValue() === "PENDING" && "bg-yellow-200 text-yellow-500",
+              getValue() === "On Hold" && "text-grey-200 bg-grey-500"
+            )}
+          >
+            {getValue() as string}
+          </Badge>
+        );
+      },
     },
 
     {
