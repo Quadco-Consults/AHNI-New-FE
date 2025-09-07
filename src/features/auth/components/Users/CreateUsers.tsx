@@ -229,39 +229,68 @@ const CreateUsers = () => {
       user_id: userId,
       
       // Company information (use user name as company for individual vendors)
-      company_name: `${userData.first_name} ${userData.last_name}`,
+      company_name: `${userData.first_name} ${userData.last_name} [INCOMPLETE BUSINESS PROFILE]`,
       
       // Contact information
       email: userData.email,
       phone_number: userData.mobile_number,
       
-      // Default values for required vendor fields
-      // These can be updated later through vendor onboarding/editing
-      company_address: userData.address || "Address to be updated",
-      state: userData.state || "State to be updated", 
+      // Default values for required vendor fields with incomplete warnings
+      company_address: "⚠️ TO BE COMPLETED - Business address required",
+      state: "⚠️ TO BE COMPLETED - State/location required", 
       
-      // Default vendor status
-      status: "Pending", // Will need approval through vendor management
+      // Default vendor status indicating incomplete profile
+      status: "INCOMPLETE - Requires Business Registration Completion", 
       
-      // Business details (to be filled during vendor onboarding)
-      company_registration_number: "",
-      tin: "",
-      nature_of_business: "To be specified",
-      area_of_specialization: "To be specified",
+      // Business details (to be filled during vendor onboarding) - marked as incomplete
+      company_registration_number: "⚠️ RC NUMBER REQUIRED",
+      tin: "⚠️ TAX ID NUMBER REQUIRED",
+      company_chairman: "⚠️ TO BE COMPLETED",
+      year_or_incorperation: "⚠️ INCORPORATION YEAR REQUIRED",
+      type_of_business: "⚠️ TO BE SPECIFIED",
+      nature_of_business: "⚠️ INCOMPLETE - Products/services to be specified",
+      area_of_specialization: "⚠️ INCOMPLETE - Specialization areas to be defined",
+      
+      // Financial and operational details - incomplete
+      bank_name: "⚠️ BANK DETAILS REQUIRED",
+      bank_address: "⚠️ BANK ADDRESS REQUIRED",
+      number_of_permanent_staff: "⚠️ TO BE COMPLETED",
+      website: "⚠️ TO BE COMPLETED",
+      
+      // Production and quality details - incomplete
+      installed_capacity: "⚠️ TO BE COMPLETED",
+      lagest_capacity_and_utilization: "⚠️ TO BE COMPLETED",
+      number_of_operational_work_shift: 0,
+      brief_of_quality_control: "⚠️ TO BE COMPLETED",
+      brief_of_sampling: "⚠️ TO BE COMPLETED",
+      
+      // Document requirements
+      passport: "⚠️ BUSINESS DOCUMENTS REQUIRED",
       
       // Mark as created from user management for tracking
       created_from: "USER_MANAGEMENT",
+      profile_status: "INCOMPLETE",
       
-      // Other default fields
-      branches: [],
+      // Arrays that need completion
+      branches: [], // Branch offices to be added
+      share_holders: [], // Shareholders to be added
       key_staff: [
         {
           name: `${userData.first_name} ${userData.last_name}`,
           phone_number: userData.mobile_number,
-          email: userData.email,
-          position: userData.position || "Owner"
+          address: "⚠️ TO BE COMPLETED",
+          qualification: "⚠️ TO BE COMPLETED"
         }
-      ]
+      ],
+      associated_entities: [], // Associated entities to be added
+      production_equipments: [], // Equipment details to be added
+      key_clients: [], // Client references to be added
+      questionairs: [], // Questionnaire responses to be completed
+      submitted_categories: [], // Business categories to be submitted
+      approved_categories: [], // To be approved after completion
+      
+      // Extra info for tracking incomplete status
+      extra_info: `⚠️ INCOMPLETE BUSINESS PROFILE - Created from USER_MANAGEMENT for user_id: ${userId}. MISSING: RC number, TIN, business address, bank details, shareholders, production capacity, quality control procedures, business documents, client references, and category approvals. REQUIRES COMPLETION via vendor registration and prequalification process.`
     };
   };
 
@@ -300,7 +329,7 @@ const CreateUsers = () => {
   const mapUserDataToFacilitator = (userId: string, userData: TCreateUserFormValues) => {
     return {
       // Basic facilitator information
-      title: `Facilitator - ${userData.first_name} ${userData.last_name}`,
+      title: `Facilitator - ${userData.first_name} ${userData.last_name} [INCOMPLETE PROFILE]`,
       grade_level: userData.position || "To be determined",
       
       // Use user's location data (ensure non-empty array)
@@ -312,30 +341,31 @@ const CreateUsers = () => {
       end_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // One year from now
       facilitaor_number: "1", // Note: typo in schema (facilitaor instead of facilitator)
       
-      // Required text fields
-      extra_info: `Created from USER_MANAGEMENT for user_id: ${userId}`,
-      background: `Facilitator position created from user management system for ${userData.first_name} ${userData.last_name}`,
-      evaluation_comments: "To be evaluated during onboarding process",
+      // Required text fields with incomplete profile indicators
+      extra_info: `INCOMPLETE PROFILE - Created from USER_MANAGEMENT for user_id: ${userId}. Missing: specialization areas, certification details, facilitation experience, training background, and supervisor assignment. Requires completion via facilitator onboarding process.`,
+      background: `⚠️ INCOMPLETE PROFILE - Facilitator position created from user management system for ${userData.first_name} ${userData.last_name}. This profile lacks essential facilitation credentials and experience details that need to be added through proper onboarding.`,
+      evaluation_comments: "⚠️ TO BE COMPLETED: Professional evaluation, certification status, and facilitation competencies need assessment during onboarding process",
       
       // Default document placeholder
       advertisement_document: "https://placeholder.com/advertisement", // Placeholder URL
       
       // Supervisor - would need to be set properly in real implementation
-      supervisor: userData.department || "TBD",
+      supervisor: userData.department || "TBD - Requires supervisor assignment",
       
-      // Scope of work fields
-      description: `Facilitator position for ${userData.first_name} ${userData.last_name}`,
-      objectives: "To be defined during onboarding process",
+      // Scope of work fields with incomplete warnings
+      description: `⚠️ INCOMPLETE PROFILE - Created from user management. Facilitator position for ${userData.first_name} ${userData.last_name}. Please complete onboarding process to add: specialization areas, certification details, facilitation experience, training methodologies, and competency assessments.`,
+      objectives: "⚠️ TO BE COMPLETED: Professional objectives, facilitation specializations, target audience, and learning outcomes need to be defined during proper onboarding process",
       deliverables: [
         {
-          deliverable: "Initial consultation and planning",
-          number_of_days: "30"
+          deliverable: "⚠️ PLACEHOLDER - Actual deliverables to be defined during onboarding",
+          number_of_days: "TBD"
         }
       ],
       scope_of_work_document: "https://placeholder.com/scope", // Placeholder URL
       
-      // Mark as created from user management
-      created_from: "USER_MANAGEMENT"
+      // Mark as created from user management with incomplete status
+      created_from: "USER_MANAGEMENT",
+      profile_status: "INCOMPLETE"
     };
   };
 
@@ -346,7 +376,7 @@ const CreateUsers = () => {
       type: "CONSULTANT" as const,
       
       // Basic consultant information
-      title: `Consultant - ${userData.first_name} ${userData.last_name}`,
+      title: `Consultant - ${userData.first_name} ${userData.last_name} [INCOMPLETE PROFILE]`,
       
       // Use user's location data (ensure non-empty array)
       locations: userData.location ? [userData.location] : ["TBD"],
@@ -358,14 +388,15 @@ const CreateUsers = () => {
       consultants_number: "1",
       
       // Scope of work defaults
-      description: `Consultant position for ${userData.first_name} ${userData.last_name}`,
-      background: `Created from user management system for consultant ${userData.first_name} ${userData.last_name}`,
-      objectives: "To be defined during onboarding process",
+      description: `⚠️ INCOMPLETE PROFILE - Created from user management. Consultant position for ${userData.first_name} ${userData.last_name}. Please complete onboarding process to add: education, employment history, language proficiency, special consultant services, references, documents, and contract details.`,
+      background: `Created from user management system for consultant ${userData.first_name} ${userData.last_name}. This profile is incomplete and requires completion through the proper consultant onboarding process.`,
+      objectives: "⚠️ TO BE COMPLETED: Professional objectives, specializations, and expertise areas need to be added during proper onboarding process",
       advertisement_document: "https://placeholder.com/advertisement", // Placeholder URL
       
-      // Mark as created from user management for tracking
-      extra_info: `Created from USER_MANAGEMENT for user_id: ${userId}`,
-      created_from: "USER_MANAGEMENT"
+      // Mark as created from user management for tracking and completion
+      extra_info: `INCOMPLETE PROFILE - Created from USER_MANAGEMENT for user_id: ${userId}. Missing: contract details, education, employment history, language proficiency, special consultant services, references, documents. Requires completion via consultant onboarding process.`,
+      created_from: "USER_MANAGEMENT",
+      profile_status: "INCOMPLETE"
     };
   };
 
@@ -375,29 +406,46 @@ const CreateUsers = () => {
       // Link to main user record
       user_id: userId,
       
-      // Basic employee information
+      // Basic employee information (from user data)
       legal_firstname: userData.first_name,
       legal_lastname: userData.last_name,
       email: userData.email,
-      mobile_number: userData.mobile_number,
+      phone_number: userData.mobile_number,
       
       // Employment details
       employment_type: userData.user_type === "ADMIN" ? "Admin" : "Staff",
-      position: userData.position,
+      department: userData.department || "TBD - Department assignment required",
       
       // Generate staff ID
       serial_id_code: `AHNI-${userId.slice(0, 8)}`,
       
-      // Location and department
-      location: userData.location,
-      department: userData.department,
+      // MISSING FIELDS - Mark for completion during HR onboarding
+      legal_middlename: "⚠️ TO BE COMPLETED",
+      other_number: "⚠️ TO BE COMPLETED",
+      date_of_birth: "1900-01-01", // Placeholder date
+      date_of_hire: new Date().toISOString().split('T')[0], // Today as default
+      ssnumber: "⚠️ TO BE COMPLETED",
+      marital_status: "⚠️ TO BE COMPLETED",
       
-      // Default status for HR approval process
-      status: "Pending",
+      // Default values for required boolean fields (as per schema requirements)
+      own_computer: true, // Schema expects literal true
+      require_email_access: true, // Schema expects literal true
       
-      // Mark as created from user management
+      // Project assignment
+      project: "⚠️ TO BE ASSIGNED",
+      
+      // Group membership (empty array as default)
+      group_membership: [],
+      
+      // Documents - require upload during proper onboarding
+      passport_url: "⚠️ PASSPORT UPLOAD REQUIRED",
+      signature_url: "⚠️ SIGNATURE UPLOAD REQUIRED",
+      
+      // Mark as incomplete profile needing HR onboarding completion
+      status: "INCOMPLETE - Requires HR Onboarding",
       created_from: "USER_MANAGEMENT",
-      extra_info: `Created from USER_MANAGEMENT for user_id: ${userId}`
+      extra_info: `⚠️ INCOMPLETE HR PROFILE - Created from USER_MANAGEMENT for user_id: ${userId}. MISSING: Date of birth, SSN, marital status, bank account details, PFA information, beneficiaries, emergency contacts, qualifications, passport/signature uploads, system authorizations. REQUIRES COMPLETION via HR employee onboarding process.`,
+      profile_status: "INCOMPLETE"
     };
   };
   return (
