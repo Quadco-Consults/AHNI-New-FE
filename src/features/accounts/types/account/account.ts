@@ -5,7 +5,9 @@ export const ProfileSchema = z.object({
   last_name: z.string().min(1, "Please enter last name"),
   email: z.string().min(1, "Please enter email"),
   username: z.string().optional(),
-  role: z.array(z.string().min(1)).min(1, "Select at least one role"),
+  // username: z.string().min(1, "Please enter username").optional(),
+  // role: z.string().min(1, "Select Role"),
+  role: z.array(z.string().min(1)).min(1, "Select at least one role"), // Now expects an array of strings
   gender: z.string().min(1, "Select gender"),
   profile_picture: z.string().optional(),
   mobile_number: z.string().min(1, "Please enter mobile number"),
@@ -14,7 +16,6 @@ export const ProfileSchema = z.object({
   location: z.string().optional(),
   user_type: z.string().optional(),
 });
-
 export const SecuritySchema = z
   .object({
     old_password: z.string().min(1, "Please enter old password"),
