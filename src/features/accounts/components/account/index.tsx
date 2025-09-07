@@ -76,7 +76,7 @@ export default function Account() {
     },
   });
 
-  const roleOptions = role?.data?.results?.map(({ name, id }: any) => ({
+  const roleOptions = role?.results?.map(({ name, id }: any) => ({
     label: name,
     value: id,
   })) || [];
@@ -128,37 +128,29 @@ export default function Account() {
   };
 
   const onSubmitProfile = async (data: TFormValues) => {
-    // Dispatch update profile action or API call
-
     try {
-      const formData = new FormData();
+      const payload = {
+        first_name: data.first_name,
+        last_name: data.last_name,
+        email: data.email,
+        gender: data.gender,
+        mobile_number: data.mobile_number,
+        department: data.department || "", // Default to empty string
+        position: data.position || "", // Default to empty string
+        location: data.location || "", // Default to empty string
+        user_type: data.user_type || "", // Default to empty string
+        roles: data.role,
+      };
 
-      formData.append("first_name", data.first_name);
-      formData.append("last_name", data.last_name);
-      formData.append("email", data.email);
-      // formData.append("username", data.username);
-      formData.append("gender", data.gender);
-      formData.append("mobile_number", data.mobile_number);
-      if (data.department) formData.append("department", data.department);
-      if (data.position) formData.append("position", data.position);
-      if (data.location) formData.append("location", data.location);
-      if (data.user_type) formData.append("user_type", data.user_type);
-      data.role.forEach((role) => formData.append("roles", role));
-
-      if (file) {
-        formData.append("profile_picture", file);
-      }
-
-      await updateUser(formData);
+      await updateUser(payload);
 
       toast.success("User Updated");
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
+      toast.error(error?.data?.message || "Something went wrong");
     }
   };
 
   const onSubmitSecurity = async (data: TFormValuesSecond) => {
-    // Dispatch update password action or API call
     const payload = {
       new_password: data?.new_password,
       confirm_password: data?.confirm_password,
@@ -169,13 +161,10 @@ export default function Account() {
       await authChangePassword(payload);
       toast.success("Password changed successfully");
 
-      // Only log out and redirect if password change is successful
       dispatch(logOut());
       router.push(AuthRoutes.LOGIN);
-      router.push("/login");
     } catch (err: any) {
-      // On error, just show toast and do not log out or redirect
-      toast.error(err.data.message || "Something went wrong");
+      toast.error(err?.data?.message || "Something went wrong");
     }
   };
 
