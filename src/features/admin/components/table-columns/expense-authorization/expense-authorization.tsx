@@ -119,10 +119,10 @@ export const expenseAuthorizationColumns: ColumnDef<IExpenseAuthorizationPaginat
             variant='default'
             className={cn(
               "p-1 rounded-lg",
-              getValue() === "IN_PROGRESS" && "bg-green-200 text-green-500",
-              getValue() === "CLOSED" && "bg-red-200 text-red-500",
+              getValue() === "APPROVED" && "bg-green-200 text-green-500",
+              getValue() === "REVIEWED" && "bg-blue-200 text-blue-700",
               getValue() === "PENDING" && "bg-yellow-200 text-yellow-500",
-              getValue() === "On Hold" && "text-grey-200 bg-grey-500"
+              getValue() === "AUTHORIZED" && "bg-purple-200 text-purple-700"
             )}
           >
             {getValue() as string}
@@ -142,8 +142,8 @@ export const expenseAuthorizationColumns: ColumnDef<IExpenseAuthorizationPaginat
             variant='default'
             className={cn(
               "p-1 rounded-lg",
-              getValue() === "IN_PROGRESS" && "bg-green-200 text-green-500",
-              getValue() === "CLOSED" && "bg-red-200 text-red-500",
+              getValue() === "CLEARED" && "bg-green-200 text-green-500",
+              getValue() === "REJECTED" && "bg-red-200 text-red-500",
               getValue() === "PENDING" && "bg-yellow-200 text-yellow-500",
               getValue() === "On Hold" && "text-grey-200 bg-grey-500"
             )}
@@ -171,7 +171,7 @@ const TableMenu = ({ id }: IExpenseAuthorizationPaginatedData) => {
   const handleDelete = async () => {
     try {
       await deleteExpenseAuthorization();
-      toast.success("Expense Authorization Deleted");
+      setDialogOpen(false);
     } catch (error: any) {
       toast.error(error.data.message ?? "Something went wrong");
     }
@@ -221,15 +221,6 @@ const TableMenu = ({ id }: IExpenseAuthorizationPaginatedData) => {
           >
             <DeleteIcon />
             Delete Item
-          </Button>
-
-          <Button
-            className='w-full flex items-center justify-start gap-2'
-            variant='ghost'
-            onClick={() => setDialogOpen(true)}
-          >
-            <Shield className='text-green-500' />
-            Security Approval
           </Button>
         </div>
       </PopoverContent>

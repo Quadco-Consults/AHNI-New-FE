@@ -20,7 +20,6 @@ import { useGetAllProjectsQuery } from "@/features/projects/controllers/projectC
 import { useEffect, useMemo } from "react";
 import { useGetAllDepartmentsQuery } from "@/features/modules/controllers/config/departmentController";
 import { useGetAllFCONumbersQuery } from "@/features/modules/controllers/finance/fcoNumberController";
-import { useGetAllStatesQuery } from "@/features/modules/controllers/config/stateController";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { AdminRoutes } from "constants/RouterConstants";
@@ -226,50 +225,75 @@ export default function CreateExpenseAuthorization() {
     if (expenseAuthorization) {
       const { data } = expenseAuthorization;
 
-      // For now, we'll handle the old format during editing
-      // TODO: Update when backend supports the new format for editing
-      form.reset({
-        traveler_type: "SINGLE" as const, // Default to single for existing records
-        ta_number: data.ta_number,
-        department: data.department.id,
-        fco: data.fco.id,
-        is_managing_director_notified: data.is_managing_director_notified,
-        is_travel_advances_dependent: data.is_travel_advances_dependent,
-        is_document_needed: data.is_document_needed,
-        is_car_rental_allowed: data.is_car_rental_allowed,
-        is_hotel_reservation_required: data.is_hotel_reservation_required,
-        is_hotel_transport_required: data.is_hotel_transport_required,
-        travel_advances_dependent_comment: "",
-        document_needed_comment: "",
-        car_rental_comment: "",
-        hotel_reservation_comment: "",
-        hotel_transport_comment: "",
-        justification: "",
-        address: "", // Will need to be extracted from legacy data
-        destinations: [
-          {
-            project: "", // Will need to be extracted from legacy data
-            city: "",
-            state: "",
-            arrival_date: data.arrival_date || "",
-            departure_date: data.departure_date || "",
-            purpose: "",
-            accommodation_required: false,
-            transport_required: false,
+      // Map destinations from API response
+      const mappedDestinations = data.destinations && data.destinations.length > 0 
+        ? data.destinations.map(dest => ({
+            project: dest.project?.id || "",
+            city: dest.city || "",
+            state: dest.state || "",
+            arrival_date: dest.arrival_date || "",
+            departure_date: dest.departure_date || "",
+            purpose: dest.purpose || "",
+            accommodation_required: dest.accommodation_required || false,
+            transport_required: dest.transport_required || false,
             travel_fee: {
-              lodging: 0,
-              meals: 0,
-              number_of_nights: 1,
-              interstate: 0,
-              airport_taxi: 0,
-              car_hire: 0,
+              lodging: parseFloat(dest.travel_fee?.[0]?.lodging || "0"),
+              meals: parseFloat(dest.travel_fee?.[0]?.meals || "0"),
+              number_of_nights: dest.travel_fee?.[0]?.number_of_nights || 1,
+              interstate: parseFloat(dest.travel_fee?.[0]?.interstate || "0"),
+              airport_taxi: parseFloat(dest.travel_fee?.[0]?.airport_taxi || "0"),
+              car_hire: parseFloat(dest.travel_fee?.[0]?.car_hire || "0"),
             },
-          },
-        ],
-        travelers: [],
-        reviewer: "",
-        authorizer: "",
-        approver: "",
+          }))
+        : [
+            {
+              project: "",
+              city: "",
+              state: "",
+              arrival_date: "",
+              departure_date: "",
+              purpose: "",
+              accommodation_required: false,
+              transport_required: false,
+              travel_fee: {
+                lodging: 0,
+                meals: 0,
+                number_of_nights: 1,
+                interstate: 0,
+                airport_taxi: 0,
+                car_hire: 0,
+              },
+            },
+          ];
+
+      // Find approval users by level
+      const reviewerApproval = data.approvals?.find(a => a.approval_level === "REVIEW");
+      const authorizerApproval = data.approvals?.find(a => a.approval_level === "AUTHORIZE");
+      const approverApproval = data.approvals?.find(a => a.approval_level === "APPROVE");
+
+      form.reset({
+        traveler_type: data.traveler_type || "SINGLE" as const,
+        ta_number: data.ta_number || "",
+        department: data.department?.id || "",
+        fco: data.fco?.id || "",
+        is_managing_director_notified: data.is_managing_director_notified || false,
+        is_travel_advances_dependent: data.is_travel_advances_dependent || false,
+        is_document_needed: data.is_document_needed || false,
+        is_car_rental_allowed: data.is_car_rental_allowed || false,
+        is_hotel_reservation_required: data.is_hotel_reservation_required || false,
+        is_hotel_transport_required: data.is_hotel_transport_required || false,
+        travel_advances_dependent_comment: data.travel_advances_dependent_comment || "",
+        document_needed_comment: data.document_needed_comment || "",
+        car_rental_comment: data.car_rental_comment || "",
+        hotel_reservation_comment: data.hotel_reservation_comment || "",
+        hotel_transport_comment: data.hotel_transport_comment || "",
+        justification: data.justification || "",
+        address: data.address || "",
+        destinations: mappedDestinations,
+        travelers: [], // For future multiple traveler support
+        reviewer: reviewerApproval?.user?.id || "",
+        authorizer: authorizerApproval?.user?.id || "",
+        approver: approverApproval?.user?.id || "",
       });
     }
 
