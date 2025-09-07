@@ -290,6 +290,38 @@ export const userColumns: ColumnDef<IUser>[] = [
   },
 
   {
+    header: "User Type",
+    id: "user_type",
+    accessorKey: "user_type",
+    cell: ({
+      row: {
+        original: { user_type },
+      },
+    }) => {
+      const formatUserType = (type: string) => {
+        switch (type) {
+          case "AHNI_STAFF":
+            return "AHNi Staff";
+          case "ADHOC_STAFF":
+            return "Adhoc Staff";
+          case "CONSULTANT":
+            return "Consultant";
+          case "FACILITATOR":
+            return "Facilitator";
+          case "VENDOR":
+            return "Vendor";
+          case "ADMIN":
+            return "Admin";
+          default:
+            return type;
+        }
+      };
+
+      return <span>{formatUserType(user_type)}</span>;
+    },
+  },
+
+  {
     header: "Actions",
     id: "action",
     cell: ({ row }) => <TableAction {...row.original} />,

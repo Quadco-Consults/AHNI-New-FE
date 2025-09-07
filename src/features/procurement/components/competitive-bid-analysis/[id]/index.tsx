@@ -18,6 +18,7 @@ import {
     Dialog,
     DialogContent,
     DialogHeader,
+    DialogTitle,
     DialogTrigger,
 } from "components/ui/dialog";
 import { Form } from "components/ui/form";
@@ -108,8 +109,10 @@ const CompetitiveBidAnalysisDetail = () => {
                                     <Button>Approval</Button>
                                 </DialogTrigger>
                             <DialogContent className="max-w-xl">
-                                <DialogHeader className="text-2xl font-semibold mb-5">
-                                    CBA Approval
+                                <DialogHeader>
+                                    <DialogTitle className="text-2xl font-semibold mb-5">
+                                        CBA Approval
+                                    </DialogTitle>
                                 </DialogHeader>
                                 <Form {...form}>
                                     <form

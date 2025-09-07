@@ -86,7 +86,7 @@ interface AssignRoleProps {
 const AssignRole = ({ userId, onClose }: AssignRoleProps) => {
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
 
-  const { addUserToRole, isLoading } = useAddUserToRoleManager();
+  const { addUserToRole, isLoading } = useAddUserToRoleManager(userId || "");
   const { data: user } = useGetSingleUserManager(userId || "");
 
   useEffect(() => {
@@ -111,7 +111,7 @@ const AssignRole = ({ userId, onClose }: AssignRoleProps) => {
     if (!userId) return;
 
     try {
-      await addUserToRole(userId, {
+      await addUserToRole({
         roles: selectedRoles,
       });
       toast.success("Role Added Successfully");
