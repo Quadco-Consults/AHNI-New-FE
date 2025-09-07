@@ -329,21 +329,21 @@ export default function EditUserModal() {
   // Helper function to map user update data to adhoc format
   const mapUserUpdateToAdhoc = (userData: TUpdateUserFormValues) => {
     return {
-      // Update basic information
-      title: `Adhoc Staff - ${userData.first_name} ${userData.last_name}`,
+      // Update basic information (preserve incomplete indicator if present)
+      title: `Adhoc Staff - ${userData.first_name} ${userData.last_name} [PROFILE MAY BE INCOMPLETE]`,
       
-      // Update location if changed
-      locations: userData.location ? [userData.location] : [],
+      // Update location if changed (ensure non-empty array)
+      locations: userData.location ? [userData.location] : ["TBD"],
       
       // Update grade level from position
       grade_level: userData.position || "To be determined",
       
-      // Update scope of work description
-      description: `Updated adhoc staff position for ${userData.first_name} ${userData.last_name}`,
-      background: `Updated from user management system for adhoc staff member ${userData.first_name} ${userData.last_name}`,
+      // Update scope of work description (preserve incomplete warning)
+      description: `⚠️ UPDATED FROM USER MANAGEMENT - Updated adhoc staff position for ${userData.first_name} ${userData.last_name}. If this profile is incomplete, please complete onboarding process to add: education, experience, references, documents, and contract details.`,
+      background: `Updated from user management system for adhoc staff member ${userData.first_name} ${userData.last_name}. Profile may be incomplete if originally created from user management.`,
       
       // Mark as updated from user management
-      extra_info: `Last updated from USER_MANAGEMENT`,
+      extra_info: `Updated from USER_MANAGEMENT. If profile is incomplete (missing education, experience, references, documents), complete via adhoc onboarding process.`,
       last_updated_from: "USER_MANAGEMENT"
     };
   };
@@ -355,8 +355,8 @@ export default function EditUserModal() {
       title: `Facilitator - ${userData.first_name} ${userData.last_name}`,
       grade_level: userData.position || "To be determined",
       
-      // Update location if changed
-      locations: userData.location ? [userData.location] : [],
+      // Update location if changed (ensure non-empty array)
+      locations: userData.location ? [userData.location] : ["TBD"],
       
       // Required fields for facilitator update
       duration: "365", // One year in days
@@ -393,8 +393,8 @@ export default function EditUserModal() {
       // Update basic information
       title: `Consultant - ${userData.first_name} ${userData.last_name}`,
       
-      // Update location if changed
-      locations: userData.location ? [userData.location] : [],
+      // Update location if changed (ensure non-empty array)
+      locations: userData.location ? [userData.location] : ["TBD"],
       
       // Update grade level from position
       grade_level: userData.position || "To be determined",
