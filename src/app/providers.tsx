@@ -11,22 +11,22 @@ import NotificationProvider from "components/NotificationProvider";
 const queryClient = new QueryClient();
 
 type PageProps = {
-    children: ReactNode;
+  children: ReactNode;
 };
 
 const AppProviders: FC<PageProps> = ({ children }) => {
-    return (
-        <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-            <QueryClientProvider client={queryClient}>
-                <AppDialog />
-                <Toaster richColors={true} position="top-center" />
-                <NotificationProvider>
-                    {children}
-                </NotificationProvider>
-                <ReactQueryDevtools initialIsOpen={false} />
-            </QueryClientProvider>
-        </ThemeProvider>
-    );
+  return (
+    <ThemeProvider defaultTheme='light' storageKey='vite-ui-theme'>
+      <QueryClientProvider client={queryClient}>
+        <AppDialog />
+        <Toaster richColors={true} position='top-center' />
+        {/* <NotificationProvider> */}
+        {children}
+        {/* </NotificationProvider> */}
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
+    </ThemeProvider>
+  );
 };
 
 export default AppProviders;

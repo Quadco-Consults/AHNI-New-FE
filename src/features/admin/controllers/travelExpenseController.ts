@@ -2,6 +2,7 @@ import useApiManager from "@/constants/mainController";
 import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
+import { useState } from "react";
 import {
   ITravelExpensePaginatedData,
   ITravelExpenseSingleData,
@@ -69,7 +70,9 @@ export const useGetAllTravelExpenses = ({
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled,
@@ -78,7 +81,10 @@ export const useGetAllTravelExpenses = ({
 };
 
 // Get Single Travel Expense
-export const useGetSingleTravelExpense = (id: string, enabled: boolean = true) => {
+export const useGetSingleTravelExpense = (
+  id: string,
+  enabled: boolean = true
+) => {
   return useQuery<ApiResponse<ITravelExpenseSingleData>>({
     queryKey: ["travelExpense", id],
     queryFn: async () => {
@@ -87,7 +93,9 @@ export const useGetSingleTravelExpense = (id: string, enabled: boolean = true) =
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled && !!id,
@@ -120,21 +128,27 @@ export const useCreateTravelExpense = () => {
 };
 
 // Modify Travel Expense (Full Update)
-export const useModifyTravelExpense = (id: string) => {
+export const useModifyTravelExpense = () => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     ITravelExpenseSingleData,
     Error,
-    TTravelExpenseFormData
+    { id: string; body: TTravelExpenseFormData }
   >({
-    endpoint: `${BASE_URL}${id}/`,
+    endpoint: BASE_URL,
     queryKey: ["travelExpenses", "travelExpense"],
     isAuth: true,
     method: "PUT",
   });
 
-  const modifyTravelExpense = async (details: TTravelExpenseFormData) => {
+  const modifyTravelExpense = async ({
+    id,
+    body,
+  }: {
+    id: string;
+    body: TTravelExpenseFormData;
+  }) => {
     try {
-      await callApi(details);
+      await callApi({ id, body });
     } catch (error) {
       console.error("Travel expense modify error:", error);
     }
@@ -165,6 +179,105 @@ export const useDeleteTravelExpense = (id: string) => {
   };
 
   return { deleteTravelExpense, data, isLoading, isSuccess, error };
+};
+
+// ===== APPROVAL WORKFLOW HOOKS =====
+
+interface ApprovalRequest {
+  comments: string;
+}
+
+// Review Travel Expense (First level approval)
+export const useReviewTravelExpense = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const [data, setData] = useState<ITravelExpenseSingleData | null>(null);
+
+  const reviewTravelExpense = async ({
+    id,
+    body,
+  }: {
+    id: string;
+    body: ApprovalRequest;
+  }) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await AxiosWithToken.post(`${BASE_URL}${id}/review/`, body);
+      setData(response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Travel expense review error:", error);
+      setError(error as Error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { reviewTravelExpense, data, isLoading, error };
+};
+
+// Authorize Travel Expense (Second level approval)
+export const useAuthorizeTravelExpense = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const [data, setData] = useState<ITravelExpenseSingleData | null>(null);
+
+  const authorizeTravelExpense = async ({
+    id,
+    body,
+  }: {
+    id: string;
+    body: ApprovalRequest;
+  }) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await AxiosWithToken.post(`${BASE_URL}${id}/authorize/`, body);
+      setData(response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Travel expense authorize error:", error);
+      setError(error as Error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { authorizeTravelExpense, data, isLoading, error };
+};
+
+// Approve Travel Expense (Final level approval)
+export const useApproveTravelExpense = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const [data, setData] = useState<ITravelExpenseSingleData | null>(null);
+
+  const approveTravelExpense = async ({
+    id,
+    body,
+  }: {
+    id: string;
+    body: ApprovalRequest;
+  }) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await AxiosWithToken.post(`${BASE_URL}${id}/approve/`, body);
+      setData(response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Travel expense approve error:", error);
+      setError(error as Error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { approveTravelExpense, data, isLoading, error };
 };
 
 // Legacy exports for backward compatibility
