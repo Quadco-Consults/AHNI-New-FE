@@ -9,11 +9,13 @@ export const CreateUserSchema = z.object({
   mobile_number: z.string().min(1, "Please enter a mobile number"),
   gender: z.enum(["MALE", "FEMALE", "Other"]),
   // password: z.string().min(1, "Please enter a password").optional(),
+  location: z.string().min(1, "Please select location").optional(),
+  state: z.string().min(1, "Please enter state").optional(),
+  address: z.string().min(1, "Please enter address").optional(),
   department: z.string().min(1, "Please select a department"),
   position: z.string().min(1, "Please select position"),
   user_type: z.string().min(1, "Please select user type").optional(),
   roles: z.array(z.string().min(1, "Please select user roles")).optional(),
-  location: z.string().min(1, "Please select location").optional(),
 
   // confirm_password: z.string().min(1, "Please enter a password").optional(),
 });
@@ -30,9 +32,12 @@ export const UpdateUserSchema = z.object({
   email: z.string().email().min(1, "Please enter an email"),
   mobile_number: z.string().min(1, "Please enter phone number"),
   gender: z.string().min(1, "Please select a gender"),
+  location: z.string().min(1, "Please select location").optional(),
   department: z.string().min(1, "Please select a department"),
   position: z.string().min(1, "Please select a position"),
+  user_type: z.string().min(1, "Please select user type").optional(),
   roles: z.array(z.string().min(1, "Please select user roles")).optional(),
+  is_active: z.boolean().optional(),
 });
 
 export type TUpdateUserFormValues = z.infer<typeof UpdateUserSchema>;
@@ -61,4 +66,8 @@ export interface IUser {
   actions: string;
   is_active: boolean;
   profile_picture: string;
+  user_type: string;
+  location: string;
+  state: string;
+  address: string;
 }

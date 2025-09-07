@@ -108,6 +108,17 @@ export default function UserTablePage() {
               >
                 Vendors
               </TabsTrigger>
+              <TabsTrigger
+                className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
+                value='Admin'
+                onClick={() => {
+                  setPage(1);
+                  setSearchQuery("");
+                  setTabParams("ADMIN");
+                }}
+              >
+                Admin
+              </TabsTrigger>
             </TabsList>
             <TabsContent className='w-full py-10' value=''>
               <TableFilters
@@ -190,6 +201,22 @@ export default function UserTablePage() {
               </TableFilters>
             </TabsContent>{" "}
             <TabsContent className='w-full py-10' value='Vendors'>
+              <TableFilters
+                onSearchChange={(e) => setSearchQuery(e.target.value)}
+              >
+                <DataTable
+                  columns={userColumns}
+                  data={user?.data.results || []}
+                  isLoading={isFetching}
+                  pagination={{
+                    total: user?.data.pagination.count ?? 0,
+                    pageSize: user?.data.pagination.page_size ?? 0,
+                    onChange: (page: number) => setPage(page),
+                  }}
+                />
+              </TableFilters>
+            </TabsContent>
+            <TabsContent className='w-full py-10' value='Admin'>
               <TableFilters
                 onSearchChange={(e) => setSearchQuery(e.target.value)}
               >
