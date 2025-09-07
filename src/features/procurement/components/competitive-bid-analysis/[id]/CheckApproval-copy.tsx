@@ -4,16 +4,16 @@ import { Loading } from "components/Loading";
 import { Button } from "components/ui/button";
 import { Textarea } from "components/ui/textarea";
 import { RouteEnum } from "constants/RouterConstants";
-import useQuery from "hooks/use";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import ManualBidCbaPrequalificationAPI from "@/features/procurement/controllers/manual-bid-cba-prequalificationController";
+import ManualBidCbaPrequalificationAPI from "@/features/procurement/controllers/manualBidCbaPrequalificationController";
 import { toast } from "sonner";
 
 const TableComponent = () => {
-  const query = useQuery();
-  const id = query.get("id");
-  const cba = query.get("cba");
+  const searchParams = useSearchParams();
+  const id = searchParams?.get("id");
+  const cba = searchParams?.get("cba");
 
   const router = useRouter();
 
