@@ -25,6 +25,7 @@ import GoBack from "components/GoBack";
 
 const ManualBidSubmission = () => {
   const { id } = useParams();
+  const solicitationId = Array.isArray(id) ? id[0] : id;
   const router = useRouter();
 
   const { data: vendors, isLoading: vendorsIsLoading } =
@@ -36,7 +37,7 @@ const ManualBidSubmission = () => {
     useCreateSolicitationSubmission();
 
   const { data: singleSolicitation } = useGetSingleSolicitation(
-    id as string
+    solicitationId as string
   );
 
   const { data: solicitationCriteria } =

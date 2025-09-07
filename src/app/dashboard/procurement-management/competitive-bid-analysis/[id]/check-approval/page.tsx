@@ -4,9 +4,9 @@ import { Loading } from "@/components/Loading";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 
-const Account = dynamic(
+const CheckApproval = dynamic(
   () =>
-    import("@/features/accounts/components/account").catch(() => ({ 
+    import("@/features/procurement/components/competitive-bid-analysis/[id]/CheckApproval").catch(() => ({ 
       default: () => <div>Failed to load component</div> 
     })),
   {
@@ -15,10 +15,10 @@ const Account = dynamic(
   }
 );
 
-export default function AccountPage() {
+export default function CheckApprovalPage() {
   return (
     <Suspense fallback={<Loading />}>
-      <Account />
+      <CheckApproval />
     </Suspense>
   );
 }

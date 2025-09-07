@@ -11,8 +11,8 @@ import {
 } from "../types/manual-bid-cba-prequalification";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
-const BASE_URL = "/procurements/manaul-bid-cba-prequalification/";
-const SOLICITATION_URL = "/procurements/manaul-bid/by-solicitation/";
+const BASE_URL = "/procurements/manual-bid-cba-prequalification/"; // FIXED SPELLING
+const SOLICITATION_URL = "/procurements/manual-bid/by-solicitation/";
 
 // ===== MANUAL BID CBA PREQUALIFICATION HOOKS =====
 
@@ -34,7 +34,9 @@ export const useGetAllManualBidCbaPrequalifications = ({
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled,
@@ -57,7 +59,9 @@ export const useGetManualBidPrequalificationsBySolicitation = (
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled && !!solicitationId,
@@ -74,11 +78,13 @@ export const useGetSingleManualBidCbaPrequalification = (
     queryKey: ["manual-bid-cba-prequalification", id],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`${BASE_URL}${id}/`);
+        const response = await AxiosWithToken.get(`/procurements/manual-bid-cba-prequalification/${id}/`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled && !!id,
@@ -109,7 +115,13 @@ export const useCreateManualBidCbaPrequalification = () => {
     }
   };
 
-  return { createManualBidCbaPrequalification, data, isLoading, isSuccess, error };
+  return {
+    createManualBidCbaPrequalification,
+    data,
+    isLoading,
+    isSuccess,
+    error,
+  };
 };
 
 // Create Vendor Bid Analysis
@@ -119,7 +131,8 @@ export const useCreateVendorBidAnalysis = () => {
     Error,
     z.infer<typeof ManualBidCbaPrequalificationSchema>
   >({
-    endpoint: "/procurements/vendor-bid-analysis/",
+    endpoint:
+      "/procurements/manaul-bid-cba-prequalification/8171e801-1185-4981-af1a-b67d20226c5f/",
     queryKey: ["manual-bid-cba-prequalifications"],
     isAuth: true,
     method: "POST",
@@ -146,7 +159,10 @@ export const useUpdateManualBidCbaPrequalification = (id: string) => {
     any
   >({
     endpoint: `${BASE_URL}${id}/`,
-    queryKey: ["manual-bid-cba-prequalifications", "manual-bid-cba-prequalification"],
+    queryKey: [
+      "manual-bid-cba-prequalifications",
+      "manual-bid-cba-prequalification",
+    ],
     isAuth: true,
     method: "PUT",
   });
@@ -159,7 +175,13 @@ export const useUpdateManualBidCbaPrequalification = (id: string) => {
     }
   };
 
-  return { updateManualBidCbaPrequalification, data, isLoading, isSuccess, error };
+  return {
+    updateManualBidCbaPrequalification,
+    data,
+    isLoading,
+    isSuccess,
+    error,
+  };
 };
 
 // Modify Manual Bid CBA Prequalification (Partial Update)
@@ -170,7 +192,10 @@ export const useModifyManualBidCbaPrequalification = (id: string) => {
     any
   >({
     endpoint: `${BASE_URL}${id}/`,
-    queryKey: ["manual-bid-cba-prequalifications", "manual-bid-cba-prequalification"],
+    queryKey: [
+      "manual-bid-cba-prequalifications",
+      "manual-bid-cba-prequalification",
+    ],
     isAuth: true,
     method: "PATCH",
   });
@@ -183,7 +208,13 @@ export const useModifyManualBidCbaPrequalification = (id: string) => {
     }
   };
 
-  return { modifyManualBidCbaPrequalification, data, isLoading, isSuccess, error };
+  return {
+    modifyManualBidCbaPrequalification,
+    data,
+    isLoading,
+    isSuccess,
+    error,
+  };
 };
 
 // Delete Manual Bid CBA Prequalification
@@ -207,15 +238,44 @@ export const useDeleteManualBidCbaPrequalification = (id: string) => {
     }
   };
 
-  return { deleteManualBidCbaPrequalification, data, isLoading, isSuccess, error };
+  return {
+    deleteManualBidCbaPrequalification,
+    data,
+    isLoading,
+    isSuccess,
+    error,
+  };
 };
 
 // Legacy exports for backward compatibility
-export const useGetManualBidCbaPrequalificationsQuery = useGetAllManualBidCbaPrequalifications;
-export const useGetManualBidPrequalificationsQuery = useGetManualBidPrequalificationsBySolicitation;
-export const useGetManualBidCbaPrequalificationQuery = useGetSingleManualBidCbaPrequalification;
-export const useCreateManualBidCbaPrequalificationMutation = useCreateManualBidCbaPrequalification;
+export const useGetManualBidCbaPrequalificationsQuery =
+  useGetAllManualBidCbaPrequalifications;
+export const useGetManualBidPrequalificationsQuery =
+  useGetManualBidPrequalificationsBySolicitation;
+export const useGetManualBidCbaPrequalificationQuery =
+  useGetSingleManualBidCbaPrequalification;
+export const useCreateManualBidCbaPrequalificationMutation =
+  useCreateManualBidCbaPrequalification;
 export const useCreateVendorBidAnalysisMutation = useCreateVendorBidAnalysis;
-export const useUpdateManualBidCbaPrequalificationMutation = useUpdateManualBidCbaPrequalification;
-export const useModifyManualBidCbaPrequalificationMutation = useModifyManualBidCbaPrequalification;
-export const useDeleteManualBidCbaPrequalificationMutation = useDeleteManualBidCbaPrequalification;
+export const useUpdateManualBidCbaPrequalificationMutation =
+  useUpdateManualBidCbaPrequalification;
+export const useModifyManualBidCbaPrequalificationMutation =
+  useModifyManualBidCbaPrequalification;
+export const useDeleteManualBidCbaPrequalificationMutation =
+  useDeleteManualBidCbaPrequalification;
+
+// Default export API object for backward compatibility
+const ManualBidCbaPrequalificationAPI = {
+  useGetAllManualBidCbaPrequalifications,
+  useGetManualBidPrequalificationsBySolicitation,
+  useGetSingleManualBidCbaPrequalification,
+  useCreateManualBidCbaPrequalification,
+  useCreateVendorBidAnalysis,
+  useUpdateManualBidCbaPrequalification,
+  useModifyManualBidCbaPrequalification,
+  useDeleteManualBidCbaPrequalification,
+  // Alias methods for CheckApproval component compatibility
+  useGetManualBidPrequalifications: useGetSingleManualBidCbaPrequalification,
+};
+
+export default ManualBidCbaPrequalificationAPI;
