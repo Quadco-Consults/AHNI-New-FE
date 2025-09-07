@@ -154,7 +154,7 @@ const Quotation = () => {
       path = path.substring(0, path.lastIndexOf("/"));
     }
 
-    path += "/create/items";
+    path += "/items";
     router.push(path);
   };
 
