@@ -38,21 +38,15 @@ const WorkforceDatabase = () => {
   console.log("Employee data:", employeeData);
   console.log("User data:", userData);
   
-  // Filter users to only include AHNI staff (exclude consultants)
-  const filteredUsers = userData?.data.results?.filter((user: any) => {
-    // Filter logic: exclude consultants based on role or department
-    const isConsultant = user.roles?.some((role: any) => 
-      role.name?.toLowerCase().includes('consultant') ||
-      role.name?.toLowerCase().includes('contractor')
-    ) || (typeof user.department === 'string' && user.department.toLowerCase().includes('consultant')) ||
-       (typeof user.position === 'string' && user.position.toLowerCase().includes('consultant'));
-    
-    return !isConsultant; // Only include non-consultants (AHNI staff)
+  // Filter users to only include AHNI_STAFF and ADMIN user types
+  const filteredUsers = userData?.data?.results?.filter((user: any) => {
+    // Include only AHNI_STAFF and ADMIN user types for workforce database
+    return user.user_type === "AHNI_STAFF" || user.user_type === "ADMIN";
   }) || [];
 
-  console.log("All users:", userData?.data.results?.length || 0);
-  console.log("Filtered AHNI staff:", filteredUsers.length);
-  console.log("Excluded consultants:", (userData?.data.results?.length || 0) - filteredUsers.length);
+  console.log("All users:", userData?.data?.results?.length || 0);
+  console.log("Filtered AHNI staff and admin:", filteredUsers.length);
+  console.log("Excluded other user types:", (userData?.data?.results?.length || 0) - filteredUsers.length);
 
   // Combine employee onboarding data with filtered user data
   const combinedData = [

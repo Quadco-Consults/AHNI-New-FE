@@ -23,7 +23,7 @@ export default function CreateRole() {
 
   const { handleSubmit } = form;
 
-  const [createRole, { isLoading }] = useCreateRoleMutation();
+  const { createRole, isLoading } = useCreateRoleMutation();
 
   const onSubmit: SubmitHandler<TRoleFormValue> = async ({ role_name }) => {
     try {

@@ -97,6 +97,7 @@ export default function CreateFuelConsumption() {
   const { data: vendor } = useGetVendors({
     page: 1,
     size: 2000000,
+    approved_categories: "e74bab4f-3059-430c-ae5d-143af5463275",
   });
 
   const vendorOptions = useMemo(

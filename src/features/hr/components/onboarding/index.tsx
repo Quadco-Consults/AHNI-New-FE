@@ -37,7 +37,8 @@ const Onboarding = () => {
   const { deleteEmployeeOnboarding, isLoading } =
     useDeleteEmployeeOnboarding();
 
-  // console.log(employeeData);
+  console.log('employeeData:', employeeData);
+  console.log('employeeData?.data?.results:', employeeData?.data?.results);
 
   const handleDelete = (id: string) => {
     setEmployeedId(id);
@@ -46,8 +47,8 @@ const Onboarding = () => {
 
   const confirmHandleDelete = async () => {
     try {
-      await deleteEmployeeOnboarding(employeeID)();
-      toast.success("Payment Request Deleted");
+      await deleteEmployeeOnboarding(employeeID);
+      toast.success("Employee Onboarding Deleted");
     } catch (error: any) {
       console.log("Employee delete: ", error);
       toast.error(error.data.message ?? "Something went wrong");
@@ -121,9 +122,7 @@ const Onboarding = () => {
             </PopoverTrigger>
             <PopoverContent className=' w-fit'>
               <Link
-                href={generatePath(HrRoutes.ONBOARDING_START, {
-                  id: data?.id,
-                })}
+                href={`/dashboard/hr/onboarding/start-onboarding/${data?.id}/`}
                 className='flex flex-col items-start justify-between gap-1'
               >
                 <Button
@@ -177,7 +176,7 @@ const Onboarding = () => {
             </Button>
           </div>
           <DataTable
-            data={employeeData?.data?.results}
+            data={employeeData?.data?.results || []}
             columns={columns}
             isLoading={fetchingEmployeeData}
           />

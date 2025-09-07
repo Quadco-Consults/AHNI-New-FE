@@ -18,6 +18,7 @@ import {
     Dialog,
     DialogContent,
     DialogHeader,
+    DialogTitle,
     DialogTrigger,
 } from "components/ui/dialog";
 import { Form } from "components/ui/form";
@@ -32,23 +33,28 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useState } from "react";
 
+const generatePath = (route: string, params?: Record<string, any>): string => {
+  let path = route;
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      path = path.replace(`:${key}`, String(value));
+    });
+  }
+  return path;
+};
+
 const CompetitiveBidAnalysisDetail = () => {
     const { id } = useParams();
     const [open, setOpen] = useState(false);
 
-    const { data, isLoading } = CbaAPI.useGetCba({
-        path: { id: id as string },
-    });
+    const { data, isLoading } = CbaAPI.useGetSingleCba(id as string);
 
-    const [
-        createApprovalCbaMutation,
-        { isLoading: createApprovalCbaIsLoading },
-    ] = CbaAPI.useCreateApprovalCba();
+    const { approveCba, isLoading: createApprovalCbaIsLoading } = CbaAPI.useApproveCba(id as string);
 
     const form = useForm<z.infer<typeof CbaApprovalSchema>>({
         resolver: zodResolver(CbaApprovalSchema),
         defaultValues: {
-            status: "",
+            status: "APPROVED" as const,
             remarks: "",
         },
     });
@@ -56,13 +62,8 @@ const CompetitiveBidAnalysisDetail = () => {
     const { handleSubmit } = form;
 
     const onSubmit = async (data: z.infer<typeof CbaApprovalSchema>) => {
-        const formData = {
-            path: { id: id as string },
-            body: data,
-        };
-
         try {
-            await createApprovalCbaMutation(formData)();
+            await approveCba(data);
             toast.success("Successfully added.");
             setOpen(false);
         } catch (error) {
@@ -87,16 +88,31 @@ const CompetitiveBidAnalysisDetail = () => {
 
             <Card className="space-y-8 p-10">
                 <div className="flex justify-between">
-                    <h2 className="font-semibold text-lg">{data?.title}</h2>
+                    <h2 className="font-semibold text-lg">{data?.data?.title || 'CBA Details'}</h2>
 
-                    {data?.status === "APPROVED" ? (
-                        <Dialog open={open} onOpenChange={setOpen}>
-                            <DialogTrigger asChild>
-                                <Button>Approval</Button>
-                            </DialogTrigger>
+                    <div className="flex gap-3">
+                        <Link
+                            href={generatePath(
+                                RouteEnum.PROCUREMENT_CBA_REPORT,
+                                { id: id as string }
+                            )}
+                        >
+                            <Button variant="outline">
+                                <Icon icon="heroicons:document-text" className="mr-2" />
+                                View Report
+                            </Button>
+                        </Link>
+                        
+                        {data?.data?.status === "PENDING" ? (
+                            <Dialog open={open} onOpenChange={setOpen}>
+                                <DialogTrigger asChild>
+                                    <Button>Approval</Button>
+                                </DialogTrigger>
                             <DialogContent className="max-w-xl">
-                                <DialogHeader className="text-2xl font-semibold mb-5">
-                                    CBA Approval
+                                <DialogHeader>
+                                    <DialogTitle className="text-2xl font-semibold mb-5">
+                                        CBA Approval
+                                    </DialogTitle>
                                 </DialogHeader>
                                 <Form {...form}>
                                     <form
@@ -142,62 +158,64 @@ const CompetitiveBidAnalysisDetail = () => {
                                 </Form>
                             </DialogContent>
                         </Dialog>
-                    ) : (
-                        <Link
-                            href={generatePath(
-                                RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_START,
-                                {
-                                    id: id as string,
-                                }
-                            )}
-                        >
-                            <Button>Start CBA</Button>
-                        </Link>
-                    )}
+                        ) : (
+                            <Link
+                                href={generatePath(
+                                    RouteEnum.PROCUREMENT_CBA_START,
+                                    {
+                                        id: id as string,
+                                        appID: data?.data?.solicitation || '',
+                                    }
+                                )}
+                            >
+                                <Button>Start CBA</Button>
+                            </Link>
+                        )}
+                    </div>
                 </div>
 
                 <h4 className="text-green-dark text-base font-semibold">
                     Status{" "}
                     <Badge
                         className={cn(
-                            data?.status === "APPROVED" &&
+                            data?.data?.status === "APPROVED" &&
                                 "bg-green-200 text-green-500",
-                            data?.status === "REJECTED" &&
+                            data?.data?.status === "REJECTED" &&
                                 "bg-red-200 text-red-500",
-                            data?.status === "PENDING" &&
+                            data?.data?.status === "PENDING" &&
                                 "bg-yellow-200 text-yellow-500",
-                            data?.status === "On Hold" &&
-                                "text-grey-200 bg-grey-500"
+                            data?.data?.status === "COMPLETED" &&
+                                "bg-blue-200 text-blue-500"
                         )}
                     >
-                        {data?.status.toLowerCase()}
+                        {data?.data?.status.toLowerCase()}
                     </Badge>
                 </h4>
 
                 <div className="flex items-center gap-10">
                     <div className="flex gap-3 items-center">
                         <Icon icon="ooui:reference" fontSize={18} />
-                        <h6>{data?.lot}</h6>
+                        <h6>{data?.data?.lot}</h6>
                     </div>
                     <div className="flex gap-3 items-center">
                         <Icon
                             icon="lets-icons:date-today-duotone"
                             fontSize={18}
                         />
-                        <h6>{data?.cba_date}</h6>
+                        <h6>{data?.data?.cba_date}</h6>
                     </div>
                     <div className="flex gap-3 items-center">
                         <Icon
                             icon="solar:case-minimalistic-bold-duotone"
                             fontSize={18}
                         />
-                        <h6>{data?.cba_type}</h6>
+                        <h6>{data?.data?.cba_type}</h6>
                     </div>
                 </div>
 
                 <div className="space-y-4">
                     <h2 className="font-semibold text-base">Remarks:</h2>
-                    <h4 className=" text-gray-500">{data?.remarks}</h4>
+                    <h4 className=" text-gray-500">{data?.data?.remarks}</h4>
                 </div>
 
                 <div className="space-y-4">
@@ -206,7 +224,7 @@ const CompetitiveBidAnalysisDetail = () => {
                     </h2>
 
                     <div className="grid grid-cols-2 gap-5">
-                        {data?.items?.map((item: SolicitationItems) => (
+                        {data?.data?.items?.map((item: SolicitationItems) => (
                             <Card
                                 key={item?.id}
                                 className="border-yellow-darker space-y-3"
@@ -242,17 +260,17 @@ const CompetitiveBidAnalysisDetail = () => {
                     <Card className="border-yellow-darker space-y-3 w-full md:w-1/2">
                         <div className="flex items-center gap-5">
                             <h4 className="w-1/3 font-semibold">First Name:</h4>
-                            <h4>{data?.assignee?.first_name}</h4>
+                            <h4>{data?.data?.assignee?.first_name}</h4>
                         </div>
                         <div className="flex items-center gap-5">
                             <h4 className="w-1/3 font-semibold">Last Name:</h4>
-                            <h4>{data?.assignee?.last_name}</h4>
+                            <h4>{data?.data?.assignee?.last_name}</h4>
                         </div>
                         <div className="flex items-center gap-5">
                             <h4 className="w-1/3 font-semibold">
                                 Designation:
                             </h4>
-                            <h4>{data?.assignee?.designation}</h4>
+                            <h4>{data?.data?.assignee?.designation}</h4>
                         </div>
                     </Card>
                 </div>
@@ -263,7 +281,7 @@ const CompetitiveBidAnalysisDetail = () => {
                     </h2>
 
                     <div className="grid grid-cols-2 gap-5">
-                        {data?.committee_members?.map(
+                        {data?.data?.committee_members?.map(
                             (member: CommitteeMemberData) => (
                                 <Card
                                     key={member?.id}

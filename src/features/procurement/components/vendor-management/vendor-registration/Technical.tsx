@@ -14,9 +14,19 @@ import { VendorsTechnicalSchema } from "@/features/procurement/types/procurement
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDispatch } from "react-redux";
 import { vendorsActions } from "store/formData/procurement-vendors";
+import { useEffect } from "react";
+import useQuery from "hooks/useQuery";
+import VendorsAPI from "@/features/procurement/controllers/vendorsController";
 
 const Technical = () => {
   const dispatch = useDispatch();
+  const query = useQuery();
+  const vendorId = query.get("id");
+
+  const {
+    data: vendor,
+    isLoading,
+  } = VendorsAPI.useGetVendor(vendorId);
 
   const form = useForm<z.infer<typeof VendorsTechnicalSchema>>({
     resolver: zodResolver(VendorsTechnicalSchema),
@@ -31,6 +41,19 @@ const Technical = () => {
   });
 
   const { control } = form;
+
+  useEffect(() => {
+    if (vendorId && vendor?.data && !isLoading) {
+      form.reset({
+        production_equipments: vendor?.data?.production_equipments || [{ name: "", manufacturer: "", year: "" }],
+        number_of_operational_work_shift: vendor?.data?.number_of_operational_work_shift || "",
+        installed_capacity: vendor?.data?.installed_capacity || "",
+        lagest_capacity_and_utilization: vendor?.data?.lagest_capacity_and_utilization || "",
+        brief_of_quality_control: vendor?.data?.brief_of_quality_control || "",
+        brief_of_sampling: vendor?.data?.brief_of_sampling || "",
+      });
+    }
+  }, [vendorId, vendor, isLoading, form]);
 
   const router = useRouter();
 
@@ -54,7 +77,7 @@ const Technical = () => {
     path = path.substring(0, path.lastIndexOf("/"));
 
     // Append the new segment to the path
-    path += "/questionnaire";
+    path += `/questionnaire?id=${vendorId}`;
     router.push(path);
   };
   return (

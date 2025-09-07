@@ -11,7 +11,7 @@ import {
 } from "../types/prequalification-criteria";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
-const BASE_URL = "/procurements/config/prequalification-criteria/";
+const BASE_URL = "/procurements/prequalification_criteria/";
 
 // ===== PREQUALIFICATION CRITERIA HOOKS =====
 
