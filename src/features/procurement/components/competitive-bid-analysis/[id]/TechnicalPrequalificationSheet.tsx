@@ -12,10 +12,10 @@ import { useForm } from "react-hook-form";
 import GoBack from "components/GoBack";
 import { useRouter, useParams } from "next/navigation";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
-import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendor-bid-submissionsController";
+import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 import { useEffect, useState } from "react";
 import VendorSelect from "./VendorSelector";
-import ManualBidCbaPrequalificationAPI from "@/features/procurement/controllers/manual-bid-cba-prequalificationController";
+import ManualBidCbaPrequalificationAPI from "@/features/procurement/controllers/manualBidCbaPrequalificationController";
 import { RouteEnum } from "constants/RouterConstants";
 import { toast } from "sonner";
 import { Loading } from "components/Loading";
@@ -47,7 +47,7 @@ const TPS = () => {
   );
   console.log({ matchedItem });
 
-  const [createManualBidCBAPrequalification] =
+  const { createManualBidCbaPrequalification } =
     ManualBidCbaPrequalificationAPI.useCreateManualBidCbaPrequalification();
 
   const [vendorId, setVendorId] = useState<string>(id!);
@@ -98,10 +98,10 @@ const TPS = () => {
         console.log({ payload });
 
         // @ts-ignore
-        const response = await createManualBidCBAPrequalification(payload)();
-        console.log({ response: response?.passed });
+        await createManualBidCbaPrequalification(payload);
+        console.log({ criteriaStatus: criteria.status, passed: criteria.status === "PASS" });
 
-        if (!response?.passed) {
+        if (criteria.status !== "PASS") {
           failedCount++;
           if (failedCount > 1) {
             toast.error("Multiple criteria have failed. Stopping submission.");
@@ -120,11 +120,8 @@ const TPS = () => {
       bid_submission: data.bid_submission?.toString() || "",
       solicitation: id?.toString() || "",
     });
-    router.push(
-      `${
-        RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_FINANCIAL_BID_OPENING
-      }?${params.toString()}`
-    );
+    const financialBidUrl = RouteEnum.PROCUREMENT_CBA_FINANCIAL_BID_OPENING.replace(':id', matchedItem?.id || '');
+    router.push(`${financialBidUrl}?${params.toString()}`);
   };
 
   if (isLoading) return <Loading />;

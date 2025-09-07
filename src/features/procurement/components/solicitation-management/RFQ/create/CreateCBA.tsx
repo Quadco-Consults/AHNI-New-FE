@@ -79,7 +79,7 @@ const CreateCBA = () => {
   const { data: lots, isLoading: lotIsLoading } = useGetLotList({
     params: { no_paginate: true },
   });
-  const { createCbaMutation, isLoading: createCbaIsLoading } = useCreateCba();
+  const { createCba, isLoading: createCbaIsLoading } = useCreateCba();
 
   const form = useForm<z.infer<typeof CbaSchema>>({
     resolver: zodResolver(CbaSchema),
@@ -127,7 +127,7 @@ const CreateCBA = () => {
 
     try {
       // @ts-ignore
-      await createCbaMutation(payload)();
+      await createCba(payload);
       toast.success("Successfully created.");
       // router.push(RouteEnum.COMPETITIVE_BID_ANALYSIS);
       router.push(

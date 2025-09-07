@@ -9,6 +9,10 @@ import {
   CbaResponse,
   CbaResultsData,
   CbaSubmitPayload,
+  CbaAnalysisSubmissionPayload,
+  CbaDocument,
+  CbaEvaluationPayload,
+  CbaScoreCalculation,
 } from "../types/cba";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
@@ -204,6 +208,119 @@ export const useDeleteCba = (id: string) => {
   return { deleteCba, data, isLoading, isSuccess, error };
 };
 
+// CBA Analysis Submission
+export const useCbaAnalysisSubmission = () => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    CbaResponse,
+    Error,
+    CbaAnalysisSubmissionPayload
+  >({
+    endpoint: "/procurements/cba-analysis-submission/",
+    queryKey: ["cbas"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const submitCbaAnalysis = async (details: CbaAnalysisSubmissionPayload) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("CBA analysis submission error:", error);
+    }
+  };
+
+  return { submitCbaAnalysis, data, isLoading, isSuccess, error };
+};
+
+// Generate CBA Report/Document
+export const useGenerateCbaReport = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    TResponse<CbaDocument>,
+    Error,
+    Record<string, never>
+  >({
+    endpoint: `${BASE_URL}${id}/generate-report/`,
+    queryKey: ["cbas", "cba-report"],
+    isAuth: true,
+    method: "GET",
+  });
+
+  const generateCbaReport = async () => {
+    try {
+      await callApi({} as Record<string, never>);
+    } catch (error) {
+      console.error("CBA report generation error:", error);
+    }
+  };
+
+  return { generateCbaReport, data, isLoading, isSuccess, error };
+};
+
+// CBA Evaluation and Scoring
+export const useCbaEvaluation = (cbaId: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    TResponse<CbaScoreCalculation[]>,
+    Error,
+    CbaEvaluationPayload
+  >({
+    endpoint: `${BASE_URL}${cbaId}/evaluate/`,
+    queryKey: ["cbas", "cba-evaluation"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const evaluateCba = async (details: CbaEvaluationPayload) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("CBA evaluation error:", error);
+    }
+  };
+
+  return { evaluateCba, data, isLoading, isSuccess, error };
+};
+
+// Calculate CBA Scores
+export const useCalculateCbaScores = (cbaId: string) => {
+  return useQuery<TResponse<CbaScoreCalculation[]>>({
+    queryKey: ["cba-scores", cbaId],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${BASE_URL}${cbaId}/scores/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: !!cbaId,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get Price Responsiveness Ranking
+export const usePriceResponsivenessRanking = (cbaId: string) => {
+  return useQuery<TResponse<{ 
+    first_most_responsive: string;
+    second_most_responsive: string;
+    third_most_responsive: string;
+    no_bid?: string;
+  }>>({
+    queryKey: ["price-responsiveness", cbaId],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${BASE_URL}${cbaId}/price-ranking/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: !!cbaId,
+    refetchOnWindowFocus: false,
+  });
+};
+
 // Legacy exports for backward compatibility
 export const useGetCbaListQuery = useGetAllCbas;
 export const useGetCbaQuery = useGetSingleCba;
@@ -224,6 +341,11 @@ const CbaAPI = {
   useUpdateCba,
   useModifyCba,
   useDeleteCba,
+  useCbaAnalysisSubmission,
+  useGenerateCbaReport,
+  useCbaEvaluation,
+  useCalculateCbaScores,
+  usePriceResponsivenessRanking,
   useGetCbaListQuery,
   useGetCbaQuery,
   useCreateCbaMutation,
