@@ -272,10 +272,10 @@ const CreateUsers = () => {
       type: "ADHOC" as const,
       
       // Basic adhoc staff information
-      title: `Adhoc Staff - ${userData.first_name} ${userData.last_name}`,
+      title: `Adhoc Staff - ${userData.first_name} ${userData.last_name} [INCOMPLETE PROFILE]`,
       
-      // Use user's location data
-      locations: userData.location ? [userData.location] : [],
+      // Use user's location data (ensure non-empty array)
+      locations: userData.location ? [userData.location] : ["TBD"],
       
       // Default values for required fields
       grade_level: userData.position || "To be determined",
@@ -284,14 +284,15 @@ const CreateUsers = () => {
       consultants_number: "1",
       
       // Scope of work defaults
-      description: `Adhoc staff position for ${userData.first_name} ${userData.last_name}`,
-      background: `Created from user management system for adhoc staff member ${userData.first_name} ${userData.last_name}`,
-      objectives: "To be defined during onboarding process",
+      description: `⚠️ INCOMPLETE PROFILE - Created from user management. Adhoc staff position for ${userData.first_name} ${userData.last_name}. Please complete onboarding process to add: education, experience, references, documents, and contract details.`,
+      background: `Created from user management system for adhoc staff member ${userData.first_name} ${userData.last_name}. This profile is incomplete and requires completion through the proper onboarding process.`,
+      objectives: "⚠️ TO BE COMPLETED: Professional objectives, skills, and specializations need to be added during proper onboarding process",
       advertisement_document: "https://placeholder.com/advertisement", // Placeholder URL
       
-      // Mark as created from user management for tracking
-      extra_info: `Created from USER_MANAGEMENT for user_id: ${userId}`,
-      created_from: "USER_MANAGEMENT"
+      // Mark as created from user management for tracking and completion
+      extra_info: `INCOMPLETE PROFILE - Created from USER_MANAGEMENT for user_id: ${userId}. Missing: contract details, education, experience, references, documents. Requires completion via adhoc onboarding process.`,
+      created_from: "USER_MANAGEMENT",
+      profile_status: "INCOMPLETE"
     };
   };
 
@@ -302,8 +303,8 @@ const CreateUsers = () => {
       title: `Facilitator - ${userData.first_name} ${userData.last_name}`,
       grade_level: userData.position || "To be determined",
       
-      // Use user's location data
-      locations: userData.location ? [userData.location] : [],
+      // Use user's location data (ensure non-empty array)
+      locations: userData.location ? [userData.location] : ["TBD"],
       
       // Default values for required fields
       duration: "365", // One year in days
@@ -347,8 +348,8 @@ const CreateUsers = () => {
       // Basic consultant information
       title: `Consultant - ${userData.first_name} ${userData.last_name}`,
       
-      // Use user's location data
-      locations: userData.location ? [userData.location] : [],
+      // Use user's location data (ensure non-empty array)
+      locations: userData.location ? [userData.location] : ["TBD"],
       
       // Default values for required fields
       grade_level: userData.position || "To be determined",
