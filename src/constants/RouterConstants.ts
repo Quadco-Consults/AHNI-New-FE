@@ -186,6 +186,15 @@ export const RouteEnum = {
   COMPETITIVE_SELECTION:
     "/dashboard/procurement/competitive-bid-analysis/selection",
 
+  // Competitive Bid Analysis routes
+  PROCUREMENT_COMPETITIVE_BID_ANALYSIS: "/dashboard/procurement/competitive-bid-analysis",
+  PROCUREMENT_CBA_DETAILS: "/dashboard/procurement/competitive-bid-analysis/:id",
+  PROCUREMENT_CBA_CHECK_APPROVAL: "/dashboard/procurement/competitive-bid-analysis/:id/check-approval",
+  PROCUREMENT_CBA_START: "/dashboard/procurement/competitive-bid-analysis/:id/start/:appID",
+  PROCUREMENT_CBA_FINANCIAL_BID_OPENING: "/dashboard/procurement/competitive-bid-analysis/:id/financial-bid-opening",
+  PROCUREMENT_CBA_TECHNICAL_PREQUALIFICATION: "/dashboard/procurement/competitive-bid-analysis/:id/summary-of-technical-prequalification",
+  PROCUREMENT_CBA_REPORT: "/dashboard/procurement/competitive-bid-analysis/:id/report",
+
   PROCUREMENT_PAYMENT_REQUEST: "/dashboard/procurement/payment-request",
 
   //purchase request routes
@@ -221,10 +230,10 @@ export const RouteEnum = {
   RFQ_CREATE_QUOTATION:
     "/dashboard/procurement/solicitation-management/rfq/create/quotation",
   RFQ_CREATE_ITEMS:
-    "/dashboard/procurement/solicitation-management/create/items",
+    "/dashboard/procurement/solicitation-management/rfq/create/items",
   RFQ_DETAILS: "/dashboard/procurement/solicitation-management/rfq/:id",
   RFQ_CREATE_CBA:
-    "/dashboard/procurement/solicitation-management/create/create-cba?id=:id",
+    "/dashboard/procurement/solicitation-management/rfq/create/create-cba?id=:id",
   RFQ_COMPETITIVE_BID_ANALYSIS:
     "/dashboard/procurement/competitive-bid-analysis/:id",
   RFQ_DETAILS_BID_SUBMISSION:

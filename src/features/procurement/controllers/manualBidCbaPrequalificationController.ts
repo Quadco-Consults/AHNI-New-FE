@@ -219,3 +219,27 @@ export const useCreateVendorBidAnalysisMutation = useCreateVendorBidAnalysis;
 export const useUpdateManualBidCbaPrequalificationMutation = useUpdateManualBidCbaPrequalification;
 export const useModifyManualBidCbaPrequalificationMutation = useModifyManualBidCbaPrequalification;
 export const useDeleteManualBidCbaPrequalificationMutation = useDeleteManualBidCbaPrequalification;
+
+// Default export for backward compatibility
+const ManualBidCbaPrequalificationAPI = {
+  useGetAllManualBidCbaPrequalifications,
+  useGetManualBidPrequalificationsBySolicitation,
+  useGetSingleManualBidCbaPrequalification,
+  useCreateManualBidCbaPrequalification,
+  useCreateVendorBidAnalysis,
+  useUpdateManualBidCbaPrequalification,
+  useModifyManualBidCbaPrequalification,
+  useDeleteManualBidCbaPrequalification,
+  useGetManualBidCbaPrequalificationsQuery,
+  useGetManualBidPrequalificationsQuery,
+  useGetManualBidCbaPrequalificationQuery,
+  useCreateManualBidCbaPrequalificationMutation,
+  useCreateVendorBidAnalysisMutation,
+  useUpdateManualBidCbaPrequalificationMutation,
+  useModifyManualBidCbaPrequalificationMutation,
+  useDeleteManualBidCbaPrequalificationMutation,
+  // Alias for backward compatibility
+  useGetManualBidPrequalifications: useGetManualBidPrequalificationsBySolicitation,
+};
+
+export default ManualBidCbaPrequalificationAPI;

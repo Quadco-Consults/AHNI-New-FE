@@ -20,6 +20,7 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "components/ui/dialog";
 import BreadcrumbCard from "components/Breadcrumb";
@@ -131,8 +132,10 @@ const PriceIntelligence = () => {
               </DialogTrigger>
               <DialogContent className='max-w-5xl'>
                 {priceDetailsIsLoading && <LoadingSpinner />}
-                <DialogHeader className='text-2xl font-semibold'>
-                  {priceDetails?.name}
+                <DialogHeader>
+                  <DialogTitle className='text-2xl font-semibold'>
+                    {priceDetails?.name}
+                  </DialogTitle>
                 </DialogHeader>
                 <div className='px-5'>
                   <ScrollArea className='h-[80vh] py-10 space-y-5'>
