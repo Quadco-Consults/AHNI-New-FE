@@ -81,7 +81,7 @@ export const AdminRoutes = {
   // EXPENSE AUTHORIZATION
   EXPENSE_AUTHORIZATION: "/dashboard/admin/expense-authorization",
   EXPENSE_AUTHORIZATION_CREATE: "/dashboard/admin/expense-authorization/create",
-  EXPENSE_AUTHORIZATION_DETAIL: "/dashboard/admin/expense-authorization/:id",
+  EXPENSE_AUTHORIZATION_DETAIL: "/dashboard/admin/expense-authorization",
 
   // TRAVEL EXPENSE REPORT
   TRAVEL_EXPENSE_REPORT: "/dashboard/admin/travel-expenses-report",

@@ -69,7 +69,9 @@ export const useGetAllFacilityMaintenance = ({
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled,
@@ -78,7 +80,10 @@ export const useGetAllFacilityMaintenance = ({
 };
 
 // Get Single Facility Maintenance
-export const useGetSingleFacilityMaintenance = (id: string, enabled: boolean = true) => {
+export const useGetSingleFacilityMaintenance = (
+  id: string,
+  enabled: boolean = true
+) => {
   return useQuery<ApiResponse<IFacilityMaintenanceSingleData>>({
     queryKey: ["facilityMaintenance", id],
     queryFn: async () => {
@@ -87,7 +92,9 @@ export const useGetSingleFacilityMaintenance = (id: string, enabled: boolean = t
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled && !!id,
@@ -108,7 +115,9 @@ export const useCreateFacilityMaintenance = () => {
     method: "POST",
   });
 
-  const createFacilityMaintenance = async (details: TFacilityMaintenanceFormValues) => {
+  const createFacilityMaintenance = async (
+    details: TFacilityMaintenanceFormValues
+  ) => {
     try {
       await callApi(details);
     } catch (error) {
@@ -132,7 +141,9 @@ export const useModifyFacilityMaintenance = (id: string) => {
     method: "PUT",
   });
 
-  const modifyFacilityMaintenance = async (details: TFacilityMaintenanceFormValues) => {
+  const modifyFacilityMaintenance = async (
+    details: TFacilityMaintenanceFormValues
+  ) => {
     try {
       await callApi(details);
     } catch (error) {
@@ -167,9 +178,89 @@ export const useDeleteFacilityMaintenance = (id: string) => {
   return { deleteFacilityMaintenance, data, isLoading, isSuccess, error };
 };
 
+// ===== FACILITY MAINTENANCE APPROVAL HOOKS =====
+
+// Review Facility Maintenance
+export const useReviewFacilityMaintenance = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IFacilityMaintenanceSingleData,
+    Error,
+    { comments: string }
+  >({
+    endpoint: `${BASE_URL}${id}/review/`,
+    queryKey: ["facilityMaintenance", "facilityMaintenanceItem"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const reviewFacilityMaintenance = async (details: { comments: string }) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("Facility maintenance review error:", error);
+    }
+  };
+
+  return { reviewFacilityMaintenance, data, isLoading, isSuccess, error };
+};
+
+// Authorize Facility Maintenance
+export const useAuthorizeFacilityMaintenance = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IFacilityMaintenanceSingleData,
+    Error,
+    { comments: string }
+  >({
+    endpoint: `${BASE_URL}${id}/authorize/`,
+    queryKey: ["facilityMaintenance", "facilityMaintenanceItem"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const authorizeFacilityMaintenance = async (details: {
+    comments: string;
+  }) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("Facility maintenance authorize error:", error);
+    }
+  };
+
+  return { authorizeFacilityMaintenance, data, isLoading, isSuccess, error };
+};
+
+// Approve Facility Maintenance
+export const useApproveFacilityMaintenance = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IFacilityMaintenanceSingleData,
+    Error,
+    { comments: string }
+  >({
+    endpoint: `${BASE_URL}${id}/approve/`,
+    queryKey: ["facilityMaintenance", "facilityMaintenanceItem"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const approveFacilityMaintenance = async (details: { comments: string }) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("Facility maintenance approve error:", error);
+    }
+  };
+
+  return { approveFacilityMaintenance, data, isLoading, isSuccess, error };
+};
+
 // Legacy exports for backward compatibility
 export const useGetAllFacilityMaintenanceQuery = useGetAllFacilityMaintenance;
-export const useGetSingleFacilityMaintenanceQuery = useGetSingleFacilityMaintenance;
-export const useCreateFacilityMaintenanceMutation = useCreateFacilityMaintenance;
-export const useModifyFacilityMaintenanceMutation = useModifyFacilityMaintenance;
-export const useDeleteFacilityMaintenanceMutation = useDeleteFacilityMaintenance;
+export const useGetSingleFacilityMaintenanceQuery =
+  useGetSingleFacilityMaintenance;
+export const useCreateFacilityMaintenanceMutation =
+  useCreateFacilityMaintenance;
+export const useModifyFacilityMaintenanceMutation =
+  useModifyFacilityMaintenance;
+export const useDeleteFacilityMaintenanceMutation =
+  useDeleteFacilityMaintenance;
