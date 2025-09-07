@@ -1,6 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
+import { toast } from "sonner";
 
 export interface TNotification {
   id: string;
@@ -8,9 +9,9 @@ export interface TNotification {
   module_type: string;
   title: string;
   message: string;
-  status: string;
+  status: "Pending" | "Read";
+  is_read: boolean;
   created_datetime: string;
-  due_date: null;
 }
 
 interface NotificationResponse {
@@ -38,7 +39,133 @@ export const useGetNotifications = (params?: { page?: number; size?: number; ena
       }
     },
     enabled: enabled,
-    refetchOnWindowFocus: false,
+    refetchInterval: 30000, // Refetch every 30 seconds for real-time updates
+    refetchOnWindowFocus: true,
+    refetchIntervalInBackground: false,
+  });
+};
+
+// Mark notification as read
+export const useMarkNotificationAsRead = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (notificationId: string) => {
+      try {
+        const response = await AxiosWithToken.post(`/notifications/${notificationId}/mark_as_read/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      toast.success("Notification marked as read");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to mark notification as read");
+    },
+  });
+};
+
+// Delete notification
+export const useDeleteNotification = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (notificationId: string) => {
+      try {
+        const response = await AxiosWithToken.delete(`/notifications/${notificationId}/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      toast.success("Notification deleted");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to delete notification");
+    },
+  });
+};
+
+// Mark notification as unread
+export const useMarkNotificationAsUnread = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (notificationId: string) => {
+      try {
+        const response = await AxiosWithToken.post(`/notifications/${notificationId}/mark_as_unread/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      toast.success("Notification marked as unread");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to mark notification as unread");
+    },
+  });
+};
+
+// Mark all notifications as read (bulk operation)
+export const useMarkAllAsRead = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async () => {
+      try {
+        // Since there's no bulk endpoint mentioned, we'll get all unread notifications and mark them individually
+        const notificationsResponse = await AxiosWithToken.get(`/notifications/?status=Pending&size=1000`);
+        const unreadNotifications = notificationsResponse.data.results || [];
+        
+        // Mark each unread notification as read
+        const promises = unreadNotifications.map((notification: TNotification) =>
+          AxiosWithToken.post(`/notifications/${notification.id}/mark_as_read/`)
+        );
+        
+        await Promise.all(promises);
+        return { success: true };
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      toast.success("All notifications marked as read");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to mark all notifications as read");
+    },
+  });
+};
+
+// Get unread notification count
+export const useGetUnreadCount = () => {
+  return useQuery<{ count: number }>({
+    queryKey: ["notifications", "unread-count"],
+    queryFn: async () => {
+      try {
+        // Get count of unread notifications by filtering status=Pending
+        const response = await AxiosWithToken.get(`/notifications/?status=Pending&size=1`);
+        return { count: response.data.count || 0 };
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchOnWindowFocus: true,
   });
 };
 
