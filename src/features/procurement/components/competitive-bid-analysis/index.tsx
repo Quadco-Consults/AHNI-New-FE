@@ -18,12 +18,22 @@ import DeleteIcon from "components/icons/DeleteIcon";
 import { Badge } from "components/ui/badge";
 import { Checkbox } from "components/ui/checkbox";
 import { useGetAllCbas } from "@/features/procurement/controllers/cbaController";
-import { CbaResultsData } from "definations/procurement-types/cba";
+import { CbaResultsData } from "@/features/procurement/types/cba";
 import PrinterIcon from "components/icons/PrinterIcon";
 import SendIcon from "components/icons/SendIcon";
 import { useState } from "react";
 import { Loading } from "components/Loading";
 import { Plus } from "lucide-react";
+
+const generatePath = (route: string, params?: Record<string, any>): string => {
+  let path = route;
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      path = path.replace(`:${key}`, String(value));
+    });
+  }
+  return path;
+};
 
 const CompetitiveAnalysis = () => {
   const [page, setPage] = useState(1);
@@ -149,9 +159,9 @@ const columns: ColumnDef<CbaResultsData>[] = [
           className={cn(
             "p-1 rounded-lg",
             getValue() === "APPROVED" && "bg-green-200 text-green-500",
-            getValue() === "Reject" && "bg-red-200 text-red-500",
+            getValue() === "REJECTED" && "bg-red-200 text-red-500",
             getValue() === "PENDING" && "bg-yellow-200 text-yellow-500",
-            getValue() === "On Hold" && "text-grey-200 bg-grey-500"
+            getValue() === "COMPLETED" && "bg-blue-200 text-blue-500"
           )}
         >
           {getValue() as string}
@@ -184,7 +194,7 @@ const ActionListAction = ({ data }: any) => {
             <div className='flex flex-col items-start justify-between gap-1'>
               {/* <Link
                 className='w-full'
-                href={generatePath(RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS, {
+                href={generatePath(RouteEnum.PROCUREMENT_CBA_DETAILS, {
                   id: data?.id,
                 })}
               >
@@ -217,7 +227,7 @@ const ActionListAction = ({ data }: any) => {
                 className='w-full'
                 href={{
                   pathname:
-                    RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_APPROVAL_CHECK,
+                    RouteEnum.PROCUREMENT_CBA_CHECK_APPROVAL.replace(':id', data?.id),
                   search: `?id=${data?.solicitation?.id}&cba=${data?.id}`,
                 }}
               >

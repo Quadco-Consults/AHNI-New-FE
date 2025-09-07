@@ -1,5 +1,5 @@
-import ConsultancyDatabase from "@/features/contracts-grants/components/contract-management/consultancy-database/index";
+import AdhocDatabase from "@/features/programs/components/adhoc-database/index";
 
 export default function AdhocDatabasePage() {
-  return <ConsultancyDatabase />;
+  return <AdhocDatabase />;
 }

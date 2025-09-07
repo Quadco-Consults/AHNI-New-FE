@@ -45,7 +45,7 @@ export const VendorsRegistrationSchema = z.object({
   website: z.string().min(1, "Field is required"),
   phone_numbers: z.string().min(1, "Field is required"),
   tin: z.string().min(1, "Field is required"),
-  number_of_permanent_staff: z.string().min(1, "Field is required"),
+  number_of_permanent_staff: z.any().optional(),
   submitted_categories: z.array(z.string()),
   company_chairman: z.string().min(1, "Field is required"),
   bank_address: z.string().min(1, "Field is required"),
@@ -94,7 +94,7 @@ export const VendorsTechnicalSchema = z.object({
       year: z.string().min(1, "Field is required"),
     })
   ),
-  number_of_operational_work_shift: z.string().min(1, "Field is required"),
+  number_of_operational_work_shift: z.any().optional(),
   installed_capacity: z.string().min(1, "Field is required"),
   lagest_capacity_and_utilization: z.string().min(1, "Field is required"),
   brief_of_quality_control: z.string().min(1, "Field is required"),
@@ -255,10 +255,14 @@ export const SolicitationQuotationSchema = z.object({
   tender_type: z.string().min(1, "Please select tender type"),
   eoi_tender: z.string().optional(),
   categories: z.array(z.string()).optional().nullable(),
-  documents: z.array(z.object({
-    deliverable: z.string().optional(),
-    number_of_days: z.string().optional(),
-  })).optional(),
+  documents: z
+    .array(
+      z.object({
+        deliverable: z.string().optional(),
+        number_of_days: z.string().optional(),
+      })
+    )
+    .optional(),
   purchase_request: z
     .string()
     // .min(1, "Please select purchase request")
@@ -332,17 +336,30 @@ export const SolicitationSubmissionSchema = z.object({
 });
 
 export const CbaSchema = z.object({
-  cba_type: z.string().min(1, "Field is required"),
-  cba_date: z.string().min(1, "Field is required"),
-  solicitation: z.string().min(1, "Field is required"),
-  lot: z.string().optional(),
-  assignee: z.string().min(1, "Field is required"),
-  committee_members: z.array(z.string()),
+  cba_type: z.enum(['COMMITTEE', 'NON COMMITTEE'], {
+    required_error: "CBA type is required",
+  }),
+  cba_date: z.string().min(1, "CBA date is required"),
+  solicitation: z.string().uuid("Solicitation must be a valid UUID"),
+  lot: z.string().uuid("Lot must be a valid UUID").optional(),
+  assignee: z.string().uuid("Assignee must be a valid UUID").optional(),
+  committee_members: z.array(z.string().uuid("Committee member must be a valid UUID")),
+  remarks: z.string().optional(),
 });
 
 export const CbaApprovalSchema = z.object({
-  status: z.string().min(1, "Field is required"),
-  remarks: z.string().min(1, "Field is required"),
+  status: z.enum(['APPROVED', 'REJECTED', 'COMPLETED'], {
+    required_error: "Status is required",
+  }),
+  remarks: z.string().min(1, "Remarks are required for approval/rejection"),
+});
+
+export const CbaAnalysisSubmissionSchema = z.object({
+  cba_id: z.string().uuid("CBA ID must be a valid UUID"),
+  solicitation_id: z.string().uuid("Solicitation ID must be a valid UUID"),
+  vendor_id: z.string().uuid("Vendor ID must be a valid UUID"),
+  recommendation_note: z.string().optional(),
+  selected_items: z.array(z.string().uuid("Item ID must be a valid UUID")).min(0, "At least one item can be selected"),
 });
 
 export const ProcurementMilestoneSchema = z.object({

@@ -18,9 +18,9 @@ import Image from "next/image";
 import { BsFiletypeCsv } from "react-icons/bs";
 
 const TableComponent = () => {
-  const query = useQuery();
-  const id = query.get("id");
-  const cba = query.get("cba");
+  const searchParams = useSearchParams();
+  const id = searchParams?.get("id");
+  const cba = searchParams?.get("cba");
 
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -250,10 +250,20 @@ const TableComponent = () => {
           solicitation_id: id,
         };
 
-        return createVendorBidAnalysis(payload)();
-      });
+          await submitCbaAnalysis(payload);
+        } else {
+          // Submit with empty items to trigger automatic rejection
+          const payload = {
+            cba_id: cba,
+            solicitation_id: id,
+            vendor_id: vendor?.id,
+            recommendation_note: `${recommendationNote} | Prequalification: FAILED - Vendor did not meet requirements`,
+            selected_items: [], // Empty array triggers rejection
+          };
 
-      await Promise.all(apiCalls);
+          await submitCbaAnalysis(payload);
+        }
+      }
       router.push(`${RouteEnum.COMPETITIVE_BID_ANALYSIS}`);
 
       toast.success("Analysis submitted successfully!");

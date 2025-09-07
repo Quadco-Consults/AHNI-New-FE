@@ -13,6 +13,8 @@ import { capitalize } from "lodash";
 import { FC, useEffect, useState } from "react";
 import { useGetAllPermissionsManager, useGetSingleRoleManager, useUpdateRoleManager } from "@/features/auth/controllers/roleController";
 import { toast } from "sonner";
+import { useAppDispatch } from "hooks/useStore";
+import { closeDialog } from "store/ui";
 
 interface Permission {
   id: number;
@@ -138,15 +140,16 @@ const PermissionSelector: FC<TPermissionSelector> = ({
 };
 
 interface AssignPermissionProps {
-  roleId?: string;
-  roleName?: string;
+  id?: string;
+  name?: string;
   onClose?: () => void;
 }
 
-const AssignPermission = ({ roleId, roleName, onClose }: AssignPermissionProps) => {
+const AssignPermission = ({ id: roleId, name: roleName, onClose }: AssignPermissionProps) => {
   const [selectedPermissions, setSelectedPermissions] = useState<number[]>([]);
+  const dispatch = useAppDispatch();
 
-  const { updateRole, isLoading } = useUpdateRoleManager();
+  const { updateRole, isLoading } = useUpdateRoleManager(roleId || "");
   const { data: role } = useGetSingleRoleManager(roleId || "");
 
   useEffect(() => {
@@ -180,14 +183,12 @@ const AssignPermission = ({ roleId, roleName, onClose }: AssignPermissionProps) 
     if (!roleId || !roleName) return;
 
     try {
-      await updateRole(roleId, { 
+      await updateRole({ 
         name: roleName, 
         permissions: selectedPermissions 
       });
       toast.success("Permission added successfully");
-      if (onClose) {
-        onClose();
-      }
+      dispatch(closeDialog());
     } catch (error: any) {
       toast.error(error?.message || "Something went wrong");
     }
@@ -225,7 +226,7 @@ const AssignPermission = ({ roleId, roleName, onClose }: AssignPermissionProps) 
       <div className="flex items-center justify-end gap-4 mt-7 px-7">
         <Button
           variant="outline"
-          onClick={onClose}
+          onClick={() => dispatch(closeDialog())}
         >
           Cancel
         </Button>

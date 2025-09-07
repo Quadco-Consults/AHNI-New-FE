@@ -9,7 +9,7 @@ import { Label } from "components/ui/label";
 import { ArrowLeft, ArrowRight, MinusCircle, PlusCircle } from "lucide-react";
 import FormButton from "@/components/FormButton";
 import { useRouter } from "next/navigation";
-import { usePathname } from "next/navigation"; 
+import { usePathname } from "next/navigation";
 import FormSelect from "components/atoms/FormSelectField";
 import { VendorsCompanySchema } from "@/features/procurement/types/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,11 +17,18 @@ import { z } from "zod";
 import { SelectContent, SelectItem } from "components/ui/select";
 import { useDispatch } from "react-redux";
 import { vendorsActions } from "store/formData/procurement-vendors";
+import { useEffect } from "react";
+import useQuery from "hooks/useQuery";
+import VendorsAPI from "@/features/procurement/controllers/vendorsController";
 
 const Company = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const pathname = usePathname();
+  const query = useQuery();
+  const vendorId = query.get("id");
+
+  const { data: vendor, isLoading, error } = VendorsAPI.useGetVendor(vendorId);
 
   const form = useForm<z.infer<typeof VendorsCompanySchema>>({
     resolver: zodResolver(VendorsCompanySchema),
@@ -38,6 +45,26 @@ const Company = () => {
   });
 
   const { control, handleSubmit } = form;
+
+  useEffect(() => {
+    if (vendorId && vendor?.data && !isLoading) {
+      form.reset({
+        branches: vendor?.data?.branches || [
+          { name: "", address: "", phone_number: "" },
+        ],
+        share_holders: vendor?.data?.share_holders || [
+          { name: "", address: "", phone_number: "" },
+        ],
+        key_staff: vendor?.data?.key_staff || [
+          { name: "", address: "", qualification: "", phone_number: "" },
+        ],
+        associated_entities: vendor?.data?.associated_entities || [
+          { name: "", address: "", phone_number: "", entity_type: "" },
+        ],
+      });
+    }
+  }, [vendorId, vendor, isLoading, form]);
+  console.log({ vendor, vendorId });
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -76,7 +103,7 @@ const Company = () => {
 
     path = path.substring(0, path.lastIndexOf("/"));
 
-    path += "/technical-capacity";
+    path += `/technical-capacity?id=${vendorId}`;
     router.push(path);
   };
 

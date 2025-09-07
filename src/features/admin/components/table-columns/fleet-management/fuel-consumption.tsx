@@ -37,7 +37,7 @@ export const fuelConsumptionColumns: ColumnDef<IFuelRequestPaginatedData>[] = [
   {
     header: "Vendor",
     id: "vendor",
-    accessorKey: "vendor",
+    accessorKey: "vendor.name",
     size: 120,
   },
   {
@@ -78,11 +78,13 @@ export const fuelConsumptionColumns: ColumnDef<IFuelRequestPaginatedData>[] = [
       const status = getValue() as string;
       return (
         <Badge
-          variant="default"
+          variant='default'
           className={cn(
             "p-1 rounded-lg font-medium",
-            status === "PENDING" && "bg-yellow-100 text-yellow-800 border-yellow-200",
-            status === "APPROVED" && "bg-green-100 text-green-800 border-green-200",
+            status === "PENDING" &&
+              "bg-yellow-100 text-yellow-800 border-yellow-200",
+            status === "APPROVED" &&
+              "bg-green-100 text-green-800 border-green-200",
             status === "REJECTED" && "bg-red-100 text-red-800 border-red-200"
           )}
         >
@@ -124,36 +126,40 @@ const TableMenu = ({ id }: IFuelRequestPaginatedData) => {
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className='flex items-center gap-2'>
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="ghost" className="flex gap-2 py-6">
+          <Button variant='ghost' className='flex gap-2 py-6'>
             <MoreOptionsHorizontalIcon />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-fit">
-          <div className="flex flex-col items-start justify-between gap-1">
-            <Link href={`/dashboard/admin/fleet-management/fuel-request/${id}/details`}>
+        <PopoverContent className='w-fit'>
+          <div className='flex flex-col items-start justify-between gap-1'>
+            <Link
+              href={`/dashboard/admin/fleet-management/fuel-request/${id}?type=vehicle`}
+            >
               <Button
-                className="w-full flex items-center justify-start gap-2"
-                variant="ghost"
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
               >
                 <EyeIcon />
                 View Details
               </Button>
             </Link>
-            <Link href={`/dashboard/admin/fleet-management/fuel-request/create?id=${id}`}>
+            <Link
+              href={`/dashboard/admin/fleet-management/fuel-request/create?id=${id}`}
+            >
               <Button
-                className="w-full flex items-center justify-start gap-2"
-                variant="ghost"
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
               >
                 <PencilIcon />
                 Edit
               </Button>
             </Link>
             <Button
-              className="w-full flex items-center justify-start gap-2"
-              variant="ghost"
+              className='w-full flex items-center justify-start gap-2'
+              variant='ghost'
               onClick={() => setDialogOpen(true)}
             >
               <DeleteIcon />
@@ -165,7 +171,7 @@ const TableMenu = ({ id }: IFuelRequestPaginatedData) => {
 
       <ConfirmationDialog
         open={dialogOpen}
-        title="Are you sure you want to delete this fuel consumption record?"
+        title='Are you sure you want to delete this fuel consumption record?'
         loading={isLoading}
         onCancel={() => setDialogOpen(false)}
         onOk={onDelete}

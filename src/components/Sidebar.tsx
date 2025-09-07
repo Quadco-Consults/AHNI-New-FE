@@ -274,9 +274,10 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                               <Link
                                 key={sublink.name}
                                 href={sublink.path}
-                                className={({ isActive }) => {
-                                  return isActive ? "text-amber-400" : "";
-                                }}
+                                className={cn(
+                                  "",
+                                  pathname.startsWith(sublink.path) && "text-amber-400"
+                                )}
                               >
                                 <li className="py-2 ml-8 list-none hover:text-amber-400 hover:cursor-pointer">
                                   {sublink.name}
@@ -289,9 +290,10 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                         <Link
                           key={i}
                           href={el.path}
-                          className={({ isActive }) => {
-                            return isActive ? "text-amber-400" : "";
-                          }}
+                          className={cn(
+                            "",
+                            pathname.startsWith(el.path) && "text-amber-400"
+                          )}
                         >
                           <li
                             className={cn(
@@ -426,9 +428,10 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                                 <Link
                                   key={sublink.name}
                                   href={sublink.path}
-                                  className={({ isActive }) => {
-                                    return isActive ? "text-amber-400" : "";
-                                  }}
+                                  className={cn(
+                                    "",
+                                    pathname.startsWith(sublink.path) && "text-amber-400"
+                                  )}
                                 >
                                   <li className="py-2 ml-8 list-none hover:text-amber-400 hover:cursor-pointer">
                                     {sublink.name}
@@ -441,9 +444,10 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                           <Link
                             key={i}
                             href={el.path}
-                            className={({ isActive }) => {
-                              return isActive ? "text-amber-400" : "";
-                            }}
+                            className={cn(
+                              "",
+                              pathname.startsWith(el.path) && "text-amber-400"
+                            )}
                           >
                             <li
                               className={cn(

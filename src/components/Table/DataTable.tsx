@@ -91,8 +91,30 @@ export default function DataTable<TData>({
             </TableRow>
           ) : (
             <>
-              {table.getRowModel().rows.length > 0 ? (
-                table.getRowModel().rows.map((row) => (
+              {(() => {
+                try {
+                  if (!table || typeof table.getRowModel !== 'function') {
+                    return (
+                      <TableRow>
+                        <TableCell colSpan={columns.length} className='h-24'>
+                          <p className='text-center'>No Data</p>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  }
+                  const rowModel = table.getRowModel();
+                  if (!rowModel || !rowModel.rows) {
+                    return (
+                      <TableRow>
+                        <TableCell colSpan={columns.length} className='h-24'>
+                          <p className='text-center'>No Data</p>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  }
+                  const rows = rowModel.rows;
+                  return rows.length > 0 ? (
+                    rows.map((row) => (
                   <TableRow
                     className='cursor-pointer text-[#756D6D] text-sm dark:text-white'
                     key={row.id}
@@ -114,7 +136,18 @@ export default function DataTable<TData>({
                     <p className='text-center'>No Data</p>
                   </TableCell>
                 </TableRow>
-              )}
+              );
+                } catch (error) {
+                  console.error('DataTable render error:', error);
+                  return (
+                    <TableRow>
+                      <TableCell colSpan={columns.length} className='h-24'>
+                        <p className='text-center'>Error loading data</p>
+                      </TableCell>
+                    </TableRow>
+                  );
+                }
+              })()}
             </>
           )}
         </TableBody>

@@ -52,9 +52,8 @@ export default function AllRoles() {
             <></>
           ) : (
             role?.data.results.map(({ id, name, permissions }, i) => (
-              <>
+              <div key={id}>
                 <div
-                  key={id}
                   className='flex justify-between py-5 border-b clear-end'
                 >
                   <div className='flex item-center gap-x-4'>
@@ -99,7 +98,7 @@ export default function AllRoles() {
                   }}
                   onOk={onDeleteRole}
                 />
-              </>
+              </div>
             ))
           )}
         </CardContent>
