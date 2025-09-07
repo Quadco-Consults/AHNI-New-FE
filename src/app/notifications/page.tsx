@@ -12,13 +12,20 @@ import Notifications from "@/features/notifications/components/notifications";
 
 export default function NotificationsPage() {
     const [sidebarWidth, setSidebarWidth] = useState(false);
-    
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+
     useEffect(() => {
         const token = getAccessToken();
         if (!token) {
             redirect("/auth/login");
+        } else {
+            setIsAuthenticated(true);
         }
     }, []);
+
+    if (!isAuthenticated) {
+        return null; // Render nothing while redirecting
+    }
 
     return (
         <div className="flex">

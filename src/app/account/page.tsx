@@ -12,13 +12,17 @@ import Account from "@/features/accounts/components/account";
 
 export default function AccountPage() {
     const [sidebarWidth, setSidebarWidth] = useState(false);
-    
+    const [isRedirecting, setIsRedirecting] = useState(false);
+
     useEffect(() => {
-        const token = getAccessToken();
-        if (!token) {
-            redirect("/auth/login");
+        if (!isRedirecting) {
+            const token = getAccessToken();
+            if (!token) {
+                setIsRedirecting(true); // Prevent multiple redirects
+                redirect("/auth/login");
+            }
         }
-    }, []);
+    }, [isRedirecting]);
 
     return (
         <div className="flex">
