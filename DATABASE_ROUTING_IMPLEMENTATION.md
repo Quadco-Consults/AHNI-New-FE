@@ -145,7 +145,7 @@ Ensure the following endpoints exist and accept user data:
 
 ### 🔄 Handling Incomplete Profiles
 
-**Problem**: When users are created via the user management interface, they only have basic information (name, email, phone). But specialized databases (especially ADHOC_STAFF) require rich professional data like:
+**Problem**: When users are created via the user management interface, they only have basic information (name, email, phone). But specialized databases (especially ADHOC_STAFF and CONSULTANT) require rich professional data like:
 - Education history
 - Employment history
 - Language proficiency  
@@ -171,11 +171,17 @@ Ensure the following endpoints exist and accept user data:
    - Update operations preserve incomplete status until proper onboarding
 
 **Next Steps for Complete Implementation**:
-1. Add UI indicators in adhoc database to highlight incomplete profiles
+1. Add UI indicators in adhoc and consultancy databases to highlight incomplete profiles
 2. Create "Complete Profile" action button for incomplete records
 3. Build bridge functionality to move incomplete profiles to full onboarding process
 4. Add reporting to track incomplete vs complete profiles
 5. Consider notification system for managers about incomplete profiles
+
+**User Types Affected by Incomplete Profiles**:
+- **ADHOC_STAFF**: Missing professional experience, education, references, contract details
+- **CONSULTANT**: Missing professional experience, education, references, contract details
+- **FACILITATOR**: May have incomplete specialization and certification data
+- **VENDOR**: May have incomplete business registration and capability details
 
 ## Testing Checklist
 
