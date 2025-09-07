@@ -50,7 +50,7 @@ export const useGetSingleExpenseAuthorization = (
     queryKey: ["expense-authorization", id],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`${BASE_URL}${id}`);
+        const response = await AxiosWithToken.get(`${BASE_URL}${id}/`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -98,7 +98,7 @@ export const useModifyExpenseAuthorization = (id: string) => {
     Error,
     TExpenseAuthorizationFormData
   >({
-    endpoint: `${BASE_URL}${id}`,
+    endpoint: `${BASE_URL}${id}/`,
     queryKey: ["expense-authorizations"],
     isAuth: true,
     method: "PUT",
@@ -125,7 +125,7 @@ export const useDeleteExpenseAuthorization = (id: string) => {
     Error,
     Record<string, never>
   >({
-    endpoint: `${BASE_URL}${id}`,
+    endpoint: `${BASE_URL}${id}/`,
     queryKey: ["expense-authorizations"],
     isAuth: true,
     method: "DELETE",
