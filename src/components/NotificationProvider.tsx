@@ -3,11 +3,16 @@
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { useGetNotifications } from "@/features/notifications/controllers/notificationController";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function NotificationProvider({ children }: { children: React.ReactNode }) {
+  const { isLoggedIn, isClient } = useAuth();
+
+  // Only fetch notifications if user is authenticated and we're on the client
   const { data: notifications } = useGetNotifications({ 
     page: 1, 
-    size: 10 // Just get recent notifications for toast alerts
+    size: 10, // Just get recent notifications for toast alerts
+    enabled: isLoggedIn // Only enable if authenticated (isClient is handled in useAuth)
   });
   const previousNotificationsRef = useRef<string[]>([]);
 

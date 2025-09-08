@@ -21,4 +21,5 @@ export interface TLocationData {
     state: string;
     email: string;
     phone: string;
+    unique_code?: string;
 }
