@@ -35,6 +35,11 @@ export const useGetNotifications = (params?: { page?: number; size?: number; ena
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+        // Don't show error toast for unauthenticated users
+        if (axiosError.response?.status === 401) {
+          console.log("User not authenticated, skipping notifications fetch");
+          throw new Error("Unauthenticated");
+        }
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
@@ -42,6 +47,11 @@ export const useGetNotifications = (params?: { page?: number; size?: number; ena
     refetchInterval: 30000, // Refetch every 30 seconds for real-time updates
     refetchOnWindowFocus: true,
     refetchIntervalInBackground: false,
+    retry: (failureCount, error) => {
+      // Don't retry if unauthenticated
+      if (error.message === "Unauthenticated") return false;
+      return failureCount < 3;
+    },
   });
 };
 
@@ -151,7 +161,7 @@ export const useMarkAllAsRead = () => {
 };
 
 // Get unread notification count
-export const useGetUnreadCount = () => {
+export const useGetUnreadCount = (enabled: boolean = true) => {
   return useQuery<{ count: number }>({
     queryKey: ["notifications", "unread-count"],
     queryFn: async () => {
@@ -161,11 +171,22 @@ export const useGetUnreadCount = () => {
         return { count: response.data.count || 0 };
       } catch (error) {
         const axiosError = error as AxiosError;
+        // Don't show error toast for unauthenticated users
+        if (axiosError.response?.status === 401) {
+          console.log("User not authenticated, skipping unread count fetch");
+          throw new Error("Unauthenticated");
+        }
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
+    enabled: enabled,
     refetchInterval: 30000, // Refetch every 30 seconds
     refetchOnWindowFocus: true,
+    retry: (failureCount, error) => {
+      // Don't retry if unauthenticated
+      if (error.message === "Unauthenticated") return false;
+      return failureCount < 3;
+    },
   });
 };
 

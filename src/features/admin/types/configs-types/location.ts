@@ -8,6 +8,7 @@ export type LocationResultsData = {
   state: string;
   email: string;
   phone: string;
+  unique_code?: string;
 };
 
 export interface LocationData {

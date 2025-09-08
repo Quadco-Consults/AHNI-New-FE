@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { Bell } from "lucide-react";
 import { Button } from "components/ui/button";
@@ -12,10 +11,13 @@ import { useGetNotifications, useGetUnreadCount, useMarkNotificationAsRead } fro
 import { TNotification } from "@/features/notifications/controllers/notificationController";
 import { useRouter } from "next/navigation";
 import { cn } from "lib/utils";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function NotificationDropdown() {
-  const { data: notifications, isLoading } = useGetNotifications({ page: 1, size: 5 }); // Only show recent 5
-  const { data: unreadCount } = useGetUnreadCount();
+  const { isLoggedIn } = useAuth();
+
+  const { data: notifications, isLoading } = useGetNotifications({ page: 1, size: 5, enabled: isLoggedIn }); // Only show recent 5
+  const { data: unreadCount } = useGetUnreadCount(isLoggedIn);
   const { mutate: markAsRead } = useMarkNotificationAsRead();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);

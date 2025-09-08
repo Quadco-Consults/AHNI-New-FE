@@ -25,7 +25,9 @@ export const fundRequestSummaryColumns: ColumnDef<FundRequestPaginatedData>[] =
     {
       header: "Location",
       id: "location",
-      accessorKey: "location",
+      accessorFn: (data) => {
+        return data.location_display || data.location_name || data.location;
+      },
       size: 200,
       footer: () => <span className='text-red-500'>GRAND TOTAL</span>,
     },
