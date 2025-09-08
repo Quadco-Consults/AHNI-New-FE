@@ -1,6 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import DeleteIcon from "components/icons/DeleteIcon";
 import EyeIcon from "components/icons/EyeIcon";
+import { Edit } from "lucide-react";
 import ConfirmationDialog from "components/ConfirmationDialog";
 import { Badge } from "components/ui/badge";
 import { Button } from "components/ui/button";
@@ -25,7 +26,9 @@ export const fundRequestSummaryColumns: ColumnDef<FundRequestPaginatedData>[] =
     {
       header: "Location",
       id: "location",
-      accessorKey: "location",
+      accessorFn: (data) => {
+        return data.location_display || data.location_name || data.location;
+      },
       size: 200,
       footer: () => <span className='text-red-500'>GRAND TOTAL</span>,
     },
@@ -110,7 +113,7 @@ const TableMenu = ({ data }: { data: FundRequestPaginatedData }) => {
   };
 
   return (
-    <div>
+    <div className="flex items-center gap-1">
       <Link
         href={{
           pathname: RouteEnum.PROGRAM_FUND_REQUEST_VIEW_ACTIVITY.replace(
@@ -123,16 +126,32 @@ const TableMenu = ({ data }: { data: FundRequestPaginatedData }) => {
         <Button
           type='button'
           variant='ghost'
+          size='sm'
           className='text-[#DEA004] hover:text-[#DEA004]'
         >
           <EyeIcon />
         </Button>
       </Link>
 
+      <Link
+        href={RouteEnum.PROGRAM_FUND_REQUEST_EDIT.replace(":id", data?.id)}
+      >
+        <Button
+          type='button'
+          variant='ghost'
+          size='sm'
+          className='text-blue-600 hover:text-blue-800'
+          title="Edit Fund Request"
+        >
+          <Edit size={16} />
+        </Button>
+      </Link>
+
       <Button
         type='button'
         variant='ghost'
-        className='text-[#DEA004] hover:text-[#DEA004]'
+        size='sm'
+        className='text-red-600 hover:text-red-800'
         onClick={() => setDialogOpen(true)}
       >
         <DeleteIcon />

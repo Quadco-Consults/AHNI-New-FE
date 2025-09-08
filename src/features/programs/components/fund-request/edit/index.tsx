@@ -1,16 +1,16 @@
 "use client";
 
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useParams } from "next/navigation";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import FormSelect from "components/atoms/FormSelectField";
 import FormButton from "@/components/FormButton";
 import { Button } from "components/ui/button";
 import Card from "components/Card";
-import FundRequstLayout from "./Layout";
+import FundRequstLayout from "../create/Layout";
 import {
-  FundRequestSchema,
-  TFundRequestFormValues,
+  FundRequestWithActivitiesSchema,
+  TFundRequestWithActivitiesFormValues,
 } from "@/features/programs/types/program-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import _ from "lodash";
@@ -18,7 +18,16 @@ import { Separator } from "components/ui/separator";
 
 import FormInput from "components/atoms/FormInput";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
-// import { useGetAllPartners } from "@/features/modules/controllers/project/partners";
+import { useFieldArray } from "react-hook-form";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "components/ui/table";
+import { useGetAllCostCategoriesManager } from "@/features/modules/controllers/finance/costCategoryController";
 import {
   useGetAllFinancialYearsManager,
   useGetFinancialYearPaginate,
@@ -29,6 +38,8 @@ import {
 } from "@/features/modules/controllers/config/locationController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { useMemo, useEffect } from "react";
+import { useGetSingleFundRequest, useUpdateFundRequest } from "@/features/programs/controllers/fundRequestController";
+import { toast } from "sonner";
 
 const getYearOptions = () => {
   const currentYear = new Date().getFullYear();
@@ -66,9 +77,12 @@ const getMonthOptions = () => {
   return months;
 };
 
-const CreateFundRequest = () => {
-  const form = useForm<TFundRequestFormValues>({
-    resolver: zodResolver(FundRequestSchema),
+const EditFundRequest = () => {
+  const { id } = useParams();
+  const fundRequestId = id as string;
+
+  const form = useForm<TFundRequestWithActivitiesFormValues>({
+    resolver: zodResolver(FundRequestWithActivitiesSchema),
     defaultValues: {
       project: "",
       month: "",
@@ -82,16 +96,19 @@ const CreateFundRequest = () => {
       uuid_code: "",
       authorizer: "",
       approver: "",
+      activities: [],
     },
   });
 
   const router = useRouter();
 
-  const pathname = usePathname();
-
   const goBack = () => {
     router.back();
   };
+
+  // Fetch existing fund request data
+  const { data: fundRequestData, isLoading: isFundRequestLoading } = useGetSingleFundRequest(fundRequestId);
+  const { updateFundRequest, isLoading: isUpdating, isSuccess, error } = useUpdateFundRequest(fundRequestId);
 
   const { data: project } = useGetAllProjects({
     page: 1,
@@ -149,7 +166,26 @@ const CreateFundRequest = () => {
     [user]
   );
 
-  const { handleSubmit, watch, setValue } = form;
+  const { handleSubmit, watch, setValue, reset, control } = form;
+
+  // Activities management
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "activities",
+  });
+
+  // Cost categories for activities
+  const { data: costCategory } = useGetAllCostCategoriesManager({
+    page: 1,
+    size: 2000000,
+  });
+
+  const costCategoryOptions = costCategory?.data?.results?.map(
+    ({ name, id }: any) => ({
+      label: name,
+      value: id,
+    })
+  );
 
   // Watch the location and project fields for changes
   const selectedLocationId = watch("location");
@@ -178,18 +214,64 @@ const CreateFundRequest = () => {
     }
   }, [selectedLocationId, selectedProjectId, location, project, setValue]);
 
-  const onSubmit: SubmitHandler<TFundRequestFormValues> = async (data) => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem("programFundRequest", JSON.stringify(data));
+  // Populate form with existing data
+  useEffect(() => {
+    if (fundRequestData?.data) {
+      const data = fundRequestData.data;
+      reset({
+        project: data.project?.id || "",
+        month: data.month || "",
+        year: data.year || "",
+        available_balance: data.available_balance || "",
+        currency: data.currency || "",
+        financial_year: data.financial_year?.id || "",
+        type: data.type || "",
+        location: data.location?.id || "",
+        reviewer: data.reviewer || "",
+        uuid_code: data.uuid_code || "",
+        authorizer: data.created_by || "",
+        approver: data.updated_by || "",
+        activities: data.activities?.map(activity => ({
+          activity_description: activity.activity_description || "",
+          quantity: activity.quantity?.toString() || "",
+          unit_cost: activity.unit_cost || "",
+          frequency: activity.frequency?.toString() || "",
+          comment: activity.comment || "",
+          category: activity.category?.id || "",
+        })) || [],
+      });
     }
+  }, [fundRequestData, reset]);
 
-    let path = pathname || "";
+  // Handle success
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("Fund request updated successfully!");
+      router.back();
+    }
+  }, [isSuccess, router]);
 
-    path = path.substring(0, path.lastIndexOf("/"));
+  // Handle error with specific messaging
+  useEffect(() => {
+    if (error) {
+      const errorMessage = error.message || "Failed to update fund request. Please try again.";
+      toast.error(errorMessage);
+    }
+  }, [error]);
 
-    path += "/create/summary";
-    router.push(path);
+  const onSubmit: SubmitHandler<TFundRequestWithActivitiesFormValues> = async (data) => {
+    await updateFundRequest(data);
   };
+
+  if (isFundRequestLoading) {
+    return (
+      <FundRequstLayout>
+        <Card className="p-8 text-center">
+          <div>Loading fund request data...</div>
+        </Card>
+      </FundRequstLayout>
+    );
+  }
 
   return (
     <FundRequstLayout>
@@ -310,15 +392,106 @@ const CreateFundRequest = () => {
             />
           </Card>
 
+          <Card className='space-y-10 py-5'>
+            <h3 className='font-semibold text-lg'>Activities</h3>
+            <Table className='border rounded-xl'>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className='w-[300px]'>Description of Activity</TableHead>
+                  <TableHead>Quantity</TableHead>
+                  <TableHead>Unit Cost</TableHead>
+                  <TableHead>Frequency</TableHead>
+                  <TableHead>Cost Category</TableHead>
+                  <TableHead>Comment</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {fields.map((field, index) => (
+                  <TableRow key={field.id}>
+                    <TableCell>
+                      <FormInput
+                        name={`activities.${index}.activity_description`}
+                        placeholder='Enter activity description'
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <FormInput
+                        name={`activities.${index}.quantity`}
+                        placeholder='Enter quantity'
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <FormInput
+                        name={`activities.${index}.unit_cost`}
+                        placeholder='Enter unit cost'
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <FormInput
+                        name={`activities.${index}.frequency`}
+                        placeholder='Enter frequency'
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <FormSelect
+                        name={`activities.${index}.category`}
+                        placeholder='Select Cost Category'
+                        options={costCategoryOptions}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <FormInput
+                        name={`activities.${index}.comment`}
+                        placeholder='Enter comment'
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        type='button'
+                        variant='destructive'
+                        size='sm'
+                        onClick={() => remove(index)}
+                      >
+                        Remove
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+
+            <Button
+              type='button'
+              variant='outline'
+              className='text-[#DEA004] w-[250px]'
+              onClick={() =>
+                append({
+                  activity_description: "",
+                  quantity: "",
+                  unit_cost: "",
+                  frequency: "",
+                  comment: "",
+                  category: "",
+                })
+              }
+            >
+              {fields.length > 0 ? "Add Another Activity" : "Add Activity"}
+            </Button>
+          </Card>
+
           <div className='flex justify-end gap-5 mt-16'>
             <Button
               type='button'
               className='bg-[#FFF2F2] text-primary dark:text-gray-500'
               onClick={goBack}
+              disabled={isUpdating}
             >
               Cancel
             </Button>
-            <FormButton type='submit'>Next</FormButton>
+            <FormButton type='submit' loading={isUpdating}>
+              Update Fund Request
+            </FormButton>
           </div>
         </form>
       </Form>
@@ -326,4 +499,4 @@ const CreateFundRequest = () => {
   );
 };
 
-export default CreateFundRequest;
+export default EditFundRequest;

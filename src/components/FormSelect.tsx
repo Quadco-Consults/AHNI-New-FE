@@ -70,7 +70,7 @@ const FormSelect: FC<SelectProps> = ({
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {options?.map((item) => {
+                  {options?.filter((item) => item.value !== "" && item.value != null).map((item) => {
                     return (
                       <SelectItem
                         value={item.value as string}
