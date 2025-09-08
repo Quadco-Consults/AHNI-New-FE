@@ -2,13 +2,46 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "components/ui/button";
-import { Switch } from "components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
-import { Label } from "components/ui/label";
-import { Card } from "components/Card";
-import { Separator } from "components/ui/separator";
+import Card from "components/Card";
 import { Icon } from "@iconify/react";
 import { toast } from "sonner";
+
+// Simple Switch component since the UI one might not be available
+const Switch = ({ checked, onCheckedChange, disabled = false, id }: {
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+  disabled?: boolean;
+  id?: string;
+}) => (
+  <label className="relative inline-flex items-center cursor-pointer">
+    <input
+      id={id}
+      type="checkbox"
+      checked={checked}
+      onChange={(e) => onCheckedChange(e.target.checked)}
+      disabled={disabled}
+      className="sr-only peer"
+    />
+    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+  </label>
+);
+
+// Simple Label component
+const Label = ({ children, htmlFor, className = "" }: {
+  children: React.ReactNode;
+  htmlFor?: string;
+  className?: string;
+}) => (
+  <label htmlFor={htmlFor} className={`text-sm font-medium leading-none ${className}`}>
+    {children}
+  </label>
+);
+
+// Simple Separator component
+const Separator = ({ className = "" }: { className?: string }) => (
+  <hr className={`border-gray-200 ${className}`} />
+);
 
 interface NotificationPreferences {
   email_notifications: boolean;
