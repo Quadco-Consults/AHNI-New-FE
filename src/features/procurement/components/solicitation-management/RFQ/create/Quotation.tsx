@@ -69,6 +69,8 @@ const Quotation = () => {
     status: "Approved",
   });
 
+  const eoiType = searchParams.get('type');
+
   const { data: eoiData } = useGetAllEois(
     useMemo(() => ({ type: "OPEN_TENDER" }), [])
   );
@@ -110,6 +112,14 @@ const Quotation = () => {
     name: "documents",
     control: form.control,
   });
+
+  // Auto-set tender type when coming from EOI
+  useEffect(() => {
+    if (eoiType === "OPEN_TENDER") {
+      form.setValue("tender_type", "National Tender");
+      form.setValue("request_type", "Request For Quotation");
+    }
+  }, [eoiType, form]);
 
   // After eoiOptions
   useEffect(() => {

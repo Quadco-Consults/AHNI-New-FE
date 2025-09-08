@@ -154,10 +154,10 @@ const EOI = () => {
     }
 
     try {
-      await createEoi(formData);
+      const response = await createEoi(formData);
 
       if (data?.type === "OPEN_TENDER") {
-        const id = createEoiData?.data?.id;
+        const id = response?.data?.id;
         router.push(
           `/dashboard/procurement/solicitation-management/rfq/create/quotation/${id}?type=${data?.type}`
         );
