@@ -6,7 +6,7 @@ import { ThemeProvider } from "configs/theme-provider";
 import { FC, ReactNode } from "react";
 import { Toaster } from "sonner";
 import AppDialog from "components/modals/dialog/AppDialog";
-import NotificationProvider from "components/NotificationProvider";
+import ClientOnlyNotificationProvider from "components/ClientOnlyNotificationProvider";
 
 const queryClient = new QueryClient();
 
@@ -20,9 +20,9 @@ const AppProviders: FC<PageProps> = ({ children }) => {
             <QueryClientProvider client={queryClient}>
                 <AppDialog />
                 <Toaster richColors={true} position="top-center" />
-                <NotificationProvider>
+                <ClientOnlyNotificationProvider>
                     {children}
-                </NotificationProvider>
+                </ClientOnlyNotificationProvider>
                 <ReactQueryDevtools initialIsOpen={false} />
             </QueryClientProvider>
         </ThemeProvider>
