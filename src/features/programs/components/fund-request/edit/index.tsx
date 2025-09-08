@@ -9,8 +9,8 @@ import { Button } from "components/ui/button";
 import Card from "components/Card";
 import FundRequstLayout from "../create/Layout";
 import {
-  FundRequestSchema,
-  TFundRequestFormValues,
+  FundRequestWithActivitiesSchema,
+  TFundRequestWithActivitiesFormValues,
 } from "@/features/programs/types/program-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import _ from "lodash";
@@ -18,6 +18,16 @@ import { Separator } from "components/ui/separator";
 
 import FormInput from "components/atoms/FormInput";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
+import { useFieldArray } from "react-hook-form";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "components/ui/table";
+import { useGetAllCostCategoriesManager } from "@/features/modules/controllers/finance/costCategoryController";
 import {
   useGetAllFinancialYearsManager,
   useGetFinancialYearPaginate,
@@ -71,8 +81,8 @@ const EditFundRequest = () => {
   const { id } = useParams();
   const fundRequestId = id as string;
 
-  const form = useForm<TFundRequestFormValues>({
-    resolver: zodResolver(FundRequestSchema),
+  const form = useForm<TFundRequestWithActivitiesFormValues>({
+    resolver: zodResolver(FundRequestWithActivitiesSchema),
     defaultValues: {
       project: "",
       month: "",
@@ -86,6 +96,7 @@ const EditFundRequest = () => {
       uuid_code: "",
       authorizer: "",
       approver: "",
+      activities: [],
     },
   });
 
@@ -155,7 +166,26 @@ const EditFundRequest = () => {
     [user]
   );
 
-  const { handleSubmit, watch, setValue, reset } = form;
+  const { handleSubmit, watch, setValue, reset, control } = form;
+
+  // Activities management
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "activities",
+  });
+
+  // Cost categories for activities
+  const { data: costCategory } = useGetAllCostCategoriesManager({
+    page: 1,
+    size: 2000000,
+  });
+
+  const costCategoryOptions = costCategory?.data?.results?.map(
+    ({ name, id }: any) => ({
+      label: name,
+      value: id,
+    })
+  );
 
   // Watch the location and project fields for changes
   const selectedLocationId = watch("location");
@@ -201,6 +231,14 @@ const EditFundRequest = () => {
         uuid_code: data.uuid_code || "",
         authorizer: data.created_by || "",
         approver: data.updated_by || "",
+        activities: data.activities?.map(activity => ({
+          activity_description: activity.activity_description || "",
+          quantity: activity.quantity?.toString() || "",
+          unit_cost: activity.unit_cost || "",
+          frequency: activity.frequency?.toString() || "",
+          comment: activity.comment || "",
+          category: activity.category?.id || "",
+        })) || [],
       });
     }
   }, [fundRequestData, reset]);
@@ -221,7 +259,7 @@ const EditFundRequest = () => {
     }
   }, [error]);
 
-  const onSubmit: SubmitHandler<TFundRequestFormValues> = async (data) => {
+  const onSubmit: SubmitHandler<TFundRequestWithActivitiesFormValues> = async (data) => {
     await updateFundRequest(data);
   };
 
@@ -352,6 +390,94 @@ const EditFundRequest = () => {
               ]}
               placeholder='Select Type'
             />
+          </Card>
+
+          <Card className='space-y-10 py-5'>
+            <h3 className='font-semibold text-lg'>Activities</h3>
+            <Table className='border rounded-xl'>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className='w-[300px]'>Description of Activity</TableHead>
+                  <TableHead>Quantity</TableHead>
+                  <TableHead>Unit Cost</TableHead>
+                  <TableHead>Frequency</TableHead>
+                  <TableHead>Cost Category</TableHead>
+                  <TableHead>Comment</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {fields.map((field, index) => (
+                  <TableRow key={field.id}>
+                    <TableCell>
+                      <FormInput
+                        name={`activities.${index}.activity_description`}
+                        placeholder='Enter activity description'
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <FormInput
+                        name={`activities.${index}.quantity`}
+                        placeholder='Enter quantity'
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <FormInput
+                        name={`activities.${index}.unit_cost`}
+                        placeholder='Enter unit cost'
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <FormInput
+                        name={`activities.${index}.frequency`}
+                        placeholder='Enter frequency'
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <FormSelect
+                        name={`activities.${index}.category`}
+                        placeholder='Select Cost Category'
+                        options={costCategoryOptions}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <FormInput
+                        name={`activities.${index}.comment`}
+                        placeholder='Enter comment'
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        type='button'
+                        variant='destructive'
+                        size='sm'
+                        onClick={() => remove(index)}
+                      >
+                        Remove
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+
+            <Button
+              type='button'
+              variant='outline'
+              className='text-[#DEA004] w-[250px]'
+              onClick={() =>
+                append({
+                  activity_description: "",
+                  quantity: "",
+                  unit_cost: "",
+                  frequency: "",
+                  comment: "",
+                  category: "",
+                })
+              }
+            >
+              {fields.length > 0 ? "Add Another Activity" : "Add Activity"}
+            </Button>
           </Card>
 
           <div className='flex justify-end gap-5 mt-16'>

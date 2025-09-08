@@ -6,7 +6,7 @@ import {
   TFundRequestPaginatedResponse,
   TFundRequestResponseData,
 } from "../types/fund-request";
-import { TFundRequestFormValues } from "definations/program-validator";
+import { TFundRequestFormValues, TFundRequestWithActivitiesFormValues } from "definations/program-validator";
 
 // API Response interfaces
 interface ApiResponse<TData = unknown> {
@@ -134,7 +134,7 @@ export const useUpdateFundRequest = (id: string) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     null,
     Error,
-    TFundRequestFormValues
+    TFundRequestWithActivitiesFormValues
   >({
     endpoint: `${BASE_URL}${id}/`,
     queryKey: ["fund-requests"],
@@ -142,7 +142,7 @@ export const useUpdateFundRequest = (id: string) => {
     method: "PUT",
   });
 
-  const updateFundRequest = async (details: TFundRequestFormValues) => {
+  const updateFundRequest = async (details: TFundRequestWithActivitiesFormValues) => {
     try {
       await callApi(details);
     } catch (error) {
@@ -164,7 +164,7 @@ export const usePatchFundRequest = (id: string) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     null,
     Error,
-    Partial<TFundRequestFormValues>
+    Partial<TFundRequestWithActivitiesFormValues>
   >({
     endpoint: `${BASE_URL}${id}/`,
     queryKey: ["fund-requests"],
@@ -172,7 +172,7 @@ export const usePatchFundRequest = (id: string) => {
     method: "PATCH",
   });
 
-  const patchFundRequest = async (details: Partial<TFundRequestFormValues>) => {
+  const patchFundRequest = async (details: Partial<TFundRequestWithActivitiesFormValues>) => {
     try {
       await callApi(details);
     } catch (error) {
