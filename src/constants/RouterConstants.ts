@@ -352,6 +352,7 @@ export const RouteEnum = {
   PROGRAM_FUND_REQUEST: "/dashboard/programs/fund-request",
   PROGRAM_FUND_REQUEST_DETAILS: "/dashboard/programs/fund-request/:id/",
   PROGRAM_FUND_REQUEST_CREATE: "/dashboard/programs/fund-request/create/",
+  PROGRAM_FUND_REQUEST_EDIT: "/dashboard/programs/fund-request/:id/edit",
   PROGRAM_FUND_REQUEST_FUND_SUMMARY:
     "/dashboard/programs/fund-request/create/fund-request-summary",
   PROGRAM_FUND_REQUEST_PREVIEW:
