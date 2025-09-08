@@ -1,5 +1,8 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getAccessToken } from "utils/auth";
@@ -9,6 +12,7 @@ import Sidebar from "components/Sidebar";
 import Suspense from "components/Suspense";
 import { cn } from "lib/utils";
 import Account from "@/features/accounts/components/account";
+import NoSSR from "components/NoSSR";
 
 export default function AccountPage() {
     const [sidebarWidth, setSidebarWidth] = useState(false);
@@ -42,7 +46,9 @@ export default function AccountPage() {
                 <Header sidebarWidth={sidebarWidth} />
                 <Suspense>
                     <main className="p-5 mt-20">
-                        <Account />
+                        <NoSSR>
+                            <Account />
+                        </NoSSR>
                     </main>
                 </Suspense>
                 <Footer />
