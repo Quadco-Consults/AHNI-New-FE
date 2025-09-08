@@ -128,27 +128,21 @@ export const useCreateTravelExpense = () => {
 };
 
 // Modify Travel Expense (Full Update)
-export const useModifyTravelExpense = () => {
+export const useModifyTravelExpense = (id: string) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     ITravelExpenseSingleData,
     Error,
     { id: string; body: TTravelExpenseFormData }
   >({
-    endpoint: BASE_URL,
+    endpoint: `${BASE_URL}${id}/`,
     queryKey: ["travelExpenses", "travelExpense"],
     isAuth: true,
     method: "PUT",
   });
 
-  const modifyTravelExpense = async ({
-    id,
-    body,
-  }: {
-    id: string;
-    body: TTravelExpenseFormData;
-  }) => {
+  const modifyTravelExpense = async (body: TTravelExpenseFormData) => {
     try {
-      await callApi({ id, body });
+      await callApi(body);
     } catch (error) {
       console.error("Travel expense modify error:", error);
     }
@@ -203,7 +197,10 @@ export const useReviewTravelExpense = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await AxiosWithToken.post(`${BASE_URL}${id}/review/`, body);
+      const response = await AxiosWithToken.post(
+        `${BASE_URL}${id}/review/`,
+        body
+      );
       setData(response.data);
       return response.data;
     } catch (error) {
@@ -234,7 +231,10 @@ export const useAuthorizeTravelExpense = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await AxiosWithToken.post(`${BASE_URL}${id}/authorize/`, body);
+      const response = await AxiosWithToken.post(
+        `${BASE_URL}${id}/authorize/`,
+        body
+      );
       setData(response.data);
       return response.data;
     } catch (error) {
@@ -265,7 +265,10 @@ export const useApproveTravelExpense = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await AxiosWithToken.post(`${BASE_URL}${id}/approve/`, body);
+      const response = await AxiosWithToken.post(
+        `${BASE_URL}${id}/approve/`,
+        body
+      );
       setData(response.data);
       return response.data;
     } catch (error) {
