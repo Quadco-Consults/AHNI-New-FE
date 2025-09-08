@@ -7,7 +7,7 @@ import { RouteEnum } from "constants/RouterConstants";
 import useQuery from "hooks/useQuery";
 import { useAppDispatch } from "hooks/useStore";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   useGetSingleManualBidCbaPrequalification,
   useCreateVendorBidAnalysis,
