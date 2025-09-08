@@ -241,14 +241,17 @@ const TableComponent = () => {
     }
 
     try {
-      const apiCalls = selectedVendors.map((vendor) => {
-        const payload = {
-          cba_id: cba,
-          vendor_id: vendor?.id,
-          recommendation_note: recommendationNote,
-          selected_items: getSelectedItemsForVendor(vendor),
-          solicitation_id: id,
-        };
+      const apiCalls = selectedVendors.map(async (vendor) => {
+        const selectedItems = getSelectedItemsForVendor(vendor);
+        
+        if (selectedItems.length > 0) {
+          const payload = {
+            cba_id: cba,
+            vendor_id: vendor?.id,
+            recommendation_note: recommendationNote,
+            selected_items: selectedItems,
+            solicitation_id: id,
+          };
 
           await submitCbaAnalysis(payload);
         } else {
@@ -263,7 +266,9 @@ const TableComponent = () => {
 
           await submitCbaAnalysis(payload);
         }
-      }
+      });
+
+      await Promise.all(apiCalls);
       router.push(`${RouteEnum.COMPETITIVE_BID_ANALYSIS}`);
 
       toast.success("Analysis submitted successfully!");
