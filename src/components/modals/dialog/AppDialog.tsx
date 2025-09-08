@@ -96,6 +96,7 @@ import ViewPaymentModal from "@/features/hr/components/modals/ViewPaymentModal";
 import ProcurementUploadModal from "@/features/procurement/components/modals/ProcurementUploadModal";
 import FundRequestApprovalModal from "@/features/programs/components/modals/FundRequestApprovalModal";
 import FundRequestRejectModal from "@/features/programs/components/modals/FundRequestRejectModal";
+import FundRequestSignatureModal from "@/features/programs/components/modals/FundRequestSignatureModal";
 
 const dialogs: Record<string, ReactNode> = {
   //
@@ -210,6 +211,7 @@ const dialogs: Record<string, ReactNode> = {
   // Fund Request Workflow
   [DialogType.FundRequestApproval]: <FundRequestApprovalModal />,
   [DialogType.FundRequestReject]: <FundRequestRejectModal />,
+  [DialogType.FundRequestSignature]: <FundRequestSignatureModal />,
 };
 
 const AppDialog = () => {

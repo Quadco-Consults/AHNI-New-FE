@@ -77,7 +77,7 @@ const FormSelect = forwardRef<HTMLButtonElement, SelectProps>(({
 
               {options ? (
                 <SelectContent>
-                  {options.map((item) => {
+                  {options.filter((item) => item.value !== "" && item.value != null).map((item) => {
                     return (
                       <SelectItem
                         className='cursor-pointer'
