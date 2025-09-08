@@ -74,11 +74,11 @@ export const travelExpenseColumn: ColumnDef<ITravelExpensePaginatedData>[] = [
 const TableAction = ({ id }: ITravelExpensePaginatedData) => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const { deleteTravelExpense, isLoading } = useDeleteTravelExpense();
+  const { deleteTravelExpense, isLoading } = useDeleteTravelExpense(id);
 
   const handleDelete = async () => {
     try {
-      await deleteTravelExpense(id);
+      await deleteTravelExpense();
     } catch (error: any) {
       toast.error(error.data.message ?? "Something went wrong");
     }

@@ -1,4 +1,3 @@
-import { IUser } from "features/auth/types/user";
 import { z } from "zod";
 
 export const TravelExpenseSchema = z.object({
@@ -77,7 +76,13 @@ interface IApproval {
 
 export interface ITravelExpenseSingleData {
     id: string;
-    user: IUser;
+    user: {
+        id: string;
+        email: string;
+        employee_id: string | null;
+        full_name: string;
+        department: string | null;
+    };
     activities: {
         id: string;
         created_datetime: string;
@@ -103,8 +108,8 @@ export interface ITravelExpenseSingleData {
     status: string;
     approved_datetime: null;
     rejected_datetime: null;
-    created_by: null;
-    updated_by: null;
-    approved_by: null;
-    rejected_by: null;
+    created_by: string;
+    updated_by: string | null;
+    approved_by: string | null;
+    rejected_by: string | null;
 }

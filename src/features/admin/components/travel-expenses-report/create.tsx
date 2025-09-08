@@ -113,18 +113,24 @@ export default function CreateTravelExpenseReportPage() {
     useCreateTravelExpense();
 
   const { modifyTravelExpense, isLoading: isModifyLoading } =
-    useModifyTravelExpense();
+    useModifyTravelExpense(id);
 
   const onSubmit: SubmitHandler<TTravelExpenseFormData> = async (data) => {
     try {
       const transformedData = {
         ...data,
-        expense_authorization: parseInt(data.expense_authorization),
         user: data.user,
         reviewer: data.reviewer,
         authorizer: data.authorizer,
         approver: data.approver,
       };
+
+      // Only include expense_authorization for new records (when creating)
+      if (!id && data.expense_authorization) {
+        (transformedData as any).expense_authorization = parseInt(
+          data.expense_authorization
+        );
+      }
 
       const cleanData = Object.fromEntries(
         Object.entries(transformedData).filter(
@@ -133,11 +139,9 @@ export default function CreateTravelExpenseReportPage() {
       ) as any;
 
       if (id) {
-        await modifyTravelExpense({ id, body: cleanData as any });
-        toast.success("Travel Expense Report Updated");
+        await modifyTravelExpense(cleanData);
       } else {
         await createTravelExpense(cleanData);
-        toast.success("Travel Expense Report Created");
       }
 
       router.push(AdminRoutes.TRAVEL_EXPENSE_REPORT);
@@ -152,14 +156,25 @@ export default function CreateTravelExpenseReportPage() {
     if (travelExpense) {
       const { data } = travelExpense;
 
+      // Extract approval users from the approvals array
+      const reviewerApproval = data.approvals?.find(
+        (approval) => approval.approval_level === "REVIEW"
+      );
+      const authorizerApproval = data.approvals?.find(
+        (approval) => approval.approval_level === "AUTHORIZE"
+      );
+      const approverApproval = data.approvals?.find(
+        (approval) => approval.approval_level === "APPROVE"
+      );
+
       form.reset({
-        expense_authorization: "", // Set if available in API response
+        expense_authorization: "", // This field is not returned in API response for existing records
         user: data.user.id,
         staff_id: data.staff_id,
         travel_purpose: data.travel_purpose,
-        reviewer: "", // Set if available in API response
-        authorizer: "", // Set if available in API response
-        approver: "", // Set if available in API response
+        reviewer: reviewerApproval?.user.id || "",
+        authorizer: authorizerApproval?.user.id || "",
+        approver: approverApproval?.user.id || "",
         activities: data.activities.map((activity) => ({
           date: activity.date,
           activity: activity.activity,
@@ -191,8 +206,9 @@ export default function CreateTravelExpenseReportPage() {
                   label='Expense Authorization'
                   name='expense_authorization'
                   placeholder='Select Expense Authorization'
-                  required
+                  required={!id} // Only required for new records, not when editing
                   options={expenseAuthorizationOptions}
+                  disabled={!!id} // Disable when editing since it's not in the response
                 />
 
                 <FormSelect
@@ -227,6 +243,14 @@ export default function CreateTravelExpenseReportPage() {
                   placeholder='Select Reviewer'
                   required
                   options={userOptions}
+                  disabled={
+                    !!(
+                      id &&
+                      travelExpense?.data.approvals?.find(
+                        (a) => a.approval_level === "REVIEW"
+                      )?.is_executed
+                    )
+                  }
                 />
 
                 <FormSelect
@@ -235,6 +259,14 @@ export default function CreateTravelExpenseReportPage() {
                   placeholder='Select Authorizer'
                   required
                   options={userOptions}
+                  disabled={
+                    !!(
+                      id &&
+                      travelExpense?.data.approvals?.find(
+                        (a) => a.approval_level === "AUTHORIZE"
+                      )?.is_executed
+                    )
+                  }
                 />
 
                 <FormSelect
@@ -243,6 +275,14 @@ export default function CreateTravelExpenseReportPage() {
                   placeholder='Select Approver'
                   required
                   options={userOptions}
+                  disabled={
+                    !!(
+                      id &&
+                      travelExpense?.data.approvals?.find(
+                        (a) => a.approval_level === "APPROVE"
+                      )?.is_executed
+                    )
+                  }
                 />
               </div>
 
