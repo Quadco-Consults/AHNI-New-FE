@@ -18,7 +18,7 @@ export { useGetAllAssets, useGetAllAssetsQuery } from './assetController';
 export { useGetAllAssetMaintenance, useGetAllAssetMaintenanceQuery } from './assetMaintenanceController';
 export { useGetAllAssetRequests, useGetAllAssetRequestsQuery } from './assetRequestController';
 export { useGetAllConsumables, useGetAllConsumablesQuery } from './consumableController';
-export { useGetAllExpenseAuthorization, useGetAllExpenseAuthorizationQuery } from './expenseAuthorizationController';
+export { useGetAllExpenseAuthorizations, useGetAllExpenseAuthorizationsQuery } from './expenseAuthorizationController';
 export { useGetAllFacilityMaintenance, useGetAllFacilityMaintenanceQuery } from './facilityMaintenanceController';
 export { useGetAllFuelRequests, useGetAllFuelRequestsQuery } from './fuelRequestController';
 export { useGetAllGoodReceiveNote, useGetAllGoodReceiveNoteQuery } from './goodReceiveNoteController';
