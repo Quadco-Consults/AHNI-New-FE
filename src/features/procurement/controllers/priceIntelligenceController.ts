@@ -19,7 +19,7 @@ export const useGetAllPriceIntelligence = ({
   category = "",
   enabled = true,
 }: TRequest & { category?: string; enabled?: boolean }) => {
-  return useQuery<PriceIntelligenceList[]>({
+  return useQuery<TResponse<{ results: PriceIntelligenceList[]; pagination?: any }>>({
     queryKey: ["price-intelligence", page, size, search, category],
     queryFn: async () => {
       try {
