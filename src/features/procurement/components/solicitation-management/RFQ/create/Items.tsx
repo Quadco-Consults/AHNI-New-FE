@@ -10,7 +10,7 @@ import AddSquareIcon from "components/icons/AddSquareIcon";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import FormButton from "@/components/FormButton";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { RouteEnum } from "constants/RouterConstants";
 import { z } from "zod";
 import { MinusCircle } from "lucide-react";
@@ -45,6 +45,8 @@ const ItemSchema = z.object({
 
 const Items = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const eoiType = searchParams.get('type');
   // const formData = JSON.parse(localStorage.getItem("rfqQuotation") as any);
 
   const form = useForm<z.infer<typeof ItemSchema>>({
@@ -162,9 +164,21 @@ const Items = () => {
       if (response?.status === "success") {
         sessionStorage.removeItem("rfqQuotationFormData");
         console.log({ I_AM_HERE: "djhjsk" });
-        router.push(
-          RouteEnum.RFQ_CREATE_CBA.replace(":id", response?.data?.id as string)
-        );
+        
+        // Skip CBA creation for EOI-linked RFQs (OPEN_TENDER type)
+        console.log("EOI Type check:", { eoiType, isOpenTender: eoiType === "OPEN_TENDER" });
+        
+        if (eoiType === "OPEN_TENDER") {
+          console.log("Skipping CBA creation for OPEN_TENDER EOI");
+          toast.success("RFQ created successfully! CBA will be created after vendor submissions.");
+          router.push("/dashboard/procurement/solicitation-management/rfq");
+        } else {
+          console.log("Proceeding with regular CBA creation");
+          // Regular RFQ flow - proceed to CBA creation
+          router.push(
+            RouteEnum.RFQ_CREATE_CBA.replace(":id", (response?.data as any)?.id as string)
+          );
+        }
       }
     } catch (error: any) {
       toast.error(error.response?.data?.message ?? error.message ?? "Something went wrong");

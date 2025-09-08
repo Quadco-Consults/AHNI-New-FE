@@ -25,7 +25,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import BreadcrumbCard from "@/components/Breadcrumb";
-import { PriceIntelligenceDetail } from "@/features/procurement/types/price-intelligence";
+import { PriceIntelligenceDetail, PriceIntelligenceHistory } from "@/features/procurement/types/price-intelligence";
 import { format, parseISO } from "date-fns";
 
 const RatingCircle = ({ showInner }: any) => {
@@ -41,20 +41,35 @@ const RatingCircle = ({ showInner }: any) => {
 const PriceIntelligence = () => {
   const [open, setOpen] = useState(false);
   const [priceId, setPriceId] = useState("");
-  const [selectedSources, setSelectedSources] = useState<string[]>();
+  const [selectedSources, setSelectedSources] = useState<string[]>([]);
 
   const onOpenDialog = (id: string) => {
     setOpen(!open);
     setPriceId(id);
   };
 
-  const { data, isLoading } = useGetAllPriceIntelligence({});
+  // Correct type definition for `useGetAllPriceIntelligence`
+  const { data, isLoading, error } = useGetAllPriceIntelligence({ page: 1, size: 20 });
+
+  // Ensure `data` is properly typed
+  const items = (data as unknown as { results: PriceIntelligenceList[]; pagination: { page: number; size: number; total: number } })?.results || [];
+  const pagination = (data as unknown as { results: PriceIntelligenceList[]; pagination: { page: number; size: number; total: number } })?.pagination;
+
   const { data: priceDetails, isLoading: priceDetailsIsLoading } = useGetSinglePriceIntelligence(
     priceId, !!priceId
   );
 
   if (isLoading) {
     return <LoadingSpinner />;
+  }
+
+  if (error) {
+    return <div className="text-red-500">Failed to load data. Please try again later.</div>;
+  }
+
+  // Add a fallback message if priceDetails is missing
+  if (!priceDetails) {
+    return <div className="text-red-500">Price details are currently unavailable. Please try again later.</div>;
   }
 
   const breadcrumbs = [
@@ -68,7 +83,7 @@ const PriceIntelligence = () => {
     <div className='space-y-10'>
       <BreadcrumbCard list={breadcrumbs} />
       <div className='grid grid-cols-2 gap-6 '>
-        {data?.data?.results?.map((price) => (
+        {items.map((price) => (
           <Card key={price?.id} className='h-[275px] cursor-pointer'>
             <Dialog
               open={open}
@@ -130,7 +145,7 @@ const PriceIntelligence = () => {
                 {priceDetailsIsLoading && <LoadingSpinner />}
                 <DialogHeader>
                   <DialogTitle className='text-2xl font-semibold'>
-                    {priceDetails?.name}
+                    {priceDetails?.data?.name}
                   </DialogTitle>
                 </DialogHeader>
                 <div className='px-5'>
@@ -162,14 +177,14 @@ const PriceIntelligence = () => {
                       // {...(priceDetails as PriceIntelligenceDetail)}
                       selectedSources={selectedSources}
                       setSelectedSources={setSelectedSources}
-                      data={priceDetails?.data?.source_prices}
+                      data={priceDetails?.data?.history}
                     />
                     <div className='space-y-2'>
                       <h3 className='font-bold text-yellow-500'>
                         Product Description
                       </h3>
                       <p className='text-sm font-light'>
-                        Specification: {priceDetails?.data?.item_description}
+                        Specification: {priceDetails?.data?.description}
                       </p>
                     </div>
                     <div className='mt-10'>
@@ -187,9 +202,7 @@ const PriceIntelligence = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {priceDetails?.data?.source_prices[
-                              selectedSources
-                            ]?.map((history, index) => (
+                            {priceDetails?.data?.history?.map((history: PriceIntelligenceHistory, index: number) => (
                               <tr key={index} className='w-full border'>
                                 <td className='w-fit p-2 text-center '>
                                   <span className='p-2 px-4 text-xs bg-gray-200 text-black rounded'>
@@ -207,7 +220,7 @@ const PriceIntelligence = () => {
                                   {history?.date}
 
                                   {format(
-                                    parseISO(history?.created_datetime),
+                                    parseISO(history?.date),
                                     "dd MMM, yy"
                                   )}
                                 </td>
@@ -224,6 +237,11 @@ const PriceIntelligence = () => {
           </Card>
         ))}
       </div>
+      {pagination && (
+        <div>
+          <p>Page {pagination.page} of {Math.ceil(pagination.total / pagination.size)}</p>
+        </div>
+      )}
     </div>
   );
 };
@@ -248,18 +266,42 @@ const CustomTooltip = ({
   return null;
 };
 
+// Define the type for `source_prices`
+interface SourcePrices {
+  [key: string]: { price: number; created_datetime: string }[];
+}
+
+// Refine the type for `prices` in the transformation function
+const transformedSourcePrices = (sourcePrices: SourcePrices) => {
+  return Object.entries(sourcePrices).flatMap(([source, prices]) =>
+    (prices as { price: number; created_datetime: string }[]).map((entry) => ({
+      source,
+      price: entry.price,
+      date: format(parseISO(entry.created_datetime), "dd MMM, yy"),
+    }))
+  );
+};
+
 // Chart component
 // const PriceTrendChart = (data: PriceIntelligenceDetail) => {
-const PriceTrendChart = ({ data, selectedSources, setSelectedSources }) => {
+const PriceTrendChart = ({
+  data,
+  selectedSources,
+  setSelectedSources,
+}: {
+  data: PriceIntelligenceHistory[];
+  selectedSources: string[];
+  setSelectedSources: (sources: string[]) => void;
+}) => {
   console.log({ crackedData: data });
 
   // Extract price history from all sources
   const priceEntries = Object.entries(data || {}).flatMap(
-    ([source, prices]: [string, any[]]) =>
+    ([source, prices]: [string, PriceIntelligenceHistory[]]) =>
       prices.map((entry) => ({
         source,
-        price: entry?.price,
-        date: format(parseISO(entry?.created_datetime), "dd MMM, yy"), // Format date
+        price: entry.price,
+        date: format(parseISO(entry.date), "dd MMM, yy"), // Format date
       }))
   );
   console.log({ priceEntries });
@@ -283,7 +325,7 @@ const PriceTrendChart = ({ data, selectedSources, setSelectedSources }) => {
   const filteredData = priceEntries
     ?.filter((d) => selectedSources?.includes(d?.source))
     ?.map(({ price, date }) => ({ price, date })) // Keep only price and date
-    ?.sort((a, b) => new Date(a.date) - new Date(b.date));
+    ?.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   return (
     <div className='p-4'>

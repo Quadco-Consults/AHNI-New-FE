@@ -318,6 +318,7 @@ export const SolicitationSubmissionSchema = z.object({
     z.object({
       unit_price: z.string().min(1, "Field is required"),
       solicitation_item: z.string().min(1, "Field is required"),
+      quantity: z.string().min(1, "Field is required"),
     })
   ),
   evaluations: z.array(
