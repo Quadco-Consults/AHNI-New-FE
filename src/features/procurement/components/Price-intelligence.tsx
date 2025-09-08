@@ -79,6 +79,15 @@ const PriceIntelligence = () => {
 
   console.log({ data, priceDetails });
 
+  // Add debugging logs to inspect `source_prices` and transformed output
+  console.log("Raw source_prices:", priceDetails?.data?.source_prices);
+  const sourcePrices = priceDetails?.data?.source_prices || {};
+  const transformedPrices = transformedSourcePrices(sourcePrices);
+  console.log("Transformed Prices:", transformedPrices);
+
+  // Add debugging logs to inspect `priceDetails`
+  console.log("Price Details:", priceDetails);
+
   return (
     <div className='space-y-10'>
       <BreadcrumbCard list={breadcrumbs} />
@@ -271,15 +280,19 @@ interface SourcePrices {
   [key: string]: { price: number; created_datetime: string }[];
 }
 
-// Refine the type for `prices` in the transformation function
+// Refactor transformation logic to resolve type mismatch
 const transformedSourcePrices = (sourcePrices: SourcePrices) => {
-  return Object.entries(sourcePrices).flatMap(([source, prices]) =>
-    (prices as { price: number; created_datetime: string }[]).map((entry) => ({
+  return Object.entries(sourcePrices).flatMap(([source, prices]) => {
+    if (!Array.isArray(prices)) {
+      console.error("Invalid prices format for source:", source, prices);
+      return [];
+    }
+    return prices.map((entry) => ({
       source,
       price: entry.price,
       date: format(parseISO(entry.created_datetime), "dd MMM, yy"),
-    }))
-  );
+    }));
+  });
 };
 
 // Chart component
