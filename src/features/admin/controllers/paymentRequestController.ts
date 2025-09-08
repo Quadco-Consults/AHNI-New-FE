@@ -69,7 +69,9 @@ export const useGetAllPaymentRequests = ({
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled,
@@ -78,7 +80,10 @@ export const useGetAllPaymentRequests = ({
 };
 
 // Get Single Payment Request
-export const useGetSinglePaymentRequest = (id: string, enabled: boolean = true) => {
+export const useGetSinglePaymentRequest = (
+  id: string,
+  enabled: boolean = true
+) => {
   return useQuery<ApiResponse<IPaymentRequestSingleData>>({
     queryKey: ["paymentRequest", id],
     queryFn: async () => {
@@ -87,7 +92,9 @@ export const useGetSinglePaymentRequest = (id: string, enabled: boolean = true) 
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled && !!id,
@@ -106,6 +113,7 @@ export const useCreatePaymentRequest = () => {
     queryKey: ["paymentRequests"],
     isAuth: true,
     method: "POST",
+    contentType: "multipart/form-data",
   });
 
   const createPaymentRequest = async (details: TPaymentRequestFormData) => {
@@ -130,6 +138,7 @@ export const useModifyPaymentRequest = (id: string) => {
     queryKey: ["paymentRequests", "paymentRequest"],
     isAuth: true,
     method: "PUT",
+    contentType: "multipart/form-data",
   });
 
   const modifyPaymentRequest = async (details: TPaymentRequestFormData) => {
