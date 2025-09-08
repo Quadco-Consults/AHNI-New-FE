@@ -300,50 +300,54 @@ export default function EditUserModal() {
   // Helper function to map user update data to vendor format
   const mapUserUpdateToVendor = (userData: TUpdateUserFormValues) => {
     return {
-      // Update company information
-      company_name: `${userData.first_name} ${userData.last_name}`,
+      // Update company information (preserve incomplete indicator if present)
+      company_name: `${userData.first_name} ${userData.last_name} [BUSINESS PROFILE MAY BE INCOMPLETE]`,
       
       // Update contact information
       email: userData.email,
       phone_number: userData.mobile_number,
       
-      // Update basic info that can be mapped from user data
-      company_address: "Address to be updated",
-      state: "State to be updated",
+      // Update basic info with incomplete warnings
+      company_address: "⚠️ UPDATED FROM USER MANAGEMENT - Business address may need completion",
+      state: "⚠️ UPDATED FROM USER MANAGEMENT - State/location may need completion",
       
-      // Update key staff information
+      // Update status to indicate possible incomplete profile
+      status: "⚠️ UPDATED FROM USER MANAGEMENT - May require business registration completion",
+      
+      // Update key staff information with incomplete warning
       key_staff: [
         {
           name: `${userData.first_name} ${userData.last_name}`,
           phone_number: userData.mobile_number,
-          email: userData.email,
-          position: userData.position || "Owner"
+          address: "⚠️ TO BE COMPLETED",
+          qualification: "⚠️ TO BE COMPLETED"
         }
       ],
       
-      // Mark as last updated from user management
-      last_updated_from: "USER_MANAGEMENT"
+      // Mark as last updated from user management with completion guidance
+      last_updated_from: "USER_MANAGEMENT",
+      extra_info: `⚠️ UPDATED FROM USER MANAGEMENT - If business profile is incomplete (missing: RC number, TIN, business address, bank details, shareholders, production capacity, quality control procedures, business documents, client references), complete via vendor registration and prequalification process.`
     };
   };
 
   // Helper function to map user update data to adhoc format
   const mapUserUpdateToAdhoc = (userData: TUpdateUserFormValues) => {
     return {
-      // Update basic information
-      title: `Adhoc Staff - ${userData.first_name} ${userData.last_name}`,
+      // Update basic information (preserve incomplete indicator if present)
+      title: `Adhoc Staff - ${userData.first_name} ${userData.last_name} [PROFILE MAY BE INCOMPLETE]`,
       
-      // Update location if changed
-      locations: userData.location ? [userData.location] : [],
+      // Update location if changed (ensure non-empty array)
+      locations: userData.location ? [userData.location] : ["TBD"],
       
       // Update grade level from position
       grade_level: userData.position || "To be determined",
       
-      // Update scope of work description
-      description: `Updated adhoc staff position for ${userData.first_name} ${userData.last_name}`,
-      background: `Updated from user management system for adhoc staff member ${userData.first_name} ${userData.last_name}`,
+      // Update scope of work description (preserve incomplete warning)
+      description: `⚠️ UPDATED FROM USER MANAGEMENT - Updated adhoc staff position for ${userData.first_name} ${userData.last_name}. If this profile is incomplete, please complete onboarding process to add: education, experience, references, documents, and contract details.`,
+      background: `Updated from user management system for adhoc staff member ${userData.first_name} ${userData.last_name}. Profile may be incomplete if originally created from user management.`,
       
       // Mark as updated from user management
-      extra_info: `Last updated from USER_MANAGEMENT`,
+      extra_info: `Updated from USER_MANAGEMENT. If profile is incomplete (missing education, experience, references, documents), complete via adhoc onboarding process.`,
       last_updated_from: "USER_MANAGEMENT"
     };
   };
@@ -351,33 +355,33 @@ export default function EditUserModal() {
   // Helper function to map user update data to facilitator format
   const mapUserUpdateToFacilitator = (userData: TUpdateUserFormValues) => {
     return {
-      // Update basic information
-      title: `Facilitator - ${userData.first_name} ${userData.last_name}`,
+      // Update basic information (preserve incomplete indicator if present)
+      title: `Facilitator - ${userData.first_name} ${userData.last_name} [PROFILE MAY BE INCOMPLETE]`,
       grade_level: userData.position || "To be determined",
       
-      // Update location if changed
-      locations: userData.location ? [userData.location] : [],
+      // Update location if changed (ensure non-empty array)
+      locations: userData.location ? [userData.location] : ["TBD"],
       
       // Required fields for facilitator update
       duration: "365", // One year in days
       commencement_date: new Date().toISOString().split('T')[0],
       end_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       facilitaor_number: "1", // Note: typo in schema
-      evaluation_comments: "Updated during user management",
+      evaluation_comments: "⚠️ UPDATED FROM USER MANAGEMENT - Professional evaluation and competency assessment may be incomplete",
       advertisement_document: "https://placeholder.com/advertisement",
-      supervisor: userData.department || "TBD",
+      supervisor: userData.department || "TBD - Requires supervisor assignment",
       
-      // Update text fields
-      background: `Updated facilitator position from user management system for ${userData.first_name} ${userData.last_name}`,
-      extra_info: `Last updated from USER_MANAGEMENT`,
+      // Update text fields with incomplete warnings
+      background: `⚠️ UPDATED FROM USER MANAGEMENT - Updated facilitator position from user management system for ${userData.first_name} ${userData.last_name}. Profile may be incomplete if originally created from user management.`,
+      extra_info: `Updated from USER_MANAGEMENT. If profile is incomplete (missing specialization areas, certification details, facilitation experience, training background), complete via facilitator onboarding process.`,
       
-      // Scope of work fields
-      description: `Updated facilitator position for ${userData.first_name} ${userData.last_name}`,
-      objectives: "Updated during user management process",
+      // Scope of work fields with incomplete warnings
+      description: `⚠️ UPDATED FROM USER MANAGEMENT - Updated facilitator position for ${userData.first_name} ${userData.last_name}. If this profile is incomplete, please complete onboarding process to add: specialization areas, certification details, facilitation experience, training methodologies, and competency assessments.`,
+      objectives: "⚠️ UPDATED - Professional objectives and facilitation specializations may need completion during proper onboarding process",
       deliverables: [
         {
-          deliverable: "Updated consultation and planning",
-          number_of_days: "30"
+          deliverable: "⚠️ UPDATED - May need completion during onboarding",
+          number_of_days: "TBD"
         }
       ],
       scope_of_work_document: "https://placeholder.com/scope",
@@ -390,21 +394,21 @@ export default function EditUserModal() {
   // Helper function to map user update data to consultant format
   const mapUserUpdateToConsultant = (userData: TUpdateUserFormValues) => {
     return {
-      // Update basic information
-      title: `Consultant - ${userData.first_name} ${userData.last_name}`,
+      // Update basic information (preserve incomplete indicator if present)
+      title: `Consultant - ${userData.first_name} ${userData.last_name} [PROFILE MAY BE INCOMPLETE]`,
       
-      // Update location if changed
-      locations: userData.location ? [userData.location] : [],
+      // Update location if changed (ensure non-empty array)
+      locations: userData.location ? [userData.location] : ["TBD"],
       
       // Update grade level from position
       grade_level: userData.position || "To be determined",
       
-      // Update scope of work description
-      description: `Updated consultant position for ${userData.first_name} ${userData.last_name}`,
-      background: `Updated from user management system for consultant ${userData.first_name} ${userData.last_name}`,
+      // Update scope of work description (preserve incomplete warning)
+      description: `⚠️ UPDATED FROM USER MANAGEMENT - Updated consultant position for ${userData.first_name} ${userData.last_name}. If this profile is incomplete, please complete onboarding process to add: education, employment history, language proficiency, special consultant services, references, documents, and contract details.`,
+      background: `Updated from user management system for consultant ${userData.first_name} ${userData.last_name}. Profile may be incomplete if originally created from user management.`,
       
       // Mark as updated from user management
-      extra_info: `Last updated from USER_MANAGEMENT`,
+      extra_info: `Updated from USER_MANAGEMENT. If profile is incomplete (missing education, employment history, language proficiency, special consultant services, references, documents), complete via consultant onboarding process.`,
       last_updated_from: "USER_MANAGEMENT"
     };
   };
@@ -416,19 +420,18 @@ export default function EditUserModal() {
       legal_firstname: userData.first_name,
       legal_lastname: userData.last_name,
       email: userData.email,
-      mobile_number: userData.mobile_number,
+      phone_number: userData.mobile_number,
       
       // Update employment details
       employment_type: userData.user_type === "ADMIN" ? "Admin" : "Staff",
-      position: userData.position,
+      department: userData.department || "TBD - Department assignment required",
       
-      // Update location and department
-      location: userData.location,
-      department: userData.department,
+      // Update status to indicate possible incomplete profile
+      status: "⚠️ UPDATED FROM USER MANAGEMENT - May require HR onboarding completion",
       
-      // Mark as updated from user management
+      // Mark as updated from user management with incomplete warning
       last_updated_from: "USER_MANAGEMENT",
-      extra_info: `Last updated from USER_MANAGEMENT`
+      extra_info: `⚠️ UPDATED FROM USER MANAGEMENT - If HR profile is incomplete (missing: date of birth, SSN, marital status, bank account details, PFA information, beneficiaries, emergency contacts, qualifications, passport/signature uploads, system authorizations), complete via HR employee onboarding process.`
     };
   };
 

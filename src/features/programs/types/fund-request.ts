@@ -8,6 +8,9 @@ export interface FundRequestPaginatedData {
     project: string;
     financial_year: string;
     location: string;
+    location_name?: string;
+    location_code?: string;
+    location_display?: string;
     created_datetime: string;
     updated_datetime: string;
     year: string;
@@ -133,6 +136,7 @@ export interface TFundRequestResponseData {
         state: "Abia";
         email: "jfjfjfj@kd.com";
         phone: "0404040";
+        unique_code?: string;
     };
     created_datetime: "2024-12-04T06:30:35.603259Z";
     updated_datetime: "2024-12-04T06:30:35.603276Z";

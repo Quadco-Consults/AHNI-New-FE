@@ -1,24 +1,13 @@
-"use client";
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
-import { Loading } from "@/components/Loading";
-import dynamic from "next/dynamic";
-import { Suspense } from "react";
-
-const CreateUsers = dynamic(
-  () =>
-    import("@/features/auth/components/Users/CreateUsers").catch(() => ({ 
-      default: () => <div>Failed to load component</div> 
-    })),
-  {
-    ssr: false,
-    loading: () => <Loading />,
-  }
-);
+import CreateUsers from "@/features/auth/components/Users/CreateUsers";
+import NoSSR from "components/NoSSR";
 
 export default function UsersPage() {
   return (
-    <Suspense fallback={<Loading />}>
+    <NoSSR>
       <CreateUsers />
-    </Suspense>
+    </NoSSR>
   );
 }

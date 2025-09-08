@@ -6,7 +6,7 @@ import {
   TFundRequestPaginatedResponse,
   TFundRequestResponseData,
 } from "../types/fund-request";
-import { TFundRequestFormValues } from "definations/program-validator";
+import { TFundRequestFormValues, TFundRequestWithActivitiesFormValues } from "definations/program-validator";
 
 // API Response interfaces
 interface ApiResponse<TData = unknown> {
@@ -129,6 +129,77 @@ export const useCreateFundRequest = () => {
   return { createFundRequest, data, isLoading, isSuccess, error };
 };
 
+// Update Fund Request (Full Update)
+export const useUpdateFundRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    null,
+    Error,
+    TFundRequestWithActivitiesFormValues
+  >({
+    endpoint: `${BASE_URL}${id}/`,
+    queryKey: ["fund-requests"],
+    isAuth: true,
+    method: "PUT",
+  });
+
+  const updateFundRequest = async (details: TFundRequestWithActivitiesFormValues) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response?.status === 400) {
+        // Handle validation errors (budget exceeded, etc.)
+        throw new Error((axiosError.response?.data as any)?.message || "Validation error occurred");
+      }
+      console.error("Fund request update error:", error);
+      throw error;
+    }
+  };
+
+  return { updateFundRequest, data, isLoading, isSuccess, error };
+};
+
+// Partial Update Fund Request (PATCH)
+export const usePatchFundRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    null,
+    Error,
+    Partial<TFundRequestWithActivitiesFormValues>
+  >({
+    endpoint: `${BASE_URL}${id}/`,
+    queryKey: ["fund-requests"],
+    isAuth: true,
+    method: "PATCH",
+  });
+
+  const patchFundRequest = async (details: Partial<TFundRequestWithActivitiesFormValues>) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response?.status === 400) {
+        // Handle validation errors (budget exceeded, etc.)
+        throw new Error((axiosError.response?.data as any)?.message || "Validation error occurred");
+      }
+      console.error("Fund request patch error:", error);
+      throw error;
+    }
+  };
+
+  return { patchFundRequest, data, isLoading, isSuccess, error };
+};
+
+// Specific Budget Update Hook
+export const useUpdateFundRequestBudget = (id: string) => {
+  const { patchFundRequest, isLoading, isSuccess, error } = usePatchFundRequest(id);
+
+  const updateBudget = async (newBudget: string) => {
+    await patchFundRequest({ available_balance: newBudget });
+  };
+
+  return { updateBudget, isLoading, isSuccess, error };
+};
+
 // Delete Fund Request
 export const useDeleteFundRequest = (id: string) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
@@ -157,4 +228,7 @@ export const useDeleteFundRequest = (id: string) => {
 export const useGetAllFundRequestsQuery = useGetAllFundRequests;
 export const useGetSingleFundRequestQuery = useGetSingleFundRequest;
 export const useCreateFundRequestMutation = useCreateFundRequest;
+export const useUpdateFundRequestMutation = useUpdateFundRequest;
+export const usePatchFundRequestMutation = usePatchFundRequest;
+export const useUpdateFundRequestBudgetMutation = useUpdateFundRequestBudget;
 export const useDeleteFundRequestMutation = useDeleteFundRequest;

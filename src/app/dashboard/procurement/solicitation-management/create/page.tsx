@@ -1,19 +1,8 @@
-"use client";
+export const dynamic = 'force-dynamic';
 
 import { Loading } from "@/components/Loading";
-import dynamic from "next/dynamic";
 import { Suspense } from "react";
-
-const CreateSolicitation = dynamic(
-  () =>
-    import("@/features/procurement/components/solicitation-management/RFQ/create/Quotation").catch(() => ({ 
-      default: () => <div>Failed to load component</div> 
-    })),
-  {
-    ssr: false,
-    loading: () => <Loading />,
-  }
-);
+import CreateSolicitation from "@/features/procurement/components/solicitation-management/RFQ/create/Quotation";
 
 export default function CreateSolicitationPage() {
   return (

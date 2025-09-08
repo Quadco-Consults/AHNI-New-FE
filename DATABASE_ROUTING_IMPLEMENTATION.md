@@ -143,6 +143,46 @@ Ensure the following endpoints exist and accept user data:
 4. **Reporting** - Reports spanning multiple user types will need special handling
 5. **Authentication** - Ensure login works regardless of which database stores the user
 
+### 🔄 Handling Incomplete Profiles
+
+**Problem**: When users are created via the user management interface, they only have basic information (name, email, phone). But specialized databases (especially ADHOC_STAFF and CONSULTANT) require rich professional data like:
+- Education history
+- Employment history
+- Language proficiency  
+- Special consultant services
+- References
+- Documents (resume, cover letter)
+- Contract details (salary, duration, etc.)
+
+**Solution Implemented**:
+
+1. **Profile Status Tracking**: 
+   - Records created from user management are marked with `profile_status: "INCOMPLETE"`
+   - Titles include `[INCOMPLETE PROFILE]` indicator
+   - Descriptions include ⚠️ warnings about missing data
+
+2. **Clear Data Requirements**:
+   - `extra_info` field lists exactly what's missing: "Missing: contract details, education, experience, references, documents"
+   - Background text explains the profile needs completion via proper onboarding
+
+3. **Visual Indicators**:
+   - Incomplete profiles clearly marked in all views
+   - Warning icons and text guide users to complete profiles
+   - Update operations preserve incomplete status until proper onboarding
+
+**Next Steps for Complete Implementation**:
+1. Add UI indicators in adhoc and consultancy databases to highlight incomplete profiles
+2. Create "Complete Profile" action button for incomplete records
+3. Build bridge functionality to move incomplete profiles to full onboarding process
+4. Add reporting to track incomplete vs complete profiles
+5. Consider notification system for managers about incomplete profiles
+
+**User Types Affected by Incomplete Profiles**:
+- **ADHOC_STAFF**: Missing professional experience, education, references, contract details
+- **CONSULTANT**: Missing professional experience, education, references, contract details
+- **FACILITATOR**: May have incomplete specialization and certification data
+- **VENDOR**: May have incomplete business registration and capability details
+
 ## Testing Checklist
 
 - [ ] Create AHNI_STAFF user → Stored in users table
