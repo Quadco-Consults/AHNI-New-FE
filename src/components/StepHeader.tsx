@@ -18,7 +18,7 @@ const StepHeader = ({ steps, currentStep }: StepHeaderProps) => {
   const router = useRouter();
 
   const goBack = () => {
-    router.push(-1);
+    router.back();
   };
 
   return (

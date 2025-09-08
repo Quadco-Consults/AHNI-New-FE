@@ -243,6 +243,24 @@ export type TFundRequestActivityFormValues = z.infer<
   typeof FundRequestActivitySchema
 >;
 
+export const FundRequestWithActivitiesSchema = z.object({
+  ...FundRequestSchema.shape,
+  activities: z.array(
+    z.object({
+      activity_description: z.string().min(1, "Field Required"),
+      quantity: z.string().min(1, "Field Required"),
+      unit_cost: z.string().min(1, "Field Required"),
+      frequency: z.string().min(1, "Field Required"),
+      comment: z.string().min(1, "Field Required"),
+      category: z.string().min(1, "Field Required"),
+    })
+  ),
+});
+
+export type TFundRequestWithActivitiesFormValues = z.infer<
+  typeof FundRequestWithActivitiesSchema
+>;
+
 export interface TFundRequestActivity {
   id: string;
   category: TCostCategoryData;

@@ -6,7 +6,7 @@ import { ThemeProvider } from "configs/theme-provider";
 import { FC, ReactNode } from "react";
 import { Toaster } from "sonner";
 import AppDialog from "components/modals/dialog/AppDialog";
-import NotificationProvider from "components/NotificationProvider";
+// import ClientOnlyNotificationProvider from "components/ClientOnlyNotificationProvider";
 
 const queryClient = new QueryClient();
 
