@@ -21,6 +21,9 @@ import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import { Plus } from "lucide-react";
 import VendorsAPI from "@/features/procurement/controllers/vendorsController";
+import { useParams } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
 type Data = {
   name: string;
@@ -32,12 +35,22 @@ type Data = {
   isSelected: boolean;
 };
 
-const EOIVendorSubmission = ({ status }: { status?: string }) => {
+const EOIVendorSubmission = ({ status, eoiData }: { status?: string; eoiData?: any }) => {
+  const params = useParams();
+  const eoiId = params.id as string;
+  const [isCreatingCBA, setIsCreatingCBA] = useState(false);
+  
   const { data: vendorData } = VendorsAPI.useGetVendors({
     page: 1,
     size: 20,
     search: "",
   });
+
+  const handleCreateCBA = () => {
+    // For EOI flow, we redirect to CBA creation and let it handle finding the solicitation
+    // The CBA creation component will need to be enhanced to work with EOI ID
+    window.location.href = `/dashboard/procurement/solicitation-management/rfq/create/create-cba?eoi_id=${eoiId}`;
+  };
 
   return (
     <div className='space-y-10'>
@@ -52,14 +65,22 @@ const EOIVendorSubmission = ({ status }: { status?: string }) => {
             />
           </div>
 
-          <Link href={generatePath(RouteEnum.VENDOR_REGISTRATION)}>
-            <Button>
-              <span>
-                <Plus size={20} />
-              </span>
-              Add Vendor
-            </Button>
-          </Link>
+          <div className="flex gap-3">
+            {/* Show Create CBA button for OPEN_TENDER EOIs that have vendor submissions */}
+            {eoiData?.type === "OPEN_TENDER" && vendorData?.data?.results && vendorData.data.results.length > 0 && (
+              <Button onClick={handleCreateCBA} disabled={isCreatingCBA} variant="outline">
+                {isCreatingCBA ? "Creating..." : "Create CBA"}
+              </Button>
+            )}
+            <Link href={generatePath(RouteEnum.VENDOR_REGISTRATION)}>
+              <Button>
+                <span>
+                  <Plus size={20} />
+                </span>
+                Add Vendor
+              </Button>
+            </Link>
+          </div>
         </div>
 
         <DataTable

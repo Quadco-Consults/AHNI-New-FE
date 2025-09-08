@@ -12,15 +12,14 @@ import { RouteEnum } from "constants/RouterConstants";
 import DataTable from "components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import { SolicitationSubmissionResultsData } from "definations/procurement-types/solicitation";
-import { useGetVendorBidSubmissions } from "@/features/procurement/controllers/vendorBidSubmissionsController";
+import { useGetVendorBidSubmissions, useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 import IconButton from "components/IconButton";
 
 const VendorSubmission = () => {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params?.id as string;
 
-  const { data } = useGetSolicitationSubmission({
-    path: { id: id as string },
-  });
+  const { data } = useGetSolicitationSubmission(id, !!id);
 
   return (
     <div className='space-y-10'>
@@ -36,9 +35,7 @@ const VendorSubmission = () => {
           </div>
 
           <Link
-            href={generatePath(RouteEnum.RFQ_DETAILS_BID_SUBMISSION, {
-              id: id,
-            })}
+            href={RouteEnum.RFQ_DETAILS_BID_SUBMISSION.replace(':id', id)}
           >
             <Button variant='ghost' className='bg-[#FFF2F2] gap-2 text-primary'>
               <svg
@@ -68,7 +65,7 @@ const VendorSubmission = () => {
         </div>
 
         <DataTable
-          data={data?.data?.results || []}
+          data={data?.data?.data?.results || []}
           columns={columns}
           isLoading={false}
         />
@@ -204,18 +201,16 @@ const ActionListAction = ({ data }: any) => {
   return (
     <div className='flex gap-2'>
       <Link
-        href={generatePath(RouteEnum.VENDOR_MANAGEMENT_DETAILS, { id: data?.id })}
+        href={RouteEnum.VENDOR_MANAGEMENT_DETAILS.replace(':id', data?.id)}
       >
         <IconButton className='bg-[#F9F9F9] hover:text-primary'>
           <Icon icon='ph:eye-duotone' fontSize={15} />
         </IconButton>
       </Link>
       <Link
-        // href={generatePath(RouteEnum.VENDOR_MANAGEMENT_DETAILS, { id: data?.id })}
-        href={generatePath(RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_START, {
-          id: data?.id as string,
-          appID: data?.solicitation?.id,
-        })}
+        href={RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_START
+          .replace(':id', data?.id as string)
+          .replace(':appID', data?.solicitation?.id)}
       >
         <IconButton className='bg-[#F9F9F9] hover:text-primary'>
           Evaluate

@@ -2,34 +2,34 @@
 
 /* eslint-disable react/prop-types */
 
-import { useNavigate, useParams } 
+import { useRouter, useParams } from "next/navigation";
 import { SelectContent, SelectItem } from "components/ui/select";
 import { Form } from "components/ui/form";
 import { useFieldArray, useForm } from "react-hook-form";
-import VendorsAPI from "@/features/procurementApi/vendorsController";
+import VendorsAPI from "@/features/procurement/controllers/vendorsController";
 import FormSelect from "components/atoms/FormSelectField";
 import { LoadingSpinner } from "components/Loading";
 import { VendorsResultsData } from "definations/procurement-types/vendors";
 import FormInput from "components/atoms/FormInput";
-import { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { z } from "zod";
-import { SolicitationSubmissionSchema } from "definations/procurement-validator";
+import { SolicitationSubmissionSchema } from "@/features/procurement/types/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import FormButton from "@/components/FormButton";
-import { useCreateSolicitationSubmission } from "@/features/procurementApi/vendor-bid-submissions";
-import { useGetSingleSolicitation } from "@/features/procurementApi/solicitation";
-import { useGetAllSolicitationEvaluationCriteria } from "@/features/modules/procurement/solicitation-evaluation-criteria";
+import { useCreateSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
+import { useGetSingleSolicitation } from "@/features/procurement/controllers/solicitationController";
+import { useGetAllSolicitationEvaluationCriteria } from "@/features/modules/controllers";
 
 import GoBack from "components/GoBack";
 
 const ManualBidSubmission = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
 
   const { data: vendors, isLoading: vendorsIsLoading } =
-    VendorsAPI.useGetVendorList({
-      params: { status: "Approved" },
+    VendorsAPI.useGetVendors({
+      status: "Approved",
     });
 
   const { createSolicitationSubmission, isLoading: isCreateLoading } =
@@ -75,18 +75,26 @@ const ManualBidSubmission = () => {
   const data = useMemo(() => {
     return singleSolicitation?.data?.solicitation_items?.map((data) => ({
       solicitation_item: data?.id,
-      quantity: data?.quantity || 0,
+      quantity: String(data?.quantity || 0),
       name: data?.item_detail?.name,
       unit_price: "",
     }));
   }, [singleSolicitation]);
 
   const dataVal = useMemo(() => {
-    return singleSolicitation?.data?.solicitation_evaluations?.map((data) => ({
-      response: "",
-      evaluation_criteria: data?.id,
-    }));
-  }, [singleSolicitation]);
+    if (!singleSolicitation?.data?.solicitation_evaluations || !solicitationCriteria?.results) {
+      return [];
+    }
+    
+    const validCriteriaIds = new Set(solicitationCriteria.results.map((criteria: any) => criteria.id));
+    
+    return singleSolicitation.data.solicitation_evaluations
+      .filter((data) => validCriteriaIds.has(data?.id))
+      .map((data) => ({
+        response: "",
+        evaluation_criteria: data?.id,
+      }));
+  }, [singleSolicitation, solicitationCriteria]);
 
   useEffect(() => {
     if (data) {
@@ -236,8 +244,9 @@ const ManualBidSubmission = () => {
                 <tr key={index} className='w-full'>
                   <FormInput
                     label={
-                      singleSolicitation?.data?.solicitation_evaluations[index]
-                        ?.criteria_details?.name
+                      solicitationCriteria?.results?.find((criteria: any) => 
+                        criteria.id === responseField[index]?.evaluation_criteria
+                      )?.name || 'Evaluation Criteria'
                     }
                     name={`evaluations.[${index}].response`}
                     className='w-full'
