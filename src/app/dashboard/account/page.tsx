@@ -1,24 +1,13 @@
-"use client";
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
-import { Loading } from "@/components/Loading";
-import dynamic from "next/dynamic";
-import { Suspense } from "react";
-
-const Account = dynamic(
-  () =>
-    import("@/features/accounts/components/account").catch(() => ({ 
-      default: () => <div>Failed to load component</div> 
-    })),
-  {
-    ssr: false,
-    loading: () => <Loading />,
-  }
-);
+import Account from "@/features/accounts/components/account";
+import NoSSR from "components/NoSSR";
 
 export default function AccountPage() {
-  return (
-    <Suspense fallback={<Loading />}>
-      <Account />
-    </Suspense>
-  );
+    return (
+        <NoSSR>
+            <Account />
+        </NoSSR>
+    );
 }

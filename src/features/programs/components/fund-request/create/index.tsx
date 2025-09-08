@@ -28,7 +28,7 @@ import {
   useGetLocationList,
 } from "@/features/modules/controllers/config/locationController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 
 const getYearOptions = () => {
   const currentYear = new Date().getFullYear();
@@ -131,8 +131,8 @@ const CreateFundRequest = () => {
 
   const locationOptions = useMemo(
     () =>
-      location?.data.results.map(({ name, id }) => ({
-        label: name,
+      location?.data.results.map(({ name, id, unique_code }) => ({
+        label: unique_code ? `${unique_code} - ${name}` : name,
         value: id,
       })),
     [location]
@@ -149,7 +149,34 @@ const CreateFundRequest = () => {
     [user]
   );
 
-  const { handleSubmit } = form;
+  const { handleSubmit, watch, setValue } = form;
+
+  // Watch the location and project fields for changes
+  const selectedLocationId = watch("location");
+  const selectedProjectId = watch("project");
+
+  // Auto-fill unique_code when location or project changes
+  useEffect(() => {
+    if (selectedLocationId && selectedProjectId && location?.data.results && project?.data.results) {
+      const selectedLocation = location.data.results.find(
+        (loc) => loc.id === selectedLocationId
+      );
+      const selectedProject = project.data.results.find(
+        (proj) => proj.id === selectedProjectId
+      );
+      
+      if (selectedLocation?.unique_code && selectedProject?.project_id) {
+        // Project ID from database (e.g., "advgfre")
+        // Location code (e.g., "-02") 
+        // Final format: Project ID + Location Code = "advgfre-02"
+        const compositeUniqueCode = `${selectedProject.project_id}${selectedLocation.unique_code}`;
+        setValue("uuid_code", compositeUniqueCode);
+      } else if (selectedLocation?.unique_code) {
+        // Fallback to location code only if project_id is not available
+        setValue("uuid_code", selectedLocation.unique_code);
+      }
+    }
+  }, [selectedLocationId, selectedProjectId, location, project, setValue]);
 
   const onSubmit: SubmitHandler<TFundRequestFormValues> = async (data) => {
     if (typeof window !== 'undefined') {
@@ -236,10 +263,11 @@ const CreateFundRequest = () => {
 
             <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
               <FormInput
-                label='Unqiue Identifier Code'
+                label='Unique Identifier Code'
                 name='uuid_code'
                 required
-                placeholder='Enter Unique Identifier Code'
+                placeholder='Auto-filled from project + location (e.g., advgfre-02)'
+                disabled
               />
 
               <FormSelect

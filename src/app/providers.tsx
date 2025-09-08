@@ -6,24 +6,27 @@ import { ThemeProvider } from "configs/theme-provider";
 import { FC, ReactNode } from "react";
 import { Toaster } from "sonner";
 import AppDialog from "components/modals/dialog/AppDialog";
+// import ClientOnlyNotificationProvider from "components/ClientOnlyNotificationProvider";
 
 const queryClient = new QueryClient();
 
 type PageProps = {
-    children: ReactNode;
+  children: ReactNode;
 };
 
 const AppProviders: FC<PageProps> = ({ children }) => {
-    return (
-        <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-            <QueryClientProvider client={queryClient}>
-                <AppDialog />
-                <Toaster richColors={true} position="top-center" />
-                {children}
-                <ReactQueryDevtools initialIsOpen={false} />
-            </QueryClientProvider>
-        </ThemeProvider>
-    );
+  return (
+    <ThemeProvider defaultTheme='light' storageKey='vite-ui-theme'>
+      <QueryClientProvider client={queryClient}>
+        <AppDialog />
+        <Toaster richColors={true} position='top-center' />
+        {/* <NotificationProvider> */}
+        {children}
+        {/* </NotificationProvider> */}
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
+    </ThemeProvider>
+  );
 };
 
 export default AppProviders;

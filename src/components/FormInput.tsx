@@ -57,7 +57,7 @@ const FormInput: FC<InputProps> = ({ name, label, disabled, ...rest }) => {
                   placeholder={rest.placeholder}
                   disabled={disabled}
                   onChange={onChange}
-                  value={value}
+                  value={value || ""} // Ensure value is never undefined
                   className={cn(
                     "font-medium bg-[#F9F9F9] placeholder:text-black/30",
                     rest.className

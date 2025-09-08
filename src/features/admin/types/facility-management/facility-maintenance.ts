@@ -51,6 +51,12 @@ export interface IFacilityMaintenanceSingleData {
     facility: TFacilityData;
     approvals: {
         id: string;
+        user: {
+            id: string;
+            email: string;
+            employee_id: string | null;
+            full_name: string;
+        };
         created_datetime: string;
         updated_datetime: string;
         approval_level: string;

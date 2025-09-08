@@ -1,19 +1,8 @@
-"use client";
+export const dynamic = 'force-dynamic';
 
 import { Loading } from "@/components/Loading";
-import dynamic from "next/dynamic";
 import { Suspense } from "react";
-
-const RFPCreateProposal = dynamic(
-  () =>
-    import("@/features/procurement/components/solicitation-management/RFP/create/Proposal").catch(() => ({ 
-      default: () => <div>Failed to load component</div> 
-    })),
-  {
-    ssr: false,
-    loading: () => <Loading />,
-  }
-);
+import RFPCreateProposal from "@/features/procurement/components/solicitation-management/RFP/create/Proposal";
 
 export default function RFPCreateProposalPage() {
   return (

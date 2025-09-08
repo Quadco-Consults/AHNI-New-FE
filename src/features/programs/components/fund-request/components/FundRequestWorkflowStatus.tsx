@@ -126,6 +126,17 @@ const FundRequestWorkflowStatus: React.FC<FundRequestWorkflowStatusProps> = ({
           }
         })
       );
+    } else if (actionType === "view_signature") {
+      dispatch(
+        openDialog({
+          type: DialogType.FundRequestSignature,
+          dialogProps: {
+            fundRequestId,
+            currentStatus,
+            width: "max-w-4xl"
+          }
+        })
+      );
     } else {
       dispatch(
         openDialog({
@@ -203,8 +214,16 @@ const FundRequestWorkflowStatus: React.FC<FundRequestWorkflowStatusProps> = ({
         ))}
       </div>
 
-      {canReject && currentStatus !== "REJECTED" && (
-        <div className="mt-6 pt-4 border-t">
+      <div className="mt-6 pt-4 border-t flex justify-between items-center">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => handleAction("view_signature")}
+        >
+          View Authorization Form
+        </Button>
+        
+        {canReject && currentStatus !== "REJECTED" && (
           <Button
             variant="destructive"
             size="sm"
@@ -212,8 +231,8 @@ const FundRequestWorkflowStatus: React.FC<FundRequestWorkflowStatusProps> = ({
           >
             Reject Request
           </Button>
-        </div>
-      )}
+        )}
+      </div>
     </Card>
   );
 };

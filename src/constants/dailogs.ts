@@ -103,6 +103,7 @@ export const DialogType = {
   // Fund Request Workflow
   FundRequestApproval: "FundRequestApproval",
   FundRequestReject: "FundRequestReject",
+  FundRequestSignature: "FundRequestSignature",
 };
 
 export const largeDailogScreen = {
