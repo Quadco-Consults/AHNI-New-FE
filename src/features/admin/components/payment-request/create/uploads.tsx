@@ -7,6 +7,7 @@ import { TPaymentRequestFormData } from "features/admin/types/payment-request";
 import {
   useCreatePaymentRequest,
   useGetSinglePaymentRequest,
+  useGetSinglePaymentRequestQuery,
   useModifyPaymentRequest,
 } from "@/features/admin/controllers/paymentRequestController";
 import AddSquareIcon from "components/icons/AddSquareIcon";
@@ -47,8 +48,12 @@ export default function FileUploads() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("File input changed:", e.target.files);
     if (e.target.files && e.target.files.length > 0) {
+      console.log("Setting file:", e.target.files[0]);
       setFile(e.target.files[0]);
+    } else {
+      console.log("No files selected or files array is empty");
     }
   };
 
@@ -62,6 +67,9 @@ export default function FileUploads() {
     e.preventDefault();
 
     try {
+      console.log("File state at submit:", file);
+      console.log("Document state at submit:", document);
+
       if (!file && !document) {
         setError("Please select a file");
         return;
@@ -81,6 +89,7 @@ export default function FileUploads() {
       ) as TPaymentRequestFormData;
 
       const formData = new FormData();
+      console.log("File being appended to FormData:", file);
 
       // Main payment request fields
       formData.append("payment_type", payment_type || "OTHER");
@@ -89,7 +98,11 @@ export default function FileUploads() {
       formData.append("reviewer", reviewer || "");
       formData.append("authorizer", authorizer || "");
       formData.append("approver", approver || "");
-      formData.append("document", file as File);
+
+      // Only append document if a new file was uploaded
+      if (file && file instanceof File) {
+        formData.append("document", file);
+      }
 
       // Optional purchase order for PURCHASE_ORDER type
       if (payment_type === "PURCHASE_ORDER" && purchase_order) {
@@ -140,10 +153,12 @@ export default function FileUploads() {
   };
 
   const { data: paymentRequest } = useGetSinglePaymentRequest(id || "", !!id);
+  console.log({ paymentRequest: paymentRequest?.data?.document });
 
   useEffect(() => {
     if (paymentRequest) {
-      setDocument(paymentRequest.data.document);
+      setDocument(paymentRequest?.data?.document);
+      // Don't set file to document URL - file should only be set when user uploads a new file
     }
   }, [paymentRequest]);
 

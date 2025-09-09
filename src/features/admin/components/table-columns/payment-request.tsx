@@ -1,7 +1,9 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { IPaymentRequestPaginatedData } from "definations/admin/payment-request";
 import { useState } from "react";
-import { useDeletePaymentRequest } from "@/features/admin/controllers/paymentRequestController";
+import {
+  useDeletePaymentRequest,
+} from "@/features/admin/controllers/paymentRequestController";
 import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
@@ -11,7 +13,6 @@ import { AdminRoutes } from "constants/RouterConstants";
 import EyeIcon from "components/icons/EyeIcon";
 import ConfirmationDialog from "components/ConfirmationDialog";
 import DeleteIcon from "components/icons/DeleteIcon";
-import EditIcon from "components/icons/EditIcon";
 import { format } from "date-fns";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
@@ -88,15 +89,15 @@ export const paymentRequestColumns: ColumnDef<IPaymentRequestPaginatedData>[] =
     },
   ];
 
-const TableMenu = ({ id, status }: IPaymentRequestPaginatedData) => {
+const TableMenu = ({ id }: IPaymentRequestPaginatedData) => {
   const [isDialogOpen, setDialogOpen] = useState(false);
 
-  const [deletePaymentRequest, { isLoading }] =
-    useDeletePaymentRequestMutation();
+  const { deletePaymentRequest, isLoading } =
+    useDeletePaymentRequest(id);
 
   const handleDelete = async () => {
     try {
-      await deletePaymentRequest(id);
+      await deletePaymentRequest();
       toast.success("Payment Request Deleted");
     } catch (error: any) {
       toast.error(error.data.message ?? "Something went wrong");
@@ -116,9 +117,7 @@ const TableMenu = ({ id, status }: IPaymentRequestPaginatedData) => {
             <div className='flex flex-col items-start justify-between gap-1'>
               <Link
                 className='w-full'
-                href={generatePath(AdminRoutes.VIEW_PAYMENT_REQUEST, {
-                  id,
-                })}
+                href={AdminRoutes.VIEW_PAYMENT_REQUEST.replace(':id', id)}
               >
                 <Button
                   className='w-full flex items-center justify-start gap-2'
