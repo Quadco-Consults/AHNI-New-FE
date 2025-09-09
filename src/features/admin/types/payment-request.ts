@@ -126,12 +126,35 @@ export interface IPaymentRequestPaginatedData {
 export interface IPaymentRequestSingleData {
     id: string;
     payment_type: "CONSULTANT" | "FACILITATOR" | "ADHOC_STAFF" | "PURCHASE_ORDER" | "OTHER";
+    payment_type_display: string;
+    is_bulk_payment: boolean;
+    payment_items_count: number;
     purchase_order: {
         id: string;
         purchase_order_number: string;
+    } | null;
+    purchase_order_details: any;
+    requested_by: {
+        id: string;
+        email: string;
+        employee_id: string | null;
+        full_name: string;
+        department: string | null;
     };
-    requested_by: IUser;
-    approvals: [];
+    approvals: Array<{
+        id: string;
+        user: {
+            id: string;
+            email: string;
+            employee_id: string | null;
+            full_name: string;
+            department: string | null;
+        };
+        created_datetime: string;
+        updated_datetime: string;
+        approval_level: "REVIEW" | "AUTHORIZE" | "APPROVE";
+        comments: string | null;
+    }>;
     created_datetime: string;
     updated_datetime: string;
     payment_date: string;
@@ -139,33 +162,39 @@ export interface IPaymentRequestSingleData {
     document: string;
     status: string;
     created_by: string;
-    updated_by: null;
+    updated_by: string | null;
     total_amount: string;
     payment_items: Array<{
         id: string;
+        consultant_details: any;
+        facilitator_details: {
+            id: string;
+            email: string;
+            full_name: string;
+            phone_number: string | null;
+            gender: string | null;
+            state_of_origin: string | null;
+        } | null;
+        adhoc_staff_details: any;
+        created_datetime: string;
+        updated_datetime: string;
         payment_to: string;
         account_number: string;
         bank_name: string;
         amount_in_figures: string;
         amount_in_words: string;
         tax_identification_number?: string;
+        company_name?: string;
+        company_tax_id?: string;
+        company_registration_number?: string;
+        consultant_legacy_id?: string;
+        staff_legacy_id?: string;
+        facilitator_legacy_id?: string;
         phone_number?: string;
         email?: string;
         address?: string;
-        consultant?: {
-            id: string;
-            first_name: string;
-            last_name: string;
-        };
-        facilitator?: {
-            id: string;
-            first_name: string;
-            last_name: string;
-        };
-        adhoc_staff?: {
-            id: string;
-            first_name: string;
-            last_name: string;
-        };
+        consultant?: string | null;
+        facilitator?: string | null;
+        adhoc_staff?: string | null;
     }>;
 }
