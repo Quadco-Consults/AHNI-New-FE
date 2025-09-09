@@ -176,6 +176,84 @@ export const useDeletePaymentRequest = (id: string) => {
   return { deletePaymentRequest, data, isLoading, isSuccess, error };
 };
 
+// ===== PAYMENT REQUEST APPROVAL HOOKS =====
+
+interface ApprovalPayload {
+  comments: string;
+}
+
+// Review Payment Request (PENDING → REVIEWED)
+export const useReviewPaymentRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IPaymentRequestSingleData,
+    Error,
+    ApprovalPayload
+  >({
+    endpoint: `${BASE_URL}${id}/review/`,
+    queryKey: ["paymentRequests", "paymentRequest"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const reviewPaymentRequest = async (comment: string) => {
+    try {
+      await callApi({ comments: comment });
+    } catch (error) {
+      console.error("Payment request review error:", error);
+    }
+  };
+
+  return { reviewPaymentRequest, data, isLoading, isSuccess, error };
+};
+
+// Authorize Payment Request (REVIEWED → AUTHORIZED)
+export const useAuthorizePaymentRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IPaymentRequestSingleData,
+    Error,
+    ApprovalPayload
+  >({
+    endpoint: `${BASE_URL}${id}/authorize/`,
+    queryKey: ["paymentRequests", "paymentRequest"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const authorizePaymentRequest = async (comment: string) => {
+    try {
+      await callApi({ comments: comment });
+    } catch (error) {
+      console.error("Payment request authorize error:", error);
+    }
+  };
+
+  return { authorizePaymentRequest, data, isLoading, isSuccess, error };
+};
+
+// Approve Payment Request (AUTHORIZED → APPROVED)
+export const useApprovePaymentRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IPaymentRequestSingleData,
+    Error,
+    ApprovalPayload
+  >({
+    endpoint: `${BASE_URL}${id}/approve/`,
+    queryKey: ["paymentRequests", "paymentRequest"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const approvePaymentRequest = async (comment: string) => {
+    try {
+      await callApi({ comments: comment });
+    } catch (error) {
+      console.error("Payment request approve error:", error);
+    }
+  };
+
+  return { approvePaymentRequest, data, isLoading, isSuccess, error };
+};
+
 // Legacy exports for backward compatibility
 export const useGetAllPaymentRequestsQuery = useGetAllPaymentRequests;
 export const useGetSinglePaymentRequestQuery = useGetSinglePaymentRequest;
