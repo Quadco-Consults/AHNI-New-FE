@@ -64,7 +64,7 @@ export default function PaymentRequestDetails() {
                                                 label="Purchase Order Number"
                                                 description={
                                                     data.data.purchase_order
-                                                        .purchase_order_number
+                                                        ?.purchase_order_number || "N/A"
                                                 }
                                             />
 

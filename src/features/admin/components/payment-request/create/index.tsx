@@ -76,7 +76,7 @@ export default function CreatePaymentRequest() {
 
   const purchaseOrderOptions = useMemo(
     () =>
-      purchaseOrder?.results?.map((orderItem: any) => ({
+      purchaseOrder?.data?.results?.map((orderItem: any) => ({
         label: orderItem.purchase_order_number,
         value: orderItem.id,
       })),
@@ -99,8 +99,6 @@ export default function CreatePaymentRequest() {
   );
 
   const onSubmit: SubmitHandler<TPaymentRequestFormData> = (data) => {
-    console.log("Payment Request Form Data:", { data });
-
     sessionStorage.setItem("paymentRequestFormData", JSON.stringify(data));
 
     let path = pathname;
@@ -118,17 +116,30 @@ export default function CreatePaymentRequest() {
   );
 
   useEffect(() => {
-    if (paymentRequest) {
+    if (paymentRequest && user && purchaseOrder) {
       const { data } = paymentRequest;
+
+      // Extract approvals by level for auto-population
+      const approvals = data.approvals || [];
+      const reviewerApproval = approvals.find(
+        (a: any) => a.approval_level === "REVIEW"
+      );
+      const authorizerApproval = approvals.find(
+        (a: any) => a.approval_level === "AUTHORIZE"
+      );
+      const approverApproval = approvals.find(
+        (a: any) => a.approval_level === "APPROVE"
+      );
 
       form.reset({
         payment_type: data.payment_type,
         payment_date: data.payment_date,
         payment_reason: data.payment_reason,
         purchase_order: data.purchase_order?.id || "",
-        reviewer: "",
-        authorizer: "",
-        approver: "",
+        // Auto-populate approvers if they exist in the approval workflow
+        reviewer: reviewerApproval?.user?.id || "",
+        authorizer: authorizerApproval?.user?.id || "",
+        approver: approverApproval?.user?.id || "",
         payment_items: data.payment_items?.map((item) => ({
           payment_to: item.payment_to || "",
           account_number: item.account_number || "",
@@ -139,18 +150,25 @@ export default function CreatePaymentRequest() {
           phone_number: item.phone_number || "",
           email: item.email || "",
           address: item.address || "",
+          // Handle different reference types for consultant/facilitator/adhoc_staff
           consultant:
-            typeof item.consultant === "object"
-              ? item.consultant?.id
-              : item.consultant,
+            typeof item.consultant === "object" && item.consultant?.id
+              ? item.consultant.id
+              : typeof item.consultant === "string"
+              ? item.consultant
+              : "",
           facilitator:
-            typeof item.facilitator === "object"
-              ? item.facilitator?.id
-              : item.facilitator,
+            typeof item.facilitator === "object" && item.facilitator?.id
+              ? item.facilitator.id
+              : typeof item.facilitator === "string"
+              ? item.facilitator
+              : "",
           adhoc_staff:
-            typeof item.adhoc_staff === "object"
-              ? item.adhoc_staff?.id
-              : item.adhoc_staff,
+            typeof item.adhoc_staff === "object" && item.adhoc_staff?.id
+              ? item.adhoc_staff.id
+              : typeof item.adhoc_staff === "string"
+              ? item.adhoc_staff
+              : "",
         })) || [
           {
             payment_to: "",

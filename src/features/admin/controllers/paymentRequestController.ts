@@ -137,7 +137,7 @@ export const useModifyPaymentRequest = (id: string) => {
     endpoint: `${BASE_URL}${id}/`,
     queryKey: ["paymentRequests", "paymentRequest"],
     isAuth: true,
-    method: "PUT",
+    method: "PATCH",
     contentType: "multipart/form-data",
   });
 

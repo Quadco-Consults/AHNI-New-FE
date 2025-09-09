@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Document, Page } from "react-pdf";
 import { useDeleteProjectDocument } from "@/features/projects/controllers/projectDocumentController";
 import { toast } from "sonner";
+import "@/utils/pdfConfig";
 
 type TProps = {
   id: string;
@@ -31,12 +32,11 @@ export default function DocumentCard({
 }: TProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const [deleteProjectDocumentController, { isLoading }] =
-    useDeleteProjectDocument();
+  const { deleteProjectDocument, isLoading } = useDeleteProjectDocument(id);
 
   const handleDeleteDocument = async () => {
     try {
-      await deleteProjectDocumentController({ path: { id: id } });
+      await deleteProjectDocument();
       sessionStorage.removeItem("projectsCompletedSteps");
       toast.success("Project Document Deleted.");
     } catch (error: any) {
