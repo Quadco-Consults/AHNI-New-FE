@@ -13,8 +13,9 @@ export const GrievianceManagementSchema = z.object({
     
     title: z.string().min(1, "Please enter title"),
     description: z.string().min(1, "Please enter description"), 
-    document_name: z.string().min(1,"Please enter document name"), 
-    document: isBrowser ? z.instanceof(FileList) : z.any(),
+    document_name: z.string().optional(), 
+    date: z.string().optional(),
+    document: isBrowser ? z.instanceof(FileList).optional() : z.any().optional(),
 });
 export const FindingsGrievianceManagementSchema = z.object({
     
