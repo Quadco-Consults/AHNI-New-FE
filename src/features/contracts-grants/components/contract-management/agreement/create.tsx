@@ -22,49 +22,139 @@ import {
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation"; 
 import { CG_ROUTES } from "constants/RouterConstants";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ServiceLevelAgreementLayout from "./Layout";
-import VendorsAPI from "@/features/procurement/controllers/vendorsController";
 import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 
 const agreementTypeOptions = [
-    { label: "LEASE", value: "LEASE" },
-    { label: "SLA", value: "SLA" },
-    { label: "HMO", value: "HMO" },
-    { label: "SECURITY", value: "SECURITY" },
-    { label: "INSURANCE", value: "INSURANCE" },
-    { label: "TICKETING", value: "TICKETING" },
+    { label: "Consultant", value: "CONSULTANT", category: "Staff Contracts" },
+    { label: "Facilitator", value: "FACILITATOR", category: "Staff Contracts" },
+    { label: "Adhoc Staff", value: "ADHOC_STAFF", category: "Staff Contracts" },
+    { label: "SLA", value: "SLA", category: "Service Agreements" },
+    { label: "Security", value: "SECURITY", category: "Service Agreements" },
+    { label: "Insurance", value: "INSURANCE", category: "Service Agreements" },
+    { label: "Lease", value: "LEASE", category: "Service Agreements" },
+    { label: "HMO", value: "HMO", category: "Service Agreements" },
+    { label: "Ticketing", value: "TICKETING", category: "Service Agreements" },
 ];
 
 export default function CreateAgreement() {
     const form = useForm<TAgreementFormData>({
         resolver: zodResolver(AgreementSchema),
         defaultValues: {
-            provider: "",
+            service: "",
             type: "",
             start_date: "",
             end_date: "",
+            contract_cost: "",
+            location: "",
+            consultant_id: "",
+            facilitator_id: "",
+            adhoc_staff_id: "",
+            vendor_id: "",
         },
     });
+
+    // State for conditional dropdowns
+    const [selectedAgreementType, setSelectedAgreementType] = useState("");
+    const [entityOptions, setEntityOptions] = useState([]);
+    const [isLoadingEntities, setIsLoadingEntities] = useState(false);
+
+    // Functions to fetch entity options based on agreement type
+    const fetchConsultants = async () => {
+        setIsLoadingEntities(true);
+        try {
+            const response = await AxiosWithToken.get('/contract-grants/agreements/consultants_dropdown/');
+            setEntityOptions(response.data);
+        } catch (error) {
+            console.error('Failed to fetch consultants:', error);
+            setEntityOptions([]);
+        } finally {
+            setIsLoadingEntities(false);
+        }
+    };
+
+    const fetchFacilitators = async () => {
+        setIsLoadingEntities(true);
+        try {
+            const response = await AxiosWithToken.get('/contract-grants/agreements/facilitators_dropdown/');
+            setEntityOptions(response.data);
+        } catch (error) {
+            console.error('Failed to fetch facilitators:', error);
+            setEntityOptions([]);
+        } finally {
+            setIsLoadingEntities(false);
+        }
+    };
+
+    const fetchAdhocStaff = async () => {
+        setIsLoadingEntities(true);
+        try {
+            const response = await AxiosWithToken.get('/contract-grants/agreements/adhoc_staff_dropdown/');
+            setEntityOptions(response.data);
+        } catch (error) {
+            console.error('Failed to fetch adhoc staff:', error);
+            setEntityOptions([]);
+        } finally {
+            setIsLoadingEntities(false);
+        }
+    };
+
+    const fetchVendors = async () => {
+        setIsLoadingEntities(true);
+        try {
+            const response = await AxiosWithToken.get('/contract-grants/agreements/vendors_dropdown/');
+            setEntityOptions(response.data);
+        } catch (error) {
+            console.error('Failed to fetch vendors:', error);
+            setEntityOptions([]);
+        } finally {
+            setIsLoadingEntities(false);
+        }
+    };
+
+    // Handle agreement type change
+    const handleAgreementTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedType = event.target.value;
+        setSelectedAgreementType(selectedType);
+        form.setValue('type', selectedType);
+        
+        // Clear previous entity selections
+        form.setValue('consultant_id', '');
+        form.setValue('facilitator_id', '');
+        form.setValue('adhoc_staff_id', '');
+        form.setValue('vendor_id', '');
+
+        // Load appropriate dropdown based on type
+        switch(selectedType) {
+            case 'CONSULTANT':
+                fetchConsultants();
+                break;
+            case 'FACILITATOR':
+                fetchFacilitators();
+                break;
+            case 'ADHOC_STAFF':
+                fetchAdhocStaff();
+                break;
+            case 'SLA':
+            case 'SECURITY':
+            case 'INSURANCE':
+            case 'LEASE':
+            case 'HMO':
+            case 'TICKETING':
+                fetchVendors();
+                break;
+            default:
+                setEntityOptions([]);
+                break;
+        }
+    };
 
     const searchParams = useSearchParams();
     const id = searchParams?.get("id") || null;
 
     const router = useRouter();
-
-    const { data: vendor } = VendorsAPI.useGetVendors({
-        page: 1,
-        size: 2000000,
-    });
-
-    const vendorOptions = useMemo(
-        () =>
-            vendor?.data.results.map(({ company_name, id }) => ({
-                label: company_name,
-                value: id,
-            })),
-        [vendor]
-    );
 
     const { data: location } = useGetAllLocations({
         page: 1,
@@ -87,21 +177,20 @@ export default function CreateAgreement() {
         useModifyAgreement(id || "");
 
     const onSubmit: SubmitHandler<TAgreementFormData> = async (data) => {
-        // try {
-        //     if (id) {
-        //         await modifyAgreement({ id, body: data })();
-        //         toast.success("Agreement Updated");
-        //     } else {
-        //         await createAgreement(data)();
-        //         toast.success("Agreement Created");
-        //     }
-
-        //     router.push(CG_ROUTES.AGREEMENT);
-        // } catch (error: any) {
-        //     toast.error(error.data.message ?? "Something went wrong");
-        // }
-
-        router.push(CG_ROUTES.CREATE_AGREEMENT_UPLOADS);
+        try {
+            if (id) {
+                await updateAgreement(data);
+                toast.success("Agreement Updated");
+                router.push(CG_ROUTES.AGREEMENT);
+            } else {
+                // Store agreement data in session storage for the summary step
+                sessionStorage.setItem('agreementFormData', JSON.stringify(data));
+                toast.success("Agreement details saved. Please review the summary.");
+                router.push(CG_ROUTES.CREATE_AGREEMENT_DETAILS);
+            }
+        } catch (error: any) {
+            toast.error(error?.message ?? "Something went wrong");
+        }
     };
 
     const { data } = useGetSingleAgreement(id || "", !!id);
@@ -124,21 +213,48 @@ export default function CreateAgreement() {
                                 className="space-y-8"
                             >
                                 <div className="grid grid-cols-2 gap-8">
-                                    <FormSelect
-                                        label="Provider"
-                                        name="provider"
-                                        placeholder="Select Provider"
+                                    <FormInput
+                                        label="Service"
+                                        name="service"
+                                        placeholder="Enter Service Description"
                                         required
-                                        options={vendorOptions}
                                     />
 
                                     <FormSelect
-                                        label="Type"
+                                        label="Agreement Type"
                                         name="type"
-                                        placeholder="Select Type"
+                                        placeholder="Select Agreement Type"
                                         options={agreementTypeOptions}
                                         required
+                                        onChange={handleAgreementTypeChange}
                                     />
+
+                                    {/* Conditional Entity Dropdown */}
+                                    {selectedAgreementType && (
+                                        <FormSelect
+                                            label={
+                                                selectedAgreementType === 'CONSULTANT' ? 'Consultant' :
+                                                selectedAgreementType === 'FACILITATOR' ? 'Facilitator' :
+                                                selectedAgreementType === 'ADHOC_STAFF' ? 'Adhoc Staff' :
+                                                'Vendor'
+                                            }
+                                            name={
+                                                selectedAgreementType === 'CONSULTANT' ? 'consultant_id' :
+                                                selectedAgreementType === 'FACILITATOR' ? 'facilitator_id' :
+                                                selectedAgreementType === 'ADHOC_STAFF' ? 'adhoc_staff_id' :
+                                                'vendor_id'
+                                            }
+                                            placeholder={`Select ${
+                                                selectedAgreementType === 'CONSULTANT' ? 'Consultant' :
+                                                selectedAgreementType === 'FACILITATOR' ? 'Facilitator' :
+                                                selectedAgreementType === 'ADHOC_STAFF' ? 'Adhoc Staff' :
+                                                'Vendor'
+                                            }`}
+                                            options={entityOptions}
+                                            required
+                                            disabled={isLoadingEntities}
+                                        />
+                                    )}
 
                                     <FormInput
                                         type="date"
