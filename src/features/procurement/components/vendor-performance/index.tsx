@@ -143,17 +143,22 @@ const columns: ColumnDef<any>[] = [
   {
     header: "Recommendation",
     accessorKey: "evaluator_recommendation",
-    cell: ({ getValue }) => {
+    cell: ({ getValue, row }) => {
+      const value = getValue() as string;
+      const status = row.original.status;
+      // If status is PENDING and recommendation is BARRED, show PENDING instead
+      const displayValue = (status === "PENDING" && value === "BARRED") ? "PENDING" : (value || "PENDING");
       return (
         <Badge
           className={cn(
             "px-3 py-2 rounded-lg",
-            getValue() === "BARRED" && "bg-red-200 text-red-800",
-            getValue() === "ON_PROBATION" && "bg-yellow-200 text-yellow-800",
-            getValue() === "RETAIN" && "bg-green-200 text-green-800"
+            displayValue === "BARRED" && "bg-red-200 text-red-800",
+            displayValue === "ON_PROBATION" && "bg-yellow-200 text-yellow-800",
+            displayValue === "RETAIN" && "bg-green-200 text-green-800",
+            displayValue === "PENDING" && "bg-blue-200 text-blue-800"
           )}
         >
-          {getValue() as string}
+          {displayValue}
         </Badge>
       );
     },
