@@ -78,10 +78,14 @@ const CreateFundRequest = () => {
       financial_year: "",
       type: "",
       location: "",
-      reviewer: "",
       uuid_code: "",
-      authorizer: "",
-      approver: "",
+      location_reviewer: "",
+      location_authorizer: "",
+      state_reviewer: "",
+      state_authorizer: "",
+      hq_reviewer: "",
+      hq_authorizer: "",
+      hq_approver: "",
     },
   });
 
@@ -271,27 +275,61 @@ const CreateFundRequest = () => {
               />
 
               <FormSelect
-                label='Reviewer'
-                name='reviewer'
+                label='Location Reviewer'
+                name='location_reviewer'
                 required
                 options={userOptions}
-                placeholder='Select Reviewer'
+                placeholder='Select Location Reviewer'
               />
 
               <FormSelect
-                label='Authorizer'
-                name='authorizer'
+                label='Location Authorizer'
+                name='location_authorizer'
                 required
                 options={userOptions}
-                placeholder='Select Authorizer'
+                placeholder='Select Location Authorizer'
               />
 
               <FormSelect
-                label='Approver'
-                name='approver'
+                label='State Reviewer'
+                name='state_reviewer'
                 required
                 options={userOptions}
-                placeholder='Select Approver'
+                placeholder='Select State Reviewer'
+              />
+
+              <FormSelect
+                label='State Authorizer'
+                name='state_authorizer'
+                required
+                options={userOptions}
+                placeholder='Select State Authorizer'
+              />
+            </div>
+
+            <div className='grid grid-cols-1 gap-5 md:grid-cols-3'>
+              <FormSelect
+                label='HQ Reviewer'
+                name='hq_reviewer'
+                required
+                options={userOptions}
+                placeholder='Select HQ Reviewer'
+              />
+
+              <FormSelect
+                label='HQ Authorizer'
+                name='hq_authorizer'
+                required
+                options={userOptions}
+                placeholder='Select HQ Authorizer'
+              />
+
+              <FormSelect
+                label='HQ Approver'
+                name='hq_approver'
+                required
+                options={userOptions}
+                placeholder='Select HQ Approver'
               />
             </div>
 

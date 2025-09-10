@@ -27,7 +27,8 @@ export default function Summary() {
   const router = useRouter();
 
   const programFundRequest: TFundRequestFormValues &
-    TFundRequestActivityFormValues = typeof window !== 'undefined' 
+    TFundRequestActivityFormValues =
+    typeof window !== "undefined"
       ? JSON.parse(localStorage.getItem("programFundRequest") || "{}")
       : {};
 
@@ -48,14 +49,20 @@ export default function Summary() {
 
   const handleSubmit = async () => {
     try {
-      await createFundRequest(programFundRequest);
-      toast.success("Fund Request Created");
-      router.push(RouteEnum.PROGRAM_FUND_REQUEST);
-      if (typeof window !== 'undefined') {
+      const res = await createFundRequest(programFundRequest);
+
+      console.log({ res });
+      if (res?.status === "success") {
+        router.push(RouteEnum.PROGRAM_FUND_REQUEST);
         localStorage.removeItem("programFundRequest");
       }
+
+      // if (typeof window !== "undefined") {
+      // }
     } catch (error: any) {
-      toast.error(error.response?.data?.message ?? error.message ?? "Something went wrong");
+      toast.error(
+        error.response?.data?.message ?? error.message ?? "Something went wrong"
+      );
     }
   };
 
