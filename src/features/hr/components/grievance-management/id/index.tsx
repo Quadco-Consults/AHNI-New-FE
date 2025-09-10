@@ -10,21 +10,19 @@ import GoBack from "components/GoBack";
 import Details from "./Details";
 import Resolutions from "./Resolutions";
 import Feedback from "./Feedback";
-import { useGetGrievianceManagement } from "@/features/hr/controllers/grievanceController";
+import { useGetGrievance } from "@/features/hr/controllers/grievanceController";
 
 const PrequalificationDetails = () => {
   const { id } = useParams();
 
-  const { data: grievanceData, isLoading } = useGetGrievianceManagement({
-     id: id as string ,
-  });
+  const { data: grievanceData, isLoading } = useGetGrievance(id as string);
 
-  console.log({ grievanceData });
+  console.log("Grievance data:", { grievanceData });
 
   if (isLoading) {
     return <LoadingSpinner />;
   }
-  const data: any = [];
+  const grievance = grievanceData?.data;
   return (
     <div className='space-y-5'>
       <Tabs defaultValue='details'>
@@ -38,16 +36,16 @@ const PrequalificationDetails = () => {
           </TabsList>
         </div>
         <TabsContent value='details'>
-          <Details {...(grievanceData?.data as any)} />
+          <Details {...grievance} />
         </TabsContent>
         <TabsContent value='uploads'>
-          <Uploads {...(grievanceData?.data as any)} />
+          <Uploads {...grievance} />
         </TabsContent>
         <TabsContent value='resolution'>
-          <Resolutions {...(grievanceData?.data as any)} />
+          <Resolutions {...grievance} />
         </TabsContent>
         <TabsContent value='feed-back'>
-          <Feedback {...(grievanceData?.data as any)} />
+          <Feedback {...grievance} />
         </TabsContent>
       </Tabs>
     </div>

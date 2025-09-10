@@ -78,12 +78,13 @@ export const useCreateGrievance = () => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     GrievianceManagement,
     Error,
-    Partial<GrievianceManagement>
+    Partial<GrievianceManagement> | FormData
   >({
     endpoint: BASE_URL,
     queryKey: ["grievances"],
     isAuth: true,
     method: "POST",
+    contentType: null, // This allows FormData uploads with proper multipart/form-data headers
   });
 
   const createGrievance = async (details: Partial<GrievianceManagement> | FormData) => {

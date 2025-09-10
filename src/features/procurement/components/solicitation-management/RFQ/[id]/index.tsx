@@ -17,9 +17,21 @@ import SummaryOfTechnicalPrequalification from "features/procurement/components/
 const RFQDetails = () => {
   const { id } = useParams();
 
-  const { data, isLoading } = useGetSingleSolicitationQuery(id ?? skipToken);
+  console.log("RFQDetails ID:", id);
+
+  const { data, isLoading, error } = useGetSolicitationById(id as string, !!id);
+
+  console.log("RFQDetails data:", data, "loading:", isLoading, "error:", error);
 
   if (isLoading) return <LoadingSpinner />;
+
+  if (error) {
+    return <div className="p-5">Error loading RFQ: {error.message}</div>;
+  }
+
+  if (!data) {
+    return <div className="p-5">No RFQ data found</div>;
+  }
 
   const breadcrumbs = [
     { name: "Procurement", icon: true },

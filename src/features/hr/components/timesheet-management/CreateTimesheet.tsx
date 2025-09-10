@@ -29,30 +29,79 @@ import { LoadingSpinner } from "components/Loading";
 import { Checkbox } from "components/ui/checkbox";
 import { StakeholderResultsData } from "definations/program-types/stakeholder";
 import FormButton from "@/components/FormButton";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { getNextAvailableTimesheetId, createTimesheetUrl } from "../../utils/timesheetIdGenerator";
+import { format, startOfWeek, endOfWeek } from "date-fns";
 
 const CreateTimesheet = () => {
   // const [matchedStakeholdersData, setMatchedStakeholdersData] = useState<
   //     StakeholderResultsData[]
   // >([]);
 
-  const form = useForm<{ submitted_employees: string[] }>({
+  interface CreateTimesheetForm {
+    project_name: string;
+    activity_name: string;
+    activity_type: string;
+    applicable_employee: string;
+    submitted_employees: string[];
+    date_type: string;
+    start_date: string;
+    end_date: string;
+  }
+
+  const router = useRouter();
+  const [isCreating, setIsCreating] = useState(false);
+
+  const form = useForm<CreateTimesheetForm>({
     defaultValues: {
       submitted_employees: [],
+      applicable_employee: "all",
+      date_type: "range",
+      start_date: format(startOfWeek(new Date()), 'yyyy-MM-dd'),
+      end_date: format(endOfWeek(new Date()), 'yyyy-MM-dd'),
     },
   });
 
-  // const { watch } = form;
+  const handleCreateTimesheet = async () => {
+    setIsCreating(true);
+    
+    try {
+      // Validate form first
+      const isValid = await form.trigger();
+      if (!isValid) {
+        setIsCreating(false);
+        return;
+      }
 
-  // useEffect(() => {
-  //     const matchedStakeholders =
-  //         employees?.filter((stakeholder: StakeholderResultsData) =>
-  //             watch("submitted_employees").includes(stakeholder?.id)
-  //         ) || [];
-  //     setMatchedStakeholdersData(matchedStakeholders);
-  // }, [watch("submitted_employees")]);
+      const formData = form.getValues();
+      
+      // Generate unique timesheet ID
+      const timesheetId = await getNextAvailableTimesheetId();
+      
+      // In a real application, you would make an API call here to create the timesheet
+      // For now, we'll simulate the creation process
+      console.log('Creating timesheet with ID:', timesheetId);
+      console.log('Timesheet data:', formData);
+      
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Navigate to the timesheet detail page
+      const timesheetUrl = createTimesheetUrl(timesheetId);
+      router.push(timesheetUrl);
+      
+    } catch (error) {
+      console.error('Failed to create timesheet:', error);
+      alert('Failed to create timesheet. Please try again.');
+    } finally {
+      setIsCreating(false);
+    }
+  };
 
-  // return <></>;
+  const handleCancel = () => {
+    router.push('/dashboard/hr/timesheet-management');
+  };
 
   return (
     <div className='space-y-4'>
@@ -64,7 +113,7 @@ const CreateTimesheet = () => {
         <Form {...form}>
           <form className='space-y-10'>
             <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
-              <FormInput name='name' label='Project Name' required />
+              <FormInput name='project_name' label='Project Name' required />
               <FormSelect
                 options={[]}
                 name='activity_name'
@@ -175,7 +224,7 @@ const CreateTimesheet = () => {
                   <DialogContent className='max-w-6xl max-h-[700px] overflow-auto'>
                     <DialogHeader className='mt-10 space-y-5 text-center'>
                       <img
-                        src={logoPng}
+                        src={typeof logoPng === 'string' ? logoPng : logoPng.src}
                         alt='logo'
                         className='mx-auto'
                         width={150}
@@ -353,11 +402,11 @@ const CreateTimesheet = () => {
             </div>
             <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
               <FormRadio
-                label='Date'
-                name='date'
+                label='Date Type'
+                name='date_type'
                 options={[
-                  { label: "Single Date", value: "all" },
-                  { label: "Date Range", value: "selected" },
+                  { label: "Single Date", value: "single" },
+                  { label: "Date Range", value: "range" },
                 ]}
               />
               <FormInput
@@ -375,14 +424,21 @@ const CreateTimesheet = () => {
             </div>
             <div className='flex justify-between gap-5 py-5'>
               <FormButton
-                // onClick={goBack}
+                onClick={handleCancel}
                 type='button'
                 className='bg-[#FFF2F2] text-primary dark:text-gray-500'
+                disabled={isCreating}
               >
                 Cancel
               </FormButton>
 
-              <FormButton>Create</FormButton>
+              <FormButton 
+                type="button"
+                onClick={handleCreateTimesheet}
+                disabled={isCreating}
+              >
+                {isCreating ? 'Creating...' : 'Create'}
+              </FormButton>
             </div>
           </form>
         </Form>

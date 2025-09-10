@@ -11,7 +11,7 @@ import { useAppDispatch } from "hooks/useStore";
 import { EditIcon } from "lucide-react";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useUpdateGrievianceManagementMutation } from "@/features/hr/controllers/grievanceController";
+import { useUpdateGrievance } from "@/features/hr/controllers/grievanceController";
 import { toast } from "sonner";
 
 const Feedback = (data: VendorsResultsData) => { 
@@ -29,26 +29,22 @@ type FeedbackFormValues = {
     });
     
     const dispatch = useAppDispatch();
-    const [updateGrievianceManagement, {isLoading: isLoading}] = useUpdateGrievianceManagementMutation({})
+    const { updateGrievance, isLoading } = useUpdateGrievance(data?.id || "")
     const onSubmit: SubmitHandler<FeedbackFormValues> =  async (details: any) => {
        
         try {
-          const formData = new FormData();
-          formData.append("title", data.title);  
-          formData.append("description", data.description);   
-          formData.append("findings", data.findings);   
-          formData.append("resolution", data.resolution); 
-          formData.append("feedback", details.feedback);   
-      
-          // @ts-ignore
-          await updateGrievianceManagement({
-            id: data?.id,
-            body: formData
+          await updateGrievance({
+            ...details,
+            type: data?.title || data?.type || "Complaint",
+            title: data?.title || data?.type || "Complaint",
+            description: data?.description || "Grievance description",
+            whistle_blower: data?.whistle_blower || "Anonymous"
           });
           toast.success("Feedback submitted successfully"); 
           setDialogOpen(false)
-        } catch (error) {
-          toast.error("Something went wrong"); ;
+        } catch (error: any) {
+          console.error("Feedback submission error:", error);
+          toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
         }
       };
 
