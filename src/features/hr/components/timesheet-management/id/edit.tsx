@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { ColumnDef } from "@tanstack/react-table";
 import Card from "components/Card";
 import DataTable from "components/Table/DataTable";
@@ -12,6 +13,8 @@ import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { useGetAllWorkPlan, useGetSingleWorkPlan } from "@/features/programs/controllers/workPlanController";
+import { ArrowLeft, Save, X } from "lucide-react";
+import Link from "next/link";
 
 type TTimesheetDetail = {
   projectId: string;
@@ -45,15 +48,80 @@ const initialRow: TTimesheetDetail = {
   total: "0",
 };
 
-const TimesheetManagementFull = () => {
-  const dispatch = useAppDispatch();
+// Mock timesheet data - in real app, fetch this by ID
+const mockTimesheetData = {
+  id: "ts-001",
+  employee: {
+    id: "emp-001",
+    name: "Sarah Smith",
+    department: "Engineering"
+  },
+  weekPeriod: {
+    startDate: "2024-01-08",
+    endDate: "2024-01-14"
+  },
+  status: "draft",
+  entries: [
+    {
+      projectId: "proj-001",
+      workplanId: "wp-001",
+      name: "ACEBAY Platform",
+      activity: "Frontend Development",
+      activityId: "act-001",
+      mon: "8",
+      tue: "8",
+      wed: "8",
+      thu: "4",
+      fri: "0",
+      sat: "0",
+      sun: "0",
+      total: "28",
+    },
+    {
+      projectId: "proj-002", 
+      workplanId: "wp-002",
+      name: "ACE Cluster 5",
+      activity: "Bug Fixes",
+      activityId: "act-002",
+      mon: "0",
+      tue: "0", 
+      wed: "0",
+      thu: "4",
+      fri: "8",
+      sat: "0",
+      sun: "0",
+      total: "12",
+    }
+  ]
+};
 
-  const [timesheetData, setTimesheetData] = useState<TTimesheetDetail[]>([
-    initialRow,
-  ]);
-  const [savedTimesheet, setSavedTimesheet] = useState<TTimesheetDetail[]>([
-    initialRow,
-  ]);
+const TimesheetEdit = () => {
+  const params = useParams();
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const timesheetId = params?.id as string;
+
+  const [timesheetData, setTimesheetData] = useState<TTimesheetDetail[]>([initialRow]);
+  const [savedTimesheet, setSavedTimesheet] = useState<TTimesheetDetail[]>([initialRow]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  // Load timesheet data on component mount
+  useEffect(() => {
+    // In a real app, fetch timesheet by ID
+    // For now, use mock data
+    if (timesheetId && mockTimesheetData.id === timesheetId) {
+      setTimesheetData(mockTimesheetData.entries);
+      setSavedTimesheet(mockTimesheetData.entries);
+    }
+    setIsLoading(false);
+  }, [timesheetId]);
+
+  // Track changes
+  useEffect(() => {
+    const hasChangedData = JSON.stringify(timesheetData) !== JSON.stringify(savedTimesheet);
+    setHasChanges(hasChangedData);
+  }, [timesheetData, savedTimesheet]);
 
   const addRow = () => setTimesheetData((prev) => [...prev, { ...initialRow }]);
 
@@ -67,11 +135,26 @@ const TimesheetManagementFull = () => {
 
   const resetTimesheet = () => setTimesheetData([{ ...initialRow }]);
 
-  const cancelChanges = () => setTimesheetData(savedTimesheet);
+  const cancelChanges = () => {
+    setTimesheetData(savedTimesheet);
+    setHasChanges(false);
+  };
 
-  const handleSubmit = () => {
-    console.log("Submitted Timesheet:", timesheetData);
+  const handleSave = () => {
+    console.log("Saving Timesheet:", timesheetData);
     setSavedTimesheet(timesheetData);
+    setHasChanges(false);
+    // In real app, make API call to save timesheet
+    // Then redirect back to view mode or list
+    router.push(`/dashboard/hr/timesheet-management/${timesheetId}`);
+  };
+
+  const handleCancel = () => {
+    if (hasChanges) {
+      const confirmLeave = window.confirm("You have unsaved changes. Are you sure you want to leave?");
+      if (!confirmLeave) return;
+    }
+    router.push(`/dashboard/hr/timesheet-management/${timesheetId}`);
   };
 
   const updateCell = (
@@ -94,13 +177,14 @@ const TimesheetManagementFull = () => {
 
     setTimesheetData(updated);
   };
+
   const handleOpenDialog = () => {
     dispatch(
       openDialog({
         type: DialogType.COPY_ACTIVITIES,
         dialogProps: {
           header: "Copy Activities from Timesheet",
-          data: "1", // the timesheet ID or whatever you need here
+          data: timesheetId,
           onAddActivities: (activities: any[]) => {
             const newRows = activities.map((a: any) => ({
               ...a,
@@ -119,7 +203,6 @@ const TimesheetManagementFull = () => {
       })
     );
   };
-  console.log({ timesheetData });
 
   // Project Select Component
   const ProjectSelect = ({ onValueChange, rowIndex }: { value: string; onValueChange: (value: string) => void; rowIndex: number }) => {
@@ -162,24 +245,22 @@ const TimesheetManagementFull = () => {
     );
   };
 
-  // Workplan Select Component (intermediate step)
+  // Workplan Select Component
   const WorkplanSelect = ({ value, onValueChange, rowIndex }: { value: string; onValueChange: (value: string) => void; rowIndex: number }) => {
     const selectedProjectId = timesheetData[rowIndex]?.projectId;
     const { data: workplansData, isLoading } = useGetAllWorkPlan({
       page: 1,
       size: 100,
-      project_title: selectedProjectId ? "" : "", // You might want to filter by project
+      project_title: selectedProjectId ? "" : "",
       enabled: !!selectedProjectId
     });
     const workplans = workplansData?.results || [];
     
-    // Filter workplans by selected project if needed
     const filteredWorkplans = workplans.filter(wp => wp.project === selectedProjectId);
 
     const handleWorkplanChange = (workplanId: string) => {
       onValueChange(workplanId);
       updateCell(rowIndex, "workplanId", workplanId);
-      // Clear activity when workplan changes
       updateCell(rowIndex, "activity", "");
       updateCell(rowIndex, "activityId", "");
     };
@@ -214,7 +295,7 @@ const TimesheetManagementFull = () => {
     );
   };
 
-  // Activity Select Component (now uses workplan activities)
+  // Activity Select Component
   const ActivitySelect = ({ value, onValueChange, rowIndex }: { value: string; onValueChange: (value: string) => void; rowIndex: number }) => {
     const selectedWorkplanId = timesheetData[rowIndex]?.workplanId;
     const { data: workplanData, isLoading } = useGetSingleWorkPlan(selectedWorkplanId || "", !!selectedWorkplanId);
@@ -301,14 +382,23 @@ const TimesheetManagementFull = () => {
         <input
           type='number'
           value={row.original[day as keyof TTimesheetDetail]}
-          className='w-16 px-1 border rounded text-sm'
+          className='w-16 px-1 border rounded text-sm focus:border-blue-500 focus:outline-none'
           onChange={(e) =>
             updateCell(row.index, day as keyof TTimesheetDetail, e.target.value)
           }
+          min="0"
+          max="24"
+          step="0.5"
         />
       ),
     })),
-    { header: "Total", accessorKey: "total" },
+    { 
+      header: "Total", 
+      accessorKey: "total",
+      cell: ({ row }: { row: any }) => (
+        <div className="font-medium">{row.original.total}h</div>
+      ),
+    },
     {
       header: "Actions",
       cell: ({ row }: { row: any }) => (
@@ -332,34 +422,81 @@ const TimesheetManagementFull = () => {
     },
   ];
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div>Loading timesheet...</div>
+      </div>
+    );
+  }
+
   return (
     <div className='space-y-4'>
-      <h2 className='text-2xl font-bold'>Timesheet Management</h2>
+      {/* Header with navigation */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" onClick={handleCancel}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
+          <div>
+            <h2 className='text-2xl font-bold'>Edit Timesheet</h2>
+            <div className="text-sm text-gray-600">
+              Week: Jan 08 - Jan 14, 2024 | Employee: Sarah Smith
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {hasChanges && (
+            <Badge variant="secondary">
+              Unsaved changes
+            </Badge>
+          )}
+          <Badge variant="secondary">Draft</Badge>
+        </div>
+      </div>
 
-      <div className='flex gap-2'>
+      {/* Action buttons */}
+      <div className='flex gap-2 flex-wrap'>
         <Button onClick={addRow}>Add Row</Button>
         <Button variant='outline' onClick={resetTimesheet}>
           Reset
         </Button>
-        <Button variant='outline' onClick={cancelChanges}>
-          Cancel
-        </Button>
-        <Button variant='default' onClick={handleSubmit}>
-          Submit
+        <Button variant='outline' onClick={cancelChanges} disabled={!hasChanges}>
+          Cancel Changes
         </Button>
         <Button onClick={handleOpenDialog}>Copy Activities</Button>
+        <div className="ml-auto flex gap-2">
+          <Button variant='outline' onClick={handleCancel}>
+            <X className="w-4 h-4 mr-2" />
+            Cancel
+          </Button>
+          <Button onClick={handleSave} disabled={!hasChanges}>
+            <Save className="w-4 h-4 mr-2" />
+            Save Changes
+          </Button>
+        </div>
       </div>
 
+      {/* Timesheet table */}
       <Card>
         <DataTable columns={columns} data={timesheetData} />
       </Card>
 
+      {/* Status card */}
       <Card className='space-y-2'>
         <h4 className='font-semibold'>Status</h4>
-        <Badge variant='secondary'>Draft</Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant='secondary'>Draft</Badge>
+          {hasChanges && (
+            <span className="text-sm text-amber-600">
+              You have unsaved changes
+            </span>
+          )}
+        </div>
       </Card>
     </div>
   );
 };
 
-export default TimesheetManagementFull;
+export default TimesheetEdit;
