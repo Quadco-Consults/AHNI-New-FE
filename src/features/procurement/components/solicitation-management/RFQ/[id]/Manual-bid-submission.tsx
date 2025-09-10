@@ -36,7 +36,7 @@ const ManualBidSubmission = () => {
     useCreateSolicitationSubmission();
 
   const { data: singleSolicitation } = useGetSingleSolicitation(
-    id as string
+    solicitationId as string
   );
 
   const { data: solicitationCriteria } =
@@ -82,12 +82,17 @@ const ManualBidSubmission = () => {
   }, [singleSolicitation]);
 
   const dataVal = useMemo(() => {
-    if (!singleSolicitation?.data?.solicitation_evaluations || !solicitationCriteria?.results) {
+    if (
+      !singleSolicitation?.data?.solicitation_evaluations ||
+      !solicitationCriteria?.results
+    ) {
       return [];
     }
-    
-    const validCriteriaIds = new Set(solicitationCriteria.results.map((criteria: any) => criteria.id));
-    
+
+    const validCriteriaIds = new Set(
+      solicitationCriteria.results.map((criteria: any) => criteria.id)
+    );
+
     return singleSolicitation.data.solicitation_evaluations
       .filter((data) => validCriteriaIds.has(data?.id))
       .map((data) => ({
@@ -126,16 +131,16 @@ const ManualBidSubmission = () => {
   };
 
   return (
-    <div className='space-y-10'>
+    <div className="space-y-10">
       <GoBack />
       <div>
-        <h4 className='text-lg font-bold'>Manual Bid Submission Form</h4>
+        <h4 className="text-lg font-bold">Manual Bid Submission Form</h4>
         <h6>{singleSolicitation?.data?.title}</h6>
       </div>
 
       <Form {...form}>
-        <form onSubmit={handleSubmit(onSubmit)} className='space-y-10'>
-          <FormSelect name='vendor' label='Vendor' required>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
+          <FormSelect name="vendor" label="Vendor" required>
             <SelectContent>
               {vendorsIsLoading && <LoadingSpinner />}
               {/* @ts-ignore */}
@@ -147,20 +152,20 @@ const ManualBidSubmission = () => {
             </SelectContent>
           </FormSelect>
 
-          <div className='space-y-1'>
-            <h4 className='text-base font-bold'>Items Quotation</h4>
+          <div className="space-y-1">
+            <h4 className="text-base font-bold">Items Quotation</h4>
             <h6>Please provide your quotation for the following Items</h6>
           </div>
 
           <div>
-            <table className='w-full border mt-10'>
+            <table className="w-full border mt-10">
               <thead>
-                <tr className='text-amber-500 whitespace-nowrap border-b-2 text-sm font-semibold'>
-                  <th className='px-2 py-5 w-[50px]'>S/N</th>
-                  <th className='px-2 py-5 w-[300px]'>Items Description</th>
-                  <th className='px-2 py-5 w-[150px]'>Qty</th>
-                  <th className='px-2 py-5 w-[150px]'> Unit price</th>
-                  <th className='px-2 py-5 w-[150px]'>Total</th>
+                <tr className="text-amber-500 whitespace-nowrap border-b-2 text-sm font-semibold">
+                  <th className="px-2 py-5 w-[50px]">S/N</th>
+                  <th className="px-2 py-5 w-[300px]">Items Description</th>
+                  <th className="px-2 py-5 w-[150px]">Qty</th>
+                  <th className="px-2 py-5 w-[150px]"> Unit price</th>
+                  <th className="px-2 py-5 w-[150px]">Total</th>
                 </tr>
               </thead>
               <tbody>
@@ -173,15 +178,15 @@ const ManualBidSubmission = () => {
                   });
 
                   return (
-                    <tr key={index} className='w-full'>
-                      <td className='w-[50px] p-2 text-center '>
-                        <span className='p-2 px-4 text-xs bg-black text-white rounded'>
+                    <tr key={index} className="w-full">
+                      <td className="w-[50px] p-2 text-center ">
+                        <span className="p-2 px-4 text-xs bg-black text-white rounded">
                           {index + 1}.
                         </span>
                       </td>
-                      <td className=' p-2 text-center w-[400px]'>
-                        <div className='space-y-2'>
-                          <h2 className='font-semibold'>
+                      <td className=" p-2 text-center w-[400px]">
+                        <div className="space-y-2">
+                          <h2 className="font-semibold">
                             {/* {singleSolicitation?.data.items[index]?.item?.name} */}
                             {/* @ts-ignore */}
                             {field?.name}
@@ -190,24 +195,24 @@ const ManualBidSubmission = () => {
                           <h6>{field?.description} </h6>
                         </div>
                       </td>
-                      <td className='w-[100px] flex items-center p-2 text-center mx-auto'>
+                      <td className="w-[100px] flex items-center p-2 text-center mx-auto">
                         <FormInput
-                          label=''
+                          label=""
                           name={`bid_items.[${index}].quantity`}
-                          type='number'
-                          className='w-full'
+                          type="number"
+                          className="w-full"
                         />
                       </td>
-                      <td className='w-[100px] p-2 text-center mx-auto'>
+                      <td className="w-[100px] p-2 text-center mx-auto">
                         <FormInput
-                          label=''
-                          type='number'
+                          label=""
+                          type="number"
                           name={`bid_items.[${index}].unit_price`}
-                          className='w-full'
+                          className="w-full"
                         />
                       </td>
 
-                      <td className='w-[100px] p-2 text-center'>
+                      <td className="w-[100px] p-2 text-center">
                         <h6>
                           ₦
                           {Number(
@@ -221,9 +226,9 @@ const ManualBidSubmission = () => {
                 })}
               </tbody>
             </table>
-            <div className=''>
+            <div className="">
               {/* Calculate total */}
-              <div className='flex items-center justify-center w-fit gap-20 px-5 py-3 border rounded-lg border-primary text-primary ml-auto mt-6'>
+              <div className="flex items-center justify-center w-fit gap-20 px-5 py-3 border rounded-lg border-primary text-primary ml-auto mt-6">
                 <h4>Total:</h4>
                 <span>
                   ₦
@@ -238,29 +243,31 @@ const ManualBidSubmission = () => {
               </div>
             </div>
           </div>
-          <div className='grid grid-cols-3 gap-5'>
+          <div className="grid grid-cols-3 gap-5">
             {responseField.map((field, index) => {
               return (
-                <tr key={index} className='w-full'>
+                <tr key={index} className="w-full">
                   <FormInput
                     label={
-                      solicitationCriteria?.results?.find((criteria: any) => 
-                        criteria.id === responseField[index]?.evaluation_criteria
-                      )?.name || 'Evaluation Criteria'
+                      solicitationCriteria?.results?.find(
+                        (criteria: any) =>
+                          criteria.id ===
+                          responseField[index]?.evaluation_criteria
+                      )?.name || "Evaluation Criteria"
                     }
                     name={`evaluations.[${index}].response`}
-                    className='w-full'
+                    className="w-full"
                   />
                 </tr>
               );
             })}
           </div>
 
-          <div className='flex justify-end'>
+          <div className="flex justify-end">
             <FormButton
               loading={isCreateLoading}
               disabled={isCreateLoading}
-              type='submit'
+              type="submit"
             >
               Submit
             </FormButton>
