@@ -22,6 +22,7 @@ import DataTable from "components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
 
 import LeaveBalanceCard from "./LeaveBalanceCard";
+import BackendStatusBanner from "./BackendStatusBanner";
 import { LeaveRequest, LeaveStatus } from "../../types/leave";
 import { useDashboardData } from "../../services/leaveService";
 import { format } from "date-fns";
@@ -62,11 +63,11 @@ const LeaveDashboard = () => {
   // Status Badge Component
   const StatusBadge = ({ status }: { status: LeaveStatus }) => {
     const statusConfig = {
-      draft: { variant: 'secondary' as const, label: 'Draft', icon: FileText },
-      pending_approval: { variant: 'default' as const, label: 'Pending', icon: Clock },
+      draft: { variant: 'secondary' as const, label: 'Draft', icon: FileText, className: '' },
+      pending_approval: { variant: 'default' as const, label: 'Pending', icon: Clock, className: '' },
       approved: { variant: 'default' as const, label: 'Approved', icon: CheckCircle, className: 'bg-green-100 text-green-800' },
-      rejected: { variant: 'destructive' as const, label: 'Rejected', icon: XCircle },
-      cancelled: { variant: 'secondary' as const, label: 'Cancelled', icon: XCircle },
+      rejected: { variant: 'destructive' as const, label: 'Rejected', icon: XCircle, className: '' },
+      cancelled: { variant: 'secondary' as const, label: 'Cancelled', icon: XCircle, className: '' },
       taken: { variant: 'default' as const, label: 'Taken', icon: CalendarDays, className: 'bg-blue-100 text-blue-800' }
     };
     
@@ -122,6 +123,9 @@ const LeaveDashboard = () => {
 
   return (
     <div className="space-y-6">
+      {/* Backend Status Banner */}
+      <BackendStatusBanner />
+      
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

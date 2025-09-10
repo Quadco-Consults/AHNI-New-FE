@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { format, differenceInDays, addDays, parseISO, isSameDay, isWeekend } from "date-fns";
+import { format, differenceInDays, addDays, parseISO, isWeekend } from "date-fns";
 import { 
   CalendarDays, 
   Clock, 
@@ -14,8 +14,10 @@ import {
   FileText, 
   Upload,
   X,
-  Plus,
-  Info
+  Search,
+  Info,
+  Shield,
+  UserCheck
 } from "lucide-react";
 
 import { Button } from "components/ui/button";
@@ -35,18 +37,23 @@ import BackendStatusBanner from "./BackendStatusBanner";
 import { LeaveType, LeaveRequestFormData } from "../../types/leave";
 import { leaveService, useLeaveTypes, useLeaveBalances } from "../../services/leaveService";
 
-// Validation Schema
-const leaveRequestSchema = z.object({
+// Enhanced validation schema for admin assign leave
+const assignLeaveSchema = z.object({
+  employeeId: z.string().min(1, "Please select an employee"),
   leaveTypeId: z.string().min(1, "Please select a leave type"),
   fromDate: z.string().min(1, "Please select start date"),
   toDate: z.string().min(1, "Please select end date"),
   duration: z.enum(['full_day', 'half_day_morning', 'half_day_afternoon', 'custom']),
   customHours: z.number().optional(),
   reason: z.string().min(5, "Please provide a reason (minimum 5 characters)"),
+  adminNotes: z.string().optional(),
   isEmergency: z.boolean(),
   emergencyContactInfo: z.string().optional(),
   handoverNotes: z.string().optional(),
   backupPersonId: z.string().optional(),
+  notifyEmployee: z.boolean(),
+  skipApproval: z.boolean(),
+  effectiveDate: z.string().optional(),
 }).refine((data) => {
   const fromDate = new Date(data.fromDate);
   const toDate = new Date(data.toDate);
@@ -56,32 +63,43 @@ const leaveRequestSchema = z.object({
   path: ["toDate"]
 });
 
+interface Employee {
+  id: string;
+  name: string;
+  employeeId: string;
+  department: string;
+  position: string;
+  email?: string;
+}
 
-const EnhancedLeaveRequestForm = () => {
+const AssignLeaveForm = () => {
   const router = useRouter();
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [selectedLeaveType, setSelectedLeaveType] = useState<LeaveType | null>(null);
   const [calculatedDays, setCalculatedDays] = useState(0);
   const [workingDays, setWorkingDays] = useState(0);
   const [attachments, setAttachments] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [employees, setEmployees] = useState<Array<{id: string; name: string; department: string; employeeId: string; position: string}>>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [validationWarnings, setValidationWarnings] = useState<string[]>([]);
   
-  // Get current user ID - replace with actual auth logic
-  const currentEmployeeId = "emp-001"; // This should come from your auth context
-  
   // API hooks
   const { leaveTypes, loading: loadingTypes, error: typesError } = useLeaveTypes();
-  const { balances, loading: loadingBalances, error: balancesError } = useLeaveBalances(currentEmployeeId);
+  const { balances, loading: loadingBalances, error: balancesError } = useLeaveBalances(
+    selectedEmployee?.id || ''
+  );
   
-  // Load employees for backup person selection
+  // Load employees
   useEffect(() => {
     const loadEmployees = async () => {
       try {
         const response = await leaveService.getEmployees();
         if (response.success) {
           setEmployees(response.data);
+          setFilteredEmployees(response.data);
         }
       } catch (error) {
         console.error('Failed to load employees:', error);
@@ -90,26 +108,49 @@ const EnhancedLeaveRequestForm = () => {
     loadEmployees();
   }, []);
 
-  const form = useForm<LeaveRequestFormData>({
-    resolver: zodResolver(leaveRequestSchema),
+  // Filter employees based on search
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredEmployees(employees);
+    } else {
+      const filtered = employees.filter(emp => 
+        emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        emp.employeeId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        emp.department.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredEmployees(filtered);
+    }
+  }, [searchQuery, employees]);
+
+  const form = useForm<LeaveRequestFormData & {
+    employeeId: string;
+    adminNotes: string;
+    notifyEmployee: boolean;
+    skipApproval: boolean;
+    effectiveDate?: string;
+  }>({
+    resolver: zodResolver(assignLeaveSchema),
     defaultValues: {
       duration: 'full_day',
       isEmergency: false,
       reason: '',
+      adminNotes: '',
+      notifyEmployee: true,
+      skipApproval: false,
     }
   });
 
   const { watch, setValue } = form;
   const watchedValues = watch();
 
-  // Calculate days and validate when dates change
+  // Calculate days and validate when dates or employee change
   useEffect(() => {
     const validateLeave = async () => {
-      const { fromDate, toDate, duration, leaveTypeId } = watchedValues;
-      if (fromDate && toDate && leaveTypeId) {
+      const { fromDate, toDate, duration, leaveTypeId, employeeId } = watchedValues;
+      if (fromDate && toDate && leaveTypeId && employeeId) {
         try {
           const response = await leaveService.validateLeaveRequest({
-            employeeId: currentEmployeeId,
+            employeeId,
             leaveTypeId,
             fromDate,
             toDate,
@@ -143,9 +184,21 @@ const EnhancedLeaveRequestForm = () => {
       }
     };
     
-    const timeoutId = setTimeout(validateLeave, 500); // Debounce validation
+    const timeoutId = setTimeout(validateLeave, 500);
     return () => clearTimeout(timeoutId);
-  }, [watchedValues.fromDate, watchedValues.toDate, watchedValues.duration, watchedValues.leaveTypeId, currentEmployeeId]);
+  }, [watchedValues.fromDate, watchedValues.toDate, watchedValues.duration, watchedValues.leaveTypeId, watchedValues.employeeId]);
+
+  // Handle employee selection
+  const handleEmployeeSelect = (employeeId: string) => {
+    const employee = employees.find(emp => emp.id === employeeId);
+    setSelectedEmployee(employee || null);
+    setValue('employeeId', employeeId);
+    setSearchQuery('');
+    
+    // Clear validation messages when employee changes
+    setValidationErrors([]);
+    setValidationWarnings([]);
+  };
 
   // Handle leave type selection
   const handleLeaveTypeChange = (leaveTypeId: string) => {
@@ -167,10 +220,8 @@ const EnhancedLeaveRequestForm = () => {
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     
-    // Upload files to backend immediately
     for (const file of files) {
       try {
-        // You might want to show upload progress here
         await leaveService.uploadAttachment(file);
       } catch (error) {
         console.error('File upload failed:', error);
@@ -187,20 +238,18 @@ const EnhancedLeaveRequestForm = () => {
   };
 
   // Submit form
-  const onSubmit = async (data: LeaveRequestFormData) => {
+  const onSubmit = async (data: any) => {
     setIsSubmitting(true);
     
     try {
-      // Final validation check
-      if (validationErrors.length > 0) {
-        alert('Please fix validation errors before submitting.');
+      if (validationErrors.length > 0 && !data.skipApproval) {
+        alert('Please fix validation errors or enable "Skip Approval" to override.');
         setIsSubmitting(false);
         return;
       }
       
-      // Prepare request data
       const requestData = {
-        employeeId: currentEmployeeId,
+        employeeId: data.employeeId,
         leaveTypeId: data.leaveTypeId,
         fromDate: data.fromDate,
         toDate: data.toDate,
@@ -209,12 +258,15 @@ const EnhancedLeaveRequestForm = () => {
         workCoverage: {
           backupPersonId: data.backupPersonId,
           handoverNotes: data.handoverNotes,
-          clientNotificationRequired: false // You can add this to the form if needed
+          clientNotificationRequired: false
         },
         isEmergency: data.isEmergency,
+        adminNotes: data.adminNotes,
+        skipApproval: data.skipApproval,
+        notifyEmployee: data.notifyEmployee,
         attachments: attachments.map(file => ({
           fileName: file.name,
-          fileUrl: '', // This would be set by the file upload response
+          fileUrl: '',
           fileType: file.type
         }))
       };
@@ -222,15 +274,15 @@ const EnhancedLeaveRequestForm = () => {
       const response = await leaveService.createLeaveRequest(requestData);
       
       if (response.success) {
-        alert('Leave request submitted successfully!');
+        alert(`Leave assigned successfully for ${selectedEmployee?.name}!`);
         router.push('/dashboard/hr/leave-management');
       } else {
-        throw new Error('Failed to submit leave request');
+        throw new Error('Failed to assign leave');
       }
       
     } catch (error) {
-      console.error('Error submitting leave request:', error);
-      alert(error instanceof Error ? error.message : 'Failed to submit leave request. Please try again.');
+      console.error('Error assigning leave:', error);
+      alert(error instanceof Error ? error.message : 'Failed to assign leave. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -242,23 +294,23 @@ const EnhancedLeaveRequestForm = () => {
   };
   
   // Show loading state
-  if (loadingTypes || loadingBalances) {
+  if (loadingTypes) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-600 border-t-transparent" />
-        <span className="ml-2">Loading leave form...</span>
+        <span className="ml-2">Loading assign leave form...</span>
       </div>
     );
   }
   
   // Show error state
-  if (typesError || balancesError) {
+  if (typesError) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <AlertCircle className="w-8 h-8 text-red-600 mx-auto mb-2" />
           <p className="text-red-600">Failed to load leave information</p>
-          <p className="text-sm text-gray-600">{typesError || balancesError}</p>
+          <p className="text-sm text-gray-600">{typesError}</p>
         </div>
       </div>
     );
@@ -274,8 +326,11 @@ const EnhancedLeaveRequestForm = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Apply for Leave</h1>
-          <p className="text-gray-600">Submit a new leave request</p>
+          <div className="flex items-center gap-2">
+            <Shield className="w-6 h-6 text-blue-600" />
+            <h1 className="text-2xl font-bold">Assign Leave to Staff</h1>
+          </div>
+          <p className="text-gray-600">Create a leave request on behalf of an employee</p>
         </div>
         <Badge variant="outline" className="text-sm">
           <CalendarDays className="w-4 h-4 mr-1" />
@@ -285,6 +340,94 @@ const EnhancedLeaveRequestForm = () => {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {/* Employee Selection */}
+          <Card className="p-6">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <UserCheck className="w-5 h-5" />
+                <h3 className="text-lg font-semibold">Select Employee</h3>
+              </div>
+
+              {/* Employee Search */}
+              <div className="space-y-2">
+                <Label>Search Employee</Label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder="Search by name, ID, or department..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+
+              <FormField
+                control={form.control}
+                name="employeeId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Employee *</FormLabel>
+                    <Select 
+                      value={field.value} 
+                      onValueChange={handleEmployeeSelect}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select an employee" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="max-h-[200px] overflow-y-auto">
+                        {filteredEmployees.map((employee) => (
+                          <SelectItem key={employee.id} value={employee.id}>
+                            <div className="flex flex-col">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">{employee.name}</span>
+                                <span className="text-xs text-gray-500">({employee.employeeId})</span>
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {employee.department} - {employee.position}
+                              </div>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Selected Employee Info */}
+              {selectedEmployee && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <User className="w-4 h-4 text-blue-600" />
+                    <span className="font-medium text-blue-900">Selected Employee</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <div className="text-gray-600">Name</div>
+                      <div className="font-semibold">{selectedEmployee.name}</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-600">Employee ID</div>
+                      <div className="font-semibold">{selectedEmployee.employeeId}</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-600">Department</div>
+                      <div className="font-semibold">{selectedEmployee.department}</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-600">Position</div>
+                      <div className="font-semibold">{selectedEmployee.position}</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </Card>
+
           {/* Leave Type Selection */}
           <Card className="p-6">
             <div className="space-y-4">
@@ -332,11 +475,11 @@ const EnhancedLeaveRequestForm = () => {
               />
 
               {/* Leave Balance Display */}
-              {selectedLeaveType && (
+              {selectedLeaveType && selectedEmployee && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Info className="w-4 h-4 text-blue-600" />
-                    <span className="font-medium text-blue-900">Leave Balance</span>
+                    <span className="font-medium text-blue-900">Employee Leave Balance</span>
                   </div>
                   {(() => {
                     const balance = getLeaveBalance(selectedLeaveType.id);
@@ -482,12 +625,12 @@ const EnhancedLeaveRequestForm = () => {
             </div>
           </Card>
 
-          {/* Reason and Details */}
+          {/* Reason and Admin Notes */}
           <Card className="p-6">
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <FileText className="w-5 h-5" />
-                <h3 className="text-lg font-semibold">Additional Information</h3>
+                <h3 className="text-lg font-semibold">Leave Information</h3>
               </div>
 
               <FormField
@@ -498,7 +641,7 @@ const EnhancedLeaveRequestForm = () => {
                     <FormLabel>Reason for Leave *</FormLabel>
                     <FormControl>
                       <Textarea 
-                        placeholder="Please provide detailed reason for your leave request..."
+                        placeholder="Please provide detailed reason for the leave request..."
                         className="min-h-[100px]"
                         {...field} 
                       />
@@ -510,45 +653,86 @@ const EnhancedLeaveRequestForm = () => {
 
               <FormField
                 control={form.control}
-                name="isEmergency"
+                name="adminNotes"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormItem>
+                    <FormLabel>Admin Notes (Internal)</FormLabel>
                     <FormControl>
-                      <Checkbox 
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
+                      <Textarea 
+                        placeholder="Internal notes for HR/Admin use only..."
+                        className="min-h-[80px]"
+                        {...field} 
                       />
                     </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>
-                        Emergency Leave
-                      </FormLabel>
-                      <p className="text-sm text-gray-600">
-                        Check this if this is an emergency leave request
-                      </p>
-                    </div>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
 
-              {watchedValues.isEmergency && (
+              <div className="space-y-4">
                 <FormField
                   control={form.control}
-                  name="emergencyContactInfo"
+                  name="isEmergency"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Emergency Contact Information</FormLabel>
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                       <FormControl>
-                        <Input 
-                          placeholder="Contact number where you can be reached"
-                          {...field} 
+                        <Checkbox 
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Emergency Leave</FormLabel>
+                        <p className="text-sm text-gray-600">
+                          Check this if this is an emergency leave request
+                        </p>
+                      </div>
                     </FormItem>
                   )}
                 />
-              )}
+
+                <FormField
+                  control={form.control}
+                  name="notifyEmployee"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox 
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Notify Employee</FormLabel>
+                        <p className="text-sm text-gray-600">
+                          Send notification to employee about this leave assignment
+                        </p>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="skipApproval"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox 
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Skip Approval Process</FormLabel>
+                        <p className="text-sm text-gray-600">
+                          Automatically approve this leave request (Admin privilege)
+                        </p>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
           </Card>
 
@@ -573,7 +757,9 @@ const EnhancedLeaveRequestForm = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {employees.map((employee) => (
+                        {employees
+                          .filter(emp => emp.id !== selectedEmployee?.id)
+                          .map((employee) => (
                           <SelectItem key={employee.id} value={employee.id}>
                             <div>
                               <div>{employee.name}</div>
@@ -680,16 +866,16 @@ const EnhancedLeaveRequestForm = () => {
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting || workingDays === 0 || validationErrors.length > 0}
+              disabled={isSubmitting || workingDays === 0 || !selectedEmployee}
               className="min-w-[120px]"
             >
               {isSubmitting ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
-                  Submitting...
+                  Assigning Leave...
                 </>
               ) : (
-                'Submit Request'
+                'Assign Leave'
               )}
             </Button>
           </div>
@@ -699,4 +885,4 @@ const EnhancedLeaveRequestForm = () => {
   );
 };
 
-export default EnhancedLeaveRequestForm;
+export default AssignLeaveForm;
