@@ -2,29 +2,79 @@
 
 import logoPng from "assets/imgs/logo.png";
 import { useSearchParams } from "next/navigation";
-// import { useGetFundRequestById } from "@/features/programs/controllers/fundRequestController";
-// import { useGetProjectById } from "@/features/projects/controllers/projectController";
+import { skipToken } from "@tanstack/react-query";
 import Card from "components/Card";
 import FundActivityTable from "./FundActivityTable";
 import { LoadingSpinner } from "components/Loading";
 import { useGetSingleFundRequest } from "@/features/programs/controllers";
 import { useGetSingleProject } from "@/features/projects/controllers";
+import FundRequestWorkflowStatus from "../components/FundRequestWorkflowStatus";
+import { useAppSelector } from "@/hooks/useStore";
+import { useMemo } from "react";
+import { useGetUserProfile } from "@/features/auth/controllers";
 
 export default function ViewFundRequestActivity() {
   const searchParams = useSearchParams();
-
-  const id = searchParams.get("fundRequestId");
+  const currentUser = useAppSelector((state) => state.auth.user);
+  const { data: profile } = useGetUserProfile();
+  const id = searchParams?.get("fundRequestId");
 
   const { data: fundRequest, isLoading } = useGetSingleFundRequest(
-    id ?? skipToken
+    id || skipToken
   );
 
-  const { data: project } = useGetSingleProject(fundRequest?.data.project.id);
+  const { data: project } = useGetSingleProject(fundRequest?.data.project?.id);
+
+  // Calculate permissions based on current user and fund request status
+  const permissions = useMemo(() => {
+    if (!fundRequest || !profile?.data?.id) return {
+      canReview: false,
+      canLocationReview: false,
+      canLocationAuthorize: false,
+      canStateReview: false,
+      canStateAuthorize: false,
+      canHQReview: false,
+      canHQAuthorize: false,
+      canHQApprove: false,
+      canReject: false,
+    };
+
+    const userId = profile.data.id;
+    const request = fundRequest.data;
+    console.log({ userId, request: request });
+
+    return {
+      canReview: false, // No longer used - location office does initial review
+      canLocationReview:
+        userId === request.location_reviewer && request.status === "PENDING",
+      canLocationAuthorize:
+        userId === request.location_authorizer &&
+        request.status === "LOCATION_REVIEWED",
+      canStateReview: false, // No state review - goes directly to HQ
+      canStateAuthorize: false, // No state authorization - goes directly to HQ
+      canHQReview:
+        userId === request.hq_reviewer && request.status === "LOCATION_AUTHORIZED",
+      canHQAuthorize:
+        userId === request.hq_authorizer && request.status === "HQ_REVIEWED",
+      canHQApprove:
+        userId === request.hq_approver && request.status === "HQ_AUTHORIZED",
+      canReject:
+        request.status !== "REJECTED" &&
+        request.status !== "HQ_APPROVED" &&
+        (userId === request.location_reviewer ||
+          userId === request.location_authorizer ||
+          userId === request.hq_reviewer ||
+          userId === request.hq_authorizer ||
+          userId === request.hq_approver),
+    };
+  }, [fundRequest, profile?.data?.id]);
+
+  console.log({ permissions, fundRequest, currentUser, profile });
 
   return (
     <Card className='py-16'>
       <div className='flex flex-col items-center'>
-        <img src={logoPng} alt='logo' width={150} />
+        <img src={(logoPng as any).src || logoPng} alt='logo' width={150} />
         <h4 className='mt-5 text-lg font-bold'>
           Achieving Health Nigeria Initiative (AHNI)
         </h4>
@@ -59,7 +109,7 @@ export default function ViewFundRequestActivity() {
           <h3 className='font-semibold'>Award/Project Title:</h3>
 
           <p className='text-sm font-semibold text-[#DEA004]'>
-            {project?.data.title}
+            {fundRequest?.data.project?.title}
           </p>
         </div>
 
@@ -97,6 +147,25 @@ export default function ViewFundRequestActivity() {
       <h2 className='text-gray-700 font-bold text-center my-8 text-lg'>
         Fund Request Details
       </h2>
+
+      {/* Approval Workflow Section */}
+      {fundRequest && (
+        <div className='mb-8'>
+          <FundRequestWorkflowStatus
+            fundRequestId={fundRequest.data.id}
+            currentStatus={fundRequest.data.status}
+            canReview={permissions.canReview}
+            canLocationReview={permissions.canLocationReview}
+            canLocationAuthorize={permissions.canLocationAuthorize}
+            canStateReview={permissions.canStateReview}
+            canStateAuthorize={permissions.canStateAuthorize}
+            canHQReview={permissions.canHQReview}
+            canHQAuthorize={permissions.canHQAuthorize}
+            canHQApprove={permissions.canHQApprove}
+            canReject={permissions.canReject}
+          />
+        </div>
+      )}
 
       {isLoading ? (
         <LoadingSpinner />

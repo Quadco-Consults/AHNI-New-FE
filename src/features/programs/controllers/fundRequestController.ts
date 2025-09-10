@@ -6,7 +6,10 @@ import {
   TFundRequestPaginatedResponse,
   TFundRequestResponseData,
 } from "../types/fund-request";
-import { TFundRequestFormValues, TFundRequestWithActivitiesFormValues } from "definations/program-validator";
+import {
+  TFundRequestFormValues,
+  TFundRequestWithActivitiesFormValues,
+} from "definations/program-validator";
 
 // API Response interfaces
 interface ApiResponse<TData = unknown> {
@@ -21,7 +24,12 @@ interface FundRequestFilterParams {
   size?: number;
   search?: string;
   project?: string;
-  status?: "PENDING" | "REVIEWED" | "ADMIN_APPROVED" | "MANAGER_APPROVED" | "REJECTED";
+  status?:
+    | "PENDING"
+    | "REVIEWED"
+    | "ADMIN_APPROVED"
+    | "MANAGER_APPROVED"
+    | "REJECTED";
   month?: string;
   year?: number;
   type?: string;
@@ -45,7 +53,17 @@ export const useGetAllFundRequests = ({
   enabled = true,
 }: FundRequestFilterParams) => {
   return useQuery<TFundRequestPaginatedResponse>({
-    queryKey: ["fund-requests", page, size, search, project, status, month, year, type],
+    queryKey: [
+      "fund-requests",
+      page,
+      size,
+      search,
+      project,
+      status,
+      month,
+      year,
+      type,
+    ],
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(BASE_URL, {
@@ -63,7 +81,9 @@ export const useGetAllFundRequests = ({
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled && (!!project || !!status),
@@ -72,7 +92,10 @@ export const useGetAllFundRequests = ({
 };
 
 // Get Single Fund Request
-export const useGetSingleFundRequest = (id: string, enabled: boolean = true) => {
+export const useGetSingleFundRequest = (
+  id: string,
+  enabled: boolean = true
+) => {
   return useQuery<ApiResponse<TFundRequestResponseData>>({
     queryKey: ["fund-request", id],
     queryFn: async () => {
@@ -81,7 +104,9 @@ export const useGetSingleFundRequest = (id: string, enabled: boolean = true) => 
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled && !!id,
@@ -95,7 +120,7 @@ export const useGetPendingFundRequests = ({
   size = 20,
   project,
   enabled = true,
-}: Omit<FundRequestFilterParams, 'status'>) => {
+}: Omit<FundRequestFilterParams, "status">) => {
   return useGetAllFundRequests({
     page,
     size,
@@ -120,7 +145,8 @@ export const useCreateFundRequest = () => {
 
   const createFundRequest = async (details: TFundRequestFormValues) => {
     try {
-      await callApi(details);
+      const res = await callApi(details);
+      return res;
     } catch (error) {
       console.error("Fund request create error:", error);
     }
@@ -142,14 +168,19 @@ export const useUpdateFundRequest = (id: string) => {
     method: "PUT",
   });
 
-  const updateFundRequest = async (details: TFundRequestWithActivitiesFormValues) => {
+  const updateFundRequest = async (
+    details: TFundRequestWithActivitiesFormValues
+  ) => {
     try {
       await callApi(details);
     } catch (error) {
       const axiosError = error as AxiosError;
       if (axiosError.response?.status === 400) {
         // Handle validation errors (budget exceeded, etc.)
-        throw new Error((axiosError.response?.data as any)?.message || "Validation error occurred");
+        throw new Error(
+          (axiosError.response?.data as any)?.message ||
+            "Validation error occurred"
+        );
       }
       console.error("Fund request update error:", error);
       throw error;
@@ -172,14 +203,19 @@ export const usePatchFundRequest = (id: string) => {
     method: "PATCH",
   });
 
-  const patchFundRequest = async (details: Partial<TFundRequestWithActivitiesFormValues>) => {
+  const patchFundRequest = async (
+    details: Partial<TFundRequestWithActivitiesFormValues>
+  ) => {
     try {
       await callApi(details);
     } catch (error) {
       const axiosError = error as AxiosError;
       if (axiosError.response?.status === 400) {
         // Handle validation errors (budget exceeded, etc.)
-        throw new Error((axiosError.response?.data as any)?.message || "Validation error occurred");
+        throw new Error(
+          (axiosError.response?.data as any)?.message ||
+            "Validation error occurred"
+        );
       }
       console.error("Fund request patch error:", error);
       throw error;
@@ -191,7 +227,8 @@ export const usePatchFundRequest = (id: string) => {
 
 // Specific Budget Update Hook
 export const useUpdateFundRequestBudget = (id: string) => {
-  const { patchFundRequest, isLoading, isSuccess, error } = usePatchFundRequest(id);
+  const { patchFundRequest, isLoading, isSuccess, error } =
+    usePatchFundRequest(id);
 
   const updateBudget = async (newBudget: string) => {
     await patchFundRequest({ available_balance: newBudget });
@@ -222,6 +259,161 @@ export const useDeleteFundRequest = (id: string) => {
   };
 
   return { deleteFundRequest, data, isLoading, isSuccess, error };
+};
+
+// ===== FUND REQUEST APPROVAL HOOKS =====
+
+interface FundRequestApprovalPayload {
+  status: string;
+  comments?: string;
+}
+
+// Review Fund Request (PENDING → REVIEWED)
+export const useReviewFundRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    TFundRequestResponseData,
+    Error,
+    Record<string, never>
+  >({
+    endpoint: `${BASE_URL}${id}/review/`,
+    queryKey: ["fund-requests", "fund-request"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const reviewFundRequest = async ({ actionType, formData }) => {
+    try {
+      await callApi({
+        status: actionType,
+        comments: formData?.comments,
+      } as Record<string, never>);
+    } catch (error) {
+      console.error("Fund request review error:", error);
+      throw error;
+    }
+  };
+
+  return { reviewFundRequest, data, isLoading, isSuccess, error };
+};
+
+// Approve Fund Request (Multi-level approvals)
+export const useApproveFundRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    TFundRequestResponseData,
+    Error,
+    FundRequestApprovalPayload
+  >({
+    endpoint: `${BASE_URL}${id}/approve/`,
+    queryKey: ["fund-requests", "fund-request"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const approveFundRequest = async (status: string, comments?: string) => {
+    try {
+      await callApi({ status, ...(comments && { comments }) });
+    } catch (error) {
+      console.error("Fund request approval error:", error);
+      throw error;
+    }
+  };
+
+  return { approveFundRequest, data, isLoading, isSuccess, error };
+};
+
+// Helper hook to get available actions based on current status
+export const useFundRequestActions = (currentStatus: string) => {
+  const getAvailableActions = () => {
+    switch (currentStatus) {
+      case "PENDING":
+        return [
+          {
+            action: "LOCATION_REVIEW",
+            label: "Location Review",
+            requiresStatus: true,
+            status: "LOCATION_REVIEWED",
+          },
+          {
+            action: "REJECT",
+            label: "Reject",
+            requiresStatus: true,
+            status: "REJECTED",
+          },
+        ];
+
+      case "LOCATION_REVIEWED":
+        return [
+          {
+            action: "LOCATION_AUTHORIZE",
+            label: "Location Authorize",
+            requiresStatus: true,
+            status: "LOCATION_AUTHORIZED",
+          },
+          {
+            action: "REJECT",
+            label: "Reject",
+            requiresStatus: true,
+            status: "REJECTED",
+          },
+        ];
+
+      case "LOCATION_AUTHORIZED":
+        return [
+          {
+            action: "HQ_REVIEW",
+            label: "HQ Review",
+            requiresStatus: true,
+            status: "HQ_REVIEWED",
+          },
+          {
+            action: "REJECT",
+            label: "Reject",
+            requiresStatus: true,
+            status: "REJECTED",
+          },
+        ];
+
+      case "HQ_REVIEWED":
+        return [
+          {
+            action: "HQ_AUTHORIZE",
+            label: "HQ Authorize",
+            requiresStatus: true,
+            status: "HQ_AUTHORIZED",
+          },
+          {
+            action: "REJECT",
+            label: "Reject",
+            requiresStatus: true,
+            status: "REJECTED",
+          },
+        ];
+
+      case "HQ_AUTHORIZED":
+        return [
+          {
+            action: "HQ_APPROVE",
+            label: "HQ Final Approve",
+            requiresStatus: true,
+            status: "HQ_APPROVED",
+          },
+          {
+            action: "REJECT",
+            label: "Reject",
+            requiresStatus: true,
+            status: "REJECTED",
+          },
+        ];
+
+      case "HQ_APPROVED":
+        return []; // Final status, no actions
+
+      default:
+        return [];
+    }
+  };
+
+  return { getAvailableActions };
 };
 
 // Legacy exports for backward compatibility
