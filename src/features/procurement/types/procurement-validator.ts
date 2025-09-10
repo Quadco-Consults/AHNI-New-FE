@@ -278,7 +278,14 @@ export const SolicitationProposalSchema = z.object({
   tender_type: z.string().min(1, "Please select tender type"),
   eoi_tender: z.string().optional(),
   categories: z.array(z.string().optional()),
-  documents: z.string().optional(),
+  documents: z.array(z.object({
+    description: z.string().optional().or(z.literal("")),
+    file: z.array(z.any()).optional(),
+    title: z.string().optional().or(z.literal("")),
+    document_type: z.string().optional().or(z.literal("")),
+    deliverable: z.string().optional().or(z.literal("")),
+    number_of_days: z.string().optional().or(z.literal("")),
+  })).optional(),
 });
 
 export type TSolicitationProposalFormData = z.infer<
