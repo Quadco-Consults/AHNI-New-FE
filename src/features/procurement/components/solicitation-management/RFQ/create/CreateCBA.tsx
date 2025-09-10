@@ -59,9 +59,11 @@ const CreateCBA = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const rfqId = searchParams?.get("id");
+  const eoiId = searchParams?.get("eoi_id");
+  const solicitationId = searchParams?.get("solicitation_id");
   // const name = searchParams.get("name");
 
-  console.log({ rfqId });
+  console.log({ rfqId, eoiId, solicitationId });
 
   const { data: rfqData, isLoading } = useGetAllSolicitations({
     // page,
@@ -84,8 +86,8 @@ const CreateCBA = () => {
   const form = useForm<z.infer<typeof CbaSchema>>({
     resolver: zodResolver(CbaSchema),
     defaultValues: {
-      solicitation: rfqId!,
-      lot: "",
+      solicitation: solicitationId || rfqId!,
+      lot: undefined,
       cba_type: "",
       cba_date: "",
       assignee: "",
@@ -122,7 +124,7 @@ const CreateCBA = () => {
       assignee: data?.assignee,
       status: "PENDING",
       solicitation: data?.solicitation,
-      lot: data.lot,
+      ...(data.lot && data.lot.trim() !== "" && { lot: data.lot }),
     };
 
     try {
@@ -141,6 +143,15 @@ const CreateCBA = () => {
   return (
     <div className="bg-white p-4 h-full">
       <h4 className="font-semibold text-lg pb-5">Create CBA</h4>
+      {eoiId && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+          <p className="text-blue-800 text-sm">
+            <strong>Creating CBA from EOI:</strong> Please select the RFQ that
+            was created for this Expression of Interest. Look for the most
+            recently created RFQ.
+          </p>
+        </div>
+      )}
 
       <Form {...form}>
         {/* @ts-ignore */}

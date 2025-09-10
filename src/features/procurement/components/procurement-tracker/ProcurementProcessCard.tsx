@@ -17,11 +17,11 @@ const ProcurementProcessCard = ({ data }: ProcurementProcessCardProps) => {
   //   const columns: ColumnDef<ProcurementTrackerResults>[] = [
   const columns: ColumnDef<any>[] = [
     {
-      header: "Procurement Process (drop down)",
+      header: "Procurement Process",
       accessorKey: "programme_requesting",
       size: 120,
       cell: ({ row }) => {
-        return <div>{row.original?.solicitation?.tender_type}</div>;
+        return <div>{row.original?.solicitation?.tender_type || row.original?.tender_type || row.original?.procurement_process || "Direct Purchase"}</div>;
       },
     },
     {
@@ -44,7 +44,7 @@ const ProcurementProcessCard = ({ data }: ProcurementProcessCardProps) => {
       accessorKey: "procurement_officer_responsible",
       size: 195,
       cell: ({ row }) => {
-        return <div>{row.original?.purchase_order?.po_reference || "N/A"}</div>;
+        return <div>{row.original?.purchase_order?.po_reference || row.original?.purchase_order?.reference || "N/A"}</div>;
       },
     },
     {
@@ -64,27 +64,46 @@ const ProcurementProcessCard = ({ data }: ProcurementProcessCardProps) => {
     },
     {
       header: "Actual Payment Request Value(NGN)",
-      accessorKey: "date_pr_received",
+      accessorKey: "payment_request_value",
       size: 200,
 
       cell: ({ row }) => {
+        const paymentValue = row.original?.purchase_order?.payment_request?.amount || 
+                           row.original?.payment_request?.amount ||
+                           row.original?.payment_request_value ||
+                           row.original?.purchase_order?.payment_request_value ||
+                           0;
         return (
           <div>
-            NGN
-            {Number(row.original?.payment_request || 0).toLocaleString()}
+            NGN{Number(paymentValue).toLocaleString()}
           </div>
         );
       },
     },
     {
       header: "Savings(+-)",
-      accessorKey: "f-c-o",
+      accessorKey: "savings",
       size: 150,
       cell: ({ row }) => {
+        const prValue = Number(row.original?.purchase_request_value || 0);
+        const paymentValue = Number(
+          row.original?.purchase_order?.payment_request?.amount || 
+          row.original?.payment_request?.amount ||
+          row.original?.payment_request_value ||
+          row.original?.purchase_order?.payment_request_value ||
+          0
+        );
+        
+        if (prValue === 0 || paymentValue === 0) {
+          return <div className="text-gray-500">N/A</div>;
+        }
+        
+        const savings = prValue - paymentValue;
+        const isPositive = savings >= 0;
+        
         return (
-          <div>
-            {row.original?.purchase_order?.total_price -
-              row.original?.purchase_request_value || "N/A"}
+          <div className={`font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+            {isPositive ? '+' : ''}NGN{savings.toLocaleString()}
           </div>
         );
       },
@@ -102,7 +121,7 @@ const ProcurementProcessCard = ({ data }: ProcurementProcessCardProps) => {
       accessorKey: "unit",
       size: 150,
       cell: ({ row }) => {
-        return <div>{row.original?.purchase_order?.vendor || "N/A"}</div>;
+        return <div>{row.original?.purchase_order?.vendor || row.original?.purchase_order?.vendor_name || "N/A"}</div>;
       },
     },
   ];

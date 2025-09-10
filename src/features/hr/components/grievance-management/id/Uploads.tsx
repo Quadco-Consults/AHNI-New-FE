@@ -18,7 +18,7 @@ import {
   DialogTrigger,
 } from "components/ui/dialog";
 import { useState } from "react";
-import VendorsDocumentAPI from "@/features/procurement/controllers/vendorController";
+import { useGetGrievianceManagementDocuments, useDeleteGrievianceManagementDocument, useCreateGrievianceManagementDocument } from "@/features/hr/controllers/hrGrievianceManagementDocumentController";
 import { VendorsDocumentResultsData } from "definations/procurement-types/vendors-document";
 import { Button } from "components/ui/button";
 import { toast } from "sonner";
@@ -29,7 +29,6 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { useAppDispatch } from "hooks/useStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DocumentGrievianceManagementSchema, GrievianceManagementDocument } from "@/features/hr/types/grieviance-management/";
-import { useCreateGrievianceManagementDocument, useDeleteGrievianceManagementDocument, useGetGrievianceManagementDocuments } from "@/features/hr/controllers/hrGrievianceManagementDocumentController";
 import UploadDocumentDialog from "@/components/modals/dialog/UploadDocumentDialog";
 import moment from "moment";
 import ConfirmationDialog from "components/ConfirmationDialog";
@@ -48,17 +47,17 @@ const Uploads = (data: VendorsResultsData) => {
     setNumPages(numPages);
   }
 
-  const vendorDocumentsQueryResult =
-    VendorsDocumentAPI.useGetVendorDocuments({
-      params: { vendor_id: data?.id as string },
-    });
+  const { data: documentsData, isLoading: isLoadingDocuments } = useGetGrievianceManagementDocuments({
+    page: 1,
+    size: 20,
+    enabled: !!data?.id,
+  });
 
-  // @ts-ignore
-  const vendorDocuments = vendorDocumentsQueryResult?.data?.data?.results;
-  console.log({ vendorDocumentsQueryResult, vendorDocuments });
+  // Get the document uploads
+  const grievanceUploads = documentsData?.data || [];
+  console.log({ documentsData, grievanceUploads });
 
-  const [deleteVendorDocumentMutation] =
-    VendorsDocumentAPI.useDeleteVendorDocument();
+  // Remove duplicate declaration - it's already declared below
 
   
 
@@ -85,8 +84,8 @@ const Uploads = (data: VendorsResultsData) => {
     
     const dispatch = useAppDispatch();
     const {data: documents, isLoading:fetchingDocuments} = useGetGrievianceManagementDocuments({})
-    const [createGrievianceManagementDocument, {isLoading: isLoading}] = useCreateGrievianceManagementDocument({})
-    const [deleteGrievianceManagementDocument, {isLoading: deleting}] = useDeleteGrievianceManagementDocument({})
+    const { createGrievianceManagementDocument, isLoading: isCreating } = useCreateGrievianceManagementDocument()
+    const { deleteGrievianceManagementDocument, isLoading: isDeleting } = useDeleteGrievianceManagementDocument(selectedDocument || "")
     const onSubmit: SubmitHandler<UploadsFormValues> =  async (details: any) => {
        
         try {
@@ -105,7 +104,7 @@ const Uploads = (data: VendorsResultsData) => {
       };
     const deleteDocHandler = async () => {
       try {
-        await deleteGrievianceManagementDocument({ id: selectedDocument } );
+        await deleteGrievianceManagementDocument();
         toast.success("Document successfully deleted.");
         setDeleteDialogOpen(false)
       } catch (error) {
@@ -125,9 +124,9 @@ const Uploads = (data: VendorsResultsData) => {
 
       {fetchingDocuments ? (
         <LoadingSpinner />
-      ) : documents?.data?.results && documents?.data?.results?.length > 0 ? (
+      ) : documents?.data && documents?.data?.length > 0 ? (
         <div className='grid grid-cols-1 items-center p-5 gap-5 md:grid-cols-2 lg:grid-cols-3'>
-          {documents?.data?.results?.map((doc: GrievianceManagementDocument) => {
+          {documents?.data?.map((doc: GrievianceManagementDocument) => {
             console.log({ doc });
 
             // return;
@@ -255,14 +254,14 @@ const Uploads = (data: VendorsResultsData) => {
         title={"Upload Document"}
         onCancel={() => setDialogOpen(false)}
         onSubmit={onSubmit} 
-        loading={isLoading}
+        loading={isCreating}
       />
        <ConfirmationDialog
                 open={isDeleteDialogOpen}
                 title="Are you sure you want to delete this document?"
                 onCancel={() => setDeleteDialogOpen(false)}
                 onOk={deleteDocHandler}
-                loading={deleting}
+                loading={isDeleting}
             />
     </div>
   );
