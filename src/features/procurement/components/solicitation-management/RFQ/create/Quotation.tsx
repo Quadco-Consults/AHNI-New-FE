@@ -11,7 +11,12 @@ import {
   useForm,
   Controller,
 } from "react-hook-form";
-import { useRouter, useParams, usePathname, useSearchParams } from "next/navigation";
+import {
+  useRouter,
+  useParams,
+  usePathname,
+  useSearchParams,
+} from "next/navigation";
 import { Button } from "components/ui/button";
 import FormButton from "@/components/FormButton";
 import { LoadingSpinner } from "components/Loading";
@@ -69,7 +74,7 @@ const Quotation = () => {
     status: "Approved",
   });
 
-  const eoiType = searchParams.get('type');
+  const eoiType = searchParams.get("type");
 
   const { data: eoiData } = useGetAllEois(
     useMemo(() => ({ type: "OPEN_TENDER" }), [])
@@ -158,18 +163,18 @@ const Quotation = () => {
     // Add EOI ID to the data if it exists (coming from EOI flow)
     const dataWithEoi = id ? { ...data, eoi_id: id } : data;
     sessionStorage.setItem("rfqQuotationFormData", JSON.stringify(dataWithEoi));
-    
+
     // Navigate to items page - replace quotation with items in the path
     let path = pathname?.replace("/quotation", "/items") || "";
     if (id) {
       // Remove the ID from the end if present
       path = path.substring(0, path.lastIndexOf("/"));
     }
-    
+
     // Preserve search parameters (like type=OPEN_TENDER) in the redirect
     const currentParams = searchParams.toString();
     const finalPath = currentParams ? `${path}?${currentParams}` : path;
-    
+
     router.push(finalPath);
   };
 

@@ -8,10 +8,11 @@ import { LoadingSpinner } from "components/Loading";
 import DetailsContent from "./tab-contents/Details-content";
 import VendorSubmission from "./tab-contents/Vendor-submission";
 import BreadcrumbCard from "components/Breadcrumb";
-import { useGetSolicitationById } from "@/features/procurement/controllers/solicitationController";
+import { useGetSingleSolicitationQuery } from "features/procurement/controllers/solicitationController";
+import { skipToken } from "@reduxjs/toolkit/query/react";
 import GoBack from "components/GoBack";
-import EOIVendorSubmission from "@/features/procurement/components/vendor-management/eoi/EOIVendorSubmission";
-import SummaryOfTechnicalPrequalification from "@/features/procurement/components/competitive-bid-analysis/[id]/SummaryOfTechnicalPrequalification";
+import EOIVendorSubmission from "features/procurement/components/vendor-management/eoi/eoi-tabs-contents/EOIVendorSubmission";
+import SummaryOfTechnicalPrequalification from "features/procurement/components/competitive-bid-analysis/[id]/SummaryOfTechnicalPrequalification";
 
 const RFQDetails = () => {
   const { id } = useParams();
@@ -42,40 +43,39 @@ const RFQDetails = () => {
   console.log({ data: data?.data?.tender_type });
   // NATIONAL OPEN TENDER
   return (
-    <div className='space-y-5'>
+    <div className="space-y-5">
       <GoBack />
       <BreadcrumbCard list={breadcrumbs} />
-      <div className='flex justify-between'>
-        <h4 className='text-lg font-bold'>{data?.data?.title}</h4>
+      <div className="flex justify-between">
+        <h4 className="text-lg font-bold">{data?.data?.title}</h4>
       </div>
 
-      <Tabs defaultValue='rfq-details'>
+      <Tabs defaultValue="rfq-details">
         <TabsList>
-          <TabsTrigger value='rfq-details'>RFQ Details</TabsTrigger>
+          <TabsTrigger value="rfq-details">RFQ Details</TabsTrigger>
           {data?.data?.tender_type === "NATIONAL OPEN TENDER" && (
-            <TabsTrigger value='vendor-evaluation'>
+            <TabsTrigger value="vendor-evaluation">
               Vender Evaluation
             </TabsTrigger>
           )}
-          <TabsTrigger value='vendor-submission'>Vendor Submission</TabsTrigger>
-          <TabsTrigger value='vendor-submission-evaluation'>
+          <TabsTrigger value="vendor-submission">Vendor Submission</TabsTrigger>
+          <TabsTrigger value="vendor-submission-evaluation">
             Vendor Submission Evaluation
           </TabsTrigger>
         </TabsList>
-        <TabsContent value='rfq-details'>
+        <TabsContent value="rfq-details">
           {data && <DetailsContent {...data?.data} />}
         </TabsContent>
-        <TabsContent value='vendor-evaluation'>
-          <EOIVendorSubmission status='Pending' />
+        <TabsContent value="vendor-evaluation">
+          <EOIVendorSubmission status="Pending" />
         </TabsContent>
-        <TabsContent value='vendor-submission'>
+        <TabsContent value="vendor-submission">
           {/* @ts-ignore */}
           {data && <VendorSubmission {...data?.data} />}
         </TabsContent>
 
-        <TabsContent value='vendor-submission-evaluation'>
-          {/* @ts-ignore */}
-          <SummaryOfTechnicalPrequalification id={id} />
+        <TabsContent value="vendor-submission-evaluation">
+          <SummaryOfTechnicalPrequalification solicitationId={id as string} />
         </TabsContent>
       </Tabs>
     </div>

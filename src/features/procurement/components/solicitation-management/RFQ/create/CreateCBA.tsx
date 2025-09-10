@@ -54,7 +54,7 @@ import { useGetAllUsers } from "@/features/auth/controllers";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CbaSchema } from "@/features/procurement/types/procurement-validator";
 import { LotsResultsData } from "@/features/procurement/types/lots";
-
+import Image from "next/image";
 const CreateCBA = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -128,7 +128,6 @@ const CreateCBA = () => {
     };
 
     try {
-      // @ts-ignore
       await createCba(payload);
       toast.success("Successfully created.");
       // router.push(RouteEnum.COMPETITIVE_BID_ANALYSIS);
@@ -142,21 +141,22 @@ const CreateCBA = () => {
   };
 
   return (
-    <div className='bg-white p-4 h-full'>
-      <h4 className='font-semibold text-lg pb-5'>Create CBA</h4>
+    <div className="bg-white p-4 h-full">
+      <h4 className="font-semibold text-lg pb-5">Create CBA</h4>
       {eoiId && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
           <p className="text-blue-800 text-sm">
-            <strong>Creating CBA from EOI:</strong> Please select the RFQ that was created for this Expression of Interest.
-            Look for the most recently created RFQ.
+            <strong>Creating CBA from EOI:</strong> Please select the RFQ that
+            was created for this Expression of Interest. Look for the most
+            recently created RFQ.
           </p>
         </div>
       )}
 
       <Form {...form}>
         {/* @ts-ignore */}
-        <form className='space-y-8' onSubmit={handleSubmit(onSubmit)}>
-          <FormSelect name='solicitation' label='RFQ'>
+        <form className="space-y-8" onSubmit={handleSubmit(onSubmit)}>
+          <FormSelect name="solicitation" label="RFQ">
             <SelectContent>
               {isLoading && <LoadingSpinner />}
               {rfqData?.data?.results?.map((rfq) => (
@@ -167,8 +167,8 @@ const CreateCBA = () => {
               ))}
             </SelectContent>
           </FormSelect>
-          <div className='grid grid-cols-1 gap-4 w-full md:grid-cols-3'>
-            <FormSelect name='cba_type' label='CBA type'>
+          <div className="grid grid-cols-1 gap-4 w-full md:grid-cols-3">
+            <FormSelect name="cba_type" label="CBA type">
               <SelectContent>
                 {["COMMITTEE", "NON COMMITTEE"].map(
                   (value: string, index: number) => (
@@ -180,7 +180,7 @@ const CreateCBA = () => {
               </SelectContent>
             </FormSelect>
 
-            <FormSelect name='lot' label='Lot'>
+            <FormSelect name="lot" label="Lot">
               <SelectContent>
                 {lotIsLoading && <LoadingSpinner />}
                 {/* @ts-ignore */}
@@ -192,16 +192,16 @@ const CreateCBA = () => {
               </SelectContent>
             </FormSelect>
 
-            <FormInput name='cba_date' type='date' label='CBA Date' />
+            <FormInput name="cba_date" type="date" label="CBA Date" />
           </div>
 
           {watch("cba_type") === "COMMITTEE" && (
-            <div className='flex items-center gap-2 flex-wrap'>
-              <div className='flex items-center gap-2 flex-wrap'>
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap">
                 {matchedUsers?.map((user) => (
                   <Badge
                     key={user?.id}
-                    className='py-2 rounded-lg bg-[#EBE8E1] text-black'
+                    className="py-2 rounded-lg bg-[#EBE8E1] text-black"
                   >
                     {user?.first_name} {user?.last_name}
                   </Badge>
@@ -210,58 +210,58 @@ const CreateCBA = () => {
               <div>
                 <Dialog>
                   <DialogTrigger>
-                    <div className='text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm'>
+                    <div className="text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm">
                       Click to select team members to make up the committee
                     </div>
                   </DialogTrigger>
-                  <DialogContent className='max-w-6xl max-h-[700px] overflow-auto'>
-                    <DialogHeader className='mt-10 space-y-5 text-center'>
-                      <img
+                  <DialogContent className="max-w-6xl max-h-[700px] overflow-auto">
+                    <DialogHeader className="mt-10 space-y-5 text-center">
+                      <Image
                         src={logoPng}
-                        alt='logo'
-                        className='mx-auto'
+                        alt="logo"
+                        className="mx-auto"
                         width={150}
                       />
-                      <DialogTitle className='text-2xl text-center'>
+                      <DialogTitle className="text-2xl text-center">
                         Team Members
                       </DialogTitle>
-                      <DialogDescription className='text-center'>
+                      <DialogDescription className="text-center">
                         Please select all team members needed to make up the
                         committee
                       </DialogDescription>
                     </DialogHeader>
-                    <div className='flex justify-center'>
-                      <div className='flex items-center w-1/2 px-4 py-2 border rounded-lg'>
+                    <div className="flex justify-center">
+                      <div className="flex items-center w-1/2 px-4 py-2 border rounded-lg">
                         <Input
-                          placeholder='Search team members'
+                          placeholder="Search team members"
                           //   value={categorySearchParams}
                           //   onChange={(e) => setCategorySearchParams(e.target.value)}
-                          type='search'
-                          className='h-6 border-none bg-none'
+                          type="search"
+                          className="h-6 border-none bg-none"
                         />
-                        <Icon icon='iconamoon:search-light' fontSize={25} />
+                        <Icon icon="iconamoon:search-light" fontSize={25} />
                       </div>
                     </div>
 
-                    <div className='space-y-5 '>
+                    <div className="space-y-5 ">
                       {isLoading ? (
                         <LoadingSpinner />
                       ) : (
                         <FormField
                           control={form.control}
-                          name='committee_members'
+                          name="committee_members"
                           render={() => (
-                            <FormItem className='grid grid-cols-2 gap-5 bg-gray-100 mt-10 p-5 rounded-lg shadow-inner md:grid-cols-4'>
+                            <FormItem className="grid grid-cols-2 gap-5 bg-gray-100 mt-10 p-5 rounded-lg shadow-inner md:grid-cols-4">
                               {users?.data?.results?.map((user) => (
                                 <FormField
                                   key={user?.id}
                                   control={form.control}
-                                  name='committee_members'
+                                  name="committee_members"
                                   render={({ field }) => {
                                     return (
                                       <FormItem
                                         key={user.id}
-                                        className='space-y-3 bg-white rounded-lg text-xs p-5'
+                                        className="space-y-3 bg-white rounded-lg text-xs p-5"
                                       >
                                         <FormControl>
                                           <Checkbox
@@ -284,20 +284,20 @@ const CreateCBA = () => {
                                             }}
                                           />
                                         </FormControl>
-                                        <div className='space-y-4'>
-                                          <div className='flex items-center'>
-                                            <h6 className='w-24'>Name:</h6>
+                                        <div className="space-y-4">
+                                          <div className="flex items-center">
+                                            <h6 className="w-24">Name:</h6>
                                             <h6>
                                               {user?.first_name}{" "}
                                               {user?.last_name}
                                             </h6>
                                           </div>
-                                          <div className='flex items-center'>
-                                            <h6 className='w-24'>Position:</h6>
+                                          <div className="flex items-center">
+                                            <h6 className="w-24">Position:</h6>
                                             <h6>{user?.designation}</h6>
                                           </div>
-                                          <div className='flex items-center'>
-                                            <h6 className='w-24'>Tel:</h6>
+                                          <div className="flex items-center">
+                                            <h6 className="w-24">Tel:</h6>
                                             {/* @ts-ignore */}
                                             <h6>{user?.phone_number}</h6>
                                           </div>
@@ -313,14 +313,14 @@ const CreateCBA = () => {
                         />
                       )}
 
-                      <div className='flex justify-end'>
-                        <div className='flex gap-4 items-center'>
-                          <h6 className='text-primary'>
+                      <div className="flex justify-end">
+                        <div className="flex gap-4 items-center">
+                          <h6 className="text-primary">
                             {watch("committee_members")?.length} members
                             Selected
                           </h6>
                           <DialogClose>
-                            <div className='flex items-center bg-primary text-primary-foreground rounded-md text-sm font-medium h-11 px-4 py-3 hover:opacity-60'>
+                            <div className="flex items-center bg-primary text-primary-foreground rounded-md text-sm font-medium h-11 px-4 py-3 hover:opacity-60">
                               Save & Continue
                             </div>
                           </DialogClose>
@@ -333,7 +333,7 @@ const CreateCBA = () => {
             </div>
           )}
 
-          <FormSelect name='assignee' label='Assignee'>
+          <FormSelect name="assignee" label="Assignee">
             <SelectContent>
               {isLoading && <LoadingSpinner />}
               {users?.data?.results?.map((user) => (
@@ -344,16 +344,16 @@ const CreateCBA = () => {
             </SelectContent>
           </FormSelect>
 
-          <div className='flex justify-between mt-16'>
+          <div className="flex justify-between mt-16">
             <Button
               onClick={() => router.back()}
-              type='button'
-              className='bg-[#FFF2F2] text-primary dark:text-gray-500'
+              type="button"
+              className="bg-[#FFF2F2] text-primary dark:text-gray-500"
             >
               Cancel
             </Button>
             <FormButton
-              type='submit'
+              type="submit"
               loading={createCbaIsLoading}
               disabled={createCbaIsLoading}
             >

@@ -16,8 +16,9 @@ import SummaryOfTechnicalPrequalification from "@/features/procurement/component
 
 const RFQDetails = () => {
   const { id } = useParams();
+  const solicitationId = Array.isArray(id) ? id[0] : id;
 
-  const { data, isLoading } = useGetSingleSolicitation(id ?? skipToken);
+  const { data, isLoading } = useGetSingleSolicitation(solicitationId ?? skipToken);
 
   if (isLoading) return <LoadingSpinner />;
 

@@ -4,9 +4,9 @@ import { Loading } from "@/components/Loading";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 
-const RFP = dynamic(
+const CheckApproval = dynamic(
   () =>
-    import("@/features/procurement/components/solicitation-management/RFP/index").catch(() => ({ 
+    import("@/features/procurement/components/competitive-bid-analysis/[id]/CheckApproval").catch(() => ({ 
       default: () => <div>Failed to load component</div> 
     })),
   {
@@ -15,10 +15,10 @@ const RFP = dynamic(
   }
 );
 
-export default function RFPPage() {
+export default function CheckApprovalPage() {
   return (
     <Suspense fallback={<Loading />}>
-      <RFP />
+      <CheckApproval />
     </Suspense>
   );
 }
