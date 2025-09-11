@@ -2,13 +2,15 @@
 
 import Card from "components/Card";
 import { Button } from "components/ui/button";
-import { EyeIcon, PlusIcon } from "lucide-react";
+import { EyeIcon, PlusIcon, EditIcon } from "lucide-react";
 import { Checkbox } from "components/ui/checkbox";
 
 import { Input } from "components/ui/input";
 import Link from "next/link";
 import { RouteEnum } from "constants/RouterConstants";
 import IconButton from "components/IconButton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
+import { useState } from "react";
 
 import { cn } from "lib/utils";
 import { CircleEllipsisIcon } from "lucide-react";
@@ -26,12 +28,21 @@ import { useGetAllPurchaseOrders } from "@/features/procurement/controllers/purc
 import { convertDateFormat, formatDate } from "utils/date";
 
 const PurchaseOrder = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [currentPage, setCurrentPage] = useState(1);
+
   const breadcrumbs = [
     { name: "Procurement", icon: true },
     { name: "Purchase Order", icon: false },
   ];
 
-  const { data } = useGetAllPurchaseOrders({ page: 1, size: 20 });
+  const { data } = useGetAllPurchaseOrders({ 
+    page: currentPage, 
+    size: 20, 
+    search: searchTerm,
+    status: statusFilter === "ALL" ? "" : statusFilter 
+  });
 
   return (
     <div className='space-y-10'>
@@ -47,8 +58,38 @@ const PurchaseOrder = () => {
         </Link>
       </div>
       <Card className='space-y-5'>
-        <div>
-          <Input type='Search' placeholder='search' className='w-[30%]' />
+        <div className='flex gap-4 items-center'>
+          <Input 
+            type='search' 
+            placeholder='Search by PO number, vendor name...' 
+            className='w-[40%]' 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">All Statuses</SelectItem>
+              <SelectItem value="PENDING">Pending</SelectItem>
+              <SelectItem value="AUTHORIZED">Authorized</SelectItem>
+              <SelectItem value="APPROVED">Approved</SelectItem>
+              <SelectItem value="AGREED">Agreed</SelectItem>
+              <SelectItem value="COMPLETED">Completed</SelectItem>
+            </SelectContent>
+          </Select>
+          {(searchTerm || statusFilter !== "ALL") && (
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setSearchTerm("");
+                setStatusFilter("ALL");
+              }}
+            >
+              Clear Filters
+            </Button>
+          )}
         </div>
 
         <DataTable data={data?.data?.results || []} columns={columns} />
@@ -119,6 +160,33 @@ const columns: ColumnDef<IPurchaseOrderPaginatedData>[] = [
     },
   },
   {
+    header: "Status",
+    accessorKey: "status_level",
+    size: 120,
+    cell: ({ row }) => {
+      const status = row.original.status_level;
+      const getStatusColor = (status: string) => {
+        switch (status) {
+          case 'PENDING': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+          case 'AUTHORIZED': return 'bg-blue-100 text-blue-800 border-blue-200';
+          case 'APPROVED': return 'bg-green-100 text-green-800 border-green-200';
+          case 'AGREED': return 'bg-purple-100 text-purple-800 border-purple-200';
+          case 'COMPLETED': return 'bg-gray-100 text-gray-800 border-gray-200';
+          default: return 'bg-gray-100 text-gray-800 border-gray-200';
+        }
+      };
+      
+      return (
+        <span className={cn(
+          "px-2 py-1 rounded-full text-xs font-medium border",
+          getStatusColor(status)
+        )}>
+          {status || 'Unknown'}
+        </span>
+      );
+    },
+  },
+  {
     header: "Actions",
     id: "actions",
     cell: ({ row }) => <ActionListAction data={row.original} />,
@@ -135,8 +203,13 @@ const ActionListAction = ({ data }: any) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <Link href={`/dashboard/procurement/purchase-order/${data.id}`}>
-            <DropdownMenuItem key='print' className='flex gap-2'>
+            <DropdownMenuItem key='view' className='flex gap-2'>
               <EyeIcon /> View
+            </DropdownMenuItem>
+          </Link>
+          <Link href={`/dashboard/procurement/purchase-order/${data.id}/edit`}>
+            <DropdownMenuItem key='edit' className='flex gap-2'>
+              <EditIcon /> Edit
             </DropdownMenuItem>
           </Link>
         </DropdownMenuContent>

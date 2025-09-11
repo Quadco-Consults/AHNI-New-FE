@@ -11,16 +11,150 @@ import Link from "next/link";
 // import { skipToken } from "@reduxjs/toolkit/query";
 import { formatDate } from "date-fns";
 import { Button } from "components/ui/button";
-import { RouteEnum } from "constants/RouterConstants";
 import { useEffect, useState } from "react";
 import { BsFiletypeCsv, BsFiletypeDoc } from "react-icons/bs";
-import { useGetSinglePurchaseOrder } from "@/features/procurement/controllers";
+import { useGetSinglePurchaseOrder, useModifyPurchaseOrder } from "@/features/procurement/controllers";
 import Image from "next/image";
+import { toast } from "sonner";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 const Order = () => {
   const params = useParams();
   const [grandTotal, setGrandTotal] = useState("");
-  const { data } = useGetSinglePurchaseOrder(params.id);
+  const purchaseOrderId = params?.id as string;
+  const { data } = useGetSinglePurchaseOrder(purchaseOrderId);
+  const { modifyPurchaseOrder, isLoading: isModifying } = useModifyPurchaseOrder(purchaseOrderId);
+
+  // Download PDF function - Client-side generation
+  const handleDownloadPDF = async () => {
+    try {
+      toast.info('Generating PDF...');
+      
+      // Get the purchase order content element
+      const element = document.getElementById('purchase-order-content');
+      if (!element) {
+        toast.error('Purchase order content not found');
+        return;
+      }
+
+      // Hide action buttons during PDF generation
+      const actionButtons = document.querySelector('.action-buttons') as HTMLElement;
+      const originalDisplay = actionButtons?.style.display;
+      if (actionButtons) {
+        actionButtons.style.display = 'none';
+      }
+
+      // Wait a bit for the DOM to update
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Generate canvas from HTML with better options
+      const canvas = await html2canvas(element, {
+        scale: 1.5, // Reduced scale for better performance
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        width: element.scrollWidth,
+        height: element.scrollHeight,
+        scrollX: 0,
+        scrollY: 0
+      });
+
+      // Restore action buttons
+      if (actionButtons) {
+        actionButtons.style.display = originalDisplay || '';
+      }
+
+      // Validate canvas
+      if (!canvas || canvas.width === 0 || canvas.height === 0) {
+        toast.error('Failed to capture content for PDF');
+        return;
+      }
+
+      // Calculate dimensions for better fit
+      const imgWidth = 210; // A4 width in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      // Create PDF with proper settings
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+        compress: true
+      });
+
+      // Convert canvas to high-quality image
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      
+      // Check if content fits on one page
+      const pageHeight = 297; // A4 height in mm with margins
+      
+      if (imgHeight <= pageHeight) {
+        // Single page
+        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+      } else {
+        // Multiple pages
+        let sourceHeight = canvas.height;
+        let position = 0;
+        let pageNumber = 1;
+        
+        while (sourceHeight > 0) {
+          const pageCanvas = document.createElement('canvas');
+          const pageContext = pageCanvas.getContext('2d');
+          
+          pageCanvas.width = canvas.width;
+          pageCanvas.height = Math.min(canvas.height * pageHeight / imgHeight, sourceHeight);
+          
+          if (pageContext) {
+            pageContext.drawImage(
+              canvas,
+              0, position,
+              canvas.width, pageCanvas.height,
+              0, 0,
+              pageCanvas.width, pageCanvas.height
+            );
+            
+            const pageImgData = pageCanvas.toDataURL('image/jpeg', 0.95);
+            
+            if (pageNumber > 1) {
+              pdf.addPage();
+            }
+            
+            pdf.addImage(pageImgData, 'JPEG', 0, 0, imgWidth, pageHeight);
+          }
+          
+          sourceHeight -= pageCanvas.height;
+          position += pageCanvas.height;
+          pageNumber++;
+        }
+      }
+
+      // Generate filename with sanitized characters
+      const poNumber = data?.data?.purchase_order_number || purchaseOrderId;
+      const fileName = `PO-${poNumber.replace(/[^a-zA-Z0-9]/g, '-')}.pdf`;
+      
+      // Save the PDF
+      pdf.save(fileName);
+      
+      toast.success('PDF downloaded successfully');
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      toast.error('Failed to generate PDF. Please try again.');
+    }
+  };
+
+  // Approval workflow handlers
+  const handleApprovalAction = async (action: 'authorize' | 'approve' | 'agree') => {
+    try {
+      await modifyPurchaseOrder({ action });
+      toast.success(`Purchase Order ${action}d successfully`);
+      // Optionally refresh data or redirect
+    } catch (error) {
+      console.error(`${action} error:`, error);
+      toast.error(`Failed to ${action} Purchase Order. Please try again.`);
+    }
+  };
 
   // Convert number to words
   const tableColumns: ColumnDef<any>[] = [
@@ -93,7 +227,7 @@ const Order = () => {
         {
           id: "fcoCode",
           header: () => (
-            <div className=' p-4'>{data?.data?.fconumber || "-"}</div>
+            <div className=' p-4'>{data?.data?.purchase_order_items?.[0]?.fco_number || "-"}</div>
           ),
           size: 120,
           columns: [
@@ -145,25 +279,26 @@ const Order = () => {
   ];
 
   const totalCost = data?.data?.purchase_order_items?.reduce(
-    (sum, item) => sum + parseFloat(item.total_price),
+    (sum: number, item: any) => sum + parseFloat(item.total_price || '0'),
     0
-  );
+  ) || 0;
 
   useEffect(() => {
     if (data?.data?.purchase_order_items) {
       // Calculate the grand total
-      const grandTotal = data?.data?.purchase_order_items?.reduce(
-        (sum, item) => sum + item.total_price,
+      const grandTotalNum = data?.data?.purchase_order_items?.reduce(
+        (sum: number, item: any) => sum + parseFloat(item.total_price || '0'),
         0
-      );
+      ) || 0;
       const grandTotalWords =
-        toWords(grandTotal)?.toUpperCase() + " NAIRA ONLY";
+        toWords(grandTotalNum)?.toUpperCase() + " NAIRA ONLY";
       setGrandTotal(grandTotalWords);
     }
   }, [data]);
 
   return (
     <div className='bg-white p-8'>
+      <div id='purchase-order-content'>
       <div className='flex justify-center items-center flex-col'>
         <Image src={logoPng} alt='logo' height={200} width={200} />
         <h1>Achieving Health Nigeria Initiative (AHNI)</h1>
@@ -198,7 +333,7 @@ const Order = () => {
         </Card>
       </div>
       <div className='bg-[#BE8800] text-white font-semibold text-[20px] p-[10px] my-4'>
-        Vendor: HYBRID TECHNICAL COMPANY LIMITED
+        Vendor: {data?.data?.vendor_detail?.company_name || 'Not Available'}
       </div>
       <div className='my-5'>
         <DataTable
@@ -256,11 +391,13 @@ const Order = () => {
               7. Withholding Tax (WHT) will be deducted from the Grand Total in
               compliance with relevant Tax Laws;
             </li>
-            8. The Vendor will carry out duties and functions as described in
-            this Purchase Order and/or Scope of Work/Annex. The Scope of Work
-            /Annex can be amended during the validity period of the Purchase
-            Order with the Vendor&apos;s agreement. Such amended must be done in
-            writing with signatures of both parties;
+            <li>
+              8. The Vendor will carry out duties and functions as described in
+              this Purchase Order and/or Scope of Work/Annex. The Scope of Work
+              /Annex can be amended during the validity period of the Purchase
+              Order with the Vendor&apos;s agreement. Such amended must be done in
+              writing with signatures of both parties;
+            </li>
             <li>
               9. It is AHNi’ s policy to comply with the laws and regulations of
               Nigeria, United State Government, European Union and the United
@@ -287,7 +424,6 @@ const Order = () => {
               <p className=''> {data?.data?.authorized_by || "-"}</p>
             </div>
           </div>
-          <p></p>
         </Card>
         <Card className='flex-1 border-primary'>
           <p className='text-[16px] font-semibold mb-2'>Approved By:</p>
@@ -301,7 +437,6 @@ const Order = () => {
               <p className=''> {data?.data?.approved_by_detail || "-"}</p>
             </div>
           </div>
-          <p></p>
         </Card>{" "}
         <Card className='flex-1 border-primary'>
           <p className='text-[16px] font-semibold mb-2'>
@@ -310,19 +445,50 @@ const Order = () => {
           <div className='space-y-2'>
             <div className='flex gap-2 text-[12px]'>
               <p className=' w-[122px] font-semibold'>Signature:</p>
-              <p className=''>
-                <p className=''> {data?.data?.agreed_date || "-"}</p>
-              </p>
+              <p className=''> {data?.data?.agreed_date || "-"}</p>
             </div>
             <div className='flex gap-2 text-[12px]'>
-              <p className=' w-[122px] font-semibold'>Date</p>
-              <p className=''>-</p>
+              <span className=' w-[122px] font-semibold'>Date</span>
+              <span className=''>-</span>
             </div>
           </div>
-          <p></p>
         </Card>
       </div>
-      <div className='w-full flex justify-end my-8 gap-3'>
+      </div>
+      
+      {/* Action buttons - outside of PDF content */}
+      <div className='action-buttons'>
+        {/* Approval Actions */}
+        {data?.data?.status_level === 'PENDING' && (
+          <div className='w-full flex justify-center my-6 gap-3'>
+            <Button 
+              onClick={() => handleApprovalAction('authorize')} 
+              disabled={isModifying}
+              variant="outline"
+              className='border-yellow-500 text-yellow-600 hover:bg-yellow-50'
+            >
+              {isModifying ? 'Processing...' : 'Authorize'}
+            </Button>
+            <Button 
+              onClick={() => handleApprovalAction('approve')} 
+              disabled={isModifying}
+              variant="outline"
+              className='border-blue-500 text-blue-600 hover:bg-blue-50'
+            >
+              {isModifying ? 'Processing...' : 'Approve'}
+            </Button>
+            <Button 
+              onClick={() => handleApprovalAction('agree')} 
+              disabled={isModifying}
+              variant="outline"
+              className='border-green-500 text-green-600 hover:bg-green-50'
+            >
+              {isModifying ? 'Processing...' : 'Agree'}
+            </Button>
+          </div>
+        )}
+
+        <div className='w-full flex justify-end my-8 gap-3'>
         <Link href={"file"} target='_blank' title={"file"}>
           <Button
             variant='secondary'
@@ -332,15 +498,16 @@ const Order = () => {
             Specification Document
           </Button>
         </Link>
-        <Button variant='custom'>
+        <Button variant='custom' onClick={handleDownloadPDF}>
           <span>
             <BsFiletypeCsv size={25} />
           </span>
-          Download
+          Download PDF
         </Button>
-        <Link href={RouteEnum.PURCHASE_ORDER_ID_TERMS} className=''>
+        <Link href={`/dashboard/procurement/purchase-order/${purchaseOrderId}/terms-and-conditions`} className=''>
           <Button>Terms and Conditions</Button>
         </Link>
+        </div>
       </div>
     </div>
   );
