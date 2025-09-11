@@ -17,20 +17,24 @@ import { useGetAllFundRequests } from "@/features/programs/controllers/fundReque
 import { RouteEnum } from "constants/RouterConstants";
 import FundRequestSummary from "./FundRequestSummary";
 import FundRequestWorkflowStatus from "../components/FundRequestWorkflowStatus";
+import ProjectBatchApproval from "./ProjectBatchApproval";
 
 export default function FundRequestDetail() {
   const router = useRouter();
   const params = useParams();
   const id = params?.id as string;
 
-  const { data: project, isLoading: projectLoading } = useGetSingleProject(id ?? skipToken);
-  const { data: fundRequests, isLoading: fundRequestsLoading } = useGetAllFundRequests({
-    project: id || "",
-    enabled: !!id
-  });
+  const { data: project, isLoading: projectLoading } = useGetSingleProject(
+    id ?? skipToken
+  );
+  const { data: fundRequests, isLoading: fundRequestsLoading } =
+    useGetAllFundRequests({
+      project: id || "",
+      enabled: !!id,
+    });
 
   const dispatch = useAppDispatch();
-  
+
   const isLoading = projectLoading || fundRequestsLoading;
   const firstFundRequest = fundRequests?.data?.results?.[0];
 
@@ -59,6 +63,7 @@ export default function FundRequestDetail() {
               Fund Request Summary
             </TabsTrigger>
             <TabsTrigger value='approval Status'>Approval Status</TabsTrigger>
+            <TabsTrigger value='hq Approval'>HQ Project Approval</TabsTrigger>
           </TabsList>
 
           <div className='flex items-center gap-2'>
@@ -109,19 +114,22 @@ export default function FundRequestDetail() {
                 {firstFundRequest ? (
                   <FundRequestWorkflowStatus
                     fundRequestId={firstFundRequest.id}
-                    currentStatus={firstFundRequest.status || 'PENDING'}
+                    currentStatus={firstFundRequest.status || "PENDING"}
                     canReview={true}
                     canAdminApprove={false}
                     canManagerApprove={false}
                     canReject={true}
                   />
                 ) : (
-                  <Card className="p-6">
-                    <div className="text-center text-gray-500">
+                  <Card className='p-6'>
+                    <div className='text-center text-gray-500'>
                       <p>No fund requests found for this project.</p>
                     </div>
                   </Card>
                 )}
+              </TabsContent>
+              <TabsContent value='hq Approval'>
+                <ProjectBatchApproval projectId={id || ""} />
               </TabsContent>
             </>
           )
