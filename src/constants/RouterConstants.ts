@@ -446,6 +446,7 @@ export const CG_ROUTES = {
 
   // CONTRACT MANAGEMENT
   AGREEMENT: "/dashboard/c-and-g/agreements",
+  CREATE_AGREEMENT: "/dashboard/c-and-g/agreements/create",
   CREATE_AGREEMENT_DETAILS: "/dashboard/c-and-g/agreements/create/summary",
   CREATE_AGREEMENT_UPLOADS: "/dashboard/c-and-g/agreements/create/uploads",
   // -------------

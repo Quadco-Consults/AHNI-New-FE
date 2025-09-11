@@ -70,11 +70,21 @@ export const candg = [
     },
 
     {
-        path: CG_ROUTES.CREATE_AGREEMENT_DETAILS,
+        path: CG_ROUTES.CREATE_AGREEMENT,
         element: lazy(
             () =>
                 import(
                     "pages/protectedPages/c&g/contract-management/agreement/create"
+                )
+        ),
+    },
+
+    {
+        path: CG_ROUTES.CREATE_AGREEMENT_DETAILS,
+        element: lazy(
+            () =>
+                import(
+                    "pages/protectedPages/c&g/contract-management/agreement/create/summary"
                 )
         ),
     },
