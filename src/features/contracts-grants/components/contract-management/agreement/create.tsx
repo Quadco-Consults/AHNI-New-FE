@@ -58,7 +58,7 @@ export default function CreateAgreement() {
 
     // State for conditional dropdowns
     const [selectedAgreementType, setSelectedAgreementType] = useState("");
-    const [entityOptions, setEntityOptions] = useState([]);
+    const [entityOptions, setEntityOptions] = useState<Array<{label: string, value: string}>>([]);
     const [isLoadingEntities, setIsLoadingEntities] = useState(false);
 
     // Functions to fetch entity options based on agreement type
@@ -66,7 +66,12 @@ export default function CreateAgreement() {
         setIsLoadingEntities(true);
         try {
             const response = await AxiosWithToken.get('/contract-grants/agreements/consultants_dropdown/');
-            setEntityOptions(response.data);
+            // Ensure the response is an array and properly formatted
+            const data = Array.isArray(response.data) ? response.data : [];
+            setEntityOptions(data.map((item: any) => ({
+                label: item.name || item.label || item.title || item.id,
+                value: item.id || item.value
+            })));
         } catch (error) {
             console.error('Failed to fetch consultants:', error);
             setEntityOptions([]);
@@ -79,7 +84,12 @@ export default function CreateAgreement() {
         setIsLoadingEntities(true);
         try {
             const response = await AxiosWithToken.get('/contract-grants/agreements/facilitators_dropdown/');
-            setEntityOptions(response.data);
+            // Ensure the response is an array and properly formatted
+            const data = Array.isArray(response.data) ? response.data : [];
+            setEntityOptions(data.map((item: any) => ({
+                label: item.name || item.label || item.title || item.id,
+                value: item.id || item.value
+            })));
         } catch (error) {
             console.error('Failed to fetch facilitators:', error);
             setEntityOptions([]);
@@ -92,7 +102,12 @@ export default function CreateAgreement() {
         setIsLoadingEntities(true);
         try {
             const response = await AxiosWithToken.get('/contract-grants/agreements/adhoc_staff_dropdown/');
-            setEntityOptions(response.data);
+            // Ensure the response is an array and properly formatted
+            const data = Array.isArray(response.data) ? response.data : [];
+            setEntityOptions(data.map((item: any) => ({
+                label: item.name || item.label || item.title || item.id,
+                value: item.id || item.value
+            })));
         } catch (error) {
             console.error('Failed to fetch adhoc staff:', error);
             setEntityOptions([]);
@@ -105,7 +120,12 @@ export default function CreateAgreement() {
         setIsLoadingEntities(true);
         try {
             const response = await AxiosWithToken.get('/contract-grants/agreements/vendors_dropdown/');
-            setEntityOptions(response.data);
+            // Ensure the response is an array and properly formatted
+            const data = Array.isArray(response.data) ? response.data : [];
+            setEntityOptions(data.map((item: any) => ({
+                label: item.name || item.label || item.title || item.company_name || item.id,
+                value: item.id || item.value
+            })));
         } catch (error) {
             console.error('Failed to fetch vendors:', error);
             setEntityOptions([]);
@@ -114,42 +134,45 @@ export default function CreateAgreement() {
         }
     };
 
-    // Handle agreement type change
-    const handleAgreementTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        const selectedType = event.target.value;
-        setSelectedAgreementType(selectedType);
-        form.setValue('type', selectedType);
-        
-        // Clear previous entity selections
-        form.setValue('consultant_id', '');
-        form.setValue('facilitator_id', '');
-        form.setValue('adhoc_staff_id', '');
-        form.setValue('vendor_id', '');
+    // Watch for agreement type changes
+    const agreementType = form.watch('type');
 
-        // Load appropriate dropdown based on type
-        switch(selectedType) {
-            case 'CONSULTANT':
-                fetchConsultants();
-                break;
-            case 'FACILITATOR':
-                fetchFacilitators();
-                break;
-            case 'ADHOC_STAFF':
-                fetchAdhocStaff();
-                break;
-            case 'SLA':
-            case 'SECURITY':
-            case 'INSURANCE':
-            case 'LEASE':
-            case 'HMO':
-            case 'TICKETING':
-                fetchVendors();
-                break;
-            default:
-                setEntityOptions([]);
-                break;
+    useEffect(() => {
+        if (agreementType) {
+            console.log('Agreement type changed to:', agreementType);
+            setSelectedAgreementType(agreementType);
+            
+            // Clear previous entity selections
+            form.setValue('consultant_id', '');
+            form.setValue('facilitator_id', '');
+            form.setValue('adhoc_staff_id', '');
+            form.setValue('vendor_id', '');
+
+            // Load appropriate dropdown based on type
+            switch(agreementType) {
+                case 'CONSULTANT':
+                    fetchConsultants();
+                    break;
+                case 'FACILITATOR':
+                    fetchFacilitators();
+                    break;
+                case 'ADHOC_STAFF':
+                    fetchAdhocStaff();
+                    break;
+                case 'SLA':
+                case 'SECURITY':
+                case 'INSURANCE':
+                case 'LEASE':
+                case 'HMO':
+                case 'TICKETING':
+                    fetchVendors();
+                    break;
+                default:
+                    setEntityOptions([]);
+                    break;
+            }
         }
-    };
+    }, [agreementType]);
 
     const searchParams = useSearchParams();
     const id = searchParams?.get("id") || null;
@@ -163,10 +186,10 @@ export default function CreateAgreement() {
 
     const locationOptions = useMemo(
         () =>
-            location?.data.results.map(({ name, id }) => ({
+            location?.data?.results?.map(({ name, id }) => ({
                 label: name,
                 value: id,
-            })),
+            })) || [],
         [location]
     );
 
@@ -178,6 +201,23 @@ export default function CreateAgreement() {
 
     const onSubmit: SubmitHandler<TAgreementFormData> = async (data) => {
         try {
+            // Validate that the appropriate entity is selected based on agreement type
+            const { type } = data;
+            let entitySelected = false;
+            
+            if (type === "CONSULTANT" && data.consultant_id) entitySelected = true;
+            if (type === "FACILITATOR" && data.facilitator_id) entitySelected = true;
+            if (type === "ADHOC_STAFF" && data.adhoc_staff_id) entitySelected = true;
+            if (["SLA", "SECURITY", "INSURANCE", "LEASE", "HMO", "TICKETING"].includes(type) && data.vendor_id) entitySelected = true;
+            
+            if (!entitySelected) {
+                const entityType = type === "CONSULTANT" ? "Consultant" : 
+                                 type === "FACILITATOR" ? "Facilitator" : 
+                                 type === "ADHOC_STAFF" ? "Adhoc Staff" : "Vendor";
+                toast.error(`Please select a ${entityType} for this agreement type.`);
+                return;
+            }
+
             if (id) {
                 await updateAgreement(data);
                 toast.success("Agreement Updated");
@@ -198,8 +238,10 @@ export default function CreateAgreement() {
     useEffect(() => {
         if (data) {
             form.reset(data.data);
+            // Set the selected agreement type when editing
+            setSelectedAgreementType(data.data.type);
         }
-    }, []);
+    }, [data]);
 
     return (
         <ServiceLevelAgreementLayout>
@@ -224,9 +266,8 @@ export default function CreateAgreement() {
                                         label="Agreement Type"
                                         name="type"
                                         placeholder="Select Agreement Type"
-                                        options={agreementTypeOptions}
+                                        options={agreementTypeOptions || []}
                                         required
-                                        onChange={handleAgreementTypeChange}
                                     />
 
                                     {/* Conditional Entity Dropdown */}
@@ -250,7 +291,7 @@ export default function CreateAgreement() {
                                                 selectedAgreementType === 'ADHOC_STAFF' ? 'Adhoc Staff' :
                                                 'Vendor'
                                             }`}
-                                            options={entityOptions}
+                                            options={entityOptions || []}
                                             required
                                             disabled={isLoadingEntities}
                                         />
@@ -283,7 +324,7 @@ export default function CreateAgreement() {
                                         name="location"
                                         placeholder="Select Location"
                                         required
-                                        options={locationOptions}
+                                        options={locationOptions || []}
                                     />
                                 </div>
 
