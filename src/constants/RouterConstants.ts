@@ -213,6 +213,8 @@ export const RouteEnum = {
   PURCHASE_ORDER: "/dashboard/procurement/purchase-order",
   PURCHASE_ORDER_DETAILS: "/dashboard/procurement/purchase-order/:id/details",
   CREATE_PURCHASE_ORDER: "/dashboard/procurement/purchase-order/create",
+  EDIT_PURCHASE_ORDER: "/dashboard/procurement/purchase-order/:id/edit",
+  PURCHASE_ORDER_TERMS: "/dashboard/procurement/purchase-order/:id/terms-and-conditions",
 
   //procurement routes
   PROCUREMENT_PLAN: "/dashboard/procurement/procurement-plan",

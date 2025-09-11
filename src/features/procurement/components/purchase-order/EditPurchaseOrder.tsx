@@ -2,7 +2,7 @@
 
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import { Label } from "components/ui/label";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Check, ChevronsUpDown, MinusCircle, PlusCircle } from "lucide-react";
 import { cn } from "lib/utils";
 import { Button } from "components/ui/button";
@@ -31,16 +31,18 @@ import FormButton from "@/components/FormButton";
 import LongArrowRight from "components/icons/LongArrowRight";
 import BreadcrumbCard from "components/Breadcrumb";
 import { useGetAllDepartments } from "@/features/modules/controllers/config/departmentController";
-// import { toast } from "sonner";
-import { useCreatePurchaseOrder } from "@/features/procurement/controllers/purchaseOrderController";
+import { 
+  useUpdatePurchaseOrder, 
+  useGetSinglePurchaseOrder 
+} from "@/features/procurement/controllers/purchaseOrderController";
 import { RouteEnum } from "constants/RouterConstants";
-// import { useGetAllGrades } from "@/features/modules/controllers/config/gradeController";
 import MultiSelectFormField from "components/ui/multiselect";
 import FormSelect from "components/atoms/FormSelect";
 import { useGetAllItems } from "@/features/modules/controllers/config/itemController";
 import { useGetAllFCONumbersQuery } from "@/features/modules/controllers";
+import { toast } from "sonner";
 
-const PurchaseOrderNew = () => {
+const EditPurchaseOrder = () => {
   const [open, setOpen] = useState(false);
   const [opens, setOpens] = useState(false);
   const [opensPurchase, setOpensPurchase] = useState(false);
@@ -49,9 +51,15 @@ const PurchaseOrderNew = () => {
   const [purchaseValue, setPurchaseValue] = useState("");
 
   const router = useRouter();
+  const params = useParams();
+  const purchaseOrderId = params.id as string;
+
   const goBack = () => {
     router.back();
   };
+
+  // Fetch existing purchase order data
+  const { data: existingPO, isLoading: loadingPO } = useGetSinglePurchaseOrder(purchaseOrderId);
 
   const { data: vendors, isLoading: vendorsIsLoading } = useGetVendors({
     page: 1,
@@ -63,11 +71,6 @@ const PurchaseOrderNew = () => {
     purchaseValue as string,
     !!purchaseValue
   );
-
-  // const fco = useGetAllGrades({
-  //   page: 1,
-  //   size: 2000000,
-  // });
 
   const fco = useGetAllFCONumbersQuery({
     page: 1,
@@ -84,16 +87,17 @@ const PurchaseOrderNew = () => {
       item?.data.results.map(({ name, id }) => ({
         label: name,
         value: id,
-      })),
+      })) || [],
     [item]
   );
+
   const { data: departments, isLoading: departmentsIsLoading } =
     useGetAllDepartments({ page: 1, size: 2000000, search: "" });
 
   const {
-    createPurchaseOrder: createPurchcaseOrderMutation,
-    isLoading: creatingOrder,
-  } = useCreatePurchaseOrder();
+    updatePurchaseOrder: updatePurchaseOrderMutation,
+    isLoading: updatingOrder,
+  } = useUpdatePurchaseOrder(purchaseOrderId);
 
   const form = useForm<z.infer<typeof PurchaseOrderListSchema>>({
     resolver: zodResolver(PurchaseOrderListSchema),
@@ -106,47 +110,39 @@ const PurchaseOrderNew = () => {
     },
   });
 
-  const { setValue, control, handleSubmit } = form;
+  const { setValue, control, handleSubmit, reset } = form;
 
-  const data = useMemo(() => {
-    const items = requestsDetails?.data?.items || requestsDetails?.items;
-    if (!items) return [];
-
-    return items.map((data: any) => ({
-      item_id: data?.item || "",
-      fco: data?.fco || "",
-      quantity: data?.quantity || 0,
-      unit_cost: data?.unit_cost || 0,
-      description: data?.item?.name || data?.name || "",
-      uom: data?.item?.uom === null ? "" : data?.item?.uom || data?.uom || "",
-      total: data?.sub_total_amount || data?.total || 0,
-      name: data?.item_detail?.name || data?.item?.name || data?.name || "",
-    }));
-  }, [requestsDetails]);
-
+  // Populate form with existing data
   useEffect(() => {
-    if (data) {
-      setValue("items", data);
+    if (existingPO?.data) {
+      const poData = existingPO.data;
+      reset({
+        vendor: poData.vendor || "",
+        purchase_request: poData.purchase_request || "",
+        payment_terms: poData.payment_terms || "",
+        delivery_lead_time: poData.delivery_lead_time || "",
+        items: poData.purchase_order_items?.map((item: any) => ({
+          item_id: item.item || "",
+          fco: item.fco_number || "",
+          quantity: item.quantity || 0,
+          unit_cost: item.unit_price || 0,
+          description: item.description || "",
+          uom: item.uom || "",
+          total: item.total_price || 0,
+          name: item.description || "",
+          fco_number: item.fco_number ? [item.fco_number] : [],
+        })) || []
+      });
+      
+      setVendorValue(poData.vendor || "");
+      setPurchaseValue(poData.purchase_request || "");
     }
-    if (purchaseValue) {
-      setValue("purchase_request", purchaseValue);
-    }
-  }, [data, setValue, purchaseValue]);
-
-  useEffect(() => {
-    if (vendorValue) {
-      setValue("vendor", vendorValue);
-    }
-  }, [setValue, vendorValue]);
+  }, [existingPO, reset]);
 
   const { fields, remove, append } = useFieldArray({
     control,
     name: "items",
   });
-
-  useEffect(() => {
-    setValue("items", fields);
-  }, []);
 
   const onSubmit = async (data: z.infer<typeof PurchaseOrderListSchema>) => {
     const formData = {
@@ -156,7 +152,6 @@ const PurchaseOrderNew = () => {
         const total_price = Number(item?.unit_cost) * Number(item?.quantity);
 
         return {
-          // item: item?.description,
           item: item?.description,
           quantity: item?.quantity,
           unit_price: item?.unit_cost,
@@ -164,27 +159,29 @@ const PurchaseOrderNew = () => {
           total_price: total_price,
         };
       }),
-
       delivery_lead_time: data?.delivery_lead_time,
       payment_terms: data?.payment_terms,
     };
 
     try {
-      const res = await createPurchcaseOrderMutation(formData);
-
-      if (res?.status === "success") {
-        router.push(RouteEnum.PURCHASE_ORDER);
-      }
+      await updatePurchaseOrderMutation(formData);
+      toast.success("Purchase Order updated successfully");
+      router.push(`/dashboard/procurement/purchase-order/${purchaseOrderId}`);
     } catch (error) {
       console.log(error);
+      toast.error("Failed to update Purchase Order");
     }
   };
 
   const breadcrumbs = [
     { name: "Procurement", icon: true },
     { name: "Purchase Order", icon: true },
-    { name: "Create", icon: false },
+    { name: "Edit", icon: false },
   ];
+
+  if (loadingPO) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <div className="space-y-5">
@@ -197,7 +194,7 @@ const PurchaseOrderNew = () => {
         <LongArrowLeft />
       </button>
 
-      <p className="text-[24px] font-semibold">Purchase Order Form</p>
+      <p className="text-[24px] font-semibold">Edit Purchase Order</p>
 
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -271,16 +268,16 @@ const PurchaseOrderNew = () => {
                     >
                       {purchaseValue
                         ? requests?.data?.results?.find(
-                            (vendor) => vendor?.id === purchaseValue
+                            (request) => request?.id === purchaseValue
                           )?.ref_number
-                        : "Select vendor..."}
+                        : "Select purchase request..."}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-full p-0">
                     <Command>
-                      <CommandInput placeholder="Search vendor..." />
-                      <CommandEmpty>No Vendor found.</CommandEmpty>
+                      <CommandInput placeholder="Search request..." />
+                      <CommandEmpty>No Request found.</CommandEmpty>
                       <CommandGroup>
                         {requestsIsLoading && <LoadingSpinner />}
                         {requests?.data?.results?.map((request) => {
@@ -302,62 +299,6 @@ const PurchaseOrderNew = () => {
                                 )}
                               />
                               {request?.ref_number}
-                            </CommandItem>
-                          );
-                        })}
-                      </CommandGroup>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
-            <div>
-              <Label className="font-semibold">
-                Requesting Unit/Dept
-                <span className="text-red-500">*</span>
-              </Label>
-              <div>
-                <Popover open={opens} onOpenChange={setOpens}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={opens}
-                      className="w-full justify-between"
-                    >
-                      {requestValue
-                        ? departments?.data?.results?.find(
-                            (vendor) => vendor?.id === requestValue
-                          )?.name
-                        : "Select vendor..."}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0">
-                    <Command>
-                      <CommandInput placeholder="Search vendor..." />
-                      <CommandEmpty>No Vendor found.</CommandEmpty>
-                      <CommandGroup>
-                        {departmentsIsLoading && <LoadingSpinner />}
-                        {departments?.data?.results?.map((request) => {
-                          return (
-                            <CommandItem
-                              key={request?.id}
-                              value={request?.id}
-                              onSelect={(currentValue) => {
-                                setRequestValue(currentValue);
-                                setOpens(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  requestValue === request?.id
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              {request?.name}
                             </CommandItem>
                           );
                         })}
@@ -398,32 +339,19 @@ const PurchaseOrderNew = () => {
             <tbody>
               {fields.map((field, index) => {
                 return (
-                  <tr key={index} className="w-full">
+                  <tr key={field.id} className="w-full">
                     <td className="w-fit p-2 text-center ">
                       <span className="p-2 px-4 text-xs bg-black text-white rounded">
                         {index + 1}.
                       </span>
                     </td>
                     <td className="w-fit p-2 text-center">
-                      {/* <FormInput
-                        placeholder='Enter Description'
-                        name={`items.[${index}].description`}
-                      /> */}
-                      {!data || data?.length < index + 1 ? (
-                        <FormSelect
-                          name={`items.${index}.description`}
-                          options={itemOptions}
-                          value={form.watch(`items.${index}.description`)}
-                          disabled={true}
-                        />
-                      ) : (
-                        <FormInput name={`items.${index}.name`} />
-                      )}
+                      <FormInput name={`items.${index}.description`} />
                     </td>
                     <td className="w-fit p-2 text-center">
                       <FormInput
                         label=""
-                        name={`items.[${index}].quantity`}
+                        name={`items.${index}.quantity`}
                         type="number"
                         className="w-24"
                       />
@@ -431,12 +359,11 @@ const PurchaseOrderNew = () => {
                     <td className="w-fit p-2 text-center">
                       <FormInput
                         label=""
-                        name={`items.[${index}].uom`}
+                        name={`items.${index}.uom`}
                         className="w-24"
                       />
                     </td>
                     <td className="w-fit p-2 text-center ">
-                      {/* <FormInput label='' name={`items.[${index}].f */}
                       <FormField
                         control={form.control}
                         name={`items.${index}.fco_number`}
@@ -461,12 +388,12 @@ const PurchaseOrderNew = () => {
                       <FormInput
                         label=""
                         type="number"
-                        name={`items.[${index}].unit_cost`}
+                        name={`items.${index}.unit_cost`}
                         className="w-24"
                       />
                     </td>
                     <td className="w-fit p-2 text-center">
-                      <FormInput label="" name={`items.[${index}].total`} />
+                      <FormInput label="" name={`items.${index}.total`} />
                     </td>
                     <td className="flex items-center justify-center py-5">
                       <Button variant="ghost" size="icon">
@@ -495,6 +422,8 @@ const PurchaseOrderNew = () => {
                   total: "",
                   unit_cost: "",
                   uom: "",
+                  name: "",
+                  fco_number: [],
                 })
               }
               className="bg-alternate border border-primary text-primary"
@@ -504,17 +433,15 @@ const PurchaseOrderNew = () => {
             </Button>
           </div>
           <div className="flex items-center justify-end">
-            {/* <Link href={generatePath(RouteEnum.PURCHASE_ORDER)}> */}
             <FormButton
-              loading={creatingOrder}
-              disabled={creatingOrder}
+              loading={updatingOrder}
+              disabled={updatingOrder}
               type="submit"
               className="flex items-center justify-center gap-2"
             >
-              Submit
+              Update Purchase Order
               <LongArrowRight />
             </FormButton>
-            {/* </Link> */}
           </div>
         </form>
       </Form>
@@ -522,4 +449,4 @@ const PurchaseOrderNew = () => {
   );
 };
 
-export default PurchaseOrderNew;
+export default EditPurchaseOrder;

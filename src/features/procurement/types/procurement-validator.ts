@@ -212,27 +212,30 @@ export const PurchaseOrderSchema = z.object({
 export const PurchaseOrderListSchema = z.object({
   items: z.array(
     z.object({
-      // id: z.string().optional(),
-      item_id: z.string().min(1, "Field is required"),
-      fco: z.string().min(1, "Field is required"),
+      item_id: z.string().optional(),
+      fco: z.string().optional(),
       unit_cost: z.union([
-        z.string().min(1, "Field is required"),
-        z.number().min(1, "Field is required"),
-      ]),
+        z.string(),
+        z.number(),
+      ]).optional(),
       quantity: z.union([
-        z.string().min(1, "Field is required"),
-        z.number().min(1, "Field is required"),
-      ]),
-      description: z.string().min(1, "Field is required"),
-      uom: z.string().min(1, "Field is required"),
+        z.string(),
+        z.number(),
+      ]).optional(),
+      description: z.string().optional(),
+      uom: z.string().optional(),
       total: z.union([
-        z.string().min(1, "Field is required"),
-        z.number().min(1, "Field is required"),
-      ]),
+        z.string(),
+        z.number(),
+      ]).optional(),
+      name: z.string().optional(),
+      fco_number: z.array(z.string()).optional(),
     })
   ),
   purchase_request: z.string().min(1, "Field is required"),
-  // vendor: z.string().min(1, "Field is required"),
+  vendor: z.string().min(1, "Field is required"),
+  payment_terms: z.string().optional(),
+  delivery_lead_time: z.string().optional(),
 });
 
 export const SolicitationItemsSchema = z.object({
