@@ -33,9 +33,6 @@ export default function ViewFundRequestActivity() {
       canLocationAuthorize: false,
       canStateReview: false,
       canStateAuthorize: false,
-      canHQReview: false,
-      canHQAuthorize: false,
-      canHQApprove: false,
       canReject: false,
     };
 
@@ -52,20 +49,12 @@ export default function ViewFundRequestActivity() {
         request.status === "LOCATION_REVIEWED",
       canStateReview: false, // No state review - goes directly to HQ
       canStateAuthorize: false, // No state authorization - goes directly to HQ
-      canHQReview:
-        userId === request.hq_reviewer && request.status === "LOCATION_AUTHORIZED",
-      canHQAuthorize:
-        userId === request.hq_authorizer && request.status === "HQ_REVIEWED",
-      canHQApprove:
-        userId === request.hq_approver && request.status === "HQ_AUTHORIZED",
       canReject:
         request.status !== "REJECTED" &&
         request.status !== "HQ_APPROVED" &&
         (userId === request.location_reviewer ||
-          userId === request.location_authorizer ||
-          userId === request.hq_reviewer ||
-          userId === request.hq_authorizer ||
-          userId === request.hq_approver),
+          userId === request.location_authorizer) &&
+        ["PENDING", "LOCATION_REVIEWED", "LOCATION_AUTHORIZED"].includes(request.status),
     };
   }, [fundRequest, profile?.data?.id]);
 
@@ -159,9 +148,6 @@ export default function ViewFundRequestActivity() {
             canLocationAuthorize={permissions.canLocationAuthorize}
             canStateReview={permissions.canStateReview}
             canStateAuthorize={permissions.canStateAuthorize}
-            canHQReview={permissions.canHQReview}
-            canHQAuthorize={permissions.canHQAuthorize}
-            canHQApprove={permissions.canHQApprove}
             canReject={permissions.canReject}
           />
         </div>

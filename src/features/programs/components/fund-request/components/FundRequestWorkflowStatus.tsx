@@ -39,9 +39,6 @@ interface FundRequestWorkflowStatusProps {
   canLocationAuthorize?: boolean;
   canStateReview?: boolean;
   canStateAuthorize?: boolean;
-  canHQReview?: boolean;
-  canHQAuthorize?: boolean;
-  canHQApprove?: boolean;
   canReject?: boolean;
 }
 
@@ -53,9 +50,6 @@ const FundRequestWorkflowStatus: React.FC<FundRequestWorkflowStatusProps> = ({
   canLocationAuthorize = false,
   canStateReview = false,
   canStateAuthorize = false,
-  canHQReview = false,
-  canHQAuthorize = false,
-  canHQApprove = false,
   canReject = false,
 }) => {
   const [activeAction, setActiveAction] = useState<string | null>(null);
@@ -75,9 +69,6 @@ const FundRequestWorkflowStatus: React.FC<FundRequestWorkflowStatusProps> = ({
       "PENDING",
       "LOCATION_REVIEWED",
       "LOCATION_AUTHORIZED",
-      "HQ_REVIEWED",
-      "HQ_AUTHORIZED",
-      "HQ_APPROVED",
     ];
     const currentIndex = statusOrder.indexOf(currentStatus);
     const stepIndex = statusOrder.indexOf(stepStatus.toUpperCase());
@@ -109,30 +100,12 @@ const FundRequestWorkflowStatus: React.FC<FundRequestWorkflowStatusProps> = ({
     },
     {
       id: "LOCATION_AUTHORIZED",
-      title: "HQ Review",
+      title: "Ready for HQ Approval",
       status: getStepStatus("LOCATION_AUTHORIZED"),
-      description: "Review by headquarters",
-      canAction: canHQReview && currentStatus === "LOCATION_AUTHORIZED",
-      actionLabel: "HQ Review",
-      actionType: "HQ_REVIEWED",
-    },
-    {
-      id: "HQ_REVIEWED",
-      title: "HQ Authorization",
-      status: getStepStatus("HQ_REVIEWED"),
-      description: "Authorization from headquarters",
-      canAction: canHQAuthorize && currentStatus === "HQ_REVIEWED",
-      actionLabel: "HQ Authorize",
-      actionType: "HQ_AUTHORIZED",
-    },
-    {
-      id: "HQ_AUTHORIZED",
-      title: "HQ Final Approval",
-      status: getStepStatus("HQ_AUTHORIZED"),
-      description: "Final approval from headquarters",
-      canAction: canHQApprove && currentStatus === "HQ_AUTHORIZED",
-      actionLabel: "HQ Approve",
-      actionType: "HQ_APPROVED",
+      description: "Location approval complete - ready for project-level HQ approval",
+      canAction: false,
+      actionLabel: "",
+      actionType: undefined,
     },
   ];
 
@@ -198,11 +171,11 @@ const FundRequestWorkflowStatus: React.FC<FundRequestWorkflowStatusProps> = ({
       case "LOCATION_REVIEWED":
         return "Awaiting location office authorization";
       case "LOCATION_AUTHORIZED":
-        return "Awaiting headquarters review";
+        return "Location approval complete - ready for project-level HQ approval";
       case "HQ_REVIEWED":
-        return "Awaiting headquarters authorization";
+        return "Under HQ review (project-level)";
       case "HQ_AUTHORIZED":
-        return "Awaiting headquarters final approval";
+        return "HQ authorized (project-level)";
       case "HQ_APPROVED":
         return "Fund request fully approved";
       case "REJECTED":
