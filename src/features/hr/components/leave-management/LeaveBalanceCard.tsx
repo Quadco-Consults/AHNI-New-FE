@@ -159,7 +159,7 @@ const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({
 
       {/* Last Updated */}
       <div className="mt-4 text-xs text-gray-500 text-center">
-        Last updated: {new Date(balance.lastUpdated).toLocaleDateString()}
+        Last updated: {new Date(balance.lastUpdated).toLocaleDateString("en-US")}
       </div>
     </Card>
   );

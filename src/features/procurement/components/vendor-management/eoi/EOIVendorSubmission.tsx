@@ -104,7 +104,7 @@ const EOIVendorSubmission: React.FC<EOIVendorSubmissionProps> = ({ eoiData }) =>
               <p className="text-sm text-gray-600 mt-1">{eoiData.description}</p>
               {eoiData.closing_date && (
                 <p className="text-sm text-red-600 mt-2">
-                  Closing Date: {new Date(eoiData.closing_date).toLocaleDateString()}
+                  Closing Date: {new Date(eoiData.closing_date).toLocaleDateString("en-US")}
                 </p>
               )}
             </div>

@@ -1127,7 +1127,7 @@ export default function Dashboard() {
                                 <div className="flex gap-5 items-center">
                                     <div className="p-3 border border-dashed rounded-lg">
                                         <h4 className="font-bold text-lg">
-                                            {project.end_date ? new Date(project.end_date).toLocaleDateString() : project.date}
+                                            {project.end_date ? new Date(project.end_date).toLocaleDateString("en-US") : project.date}
                                         </h4>
                                         <h6>Due Date</h6>
                                     </div>

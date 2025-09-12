@@ -50,7 +50,7 @@ const modificationColumns: ColumnDef<ModificationData>[] = [
     accessorKey: "date",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return new Date(value).toLocaleDateString();
+      return new Date(value).toLocaleDateString("en-US");
     },
     size: 120,
   },
@@ -59,7 +59,7 @@ const modificationColumns: ColumnDef<ModificationData>[] = [
     accessorKey: "created_datetime",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return new Date(value).toLocaleDateString();
+      return new Date(value).toLocaleDateString("en-US");
     },
     size: 120,
   },

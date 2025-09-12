@@ -58,7 +58,7 @@ export const supportColumn: ColumnDef<TSupportPaginatedData>[] = [
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return 'Invalid Date';
             
-            return date.toLocaleDateString();
+            return date.toLocaleDateString("en-US");
         },
     },
     {

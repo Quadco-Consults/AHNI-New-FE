@@ -164,10 +164,10 @@ export default function NotificationItem({
                     </p>
                     
                     <div className="flex items-center justify-between text-xs text-gray-500">
-                        <span>{module_type} • {new Date(created_datetime).toLocaleDateString()}</span>
+                        <span>{module_type} • {new Date(created_datetime).toLocaleDateString("en-US")}</span>
                         {expires_at && (
                             <span className={isExpired ? "text-red-500 font-medium" : ""}>
-                                {isExpired ? "Expired" : `Expires ${new Date(expires_at).toLocaleDateString()}`}
+                                {isExpired ? "Expired" : `Expires ${new Date(expires_at).toLocaleDateString("en-US")}`}
                             </span>
                         )}
                     </div>

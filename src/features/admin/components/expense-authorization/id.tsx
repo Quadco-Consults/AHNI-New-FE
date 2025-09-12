@@ -284,7 +284,7 @@ export default function ExpenseAuthorizationDetailsPage() {
                           )}
                         </div>
                         <span className='text-xs text-gray-400'>
-                          {new Date(approval.updated_datetime).toLocaleDateString()}
+                          {new Date(approval.updated_datetime).toLocaleDateString("en-US")}
                         </span>
                       </div>
                     ))
