@@ -114,7 +114,10 @@ export default function Dashboard() {
 
     // Fetch real project data - use same pattern as notifications (which work)
     const { data: projectsData, isLoading: projectsLoading, error: projectsError } = useGetAllProjects({
-        size: 10, 
+        page: 1,
+        size: 100, // Match the API debug call that shows 22 projects
+        search: "",
+        has_fund_requests: undefined, // Don't filter by funding requests
         enabled: isLoggedIn  // Use same pattern as notifications
     });
 
@@ -136,15 +139,20 @@ export default function Dashboard() {
         // Test API endpoint directly
         console.log("🔍 Testing API endpoint directly...");
         
-        // Let's also test if we can access the projects page data
-        fetch('/api/projects/', {
+        // Let's also test if we can access the projects page data directly
+        const token = localStorage.getItem("token");
+        console.log("🔍 Auth token:", token ? "Present" : "Missing");
+        
+        fetch('https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1/projects/', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
+                ...(token && { 'Authorization': `Bearer ${token}` })
             },
         })
         .then(response => {
             console.log("🔍 Direct API Response Status:", response.status);
+            console.log("🔍 Direct API Response Headers:", response.headers);
             return response.json();
         })
         .then(data => {
@@ -169,7 +177,7 @@ export default function Dashboard() {
         
         return projectsData.results.map((project, index) => {
             console.log(`🔄 Transforming project ${index + 1}:`, {
-                name: project.name,
+                title: project.title, // API uses 'title' not 'name'
                 id: project.id,
                 budget: project.budget,
                 funding_sources: project.funding_sources,
@@ -196,9 +204,39 @@ export default function Dashboard() {
                 }
             };
 
+            // Calculate project progress based on dates
+            const calculateProgress = () => {
+                if (!project.start_date || !project.end_date) return 50; // Default if no dates
+                
+                const now = new Date();
+                const start = new Date(project.start_date);
+                const end = new Date(project.end_date);
+                
+                if (now < start) return 0; // Not started
+                if (now > end) return 100; // Completed
+                
+                const totalDuration = end.getTime() - start.getTime();
+                const elapsed = now.getTime() - start.getTime();
+                
+                return Math.min(Math.max((elapsed / totalDuration) * 100, 0), 100);
+            };
+
+            // Get project manager initials
+            const getProjectManagerInitials = () => {
+                if (!project.project_managers || project.project_managers.length === 0) {
+                    return ["PM"]; // Default initials
+                }
+                
+                return project.project_managers.slice(0, 3).map(manager => {
+                    const firstName = manager.first_name || "";
+                    const lastName = manager.last_name || "";
+                    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || "PM";
+                });
+            };
+
             const transformedProject = {
                 ref: { 
-                    name: project.name || project.project_id, 
+                    name: project.title || project.project_id, 
                     desc: project.goal || project.narrative || "No description available" 
                 },
                 amount: parseFloat(project.budget) || 0,
@@ -208,6 +246,8 @@ export default function Dashboard() {
                     year: 'numeric'
                 }),
                 status: getProjectStatus(),
+                progress: Math.round(calculateProgress()),
+                manager_initials: getProjectManagerInitials(),
                 // Additional data that might be useful
                 project_id: project.id,
                 currency: project.currency,
@@ -219,6 +259,41 @@ export default function Dashboard() {
             console.log(`✅ Transformed project ${index + 1}:`, transformedProject);
             return transformedProject;
         });
+    }, [projectsData]);
+
+    // Calculate pie chart data from real projects
+    const pieData = React.useMemo(() => {
+        if (!projectsData?.results || projectsData.results.length === 0) {
+            return [
+                { name: "No Projects", value: 100, color: "#E5E5E5" }
+            ];
+        }
+        
+        // Group projects by funding source
+        const fundingSourceMap = new Map();
+        
+        projectsData.results.forEach(project => {
+            if (project.funding_sources && project.funding_sources.length > 0) {
+                project.funding_sources.forEach(source => {
+                    const budget = parseFloat(project.budget) || 0;
+                    const currentValue = fundingSourceMap.get(source.name) || 0;
+                    fundingSourceMap.set(source.name, currentValue + budget);
+                });
+            } else {
+                const budget = parseFloat(project.budget) || 0;
+                const currentValue = fundingSourceMap.get("Other") || 0;
+                fundingSourceMap.set("Other", currentValue + budget);
+            }
+        });
+        
+        // Convert to pie chart format
+        const pieEntries = Array.from(fundingSourceMap.entries()).map(([name, value], index) => ({
+            name,
+            value,
+            color: COLORS[index % COLORS.length]
+        }));
+        
+        return pieEntries.length > 0 ? pieEntries : [{ name: "No Data", value: 100, color: "#E5E5E5" }];
     }, [projectsData]);
 
     // Handle notification click - same logic as header dropdown
@@ -715,10 +790,39 @@ export default function Dashboard() {
                                 <h4 className="mt-2 font-medium">No funded projects</h4>
                                 <p className="text-sm">Create your first project to see funding data here.</p>
                                 <button 
-                                    onClick={() => console.log("Debug info in console")}
-                                    className="mt-2 px-3 py-1 bg-blue-100 text-blue-700 rounded text-xs"
+                                    onClick={() => {
+                                        console.log("🔍 Manual Debug Trigger");
+                                        console.log("- Projects Data:", projectsData);
+                                        console.log("- Projects Loading:", projectsLoading);
+                                        console.log("- Projects Error:", projectsError);
+                                        console.log("- Is Logged In:", isLoggedIn);
+                                        console.log("- Auth Token:", localStorage.getItem("token") ? "Present" : "Missing");
+                                        
+                                        // Test direct API call
+                                        const token = localStorage.getItem("token");
+                                        fetch('https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1/projects/?size=5', {
+                                            method: 'GET',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                ...(token && { 'Authorization': `Bearer ${token}` })
+                                            },
+                                        })
+                                        .then(response => {
+                                            console.log("🔍 Manual API Test Status:", response.status);
+                                            return response.json();
+                                        })
+                                        .then(data => {
+                                            console.log("🔍 Manual API Test Data:", data);
+                                            alert(`API Status: ${data ? 'Success' : 'No Data'}\nCheck console for details`);
+                                        })
+                                        .catch(error => {
+                                            console.log("🔍 Manual API Test Error:", error);
+                                            alert(`API Error: ${error.message}\nCheck console for details`);
+                                        });
+                                    }}
+                                    className="mt-2 px-3 py-1 bg-blue-100 text-blue-700 rounded text-xs hover:bg-blue-200"
                                 >
-                                    Debug: Check Console
+                                    Debug: Test API
                                 </button>
                             </div>
                         </div>
@@ -947,15 +1051,7 @@ export default function Dashboard() {
                 </div>
 
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-                    {Array(3)
-                        .fill({
-                            status: "complete",
-                            name: "Public Health Surveillance",
-                            description: "A project to enhance disease",
-                            date: "Dec 31, 2023",
-                            amount: 10000000,
-                        })
-                        .map((data, index) => (
+                    {transformedProjectData.length > 0 ? transformedProjectData.slice(0, 3).map((project, index) => (
                             <Card
                                 key={index}
                                 className="space-y-5 hover:border-primary"
@@ -969,60 +1065,62 @@ export default function Dashboard() {
                                         />
                                     </div>
                                     <div className="bg-green-100 text-green-500 px-2 py-1 rounded-lg">
-                                        {data.status}
+                                        {project.status}
                                     </div>
                                 </div>
 
                                 <div className="">
                                     <h4 className="font-bold text-lg">
-                                        {data.name}
+                                        {project.ref.name}
                                     </h4>
-                                    <h6>{data.description}</h6>
+                                    <h6>{project.ref.desc}</h6>
                                 </div>
 
                                 <div className="flex gap-5 items-center">
                                     <div className="p-3 border border-dashed rounded-lg">
                                         <h4 className="font-bold text-lg">
-                                            {data.date}
+                                            {project.end_date ? new Date(project.end_date).toLocaleDateString() : project.date}
                                         </h4>
                                         <h6>Due Date</h6>
                                     </div>
                                     <div className="p-3 border border-dashed rounded-lg">
                                         <h4 className="font-bold text-lg">
-                                            {data.amount}
+                                            {project.currency === "NGN" ? "₦" : "$"}{project.amount.toLocaleString()}
                                         </h4>
                                         <h6>Budget</h6>
                                     </div>
                                 </div>
 
-                                <Progress value={83} />
+                                <Progress value={project.progress} />
 
                                 <div className="flex">
-                                    <div className="p-3 font-bold rounded-full text-center bg-[#7239EA] text-white">
-                                        PL
-                                    </div>
-                                    <div className="p-3 font-bold -ml-3 rounded-full text-center bg-[#7239EA] text-white">
-                                        HA
-                                    </div>
-                                    <div className="p-3 font-bold -ml-3 rounded-full text-center bg-[#7239EA] text-white">
-                                        DM
-                                    </div>
+                                    {project.manager_initials.map((initials, idx) => (
+                                        <div 
+                                            key={idx}
+                                            className={`p-3 font-bold rounded-full text-center bg-[#7239EA] text-white ${idx > 0 ? '-ml-3' : ''}`}
+                                        >
+                                            {initials}
+                                        </div>
+                                    ))}
                                 </div>
                             </Card>
-                        ))}
+                        )) : (
+                        <div className="col-span-3 flex items-center justify-center p-8 text-gray-500">
+                            <div className="text-center">
+                                <svg className="mx-auto h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <h4 className="mt-2 font-medium">No projects found</h4>
+                                <p className="text-sm">Create your first project to see it here.</p>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
     );
 }
 
-const pieData = [
-    { name: "Group A", value: 400, color: "#0088FE" },
-    { name: "Group B", value: 300, color: "#00C49F" },
-    { name: "Group C", value: 300, color: "#FFBB28" },
-    { name: "Group D", value: 200, color: "#FF8042" },
-    { name: "Group E", value: 100, color: "#775DD0" },
-];
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#775DD0"];
 
