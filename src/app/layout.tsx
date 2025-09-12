@@ -3,6 +3,7 @@ import "./globals.css";
 import "@/utils/polyfills";
 import AppProviders from "./providers";
 import StoreProvider from "./StoreProvider";
+import { ChatButton } from "@/components/chat";
 
 export const metadata: Metadata = {
   title: "AHNI ERP System",
@@ -18,7 +19,10 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <StoreProvider>
-          <AppProviders>{children}</AppProviders>
+          <AppProviders>
+            {children}
+            <ChatButton />
+          </AppProviders>
         </StoreProvider>
       </body>
     </html>
