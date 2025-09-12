@@ -78,7 +78,7 @@ const SubmittedApplicationDetail = () => {
 
   // Format date if it exists
   const formattedInterviewDate = applicationData?.interview_date
-    ? new Date(applicationData.interview_date).toLocaleDateString()
+    ? new Date(applicationData.interview_date).toLocaleDateString("en-US")
     : "Not scheduled";
 
   return (
@@ -136,7 +136,7 @@ const SubmittedApplicationDetail = () => {
             label='Application Date'
             description={new Date(
               applicationData?.created_datetime
-            ).toLocaleDateString()}
+            ).toLocaleDateString("en-US")}
           />
         </div>
 

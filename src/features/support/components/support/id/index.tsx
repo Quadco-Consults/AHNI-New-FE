@@ -189,7 +189,7 @@ export default function SupportDetails() {
             label="Created Date"
             description={
               ticket.data.created_datetime
-                ? new Date(ticket.data.created_datetime).toLocaleDateString()
+                ? new Date(ticket.data.created_datetime).toLocaleDateString("en-US")
                 : "N/A"
             }
           />

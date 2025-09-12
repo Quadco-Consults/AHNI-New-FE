@@ -42,7 +42,7 @@ export default function PublicEOIPage() {
           <p className="text-gray-600">This Expression of Interest is no longer accepting submissions.</p>
           {eoiData.closing_date && (
             <p className="text-sm text-gray-500 mt-2">
-              Closed on: {new Date(eoiData.closing_date).toLocaleDateString()}
+              Closed on: {new Date(eoiData.closing_date).toLocaleDateString("en-US")}
             </p>
           )}
         </Card>

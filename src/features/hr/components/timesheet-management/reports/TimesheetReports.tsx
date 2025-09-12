@@ -158,7 +158,7 @@ const TimesheetReports = () => {
       accessorKey: "lastUpdated",
       cell: ({ row }) => (
         <div className="text-sm text-gray-600">
-          {new Date(row.original.lastUpdated).toLocaleDateString()}
+          {new Date(row.original.lastUpdated).toLocaleDateString("en-US")}
         </div>
       ),
     }

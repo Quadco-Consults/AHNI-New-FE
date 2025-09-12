@@ -80,7 +80,7 @@ const SummaryCard = ({ data }: SummaryCardProps) => {
       size: 200,
       cell: ({ row }) => {
         const date = row.original?.request_date || row.original?.date_received || row.original?.created_at;
-        return <div>{date ? new Date(date).toLocaleDateString() : "N/A"}</div>;
+        return <div>{date ? new Date(date).toLocaleDateString("en-US") : "N/A"}</div>;
       },
     },
 
@@ -99,7 +99,7 @@ const SummaryCard = ({ data }: SummaryCardProps) => {
       size: 150,
       cell: ({ row }) => {
         const date = row.original?.required_date || row.original?.date_goods_required || row.original?.date_required;
-        return <div>{date ? new Date(date).toLocaleDateString() : "N/A"}</div>;
+        return <div>{date ? new Date(date).toLocaleDateString("en-US") : "N/A"}</div>;
       },
     },
 
@@ -109,7 +109,7 @@ const SummaryCard = ({ data }: SummaryCardProps) => {
       size: 160,
       cell: ({ row }) => {
         const date = row.original?.solicitation?.date_procurement_initiated;
-        return <div>{date ? new Date(date).toLocaleDateString() : "Not initiated"}</div>;
+        return <div>{date ? new Date(date).toLocaleDateString("en-US") : "Not initiated"}</div>;
       },
     },
 

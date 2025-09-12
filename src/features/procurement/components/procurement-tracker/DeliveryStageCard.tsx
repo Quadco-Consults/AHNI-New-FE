@@ -30,7 +30,7 @@ const DeliveryStageCard = ({ data }: DeliveryStageCardProps) => {
         const date = row.original?.purchase_order?.delivery_due_date || 
                    row.original?.purchase_order?.delivery_date ||
                    row.original?.delivery_due_date;
-        return <div>{date ? new Date(date).toLocaleDateString() : "N/A"}</div>;
+        return <div>{date ? new Date(date).toLocaleDateString("en-US") : "N/A"}</div>;
       },
     },
     {
@@ -42,7 +42,7 @@ const DeliveryStageCard = ({ data }: DeliveryStageCardProps) => {
                    row.original?.delivery_note?.delivery_date ||
                    row.original?.purchase_order?.date_of_grn ||
                    row.original?.date_received;
-        return <div>{date ? new Date(date).toLocaleDateString() : "N/A"}</div>;
+        return <div>{date ? new Date(date).toLocaleDateString("en-US") : "N/A"}</div>;
       },
     },
 

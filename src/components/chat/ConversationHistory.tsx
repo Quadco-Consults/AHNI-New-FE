@@ -65,7 +65,7 @@ export const ConversationHistory = ({ className }: ConversationHistoryProps) => 
     if (diffInMinutes < 1) return 'Just now';
     if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
     if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
-    return date.toLocaleDateString();
+    return date.toLocaleDateString("en-US");
   };
 
   const getConversationPreview = (messages: any[]) => {
