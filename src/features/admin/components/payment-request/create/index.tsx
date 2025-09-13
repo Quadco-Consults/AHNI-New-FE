@@ -3,7 +3,12 @@
 import Card from "components/Card";
 import { CardContent } from "components/ui/card";
 import PaymentRequestLayout from "./Layout";
-import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import {
+  FormProvider,
+  SubmitHandler,
+  useForm,
+  useFieldArray,
+} from "react-hook-form";
 import {
   PaymentRequestSchema,
   TPaymentRequestFormData,
@@ -27,23 +32,33 @@ export default function CreatePaymentRequest() {
   const form = useForm<TPaymentRequestFormData>({
     resolver: zodResolver(PaymentRequestSchema),
     defaultValues: {
+      payment_type: "OTHER",
       payment_date: "",
-      purchase_order: "",
-      payment_to: "",
-      tax_identification_number: "",
-      amount_in_figures: "",
-      amount_in_words: "",
-      account_number: "",
-      bank_name: "",
       payment_reason: "",
+      purchase_order: "",
       reviewer: "",
       authorizer: "",
       approver: "",
-
-      // to be added
-      request_type: "",
+      payment_items: [
+        {
+          payment_to: "",
+          account_number: "",
+          bank_name: "",
+          amount_in_figures: "",
+          amount_in_words: "",
+          tax_identification_number: "",
+          phone_number: "",
+          email: "",
+          address: "",
+        },
+      ],
       number: "",
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "payment_items",
   });
 
   const pathname = usePathname();
@@ -84,19 +99,13 @@ export default function CreatePaymentRequest() {
   );
 
   const onSubmit: SubmitHandler<TPaymentRequestFormData> = (data) => {
-    console.log(
-      "clapp>>>>>>>>>>>>>>>>>>>>",
-      { data },
-      "clapp>>>>>>>>>>>>>>>>>>>>"
-    );
-
     sessionStorage.setItem("paymentRequestFormData", JSON.stringify(data));
 
     let path = pathname;
 
     if (path) {
       path = path.substring(0, path.lastIndexOf("/"));
-      path += `/uploads?id=${id ?? ""}`;
+      path += `/create/upload?id=${id ?? ""}`;
       router.push(path);
     }
   };
@@ -107,28 +116,77 @@ export default function CreatePaymentRequest() {
   );
 
   useEffect(() => {
-    if (paymentRequest) {
+    if (paymentRequest && user && purchaseOrder) {
       const { data } = paymentRequest;
 
+      // Extract approvals by level for auto-population
+      const approvals = data.approvals || [];
+      const reviewerApproval = approvals.find(
+        (a: any) => a.approval_level === "REVIEW"
+      );
+      const authorizerApproval = approvals.find(
+        (a: any) => a.approval_level === "AUTHORIZE"
+      );
+      const approverApproval = approvals.find(
+        (a: any) => a.approval_level === "APPROVE"
+      );
+
       form.reset({
+        payment_type: data.payment_type,
         payment_date: data.payment_date,
-        purchase_order: data.purchase_order.id,
-        payment_to: data.payment_to,
-        tax_identification_number: data.tax_identification_number,
-        amount_in_figures: data.amount_in_figures,
-        amount_in_words: data.amount_in_words,
-        account_number: data.account_number,
-        bank_name: data.bank_name,
         payment_reason: data.payment_reason,
-        reviewer: "",
-        authorizer: "",
-        approver: "",
+        purchase_order: data.purchase_order?.id || "",
+        // Auto-populate approvers if they exist in the approval workflow
+        reviewer: reviewerApproval?.user?.id || "",
+        authorizer: authorizerApproval?.user?.id || "",
+        approver: approverApproval?.user?.id || "",
+        payment_items: data.payment_items?.map((item) => ({
+          payment_to: item.payment_to || "",
+          account_number: item.account_number || "",
+          bank_name: item.bank_name || "",
+          amount_in_figures: item.amount_in_figures || "",
+          amount_in_words: item.amount_in_words || "",
+          tax_identification_number: item.tax_identification_number || "",
+          phone_number: item.phone_number || "",
+          email: item.email || "",
+          address: item.address || "",
+          // Handle different reference types for consultant/facilitator/adhoc_staff
+          consultant:
+            typeof item.consultant === "object" && item.consultant?.id
+              ? item.consultant.id
+              : typeof item.consultant === "string"
+              ? item.consultant
+              : "",
+          facilitator:
+            typeof item.facilitator === "object" && item.facilitator?.id
+              ? item.facilitator.id
+              : typeof item.facilitator === "string"
+              ? item.facilitator
+              : "",
+          adhoc_staff:
+            typeof item.adhoc_staff === "object" && item.adhoc_staff?.id
+              ? item.adhoc_staff.id
+              : typeof item.adhoc_staff === "string"
+              ? item.adhoc_staff
+              : "",
+        })) || [
+          {
+            payment_to: "",
+            account_number: "",
+            bank_name: "",
+            amount_in_figures: "",
+            amount_in_words: "",
+            tax_identification_number: "",
+            phone_number: "",
+            email: "",
+            address: "",
+          },
+        ],
       });
     }
   }, [paymentRequest, user, purchaseOrder, form]);
 
-  const requestType = form.watch("request_type") || "";
-  const number = form.watch("number") || "";
+  const paymentType = form.watch("payment_type") || "";
 
   return (
     <PaymentRequestLayout>
@@ -138,36 +196,41 @@ export default function CreatePaymentRequest() {
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <div className='grid grid-cols-3 mt-5 gap-10'>
                 <FormInput
-                  label='Date'
+                  label='Payment Date'
                   name='payment_date'
                   type='date'
                   required
                 />
 
                 <FormSelect
-                  label='Request Type'
-                  name='request_type'
-                  placeholder='Select Request Type'
+                  label='Payment Type'
+                  name='payment_type'
+                  placeholder='Select Payment Type'
+                  required
                   options={[
-                    {
-                      label: "SERVICE ORDER",
-                      value: "SERVICE_ORDER",
-                    },
                     {
                       label: "CONSULTANT",
                       value: "CONSULTANT",
                     },
                     {
+                      label: "FACILITATOR",
+                      value: "FACILITATOR",
+                    },
+                    {
                       label: "ADHOC STAFF",
                       value: "ADHOC_STAFF",
                     },
-                    { label: "OTHERS", value: "OTHERS" },
+                    {
+                      label: "PURCHASE ORDER",
+                      value: "PURCHASE_ORDER",
+                    },
+                    { label: "OTHER", value: "OTHER" },
                   ]}
                 />
 
-                {requestType === "SERVICE_ORDER" && (
+                {paymentType === "PURCHASE_ORDER" && (
                   <FormSelect
-                    label='SO/PO Number'
+                    label='Purchase Order'
                     name='purchase_order'
                     placeholder='Select Purchase Order'
                     required
@@ -175,10 +238,11 @@ export default function CreatePaymentRequest() {
                   />
                 )}
 
-                {(requestType === "CONSULTANT" ||
-                  requestType === "ADHOC_STAFF") && (
+                {(paymentType === "CONSULTANT" ||
+                  paymentType === "FACILITATOR" ||
+                  paymentType === "ADHOC_STAFF") && (
                   <FormSelect
-                    label='Number'
+                    label='Number of Recipients'
                     name='number'
                     placeholder='Select Number'
                     options={[
@@ -186,82 +250,11 @@ export default function CreatePaymentRequest() {
                         label: "SINGLE",
                         value: "SINGLE",
                       },
-
                       {
                         label: "MULTIPLE",
                         value: "MULTIPLE",
                       },
                     ]}
-                  />
-                )}
-
-                {requestType === "CONSULTANT" && number === "SINGLE" && (
-                  <FormSelect
-                    label='Consultant'
-                    name='consultant'
-                    placeholder='Select Consultant'
-                    required
-                    options={[]}
-                  />
-                )}
-
-                {requestType === "ADHOC_STAFF" && number === "SINGLE" && (
-                  <FormSelect
-                    label='Adhoc Staff'
-                    name='adhoc_staff'
-                    placeholder='Select Adhoc Staff'
-                    required
-                    options={[]}
-                  />
-                )}
-
-                <FormInput
-                  label='Payment To'
-                  name='payment_to'
-                  placeholder='Enter Payment To'
-                  required
-                />
-
-                {number === "SINGLE" && (
-                  <FormInput
-                    label='Tax Identification Number'
-                    name='tax_identification_number'
-                    placeholder='Enter Tax Identification Number'
-                    required
-                  />
-                )}
-
-                <FormInput
-                  label='Amount In Figures'
-                  name='amount_in_figures'
-                  placeholder='Enter Amount in Figures'
-                  required
-                  type='number'
-                />
-
-                <FormInput
-                  label='Amount In Words'
-                  name='amount_in_words'
-                  placeholder='Enter Amount in Words'
-                  required
-                />
-
-                {number === "SINGLE" && (
-                  <FormInput
-                    label='Account Number'
-                    name='account_number'
-                    placeholder='Enter Account Number'
-                    required
-                    type='number'
-                  />
-                )}
-
-                {number === "SINGLE" && (
-                  <FormInput
-                    label='Bank'
-                    name='bank_name'
-                    placeholder='Enter Bank Name'
-                    required
                   />
                 )}
               </div>
@@ -273,6 +266,144 @@ export default function CreatePaymentRequest() {
                 required
                 className='mt-5'
               />
+
+              {/* Payment Items Section */}
+              <div className='mt-8'>
+                <h3 className='text-lg font-semibold mb-4'>Payment Items</h3>
+                {fields.map((field, index) => (
+                  <Card key={field.id} className='mb-4'>
+                    <CardContent className='pt-6'>
+                      <div className='flex justify-between items-center mb-4'>
+                        <h4 className='font-medium'>
+                          Payment Item {index + 1}
+                        </h4>
+                        {fields.length > 1 && (
+                          <Button
+                            type='button'
+                            variant='outline'
+                            size='sm'
+                            onClick={() => remove(index)}
+                          >
+                            Remove
+                          </Button>
+                        )}
+                      </div>
+
+                      <div className='grid grid-cols-3 gap-4'>
+                        <FormInput
+                          label='Payment To'
+                          name={`payment_items.${index}.payment_to`}
+                          placeholder='Enter Payment To'
+                          required
+                        />
+
+                        <FormInput
+                          label='Amount In Figures'
+                          name={`payment_items.${index}.amount_in_figures`}
+                          placeholder='Enter Amount in Figures'
+                          required
+                          type='number'
+                        />
+
+                        <FormInput
+                          label='Amount In Words'
+                          name={`payment_items.${index}.amount_in_words`}
+                          placeholder='Enter Amount in Words'
+                          required
+                        />
+
+                        <FormInput
+                          label='Account Number'
+                          name={`payment_items.${index}.account_number`}
+                          placeholder='Enter Account Number'
+                          required
+                        />
+
+                        <FormInput
+                          label='Bank Name'
+                          name={`payment_items.${index}.bank_name`}
+                          placeholder='Enter Bank Name'
+                          required
+                        />
+
+                        <FormInput
+                          label='Tax ID Number'
+                          name={`payment_items.${index}.tax_identification_number`}
+                          placeholder='Enter Tax ID Number'
+                        />
+
+                        <FormInput
+                          label='Phone Number'
+                          name={`payment_items.${index}.phone_number`}
+                          placeholder='Enter Phone Number'
+                        />
+
+                        <FormInput
+                          label='Email'
+                          name={`payment_items.${index}.email`}
+                          placeholder='Enter Email'
+                          type='email'
+                        />
+
+                        <FormInput
+                          label='Address'
+                          name={`payment_items.${index}.address`}
+                          placeholder='Enter Address'
+                        />
+
+                        {/* Conditional fields based on payment type */}
+                        {paymentType === "CONSULTANT" && (
+                          <FormSelect
+                            label='Consultant'
+                            name={`payment_items.${index}.consultant`}
+                            placeholder='Select Consultant'
+                            options={userOptions}
+                          />
+                        )}
+
+                        {paymentType === "FACILITATOR" && (
+                          <FormSelect
+                            label='Facilitator'
+                            name={`payment_items.${index}.facilitator`}
+                            placeholder='Select Facilitator'
+                            options={userOptions}
+                          />
+                        )}
+
+                        {paymentType === "ADHOC_STAFF" && (
+                          <FormSelect
+                            label='Adhoc Staff'
+                            name={`payment_items.${index}.adhoc_staff`}
+                            placeholder='Select Adhoc Staff'
+                            options={userOptions}
+                          />
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+
+                <Button
+                  type='button'
+                  variant='outline'
+                  onClick={() =>
+                    append({
+                      payment_to: "",
+                      account_number: "",
+                      bank_name: "",
+                      amount_in_figures: "",
+                      amount_in_words: "",
+                      tax_identification_number: "",
+                      phone_number: "",
+                      email: "",
+                      address: "",
+                    })
+                  }
+                  className='mt-4'
+                >
+                  Add Payment Item
+                </Button>
+              </div>
 
               <div className='grid grid-cols-3 gap-5 mt-5'>
                 <FormSelect

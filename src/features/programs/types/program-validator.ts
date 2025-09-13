@@ -218,9 +218,13 @@ export const FundRequestSchema = z.object({
   financial_year: z.string().min(1, "Field is required"),
   type: z.string().min(1, "Field is required"),
   location: z.string().min(1, "Field is required"),
-  reviewer: z.string().min(1, "Field is required"),
-  authorizer: z.string().min(1, "Field is required"),
-  approver: z.string().min(1, "Field is required"),
+  location_reviewer: z.string().min(1, "Field is required"),
+  location_authorizer: z.string().min(1, "Field is required"),
+  state_reviewer: z.string().min(1, "Field is required"),
+  state_authorizer: z.string().min(1, "Field is required"),
+  hq_reviewer: z.string().min(1, "Field is required"),
+  hq_authorizer: z.string().min(1, "Field is required"),
+  hq_approver: z.string().min(1, "Field is required"),
   uuid_code: z.string().min(1, "Field is required"),
 });
 

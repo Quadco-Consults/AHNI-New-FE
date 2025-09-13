@@ -69,7 +69,9 @@ export const useGetAllPaymentRequests = ({
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled,
@@ -78,7 +80,10 @@ export const useGetAllPaymentRequests = ({
 };
 
 // Get Single Payment Request
-export const useGetSinglePaymentRequest = (id: string, enabled: boolean = true) => {
+export const useGetSinglePaymentRequest = (
+  id: string,
+  enabled: boolean = true
+) => {
   return useQuery<ApiResponse<IPaymentRequestSingleData>>({
     queryKey: ["paymentRequest", id],
     queryFn: async () => {
@@ -87,7 +92,9 @@ export const useGetSinglePaymentRequest = (id: string, enabled: boolean = true) 
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
       }
     },
     enabled: enabled && !!id,
@@ -106,6 +113,7 @@ export const useCreatePaymentRequest = () => {
     queryKey: ["paymentRequests"],
     isAuth: true,
     method: "POST",
+    contentType: "multipart/form-data",
   });
 
   const createPaymentRequest = async (details: TPaymentRequestFormData) => {
@@ -129,7 +137,8 @@ export const useModifyPaymentRequest = (id: string) => {
     endpoint: `${BASE_URL}${id}/`,
     queryKey: ["paymentRequests", "paymentRequest"],
     isAuth: true,
-    method: "PUT",
+    method: "PATCH",
+    contentType: "multipart/form-data",
   });
 
   const modifyPaymentRequest = async (details: TPaymentRequestFormData) => {
@@ -165,6 +174,84 @@ export const useDeletePaymentRequest = (id: string) => {
   };
 
   return { deletePaymentRequest, data, isLoading, isSuccess, error };
+};
+
+// ===== PAYMENT REQUEST APPROVAL HOOKS =====
+
+interface ApprovalPayload {
+  comments: string;
+}
+
+// Review Payment Request (PENDING → REVIEWED)
+export const useReviewPaymentRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IPaymentRequestSingleData,
+    Error,
+    ApprovalPayload
+  >({
+    endpoint: `${BASE_URL}${id}/review/`,
+    queryKey: ["paymentRequests", "paymentRequest"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const reviewPaymentRequest = async (comment: string) => {
+    try {
+      await callApi({ comments: comment });
+    } catch (error) {
+      console.error("Payment request review error:", error);
+    }
+  };
+
+  return { reviewPaymentRequest, data, isLoading, isSuccess, error };
+};
+
+// Authorize Payment Request (REVIEWED → AUTHORIZED)
+export const useAuthorizePaymentRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IPaymentRequestSingleData,
+    Error,
+    ApprovalPayload
+  >({
+    endpoint: `${BASE_URL}${id}/authorize/`,
+    queryKey: ["paymentRequests", "paymentRequest"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const authorizePaymentRequest = async (comment: string) => {
+    try {
+      await callApi({ comments: comment });
+    } catch (error) {
+      console.error("Payment request authorize error:", error);
+    }
+  };
+
+  return { authorizePaymentRequest, data, isLoading, isSuccess, error };
+};
+
+// Approve Payment Request (AUTHORIZED → APPROVED)
+export const useApprovePaymentRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IPaymentRequestSingleData,
+    Error,
+    ApprovalPayload
+  >({
+    endpoint: `${BASE_URL}${id}/approve/`,
+    queryKey: ["paymentRequests", "paymentRequest"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const approvePaymentRequest = async (comment: string) => {
+    try {
+      await callApi({ comments: comment });
+    } catch (error) {
+      console.error("Payment request approve error:", error);
+    }
+  };
+
+  return { approvePaymentRequest, data, isLoading, isSuccess, error };
 };
 
 // Legacy exports for backward compatibility
