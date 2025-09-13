@@ -1,4 +1,4 @@
-import RfpHeading from "components/RfpHeading";
+import RfpHeading from "@/components/RfpHeading";
 import { FC, ReactNode } from "react";
 
 type IPageProps = {
