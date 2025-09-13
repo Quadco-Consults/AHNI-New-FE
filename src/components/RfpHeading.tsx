@@ -1,9 +1,9 @@
-import CheckIcon from "assets/svgs/CheckIcon";
-import PendingIcon from "assets/svgs/PendingIcon";
-import { Separator } from "components/ui/separator";
+import CheckIcon from "@/assets/svgs/CheckIcon";
+import PendingIcon from "@/assets/svgs/PendingIcon";
+import { Separator } from "@/components/ui/separator";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import BreadcrumbCard from "components/Breadcrumb";
+import BreadcrumbCard from "@/components/Breadcrumb";
 
 interface Step {
   step: number;
@@ -28,7 +28,7 @@ const RfpHeading = () => {
       ? JSON.parse(savedSteps)
       : new Array(steps.length).fill(false);
   });
-  const { pathname } = useLocation();
+  const pathname = usePathname();
 
   const currentPath = pathname.split("/").at(-1);
 

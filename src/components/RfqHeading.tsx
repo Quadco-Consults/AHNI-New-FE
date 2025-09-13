@@ -1,11 +1,11 @@
 "use client";
 
-import CheckIcon from "assets/svgs/CheckIcon";
-import PendingIcon from "assets/svgs/PendingIcon";
-import { Separator } from "components/ui/separator";
+import CheckIcon from "@/assets/svgs/CheckIcon";
+import PendingIcon from "@/assets/svgs/PendingIcon";
+import { Separator } from "@/components/ui/separator";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import BreadcrumbCard from "components/Breadcrumb";
+import BreadcrumbCard from "@/components/Breadcrumb";
 
 interface Step {
   step: number;
