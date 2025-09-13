@@ -44,10 +44,12 @@ export {
 export {
   useGetPurchaseRequests,
   useGetPurchaseRequestsQuery,
+  useGetPurchaseRequest,
 } from "./purchaseRequestController";
 export {
   useGetAllSolicitations,
   useGetAllSolicitationsQuery,
+  useCreateSolicitation,
 } from "./solicitationController";
 export {
   useGetAllPurchaseOrders,

@@ -1,4 +1,4 @@
-import logoPng from "assets/svgs/logo-bg.svg";
+import logoPng from "@/assets/svgs/logo-bg.svg";
 import { Icon } from "@iconify/react";
 
 export const Loading = () => {
@@ -6,7 +6,7 @@ export const Loading = () => {
         <div className="flex justify-center h-screen items-center p-8">
             <div>
                 <img
-                    src={logoPng.src}
+                    src={logoPng?.src || logoPng}
                     alt="logo"
                     className="mx-auto animate-bounce"
                     // width={200}
