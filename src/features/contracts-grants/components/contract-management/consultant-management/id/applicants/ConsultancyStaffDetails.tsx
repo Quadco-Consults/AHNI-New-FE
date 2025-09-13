@@ -11,8 +11,11 @@ import { LoadingSpinner } from "components/Loading";
 import Card from "components/Card";
 import { toast } from "sonner";
 import BackNavigation from "components/BackNavigation";
-import { useGetSingleConsultancyStaff } from "src/features/contracts-grants/controllers/consultantManagementController";
-import { useModifyContractStatus } from "src/features/contracts-grants/controllers";
+// import { useGetSingleConsultancyStaff } from "src/features/contracts-grants/controllers/consultantManagementController";
+import {
+  useGetSingleConsultancyApplicant,
+  useModifyContractStatus,
+} from "src/features/contracts-grants/controllers";
 // import { useModifyContractStatus } from "@/features/contracts-grants/controllers/contractController";
 // import { useGetSingleConsultancyStaff } from "@/features/contracts-grants/controllers";
 
@@ -22,8 +25,10 @@ export default function ConsultancyStaffDetails() {
 
   const router = useRouter();
 
+  // const { data: consultancyStaff, isLoading } =
+  //   useGetSingleConsultancyStaff(applicantId);
   const { data: consultancyStaff, isLoading } =
-    useGetSingleConsultancyStaff(applicantId);
+    useGetSingleConsultancyApplicant(applicantId);
 
   const { updateContractStatus, isLoading: isModifyLoading } =
     useModifyContractStatus(applicantId);
@@ -33,17 +38,20 @@ export default function ConsultancyStaffDetails() {
     // Handle form submission logic here
 
     try {
+      // await updateContractStatus({
+      //   title: consultancyStaff?.data?.name || "",
+      //   request_type: "SHORTLIST",
+      //   department: "",
+      //   consultants_count: "1",
+      //   location: "",
+      //   fco: "",
+      //   technical_monitor: "",
+      //   email: consultancyStaff?.data?.email || "",
+      //   phone_number: consultancyStaff?.data?.phone_number || "",
+      //   current_reviewer: "",
+      // });
       await updateContractStatus({
-        title: consultancyStaff?.data?.name || "",
-        request_type: "SHORTLIST",
-        department: "",
-        consultants_count: "1",
-        location: "",
-        fco: "",
-        technical_monitor: "",
-        email: consultancyStaff?.data?.email || "",
-        phone_number: consultancyStaff?.data?.phone_number || "",
-        current_reviewer: "",
+        status: "SHORTLISTED",
       });
       toast.success("Contract Updated Successfully");
 
