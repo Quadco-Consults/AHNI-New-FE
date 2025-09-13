@@ -30,6 +30,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { useEffect } from "react";
+import { useCreateConsultantAdvertisement } from "@/features/contracts-grants/controllers/consultantAdvertisementController";
 
 export default function ScopeOfWork() {
   const pathname = usePathname();
@@ -66,8 +67,8 @@ export default function ScopeOfWork() {
     form.setValue(name as any, files);
   };
 
-  const { createConsultantManagement, isLoading: isCreateLoading } =
-    useCreateConsultantManagement();
+  const { createConsultantAdvertisement, isLoading: isCreateLoading } =
+    useCreateConsultantAdvertisement();
 
   const { updateConsultantManagement, isLoading: isModifyLoading } =
     useModifyConsultantManagement(consultantId);
@@ -93,7 +94,7 @@ export default function ScopeOfWork() {
       if (consultantId) {
         await updateConsultantManagement(payload);
       } else {
-        await createConsultantManagement(payload);
+        await createConsultantAdvertisement(payload);
       }
 
       if (pathname?.includes("adhoc-management")) {
