@@ -22,7 +22,6 @@ interface ProjectBatchApprovalProps {
   projectId: string;
 }
 
-
 const ProjectBatchApproval: React.FC<ProjectBatchApprovalProps> = ({
   projectId,
 }) => {
@@ -37,12 +36,14 @@ const ProjectBatchApproval: React.FC<ProjectBatchApprovalProps> = ({
 
   // Filter fund requests that are ready for HQ approval (LOCATION_AUTHORIZED or higher)
   const hqPendingRequests = React.useMemo(() => {
-    return fundRequests?.data?.results?.filter(
-      (request: any) =>
-        request.status === "LOCATION_AUTHORIZED" ||
-        request.status === "HQ_REVIEWED" ||
-        request.status === "HQ_AUTHORIZED"
-    ) || [];
+    return (
+      fundRequests?.data?.results?.filter(
+        (request: any) =>
+          request.status === "LOCATION_AUTHORIZED" ||
+          request.status === "HQ_REVIEWED" ||
+          request.status === "HQ_AUTHORIZED"
+      ) || []
+    );
   }, [fundRequests?.data?.results]);
 
   // Group requests by status to determine batch status
@@ -76,22 +77,95 @@ const ProjectBatchApproval: React.FC<ProjectBatchApprovalProps> = ({
     }
 
     setIsProcessing(true);
-    
+
     try {
       // Import the same AxiosWithToken used by the controller
-      const AxiosWithToken = (await import("@/constants/api_management/MyHttpHelperWithToken")).default;
-      
-      // Generate batch ID from project and fund request data
-      // Use the month/year from the first fund request in the batch
-      const firstRequest = hqPendingRequests[0];
-      const batchId = `${projectId}-${firstRequest?.year || new Date().getFullYear()}-${firstRequest?.month || new Date().toLocaleString('default', { month: 'long' })}`;
-      
-      console.log('Batch approval request:', { batchId, status, comments, requestCount: hqPendingRequests.length });
-      
+      const AxiosWithToken = (
+        await import("@/constants/api_management/MyHttpHelperWithToken")
+      ).default;
+
+      // First, get the actual batch ID from the backend
+      // Search for batches that can be processed based on current action
+      let batchStatus: string;
+      switch (status) {
+        case "HQ_REVIEWED":
+          batchStatus = "PENDING_HQ_REVIEW";
+          break;
+        case "HQ_AUTHORIZED":
+          batchStatus = "HQ_REVIEWED"; // Look for batches that have been reviewed and are ready for authorization
+          break;
+        case "HQ_APPROVED":
+          batchStatus = "HQ_AUTHORIZED"; // Look for batches that have been authorized and are ready for approval
+          break;
+        case "REJECTED":
+          // For rejection, we need to determine what stage we're rejecting at
+          // This will be handled in the fallback logic
+          batchStatus = "PENDING_HQ_REVIEW";
+          break;
+        default:
+          batchStatus = "PENDING_HQ_REVIEW";
+      }
+
+      const batchesResponse = await AxiosWithToken.get(
+        "/programs/fund-request-batches/",
+        {
+          params: {
+            project: projectId,
+            status: batchStatus,
+          },
+        }
+      );
+
+      const batches =
+        batchesResponse.data?.data?.results ||
+        batchesResponse.data?.results ||
+        [];
+
+      if (batches.length === 0) {
+        // If no batches found with specific status, try to get any active batch for this project
+        const fallbackResponse = await AxiosWithToken.get(
+          "/programs/fund-request-batches/",
+          {
+            params: {
+              project: projectId,
+            },
+          }
+        );
+
+        const fallbackBatches =
+          fallbackResponse.data?.data?.results ||
+          fallbackResponse.data?.results ||
+          [];
+
+        if (fallbackBatches.length === 0) {
+          toast.error(
+            `No batches found for this project that can be ${status
+              .toLowerCase()
+              .replace("_", " ")}`
+          );
+          return;
+        }
+
+        // Use the most recent batch
+        batches.push(fallbackBatches[0]);
+      }
+
+      // Use the first batch (there should typically be only one per project/month/year)
+      const batch = batches[0];
+      const batchId = batch.id;
+
+      // console.log('Batch approval request:', {
+      //   batchId,
+      //   batchData: batch,
+      //   status,
+      //   comments,
+      //   requestCount: hqPendingRequests.length
+      // });
+
       // Use the specific batch endpoint based on status
       let endpoint: string;
       let payload: any = { ...(comments && { comments }) };
-      
+
       switch (status) {
         case "HQ_REVIEWED":
           endpoint = `/programs/fund-request-batches/${batchId}/hq-review/`;
@@ -103,26 +177,29 @@ const ProjectBatchApproval: React.FC<ProjectBatchApprovalProps> = ({
           endpoint = `/programs/fund-request-batches/${batchId}/hq-approve/`;
           break;
         case "REJECTED":
-          // For rejection, we might still use the general approve endpoint or a specific reject endpoint
           endpoint = `/programs/fund-request-batches/${batchId}/reject/`;
           payload = { comments: comments || "Rejected by HQ" }; // Comments required for rejection
           break;
         default:
           throw new Error(`Unsupported batch action: ${status}`);
       }
-      
+
       await AxiosWithToken.post(endpoint, payload);
 
-      const statusDisplayName = status.replace('_', ' ').toLowerCase();
-      toast.success(`Project batch ${statusDisplayName} successfully - ${hqPendingRequests.length} fund requests updated`);
-      
+      const statusDisplayName = status.replace("_", " ").toLowerCase();
+      toast.success(
+        `Project batch ${statusDisplayName} successfully - ${hqPendingRequests.length} fund requests updated`
+      );
+
       // Refresh the data by refetching
       window.location.reload(); // Simple refresh - could be optimized with proper data refetching
-      
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || error.message || 'Failed to process batch';
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to process batch";
       toast.error(`Batch approval failed: ${errorMessage}`);
-      console.error('Batch approval error:', error);
+      console.error("Batch approval error:", error);
     } finally {
       setIsProcessing(false);
     }
@@ -131,7 +208,7 @@ const ProjectBatchApproval: React.FC<ProjectBatchApprovalProps> = ({
   const handleBatchAction = async (actionType: string, formData?: any) => {
     try {
       let status: string;
-      
+
       switch (actionType) {
         case "hq_review":
           status = "HQ_REVIEWED";
@@ -195,11 +272,12 @@ const ProjectBatchApproval: React.FC<ProjectBatchApprovalProps> = ({
   const getCurrentStageDescription = () => {
     switch (batchStatus) {
       case "LOCATION_AUTHORIZED":
+      case "PENDING_HQ_REVIEW":
         return "Ready for HQ review - All locations have completed their approvals";
       case "HQ_REVIEWED":
-        return "Awaiting HQ authorization for the entire project";
+        return "HQ review complete - Awaiting HQ authorization for the entire project";
       case "HQ_AUTHORIZED":
-        return "Awaiting final HQ approval for the entire project";
+        return "HQ authorized - Awaiting final HQ approval for the entire project";
       case "HQ_APPROVED":
         return "Project fully approved - All fund requests approved";
       case "REJECTED":
@@ -207,7 +285,7 @@ const ProjectBatchApproval: React.FC<ProjectBatchApprovalProps> = ({
       case "NO_REQUESTS":
         return "No fund requests requiring HQ approval";
       default:
-        return "Unknown status";
+        return `Current status: ${batchStatus}`;
     }
   };
 
@@ -219,15 +297,25 @@ const ProjectBatchApproval: React.FC<ProjectBatchApprovalProps> = ({
 
     switch (actionType) {
       case "hq_review":
-        return batchStatus === "LOCATION_AUTHORIZED";
+        // Can review when all locations are authorized (LOCATION_AUTHORIZED status)
+        return (
+          batchStatus === "LOCATION_AUTHORIZED" ||
+          batchStatus === "PENDING_HQ_REVIEW"
+        );
       case "hq_authorize":
+        // Can authorize after HQ review is complete
         return batchStatus === "HQ_REVIEWED";
       case "hq_approve":
+        // Can do final approval after HQ authorization
         return batchStatus === "HQ_AUTHORIZED";
       case "reject":
-        return ["LOCATION_AUTHORIZED", "HQ_REVIEWED", "HQ_AUTHORIZED"].includes(
-          batchStatus
-        );
+        // Can reject at any stage before final approval
+        return [
+          "LOCATION_AUTHORIZED",
+          "PENDING_HQ_REVIEW",
+          "HQ_REVIEWED",
+          "HQ_AUTHORIZED",
+        ].includes(batchStatus);
       default:
         return false;
     }
@@ -408,7 +496,8 @@ const ProjectBatchApproval: React.FC<ProjectBatchApprovalProps> = ({
             {activeAction === "reject" ? (
               <div className='space-y-3 p-4 border border-red-200 rounded-lg bg-red-50'>
                 <p className='text-sm text-red-700 mb-2'>
-                  <strong>Warning:</strong> This will reject the entire project batch for all locations.
+                  <strong>Warning:</strong> This will reject the entire project
+                  batch for all locations.
                 </p>
                 <FormProvider {...form}>
                   <FormTextArea

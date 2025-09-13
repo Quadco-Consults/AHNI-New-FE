@@ -62,7 +62,7 @@ export default function FundRequestDetail() {
             <TabsTrigger value='fund Request Summary'>
               Fund Request Summary
             </TabsTrigger>
-            <TabsTrigger value='approval Status'>Approval Status</TabsTrigger>
+            {/* <TabsTrigger value='approval Status'>Approval Status</TabsTrigger> */}
             <TabsTrigger value='hq Approval'>HQ Project Approval</TabsTrigger>
           </TabsList>
 
@@ -80,7 +80,7 @@ export default function FundRequestDetail() {
                 Preview
               </Button>
             </Link>
-            <Button
+            {/* <Button
               onClick={() => {
                 dispatch(
                   openDialog({
@@ -94,7 +94,7 @@ export default function FundRequestDetail() {
               }}
             >
               Approval
-            </Button>
+            </Button> */}
           </div>
         </div>
         {isLoading ? (
@@ -110,7 +110,7 @@ export default function FundRequestDetail() {
               <TabsContent value='fund Request Summary'>
                 <FundRequestSummary />
               </TabsContent>
-              <TabsContent value='approval Status'>
+              {/* <TabsContent value='approval Status'>
                 {firstFundRequest ? (
                   <FundRequestWorkflowStatus
                     fundRequestId={firstFundRequest.id}
@@ -127,7 +127,7 @@ export default function FundRequestDetail() {
                     </div>
                   </Card>
                 )}
-              </TabsContent>
+              </TabsContent> */}
               <TabsContent value='hq Approval'>
                 <ProjectBatchApproval projectId={id || ""} />
               </TabsContent>
