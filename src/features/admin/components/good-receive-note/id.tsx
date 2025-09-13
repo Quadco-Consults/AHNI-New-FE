@@ -118,7 +118,7 @@ export default function GoodReceiveNoteDetails() {
 
             <div className='flex gap-2'>
               <p className='font-semibold'>Receipt Date:</p>
-              <p>{details?.created_datetime ? new Date(details.created_datetime).toLocaleDateString() : 'N/A'}</p>
+              <p>{details?.created_datetime ? new Date(details.created_datetime).toLocaleDateString("en-US") : 'N/A'}</p>
             </div>
 
             <div className='flex gap-2'>
@@ -138,7 +138,7 @@ export default function GoodReceiveNoteDetails() {
 
             <div className='flex gap-2'>
               <p className='font-semibold'>Purchase Date:</p>
-              <p>{details?.purchase_date ? new Date(details.purchase_date).toLocaleDateString() : 'N/A'}</p>
+              <p>{details?.purchase_date ? new Date(details.purchase_date).toLocaleDateString("en-US") : 'N/A'}</p>
             </div>
 
             <div className='flex gap-2'>
@@ -200,7 +200,7 @@ export default function GoodReceiveNoteDetails() {
               <p className=' w-[122px] font-semibold'>Date:</p>
               <p className=''>
                 {details?.authorized_datetime 
-                  ? new Date(details.authorized_datetime).toLocaleDateString()
+                  ? new Date(details.authorized_datetime).toLocaleDateString("en-US")
                   : '-'
                 }
               </p>
@@ -220,7 +220,7 @@ export default function GoodReceiveNoteDetails() {
               <p className=' w-[122px] font-semibold'>Date:</p>
               <p className=''>
                 {details?.approved_date 
-                  ? new Date(details.approved_date).toLocaleDateString()
+                  ? new Date(details.approved_date).toLocaleDateString("en-US")
                   : '-'
                 }
               </p>
@@ -241,7 +241,7 @@ export default function GoodReceiveNoteDetails() {
               <p className=' w-[122px] font-semibold'>Date:</p>
               <p className=''>
                 {details?.created_datetime 
-                  ? new Date(details.created_datetime).toLocaleDateString()
+                  ? new Date(details.created_datetime).toLocaleDateString("en-US")
                   : '-'
                 }
               </p>
@@ -268,9 +268,9 @@ export default function GoodReceiveNoteDetails() {
               <p className=' w-[122px] font-semibold'>Date:</p>
               <p className=''>
                 {details?.accepted_datetime 
-                  ? new Date(details.accepted_datetime).toLocaleDateString()
+                  ? new Date(details.accepted_datetime).toLocaleDateString("en-US")
                   : details?.rejected_datetime
-                  ? new Date(details.rejected_datetime).toLocaleDateString()
+                  ? new Date(details.rejected_datetime).toLocaleDateString("en-US")
                   : '-'
                 }
               </p>

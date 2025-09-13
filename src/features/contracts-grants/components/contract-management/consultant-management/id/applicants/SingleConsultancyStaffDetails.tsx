@@ -278,14 +278,25 @@ export default function SingleConsultancyStaffDetails({
 
                     <div className="grid grid-cols-2 gap-10">
                         {documents?.map(
-                            ({ name, document, updated_datetime }) => {
+                            ({ name, document, updated_datetime }, index) => {
                                 const documentName =
                                     name === "file-letter"
                                         ? "Cover Letter"
                                         : "Resume";
 
+                                // Only render if document exists
+                                if (!document) {
+                                    return (
+                                        <div key={`${name}-${index}`} className="border border-dashed border-gray-300 p-4 rounded-lg text-center text-gray-500">
+                                            <p>{documentName}</p>
+                                            <p className="text-sm">Document not available</p>
+                                        </div>
+                                    );
+                                }
+
                                 return (
                                     <FilePreview
+                                        key={`${name}-${index}`}
                                         name={documentName}
                                         file={document}
                                         timestamp={updated_datetime}

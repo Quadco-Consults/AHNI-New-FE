@@ -11,7 +11,12 @@ import {
   useForm,
   Controller,
 } from "react-hook-form";
-import { useRouter, useParams, usePathname } from "next/navigation";
+import {
+  useRouter,
+  useParams,
+  usePathname,
+  useSearchParams,
+} from "next/navigation";
 import { Button } from "components/ui/button";
 import FormButton from "@/components/FormButton";
 import { LoadingSpinner } from "components/Loading";
@@ -62,11 +67,14 @@ const Quotation = () => {
 
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { id } = useParams();
 
   const { data: vendors, isLoading: vendorsIsLoading } = useGetVendors({
     status: "Approved",
   });
+
+  const eoiType = searchParams.get("type");
 
   const { data: eoiData } = useGetAllEois(
     useMemo(() => ({ type: "OPEN_TENDER" }), [])
@@ -110,6 +118,14 @@ const Quotation = () => {
     control: form.control,
   });
 
+  // Auto-set tender type when coming from EOI
+  useEffect(() => {
+    if (eoiType === "OPEN_TENDER") {
+      form.setValue("tender_type", "National Tender");
+      form.setValue("request_type", "Request For Quotation");
+    }
+  }, [eoiType, form]);
+
   // After eoiOptions
   useEffect(() => {
     if (!id || !eoiOptions?.length) return;
@@ -144,18 +160,22 @@ const Quotation = () => {
     ) || [];
 
   const onSubmit: SubmitHandler<TSolicitationQuotationFormData> = (data) => {
-    sessionStorage.setItem("rfqQuotationFormData", JSON.stringify(data));
-    let path = pathname;
+    // Add EOI ID to the data if it exists (coming from EOI flow)
+    const dataWithEoi = id ? { ...data, eoi_id: id } : data;
+    sessionStorage.setItem("rfqQuotationFormData", JSON.stringify(dataWithEoi));
 
+    // Navigate to items page - replace quotation with items in the path
+    let path = pathname?.replace("/quotation", "/items") || "";
     if (id) {
-      path = path.substring(0, path.lastIndexOf("/")); // remove /:id
-      path = path.substring(0, path.lastIndexOf("/")); // remove /quotation
-    } else {
+      // Remove the ID from the end if present
       path = path.substring(0, path.lastIndexOf("/"));
     }
 
-    path += "/create/items";
-    router.push(path);
+    // Preserve search parameters (like type=OPEN_TENDER) in the redirect
+    const currentParams = searchParams.toString();
+    const finalPath = currentParams ? `${path}?${currentParams}` : path;
+
+    router.push(finalPath);
   };
 
   const tender_type = form.watch("tender_type");

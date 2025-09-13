@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { Bell, Moon, Sun } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import avatarPng from "assets/imgs/avatar.png";
 import { Button } from "components/ui/button";
 import {
@@ -12,22 +12,20 @@ import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { useTheme } from "configs/theme-provider";
 import { cn } from "lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "components/ui/avatar";
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { AuthRoutes, RouteEnum } from "constants/RouterConstants";
 import { useAppDispatch } from "hooks/useStore";
 import { logOut } from "store/auth/authSlice";
 import { getPageTitleFromPath } from "utils/utls";
 import { useGetUserProfile } from "features/auth/controllers/userController";
-import { useGetUnreadCount } from "@/features/notifications/controllers/notificationController";
+import NotificationDropdown from "./NotificationDropdown";
 
 const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
   const { setTheme } = useTheme();
   const pathname = usePathname();
-  const pageTitle = getPageTitleFromPath(pathname);
+  const pageTitle = getPageTitleFromPath(pathname || "/dashboard");
 
   const { data: profile } = useGetUserProfile();
-  const { data: unreadCount } = useGetUnreadCount();
 
   const router = useRouter();
 
@@ -71,23 +69,7 @@ const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <Link
-          href={RouteEnum.NOTIFICATIONS}
-          className={cn(
-            "hover:text-primary relative flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer"
-          )}
-        >
-          <div className='flex w-[85%] items-center gap-2'>
-            <span className='relative'>
-              <Bell />
-              {unreadCount && unreadCount.count > 0 && (
-                <span className='absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center min-w-[20px] px-1'>
-                  {unreadCount.count > 99 ? '99+' : unreadCount.count}
-                </span>
-              )}
-            </span>
-          </div>
-        </Link>
+        <NotificationDropdown />
         <Popover>
           <PopoverTrigger asChild>
             <Avatar>

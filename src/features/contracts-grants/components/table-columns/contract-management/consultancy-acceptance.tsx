@@ -106,12 +106,19 @@ export const consultancyAcceptanceColumns: ColumnDef<IConsultantPaginatedData>[]
 const TableMenu = ({ id }: IConsultantPaginatedData) => {
     const advertType = useJobAdvertType();
 
+    // Debug logging
+    console.log("TableMenu - Consultant ID:", id);
+    console.log("TableMenu - Advert Type:", advertType);
+
+    // Create a parameterized URL with the consultant ID
     const url =
         advertType === "adhoc"
-            ? ProgramRoutes.ADHOC_ACCEPTANCE_DETAILS
+            ? `${ProgramRoutes.ADHOC_ACCEPTANCE_DETAILS}/${id}`
             : advertType === "consultant"
-            ? CG_ROUTES.CONSULTANT_ACCEPTANCE_DETAILS
+            ? `/dashboard/c-and-g/contract-management/consultant-acceptance/${id}`
             : "";
+
+    console.log("TableMenu - Generated URL:", url);
 
     return (
         <div className="flex items-center gap-2">

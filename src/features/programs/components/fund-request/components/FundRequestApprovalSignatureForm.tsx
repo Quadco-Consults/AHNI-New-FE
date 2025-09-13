@@ -40,7 +40,7 @@ const FundRequestApprovalSignatureForm: React.FC<FundRequestApprovalSignatureFor
   const getApprovalData = (): ApprovalSignatureData => {
     return {
       preparedBy: `${fundRequestData.created_by || "System User"}`, // Get from fund request creator
-      preparedDate: new Date(fundRequestData.created_datetime).toLocaleDateString(),
+      preparedDate: new Date(fundRequestData.created_datetime).toLocaleDateString("en-US"),
       reviewedBy: currentStatus !== "PENDING" ? getApproverName("REVIEWED") : null,
       reviewedDate: currentStatus !== "PENDING" ? getApprovalDate("REVIEWED") : null,
       authorizedBy: ["ADMIN_APPROVED", "MANAGER_APPROVED"].includes(currentStatus) ? getApproverName("ADMIN_APPROVED") : null,
@@ -77,7 +77,7 @@ const FundRequestApprovalSignatureForm: React.FC<FundRequestApprovalSignatureFor
       (status === "ADMIN_APPROVED" && ["ADMIN_APPROVED", "MANAGER_APPROVED"].includes(currentStatus)) ||
       (status === "MANAGER_APPROVED" && currentStatus === "MANAGER_APPROVED")
     ) {
-      return new Date().toLocaleDateString();
+      return new Date().toLocaleDateString("en-US");
     }
     return "";
   };

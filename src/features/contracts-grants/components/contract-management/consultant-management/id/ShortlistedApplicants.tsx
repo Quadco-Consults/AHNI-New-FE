@@ -20,11 +20,15 @@ export default function ShortlistedAppplicants() {
       ? {
           page: currentPage,
           size: 10,
-          consultants: id,
+          consultant_id: id,
           status: "SHORTLISTED",
         }
       : skipToken
   );
+
+  // Debug logging for shortlisted
+  console.log("ShortlistedApplicants - Data:", data);
+  console.log("ShortlistedApplicants - Applicants:", data?.data?.results?.map(a => ({ name: a.name, status: a.status })));
 
   return (
     <section className='space-y-5'>
@@ -36,8 +40,8 @@ export default function ShortlistedAppplicants() {
             data={data?.data.results || []}
             isLoading={isFetching}
             pagination={{
-              total: data?.data.pagination.count ?? 0,
-              pageSize: data?.data.pagination.page_size ?? 0,
+              total: data?.data?.pagination?.count ?? 0,
+              pageSize: data?.data?.pagination?.page_size ?? 0,
               onChange: (page: number) => setCurrentPage(page),
             }}
           />

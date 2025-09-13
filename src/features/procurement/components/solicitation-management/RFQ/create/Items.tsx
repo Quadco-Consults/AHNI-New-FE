@@ -10,7 +10,7 @@ import AddSquareIcon from "components/icons/AddSquareIcon";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import FormButton from "@/components/FormButton";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { RouteEnum } from "constants/RouterConstants";
 import { z } from "zod";
 import { MinusCircle } from "lucide-react";
@@ -45,6 +45,8 @@ const ItemSchema = z.object({
 
 const Items = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const eoiType = searchParams.get('type');
   // const formData = JSON.parse(localStorage.getItem("rfqQuotation") as any);
 
   const form = useForm<z.infer<typeof ItemSchema>>({
@@ -126,7 +128,7 @@ const Items = () => {
   const itemsData = useMemo(() => {
     // @ts-ignore
     return data?.data?.items.map((item: any) => ({
-      item: item?.item || "",
+      item: item?.item?.id || item?.item || "",
       fco: item?.fco || "",
       quantity: item?.quantity || 0,
       unit_cost: item?.unit_cost || 0,
@@ -162,29 +164,43 @@ const Items = () => {
       if (response?.status === "success") {
         sessionStorage.removeItem("rfqQuotationFormData");
         console.log({ I_AM_HERE: "djhjsk" });
-        router.push(
-          RouteEnum.RFQ_CREATE_CBA.replace(":id", response?.data?.id as string)
-        );
+        
+        // Skip CBA creation for EOI-linked RFQs (OPEN_TENDER type)
+        console.log("EOI Type check:", { eoiType, isOpenTender: eoiType === "OPEN_TENDER" });
+        
+        if (eoiType === "OPEN_TENDER") {
+          console.log("Skipping CBA creation for OPEN_TENDER EOI");
+          toast.success("RFQ created successfully! CBA will be created after vendor submissions.");
+          router.push("/dashboard/procurement/solicitation-management/rfq");
+        } else {
+          console.log("Proceeding with regular CBA creation");
+          // Regular RFQ flow - proceed to CBA creation
+          router.push(
+            RouteEnum.RFQ_CREATE_CBA.replace(":id", (response?.data as any)?.id as string)
+          );
+        }
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message ?? error.message ?? "Something went wrong");
+      toast.error(
+        error.response?.data?.message ?? error.message ?? "Something went wrong"
+      );
     }
   };
 
   return (
     <RfqLayout>
       <Form {...form}>
-        <form className='space-y-8 p-5' onSubmit={handleSubmit(onSubmit)}>
-          <div className='space-y-5'>
-            <h6 className='text-yellow-600'>Items</h6>
+        <form className="space-y-8 p-5" onSubmit={handleSubmit(onSubmit)}>
+          <div className="space-y-5">
+            <h6 className="text-yellow-600">Items</h6>
 
             {fields?.map((field, index) => (
-              <div key={index} className='flex items-center gap-5 w-full'>
-                <div className='grid grid-cols-1 gap-4 w-full md:grid-cols-3'>
+              <div key={index} className="flex items-center gap-5 w-full">
+                <div className="grid grid-cols-1 gap-4 w-full md:grid-cols-3">
                   {!itemsData || itemsData?.length < index + 1 ? (
                     <FormSelect
                       name={`solicitation_items.${index}.item`}
-                      label='Item'
+                      label="Item"
                       required
                       options={itemOptions}
                       value={form.watch(`solicitation_items.${index}.item`)}
@@ -193,21 +209,21 @@ const Items = () => {
                   ) : (
                     <FormInput
                       name={`solicitation_items.${index}.name`}
-                      label='Item'
+                      label="Item"
                       required
-                      disabled
+                      // disabled
                     />
                   )}
 
                   <FormInput
                     name={`solicitation_items.${index}.quantity`}
-                    label='Quantity'
+                    label="Quantity"
                     required
                   />
 
                   <FormSelect
                     name={`solicitation_items.${index}.lot`}
-                    label='Lot'
+                    label="Lot"
                   >
                     <SelectContent>
                       {isLotLoading && <LoadingSpinner />}
@@ -220,18 +236,18 @@ const Items = () => {
                   </FormSelect>
                 </div>
 
-                <div className='flex items-center h-full '>
+                <div className="flex items-center h-full ">
                   <MinusCircle
                     onClick={() => remove(index)}
-                    className='cursor-pointer text-primary'
+                    className="cursor-pointer text-primary"
                   />
                 </div>
               </div>
             ))}
-            <div className='flex justify-end'>
+            <div className="flex justify-end">
               <Button
-                type='button'
-                className='text-primary bg-[#FFF2F2] mt-2 flex gap-2 items-center justify-center'
+                type="button"
+                className="text-primary bg-[#FFF2F2] mt-2 flex gap-2 items-center justify-center"
                 onClick={() =>
                   append({
                     quantity: "",
@@ -246,33 +262,33 @@ const Items = () => {
             </div>
           </div>
 
-          <div className='space-y-5'>
-            <Label className='text-yellow-600'>Evaluation Criteria</Label>
+          <div className="space-y-5">
+            <Label className="text-yellow-600">Evaluation Criteria</Label>
 
             {criteriaFields.map((field, index) => (
-              <div key={index} className='flex items-center gap-5 w-full'>
-                <div className='grid grid-cols-1 gap-4 w-full md:grid-cols-3'>
+              <div key={index} className="flex items-center gap-5 w-full">
+                <div className="grid grid-cols-1 gap-4 w-full md:grid-cols-3">
                   <FormSelect
-                    label='Category'
+                    label="Category"
                     name={`solicitation_evaluations.${index}.criteria`}
                     required
                     options={solicitationCriteriaOptions}
                   />
                 </div>
 
-                <div className='flex items-center h-full '>
+                <div className="flex items-center h-full ">
                   <MinusCircle
                     onClick={() => removeCriteria(index)}
-                    className='cursor-pointer text-primary'
+                    className="cursor-pointer text-primary"
                   />
                 </div>
               </div>
             ))}
 
-            <div className='flex justify-end'>
+            <div className="flex justify-end">
               <Button
-                type='button'
-                className='text-primary bg-[#FFF2F2] mt-2 flex gap-2 items-center justify-center'
+                type="button"
+                className="text-primary bg-[#FFF2F2] mt-2 flex gap-2 items-center justify-center"
                 onClick={() =>
                   appendCriteria({
                     criteria: "",
@@ -285,11 +301,11 @@ const Items = () => {
             </div>
           </div>
 
-          <div className='flex justify-between mt-16'>
+          <div className="flex justify-between mt-16">
             <Button
               onClick={() => router.back()}
-              type='button'
-              className='bg-[#FFF2F2] text-primary dark:text-gray-500'
+              type="button"
+              className="bg-[#FFF2F2] text-primary dark:text-gray-500"
             >
               Cancel
             </Button>
@@ -297,7 +313,7 @@ const Items = () => {
             <FormButton
               loading={isCreateLoading}
               disabled={isCreateLoading}
-              type='submit'
+              type="submit"
             >
               Save Changes
             </FormButton>

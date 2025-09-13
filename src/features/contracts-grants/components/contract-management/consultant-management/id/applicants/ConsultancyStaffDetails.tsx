@@ -10,6 +10,7 @@ import SingleConsultancyStaffDetails from "./SingleConsultancyStaffDetails";
 import { LoadingSpinner } from "components/Loading";
 import Card from "components/Card";
 import { toast } from "sonner";
+import { useState } from "react";
 import BackNavigation from "components/BackNavigation";
 // import { useGetSingleConsultancyStaff } from "src/features/contracts-grants/controllers/consultantManagementController";
 import {
@@ -30,13 +31,21 @@ export default function ConsultancyStaffDetails() {
   const { data: consultancyStaff, isLoading } =
     useGetSingleConsultancyApplicant(applicantId);
 
-  const { updateContractStatus, isLoading: isModifyLoading } =
-    useModifyContractStatus(applicantId);
+  // Debug logging for applicant details
+  console.log("📄 Individual Applicant Debug:");
+  console.log("- ApplicantId:", applicantId);
+  console.log("- Has Data:", !!consultancyStaff);
+  console.log("- Has Documents:", !!consultancyStaff?.data?.documents);
+  console.log(
+    "- Documents Count:",
+    consultancyStaff?.data?.documents?.length || 0
+  );
+  console.log("- Full Data:", consultancyStaff);
+
+  const [isModifyLoading, setIsModifyLoading] = useState(false);
 
   const handleShortListing = async () => {
-    // console.log("Form submitted with data:", data);
-    // Handle form submission logic here
-
+    setIsModifyLoading(true);
     try {
       // await updateContractStatus({
       //   title: consultancyStaff?.data?.name || "",
@@ -57,7 +66,14 @@ export default function ConsultancyStaffDetails() {
 
       router.back();
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
+      console.error("Shortlisting error:", error);
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Something went wrong"
+      );
+    } finally {
+      setIsModifyLoading(false);
     }
   };
   console.log({ consultancyStaff });

@@ -24,7 +24,7 @@ export const expenditureColumns: ColumnDef<IExpenditurePaginatedData>[] = [
         accessorKey: "created_datetime",
         cell: ({ getValue }) => {
             const date = getValue() as string;
-            return date ? new Date(date).toLocaleDateString() : "N/A";
+            return date ? new Date(date).toLocaleDateString("en-US") : "N/A";
         },
         size: 200,
     },

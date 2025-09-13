@@ -161,22 +161,37 @@ const VendorPerformance = () => {
                 </TableCell>
                 <TableCell
                   className={`font-semibold text-lg w-[400px] ${
-                    vendorEvaluationData?.data?.evaluator_recommendation ===
-                    "BARRED"
+                    // If status is PENDING and recommendation is BARRED, treat as PENDING
+                    (vendorEvaluationData?.data?.status === "PENDING" && 
+                     vendorEvaluationData?.data?.evaluator_recommendation === "BARRED") ||
+                    !vendorEvaluationData?.data?.evaluator_recommendation
+                      ? "bg-blue-500 text-white text-center"
+                      : vendorEvaluationData?.data?.evaluator_recommendation ===
+                        "BARRED"
                       ? "bg-red-500 text-white text-center"
                       : vendorEvaluationData?.data?.evaluator_recommendation ===
                         "ON_PROBATION"
                       ? "bg-yellow-500 text-white text-center"
-                      : "bg-green-500 text-white text-center"
+                      : vendorEvaluationData?.data?.evaluator_recommendation ===
+                        "RETAIN"
+                      ? "bg-green-500 text-white text-center"
+                      : "bg-blue-500 text-white text-center"
                   }`}
                 >
-                  {vendorEvaluationData?.data?.evaluator_recommendation ===
-                  "BARRED"
+                  {(vendorEvaluationData?.data?.status === "PENDING" && 
+                    vendorEvaluationData?.data?.evaluator_recommendation === "BARRED") ||
+                   !vendorEvaluationData?.data?.evaluator_recommendation
+                    ? "Pending"
+                    : vendorEvaluationData?.data?.evaluator_recommendation ===
+                      "BARRED"
                     ? "Barred"
                     : vendorEvaluationData?.data?.evaluator_recommendation ===
                       "ON_PROBATION"
                     ? "On Probation"
-                    : "Retain"}
+                    : vendorEvaluationData?.data?.evaluator_recommendation ===
+                      "RETAIN"
+                    ? "Retain"
+                    : "Pending"}
                 </TableCell>
                 {/* {data.map((item, index) => (
                   <TableCell key={index} className='text-start'>

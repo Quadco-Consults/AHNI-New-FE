@@ -1,25 +1,42 @@
+import React from "react";
 import DescriptionCard from "components/DescriptionCard";
 import FilePreview from "components/FilePreview";
 import { Separator } from "components/ui/separator";
-import { IConsultantSingleData } from "definations/c&g/contract-management/consultancy-management/consultancy-management";
+import { IConsultantSingleData } from "@/features/contracts-grants/types/contract-management/consultancy-management/consultancy-management";
 
 export default function ScopeOfWork({
     title,
     created_datetime,
-    scope_of_work: {
-        description,
-        background,
-        objectives,
-        fee_rate,
-        payment_frequency,
-        location,
-        deliverables,
-        advertisement_document,
-        scope_of_work_document,
-    },
+    scope_of_work,
 }: IConsultantSingleData) {
+    // Handle case where scope_of_work is completely undefined
+    if (!scope_of_work) {
+        return (
+            <div className="space-y-10">
+                <h1 className="font-bold text-lg">Scope Of Work</h1>
+                <div className="text-center py-8">
+                    <p className="text-gray-500">No scope of work data available</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Destructure with fallbacks to handle undefined fields within scope_of_work
+    const {
+        description = '',
+        background = '',
+        objectives = '',
+        fee_rate = 0,
+        payment_frequency = '',
+        location = '',
+        deliverables = [],
+        advertisement_document = '',
+        scope_of_work_document = '',
+    } = scope_of_work;
+
     const totalDays = deliverables.reduce(
-        (sum, item) => sum + item.number_of_days,
+        (sum: number, item: { deliverable: string; number_of_days: number }) => 
+            sum + (item?.number_of_days || 0),
         0
     );
 
@@ -47,11 +64,11 @@ export default function ScopeOfWork({
                     <h3 className="font-bold">Specific Deliverable</h3>
                     <h3 className="font-bold">Number of Days Required</h3>
 
-                    {deliverables.map(({ deliverable, number_of_days }) => (
-                        <>
+                    {deliverables.map(({ deliverable, number_of_days }, index) => (
+                        <React.Fragment key={index}>
                             <p>{deliverable}</p>
                             <p>{number_of_days}</p>
-                        </>
+                        </React.Fragment>
                     ))}
 
                     <p className="font-bold">Total</p>
@@ -90,17 +107,27 @@ export default function ScopeOfWork({
             <Separator />
 
             <div className="grid grid-cols-4 gap-5">
-                <FilePreview
-                    file={scope_of_work_document}
-                    name="Scope Of Work Document"
-                    timestamp={created_datetime}
-                />
+                {scope_of_work_document && (
+                    <FilePreview
+                        file={scope_of_work_document}
+                        name="Scope Of Work Document"
+                        timestamp={created_datetime}
+                    />
+                )}
 
-                <FilePreview
-                    file={advertisement_document}
-                    name="Advertisement Document"
-                    timestamp={created_datetime}
-                />
+                {advertisement_document && (
+                    <FilePreview
+                        file={advertisement_document}
+                        name="Advertisement Document"
+                        timestamp={created_datetime}
+                    />
+                )}
+
+                {!scope_of_work_document && !advertisement_document && (
+                    <div className="col-span-4 text-center py-8">
+                        <p className="text-gray-500">No documents available</p>
+                    </div>
+                )}
             </div>
 
             <div className="space-y-4">

@@ -27,14 +27,16 @@ const InterviewForm = () => {
   const router = useRouter();
 
   const { data: vendorEvaluationData } =
-    VendorsEvaluaionAndPerformanceAPI.useGetVendorEvaluation({
-      path: { id: params?.id as string },
-    });
+    VendorsEvaluaionAndPerformanceAPI.useGetSingleVendorEvaluation(
+      params?.id as string
+    );
 
-  const [
-    createVendorEvaluationMutationById,
-    { isLoading: createVendorEvaluationMutationByIdLoading },
-  ] = VendorsEvaluaionAndPerformanceAPI.useCreateVendorEvaluationById();
+  const {
+    submitVendorEvaluation: createVendorEvaluationMutationById,
+    isLoading: createVendorEvaluationMutationByIdLoading,
+  } = VendorsEvaluaionAndPerformanceAPI.useCreateVendorEvaluationByIdMutation(
+    params?.id as string
+  );
 
   const form = useForm();
 
@@ -76,11 +78,7 @@ const InterviewForm = () => {
     };
 
     try {
-      // @ts-ignore
-      await createVendorEvaluationMutationById({
-        path: { id: params.id! },
-        body: payload,
-      });
+      await createVendorEvaluationMutationById(payload);
 
       toast.success(" Interview Submitted successfully");
       router.back();

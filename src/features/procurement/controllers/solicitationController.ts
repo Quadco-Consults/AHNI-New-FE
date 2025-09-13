@@ -2,7 +2,7 @@ import useApiManager from "@/constants/mainController";
 import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
-import { TSolicitationQuotationFormData } from "definations/procurement-validator";
+import { TSolicitationQuotationFormData } from "@/features/procurement/types/procurement-validator";
 import {
   ISolicitationRFQData,
   SolicitationResponse,

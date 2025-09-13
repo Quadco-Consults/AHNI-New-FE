@@ -49,7 +49,7 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
                     Description Of Procurement Activities
                   </th>
                   <th
-                    colSpan={3}
+                    colSpan={1}
                     className="px-4 py-2 border text-center font-semibold text-[#DEA004]"
                   >
                     BUDGET REFERENCE NUMBER
@@ -58,7 +58,7 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
                     colSpan={2}
                     className="px-4 py-2 border text-center font-semibold "
                   >
-                    APPROVED BUDGET AMOUNT- USD
+                    APPROVED BUDGET AMOUNT
                   </th>
                   <th className="px-4 py-2 border text-sm font-semibold">
                     PPM
@@ -68,6 +68,9 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
                   </th>
                   <th className="px-4 py-2 border text-sm font-semibold">
                     FY25 TARGETS
+                  </th>
+                  <th className="px-4 py-2 border text-sm font-semibold">
+                    UOM
                   </th>
                   <th className="px-4 py-2 border text-sm font-semibold">
                     QUANTITY
@@ -105,7 +108,10 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
                   <th className="px-4 py-2 border text-sm font-semibold">
                     EXPECTED DELIVERY DUE DATE
                   </th>
-
+                  <th className="px-4 py-2 border text-sm font-semibold">
+                    DELIVERY TO PHO, Borno Office, Adamawa Office, Yobe Office,
+                    Taraba Office, Clusters and Health Facilities
+                  </th>
                   <th className="px-4 py-2 border text-sm font-semibold">
                     PROUCREMENT PERFORMANCE/MONITORING REMARKS
                   </th>
@@ -116,29 +122,18 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
 
                 {/* Row 4: Sub-Headers */}
                 <tr className="bg-gray-50">
-                  <th colSpan={5}></th>
-                  <th className="px-4 py-2 border text-sm font-semibold">
-                    Year 1
-                  </th>
-                  <th className="px-4 py-2 border text-sm font-semibold">
-                    Year 2
-                  </th>
-                  <th className="px-4 py-2 border text-sm font-semibold">
-                    Year 3
-                  </th>
+                  <th colSpan={7}></th>
+                  <th className="px-4 py-2 border text-sm font-semibold">{}</th>
+
                   <th className="px-4 py-2 border text-sm font-semibold bg-blue-300">
-                    Year 1
+                    {"₦"}
                   </th>
                   <th className="px-4 py-2 border text-sm font-semibold bg-cyan-300">
-                    Year 2
+                    {"$"}
                   </th>
-                  <th className="px-4 py-2 border text-sm font-semibold">
-                    Year 3
-                  </th>
-                  <th className="px-4 py-2 border text-sm font-semibold">
-                    Total Quantity (1–3 Years)
-                  </th>
-                  <th colSpan={7}></th>
+                  <th className="px-4 py-2 border text-sm font-semibold">{}</th>
+                  <th className="px-4 py-2 border text-sm font-semibold">{}</th>
+                  <th colSpan={6}></th>
                   <th className="px-4 py-2 border text-sm font-semibold bg-[#c4bd97]">
                     Procurement Method (ICB, ILCB, NCB, NLCB, National Shopping,
                     Local Shopping, Micro Purchase, Single Source, Sole Source)
@@ -192,73 +187,77 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
                   <td className="px-4 py-2 border text-sm text-gray-500">
                     $68,125.26
                   </td>
-                  <td className="px-4 py-2 border text-sm bg-blue-300">
-                    ${data?.approved_budget?.toLocaleString()}
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    {"N/A"}
                   </td>
                   {/* Quantity Targets */}
-                  <td className="px-4 py-2 border text-sm text-gray-500 bg-cyan-300">
-                    0.3
-                  </td>
                   <td className="px-4 py-2 border text-sm text-gray-500">
-                    0.3
+                    {"NON-PPM"}
                   </td>
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    0.3
-                  </td>
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    1.0
-                  </td>
+                  <td className="px-4 py-2 border text-sm text-gray-500">2</td>
                   {/* Other Details */}
                   <td className="px-4 py-2 border text-sm text-gray-500">
-                    {data?.pr_staff}
+                    {/* {data?.pr_staff} */ "LOT"}
                   </td>
                   <td className="px-4 py-2 border text-sm text-gray-500">
-                    {data?.mode_of_procurement}
+                    {/* {data?.pr_staff} */ "1.0"}
                   </td>
                   <td className="px-4 py-2 border text-sm text-gray-500">
-                    {data?.procurement_committee_review}
+                    {
+                      /* {data?.mode_of_procurement} */ "Director Of Finance & Operations"
+                    }
                   </td>
                   <td className="px-4 py-2 border text-sm text-gray-500">
-                    {data?.selected_supplier}
+                    {
+                      /* {data?.procurement_committee_review} */ "Local Procurement"
+                    }
                   </td>
                   <td className="px-4 py-2 border text-sm text-gray-500">
-                    {data?.procurement_process}
+                    {/* {data?.selected_supplier} */ "NO"}
                   </td>
                   <td className="px-4 py-2 border text-sm text-gray-500">
-                    {data?.start_date}
+                    {/* {data?.procurement_process} */ "N/A"}
                   </td>
                   <td className="px-4 py-2 border text-sm text-gray-500">
-                    {data?.expected_delivery_date_1}
+                    {/* {data?.start_date} */ "N/A"}
                   </td>
                   <td className="px-4 py-2 border text-sm text-gray-500">
-                    {data?.expected_delivery_date_2}
+                    {/* {data?.expected_delivery_date_1} */ "Sole Source"}
                   </td>
                   <td className="px-4 py-2 border text-sm text-gray-500">
-                    {data?.ware_houses}
+                    {/* {data?.expected_delivery_date_2} */ "N/A"}
                   </td>
                   <td className="px-4 py-2 border text-sm text-gray-500">
-                    {data?.donor_remarks}
+                    {/* {data?.ware_houses} */ "N/A"}
                   </td>
                   <td className="px-4 py-2 border text-sm text-gray-500">
-                    {data?.implenter_remarks}
+                    {/* {data?.donor_remarks} */ "N/A"}
                   </td>
                   <td className="px-4 py-2 border text-sm text-gray-500">
-                    {data?.implenter_remarks}
+                    {/* {data?.implenter_remarks} */ "N/A"}
+                  </td>
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    {/* {data?.implenter_remarks} */ "N/A"}
                   </td>{" "}
                   <td className="px-4 py-2 border text-sm text-gray-500">
-                    {data?.implenter_remarks}
+                    {/* {data?.implenter_remarks} */ "N/A"}
                   </td>{" "}
                   <td className="px-4 py-2 border text-sm text-gray-500">
-                    {data?.implenter_remarks}
+                    {/* {data?.implenter_remarks} */ "N/A"}
                   </td>{" "}
                   <td className="px-4 py-2 border text-sm text-gray-500">
-                    {data?.implenter_remarks}
+                    {/* {data?.implenter_remarks} */ "N/A"}
                   </td>{" "}
                   <td className="px-4 py-2 border text-sm text-gray-500">
-                    {data?.implenter_remarks}
+                    {/* {data?.implenter_remarks} */ "N/A"}
                   </td>{" "}
                   <td className="px-4 py-2 border text-sm text-gray-500">
-                    {data?.implenter_remarks}
+                    {"PHO"}
+                  </td>{" "}
+                  <td className="px-4 py-2 border text-sm text-gray-500">
+                    {
+                      /* {data?.implenter_remarks} */ "The budgeted cost covers a monthly recharge of electricity of N200,000 for FY25"
+                    }
                   </td>{" "}
                   <td className="px-4 py-2 border text-sm text-gray-500">
                     {data?.implenter_remarks}

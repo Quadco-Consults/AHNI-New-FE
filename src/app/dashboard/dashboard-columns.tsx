@@ -10,6 +10,11 @@ type Data = {
   amount: number;
   date: string;
   status: string;
+  currency?: string;
+  project_id?: string;
+  funding_sources?: string;
+  start_date?: string;
+  end_date?: string;
 };
 
 export const dashboardColumns: ColumnDef<Data>[] = [
@@ -22,7 +27,17 @@ export const dashboardColumns: ColumnDef<Data>[] = [
   {
     header: "Amount",
     accessorKey: "amount",
-    cell: ({ getValue }) => <h6>${getValue() as string}</h6>,
+    cell: ({ row, getValue }) => {
+      const amount = getValue() as number;
+      const currency = row.original.currency || "USD";
+      // Format currency properly
+      return (
+        <h6>
+          {currency === "NGN" ? "₦" : "$"}
+          {amount.toLocaleString()}
+        </h6>
+      );
+    },
   },
   {
     header: "Date Received",
@@ -32,17 +47,23 @@ export const dashboardColumns: ColumnDef<Data>[] = [
     header: "Status",
     accessorKey: "status",
     cell: ({ getValue }) => {
+      const status = getValue() as string;
       return (
         <Badge
           className={cn(
             "p-1 rounded-lg",
-            getValue() === "Approved" && "bg-green-500 text-green-600",
-            getValue() === "Reject" && "bg-red-500 text-red-600",
-            getValue() === "Pending" && "bg-yellow-500 text-yellow-600",
-            getValue() === "In Progress" && "bg-purple-500 text-purple-600"
+            status === "Approved" && "bg-green-100 text-green-700",
+            status === "Completed" && "bg-green-100 text-green-700",
+            status === "Reject" && "bg-red-100 text-red-700",
+            status === "Rejected" && "bg-red-100 text-red-700", 
+            status === "Pending" && "bg-yellow-100 text-yellow-700",
+            status === "In Progress" && "bg-blue-100 text-blue-700",
+            status === "Active" && "bg-blue-100 text-blue-700",
+            status === "Delayed" && "bg-red-100 text-red-700",
+            status === "Confirmed" && "bg-green-100 text-green-700"
           )}
         >
-          {getValue() as string}
+          {status}
         </Badge>
       );
     },
