@@ -212,27 +212,30 @@ export const PurchaseOrderSchema = z.object({
 export const PurchaseOrderListSchema = z.object({
   items: z.array(
     z.object({
-      // id: z.string().optional(),
-      item_id: z.string().min(1, "Field is required"),
-      fco: z.string().min(1, "Field is required"),
+      item_id: z.string().optional(),
+      fco: z.string().optional(),
       unit_cost: z.union([
-        z.string().min(1, "Field is required"),
-        z.number().min(1, "Field is required"),
-      ]),
+        z.string(),
+        z.number(),
+      ]).optional(),
       quantity: z.union([
-        z.string().min(1, "Field is required"),
-        z.number().min(1, "Field is required"),
-      ]),
-      description: z.string().min(1, "Field is required"),
-      uom: z.string().min(1, "Field is required"),
+        z.string(),
+        z.number(),
+      ]).optional(),
+      description: z.string().optional(),
+      uom: z.string().optional(),
       total: z.union([
-        z.string().min(1, "Field is required"),
-        z.number().min(1, "Field is required"),
-      ]),
+        z.string(),
+        z.number(),
+      ]).optional(),
+      name: z.string().optional(),
+      fco_number: z.array(z.string()).optional(),
     })
   ),
   purchase_request: z.string().min(1, "Field is required"),
-  // vendor: z.string().min(1, "Field is required"),
+  vendor: z.string().min(1, "Field is required"),
+  payment_terms: z.string().optional(),
+  delivery_lead_time: z.string().optional(),
 });
 
 export const SolicitationItemsSchema = z.object({
@@ -278,7 +281,14 @@ export const SolicitationProposalSchema = z.object({
   tender_type: z.string().min(1, "Please select tender type"),
   eoi_tender: z.string().optional(),
   categories: z.array(z.string().optional()),
-  documents: z.string().optional(),
+  documents: z.array(z.object({
+    description: z.string().optional().or(z.literal("")),
+    file: z.array(z.any()).optional(),
+    title: z.string().optional().or(z.literal("")),
+    document_type: z.string().optional().or(z.literal("")),
+    deliverable: z.string().optional().or(z.literal("")),
+    number_of_days: z.string().optional().or(z.literal("")),
+  })).optional(),
 });
 
 export type TSolicitationProposalFormData = z.infer<
@@ -318,6 +328,7 @@ export const SolicitationSubmissionSchema = z.object({
     z.object({
       unit_price: z.string().min(1, "Field is required"),
       solicitation_item: z.string().min(1, "Field is required"),
+      quantity: z.string().min(1, "Field is required"),
     })
   ),
   evaluations: z.array(

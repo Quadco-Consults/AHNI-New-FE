@@ -3,10 +3,10 @@
 import { Loading } from "@/components/Loading";
 import dynamic from "next/dynamic";
 
-const AgreementCreate = dynamic(
+const AgreementSummary = dynamic(
   () =>
     import(
-      "@/features/contracts-grants/components/contract-management/agreement/create"
+      "@/features/contracts-grants/components/contract-management/agreement/summary"
     ),
   {
     ssr: false,
@@ -15,5 +15,5 @@ const AgreementCreate = dynamic(
 );
 
 export default function CreateAgreementDetailsPage() {
-  return <AgreementCreate />;
+  return <AgreementSummary />;
 }

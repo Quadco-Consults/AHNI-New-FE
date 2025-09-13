@@ -1,4 +1,6 @@
-import RFQDetails from "@/features/procurement/components/solicitation-management/RFQ/[id]/index";
+"use client";
+
+import RFQDetails from "@/features/procurement/components/solicitation-management/RFQ/[id]";
 
 export default function RFQDetailPage() {
   return <RFQDetails />;

@@ -219,7 +219,7 @@ const columns: ColumnDef<AssetHistoryData>[] = [
       const date = new Date(dateValue);
       if (isNaN(date.getTime())) return "Invalid Date";
       
-      return date.toLocaleDateString();
+      return date.toLocaleDateString("en-US");
     },
   },
   {

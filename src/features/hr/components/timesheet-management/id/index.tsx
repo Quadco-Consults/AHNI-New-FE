@@ -6,14 +6,19 @@ import Card from "components/Card";
 import DataTable from "components/Table/DataTable";
 import { Button } from "components/ui/button";
 import { Badge } from "components/ui/badge";
-import CopyActivitiesModal from "./CopyAcitivitiesModal";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
+import { useGetAllProjects } from "@/features/projects/controllers/projectController";
+import { useGetAllWorkPlan, useGetSingleWorkPlan } from "@/features/programs/controllers/workPlanController";
 
 type TTimesheetDetail = {
+  projectId: string;
+  workplanId: string;
   name: string;
   activity: string;
+  activityId: string;
   mon: string;
   tue: string;
   wed: string;
@@ -25,8 +30,11 @@ type TTimesheetDetail = {
 };
 
 const initialRow: TTimesheetDetail = {
+  projectId: "",
+  workplanId: "",
   name: "",
   activity: "",
+  activityId: "",
   mon: "0",
   tue: "0",
   wed: "0",
@@ -93,8 +101,8 @@ const TimesheetManagementFull = () => {
         dialogProps: {
           header: "Copy Activities from Timesheet",
           data: "1", // the timesheet ID or whatever you need here
-          onAddActivities: (activities) => {
-            const newRows = activities.map((a) => ({
+          onAddActivities: (activities: any[]) => {
+            const newRows = activities.map((a: any) => ({
               ...a,
               mon: "",
               tue: "",
@@ -113,13 +121,183 @@ const TimesheetManagementFull = () => {
   };
   console.log({ timesheetData });
 
+  // Project Select Component
+  const ProjectSelect = ({ onValueChange, rowIndex }: { value: string; onValueChange: (value: string) => void; rowIndex: number }) => {
+    const { data: projectsData, isLoading } = useGetAllProjects({ page: 1, size: 100 });
+    const projects = projectsData?.results || [];
+
+    const handleProjectChange = (projectId: string) => {
+      const selectedProject = projects.find(p => p.id === projectId);
+      onValueChange(selectedProject?.title || projectId);
+      updateCell(rowIndex, "projectId", projectId);
+      // Clear workplan and activity when project changes
+      updateCell(rowIndex, "workplanId", "");
+      updateCell(rowIndex, "activity", "");
+      updateCell(rowIndex, "activityId", "");
+    };
+
+    return (
+      <Select value={timesheetData[rowIndex]?.projectId || ""} onValueChange={handleProjectChange}>
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder="Select project" />
+        </SelectTrigger>
+        <SelectContent>
+          {isLoading ? (
+            <SelectItem value="loading" disabled>
+              Loading projects...
+            </SelectItem>
+          ) : projects.length === 0 ? (
+            <SelectItem value="no-projects" disabled>
+              No projects found
+            </SelectItem>
+          ) : (
+            projects.map((project) => (
+              <SelectItem key={project.id} value={project.id}>
+                {project.title || project.project_id}
+              </SelectItem>
+            ))
+          )}
+        </SelectContent>
+      </Select>
+    );
+  };
+
+  // Workplan Select Component (intermediate step)
+  const WorkplanSelect = ({ value, onValueChange, rowIndex }: { value: string; onValueChange: (value: string) => void; rowIndex: number }) => {
+    const selectedProjectId = timesheetData[rowIndex]?.projectId;
+    const { data: workplansData, isLoading } = useGetAllWorkPlan({
+      page: 1,
+      size: 100,
+      project_title: selectedProjectId ? "" : "", // You might want to filter by project
+      enabled: !!selectedProjectId
+    });
+    const workplans = workplansData?.results || [];
+    
+    // Filter workplans by selected project if needed
+    const filteredWorkplans = workplans.filter(wp => wp.project === selectedProjectId);
+
+    const handleWorkplanChange = (workplanId: string) => {
+      onValueChange(workplanId);
+      updateCell(rowIndex, "workplanId", workplanId);
+      // Clear activity when workplan changes
+      updateCell(rowIndex, "activity", "");
+      updateCell(rowIndex, "activityId", "");
+    };
+
+    return (
+      <Select value={value} onValueChange={handleWorkplanChange} disabled={!selectedProjectId}>
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder={selectedProjectId ? "Select workplan" : "Select project first"} />
+        </SelectTrigger>
+        <SelectContent>
+          {isLoading ? (
+            <SelectItem value="loading" disabled>
+              Loading workplans...
+            </SelectItem>
+          ) : !selectedProjectId ? (
+            <SelectItem value="no-project" disabled>
+              Please select a project first
+            </SelectItem>
+          ) : filteredWorkplans.length === 0 ? (
+            <SelectItem value="no-workplans" disabled>
+              No workplans found for this project
+            </SelectItem>
+          ) : (
+            filteredWorkplans.map((workplan) => (
+              <SelectItem key={workplan.id} value={workplan.id}>
+                {workplan.financial_year} Workplan
+              </SelectItem>
+            ))
+          )}
+        </SelectContent>
+      </Select>
+    );
+  };
+
+  // Activity Select Component (now uses workplan activities)
+  const ActivitySelect = ({ value, onValueChange, rowIndex }: { value: string; onValueChange: (value: string) => void; rowIndex: number }) => {
+    const selectedWorkplanId = timesheetData[rowIndex]?.workplanId;
+    const { data: workplanData, isLoading } = useGetSingleWorkPlan(selectedWorkplanId || "", !!selectedWorkplanId);
+    const activities = workplanData?.data?.activities || [];
+    
+    const handleActivityChange = (activityValue: string) => {
+      const [activityId, activityName] = activityValue.split('|');
+      onValueChange(activityName);
+      updateCell(rowIndex, "activityId", activityId);
+    };
+
+    return (
+      <Select 
+        value={`${timesheetData[rowIndex]?.activityId || ''}|${value}`} 
+        onValueChange={handleActivityChange} 
+        disabled={!selectedWorkplanId}
+      >
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder={selectedWorkplanId ? "Select activity" : "Select workplan first"} />
+        </SelectTrigger>
+        <SelectContent>
+          {isLoading ? (
+            <SelectItem value="loading" disabled>
+              Loading activities...
+            </SelectItem>
+          ) : !selectedWorkplanId ? (
+            <SelectItem value="no-workplan" disabled>
+              Please select a workplan first
+            </SelectItem>
+          ) : activities.length === 0 ? (
+            <SelectItem value="no-activities" disabled>
+              No activities found in this workplan
+            </SelectItem>
+          ) : (
+            activities.map((activity) => (
+              <SelectItem key={activity.id} value={`${activity.id}|${activity.activity}`}>
+                {activity.activity_number}: {activity.activity}
+              </SelectItem>
+            ))
+          )}
+        </SelectContent>
+      </Select>
+    );
+  };
+
   const columns: ColumnDef<TTimesheetDetail>[] = [
-    { header: "Project Name", accessorKey: "name" },
-    { header: "Activity", accessorKey: "activity" },
+    { 
+      header: "Project Name", 
+      accessorKey: "name",
+      cell: ({ row }: { row: any }) => (
+        <ProjectSelect
+          value={row.original.name}
+          onValueChange={(value) => updateCell(row.index, "name", value)}
+          rowIndex={row.index}
+        />
+      ),
+    },
+    { 
+      header: "Workplan", 
+      accessorKey: "workplanId",
+      cell: ({ row }: { row: any }) => (
+        <WorkplanSelect
+          value={row.original.workplanId}
+          onValueChange={(value) => updateCell(row.index, "workplanId", value)}
+          rowIndex={row.index}
+        />
+      ),
+    },
+    { 
+      header: "Activity", 
+      accessorKey: "activity",
+      cell: ({ row }: { row: any }) => (
+        <ActivitySelect
+          value={row.original.activity}
+          onValueChange={(value) => updateCell(row.index, "activity", value)}
+          rowIndex={row.index}
+        />
+      ),
+    },
     ...["mon", "tue", "wed", "thu", "fri", "sat", "sun"].map((day) => ({
       header: day.charAt(0).toUpperCase() + day.slice(1),
       accessorKey: day,
-      cell: ({ row }) => (
+      cell: ({ row }: { row: any }) => (
         <input
           type='number'
           value={row.original[day as keyof TTimesheetDetail]}
@@ -133,7 +311,7 @@ const TimesheetManagementFull = () => {
     { header: "Total", accessorKey: "total" },
     {
       header: "Actions",
-      cell: ({ row }) => (
+      cell: ({ row }: { row: any }) => (
         <div className='flex gap-2'>
           <Button
             variant='outline'

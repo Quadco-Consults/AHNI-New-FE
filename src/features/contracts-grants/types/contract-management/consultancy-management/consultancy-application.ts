@@ -109,8 +109,20 @@ export interface IConsultancyStaffPaginatedData {
         employer_telephone: string;
         services_performed: string;
     }[];
+    status: string;
+    technical_monitor_user: null;
+    location: null;
+    project: null;
+    contract_request: null;
+    type: string;
+    technical_monitor_partner_name: null;
+    technical_monitor_partner_email: null;
+    technical_monitor_partner_phone: null;
+    offer_accepted: boolean;
+    offer_acceptance_date: null;
+    signature: null;
     created_by: string;
-    updated_by: null;
+    updated_by: string | null;
 }
 
 export interface IConsultancyStaffSingleData {

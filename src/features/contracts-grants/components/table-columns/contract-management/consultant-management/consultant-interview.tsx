@@ -7,7 +7,8 @@ const scoreOptions = ["1", "2", "3", "4", "5"].map((value) => ({
     value,
 }));
 
-const applicantInterviewColumns: ColumnDef<IConsultancyStaffPaginatedData>[] = [
+// Function that returns columns with form control
+const createApplicantInterviewColumns = (): ColumnDef<IConsultancyStaffPaginatedData>[] => [
     {
         id: "header",
         header: () => (
@@ -23,7 +24,7 @@ const applicantInterviewColumns: ColumnDef<IConsultancyStaffPaginatedData>[] = [
                 header: "Has done similar work previously (nature of task)",
                 cell: () => (
                     <FormSelect
-                        name=""
+                        name="similar_work"
                         placeholder="Select Score"
                         options={scoreOptions}
                     />
@@ -35,7 +36,7 @@ const applicantInterviewColumns: ColumnDef<IConsultancyStaffPaginatedData>[] = [
                 header: "Understands project management and the potential task(s)",
                 cell: () => (
                     <FormSelect
-                        name=""
+                        name="project_management"
                         placeholder="Select Score"
                         options={scoreOptions}
                     />
@@ -47,7 +48,7 @@ const applicantInterviewColumns: ColumnDef<IConsultancyStaffPaginatedData>[] = [
                 header: "Experience is recent (2-3 years)",
                 cell: () => (
                     <FormSelect
-                        name=""
+                        name="recent_experience"
                         placeholder="Select Score"
                         options={scoreOptions}
                     />
@@ -59,7 +60,7 @@ const applicantInterviewColumns: ColumnDef<IConsultancyStaffPaginatedData>[] = [
                 header: "Worked with projects comparable to the AHNi (budget and complexity)",
                 cell: () => (
                     <FormSelect
-                        name=""
+                        name="comparable_projects"
                         placeholder="Select Score"
                         options={scoreOptions}
                     />
@@ -71,7 +72,7 @@ const applicantInterviewColumns: ColumnDef<IConsultancyStaffPaginatedData>[] = [
                 header: "Excellent Communication Skills",
                 cell: () => (
                     <FormSelect
-                        name=""
+                        name="communication_skills"
                         placeholder="Select Score"
                         options={scoreOptions}
                     />
@@ -83,7 +84,7 @@ const applicantInterviewColumns: ColumnDef<IConsultancyStaffPaginatedData>[] = [
                 header: "Relevant Technical Skill",
                 cell: () => (
                     <FormSelect
-                        name=""
+                        name="relevant_technical_skill"
                         placeholder="Select Score"
                         options={scoreOptions}
                     />
@@ -95,7 +96,7 @@ const applicantInterviewColumns: ColumnDef<IConsultancyStaffPaginatedData>[] = [
                 header: "Qualifications are relevant to the consultancy",
                 cell: () => (
                     <FormSelect
-                        name=""
+                        name="relevant_qualifications"
                         placeholder="Select Score"
                         options={scoreOptions}
                     />
@@ -106,7 +107,7 @@ const applicantInterviewColumns: ColumnDef<IConsultancyStaffPaginatedData>[] = [
                 header: "Strong academic credentials",
                 cell: () => (
                     <FormSelect
-                        name=""
+                        name="academic_credentials"
                         placeholder="Select Score"
                         options={scoreOptions}
                     />
@@ -117,7 +118,7 @@ const applicantInterviewColumns: ColumnDef<IConsultancyStaffPaginatedData>[] = [
                 header: "Demonstrated ability to manage the project/consultancy timelines",
                 cell: () => (
                     <FormSelect
-                        name=""
+                        name="project_timelines"
                         placeholder="Select Score"
                         options={scoreOptions}
                     />
@@ -128,7 +129,7 @@ const applicantInterviewColumns: ColumnDef<IConsultancyStaffPaginatedData>[] = [
                 header: "Proven toolset and framework",
                 cell: () => (
                     <FormSelect
-                        name=""
+                        name="proven_toolset"
                         placeholder="Select Score"
                         options={scoreOptions}
                     />
@@ -139,4 +140,4 @@ const applicantInterviewColumns: ColumnDef<IConsultancyStaffPaginatedData>[] = [
     },
 ];
 
-export default applicantInterviewColumns;
+export default createApplicantInterviewColumns;

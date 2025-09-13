@@ -55,7 +55,7 @@ interface TConsultantManagementUpdateFormData
   extends TConsultantanagementDetailsFormData,
     TScopeOfWorkFormData {}
 
-const BASE_URL = "/contract-grants/consultants/"; // From original service
+const BASE_URL = "/contract-grants/consultancy/applicants/"; // Fixed: Should use consultancy applicants endpoint
 
 // ===== CONSULTANT MANAGEMENT HOOKS =====
 

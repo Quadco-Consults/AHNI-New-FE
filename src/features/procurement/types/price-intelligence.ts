@@ -19,4 +19,7 @@ export interface PriceIntelligenceHistory {
 
 export interface PriceIntelligenceDetail extends PriceIntelligenceList {
   history: PriceIntelligenceHistory[];
+  source_prices: {
+    [key: string]: { price: number; created_datetime: string }[];
+  };
 }

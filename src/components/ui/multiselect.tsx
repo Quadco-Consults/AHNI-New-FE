@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { forwardRef, useRef, useState, useEffect } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { CheckIcon, XCircle, ChevronDown, XIcon } from "lucide-react";
 import { cn } from "lib/utils";
@@ -48,7 +48,7 @@ interface MultiSelectFormFieldProps
   onValueChange: (id: string[]) => void;
 }
 
-const MultiSelectFormField = React.forwardRef<
+const MultiSelectFormField = forwardRef<
   HTMLButtonElement,
   MultiSelectFormFieldProps
 >(
@@ -66,13 +66,13 @@ const MultiSelectFormField = React.forwardRef<
     },
     ref
   ) => {
-    const [selectedValues, setSelectedValues] = React.useState<string[]>(
+    const [selectedValues, setSelectedValues] = useState<string[]>(
       defaultValue || []
     );
-    const selectedValuesSet = React.useRef(new Set(selectedValues));
-    const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
+    const selectedValuesSet = useRef(new Set(selectedValues));
+    const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
-    React.useEffect(() => {
+    useEffect(() => {
       setSelectedValues(defaultValue || []);
       selectedValuesSet.current = new Set(defaultValue);
     }, [defaultValue]);

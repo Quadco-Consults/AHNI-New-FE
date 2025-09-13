@@ -116,7 +116,7 @@ const GrievanceManagement: React.FC = () => {
     return (
       <div className='flex gap-2'>
         <Link
-          href={`/dashboard/hr/grievance-management/${data?.id}`}
+          href={`/dashboard/hr/grievance-management/${data?.id}/details`}
         >
           <IconButton className='bg-[#F9F9F9] hover:text-primary'>
             <Icon icon='ph:eye-duotone' fontSize={15} />

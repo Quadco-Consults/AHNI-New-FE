@@ -130,8 +130,14 @@ const Proposal = () => {
     ) || [];
 
   const onSubmit: SubmitHandler<TSolicitationProposalFormData> = (data) => {
-    sessionStorage.setItem("rfpProposalFormData", JSON.stringify(data));
-    router.push(RouteEnum.RFP);
+    console.log("Form submitted with data:", data);
+    console.log("Navigating to route:", RouteEnum.RFP);
+    try {
+      sessionStorage.setItem("rfpProposalFormData", JSON.stringify(data));
+      router.push(RouteEnum.RFP);
+    } catch (error) {
+      console.error("Error in form submission:", error);
+    }
   };
 
   const tender_type = form.watch("tender_type");
@@ -243,7 +249,9 @@ const Proposal = () => {
         </h4>
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={form.handleSubmit(onSubmit, (errors) => {
+              console.error("Form validation errors:", errors);
+            })}
             className="space-y-5 mt-10"
           >
             <div className="grid grid-cols-2 gap-5">
@@ -469,7 +477,12 @@ const Proposal = () => {
               >
                 Cancel
               </Button>
-              <FormButton type="submit">Submit</FormButton>
+              <FormButton 
+                type="submit"
+                onClick={() => console.log("Submit button clicked")}
+              >
+                Submit
+              </FormButton>
             </div>
           </form>
         </Form>

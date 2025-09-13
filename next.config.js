@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  swcMinify: true,
+  reactStrictMode: false, // Disable strict mode temporarily to avoid double rendering issues
+  swcMinify: false, // Disable SWC minification since SWC is corrupted
   images: {
     domains: ["ahni-erp-029252c2fbb9.herokuapp.com"],
   },
@@ -11,40 +11,18 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  experimental: {
+    forceSwcTransforms: false, // Force using Babel instead of SWC
+  },
   webpack: (config, { isServer }) => {
-    // Ignore PDF worker files for now to avoid build issues
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      "pdfjs-dist/build/pdf.worker.min.js": false,
-      "pdfjs-dist/build/pdf.worker.min.mjs": false,
+    // Enable caching back for better performance
+    config.cache = {
+      type: 'filesystem',
     };
 
-    // Ignore .mjs files that cause issues
-    config.module.rules.push({
-      test: /\.mjs$/,
-      type: "javascript/auto",
-    });
-
-    // Fix for Vite to Next.js migration - better ESM/CJS handling
-    config.resolve.extensionAlias = {
-      ".js": [".ts", ".tsx", ".js", ".jsx"],
-      ".jsx": [".tsx", ".jsx"],
-    };
-
-    // Ensure proper module resolution for react-hook-form and other ESM packages
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-    };
-
-    // Disable cache to avoid stale module resolution from Vite
-    config.cache = false;
-
-    // Force ESM resolution for problematic packages
-    config.externals = config.externals || [];
+    // Fix Canvas issues for PDF generation
     if (isServer) {
-      config.externals.push({
-        'react-hook-form': 'commonjs react-hook-form',
-      });
+      config.externals.push('canvas');
     }
 
     return config;

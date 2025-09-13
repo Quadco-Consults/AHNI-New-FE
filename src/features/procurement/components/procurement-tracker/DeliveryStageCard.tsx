@@ -26,22 +26,45 @@ const DeliveryStageCard = ({ data }: DeliveryStageCardProps) => {
       header: "Date Delivery Due",
       accessorKey: "purchase_order.delivery_due_date",
       size: 195,
+      cell: ({ row }) => {
+        const date = row.original?.purchase_order?.delivery_due_date || 
+                   row.original?.purchase_order?.delivery_date ||
+                   row.original?.delivery_due_date;
+        return <div>{date ? new Date(date).toLocaleDateString("en-US") : "N/A"}</div>;
+      },
     },
     {
       header: "Date Delivery Received",
-      accessorKey: "purchase_order.date_of_grn",
+      accessorKey: "delivery_note.date_received",
       size: 195,
+      cell: ({ row }) => {
+        const date = row.original?.delivery_note?.date_received || 
+                   row.original?.delivery_note?.delivery_date ||
+                   row.original?.purchase_order?.date_of_grn ||
+                   row.original?.date_received;
+        return <div>{date ? new Date(date).toLocaleDateString("en-US") : "N/A"}</div>;
+      },
     },
 
     {
       header: "GRN No.",
-      accessorKey: "purchase_order.grn_details",
+      accessorKey: "delivery_note.grn_number",
       size: 195,
+      cell: ({ row }) => {
+        return <div>{row.original?.delivery_note?.grn_number || 
+                    row.original?.delivery_note?.grn_reference ||
+                    row.original?.purchase_order?.grn_details?.grn_number || 
+                    row.original?.grn_number || "N/A"}</div>;
+      },
     },
     {
       header: "Vendor Performance Rating",
       accessorKey: "vendor_performance",
       size: 250,
+      cell: ({ row }) => {
+        const rating = row.original?.vendor_performance || row.original?.purchase_order?.service_quality_rating;
+        return <div>{rating ? `${rating}/5` : "Not rated"}</div>;
+      },
     },
     {
       header: "Procurement Status",
@@ -61,7 +84,7 @@ const DeliveryStageCard = ({ data }: DeliveryStageCardProps) => {
             )}
           >
             {/* {"ON GOING"} */}
-            {row.original.purchase_order?.status}
+            {row.original?.purchase_order?.status || row.original?.status || "Pending"}
           </Badge>
         );
       },
@@ -90,6 +113,9 @@ const DeliveryStageCard = ({ data }: DeliveryStageCardProps) => {
       header: "Remarks",
       accessorKey: "remarks",
       size: 150,
+      cell: ({ row }) => {
+        return <div>{row.original?.remarks || row.original?.notes || "No remarks"}</div>;
+      },
     },
     {
       header: "Action",

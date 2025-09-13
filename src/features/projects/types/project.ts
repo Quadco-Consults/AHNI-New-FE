@@ -31,7 +31,8 @@ export type TProjectFormValues = z.infer<typeof ProjectSchema>;
 
 export interface IProjectSingleData {
   id: string;
-  name: string;
+  title: string; // API uses 'title' not 'name'
+  name: string; // Keep for backward compatibility
   currency: string;
   funding_sources: { id: string; name: string }[];
   project_managers: { id: string; first_name: string; last_name: string }[];

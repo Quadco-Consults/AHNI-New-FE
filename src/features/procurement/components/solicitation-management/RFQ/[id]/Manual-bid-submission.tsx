@@ -2,41 +2,41 @@
 
 /* eslint-disable react/prop-types */
 
-import { useNavigate, useParams } 
+import { useRouter, useParams } from "next/navigation";
 import { SelectContent, SelectItem } from "components/ui/select";
 import { Form } from "components/ui/form";
 import { useFieldArray, useForm } from "react-hook-form";
-import VendorsAPI from "@/features/procurementApi/vendorsController";
+import VendorsAPI from "@/features/procurement/controllers/vendorsController";
 import FormSelect from "components/atoms/FormSelectField";
 import { LoadingSpinner } from "components/Loading";
 import { VendorsResultsData } from "definations/procurement-types/vendors";
 import FormInput from "components/atoms/FormInput";
-import { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { z } from "zod";
-import { SolicitationSubmissionSchema } from "definations/procurement-validator";
+import { SolicitationSubmissionSchema } from "@/features/procurement/types/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import FormButton from "@/components/FormButton";
-import { useCreateSolicitationSubmission } from "@/features/procurementApi/vendor-bid-submissions";
-import { useGetSingleSolicitation } from "@/features/procurementApi/solicitation";
-import { useGetAllSolicitationEvaluationCriteria } from "@/features/modules/procurement/solicitation-evaluation-criteria";
+import { useCreateSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
+import { useGetSingleSolicitation } from "@/features/procurement/controllers/solicitationController";
+import { useGetAllSolicitationEvaluationCriteria } from "@/features/modules/controllers";
 
 import GoBack from "components/GoBack";
 
 const ManualBidSubmission = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
 
   const { data: vendors, isLoading: vendorsIsLoading } =
-    VendorsAPI.useGetVendorList({
-      params: { status: "Approved" },
+    VendorsAPI.useGetVendors({
+      status: "Approved",
     });
 
   const { createSolicitationSubmission, isLoading: isCreateLoading } =
     useCreateSolicitationSubmission();
 
   const { data: singleSolicitation } = useGetSingleSolicitation(
-    id as string
+    solicitationId as string
   );
 
   const { data: solicitationCriteria } =
@@ -75,18 +75,31 @@ const ManualBidSubmission = () => {
   const data = useMemo(() => {
     return singleSolicitation?.data?.solicitation_items?.map((data) => ({
       solicitation_item: data?.id,
-      quantity: data?.quantity || 0,
+      quantity: String(data?.quantity || 0),
       name: data?.item_detail?.name,
       unit_price: "",
     }));
   }, [singleSolicitation]);
 
   const dataVal = useMemo(() => {
-    return singleSolicitation?.data?.solicitation_evaluations?.map((data) => ({
-      response: "",
-      evaluation_criteria: data?.id,
-    }));
-  }, [singleSolicitation]);
+    if (
+      !singleSolicitation?.data?.solicitation_evaluations ||
+      !solicitationCriteria?.results
+    ) {
+      return [];
+    }
+
+    const validCriteriaIds = new Set(
+      solicitationCriteria.results.map((criteria: any) => criteria.id)
+    );
+
+    return singleSolicitation.data.solicitation_evaluations
+      .filter((data) => validCriteriaIds.has(data?.id))
+      .map((data) => ({
+        response: "",
+        evaluation_criteria: data?.id,
+      }));
+  }, [singleSolicitation, solicitationCriteria]);
 
   useEffect(() => {
     if (data) {
@@ -118,16 +131,16 @@ const ManualBidSubmission = () => {
   };
 
   return (
-    <div className='space-y-10'>
+    <div className="space-y-10">
       <GoBack />
       <div>
-        <h4 className='text-lg font-bold'>Manual Bid Submission Form</h4>
+        <h4 className="text-lg font-bold">Manual Bid Submission Form</h4>
         <h6>{singleSolicitation?.data?.title}</h6>
       </div>
 
       <Form {...form}>
-        <form onSubmit={handleSubmit(onSubmit)} className='space-y-10'>
-          <FormSelect name='vendor' label='Vendor' required>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
+          <FormSelect name="vendor" label="Vendor" required>
             <SelectContent>
               {vendorsIsLoading && <LoadingSpinner />}
               {/* @ts-ignore */}
@@ -139,20 +152,20 @@ const ManualBidSubmission = () => {
             </SelectContent>
           </FormSelect>
 
-          <div className='space-y-1'>
-            <h4 className='text-base font-bold'>Items Quotation</h4>
+          <div className="space-y-1">
+            <h4 className="text-base font-bold">Items Quotation</h4>
             <h6>Please provide your quotation for the following Items</h6>
           </div>
 
           <div>
-            <table className='w-full border mt-10'>
+            <table className="w-full border mt-10">
               <thead>
-                <tr className='text-amber-500 whitespace-nowrap border-b-2 text-sm font-semibold'>
-                  <th className='px-2 py-5 w-[50px]'>S/N</th>
-                  <th className='px-2 py-5 w-[300px]'>Items Description</th>
-                  <th className='px-2 py-5 w-[150px]'>Qty</th>
-                  <th className='px-2 py-5 w-[150px]'> Unit price</th>
-                  <th className='px-2 py-5 w-[150px]'>Total</th>
+                <tr className="text-amber-500 whitespace-nowrap border-b-2 text-sm font-semibold">
+                  <th className="px-2 py-5 w-[50px]">S/N</th>
+                  <th className="px-2 py-5 w-[300px]">Items Description</th>
+                  <th className="px-2 py-5 w-[150px]">Qty</th>
+                  <th className="px-2 py-5 w-[150px]"> Unit price</th>
+                  <th className="px-2 py-5 w-[150px]">Total</th>
                 </tr>
               </thead>
               <tbody>
@@ -165,15 +178,15 @@ const ManualBidSubmission = () => {
                   });
 
                   return (
-                    <tr key={index} className='w-full'>
-                      <td className='w-[50px] p-2 text-center '>
-                        <span className='p-2 px-4 text-xs bg-black text-white rounded'>
+                    <tr key={index} className="w-full">
+                      <td className="w-[50px] p-2 text-center ">
+                        <span className="p-2 px-4 text-xs bg-black text-white rounded">
                           {index + 1}.
                         </span>
                       </td>
-                      <td className=' p-2 text-center w-[400px]'>
-                        <div className='space-y-2'>
-                          <h2 className='font-semibold'>
+                      <td className=" p-2 text-center w-[400px]">
+                        <div className="space-y-2">
+                          <h2 className="font-semibold">
                             {/* {singleSolicitation?.data.items[index]?.item?.name} */}
                             {/* @ts-ignore */}
                             {field?.name}
@@ -182,24 +195,24 @@ const ManualBidSubmission = () => {
                           <h6>{field?.description} </h6>
                         </div>
                       </td>
-                      <td className='w-[100px] flex items-center p-2 text-center mx-auto'>
+                      <td className="w-[100px] flex items-center p-2 text-center mx-auto">
                         <FormInput
-                          label=''
+                          label=""
                           name={`bid_items.[${index}].quantity`}
-                          type='number'
-                          className='w-full'
+                          type="number"
+                          className="w-full"
                         />
                       </td>
-                      <td className='w-[100px] p-2 text-center mx-auto'>
+                      <td className="w-[100px] p-2 text-center mx-auto">
                         <FormInput
-                          label=''
-                          type='number'
+                          label=""
+                          type="number"
                           name={`bid_items.[${index}].unit_price`}
-                          className='w-full'
+                          className="w-full"
                         />
                       </td>
 
-                      <td className='w-[100px] p-2 text-center'>
+                      <td className="w-[100px] p-2 text-center">
                         <h6>
                           ₦
                           {Number(
@@ -213,9 +226,9 @@ const ManualBidSubmission = () => {
                 })}
               </tbody>
             </table>
-            <div className=''>
+            <div className="">
               {/* Calculate total */}
-              <div className='flex items-center justify-center w-fit gap-20 px-5 py-3 border rounded-lg border-primary text-primary ml-auto mt-6'>
+              <div className="flex items-center justify-center w-fit gap-20 px-5 py-3 border rounded-lg border-primary text-primary ml-auto mt-6">
                 <h4>Total:</h4>
                 <span>
                   ₦
@@ -230,28 +243,31 @@ const ManualBidSubmission = () => {
               </div>
             </div>
           </div>
-          <div className='grid grid-cols-3 gap-5'>
+          <div className="grid grid-cols-3 gap-5">
             {responseField.map((field, index) => {
               return (
-                <tr key={index} className='w-full'>
+                <tr key={index} className="w-full">
                   <FormInput
                     label={
-                      singleSolicitation?.data?.solicitation_evaluations[index]
-                        ?.criteria_details?.name
+                      solicitationCriteria?.results?.find(
+                        (criteria: any) =>
+                          criteria.id ===
+                          responseField[index]?.evaluation_criteria
+                      )?.name || "Evaluation Criteria"
                     }
                     name={`evaluations.[${index}].response`}
-                    className='w-full'
+                    className="w-full"
                   />
                 </tr>
               );
             })}
           </div>
 
-          <div className='flex justify-end'>
+          <div className="flex justify-end">
             <FormButton
               loading={isCreateLoading}
               disabled={isCreateLoading}
-              type='submit'
+              type="submit"
             >
               Submit
             </FormButton>

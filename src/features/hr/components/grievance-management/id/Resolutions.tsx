@@ -11,7 +11,7 @@ import { useAppDispatch } from "hooks/useStore";
 import { EditIcon } from "lucide-react";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useUpdateGrievianceManagementMutation } from "@/features/hr/controllers/grievanceController";
+import { useUpdateGrievance } from "@/features/hr/controllers/grievanceController";
 import { toast } from "sonner";
 
 const Resolutions = (data: VendorsResultsData) => {
@@ -30,20 +30,16 @@ const Resolutions = (data: VendorsResultsData) => {
     });
     
     const dispatch = useAppDispatch();
-    const [updateGrievianceManagement, {isLoading: isLoading}] = useUpdateGrievianceManagementMutation({})
+    const { updateGrievance, isLoading } = useUpdateGrievance(data?.id || "")
     const onSubmit: SubmitHandler<ResolutionFormValues> =  async (details: any) => {
        
         try {
-          const formData = new FormData();
-          formData.append("title", data.title);  
-          formData.append("description", data.description);   
-          formData.append("findings", data.findings);   
-          formData.append("resolution", details.resolution);  
-      
-          // @ts-ignore
-          await updateGrievianceManagement({
-            id: data?.id,
-            body: formData
+          await updateGrievance({
+            ...details,
+            type: data?.title || data?.type || "Complaint",
+            title: data?.title || data?.type || "Complaint",
+            description: data?.description || "Grievance description",
+            whistle_blower: data?.whistle_blower || "Anonymous"
           });
           toast.success("Resolution submitted successfully"); 
           setDialogOpen(false)

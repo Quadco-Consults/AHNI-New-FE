@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import NewApplicantStaffForm from "./NewConsultancyStaffForm";
 import CreateExistingApplicantStaff from "./CreateExistingConsultancyStaff";
 import { useSearchParams } from "next/navigation";
-import { useGetSingleConsultancyStaff } from "@/features/contracts-grants/controllers/consultantManagementController";
+import { useGetSingleConsultancyStaff } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { LoadingSpinner } from "components/Loading";
 

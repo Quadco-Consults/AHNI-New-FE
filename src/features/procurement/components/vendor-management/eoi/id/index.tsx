@@ -76,7 +76,7 @@ const ViewEOI = () => {
               <EoIDetails {...(responseData as EOIResultsData)} />
             </TabsContent>
             <TabsContent value='vendor-submission'>
-              <EOIVendorSubmission />
+              <EOIVendorSubmission eoiData={responseData} />
             </TabsContent>
           </>
         )}
