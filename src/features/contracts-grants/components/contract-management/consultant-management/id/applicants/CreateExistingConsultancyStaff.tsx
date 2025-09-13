@@ -16,9 +16,11 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import {
     useCreateExistingApplicantStaff,
+} from "@/features/contracts-grants/controllers/consultantManagementController";
+import {
     useGetAllConsultancyStaffs,
     useGetSingleConsultancyStaff,
-} from "@/features/contracts-grants/controllers/consultantManagementController";
+} from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import { toast } from "sonner";
 import ConsultancyStaffDetailsWrapper from "./SingleConsultancyStaffDetails";
 import { LoadingSpinner } from "components/Loading";

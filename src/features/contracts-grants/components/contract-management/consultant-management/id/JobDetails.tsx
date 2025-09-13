@@ -8,7 +8,7 @@ import {
 } from "assets/svgs/CAndGSvgs";
 import DescriptionCard from "components/DescriptionCard";
 import FilePreview from "components/FilePreview";
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 import { IConsultantSingleData } from "definations/c&g/contract-management/consultancy-management/consultancy-management";
 import React from "react";
 
@@ -38,12 +38,15 @@ export default function JobDetails({
         />
         <DetailsTag
           icon={<DataCalenderSvg />}
-          label={format(end_date, "MMM dd, yyy")}
+          label={end_date && isValid(new Date(end_date)) ? format(new Date(end_date), "MMM dd, yyyy") : "Date not available"}
         />
 
         <DetailsTag
           icon={<LocationSvg />}
-          label={locations.map((item) => item.name).join(", ")}
+          label={locations && Array.isArray(locations) && locations.length > 0 
+            ? locations.map((item) => item.name || item.city || "Unknown").join(", ")
+            : "No location specified"
+          }
         />
         <DetailsTag icon={<SuiteCase />} label='Internal' />
 
