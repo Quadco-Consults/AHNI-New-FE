@@ -64,8 +64,7 @@ export const AdminRoutes = {
 
   // PAYMENT REQUEST
   INDEX_PAYMENT_REQUEST: "/dashboard/admin/payment-request",
-  CREATE_PAYMENT_REQUEST_SUMMARY:
-    "/dashboard/admin/payment-request/create/summary",
+  CREATE_PAYMENT_REQUEST_SUMMARY: "/dashboard/admin/payment-request/create",
   CREATE_PAYMENT_REQUEST_UPLOADS:
     "/dashboard/admin/payment-request/create/uploads",
   VIEW_PAYMENT_REQUEST: "/dashboard/admin/payment-request/:id",
@@ -187,13 +186,20 @@ export const RouteEnum = {
     "/dashboard/procurement/competitive-bid-analysis/selection",
 
   // Competitive Bid Analysis routes
-  PROCUREMENT_COMPETITIVE_BID_ANALYSIS: "/dashboard/procurement/competitive-bid-analysis",
-  PROCUREMENT_CBA_DETAILS: "/dashboard/procurement/competitive-bid-analysis/:id",
-  PROCUREMENT_CBA_CHECK_APPROVAL: "/dashboard/procurement/competitive-bid-analysis/:id/check-approval",
-  PROCUREMENT_CBA_START: "/dashboard/procurement/competitive-bid-analysis/:id/start/:appID",
-  PROCUREMENT_CBA_FINANCIAL_BID_OPENING: "/dashboard/procurement/competitive-bid-analysis/:id/financial-bid-opening",
-  PROCUREMENT_CBA_TECHNICAL_PREQUALIFICATION: "/dashboard/procurement/competitive-bid-analysis/:id/summary-of-technical-prequalification",
-  PROCUREMENT_CBA_REPORT: "/dashboard/procurement/competitive-bid-analysis/:id/report",
+  PROCUREMENT_COMPETITIVE_BID_ANALYSIS:
+    "/dashboard/procurement/competitive-bid-analysis",
+  PROCUREMENT_CBA_DETAILS:
+    "/dashboard/procurement/competitive-bid-analysis/:id",
+  PROCUREMENT_CBA_CHECK_APPROVAL:
+    "/dashboard/procurement/competitive-bid-analysis/:id/check-approval",
+  PROCUREMENT_CBA_START:
+    "/dashboard/procurement/competitive-bid-analysis/:id/start/:appID",
+  PROCUREMENT_CBA_FINANCIAL_BID_OPENING:
+    "/dashboard/procurement/competitive-bid-analysis/:id/financial-bid-opening",
+  PROCUREMENT_CBA_TECHNICAL_PREQUALIFICATION:
+    "/dashboard/procurement/competitive-bid-analysis/:id/summary-of-technical-prequalification",
+  PROCUREMENT_CBA_REPORT:
+    "/dashboard/procurement/competitive-bid-analysis/:id/report",
 
   PROCUREMENT_PAYMENT_REQUEST: "/dashboard/procurement/payment-request",
 

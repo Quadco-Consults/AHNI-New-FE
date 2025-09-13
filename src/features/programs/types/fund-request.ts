@@ -144,8 +144,15 @@ export interface TFundRequestResponseData {
     month: string;
     currency: "USD";
     type: "MAIN";
-    status: "PENDING";
-    created_by: "5d254cc3-8ac1-4342-9768-4e3bb3d73367";
-    updated_by: null;
-    reviewer: null;
+    status: "PENDING" | "REVIEWED" | "LOCATION_REVIEWED" | "LOCATION_AUTHORIZED" | "STATE_REVIEWED" | "STATE_AUTHORIZED" | "HQ_REVIEWED" | "HQ_AUTHORIZED" | "HQ_APPROVED" | "REJECTED";
+    created_by: string;
+    updated_by: string | null;
+    reviewer: string | null;
+    location_reviewer: string | null;
+    location_authorizer: string | null;
+    state_reviewer: string | null;
+    state_authorizer: string | null;
+    hq_reviewer: string | null;
+    hq_authorizer: string | null;
+    hq_approver: string | null;
 }

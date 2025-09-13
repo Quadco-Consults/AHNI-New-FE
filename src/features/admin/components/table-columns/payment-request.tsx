@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { IPaymentRequestPaginatedData } from "definations/admin/payment-request";
+// import { IPaymentRequestPaginatedData } from "definations/admin/payment-request";
 import { useState } from "react";
 import { useDeletePaymentRequest } from "@/features/admin/controllers/paymentRequestController";
 import { toast } from "sonner";
@@ -11,12 +11,12 @@ import { AdminRoutes } from "constants/RouterConstants";
 import EyeIcon from "components/icons/EyeIcon";
 import ConfirmationDialog from "components/ConfirmationDialog";
 import DeleteIcon from "components/icons/DeleteIcon";
-import EditIcon from "components/icons/EditIcon";
 import { format } from "date-fns";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
 import PencilIcon from "components/icons/PencilIcon";
 import { formatNumberCurrency } from "utils/utls";
+import { IPaymentRequestPaginatedData } from "../../types/payment-request";
 
 export const paymentRequestColumns: ColumnDef<IPaymentRequestPaginatedData>[] =
   [
@@ -64,18 +64,24 @@ export const paymentRequestColumns: ColumnDef<IPaymentRequestPaginatedData>[] =
       id: "status",
       accessorKey: "status",
       cell: ({ getValue }) => {
+        const status = getValue() as string;
         return (
           <Badge
             variant='default'
             className={cn(
-              "p-1 rounded-lg",
-              getValue() === "IN_PROGRESS" && "bg-green-200 text-green-500",
-              getValue() === "CLOSED" && "bg-red-200 text-red-500",
-              getValue() === "PENDING" && "bg-yellow-200 text-yellow-500",
-              getValue() === "On Hold" && "text-grey-200 bg-grey-500"
+              "p-1 rounded-lg font-medium",
+              status === "PENDING" && "bg-yellow-100 text-yellow-700 border-yellow-200",
+              status === "REVIEWED" && "bg-blue-100 text-blue-700 border-blue-200",
+              status === "AUTHORIZED" && "bg-purple-100 text-purple-700 border-purple-200",
+              status === "APPROVED" && "bg-green-100 text-green-700 border-green-200",
+              status === "REJECTED" && "bg-red-100 text-red-700 border-red-200",
+              // Legacy statuses (fallback)
+              status === "IN_PROGRESS" && "bg-green-200 text-green-500",
+              status === "CLOSED" && "bg-red-200 text-red-500",
+              status === "On Hold" && "bg-gray-200 text-gray-500"
             )}
           >
-            {getValue() as string}
+            {status}
           </Badge>
         );
       },
@@ -88,16 +94,15 @@ export const paymentRequestColumns: ColumnDef<IPaymentRequestPaginatedData>[] =
     },
   ];
 
-const TableMenu = ({ id, status }: IPaymentRequestPaginatedData) => {
+const TableMenu = ({ id }: IPaymentRequestPaginatedData) => {
   const [isDialogOpen, setDialogOpen] = useState(false);
 
-  const [deletePaymentRequest, { isLoading }] =
-    useDeletePaymentRequestMutation();
+  const { deletePaymentRequest, isLoading } = useDeletePaymentRequest(id);
 
   const handleDelete = async () => {
     try {
-      await deletePaymentRequest(id);
-      toast.success("Payment Request Deleted");
+      await deletePaymentRequest();
+      () => setDialogOpen(false);
     } catch (error: any) {
       toast.error(error.data.message ?? "Something went wrong");
     }
@@ -116,9 +121,7 @@ const TableMenu = ({ id, status }: IPaymentRequestPaginatedData) => {
             <div className='flex flex-col items-start justify-between gap-1'>
               <Link
                 className='w-full'
-                href={generatePath(AdminRoutes.VIEW_PAYMENT_REQUEST, {
-                  id,
-                })}
+                href={AdminRoutes.VIEW_PAYMENT_REQUEST.replace(":id", id)}
               >
                 <Button
                   className='w-full flex items-center justify-start gap-2'

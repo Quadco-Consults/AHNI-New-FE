@@ -73,8 +73,6 @@ export default function ScopeOfWork() {
     useModifyConsultantManagement(consultantId);
 
   const onSubmit: SubmitHandler<TScopeOfWorkFormData> = async (data) => {
-    console.log({ busy: "djjhjh" });
-
     try {
       const applicationDetails: TConsultantanagementDetailsFormData =
         JSON.parse(
@@ -97,12 +95,6 @@ export default function ScopeOfWork() {
       } else {
         await createConsultantManagement(payload);
       }
-      if (type === "ADHOC") {
-        toast.success("Adhoc Created");
-      } else {
-        toast.success("Consultant Created");
-      }
-      console.log({ pathname });
 
       if (pathname?.includes("adhoc-management")) {
         router.push(ProgramRoutes.ADHOC_MANAGEMENT);
@@ -114,7 +106,6 @@ export default function ScopeOfWork() {
       toast.error(error.data.message ?? "Something went wrong");
     }
   };
-  console.log({ pathname, jd: pathname?.includes("adhoc-management") });
 
   const { data } = useGetSingleConsultantManagement(consultantId || skipToken);
 
@@ -134,7 +125,7 @@ export default function ScopeOfWork() {
         //   ...item,
         //   number_of_days: String(item.number_of_days),
         // })),
-        advertisement_document: advertisement_document ?? [] as any,
+        advertisement_document: advertisement_document ?? ([] as any),
         // scope_of_work_document: scope_of_work_document ?? "",
       });
     }
@@ -263,8 +254,8 @@ export default function ScopeOfWork() {
                     }
                   />
                   <p className='border flex items-center w-full gap-x-[1rem] rounded-lg border-[#DBDFE9] px-[1.125rem] h-[3.5rem]'>
-                    {(form.watch("advertisement_document") as FileList)?.[0]?.name ||
-                      data?.data.scope_of_work.advertisement_document}
+                    {(form.watch("advertisement_document") as FileList)?.[0]
+                      ?.name || data?.data.scope_of_work.advertisement_document}
                   </p>
                 </div>
               </div>
