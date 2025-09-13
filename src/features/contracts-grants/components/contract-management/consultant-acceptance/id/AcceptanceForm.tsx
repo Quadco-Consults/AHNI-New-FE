@@ -7,15 +7,59 @@ import { Form } from "components/ui/form";
 import { Label } from "components/ui/label";
 import { Separator } from "components/ui/separator";
 import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useParams, useRouter } from "next/navigation";
+
+interface AcceptanceFormData {
+    country: string;
+    city: string;
+    signature?: File;
+    date: string;
+}
 
 export default function AcceptanceForm() {
-    const form = useForm();
+    const form = useForm<AcceptanceFormData>();
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const params = useParams();
+    const router = useRouter();
 
-    const handleFileChange = () => {};
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            setSelectedFile(file);
+            console.log("Selected file:", file.name);
+        }
+    };
+
+    const onSubmit = async (data: AcceptanceFormData) => {
+        console.log("Acceptance form submission:", data);
+        console.log("Selected file:", selectedFile);
+        
+        setIsSubmitting(true);
+        
+        try {
+            // Here you would typically submit to an API endpoint
+            // For now, we'll just simulate the submission
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            toast.success("Consultant acceptance form submitted successfully!");
+            
+            // Navigate back or to a success page
+            router.back();
+            
+        } catch (error) {
+            console.error("Acceptance form submission error:", error);
+            toast.error("Failed to submit acceptance form. Please try again.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
         <Form {...form}>
-            <form className="space-y-10">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
                 <div className="grid grid-cols-2 items-center gap-10">
                     <FormInput
                         label="Country"
@@ -57,12 +101,12 @@ export default function AcceptanceForm() {
                                 onChange={handleFileChange}
                             />
                             <p className="border flex items-center w-full gap-x-[1rem] rounded-lg border-[#DBDFE9] px-[1.125rem] h-[3.5rem] truncate text-ellipsis">
-                                test.svg
+                                {selectedFile ? selectedFile.name : "No file selected"}
                             </p>
                         </div>
                     </div>
 
-                    <FormInput type="date" label="Date" name="_" required />
+                    <FormInput type="date" label="Date" name="date" required />
                 </div>
 
                 <div className="space-y-3">
@@ -112,8 +156,8 @@ export default function AcceptanceForm() {
                     </p>
                 </div>
 
-                <FormButton type="submit" size="lg">
-                    Submit
+                <FormButton type="submit" size="lg" disabled={isSubmitting}>
+                    {isSubmitting ? "Submitting..." : "Submit"}
                 </FormButton>
             </form>
         </Form>

@@ -14,16 +14,22 @@ export default function ConsultancyStaffList() {
 
   const [currentPage, setCurrentPage] = useState(1);
 
-  const { data, isFetching } = useGetAllConsultancyStaffs(
-    id
-      ? {
-          page: currentPage,
-          size: 10,
-          consultants: id,
-          status: "APPLIED",
-        }
-      : skipToken
-  );
+  // Simplified API call
+  const { data, isFetching, error } = useGetAllConsultancyStaffs({
+    page: currentPage,
+    size: 10,
+    consultant_id: id,
+    status: "APPLIED",
+  });
+
+  // Simple debug logs
+  console.log("🔍 ConsultancyStaffList Debug:");
+  console.log("- Consultant ID:", id);
+  console.log("- Has Data:", !!data);
+  console.log("- Has Results:", !!data?.data?.results);
+  console.log("- Results Count:", data?.data?.results?.length || 0);
+  console.log("- Error:", error);
+  console.log("- Is Fetching:", isFetching);
 
   return (
     <section className='space-y-5'>
@@ -32,13 +38,13 @@ export default function ConsultancyStaffList() {
         <TableFilters>
           <DataTable
             columns={consultancyStaffColumns}
-            data={data?.data.results || []}
+            data={data?.data?.results || []}
             isLoading={isFetching}
-            pagination={{
-              total: data?.data.pagination.count ?? 0,
-              pageSize: data?.data.pagination.page_size ?? 0,
+            pagination={data?.data?.pagination ? {
+              total: data.data.pagination.count ?? 0,
+              pageSize: data.data.pagination.page_size ?? 0,
               onChange: (page: number) => setCurrentPage(page),
-            }}
+            } : undefined}
           />
         </TableFilters>
       </Card>

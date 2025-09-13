@@ -10,11 +10,13 @@ import SingleConsultancyStaffDetails from "./SingleConsultancyStaffDetails";
 import { LoadingSpinner } from "components/Loading";
 import Card from "components/Card";
 import { toast } from "sonner";
+import { useState } from "react";
 import BackNavigation from "components/BackNavigation";
-import { useGetSingleConsultancyStaff } from "src/features/contracts-grants/controllers/consultantManagementController";
-import { useModifyContractStatus } from "src/features/contracts-grants/controllers";
-// import { useModifyContractStatus } from "@/features/contracts-grants/controllers/contractController";
-// import { useGetSingleConsultancyStaff } from "@/features/contracts-grants/controllers";
+import { 
+  useGetSingleConsultancyStaff, 
+  useUpdateConsultancyApplicant 
+} from "@/features/contracts-grants/controllers/consultancyApplicantsController";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 
 export default function ConsultancyStaffDetails() {
   const params = useParams();
@@ -25,31 +27,32 @@ export default function ConsultancyStaffDetails() {
   const { data: consultancyStaff, isLoading } =
     useGetSingleConsultancyStaff(applicantId);
 
-  const { updateContractStatus, isLoading: isModifyLoading } =
-    useModifyContractStatus(applicantId);
+  // Debug logging for applicant details
+  console.log("📄 Individual Applicant Debug:");
+  console.log("- ApplicantId:", applicantId);
+  console.log("- Has Data:", !!consultancyStaff);
+  console.log("- Has Documents:", !!consultancyStaff?.data?.documents);
+  console.log("- Documents Count:", consultancyStaff?.data?.documents?.length || 0);
+  console.log("- Full Data:", consultancyStaff);
+
+  const [isModifyLoading, setIsModifyLoading] = useState(false);
 
   const handleShortListing = async () => {
-    // console.log("Form submitted with data:", data);
-    // Handle form submission logic here
-
+    setIsModifyLoading(true);
     try {
-      await updateContractStatus({
-        title: consultancyStaff?.data?.name || "",
-        request_type: "SHORTLIST",
-        department: "",
-        consultants_count: "1",
-        location: "",
-        fco: "",
-        technical_monitor: "",
-        email: consultancyStaff?.data?.email || "",
-        phone_number: consultancyStaff?.data?.phone_number || "",
-        current_reviewer: "",
-      });
-      toast.success("Contract Updated Successfully");
-
+      // Direct API call to update just the status field
+      await AxiosWithToken.patch(
+        `/contract-grants/consultancy/applicants/${applicantId}/`,
+        { status: "SHORTLISTED" }
+      );
+      
+      toast.success("Applicant Shortlisted Successfully");
       router.back();
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
+      console.error("Shortlisting error:", error);
+      toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
+    } finally {
+      setIsModifyLoading(false);
     }
   };
   console.log({ consultancyStaff });

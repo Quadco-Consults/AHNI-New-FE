@@ -73,13 +73,9 @@ export default function CreateInterview() {
   });
 
   useEffect(() => {
-    if (data) {
-      form.reset({
-        consultancy: data.data.title,
-        interview_type: "",
-        interview_date: "",
-        committee_members: [],
-      });
+    if (data?.data?.title) {
+      form.setValue('consultancy', data.data.title);
+      console.log('Setting consultancy title:', data.data.title);
     }
   }, [data, form]);
 
@@ -127,6 +123,7 @@ export default function CreateInterview() {
               name='consultancy'
               placeholder='Select Consultancy'
               required
+              disabled
             />
 
             <div className='grid grid-cols-2 gap-10'>

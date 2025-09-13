@@ -20,7 +20,7 @@ interface PaginatedResponse<T> {
   status: boolean;
   message: string;
   data: {
-    paginator: {
+    pagination: {
       count: number;
       page: number;
       page_size: number;
@@ -40,6 +40,8 @@ interface ConsultancyApplicantsFilterParams {
   size?: number;
   search?: string;
   consultants?: string;
+  consultant_id?: string;
+  status?: string;
   enabled?: boolean;
 }
 
@@ -63,6 +65,7 @@ export const useGetAllConsultancyApplicants = ({
   size = 20,
   search = "",
   consultants = "",
+  consultant_id = "",
   enabled = true,
   status,
 }: ConsultancyApplicantsFilterParams) => {
@@ -73,6 +76,7 @@ export const useGetAllConsultancyApplicants = ({
       size,
       search,
       consultants,
+      consultant_id,
       status,
     ],
     queryFn: async () => {
@@ -83,6 +87,7 @@ export const useGetAllConsultancyApplicants = ({
             size,
             ...(search && { search }),
             ...(consultants && { consultants }),
+            ...(consultant_id && { consultant_id }),
             status,
           },
         });

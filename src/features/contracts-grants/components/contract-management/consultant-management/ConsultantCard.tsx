@@ -15,7 +15,7 @@ import Card from "components/Card";
 import { Button } from "components/ui/button";
 import { CardTitle } from "components/ui/card";
 import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 import { IConsultantPaginatedData } from "definations/c&g/contract-management/consultancy-management/consultancy-management";
 import useJobAdvertType from "hooks/useJobAdvertType";
 import React, { useState } from "react";
@@ -121,11 +121,14 @@ export default function ConsultantCard({
                         />
                         <DetailsTag
                             icon={<DataCalenderSvg />}
-                            label={format(end_date, "MMM dd, yyy")}
+                            label={end_date && isValid(new Date(end_date)) ? format(new Date(end_date), "MMM dd, yyyy") : "Date not available"}
                         />
                         <DetailsTag
                             icon={<LocationSvg />}
-                            label={locations.join(", ")}
+                            label={locations && Array.isArray(locations) && locations.length > 0 
+                                ? locations.map(location => location.name || location.city || "Unknown").join(", ")
+                                : "No location specified"
+                            }
                         />
                         <DetailsTag icon={<SuiteCase />} label="Internal" />
 
