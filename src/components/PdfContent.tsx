@@ -14,10 +14,7 @@ import {
 } from "components/ui/dialog";
 import PdfIcon from "components/icons/PdfIcon";
 
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.mjs",
-  import.meta.url
-).toString();
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 const PdfContent = ({
   pdf = {
@@ -60,7 +57,7 @@ const PdfContent = ({
                     file={pdf?.document ?? "https://pdfobject.com/pdf/sample.pdf"}
                     onLoadSuccess={onDocumentLoadSuccess}
                   >
-                    {Array.from(new Array(numPages), (el, index) => (
+                    {Array.from(new Array(numPages), (_, index) => (
                       <Page
                         key={`page_${index + 1}`}
                         pageNumber={index + 1}
