@@ -22,9 +22,9 @@ import {
 } from "lucide-react";
 import moment from "moment";
 import FormSelect from "@/components/FormSelect";
-import { SelectContent, SelectItem } from "@/components/ui/select";
 import { useGetJobAdvertisement } from "@/features/hr/controllers/jobAdvertisementController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
+import { useCreateInterview } from "@/features/hr/controllers/hrInterviewController";
 import { Label } from "@/components/ui/label";
 import MultiSelectFormField from "@/components/ui/multiselect";
 import FormInput from "@/components/FormInput";
@@ -77,24 +77,39 @@ const CreateInterviewModal = ({ jobAdvertisementId, onClose }: CreateInterviewMo
 
   const userOptions = useMemo(
     () =>
-      users?.data?.results?.map(({ first_name, last_name, id }: any) => ({
-        label: `${first_name} ${last_name}`,
-        value: id,
-      })),
+      (users as any)?.data?.results?.map(({ first_name, last_name, id }: any) => {
+        // Handle users with null names
+        const fullName = `${first_name || ''} ${last_name || ''}`.trim() || 'Unnamed User';
+        return {
+          label: fullName,
+          value: id,
+        };
+      }) || [],
     [users]
   );
 
-  const usersOptions = users?.data?.results?.map(
-    ({ first_name, last_name, id }: any) => ({
-      name: `${first_name} ${last_name}`,
-      id,
-    })
-  );
+  const usersOptions = (users as any)?.data?.results?.map(
+    ({ first_name, last_name, id }: any) => {
+      // Handle users with null names
+      const fullName = `${first_name || ''} ${last_name || ''}`.trim() || 'Unnamed User';
+      return {
+        name: fullName,
+        id,
+      };
+    }
+  ) || [];
+
+  // Debug logging
+  console.log("Users data:", users);
+  console.log("User options:", userOptions);
+
+  const { createInterview, isLoading: isCreating } = useCreateInterview();
 
   const form = useForm<TInterviewFormValues>({
     resolver: zodResolver(InterviewSchema),
     defaultValues: {
       interview_type: "",
+      interviewer: "",
       start_date: "",
       end_date: "",
       interviewers: [],
@@ -105,14 +120,30 @@ const CreateInterviewModal = ({ jobAdvertisementId, onClose }: CreateInterviewMo
   const [showFullBackground, setShowFullBackground] = useState(false);
 
   const onSubmit: SubmitHandler<TInterviewFormValues> = async (data) => {
-    console.log({ data });
-
     try {
-      // TODO: Implement actual interview creation
+      console.log("Form data:", data);
+
+      const interviewData = {
+        advertisement: jobAdvertisementId,
+        interview_type: data.interview_type,
+        interviewer: data.interview_type === "COMMITTEE" ? undefined : data.interviewer,
+        interviewers: data.interview_type === "COMMITTEE" ? data.interviewers : [],
+        start_date: data.start_date,
+        end_date: data.end_date,
+      };
+
+      console.log("Interview data being sent:", interviewData);
+
+      await createInterview(interviewData);
+
+      // Wait a bit for the state to update
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       toast.success("Interview created successfully");
       onClose?.();
       form.reset();
     } catch (error: any) {
+      console.error("Interview creation error:", error);
       toast.error(error?.message || "Something went wrong");
     }
   };
@@ -183,17 +214,14 @@ const CreateInterviewModal = ({ jobAdvertisementId, onClose }: CreateInterviewMo
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col gap-y-7"
           >
-            <FormSelect name="interview_type" label="Interview type">
-              <SelectContent>
-                {["COMMITTEE", "NON COMMITTEE"].map(
-                  (value: string, index: number) => (
-                    <SelectItem key={index} value={value}>
-                      {value}
-                    </SelectItem>
-                  )
-                )}
-              </SelectContent>
-            </FormSelect>
+            <FormSelect
+              name="interview_type"
+              label="Interview type"
+              options={[
+                { label: "COMMITTEE", value: "COMMITTEE" },
+                { label: "NON COMMITTEE", value: "NON COMMITTEE" }
+              ]}
+            />
             
             {watch("interview_type") === "COMMITTEE" ? (
               <div>
@@ -220,6 +248,7 @@ const CreateInterviewModal = ({ jobAdvertisementId, onClose }: CreateInterviewMo
               <FormSelect
                 name="interviewer"
                 label="Select Interviewer"
+                placeholder="Choose an interviewer"
                 required
                 options={userOptions}
               />
@@ -242,8 +271,8 @@ const CreateInterviewModal = ({ jobAdvertisementId, onClose }: CreateInterviewMo
             </div>
 
             <div className="flex justify-start gap-4">
-              <FormButton type="submit">
-                Save
+              <FormButton type="submit" loading={isCreating}>
+                {isCreating ? "Creating..." : "Save"}
               </FormButton>
             </div>
           </form>

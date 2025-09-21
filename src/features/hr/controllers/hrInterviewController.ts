@@ -94,6 +94,7 @@ export const useCreateInterview = () => {
       await callApi(details);
     } catch (error) {
       console.error("Interview create error:", error);
+      throw error; // Re-throw the error so it can be caught by the component
     }
   };
 
