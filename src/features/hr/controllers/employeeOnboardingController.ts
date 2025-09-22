@@ -63,6 +63,30 @@ export const useGetEmployeeOnboarding = (id: string, enabled: boolean = true) =>
   });
 };
 
+// Get Employee Onboarding by Application ID
+export const useGetEmployeeOnboardingByApplication = (applicationId: string, enabled: boolean = true) => {
+  return useQuery({
+    queryKey: ["employee-onboarding-by-application", applicationId],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(BASE_URL, {
+          params: {
+            application: applicationId,
+            page: 1,
+            size: 1,
+          },
+        });
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled && !!applicationId,
+    refetchOnWindowFocus: false,
+  });
+};
+
 // Get Employee Identity Card
 export const useGetEmployeeIdentityCard = (id: string, enabled: boolean = true) => {
   return useQuery({
@@ -130,13 +154,13 @@ export const useUpdateEmployeeOnboarding = () => {
 };
 
 // Patch Employee Onboarding (Partial Update)
-export const usePatchEmployeeOnboarding = () => {
+export const usePatchEmployeeOnboarding = (id: string) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     EmployeeOnboarding,
     Error,
     Partial<EmployeeOnboarding>
   >({
-    endpoint: BASE_URL,
+    endpoint: `${BASE_URL}${id}/`,
     queryKey: ["employee-onboardings", "employee-onboarding"],
     isAuth: true,
     method: "PATCH",
@@ -144,9 +168,11 @@ export const usePatchEmployeeOnboarding = () => {
 
   const patchEmployeeOnboarding = async (details: Partial<EmployeeOnboarding>) => {
     try {
-      await callApi(details);
+      const result = await callApi(details);
+      return result;
     } catch (error) {
       console.error("Employee onboarding patch error:", error);
+      throw error; // Re-throw so calling code can handle the error
     }
   };
 
