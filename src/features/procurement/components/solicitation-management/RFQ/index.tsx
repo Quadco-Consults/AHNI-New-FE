@@ -18,6 +18,7 @@ const RFQ = () => {
   const { data, isLoading } = useGetAllSolicitations({
     page,
     size: 10,
+    request_type: "REQUEST FOR QUOTATION", // Filter for RFQ solicitations only
   });
 
   if (isLoading) {

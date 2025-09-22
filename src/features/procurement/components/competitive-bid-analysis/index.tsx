@@ -13,8 +13,9 @@ import FilterIcon from "components/icons/FilterIcon";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import Link from "next/link";
 import { RouteEnum } from "constants/RouterConstants";
-// import EyeIcon from "components/icons/EyeIcon";
+import EyeIcon from "components/icons/EyeIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
+import EditIcon from "components/icons/EditIcon";
 import { Badge } from "components/ui/badge";
 import { Checkbox } from "components/ui/checkbox";
 import { useGetAllCbas } from "@/features/procurement/controllers/cbaController";
@@ -192,7 +193,8 @@ const ActionListAction = ({ data }: any) => {
           </PopoverTrigger>
           <PopoverContent className=' w-fit'>
             <div className='flex flex-col items-start justify-between gap-1'>
-              {/* <Link
+              {/* View CBA Details */}
+              <Link
                 className='w-full'
                 href={generatePath(RouteEnum.PROCUREMENT_CBA_DETAILS, {
                   id: data?.id,
@@ -205,40 +207,37 @@ const ActionListAction = ({ data }: any) => {
                   <EyeIcon />
                   View
                 </Button>
-              </Link> */}
-              {/* <Link
-                className='w-full'
-                href={generatePath(
-                  RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_START,
-                  {
-                    id: data?.id,
-                  }
-                )}
-              > */}
-              {/* <Button
-                className='w-full flex items-center justify-start gap-2'
-                variant='ghost'
-              >
-                <SendIcon />
-                Start CBA
-              </Button> */}
-              {/* </Link> */}
+              </Link>
+
+              {/* Edit CBA - Using RFQ Create CBA route for editing */}
               <Link
                 className='w-full'
-                href={{
-                  pathname:
-                    RouteEnum.PROCUREMENT_CBA_CHECK_APPROVAL.replace(':id', data?.id),
-                  search: `?id=${data?.solicitation?.id}&cba=${data?.id}`,
-                }}
+                href={`/dashboard/procurement/solicitation-management/rfq/create/create-cba?id=${data?.id}&edit=true`}
+              >
+                <Button
+                  className='w-full flex items-center justify-start gap-2'
+                  variant='ghost'
+                >
+                  <EditIcon />
+                  Edit
+                </Button>
+              </Link>
+
+              {/* Check CBA / Perform Analysis */}
+              <Link
+                className='w-full'
+                href={`/dashboard/procurement/competitive-bid-analysis/${data?.id}/vendor-analysis?id=${data?.solicitation?.id}&cba=${data?.id}`}
               >
                 <Button
                   className='w-full flex items-center justify-start gap-2'
                   variant='ghost'
                 >
                   <SendIcon />
-                  Start CBA
+                  Check CBA
                 </Button>
               </Link>
+
+              {/* Get Purchase Order */}
               <Button
                 className='w-full flex items-center justify-start gap-2'
                 variant='ghost'
@@ -246,12 +245,14 @@ const ActionListAction = ({ data }: any) => {
                 <PrinterIcon />
                 Get Purchase Order
               </Button>
+
+              {/* Delete CBA */}
               <Button
                 className='w-full flex items-center justify-start gap-2'
                 variant='ghost'
               >
                 <DeleteIcon />
-                delete
+                Delete
               </Button>
             </div>
           </PopoverContent>

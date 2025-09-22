@@ -25,12 +25,17 @@ const generatePath = (route: string, params?: Record<string, any>): string => {
   return path;
 };
 
-const VendorSubmission = () => {
-  const { id } = useParams();
+const VendorSubmission = (props?: any) => {
+  const params = useParams();
+  const id = params?.id as string;
 
-  const { data } = useGetSolicitationSubmission({
-    path: { id: id as string },
+  console.log("🚀 RFP VendorSubmission Component Loaded!", {
+    componentProps: props,
+    paramsId: id,
+    timestamp: new Date().toISOString()
   });
+
+  const { data, isLoading, error } = useGetSolicitationSubmission(id, !!id);
 
   return (
     <div className='space-y-10'>
@@ -46,7 +51,7 @@ const VendorSubmission = () => {
           </div>
 
           <Link
-            href={generatePath(RouteEnum.RFQ_DETAILS_BID_SUBMISSION, {
+            href={generatePath(RouteEnum.RFP_DETAILS_BID_SUBMISSION, {
               id: id,
             })}
           >
@@ -72,16 +77,60 @@ const VendorSubmission = () => {
                   fill='#FF0000'
                 />
               </svg>
-              Manaual Bid Submission
+              Manual Proposal Submission
             </Button>
           </Link>
         </div>
 
-        <DataTable
-          data={data?.data?.results || []}
-          columns={columns}
-          isLoading={false}
-        />
+        {/* Debug info display */}
+        {error && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-800 text-sm">
+              ❌ Error loading proposals: {error.message}
+            </p>
+          </div>
+        )}
+
+        {isLoading && (
+          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-blue-800 text-sm">
+              🔄 Loading proposal submissions...
+            </p>
+          </div>
+        )}
+
+        {/* Try to find data in multiple possible paths */}
+        {(() => {
+          const possibleResults =
+            data?.data?.data?.results ||
+            data?.data?.results ||
+            (data as any)?.results ||
+            (Array.isArray(data?.data) ? data.data : []);
+
+          const hasResults = possibleResults && possibleResults.length > 0;
+
+          return (
+            <>
+              {!isLoading && !error && !hasResults && (
+                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-yellow-800 text-sm">
+                    ⚠️ No proposal submissions found for this RFP
+                  </p>
+                  <p className="text-xs text-yellow-600 mt-1">
+                    Solicitation ID: {id}
+                  </p>
+                </div>
+              )}
+
+              <DataTable
+                data={possibleResults || []}
+                columns={columns}
+                isLoading={isLoading}
+              />
+            </>
+          );
+        })()}
+
       </Card>
     </div>
   );
@@ -119,7 +168,7 @@ const columns: ColumnDef<SolicitationSubmissionResultsData>[] = [
     accessorKey: "company_name",
     size: 250,
     cell: ({ row }) => {
-      return <p>{row?.original?.vendor?.company_name}</p>;
+      return <p className="font-medium">{row?.original?.vendor?.company_name}</p>;
     },
   },
   {
@@ -131,104 +180,164 @@ const columns: ColumnDef<SolicitationSubmissionResultsData>[] = [
     },
   },
   {
-    header: "Reg No",
-    accessorKey: "year_or_incorperation",
+    header: "Document Compliance",
+    accessorKey: "document_compliance",
     size: 200,
     cell: ({ row }) => {
-      return <p>{row?.original?.vendor?.company_registration_number}</p>;
-    },
-  },
-  {
-    header: "Prequalification",
-    accessorKey: "prequalification",
-    size: 200,
-    cell: ({ row }) => {
-      const status = row?.original?.vendor?.status;
+      // Mock data showing document compliance status
+      const compliance = row?.original?.document_compliance || {
+        total_required: 7,
+        submitted: 5,
+        status: "INCOMPLETE"
+      };
+
+      const isComplete = compliance.submitted >= compliance.total_required;
+
       return (
-        <Badge
-          className={cn(
-            "px-3 py-2 rounded-lg",
-            status === "Approved" && "bg-green-200 text-green-500",
-            status === "Fail" && "bg-red-200 text-red-500",
-            status === "Pending" && "bg-yellow-200 text-yellow-500"
-          )}
-        >
-          {status}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <div className={`w-3 h-3 rounded-full ${isComplete ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
+          <span className="text-sm">
+            {compliance.submitted}/{compliance.total_required} docs
+          </span>
+          <Badge
+            className={`text-xs px-2 py-0.5 ${
+              isComplete
+                ? 'bg-green-100 text-green-700'
+                : 'bg-yellow-100 text-yellow-700'
+            }`}
+          >
+            {isComplete ? 'Complete' : 'Pending'}
+          </Badge>
+        </div>
       );
     },
   },
   {
-    header: "RFQ No.",
-    accessorKey: "rfq_no",
+    header: "RFP No.",
+    accessorKey: "rfp_no",
     size: 200,
     cell: ({ row }) => {
-      return <p>{row?.original?.solicitation?.rfq_id}</p>;
+      return <p className="font-mono text-sm">{row?.original?.solicitation?.rfq_id}</p>;
     },
   },
   {
-    header: "RFQ Date",
-    accessorKey: "rfq_date",
-    size: 200,
+    header: "Submission Date",
+    accessorKey: "submission_date",
+    size: 150,
     cell: ({ row }) => {
-      return <p>{row?.original?.solicitation?.rfq_date || "-"}</p>;
+      // This would be the actual submission date
+      const submissionDate = row?.original?.created_at || row?.original?.submission_date;
+      return <p className="text-sm">{submissionDate ? new Date(submissionDate).toLocaleDateString() : "-"}</p>;
     },
   },
   {
-    header: "Status",
-    accessorKey: "status",
+    header: "Experience Review",
+    accessorKey: "experience_status",
+    size: 150,
     cell: ({ row }) => {
-      const status = row?.original?.bid_details?.status;
+      const status = row?.original?.experience_evaluation?.status || "PENDING";
+      const score = row?.original?.experience_evaluation?.score || 0;
+
       return (
-        <Badge
-          className={cn(
-            "px-3 py-2 rounded-lg",
-            status === "PASSED" && "bg-green-200 text-green-500",
-            status === "FAIL" && "bg-red-200 text-red-500",
-            status === "PENDING" && "bg-yellow-200 text-yellow-500"
-          )}
-        >
-          {status}
-        </Badge>
+        <div className="flex flex-col items-center gap-1">
+          <Badge
+            className={cn(
+              "px-2 py-1 rounded-full text-xs font-medium",
+              status === "PASSED" && "bg-green-100 text-green-700 border-green-200",
+              status === "FAILED" && "bg-red-100 text-red-700 border-red-200",
+              status === "PENDING" && "bg-yellow-100 text-yellow-700 border-yellow-200"
+            )}
+          >
+            {status}
+          </Badge>
+          <span className="text-xs text-gray-600">{score}/40</span>
+        </div>
       );
     },
   },
   {
-    header: "Company Email",
-    accessorKey: "company_email",
-    size: 200,
+    header: "Financial Capacity",
+    accessorKey: "financial_status",
+    size: 150,
     cell: ({ row }) => {
-      return <p>{row?.original?.vendor?.email}</p>;
+      const status = row?.original?.financial_evaluation?.status || "PENDING";
+      const score = row?.original?.financial_evaluation?.score || 0;
+
+      return (
+        <div className="flex flex-col items-center gap-1">
+          <Badge
+            className={cn(
+              "px-2 py-1 rounded-full text-xs font-medium",
+              status === "PASSED" && "bg-green-100 text-green-700 border-green-200",
+              status === "FAILED" && "bg-red-100 text-red-700 border-red-200",
+              status === "PENDING" && "bg-yellow-100 text-yellow-700 border-yellow-200"
+            )}
+          >
+            {status}
+          </Badge>
+          <span className="text-xs text-gray-600">{score}/30</span>
+        </div>
+      );
+    },
+  },
+  {
+    header: "Overall Status",
+    accessorKey: "overall_status",
+    size: 130,
+    cell: ({ row }) => {
+      const status = row?.original?.proposal_details?.overall_status || "UNDER_REVIEW";
+      return (
+        <Badge
+          className={cn(
+            "px-3 py-1 rounded-full text-xs font-medium",
+            status === "APPROVED" && "bg-green-100 text-green-700 border-green-200",
+            status === "REJECTED" && "bg-red-100 text-red-700 border-red-200",
+            (status === "UNDER_REVIEW" || status === "PENDING") && "bg-blue-100 text-blue-700 border-blue-200"
+          )}
+        >
+          {status.replace("_", " ")}
+        </Badge>
+      );
     },
   },
   {
     header: "Actions",
     id: "actions",
+    size: 120,
     cell: ({ row }) => <ActionListAction data={row.original} />,
   },
 ];
 
 const ActionListAction = ({ data }: any) => {
-  console.log({ datads: data?.solicitation?.id });
-
   return (
-    <div className='flex gap-2'>
+    <div className='flex gap-1'>
+      {/* View Submitted Documents */}
       <Link
         href={generatePath(RouteEnum.VENDOR_MANAGEMENT_DETAILS, { id: data?.id })}
+        title="View Submitted Documents (Company Profile, Tax Clearance, Financial Reports, etc.)"
       >
-        <IconButton className='bg-[#F9F9F9] hover:text-primary'>
-          <Icon icon='ph:eye-duotone' fontSize={15} />
+        <IconButton className='bg-[#E3F2FD] hover:bg-[#BBDEFB] text-blue-600 hover:text-blue-800'>
+          <Icon icon='material-symbols:folder-open-outline' fontSize={14} />
         </IconButton>
       </Link>
+
+      {/* Experience & Financial Capacity Review */}
       <Link
-        // href={generatePath(RouteEnum.VENDOR_MANAGEMENT_DETAILS, { id: data?.id })}
-        href={generatePath(RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_START, {
-          id: data?.id as string,
-          appID: data?.solicitation?.id,
-        })}
+        href={`/dashboard/procurement/rfp-evaluation/${data?.id}?rfp=${data?.solicitation?.id}`}
+        title="Review Technical Experience & Financial Capacity"
       >
-        <IconButton className='bg-[#F9F9F9] hover:text-primary'>
-          Evaluate
+        <IconButton className='bg-[#FFF3E0] hover:bg-[#FFE0B2] text-orange-600 hover:text-orange-800'>
+          <Icon icon='material-symbols:fact-check-outline' fontSize={14} />
+        </IconButton>
+      </Link>
+
+      {/* AHNI Committee Decision */}
+      <Link
+        href={`/dashboard/procurement/rfp-committee-review/${data?.id}?rfp=${data?.solicitation?.id}`}
+        title="AHNI Committee Pass/Fail Decision"
+      >
+        <IconButton className='bg-[#E8F5E8] hover:bg-[#C8E6C9] text-green-600 hover:text-green-800'>
+          <Icon icon='material-symbols:how-to-vote-outline' fontSize={14} />
         </IconButton>
       </Link>
     </div>
