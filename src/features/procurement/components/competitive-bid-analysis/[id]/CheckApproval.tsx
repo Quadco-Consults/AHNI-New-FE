@@ -9,15 +9,18 @@ import { useAppDispatch } from "hooks/useStore";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  useGetSingleManualBidCbaPrequalification,
+  useGetManualBidPrequalificationsBySolicitation,
   useCreateVendorBidAnalysis,
 } from "@/features/procurement/controllers/manualBidCbaPrequalificationController";
+import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 import { toast } from "sonner";
-import logoPng from "assets/svgs/logo-bg.svg";
+import logoPng from "@/assets/svgs/logo-bg.svg";
 import Image from "next/image";
 import { BsFiletypeCsv } from "react-icons/bs";
 
 const TableComponent = () => {
+  console.log("🚀 CBA TableComponent is rendering!");
+
   const searchParams = useSearchParams();
   const id = searchParams?.get("id");
   const cba = searchParams?.get("cba");
@@ -25,10 +28,46 @@ const TableComponent = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  const { data: summaryData, isLoading, error } =
-    useGetSingleManualBidCbaPrequalification(id ?? skipToken, !!id);
+  console.log("🔍 CBA CheckApproval Debug:", {
+    solicitationId: id,
+    cbaId: cba,
+    searchParams: Object.fromEntries(searchParams?.entries() || []),
+    windowLocation: typeof window !== 'undefined' ? window.location.href : 'server'
+  });
 
-  console.log({ summaryData, id });
+  // Try both data sources to get bid submissions
+  const { data: manualBidData, isLoading: isManualLoading, error: manualError } =
+    useGetManualBidPrequalificationsBySolicitation(id || "", !!id);
+
+  const { data: vendorSubmissionData, isLoading: isVendorLoading, error: vendorError } =
+    useGetSolicitationSubmission(id || "", !!id);
+
+  // Use whichever data source has results
+  const summaryData = manualBidData || vendorSubmissionData;
+  const isLoading = isManualLoading || isVendorLoading;
+  const error = manualError || vendorError;
+
+  console.log("✅ CBA Bid Data Debug:", {
+    summaryData,
+    id,
+    isLoading,
+    error,
+    manualBidData,
+    vendorSubmissionData,
+    // Check all possible data paths
+    summaryDataKeys: summaryData ? Object.keys(summaryData) : null,
+    summaryDataDataKeys: summaryData?.data ? Object.keys(summaryData.data) : null,
+    possibleResults1: summaryData?.data?.results,
+    possibleResults2: summaryData?.data?.data?.results,
+    possibleResults3: (summaryData as any)?.results,
+    // Detailed data inspection
+    fullManualBidData: manualBidData,
+    fullVendorSubmissionData: vendorSubmissionData,
+    manualResultsLength: manualBidData?.data?.results?.length,
+    vendorResultsLength: vendorSubmissionData?.data?.results?.length || vendorSubmissionData?.data?.data?.results?.length,
+    // Check if results are in different paths
+    vendorDataStructure: vendorSubmissionData?.data
+  });
 
   const { createVendorBidAnalysis, isLoading: submissionLoading } =
     useCreateVendorBidAnalysis();
@@ -36,10 +75,13 @@ const TableComponent = () => {
   const [recommendationNote, setRecommendationNote] = useState("");
 
   function formatBidData(inputData) {
-    if (inputData) {
+    if (inputData && inputData.data && inputData.data.results) {
+      // Use the correct data path: inputData.data.results
+      const results = inputData.data.results;
+
       const companies = [
         ...new Set(
-          inputData.results.map((result) => ({
+          results.map((result) => ({
             name: result.vendor.company_name,
             id: result.vendor.id,
           }))
@@ -49,7 +91,7 @@ const TableComponent = () => {
       const itemsMap = new Map();
       const extraDataMap = new Map();
 
-      inputData.results.forEach((result) => {
+      results.forEach((result) => {
         const companyName = result.vendor.company_name;
 
         result.bid_details.bidsubmissionitems.forEach((item) => {
@@ -296,7 +338,15 @@ const TableComponent = () => {
     );
   }
 
-  const solicitation = summaryData?.data?.results[0]?.solicitation;
+  // Try multiple possible data paths for solicitation
+  const solicitation = summaryData?.data?.results?.[0]?.solicitation ||
+                      (summaryData?.data as any)?.results?.[0]?.solicitation ||
+                      (summaryData as any)?.results?.[0]?.solicitation;
+
+  // Add the missing submitCbaAnalysis function
+  const submitCbaAnalysis = async (payload: any) => {
+    return await createVendorBidAnalysis(payload);
+  };
 
   return (
     <>

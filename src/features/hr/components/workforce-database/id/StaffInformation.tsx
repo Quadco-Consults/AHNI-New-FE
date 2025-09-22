@@ -18,10 +18,7 @@ import PdfIcon from "components/icons/PdfIcon";
 import { EmployeeOnboarding } from "definations/hr-types/employee-onboarding";
 import { useGetEmployeeOnboardingQualificationsList } from "@/features/hr/controllers/hrEmployeeOnboardingQualificationsController";
 
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.mjs",
-  import.meta.url
-).toString();
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
   // const [data, setData] = useState<EmployeeOnboarding | {}>({});

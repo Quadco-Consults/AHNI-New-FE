@@ -12,7 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "store/index";
 
 import { toast } from "sonner";
-import PurchaseRequestAPI from "@/features/procurement/controllers/purchaseSampleRequestController";
+import { useGetActivityMemo, usePatchActivityMemo, useCreateActivityMemo } from "@/features/procurement/controllers/activityMemoController";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import {
   Table,
@@ -46,12 +46,21 @@ const UploadSchema = z.object({
         id: z.string(), // Ensure 'id' is part of the schema
         project_id: z.string(),
       })
-    )
-    .nonempty(),
+    ),
   integratedTraining: z.string().nonempty(),
   activity_budget: z.string().optional(),
   budget_expended: z.string().optional(),
   balance: z.string().optional(),
+}).refine((data) => {
+  // If integrated training is true, at least one beneficiary must be selected
+  if (data.integratedTraining === "true") {
+    return data.beneficiaries.some(b => b.selected);
+  }
+  // If integrated training is false, validation passes regardless of beneficiaries
+  return true;
+}, {
+  message: "Please select at least one project area when integrated training is enabled",
+  path: ["beneficiaries"]
 });
 
 type FormData = z.infer<typeof UploadSchema>;
@@ -65,9 +74,22 @@ const CheckboxForm = () => {
   const dispatch = useDispatch();
 
   const activity = useSelector((state: RootState) => state.activity.activity);
+  console.log("Redux activity data:", activity);
   const mergedObject = activity.reduce((acc: any, obj: any) => {
     return { ...acc, ...obj };
   }, {});
+  console.log("Merged activity data:", mergedObject);
+  console.log("Available merged object keys:", Object.keys(mergedObject));
+  console.log("Selected activity:", mergedObject?.selectedActivity);
+  console.log("Selected cost category:", mergedObject?.selectedCostCategory);
+
+  // Get memo ID for potential update
+  const memoId = mergedObject.createdMemoId;
+  console.log("Memo ID for update:", memoId);
+
+  // Initialize hooks for both update and create scenarios
+  const { patchActivityMemo, isLoading: isPatchLoading } = usePatchActivityMemo(memoId || "dummy");
+  const { createActivityMemo: createNewActivityMemo, isLoading: isCreateLoading } = useCreateActivityMemo();
 
   const { data: projects } = useGetAllProjects({
     page: 1,
@@ -82,19 +104,23 @@ const CheckboxForm = () => {
   //     [id]
   //   )
   // );
-  const { data: requestsDetails } = PurchaseRequestAPI.useGetActivityMemo(
-    useMemo(() => (id ? { path: { id: id as string } } : skipToken), [id])
-  );
+  const { data: requestsDetails } = useGetActivityMemo(id as string, !!id);
+
+  // Extract data from nested structure - try both direct and data property
+  const apiData = requestsDetails?.data || requestsDetails;
 
   const form = useForm<FormData>({
     resolver: zodResolver(UploadSchema),
     defaultValues: {
       beneficiaries: [],
-      // integratedTraining: "true",
+      integratedTraining: "",
+      activity_budget: "",
+      budget_expended: "",
+      balance: "",
     },
   });
 
-  const { control, handleSubmit, setValue, watch, getValues } = form;
+  const { control, handleSubmit, setValue, watch, getValues, formState: { errors } } = form;
 
   const integratedTraining = watch("integratedTraining");
   const beneficiary = watch("beneficiaries");
@@ -127,20 +153,17 @@ const CheckboxForm = () => {
       setValue(
         "activity_budget",
         // @ts-ignore
-
-        requestsDetails.activity_budget
+        requestsDetails.activity_budget || ""
       );
       setValue(
         "budget_expended",
         // @ts-ignore
-
-        requestsDetails.budget_expended
+        requestsDetails.budget_expended || ""
       );
       setValue(
         "balance",
         // @ts-ignore
-
-        requestsDetails.balance
+        requestsDetails.balance || ""
       );
     }
   }, [requestsDetails, setValue]);
@@ -175,7 +198,7 @@ const CheckboxForm = () => {
       );
     }
 
-    if (requestsDetails?.project_area) {
+    if (requestsDetails?.project_area && projects?.data?.results) {
       setValue(
         "beneficiaries",
         // @ts-ignore
@@ -189,8 +212,20 @@ const CheckboxForm = () => {
     }
   }, [request, setValue, requestsDetails, projects]);
 
-  const [createActivityMemoMutation] =
-    PurchaseRequestAPI.useCreateActivityMemo();
+  const { createActivityMemo, data: createResponse, isLoading: isCreating, isSuccess, error } =
+    useCreateActivityMemo();
+
+  // Handle successful creation and redirect
+  // NOTE: Removed automatic redirect since we're already on the preview page
+  // The form component handles the initial redirect to this page
+  // useEffect(() => {
+  //   if (isSuccess && createResponse?.data?.id) {
+  //     router.push(`${RouteEnum.PREVIEW_LETTER}?id=${createResponse.data.id}&created=${"true"}`);
+  //   } else if (isSuccess) {
+  //     // Fallback: redirect without ID if we can't get it
+  //     router.push(`${RouteEnum.PREVIEW_LETTER}?created=${"true"}`);
+  //   }
+  // }, [isSuccess, createResponse, router]);
 
   // const dispatch = useDispatch();
   const onSubmit = async (data: FormData) => {
@@ -200,7 +235,7 @@ const CheckboxForm = () => {
     );
     const program_area = filteredBeneficiaries.map((fb) => fb.id);
     const payload = {
-      activity: mergedObject.activity,
+      // activity: mergedObject.activity, // Excluded - ActivityPlan vs ActivityPlanFromWorkPlan mismatch
       activity_budget: data.activity_budget,
       created_by: mergedObject.created_by,
       approved_by: mergedObject.approved_by,
@@ -224,15 +259,41 @@ const CheckboxForm = () => {
     console.log({ payload, here: "I am here" });
 
     try {
-      const res = await createActivityMemoMutation(payload)();
+      if (request) {
+        // If there's a request parameter, we're in the purchase request workflow
+        // Update the existing memo and then navigate to final preview
+        if (id) {
+          await patchActivityMemo(payload);
+          console.log("Patched activity memo with payload:", payload);
+          toast.success("Successfully updated.");
+          router.push(`${RouteEnum.FINAL_PREVIEW}?id=${id}&request=${request}`);
+        } else {
+          toast.error("Missing activity memo ID");
+        }
+      } else if (memoId && memoId !== "dummy") {
+        // Update the existing memo with additional budget information
+        await patchActivityMemo(payload);
+        console.log("Patched activity memo with payload:", payload);
+        toast.success("Successfully updated.");
 
-      router.push(`${RouteEnum.PREVIEW_LETTER}?id=${res?.id}&created=${"true"}`);
+        // Navigate to final preview page with the memo ID
+        router.push(`${RouteEnum.FINAL_PREVIEW}?id=${memoId}&created=true`);
+      } else {
+        // If no memo ID, create a new memo (fallback)
+        await createNewActivityMemo(payload);
+        console.log("Created new activity memo with payload:", payload);
+        toast.success("Successfully created.");
 
-      toast.success("Successfully created.");
-      dispatch(activityActions.clearActivity());
+        // Note: createActivityMemo doesn't return response directly,
+        // so we navigate without specific ID
+        router.push(`${RouteEnum.FINAL_PREVIEW}?created=true`);
+      }
+
+      // Don't clear activity data yet - we need it for the next page
+      // dispatch(activityActions.clearActivity());
     } catch (error) {
-      toast.error("Something went wrong");
-      console.log(error);
+      toast.error("Something went wrong updating memo");
+      console.log("Error updating memo:", error);
     }
   };
 
@@ -242,7 +303,7 @@ const CheckboxForm = () => {
 
   const activity_budget = watch(`activity_budget`);
   const budget_expended = watch(`budget_expended`);
-  const total_balance = Number(activity_budget) - Number(budget_expended) || 0;
+  const total_balance = Number(activity_budget || 0) - Number(budget_expended || 0);
 
   return (
     <Form {...form}>
@@ -335,6 +396,11 @@ const CheckboxForm = () => {
                     />
                   </div>
                 </div>
+                {errors.beneficiaries && (
+                  <p className="text-red-500 text-sm mt-2">
+                    {errors.beneficiaries.message}
+                  </p>
+                )}
               </div>
               <Separator className='my-4' />
             </>
@@ -368,14 +434,21 @@ const CheckboxForm = () => {
                       <TableRow>
                         <TableCell>
                           {mergedObject?.selectedActivity?.activity_code ||
+                            mergedObject?.selectedActivity?.code ||
+                            mergedObject?.activity_code ||
                             requestsDetails?.activity_detail?.code ||
-                            requestsDetails?.activity}
+                            requestsDetails?.activity ||
+                            "N/A"}
                         </TableCell>
                         <TableCell>
                           {mergedObject?.selectedCostCategory?.name ||
+                            mergedObject?.selectedCostCategory?.module_name ||
+                            mergedObject?.selectedCostCategory?.description ||
+                            mergedObject?.cost_category_name ||
                             // @ts-ignore
-                            requestsDetails?.cost_categories_details[0]
-                              ?.module_name}
+                            requestsDetails?.cost_categories_details?.[0]?.module_name ||
+                            requestsDetails?.cost_categories_details?.[0]?.name ||
+                            "N/A"}
                         </TableCell>
                       </TableRow>
                     </TableBody>
@@ -404,6 +477,7 @@ const CheckboxForm = () => {
                                   type='text'
                                   className='w-full h-full border-none rounded-none p-2'
                                   {...field}
+                                  value={field.value || ""}
                                 />
                               </>
                             )}
@@ -419,6 +493,7 @@ const CheckboxForm = () => {
                                   type='text'
                                   className='w-full h-full border-none rounded-none p-2'
                                   {...field}
+                                  value={field.value || ""}
                                 />
                               </>
                             )}
@@ -505,6 +580,7 @@ const CheckboxForm = () => {
                                     type='text'
                                     className='w-full h-full border-none rounded-none p-2'
                                     {...field}
+                                    value={field.value || ""}
                                   />
                                 </>
                               )}
@@ -520,6 +596,7 @@ const CheckboxForm = () => {
                                     type='text'
                                     className='w-full h-full border-none rounded-none p-2'
                                     {...field}
+                                    value={field.value || ""}
                                   />
                                 </>
                               )}
@@ -554,18 +631,13 @@ const CheckboxForm = () => {
           )}
 
           {request && (
-            <Link
-              className='w-fit'
-              href={{
-                pathname: RouteEnum.FINAL_PREVIEW,
-                search: `?id=${id}&request=${request}`,
-              }}
+            <Button
+              type='submit'
+              className='mt-4 px-4 py-2 rounded w-full'
             >
-              <Button className='mt-4 px-4 py-2 rounded w-full'>
-                <ChevronRight size={20} />
-                Next
-              </Button>
-            </Link>
+              <ChevronRight size={20} />
+              Next
+            </Button>
           )}
         </div>
       </form>

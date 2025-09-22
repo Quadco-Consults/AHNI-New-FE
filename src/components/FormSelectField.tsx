@@ -30,6 +30,7 @@ interface SelectProps {
   options?: TOption[];
   disabled?: boolean;
   children?: React.ReactNode;
+  onValueChange?: (value: string) => void;
 }
 const FormSelect = forwardRef<HTMLButtonElement, SelectProps>(({
   name,
@@ -39,6 +40,7 @@ const FormSelect = forwardRef<HTMLButtonElement, SelectProps>(({
   children,
   options,
   disabled,
+  onValueChange: externalOnValueChange,
   ...props
 }, ref) => {
   const { control } = useFormContext();
@@ -62,7 +64,12 @@ const FormSelect = forwardRef<HTMLButtonElement, SelectProps>(({
               </FormLabel>
             )}
             <Select
-              onValueChange={onChange}
+              onValueChange={(newValue) => {
+                onChange(newValue);
+                if (externalOnValueChange) {
+                  externalOnValueChange(newValue);
+                }
+              }}
               value={value}
               defaultValue={value}
               disabled={disabled}

@@ -12,7 +12,7 @@ import {
 import { RouteEnum } from "constants/RouterConstants";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import logoPng from "assets/svgs/logo-bg.svg";
+import logoPng from "@/assets/svgs/logo-bg.svg";
 
 const PurchaseRequestForm = () => {
   const [rows, setRows] = useState([]);

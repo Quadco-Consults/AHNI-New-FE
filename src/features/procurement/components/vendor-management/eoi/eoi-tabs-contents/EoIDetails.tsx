@@ -18,10 +18,7 @@ import {
 } from "components/ui/dialog";
 import { cn } from "lib/utils";
 
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.mjs",
-  import.meta.url
-).toString();
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 const EoIDetails = (data: EOIResultsData) => {
   const [numPages, setNumPages] = useState<number>();

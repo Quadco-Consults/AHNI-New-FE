@@ -403,7 +403,7 @@ export default function EvaluationCriteriaProcess() {
                         <p className='mt-2'>{name}</p>
                       ) : url ? (
                         <p className='mt-2'>
-                          <a href={url} target='_blank' title='Click to view'>
+                          <a href={url} target='_blank' title='Click to view' rel="noreferrer">
                             {url}
                           </a>
                         </p>

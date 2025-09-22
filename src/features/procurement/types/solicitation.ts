@@ -103,12 +103,16 @@ export interface ISolicitationRFQData {
   tender_type: string;
   request_type: string;
   procurement_type: null;
-  solicitation_items: [
+  solicitation_items?: [
     {
       id: string;
       item: TAssetSingleData;
       lot: string;
       quantity: number;
+      frequency?: number;
+      number_of_days?: number;
+      description?: string;
+      specification?: string;
       item_detail: {
         name: string;
         uom: string;
@@ -119,6 +123,7 @@ export interface ISolicitationRFQData {
       };
     }
   ];
+  items?: any[]; // Alternative field name that might be returned
   solicitation_evaluations: [
     {
       id: string;

@@ -8,8 +8,7 @@ import { LoadingSpinner } from "components/Loading";
 import DetailsContent from "./tab-contents/Details-content";
 import VendorSubmission from "./tab-contents/Vendor-submission";
 import BreadcrumbCard from "components/Breadcrumb";
-import { useGetSingleSolicitationQuery } from "features/procurement/controllers/solicitationController";
-import { skipToken } from "@reduxjs/toolkit/query/react";
+import { useGetSingleSolicitation } from "features/procurement/controllers/solicitationController";
 import GoBack from "components/GoBack";
 import EOIVendorSubmission from "features/procurement/components/vendor-management/eoi/eoi-tabs-contents/EOIVendorSubmission";
 import SummaryOfTechnicalPrequalification from "features/procurement/components/competitive-bid-analysis/[id]/SummaryOfTechnicalPrequalification";
@@ -19,7 +18,7 @@ const RFQDetails = () => {
 
   console.log("RFQDetails ID:", id);
 
-  const { data, isLoading, error } = useGetSolicitationById(id as string, !!id);
+  const { data, isLoading, error } = useGetSingleSolicitation(id as string, !!id);
 
   console.log("RFQDetails data:", data, "loading:", isLoading, "error:", error);
 
