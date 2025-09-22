@@ -14,7 +14,7 @@ import GoBack from "components/GoBack";
 import EOIVendorSubmission from "@/features/procurement/components/vendor-management/eoi/eoi-tabs-contents/EOIVendorSubmission";
 import SummaryOfTechnicalPrequalification from "@/features/procurement/components/competitive-bid-analysis/[id]/SummaryOfTechnicalPrequalification";
 
-const RFQDetails = () => {
+const RFPDetails = () => {
   const { id } = useParams();
   const solicitationId = Array.isArray(id) ? id[0] : id;
 
@@ -25,12 +25,11 @@ const RFQDetails = () => {
   const breadcrumbs = [
     { name: "Procurement", icon: true },
     { name: "Solicitation Management", icon: true },
-    { name: "RFQ", icon: true },
+    { name: "RFP", icon: true },
     { name: "Detail", icon: false },
   ];
 
   console.log({ data: data?.data?.tender_type });
-  // NATIONAL OPEN TENDER
   return (
     <div className='space-y-5'>
       <GoBack />
@@ -39,9 +38,9 @@ const RFQDetails = () => {
         <h4 className='text-lg font-bold'>{data?.data?.title}</h4>
       </div>
 
-      <Tabs defaultValue='rfq-details'>
+      <Tabs defaultValue='rfp-details'>
         <TabsList>
-          <TabsTrigger value='rfq-details'>RFQ Details</TabsTrigger>
+          <TabsTrigger value='rfp-details'>RFP Details</TabsTrigger>
           {data?.data?.tender_type === "NATIONAL OPEN TENDER" && (
             <TabsTrigger value='vendor-evaluation'>
               Vender Evaluation
@@ -52,7 +51,7 @@ const RFQDetails = () => {
             Vendor Submission Evaluation
           </TabsTrigger>
         </TabsList>
-        <TabsContent value='rfq-details'>
+        <TabsContent value='rfp-details'>
           {data && <DetailsContent {...data?.data} />}
         </TabsContent>
         <TabsContent value='vendor-evaluation'>
@@ -72,4 +71,4 @@ const RFQDetails = () => {
   );
 };
 
-export default RFQDetails;
+export default RFPDetails;

@@ -86,93 +86,173 @@ const CompetitiveBidAnalysisDetail = () => {
 
             <GoBack />
 
-            <Card className="space-y-8 p-10">
-                <div className="flex justify-between">
-                    <h2 className="font-semibold text-lg">{data?.data?.title || 'CBA Details'}</h2>
+            {/* CBA Header Section */}
+            <Card className="space-y-6 p-8">
+                <div className="flex justify-between items-start">
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900">
+                            {data?.data?.title || 'Competitive Bid Analysis'}
+                        </h1>
+                        <p className="text-gray-600 mt-2">
+                            RFQ ID: {typeof data?.data?.solicitation === 'object' ? data?.data?.solicitation?.rfq_id : 'N/A'} |
+                            CBA Type: {data?.data?.cba_type || 'Standard'}
+                        </p>
+                    </div>
 
-                    <div className="flex gap-3">
+                    <Badge
+                        className={cn(
+                            "px-3 py-1 text-sm font-medium",
+                            data?.data?.status === "APPROVED" && "bg-green-100 text-green-800",
+                            data?.data?.status === "REJECTED" && "bg-red-100 text-red-800",
+                            data?.data?.status === "PENDING" && "bg-yellow-100 text-yellow-800",
+                            data?.data?.status === "COMPLETED" && "bg-blue-100 text-blue-800"
+                        )}
+                    >
+                        {data?.data?.status || 'DRAFT'}
+                    </Badge>
+                </div>
+            </Card>
+
+            {/* CBA Workflow Progress */}
+            <Card className="p-6">
+                <h2 className="text-lg font-semibold mb-6 text-gray-900">CBA Process Workflow</h2>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Step 1: Technical Prequalification */}
+                    <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
+                        <div className="flex items-center mb-4">
+                            <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold mr-3">
+                                1
+                            </div>
+                            <h3 className="font-semibold text-gray-900">Technical Prequalification</h3>
+                        </div>
+                        <p className="text-gray-600 text-sm mb-4">
+                            Review vendor qualifications and technical capabilities
+                        </p>
                         <Link
                             href={generatePath(
-                                RouteEnum.PROCUREMENT_CBA_REPORT,
-                                { id: id as string }
+                                RouteEnum.PROCUREMENT_CBA_START,
+                                {
+                                    id: id as string,
+                                    appID: typeof data?.data?.solicitation === 'object' ? data?.data?.solicitation?.id : data?.data?.solicitation || '',
+                                }
                             )}
                         >
-                            <Button variant="outline">
-                                <Icon icon="heroicons:document-text" className="mr-2" />
-                                View Report
+                            <Button variant="outline" className="w-full">
+                                <Icon icon="heroicons:clipboard-document-check" className="mr-2" />
+                                Start Technical Review
                             </Button>
                         </Link>
-                        
+                    </div>
+
+                    {/* Step 2: Bid Analysis */}
+                    <div className="bg-green-50 rounded-lg p-6 border border-green-200">
+                        <div className="flex items-center mb-4">
+                            <div className="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-semibold mr-3">
+                                2
+                            </div>
+                            <h3 className="font-semibold text-gray-900">Bid Analysis & Selection</h3>
+                        </div>
+                        <p className="text-gray-600 text-sm mb-4">
+                            Compare vendor quotes and select winning bids
+                        </p>
+                        <Link
+                            href={`/dashboard/procurement/competitive-bid-analysis/${id}/vendor-analysis?id=${typeof data?.data?.solicitation === 'object' ? (data?.data?.solicitation as any)?.id : data?.data?.solicitation}&cba=${id}`}
+                        >
+                            <Button className="w-full">
+                                <Icon icon="heroicons:chart-bar" className="mr-2" />
+                                Perform CBA Analysis
+                            </Button>
+                        </Link>
+                    </div>
+
+                    {/* Step 3: Final Approval */}
+                    <div className="bg-purple-50 rounded-lg p-6 border border-purple-200">
+                        <div className="flex items-center mb-4">
+                            <div className="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-semibold mr-3">
+                                3
+                            </div>
+                            <h3 className="font-semibold text-gray-900">Final Approval</h3>
+                        </div>
+                        <p className="text-gray-600 text-sm mb-4">
+                            Approve analysis and generate purchase orders
+                        </p>
                         {data?.data?.status === "PENDING" ? (
                             <Dialog open={open} onOpenChange={setOpen}>
                                 <DialogTrigger asChild>
-                                    <Button>Approval</Button>
+                                    <Button variant="default" className="w-full">
+                                        <Icon icon="heroicons:check-circle" className="mr-2" />
+                                        Process Approval
+                                    </Button>
                                 </DialogTrigger>
-                            <DialogContent className="max-w-xl">
-                                <DialogHeader>
-                                    <DialogTitle className="text-2xl font-semibold mb-5">
-                                        CBA Approval
-                                    </DialogTitle>
-                                </DialogHeader>
-                                <Form {...form}>
-                                    <form
-                                        onSubmit={handleSubmit(onSubmit)}
-                                        className="space-y-5"
-                                    >
-                                        <FormSelect
-                                            name="status"
-                                            label="Status"
-                                            placeholder="Select status"
-                                            required
-                                        >
-                                            <SelectContent>
-                                                <SelectItem value="APPROVED">
-                                                    Generate Purchase Order
-                                                </SelectItem>
-                                                <SelectItem value="REJECTED">
-                                                    Redo CBA
-                                                </SelectItem>
-                                            </SelectContent>
-                                        </FormSelect>
-
-                                        <FormTextArea
-                                            name="remarks"
-                                            label="Remarks"
-                                            placeholder="Enter remarks"
-                                        />
-
-                                        <div className="flex justify-end">
-                                            <FormButton
-                                                loading={
-                                                    createApprovalCbaIsLoading
-                                                }
-                                                disabled={
-                                                    createApprovalCbaIsLoading
-                                                }
-                                                type="submit"
+                                <DialogContent className="max-w-xl">
+                                    <DialogHeader>
+                                        <DialogTitle className="text-2xl font-semibold mb-5">
+                                            CBA Final Approval
+                                        </DialogTitle>
+                                    </DialogHeader>
+                                    <Form {...form}>
+                                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                                            <FormSelect
+                                                name="status"
+                                                label="Decision"
+                                                placeholder="Select approval decision"
+                                                required
                                             >
-                                                Submit
-                                            </FormButton>
-                                        </div>
-                                    </form>
-                                </Form>
-                            </DialogContent>
-                        </Dialog>
+                                                <SelectContent>
+                                                    <SelectItem value="APPROVED">
+                                                        ✅ Approve & Generate Purchase Orders
+                                                    </SelectItem>
+                                                    <SelectItem value="REJECTED">
+                                                        ❌ Reject & Request CBA Redo
+                                                    </SelectItem>
+                                                </SelectContent>
+                                            </FormSelect>
+
+                                            <FormTextArea
+                                                name="remarks"
+                                                label="Approval Remarks"
+                                                placeholder="Enter approval comments and justification"
+                                                rows={4}
+                                            />
+
+                                            <div className="flex justify-end">
+                                                <FormButton
+                                                    loading={createApprovalCbaIsLoading}
+                                                    disabled={createApprovalCbaIsLoading}
+                                                    type="submit"
+                                                >
+                                                    Submit Final Decision
+                                                </FormButton>
+                                            </div>
+                                        </form>
+                                    </Form>
+                                </DialogContent>
+                            </Dialog>
                         ) : (
-                            <Link
-                                href={generatePath(
-                                    RouteEnum.PROCUREMENT_CBA_START,
-                                    {
-                                        id: id as string,
-                                        appID: data?.data?.solicitation || '',
-                                    }
-                                )}
-                            >
-                                <Button>Start CBA</Button>
-                            </Link>
+                            <Button variant="outline" disabled className="w-full">
+                                <Icon icon="heroicons:check-circle" className="mr-2" />
+                                {data?.data?.status === "APPROVED" ? "Approved ✅" : "Completed"}
+                            </Button>
                         )}
                     </div>
                 </div>
+
+                {/* Quick Actions */}
+                <div className="flex justify-center mt-6 pt-6 border-t">
+                    <Link
+                        href={generatePath(RouteEnum.PROCUREMENT_CBA_REPORT, { id: id as string })}
+                    >
+                        <Button variant="outline">
+                            <Icon icon="heroicons:document-text" className="mr-2" />
+                            Download CBA Report
+                        </Button>
+                    </Link>
+                </div>
+            </Card>
+
+            {/* CBA Details Information */}
+            <Card className="space-y-6 p-8">
 
                 <h4 className="text-green-dark text-base font-semibold">
                     Status{" "}

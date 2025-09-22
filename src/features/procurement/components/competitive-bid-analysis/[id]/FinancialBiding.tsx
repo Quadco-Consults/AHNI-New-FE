@@ -9,12 +9,11 @@ import { ChevronRight } from "lucide-react";
 import TenderChecklist from "./TenderCheckList";
 import { useForm } from "react-hook-form";
 import { RouteEnum } from "constants/RouterConstants";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import ManualBidCbaPrequalificationAPI from "@/features/procurement/controllers/manualBidCbaPrequalificationController";
 import { toast } from "sonner";
 import GoBack from "components/GoBack";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
-import { skipToken } from "@reduxjs/toolkit/query";
 
 const criteriaData = [
   {
@@ -28,13 +27,12 @@ const criteriaData = [
 ];
 const FinancialBid = () => {
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
-  
+
   // Get parameters from URL search params instead of location.state
-  const cba = searchParams.get('cba');
-  const bid_submission = searchParams.get('bid_submission');
-  const solicitation = searchParams.get('solicitation');
+  const cba = searchParams?.get('cba');
+  const bid_submission = searchParams?.get('bid_submission');
+  const solicitation = searchParams?.get('solicitation');
 
   console.log("CBA:", cba);
   console.log("Bid Submission:", bid_submission, solicitation);
@@ -48,12 +46,7 @@ const FinancialBid = () => {
   });
   const { handleSubmit, control, getValues, setValue } = form;
 
-  const { data: cbaData } = CbaAPI.useGetCba({
-    path: {
-      // @ts-ignore
-      id: cba ?? skipToken,
-    },
-  });
+  const { data: cbaData } = CbaAPI.useGetSingleCba(cba as string);
 
   const { createManualBidCbaPrequalification } =
     ManualBidCbaPrequalificationAPI.useCreateManualBidCbaPrequalification();
@@ -83,11 +76,12 @@ const FinancialBid = () => {
       console.error("Error submitting data:", error);
     }
     // Option 1: Go back to RFQ details
-    // router.push(`/dashboard/procurement/solicitation-management/rfq/${cbaData?.data?.solicitation?.id}`);
-    
+    // router.push(`/dashboard/procurement/solicitation-management/rfq/${typeof cbaData?.data?.solicitation === 'object' ? (cbaData?.data?.solicitation as any)?.id : cbaData?.data?.solicitation}`);
+
     // Option 2: Go to Technical Prequalification Summary
     const summaryUrl = RouteEnum.PROCUREMENT_CBA_TECHNICAL_PREQUALIFICATION.replace(':id', cba || '');
-    router.push(`${summaryUrl}?id=${cbaData?.data?.solicitation?.id}&cba=${cba}`);
+    const solicitationId = typeof cbaData?.data?.solicitation === 'object' ? (cbaData?.data?.solicitation as any)?.id : cbaData?.data?.solicitation;
+    router.push(`${summaryUrl}?id=${solicitationId}&cba=${cba}`);
   };
 
   return (
