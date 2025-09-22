@@ -12,6 +12,7 @@ import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { HrRoutes } from "constants/RouterConstants";
+import { generatePath } from "utils/generatePath";
 import Card from "components/Card";
 import {
   WorkforceBankAccountFormValues,
@@ -25,7 +26,7 @@ import {
   useCreateEmployeeOnboardingBankAcct,
   useGetEmployeeOnboardingBankAcct,
   useUpdateEmployeeOnboardingBankAcct,
-} from "@/features/hrApi/hr-employee-onboarding-bank-accountController";
+} from "@/features/hr/controllers/hrEmployeeOnboardingBankAccountController";
 import GoBack from "components/GoBack";
 
 const Salary = () => {

@@ -8,7 +8,9 @@ import FormSelect from "components/atoms/FormSelect";
 import { Separator } from "components/ui/separator";
 import { Button } from "components/ui/button";
 import { ChevronRight, Save } from "lucide-react";
-import { useNavigate, useParams, generatePath, Link } 
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { generatePath } from "utils/generatePath"; 
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
@@ -18,7 +20,7 @@ import { LoadingSpinner } from "components/Loading";
 
 import FormButton from "@/components/FormButton";
 import GoBack from "components/GoBack";
-import { useGetHrEmergencyList } from "@/features/hrApi/hr-employee-onboarding-add-info";
+import { useGetHrEmergencyList } from "@/features/hr/controllers/hrEmployeeOnboardingAddInfoController";
 
 import { EmergencyContactForm } from "./EmergencyContactForm";
 import { AuthorizationForm } from "./AuthorizationForm";

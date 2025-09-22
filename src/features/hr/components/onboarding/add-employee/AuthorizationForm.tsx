@@ -21,8 +21,8 @@ import FormButton from "@/components/FormButton";
 import {
   useUpdateSystemAuthorization,
   useCreateSystemAuthorization,
-} from "@/features/hrApi/hr-employee-onboarding-add-authorizationController";
-import { useGetSystemAuthorizationList } from "@/features/hrApi/hr-employee-onboarding-add-authorization";
+} from "@/features/hr/controllers/hrEmployeeOnboardingAuthorizationController";
+import { useGetSystemAuthorizationList } from "@/features/hr/controllers/hrEmployeeOnboardingAuthorizationController";
 
 export const AuthorizationForm = () => {
   const id = localStorage.getItem("workforceID") || "";

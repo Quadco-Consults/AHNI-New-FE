@@ -16,23 +16,27 @@ const AdvertisementDetail = () => {
 
   const { data, isLoading } = useGetJobAdvertisement(id as string);
 
+  // Debug the data structure
+  console.log("Advertisement Detail - Raw API data:", data);
+  console.log("Advertisement Detail - data?.data:", data?.data);
+
   const TABS = [
     {
       label: "Job Details",
       value: "job_details",
       // @ts-ignore
-      children: <JobDetail {...data?.data} />,
+      children: data?.data ? <JobDetail {...data.data} /> : <div>Loading...</div>,
     },
     {
       label: "Submitted Applications",
       value: "submitted_applications",
       // @ts-ignore
-      children: <SubmittedApplication {...data?.data} />,
+      children: data?.data ? <SubmittedApplication {...data.data} /> : <div>Loading...</div>,
     },
     {
       label: "Shortlist",
       value: "shortlist",
-      
+
       // @ts-ignore
       children: <Shortlist />,
     },

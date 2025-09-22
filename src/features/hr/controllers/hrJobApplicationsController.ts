@@ -139,9 +139,11 @@ export const usePatchJobApplication = (id: string) => {
 
   const patchJobApplication = async (details: Partial<JobApplication>) => {
     try {
-      await callApi(details);
+      const result = await callApi(details);
+      return result;
     } catch (error) {
       console.error("Job application patch error:", error);
+      throw error; // Re-throw so calling code can handle the error
     }
   };
 
@@ -163,9 +165,11 @@ export const usePatchJobApplicationShortlisted = (id: string) => {
 
   const patchJobApplicationShortlisted = async (details: Partial<JobApplication>) => {
     try {
-      await callApi(details);
+      const result = await callApi(details);
+      return result;
     } catch (error) {
       console.error("Job application shortlist error:", error);
+      throw error; // Re-throw the error so caller knows it failed
     }
   };
 
@@ -187,9 +191,11 @@ export const usePatchJobApplicationAccepted = (id: string) => {
 
   const patchJobApplicationAccepted = async (details: Partial<JobApplication>) => {
     try {
-      await callApi(details);
+      const result = await callApi(details);
+      return result;
     } catch (error) {
       console.error("Job application accept error:", error);
+      throw error; // Re-throw the error so caller knows it failed
     }
   };
 
@@ -211,14 +217,65 @@ export const usePatchJobApplicationPreferred = (id: string) => {
 
   const patchJobApplicationPreferred = async (details: Partial<JobApplication>) => {
     try {
-      await callApi(details);
+      const result = await callApi(details);
+      return result;
     } catch (error) {
       console.error("Job application preferred error:", error);
+      throw error; // Re-throw the error so caller knows it failed
     }
   };
 
   return { patchJobApplicationPreferred, data, isLoading, isSuccess, error };
 };
+
+// Update Job Application Status to Interviewed - following the same pattern as other status endpoints
+export const usePatchJobApplicationInterviewed = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    JobApplication,
+    Error,
+    Partial<JobApplication>
+  >({
+    endpoint: `${BASE_URL}${id}/interview/`,
+    queryKey: ["job-applications", "job-application"],
+    isAuth: true,
+    method: "PATCH",
+  });
+
+  const patchJobApplicationInterviewed = async (details: Partial<JobApplication>) => {
+    try {
+      const result = await callApi(details);
+      return result;
+    } catch (error) {
+      console.error("Job application interview error:", error);
+      throw error; // Re-throw the error so caller knows it failed
+    }
+  };
+
+  return { patchJobApplicationInterviewed, data, isLoading, isSuccess, error };
+};
+
+// Legacy function for backward compatibility
+export const useUpdateJobApplicationToInterviewed = (id: string) => {
+  const { patchJobApplicationInterviewed, data, isLoading, isSuccess, error } =
+    usePatchJobApplicationInterviewed(id);
+
+  const updateJobApplicationToInterviewed = async () => {
+    console.log("🎯 Attempting to mark application as interviewed:", `${BASE_URL}${id}/interview/`);
+
+    try {
+      // Try with empty payload first (like other status endpoints)
+      const result = await patchJobApplicationInterviewed({});
+      console.log("✅ Interview status update successful:", result);
+      return result;
+    } catch (error) {
+      console.error("❌ Interview status update failed:", error);
+      throw error;
+    }
+  };
+
+  return { updateJobApplicationToInterviewed, data, isLoading, isSuccess, error };
+};
+
 
 // Legacy exports for backward compatibility
 export const useCreateJobApplicationMutation = useCreateJobApplication;
@@ -229,3 +286,4 @@ export const usePatchJobApplicationMutation = usePatchJobApplication;
 export const usePatchJobApplicationShortlistedMutation = usePatchJobApplicationShortlisted;
 export const usePatchJobApplicationAcceptedMutation = usePatchJobApplicationAccepted;
 export const usePatchJobApplicationPreferredMutation = usePatchJobApplicationPreferred;
+export const usePatchJobApplicationInterviewedMutation = useUpdateJobApplicationToInterviewed;

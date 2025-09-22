@@ -24,7 +24,7 @@ import FormButton from "@/components/FormButton";
 import {
   useUpdateHrEmergency,
   useCreateHrEmergency,
-} from "@/features/hrApi/hr-employee-onboarding-add-infoController";
+} from "@/features/hr/controllers/hrEmployeeOnboardingAddInfoController";
 import { HrEmergencyResults } from "definations/hr-types/employee-onboarding";
 import { Save } from "lucide-react";
 

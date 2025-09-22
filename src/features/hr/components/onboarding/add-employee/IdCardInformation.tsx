@@ -1,4 +1,8 @@
-import { useNavigate, useParams, generatePath, Link } 
+"use client";
+
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { generatePath } from "utils/generatePath"; 
 import DescriptionCard from "components/DescriptionCard";
 import { Button } from "components/ui/button";
 import PrinterIcon from "components/icons/PrinterIcon";
@@ -10,7 +14,7 @@ import { HrRoutes } from "constants/RouterConstants";
 import Card from "components/Card";
 import { updateStepCompletion } from "store/stepTracker";
 import GoBack from "components/GoBack";
-import { useGetEmployeeIdentityCard } from "@/features/hrApi/hr-employee-onboarding";
+import { useGetEmployeeIdentityCard } from "@/features/hr/controllers/employeeOnboardingController";
 import moment from "moment";
 
 const IdCardInformation = () => {
