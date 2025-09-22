@@ -1,7 +1,24 @@
 import { combineReducers } from "@reduxjs/toolkit";
 import { persistReducer } from "redux-persist";
 // Services removed - using TanStack Query instead
-import storage from "redux-persist/es/storage/session";
+
+const createNoopStorage = () => {
+  return {
+    getItem(_key: any) {
+      return Promise.resolve(null);
+    },
+    setItem(_key: any, value: any) {
+      return Promise.resolve(value);
+    },
+    removeItem(_key: any) {
+      return Promise.resolve();
+    },
+  };
+};
+
+const storage = typeof window !== "undefined"
+  ? require("redux-persist/es/storage/session").default
+  : createNoopStorage();
 import auth from "./auth/authSlice";
 import ui from "./ui";
 import consortiumPartnerReducer from "./formData/project-values";
