@@ -18,11 +18,32 @@ import {
 } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 import IconButton from "components/IconButton";
 
-const VendorSubmission = () => {
+const VendorSubmission = (props?: any) => {
   const params = useParams();
   const id = params?.id as string;
 
-  const { data } = useGetSolicitationSubmission(id, !!id);
+  console.log("🚀 VendorSubmission Component Loaded!", {
+    componentProps: props,
+    paramsId: id,
+    timestamp: new Date().toISOString()
+  });
+
+  const { data, isLoading, error } = useGetSolicitationSubmission(id, !!id);
+
+  // Enhanced Debug logging
+  console.log("🔍 Vendor Submission Debug:", {
+    solicitationId: id,
+    fullData: data,
+    isLoading: isLoading,
+    error: error,
+    // Check multiple possible data paths
+    results_path1: data?.data?.data?.results,
+    results_path2: data?.data?.results,
+    results_path3: (data as any)?.results,
+    results_path4: data?.data,
+    dataKeys: data ? Object.keys(data) : null,
+    dataDataKeys: data?.data ? Object.keys(data.data) : null,
+  });
 
   return (
     <div className="space-y-10">
@@ -65,11 +86,57 @@ const VendorSubmission = () => {
           </Link>
         </div>
 
-        <DataTable
-          data={data?.data?.data?.results || []}
-          columns={columns}
-          isLoading={false}
-        />
+        {/* Debug info display */}
+        {error && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-800 text-sm">
+              ❌ Error loading bids: {error.message}
+            </p>
+          </div>
+        )}
+
+        {isLoading && (
+          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-blue-800 text-sm">
+              🔄 Loading bid submissions...
+            </p>
+          </div>
+        )}
+
+        {/* Try to find data in multiple possible paths */}
+        {(() => {
+          const possibleResults =
+            data?.data?.data?.results ||
+            data?.data?.results ||
+            (data as any)?.results ||
+            (Array.isArray(data?.data) ? data.data : []);
+
+          const hasResults = possibleResults && possibleResults.length > 0;
+
+          return (
+            <>
+              {!isLoading && !error && !hasResults && (
+                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-yellow-800 text-sm">
+                    ⚠️ No bid submissions found for this RFQ
+                  </p>
+                  <p className="text-xs text-yellow-600 mt-1">
+                    Solicitation ID: {id}
+                  </p>
+                  <p className="text-xs text-yellow-500 mt-1">
+                    Check console for data structure details
+                  </p>
+                </div>
+              )}
+
+              <DataTable
+                data={possibleResults || []}
+                columns={columns}
+                isLoading={isLoading}
+              />
+            </>
+          );
+        })()}
       </Card>
     </div>
   );

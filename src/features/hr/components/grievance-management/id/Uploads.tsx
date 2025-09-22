@@ -33,10 +33,7 @@ import UploadDocumentDialog from "@/components/modals/dialog/UploadDocumentDialo
 import moment from "moment";
 import ConfirmationDialog from "components/ConfirmationDialog";
 
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.mjs",
-  import.meta.url
-).toString();
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 const Uploads = (data: VendorsResultsData) => {
   const [numPages, setNumPages] = useState<number>();
@@ -99,7 +96,7 @@ const Uploads = (data: VendorsResultsData) => {
           toast.success("Upload submitted successfully"); 
           setDialogOpen(false)
         } catch (error) {
-          toast.error("Something went wrong"); ;
+          toast.error("Something went wrong"); 
         }
       };
     const deleteDocHandler = async () => {

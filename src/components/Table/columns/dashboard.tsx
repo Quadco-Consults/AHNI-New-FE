@@ -3,7 +3,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import IconButton from "components/IconButton";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
-import logoPng from "assets/svgs/logo-bg.svg";
+import logoPng from "@/assets/svgs/logo-bg.svg";
 
 type Data = {
   ref: { name: string; desc: string };

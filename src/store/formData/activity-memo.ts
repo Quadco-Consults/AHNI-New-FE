@@ -11,6 +11,11 @@ const activitySlice = createSlice({
     addActivity: (state, { payload }: PayloadAction<any>) => {
       state.activity.push(payload);
     },
+    updateActivity: (state, { payload }: PayloadAction<{ index: number; data: any }>) => {
+      if (state.activity[payload.index]) {
+        state.activity[payload.index] = payload.data;
+      }
+    },
     clearActivity: (state) => {
       state.activity = [];
     },

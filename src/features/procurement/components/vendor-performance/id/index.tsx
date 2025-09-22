@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "components/ui/table";
-import logoPng from "assets/svgs/logo-bg.svg";
+import logoPng from "@/assets/svgs/logo-bg.svg";
 import GoBack from "components/GoBack";
 import { useParams } from "next/navigation";
 import VendorsEvaluaionAndPerformanceAPI from "@/features/procurement/controllers/vendorPerformanceEvaluationController";

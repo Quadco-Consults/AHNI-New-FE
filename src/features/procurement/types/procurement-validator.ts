@@ -125,7 +125,7 @@ export const VendorsSchema = z.object({
 
 //
 export const SampleMemoSchema = z.object({
-  activity: z.string().min(1, "Field is required"),
+  activity: z.string().optional(), // Made optional due to ActivityPlan vs ActivityPlanFromWorkPlan mismatch
   subject: z.string().min(1, "Field is required"),
   requested_date: z.string().min(1, "Field is required"),
   fconumber: z.array(z.string().min(1, "Field is required")),
@@ -337,6 +337,18 @@ export const SolicitationSubmissionSchema = z.object({
       evaluation_criteria: z.string().min(1, "Field is required"),
     })
   ),
+  // Additional submission details
+  delivery_lead_time: z.string().min(1, "Delivery lead time is required"),
+  payment_terms: z.string().min(1, "Payment terms is required"),
+  tin: z.string().min(1, "TIN is required"),
+  validity_period: z.string().min(1, "Validity period is required"),
+  has_bank_account: z.string().min(1, "Bank account status is required"),
+  is_cac_registered: z.string().min(1, "CAC registration status is required"),
+  previous_experience: z.string().min(1, "Previous experience status is required"),
+  email: z.string().email("Valid email is required"),
+  currency: z.string().min(1, "Currency is required"),
+  warranty: z.string().min(1, "Warranty is required"),
+  brand_quoted: z.string().min(1, "Brand quoted is required"),
 });
 
 export const CbaSchema = z.object({
@@ -460,3 +472,143 @@ export const ManualBidCbaPrequalificationSchema = z.object({
 });
 
 // Manual Bid Submission end
+
+// Enhanced RFQ Types
+export const SolicitationItemSchema = z.object({
+  id: z.string().uuid().optional(),
+  item: z.string().uuid(),
+  item_detail: z.object({
+    id: z.string().uuid(),
+    name: z.string(),
+    description: z.string().optional(),
+    uom: z.string(),
+  }).optional(),
+  lot: z.string().uuid().optional(),
+  lot_detail: z.object({
+    id: z.string().uuid(),
+    name: z.string(),
+  }).optional(),
+  description: z.string().optional(),
+  specification: z.string().optional(),
+  quantity: z.number().min(1),
+  frequency: z.number().min(1).default(1),
+  number_of_days: z.number().min(1).default(1),
+});
+
+export const SolicitationCriteriaSchema = z.object({
+  id: z.string().uuid().optional(),
+  criteria: z.string().uuid(),
+  criteria_details: z.object({
+    id: z.string().uuid(),
+    name: z.string(),
+    description: z.string().optional(),
+  }).optional(),
+  title: z.string().optional(),
+  description: z.string().optional(),
+});
+
+export const EnhancedSolicitationSchema = z.object({
+  id: z.string().uuid().optional(),
+  rfq_id: z.string(),
+  purchase_request: z.string().uuid().optional().nullable(),
+  eoi_tender: z.string().uuid().optional().nullable(),
+  title: z.string(),
+  background: z.string().optional(),
+  status: z.enum(['OPEN', 'CLOSED']),
+  opening_date: z.string().optional().nullable(),
+  closing_date: z.string().optional().nullable(),
+  rfq_type: z.enum(['PROCUREMENT', 'ADMIN']).optional(),
+  tender_type: z.enum([
+    'SINGLE SOURCE',
+    'CLOSED SOURCE',
+    'OPENED SOURCE',
+    'LIMITED SOLICITATION',
+    'NATIONAL OPEN TENDER'
+  ]),
+  request_type: z.enum([
+    'REQUEST FOR QUOTATION',
+    'REQUEST FOR PROPOSAL',
+    'INVITATION TO TENDER'
+  ]),
+  procurement_type: z.string().optional(),
+  specification_document: z.string().optional(),
+  specification_document_detail: z.string().optional(),
+  solicitation_items: z.array(SolicitationItemSchema),
+  solicitation_evaluations: z.array(SolicitationCriteriaSchema),
+});
+
+export const CreateSolicitationRequestSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  rfq_id: z.string().min(1, 'RFQ ID is required'),
+  background: z.string().optional(),
+  request_type: z.enum([
+    'REQUEST FOR QUOTATION',
+    'REQUEST FOR PROPOSAL',
+    'INVITATION TO TENDER'
+  ]),
+  tender_type: z.enum([
+    'SINGLE SOURCE',
+    'CLOSED SOURCE',
+    'OPENED SOURCE',
+    'LIMITED SOLICITATION',
+    'NATIONAL OPEN TENDER'
+  ]),
+  rfq_type: z.enum(['PROCUREMENT', 'ADMIN']).optional(),
+  procurement_type: z.string().optional(),
+  purchase_request: z.string().uuid().optional().nullable(),
+  eoi_tender: z.string().uuid().optional().nullable(),
+  opening_date: z.string().optional(),
+  closing_date: z.string().optional(),
+  specification_document: z.instanceof(File).optional(),
+  solicitation_items: z.array(z.object({
+    item: z.string().uuid(),
+    quantity: z.number().min(1),
+    description: z.string().optional(),
+    specification: z.string().optional(),
+    frequency: z.number().min(1).default(1),
+    number_of_days: z.number().min(1).default(1),
+    lot: z.string().uuid().optional(),
+  })),
+  solicitation_evaluations: z.array(z.object({
+    criteria: z.string().uuid(),
+    title: z.string().optional(),
+    description: z.string().optional(),
+  })),
+});
+
+export const VendorBidItemSchema = z.object({
+  id: z.string().uuid().optional(),
+  bid_submission: z.string().uuid().optional(),
+  solicitation_item: z.string().uuid(),
+  unit_price: z.number().min(0),
+  quantity: z.number().min(1),
+  total_amount: z.number().min(0).optional(),
+});
+
+export const VendorEvaluationResponseSchema = z.object({
+  id: z.string().uuid().optional(),
+  bid_submission: z.string().uuid().optional(),
+  evaluation_criteria: z.string().uuid(),
+  response: z.string().min(1, 'Response is required'),
+});
+
+export const VendorBidSubmissionSchema = z.object({
+  id: z.string().uuid().optional(),
+  vendor: z.string().uuid(),
+  solicitation: z.string().uuid(),
+  total_amount: z.number().min(0).optional(),
+  status: z.enum(['PENDING', 'PASSED', 'FAILED']).optional(),
+  bid_items: z.array(VendorBidItemSchema),
+  evaluations: z.array(VendorEvaluationResponseSchema),
+});
+
+// Type exports
+export type ISolicitationItem = z.infer<typeof SolicitationItemSchema>;
+export type ISolicitationCriteria = z.infer<typeof SolicitationCriteriaSchema>;
+export type ISolicitation = z.infer<typeof EnhancedSolicitationSchema>;
+export type ICreateSolicitationRequest = z.infer<typeof CreateSolicitationRequestSchema>;
+export type IVendorBidItem = z.infer<typeof VendorBidItemSchema>;
+export type IVendorEvaluationResponse = z.infer<typeof VendorEvaluationResponseSchema>;
+export type IVendorBidSubmission = z.infer<typeof VendorBidSubmissionSchema>;
+
+// Enhanced RFQ Types End

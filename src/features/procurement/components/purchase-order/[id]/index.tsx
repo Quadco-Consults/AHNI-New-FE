@@ -1,6 +1,6 @@
 "use client";
 
-import logoPng from "assets/svgs/logo-bg.svg";
+import logoPng from "@/assets/svgs/logo-bg.svg";
 import Card from "components/Card";
 import DataTable from "components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
