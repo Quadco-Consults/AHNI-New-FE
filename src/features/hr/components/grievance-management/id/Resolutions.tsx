@@ -44,7 +44,7 @@ const Resolutions = (data: VendorsResultsData) => {
           toast.success("Resolution submitted successfully"); 
           setDialogOpen(false)
         } catch (error) {
-          toast.error("Something went wrong"); ;
+          toast.error("Something went wrong"); 
         }
       };
 

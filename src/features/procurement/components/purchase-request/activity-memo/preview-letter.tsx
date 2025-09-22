@@ -3,10 +3,10 @@
 import LongArrowRight from "components/icons/LongArrowRight";
 import { Button } from "components/ui/button";
 import { RouteEnum } from "constants/RouterConstants";
-import logoPng from "assets/svgs/logo-bg.svg";
+import logoPng from "@/assets/svgs/logo-bg.svg";
 
 import Link from "next/link";
-import PurchaseRequestAPI from "@/features/procurement/controllers/purchaseSampleRequestController";
+import { useGetActivityMemo } from "@/features/procurement/controllers/activityMemoController";
 import { useMemo } from "react";
 import { useGetSingleBudgetLine } from "@/features/modules/controllers/finance/budgetLineController";
 
@@ -24,37 +24,29 @@ const Preview = () => {
   const created = searchParams.get("created");
   const request = searchParams.get("request");
 
-  const { data: requestsDetails } = PurchaseRequestAPI.useGetActivityMemo(
-    useMemo(
-      () => ({
-        path: { id: id as string },
-      }),
-      [id]
-    )
-  );
+  const { data: requestsDetails } = useGetActivityMemo(id as string, !!id);
+
+  // Extract data from nested structure - try both direct and data property
+  const apiData = requestsDetails?.data || requestsDetails;
 
   const { data: budgetLine } = useGetSingleBudgetLine(
-    requestsDetails?.budget_line[0] ?? skipToken
+    apiData?.budget_line?.[0] ?? skipToken
   );
 
-  const { data: interventionArea } =
-    // @ts-ignore
-    useGetSingleInterventionArea(
-      requestsDetails?.intervention_areas[0] ?? skipToken
-    );
+  const { data: interventionArea } = useGetSingleInterventionArea(
+    apiData?.intervention_areas?.[0] ?? skipToken
+  );
 
   const { data: costCategory } = useGetSingleCostCategory(
-    // @ts-ignore
-    requestsDetails?.cost_categories[0] ?? skipToken
+    apiData?.cost_categories?.[0] ?? skipToken
   );
 
-  const { data: costInput } =
-    // @ts-ignore
-    useGetSingleCostInput(requestsDetails?.cost_input[0] ?? skipToken);
+  const { data: costInput } = useGetSingleCostInput(
+    apiData?.cost_input?.[0] ?? skipToken
+  );
 
   const { data: fcoNumber } = useGetSingleFCONumber(
-    // @ts-ignore
-    requestsDetails?.fconumber[0] ?? skipToken
+    apiData?.fconumber?.[0] ?? skipToken
   );
   console.log({ requestsDetails, fcoNumber });
 
