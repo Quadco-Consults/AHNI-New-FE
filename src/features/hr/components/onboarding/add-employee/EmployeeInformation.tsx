@@ -1,14 +1,18 @@
+"use client";
+
 import Card from "components/Card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import BasicInformation from "./BasicInformation";
 import Qualification from "./Qualification";
 import { Button } from "components/ui/button";
 import { ChevronRight } from "lucide-react";
-import { useParams, generatePath, Link } 
+import { useParams } from "next/navigation";
+import Link from "next/link";
+import { generatePath } from "utils/generatePath"; 
 import { HrRoutes } from "constants/RouterConstants";
 import GoBack from "components/GoBack";
-import { useGetEmployeeOnboardingQualificationsList } from "@/features/hrApi/hr-employee-onboarding-qualifications";
-import { useGetJobApplication } from "@/features/hrApi/hr-job-applications";
+import { useGetEmployeeOnboardingQualificationsList } from "@/features/hr/controllers/hrEmployeeOnboardingQualificationsController";
+import { useGetJobApplication } from "@/features/hr/controllers/hrJobApplicationsController";
 import { useState } from "react";
 
 const EmployeeInformation = () => {
@@ -16,8 +20,24 @@ const EmployeeInformation = () => {
 
   const [activeTab, setActiveTab] = useState("basic_information");
 
-  const { data, isLoading } = useGetJobApplication({
-    id: id as string,
+  console.log("🔍 URL PARAMS DEBUG:", {
+    rawParams: useParams(),
+    id: id,
+    idType: typeof id,
+    idLength: typeof id === 'string' ? id.length : 'not string',
+    fullId: id,
+    stringifiedId: String(id)
+  });
+
+  const { data, isLoading, error } = useGetJobApplication(id as string);
+
+  console.log("EmployeeInformation - Job Application API:", {
+    id,
+    data,
+    isLoading,
+    error,
+    hasData: !!data?.data,
+    apiUrl: `hr/jobs/applications/${id}/`
   });
 
   const { data: qualifications, isLoading: getLoading } =

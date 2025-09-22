@@ -154,7 +154,7 @@ const Onboarding = () => {
       label: "Accepted Applicants",
       value: "accepted",
       // @ts-ignore
-      children: <ApplicationsTable status='ACCEPTED' />,
+      children: <ApplicationsTable status='ACCEPTED' isOnboardingPage={true} />,
     },
     {
       label: "Employees",

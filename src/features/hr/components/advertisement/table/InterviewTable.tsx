@@ -4,27 +4,80 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "components/ui/checkbox";
 import { InterviewResults } from "definations/hr-types/advertisement";
 
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import { generatePath, Link, useParams } from "next/navigation";
-import { HrRoutes } from "constants/RouterConstants";
-import EyeIcon from "components/icons/EyeIcon";
-
-import DeleteIcon from "components/icons/DeleteIcon";
+import { useParams } from "next/navigation";
 import DataTable from "components/Table/DataTable";
 import SearchIcon from "components/icons/SearchIcon";
 import FilterIcon from "components/icons/FilterIcon";
 import { Loading } from "components/Loading";
+import { Button } from "components/ui/button";
 import { useGetInterviews } from "@/features/hr/controllers/hrInterviewController";
 
 const InterviewTable = () => {
-  const { id: paramsID } = useParams();
+  const params = useParams();
+  const paramsID = params?.id as string;
   const { data, isLoading } = useGetInterviews({ id: paramsID });
 
   if (isLoading) {
     return <Loading />;
   }
+
+  // Filter to only show conducted interviews (those with actual evaluation data)
+  const allInterviews = (data?.data as any)?.results || [];
+
+  // An interview is considered "conducted" if it has:
+  // 1. Comments in any evaluation field (indicates actual evaluation)
+  // 2. OR ratings that are not all default (1) values
+  // 3. OR has a recommendation filled out
+  const conductedInterviews = allInterviews.filter((interview: any) => {
+    const hasComments = interview.appearance_comments ||
+                       interview.oral_communication_comments ||
+                       interview.teamwork_comments ||
+                       interview.work_ethics_comments ||
+                       interview.analytical_comments ||
+                       interview.knowledge_comments ||
+                       interview.experience_comments;
+
+    const hasRecommendation = interview.recommendation && interview.recommendation.trim().length > 0;
+
+    // Check if ratings are not all default (1) values
+    const ratings = [
+      interview.appearance_rating,
+      interview.oral_communication_rating,
+      interview.teamwork_rating,
+      interview.work_ethics_rating,
+      interview.analytical_rating,
+      interview.knowledge_rating,
+      interview.experience_rating
+    ];
+    const hasNonDefaultRatings = ratings.some(rating => rating && rating !== 1);
+
+    return hasComments || hasRecommendation || hasNonDefaultRatings;
+  });
+
+  const scheduledInterviews = allInterviews.filter((interview: any) => {
+    const hasComments = interview.appearance_comments ||
+                       interview.oral_communication_comments ||
+                       interview.teamwork_comments ||
+                       interview.work_ethics_comments ||
+                       interview.analytical_comments ||
+                       interview.knowledge_comments ||
+                       interview.experience_comments;
+
+    const hasRecommendation = interview.recommendation && interview.recommendation.trim().length > 0;
+
+    const ratings = [
+      interview.appearance_rating,
+      interview.oral_communication_rating,
+      interview.teamwork_rating,
+      interview.work_ethics_rating,
+      interview.analytical_rating,
+      interview.knowledge_rating,
+      interview.experience_rating
+    ];
+    const hasNonDefaultRatings = ratings.some(rating => rating && rating !== 1);
+
+    return !(hasComments || hasRecommendation || hasNonDefaultRatings);
+  });
   const columns: ColumnDef<InterviewResults>[] = [
     {
       id: "select",
@@ -105,47 +158,6 @@ const InterviewTable = () => {
     // },
   ];
 
-  const ActionList = ({ data }: any) => {
-    return (
-      <div className="flex items-center gap-2">
-        <>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="ghost" className="flex gap-2 py-6">
-                <MoreOptionsHorizontalIcon />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className=" w-fit">
-              <div className="flex flex-col items-start justify-between gap-1">
-                <Link
-                  href={generatePath(HrRoutes.ADVERTISEMENT_INTERVIEW_DETAILS, {
-                    id: paramsID,
-                    appID: data?.id,
-                  })}
-                >
-                  <Button
-                    className="w-full flex items-center justify-start gap-2"
-                    variant="ghost"
-                  >
-                    <EyeIcon />
-                    View
-                  </Button>
-                </Link>
-
-                <Button
-                  className="w-full flex items-center justify-start gap-2"
-                  variant="ghost"
-                >
-                  <DeleteIcon />
-                  delete
-                </Button>
-              </div>
-            </PopoverContent>
-          </Popover>
-        </>
-      </div>
-    );
-  };
 
   return (
     <div className="space-y-6">
@@ -162,13 +174,28 @@ const InterviewTable = () => {
           <FilterIcon />
         </Button>
       </div>
-      <h4 className="text-lg font-medium">AVERAGE INTERVIEW SCORE ANALYSIS </h4>
-      <DataTable
-        // @ts-ignore
-        data={data?.data?.results}
-        columns={columns}
-        isLoading={false}
-      />
+      <div className="flex justify-between items-center">
+        <h4 className="text-lg font-medium">COMPLETED INTERVIEWS - SCORE ANALYSIS</h4>
+        <div className="text-sm text-gray-600">
+          <span className="mr-4">📅 Scheduled: {scheduledInterviews.length}</span>
+          <span>✅ Completed: {conductedInterviews.length}</span>
+        </div>
+      </div>
+      {conductedInterviews.length > 0 ? (
+        <DataTable
+          // @ts-ignore
+          data={conductedInterviews}
+          columns={columns}
+          isLoading={false}
+        />
+      ) : (
+        <div className="text-center py-8 border rounded-md">
+          <p className="text-gray-500 mb-2">No completed interviews yet</p>
+          <p className="text-sm text-gray-400">
+            Interviews will appear here after they have been conducted and evaluated
+          </p>
+        </div>
+      )}
     </div>
   );
 };

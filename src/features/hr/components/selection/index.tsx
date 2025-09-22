@@ -1,16 +1,20 @@
-// import ApplicationsTable from "../table/ApplicationsTable";
+import InterviewedCandidatesTable from "./InterviewedCandidatesTable";
 
-import ApplicationsTable from "../advertisement/table/ApplicationsTable";
-
-const Shortlist = () => {
+const Selection = () => {
   return (
-    <div className='mb-4 border bg-white p-4 rounded-lg space-y-3'>
-      <ApplicationsTable
-        href={"/hr/advertisement/1/application-form"}
-        status='PREFERRED'
-      />
+    <div className='space-y-6'>
+      <div className='mb-4'>
+        <h1 className='text-2xl font-bold'>Selection - Interviewed Candidates</h1>
+        <p className='text-gray-600 mt-2'>
+          View all candidates who have completed their interviews across all job advertisements
+        </p>
+      </div>
+
+      <div className='border bg-white p-6 rounded-lg'>
+        <InterviewedCandidatesTable />
+      </div>
     </div>
   );
 };
 
-export default Shortlist;
+export default Selection;

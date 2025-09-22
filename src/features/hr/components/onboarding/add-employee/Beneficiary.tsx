@@ -14,6 +14,7 @@ import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
 import { HrRoutes } from "constants/RouterConstants";
+import { generatePath } from "utils/generatePath";
 import Card from "components/Card";
 import {
   HrBeneficiaryFormValues,
@@ -31,12 +32,12 @@ import {
   useCreateHrBeneficiary,
   useUpdateHrBeneficiary,
   useGetHrBeneficiaries,
-} from "@/features/hrApi/hr-beneficiaryController";
+} from "@/features/hr/controllers/hrBeneficiaryController";
 import {
   useCreateEmployeeOnboardingAddSignatory,
   useGetEmployeeOnboardingAddSignatory,
   useUpdateEmployeeOnboardingAddSignatory,
-} from "@/features/hrApi/hr-employee-onboarding-add-signatoryController";
+} from "@/features/hr/controllers/hrEmployeeOnboardingSignatoryController";
 import FileUpload from "components/atoms/FileUpload";
 
 import { createFileObjectFromUrl } from "utils/get-file-extension";
