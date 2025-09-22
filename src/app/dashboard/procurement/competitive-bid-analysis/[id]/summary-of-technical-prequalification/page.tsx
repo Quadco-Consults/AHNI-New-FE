@@ -7,7 +7,7 @@ import dynamic from "next/dynamic";
 const TechnicalPrequalificationSummary = dynamic(
   () =>
     import(
-      "@/features/procurement/components/competitive-bid-analysis/[id]/CheckApproval"
+      "@/features/procurement/components/competitive-bid-analysis/[id]/TechnicalPrequalificationSummary"
     ).catch(() => ({ default: () => <div>Failed to load Technical Prequalification Summary component</div> })),
   {
     ssr: false,

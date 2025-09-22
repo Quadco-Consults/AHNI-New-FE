@@ -40,8 +40,8 @@ const TPS = () => {
     path: { id: appID ?? skipToken },
   });
 
-  const { data: cbaData } = CbaAPI.useGetCbaList({});
-  const matchedItem = cbaData?.data?.results?.find(
+  const { data: cbaData } = CbaAPI.useGetAllCbas({});
+  const matchedItem = cbaData?.results?.find(
     // @ts-ignore
     (item) => item.solicitation?.id === appID
   );
@@ -89,7 +89,7 @@ const TPS = () => {
       for (let criteria of data.criteriaDataStatus) {
         const payload = {
           // 81699270-da42-4540-bf75-89777fed1e25
-          cba: matchedItem?.id,
+          cba: (matchedItem as any)?.id,
           bid_submission: data.bid_submission,
           stage: data.stage,
           criteria: criteria.criteria,
@@ -115,13 +115,32 @@ const TPS = () => {
     } catch (error) {
       console.error("Error submitting data:", error);
     }
+    // Debug the route generation
+    const cbaId = (matchedItem as any)?.id || id; // Use the CBA page ID as fallback
+    console.log('🔍 Route Generation Debug:', {
+      matchedItem,
+      matchedItemId: (matchedItem as any)?.id,
+      pageId: id,
+      finalCbaId: cbaId,
+      routeTemplate: RouteEnum.PROCUREMENT_CBA_FINANCIAL_BID_OPENING,
+    });
+
+    if (!cbaId) {
+      toast.error('Unable to navigate: CBA ID not found');
+      return;
+    }
+
     const params = new URLSearchParams({
-      cba: matchedItem?.id?.toString() || "",
+      cba: cbaId.toString(),
       bid_submission: data.bid_submission?.toString() || "",
       solicitation: id?.toString() || "",
     });
-    const financialBidUrl = RouteEnum.PROCUREMENT_CBA_FINANCIAL_BID_OPENING.replace(':id', matchedItem?.id || '');
-    router.push(`${financialBidUrl}?${params.toString()}`);
+
+    const financialBidUrl = RouteEnum.PROCUREMENT_CBA_FINANCIAL_BID_OPENING.replace(':id', cbaId.toString());
+    const fullUrl = `${financialBidUrl}?${params.toString()}`;
+
+    console.log('🔗 Generated URL:', fullUrl);
+    router.push(fullUrl);
   };
 
   if (isLoading) return <Loading />;
@@ -149,7 +168,7 @@ const TPS = () => {
             <div className="p-4 w-full h-[70px] flex justify-between items-center">
               <h3 className="w-[250px] whitespace-nowrap">Project Title</h3>
               <div className="flex w-full items-center justify-start ml-6">
-                <p>{data?.data?.results[0]?.solicitation?.title}</p>
+                <p>{(data?.data as any)?.results?.[0]?.solicitation?.title}</p>
               </div>
             </div>{" "}
             <Separator />
