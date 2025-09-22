@@ -1,15 +1,22 @@
 export type AdvertisementResults = {
-  //   id: string;
-  //   created_at: string;
-  //   updated_at: string;
-  type: string;
-  name: string;
-  position: string;
-  email: string;
-  status: string;
+  id: string;
+  created_datetime: string;
+  updated_datetime: string;
   applicant_first_name?: string;
   applicant_middle_name?: string;
   applicant_last_name?: string;
+  applicant_name?: string;
+  applicant_email: string;
+  position_applied: string;
+  employment_type?: string;
+  status: string;
+  advertisement: string;
+  // Interview-related fields from combined status
+  realStatus?: string;
+  interviewScore?: number;
+  interviewCompleted?: boolean;
+  interviewScheduled?: boolean;
+  interview?: any;
 };
 
 export type InterviewResults = {

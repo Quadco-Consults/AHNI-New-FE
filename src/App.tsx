@@ -1,7 +1,6 @@
 import useScrollToTop from "hooks/useScrollToTop";
 import Login from "pages/Auth/Login";
 import ProtectedPage from "pages/protectedPages/ProtectedPage";
-import { Route, useLocation, Routes, Navigate } 
 // Routes removed - using Next.js App Router instead
 import { useAppSelector } from "hooks/useStore";
 import { authSelector } from "store/auth/authSlice";

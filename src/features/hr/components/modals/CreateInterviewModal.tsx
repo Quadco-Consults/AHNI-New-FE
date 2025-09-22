@@ -25,17 +25,36 @@ import FormSelect from "@/components/FormSelect";
 import { useGetJobAdvertisement } from "@/features/hr/controllers/jobAdvertisementController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { useCreateInterview } from "@/features/hr/controllers/hrInterviewController";
+import { useGetJobApplications } from "@/features/hr/controllers/hrJobApplicationsController";
 import { Label } from "@/components/ui/label";
 import MultiSelectFormField from "@/components/ui/multiselect";
 import FormInput from "@/components/FormInput";
+import { useAppDispatch } from "@/hooks/useStore";
+import { closeDialog } from "@/store/ui";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 
 export const InterviewSchema = z.object({
-  interview_type: z.string().min(1, "Field Required"),
-  interviewer: z.string().min(1, "Field Required"),
-  interviewers: z.array(z.string().min(1, "Field is required")),
-  start_date: z.string().min(1, "This field is required"),
-  end_date: z.string().min(1, "This field is required"),
-});
+  application: z.string().min(1, "Please select an application"),
+  interview_type: z.string().min(1, "Interview type is required"),
+  interviewer: z.string().optional(),
+  interviewers: z.array(z.string()).optional().default([]),
+  start_date: z.string().min(1, "Start date is required"),
+  end_date: z.string().min(1, "End date is required"),
+}).refine(
+  (data) => {
+    if (data.interview_type === "non_committee") {
+      return data.interviewer && data.interviewer.length > 0;
+    }
+    if (data.interview_type === "committee") {
+      return data.interviewers && data.interviewers.length > 0;
+    }
+    return true;
+  },
+  {
+    message: "Please select interviewer(s) based on interview type",
+    path: ["interviewer"], // This will show the error on the interviewer field
+  }
+);
 
 export type TInterviewFormValues = z.infer<typeof InterviewSchema>;
 
@@ -49,16 +68,50 @@ export interface TInterviewData {
 }
 
 interface CreateInterviewModalProps {
-  jobAdvertisementId: string;
+  jobAdvertisementId?: string;
+  data?: string; // Alternative prop name for dialog system - can be advertisement ID or application ID
+  preSelectedApplicationId?: string; // For pre-selecting a specific application
   onClose?: () => void;
 }
 
-const CreateInterviewModal = ({ jobAdvertisementId, onClose }: CreateInterviewModalProps) => {
-  const { data: jobAdvert } = useGetJobAdvertisement(jobAdvertisementId);
+const CreateInterviewModal = ({ jobAdvertisementId, data, onClose }: CreateInterviewModalProps) => {
+  const dispatch = useAppDispatch();
+
+  // Handle different data formats - could be string (advertisement ID) or object with both IDs
+  let advertisementId: string;
+  let preSelectedApplicationId: string | undefined;
+
+  if (typeof data === 'string') {
+    advertisementId = jobAdvertisementId || data;
+  } else if (data && typeof data === 'object') {
+    advertisementId = (data as any).advertisementId;
+    preSelectedApplicationId = (data as any).applicationId;
+  } else {
+    advertisementId = jobAdvertisementId || '';
+  }
+
+  console.log("CreateInterviewModal received props:", { jobAdvertisementId, data, advertisementId });
+
+  if (!advertisementId) {
+    return (
+      <CardContent>
+        <p>Error: No advertisement ID provided</p>
+      </CardContent>
+    );
+  }
+
+  const { data: jobAdvert } = useGetJobAdvertisement(advertisementId);
   const { data: users } = useGetAllUsers({
     page: 1,
     size: 2000,
     search: "",
+  });
+
+  // Fetch shortlisted applications for this advertisement
+  const { data: applicationsData } = useGetJobApplications({
+    id: advertisementId,
+    status: "SHORTLISTED",
+    size: 1000, // Get all shortlisted applications
   });
 
   const jobData = jobAdvert?.data;
@@ -73,28 +126,68 @@ const CreateInterviewModal = ({ jobAdvertisementId, onClose }: CreateInterviewMo
     created_datetime,
     commencement_date,
     any_other_info,
+    title,
+    position,
+    grade,
+    level,
   } = jobData || {};
+
+  // Handle locations array properly
+  const locationString = Array.isArray(locations) && locations.length > 0
+    ? locations.map((loc: any) => loc.name || loc).join(', ')
+    : 'Not specified';
+
+  // Handle supervisor display
+  const supervisorDisplay = supervisor?.name || supervisor || 'Not assigned';
+
+  // Handle position/title display
+  const positionDisplay = position?.name || position || title || 'Not specified';
+
+  // Handle grade/level display
+  const gradeDisplay = grade?.name || grade || level?.name || level || 'Not specified';
 
   const userOptions = useMemo(
     () =>
-      (users as any)?.data?.results?.map(({ first_name, last_name, id }: any) => {
-        // Handle users with null names
-        const fullName = `${first_name || ''} ${last_name || ''}`.trim() || 'Unnamed User';
+      (users as any)?.data?.results?.map((user: any) => {
+        // Handle different user object structures
+        const firstName = user.first_name || user.name?.split(' ')[0] || '';
+        const lastName = user.last_name || user.name?.split(' ')[1] || '';
+        const fullName = `${firstName} ${lastName}`.trim() || user.name || 'Unnamed User';
         return {
           label: fullName,
-          value: id,
+          value: String(user.id), // Ensure value is string
         };
       }) || [],
     [users]
   );
 
+  const applicationOptions = useMemo(
+    () =>
+      (applicationsData as any)?.data?.results?.map((application: any) => {
+        // Build applicant name
+        const applicantName = [
+          application.applicant_first_name,
+          application.applicant_middle_name,
+          application.applicant_last_name
+        ].filter(Boolean).join(' ') || 'Unnamed Applicant';
+
+        return {
+          label: `${applicantName} - ${application.position_applied || 'No Position'}`,
+          value: String(application.id),
+        };
+      }) || [],
+    [applicationsData]
+  );
+
   const usersOptions = (users as any)?.data?.results?.map(
-    ({ first_name, last_name, id }: any) => {
-      // Handle users with null names
-      const fullName = `${first_name || ''} ${last_name || ''}`.trim() || 'Unnamed User';
+    (user: any) => {
+      // Handle different user object structures
+      const firstName = user.first_name || user.name?.split(' ')[0] || '';
+      const lastName = user.last_name || user.name?.split(' ')[1] || '';
+      const fullName = `${firstName} ${lastName}`.trim() || user.name || 'Unnamed User';
       return {
         name: fullName,
-        id,
+        id: String(user.id), // Ensure id is string
       };
     }
   ) || [];
@@ -102,51 +195,118 @@ const CreateInterviewModal = ({ jobAdvertisementId, onClose }: CreateInterviewMo
   // Debug logging
   console.log("Users data:", users);
   console.log("User options:", userOptions);
+  console.log("Job data:", jobData);
+  console.log("Supervisor:", supervisor, "Type:", typeof supervisor);
 
   const { createInterview, isLoading: isCreating } = useCreateInterview();
 
   const form = useForm<TInterviewFormValues>({
     resolver: zodResolver(InterviewSchema),
     defaultValues: {
+      application: preSelectedApplicationId || "",
       interview_type: "",
       interviewer: "",
       start_date: "",
       end_date: "",
       interviewers: [],
     },
+    mode: "onChange", // This will validate on change
   });
 
   const { watch } = form;
   const [showFullBackground, setShowFullBackground] = useState(false);
 
   const onSubmit: SubmitHandler<TInterviewFormValues> = async (data) => {
+    console.log("🔥 SAVE BUTTON CLICKED - onSubmit triggered");
+
     try {
+      console.log("=== INTERVIEW CREATION DEBUG ===");
       console.log("Form data:", data);
+      console.log("Advertisement ID:", advertisementId);
+      console.log("Form validation state:", form.formState.errors);
+
+      if (!data.application) {
+        toast.error("Please select an application");
+        return;
+      }
+
+      // Validate form data
+      if (!data.interview_type) {
+        toast.error("Please select an interview type");
+        return;
+      }
+
+      if (data.interview_type === "non_committee" && !data.interviewer) {
+        toast.error("Please select an interviewer");
+        return;
+      }
+
+      if (data.interview_type === "committee" && (!data.interviewers || data.interviewers.length === 0)) {
+        toast.error("Please select at least one interviewer for committee interview");
+        return;
+      }
+
+      if (!data.start_date || !data.end_date) {
+        toast.error("Please provide both start and end dates");
+        return;
+      }
 
       const interviewData = {
-        advertisement: jobAdvertisementId,
+        application: data.application,
         interview_type: data.interview_type,
-        interviewer: data.interview_type === "COMMITTEE" ? undefined : data.interviewer,
-        interviewers: data.interview_type === "COMMITTEE" ? data.interviewers : [],
-        start_date: data.start_date,
-        end_date: data.end_date,
+        interviewers: data.interview_type === "committee" ? data.interviewers : (data.interviewer ? [data.interviewer] : []),
+        start_date: new Date(data.start_date).toISOString(),
+        end_date: new Date(data.end_date).toISOString(),
       };
 
       console.log("Interview data being sent:", interviewData);
+      console.log("API endpoint:", "hr/jobs/interviews/");
 
-      await createInterview(interviewData);
-
-      // Wait a bit for the state to update
-      await new Promise(resolve => setTimeout(resolve, 100));
+      const result = await createInterview(interviewData);
+      console.log("API Response:", result);
 
       toast.success("Interview created successfully");
-      onClose?.();
+
+      // Close the dialog
+      if (onClose) {
+        onClose();
+      } else {
+        dispatch(closeDialog());
+      }
+
       form.reset();
     } catch (error: any) {
-      console.error("Interview creation error:", error);
-      toast.error(error?.message || "Something went wrong");
+      console.error("=== INTERVIEW CREATION ERROR ===");
+      console.error("Error object:", error);
+      console.error("Error message:", error?.message);
+      console.error("Error response:", error?.response?.data);
+
+      // Show more specific error message
+      const errorMessage = error?.response?.data?.message ||
+                          error?.message ||
+                          "Failed to create interview. Please check the console for details.";
+
+      toast.error(errorMessage);
     }
   };
+
+  // Check if there are any shortlisted applications
+  const hasApplications = applicationOptions.length > 0;
+
+  if (!hasApplications) {
+    return (
+      <CardContent>
+        <div className="text-center py-8">
+          <p className="text-gray-500 mb-4">
+            No shortlisted applications found for this advertisement.
+          </p>
+          <p className="text-sm text-gray-400">
+            Applications must be shortlisted before creating interviews.
+          </p>
+        </div>
+      </CardContent>
+    );
+  }
 
   return (
     <CardContent>
@@ -156,20 +316,26 @@ const CreateInterviewModal = ({ jobAdvertisementId, onClose }: CreateInterviewMo
             <Users size={15} />({number_of_positions} positions)
           </Badge>
           <Badge variant="secondary">
-            <Clock size={15} /> {duration}
+            <Clock size={15} /> {String(duration || 'N/A')}
           </Badge>
           <Badge variant="secondary">
             <CalendarDays size={15} />{" "}
-            {moment(created_datetime!).format("DD-MM-YYYY")}
+            {created_datetime ? moment(created_datetime).format("DD-MM-YYYY") : 'N/A'}
           </Badge>
           <Badge variant="secondary">
-            <MapPin size={15} /> {locations}
+            <MapPin size={15} /> {locationString}
           </Badge>
           <Badge variant="secondary">
-            <Briefcase size={15} /> {job_type}
+            <Briefcase size={15} /> {String(job_type || 'N/A')}
           </Badge>
           <Badge variant="secondary">
-            <PersonStanding size={15} /> {supervisor}
+            <PersonStanding size={15} /> {supervisorDisplay}
+          </Badge>
+          <Badge variant="secondary">
+            <Users size={15} /> Position: {positionDisplay}
+          </Badge>
+          <Badge variant="secondary">
+            <Users size={15} /> Grade: {gradeDisplay}
           </Badge>
           {commencement_date && (
             <Badge variant="secondary">
@@ -182,7 +348,7 @@ const CreateInterviewModal = ({ jobAdvertisementId, onClose }: CreateInterviewMo
         <div>
           <h4 className="font-medium mb-2">Background</h4>
           <p className={`text-sm ${!showFullBackground ? "line-clamp-4" : ""}`}>
-            {background}
+            {String(background || 'No background information available')}
           </p>
           {background && background.length > 150 && (
             <button
@@ -205,7 +371,7 @@ const CreateInterviewModal = ({ jobAdvertisementId, onClose }: CreateInterviewMo
         {any_other_info && (
           <div>
             <h4 className="font-medium mb-2">Additional Information</h4>
-            <p className="text-sm">{any_other_info}</p>
+            <p className="text-sm">{String(any_other_info)}</p>
           </div>
         )}
 
@@ -215,15 +381,23 @@ const CreateInterviewModal = ({ jobAdvertisementId, onClose }: CreateInterviewMo
             className="flex flex-col gap-y-7"
           >
             <FormSelect
+              name="application"
+              label="Select Application"
+              placeholder="Choose an application to interview"
+              required
+              options={applicationOptions}
+            />
+
+            <FormSelect
               name="interview_type"
               label="Interview type"
               options={[
-                { label: "COMMITTEE", value: "COMMITTEE" },
-                { label: "NON COMMITTEE", value: "NON COMMITTEE" }
+                { label: "Committee", value: "committee" },
+                { label: "Non Committee", value: "non_committee" }
               ]}
             />
             
-            {watch("interview_type") === "COMMITTEE" ? (
+            {watch("interview_type") === "committee" ? (
               <div>
                 <Label className="font-semibold">Interviewers</Label>
                 <FormField
@@ -245,33 +419,44 @@ const CreateInterviewModal = ({ jobAdvertisementId, onClose }: CreateInterviewMo
                 />
               </div>
             ) : (
-              <FormSelect
-                name="interviewer"
-                label="Select Interviewer"
-                placeholder="Choose an interviewer"
-                required
-                options={userOptions}
-              />
+              watch("interview_type") === "non_committee" && (
+                <FormSelect
+                  name="interviewer"
+                  label="Select Interviewer"
+                  placeholder="Choose an interviewer"
+                  required
+                  options={userOptions}
+                />
+              )
             )}
             
             <div className="grid grid-cols-2 gap-4">
               <FormInput
-                label="Start Date"
-                type="date"
+                label="Start Date & Time"
+                type="datetime-local"
                 name="start_date"
                 required
               />
 
               <FormInput
-                label="End Date"
-                type="date"
+                label="End Date & Time"
+                type="datetime-local"
                 name="end_date"
                 required
               />
             </div>
 
             <div className="flex justify-start gap-4">
-              <FormButton type="submit" loading={isCreating}>
+              <FormButton
+                type="submit"
+                loading={isCreating}
+                onClick={() => {
+                  console.log("🖱️ Save button clicked!");
+                  console.log("Form state:", form.formState);
+                  console.log("Form errors:", form.formState.errors);
+                  console.log("Form is valid:", form.formState.isValid);
+                }}
+              >
                 {isCreating ? "Creating..." : "Save"}
               </FormButton>
             </div>

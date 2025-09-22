@@ -3,7 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "components/ui/badge";
 import { Checkbox } from "components/ui/checkbox";
-import { AdvertisementResults } from "definations/hr-types/advertisement";
+import { AdvertisementResults } from "@/features/hr/types/advertisement";
 import { cn } from "lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
@@ -22,7 +22,9 @@ import {
   useGetJobApplications,
   usePatchJobApplicationAccepted,
   usePatchJobApplicationPreferred,
+  useUpdateJobApplicationToInterviewed,
 } from "@/features/hr/controllers/hrJobApplicationsController";
+import { useCombinedApplicationStatus, getStatusDisplay } from "@/features/hr/controllers/useCombinedApplicationStatus";
 import { useGetJobAdvertisements } from "@/features/hr/controllers/jobAdvertisementController";
 import { Loading } from "components/Loading";
 import { CheckCheckIcon } from "lucide-react";
@@ -40,16 +42,19 @@ import SearchBar from "components/atoms/SearchBar";
 import { openDialog } from "store/ui";
 import { DialogType, mediumDailogScreen } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
+import { useGetInterviews } from "@/features/hr/controllers/hrInterviewController";
 
 const ApplicationsTable = ({
   linkTitle,
   id: propId,
   status = "",
+  isOnboardingPage = false,
 }: {
   href?: string;
   linkTitle?: string;
   id?: string;
   status?: "SHORTLISTED" | "PREFERRED" | "ACCEPTED" | "";
+  isOnboardingPage?: boolean;
 }) => {
   const dispatch = useAppDispatch();
 
@@ -72,17 +77,104 @@ const ApplicationsTable = ({
       search: debouncedAdvertSearch,
     });
 
-  // Fetch applications using the ID directly
-  const { data, isLoading } = useGetJobApplications(
-    {
-      status: status,
-      id: selectedAdvertId || "",
-    },
-    { skip: !selectedAdvertId }
+  // Use combined applications + interviews data for real status
+  const { data: combinedData, isLoading } = useCombinedApplicationStatus(
+    selectedAdvertId || "",
+    status
   );
+
+  // Fallback to original data structure for compatibility
+  const data = {
+    data: {
+      results: combinedData
+    }
+  };
 
   // Determine if we need to show the advertisement selector
   const showAdvertSelector = !propId && !urlId;
+
+  // Define columns inside component to access isOnboardingPage
+  const getColumns = (): ColumnDef<AdvertisementResults>[] => [
+    {
+      id: "select",
+      size: 50,
+      header: ({ table }) => {
+        return (
+          <Checkbox
+            checked={table.getIsAllPageRowsSelected()}
+            onCheckedChange={(value) => {
+              table.toggleAllPageRowsSelected(!!value);
+            }}
+          />
+        );
+      },
+      cell: ({ row }) => {
+        return (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => {
+              row.toggleSelected(!!value);
+            }}
+          />
+        );
+      },
+    },
+    {
+      header: "Application Name",
+      accessorKey: "applicant_name",
+      size: 250,
+      cell: ({ row }) => (
+        <p>
+          {row?.original?.applicant_first_name}{" "}
+          {row?.original?.applicant_middle_name}{" "}
+          {row?.original?.applicant_last_name}
+        </p>
+      ),
+    },
+    {
+      header: "Position Applied",
+      accessorKey: "position_applied",
+      size: 200,
+      cell: ({ row }) => (
+        <p>{typeof row?.original?.position_applied === 'string' ? row.original.position_applied : 'N/A'}</p>
+      ),
+    },
+    {
+      header: "Employment Type",
+      accessorKey: "employment_type",
+      size: 150,
+      cell: ({ row }) => (
+        <p>{typeof row?.original?.employment_type === 'string' ? row.original.employment_type : 'N/A'}</p>
+      ),
+    },
+    {
+      header: "Candidate Email",
+      accessorKey: "applicant_email",
+      cell: ({ row }) => (
+        <p>{typeof row?.original?.applicant_email === 'string' ? row.original.applicant_email : 'N/A'}</p>
+      ),
+    },
+    {
+      header: "Status",
+      accessorKey: "status",
+      cell: ({ row }) => {
+        const statusDisplay = getStatusDisplay(row.original);
+        return (
+          <Badge
+            className={`p-1 rounded-lg ${statusDisplay.color}`}
+          >
+            {statusDisplay.text}
+          </Badge>
+        );
+      },
+    },
+    {
+      header: "Actions",
+      id: "actions",
+      size: 100,
+      cell: ({ row }) => <ActionList data={row.original} isOnboardingPage={isOnboardingPage} />,
+    },
+  ];
 
   if (isLoading && selectedAdvertId) {
     return <Loading />;
@@ -174,7 +266,7 @@ const ApplicationsTable = ({
         <DataTable
           // @ts-ignore
           data={data?.data?.results}
-          columns={columns}
+          columns={getColumns()}
           isLoading={false}
         />
       )}
@@ -184,108 +276,47 @@ const ApplicationsTable = ({
 
 export default ApplicationsTable;
 
-const columns: ColumnDef<AdvertisementResults>[] = [
-  {
-    id: "select",
-    size: 50,
-    header: ({ table }) => {
-      return (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => {
-            table.toggleAllPageRowsSelected(!!value);
-          }}
-        />
-      );
-    },
-    cell: ({ row }) => {
-      return (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => {
-            row.toggleSelected(!!value);
-          }}
-        />
-      );
-    },
-  },
-  {
-    header: "Application Name",
-    accessorKey: "applicant_name",
-    size: 250,
-    cell: ({ row }) => (
-      <p>
-        {row?.original?.applicant_first_name}{" "}
-        {row?.original?.applicant_middle_name}{" "}
-        {row?.original?.applicant_last_name}
-      </p>
-    ),
-  },
-  {
-    header: "Position Applied",
-    accessorKey: "position_applied",
-    size: 200,
-  },
-  {
-    header: "Employment type",
-    accessorKey: "employment_type",
-    size: 250,
-  },
-  {
-    header: "Applicant Email",
-    accessorKey: "applicant_email",
-  },
-  {
-    header: "Status",
-    accessorKey: "status",
-    cell: ({ getValue }) => {
-      return (
-        <Badge
-          className={cn(
-            "p-1 rounded-lg capitalize",
-            getValue().toLowerCase() === "shortlisted"
-              ? "bg-green-50 text-green-500"
-              : getValue().toLowerCase() === "applied"
-              ? "bg-yellow-50 text-yellow-500"
-              : getValue().toLowerCase() === "accepted"
-              ? "bg-black text-white"
-              : "bg-blue-50 text-blue-500"
-          )}
-        >
-          {getValue() as string}
-        </Badge>
-      );
-    },
-  },
-  {
-    header: "Actions",
-    id: "actions",
-    size: 100,
-    cell: ({ row }) => <ActionList data={row.original} />,
-  },
-];
+const ActionList = ({ data, isOnboardingPage }: { data: any; isOnboardingPage: boolean }) => {
+  const { patchJobApplicationAccepted } = usePatchJobApplicationAccepted(data?.id as string);
+  const { patchJobApplicationPreferred } = usePatchJobApplicationPreferred(data?.id as string);
+  const { updateJobApplicationToInterviewed } = useUpdateJobApplicationToInterviewed(data?.id as string);
 
-const ActionList = ({ data }: any) => {
-  // const router = useRouter();
-  const { patchJobApplicationAccepted } =
-    usePatchJobApplicationAccepted(data?.id as string);
-  const { patchJobApplicationPreferred } =
-    usePatchJobApplicationPreferred(data?.id as string);
+  const statusInfo = getStatusDisplay(data);
+  const hasCompletedInterview = data?.interviewCompleted || false;
+  const realStatus = statusInfo.status;
+
   const handleAccepted = async () => {
     try {
-      await patchJobApplicationAccepted({
-        status: "ACCEPTED",
-      });
+      console.log("🎯 Attempting to accept application");
+      console.log("📋 Current data.status:", data?.status);
+      console.log("📋 Current realStatus:", realStatus);
+      console.log("📋 Has completed interview:", hasCompletedInterview);
+
+      if (realStatus === "INTERVIEWED" && data?.status?.toLowerCase() !== "interviewed") {
+        console.log("🔄 Auto-syncing database status to INTERVIEWED");
+        try {
+          const updateResult = await updateJobApplicationToInterviewed();
+          console.log("✅ Status auto-sync successful:", updateResult);
+          await new Promise(resolve => setTimeout(resolve, 3000));
+        } catch (error) {
+          console.error("❌ Failed to sync status to INTERVIEWED:", error);
+          toast.error("Failed to update interview status. Please try again.");
+          return;
+        }
+      }
+
+      await patchJobApplicationAccepted({ status: "ACCEPTED" });
       toast.success("Applicant accepted successfully");
     } catch (error) {
-      toast.error("Failed to update status");
+      console.error("❌ Accept application error:", error);
+      const errorMessage = (error as any)?.response?.data?.message || (error as any)?.message || "Failed to update status";
+      toast.error(`Failed to accept application: ${errorMessage}`);
     }
   };
+
   const handlePreferred = async () => {
     try {
-      await patchJobApplicationPreferred({
-        status: "PREFERRED",
-      });
+      await patchJobApplicationPreferred({ status: "PREFERRED" });
       toast.success("Applicant preferred successfully");
     } catch (error) {
       toast.error("Failed to update status");
@@ -294,103 +325,81 @@ const ActionList = ({ data }: any) => {
 
   return (
     <div className='flex items-center gap-2'>
-      <>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant='ghost' className='flex gap-2 py-6'>
-              <MoreOptionsHorizontalIcon />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className=' w-fit'>
-            <div className='flex flex-col items-start justify-between gap-1'>
-              <Link
-                href={`/dashboard/hr/advertisement/${data?.advertisement}/submitted-applications/${data?.id}`}
-              >
-                <Button
-                  className='w-full flex items-center justify-start gap-2'
-                  variant='ghost'
-                >
-                  <EyeIcon />
-                  View
-                </Button>
-              </Link>
-
-              {data?.status?.toLowerCase() === "shortlisted" && (
-                <Button
-                  className='w-full flex items-center justify-start gap-2'
-                  variant='ghost'
-                  onClick={() => {
-                    handlePreferred();
-                  }}
-                >
-                  <CheckCheckIcon />
-                  Mark as Preferred
-                </Button>
-              )}
-              {data?.status?.toLowerCase() === "interviewed" && (
-                <Button
-                  className='w-full flex items-center justify-start gap-2'
-                  variant='ghost'
-                  onClick={() => {
-                    handleAccepted();
-                  }}
-                >
-                  <CheckCheckIcon />
-                  Accept
-                </Button>
-              )}
-              {data?.status?.toLowerCase() === "preferred" && (
-                <Link
-                  href={`/dashboard/hr/onboarding/start/${data?.id}`}
-                  className='flex flex-col items-start justify-between gap-1'
-                >
-                  <Button
-                    className='w-full flex items-center justify-start gap-2'
-                    variant='ghost'
-                  >
-                    <CheckCheckIcon />
-                    Onboard
-                  </Button>
-                </Link>
-              )}
-              {data?.status?.toLowerCase() === "shortlisted" && (
-                <Link
-                  href={`/dashboard/hr/advertisement/${data?.advertisement}/interview/${data?.id}`}
-                >
-                  <Button
-                    className='w-full flex items-center justify-start gap-2'
-                    variant='ghost'
-                  >
-                    <ScanIcon />
-                    Interview
-                  </Button>
-                </Link>
-              )}
-              {/* {data?.status?.toLowerCase() === "applied" && (
-                <Link
-                  href={`/dashboard/hr/advertisement/${data?.advertisement}/interview/${data?.id}`}
-                >
-                  <Button
-                    className='w-full flex items-center justify-start gap-2'
-                    variant='ghost'
-                  >
-                    <CheckCheck />
-                    Shortlist
-                  </Button>
-                </Link>
-              )} */}
-
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant='ghost' className='flex gap-2 py-6'>
+            <MoreOptionsHorizontalIcon />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className='w-fit'>
+          <div className='flex flex-col items-start justify-between gap-1'>
+            <Link
+              href={`/dashboard/hr/advertisement/${data?.advertisement}/submitted-applications/${data?.id}`}
+              className='flex flex-col items-start justify-between gap-1'
+            >
               <Button
                 className='w-full flex items-center justify-start gap-2'
                 variant='ghost'
               >
-                <DeleteIcon />
-                delete
+                <EyeIcon />
+                View
               </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
-      </>
+            </Link>
+
+            {data?.status?.toLowerCase() === "accepted" && !isOnboardingPage && (
+              <Button
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
+                onClick={handlePreferred}
+              >
+                <CheckCheckIcon />
+                Mark as Preferred
+              </Button>
+            )}
+
+            {data?.status?.toLowerCase() === "accepted" && isOnboardingPage && (
+              <Link
+                href={`/dashboard/hr/onboarding/start-onboarding/${data?.id}`}
+                className='flex flex-col items-start justify-between gap-1'
+              >
+                <Button
+                  className='w-full flex items-center justify-start gap-2'
+                  variant='ghost'
+                >
+                  <CheckCheckIcon />
+                  Onboard
+                </Button>
+              </Link>
+            )}
+
+            {data?.status?.toLowerCase() === "preferred" && (
+              <Link
+                href={`/dashboard/hr/onboarding/start/${data?.id}`}
+                className='flex flex-col items-start justify-between gap-1'
+              >
+                <Button
+                  className='w-full flex items-center justify-start gap-2'
+                  variant='ghost'
+                >
+                  <ScanIcon />
+                  Onboard
+                </Button>
+              </Link>
+            )}
+
+            {(data?.status?.toLowerCase() === "shortlisted" || realStatus === "INTERVIEWED") && (
+              <Button
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
+                onClick={handleAccepted}
+              >
+                <CheckCheckIcon />
+                Accept
+              </Button>
+            )}
+          </div>
+        </PopoverContent>
+      </Popover>
     </div>
   );
 };

@@ -21,10 +21,11 @@ import FormButton from "@/components/FormButton";
 import {
   useCreateEmployeeOnboardingQualifications,
   useUpdateEmployeeOnboardingQualifications,
-} from "@/features/hrApi/hr-employee-onboarding-qualificationsController";
+} from "@/features/hr/controllers/hrEmployeeOnboardingQualificationsController";
 import { EmployeeOnboardingQualifications } from "definations/hr-types/employee-onboarding";
 
 import { createFileObjectFromUrl } from "utils/get-file-extension";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 
 const Qualification = ({
   qualifications,
@@ -56,22 +57,56 @@ const Qualification = ({
   const { handleSubmit } = form;
 
   const onSubmit = async (data: WorkforceQualificationFormValues) => {
+    console.log("🚀 Qualifications form submission started:", data);
+
     const formData = new FormData();
     formData.append("certificate_name", data.certificate_name);
     formData.append("institution_name", data.institution_name);
     formData.append("date_of_qualification", data.date_of_qualification);
     formData.append("employee", id as string);
 
-    if (qualifications && qualifications.length) {
-      if (typeof data.certificate_file !== "string") {
-        // Has been changed [Backend returns string]
-        console.log(data.certificate_file);
+    // Handle certificate file upload properly
+    console.log("📎 Certificate file data:", {
+      certificate_file: data.certificate_file,
+      certificate_file_type: typeof data.certificate_file,
+      is_file_list: data.certificate_file instanceof FileList,
+      is_file: data.certificate_file instanceof File,
+      is_array: Array.isArray(data.certificate_file)
+    });
+
+    // Handle file upload correctly
+    if (data.certificate_file) {
+      if (data.certificate_file instanceof FileList && data.certificate_file.length > 0) {
+        // From file input - FileList
+        formData.append("certificate_file", data.certificate_file[0]);
+        console.log("📎 Added file from FileList:", data.certificate_file[0].name);
+      } else if (data.certificate_file instanceof File) {
+        // Direct File object
         formData.append("certificate_file", data.certificate_file);
-      } else {
+        console.log("📎 Added direct File:", data.certificate_file.name);
+      } else if (typeof data.certificate_file === 'string' && file) {
+        // Existing file scenario - use stored file
         formData.append("certificate_file", file);
+        console.log("📎 Added stored file:", file);
+      } else {
+        console.warn("⚠️ Invalid certificate file format:", data.certificate_file);
+        toast.error("Please select a valid certificate file");
+        return;
       }
     } else {
-      formData.append("certificate_file", data.certificate_file[0]);
+      console.warn("⚠️ No certificate file provided");
+      toast.error("Certificate file is required");
+      return;
+    }
+
+    // Log FormData contents
+    console.log("📤 FormData being sent:");
+    for (let [key, value] of formData.entries()) {
+      if (value instanceof File) {
+        console.log(`  ${key}: File(${value.name}, ${value.size} bytes, ${value.type})`);
+      } else {
+        console.log(`  ${key}: ${value}`);
+      }
     }
 
     if (qualifications && qualifications.length) {
@@ -80,7 +115,7 @@ const Qualification = ({
         await updateEmployeeOnboardingQualifications({
           id: id as string,
           body: formData,
-        })();
+        });
         dispatch(
           openDialog({
             type: DialogType.HrSuccessModal,
@@ -97,8 +132,16 @@ const Qualification = ({
       }
     } else {
       try {
-        // @ts-ignore
-        await createEmployeeOnboardingQualifications(formData)();
+        // Direct Axios call for file upload instead of useApiManager
+        console.log("📡 Making direct Axios call for file upload...");
+
+        const response = await AxiosWithToken.post("hr/employees/qualifications/", formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        console.log("✅ Direct Axios call success:", response.data);
         dispatch(
           openDialog({
             type: DialogType.HrSuccessModal,

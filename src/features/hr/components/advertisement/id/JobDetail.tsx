@@ -3,7 +3,7 @@ import PdfContent from "components/PdfContent";
 import { Badge } from "components/ui/badge";
 import { Button } from "components/ui/button";
 import { HrRoutes } from "constants/RouterConstants";
-import { JobAdvertisement } from "definations/hr-types/job-advertisement";
+import { JobAdvertisement } from "@/features/hr/types/job-advertisement";
 import {
   Briefcase,
   CalendarDays,
@@ -19,7 +19,22 @@ import moment from "moment";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+
 const JobDetail = (props: JobAdvertisement) => {
+
+  // Helper function to safely extract string values from potentially object fields
+  const safeStringValue = (value: any): string => {
+    if (!value) return 'N/A';
+    if (typeof value === 'string') return value;
+    if (typeof value === 'object') {
+      if (value.name) return value.name;
+      if (value.title) return value.title;
+      if (value.description) return value.description;
+      return 'N/A';
+    }
+    return String(value);
+  };
+
   const {
     job_type,
     advert_document,
@@ -30,11 +45,35 @@ const JobDetail = (props: JobAdvertisement) => {
     supervisor,
     title,
     created_datetime,
-    // grade_level,
     commencement_date,
     any_other_info,
     interviewers,
-  } = props;
+  } = props || {};
+
+
+  // Get the actual job title/position - safely handle object values
+  const getJobTitle = () => {
+    const position = (props as any).position;
+
+    // If position is an object, try to get name or title from it
+    if (position && typeof position === 'object') {
+      return position.name || position.title || "Job Position Not Set";
+    }
+
+    // If position is a string, use it
+    if (typeof position === 'string') {
+      return position;
+    }
+
+    // Fallback to title if available
+    if (title && !title.includes('-')) {
+      return title;
+    }
+
+    return "Job Position Not Set";
+  };
+
+  const jobTitle = getJobTitle();
 
   const [showFullBackground, setShowFullBackground] = useState(false);
   const router = useRouter();
@@ -44,20 +83,21 @@ const JobDetail = (props: JobAdvertisement) => {
     document: advert_document!,
   };
 
-  // Handle edit button click - pass the full advertisement data via state
+  // Handle edit button click - navigate to edit page with the advertisement ID
   const handleEditClick = () => {
-    router.push(HrRoutes.ADVERTISEMENT_ADD, {
-      state: {
-        isEditing: true,
-        advertisementData: props,
-      },
-    });
+    const advertisementId = (props as any).id;
+    if (advertisementId) {
+      // Navigate to edit page with the advertisement ID as a query parameter
+      router.push(`${HrRoutes.ADVERTISEMENT_ADD}?edit=${advertisementId}`);
+    } else {
+      console.error("No advertisement ID found for editing");
+    }
   };
 
   return (
     <div className='space-y-6'>
       <div className='flex items-center justify-between'>
-        <h4 className='font-semibold text-lg'>{title}</h4>
+        <h4 className='font-semibold text-lg'>{jobTitle}</h4>
         <div className='ml-auto'>
           <Button
             className='flex gap-2 py-6'
@@ -72,23 +112,23 @@ const JobDetail = (props: JobAdvertisement) => {
 
       <div className='flex flex-wrap gap-2 max-w-2xl'>
         <Badge variant='md'>
-          <Users size={15} />({number_of_positions} positions)
+          <Users size={15} />({number_of_positions || '1'} positions)
         </Badge>
         <Badge variant='md'>
-          <Clock size={15} /> {duration}
+          <Clock size={15} /> {duration || 'N/A'}
         </Badge>
         <Badge variant='md'>
           <CalendarDays size={15} />{" "}
-          {moment(created_datetime!).format("DD-MM-YYYY")}
+          {created_datetime ? moment(created_datetime).format("DD-MM-YYYY") : 'N/A'}
         </Badge>
         <Badge variant='md'>
-          <MapPin size={15} /> {typeof locations === 'object' ? locations?.name || 'N/A' : locations}
+          <MapPin size={15} /> {safeStringValue(locations)}
         </Badge>
         <Badge variant='md'>
-          <Briefcase size={15} /> {job_type}
+          <Briefcase size={15} /> {safeStringValue(job_type)}
         </Badge>
         <Badge variant='md'>
-          <PersonStanding size={15} /> {typeof supervisor === 'object' ? supervisor?.name || 'N/A' : supervisor}
+          <PersonStanding size={15} /> {safeStringValue(supervisor)}
         </Badge>
         {commencement_date && (
           <Badge variant='md'>
@@ -101,7 +141,7 @@ const JobDetail = (props: JobAdvertisement) => {
       <div>
         <h4 className='font-medium mb-2'>Background</h4>
         <p className={`text-sm ${!showFullBackground ? "line-clamp-4" : ""}`}>
-          {background}
+          {background || 'No background information'}
         </p>
         {background && background.length > 150 && (
           <button
@@ -125,7 +165,9 @@ const JobDetail = (props: JobAdvertisement) => {
       {any_other_info && (
         <div>
           <h4 className='font-medium mb-2'>Additional Information</h4>
-          <p className='text-sm'>{any_other_info}</p>
+          <p className='text-sm'>
+            {any_other_info}
+          </p>
         </div>
       )}
 
