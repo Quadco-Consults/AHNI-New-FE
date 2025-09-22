@@ -74,14 +74,14 @@ const TableComponent = () => {
 
   const [recommendationNote, setRecommendationNote] = useState("");
 
-  function formatBidData(inputData) {
+  function formatBidData(inputData: any) {
     if (inputData && inputData.data && inputData.data.results) {
       // Use the correct data path: inputData.data.results
       const results = inputData.data.results;
 
       const companies = [
         ...new Set(
-          results.map((result) => ({
+          results.map((result: any) => ({
             name: result.vendor.company_name,
             id: result.vendor.id,
           }))
@@ -91,10 +91,10 @@ const TableComponent = () => {
       const itemsMap = new Map();
       const extraDataMap = new Map();
 
-      results.forEach((result) => {
+      results.forEach((result: any) => {
         const companyName = result.vendor.company_name;
 
-        result.bid_details.bidsubmissionitems.forEach((item) => {
+        result.bid_details.bidsubmissionitems.forEach((item: any) => {
           if (!itemsMap.has(item.solicitation_item_id)) {
             itemsMap.set(item.solicitation_item_id, {
               id: item?.solicitation_item_id,
