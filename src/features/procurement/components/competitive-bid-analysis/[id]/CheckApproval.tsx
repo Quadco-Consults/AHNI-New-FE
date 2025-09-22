@@ -182,15 +182,15 @@ const TableComponent = () => {
 
   useEffect(() => {
     setHeaderChecked(
-      formattedData?.data?.companies?.reduce((acc, company) => {
+      formattedData?.data?.companies?.reduce((acc: any, company: any) => {
         acc[company?.name] = false;
         return acc;
       }, {})
     );
     setCheckedItems(
-      formattedData?.data?.items?.reduce((acc, item) => {
+      formattedData?.data?.items?.reduce((acc: any, item: any) => {
         acc[item.id] = formattedData?.data?.companies?.reduce(
-          (companyAcc, company) => {
+          (companyAcc: any, company: any) => {
             companyAcc[company?.name] = false;
             return companyAcc;
           },
@@ -202,8 +202,8 @@ const TableComponent = () => {
   }, [summaryData]);
 
   const calculateCheckedGrandTotal = () => {
-    return formattedData?.data?.companies.reduce((totals, company) => {
-      totals[company?.name] = formattedData?.data?.items.reduce((sum, item) => {
+    return formattedData?.data?.companies.reduce((totals: any, company: any) => {
+      totals[company?.name] = formattedData?.data?.items.reduce((sum: any, item: any) => {
         if (
           checkedItems !== undefined &&
           checkedItems[item.id]?.[company?.name]
@@ -375,7 +375,7 @@ const TableComponent = () => {
           <thead className="bg-gray-100">
             <tr>
               <td colSpan={3}></td>
-              {formattedData?.data.companies.map((company, index) => (
+              {formattedData?.data.companies.map((company: any, index: number) => (
                 <td key={index} colSpan={3} className="text-center border-l">
                   {company?.name?.toUpperCase()}
                 </td>
@@ -385,7 +385,7 @@ const TableComponent = () => {
               <td className="p-3 min-w-[50px]">S/N</td>
               <td className="p-3 min-w-[420px]">Items Description</td>
               <td className="p-3 min-w-[50px]">Qty</td>
-              {formattedData?.data?.companies.map((company, index) => (
+              {formattedData?.data?.companies.map((company: any, index: number) => (
                 <>
                   <td
                     key={`che-${index}`}
@@ -480,7 +480,7 @@ const TableComponent = () => {
                   Grand Total:
                 </div>
               </td>
-              {formattedData?.data?.companies?.map((company, index) => (
+              {formattedData?.data?.companies?.map((company: any, index: number) => (
                 <td key={index} colSpan={3} className="p-3 border-l">
                   <div className="max-w-[326px] p-4 rounded-md ml-auto text-red-600 flex justify-between">
                     Total:
