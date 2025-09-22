@@ -108,7 +108,7 @@ const TableComponent = () => {
           };
         });
 
-        result.bid_details.bid_evaluation_criteria.forEach((criteria) => {
+        result.bid_details.bid_evaluation_criteria.forEach((criteria: any) => {
           const criteriaName = criteria.evaluation_criteria.name;
           if (!extraDataMap.has(criteriaName)) {
             extraDataMap.set(criteriaName, {
@@ -139,7 +139,7 @@ const TableComponent = () => {
   const [checkedItems, setCheckedItems] = useState({});
   const [headerChecked, setHeaderChecked] = useState({});
 
-  const handleCheckboxChange = (itemId, company, checked) => {
+  const handleCheckboxChange = (itemId: any, company: any, checked: any) => {
     setCheckedItems((prevCheckedItems) => {
       const updatedCheckedItems = {
         ...prevCheckedItems,
@@ -162,7 +162,7 @@ const TableComponent = () => {
     });
   };
 
-  const handleHeaderCheckboxChange = (company, checked) => {
+  const handleHeaderCheckboxChange = (company: any, checked: any) => {
     setCheckedItems((prevCheckedItems) => {
       const updatedCheckedItems = { ...prevCheckedItems };
       formattedData?.data?.items?.forEach((item) => {
@@ -241,17 +241,17 @@ const TableComponent = () => {
     },
   ];
 
-  const getSelectedItemsForVendor = (vendor) => {
+  const getSelectedItemsForVendor = (vendor: any) => {
     const selectedItems = formattedData?.data?.items
-      .filter((item) => checkedItems[item.id]?.[vendor?.name])
-      .map((item) => item.id);
+      .filter((item: any) => checkedItems[item.id]?.[vendor?.name])
+      .map((item: any) => item.id);
 
     return selectedItems;
   };
 
   const [updatedPrices, setUpdatedPrices] = useState({});
 
-  const handleUnitPriceChange = (e, itemId, companyName) => {
+  const handleUnitPriceChange = (e: any, itemId: any, companyName: any) => {
     const newPrice = parseFloat(e.target.value) || 0;
 
     setUpdatedPrices((prevPrices) => ({
