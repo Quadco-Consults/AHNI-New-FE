@@ -2,7 +2,7 @@
 
 /* eslint-disable react/prop-types */
 
-import { useNavigate, useParams } 
+import { useNavigate, useParams } from "react-router-dom"; 
 import { SelectContent, SelectItem } from "components/ui/select";
 import { Form } from "components/ui/form";
 import { useFieldArray, useForm } from "react-hook-form";

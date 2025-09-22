@@ -21,7 +21,7 @@ import FormButton from "@/components/FormButton";
 import {
   useCreateEmployeeOnboardingQualifications,
   useUpdateEmployeeOnboardingQualifications,
-} from "@/features/hrApi/hr-employee-onboarding-qualificationsController";
+} from "@/features/hr/controllers/hrEmployeeOnboardingQualificationsController";
 import { EmployeeOnboardingQualifications } from "definations/hr-types/employee-onboarding";
 
 import { createFileObjectFromUrl } from "utils/get-file-extension";

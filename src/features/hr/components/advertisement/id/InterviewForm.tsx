@@ -17,23 +17,80 @@ import {
 import { Textarea } from "components/ui/textarea";
 import { formatDate } from "date-fns";
 import { useForm } from "react-hook-form";
-import { useNavigate, useParams } 
-import InterviewAPI, {
-  useCreateInterview,
-} from "@/features/hr/controllers/interviewControllerController";
-import { useGetJobApplication } from "@/features/hrApi/hr-job-applications";
+import { useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useCreateInterview, useGetInterviews, useUpdateInterview } from "@/features/hr/controllers/hrInterviewController";
+import { useGetJobApplication, useUpdateJobApplicationToInterviewed } from "@/features/hr/controllers/hrJobApplicationsController";
 import { toast } from "sonner";
 
 const InterviewForm = () => {
   const params = useParams();
   const router = useRouter();
 
-  const { data, isLoading } = useGetJobApplication({
-    id: params?.appID as string,
+  const { data, isLoading } = useGetJobApplication(params?.appID as string);
+
+  // Get interviews for this advertisement
+  const { data: interviewsData, isLoading: interviewsLoading } = useGetInterviews({
+    id: params?.id as string, // Use advertisement ID
+    size: 1000,
   });
 
-  const { createInterview, isLoading: createLoading } =
-    useCreateInterview();
+  // Find the interview for this specific application
+  // Since we can't match by application ID directly, let's match by applicant email
+  const currentApplicationData = data?.data;
+  const interview = (interviewsData as any)?.data?.results?.find(
+    (interview: any) => {
+      // First try direct ID matching approaches
+      if (typeof interview.application === 'string') {
+        return interview.application === params?.appID;
+      }
+      if (typeof interview.application === 'object' && interview.application?.id) {
+        return interview.application.id === params?.appID;
+      }
+
+      // Fallback: Match by applicant email (should be unique)
+      if (typeof interview.application === 'object' && currentApplicationData) {
+        return interview.application.applicant_email === currentApplicationData.applicant_email;
+      }
+
+      return false;
+    }
+  );
+
+  // Debug logging
+  console.log("InterviewForm Debug:", {
+    advertisementId: params?.id,
+    applicationId: params?.appID,
+    applicationData: data?.data,
+    allInterviews: (interviewsData as any)?.data?.results,
+    foundInterview: interview,
+  });
+
+  // More detailed debugging to understand the data structure
+  const interviews = (interviewsData as any)?.data?.results || [];
+  console.log("Detailed Interview Debug:");
+  console.log("Target application ID:", params?.appID);
+  interviews.forEach((int: any, index: number) => {
+    console.log(`Interview ${index}:`, {
+      id: int.id,
+      application: int.application,
+      applicationType: typeof int.application,
+      applicationId: int.application?.id || int.application,
+      applicationObject: int.application,
+      application_id: int.application_id, // Check alternative field name
+      job_application: int.job_application, // Check alternative field name
+      matchesTarget: int.application === params?.appID || int.application?.id === params?.appID,
+      allFields: Object.keys(int), // Show all available fields
+      fullInterview: int
+    });
+  });
+
+  const { updateInterview, isLoading: updateLoading } = useUpdateInterview(interview?.id || "");
+  const { updateJobApplicationToInterviewed, isLoading: patchLoading } = useUpdateJobApplicationToInterviewed(params?.appID as string);
+
+  // Debug the application ID
+  console.log("🎯 InterviewForm Application ID:", params?.appID);
+  console.log("📋 Current application data:", data?.data);
 
   const form = useForm();
 
@@ -70,18 +127,66 @@ const InterviewForm = () => {
       application: params?.appID as string,
     };
     try {
-      // @ts-ignore
-      await createInterview(payload)();
-      toast.success(" Interview Submitted successfully");
-      router.back();
+      if (interview?.id) {
+        console.log("🔥 Starting interview completion process...");
+
+        // Update existing interview with evaluation data
+        console.log("📝 Updating interview with payload:", payload);
+        await updateInterview(payload);
+        console.log("✅ Interview updated successfully");
+
+        // Update application status to "INTERVIEWED" after completing the interview
+        console.log("🔄 Starting automatic status update after interview completion");
+        console.log("📋 Application ID:", params?.appID);
+        console.log("🚀 Calling updateJobApplicationToInterviewed");
+
+        const statusUpdateResult = await updateJobApplicationToInterviewed();
+
+        console.log("✅ Application status updated successfully");
+        console.log("📊 Status update API response:", statusUpdateResult);
+        console.log("📊 Updated status in response:", statusUpdateResult?.status);
+        console.log("📊 Full status update response:", JSON.stringify(statusUpdateResult, null, 2));
+
+        toast.success("Interview evaluation submitted successfully");
+        router.back();
+      } else {
+        // No interview exists for this application
+        toast.error("No interview scheduled for this application. Please schedule an interview first.");
+      }
     } catch (error) {
-      toast.error("Something went wrong");
-      console.error(error);
+      console.error("❌ Error during interview completion:", error);
+      toast.error(`Something went wrong: ${(error as any)?.message || 'Unknown error'}`);
     }
   };
 
-  if (isLoading) {
+  if (isLoading || interviewsLoading) {
     return <Loading />;
+  }
+
+  // Check if interview exists for this application
+  if (!interview) {
+    return (
+      <div className='flex flex-col gap-4'>
+        <GoBack />
+        <Card>
+          <div className='text-center py-8'>
+            <h2 className='font-semibold text-lg mb-4'>No Interview Found</h2>
+            <p className='text-gray-600 mb-4'>
+              Unable to find an interview record for this application.
+            </p>
+            <div className='text-sm text-gray-500 space-y-2'>
+              <p>This could happen if:</p>
+              <ul className='list-disc list-inside text-left max-w-md mx-auto'>
+                <li>The interview hasn't been scheduled yet</li>
+                <li>There's a data sync issue</li>
+                <li>The interview was deleted</li>
+              </ul>
+              <p className='mt-4'>Please try scheduling a new interview or contact support.</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
   }
 
   return (
@@ -92,7 +197,15 @@ const InterviewForm = () => {
         <div className='grid grid-cols-2 gap-4'>
           <div className='flex flex-col gap-3'>
             <h2 className='font-semibold'>Name of Candidate</h2>
-            <p>{data?.data?.applicant_name}</p>
+            <p>{
+              data?.data?.applicant_name ||
+              [
+                (data?.data as any)?.applicant_first_name,
+                (data?.data as any)?.applicant_middle_name,
+                (data?.data as any)?.applicant_last_name
+              ].filter(Boolean).join(' ') ||
+              "Unknown Candidate"
+            }</p>
           </div>
           <div className='flex flex-col gap-3'>
             <h2 className='font-semibold'>Position Applied</h2>
@@ -100,11 +213,18 @@ const InterviewForm = () => {
           </div>
           <div className='flex flex-col gap-3'>
             <h2 className='font-semibold'>Name of Interviewer</h2>
-            <p>{data?.data?.interviewer || "-"}</p>
+            <p>{
+              interview?.interviewer?.full_name ||
+              interview?.interviewer?.name ||
+              (typeof interview?.interviewer === 'string' ? interview.interviewer : '') ||
+              data?.data?.interviewer ||
+              "-"
+            }</p>
           </div>
           <div className='flex flex-col gap-3'>
             <h2 className='font-semibold'>Date of Interview</h2>
-            <p>{formatDate(data?.data?.created_datetime, "dd, MMM, yyyy")}</p>
+            <p>{interview?.start_date ? formatDate(interview.start_date, "dd, MMM, yyyy") :
+                data?.data?.interview_date ? formatDate(data?.data?.interview_date, "dd, MMM, yyyy") : "Not scheduled"}</p>
           </div>
         </div>
 
@@ -217,8 +337,8 @@ const InterviewForm = () => {
           </div>
           <div className='flex w-full justify-end mt-4'>
             <FormButton
-              disabled={createLoading}
-              loading={createLoading}
+              disabled={updateLoading || patchLoading}
+              loading={updateLoading || patchLoading}
               type='submit'
               className='bg-primary text-white py-2 px-4 rounded-md hover:bg-secondary transition duration-300 ease-in-out'
             >

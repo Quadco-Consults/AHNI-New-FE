@@ -5,7 +5,7 @@ import { Separator } from "components/ui/separator";
 import FormInput from "components/atoms/FormInput";
 import { Form } from "components/ui/form";
 import { useForm } from "react-hook-form";
-import { useNavigate, useParams } 
+import { useParams, useRouter } from "next/navigation"; 
 import { Button } from "components/ui/button";
 import { Save } from "lucide-react";
 import { HrRoutes } from "constants/RouterConstants";
@@ -25,7 +25,7 @@ import {
   useCreateEmployeeOnboardingPension,
   useGetEmployeeOnboardingPension,
   useUpdateEmployeeOnboardingPension,
-} from "@/features/hrApi/hr-employee-onboarding-pensionController";
+} from "@/features/hr/controllers/hrEmployeeOnboardingPensionController";
 import FormCheckBox from "components/atoms/FormCheckBox";
 import GoBack from "components/GoBack";
 
