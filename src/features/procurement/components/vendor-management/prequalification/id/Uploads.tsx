@@ -31,10 +31,7 @@ import DeleteIcon from "components/icons/DeleteIcon";
 import { Icon } from "@iconify/react";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.mjs",
-  import.meta.url
-).toString();
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 const Uploads = (data: VendorsResultsData) => {
   const [numPages, setNumPages] = useState<number>();

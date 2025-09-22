@@ -12,7 +12,7 @@ import {
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
 const BASE_URL = "/procurements/manual-bid-cba-prequalification/"; // FIXED SPELLING
-const SOLICITATION_URL = "/procurements/manual-bid/by-solicitation/";
+const SOLICITATION_URL = "/procurements/manaul-bid/by-solicitation/"; // Note: Backend has typo "manaul" instead of "manual"
 
 // ===== MANUAL BID CBA PREQUALIFICATION HOOKS =====
 

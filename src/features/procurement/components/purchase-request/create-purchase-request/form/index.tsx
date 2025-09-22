@@ -17,45 +17,60 @@ import { SelectContent, SelectItem } from "components/ui/select";
 import { RouteEnum } from "constants/RouterConstants";
 import { DepartmentsResultsData } from "definations/configs/departments";
 import { ItemsResultsData } from "definations/configs/itmes";
-import { PurchaseRequestSchema } from "definations/procurement-validator";
+import { PurchaseRequestSchema } from "@/features/procurement/types/procurement-validator";
 import { useQuery } from "@tanstack/react-query";
 import { MinusCircle } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { useGetDepartmentPaginate } from "@/features/modules/controllers/config/departmentController";
-import { useGetItemsPaginate } from "@/features/modules/controllers/config/itemController";
+import { useGetAllItems } from "@/features/modules/controllers/config/itemController";
 import { useGetLocationList } from "@/features/modules/controllers/config/locationController";
 import { useGetPositionPaginate } from "@/features/modules/controllers/config/positionController";
-import { useGetFcoNumberPaginate } from "@/features/modules/controllers/config/gradeController";
+import { useGetAllFCONumbers } from "@/features/modules/controllers/finance/fcoNumberController";
 import { useGetAllPartners } from "@/features/projects/controllers/projectController";
 import { useCreatePurchaseRequest } from "@/features/procurement/controllers/purchaseRequestController";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Input } from "components/ui/input";
+import { useSelector } from "react-redux";
+import { RootState } from "store/index";
 
 const CreatePurchaseRequestForm = ({ expenses }) => {
-  const query = useQuery();
-  const request = query.get("request");
+  const searchParams = useSearchParams();
+  const request = searchParams.get("request");
+  console.log("Purchase request form - request parameter:", request);
+
+  // Get activity memo data from Redux store
+  const activityMemoData = useSelector((state: RootState) => state.activity.activity);
+  console.log("Activity memo data from Redux:", activityMemoData);
+
+  // Get the memo ID from Redux if not in URL
+  const memoIdFromRedux = activityMemoData.length > 0 ? activityMemoData[activityMemoData.length - 1]?.createdMemoId : null;
+  const finalMemoId = request || memoIdFromRedux;
+  console.log("Final memo ID to use:", finalMemoId);
   const { data: departments, isLoading: departmentsIsLoading } =
-    useGetDepartments({});
+    useGetDepartmentPaginate({
+      page: 1,
+      size: 2000000,
+    });
   const { isLoading: partnersIsLoading } = useGetAllPartners({
     page: 1,
     size: 2000000,
   });
-  const { data: items, isLoading: itemsIsLoading } = ItemsAPI.useGetItems(
-    {}
-  );
-  const { createPurchaseRequest, isLoading } =
-    PurchaseRequestAPI.useCreatePurchaseRequest();
+  const { data: items, isLoading: itemsIsLoading } = useGetAllItems({
+    page: 1,
+    size: 2000000,
+  });
+  const { createPurchaseRequest, isLoading } = useCreatePurchaseRequest();
 
-  const fco = useGetAllFCONumbers({
+  const { data: fco } = useGetAllFCONumbers({
     page: 1,
     size: 2000000,
   });
   const { data: position, isFetching: positionLoading } =
-    useGetAllPositions({
+    useGetPositionPaginate({
       page: 1,
       size: 20000,
     });
@@ -66,15 +81,13 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
   });
 
   const { data: locations } = useGetLocationList({
-    params: { no_paginate: true },
+    no_paginate: true,
   });
 
   const [file, setFile] = useState<File | null>(null);
 
-  // const form = useForm<z.infer<typeof PurchaseRequestSchema>>({
-  const form = useForm({
-    // const form = useForm({
-    // resolver: zodResolver(PurchaseRequestSchema),
+  const form = useForm<z.infer<typeof PurchaseRequestSchema>>({
+    resolver: zodResolver(PurchaseRequestSchema),
     defaultValues: {
       reviewed_by: "",
       authorised_by: "",
@@ -87,12 +100,8 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
       date_required: "",
       // total cost
       special_instruction: "ewecd",
-      // request_id
-      // status
-      // reviewed_date
-      // authorized_date
-      // approved_date
-      request_memo: request!,
+      request_memo: finalMemoId && finalMemoId !== "null" ? finalMemoId : "",
+      items: [],
       // location
       role_requested_by: "",
       role_reviewed_by: "",
@@ -111,12 +120,33 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
     name: "items",
   });
 
-  const usersOptions = users?.data.results.map(
-    ({ first_name, last_name, id }) => ({
-      label: `${first_name} ${last_name}`,
+  const usersOptions = (users as any)?.data?.results?.map(
+    ({ first_name, last_name, id, position }: any) => ({
+      label: `${first_name || ''} ${last_name || ''}`.trim() || 'Unnamed User',
       value: id,
+      position: position || '', // Include position data for auto-population
     })
-  );
+  ) || [];
+
+  // Create a lookup map for quick access to user positions
+  const userPositionLookup = useMemo(() => {
+    const lookup: Record<string, string> = {};
+    (users as any)?.data?.results?.forEach((user: any) => {
+      lookup[user.id] = user.position || '';
+    });
+    console.log("User position lookup created:", lookup);
+    return lookup;
+  }, [users]);
+
+  // Helper functions to auto-populate roles when users are selected
+  const handleUserSelection = (userId: string, roleFieldName: string) => {
+    const userPosition = userPositionLookup[userId];
+    if (userPosition) {
+      // The userPosition is the position ID that should match with the position dropdown
+      setValue(roleFieldName as any, userPosition);
+      console.log(`Auto-populated ${roleFieldName} with position:`, userPosition);
+    }
+  };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -126,59 +156,125 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
   };
 
   const onSubmit = async (data: z.infer<typeof PurchaseRequestSchema>) => {
-    const payload = {
-      items: data.items,
-      requested_by: data.requested_by,
-      reviewed_by: data.reviewed_by,
-
-      authorised_by: data.authorised_by,
-
-      approved_by: data.approved_by,
-
-      ref_number: data.ref_number,
-      date_of_request: data.date_of_request,
-      date_required: data.date_required,
-      special_instruction: data.special_instruction,
-      request_id: "string",
-      status: "Pending",
-      reviewed_date: null,
-      authorised_date: null,
-      approved_date: null,
-      request_memo: data.request_memo,
-      requesting_department: data.requesting_department,
-      location: data.deliver_to,
-      role_requested_by: data.role_requested_by,
-      role_reviewed_by: data.role_reviewed_by,
-      role_authorised_by: data.role_authorised_by,
-      role_approved_by: data.role_approved_by,
-    };
-
     try {
+      console.log("Submitting purchase request:", data);
+
+      // Validate that we have items
+      if (!data.items || data.items.length === 0) {
+        if (finalMemoId) {
+          toast.error("No items found from activity memo. Please ensure the activity memo contains expense items.");
+        } else {
+          toast.error("Please add at least one item to the purchase request");
+        }
+        return;
+      }
+
+      // Validate that we have a memo reference
+      if (!data.request_memo || data.request_memo === "null" || data.request_memo.trim() === "") {
+        toast.error("Missing activity memo reference. Please create an activity memo first.");
+        return;
+      }
+
+      const payload = {
+        items: data.items.map((item: any) => ({
+          ...item,
+          // Ensure numeric fields are properly formatted
+          quantity: typeof item.quantity === 'string' ? parseInt(item.quantity) : item.quantity,
+          unit_cost: typeof item.unit_cost === 'string' ? parseFloat(item.unit_cost) : item.unit_cost,
+          amount: typeof item.amount === 'string' ? parseFloat(item.amount) : item.amount,
+        })),
+        requested_by: data.requested_by,
+        reviewed_by: data.reviewed_by,
+        authorised_by: data.authorised_by,
+        approved_by: data.approved_by,
+        ref_number: data.ref_number,
+        date_of_request: data.date_of_request,
+        date_required: data.date_required,
+        special_instruction: data.special_instruction,
+        request_id: `PR-${Date.now()}`, // Generate a unique request ID
+        status: "Pending",
+        reviewed_date: null,
+        authorised_date: null,
+        approved_date: null,
+        request_memo: data.request_memo,
+        requesting_department: data.requesting_department,
+        location: data.deliver_to,
+        role_requested_by: data.role_requested_by,
+        role_reviewed_by: data.role_reviewed_by,
+        role_authorised_by: data.role_authorised_by,
+        role_approved_by: data.role_approved_by,
+      };
+
+      console.log("Formatted payload for API:", payload);
+
       await createPurchaseRequest(payload);
+
+      toast.success("Purchase request created successfully!");
       router.push(RouteEnum.PURCHASE_REQUEST);
-      toast.success("Successfully created.");
-    } catch (error) {
-      toast.error("Something went wrong");
-      console.log(error);
+    } catch (error: any) {
+      console.error("Failed to create purchase request:", error);
+
+      // Provide more specific error messages
+      if (error?.response?.status === 400) {
+        toast.error("Invalid data provided. Please check all fields and try again.");
+      } else if (error?.response?.status === 404) {
+        toast.error("Activity memo not found. Please ensure the memo exists.");
+      } else if (error?.response?.status === 500) {
+        toast.error("Server error. Please try again later.");
+      } else {
+        toast.error(error?.message || "Failed to create purchase request. Please try again.");
+      }
     }
   };
 
   const expensesData = useMemo(() => {
-    //   // @ts-ignore
-    return expenses?.map((exp) => ({
-      quantity: exp?.quantity,
-      unit_cost: exp?.unit_cost,
-      amount: exp?.total_cost,
-      item: exp?.item,
-      fco_number: "",
-    }));
-  }, [expenses]);
+    // If expenses prop is provided (editing existing request), use it
+    if (expenses && expenses.length > 0) {
+      console.log("Using expenses from props:", expenses);
+      return expenses.map((exp: any) => ({
+        quantity: exp?.quantity,
+        unit_cost: exp?.unit_cost,
+        amount: exp?.total_cost,
+        item: exp?.item,
+        fco_number: [],
+      }));
+    }
+
+    // If creating new request from activity memo, use Redux data
+    if (finalMemoId && activityMemoData && activityMemoData.length > 0) {
+      // Find the latest activity memo data (most recently added)
+      const latestActivityMemo = activityMemoData[activityMemoData.length - 1];
+      console.log("Using activity memo data from Redux:", latestActivityMemo);
+
+      if (latestActivityMemo?.expenses && latestActivityMemo.expenses.length > 0) {
+        return latestActivityMemo.expenses.map((exp: any) => ({
+          quantity: exp?.quantity || 1,
+          unit_cost: exp?.unit_cost || 0,
+          amount: exp?.total_cost || 0,
+          item: exp?.item || "",
+          fco_number: latestActivityMemo?.fconumber || [],
+        }));
+      }
+    }
+
+    console.log("No expenses data found, returning empty array");
+    return [];
+  }, [expenses, request, activityMemoData]);
 
   useEffect(() => {
-    if (expensesData) {
+    if (expensesData && expensesData.length > 0) {
+      console.log("Populating form with expenses data:", expensesData);
       setValue("items", expensesData);
+
+      // Show user feedback about data source
+      if (finalMemoId) {
+        toast.success(`Loaded ${expensesData.length} items from activity memo`);
+      }
+    } else if (finalMemoId) {
+      console.warn("No expenses data found for memo ID:", finalMemoId);
+      toast.warning("No items found from activity memo. You may need to add items manually.");
     }
-  }, [expensesData, setValue]);
+  }, [expensesData, setValue, finalMemoId]);
 
   return (
     <div className='pt-5'>
@@ -216,8 +312,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                 {departmentsIsLoading ? (
                   <LoadingSpinner />
                 ) : (
-                  // @ts-ignore
-                  departments?.data?.results?.map(
+                  (departments as any)?.data?.results?.map(
                     (department: DepartmentsResultsData) => (
                       <SelectItem key={department?.id} value={department?.id}>
                         {department?.name}
@@ -232,7 +327,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                 {partnersIsLoading ? (
                   <LoadingSpinner />
                 ) : (
-                  locations?.data.results?.map((location) => (
+                  (locations as any)?.data?.results?.map((location: any) => (
                     <SelectItem key={location?.id} value={location?.id}>
                       {location?.name}
                     </SelectItem>
@@ -284,8 +379,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                             {itemsIsLoading ? (
                               <LoadingSpinner />
                             ) : (
-                              // @ts-ignore
-                              items?.data?.results?.map(
+                              (items as any)?.data?.results?.map(
                                 (item: ItemsResultsData) => (
                                   <SelectItem key={item?.id} value={item?.id}>
                                     {item?.name}
@@ -325,7 +419,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                             <FormItem className=' mt-2'>
                               <FormControl>
                                 <MultiSelectFormField
-                                  options={fco?.data?.data?.results || []}
+                                  options={(fco as any)?.data?.data?.results || []}
                                   // defaultValue={field.value}
                                   onValueChange={field.onChange}
                                   placeholder='Select fcos'
@@ -381,10 +475,11 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                 onClick={() =>
                   append({
                     item: "",
-                    fco_number: "",
+                    fco_number: [],
                     amount: 0,
                     // number_of_days: 0,
                     unit_cost: 0,
+                    quantity: 1,
                   })
                 }
               >
@@ -411,6 +506,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                     name='requested_by'
                     required
                     options={usersOptions}
+                    onValueChange={(value) => handleUserSelection(value, 'role_requested_by')}
                   />
                 )}
                 <FormSelect label='Role' name='role_requested_by' required>
@@ -418,7 +514,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                     {positionLoading ? (
                       <LoadingSpinner />
                     ) : (
-                      position?.data.results?.map((p) => (
+                      (position as any)?.data?.results?.map((p: any) => (
                         <SelectItem key={p?.id} value={p?.id}>
                           {p?.name}
                         </SelectItem>
@@ -439,6 +535,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                     name='reviewed_by'
                     required
                     options={usersOptions}
+                    onValueChange={(value) => handleUserSelection(value, 'role_reviewed_by')}
                   />
                 )}
                 <FormSelect label='Role' name='role_reviewed_by' required>
@@ -446,7 +543,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                     {positionLoading ? (
                       <LoadingSpinner />
                     ) : (
-                      position?.data.results?.map((p) => (
+                      (position as any)?.data?.results?.map((p: any) => (
                         <SelectItem key={p?.id} value={p?.id}>
                           {p?.name}
                         </SelectItem>
@@ -467,6 +564,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                     name='approved_by'
                     required
                     options={usersOptions}
+                    onValueChange={(value) => handleUserSelection(value, 'role_approved_by')}
                   />
                 )}
                 <FormSelect label='Role' name='role_approved_by' required>
@@ -474,7 +572,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                     {positionLoading ? (
                       <LoadingSpinner />
                     ) : (
-                      position?.data.results?.map((p) => (
+                      (position as any)?.data?.results?.map((p: any) => (
                         <SelectItem key={p?.id} value={p?.id}>
                           {p?.name}
                         </SelectItem>
@@ -495,6 +593,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                     name='authorised_by'
                     required
                     options={usersOptions}
+                    onValueChange={(value) => handleUserSelection(value, 'role_authorised_by')}
                   />
                 )}
                 <FormSelect label='Role' name='role_authorised_by' required>
@@ -502,7 +601,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                     {positionLoading ? (
                       <LoadingSpinner />
                     ) : (
-                      position?.data.results?.map((p) => (
+                      (position as any)?.data?.results?.map((p: any) => (
                         <SelectItem key={p?.id} value={p?.id}>
                           {p?.name}
                         </SelectItem>

@@ -16,7 +16,7 @@ import { Switch } from "components/ui/switch";
 import { Label } from "components/ui/label";
 import { Badge } from "components/ui/badge";
 import { Button } from "components/ui/button";
-import logoPng from "assets/svgs/logo-bg.svg";
+import logoPng from "@/assets/svgs/logo-bg.svg";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { Progress } from "components/ui/progress";
 import DataTable from "components/DataTable";

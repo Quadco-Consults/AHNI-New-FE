@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
-import logoSvg from "assets/svgs/logo-bg.svg";
+import logoSvg from "@/assets/svgs/logo-bg.svg";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FaDotCircle } from "react-icons/fa";

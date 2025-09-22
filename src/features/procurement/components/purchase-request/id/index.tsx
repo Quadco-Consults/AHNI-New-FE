@@ -1,11 +1,14 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import Link from "next/link"; 
-import { useGetPurchaseRequestById } from "@/features/procurement/controllers/purchaseRequestController";
+import Link from "next/link";
+import { useGetPurchaseRequestById, useModifyPurchaseRequest } from "@/features/procurement/controllers/purchaseRequestController";
+import { useGetActivityMemo } from "@/features/procurement/controllers/activityMemoController";
+import { useGetUserProfile } from "@/features/auth/controllers/userController";
 import { LoadingSpinner } from "components/Loading";
 import Card from "components/Card";
 import { Badge } from "components/ui/badge";
+import { Button } from "components/ui/button";
 import {
   Table,
   TableBody,
@@ -14,16 +17,90 @@ import {
   TableRow,
 } from "components/ui/table";
 
-import logoPng from "assets/svgs/logo-bg.svg";
+import logoPng from "@/assets/svgs/logo-bg.svg";
 import { BsFiletypeDoc } from "react-icons/bs";
+import { toast } from "sonner";
+import { useState } from "react";
+import ApprovalNotifications from "../ApprovalNotifications";
 const PurchaseRequesttDetails = () => {
-  // const router = useRouter();
   const { id } = useParams();
-  // const [rows, setRows] = useState([]);
+  const [isApproving, setIsApproving] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  const { data, isLoading } = PurchaseRequestAPI.useGetPurchaseRequest({
-    path: { id: id as string },
-  });
+  const { data, isLoading, refetch } = useGetPurchaseRequestById(id as string);
+  const { data: currentUser } = useGetUserProfile();
+
+  // Helper function to extract user name
+  const getUserName = (user: any): string => {
+    if (!user) return 'N/A';
+
+    // If it's a string (likely an ID), return N/A as we need to fetch the user details
+    if (typeof user === 'string' || typeof user === 'number') {
+      return 'User ID: ' + user; // Showing ID temporarily until we can fetch user details
+    }
+
+    // If it's an object with name property
+    if (user.name) return user.name;
+
+    // If it has first_name and last_name
+    if (user.first_name && user.last_name) {
+      return `${user.first_name} ${user.last_name}`;
+    }
+
+    // If it has email as fallback
+    if (user.email) return user.email;
+
+    // If it has username
+    if (user.username) return user.username;
+
+    return 'N/A';
+  };
+
+  // Helper function to format date
+  const formatDate = (date: string | null | undefined): string => {
+    if (!date) return 'N/A';
+    try {
+      return new Date(date).toLocaleDateString('en-GB', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch {
+      return date; // Return as is if parsing fails
+    }
+  };
+  const { modifyPurchaseRequest, isLoading: isModifying, isSuccess: isModifySuccess } = useModifyPurchaseRequest(id as string);
+
+  // Get the activity memo ID from the purchase request
+  const activityMemoId = data?.data?.request_memo;
+
+  // Fetch activity memo data if we have the ID
+  const { data: activityMemoData } = useGetActivityMemo(activityMemoId as string, !!activityMemoId);
+
+  // Handle status updates from approval workflow
+  const handleStatusUpdate = () => {
+    refetch();
+    setRefreshKey(prev => prev + 1);
+  };
+
+  console.log("=== PURCHASE REQUEST DEBUG ===");
+  console.log("Purchase request data:", data);
+  console.log("Current user:", currentUser);
+  console.log("Activity memo ID:", activityMemoId);
+  console.log("Activity memo data:", activityMemoData);
+  console.log("Items structure:", data?.data?.items);
+  console.log("=== USER FIELDS DEBUG ===");
+  console.log("requested_by:", data?.data?.requested_by);
+  console.log("reviewed_by:", data?.data?.reviewed_by);
+  console.log("authorized_by:", data?.data?.authorized_by);
+  console.log("approved_by:", data?.data?.approved_by);
+  console.log("All purchase request fields:", data?.data ? Object.keys(data.data) : 'No data');
+  if (data?.data?.items?.[0]) {
+    console.log("First item:", data.data.items[0]);
+    console.log("First item keys:", Object.keys(data.data.items[0]));
+    console.log("FCO details:", data.data.items[0].fconumber_details);
+    console.log("FCO number:", data.data.items[0].fco_number);
+  }
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -38,6 +115,22 @@ const PurchaseRequesttDetails = () => {
 
   return (
     <section className='min-h-screen space-y-8 bg-white p-8'>
+      {/* Header with Notifications */}
+      <div className='flex items-center justify-between mb-6'>
+        <h1 className='text-2xl font-bold text-gray-900'>Purchase Request Details</h1>
+        <div className="flex items-center gap-4">
+          <ApprovalNotifications
+            purchaseRequestData={data}
+            currentUser={currentUser}
+            onActionTaken={handleStatusUpdate}
+          />
+          <Link href={`/dashboard/procurement/purchase-request/${id}/edit`}>
+            <Button variant="outline" size="sm">
+              Edit Request
+            </Button>
+          </Link>
+        </div>
+      </div>
       <div className='flex justify-center items-center flex-col'>
         <img src={logoPng} alt='logo' width={200} />
         <h1>Achieving Health Nigeria Initiative (AHNI)</h1>
@@ -114,14 +207,46 @@ const PurchaseRequesttDetails = () => {
               <TableRow className='text-center' key={index}>
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{row.item_detail?.name || row.item}</TableCell>
-                <TableCell className='flex items-center gap-2'>
-                  {/* @ts-ignore */}
-                  {row?.fconumber_details.map((fco, idx) => (
-                    <div key={idx}>
-                      {fco?.module_code}{" "}
-                      {idx + 1 < row?.fconumber_details.length && ","}
-                    </div>
-                  )) || row.fco_number}
+                <TableCell className='text-center'>
+                  {/* Display FCO/Activity No from activity memo data */}
+                  {(() => {
+                    // First try: FCO details from activity memo
+                    if (activityMemoData?.data?.fconumber_details?.length > 0) {
+                      return activityMemoData.data.fconumber_details.map((fco, idx) => (
+                        <span key={idx}>
+                          {fco?.module_code || fco?.code || fco?.name}
+                          {idx + 1 < activityMemoData.data.fconumber_details.length && ", "}
+                        </span>
+                      ));
+                    }
+
+                    // Second try: FCO details from purchase request item
+                    if (row?.fconumber_details?.length > 0) {
+                      return row.fconumber_details.map((fco, idx) => (
+                        <span key={idx}>
+                          {fco?.module_code || fco?.code || fco?.name}
+                          {idx + 1 < row.fconumber_details.length && ", "}
+                        </span>
+                      ));
+                    }
+
+                    // Third try: Activity detail from activity memo
+                    if (activityMemoData?.data?.activity_detail?.code) {
+                      return activityMemoData.data.activity_detail.code;
+                    }
+
+                    // Fourth try: Simple FCO field from item
+                    if (row?.fco) {
+                      return row.fco;
+                    }
+
+                    // Fallbacks for other possible fields
+                    if (row?.fco_number) return row.fco_number;
+                    if (row?.activity_number) return row.activity_number;
+                    if (row?.fconumber) return row.fconumber;
+
+                    return "N/A";
+                  })()}
                 </TableCell>
                 <TableCell>{row.quantity}</TableCell>
                 <TableCell>
@@ -140,110 +265,110 @@ const PurchaseRequesttDetails = () => {
         <h4>Total:</h4>
         <span>₦ {grandTotal?.toLocaleString()}.00</span>
       </div>
-      <div className=' grid grid-cols-2 gap-y-12'>
-        <div className=' space-y-3'>
-          <p>Signed</p>
-          <div className='flex items-center gap-5'>
-            <h4 className='w-full max-w-[140px] font-medium'>Requested By</h4>
-            {/* @ts-ignore */}
-            <h4>{data?.data?.requested_by?.name}</h4>
-          </div>
-          <div className='flex items-center gap-5'>
-            <h4 className='w-full max-w-[140px] font-medium'>Date:</h4>
-            {/* @ts-ignore */}
-            <h4>{data?.data?.requested_date}</h4>
-          </div>
-          <div className='flex items-center gap-5'>
-            <h4 className='w-full max-w-[140px] font-medium'>Signature:</h4>
-            {/* @ts-ignore */}
-            <h4>{data?.data?.requested_by?.name}</h4>
-          </div>
-          <div className='flex items-center gap-5'>
-            <Badge className='bg-green-500/30 text-green-500 p-2 rounded-md'>
-              Approved
-            </Badge>{" "}
-            <Badge className='bg-alternate text-primary  p-2 rounded-md'>
-              Not Approved
-            </Badge>{" "}
-          </div>
-        </div>
-        <div className=' space-y-3'>
-          <p>Signed</p>
-          <div className='flex items-center gap-5'>
-            <h4 className='w-full max-w-[140px] font-medium'> Reviewed By</h4>
-            {/* <h4>Finance</h4> */}
-          </div>
-          <div className='flex items-center gap-5'>
-            <h4 className='w-full max-w-[140px] font-medium'>Name</h4>
 
-            {/* @ts-ignore */}
-            <h4>{data?.data?.reviewed_by?.name}</h4>
+      {/* Signature Records Section */}
+      <div className='mt-8 bg-gray-50 p-6 rounded-lg'>
+        <h3 className='text-lg font-semibold mb-6 text-gray-900'>Signature Records</h3>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+          <div className='bg-white p-4 rounded-lg border border-gray-200 space-y-3'>
+            <div className='flex items-center justify-between mb-2'>
+              <p className='font-semibold text-gray-700'>Request Initiation</p>
+              <Badge className='bg-green-500/20 text-green-700 px-2 py-1 text-xs'>
+                {data?.data?.requested_by ? 'Signed' : 'Pending'}
+              </Badge>
+            </div>
+            <div className='flex items-center gap-5'>
+              <h4 className='w-full max-w-[100px] text-sm text-gray-600'>Name:</h4>
+              <h4 className='text-sm font-medium'>{getUserName(data?.data?.requested_by)}</h4>
+            </div>
+            <div className='flex items-center gap-5'>
+              <h4 className='w-full max-w-[100px] text-sm text-gray-600'>Date:</h4>
+              <h4 className='text-sm'>{formatDate(data?.data?.requested_date || data?.data?.request_date || data?.data?.date_of_request)}</h4>
+            </div>
+            <div className='flex items-center gap-5'>
+              <h4 className='w-full max-w-[100px] text-sm text-gray-600'>Signature:</h4>
+              <h4 className='text-sm italic text-gray-700'>{getUserName(data?.data?.requested_by)}</h4>
+            </div>
           </div>
-          <div className='flex items-center gap-5'>
-            <h4 className='w-full max-w-[140px] font-medium'>Date:</h4>
-            {/* @ts-ignore */}
-            <h4>{data?.data?.reviewed_date}</h4>
+          <div className='bg-white p-4 rounded-lg border border-gray-200 space-y-3'>
+            <div className='flex items-center justify-between mb-2'>
+              <p className='font-semibold text-gray-700'>Review</p>
+              <Badge className={`px-2 py-1 text-xs ${data?.data?.reviewed_by ? 'bg-green-500/20 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
+                {data?.data?.reviewed_by ? 'Signed' : 'Pending'}
+              </Badge>
+            </div>
+            <div className='flex items-center gap-5'>
+              <h4 className='w-full max-w-[100px] text-sm text-gray-600'>Name:</h4>
+              <h4 className='text-sm font-medium'>{getUserName(data?.data?.reviewed_by)}</h4>
+            </div>
+            <div className='flex items-center gap-5'>
+              <h4 className='w-full max-w-[100px] text-sm text-gray-600'>Date:</h4>
+              <h4 className='text-sm'>{formatDate(data?.data?.reviewed_date)}</h4>
+            </div>
+            <div className='flex items-center gap-5'>
+              <h4 className='w-full max-w-[100px] text-sm text-gray-600'>Signature:</h4>
+              <h4 className='text-sm italic text-gray-700'>{getUserName(data?.data?.reviewed_by)}</h4>
+            </div>
           </div>
-          <div className='flex items-center gap-5'>
-            <h4 className='w-full max-w-[140px] font-medium'>Signature:</h4>
-            {/* @ts-ignore */}
-            <h4>{data?.data?.reviewed_by?.name}</h4>{" "}
+          <div className='bg-white p-4 rounded-lg border border-gray-200 space-y-3'>
+            <div className='flex items-center justify-between mb-2'>
+              <p className='font-semibold text-gray-700'>Authorization</p>
+              <Badge className={`px-2 py-1 text-xs ${data?.data?.authorized_by ? 'bg-green-500/20 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
+                {data?.data?.authorized_by ? 'Signed' : 'Pending'}
+              </Badge>
+            </div>
+            <div className='flex items-center gap-5'>
+              <h4 className='w-full max-w-[100px] text-sm text-gray-600'>Name:</h4>
+              <h4 className='text-sm font-medium'>{getUserName(data?.data?.authorized_by)}</h4>
+            </div>
+            <div className='flex items-center gap-5'>
+              <h4 className='w-full max-w-[100px] text-sm text-gray-600'>Date:</h4>
+              <h4 className='text-sm'>{formatDate(data?.data?.authorized_date)}</h4>
+            </div>
+            <div className='flex items-center gap-5'>
+              <h4 className='w-full max-w-[100px] text-sm text-gray-600'>Signature:</h4>
+              <h4 className='text-sm italic text-gray-700'>{getUserName(data?.data?.authorized_by)}</h4>
+            </div>
           </div>
-        </div>{" "}
-        <div className=' space-y-3'>
-          <p>Signed</p>
-          <div className='flex items-center gap-5'>
-            <h4 className='w-full max-w-[140px] font-medium'>Authorized By</h4>
-            {/* <h4>Budget Monitor (SPA, PM)</h4> */}
-          </div>
-          <div className='flex items-center gap-5'>
-            <h4 className='w-full max-w-[140px] font-medium'>Name</h4>
-            {/* @ts-ignore */}
-            <h4>{data?.data?.authorized_by?.name}</h4>
-          </div>
-          <div className='flex items-center gap-5'>
-            <h4 className='w-full max-w-[140px] font-medium'>Date:</h4>
-            {/* @ts-ignore */}
-            <h4>{data?.data?.authorized_date}</h4>
-          </div>
-          <div className='flex items-center gap-5'>
-            <h4 className='w-full max-w-[140px] font-medium'>Signature:</h4>
-            {/* @ts-ignore */}
-            <h4>{data?.data?.authorized_by?.name}</h4>
-          </div>
-        </div>{" "}
-        <div className=' space-y-3'>
-          <p>Signed</p>
-          <div className='flex items-center gap-5'>
-            <h4 className='w-full max-w-[140px] font-medium'>Approved By</h4>
-            {/* <h4>Director of Operations</h4> */}
-          </div>
-          <div className='flex items-center gap-5'>
-            <h4 className='w-full max-w-[140px] font-medium'>Name</h4>
-            {/* @ts-ignore */}
-            <h4>{data?.data?.approved_by?.name}</h4>
-          </div>
-          <div className='flex items-center gap-5'>
-            <h4 className='w-full max-w-[140px] font-medium'>Date:</h4>
-            {/* @ts-ignore */}
-            <h4>{data?.data?.approved_date}</h4>
-          </div>
-          <div className='flex items-center gap-5'>
-            <h4 className='w-full max-w-[140px] font-medium'>Signature:</h4>
-            {/* @ts-ignore */}
-            <h4>{data?.data?.approved_by?.name}</h4>
+          <div className='bg-white p-4 rounded-lg border border-gray-200 space-y-3'>
+            <div className='flex items-center justify-between mb-2'>
+              <p className='font-semibold text-gray-700'>Final Approval</p>
+              <Badge className={`px-2 py-1 text-xs ${data?.data?.approved_by ? 'bg-green-500/20 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
+                {data?.data?.approved_by ? 'Signed' : 'Pending'}
+              </Badge>
+            </div>
+            <div className='flex items-center gap-5'>
+              <h4 className='w-full max-w-[100px] text-sm text-gray-600'>Name:</h4>
+              <h4 className='text-sm font-medium'>{getUserName(data?.data?.approved_by)}</h4>
+            </div>
+            <div className='flex items-center gap-5'>
+              <h4 className='w-full max-w-[100px] text-sm text-gray-600'>Date:</h4>
+              <h4 className='text-sm'>{formatDate(data?.data?.approved_date)}</h4>
+            </div>
+            <div className='flex items-center gap-5'>
+              <h4 className='w-full max-w-[100px] text-sm text-gray-600'>Signature:</h4>
+              <h4 className='text-sm italic text-gray-700'>{getUserName(data?.data?.approved_by)}</h4>
+            </div>
           </div>
         </div>
       </div>
 
       <div className=''>
-        <Link href={"file"} target='_blank' title={"file"}>
-          <div className='bg-[#0000001A] py-2 px-4 w-fit  rounded-2xl flex items-center justify-center overflow-hidden'>
+        {data?.data?.specification_document ? (
+          <Link href={data.data.specification_document} target='_blank' title={"Specification Document"}>
+            <div className='bg-[#0000001A] py-2 px-4 w-fit  rounded-2xl flex items-center justify-center overflow-hidden cursor-pointer hover:bg-[#00000030] transition-colors'>
+              <BsFiletypeDoc size={40} className='mr-2' />
+              Specification Document
+            </div>
+          </Link>
+        ) : (
+          <div className='bg-[#0000001A] py-2 px-4 w-fit  rounded-2xl flex items-center justify-center overflow-hidden opacity-50'>
             <BsFiletypeDoc size={40} className='mr-2' />
-            Specification Document
+            No Specification Document
           </div>
-        </Link>
+        )}
       </div>
+
     </section>
   );
 };
