@@ -38,11 +38,11 @@ export const EmergencyContactForm = ({
   const id = localStorage.getItem("workforceID") || "";
   const dispatch = useAppDispatch();
 
-  const { createEmployeeEmergency, isLoading } =
+  const { createHrEmergency, isLoading } =
     useCreateHrEmergency();
 
-  const { updateEmployeeEmergency, isLoading: updateLoading } =
-    useUpdateHrEmergency();
+  const { updateHrEmergency, isLoading: updateLoading } =
+    useUpdateHrEmergency(emergencyContact?.id || "");
 
   const form = useForm<HrEmergencyFormValues>({
     resolver: zodResolver(hrEmergencySchema),
@@ -60,26 +60,19 @@ export const EmergencyContactForm = ({
   const { handleSubmit } = form;
 
   const onSubmit = async (data: HrEmergencyFormValues) => {
-    const formData = new FormData();
-
-    formData.append("name", data.name);
-    formData.append("relationship", data.relationship);
-    formData.append("home_phone", data.home_phone);
-    formData.append("mobile_phone", data.mobile_phone);
-    formData.append("email_address", data.email_address);
-    formData.append("address", data.address);
-    formData.append(
-      "employee",
-      emergencyContact ? emergencyContact.employee : (id as string)
-    );
+    const formData = {
+      name: data.name,
+      relationship: data.relationship,
+      home_phone: data.home_phone,
+      mobile_phone: data.mobile_phone,
+      email_address: data.email_address,
+      address: data.address,
+      employee: emergencyContact ? emergencyContact.employee : (id as string),
+    };
 
     if (emergencyContact) {
       try {
-        const res = await updateEmployeeEmergency({
-          id: id as string,
-          // @ts-ignore
-          body: formData,
-        })();
+        const res = await updateHrEmergency(formData);
 
         dispatch(
           openDialog({
@@ -99,7 +92,7 @@ export const EmergencyContactForm = ({
       }
     } else {
       try {
-        const res = await createEmployeeEmergency(formData)();
+        const res = await createHrEmergency(formData);
 
         dispatch(
           openDialog({

@@ -1,14 +1,16 @@
 import useApiManager from "@/constants/mainController";
 import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
-import { 
-  LocationData, 
-  LocationFormValues 
+import {
+  LocationData,
+  LocationFormValues
 } from "../../types/config";
-import { 
+import { LocationResultsData } from "@/features/admin/types/configs-types/location";
+import {
   FilterParams,
   TPaginatedResponse,
-  TResponse
+  TResponse,
+  ApiResponse
 } from "../../types";
 
 // GET Operations (Queries)
@@ -18,7 +20,7 @@ export const useGetAllLocationsManager = ({
   search = "",
   enabled = true 
 }: FilterParams & { enabled?: boolean } = {}) => {
-  return useQuery<TPaginatedResponse<LocationData>>({
+  return useQuery<ApiResponse<TPaginatedResponse<LocationResultsData>>>({
     queryKey: ["locations", page, size, search],
     queryFn: async () => {
       const response = await AxiosWithToken.get("/config/locations/", {

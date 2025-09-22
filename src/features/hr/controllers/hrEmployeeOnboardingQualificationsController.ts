@@ -91,9 +91,11 @@ export const useCreateEmployeeOnboardingQualifications = () => {
 
   const createEmployeeOnboardingQualifications = async (details: Partial<EmployeeOnboardingQualifications>) => {
     try {
-      await callApi(details);
+      const result = await callApi(details);
+      return result;
     } catch (error) {
       console.error("Employee onboarding qualifications create error:", error);
+      throw error; // Re-throw so calling code can handle the error
     }
   };
 

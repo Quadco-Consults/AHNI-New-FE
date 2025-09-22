@@ -20,8 +20,24 @@ const EmployeeInformation = () => {
 
   const [activeTab, setActiveTab] = useState("basic_information");
 
-  const { data, isLoading } = useGetJobApplication({
-    id: id as string,
+  console.log("🔍 URL PARAMS DEBUG:", {
+    rawParams: useParams(),
+    id: id,
+    idType: typeof id,
+    idLength: typeof id === 'string' ? id.length : 'not string',
+    fullId: id,
+    stringifiedId: String(id)
+  });
+
+  const { data, isLoading, error } = useGetJobApplication(id as string);
+
+  console.log("EmployeeInformation - Job Application API:", {
+    id,
+    data,
+    isLoading,
+    error,
+    hasData: !!data?.data,
+    apiUrl: `hr/jobs/applications/${id}/`
   });
 
   const { data: qualifications, isLoading: getLoading } =
