@@ -20,14 +20,20 @@ export const useGetAllSolicitations = ({
   size = 20,
   search = "",
   status = "",
+  request_type,
   enabled = true,
-}: TRequest & { enabled?: boolean }) => {
+}: TRequest & { request_type?: string; enabled?: boolean }) => {
   return useQuery<TPaginatedResponse<ISolicitationRFQData>>({
-    queryKey: ["solicitations", page, size, search, status],
+    queryKey: ["solicitations", page, size, search, status, request_type],
     queryFn: async () => {
       try {
+        const params: any = { page, size, search, status };
+        if (request_type) {
+          params.request_type = request_type;
+        }
+
         const response = await AxiosWithToken.get(BASE_URL, {
-          params: { page, size, search, status },
+          params,
         });
         return response.data;
       } catch (error) {

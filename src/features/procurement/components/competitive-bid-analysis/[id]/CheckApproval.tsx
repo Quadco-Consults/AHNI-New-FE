@@ -75,66 +75,168 @@ const TableComponent = () => {
   const [recommendationNote, setRecommendationNote] = useState("");
 
   function formatBidData(inputData: any) {
-    if (inputData && inputData.data && inputData.data.results) {
-      // Use the correct data path: inputData.data.results
-      const results = inputData.data.results;
+    console.log("🔧 formatBidData called with:", inputData);
 
-      const companies = [
-        ...new Set(
-          results.map((result: any) => ({
-            name: result.vendor.company_name,
-            id: result.vendor.id,
-          }))
-        ),
-      ];
+    // Log the complete data structure to understand what we're receiving
+    if (inputData) {
+      console.log("🔧 formatBidData - Complete data structure:", {
+        topLevelKeys: Object.keys(inputData),
+        status: inputData.status,
+        message: inputData.message,
+        hasData: !!inputData.data,
+        dataKeys: inputData.data ? Object.keys(inputData.data) : null,
+        dataDataKeys: inputData.data?.data ? Object.keys(inputData.data.data) : null,
+        resultsAtLevel1: inputData.results?.length || 'Not found',
+        resultsAtLevel2: inputData.data?.results?.length || 'Not found',
+        resultsAtLevel3: inputData.data?.data?.results?.length || 'Not found',
+        actualDataContent: inputData.data,
+        nestedDataContent: inputData.data?.data,
+        allResults: {
+          level1: inputData.results,
+          level2: inputData.data?.results,
+          level3: inputData.data?.data?.results
+        }
+      });
+    }
+
+    // Try multiple possible data paths - prioritize the correct API structure
+    let results = null;
+    let dataPath = "";
+
+    // The API returns {status: 'success', data: {results: [...]}}
+    // So the correct path is inputData.data.results
+    if (inputData?.data?.results && Array.isArray(inputData.data.results)) {
+      results = inputData.data.results;
+      dataPath = "inputData.data.results";
+    } else if (inputData?.results && Array.isArray(inputData.results)) {
+      results = inputData.results;
+      dataPath = "inputData.results";
+    } else if (inputData?.data?.data?.results && Array.isArray(inputData.data.data.results)) {
+      // This is the problematic double-nested path - use as last resort
+      results = inputData.data.data.results;
+      dataPath = "inputData.data.data.results";
+    }
+
+    console.log("🔧 formatBidData results found at:", dataPath, "with length:", results?.length);
+
+    if (!results || !Array.isArray(results) || results.length === 0) {
+      console.log("❌ formatBidData: No valid results found");
+      return {
+        data: {
+          companies: [],
+          items: [],
+        },
+        extraData: [],
+      };
+    }
+
+    console.log("🔧 formatBidData processing", results.length, "results");
+    console.log("🔧 Sample result structure:", results[0]);
+
+    try {
+      const companies = [];
+      const companiesSet = new Set();
+
+      // Extract unique companies
+      results.forEach((result: any) => {
+        const companyName = result?.vendor?.company_name || result?.company_name;
+        const companyId = result?.vendor?.id || result?.vendor_id;
+
+        if (companyName && !companiesSet.has(companyName)) {
+          companiesSet.add(companyName);
+          companies.push({
+            name: companyName,
+            id: companyId,
+          });
+        }
+      });
 
       const itemsMap = new Map();
       const extraDataMap = new Map();
 
       results.forEach((result: any) => {
-        const companyName = result.vendor.company_name;
+        const companyName = result?.vendor?.company_name || result?.company_name;
 
-        result.bid_details.bidsubmissionitems.forEach((item: any) => {
-          if (!itemsMap.has(item.solicitation_item_id)) {
-            itemsMap.set(item.solicitation_item_id, {
-              id: item?.solicitation_item_id,
-              title: item.solicitation_item_name,
-              qty: 1,
-            });
+        // Handle bid items - try multiple possible paths
+        const bidItems = result?.bid_details?.bidsubmissionitems ||
+                        result?.bidsubmissionitems ||
+                        result?.items ||
+                        [];
+
+        bidItems.forEach((item: any) => {
+          const itemId = item?.solicitation_item_id || item?.item_id || item?.id;
+          const itemName = item?.solicitation_item_name || item?.item_name || item?.name || item?.title;
+
+          if (itemId) {
+            if (!itemsMap.has(itemId)) {
+              itemsMap.set(itemId, {
+                id: itemId,
+                title: itemName,
+                qty: item?.quantity || 1,
+              });
+            }
+            itemsMap.get(itemId)[companyName] = {
+              unitPrice: parseFloat(item?.unit_price || 0),
+              total: parseFloat(item?.total_price || 0),
+            };
           }
-          itemsMap.get(item.solicitation_item_id)[companyName] = {
-            unitPrice: parseFloat(item.unit_price),
-            total: parseFloat(item.total_price),
-          };
         });
 
-        result.bid_details.bid_evaluation_criteria.forEach((criteria: any) => {
-          const criteriaName = criteria.evaluation_criteria.name;
-          if (!extraDataMap.has(criteriaName)) {
-            extraDataMap.set(criteriaName, {
-              id: extraDataMap.size + 1,
-              title: criteriaName,
-              isExtra: true,
-            });
+        // Handle evaluation criteria - try multiple possible paths
+        const evaluationCriteria = result?.bid_details?.bid_evaluation_criteria ||
+                                  result?.bid_evaluation_criteria ||
+                                  result?.evaluation_criteria ||
+                                  [];
+
+        evaluationCriteria.forEach((criteria: any) => {
+          const criteriaName = criteria?.evaluation_criteria?.name || criteria?.name;
+          if (criteriaName) {
+            if (!extraDataMap.has(criteriaName)) {
+              extraDataMap.set(criteriaName, {
+                id: extraDataMap.size + 1,
+                title: criteriaName,
+                isExtra: true,
+              });
+            }
+            extraDataMap.get(criteriaName)[companyName] = {
+              text: criteria?.response || criteria?.value,
+              bgColor: "bg-purple-100",
+            };
           }
-          extraDataMap.get(criteriaName)[companyName] = {
-            text: criteria.response,
-            bgColor: "bg-purple-100",
-          };
         });
       });
 
-      return {
+      const formattedResult = {
         data: {
           companies,
           items: Array.from(itemsMap.values()),
         },
         extraData: Array.from(extraDataMap.values()),
       };
+
+      console.log("✅ formatBidData success:", {
+        companiesCount: companies.length,
+        itemsCount: itemsMap.size,
+        extraDataCount: extraDataMap.size,
+        companies: companies.map(c => c.name),
+        items: Array.from(itemsMap.values()).map(i => i.title)
+      });
+
+      return formattedResult;
+
+    } catch (error) {
+      console.error("❌ formatBidData error:", error);
+      return {
+        data: {
+          companies: [],
+          items: [],
+        },
+        extraData: [],
+      };
     }
   }
 
-  const formattedData = formatBidData(summaryData?.data);
+  const formattedData = formatBidData(summaryData);
 
   const [checkedItems, setCheckedItems] = useState({});
   const [headerChecked, setHeaderChecked] = useState({});
@@ -348,6 +450,28 @@ const TableComponent = () => {
     return await createVendorBidAnalysis(payload);
   };
 
+  // Enhanced debugging for missing data
+  console.log("🔧 CBA Data Analysis:", {
+    hasSummaryData: !!summaryData,
+    hasFormattedData: !!formattedData,
+    formattedDataStructure: formattedData ? Object.keys(formattedData) : null,
+    formattedDataFull: formattedData,
+    formattedDataData: formattedData?.data ? {
+      hasCompanies: !!formattedData?.data?.companies,
+      companiesCount: formattedData?.data?.companies?.length,
+      hasItems: !!formattedData?.data?.items,
+      itemsCount: formattedData?.data?.items?.length,
+      companies: formattedData?.data?.companies?.map(c => c.name),
+      items: formattedData?.data?.items?.map(i => i.title)
+    } : null,
+    rawSummaryDataPaths: {
+      path1: summaryData?.data?.results?.length,
+      path2: (summaryData?.data as any)?.results?.length,
+      path3: (summaryData as any)?.results?.length
+    },
+    summaryDataFull: summaryData
+  });
+
   return (
     <>
       <GoBack />
@@ -369,6 +493,62 @@ const TableComponent = () => {
           Download
         </Button>
       </div>
+
+      {/* Show debug info and fallback when no formatted data */}
+      {!formattedData?.data?.companies || !formattedData?.data?.items ? (
+        <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-6 mb-6">
+          <h3 className="text-yellow-800 font-semibold mb-4">⚠️ CBA Data Debug Information</h3>
+
+          <div className="space-y-4 text-sm">
+            <div>
+              <strong>Summary Data Status:</strong> {summaryData ? '✅ Available' : '❌ Not Available'}
+            </div>
+
+            <div>
+              <strong>Formatted Data Status:</strong> {formattedData ? '✅ Available' : '❌ Not Available'}
+            </div>
+
+            {summaryData && (
+              <div>
+                <strong>Raw Summary Data Structure:</strong>
+                <pre className="bg-gray-100 p-2 rounded mt-2 text-xs overflow-auto max-h-40">
+                  {JSON.stringify(summaryData, null, 2)}
+                </pre>
+              </div>
+            )}
+
+            <div className="mt-4 p-4 bg-blue-50 rounded">
+              <p className="text-blue-800">
+                <strong>Expected Data Sources:</strong>
+              </p>
+              <ul className="text-blue-700 mt-2 space-y-1">
+                <li>• Manual Bid Submissions: {manualBidData ? '✅ Available' : '❌ Not Available'}</li>
+                <li>• Vendor Bid Submissions: {vendorSubmissionData ? '✅ Available' : '❌ Not Available'}</li>
+              </ul>
+
+              {(manualError || vendorError) && (
+                <div className="mt-3 text-red-700">
+                  <strong>Errors:</strong>
+                  {manualError && <div>• Manual Bid Error: {manualError.message}</div>}
+                  {vendorError && <div>• Vendor Submission Error: {vendorError.message}</div>}
+                </div>
+              )}
+            </div>
+
+            <div className="mt-4 p-4 bg-green-50 rounded">
+              <p className="text-green-800">
+                <strong>API Call Details:</strong>
+              </p>
+              <ul className="text-green-700 mt-2 space-y-1">
+                <li>• Solicitation ID: {id}</li>
+                <li>• CBA ID: {cba}</li>
+                <li>• Manual Bid API: {isManualLoading ? 'Loading...' : (manualBidData ? 'Success' : 'No Data')}</li>
+                <li>• Vendor Submission API: {isVendorLoading ? 'Loading...' : (vendorSubmissionData ? 'Success' : 'No Data')}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <div className="overflow-x-auto bg-white">
         <table className="min-w-full border-collapse border border-gray-300 rounded-sm p-10">

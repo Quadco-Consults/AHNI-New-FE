@@ -5,7 +5,7 @@ type IPageProps = {
   children: ReactNode;
 };
 
-const RfqLayout: FC<IPageProps> = ({ children }) => {
+const RfpLayout: FC<IPageProps> = ({ children }) => {
   return (
     <div>
       {/* <RfpHeading /> */}
@@ -14,4 +14,4 @@ const RfqLayout: FC<IPageProps> = ({ children }) => {
   );
 };
 
-export default RfqLayout;
+export default RfpLayout;
