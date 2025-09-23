@@ -18,15 +18,28 @@ import Link from "next/link";
 import { RouteEnum } from "constants/RouterConstants";
 import IconButton from "components/IconButton";
 import { Icon } from "@iconify/react";
-import { useLazyDownloadProcurementPlanTemplateQuery } from "../../controllers/procurementPlanController";
+import { useLazyDownloadProcurementPlanTemplateQuery, useGetAllProcurementPlans } from "../../controllers/procurementPlanController";
 import { toast } from "sonner";
 import { DownloadIcon } from "lucide-react";
 
 export default function ProcurementPlan() {
   const [isModalOpen, setModalOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // TanStack Query hook for template download (disabled by default)
   const { refetch: downloadTemplate, isFetching: isDownloading } = useLazyDownloadProcurementPlanTemplateQuery(false);
+
+  // Check if user is authenticated (simplified)
+  const [isAuthenticated, setIsAuthenticated] = useState(true); // Default to true for now
+
+  // Fetch procurement plans data only if authenticated
+  const { data: procurementData, isLoading, error, isError } = useGetAllProcurementPlans({
+    page,
+    size: 20,
+    search: searchQuery,
+    enabled: isAuthenticated, // Only fetch if authenticated
+  });
 
   const handleDownloadTemplate = async () => {
     try {
@@ -38,42 +51,14 @@ export default function ProcurementPlan() {
     }
   };
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    setPage(1); // Reset to first page when searching
+  };
+
   const breadcrumbs = [
     { name: "Procurement", icon: true },
     { name: "Procurement Plan", icon: false },
-  ];
-
-  const dummyProcurementData = [
-    {
-      id: 1,
-      date: "Accelerating Control of the HIV Epidemic in Nigeria(CLUSTER 1)",
-      description: "Oct-24 to Sep-25",
-    },
-
-    // PROCUREMENT PLAN -Accelerating Control of the HIV Epidemic in Nigeria(CLUSTER 1)
-    // FY25(Oct-24 to Sep-25)
-    // HEALTH AND NON-HEALTH PRODUCTS
-
-    // {
-    //   id: 2,
-    //   date: "Rehabilitation of Boreholes in Northern Region",
-    //   description: "2024",
-    // },
-    // {
-    //   id: 3,
-    //   date: "Construction of Primary Health Centres",
-    //   description: "2025",
-    // },
-    // {
-    //   id: 4,
-    //   date: "Supply of Laptops for Education Program",
-    //   description: "2023",
-    // },
-    // {
-    //   id: 5,
-    //   date: "Renovation of Government Schools",
-    //   description: "2025",
-    // },
   ];
 
   return (
@@ -116,20 +101,35 @@ export default function ProcurementPlan() {
           <div className='flex items-center w-1/3 px-2 py-2 border rounded-lg'>
             <SearchIcon />
             <input
-              placeholder='Search'
+              placeholder='Search procurement plans...'
               type='text'
+              value={searchQuery}
+              onChange={handleSearchChange}
               className='ml-2 h-full w-full border-none bg-none focus:outline-none outline-none'
             />
           </div>
         </div>
 
+        {!isAuthenticated && (
+          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+            <p className="text-yellow-600">
+              Please log in to view procurement plans.
+            </p>
+          </div>
+        )}
+
+        {isAuthenticated && isError && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+            <p className="text-red-600">
+              Error loading procurement plans: {error?.message || "Unknown error"}
+            </p>
+          </div>
+        )}
+
         <DataTable
-          // @ts-ignore
-          // data={procurementData?.data?.results || []}
-          data={dummyProcurementData}
-          // @ts-ignore
+          data={procurementData?.data?.results || []}
           columns={columns}
-          // isLoading={isLoading}
+          isLoading={isLoading}
         />
 
         <ProcurementPlanUploadModal
@@ -149,15 +149,32 @@ const columns: ColumnDef<any>[] = [
     header: "S/N",
     accessorKey: "id",
     size: 50,
+    cell: ({ row }) => row.index + 1,
   },
   {
     header: "Procurement Plan",
-    accessorKey: "date",
+    accessorKey: "description",
+    cell: ({ row }) => row.original?.description || "N/A",
+  },
+  {
+    header: "Project",
+    accessorKey: "project",
+    cell: ({ row }) => row.original?.project || "N/A",
   },
   {
     header: "Financial Year",
-    accessorKey: "description",
+    accessorKey: "financial_year",
     size: 100,
+    cell: ({ row }) => row.original?.financial_year || "N/A",
+  },
+  {
+    header: "Budget",
+    accessorKey: "approved_budget",
+    size: 100,
+    cell: ({ row }) => {
+      const budget = row.original?.approved_budget;
+      return budget ? `$${budget.toLocaleString()}` : "N/A";
+    },
   },
   {
     header: "Actions",
