@@ -14,20 +14,74 @@ import { HrRoutes } from "constants/RouterConstants";
 import Card from "components/Card";
 import { updateStepCompletion } from "store/stepTracker";
 import GoBack from "components/GoBack";
-import { useGetEmployeeIdentityCard } from "@/features/hr/controllers/employeeOnboardingController";
+import { useGetEmployeeIdentityCard, useGetEmployeeOnboarding } from "@/features/hr/controllers/employeeOnboardingController";
+import { useGetJobApplication } from "@/features/hr/controllers/hrJobApplicationsController";
+import { useGetJobAdvertisement } from "@/features/hr/controllers/jobAdvertisementController";
 import moment from "moment";
 
 const IdCardInformation = () => {
-  const id = localStorage.getItem("workforceID") || "";
+  const id = typeof window !== "undefined" ? localStorage.getItem("workforceID") || "" : "";
 
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  const { data, isLoading } = useGetEmployeeIdentityCard({
-    id: id as string,
+  const { data, isLoading } = useGetEmployeeIdentityCard(id);
+
+  // First, get the employee onboarding data which should contain the job application reference
+  const { data: employeeOnboarding, isLoading: onboardingLoading } = useGetEmployeeOnboarding(id);
+
+  // Extract the job application ID from the employee onboarding data
+  const jobApplicationId = employeeOnboarding?.data?.application;
+
+  // Then get the job application details using the application ID
+  const { data: jobApplication, isLoading: jobLoading } = useGetJobApplication(
+    jobApplicationId || "",
+    !!jobApplicationId
+  );
+
+  // Extract the advertisement ID from the job application
+  const advertisementId = jobApplication?.data?.advertisement;
+
+  // Get the advertisement details to get the job title
+  const { data: advertisement, isLoading: adLoading } = useGetJobAdvertisement(
+    advertisementId || "",
+    !!advertisementId
+  );
+
+  console.log("🔍 ID Card Data:", {
+    id,
+    data,
+    isLoading,
+    position: data?.data?.position,
+    employee_number: data?.data?.employee_number,
+    email_address: data?.data?.email_address
   });
 
-  // console.log(data);
+  console.log("🔍 Employee Onboarding Data:", {
+    employeeOnboarding,
+    onboardingLoading,
+    applicationId: jobApplicationId,
+    hasApplicationId: !!jobApplicationId
+  });
+
+  console.log("🔍 Job Application Data:", {
+    jobApplication,
+    jobLoading,
+    advertisementId: jobApplication?.data?.advertisement,
+    positionAppliedId: jobApplication?.data?.position_applied
+  });
+
+  console.log("🔍 Advertisement Data:", {
+    advertisement,
+    adLoading,
+    advertisementId,
+    jobTitle: advertisement?.data?.title,
+    position: advertisement?.data?.position,
+    fullAdData: advertisement?.data
+  });
+
+  // Use job title from the advertisement if available, otherwise fallback to position from identity card
+  const displayPosition = advertisement?.data?.title || advertisement?.data?.position || data?.data?.position;
 
   const onSubmit = () => {
     dispatch(
@@ -73,7 +127,7 @@ const IdCardInformation = () => {
             <div className='space-y-6'>
               <DescriptionCard
                 label='Position Title'
-                description={data?.data?.position}
+                description={displayPosition}
               />
               <DescriptionCard
                 label='Phone Number'

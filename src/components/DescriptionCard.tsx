@@ -2,7 +2,7 @@ import { cn } from "lib/utils";
 
 type TProps = {
   label: string;
-  description?: string | number;
+  description?: string | number | React.ReactNode;
   aside?: boolean;
   className?: string;
 };
