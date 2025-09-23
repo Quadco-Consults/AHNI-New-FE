@@ -13,6 +13,8 @@ import { HrRoutes } from "constants/RouterConstants";
 import GoBack from "components/GoBack";
 import { useGetEmployeeOnboardingQualificationsList } from "@/features/hr/controllers/hrEmployeeOnboardingQualificationsController";
 import { useGetJobApplication } from "@/features/hr/controllers/hrJobApplicationsController";
+import { useGetEmployeeOnboarding } from "@/features/hr/controllers/employeeOnboardingController";
+import { useGetJobAdvertisement } from "@/features/hr/controllers/jobAdvertisementController";
 import { useState } from "react";
 
 const EmployeeInformation = () => {
@@ -29,15 +31,43 @@ const EmployeeInformation = () => {
     stringifiedId: String(id)
   });
 
-  const { data, isLoading, error } = useGetJobApplication(id as string);
+  // First try to get existing employee onboarding data for editing
+  const { data: existingEmployee, isLoading: employeeLoading, error: employeeError } = useGetEmployeeOnboarding(id as string);
 
-  console.log("EmployeeInformation - Job Application API:", {
+  // Only fetch job application data if there's no existing employee
+  const { data: jobApplicationData, isLoading: jobLoading, error: jobError } = useGetJobApplication(
+    id as string,
+    !existingEmployee?.data && !employeeLoading
+  );
+
+  // Extract the advertisement ID from the job application
+  const advertisementId = jobApplicationData?.data?.advertisement;
+
+  // Get the advertisement details to get the location and job type
+  const { data: advertisement, isLoading: adLoading } = useGetJobAdvertisement(
+    advertisementId || "",
+    !!advertisementId && !isEditing
+  );
+
+  // Use existing employee data if available, otherwise use job application data
+  const data = existingEmployee?.data ? existingEmployee : jobApplicationData;
+  const isLoading = employeeLoading || jobLoading || adLoading;
+  const error = employeeError && jobError ? employeeError : null;
+  const isEditing = !!existingEmployee?.data;
+
+  console.log("EmployeeInformation - Data Sources:", {
     id,
-    data,
+    existingEmployee: existingEmployee?.data,
+    jobApplicationData: jobApplicationData?.data,
+    finalData: data?.data,
+    advertisementId,
+    advertisement: advertisement?.data,
+    isEditing,
     isLoading,
-    error,
-    hasData: !!data?.data,
-    apiUrl: `hr/jobs/applications/${id}/`
+    employeeLoading,
+    jobLoading,
+    adLoading,
+    willFetchJobApp: !existingEmployee?.data && !employeeLoading
   });
 
   const { data: qualifications, isLoading: getLoading } =
@@ -76,6 +106,7 @@ const EmployeeInformation = () => {
                   <Card className='px-6'>
                     <BasicInformation
                       info={data}
+                      advertisement={advertisement}
                       onNext={() => setActiveTab("qualification")}
                     />
                   </Card>

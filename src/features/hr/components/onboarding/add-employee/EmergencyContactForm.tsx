@@ -27,6 +27,8 @@ import {
 } from "@/features/hr/controllers/hrEmployeeOnboardingAddInfoController";
 import { HrEmergencyResults } from "definations/hr-types/employee-onboarding";
 import { Save } from "lucide-react";
+import { updateStepCompletion } from "store/stepTracker";
+import { HrRoutes } from "constants/RouterConstants";
 
 export const EmergencyContactForm = ({
   number,
@@ -35,7 +37,7 @@ export const EmergencyContactForm = ({
   number: number;
   emergencyContact?: HrEmergencyResults;
 }) => {
-  const id = localStorage.getItem("workforceID") || "";
+  const id = typeof window !== "undefined" ? localStorage.getItem("workforceID") || "" : "";
   const dispatch = useAppDispatch();
 
   const { createHrEmergency, isLoading } =
@@ -75,6 +77,12 @@ export const EmergencyContactForm = ({
         const res = await updateHrEmergency(formData);
 
         dispatch(
+          updateStepCompletion({
+            path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_ADD,
+          })
+        );
+
+        dispatch(
           openDialog({
             type: DialogType.HrSuccessModal,
             dialogProps: {
@@ -93,6 +101,12 @@ export const EmergencyContactForm = ({
     } else {
       try {
         const res = await createHrEmergency(formData);
+
+        dispatch(
+          updateStepCompletion({
+            path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_ADD,
+          })
+        );
 
         dispatch(
           openDialog({
