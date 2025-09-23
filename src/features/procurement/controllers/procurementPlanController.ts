@@ -55,17 +55,24 @@ export const useGetAllProcurementPlans = ({
   status = "",
   enabled = true,
 }: TRequest & { enabled?: boolean }) => {
-  return useQuery<TPaginatedResponse<ProcurementPlanData>>({
+  return useQuery({
     queryKey: ["procurement-plans", page, size, search, status],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(BASE_URL, {
-          params: { page, size, search, status },
-        });
+        const params: any = { page, size };
+        if (search) params.search = search;
+        if (status) params.status = status;
+
+        const response = await AxiosWithToken.get(BASE_URL, { params });
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        console.error("Procurement plans fetch error:", axiosError);
+        throw new Error(
+          axiosError.response?.data?.message ||
+          axiosError.message ||
+          "Failed to fetch procurement plans"
+        );
       }
     },
     enabled: enabled,

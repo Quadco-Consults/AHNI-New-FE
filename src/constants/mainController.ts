@@ -116,9 +116,9 @@ const useApiManager = <TData = unknown, TError = Error, TVariables = unknown>({
       }
       
       throw new Error(
-        axiosError.response?.data?.message || 
+        axiosError.response?.data?.message ||
         axiosError.response?.data?.error ||
-        `HTTP ${axiosError.response?.status}: ${axiosError.response?.statusText}` ||
+        (axiosError.response ? `HTTP ${axiosError.response.status}: ${axiosError.response.statusText}` : axiosError.message) ||
         "An unexpected error occurred"
       ) as TError;
     }
