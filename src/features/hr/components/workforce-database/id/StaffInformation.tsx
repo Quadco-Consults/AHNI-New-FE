@@ -17,6 +17,9 @@ import {
 import PdfIcon from "components/icons/PdfIcon";
 import { EmployeeOnboarding } from "definations/hr-types/employee-onboarding";
 import { useGetEmployeeOnboardingQualificationsList } from "@/features/hr/controllers/hrEmployeeOnboardingQualificationsController";
+import { useGetEmployeeOnboarding } from "@/features/hr/controllers/employeeOnboardingController";
+import { useGetJobApplication } from "@/features/hr/controllers/hrJobApplicationsController";
+import { useGetJobAdvertisement } from "@/features/hr/controllers/jobAdvertisementController";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -26,6 +29,27 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
   const [numPages, setNumPages] = useState<number>();
   const [pageNumber] = useState<number>(1);
   const { id } = useParams();
+
+  // Get employee onboarding data to find job application
+  const { data: employeeOnboarding, isLoading: onboardingLoading } = useGetEmployeeOnboarding(id as string);
+
+  // Extract the job application ID from the employee onboarding data
+  const jobApplicationId = employeeOnboarding?.data?.application;
+
+  // Get job application details using the application ID
+  const { data: jobApplication, isLoading: jobLoading } = useGetJobApplication(
+    jobApplicationId || "",
+    !!jobApplicationId
+  );
+
+  // Extract the advertisement ID from the job application
+  const advertisementId = jobApplication?.data?.advertisement;
+
+  // Get the advertisement details to get the job title
+  const { data: advertisement, isLoading: adLoading } = useGetJobAdvertisement(
+    advertisementId || "",
+    !!advertisementId
+  );
 
   const { data: qualifications, isLoading: getLoading } =
     useGetEmployeeOnboardingQualificationsList({
@@ -39,6 +63,30 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
   console.log("StaffInformation - info prop:", info);
   console.log("StaffInformation - data:", data);
   console.log("StaffInformation - qualifications:", qualifications);
+  console.log("🔍 Workforce - Employee Onboarding:", {
+    employeeOnboarding,
+    onboardingLoading,
+    applicationId: jobApplicationId
+  });
+  console.log("🔍 Workforce - Job Application:", {
+    jobApplication,
+    jobLoading,
+    advertisementId
+  });
+  console.log("🔍 Workforce - Advertisement:", {
+    advertisement,
+    adLoading,
+    jobTitle: advertisement?.data?.title
+  });
+  console.log("🔍 Workforce - Image Files:", {
+    passport_file: data?.passport_file,
+    signature_file: data?.signature_file,
+    passport_type: typeof data?.passport_file,
+    signature_type: typeof data?.signature_file
+  });
+
+  // Use job title from the advertisement if available, otherwise fallback to existing data
+  const displayDesignation = advertisement?.data?.title || data?.designation?.name || data?.position || "N/A";
 
   if (!data && !info) {
     return <div className="p-4">No employee information available</div>;
@@ -55,7 +103,7 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
       <div className='grid grid-cols-1 gap-8 md:grid-cols-2'>
         <DescriptionCard
           label='Designation'
-          description={data?.designation?.name || data?.position || "N/A"}
+          description={displayDesignation}
         />
       </div>
       <Separator />
@@ -113,9 +161,22 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
                 </DialogContent>
               </Dialog>
             </div>
-          ) : (
+          ) : data?.passport_file ? (
             <div className='h-56'>
-              <img src={data?.passport_file} alt='passport' />
+              <img
+                src={data?.passport_file}
+                alt='passport'
+                className='w-full h-full object-cover'
+                onError={(e) => {
+                  console.error('Passport image failed to load:', data?.passport_file);
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.parentElement!.innerHTML = '<div class="flex items-center justify-center h-full text-gray-500">No passport image available</div>';
+                }}
+              />
+            </div>
+          ) : (
+            <div className='h-56 flex items-center justify-center text-gray-500 bg-gray-100 rounded-lg'>
+              No passport image available
             </div>
           )}
         </div>
@@ -161,9 +222,22 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
                 </DialogContent>
               </Dialog>
             </div>
-          ) : (
+          ) : data?.signature_file ? (
             <div className='h-56'>
-              <img src={data?.signature_file} alt='signature' />
+              <img
+                src={data?.signature_file}
+                alt='signature'
+                className='w-full h-full object-cover'
+                onError={(e) => {
+                  console.error('Signature image failed to load:', data?.signature_file);
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.parentElement!.innerHTML = '<div class="flex items-center justify-center h-full text-gray-500">No signature image available</div>';
+                }}
+              />
+            </div>
+          ) : (
+            <div className='h-56 flex items-center justify-center text-gray-500 bg-gray-100 rounded-lg'>
+              No signature image available
             </div>
           )}
         </div>
