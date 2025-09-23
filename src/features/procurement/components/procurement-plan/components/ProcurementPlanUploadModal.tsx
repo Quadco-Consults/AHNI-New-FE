@@ -127,12 +127,90 @@ const ProcurementPlanUploadModal = (props: PropsType) => {
       props.onCancel();
       dispatch(closeDialog());
     } catch (error: any) {
-      const errorMessage = error?.message || error?.data?.message || "An error occurred";
-      
-      // If it's a column validation error, show it more clearly
-      if (errorMessage.includes("Missing required columns")) {
+      console.error("Upload error details:", error);
+
+      // Extract error details from the response
+      const errorData = error?.response?.data || error?.data;
+      let errorMessage = error?.message || "An error occurred during upload";
+
+      // Handle missing columns error (new format)
+      if (errorMessage.includes("Missing essential columns")) {
+        // Extract column names from the nested error message
+        // Pattern: ['Error processing file: ["❌ Missing essential columns: ['COLUMN1', 'COLUMN2']"]']
+        const match = errorMessage.match(/Missing essential columns: \[([^\]]+)\]/);
+        if (match) {
+          // Remove quotes and backslashes, then split
+          const missingColumns = match[1]
+            .replace(/\\'/g, '')  // Remove escaped quotes
+            .replace(/'/g, '')    // Remove remaining quotes
+            .split(', ')
+            .filter(col => col.trim() !== '');
+
+          toast.error("❌ Missing required Excel columns:", {
+            duration: 10000,
+          });
+
+          missingColumns.forEach((column: string, index: number) => {
+            if (index < 5) { // Limit to avoid spam
+              toast.error(`• ${column.trim()}`, {
+                duration: 8000,
+              });
+            }
+          });
+
+          toast.info("📥 Please download the template to get the correct Excel format with all required columns", {
+            duration: 12000,
+          });
+          return;
+        }
+      }
+
+      // Handle specific backend validation errors
+      if (errorData && errorData.errors && Array.isArray(errorData.errors)) {
+        const validationErrors = errorData.errors;
+        const summary = errorData.summary;
+
+        // Show summary first
+        if (summary) {
+          toast.error(`Upload failed: ${summary.errors_found} errors found in ${summary.total_rows_processed} rows`, {
+            duration: 8000,
+          });
+        }
+
+        // Show specific field errors
+        validationErrors.forEach((err: any, index: number) => {
+          if (index < 3) { // Limit to first 3 errors to avoid spam
+            const fieldError = err.error?.[0] || err.error || "Unknown error";
+
+            // Extract meaningful error messages
+            if (fieldError.includes("procurement_process") && fieldError.includes("not-null constraint")) {
+              toast.error(`Row ${err.row}: Missing required field "procurement_process"`, {
+                duration: 6000,
+              });
+            } else if (fieldError.includes("not-null constraint")) {
+              const match = fieldError.match(/column "(\w+)"/);
+              const fieldName = match ? match[1] : "unknown field";
+              toast.error(`Row ${err.row}: Missing required field "${fieldName}"`, {
+                duration: 6000,
+              });
+            } else {
+              toast.error(`Row ${err.row}: ${err.description || 'Data validation error'}`, {
+                duration: 6000,
+              });
+            }
+          }
+        });
+
+        // Show helpful message
+        if (validationErrors.some((err: any) => err.error?.[0]?.includes("procurement_process"))) {
+          toast.info("Please ensure your Excel file includes all required columns including 'procurement_process'", {
+            duration: 10000,
+          });
+        }
+
+      } else if (errorMessage.includes("Missing required columns")) {
         toast.error(errorMessage, {
-          duration: 8000, // Show longer for column errors
+          duration: 8000,
         });
       } else {
         toast.error(errorMessage);
