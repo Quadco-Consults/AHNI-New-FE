@@ -2,6 +2,7 @@ import useApiManager from "@/constants/mainController";
 import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
+import { skipToken } from "@reduxjs/toolkit/query/react";
 import {
   RiskPlansData,
   RiskPlansResultsData,
@@ -40,10 +41,13 @@ export const useGetAllRiskManagementPlans = ({
 };
 
 // Get Single Risk Plan Management
-export const useGetSingleRiskPlanManagement = (id: string, enabled: boolean = true) => {
+export const useGetSingleRiskPlanManagement = (id: string | typeof skipToken, enabled: boolean = true) => {
   return useQuery<TResponse<TRiskManagementPlanData>>({
     queryKey: ["risk-management-plan", id],
     queryFn: async () => {
+      if (id === skipToken) {
+        throw new Error("No valid ID provided");
+      }
       try {
         const response = await AxiosWithToken.get(`${BASE_URL}${id}`);
         return response.data;
@@ -52,7 +56,7 @@ export const useGetSingleRiskPlanManagement = (id: string, enabled: boolean = tr
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
-    enabled: enabled && !!id,
+    enabled: enabled && id !== skipToken && !!id,
     refetchOnWindowFocus: false,
   });
 };
@@ -82,19 +86,24 @@ export const useCreateRiskManagementPlan = () => {
 };
 
 // Update Risk Management Plan
-export const useUpdateRiskManagementPlan = (id: string) => {
+export const useUpdateRiskManagementPlan = (id: string | typeof skipToken) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     TRiskManagementPlanData,
     Error,
     TRiskPlanManagementFormValues
   >({
-    endpoint: `${BASE_URL}${id}/`,
+    endpoint: id !== skipToken ? `${BASE_URL}${id}/` : "",
     queryKey: ["risk-management-plans", "risk-management-plan"],
     isAuth: true,
     method: "PUT",
   });
 
   const updateRiskManagementPlan = async (details: TRiskPlanManagementFormValues) => {
+    if (id === skipToken) {
+      console.error("Cannot update risk management plan: no valid ID provided");
+      return;
+    }
+
     try {
       await callApi(details);
     } catch (error) {
