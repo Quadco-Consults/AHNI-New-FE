@@ -18,9 +18,25 @@ import Link from "next/link";
 import { RouteEnum } from "constants/RouterConstants";
 import IconButton from "components/IconButton";
 import { Icon } from "@iconify/react";
+import { useLazyDownloadProcurementPlanTemplateQuery } from "../../controllers/procurementPlanController";
+import { toast } from "sonner";
+import { DownloadIcon } from "lucide-react";
 
 export default function ProcurementPlan() {
   const [isModalOpen, setModalOpen] = useState(false);
+
+  // TanStack Query hook for template download (disabled by default)
+  const { refetch: downloadTemplate, isFetching: isDownloading } = useLazyDownloadProcurementPlanTemplateQuery(false);
+
+  const handleDownloadTemplate = async () => {
+    try {
+      // TanStack Query refetch will trigger the download automatically
+      await downloadTemplate();
+      toast.success("Template downloaded successfully");
+    } catch (error: any) {
+      toast.error(error?.message ?? "Something went wrong");
+    }
+  };
 
   const breadcrumbs = [
     { name: "Procurement", icon: true },
@@ -81,6 +97,15 @@ export default function ProcurementPlan() {
                 onClick={() => setModalOpen(true)}
               >
                 <UploadIcon /> Upload Procurement plan
+              </Button>
+              <Button
+                className='w-full flex items-center gap-2 justify-start'
+                variant='ghost'
+                onClick={handleDownloadTemplate}
+                disabled={isDownloading}
+              >
+                <DownloadIcon className="text-green-500" />
+                {isDownloading ? "Downloading..." : "Download Template"}
               </Button>
             </div>
           </PopoverContent>
