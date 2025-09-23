@@ -5,6 +5,7 @@ import AddSquareIcon from "components/icons/AddSquareIcon";
 
 import DeleteIcon from "components/icons/DeleteIcon";
 import EyeIcon from "components/icons/EyeIcon";
+import EditIcon from "components/icons/EditIcon";
 import FilterIcon from "components/icons/FilterIcon";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import SearchIcon from "components/icons/SearchIcon";
@@ -145,13 +146,17 @@ const WorkforceDatabase = () => {
                   </Button>
                 </Link>
 
-                {/* <Button
-                className='w-full flex items-center justify-start gap-2'
-                variant='ghost'
-              >
-                <ApproveIcon />
-                Approval
-              </Button> */}
+                <Link
+                  href={HrRoutes.ONBOARDING_ADD_EMPLOYEE_INFO.replace(":id", data.original.id)}
+                >
+                  <Button
+                    className='w-full flex items-center justify-start gap-2'
+                    variant='ghost'
+                  >
+                    <EditIcon />
+                    Edit Employee
+                  </Button>
+                </Link>
 
                 <Button
                   className='w-full flex items-center justify-start gap-2'
