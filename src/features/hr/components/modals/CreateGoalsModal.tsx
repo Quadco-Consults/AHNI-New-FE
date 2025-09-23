@@ -15,7 +15,7 @@ export const GoalSchema = z.object({
   goal: z.array(
     z.object({
       goal: z.string().optional(),
-      goal_group: z.string().optional(),
+      competency: z.string().optional(),
       weight: z.string().optional(),
     })
   ),
@@ -34,7 +34,7 @@ const CreateGoalsModal = ({ employeeId, onClose }: CreateGoalsModalProps) => {
   const form = useForm<TGoalFormValues>({
     resolver: zodResolver(GoalSchema),
     defaultValues: {
-      goal: [{ goal: "", goal_group: "", weight: "" }],
+      goal: [{ goal: "", competency: "", weight: "" }],
     },
   });
 
@@ -48,7 +48,7 @@ const CreateGoalsModal = ({ employeeId, onClose }: CreateGoalsModalProps) => {
   const handleAddGoal = () =>
     append({
       goal: "",
-      goal_group: "",
+      competency: "",
       weight: "",
     });
 
