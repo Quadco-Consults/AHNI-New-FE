@@ -8,13 +8,13 @@ export const GoodReceiveNoteSchema = z.object({
   items: z
     .array(
       z.object({
-        item_id: z.number(),
+        item_id: z.union([z.number(), z.string()]), // Support both number and string
         quantity_ordered: z.string(),
         quantity_received: z.string().min(1, "Please enter quantity received"),
         comment: z.string().min(1, "Please enter a comment"),
       })
     )
-    .optional(),
+    .min(1, "At least one item is required"),
 });
 
 export type TGoodReceiveNoteFormValues = z.infer<typeof GoodReceiveNoteSchema>;
@@ -28,12 +28,14 @@ export interface IGoodReceiveNotePaginatedData {
   invoice_number: string;
   waybill_number: string;
   remark: string;
-  approved_datetime: null;
-  rejected_datetime: null;
+  status?: "pending" | "confirmed" | "received" | "approved" | "rejected";
+  approved_datetime: string | null;
+  rejected_datetime: string | null;
+  received_datetime?: string | null;
   created_by: string;
-  updated_by: null;
-  approved_by: null;
-  rejected_by: null;
+  updated_by: string | null;
+  approved_by: string | null;
+  rejected_by: string | null;
 }
 
 export interface IGoodReceiveNoteSingleData {
@@ -54,6 +56,12 @@ export interface IGoodReceiveNoteSingleData {
   invoice_number: string;
   waybill_number: string;
   remark: string;
+  status?: "pending" | "confirmed" | "received" | "approved" | "rejected";
+  approved_datetime?: string | null;
+  rejected_datetime?: string | null;
+  received_datetime?: string | null;
   created_by: string;
-  updated_by: null;
+  updated_by: string | null;
+  approved_by?: string | null;
+  rejected_by?: string | null;
 }

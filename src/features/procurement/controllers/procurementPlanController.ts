@@ -201,6 +201,53 @@ export const useDeleteProcurementPlan = (id: string) => {
   return { deleteProcurementPlan, data, isLoading, isSuccess, error };
 };
 
+// Download Single Procurement Plan
+export const useDownloadSingleProcurementPlan = (id: string, enabled: boolean = true) => {
+  return useQuery({
+    queryKey: ["download-procurement-plan", id],
+    queryFn: async () => {
+      try {
+        // Try multiple possible endpoint patterns
+        let response;
+        try {
+          // First try: specific plan download
+          response = await AxiosWithToken.get(
+            `${BASE_URL}${id}/download/`,
+            {
+              responseType: "blob",
+            }
+          );
+        } catch (error) {
+          // Second try: export with ID parameter
+          response = await AxiosWithToken.get(
+            `${BASE_URL}export/`,
+            {
+              params: { id },
+              responseType: "blob",
+            }
+          );
+        }
+
+        // Create download link
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `procurement-plan-${id}.xlsx`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Download not available: " + (axiosError.response?.data as any)?.message || "Backend endpoint not implemented");
+      }
+    },
+    enabled: enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
 // Legacy exports for backward compatibility
 export const useDownloadProcurementPlanTemplateQuery = useDownloadProcurementPlanTemplate;
 export const useLazyDownloadProcurementPlanTemplateQuery = useDownloadProcurementPlanTemplate;
@@ -214,6 +261,7 @@ export const useDeleteProcurementPlanMutation = useDeleteProcurementPlan;
 // Default export for backward compatibility
 const ProcurementPlanAPI = {
   useDownloadProcurementPlanTemplate,
+  useDownloadSingleProcurementPlan,
   useGetAllProcurementPlans,
   useGetSingleProcurementPlan,
   useCreateProcurementPlan,
