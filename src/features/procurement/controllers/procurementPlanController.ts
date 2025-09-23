@@ -15,6 +15,38 @@ const BASE_URL = "/procurements/procurement-plans/";
 
 // ===== PROCUREMENT PLAN HOOKS =====
 
+// Download Procurement Plan Template
+export const useDownloadProcurementPlanTemplate = (enabled: boolean = true) => {
+  return useQuery({
+    queryKey: ["procurement-plan-template"],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(
+          `${BASE_URL}template/`,
+          {
+            responseType: "blob",
+          }
+        );
+        // Create download link
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "procurement-plan-template.xlsx");
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
 // Get All Procurement Plans
 export const useGetAllProcurementPlans = ({
   page = 1,
@@ -163,6 +195,8 @@ export const useDeleteProcurementPlan = (id: string) => {
 };
 
 // Legacy exports for backward compatibility
+export const useDownloadProcurementPlanTemplateQuery = useDownloadProcurementPlanTemplate;
+export const useLazyDownloadProcurementPlanTemplateQuery = useDownloadProcurementPlanTemplate;
 export const useGetProcurementPlansQuery = useGetAllProcurementPlans;
 export const useGetProcurementPlanQuery = useGetSingleProcurementPlan;
 export const useCreateProcurementPlanMutation = useCreateProcurementPlan;
@@ -172,12 +206,15 @@ export const useDeleteProcurementPlanMutation = useDeleteProcurementPlan;
 
 // Default export for backward compatibility
 const ProcurementPlanAPI = {
+  useDownloadProcurementPlanTemplate,
   useGetAllProcurementPlans,
   useGetSingleProcurementPlan,
   useCreateProcurementPlan,
   useUpdateProcurementPlan,
   useModifyProcurementPlan,
   useDeleteProcurementPlan,
+  useDownloadProcurementPlanTemplateQuery,
+  useLazyDownloadProcurementPlanTemplateQuery,
   useGetProcurementPlansQuery,
   useGetProcurementPlanQuery,
   useCreateProcurementPlanMutation,
