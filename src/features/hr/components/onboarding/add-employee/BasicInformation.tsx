@@ -39,9 +39,11 @@ import { createFileObjectFromUrl } from "utils/get-file-extension";
 
 const BasicInformation = ({
   info,
+  advertisement,
   onNext,
 }: {
   info: any;
+  advertisement?: any;
   onNext: () => void;
 }) => {
   const dispatch = useAppDispatch();
@@ -298,106 +300,121 @@ const BasicInformation = ({
     console.log("BasicInformation useEffect triggered:", { info, hasData: !!info?.data });
 
     if (info?.data) {
-      console.log("Job application data loaded:", info);
-      console.log("Available application fields:", {
-        applicant_first_name: info.data.applicant_first_name,
-        applicant_middle_name: info.data.applicant_middle_name,
-        applicant_last_name: info.data.applicant_last_name,
-        applicant_email: info.data.applicant_email,
-        position_applied: info.data.position_applied,
-        employment_type: info.data.employment_type,
-        application_notes: info.data.application_notes,
-        status: info.data.status,
-        allFields: Object.keys(info.data),
-        fullDataStructure: JSON.stringify(info.data, null, 2)
-      });
       const { data } = info;
 
-      // Use individual name fields
-      const firstName = data.applicant_first_name || '';
-      const middleName = data.applicant_middle_name || '';
-      const lastName = data.applicant_last_name || '';
+      // Check if this is existing employee data or job application data
+      const isExistingEmployee = !!(data.legal_firstname || data.legal_lastname);
+      console.log("Data type detected:", {
+        isExistingEmployee,
+        hasApplicantFields: !!(data.applicant_first_name),
+        hasEmployeeFields: !!(data.legal_firstname),
+        allFields: Object.keys(data),
+        fullDataStructure: JSON.stringify(data, null, 2)
+      });
 
-      console.log("Name field population:", {
-        firstName,
-        middleName,
-        lastName,
-        sourceFields: {
+      if (isExistingEmployee) {
+        // This is existing employee onboarding data
+        console.log("Populating form with existing employee data:", {
+          data,
+          dataKeys: Object.keys(data),
+          employment_type: data.employment_type,
+          location: data.location,
+          advertisement: data.advertisement
+        });
+
+        form.reset({
+          // Employee name fields
+          legal_firstname: data.legal_firstname || '',
+          legal_middlename: data.legal_middlename || '',
+          legal_lastname: data.legal_lastname || '',
+
+          // Employee data fields
+          address: data.address || '',
+          phone_number: data.phone_number || '',
+          other_number: data.other_number || '',
+          date_of_birth: data.date_of_birth || '',
+          date_of_hire: data.date_of_hire || '',
+          serial_id_code: data.serial_id_code || '',
+
+          // File fields
+          signature_file: data.signature_file || '',
+          passport_file: data.passport_file || '',
+
+          // Employee status fields
+          marital_status: data.marital_status || 'single',
+          own_computer: data.own_computer ?? true,
+          require_email_access: data.require_email_access ?? true,
+          employment_type: data.employment_type || 'INTERNAL',
+
+          // Reference fields - will be populated from IDs after dropdown data loads
+          designation: data.designation || '',
+          location: data.location || '',
+          department: data.department || '',
+          project: data.project || '',
+        });
+      } else {
+        // This is job application data - use existing logic
+        console.log("Job application data loaded:", {
+          info,
+          dataKeys: Object.keys(data),
+          advertisement: data.advertisement,
+          employment_type: data.employment_type,
+          fullData: data
+        });
+        console.log("Available application fields:", {
           applicant_first_name: data.applicant_first_name,
           applicant_middle_name: data.applicant_middle_name,
           applicant_last_name: data.applicant_last_name,
-          applicant_email: data.applicant_email
-        }
-      });
+          applicant_email: data.applicant_email,
+          position_applied: data.position_applied,
+          employment_type: data.employment_type,
+          application_notes: data.application_notes,
+          status: data.status,
+          advertisement: data.advertisement
+        });
 
-      console.log("About to populate form with:", {
-        legal_firstname: firstName,
-        legal_middlename: middleName,
-        legal_lastname: lastName,
-        employment_type: data.employment_type || 'INTERNAL',
-        position_applied: data.position_applied,
-        applicant_email: data.applicant_email
-      });
+        // Use individual name fields from job application
+        const firstName = data.applicant_first_name || '';
+        const middleName = data.applicant_middle_name || '';
+        const lastName = data.applicant_last_name || '';
 
-      form.reset({
-        // Populate from job application name fields
-        legal_firstname: firstName,
-        legal_middlename: middleName,
-        legal_lastname: lastName,
+        form.reset({
+          // Populate from job application name fields
+          legal_firstname: firstName,
+          legal_middlename: middleName,
+          legal_lastname: lastName,
 
-        // Basic fields that may or may not exist in job application
-        address: data.address || '',
-        phone_number: data.phone_number || '',
-        other_number: data.other_number || '',
-        date_of_birth: data.date_of_birth || '',
-        date_of_hire: data.date_of_hire || new Date().toISOString().split('T')[0], // Default to today
-        serial_id_code: data.serial_id_code || '',
+          // Basic fields that may or may not exist in job application
+          address: data.address || '',
+          phone_number: data.phone_number || '',
+          other_number: data.other_number || '',
+          date_of_birth: data.date_of_birth || '',
+          date_of_hire: data.date_of_hire || new Date().toISOString().split('T')[0], // Default to today
+          serial_id_code: data.serial_id_code || '',
 
-        // File fields - usually empty for new onboarding
-        signature_file: data.signature_file || '',
-        passport_file: data.passport_file || '',
+          // File fields - usually empty for new onboarding
+          signature_file: data.signature_file || '',
+          passport_file: data.passport_file || '',
 
-        // Default values for fields not in job application
-        marital_status: data.marital_status || 'single',
-        own_computer: data.own_computer ?? true,
-        require_email_access: data.require_email_access ?? true,
+          // Default values for fields not in job application
+          marital_status: data.marital_status || 'single',
+          own_computer: data.own_computer ?? true,
+          require_email_access: data.require_email_access ?? true,
 
-        // Employment type from application
-        employment_type: data.employment_type || 'INTERNAL',
+          // Employment type from application
+          employment_type: data.employment_type || 'INTERNAL',
 
-        // Designation will be populated after positions data loads (we need to map UUID to position name)
-        designation: '',
+          // Designation will be populated after positions data loads (we need to map UUID to position name)
+          designation: '',
 
-        // These will be populated after dropdown data loads
-        location: '',
-        department: '',
-        project: '',
-      });
+          // These will be populated after dropdown data loads
+          location: '',
+          department: '',
+          project: '',
+        });
+      }
 
       console.log("Form values after reset:", form.getValues());
-
-      // Verify critical field mappings
-      console.log("✅ FORM POPULATION VERIFICATION:", {
-        "Names populated": {
-          firstName: form.getValues("legal_firstname"),
-          middleName: form.getValues("legal_middlename"),
-          lastName: form.getValues("legal_lastname")
-        },
-        "Employment type populated": form.getValues("employment_type"),
-        "Source data": {
-          applicant_first_name: data.applicant_first_name,
-          applicant_middle_name: data.applicant_middle_name,
-          applicant_last_name: data.applicant_last_name,
-          employment_type: data.employment_type,
-          position_applied: data.position_applied
-        },
-        "Expected vs Actual": {
-          "firstName should be 'yusuf'": form.getValues("legal_firstname") === "yusuf",
-          "middleName should be 'yusuf'": form.getValues("legal_middlename") === "yusuf",
-          "lastName should be 'yusuf'": form.getValues("legal_lastname") === "yusuf",
-          "employment_type should be 'BOTH'": form.getValues("employment_type") === "BOTH"
-        }
-      });
 
       // Handle file uploads if URLs are provided
       if (data.passport_file) {
@@ -459,53 +476,40 @@ const BasicInformation = ({
     }
   }, [positions, info?.data?.position_applied, form, info?.data]);
 
-  React.useEffect(() => {
-    if (info?.data && positions) {
-      const { data } = info;
 
-      console.log("🚀 Starting dropdown field population with positions loaded");
-      console.log("Position data check:", {
-        hasJobData: !!info?.data,
+  React.useEffect(() => {
+    if (info?.data && positions && departments && locations && projects) {
+      const { data } = info;
+      const isExistingEmployee = !!(data.legal_firstname || data.legal_lastname);
+
+      console.log("🚀 Starting dropdown field population:", {
+        isExistingEmployee,
         hasPositions: !!positions,
-        position_applied: data?.position_applied
-      });
-      console.log("Populating dropdown fields:", {
-        data,
-        jobData: data?.job,
-        availableDropdownData: {
-          positions: positions?.results?.length || positions?.data?.results?.length || 0,
-          locations: locations?.data?.results?.length || 0,
-          departments: departments?.data?.results?.length || 0,
-          projects: projects?.results?.length || projects?.data?.results?.length || 0
-        },
-        actualDataStructures: {
-          positionsKeys: positions ? Object.keys(positions) : [],
-          projectsKeys: projects ? Object.keys(projects) : [],
-          positionsData: positions,
-          projectsData: projects
-        },
-        mappingAttempts: {
-          designation: data?.position_applied || data?.job?.title,
-          location: data?.job?.locations,
-          department: data?.department,
-          project: data?.project
-        }
+        designation: data?.designation,
+        position_applied: data?.position_applied,
+        advertisement: advertisement?.data,
+        advertisementLocations: advertisement?.data?.locations,
+        advertisementJobType: advertisement?.data?.job_type,
+        hasAdvertisement: !!advertisement?.data,
+        infoData: data,
+        availableLocations: locationsArray.map(l => ({ id: l.id, name: l.name })),
+        jobTypeOptions: [
+          { value: "INTERNAL", label: "Internal" },
+          { value: "EXTERNAL", label: "External" },
+          { value: "BOTH", label: "Both" },
+        ]
       });
 
       // Helper function to find matching dropdown option
       const findMatchingOption = (options: any[], searchValue: string | number, searchField = 'name') => {
         if (!searchValue || !options?.length) {
-          console.log("findMatchingOption: no search value or options", { searchValue, optionsLength: options?.length });
           return '';
         }
-
-        console.log("findMatchingOption:", { searchValue, searchField, optionsCount: options.length, firstOption: options[0] });
 
         // If searchValue is a UUID or numeric ID, try to find exact match first
         if (typeof searchValue === 'string' && (searchValue.length === 36 || /^\d+$/.test(searchValue))) {
           const match = options.find(opt => opt.id === searchValue || String(opt.id) === searchValue);
           if (match) {
-            console.log("Found exact ID match:", { searchValue, match });
             return String(match.id);
           }
         }
@@ -514,7 +518,6 @@ const BasicInformation = ({
         if (typeof searchValue === 'number' || /^\d+$/.test(searchValue)) {
           const match = options.find(opt => opt.id === Number(searchValue) || String(opt.id) === String(searchValue));
           if (match) {
-            console.log("Found numeric ID match:", { searchValue, match });
             return String(match.id);
           }
         }
@@ -526,172 +529,86 @@ const BasicInformation = ({
           return fieldValue === searchLower || fieldValue?.includes(searchLower);
         });
 
-        if (match) {
-          console.log("Found name match:", { searchValue, match });
-          return String(match.id);
-        }
-
-        console.log("No match found for:", { searchValue, searchField, availableOptions: options.map(opt => ({ id: opt.id, [searchField]: opt[searchField] })) });
-        return '';
+        return match ? String(match.id) : '';
       };
 
-      // Find designation/position from positions list - use position_applied UUID directly
       const positionsArray = positions?.results || positions?.data?.results || [];
+      const locationsArray = locations?.data?.results || [];
+      const departmentsArray = departments?.data?.results || [];
+      const projectsArray = projects?.results || projects?.data?.results || [];
 
-      console.log("🔍 DESIGNATION MAPPING DEBUG:", {
-        position_applied: data?.position_applied,
-        position_applied_type: typeof data?.position_applied,
-        positionsArrayLength: positionsArray?.length,
-        positionsArray: positionsArray?.map(p => ({
-          id: p.id,
-          id_type: typeof p.id,
-          name: p.name,
-          matches: String(p.id) === String(data?.position_applied)
-        })),
-        currentDesignationValue: form.getValues('designation')
-      });
-
-      // Since position_applied is already a UUID, try to find exact match first
       let designationValue = '';
-      if (data?.position_applied && positionsArray?.length) {
-        console.log("🔍 Attempting to match position_applied:", {
-          position_applied: data.position_applied,
-          searching_in: positionsArray.length + " positions"
-        });
+      let locationValue = '';
+      let departmentValue = '';
+      let projectValue = '';
+      let employmentTypeValue = '';
 
-        // Try multiple matching strategies
-        let exactMatch = positionsArray.find(pos => String(pos.id) === String(data.position_applied));
+      if (isExistingEmployee) {
+        // For existing employees, the fields likely contain IDs already
+        console.log("Mapping existing employee dropdown fields");
 
-        if (!exactMatch) {
-          // Try without String conversion
-          exactMatch = positionsArray.find(pos => pos.id === data.position_applied);
-        }
-
-        if (!exactMatch) {
-          // Try case-insensitive match
-          exactMatch = positionsArray.find(pos =>
-            String(pos.id).toLowerCase() === String(data.position_applied).toLowerCase()
-          );
-        }
-
-        if (exactMatch) {
-          designationValue = String(exactMatch.id);
-          console.log("✅ Found exact designation match:", {
-            id: exactMatch.id,
-            name: exactMatch.name,
-            designationValue
-          });
-        } else {
-          console.warn("❌ No exact match found for position_applied:", data.position_applied);
-          console.log("Available positions for comparison:", positionsArray.map(p => ({
-            id: p.id,
-            name: p.name,
-            stringMatch: String(p.id) === String(data.position_applied),
-            directMatch: p.id === data.position_applied,
-            lowerMatch: String(p.id).toLowerCase() === String(data.position_applied).toLowerCase()
-          })));
-        }
+        designationValue = findMatchingOption(positionsArray, data?.designation);
+        locationValue = findMatchingOption(locationsArray, data?.location);
+        departmentValue = findMatchingOption(departmentsArray, data?.department);
+        projectValue = findMatchingOption(projectsArray, data?.project, 'title');
+        employmentTypeValue = data?.employment_type || '';
       } else {
-        console.log("❌ Cannot match designation - missing data:", {
-          hasPositionApplied: !!data?.position_applied,
-          hasPositionsArray: !!positionsArray?.length,
-          position_applied: data?.position_applied,
-          positionsCount: positionsArray?.length || 0
-        });
+        // For job application data, use advertisement data for location and employment type
+        console.log("Mapping job application dropdown fields with advertisement data");
+
+        designationValue = findMatchingOption(positionsArray, data?.position_applied);
+
+        // Use advertisement data for location and employment type if available
+        if (advertisement?.data) {
+          console.log("🎯 Using advertisement data for auto-selection:", {
+            advertisementLocations: advertisement.data.locations,
+            advertisementJobType: advertisement.data.job_type
+          });
+
+          locationValue = findMatchingOption(locationsArray, advertisement.data.locations) ||
+                         findMatchingOption(locationsArray, advertisement.data.locations, 'state');
+
+          // Map job_type from advertisement to employment_type options
+          if (advertisement.data.job_type) {
+            const jobTypeMapping = {
+              'INTERNAL': 'INTERNAL',
+              'EXTERNAL': 'EXTERNAL',
+              'BOTH': 'BOTH',
+              'Full-time': 'INTERNAL',
+              'Part-time': 'EXTERNAL',
+              'Contract': 'EXTERNAL'
+            };
+            employmentTypeValue = jobTypeMapping[advertisement.data.job_type] || advertisement.data.job_type;
+          }
+        } else {
+          // Fallback to job application data
+          locationValue = findMatchingOption(locationsArray, data?.job?.locations) ||
+                         findMatchingOption(locationsArray, data?.job?.locations, 'state');
+          employmentTypeValue = data?.employment_type || 'INTERNAL';
+        }
+
+        departmentValue = findMatchingOption(departmentsArray, data?.department);
+        projectValue = findMatchingOption(projectsArray, data?.project, 'title');
       }
 
-      // Find location from locations list
-      const locationValue = findMatchingOption(
-        locations?.data?.results || [],
-        data?.job?.locations,
-        'name'
-      ) || findMatchingOption(
-        locations?.data?.results || [],
-        data?.job?.locations,
-        'state'
-      );
-
-      // Find department from departments list
-      const departmentValue = findMatchingOption(
-        departments?.data?.results || [],
-        data?.department,
-        'name'
-      );
-
-      // Find project from projects list
-      const projectsArray = projects?.results || projects?.data?.results || [];
-      const projectValue = findMatchingOption(
-        projectsArray,
-        data?.project,
-        'title'
-      );
-
-      console.log("Matched values:", {
+      console.log("Dropdown mapping results:", {
         designationValue,
         locationValue,
         departmentValue,
-        projectValue
+        projectValue,
+        employmentTypeValue
       });
 
-      // Log if any values couldn't be matched for debugging
-      if (!designationValue && data?.position_applied) {
-        console.warn("Could not match designation:", data?.position_applied);
-      }
-      if (!locationValue && data?.job?.locations) {
-        console.warn("Could not match location:", data?.job?.locations);
-      }
-      if (!departmentValue && data?.department) {
-        console.warn("Could not match department:", data?.department);
-      }
-      if (!projectValue && data?.project) {
-        console.warn("Could not match project:", data?.project);
-      }
+      // Set the form values
+      if (designationValue) form.setValue('designation', designationValue);
+      if (locationValue) form.setValue('location', locationValue);
+      if (departmentValue) form.setValue('department', departmentValue);
+      if (projectValue) form.setValue('project', projectValue);
+      if (employmentTypeValue) form.setValue('employment_type', employmentTypeValue);
 
-      // CRITICAL: Set designation if we found a valid match in the positions list
-      if (designationValue) {
-        form.setValue('designation', designationValue);
-        console.log("✅ Designation successfully set to UUID:", designationValue);
-
-        // Find the position name for logging
-        const selectedPosition = positionsArray.find(p => String(p.id) === designationValue);
-        console.log("✅ Designation name:", selectedPosition?.name);
-      } else {
-        console.log("❌ No matching position found for UUID:", data?.position_applied);
-        console.log("Available position UUIDs:", positionsArray?.map(p => p.id));
-      }
-
-      // Populate other dropdown fields if their data is available
-      if (departments && locations && projects) {
-        form.setValue('location', locationValue);
-        form.setValue('department', departmentValue);
-        form.setValue('project', projectValue);
-
-        // Final verification after all field population
-        console.log("🔍 FINAL FORM STATE AFTER ALL POPULATION:", {
-          "All form values": form.getValues(),
-          "Critical fields verification": {
-            "Name fields": {
-              firstName: form.getValues("legal_firstname"),
-              middleName: form.getValues("legal_middlename"),
-              lastName: form.getValues("legal_lastname")
-            },
-            "Dropdown fields": {
-              designation: form.getValues("designation"),
-              employment_type: form.getValues("employment_type"),
-              location: form.getValues("location"),
-              department: form.getValues("department"),
-              project: form.getValues("project")
-            },
-            "Position UUID matching": {
-              "Source UUID": data?.position_applied,
-              "Matched designation value": designationValue,
-              "Successfully matched": !!designationValue
-            }
-          }
-        });
-      }
+      console.log("🔍 FINAL FORM STATE:", form.getValues());
     }
-  }, [info, positions, departments, locations, projects, form]);
+  }, [info, positions, departments, locations, projects, form, advertisement]);
 
   const jobTypeOptions = [
     { value: "INTERNAL", label: "Internal" },

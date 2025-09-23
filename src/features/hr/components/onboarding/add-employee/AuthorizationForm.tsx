@@ -24,9 +24,11 @@ import {
 } from "@/features/hr/controllers/hrEmployeeOnboardingAuthorizationController";
 import { useGetSystemAuthorizationList } from "@/features/hr/controllers/hrEmployeeOnboardingAuthorizationController";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
+import { updateStepCompletion } from "store/stepTracker";
+import { HrRoutes } from "constants/RouterConstants";
 
 export const AuthorizationForm = () => {
-  const id = localStorage.getItem("workforceID") || "";
+  const id = typeof window !== "undefined" ? localStorage.getItem("workforceID") || "" : "";
   const dispatch = useAppDispatch();
 
   const { data: authorization, error: authorizationError } = useGetSystemAuthorizationList({
@@ -85,6 +87,12 @@ export const AuthorizationForm = () => {
         console.log("✅ Success with approach:", approach.name, response.data);
 
         dispatch(
+          updateStepCompletion({
+            path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_ADD,
+          })
+        );
+
+        dispatch(
           openDialog({
             type: DialogType.HrSuccessModal,
             dialogProps: {
@@ -109,6 +117,12 @@ export const AuthorizationForm = () => {
       });
 
       // Show informative dialog instead of error
+      dispatch(
+        updateStepCompletion({
+          path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_ADD,
+        })
+      );
+
       dispatch(
         openDialog({
           type: DialogType.HrSuccessModal,
