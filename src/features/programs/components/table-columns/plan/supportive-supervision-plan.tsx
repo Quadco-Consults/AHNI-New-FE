@@ -121,7 +121,19 @@ const TableMenu = ({ id }: TSupervisionPlanPaginatedData) => {
       toast.success("Supervision Plan Deleted");
       setDialogOpen(false);
     } catch (error: any) {
-      toast.error(error?.message ?? "Something went wrong");
+      let errorMessage = "Something went wrong";
+
+      // Check for foreign key constraint error
+      if (error?.message?.includes("protected foreign keys") ||
+          error?.message?.includes("SupportiveSupervisionReview")) {
+        errorMessage = "Cannot delete this supervision plan because it has associated evaluation reviews. Please delete the reviews first or contact an administrator.";
+      } else if (error?.message?.includes("Cannot delete")) {
+        errorMessage = "Cannot delete this supervision plan because it has associated records. Please remove dependent records first.";
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+
+      toast.error(errorMessage);
     }
   };
   return (
@@ -178,7 +190,7 @@ const TableMenu = ({ id }: TSupervisionPlanPaginatedData) => {
                 Approve
               </Button>
               <Link
-                href={`/dashboard/programs/plan/supportive-supervision-plan/${id}/approval`}
+                href={`${RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS_APPROVAL.replace(":id", id)}`}
               >
                 <Button
                   className='w-full flex items-center justify-start gap-2'
@@ -203,7 +215,8 @@ const TableMenu = ({ id }: TSupervisionPlanPaginatedData) => {
 
       <ConfirmationDialog
         open={dialogOpen}
-        title='Are you sure you want to delete this supervision plan?'
+        title='Delete Supervision Plan'
+        description='Are you sure you want to delete this supervision plan? This action cannot be undone. Note: Plans with associated evaluation reviews cannot be deleted.'
         loading={isLoading}
         onCancel={() => setDialogOpen(false)}
         onOk={onDelete}
