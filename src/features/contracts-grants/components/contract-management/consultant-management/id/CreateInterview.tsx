@@ -59,7 +59,20 @@ export default function CreateInterview() {
     size: 2000000,
   });
 
-  console.log({ applicants: applicants?.data?.results });
+  // Filter only AHNI staff users
+  const ahniStaffUsers = users?.data?.results?.filter((user) =>
+    user?.organization?.toLowerCase()?.includes('ahni') ||
+    user?.company?.toLowerCase()?.includes('ahni') ||
+    user?.user_type === 'STAFF' ||
+    user?.is_staff === true
+  ) || [];
+
+  console.log({
+    applicants: applicants?.data?.results,
+    allUsers: users?.data?.results?.length,
+    ahniStaffUsers: ahniStaffUsers?.length,
+    ahniStaffSample: ahniStaffUsers?.slice(0, 3)
+  });
 
   const { createContractInterview, isLoading } = useCreateContractInterview();
 
@@ -82,7 +95,7 @@ export default function CreateInterview() {
   const { handleSubmit, watch } = form;
 
   const matchedUsers =
-    users?.data?.results?.filter((user) =>
+    ahniStaffUsers?.filter((user) =>
       // @ts-ignore
       form.watch("committee_members")?.includes(user?.id)
     ) || [];
@@ -213,8 +226,8 @@ export default function CreateInterview() {
                             control={form.control}
                             name='committee_members'
                             render={() => (
-                              <FormItem className='grid grid-cols-2 gap-5 bg-gray-100 mt-10 p-5 rounded-lg shadow-inner md:grid-cols-4'>
-                                {users?.data?.results?.map((user) => (
+                              <FormItem className='grid grid-cols-1 gap-5 bg-gray-100 mt-10 p-5 rounded-lg shadow-inner md:grid-cols-2'>
+                                {ahniStaffUsers?.map((user) => (
                                   <FormField
                                     key={user?.id}
                                     control={form.control}
@@ -223,7 +236,7 @@ export default function CreateInterview() {
                                       return (
                                         <FormItem
                                           key={user.id}
-                                          className='space-y-3 bg-white rounded-lg text-xs p-5'
+                                          className='space-y-3 bg-white rounded-lg text-xs p-4 shadow-sm border'
                                         >
                                           <FormControl>
                                             <Checkbox
@@ -246,25 +259,42 @@ export default function CreateInterview() {
                                               }}
                                             />
                                           </FormControl>
-                                          <div className='space-y-4'>
-                                            <div className='flex items-center'>
-                                              <h6 className='w-24'>Name:</h6>
-                                              <h6>
+                                          <div className='space-y-3'>
+                                            <div className='flex items-start'>
+                                              <h6 className='w-20 text-gray-600 font-medium'>Name:</h6>
+                                              <h6 className='font-semibold'>
                                                 {user?.first_name}{" "}
                                                 {user?.last_name}
                                               </h6>
                                             </div>
-                                            <div className='flex items-center'>
-                                              <h6 className='w-24'>
-                                                Position:
-                                              </h6>
-                                              <h6>{user?.designation}</h6>
+                                            <div className='flex items-start'>
+                                              <h6 className='w-20 text-gray-600 font-medium'>Email:</h6>
+                                              <h6 className='break-all'>{user?.email || 'N/A'}</h6>
                                             </div>
-                                            <div className='flex items-center'>
-                                              <h6 className='w-24'>Tel:</h6>
-                                              {/* @ts-ignore */}
-                                              <h6>{user?.phone_number}</h6>
+                                            <div className='flex items-start'>
+                                              <h6 className='w-20 text-gray-600 font-medium'>Position:</h6>
+                                              <h6>{user?.designation || user?.position || 'N/A'}</h6>
                                             </div>
+                                            <div className='flex items-start'>
+                                              <h6 className='w-20 text-gray-600 font-medium'>Phone:</h6>
+                                              <h6>{user?.phone_number || 'N/A'}</h6>
+                                            </div>
+                                            <div className='flex items-start'>
+                                              <h6 className='w-20 text-gray-600 font-medium'>Department:</h6>
+                                              <h6>{user?.department || 'N/A'}</h6>
+                                            </div>
+                                            <div className='flex items-start'>
+                                              <h6 className='w-20 text-gray-600 font-medium'>Organization:</h6>
+                                              <h6>{user?.organization || user?.company || 'AHNI'}</h6>
+                                            </div>
+                                            {user?.user_type && (
+                                              <div className='flex items-start'>
+                                                <h6 className='w-20 text-gray-600 font-medium'>Type:</h6>
+                                                <span className='px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs'>
+                                                  {user?.user_type}
+                                                </span>
+                                              </div>
+                                            )}
                                           </div>
                                         </FormItem>
                                       );

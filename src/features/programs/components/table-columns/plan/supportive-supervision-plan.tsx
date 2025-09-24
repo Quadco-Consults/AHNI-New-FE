@@ -20,6 +20,7 @@ import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { TSupervisionPlanPaginatedData } from "@/features/programs/types/program/plan/supervision-plan/supervision-plan";
+import ApprovalSummary from "components/ApprovalSummary";
 
 export const supportiveSupervisionPlanColumns: ColumnDef<TSupervisionPlanPaginatedData>[] =
   [
@@ -83,19 +84,26 @@ export const supportiveSupervisionPlanColumns: ColumnDef<TSupervisionPlanPaginat
       header: "Approval Status",
       id: "approval_status",
       accessorKey: "approval_status",
-      size: 100,
-      cell: ({ getValue }) => {
+      size: 150,
+      cell: ({ getValue, row }) => {
+        const approvalStatus = getValue() as string;
+        const rowData = row.original;
+
+        // Mock approval data - replace with actual data from your API
+        const approvalInfo = {
+          name: "John Doe", // Replace with actual approver name
+          position: "Manager", // Replace with actual approver position
+          status: approvalStatus?.toUpperCase() as any || 'PENDING',
+          approvalDate: rowData.updated_datetime || rowData.created_datetime,
+          creationDate: rowData.created_datetime,
+          level: "Level 1", // Replace with actual approval level
+        };
+
         return (
-          <Badge
-            variant='default'
-            className={cn(
-              "p-1 rounded-lg",
-              getValue() === "APPROVED" && "bg-green-100 text-green-500",
-              getValue() === "Reject" && "bg-red-100 text-red-500"
-            )}
-          >
-            {getValue() as string}
-          </Badge>
+          <ApprovalSummary
+            approval={approvalInfo}
+            variant="badge"
+          />
         );
       },
     },

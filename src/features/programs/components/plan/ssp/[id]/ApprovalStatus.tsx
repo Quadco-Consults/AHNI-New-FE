@@ -1,63 +1,84 @@
 "use client";
 
-import CheckIcon from "assets/svgs/CheckIcon";
-import PendingIcon from "assets/svgs/PendingIcon";
-import { Checkbox } from "components/ui/checkbox";
-import { Separator } from "components/ui/separator";
+import ApprovalDisplay, { ApprovalInfo } from "components/ApprovalDisplay";
 import { useState } from "react";
 
 type Props = {};
 
 const ApprovalStatus = (props: Props) => {
-  const [currentStep, setcurrentStep] = useState(2);
-
-  const milestones = [
-    { step: 1, description: "Approved by admin" },
+  // Mock approval data - replace with actual data from your API
+  const approvals: ApprovalInfo[] = [
     {
-      step: 2,
-
-      description: "Waiting for Manger approval",
+      id: "1",
+      name: "John Admin",
+      position: "System Administrator",
+      email: "john.admin@company.com",
+      status: "APPROVED",
+      level: "Admin Level",
+      creationDate: "2024-01-15T09:00:00Z",
+      reviewDate: "2024-01-15T10:30:00Z",
+      approvalDate: "2024-01-15T11:00:00Z",
+      comments: "Initial approval completed. All documents verified."
     },
-    { step: 3, description: "Waiting for HOD approval" },
-    { step: 4, description: "Waiting for Principal official approval" },
-    { step: 5, description: "Signing/ Final Approval" },
+    {
+      id: "2",
+      name: "Sarah Manager",
+      position: "Program Manager",
+      email: "sarah.manager@company.com",
+      status: "UNDER_REVIEW",
+      level: "Manager Level",
+      creationDate: "2024-01-15T11:00:00Z",
+      reviewDate: "2024-01-16T14:00:00Z",
+      comments: "Currently reviewing the supervision plan details."
+    },
+    {
+      id: "3",
+      name: "Dr. Michael HOD",
+      position: "Head of Department",
+      email: "michael.hod@company.com",
+      status: "PENDING",
+      level: "HOD Level",
+      creationDate: "2024-01-15T11:00:00Z",
+      comments: "Awaiting manager approval before review."
+    },
+    {
+      id: "4",
+      name: "Director Jane",
+      position: "Principal Officer",
+      email: "jane.director@company.com",
+      status: "PENDING",
+      level: "Director Level",
+      creationDate: "2024-01-15T11:00:00Z",
+      comments: "Final approval pending completion of previous stages."
+    },
+    {
+      id: "5",
+      name: "CEO Robert",
+      position: "Chief Executive Officer",
+      email: "robert.ceo@company.com",
+      status: "PENDING",
+      level: "Executive Level",
+      creationDate: "2024-01-15T11:00:00Z",
+      comments: "Awaiting all prior approvals for final authorization."
+    }
   ];
 
   return (
-    <div className="h-max">
-      <h3 className="text-primary text-xl font-semibold py-10">
-        Approval Stages
-      </h3>
-
-      <div className="grid justify-between w-full grid-row-6 px-4 py-2 gap-y-4">
-        {milestones.map((milestone, index) => (
-          <div
-            className="flex flex-col items-start justify-center relative h-full"
-            key={index}
-          >
-            <div className="w-[600px] overflow-hidden h-[8rem] flex items-start justify-start gap-5">
-              <div className="mx-4">
-                <Checkbox
-                  checked={currentStep >= index + 1}
-                  onCheckedChange={() => {}}
-                  className="w-6 h-6 border-black data-[state=checked]:bg-black"
-                />
-              </div>
-              <span>
-                {index < currentStep ? <CheckIcon /> : <PendingIcon />}
-              </span>
-              <div className="text-sm mt-1 font-semibold">
-                {milestone.description}
-              </div>
-            </div>
-            {index !== milestones.length - 1 && (
-              <div className="flex items-center justify-start w-full text-center absolute top-[37%] left-[15.5%]">
-                <Separator className="w-[2px] text-center h-[80px] rounded-full bg-[#756D6D]" />
-              </div>
-            )}
-          </div>
-        ))}
+    <div className="space-y-6">
+      <div className="mb-6">
+        <h3 className="text-primary text-xl font-semibold">
+          Approval Status & History
+        </h3>
+        <p className="text-gray-600 mt-2">
+          Track the approval process through all levels with detailed information about each approver.
+        </p>
       </div>
+
+      <ApprovalDisplay
+        approvals={approvals}
+        title="Approval Workflow"
+        showTimeline={true}
+      />
     </div>
   );
 };

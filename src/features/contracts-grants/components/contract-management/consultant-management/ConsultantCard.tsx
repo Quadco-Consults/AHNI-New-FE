@@ -21,7 +21,7 @@ import useJobAdvertType from "hooks/useJobAdvertType";
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useDeleteConsultantManagement } from "@/features/contracts-grants/controllers/consultantManagementController";
+import { useDeleteConsultantManagement } from "src/features/contracts-grants/controllers/consultantManagementController";
 import { toast } from "sonner";
 
 export default function ConsultantCard({
@@ -54,15 +54,15 @@ export default function ConsultantCard({
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const { deleteConsultantManagement, isLoading: isDeleteLoading } =
-        useDeleteConsultantManagement();
+        useDeleteConsultantManagement(id);
 
     const handleDelete = async () => {
         try {
-            await deleteConsultantManagement(id)();
+            await deleteConsultantManagement();
             toast.success("Consultant Deleted");
             setIsModalOpen(false);
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error?.message ?? "Something went wrong");
         }
     };
 
@@ -75,12 +75,15 @@ export default function ConsultantCard({
                             className={`bg-[#8C6400] text-[.625rem] py-1 px-[.625rem] w-fit rounded-full text-white text-sm`}
                         >
                             <span className="font-medium">Date Posted: </span>
-                            {format(created_datetime, "MMM dd, yyy")}
+                            {created_datetime && isValid(new Date(created_datetime))
+                                ? format(new Date(created_datetime), "MMM dd, yyyy")
+                                : "Date not available"
+                            }
                         </p>
                         <p
                             className={`bg-[#26B94133] text-[.625rem] py-1 px-[.625rem] w-fit rounded-full text-[#26B941]`}
                         >
-                            {status}
+                            {status || 'Unknown Status'}
                         </p>
                     </div>
                     <div className="flex items-center justify-between">
@@ -88,7 +91,7 @@ export default function ConsultantCard({
                             className="text-black text-[1.25rem]"
                             title="Card"
                         >
-                            {title}
+                            {title || 'Untitled Consultant'}
                         </CardTitle>
 
                         <div className="flex items-center">
@@ -113,11 +116,11 @@ export default function ConsultantCard({
                     <div className="w-full flex flex-wrap items-center justify-start gap-x-[.625rem] gap-y-[1rem]">
                         <DetailsTag
                             icon={<PeoplePositionsSvg />}
-                            label={`${consultants_number} people`}
+                            label={`${consultants_number || 0} people`}
                         />
                         <DetailsTag
                             icon={<ClockTimingSvg />}
-                            label={`${duration} months with possibility of extension`}
+                            label={`${duration || 0} months with possibility of extension`}
                         />
                         <DetailsTag
                             icon={<DataCalenderSvg />}
