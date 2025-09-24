@@ -3,7 +3,7 @@ export * from "./grantController";
 export * from "./closeoutPlanController";
 export * from "./agreementController";
 export * from "./consultancyApplicantsController";
-// export * from './consultantManagementController';
+// export * from "./consultantManagementController"; // Commented out due to conflicting exports with consultancyApplicantsController
 export * from "./consultancyReportController";
 export * from "./contractController";
 export * from "./facilitatorManagementController";
@@ -27,10 +27,10 @@ export {
   useGetAllConsultancyApplicants,
   useGetAllConsultancyStaffsQuery,
 } from "./consultancyApplicantsController";
-export {
-  useGetAllConsultantManagements,
-  useGetAllConsultantManagementsQuery,
-} from "./consultantManagementController";
+// export {
+//   useGetAllConsultantManagements,
+//   useGetAllConsultantManagementsQuery,
+// } from "./consultantManagementController";
 export {
   useGetAllConsultancyReports,
   useGetAllConsultancyReportsQuery,
