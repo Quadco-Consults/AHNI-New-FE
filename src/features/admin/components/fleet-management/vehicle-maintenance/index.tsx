@@ -25,7 +25,7 @@ export default function VehicleMaintenanceHomePage() {
                 <Link href="/dashboard/admin/fleet-management/vehicle-maintenance/create">
                     <Button>
                         <Plus size={20} />
-                        Create New Record
+                        Request Vehicle Maintenance
                     </Button>
                 </Link>
             </div>

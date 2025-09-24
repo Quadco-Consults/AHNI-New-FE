@@ -6,29 +6,27 @@ import Link from "next/link";
 import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
 import { IConsultancyReportPaginatedData } from "definations/c&g/contract-management/consultancy-report";
 import EyeIcon from "components/icons/EyeIcon";
-import { IConsultantPaginatedData } from "definations/c&g/contract-management/consultancy-management/consultancy-management";
+import { IConsultancyStaffPaginatedData } from "@/features/contracts-grants/types/contract-management/consultancy-management/consultancy-application";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
 import useJobAdvertType from "hooks/useJobAdvertType";
 
-export const consultancyAcceptanceColumns: ColumnDef<IConsultantPaginatedData>[] =
+export const consultancyAcceptanceColumns: ColumnDef<IConsultancyStaffPaginatedData>[] =
     [
         {
             header: "Consultant Name",
             id: "consultant_name",
             size: 200,
             cell: ({ row }) => {
-                // For adhoc acceptance, this should be the applicant name
-                // Check if there's a consultant_name field or use title as fallback
                 const data = row.original;
-                return data.consultant_name || data.name || 'N/A';
+                return data.name || 'N/A';
             },
         },
 
         {
-            header: "Title of Consultancy Call",
-            id: "title",
-            accessorKey: "title",
+            header: "Position Under Contract",
+            id: "position_under_contract",
+            accessorKey: "position_under_contract",
             size: 300,
         },
 
@@ -61,8 +59,8 @@ export const consultancyAcceptanceColumns: ColumnDef<IConsultantPaginatedData>[]
 
         {
             header: "Start Date",
-            id: "commencement_date",
-            accessorKey: "commencement_date",
+            id: "start_duration_date",
+            accessorKey: "start_duration_date",
             size: 200,
             cell: ({ getValue }) => {
                 const date = getValue() as string;
@@ -71,10 +69,14 @@ export const consultancyAcceptanceColumns: ColumnDef<IConsultantPaginatedData>[]
         },
 
         {
-            header: "Effective End Date",
-            id: "end_date",
-            accessorKey: "end_date",
+            header: "End Date",
+            id: "end_duration_date",
+            accessorKey: "end_duration_date",
             size: 200,
+            cell: ({ getValue }) => {
+                const date = getValue() as string;
+                return date ? new Date(date).toLocaleDateString() : 'N/A';
+            },
         },
 
 
@@ -86,7 +88,7 @@ export const consultancyAcceptanceColumns: ColumnDef<IConsultantPaginatedData>[]
         },
     ];
 
-const TableMenu = ({ id }: IConsultantPaginatedData) => {
+const TableMenu = ({ id }: IConsultancyStaffPaginatedData) => {
     const advertType = useJobAdvertType();
 
     // Debug logging

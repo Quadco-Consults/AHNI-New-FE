@@ -1,7 +1,7 @@
 "use client";
 
-import RFQ from "@/features/procurement/components/solicitation-management/RFQ/index";
+import AdminRFQ from "@/features/procurement/components/solicitation-management/RFQ/AdminRFQ";
 
 export default function AdminRFQPage() {
-  return <RFQ />;
+  return <AdminRFQ />;
 }

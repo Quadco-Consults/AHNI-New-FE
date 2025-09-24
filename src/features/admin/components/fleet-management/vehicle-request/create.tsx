@@ -32,7 +32,7 @@ import { AdminRoutes } from "constants/RouterConstants";
 import { addTeamMembers } from "store/admin/team-members";
 import { useGetAllProjectsQuery } from "@/features/projects/controllers/projectController";
 import { useGetAllActivityPlansQuery } from "@/features/programs/controllers/activityPlanController";
-// import { useGetAllAssetsQuery } from "@/features/admin/controllers/assetController";
+import { useGetAllAssetsQuery } from "@/features/admin/controllers/assetController";
 import VendorsAPI from "@/features/procurement/controllers/vendorController";
 import { useGetAllLocationsManager } from "@/features/modules/controllers/config/locationController";
 
@@ -43,14 +43,18 @@ const NewVehicleRequest = () => {
       location: "",
       travel_destination: "",
       departure_point: "",
+      return_point: "",
       departure_datetime: "",
       return_datetime: "",
       travel_team_members: [],
       supervisor: "",
       recommendations: "",
       purpose_of_travel: "",
-      // to be added
+      project: "",
+      activity: "",
       request_type: "",
+      vendor: "",
+      asset_vehicle: "",
     },
   });
 
@@ -115,16 +119,21 @@ const NewVehicleRequest = () => {
     [locations]
   );
 
-  // const { data: asset } = useGetAllAssetsQuery({ page: 1, size: 2000000 });
+  // Fetch asset vehicles (filtered by vehicle category)
+  const { data: asset } = useGetAllAssetsQuery({
+    page: 1,
+    size: 2000000,
+    category: "b0983944-f926-4141-8e28-093960d75246", // Vehicle category ID
+  });
 
-  // const assetOptions = useMemo(
-  //   () =>
-  //     asset?.data.results.map(({ name, id }) => ({
-  //       label: name,
-  //       value: id,
-  //     })),
-  //   [asset]
-  // );
+  const assetVehicleOptions = useMemo(
+    () =>
+      asset?.data?.results?.map(({ name, id, asset_code, plate_number }) => ({
+        label: `${name}${plate_number ? ` (${plate_number})` : ''}${asset_code ? ` - ${asset_code}` : ''}`,
+        value: id,
+      })) || [],
+    [asset]
+  );
 
   const { data: vendor } = VendorsAPI.useGetVendorsQuery({
     page: 1,
@@ -205,6 +214,11 @@ const NewVehicleRequest = () => {
         supervisor,
         recommendations,
         purpose_of_travel,
+        project,
+        activity,
+        request_type,
+        vendor,
+        asset_vehicle,
       } = vehicleRequest.data;
 
       form.reset({
@@ -217,9 +231,26 @@ const NewVehicleRequest = () => {
         supervisor: supervisor.id,
         recommendations,
         purpose_of_travel,
+        project: project?.id || "",
+        activity: activity?.id || "",
+        request_type: request_type || "",
+        vendor: vendor?.id || "",
+        asset_vehicle: asset_vehicle?.id || "",
       });
 
-      dispatch(addTeamMembers(travel_team_members));
+      // Ensure team members have the correct structure for the form display
+      const formattedTeamMembers = travel_team_members.map((member: any) => ({
+        ...member,
+        // Handle both snake_case and camelCase naming from API
+        first_name: member.first_name || member.full_name?.split(' ')[0] || member.fullName?.split(' ')[0] || '',
+        last_name: member.last_name || member.full_name?.split(' ').slice(1).join(' ') || member.fullName?.split(' ').slice(1).join(' ') || '',
+        full_name: member.full_name || member.fullName || `${member.first_name} ${member.last_name}`,
+        fullName: member.fullName || member.full_name || `${member.first_name} ${member.last_name}`,
+        designation: member.designation || member.position || '',
+        mobile_number: member.mobile_number || '',
+      }));
+
+      dispatch(addTeamMembers(formattedTeamMembers));
     }
   }, [vehicleRequest, form, dispatch]);
   console.log({ activityOptions });
@@ -287,6 +318,16 @@ const NewVehicleRequest = () => {
                     placeholder='Select Vendor'
                     required
                     options={vendorOptions}
+                  />
+                )}
+
+                {requestType === "ASSET" && (
+                  <FormSelect
+                    label='Asset Vehicle'
+                    name='asset_vehicle'
+                    placeholder='Select Asset Vehicle'
+                    required
+                    options={assetVehicleOptions}
                   />
                 )}
 
