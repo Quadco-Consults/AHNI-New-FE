@@ -192,6 +192,30 @@ export const useApproveVehicleRequest = (id: string) => {
   return { approveVehicleRequest, data, isLoading, isSuccess, error };
 };
 
+// Reject Vehicle Request
+export const useRejectVehicleRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IVehicleSingleData,
+    Error,
+    { comment?: string }
+  >({
+    endpoint: `${BASE_URL}${id}/reject/`,
+    queryKey: ["vehicleRequest", "vehicleRequestItem"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const rejectVehicleRequest = async (comment?: string) => {
+    try {
+      await callApi({ comment });
+    } catch (error) {
+      console.error("Vehicle request reject error:", error);
+    }
+  };
+
+  return { rejectVehicleRequest, data, isLoading, isSuccess, error };
+};
+
 // Legacy exports for backward compatibility
 export const useGetAllVehicleRequestQuery = useGetAllVehicleRequest;
 export const useGetSingleVehicleRequestQuery = useGetSingleVehicleRequest;
@@ -199,3 +223,4 @@ export const useCreateVehicleRequestMutation = useCreateVehicleRequest;
 export const useEditVehicleRequestMutation = useEditVehicleRequest;
 export const useDeleteVehicleRequestMutation = useDeleteVehicleRequest;
 export const useApproveVehicleRequestMutation = useApproveVehicleRequest;
+export const useRejectVehicleRequestMutation = useRejectVehicleRequest;

@@ -4,13 +4,15 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import DataTable from "components/Table/DataTable";
 import { LoadingSpinner } from "components/Loading";
-import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
+import { useGetAllConsultancyApplicants, useUpdateConsultancyApplicant } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "components/ui/button";
 import Link from "next/link";
 import { Badge } from "components/ui/badge";
 import { format, isValid } from "date-fns";
 import { Eye, FileCheck } from "lucide-react";
+import { toast } from "sonner";
 
 interface InterviewedApplicant {
   id: string;
@@ -26,6 +28,7 @@ interface InterviewedApplicant {
 
 export default function InterviewedApplicants() {
   const [page, setPage] = useState(1);
+  const [issuingContract, setIssuingContract] = useState<string | null>(null);
   const params = useParams();
   const consultancyId = params?.id as string;
 
@@ -40,6 +43,41 @@ export default function InterviewedApplicants() {
   const interviewedApplicants = data?.data?.results?.filter(
     (applicant) => applicant.status === "INTERVIEWED"
   ) || [];
+
+  // Contract issuance handler
+  const handleIssueContract = async (applicantId: string, applicantName: string) => {
+    const confirmIssue = window.confirm(
+      `Are you sure you want to issue a contract to ${applicantName}?`
+    );
+
+    if (!confirmIssue) return;
+
+    setIssuingContract(applicantId);
+
+    try {
+      // Make API call to update applicant status to CONTRACT_ISSUED
+      await AxiosWithToken.patch(`/contract-grants/consultancy/applicants/${applicantId}/`, {
+        status: 'CONTRACT_ISSUED'
+      });
+
+      toast.success(`Contract issued to ${applicantName} successfully!`);
+      toast.info(`${applicantName} can now access the contract acceptance form.`);
+
+      // Refresh the data to update the UI
+      window.location.reload();
+
+    } catch (error) {
+      console.error("Contract issuance error:", error);
+
+      if (error instanceof Error) {
+        toast.error(`Failed to issue contract: ${error.message}`);
+      } else {
+        toast.error("Failed to issue contract. Please try again.");
+      }
+    } finally {
+      setIssuingContract(null);
+    }
+  };
 
   const columns: ColumnDef<InterviewedApplicant>[] = [
     {
@@ -98,6 +136,9 @@ export default function InterviewedApplicants() {
       id: "actions",
       cell: ({ row }) => {
         const applicant = row.original;
+        const applicantName = `${applicant.first_name} ${applicant.last_name}`;
+        const isIssuing = issuingContract === applicant.id;
+
         return (
           <div className="flex gap-2">
             <Link
@@ -108,17 +149,15 @@ export default function InterviewedApplicants() {
                 View
               </Button>
             </Link>
-            <Link
-              href={`/dashboard/programs/adhoc-management/${consultancyId}/applicant/${applicant.id}/details`}
+            <Button
+              size="sm"
+              className="flex items-center gap-1 bg-green-600 hover:bg-green-700"
+              disabled={isIssuing}
+              onClick={() => handleIssueContract(applicant.id, applicantName)}
             >
-              <Button
-                size="sm"
-                className="flex items-center gap-1 bg-green-600 hover:bg-green-700"
-              >
-                <FileCheck className="h-3 w-3" />
-                Issue Contract
-              </Button>
-            </Link>
+              <FileCheck className="h-3 w-3" />
+              {isIssuing ? "Issuing..." : "Issue Contract"}
+            </Button>
           </div>
         );
       },
