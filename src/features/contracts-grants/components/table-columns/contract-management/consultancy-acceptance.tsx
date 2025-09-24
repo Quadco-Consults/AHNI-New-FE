@@ -15,9 +15,14 @@ export const consultancyAcceptanceColumns: ColumnDef<IConsultantPaginatedData>[]
     [
         {
             header: "Consultant Name",
-            id: "name",
-            accessorKey: "name",
+            id: "consultant_name",
             size: 200,
+            cell: ({ row }) => {
+                // For adhoc acceptance, this should be the applicant name
+                // Check if there's a consultant_name field or use title as fallback
+                const data = row.original;
+                return data.consultant_name || data.name || 'N/A';
+            },
         },
 
         {
@@ -29,7 +34,7 @@ export const consultancyAcceptanceColumns: ColumnDef<IConsultantPaginatedData>[]
 
         {
             header: "Acceptance Status",
-            id: "status",
+            id: "acceptance_status",
             accessorKey: "status",
             size: 200,
             cell: ({ getValue }) => {
@@ -56,9 +61,13 @@ export const consultancyAcceptanceColumns: ColumnDef<IConsultantPaginatedData>[]
 
         {
             header: "Start Date",
-            id: "start_date",
-            accessorKey: "start_date",
+            id: "commencement_date",
+            accessorKey: "commencement_date",
             size: 200,
+            cell: ({ getValue }) => {
+                const date = getValue() as string;
+                return date ? new Date(date).toLocaleDateString() : 'N/A';
+            },
         },
 
         {
@@ -68,32 +77,6 @@ export const consultancyAcceptanceColumns: ColumnDef<IConsultantPaginatedData>[]
             size: 200,
         },
 
-        {
-            header: "Status",
-            id: "status",
-            accessorKey: "status",
-            size: 200,
-            cell: ({ getValue }) => {
-                return (
-                    <Badge
-                        variant="default"
-                        className={cn(
-                            "p-1 rounded-lg",
-                            getValue() === "IN_PROGRESS" &&
-                                "bg-green-200 text-green-500",
-                            getValue() === "CLOSED" &&
-                                "bg-red-200 text-red-500",
-                            getValue() === "PENDING" &&
-                                "bg-yellow-200 text-yellow-500",
-                            getValue() === "On Hold" &&
-                                "text-grey-200 bg-grey-500"
-                        )}
-                    >
-                        {getValue() as string}
-                    </Badge>
-                );
-            },
-        },
 
         {
             header: "",

@@ -13,7 +13,7 @@ export default function ConsultancyAcceptance() {
     const { data, isFetching, error } = useGetAllConsultantManagements({
         page,
         size: 10,
-        type: "CONSULTANT", // Changed from "ADHOC" to "CONSULTANT" to match consultant acceptance
+        type: "ADHOC", // Changed back to "ADHOC" to show adhoc staff for acceptance
     });
 
     console.log("ConsultancyAcceptance List - Data:", data);

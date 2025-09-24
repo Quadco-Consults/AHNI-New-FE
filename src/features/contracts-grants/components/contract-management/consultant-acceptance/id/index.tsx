@@ -1,5 +1,3 @@
-import { useGetSingleConsultancyStaff } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
-import SingleConsultancyStaffDetails from "../../consultant-management/id/applicants/SingleConsultancyStaffDetails";
 import Card from "components/Card";
 import BackNavigation from "components/atoms/BackNavigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
@@ -30,15 +28,15 @@ export default function ConsultancyAcceptance() {
     console.log("ConsultancyAcceptance - Is valid ID:", isValidId);
     
     // Only fetch data if we have valid IDs from URL parameters
-    const { data: consultant, error: consultantError, isLoading: consultantLoading } = useGetSingleConsultancyStaff(
+    const { data: consultant, error: consultantError, isLoading: consultantLoading } = useGetSingleConsultantManagement(
         consultantId || "",
         !!isValidId // Only enable the query if we have a valid consultant ID
     );
 
-    const { data: jobAdvert, error: jobAdvertError, isLoading: jobAdvertLoading } = useGetSingleConsultantManagement(
-        consultantId || "", // Use consultant ID as job advert ID for now
-        !!isValidId // Only enable the query if we have a valid consultant ID
-    );
+    // Use the same data for job advert since the consultant management contains job details
+    const jobAdvert = consultant;
+    const jobAdvertError = consultantError;
+    const jobAdvertLoading = consultantLoading;
 
     console.log("ConsultancyAcceptance - Consultant data:", consultant);
     console.log("ConsultancyAcceptance - Job advert data:", jobAdvert);
@@ -155,7 +153,7 @@ export default function ConsultancyAcceptance() {
                 <Card className="mt-5">
                     <TabsContent value="consultant-details">
                         {consultant?.data ? (
-                            <SingleConsultancyStaffDetails {...consultant.data} />
+                            <JobDetails {...consultant.data} />
                         ) : (
                             <div className="p-6 text-center">
                                 <p className="text-gray-600">Consultant details not available</p>
