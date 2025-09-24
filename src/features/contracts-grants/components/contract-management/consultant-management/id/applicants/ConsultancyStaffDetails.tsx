@@ -68,7 +68,7 @@ export default function ConsultancyStaffDetails() {
     setIsModifyLoading(true);
     try {
       await updateContractStatus({
-        status: "HIRED",
+        status: "APPROVED",
       });
       toast.success("Contract Issued Successfully");
       router.back();

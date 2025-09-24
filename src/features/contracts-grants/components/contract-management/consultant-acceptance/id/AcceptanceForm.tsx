@@ -10,6 +10,8 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
+import { useUpdateConsultantManagement } from "@/features/contracts-grants/controllers/consultantManagementController";
+import { useCreateExistingConsultancyApplicant } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 
 interface AcceptanceFormData {
     country: string;
@@ -24,6 +26,13 @@ export default function AcceptanceForm() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const params = useParams();
     const router = useRouter();
+    const consultantId = params?.id as string;
+
+    // Get the consultant management update function
+    const { updateConsultantManagement, isLoading: isUpdateLoading } = useUpdateConsultantManagement(consultantId);
+
+    // Get the existing applicant creation function
+    const { createExistingConsultancyApplicant, isLoading: isCreateLoading } = useCreateExistingConsultancyApplicant();
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -36,22 +45,50 @@ export default function AcceptanceForm() {
     const onSubmit = async (data: AcceptanceFormData) => {
         console.log("Acceptance form submission:", data);
         console.log("Selected file:", selectedFile);
-        
+
+        if (!consultantId) {
+            toast.error("No consultant ID found");
+            return;
+        }
+
         setIsSubmitting(true);
-        
+
         try {
-            // Here you would typically submit to an API endpoint
-            // For now, we'll just simulate the submission
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            
+            // Step 1: Update the consultant management status to ACCEPTED
+            await updateConsultantManagement({
+                status: "ACCEPTED",
+                // Include the acceptance form data if needed
+                acceptance_country: data.country,
+                acceptance_city: data.city,
+                acceptance_date: data.date,
+                // Note: File upload would need separate handling
+            } as any);
+
+            console.log("Consultant management status updated to ACCEPTED");
+
+            // Step 2: Create existing consultant applicant record for adhoc database
+            await createExistingConsultancyApplicant({
+                applicant: consultantId, // Use consultant ID as applicant reference
+                consultancy: consultantId, // Link to the consultancy job
+            });
+
+            console.log("Existing consultant applicant record created");
+
             toast.success("Consultant acceptance form submitted successfully!");
-            
-            // Navigate back or to a success page
+
+            // Navigate back to the acceptance list
             router.back();
-            
+
         } catch (error) {
             console.error("Acceptance form submission error:", error);
-            toast.error("Failed to submit acceptance form. Please try again.");
+
+            // Provide more detailed error information
+            if (error instanceof Error) {
+                console.error("Error details:", error.message);
+                toast.error(`Failed to submit acceptance form: ${error.message}`);
+            } else {
+                toast.error("Failed to submit acceptance form. Please try again.");
+            }
         } finally {
             setIsSubmitting(false);
         }
@@ -156,8 +193,8 @@ export default function AcceptanceForm() {
                     </p>
                 </div>
 
-                <FormButton type="submit" size="lg" disabled={isSubmitting}>
-                    {isSubmitting ? "Submitting..." : "Submit"}
+                <FormButton type="submit" size="lg" disabled={isSubmitting || isUpdateLoading || isCreateLoading}>
+                    {(isSubmitting || isUpdateLoading || isCreateLoading) ? "Submitting..." : "Submit"}
                 </FormButton>
             </form>
         </Form>

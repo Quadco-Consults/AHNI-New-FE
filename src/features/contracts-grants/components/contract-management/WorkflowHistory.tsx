@@ -44,10 +44,13 @@ export default function WorkflowHistory({ contractRequest, workflowSteps }: Work
       action: "Review Stage",
       status: contractRequest.status === "DRAFT" ? "pending" : 
              contractRequest.status === "SUBMITTED" || contractRequest.status === "UNDER_REVIEW" ? "current" : "completed",
-      user: contractRequest.current_reviewer_detail ? {
-        id: contractRequest.current_reviewer_detail.id,
-        name: `${contractRequest.current_reviewer_detail.first_name} ${contractRequest.current_reviewer_detail.last_name}`,
-        email: contractRequest.current_reviewer_detail.email || "",
+      user: contractRequest.current_reviewer ? {
+        id: contractRequest.current_reviewer.id,
+        name: contractRequest.current_reviewer.full_name ||
+              [contractRequest.current_reviewer.first_name, contractRequest.current_reviewer.last_name]
+                .filter(name => name && name.trim())
+                .join(" ") || "Reviewer",
+        email: contractRequest.current_reviewer.email || "",
       } : undefined,
       timestamp: contractRequest.status === "REVIEWED" ? contractRequest.updated_datetime : undefined,
       comments: contractRequest.status === "REVIEWED" ? "Review completed - all criteria satisfied" : undefined,
@@ -60,7 +63,10 @@ export default function WorkflowHistory({ contractRequest, workflowSteps }: Work
              contractRequest.status === "AUTHORIZED" ? "completed" : "pending",
       user: contractRequest.authorizer_detail ? {
         id: contractRequest.authorizer_detail.id,
-        name: `${contractRequest.authorizer_detail.first_name} ${contractRequest.authorizer_detail.last_name}`,
+        name: contractRequest.authorizer_detail.full_name ||
+              [contractRequest.authorizer_detail.first_name, contractRequest.authorizer_detail.last_name]
+                .filter(name => name && name.trim())
+                .join(" ") || "Authorizer",
         email: contractRequest.authorizer_detail.email || "",
       } : undefined,
       timestamp: contractRequest.status === "AUTHORIZED" ? contractRequest.updated_datetime : undefined,
@@ -73,7 +79,10 @@ export default function WorkflowHistory({ contractRequest, workflowSteps }: Work
              contractRequest.status === "APPROVED" ? "completed" : "pending",
       user: contractRequest.approver_detail ? {
         id: contractRequest.approver_detail.id,
-        name: `${contractRequest.approver_detail.first_name} ${contractRequest.approver_detail.last_name}`,
+        name: contractRequest.approver_detail.full_name ||
+              [contractRequest.approver_detail.first_name, contractRequest.approver_detail.last_name]
+                .filter(name => name && name.trim())
+                .join(" ") || "Approver",
         email: contractRequest.approver_detail.email || "",
       } : undefined,
       timestamp: contractRequest.status === "APPROVED" ? contractRequest.updated_datetime : undefined,
