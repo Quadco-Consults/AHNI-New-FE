@@ -72,10 +72,14 @@ const VendorFuelSummary = ({
   vendorId: string;
   type: "fuel" | "value" | "status";
 }) => {
-  const { data: stats, isLoading } = useGetVendorFuelStatistics(vendorId);
+  const { data: stats, isLoading, error } = useGetVendorFuelStatistics(vendorId);
 
   if (isLoading) {
     return <span className='text-gray-400 text-sm'>Loading...</span>;
+  }
+
+  if (error) {
+    return <span className='text-red-400 text-xs' title={`Error: ${error.message}`}>Error</span>;
   }
 
   if (!stats?.data?.statistics) {
@@ -138,7 +142,10 @@ const VendorFuelSummary = ({
   return null;
 };
 
-const TableMenu = ({ request_id }: VendorsResultsData) => {
+const TableMenu = ({ id, request_id }: VendorsResultsData) => {
+  // Use the vendor's actual ID, not the request_id
+  const vendorId = id || request_id;
+
   return (
     <div className='flex items-center gap-2'>
       <Popover>
@@ -150,14 +157,14 @@ const TableMenu = ({ request_id }: VendorsResultsData) => {
         <PopoverContent className=' w-fit'>
           <div className='flex flex-col items-start justify-between gap-1'>
             <Link
-              href={`/dashboard/admin/fleet-management/fuel-request/${request_id}/vendor`}
+              href={`/dashboard/admin/fleet-management/fuel-request/${vendorId}/vendor`}
             >
               <Button
                 className='w-full flex items-center justify-start gap-2'
                 variant='ghost'
               >
                 <EyeIcon />
-                View Fuel Details
+                View All Fuel Requests for This Vendor
               </Button>
             </Link>
           </div>

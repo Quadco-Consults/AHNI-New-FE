@@ -345,7 +345,8 @@ export const useGetVendorFuelPurchases = (
         const response = await AxiosWithToken.get(
           `${BASE_URL}vendor/${vendorId}/purchases/?${queryParams.toString()}`
         );
-        return response.data;
+        // Return the inner data structure to maintain consistency
+        return response.data.data || response.data;
       } catch (error) {
         console.error("Vendor fuel purchases error:", error);
         throw error;
@@ -367,12 +368,77 @@ export const useGetVehicleFuelHistory = (
         const response = await AxiosWithToken.get(
           `${BASE_URL}vehicle/${vehicleId}/history/`
         );
-        return response.data;
+
+        // Handle nested data structure similar to vendor purchases
+        const data = response.data.data || response.data;
+        return {
+          ...response.data,
+          data: data
+        };
       } catch (error) {
+        console.error("Vehicle history error:", error);
         const axiosError = error as AxiosError;
         throw new Error(
           "Sorry: " + (axiosError.response?.data as any)?.message
         );
+      }
+    },
+    enabled: enabled && !!vehicleId,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get Last Odometer Reading for Vehicle (using dedicated endpoint)
+export const useGetLastOdometerReading = (
+  vehicleId: string,
+  enabled: boolean = true
+) => {
+  return useQuery<{
+    lastOdometer: number | null;
+    lastFuelRequestDate: string | null;
+    hasPreviousRequest: boolean;
+    fuelEfficiency?: number | null;
+  }>({
+    queryKey: ["lastOdometerReading", vehicleId],
+    queryFn: async () => {
+      try {
+        if (!vehicleId) {
+          return {
+            lastOdometer: null,
+            lastFuelRequestDate: null,
+            hasPreviousRequest: false,
+          };
+        }
+
+        // Use the dedicated last-odometer endpoint
+        const response = await AxiosWithToken.get(
+          `${BASE_URL}vehicle/${vehicleId}/last-odometer/`
+        );
+
+        const data = response.data?.data;
+
+        if (!data || !data.last_odometer_reading) {
+          return {
+            lastOdometer: null,
+            lastFuelRequestDate: null,
+            hasPreviousRequest: false,
+          };
+        }
+
+        return {
+          lastOdometer: data.last_odometer_reading || null,
+          lastFuelRequestDate: data.last_fuel_date || null,
+          hasPreviousRequest: true,
+          fuelEfficiency: data.fuel_efficiency || null,
+        };
+      } catch (error) {
+        // If endpoint doesn't exist or returns error, gracefully handle
+        console.warn("Last odometer endpoint not available:", error);
+        return {
+          lastOdometer: null,
+          lastFuelRequestDate: null,
+          hasPreviousRequest: false,
+        };
       }
     },
     enabled: enabled && !!vehicleId,
@@ -388,43 +454,57 @@ export const useGetFuelVendors = ({
     queryKey: ["fuelVendors"],
     queryFn: async () => {
       try {
-        // Fetch all fuel consumption records with a large page size to get all records
-        const response = await AxiosWithToken.get(BASE_URL, {
-          params: { page: 1, size: 1000 }, // Increase size to get more records
+        // Fetch all fuel consumption records to get unique vendor IDs
+        const fuelResponse = await AxiosWithToken.get(BASE_URL, {
+          params: { page: 1, size: 1000 },
         });
 
-        const fuelRecords = response.data.data.results;
+        const fuelRecords = fuelResponse.data.data.results;
 
-        // Extract unique vendors
-        const vendorMap = new Map();
-
+        // Extract unique vendor IDs
+        const uniqueVendorIds = new Set();
         fuelRecords.forEach((record: IFuelRequestPaginatedData) => {
-          if (record.vendor && !vendorMap.has(record.vendor.id)) {
-            vendorMap.set(record.vendor.id, {
-              id: record.vendor?.id,
-              name: record.vendor?.name, // Use vendor field as name
-              company_name: record.vendor?.name,
-              recordCount: 1,
-              amount: record.amount,
-              quantity: record?.quantity,
-              status: record?.status,
-              request_id: record?.id,
-            });
-          } else if (record.vendor && vendorMap.has(record.vendor.id)) {
-            const existingVendor = vendorMap.get(record.vendor.id);
-            existingVendor.recordCount++;
+          if (record.vendor?.id) {
+            uniqueVendorIds.add(record.vendor.id);
           }
+        });
+
+        // Fetch full vendor details from vendor API
+        const vendorResponse = await AxiosWithToken.get("/procurements/vendors/", {
+          params: { page: 1, size: 1000 },
+        });
+
+        const allVendors = vendorResponse.data.data.results;
+
+        // Filter vendors that have fuel consumption records
+        const fuelVendors = allVendors.filter((vendor: any) =>
+          uniqueVendorIds.has(vendor.id)
+        );
+
+        // Ensure each vendor has the proper ID structure for the action button
+        const vendorsWithRequestId = fuelVendors.map((vendor: any) => {
+          const fuelRecord = fuelRecords.find((record: IFuelRequestPaginatedData) =>
+            record.vendor?.id === vendor.id
+          );
+          return {
+            ...vendor,
+            // Keep the vendor's actual ID as the primary ID
+            id: vendor.id,
+            // Add request_id for reference if needed, but use vendor.id for navigation
+            request_id: vendor.id, // Use vendor ID instead of fuel request ID
+            sample_fuel_request_id: fuelRecord?.id, // Store the actual fuel request ID as reference
+          };
         });
 
         return {
           status: true,
           message: "Fuel vendors retrieved successfully",
           data: {
-            results: Array.from(vendorMap.values()),
+            results: vendorsWithRequestId,
             pagination: {
-              count: vendorMap.size,
+              count: vendorsWithRequestId.length,
               page: 1,
-              page_size: vendorMap.size,
+              page_size: vendorsWithRequestId.length,
               total_pages: 1,
             },
           },

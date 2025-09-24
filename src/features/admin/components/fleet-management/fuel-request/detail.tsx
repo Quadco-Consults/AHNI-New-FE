@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import BackNavigation from "components/atoms/BackNavigation";
@@ -32,9 +32,14 @@ import VehicleFuelHistory from "./_components/VehicleFuelHistory";
 export default function FuelConsumptionDetail() {
   const { id } = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [approvalDialog, setApprovalDialog] = useState(false);
   const [rejectionDialog, setRejectionDialog] = useState(false);
   const [comments, setComments] = useState("");
+
+  // Check if this is a vehicle view request
+  const viewType = searchParams?.get('type');
+  const isVehicleView = viewType === 'vehicle';
 
   const { data: fuelConsumption, isLoading } = useGetSingleFuelConsumption(
     id as string,
@@ -132,7 +137,7 @@ export default function FuelConsumptionDetail() {
         </div>
       </div>
 
-      <Tabs defaultValue="details" className="w-full">
+      <Tabs defaultValue={isVehicleView ? "history" : "details"} className="w-full">
         <TabsList>
           <TabsTrigger value="details">Details</TabsTrigger>
           <TabsTrigger value="history">Vehicle History</TabsTrigger>
@@ -268,6 +273,7 @@ export default function FuelConsumptionDetail() {
         </TabsContent>
 
         <TabsContent value="history" className="space-y-4">
+
           <VehicleFuelHistory
             vehicleId={data.asset?.id || ""}
             vehicleName={data.asset?.name}
