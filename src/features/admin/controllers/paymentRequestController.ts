@@ -66,6 +66,7 @@ export const useGetAllPaymentRequests = ({
             ...(status && { status }),
           },
         });
+
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
