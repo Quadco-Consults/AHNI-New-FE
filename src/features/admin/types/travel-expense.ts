@@ -5,6 +5,7 @@ export const TravelExpenseSchema = z.object({
     user: z.string().min(1, "Please select user"),
     staff_id: z.string().min(1, "Please enter staff id"),
     travel_purpose: z.string().min(1, "Please enter travel purpose"),
+    document: z.any().optional(),
 
     // Approval workflow fields
     reviewer: z.string().min(1, "Please select reviewer"),
@@ -32,11 +33,11 @@ export const TravelExpenseSchema = z.object({
                 .min(1, "Please enter registration fee"),
             inter_city_taxi_fee: z
                 .string()
-                .min(1, "Please enter inner city taxi fee"),
+                .min(1, "Please enter inter city taxi fee"),
             total_amount: z.string().min(1, "Please enter total amount"),
-            others: z.string(),
+            others: z.string().optional().or(z.literal("")), // Make others optional
         })
-    ),
+    ).min(1, "At least one activity is required"),
 });
 
 export type TTravelExpenseFormData = z.infer<typeof TravelExpenseSchema>;
@@ -101,6 +102,7 @@ export interface ITravelExpenseSingleData {
         others: string;
     }[];
     approvals: IApproval[];
+    document?: string;
     created_datetime: string;
     updated_datetime: string;
     staff_id: string;

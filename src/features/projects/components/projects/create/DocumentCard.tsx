@@ -1,5 +1,7 @@
 import DeleteIcon from "components/icons/DeleteIcon";
 import PdfIcon from "components/icons/PdfIcon";
+import EyeIcon from "components/icons/EyeIcon";
+import DownloadIcon from "components/icons/DownloadIcon";
 import ConfirmationDialog from "components/ConfirmationDialog";
 import { Button } from "components/ui/button";
 import { format } from "date-fns";
@@ -54,6 +56,20 @@ export default function DocumentCard({
     setDialogOpen(false);
   };
 
+  const handleDownload = () => {
+    const link = document.createElement('a');
+    link.href = file;
+    link.download = `${title}.pdf`;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleView = () => {
+    window.open(file, '_blank');
+  };
+
   return (
     <>
       <div className='border space-y-4 rounded-2xl p-5 w-full overflow-hidden h-fit'>
@@ -63,18 +79,45 @@ export default function DocumentCard({
             <h2 className='line-clamp-1'>{title}</h2>
           </div>
 
-          {showDeleteIcon && (
+          <div className='flex items-center gap-2'>
             <Button
               type='button'
-              onClick={() => setDialogOpen(true)}
+              onClick={handleView}
               variant='outline'
               size='icon'
+              title="View PDF"
             >
-              <DeleteIcon />
+              <EyeIcon />
             </Button>
-          )}
+
+            <Button
+              type='button'
+              onClick={handleDownload}
+              variant='outline'
+              size='icon'
+              title="Download PDF"
+            >
+              <DownloadIcon />
+            </Button>
+
+            {showDeleteIcon && (
+              <Button
+                type='button'
+                onClick={() => setDialogOpen(true)}
+                variant='outline'
+                size='icon'
+                title="Delete Document"
+              >
+                <DeleteIcon />
+              </Button>
+            )}
+          </div>
         </div>
-        <div className='bg-[#0000001A] py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden'>
+        <div
+          className='bg-[#0000001A] py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden cursor-pointer hover:bg-[#0000002A] transition-colors'
+          onClick={handleView}
+          title="Click to view PDF"
+        >
           <Document file={file} onLoadSuccess={onLoadSuccess}>
             <Page pageNumber={pageNumber} width={200} height={100} />
           </Document>

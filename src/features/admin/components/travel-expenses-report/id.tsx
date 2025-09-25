@@ -22,6 +22,7 @@ import { cn } from "lib/utils";
 import { toast } from "sonner";
 import { Separator } from "components/ui/separator";
 import { useState } from "react";
+import DocumentCard from "@/features/projects/components/projects/create/DocumentCard";
 
 interface ApprovalFormData {
   comments: string;
@@ -143,7 +144,7 @@ export default function TravelExpenseDetailsPage() {
               <div className='grid grid-cols-4 gap-10'>
                 <DescriptionCard
                   label='User'
-                  description={`${data.data.user.first_name} ${data.data.user.last_name}`}
+                  description={data.data.user.full_name}
                 />
 
                 <DescriptionCard
@@ -168,6 +169,28 @@ export default function TravelExpenseDetailsPage() {
                   </Badge>
                 </div>
               </div>
+
+              {/* Document Section */}
+              {data?.data.document && (
+                <>
+                  <Separator />
+                  <div className='space-y-4'>
+                    <h3 className='font-bold text-xl'>Supporting Documents</h3>
+                    <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                      <DocumentCard
+                        id={data.data.id}
+                        title='Travel Expense Report Document'
+                        file={data.data.document}
+                        onLoadSuccess={() => {}}
+                        pageNumber={1}
+                        uploadedDateTime={data.data.created_datetime}
+                        showDeleteIcon={false}
+                      />
+                    </div>
+                  </div>
+                  <Separator />
+                </>
+              )}
 
               {data?.data.activities.map(
                 (
