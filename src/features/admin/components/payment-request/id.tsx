@@ -10,6 +10,7 @@ import {
   useReviewPaymentRequest,
   useAuthorizePaymentRequest,
   useApprovePaymentRequest,
+  useRejectPaymentRequest,
 } from "@/features/admin/controllers/paymentRequestController";
 import { LoadingSpinner } from "components/Loading";
 import DescriptionCard from "components/DescriptionCard";
@@ -38,8 +39,17 @@ export default function PaymentRequestDetails() {
     useAuthorizePaymentRequest(id);
   const { approvePaymentRequest, isLoading: isApproving } =
     useApprovePaymentRequest(id);
+  const { rejectPaymentRequest, isLoading: isRejecting } =
+    useRejectPaymentRequest(id);
 
   const form = useForm();
+
+  // Check if payment request is in final state
+  const isInFinalState = () => {
+    if (!data?.data) return false;
+    const status = data.data.status;
+    return status === "APPROVED" || status === "REJECTED";
+  };
 
   // Determine what action button to show based on current status
   const getApprovalAction = () => {
@@ -90,6 +100,22 @@ export default function PaymentRequestDetails() {
     }
   };
 
+  const handleRejection = async (formData: any) => {
+    if (!formData.comment) {
+      toast.error("Please enter a comment");
+      return;
+    }
+
+    try {
+      await rejectPaymentRequest(formData.comment);
+      form.reset({
+        comment: "",
+      });
+    } catch (error: any) {
+      toast.error(error.message || "Something went wrong");
+    }
+  };
+
   return (
     <div>
       <Tabs defaultValue='details'>
@@ -116,13 +142,15 @@ export default function PaymentRequestDetails() {
                         description={data.data.payment_date}
                       />
 
-                      <DescriptionCard
-                        label='Purchase Order Number'
-                        description={
-                          data.data.purchase_order?.purchase_order_number ||
-                          "N/A"
-                        }
-                      />
+                      {data.data.payment_type === "PURCHASE_ORDER" && (
+                        <DescriptionCard
+                          label='Purchase Order Number'
+                          description={
+                            data.data.purchase_order?.purchase_order_number ||
+                            "N/A"
+                          }
+                        />
+                      )}
 
                       <DescriptionCard
                         label='Payment Type'
@@ -225,26 +253,53 @@ export default function PaymentRequestDetails() {
                           Approval Action
                         </h3>
                         <FormProvider {...form}>
-                          <form
-                            onSubmit={form.handleSubmit(handleApproval)}
-                            className='space-y-3'
-                          >
+                          <div className='space-y-3'>
                             <FormTextArea
                               label='Comment'
                               name='comment'
-                              placeholder={`Enter comment for ${getApprovalAction()?.label?.toLowerCase()}`}
+                              placeholder={`Enter comment for action`}
                               required
+                              disabled={isInFinalState()}
                             />
 
-                            <FormButton
-                              size='lg'
-                              className='bg-green-500'
-                              loading={getApprovalAction()?.loading || false}
-                              type='submit'
-                            >
-                              {getApprovalAction()?.label}
-                            </FormButton>
-                          </form>
+                            <div className='flex gap-3'>
+                              <FormButton
+                                size='lg'
+                                className={
+                                  isInFinalState()
+                                    ? 'bg-gray-400 hover:bg-gray-400 cursor-not-allowed'
+                                    : 'bg-green-500 hover:bg-green-600'
+                                }
+                                loading={getApprovalAction()?.loading || false}
+                                type='button'
+                                disabled={isInFinalState()}
+                                onClick={form.handleSubmit(handleApproval)}
+                              >
+                                {getApprovalAction()?.label}
+                              </FormButton>
+
+                              <FormButton
+                                size='lg'
+                                className={
+                                  isInFinalState()
+                                    ? 'bg-gray-400 hover:bg-gray-400 cursor-not-allowed'
+                                    : 'bg-red-500 hover:bg-red-600'
+                                }
+                                loading={isRejecting}
+                                type='button'
+                                disabled={isInFinalState()}
+                                onClick={form.handleSubmit(handleRejection)}
+                              >
+                                Reject
+                              </FormButton>
+                            </div>
+
+                            {isInFinalState() && (
+                              <p className='text-sm text-gray-600 mt-2'>
+                                This payment request has been {data?.data.status?.toLowerCase()}. No further actions are allowed.
+                              </p>
+                            )}
+                          </div>
                         </FormProvider>
                       </div>
                     )}

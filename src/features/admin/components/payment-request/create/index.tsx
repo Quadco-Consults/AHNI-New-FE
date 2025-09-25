@@ -56,7 +56,6 @@ export default function CreatePaymentRequest() {
           address: "",
         },
       ],
-      number: "",
     },
   });
 
@@ -148,20 +147,17 @@ export default function CreatePaymentRequest() {
 
       const filtered = user?.data?.results
         ?.filter((userItem: any) => {
-          // More flexible filtering - check various possible patterns
-          const userTypeCheck = userItem.user_type?.toLowerCase().includes("adhoc");
-          const employeeTypeCheck = userItem.employee_type?.toLowerCase().includes("adhoc");
-          const designationCheck = userItem.designation?.toLowerCase().includes("adhoc");
-          const roleCheck = userItem.role?.toLowerCase().includes("adhoc");
-          const staffTypeCheck = userItem.staff_type?.toLowerCase().includes("adhoc");
+          // For now, show ALL users in adhoc staff dropdown to test functionality
+          // This can be refined later when proper adhoc staff categorization is implemented
+          return true; // Show all users
 
-          // For debugging - also show all users as adhoc if no actual adhoc staff exist
-          // This helps test the functionality even without real adhoc staff in the system
-          const isTestUser = userItem.first_name?.toLowerCase().includes("test") ||
-                             userItem.email?.includes("test") ||
-                             userItem.id === "5ff6e971-4ccc-4fde-8249-cad64b78e304"; // Current user for testing
-
-          return userTypeCheck || employeeTypeCheck || designationCheck || roleCheck || staffTypeCheck || isTestUser;
+          // Original filtering logic (commented out for testing):
+          // const userTypeCheck = userItem.user_type?.toLowerCase().includes("adhoc");
+          // const employeeTypeCheck = userItem.employee_type?.toLowerCase().includes("adhoc");
+          // const designationCheck = userItem.designation?.toLowerCase().includes("adhoc");
+          // const roleCheck = userItem.role?.toLowerCase().includes("adhoc");
+          // const staffTypeCheck = userItem.staff_type?.toLowerCase().includes("adhoc");
+          // return userTypeCheck || employeeTypeCheck || designationCheck || roleCheck || staffTypeCheck;
         })
         ?.map((userItem: any) => ({
           label: `${userItem.first_name} ${userItem.last_name}${userItem.employee_id ? ` (${userItem.employee_id})` : ''}`,
@@ -477,25 +473,6 @@ export default function CreatePaymentRequest() {
                   </div>
                 )}
 
-                {(paymentType === "CONSULTANT" ||
-                  paymentType === "FACILITATOR" ||
-                  paymentType === "ADHOC_STAFF") && (
-                  <FormSelect
-                    label='Number of Recipients'
-                    name='number'
-                    placeholder='Select Number'
-                    options={[
-                      {
-                        label: "SINGLE",
-                        value: "SINGLE",
-                      },
-                      {
-                        label: "MULTIPLE",
-                        value: "MULTIPLE",
-                      },
-                    ]}
-                  />
-                )}
               </div>
 
               <FormTextArea
@@ -642,9 +619,13 @@ export default function CreatePaymentRequest() {
                               options={adhocOptions}
                               onChange={(e) => handleStaffSelection("ADHOC_STAFF", e.target.value, index)}
                             />
-                            {adhocOptions.length === 0 && (
+                            {adhocOptions.length === 0 ? (
                               <p className='text-xs text-amber-600 mt-1'>
-                                ⚠️ No adhoc staff found. Contact admin to add adhoc staff to the system.
+                                ⚠️ No users found. Check if user data is loading properly.
+                              </p>
+                            ) : (
+                              <p className='text-xs text-blue-600 mt-1'>
+                                💡 Showing all users for testing. Select a user to auto-fill details.
                               </p>
                             )}
                           </div>

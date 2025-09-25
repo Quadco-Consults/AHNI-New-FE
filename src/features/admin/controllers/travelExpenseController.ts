@@ -108,15 +108,16 @@ export const useCreateTravelExpense = () => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     ITravelExpenseSingleData,
     Error,
-    TTravelExpenseFormData
+    TTravelExpenseFormData | FormData
   >({
     endpoint: BASE_URL,
     queryKey: ["travelExpenses"],
     isAuth: true,
     method: "POST",
+    contentType: "multipart/form-data", // Standard multipart
   });
 
-  const createTravelExpense = async (details: TTravelExpenseFormData) => {
+  const createTravelExpense = async (details: TTravelExpenseFormData | FormData) => {
     try {
       await callApi(details);
     } catch (error) {
@@ -132,15 +133,16 @@ export const useModifyTravelExpense = (id: string) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     ITravelExpenseSingleData,
     Error,
-    { id: string; body: TTravelExpenseFormData }
+    TTravelExpenseFormData | FormData
   >({
     endpoint: `${BASE_URL}${id}/`,
     queryKey: ["travelExpenses", "travelExpense"],
     isAuth: true,
     method: "PUT",
+    contentType: "multipart/form-data", // Standard multipart
   });
 
-  const modifyTravelExpense = async (body: TTravelExpenseFormData) => {
+  const modifyTravelExpense = async (body: TTravelExpenseFormData | FormData) => {
     try {
       await callApi(body);
     } catch (error) {
