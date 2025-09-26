@@ -40,6 +40,7 @@ interface ConsultantManagementFilterParams {
   size?: number;
   search?: string;
   type?: string;
+  status?: string;
   enabled?: boolean;
 }
 
@@ -113,10 +114,11 @@ export const useGetAllExistingConsultants = ({
   size = 20,
   search = "",
   type = "",
+  status = "",
   enabled = true,
 }: ConsultantManagementFilterParams) => {
   return useQuery<PaginatedResponse<IConsultantPaginatedData>>({
-    queryKey: ["existingConsultants", page, size, search, type],
+    queryKey: ["existingConsultants", page, size, search, type, status],
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(
@@ -127,6 +129,7 @@ export const useGetAllExistingConsultants = ({
               size,
               ...(search && { search }),
               ...(type && { type }),
+              ...(status && { status }),
             },
           }
         );

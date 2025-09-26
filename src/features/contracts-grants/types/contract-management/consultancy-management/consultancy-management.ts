@@ -9,6 +9,7 @@ export const ConsultancyManagementDetailSchema = z.object({
   commencement_date: z.string().min(1, "Please select commencement date"),
   end_date: z.string().min(1, "Please select end date"),
   consultants_number: z.string().min(1, "Please enter number of consultants"),
+  supervisor: z.string().optional(), // Optional supervisor field for facilitators
   // background: z.string().min(1, "Please enter background"),
 });
 

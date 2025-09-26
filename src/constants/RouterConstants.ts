@@ -476,7 +476,7 @@ export const CG_ROUTES = {
     "/dashboard/c-and-g/consultancy/:id/create-interview",
 
   CONSULTANCY_APPLICATION_DETAILS:
-    "/api/v1/contract-grants/consultancy-applications_details/:id",
+    "/dashboard/c-and-g/consultancy/:id/applicant/:applicantId/details",
   CONSULTANCY_SHORTLIST_METRIC:
     "/api/v1/consultancy/shortlisted-applications-metrics/:id",
   CONSULTANCY_SLA: "/dashboard/c-and-g/consultancy/sla",

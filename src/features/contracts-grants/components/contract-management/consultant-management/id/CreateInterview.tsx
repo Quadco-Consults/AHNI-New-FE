@@ -78,7 +78,7 @@ export default function CreateInterview() {
 
   const form = useForm({
     defaultValues: {
-      consultancy: data?.data.title || "",
+      consultancy: "",
       interview_type: "",
       interview_date: "",
       committee_members: [],
@@ -86,9 +86,14 @@ export default function CreateInterview() {
   });
 
   useEffect(() => {
-    if (data?.data?.title) {
-      form.setValue('consultancy', data.data.title);
-      console.log('Setting consultancy title:', data.data.title);
+    if (data?.data) {
+      // Ensure consultancy title is always a string
+      const consultancyTitle = typeof data.data.title === 'object'
+        ? data.data.title?.name || data.data.title?.title || 'Unknown Consultancy'
+        : data.data.title || 'Unknown Consultancy';
+
+      form.setValue('consultancy', consultancyTitle);
+      console.log('Setting consultancy title:', consultancyTitle);
     }
   }, [data, form]);
 
@@ -173,14 +178,24 @@ export default function CreateInterview() {
             {watch("interview_type") === "COMMITTEE" && (
               <div className='flex items-center gap-2 flex-wrap'>
                 <div className='flex items-center gap-2 flex-wrap'>
-                  {matchedUsers?.map((user) => (
-                    <Badge
-                      key={user?.id}
-                      className='py-2 rounded-lg bg-[#EBE8E1] text-black'
-                    >
-                      {user?.first_name} {user?.last_name}
-                    </Badge>
-                  ))}
+                  {matchedUsers?.map((user) => {
+                    // Ensure user names are strings, not objects
+                    const firstName = typeof user?.first_name === 'object'
+                      ? user?.first_name?.name || 'Unknown'
+                      : user?.first_name || 'Unknown';
+                    const lastName = typeof user?.last_name === 'object'
+                      ? user?.last_name?.name || ''
+                      : user?.last_name || '';
+
+                    return (
+                      <Badge
+                        key={user?.id}
+                        className='py-2 rounded-lg bg-[#EBE8E1] text-black'
+                      >
+                        {firstName} {lastName}
+                      </Badge>
+                    );
+                  })}
                 </div>
                 <div>
                   <Dialog>
@@ -263,8 +278,8 @@ export default function CreateInterview() {
                                             <div className='flex items-start'>
                                               <h6 className='w-20 text-gray-600 font-medium'>Name:</h6>
                                               <h6 className='font-semibold'>
-                                                {user?.first_name}{" "}
-                                                {user?.last_name}
+                                                {typeof user?.first_name === 'object' ? user?.first_name?.name || 'Unknown' : user?.first_name || 'Unknown'}{" "}
+                                                {typeof user?.last_name === 'object' ? user?.last_name?.name || '' : user?.last_name || ''}
                                               </h6>
                                             </div>
                                             <div className='flex items-start'>
@@ -273,7 +288,14 @@ export default function CreateInterview() {
                                             </div>
                                             <div className='flex items-start'>
                                               <h6 className='w-20 text-gray-600 font-medium'>Position:</h6>
-                                              <h6>{user?.designation || user?.position || 'N/A'}</h6>
+                                              <h6>{
+                                                typeof user?.designation === 'object'
+                                                  ? user?.designation?.name || user?.designation?.title || 'N/A'
+                                                  : user?.designation ||
+                                                    (typeof user?.position === 'object'
+                                                      ? user?.position?.name || user?.position?.title || 'N/A'
+                                                      : user?.position) || 'N/A'
+                                              }</h6>
                                             </div>
                                             <div className='flex items-start'>
                                               <h6 className='w-20 text-gray-600 font-medium'>Phone:</h6>
@@ -281,7 +303,11 @@ export default function CreateInterview() {
                                             </div>
                                             <div className='flex items-start'>
                                               <h6 className='w-20 text-gray-600 font-medium'>Department:</h6>
-                                              <h6>{user?.department || 'N/A'}</h6>
+                                              <h6>{
+                                                typeof user?.department === 'object'
+                                                  ? user?.department?.name || user?.department?.title || 'N/A'
+                                                  : user?.department || 'N/A'
+                                              }</h6>
                                             </div>
                                             <div className='flex items-start'>
                                               <h6 className='w-20 text-gray-600 font-medium'>Organization:</h6>

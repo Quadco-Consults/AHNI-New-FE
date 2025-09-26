@@ -39,36 +39,53 @@ export default function InterviewedApplicants() {
     enabled: !!consultancyId,
   });
 
-  // Enhanced Debug logging for interviewed applicants
+  // Map API response to expected format for interviewed applicants
+  const mappedApplicants = data?.data?.results?.map(applicant => ({
+    ...applicant,
+    // Map name fields
+    first_name: applicant.first_name || applicant.name || 'Unknown',
+    last_name: applicant.last_name || applicant.contractor_name || '',
+    // Ensure consultant_id is present
+    consultant_id: applicant.consultant_id || consultancyId,
+    consultancy: applicant.consultancy || consultancyId,
+    // Handle potentially problematic fields
+    technical_monitor_user: typeof applicant.technical_monitor_user === 'object'
+      ? applicant.technical_monitor_user?.name || 'N/A'
+      : applicant.technical_monitor_user || 'N/A',
+    location: typeof applicant.location === 'object'
+      ? applicant.location?.name || 'N/A'
+      : applicant.location || 'N/A',
+    project: typeof applicant.project === 'object'
+      ? applicant.project?.name || 'N/A'
+      : applicant.project || 'N/A',
+    contract_request: typeof applicant.contract_request === 'object'
+      ? applicant.contract_request?.name || 'N/A'
+      : applicant.contract_request || 'N/A',
+  })) || [];
+
+  // Filter for interviewed applicants only
+  const interviewedApplicants = mappedApplicants.filter(
+    (applicant) => applicant.status === "INTERVIEWED"
+  );
+
   console.log("🔍 InterviewedApplicants Debug:");
   console.log("- Current Consultancy ID:", consultancyId);
-  console.log("- Raw Data:", data);
-  console.log("- Results Count:", data?.data?.results?.length || 0);
+  console.log("- Original Results Count:", data?.data?.results?.length || 0);
+  console.log("- Mapped Results Count:", mappedApplicants.length);
+  console.log("- Interviewed Count:", interviewedApplicants.length);
+  console.log("- Is Fetching:", isFetching);
 
-  if (data?.data?.results) {
-    console.log("🚨 ALL APPLICANTS ANALYSIS:");
-    data.data.results.forEach((applicant, index) => {
-      console.log(`  Applicant ${index + 1}:`, {
+  if (interviewedApplicants.length > 0) {
+    console.log("✅ INTERVIEWED APPLICANT DATA:");
+    interviewedApplicants.forEach((applicant, index) => {
+      console.log(`  Interviewed ${index + 1}:`, {
         name: `${applicant.first_name} ${applicant.last_name}`,
-        consultant_id: applicant.consultant_id || applicant.consultancy || "NOT_SET",
+        email: applicant.email,
         status: applicant.status,
         id: applicant.id
       });
     });
   }
-
-  // First filter only interviewed applicants, then filter by correct consultant ID
-  const allInterviewedApplicants = data?.data?.results?.filter(
-    (applicant) => applicant.status === "INTERVIEWED"
-  ) || [];
-
-  // TEMPORARY FIX: Filter interviewed applicants to ensure only correct consultant ID
-  const interviewedApplicants = allInterviewedApplicants.filter(applicant => {
-    const applicantConsultantId = applicant.consultant_id || applicant.consultancy;
-    return applicantConsultantId === consultancyId;
-  });
-
-  console.log("✅ FILTERED INTERVIEWED (client-side):", interviewedApplicants.length, "out of", allInterviewedApplicants.length, "interviewed applicants");
 
   // Contract issuance handler
   const handleIssueContract = async (applicantId: string, applicantName: string) => {
@@ -168,7 +185,7 @@ export default function InterviewedApplicants() {
         return (
           <div className="flex gap-2">
             <Link
-              href={`/dashboard/programs/adhoc-management/${consultancyId}/applicant/${applicant.id}/details`}
+              href={`/dashboard/c-and-g/consultancy/${consultancyId}/applicant/${applicant.id}/details`}
             >
               <Button variant="outline" size="sm" className="flex items-center gap-1">
                 <Eye className="h-3 w-3" />

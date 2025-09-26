@@ -23,62 +23,42 @@ export default function ConsultancyStaffList() {
     status: "APPLIED",
   });
 
-  // Enhanced Debug logs
+  // Map API response to expected format
+  const mappedApplicants = data?.data?.results?.map(applicant => ({
+    ...applicant,
+    // Map name fields
+    first_name: applicant.first_name || applicant.name || 'Unknown',
+    last_name: applicant.last_name || applicant.contractor_name || '',
+    // Ensure consultant_id is present
+    consultant_id: applicant.consultant_id || id,
+    consultancy: applicant.consultancy || id
+  })) || [];
+
   console.log("🔍 ConsultancyStaffList Debug:");
-  console.log("- Current Adhoc/Consultant ID:", id);
-  console.log("- API URL:", `/contract-grants/consultancy/applicants/?page=${currentPage}&size=10&consultant_id=${id}&status=APPLIED`);
-  console.log("- Has Data:", !!data);
-  console.log("- Has Results:", !!data?.data?.results);
-  console.log("- Results Count:", data?.data?.results?.length || 0);
+  console.log("- Current Consultant ID:", id);
+  console.log("- Original Results Count:", data?.data?.results?.length || 0);
+  console.log("- Mapped Results Count:", mappedApplicants.length);
   console.log("- Error:", error);
   console.log("- Is Fetching:", isFetching);
 
-  // CRITICAL: Show which consultant_id each applicant is associated with
-  if (data?.data?.results) {
-    console.log("🚨 APPLICANT ANALYSIS:");
-    data.data.results.forEach((applicant, index) => {
+  if (mappedApplicants.length > 0) {
+    console.log("✅ APPLICANT DATA:");
+    mappedApplicants.forEach((applicant, index) => {
       console.log(`  Applicant ${index + 1}:`, {
         name: `${applicant.first_name} ${applicant.last_name}`,
         email: applicant.email,
-        consultant_id: applicant.consultant_id || applicant.consultancy || "NOT_SET",
         status: applicant.status,
-        id: applicant.id,
-        created_datetime: applicant.created_datetime
+        id: applicant.id
       });
     });
-
-    // Check if any applicants have different consultant_ids
-    const wrongApplicants = data.data.results.filter(applicant =>
-      applicant.consultant_id !== id && applicant.consultancy !== id
-    );
-
-    if (wrongApplicants.length > 0) {
-      console.log("❌ FOUND APPLICANTS WITH WRONG CONSULTANT_ID:");
-      wrongApplicants.forEach(applicant => {
-        console.log("  Wrong applicant:", {
-          name: `${applicant.first_name} ${applicant.last_name}`,
-          expected_id: id,
-          actual_consultant_id: applicant.consultant_id || applicant.consultancy,
-          applicant_id: applicant.id
-        });
-      });
-    }
   }
-
-  // TEMPORARY FIX: Filter applicants on client-side to ensure only correct ones show
-  const filteredApplicants = data?.data?.results?.filter(applicant => {
-    const applicantConsultantId = applicant.consultant_id || applicant.consultancy;
-    return applicantConsultantId === id;
-  }) || [];
-
-  console.log("✅ FILTERED APPLICANTS (client-side):", filteredApplicants.length, "out of", data?.data?.results?.length || 0);
 
   return (
     <section className='space-y-5'>
       <h1 className='text-xl font-bold'>Submitted Applications</h1>
       <Card>
         <TableFilters>
-          {!isFetching && (!filteredApplicants || filteredApplicants.length === 0) ? (
+          {!isFetching && (!mappedApplicants || mappedApplicants.length === 0) ? (
             <div className="text-center py-12 text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
               <div className="flex flex-col items-center gap-3">
                 <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
@@ -100,11 +80,11 @@ export default function ConsultancyStaffList() {
           ) : (
             <DataTable
               columns={consultancyStaffColumns}
-              data={filteredApplicants}
+              data={mappedApplicants}
               isLoading={isFetching}
               pagination={data?.data?.pagination ? {
-                total: filteredApplicants.length, // Use filtered count for pagination
-                pageSize: data.data.pagination.page_size ?? 0,
+                total: data.data.pagination.count ?? mappedApplicants.length,
+                pageSize: data.data.pagination.page_size ?? 10,
                 onChange: (page: number) => setCurrentPage(page),
               } : undefined}
             />
