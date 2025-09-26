@@ -1,5 +1,4 @@
 import FormButton from "@/components/FormButton";
-import { Button } from "@/components/ui/button";
 import {
     Select,
     SelectContent,
@@ -9,7 +8,7 @@ import {
 } from "@/components/ui/select";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { FormEvent, useState } from "react";
-import { usePatchRiskManagementPlanController } from "@/features/programs/controllers/riskManagementController";
+import { usePatchRiskManagementPlan } from "@/features/programs/controllers/riskPlansController";
 import { toast } from "sonner";
 import { closeDialog } from "store/ui";
 
@@ -28,8 +27,8 @@ export default function ChangeRiskStatusModal() {
 
     const dispatch = useAppDispatch();
 
-    const [patchRiskManagementPlan, { isLoading }] =
-        usePatchRiskManagementPlanMutation();
+    const { patchRiskManagementPlan, isLoading } =
+        usePatchRiskManagementPlan(id);
 
     const handleChangeStatus = (value: string) => {
         setStatus(value);
@@ -39,10 +38,7 @@ export default function ChangeRiskStatusModal() {
         e.preventDefault();
 
         try {
-            await patchRiskManagementPlan({
-                id,
-                body: { risk_status: status },
-            });
+            await patchRiskManagementPlan({ risk_status: status });
 
             dispatch(closeDialog());
             toast.success("Updated Risk Status");

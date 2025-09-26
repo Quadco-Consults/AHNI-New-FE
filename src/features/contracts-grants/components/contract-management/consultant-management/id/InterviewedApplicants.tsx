@@ -39,10 +39,36 @@ export default function InterviewedApplicants() {
     enabled: !!consultancyId,
   });
 
-  // Filter only interviewed applicants
-  const interviewedApplicants = data?.data?.results?.filter(
+  // Enhanced Debug logging for interviewed applicants
+  console.log("🔍 InterviewedApplicants Debug:");
+  console.log("- Current Consultancy ID:", consultancyId);
+  console.log("- Raw Data:", data);
+  console.log("- Results Count:", data?.data?.results?.length || 0);
+
+  if (data?.data?.results) {
+    console.log("🚨 ALL APPLICANTS ANALYSIS:");
+    data.data.results.forEach((applicant, index) => {
+      console.log(`  Applicant ${index + 1}:`, {
+        name: `${applicant.first_name} ${applicant.last_name}`,
+        consultant_id: applicant.consultant_id || applicant.consultancy || "NOT_SET",
+        status: applicant.status,
+        id: applicant.id
+      });
+    });
+  }
+
+  // First filter only interviewed applicants, then filter by correct consultant ID
+  const allInterviewedApplicants = data?.data?.results?.filter(
     (applicant) => applicant.status === "INTERVIEWED"
   ) || [];
+
+  // TEMPORARY FIX: Filter interviewed applicants to ensure only correct consultant ID
+  const interviewedApplicants = allInterviewedApplicants.filter(applicant => {
+    const applicantConsultantId = applicant.consultant_id || applicant.consultancy;
+    return applicantConsultantId === consultancyId;
+  });
+
+  console.log("✅ FILTERED INTERVIEWED (client-side):", interviewedApplicants.length, "out of", allInterviewedApplicants.length, "interviewed applicants");
 
   // Contract issuance handler
   const handleIssueContract = async (applicantId: string, applicantName: string) => {

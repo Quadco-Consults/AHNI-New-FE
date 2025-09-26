@@ -114,7 +114,7 @@ export const useCreateTravelExpense = () => {
     queryKey: ["travelExpenses"],
     isAuth: true,
     method: "POST",
-    contentType: "multipart/form-data", // Standard multipart
+    contentType: null, // Let axios handle FormData properly
   });
 
   const createTravelExpense = async (details: TTravelExpenseFormData | FormData) => {
@@ -138,8 +138,8 @@ export const useModifyTravelExpense = (id: string) => {
     endpoint: `${BASE_URL}${id}/`,
     queryKey: ["travelExpenses", "travelExpense"],
     isAuth: true,
-    method: "PUT",
-    contentType: "multipart/form-data", // Standard multipart
+    method: "PATCH", // Changed from PUT to PATCH
+    contentType: "multipart/form-data", // Explicitly set contentType for FormData
   });
 
   const modifyTravelExpense = async (body: TTravelExpenseFormData | FormData) => {
@@ -147,6 +147,7 @@ export const useModifyTravelExpense = (id: string) => {
       await callApi(body);
     } catch (error) {
       console.error("Travel expense modify error:", error);
+      throw error; // Re-throw to allow form to handle the error
     }
   };
 
