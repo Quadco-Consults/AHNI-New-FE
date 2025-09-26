@@ -14,6 +14,7 @@ export interface ApprovalInfo {
   reviewDate?: string;
   creationDate?: string;
   authorizationDate?: string;
+  signDate?: string;
   status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'UNDER_REVIEW';
   comments?: string;
   level?: string;

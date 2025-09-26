@@ -14,7 +14,7 @@ import { Button } from "components/ui/button";
 import { AdminRoutes } from "constants/RouterConstants";
 import BackNavigation from "components/atoms/BackNavigation";
 import { Separator } from "components/ui/separator";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useCallback } from "react";
 import { toast } from "sonner";
 import AddSquareIconFaded from "components/icons/AddSquareIconFaded";
 import DeleteIcon from "components/icons/DeleteIcon";
@@ -42,7 +42,7 @@ export default function SimpleTravelExpenseReportPage() {
       user: "",
       staff_id: "",
       travel_purpose: "",
-      document: undefined,
+      document: null, // Use null instead of undefined for controlled inputs
       reviewer: "",
       authorizer: "",
       approver: "",
@@ -58,15 +58,27 @@ export default function SimpleTravelExpenseReportPage() {
   // API Hooks
   const { data: users } = useGetAllUsers({ page: 1, size: 1000 });
   const { data: expenseAuth } = useGetAllExpenseAuthorizations({ page: 1, size: 1000 });
-  const { data: travelExpense } = useGetSingleTravelExpense(id || "", !!id);
+  const { data: travelExpense, isLoading: isTravelExpenseLoading, error: travelExpenseError } = useGetSingleTravelExpense(id || "", !!id);
   const { createTravelExpense, isLoading: isCreateLoading } = useCreateTravelExpense();
   const { modifyTravelExpense, isLoading: isModifyLoading } = useModifyTravelExpense(id || "");
+
+  // Debug API calls
+  useEffect(() => {
+    console.log('🔍 API CALLS STATUS:', {
+      id: id,
+      isEditMode: !!id,
+      travelExpenseLoading: isTravelExpenseLoading,
+      travelExpenseData: !!travelExpense,
+      travelExpenseError: travelExpenseError,
+      apiCallEnabled: !!id
+    });
+  }, [id, isTravelExpenseLoading, travelExpense, travelExpenseError]);
 
   // Options for select fields
   const userOptions = useMemo(() => {
     console.log('🔍 USERS DATA STRUCTURE:', users);
-    // Users API likely follows the same structure pattern
-    const userResults = users?.results || users?.data?.results;
+    // API actually returns data.results structure
+    const userResults = (users as any)?.data?.results || users?.results;
     return userResults?.map((user: any) => ({
       label: `${user.first_name} ${user.last_name}`,
       value: user.id,
@@ -75,8 +87,8 @@ export default function SimpleTravelExpenseReportPage() {
 
   const expenseAuthorizationOptions = useMemo(() => {
     console.log('🔍 EXPENSE AUTH DATA STRUCTURE:', expenseAuth);
-    // Based on the API response, use data.results
-    const authResults = expenseAuth?.data?.results;
+    // API actually returns data.results structure
+    const authResults = (expenseAuth as any)?.data?.results || expenseAuth?.results;
     return authResults?.map((auth: any) => ({
       label: auth.authorization_number || auth.id || `Auth ${auth.id?.slice(0, 8)}`,
       value: auth.id,
@@ -88,26 +100,108 @@ export default function SimpleTravelExpenseReportPage() {
     { label: "No", value: "false" },
   ];
 
+  // Function to calculate total amount for an activity
+  const calculateTotalAmount = useCallback((index: number) => {
+    const activity = form.watch(`activities.${index}`);
+    if (!activity) return;
+
+    const airportTaxi = parseFloat(activity.airport_taxi_fee) || 0;
+    const registration = parseFloat(activity.registration_fee) || 0;
+    const interCityTaxi = parseFloat(activity.inter_city_taxi_fee) || 0;
+    const others = parseFloat(activity.others || "0") || 0;
+
+    const total = airportTaxi + registration + interCityTaxi + others;
+    form.setValue(`activities.${index}.total_amount`, total.toFixed(2));
+  }, [form]);
+
+  // Watch for changes in expense fields to auto-calculate total
+  const watchedActivities = form.watch('activities');
+  const selectedUserId = form.watch('user');
+
+  // Watch all form values for debugging
+  const allFormValues = form.watch();
+
+  // Debug: Log form values whenever they change
+  useEffect(() => {
+    if (Object.keys(allFormValues).length > 0) {
+      console.log('🔄 FORM VALUES UPDATED:', {
+        basic_info: {
+          expense_authorization: allFormValues.expense_authorization,
+          user: allFormValues.user,
+          staff_id: allFormValues.staff_id,
+          travel_purpose: allFormValues.travel_purpose,
+          reviewer: allFormValues.reviewer,
+          authorizer: allFormValues.authorizer,
+          approver: allFormValues.approver,
+        },
+        document: allFormValues.document ? 'FILE SELECTED' : 'NO FILE',
+        activities_count: allFormValues.activities?.length || 0,
+        activities_summary: allFormValues.activities?.map((act, i) => `Day ${i+1}: ${act.activity || 'Empty'} (${act.date || 'No date'})`),
+      });
+    }
+  }, [allFormValues]);
+
+  useEffect(() => {
+    watchedActivities.forEach((_, index) => {
+      const activity = watchedActivities[index];
+      if (activity) {
+        calculateTotalAmount(index);
+      }
+    });
+  }, [watchedActivities, calculateTotalAmount]);
+
+  // Auto-populate Staff ID when user is selected
+  useEffect(() => {
+    if (selectedUserId && users) {
+      const userResults = (users as any)?.data?.results || users?.results;
+      const selectedUser = userResults?.find((user: any) => user.id === selectedUserId);
+      console.log('🔍 SELECTED USER DATA:', selectedUser);
+
+      // Try different possible field names for employee ID
+      // Since IUser interface doesn't have employee_id or staff_id, use id as fallback
+      const employeeId = (selectedUser as any)?.employee_id || (selectedUser as any)?.staff_id || selectedUser?.id?.slice(0, 8);
+
+      if (employeeId) {
+        form.setValue('staff_id', employeeId);
+      }
+    }
+  }, [selectedUserId, users, form]);
+
+  // Helper function to convert ISO datetime to date format
+  const convertToDateFormat = (isoString: string) => {
+    if (!isoString) return "";
+    return isoString.split('T')[0]; // Extract YYYY-MM-DD part from ISO string
+  };
+
   // Load existing data for edit mode
   useEffect(() => {
+    console.log('🔄 EDIT MODE CHECK:', {
+      hasTravelExpenseData: !!travelExpense?.data,
+      hasId: !!id,
+      travelExpenseData: travelExpense?.data
+    });
+
     if (travelExpense?.data && id) {
+      console.log('✅ LOADING EDIT MODE DATA');
       const data = travelExpense.data;
+
+      console.log('📊 RAW API DATA FOR EDIT:', data);
 
       const formData = {
         expense_authorization: "", // Not needed for edit
         user: data.user.id,
         staff_id: data.staff_id,
         travel_purpose: data.travel_purpose,
-        document: undefined,
+        document: null, // Use null for consistency
         reviewer: data.approvals?.find(a => a.approval_level === "REVIEW")?.user.id || "",
         authorizer: data.approvals?.find(a => a.approval_level === "AUTHORIZE")?.user.id || "",
         approver: data.approvals?.find(a => a.approval_level === "APPROVE")?.user.id || "",
         activities: data.activities.map(activity => ({
           date: activity.date,
           activity: activity.activity,
-          departure_datetime: activity.departure_datetime,
+          departure_datetime: convertToDateFormat(activity.departure_datetime),
           departure_point: activity.departure_point,
-          arrival_datetime: activity.arrival_datetime,
+          arrival_datetime: convertToDateFormat(activity.arrival_datetime),
           assignment_location: activity.assignment_location,
           visa_free: String(activity.visa_free),
           airport_taxi_fee: activity.airport_taxi_fee,
@@ -118,13 +212,54 @@ export default function SimpleTravelExpenseReportPage() {
         })),
       };
 
+      console.log('🔄 PROCESSED FORM DATA FOR EDIT:', formData);
+      console.log('📋 APPROVALS FOUND:', {
+        reviewer: data.approvals?.find(a => a.approval_level === "REVIEW"),
+        authorizer: data.approvals?.find(a => a.approval_level === "AUTHORIZE"),
+        approver: data.approvals?.find(a => a.approval_level === "APPROVE"),
+      });
+      console.log('🏃 ACTIVITIES CONVERTED:', formData.activities);
+
       form.reset(formData);
+      console.log('✅ FORM RESET WITH EDIT DATA COMPLETE');
+    } else if (id && !travelExpense?.data) {
+      console.log('⏳ WAITING FOR API DATA... ID exists but no data yet');
+    } else {
+      console.log('➕ CREATE MODE - No ID provided');
     }
   }, [travelExpense, form, id]);
 
   const onSubmit = async (data: TTravelExpenseFormData) => {
     try {
-      console.log('📝 TER SUBMISSION:', data);
+      console.log('📝 TER FORM DATA CAPTURED:', data);
+      console.log('🔍 DETAILED FORM BREAKDOWN:');
+      console.log('  📋 Basic Info:', {
+        expense_authorization: data.expense_authorization,
+        user: data.user,
+        staff_id: data.staff_id,
+        travel_purpose: data.travel_purpose,
+        reviewer: data.reviewer,
+        authorizer: data.authorizer,
+        approver: data.approver,
+      });
+      console.log('  📄 Document:', data.document);
+      console.log('  🏃 Activities Count:', data.activities?.length || 0);
+      console.log('  🏃 Activities Details:', data.activities?.map((activity, index) => ({
+        [`Day ${index + 1}`]: {
+          date: activity.date,
+          activity: activity.activity,
+          departure_datetime: activity.departure_datetime,
+          departure_point: activity.departure_point,
+          arrival_datetime: activity.arrival_datetime,
+          assignment_location: activity.assignment_location,
+          visa_free: activity.visa_free,
+          airport_taxi_fee: activity.airport_taxi_fee,
+          registration_fee: activity.registration_fee,
+          inter_city_taxi_fee: activity.inter_city_taxi_fee,
+          total_amount: activity.total_amount,
+          others: activity.others,
+        }
+      })));
 
       // Clean and validate activities
       const cleanActivities = data.activities.filter(activity =>
@@ -152,15 +287,15 @@ export default function SimpleTravelExpenseReportPage() {
         formData.append('expense_authorization', data.expense_authorization);
       }
 
-      // Convert activities to JSON string with proper boolean values
+      // Convert activities to proper format for backend
       const activitiesForBackend = cleanActivities.map(activity => ({
-        date: activity.date,
+        date: activity.date, // Format: "2025-09-25"
         activity: activity.activity,
-        departure_datetime: activity.departure_datetime,
+        departure_datetime: `${activity.departure_datetime}T00:00:00Z`, // ISO format
         departure_point: activity.departure_point,
-        arrival_datetime: activity.arrival_datetime,
+        arrival_datetime: `${activity.arrival_datetime}T00:00:00Z`, // ISO format
         assignment_location: activity.assignment_location,
-        visa_free: activity.visa_free === "true", // Convert to boolean
+        visa_free: activity.visa_free === "true", // boolean, not string
         airport_taxi_fee: activity.airport_taxi_fee,
         registration_fee: activity.registration_fee,
         inter_city_taxi_fee: activity.inter_city_taxi_fee,
@@ -168,16 +303,64 @@ export default function SimpleTravelExpenseReportPage() {
         others: activity.others || "",
       }));
 
-      // Add activities as JSON string
+      // FOR SINGLE TRAVELER MODE: Send only activities field (no travelers field)
+      // Backend validation: Either activities (single traveler) OR travelers (multiple traveler) must be provided
       formData.append('activities', JSON.stringify(activitiesForBackend));
 
-      console.log('🚀 SUBMITTING FORMDATA with activities as JSON string');
-      console.log('Activities JSON:', JSON.stringify(activitiesForBackend, null, 2));
+      // Do NOT send travelers field for single traveler mode
+      // Do NOT send traveler_type field - let backend infer from fields provided
+
+      console.log('🚀 SUBMITTING SINGLE TRAVELER TER');
+      console.log('📋 Activities JSON:', JSON.stringify(activitiesForBackend, null, 2));
+      console.log('❌ Travelers field: NOT SENT (backend validation: either activities OR travelers)');
+      console.log('❌ Traveler_type field: NOT SENT (let backend infer from presence of activities)');
+
+      // Debug FormData contents
+      console.log('📋 FORMDATA CONTENTS:');
+      const formDataObject = {};
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+        formDataObject[key] = value;
+      }
+
+      console.log('📋 FORMDATA AS OBJECT:', formDataObject);
+
+      // Verify the activities field specifically
+      console.log('🔍 BACKEND VALIDATION CHECK:');
+      console.log('✅ Has activities field:', formData.has('activities'));
+      console.log('❌ Has travelers field:', formData.has('travelers'));
+      console.log('❌ Has traveler_type field:', formData.has('traveler_type'));
+
+      console.log('🔍 ACTIVITIES CONTENT:');
+      const activitiesValue = formData.get('activities');
+      console.log('Activities value:', activitiesValue);
+      console.log('Activities type:', typeof activitiesValue);
+      console.log('Activities length:', activitiesValue ? activitiesValue.length : 0);
+
+      if (activitiesValue) {
+        try {
+          const parsedActivities = JSON.parse(activitiesValue as string);
+          console.log('Activities JSON valid:', true);
+          console.log('Activities count:', parsedActivities.length);
+          console.log('First activity:', parsedActivities[0]);
+        } catch (e) {
+          console.error('❌ Activities JSON invalid:', e);
+        }
+      }
+
+      // Check for any potential issues
+      console.log('🚨 POTENTIAL ISSUES CHECK:');
+      console.log('Empty activities?', !activitiesValue || activitiesValue === '[]');
+      console.log('Activities is string?', typeof activitiesValue === 'string');
+      console.log('FormData has multiple entries?', Array.from(formData.keys()).length);
 
       // Submit the main TER data
       if (id) {
+        console.log('🔄 UPDATING TER with ID:', id);
+        console.log('🌐 Update endpoint will be:', `/admins/reports/travel-expenses/${id}/`);
         await modifyTravelExpense(formData as any);
       } else {
+        console.log('➕ CREATING NEW TER');
         await createTravelExpense(formData as any);
       }
 
@@ -192,7 +375,14 @@ export default function SimpleTravelExpenseReportPage() {
       router.push(AdminRoutes.TRAVEL_EXPENSE_REPORT);
     } catch (error: any) {
       console.error('❌ TER ERROR:', error);
-      toast.error(error?.data?.message || "Something went wrong");
+      console.error('❌ Error details:', {
+        message: error?.message,
+        data: error?.data,
+        response: error?.response,
+        status: error?.status || error?.response?.status,
+        statusText: error?.statusText || error?.response?.statusText,
+      });
+      toast.error(error?.data?.message || error?.message || "Something went wrong");
     }
   };
 
@@ -229,10 +419,12 @@ export default function SimpleTravelExpenseReportPage() {
                 />
 
                 <FormInput
-                  label="Staff ID"
+                  label="Staff ID (Auto-populated)"
                   name="staff_id"
-                  placeholder="Enter Staff ID"
+                  placeholder="Select user to auto-populate"
                   required
+                  readOnly
+                  className="bg-gray-50"
                 />
 
                 <FormInput
@@ -395,10 +587,12 @@ export default function SimpleTravelExpenseReportPage() {
                       />
 
                       <FormInput
-                        label="Total Amount"
+                        label="Total Amount (Auto-calculated)"
                         name={`activities.${index}.total_amount`}
-                        placeholder="Enter Total"
+                        placeholder="Auto-calculated"
                         required
+                        readOnly
+                        className="bg-gray-50"
                       />
 
                       <FormInput
