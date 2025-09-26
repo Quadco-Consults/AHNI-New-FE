@@ -92,6 +92,8 @@ export default function ApplicationDetails() {
 
       if (pathname.includes("adhoc-management")) {
         router.push(`${ProgramRoutes.CREATE_ADHOC_WORK_SCOPE}${searchUrl}`);
+      } else if (pathname.includes("facilitator-management")) {
+        router.push(`${CG_ROUTES.CREATE_FACILITATOR_ADVERT_WORK_SCOPE}${searchUrl}`);
       } else {
         router.push(`${CG_ROUTES.CREATE_CONSULTANCY_WORK_SCOPE}${searchUrl}`);
       }
@@ -110,6 +112,11 @@ export default function ApplicationDetails() {
 
   const gradeOptions = grades?.data.results.map(({ name, id }) => ({
     label: name,
+    value: id,
+  }));
+
+  const userOptions = user?.data.results.map(({ first_name, last_name, id }) => ({
+    label: `${first_name} ${last_name}`,
     value: id,
   }));
 
@@ -211,6 +218,17 @@ export default function ApplicationDetails() {
             placeholder='Enter Number of Consultants'
             required
           />
+
+          {/* Show supervisor field only for facilitator management */}
+          {pathname.includes("facilitator-management") && (
+            <FormSelect
+              label='Supervisor'
+              name='supervisor'
+              placeholder='Select Supervisor'
+              required
+              options={userOptions || []}
+            />
+          )}
 
           {/* <div className="flex flex-col gap-y-[1rem]">
                             <Label className="font-semibold">

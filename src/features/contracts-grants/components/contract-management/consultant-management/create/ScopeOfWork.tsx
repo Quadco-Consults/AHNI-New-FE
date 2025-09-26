@@ -31,6 +31,8 @@ import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { useEffect } from "react";
 import { useCreateConsultantAdvertisement } from "@/features/contracts-grants/controllers/consultantAdvertisementController";
+import { useCreateFacilitator } from "@/features/contracts-grants/controllers/facilitatorManagementController";
+import { useGetAllUsers } from "@/features/auth/controllers/userController";
 
 export default function ScopeOfWork() {
   const pathname = usePathname();
@@ -39,7 +41,7 @@ export default function ScopeOfWork() {
 
   const consultantId = searchParams.get("id");
 
-  const type = pathname.includes("adhoc-management") ? "ADHOC" : "CONSULTANT";
+  const type = pathname.includes("adhoc-management") ? "ADHOC" : pathname.includes("facilitator-management") ? "FACILITATOR" : "CONSULTANT";
 
   const router = useRouter();
 
@@ -70,17 +72,30 @@ export default function ScopeOfWork() {
   const { createConsultantAdvertisement, isLoading: isCreateLoading } =
     useCreateConsultantAdvertisement();
 
+  const { createFacilitator, isLoading: isCreateFacilitatorLoading } =
+    useCreateFacilitator();
+
   const { updateConsultantManagement, isLoading: isModifyLoading } =
     useModifyConsultantManagement(consultantId);
 
+  // Get users for supervisor field
+  const { data: users } = useGetAllUsers({ page: 1, size: 10 });
+
   const onSubmit: SubmitHandler<TScopeOfWorkFormData> = async (data) => {
+    console.log("=== SCOPE OF WORK SUBMISSION START ===");
+    console.log("Form data:", data);
+    console.log("Pathname:", pathname);
+    console.log("Consultant ID:", consultantId);
+
     try {
       const applicationDetails: TConsultantanagementDetailsFormData =
         JSON.parse(
           sessionStorage.getItem("consultantManagementFormData") || "{}"
         );
 
-      const payload = {
+      console.log("Application details from sessionStorage:", applicationDetails);
+
+      let payload = {
         ...applicationDetails,
         ...data,
         advertisement_document:
@@ -88,23 +103,72 @@ export default function ScopeOfWork() {
             ? await fileToBase64(data.advertisement_document[0])
             : null,
         // Add type field for create operations
-        ...(consultantId ? {} : { type: type as "CONSULTANT" | "ADHOC" }),
+        ...(consultantId ? {} : { type: type as "CONSULTANT" | "ADHOC" | "FACILITATOR" }),
       };
 
+      // Map consultant fields to facilitator fields when creating facilitators
+      if (pathname?.includes("facilitator-management") && !consultantId) {
+        // Separate application details from scope of work data
+        const { description, background, objectives, deliverables, advertisement_document, scope_of_work_document, ...applicationDetails } = payload;
+
+        payload = {
+          ...applicationDetails,
+          facilitaor_number: payload.consultants_number || payload.facilitaor_number,
+          // Keep advertisement_document at top level for facilitators
+          advertisement_document: advertisement_document || '',
+          // Add facilitator-specific required fields with defaults
+          duration: "30", // Default duration in days
+          extra_info: "Additional information will be provided", // Default extra info
+          evaluation_comments: "To be evaluated during selection process", // Default evaluation comments
+          supervisor: applicationDetails.supervisor || users?.data?.results?.[0]?.id || "", // Use form value first, then fallback to first user
+          // Nest scope of work data as required by facilitator API
+          scope_of_work: {
+            description: description || '',
+            background: background || '',
+            objectives: objectives || '',
+            deliverables: deliverables || [],
+            // Don't include advertisement_document in scope_of_work for facilitators
+            scope_of_work_document: scope_of_work_document || '',
+            location: applicationDetails.locations?.[0] || '', // Use first location from the form
+          }
+        };
+        // Remove consultant-specific field
+        delete payload.consultants_number;
+
+        // Debug: Log the final payload
+        console.log("Facilitator payload:", JSON.stringify(payload, null, 2));
+      }
+
       if (consultantId) {
+        console.log("Updating consultant management...");
         await updateConsultantManagement(payload);
+      } else if (pathname?.includes("facilitator-management")) {
+        console.log("Creating facilitator...");
+        await createFacilitator(payload);
       } else {
+        console.log("Creating consultant advertisement...");
         await createConsultantAdvertisement(payload);
       }
 
+      console.log("API call completed successfully");
+
+      console.log("Navigating after successful submission...");
       if (pathname?.includes("adhoc-management")) {
+        console.log("Redirecting to adhoc management");
         router.push(ProgramRoutes.ADHOC_MANAGEMENT);
+      } else if (pathname?.includes("facilitator-management")) {
+        console.log("Redirecting to facilitator management");
+        router.push(CG_ROUTES.FACILITATOR_ADVERT);
       } else {
+        console.log("Redirecting to consultancy");
         router.push(CG_ROUTES.CONSULTANCY);
       }
     } catch (error: any) {
-      console.log(error);
-      toast.error(error.data.message ?? "Something went wrong");
+      console.log("=== SUBMISSION ERROR ===");
+      console.error("Full error object:", error);
+      console.error("Error message:", error?.message);
+      console.error("Error data:", error?.data);
+      toast.error(error?.data?.message || error?.message || "Something went wrong");
     }
   };
 
@@ -371,7 +435,7 @@ export default function ScopeOfWork() {
               </FadedButton>
               <FormButton
                 size='lg'
-                loading={isCreateLoading || isModifyLoading}
+                loading={isCreateLoading || isModifyLoading || isCreateFacilitatorLoading}
               >
                 Submit
               </FormButton>

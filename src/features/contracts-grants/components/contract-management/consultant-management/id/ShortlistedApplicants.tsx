@@ -26,38 +26,55 @@ export default function ShortlistedAppplicants() {
       : skipToken
   );
 
-  // Enhanced Debug logging for shortlisted
-  console.log("🔍 ShortlistedApplicants Debug:");
-  console.log("- Current Adhoc/Consultant ID:", id);
-  console.log("- Data:", data);
-  console.log("- Results Count:", data?.data?.results?.length || 0);
+  // Map API response to expected format for shortlisted applicants
+  const mappedShortlistedApplicants = data?.data?.results?.map(applicant => ({
+    ...applicant,
+    // Map name fields
+    first_name: applicant.first_name || applicant.name || 'Unknown',
+    last_name: applicant.last_name || applicant.contractor_name || '',
+    name: applicant.name || `${applicant.first_name || ''} ${applicant.last_name || ''}`.trim() || 'Unknown',
+    // Ensure consultant_id is present
+    consultant_id: applicant.consultant_id || id,
+    consultancy: applicant.consultancy || id,
+    // Handle potentially problematic fields
+    technical_monitor_user: typeof applicant.technical_monitor_user === 'object'
+      ? applicant.technical_monitor_user?.name || 'N/A'
+      : applicant.technical_monitor_user || 'N/A',
+    location: typeof applicant.location === 'object'
+      ? applicant.location?.name || 'N/A'
+      : applicant.location || 'N/A',
+    project: typeof applicant.project === 'object'
+      ? applicant.project?.name || 'N/A'
+      : applicant.project || 'N/A',
+    contract_request: typeof applicant.contract_request === 'object'
+      ? applicant.contract_request?.name || 'N/A'
+      : applicant.contract_request || 'N/A',
+  })) || [];
 
-  if (data?.data?.results) {
-    console.log("🚨 SHORTLISTED APPLICANT ANALYSIS:");
-    data.data.results.forEach((applicant, index) => {
+  console.log("🔍 ShortlistedApplicants Debug:");
+  console.log("- Current Consultant ID:", id);
+  console.log("- Original Results Count:", data?.data?.results?.length || 0);
+  console.log("- Mapped Results Count:", mappedShortlistedApplicants.length);
+  console.log("- Is Fetching:", isFetching);
+
+  if (mappedShortlistedApplicants.length > 0) {
+    console.log("✅ SHORTLISTED APPLICANT DATA:");
+    mappedShortlistedApplicants.forEach((applicant, index) => {
       console.log(`  Shortlisted ${index + 1}:`, {
-        name: applicant.name || `${applicant.first_name} ${applicant.last_name}`,
-        consultant_id: applicant.consultant_id || applicant.consultancy || "NOT_SET",
+        name: `${applicant.first_name} ${applicant.last_name}`,
+        email: applicant.email,
         status: applicant.status,
         id: applicant.id
       });
     });
   }
 
-  // TEMPORARY FIX: Filter applicants on client-side to ensure only correct ones show
-  const filteredShortlistedApplicants = data?.data?.results?.filter(applicant => {
-    const applicantConsultantId = applicant.consultant_id || applicant.consultancy;
-    return applicantConsultantId === id;
-  }) || [];
-
-  console.log("✅ FILTERED SHORTLISTED (client-side):", filteredShortlistedApplicants.length, "out of", data?.data?.results?.length || 0);
-
   return (
     <section className='space-y-5'>
       <h1 className='text-xl font-bold'>Shortlisted Applicants</h1>
       <Card>
         <TableFilters>
-          {!isFetching && (!filteredShortlistedApplicants || filteredShortlistedApplicants.length === 0) ? (
+          {!isFetching && (!mappedShortlistedApplicants || mappedShortlistedApplicants.length === 0) ? (
             <div className="text-center py-12 text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
               <div className="flex flex-col items-center gap-3">
                 <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
@@ -79,11 +96,11 @@ export default function ShortlistedAppplicants() {
           ) : (
             <DataTable
               columns={shortlistedApplicantColumn}
-              data={filteredShortlistedApplicants}
+              data={mappedShortlistedApplicants}
               isLoading={isFetching}
               pagination={{
-                total: filteredShortlistedApplicants.length, // Use filtered count
-                pageSize: data?.data?.pagination?.page_size ?? 0,
+                total: data?.data?.pagination?.count ?? mappedShortlistedApplicants.length,
+                pageSize: data?.data?.pagination?.page_size ?? 10,
                 onChange: (page: number) => setCurrentPage(page),
               }}
             />
