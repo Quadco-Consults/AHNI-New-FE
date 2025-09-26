@@ -32,14 +32,52 @@ export interface GoalNarrative {
 export interface CreateGoalPayload {
   employee: string;
   title: string;
-  description: string;
-  status?: string;
+  description?: string;
+  status?: "not_started" | "in_progress" | "completed" | "on_hold" | "cancelled";
   start_date?: string;
   end_date?: string;
   narratives: GoalNarrative[];
 }
 
-const BASE_URL = "/hr/employee-goals/";
+const BASE_URL = "hr/employees/goal/";
+const CREATE_GOALS_URL = "hr/employees/goal/";
+
+// Validation helper function
+export const validateGoalPayload = (payload: CreateGoalPayload): string[] => {
+  const errors: string[] = [];
+
+  // Check narrative weights sum to 100
+  const totalWeight = payload.narratives.reduce((sum, n) => sum + n.weight, 0);
+  if (totalWeight !== 100) {
+    errors.push(`Narrative weights must sum to 100, got ${totalWeight}`);
+  }
+
+  // Check individual weight ranges
+  payload.narratives.forEach((narrative, index) => {
+    if (narrative.weight < 0 || narrative.weight > 100) {
+      errors.push(`Narrative ${index + 1} weight must be between 0-100`);
+    }
+  });
+
+  // Check dates
+  if (payload.start_date && payload.end_date &&
+      new Date(payload.start_date) > new Date(payload.end_date)) {
+    errors.push("End date must be after start date");
+  }
+
+  // Check required fields
+  if (!payload.employee) {
+    errors.push("Employee ID is required");
+  }
+  if (!payload.title?.trim()) {
+    errors.push("Goal title is required");
+  }
+  if (payload.narratives.length === 0) {
+    errors.push("At least one narrative is required");
+  }
+
+  return errors;
+};
 
 // ===== GOALS HOOKS =====
 
@@ -120,7 +158,7 @@ export const useCreateGoal = () => {
     Error,
     CreateGoalPayload
   >({
-    endpoint: BASE_URL,
+    endpoint: CREATE_GOALS_URL,
     queryKey: ["goals", "employee-goals"],
     isAuth: true,
     method: "POST",
@@ -128,9 +166,16 @@ export const useCreateGoal = () => {
 
   const createGoal = async (details: CreateGoalPayload) => {
     try {
+      // Validate payload before making API call
+      const validationErrors = validateGoalPayload(details);
+      if (validationErrors.length > 0) {
+        throw new Error(validationErrors.join(". "));
+      }
+
       await callApi(details);
     } catch (error) {
       console.error("Goal create error:", error);
+      throw error; // Re-throw to allow calling component to handle
     }
   };
 
@@ -144,7 +189,7 @@ export const useCreateMultipleGoals = () => {
     Error,
     CreateGoalPayload
   >({
-    endpoint: BASE_URL,
+    endpoint: CREATE_GOALS_URL,
     queryKey: ["goals", "employee-goals"],
     isAuth: true,
     method: "POST",
@@ -152,6 +197,14 @@ export const useCreateMultipleGoals = () => {
 
   const createMultipleGoals = async (goals: CreateGoalPayload[]) => {
     try {
+      // Validate all goals before making API calls
+      for (const goal of goals) {
+        const validationErrors = validateGoalPayload(goal);
+        if (validationErrors.length > 0) {
+          throw new Error(`Goal "${goal.title}": ${validationErrors.join(". ")}`);
+        }
+      }
+
       const results = [];
       for (const goal of goals) {
         const result = await callApi(goal);

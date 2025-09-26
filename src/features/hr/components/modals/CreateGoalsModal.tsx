@@ -12,7 +12,7 @@ import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import GoalForm from "@/features/hr/components/workforce-database/id/GoalForm";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
-import { useCreateMultipleGoals, CreateGoalPayload } from "@/features/hr/controllers/goalsController";
+import { useCreateGoal, CreateGoalPayload } from "@/features/hr/controllers/goalsController";
 import { goalsStorage } from "@/features/hr/utils/goalsStorage";
 
 export const GoalSchema = z.object({
@@ -32,7 +32,7 @@ const CreateGoalsModal = () => {
   const dispatch = useAppDispatch();
   const employeeId = dialogProps?.data as string;
 
-  const { createMultipleGoals, isLoading: creatingGoals, isSuccess, error: createError } = useCreateMultipleGoals();
+  const { createGoal, isLoading: creatingGoals, isSuccess, error: createError } = useCreateGoal();
 
   console.log({ employeeId });
 
@@ -73,9 +73,9 @@ const CreateGoalsModal = () => {
           employee: employeeId,
           title: goal.goal || "",
           description: goal.competency || "",
-          status: "pending",
+          status: "not_started",
           narratives: [{
-            description: goal.goal || "",
+            description: goal.competency || goal.goal || "",
             weight: parseFloat(goal.weight || "100"),
             completed: false
           }]
@@ -86,19 +86,33 @@ const CreateGoalsModal = () => {
         return;
       }
 
+      // Validate that weights sum to 100% for each goal
+      for (const goal of goalsPayload) {
+        const totalWeight = goal.narratives.reduce((sum, narrative) => sum + narrative.weight, 0);
+        if (totalWeight !== 100) {
+          toast.error(`Goal "${goal.title}" narratives must sum to 100%. Currently: ${totalWeight}%`);
+          return;
+        }
+      }
+
       console.log("Goals to create:", goalsPayload);
 
-      // Try API first
+      // Try API first - create goals one by one
       try {
-        await createMultipleGoals(goalsPayload);
+        for (const goalPayload of goalsPayload) {
+          console.log("Creating goal:", goalPayload);
+          await createGoal(goalPayload);
+        }
         // API success will be handled by the success handler below
       } catch (apiError: any) {
         console.log("API failed, falling back to local storage:", apiError);
+        console.error("Backend deployment issue: Goal creation endpoint doesn't support POST method");
+        toast.warning("Backend temporarily unavailable, saving goals locally");
 
         // Fallback to local storage - convert back to old format for storage compatibility
         const legacyGoalsPayload = goalsPayload.map(goal => ({
           goal: goal.title,
-          competency: goal.description,
+          competency: goal.description || "",
           weight: goal.narratives[0]?.weight.toString() || "100",
           employee_id: goal.employee,
         }));

@@ -145,9 +145,18 @@ const CreateUsers = () => {
     
     // STEP 1: Always create in main users table first
     const createdUser = await createUser(data);
-    const userId = createdUser?.data?.id; // Assuming API returns created user with ID
-    
+    console.log("Created user response:", createdUser);
+
+    // Try different possible response structures
+    const userId = createdUser?.data?.id ||
+                   (createdUser as any)?.id ||
+                   (createdUser as any)?.data?.data?.id ||
+                   (createdUser as any)?.user?.id;
+
+    console.log("Extracted user ID:", userId);
+
     if (!userId) {
+      console.error("Full API response:", JSON.stringify(createdUser, null, 2));
       throw new Error("Failed to create user - no user ID returned");
     }
     
@@ -303,8 +312,8 @@ const CreateUsers = () => {
       // Basic adhoc staff information
       title: `Adhoc Staff - ${userData.first_name} ${userData.last_name} [INCOMPLETE PROFILE]`,
       
-      // Use user's location data (ensure non-empty array)
-      locations: userData.location ? [userData.location] : ["TBD"],
+      // Use user's location data (ensure non-empty tuple as required by schema)
+      locations: [userData.location || "TBD"] as [string, ...string[]],
       
       // Default values for required fields
       grade_level: userData.position || "To be determined",
@@ -332,8 +341,8 @@ const CreateUsers = () => {
       title: `Facilitator - ${userData.first_name} ${userData.last_name} [INCOMPLETE PROFILE]`,
       grade_level: userData.position || "To be determined",
       
-      // Use user's location data (ensure non-empty array)
-      locations: userData.location ? [userData.location] : ["TBD"],
+      // Use user's location data (ensure non-empty tuple as required by schema)
+      locations: [userData.location || "TBD"] as [string, ...string[]],
       
       // Default values for required fields
       duration: "365", // One year in days
@@ -378,8 +387,8 @@ const CreateUsers = () => {
       // Basic consultant information
       title: `Consultant - ${userData.first_name} ${userData.last_name} [INCOMPLETE PROFILE]`,
       
-      // Use user's location data (ensure non-empty array)
-      locations: userData.location ? [userData.location] : ["TBD"],
+      // Use user's location data (ensure non-empty tuple as required by schema)
+      locations: [userData.location || "TBD"] as [string, ...string[]],
       
       // Default values for required fields
       grade_level: userData.position || "To be determined",
@@ -428,8 +437,8 @@ const CreateUsers = () => {
       marital_status: "⚠️ TO BE COMPLETED",
       
       // Default values for required boolean fields (as per schema requirements)
-      own_computer: true, // Schema expects literal true
-      require_email_access: true, // Schema expects literal true
+      own_computer: true as const, // Schema expects literal true
+      require_email_access: true as const, // Schema expects literal true
       
       // Project assignment
       project: "⚠️ TO BE ASSIGNED",
