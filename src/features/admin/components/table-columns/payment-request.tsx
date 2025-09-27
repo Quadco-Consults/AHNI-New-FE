@@ -23,40 +23,101 @@ export const paymentRequestColumns: ColumnDef<IPaymentRequestPaginatedData>[] =
     {
       header: "Payment To",
       id: "payment_to",
-      accessorKey: "payment_to",
+      accessorFn: ({ payment_items }) => {
+        // Display the first payment recipient or handle multiple items
+        if (payment_items && payment_items.length > 0) {
+          const firstItem = payment_items[0];
+          if (payment_items.length === 1) {
+            return firstItem.payment_to;
+          } else {
+            return `${firstItem.payment_to} (+${payment_items.length - 1} more)`;
+          }
+        }
+        return "N/A";
+      },
       size: 150,
     },
 
     {
       header: "Amount in Figures",
       id: "amount_in_figures",
-      accessorFn: ({ amount_in_figures }) =>
-        formatNumberCurrency(amount_in_figures, "NGN"),
+      accessorFn: ({ total_amount, payment_items }) => {
+        // Use total_amount if available, otherwise sum payment_items
+        if (total_amount) {
+          return formatNumberCurrency(parseFloat(total_amount), "NGN");
+        }
+
+        if (payment_items && payment_items.length > 0) {
+          const total = payment_items.reduce((sum, item) => {
+            return sum + parseFloat(item.amount_in_figures || "0");
+          }, 0);
+          return formatNumberCurrency(total, "NGN");
+        }
+
+        return formatNumberCurrency(0, "NGN");
+      },
       size: 200,
     },
 
     {
       header: "Requested By",
       id: "requested_by",
-      accessorKey: "requested_by",
+      accessorFn: ({ requested_by }) => {
+        // Handle both string and object formats
+        if (typeof requested_by === 'string') {
+          return requested_by;
+        }
+        if (requested_by && typeof requested_by === 'object') {
+          return requested_by.full_name || requested_by.email || "N/A";
+        }
+        return "N/A";
+      },
     },
 
     {
       header: "Payment Date",
       id: "payment_date",
-      accessorFn: ({ payment_date }) => format(payment_date, "dd-MMM-yyyy"),
+      accessorFn: ({ payment_date }) => {
+        try {
+          if (!payment_date) return "N/A";
+          return format(new Date(payment_date), "dd-MMM-yyyy");
+        } catch (error) {
+          console.warn("Invalid payment date:", payment_date);
+          return "Invalid Date";
+        }
+      },
     },
 
     {
       header: "Bank",
       id: "bank_name",
-      accessorKey: "bank_name",
+      accessorFn: ({ payment_items }) => {
+        if (payment_items && payment_items.length > 0) {
+          const firstItem = payment_items[0];
+          if (payment_items.length === 1) {
+            return firstItem.bank_name || "N/A";
+          } else {
+            return `${firstItem.bank_name || "N/A"} (+${payment_items.length - 1} more)`;
+          }
+        }
+        return "N/A";
+      },
     },
 
     {
       header: "Account Number",
       id: "account_number",
-      accessorKey: "account_number",
+      accessorFn: ({ payment_items }) => {
+        if (payment_items && payment_items.length > 0) {
+          const firstItem = payment_items[0];
+          if (payment_items.length === 1) {
+            return firstItem.account_number || "N/A";
+          } else {
+            return `${firstItem.account_number || "N/A"} (+${payment_items.length - 1} more)`;
+          }
+        }
+        return "N/A";
+      },
     },
 
     {

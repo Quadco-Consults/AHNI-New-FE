@@ -476,7 +476,7 @@ export const CG_ROUTES = {
     "/dashboard/c-and-g/consultancy/:id/create-interview",
 
   CONSULTANCY_APPLICATION_DETAILS:
-    "/api/v1/contract-grants/consultancy-applications_details/:id",
+    "/dashboard/c-and-g/consultancy/:id/applicant/:applicantId/details",
   CONSULTANCY_SHORTLIST_METRIC:
     "/api/v1/consultancy/shortlisted-applications-metrics/:id",
   CONSULTANCY_SLA: "/dashboard/c-and-g/consultancy/sla",
@@ -601,4 +601,6 @@ export enum ProgramRoutes {
 
   ADHOC_ACCEPTANCE = "/dashboard/programs/adhoc/adhoc-acceptance",
   ADHOC_ACCEPTANCE_DETAILS = "/dashboard/programs/adhoc/adhoc-acceptance/details",
+  ADHOC_CONTRACT_RECIPIENTS = "/dashboard/programs/adhoc/contract-recipients",
+  ADHOC_ACCEPTED_CONTRACTS = "/dashboard/programs/adhoc/accepted-contracts",
 }

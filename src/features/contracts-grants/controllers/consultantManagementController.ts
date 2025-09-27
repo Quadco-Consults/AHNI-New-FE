@@ -40,6 +40,7 @@ interface ConsultantManagementFilterParams {
   size?: number;
   search?: string;
   type?: string;
+  status?: string;
   enabled?: boolean;
 }
 
@@ -55,7 +56,7 @@ interface TConsultantManagementUpdateFormData
   extends TConsultantanagementDetailsFormData,
     TScopeOfWorkFormData {}
 
-const BASE_URL = "/contract-grants/consultancy/applicants/"; // Fixed: Should use consultancy applicants endpoint
+const BASE_URL = "/contract-grants/consultants/"; // Fixed: Should use consultants endpoint for advertisements
 
 // ===== CONSULTANT MANAGEMENT HOOKS =====
 
@@ -70,6 +71,14 @@ export const useGetAllConsultantManagements = ({
   return useQuery<PaginatedResponse<IConsultantPaginatedData>>({
     queryKey: ["consultantManagements", page, size, search, type],
     queryFn: async () => {
+      console.log('=== QUERY FUNCTION EXECUTING ===');
+      console.log('Making API call to:', BASE_URL, 'with params:', {
+        page,
+        size,
+        ...(search && { search }),
+        ...(type && { type }),
+      });
+
       try {
         const response = await AxiosWithToken.get(BASE_URL, {
           params: {
@@ -79,16 +88,23 @@ export const useGetAllConsultantManagements = ({
             ...(type && { type }),
           },
         });
+        console.log('=== API SUCCESS ===', response.data);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+        console.error('=== API ERROR ===', axiosError.response?.data || axiosError.message);
+        console.error('Error status:', axiosError.response?.status);
+        console.error('Error details:', axiosError);
         throw new Error(
-          "Sorry: " + (axiosError.response?.data as any)?.message
+          "Sorry: " + (axiosError.response?.data as any)?.message || axiosError.message
         );
       }
     },
     enabled: enabled,
     refetchOnWindowFocus: false,
+    staleTime: 0,
+    gcTime: 0,
+    retry: 1,
   });
 };
 
@@ -98,10 +114,11 @@ export const useGetAllExistingConsultants = ({
   size = 20,
   search = "",
   type = "",
+  status = "",
   enabled = true,
 }: ConsultantManagementFilterParams) => {
   return useQuery<PaginatedResponse<IConsultantPaginatedData>>({
-    queryKey: ["existingConsultants", page, size, search, type],
+    queryKey: ["existingConsultants", page, size, search, type, status],
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(
@@ -112,6 +129,7 @@ export const useGetAllExistingConsultants = ({
               size,
               ...(search && { search }),
               ...(type && { type }),
+              ...(status && { status }),
             },
           }
         );

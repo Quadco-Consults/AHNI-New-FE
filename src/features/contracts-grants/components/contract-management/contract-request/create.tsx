@@ -38,6 +38,7 @@ export default function CreateContractRequest() {
       request_type: "",
       department: "",
       consultants_count: "",
+      service_type: "",
       location: "",
       fco: "",
       technical_monitor: "",
@@ -98,9 +99,13 @@ export default function CreateContractRequest() {
 
   const userOptions = useMemo(
     () =>
-      user?.data.results.map(({ first_name, last_name, id }) => ({
-        label: `${first_name} ${last_name}`,
-        value: id,
+      user?.data.results.map((userData) => ({
+        label: userData.full_name ||
+               [userData.first_name, userData.last_name]
+                 .filter(name => name && name.trim())
+                 .join(" ") ||
+               userData.email || "User",
+        value: userData.id,
       })),
     [user?.data.results]
   );
@@ -113,13 +118,13 @@ export default function CreateContractRequest() {
 
   const onSubmit = async (data: any) => {
     console.log("Form submitted with data:", data);
-    
+
     // Validate required fields before submission
     if (!data.location || data.location === "") {
       toast.error("Please select a location");
       return;
     }
-    
+
     if (!data.current_reviewer || data.current_reviewer === "") {
       toast.error("Please select a current reviewer");
       return;
@@ -127,16 +132,19 @@ export default function CreateContractRequest() {
 
     try {
       if (id) {
-        await modifyContractRequest({ id, body: data });
+        console.log("Updating contract with data:", data);
+        await modifyContractRequest(data);
         toast.success("Contract Updated Successfully");
       } else {
+        console.log("Creating contract with data:", data);
         await createContractRequest(data);
         toast.success("Contract Created Successfully");
       }
 
       //   router.push(CG_ROUTES.ContractRequest);
     } catch (error: any) {
-      toast.error(error?.data?.message ?? "Something went wrong");
+      console.error("Contract request submission error:", error);
+      toast.error(error?.message || error?.data?.message || "Something went wrong");
     }
   };
 
@@ -178,13 +186,43 @@ export default function CreateContractRequest() {
               options={departmentOptions}
             />
 
-            <FormInput
-              type='number'
-              label='No of Consultants'
-              name='consultants_count'
-              placeholder='Enter consultants number'
-              required
-            />
+            {/* Conditionally show consultants count only for ADHOC, CONSULTANT, or FACILITATOR */}
+            {(form.watch('request_type') === 'ADHOC' ||
+              form.watch('request_type') === 'CONSULTANT' ||
+              form.watch('request_type') === 'FACILITATOR') && (
+              <FormInput
+                type='number'
+                label='No of Consultants'
+                name='consultants_count'
+                placeholder='Enter consultants number'
+                required
+              />
+            )}
+
+            {/* Conditionally show service type dropdown only for SERVICE */}
+            {form.watch('request_type') === 'SERVICE' && (
+              <FormSelect
+                label='Service Type'
+                name='service_type'
+                placeholder='Select service type'
+                required
+                options={[
+                  { label: "Catering Services", value: "CATERING" },
+                  { label: "Cleaning Services", value: "CLEANING" },
+                  { label: "Security Services", value: "SECURITY" },
+                  { label: "Transportation Services", value: "TRANSPORTATION" },
+                  { label: "IT Services", value: "IT_SERVICES" },
+                  { label: "Maintenance Services", value: "MAINTENANCE" },
+                  { label: "Printing Services", value: "PRINTING" },
+                  { label: "Photography/Videography", value: "PHOTOGRAPHY" },
+                  { label: "Event Management", value: "EVENT_MANAGEMENT" },
+                  { label: "Training Services", value: "TRAINING" },
+                  { label: "Legal Services", value: "LEGAL" },
+                  { label: "Financial Services", value: "FINANCIAL" },
+                  { label: "Other Services", value: "OTHER" },
+                ]}
+              />
+            )}
 
             <FormSelect
               label='Location'

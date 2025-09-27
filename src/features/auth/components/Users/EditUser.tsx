@@ -18,6 +18,7 @@ import { useUpdateFacilitator } from "@/features/contracts-grants/controllers/fa
 import { useUpdateConsultantManagement } from "@/features/contracts-grants/controllers/consultantManagementController";
 import { useUpdateVendor } from "@/features/procurement/controllers/vendorsController";
 import { useUpdateEmployeeOnboarding } from "@/features/hr/controllers/employeeOnboardingController";
+import { useCreateEmployeeOnboardingBankAcct, useUpdateEmployeeOnboardingBankAcct } from "@/features/hr/controllers/hrEmployeeOnboardingBankAccountController";
 import { toast } from "sonner";
 import { closeDialog, dailogSelector } from "store/ui";
 import { TUpdateUserFormValues, UpdateUserSchema } from "features/auth/types/user";
@@ -189,6 +190,10 @@ export default function EditUserModal() {
   // For now, using userId as a placeholder until we implement proper ID lookup
   const { updateEmployeeOnboarding, isLoading: isEmployeeUpdateLoading } = useUpdateEmployeeOnboarding();
 
+  // Bank account management - for adhoc staff, consultants, etc.
+  const { createEmployeeOnboardingBankAcct, isLoading: isBankCreateLoading } = useCreateEmployeeOnboardingBankAcct();
+  const { updateEmployeeOnboardingBankAcct, isLoading: isBankUpdateLoading } = useUpdateEmployeeOnboardingBankAcct(userId || "");
+
   const onSubmit: SubmitHandler<TUpdateUserFormValues> = async (data) => {
     if (!userId) return;
     
@@ -253,6 +258,11 @@ export default function EditUserModal() {
         // Only exists in main users table - no specialized table to update
         break;
     }
+
+    // STEP 3: Update bank account details for applicable user types
+    if (data.bank_name || data.account_number || data.account_name) {
+      await updateUserBankAccount(userId, data);
+    }
   };
 
   // Functions to update specialized table records (linked to main user)
@@ -291,10 +301,34 @@ export default function EditUserModal() {
 
   const updateWorkforceUserRecord = async (userId: string, data: TUpdateUserFormValues) => {
     console.log("Updating workforce record for user:", userId, data);
-    
+
     // Update employee onboarding record in workforce database
     const workforceUpdateData = mapUserUpdateToWorkforce(data);
     await updateEmployeeOnboarding(workforceUpdateData);
+  };
+
+  // Function to update bank account details
+  const updateUserBankAccount = async (userId: string, data: TUpdateUserFormValues) => {
+    console.log("Updating bank account details for user:", userId, data);
+
+    // Create or update bank account record
+    const bankAccountData = {
+      bank_name: data.bank_name || "",
+      branch_name: data.branch_name || "",
+      account_name: data.account_name || "",
+      account_number: data.account_number || "",
+      sort_code: data.sort_code || "",
+      employee: userId, // Link to the user
+    };
+
+    try {
+      // Try to update first (in case bank account already exists)
+      await updateEmployeeOnboardingBankAcct(bankAccountData);
+    } catch (error) {
+      // If update fails, try to create new bank account record
+      console.log("Update failed, attempting to create new bank account record");
+      await createEmployeeOnboardingBankAcct(bankAccountData);
+    }
   };
 
   // Helper function to map user update data to vendor format
@@ -510,7 +544,7 @@ export default function EditUserModal() {
                 <label htmlFor='is_active' className='text-sm font-medium'>
                   Status (Active)
                 </label>
-                <Switch 
+                <Switch
                   id='is_active'
                   checked={form.watch('is_active')}
                   onCheckedChange={(checked) => form.setValue('is_active', checked)}
@@ -518,8 +552,73 @@ export default function EditUserModal() {
               </div>
             </div>
 
+            {/* Financial Details Section - Show for Adhoc Staff, Consultants, and Vendors */}
+            {(form.watch('user_type') === 'ADHOC_STAFF' || form.watch('user_type') === 'CONSULTANT' || form.watch('user_type') === 'VENDOR') && (
+              <div className='space-y-4'>
+                <div className='border-t pt-6'>
+                  <h3 className='text-lg font-semibold text-gray-800 mb-4'>
+                    Financial & Payment Details
+                  </h3>
+
+                  <div className='grid grid-cols-2 gap-x-7 gap-y-7'>
+                    {/* Bank Account Details */}
+                    <FormInput
+                      label='Bank Name'
+                      name='bank_name'
+                      placeholder='Enter bank name'
+                    />
+                    <FormInput
+                      label='Branch Name'
+                      name='branch_name'
+                      placeholder='Enter branch name'
+                    />
+                    <FormInput
+                      label='Account Name'
+                      name='account_name'
+                      placeholder='Enter account holder name'
+                    />
+                    <FormInput
+                      label='Account Number'
+                      name='account_number'
+                      placeholder='Enter account number'
+                      type='text'
+                    />
+                    <FormInput
+                      label='Sort Code'
+                      name='sort_code'
+                      placeholder='Enter sort code'
+                      type='text'
+                    />
+
+                    {/* Additional Financial Fields */}
+                    {(form.watch('user_type') === 'ADHOC_STAFF' || form.watch('user_type') === 'CONSULTANT') && (
+                      <>
+                        <FormInput
+                          label='Proposed Salary/Rate'
+                          name='proposed_salary'
+                          placeholder='Enter proposed salary or daily rate'
+                          type='text'
+                        />
+                        <FormSelect
+                          label='Payment Frequency'
+                          name='payment_frequency'
+                          placeholder='Select payment frequency'
+                          options={[
+                            { label: 'Daily', value: 'DAILY' },
+                            { label: 'Weekly', value: 'WEEKLY' },
+                            { label: 'Monthly', value: 'MONTHLY' },
+                            { label: 'Per Project', value: 'PROJECT' },
+                          ]}
+                        />
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className='flex justify-end'>
-              <FormButton loading={isUpdateLoading || isVendorUpdateLoading || isAdhocUpdateLoading || isFacilitatorUpdateLoading || isEmployeeUpdateLoading}>Update User</FormButton>
+              <FormButton loading={isUpdateLoading || isVendorUpdateLoading || isAdhocUpdateLoading || isFacilitatorUpdateLoading || isEmployeeUpdateLoading || isBankCreateLoading || isBankUpdateLoading}>Update User</FormButton>
             </div>
           </form>
         </Form>

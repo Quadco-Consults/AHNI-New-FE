@@ -20,6 +20,7 @@ import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { TSupervisionPlanPaginatedData } from "@/features/programs/types/program/plan/supervision-plan/supervision-plan";
+import ApprovalSummary from "components/ApprovalSummary";
 
 export const supportiveSupervisionPlanColumns: ColumnDef<TSupervisionPlanPaginatedData>[] =
   [
@@ -83,19 +84,26 @@ export const supportiveSupervisionPlanColumns: ColumnDef<TSupervisionPlanPaginat
       header: "Approval Status",
       id: "approval_status",
       accessorKey: "approval_status",
-      size: 100,
-      cell: ({ getValue }) => {
+      size: 150,
+      cell: ({ getValue, row }) => {
+        const approvalStatus = getValue() as string;
+        const rowData = row.original;
+
+        // Mock approval data - replace with actual data from your API
+        const approvalInfo = {
+          name: "John Doe", // Replace with actual approver name
+          position: "Manager", // Replace with actual approver position
+          status: approvalStatus?.toUpperCase() as any || 'PENDING',
+          approvalDate: rowData.updated_datetime || rowData.created_datetime,
+          creationDate: rowData.created_datetime,
+          level: "Level 1", // Replace with actual approval level
+        };
+
         return (
-          <Badge
-            variant='default'
-            className={cn(
-              "p-1 rounded-lg",
-              getValue() === "APPROVED" && "bg-green-100 text-green-500",
-              getValue() === "Reject" && "bg-red-100 text-red-500"
-            )}
-          >
-            {getValue() as string}
-          </Badge>
+          <ApprovalSummary
+            approval={approvalInfo}
+            variant="badge"
+          />
         );
       },
     },
@@ -121,7 +129,19 @@ const TableMenu = ({ id }: TSupervisionPlanPaginatedData) => {
       toast.success("Supervision Plan Deleted");
       setDialogOpen(false);
     } catch (error: any) {
-      toast.error(error?.message ?? "Something went wrong");
+      let errorMessage = "Something went wrong";
+
+      // Check for foreign key constraint error
+      if (error?.message?.includes("protected foreign keys") ||
+          error?.message?.includes("SupportiveSupervisionReview")) {
+        errorMessage = "Cannot delete this supervision plan because it has associated evaluation reviews. Please delete the reviews first or contact an administrator.";
+      } else if (error?.message?.includes("Cannot delete")) {
+        errorMessage = "Cannot delete this supervision plan because it has associated records. Please remove dependent records first.";
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+
+      toast.error(errorMessage);
     }
   };
   return (
@@ -178,7 +198,7 @@ const TableMenu = ({ id }: TSupervisionPlanPaginatedData) => {
                 Approve
               </Button>
               <Link
-                href={`/dashboard/programs/plan/supportive-supervision-plan/${id}/approval`}
+                href={`${RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS_APPROVAL.replace(":id", id)}`}
               >
                 <Button
                   className='w-full flex items-center justify-start gap-2'
@@ -203,7 +223,8 @@ const TableMenu = ({ id }: TSupervisionPlanPaginatedData) => {
 
       <ConfirmationDialog
         open={dialogOpen}
-        title='Are you sure you want to delete this supervision plan?'
+        title='Delete Supervision Plan'
+        description='Are you sure you want to delete this supervision plan? This action cannot be undone. Note: Plans with associated evaluation reviews cannot be deleted.'
         loading={isLoading}
         onCancel={() => setDialogOpen(false)}
         onOk={onDelete}

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import {
   useCreateGoodReceiveNote,
   useModifyGoodReceiveNote,
+  useDebugCreateGoodReceiveNote,
 } from "@/features/admin/controllers/goodReceiveNoteController";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import React, { useEffect, useState } from "react";
@@ -31,11 +32,17 @@ export default function GRNFileUploads() {
     if (storedData) {
       try {
         const parsedData = JSON.parse(storedData);
+        console.log("🔍 Raw localStorage data:", storedData);
+        console.log("🔍 Parsed GRN data:", parsedData);
+        console.log("🔍 grn_items in parsed data:", parsedData?.formData?.grn_items);
         setGrnData(parsedData);
       } catch (error) {
         console.error("Failed to parse GRN form data:", error);
         toast.error("Failed to load form data");
       }
+    } else {
+      console.error("❌ No GRN form data found in localStorage");
+      toast.error("No form data found. Please go back and fill the form again.");
     }
   }, []);
 
@@ -49,6 +56,9 @@ export default function GRNFileUploads() {
 
   const { createGoodReceiveNote, isLoading: isCreateLoading } =
     useCreateGoodReceiveNote();
+
+  const { debugCreateGoodReceiveNote, isLoading: isDebugLoading } =
+    useDebugCreateGoodReceiveNote();
 
   const { modifyGoodReceiveNote, isLoading: isModifyLoading } =
     useModifyGoodReceiveNote(grnData?.editId || "");
@@ -67,12 +77,28 @@ export default function GRNFileUploads() {
       // Create FormData to include both GRN data and files
       const formData = new FormData();
 
+      // First, validate grn_items exists
+      if (!grnData.formData.grn_items || grnData.formData.grn_items.length === 0) {
+        console.error("❌ No grn_items found in form data!");
+        console.error("❌ Full form data:", grnData.formData);
+        toast.error("No items found to process. Please go back and add items.");
+        return;
+      }
+
+      console.log("📋 GRN Items being sent:", grnData.formData.grn_items);
+
       // Append all GRN data fields
       Object.entries(grnData.formData).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
-          if (typeof value === "object" && Array.isArray(value)) {
+          if (key === "grn_items" && Array.isArray(value)) {
+            // For grn_items, send as JSON string for multipart requests
+            const jsonString = JSON.stringify(value);
+            console.log(`📤 Appending ${key} as JSON:`, jsonString);
+            formData.append(key, jsonString);
+          } else if (typeof value === "object" && Array.isArray(value)) {
             formData.append(key, JSON.stringify(value));
           } else {
+            console.log(`📤 Appending ${key}:`, String(value));
             formData.append(key, String(value));
           }
         }
@@ -85,11 +111,59 @@ export default function GRNFileUploads() {
         });
       }
 
+      // Debug: Log FormData contents
+      console.log("📤 FormData being sent:");
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+      }
+
       let res;
-      if (grnData.isEdit) {
-        res = await modifyGoodReceiveNote(formData as any);
-      } else {
-        res = await createGoodReceiveNote(formData as any);
+
+      // DEBUG MODE: Test with debug endpoint first to see what backend receives
+      const DEBUG_MODE = true; // Set to false to use real endpoint
+
+      if (DEBUG_MODE) {
+        console.log("🔬 DEBUG MODE: Using debug endpoint");
+        try {
+          if (!files || files.length === 0) {
+            console.log("🔬 DEBUG: Testing JSON payload");
+            res = await debugCreateGoodReceiveNote(grnData.formData as any);
+          } else {
+            console.log("🔬 DEBUG: Testing FormData payload");
+            res = await debugCreateGoodReceiveNote(formData as any);
+          }
+
+          if (res) {
+            toast.success("Debug: Data structure sent successfully! Check backend logs.");
+            console.log("🔬 Debug response:", res);
+          }
+        } catch (error: any) {
+          console.log("🔬 Debug endpoint not available, falling back to regular creation");
+          // Fall back to regular creation if debug endpoint doesn't exist
+        }
+      }
+
+      // Regular creation flow
+      if (!DEBUG_MODE || !res) {
+        // Test: Try sending as JSON first (without files) to isolate the issue
+        if (!files || files.length === 0) {
+          console.log("🧪 Testing: Sending as JSON (no files)");
+          console.log("🧪 JSON payload:", grnData.formData);
+
+          // Send as regular JSON instead of FormData
+          if (grnData.isEdit) {
+            res = await modifyGoodReceiveNote(grnData.formData as any);
+          } else {
+            res = await createGoodReceiveNote(grnData.formData as any);
+          }
+        } else {
+          console.log("🧪 Testing: Sending as FormData (with files)");
+          if (grnData.isEdit) {
+            res = await modifyGoodReceiveNote(formData as any);
+          } else {
+            res = await createGoodReceiveNote(formData as any);
+          }
+        }
       }
 
       if (res?.status === "success") {
@@ -131,7 +205,7 @@ export default function GRNFileUploads() {
             </Button>
           </Link>
 
-          <FormButton size='lg' loading={isCreateLoading || isModifyLoading}>
+          <FormButton size='lg' loading={isCreateLoading || isModifyLoading || isDebugLoading}>
             Finish
           </FormButton>
         </div>

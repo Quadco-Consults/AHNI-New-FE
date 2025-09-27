@@ -189,7 +189,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                     }}
                     className={cn(
                       "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
-                      pathname.startsWith(link.path) && "text-primary "
+                      link.path && pathname && pathname.startsWith(link.path) && "text-primary "
                     )}
                   >
                     <div className="flex w-[85%] items-center gap-2">
@@ -234,14 +234,14 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                               }}
                               className={cn(
                                 "flex items-center justify-start gap-2",
-                                pathname.startsWith(el.path) &&
+                                el.path && pathname && pathname.startsWith(el.path) &&
                                   " text-amber-400 "
                               )}
                             >
                               <span
                                 className={cn(
                                   "bg-black hover:bg-amber-400 aspect-square w-2 truncate rounded-full border",
-                                  pathname.startsWith(el.path) &&
+                                  el.path && pathname && pathname.startsWith(el.path) &&
                                     " bg-amber-400 border-amber-400 hover:bg-amber-400"
                                 )}
                               ></span>
@@ -273,10 +273,10 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                             {el?.sublinks?.map((sublink: any) => (
                               <Link
                                 key={sublink.name}
-                                href={sublink.path}
+                                href={sublink.path || "#"}
                                 className={cn(
                                   "",
-                                  pathname.startsWith(sublink.path) && "text-amber-400"
+                                  sublink.path && pathname && pathname.startsWith(sublink.path) && "text-amber-400"
                                 )}
                               >
                                 <li className="py-2 ml-8 list-none hover:text-amber-400 hover:cursor-pointer">
@@ -289,22 +289,22 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                       ) : (
                         <Link
                           key={i}
-                          href={el.path}
+                          href={el.path || "#"}
                           className={cn(
                             "",
-                            pathname.startsWith(el.path) && "text-amber-400"
+                            el.path && pathname && pathname.startsWith(el.path) && "text-amber-400"
                           )}
                         >
                           <li
                             className={cn(
                               "hover:text-amber-400 flex items-center justify-start gap-2 text-sm",
-                              pathname.startsWith(el.path) && " text-amber-400 "
+                              el.path && pathname && pathname.startsWith(el.path) && " text-amber-400 "
                             )}
                           >
                             <span
                               className={cn(
                                 "bg-black hover:bg-amber-400 aspect-square w-2 rounded-full border",
-                                pathname.startsWith(el.path) &&
+                                el.path && pathname && pathname.startsWith(el.path) &&
                                   " bg-amber-400 border-amber-400 hover:bg-amber-400"
                               )}
                             ></span>
@@ -341,7 +341,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                       }}
                       className={cn(
                         "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
-                        pathname.startsWith(link.path) && "text-primary "
+                        link.path && pathname && pathname.startsWith(link.path) && "text-primary "
                       )}
                     >
                       <div className="flex w-[85%] items-center gap-2">
@@ -388,14 +388,14 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                                 }}
                                 className={cn(
                                   "flex items-center justify-start gap-2",
-                                  pathname.startsWith(el.path) &&
+                                  el.path && pathname && pathname.startsWith(el.path) &&
                                     " text-amber-400 "
                                 )}
                               >
                                 <span
                                   className={cn(
                                     "bg-black hover:bg-amber-400 aspect-square w-2 truncate rounded-full border",
-                                    pathname.startsWith(el.path) &&
+                                    el.path && pathname && pathname.startsWith(el.path) &&
                                       " bg-amber-400 border-amber-400 hover:bg-amber-400"
                                   )}
                                 ></span>
@@ -427,10 +427,10 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                               {el?.sublinks?.map((sublink: any) => (
                                 <Link
                                   key={sublink.name}
-                                  href={sublink.path}
+                                  href={sublink.path || "#"}
                                   className={cn(
                                     "",
-                                    pathname.startsWith(sublink.path) && "text-amber-400"
+                                    sublink.path && pathname && pathname.startsWith(sublink.path) && "text-amber-400"
                                   )}
                                 >
                                   <li className="py-2 ml-8 list-none hover:text-amber-400 hover:cursor-pointer">
@@ -443,23 +443,23 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                         ) : (
                           <Link
                             key={i}
-                            href={el.path}
+                            href={el.path || "#"}
                             className={cn(
                               "",
-                              pathname.startsWith(el.path) && "text-amber-400"
+                              el.path && pathname && pathname.startsWith(el.path) && "text-amber-400"
                             )}
                           >
                             <li
                               className={cn(
                                 "hover:text-amber-400 flex items-center justify-start gap-2 text-sm",
-                                pathname.startsWith(el.path) &&
+                                el.path && pathname && pathname.startsWith(el.path) &&
                                   " text-amber-400 "
                               )}
                             >
                               <span
                                 className={cn(
                                   "bg-black hover:bg-amber-400 aspect-square w-2 rounded-full border",
-                                  pathname.startsWith(el.path) &&
+                                  el.path && pathname && pathname.startsWith(el.path) &&
                                     " bg-amber-400 border-amber-400 hover:bg-amber-400"
                                 )}
                               ></span>
@@ -514,10 +514,10 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
               return (
                 <Link
                   key={id}
-                  href={path}
+                  href={path || "#"}
                   className={cn(
                     "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
-                    pathname.startsWith(path) && "text-primary "
+                    path && pathname && pathname.startsWith(path) && "text-primary "
                   )}
                 >
                   <div className="flex w-[85%] items-center gap-2">
@@ -675,6 +675,16 @@ const getDeparmentalLinks = () => {
             {
               name: "Adhoc Acceptance",
               path: "/dashboard/programs/adhoc/adhoc-acceptance",
+            },
+
+            {
+              name: "Contract Recipients",
+              path: "/dashboard/programs/adhoc/contract-recipients",
+            },
+
+            {
+              name: "Accepted Contracts",
+              path: "/dashboard/programs/adhoc/accepted-contracts",
             },
           ],
         },

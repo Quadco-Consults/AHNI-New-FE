@@ -38,8 +38,25 @@ const SspDetails = () => {
     id ? { planId: id } : skipToken
   );
 
-  const doesReviewExist = planReview && planReview?.data.results.length > 0;
-  console.log({ doesReviewExist, planReview });
+  const doesReviewExist = planReview && planReview?.data?.results?.length > 0;
+
+  // Debug: Check if reviews exist
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Evaluation status:', {
+      hasId: !!id,
+      doesReviewExist,
+      reviewCount: planReview?.data?.results?.length || 0
+    });
+  }
+
+  // Generate safe hrefs with fallbacks
+  const evaluationDetailsHref = id && ProgramRoutes.SUPERVISION_PLAN_EVALUATION_DETAILS
+    ? ProgramRoutes.SUPERVISION_PLAN_EVALUATION_DETAILS.replace(":supervisionPlanId", id as string)
+    : "#";
+
+  const managementHref = id && RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_MANAGEMENT
+    ? RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_MANAGEMENT.replace(":id", id as string)
+    : "#";
 
   if (isLoading) {
     return <Loading />;
@@ -59,28 +76,20 @@ const SspDetails = () => {
         </Button>
 
         <div className='space-x-3'>
-          {doesReviewExist && (
-            <Link
-              href={`${ProgramRoutes.SUPERVISION_PLAN_EVALUATION_DETAILS.replace(
-                ":supervisionPlanId",
-                id as string
-              )}`}
-            >
+          {doesReviewExist && id && (
+            <Link href={evaluationDetailsHref}>
               <FadedButton className='text-primary'>
                 View Evaluation
               </FadedButton>
             </Link>
           )}
-          <Link
-            href={`${RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_MANAGEMENT.replace(
-              ":id",
-              id as string
-            )}`}
-          >
-            <Button>
-              {doesReviewExist ? "Update Evaluation" : "Start Evaluation"}
-            </Button>
-          </Link>
+          {id && (
+            <Link href={managementHref}>
+              <Button>
+                {doesReviewExist ? "Update Evaluation" : "Start Evaluation"}
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
 
@@ -137,18 +146,26 @@ const SspDetails = () => {
           <Label className='font-semibold'>Team Members</Label>
 
           <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
-            {supervisionPlan?.data.team_members.map((member) => (
-              <Card className='border-yellow-600 space-y-3'>
+            {supervisionPlan?.data.team_members.map((member: any) => (
+              <Card key={member.id} className='border-yellow-600 space-y-3'>
                 <div className='flex items-center gap-5'>
-                  <h4 className='w-1/3 font-medium'>Full Name</h4>
-                  <h4>
-                    {member.first_name} {member.last_name}
-                  </h4>
+                  <h4 className='w-1/3 font-medium'>Full Name:</h4>
+                  <h4>{member.full_name || `${member.first_name} ${member.last_name}` || member.fullName}</h4>
                 </div>
                 <div className='flex items-center gap-5'>
                   <h4 className='w-1/3 font-medium'>Email:</h4>
                   <h4>{member.email}</h4>
                 </div>
+                <div className='flex items-center gap-5'>
+                  <h4 className='w-1/3 font-medium'>Department:</h4>
+                  <h4>{member.department?.name || member.department || 'N/A'}</h4>
+                </div>
+                {member.employee_id && (
+                  <div className='flex items-center gap-5'>
+                    <h4 className='w-1/3 font-medium'>Employee ID:</h4>
+                    <h4>{member.employee_id}</h4>
+                  </div>
+                )}
               </Card>
             ))}
           </div>

@@ -84,11 +84,29 @@ export const useGetSingleContractRequest = (id: string, enabled: boolean = true)
     queryKey: ["contractRequest", id],
     queryFn: async () => {
       try {
+        console.log(`Fetching contract request from: ${BASE_URL}${id}`);
         const response = await AxiosWithToken.get(`${BASE_URL}${id}`);
+        console.log("Contract request response:", response.data);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        console.error("Contract request fetch error:", {
+          status: axiosError.response?.status,
+          statusText: axiosError.response?.statusText,
+          data: axiosError.response?.data,
+          url: `${BASE_URL}${id}`
+        });
+
+        // Provide more specific error messages
+        if (axiosError.response?.status === 404) {
+          throw new Error("Contract request not found. It may have been deleted or the ID is incorrect.");
+        } else if (axiosError.response?.status === 403) {
+          throw new Error("You don't have permission to view this contract request.");
+        } else if (axiosError.response?.status === 401) {
+          throw new Error("Authentication required. Please log in again.");
+        } else {
+          throw new Error("Sorry: " + ((axiosError.response?.data as any)?.message || axiosError.message || "Unknown error occurred"));
+        }
       }
     },
     enabled: enabled && !!id,

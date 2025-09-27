@@ -5,7 +5,8 @@ export const ContractRequestSchema = z.object({
   title: z.string().min(1, "Please enter Request title"),
   request_type: z.string().min(1, "Please select request type"),
   department: z.string().min(1, "Please select request department"),
-  consultants_count: z.string().min(1, "Please enter no of consultants"),
+  consultants_count: z.string().optional(),
+  service_type: z.string().optional(),
   location: z.string().min(1, "Please select request location").refine(val => val !== "", "Please select request location"),
   fco: z.string().min(1, "Please select FCO"),
   technical_monitor: z.string().min(1, "Please select technical monitor"),
@@ -15,6 +16,24 @@ export const ContractRequestSchema = z.object({
   authorizer: z.string().optional(),
   approver: z.string().optional(),
   // reference_number: z.string().min(1, "Please enter reference number"),
+}).refine((data) => {
+  // Make consultants_count required only for ADHOC, CONSULTANT, or FACILITATOR
+  if (data.request_type === 'ADHOC' || data.request_type === 'CONSULTANT' || data.request_type === 'FACILITATOR') {
+    return data.consultants_count && data.consultants_count.trim() !== '';
+  }
+  return true;
+}, {
+  message: "Please enter number of consultants",
+  path: ["consultants_count"]
+}).refine((data) => {
+  // Make service_type required only for SERVICE
+  if (data.request_type === 'SERVICE') {
+    return data.service_type && data.service_type.trim() !== '';
+  }
+  return true;
+}, {
+  message: "Please select service type",
+  path: ["service_type"]
 });
 
 export type TContractRequestFormData = z.infer<typeof ContractRequestSchema>;

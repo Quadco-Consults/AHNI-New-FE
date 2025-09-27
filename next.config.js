@@ -14,7 +14,7 @@ const nextConfig = {
   experimental: {
     forceSwcTransforms: false, // Force using Babel instead of SWC
   },
-  pageExtensions: ['ts', 'tsx', 'js', 'jsx'],
+
   webpack: (config, { isServer }) => {
     // Enable caching back for better performance
     config.cache = {

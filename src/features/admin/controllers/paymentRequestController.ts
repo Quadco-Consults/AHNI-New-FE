@@ -66,16 +66,24 @@ export const useGetAllPaymentRequests = ({
             ...(status && { status }),
           },
         });
+
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+        console.error("Payment Request API Error:", {
+          status: axiosError.response?.status,
+          data: axiosError.response?.data,
+          message: axiosError.message
+        });
         throw new Error(
-          "Sorry: " + (axiosError.response?.data as any)?.message
+          "Database Error: The server is having issues accessing payment request data. This may be due to a database schema mismatch."
         );
       }
     },
     enabled: enabled,
     refetchOnWindowFocus: false,
+    retry: 1, // Only retry once instead of multiple times
+    retryDelay: 5000, // Wait 5 seconds before retry
   });
 };
 
@@ -254,9 +262,34 @@ export const useApprovePaymentRequest = (id: string) => {
   return { approvePaymentRequest, data, isLoading, isSuccess, error };
 };
 
+// Reject Payment Request
+export const useRejectPaymentRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IPaymentRequestSingleData,
+    Error,
+    ApprovalPayload
+  >({
+    endpoint: `${BASE_URL}${id}/reject/`,
+    queryKey: ["paymentRequests", "paymentRequest"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const rejectPaymentRequest = async (comment: string) => {
+    try {
+      await callApi({ comments: comment });
+    } catch (error) {
+      console.error("Payment request reject error:", error);
+    }
+  };
+
+  return { rejectPaymentRequest, data, isLoading, isSuccess, error };
+};
+
 // Legacy exports for backward compatibility
 export const useGetAllPaymentRequestsQuery = useGetAllPaymentRequests;
 export const useGetSinglePaymentRequestQuery = useGetSinglePaymentRequest;
 export const useCreatePaymentRequestMutation = useCreatePaymentRequest;
 export const useModifyPaymentRequestMutation = useModifyPaymentRequest;
 export const useDeletePaymentRequestMutation = useDeletePaymentRequest;
+export const useRejectPaymentRequestMutation = useRejectPaymentRequest;

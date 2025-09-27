@@ -19,6 +19,7 @@ import {
   useCreateFuelConsumption,
   useGetSingleFuelConsumption,
   useEditFuelConsumption,
+  useGetLastOdometerReading,
 } from "@/features/admin/controllers/fuelConsumptionController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
@@ -26,6 +27,8 @@ import { useGetAllFCONumbers } from "@/features/modules/controllers/finance/fcoN
 import { useGetVendors } from "@/features/procurement/controllers/vendorController";
 import { toast } from "sonner";
 import { useGetAllItemsQuery } from "@/features/modules/controllers";
+import { CATEGORY_IDS, PAGINATION_DEFAULTS } from "@/constants/categories";
+import { standardizeApiResponse, standardizeErrorMessage } from "@/utils/fuelRequestHelpers";
 
 export default function CreateFuelConsumption() {
   const form = useForm<TFuelRequestFormValues>({
@@ -49,46 +52,49 @@ export default function CreateFuelConsumption() {
   const searchParams = useSearchParams();
   const id = searchParams?.get("id");
 
-  // Fetch vehicles with category filter for "vehicle"
+  // Fetch vehicles with optimized pagination and category filter
   const { data: asset } = useGetAllItemsQuery({
     page: 1,
-    size: 2000000,
-    category: "b0983944-f926-4141-8e28-093960d75246",
+    size: PAGINATION_DEFAULTS.DROPDOWN_SIZE,
+    category: CATEGORY_IDS.VEHICLE,
   });
 
   const assetOptions = useMemo(
     () =>
-      asset?.data?.results?.map(({ name, id }: any) => ({
-        label: name,
+      standardizeApiResponse(asset)?.map(({ name, id }: any) => ({
+        label: name || 'Unknown Asset',
         value: id,
       })) || [],
     [asset]
   );
 
-  const { data: user } = useGetAllUsers({ page: 1, size: 2000000, search: "" });
+  const { data: user } = useGetAllUsers({
+    page: 1,
+    size: PAGINATION_DEFAULTS.DROPDOWN_SIZE,
+    search: ""
+  });
 
   const userOptions = useMemo(
     () =>
-      user?.data?.results?.map(
-        ({ first_name, last_name, employee_id }: any) => ({
-          label: `${first_name} ${last_name}`,
-          value: employee_id,
+      standardizeApiResponse(user)?.map(
+        ({ first_name, last_name, employee_id, id }: any) => ({
+          label: `${first_name || ''} ${last_name || ''}`.trim() || 'Unknown User',
+          value: employee_id || id, // Fallback to id if employee_id is not available
         })
       ) || [],
     [user]
   );
-  console.log({ user });
 
   const { data: location } = useGetAllLocations({
     page: 1,
-    size: 2000000,
+    size: PAGINATION_DEFAULTS.DROPDOWN_SIZE,
     search: "",
   });
 
   const locationOptions = useMemo(
     () =>
-      location?.data?.results?.map(({ name, id }: any) => ({
-        label: name,
+      standardizeApiResponse(location)?.map(({ name, id }: any) => ({
+        label: name || 'Unknown Location',
         value: id,
       })) || [],
     [location]
@@ -96,14 +102,14 @@ export default function CreateFuelConsumption() {
 
   const { data: vendor } = useGetVendors({
     page: 1,
-    size: 2000000,
-    approved_categories: "e74bab4f-3059-430c-ae5d-143af5463275",
+    size: PAGINATION_DEFAULTS.DROPDOWN_SIZE,
+    approved_categories: CATEGORY_IDS.FUEL_SUPPLIERS,
   });
 
   const vendorOptions = useMemo(
     () =>
-      vendor?.data?.results?.map(({ company_name, id }: any) => ({
-        label: company_name,
+      standardizeApiResponse(vendor)?.map(({ company_name, id }: any) => ({
+        label: company_name || 'Unknown Vendor',
         value: id,
       })) || [],
     [vendor]
@@ -111,14 +117,14 @@ export default function CreateFuelConsumption() {
 
   const { data: fco } = useGetAllFCONumbers({
     page: 1,
-    size: 2000000,
+    size: PAGINATION_DEFAULTS.DROPDOWN_SIZE,
     search: "",
   });
 
   const fcoOptions = useMemo(
     () =>
-      fco?.data?.results?.map(({ name, id }: any) => ({
-        label: name,
+      standardizeApiResponse(fco)?.map(({ name, id }: any) => ({
+        label: name || 'Unknown FCO',
         value: id,
       })) || [],
     [fco]
@@ -141,11 +147,19 @@ export default function CreateFuelConsumption() {
       }
       router.push(AdminRoutes.INDEX_FUEL_CONSUMPTION);
     } catch (error: any) {
-      toast.error(error?.data?.message ?? "Something went wrong");
+      toast.error(standardizeErrorMessage(error));
     }
   };
 
   const { data: fuelConsumption } = useGetSingleFuelConsumption(id || "", !!id);
+
+  const selectedAsset = form.watch("asset");
+  const currentOdometer = form.watch("odometer");
+
+  const { data: lastOdometerData } = useGetLastOdometerReading(
+    selectedAsset || "",
+    !!selectedAsset && !id
+  );
 
   useEffect(() => {
     if (fuelConsumption) {
@@ -186,6 +200,17 @@ export default function CreateFuelConsumption() {
       form.setValue("amount", String(Number(price) * Number(quantity)));
     }
   }, [price, quantity, form]);
+
+  const calculateDistance = () => {
+    if (lastOdometerData?.lastOdometer && currentOdometer) {
+      const current = Number(currentOdometer);
+      const previous = lastOdometerData.lastOdometer;
+      return current > previous ? current - previous : 0;
+    }
+    return 0;
+  };
+
+  const distanceCovered = calculateDistance();
 
   return (
     <div>
@@ -232,13 +257,46 @@ export default function CreateFuelConsumption() {
                   options={vendorOptions}
                 />
 
-                <FormInput
-                  label='Odometer Reading'
-                  name='odometer'
-                  type='number'
-                  placeholder='Enter Odometer Reading'
-                  required
-                />
+                <div className='space-y-2'>
+                  <FormInput
+                    label='Odometer Reading'
+                    name='odometer'
+                    type='number'
+                    placeholder='Enter Odometer Reading'
+                    required
+                  />
+
+                  {selectedAsset && !id && lastOdometerData && (
+                    <div className='text-xs text-gray-600 bg-gray-50 p-2 rounded border'>
+                      {lastOdometerData.hasPreviousRequest ? (
+                        <div className='space-y-1'>
+                          <div>
+                            <span className='font-medium'>Previous reading:</span> {lastOdometerData.lastOdometer?.toLocaleString()} km
+                          </div>
+                          {lastOdometerData.lastFuelRequestDate && (
+                            <div>
+                              <span className='font-medium'>Last fuel date:</span> {new Date(lastOdometerData.lastFuelRequestDate).toLocaleDateString()}
+                            </div>
+                          )}
+                          {distanceCovered > 0 && (
+                            <div className='text-blue-600 font-medium'>
+                              Distance covered: {distanceCovered.toLocaleString()} km
+                            </div>
+                          )}
+                          {lastOdometerData.fuelEfficiency && (
+                            <div className='text-green-600 text-xs'>
+                              Previous efficiency: {lastOdometerData.fuelEfficiency.toFixed(1)} L/100km
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className='text-amber-600'>
+                          <span className='font-medium'>First fuel request</span> for this vehicle
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
 
                 <FormInput label='Date' name='date' type='date' required />
 
@@ -274,12 +332,17 @@ export default function CreateFuelConsumption() {
                   options={fcoOptions}
                 />
 
-                <FormInput
-                  label='Fuel Coupon'
-                  name='fuel_coupon'
-                  placeholder='Enter Fuel Coupon Number'
-                  required
-                />
+                <div className='space-y-2'>
+                  <FormInput
+                    label='Fuel Coupon'
+                    name='fuel_coupon'
+                    placeholder='Enter Fuel Coupon Number (e.g., FC-2024-001)'
+                    required
+                  />
+                  <p className='text-xs text-gray-500'>
+                    Enter the unique fuel coupon identifier provided by the vendor
+                  </p>
+                </div>
               </div>
 
               <div className='flex justify-end'>

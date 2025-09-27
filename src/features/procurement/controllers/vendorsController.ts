@@ -108,13 +108,30 @@ export const useGetVendor = (id: string, enabled: boolean = true) => {
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+
+        // Handle 404 specifically for vendor not found
+        if (axiosError.response?.status === 404) {
+          console.warn(`Vendor with ID ${id} not found (404)`);
+          const notFoundError = new Error(`Vendor with ID ${id} was not found in the system`);
+          (notFoundError as any).status = 404;
+          (notFoundError as any).response = { status: 404 };
+          throw notFoundError;
+        }
+
         throw new Error(
-          "Sorry: " + (axiosError.response?.data as any)?.message
+          "Sorry: " + (axiosError.response?.data as any)?.message || axiosError.message
         );
       }
     },
     enabled: enabled && !!id,
     refetchOnWindowFocus: false,
+    retry: (failureCount, error) => {
+      // Don't retry on 404 errors
+      if ((error as any)?.status === 404 || (error as any)?.response?.status === 404) {
+        return false;
+      }
+      return failureCount < 3;
+    },
   });
 };
 
