@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
+import { useUpdateConsultancyApplicant } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 
 interface AcceptanceFormData {
     country: string;
@@ -24,6 +25,10 @@ export default function AcceptanceForm() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const params = useParams();
     const router = useRouter();
+    const applicantId = params?.id as string;
+
+    // Get the applicant update function
+    const { updateConsultancyApplicant, isLoading: isUpdateLoading } = useUpdateConsultancyApplicant(applicantId);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -33,25 +38,95 @@ export default function AcceptanceForm() {
         }
     };
 
+    const handleRejectContract = async () => {
+        if (!applicantId) {
+            toast.error("No applicant ID found");
+            return;
+        }
+
+        const confirmReject = window.confirm(
+            "Are you sure you want to reject this contract? This action cannot be undone."
+        );
+
+        if (!confirmReject) return;
+
+        setIsSubmitting(true);
+
+        try {
+            // Update the applicant status to rejected
+            await updateConsultancyApplicant({
+                status: "REJECTED",
+                offer_accepted: false,
+                offer_acceptance_date: new Date().toISOString(),
+            } as any);
+
+            console.log("Contract rejected successfully");
+
+            toast.success("Contract rejected successfully");
+
+            // Navigate back to the acceptance list
+            router.back();
+
+        } catch (error) {
+            console.error("Contract rejection error:", error);
+
+            if (error instanceof Error) {
+                toast.error(`Failed to reject contract: ${error.message}`);
+            } else {
+                toast.error("Failed to reject contract. Please try again.");
+            }
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     const onSubmit = async (data: AcceptanceFormData) => {
         console.log("Acceptance form submission:", data);
         console.log("Selected file:", selectedFile);
-        
+
+        if (!applicantId) {
+            toast.error("No applicant ID found");
+            return;
+        }
+
         setIsSubmitting(true);
-        
+
         try {
-            // Here you would typically submit to an API endpoint
-            // For now, we'll just simulate the submission
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            
-            toast.success("Consultant acceptance form submitted successfully!");
-            
-            // Navigate back or to a success page
-            router.back();
-            
+            // Create form data for applicant update
+            const updateData = {
+                // Update status to indicate contract acceptance
+                status: "ACCEPTED",
+                // Store acceptance details (these fields may need to be added to the API)
+                acceptance_country: data.country,
+                acceptance_city: data.city,
+                acceptance_date: data.date,
+                offer_accepted: true,
+                offer_acceptance_date: new Date().toISOString(),
+                // Note: File upload for signature would need separate handling
+            };
+
+            console.log("Updating applicant with data:", updateData);
+
+            // Update the applicant status and acceptance details
+            await updateConsultancyApplicant(updateData as any);
+
+            console.log("Applicant status updated to ACCEPTED");
+
+            toast.success("Contract accepted successfully!");
+
+            // Navigate to the contract recipients page to show accepted contracts
+            router.push("/dashboard/programs/adhoc/contract-recipients");
+
         } catch (error) {
-            console.error("Acceptance form submission error:", error);
-            toast.error("Failed to submit acceptance form. Please try again.");
+            console.error("Contract acceptance error:", error);
+
+            // Provide more detailed error information
+            if (error instanceof Error) {
+                console.error("Error details:", error.message);
+                toast.error(`Failed to accept contract: ${error.message}`);
+            } else {
+                toast.error("Failed to accept contract. Please try again.");
+            }
         } finally {
             setIsSubmitting(false);
         }
@@ -156,9 +231,22 @@ export default function AcceptanceForm() {
                     </p>
                 </div>
 
-                <FormButton type="submit" size="lg" disabled={isSubmitting}>
-                    {isSubmitting ? "Submitting..." : "Submit"}
-                </FormButton>
+                <div className="flex gap-4">
+                    <FormButton type="submit" size="lg" disabled={isSubmitting || isUpdateLoading} className="flex-1 bg-green-600 hover:bg-green-700">
+                        {(isSubmitting || isUpdateLoading) ? "Accepting Contract..." : "Accept Contract"}
+                    </FormButton>
+
+                    <FormButton
+                        type="button"
+                        size="lg"
+                        variant="outline"
+                        disabled={isSubmitting || isUpdateLoading}
+                        className="flex-1 border-red-300 text-red-600 hover:bg-red-50"
+                        onClick={handleRejectContract}
+                    >
+                        {(isSubmitting || isUpdateLoading) ? "Processing..." : "Reject Contract"}
+                    </FormButton>
+                </div>
             </form>
         </Form>
     );

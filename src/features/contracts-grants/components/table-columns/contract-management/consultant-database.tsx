@@ -12,8 +12,9 @@ import { CG_ROUTES } from "constants/RouterConstants";
 import { IConsultancyReportPaginatedData } from "definations/c&g/contract-management/consultancy-report";
 import { useDeleteConsultancyReport } from "@/features/contracts-grants/controllers/consultancyReportController";
 import EyeIcon from "components/icons/EyeIcon";
+import { IAdhocStaffPaginatedData } from "@/features/programs/types/adhoc-staff";
 
-export const consultantDatabaseColumns: ColumnDef<IConsultancyReportPaginatedData>[] =
+export const consultantDatabaseColumns: ColumnDef<IAdhocStaffPaginatedData>[] =
   [
     {
       header: "Surname",
@@ -175,7 +176,7 @@ export const consultantDatabaseColumns: ColumnDef<IConsultancyReportPaginatedDat
     },
   ];
 
-const TableMenu = ({ id }: IConsultancyReportPaginatedData) => {
+const TableMenu = ({ id }: IAdhocStaffPaginatedData) => {
   const [isDialogOpen, setDialogOpen] = useState(false);
 
   const { deleteConsultancyReport, isLoading } =
@@ -184,7 +185,7 @@ const TableMenu = ({ id }: IConsultancyReportPaginatedData) => {
   const handleDelete = async () => {
     try {
       await deleteConsultancyReport(id)();
-      toast.success("Consultancy Report Deleted");
+      toast.success("Adhoc Staff Deleted");
     } catch (error: any) {
       toast.error(error.data.message ?? "Something went wrong");
     }
@@ -201,7 +202,7 @@ const TableMenu = ({ id }: IConsultancyReportPaginatedData) => {
           </PopoverTrigger>
           <PopoverContent className='w-fit'>
             <Link
-              href={generatePath(CG_ROUTES.CONSULTANCY_REPORT_DETAILS, { id })}
+              href={`/dashboard/programs/adhoc-database/${id}/view`}
             >
               <Button
                 className='w-full flex items-center justify-start gap-2'
@@ -212,10 +213,7 @@ const TableMenu = ({ id }: IConsultancyReportPaginatedData) => {
               </Button>
             </Link>
             <Link
-              href={{
-                pathname: CG_ROUTES.CREATE_CONSULTANCY_REPORT,
-                search: `?id=${id}`,
-              }}
+              href={`/dashboard/programs/adhoc-database/${id}/edit`}
             >
               <Button
                 className='w-full flex items-center justify-start gap-2'

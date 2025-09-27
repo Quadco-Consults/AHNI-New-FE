@@ -154,26 +154,56 @@ const columns: ColumnDef<any>[] = [
   {
     header: "Procurement Plan",
     accessorKey: "description",
-    cell: ({ row }) => row.original?.description || "N/A",
+    cell: ({ row }) => {
+      const description = row.original?.description;
+      if (typeof description === 'object' && description !== null) {
+        return description.name || description.title || description.id || "Unknown";
+      }
+      return String(description || "N/A");
+    },
   },
   {
     header: "Project",
     accessorKey: "project",
-    cell: ({ row }) => row.original?.project || "N/A",
+    cell: ({ row }) => {
+      // Try to get project name from project object or fallback to ID
+      const project = row.original?.project;
+      if (typeof project === 'object' && project !== null) {
+        return project.name || project.title || project.id || "Unknown Project";
+      }
+      return String(project || "N/A");
+    },
   },
   {
     header: "Financial Year",
     accessorKey: "financial_year",
     size: 100,
-    cell: ({ row }) => row.original?.financial_year || "N/A",
+    cell: ({ row }) => {
+      // Try to get financial year name from object or fallback to ID
+      const financialYear = row.original?.financial_year;
+      if (typeof financialYear === 'object' && financialYear !== null) {
+        return financialYear.year || financialYear.name || financialYear.id || "Unknown Year";
+      }
+      return String(financialYear || "N/A");
+    },
   },
   {
-    header: "Budget",
-    accessorKey: "approved_budget",
+    header: "Project Budget",
+    accessorKey: "project.budget",
     size: 100,
     cell: ({ row }) => {
-      const budget = row.original?.approved_budget;
-      return budget ? `$${budget.toLocaleString()}` : "N/A";
+      // Access project budget from the project object
+      const project = row.original?.project;
+      let budget = null;
+
+      if (typeof project === 'object' && project !== null) {
+        budget = project.budget || project.approved_budget || project.total_budget;
+      }
+
+      if (budget && budget > 0) {
+        return `$${budget.toLocaleString()}`;
+      }
+      return "N/A";
     },
   },
   {

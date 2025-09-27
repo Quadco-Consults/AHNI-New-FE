@@ -26,25 +26,85 @@ export default function ShortlistedAppplicants() {
       : skipToken
   );
 
-  // Debug logging for shortlisted
-  console.log("ShortlistedApplicants - Data:", data);
-  console.log("ShortlistedApplicants - Applicants:", data?.data?.results?.map(a => ({ name: a.name, status: a.status })));
+  // Map API response to expected format for shortlisted applicants
+  const mappedShortlistedApplicants = data?.data?.results?.map(applicant => ({
+    ...applicant,
+    // Map name fields
+    first_name: applicant.first_name || applicant.name || 'Unknown',
+    last_name: applicant.last_name || applicant.contractor_name || '',
+    name: applicant.name || `${applicant.first_name || ''} ${applicant.last_name || ''}`.trim() || 'Unknown',
+    // Ensure consultant_id is present
+    consultant_id: applicant.consultant_id || id,
+    consultancy: applicant.consultancy || id,
+    // Handle potentially problematic fields
+    technical_monitor_user: typeof applicant.technical_monitor_user === 'object'
+      ? applicant.technical_monitor_user?.name || 'N/A'
+      : applicant.technical_monitor_user || 'N/A',
+    location: typeof applicant.location === 'object'
+      ? applicant.location?.name || 'N/A'
+      : applicant.location || 'N/A',
+    project: typeof applicant.project === 'object'
+      ? applicant.project?.name || 'N/A'
+      : applicant.project || 'N/A',
+    contract_request: typeof applicant.contract_request === 'object'
+      ? applicant.contract_request?.name || 'N/A'
+      : applicant.contract_request || 'N/A',
+  })) || [];
+
+  console.log("🔍 ShortlistedApplicants Debug:");
+  console.log("- Current Consultant ID:", id);
+  console.log("- Original Results Count:", data?.data?.results?.length || 0);
+  console.log("- Mapped Results Count:", mappedShortlistedApplicants.length);
+  console.log("- Is Fetching:", isFetching);
+
+  if (mappedShortlistedApplicants.length > 0) {
+    console.log("✅ SHORTLISTED APPLICANT DATA:");
+    mappedShortlistedApplicants.forEach((applicant, index) => {
+      console.log(`  Shortlisted ${index + 1}:`, {
+        name: `${applicant.first_name} ${applicant.last_name}`,
+        email: applicant.email,
+        status: applicant.status,
+        id: applicant.id
+      });
+    });
+  }
 
   return (
     <section className='space-y-5'>
       <h1 className='text-xl font-bold'>Shortlisted Applicants</h1>
       <Card>
         <TableFilters>
-          <DataTable
-            columns={shortlistedApplicantColumn}
-            data={data?.data.results || []}
-            isLoading={isFetching}
-            pagination={{
-              total: data?.data?.pagination?.count ?? 0,
-              pageSize: data?.data?.pagination?.page_size ?? 0,
-              onChange: (page: number) => setCurrentPage(page),
-            }}
-          />
+          {!isFetching && (!mappedShortlistedApplicants || mappedShortlistedApplicants.length === 0) ? (
+            <div className="text-center py-12 text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 className="font-medium text-gray-700">No Shortlisted Applicants</h4>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Applicants who have been shortlisted will appear here.
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Shortlist applicants from the "Submitted Applications" tab.
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <DataTable
+              columns={shortlistedApplicantColumn}
+              data={mappedShortlistedApplicants}
+              isLoading={isFetching}
+              pagination={{
+                total: data?.data?.pagination?.count ?? mappedShortlistedApplicants.length,
+                pageSize: data?.data?.pagination?.page_size ?? 10,
+                onChange: (page: number) => setCurrentPage(page),
+              }}
+            />
+          )}
         </TableFilters>
       </Card>
     </section>

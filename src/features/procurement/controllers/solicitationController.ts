@@ -21,15 +21,19 @@ export const useGetAllSolicitations = ({
   search = "",
   status = "",
   request_type,
+  job_category,
   enabled = true,
-}: TRequest & { request_type?: string; enabled?: boolean }) => {
+}: TRequest & { request_type?: string; job_category?: string; enabled?: boolean }) => {
   return useQuery<TPaginatedResponse<ISolicitationRFQData>>({
-    queryKey: ["solicitations", page, size, search, status, request_type],
+    queryKey: ["solicitations", page, size, search, status, request_type, job_category],
     queryFn: async () => {
       try {
         const params: any = { page, size, search, status };
         if (request_type) {
           params.request_type = request_type;
+        }
+        if (job_category) {
+          params.job_category = job_category;
         }
 
         const response = await AxiosWithToken.get(BASE_URL, {

@@ -1,11 +1,8 @@
-import { useGetSingleConsultancyStaff } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
-import SingleConsultancyStaffDetails from "../../consultant-management/id/applicants/SingleConsultancyStaffDetails";
 import Card from "components/Card";
 import BackNavigation from "components/atoms/BackNavigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import ScopeOfWork from "../../consultant-management/id/ScopeOfWork";
-import { useGetSingleConsultantManagement } from "@/features/contracts-grants/controllers/consultantManagementController";
-import JobDetails from "../../consultant-management/id/JobDetails";
+import { useGetSingleConsultancyApplicant } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
+import ApplicantDetails from "./ApplicantDetails";
 import AcceptanceForm from "./AcceptanceForm";
 import { useParams } from "next/navigation";
 
@@ -30,20 +27,16 @@ export default function ConsultancyAcceptance() {
     console.log("ConsultancyAcceptance - Is valid ID:", isValidId);
     
     // Only fetch data if we have valid IDs from URL parameters
-    const { data: consultant, error: consultantError, isLoading: consultantLoading } = useGetSingleConsultancyStaff(
+    const { data: consultant, error: consultantError, isLoading: consultantLoading } = useGetSingleConsultancyApplicant(
         consultantId || "",
         !!isValidId // Only enable the query if we have a valid consultant ID
     );
 
-    const { data: jobAdvert, error: jobAdvertError, isLoading: jobAdvertLoading } = useGetSingleConsultantManagement(
-        consultantId || "", // Use consultant ID as job advert ID for now
-        !!isValidId // Only enable the query if we have a valid consultant ID
-    );
+    // For applicant data, we don't have separate job advert data
+    const applicantData = consultant?.data;
 
-    console.log("ConsultancyAcceptance - Consultant data:", consultant);
-    console.log("ConsultancyAcceptance - Job advert data:", jobAdvert);
-    console.log("ConsultancyAcceptance - Consultant error:", consultantError);
-    console.log("ConsultancyAcceptance - Job advert error:", jobAdvertError);
+    console.log("ConsultancyAcceptance - Applicant data:", consultant);
+    console.log("ConsultancyAcceptance - Applicant error:", consultantError);
 
     // Handle cases where we don't have the required parameters
     if (!consultantId || !isValidId) {
@@ -75,14 +68,14 @@ export default function ConsultancyAcceptance() {
     }
 
     // Handle loading states
-    if (consultantLoading || jobAdvertLoading) {
+    if (consultantLoading) {
         return (
             <div className="p-6">
                 <BackNavigation />
                 <Card className="mt-5 p-6">
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                        <p>Loading consultant details...</p>
+                        <p>Loading applicant details...</p>
                     </div>
                 </Card>
             </div>
@@ -90,7 +83,7 @@ export default function ConsultancyAcceptance() {
     }
 
     // Handle error states
-    if ((consultantError && !consultant) || (jobAdvertError && !jobAdvert)) {
+    if (consultantError && !consultant) {
         return (
             <div className="p-6">
                 <BackNavigation />
@@ -100,24 +93,16 @@ export default function ConsultancyAcceptance() {
                         <div className="space-y-2 text-left">
                             {consultantError && !consultant && (
                                 <div className="p-3 bg-red-50 border border-red-200 rounded">
-                                    <h3 className="font-medium text-red-800">Consultant Error:</h3>
+                                    <h3 className="font-medium text-red-800">Applicant Error:</h3>
                                     <p className="text-sm text-red-600">
-                                        {consultantError?.message || "Unable to fetch consultant details"}
-                                    </p>
-                                </div>
-                            )}
-                            {jobAdvertError && !jobAdvert && (
-                                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded">
-                                    <h3 className="font-medium text-yellow-800">Job Details Error:</h3>
-                                    <p className="text-sm text-yellow-600">
-                                        {jobAdvertError?.message || "Unable to fetch job details"}
+                                        {consultantError?.message || "Unable to fetch applicant details"}
                                     </p>
                                 </div>
                             )}
                         </div>
                         <div className="mt-4 p-3 bg-gray-50 border border-gray-200 rounded text-left">
                             <h3 className="font-medium text-gray-800">Debug Information:</h3>
-                            <p className="text-sm text-gray-600">Consultant ID: {consultantId}</p>
+                            <p className="text-sm text-gray-600">Applicant ID: {consultantId}</p>
                             <p className="text-sm text-gray-600">URL: {typeof window !== 'undefined' ? window.location.href : 'N/A'}</p>
                         </div>
                         <button 
@@ -134,51 +119,27 @@ export default function ConsultancyAcceptance() {
 
     return (
         <div className="p-6">
-            <Tabs defaultValue="consultant-details">
+            <Tabs defaultValue="applicant-details">
                 <div className="flex items-center gap-2">
                     <BackNavigation />
                     <TabsList>
-                        <TabsTrigger value="consultant-details">
-                            Consultant Details
+                        <TabsTrigger value="applicant-details">
+                            Applicant Details
                         </TabsTrigger>
 
-                        <TabsTrigger value="job-details">Job Details</TabsTrigger>
-
-                        <TabsTrigger value="work-scope">Scope Of Work</TabsTrigger>
-
                         <TabsTrigger value="acceptance-form">
-                            Consultant Certification
+                            Contract Acceptance
                         </TabsTrigger>
                     </TabsList>
                 </div>
 
                 <Card className="mt-5">
-                    <TabsContent value="consultant-details">
-                        {consultant?.data ? (
-                            <SingleConsultancyStaffDetails {...consultant.data} />
+                    <TabsContent value="applicant-details">
+                        {applicantData ? (
+                            <ApplicantDetails {...applicantData} />
                         ) : (
                             <div className="p-6 text-center">
-                                <p className="text-gray-600">Consultant details not available</p>
-                            </div>
-                        )}
-                    </TabsContent>
-
-                    <TabsContent value="job-details">
-                        {jobAdvert?.data ? (
-                            <JobDetails {...jobAdvert.data} />
-                        ) : (
-                            <div className="p-6 text-center">
-                                <p className="text-gray-600">Job details not available</p>
-                            </div>
-                        )}
-                    </TabsContent>
-
-                    <TabsContent value="work-scope">
-                        {jobAdvert?.data ? (
-                            <ScopeOfWork {...jobAdvert.data} />
-                        ) : (
-                            <div className="p-6 text-center">
-                                <p className="text-gray-600">Scope of work not available</p>
+                                <p className="text-gray-600">Applicant details not available</p>
                             </div>
                         )}
                     </TabsContent>

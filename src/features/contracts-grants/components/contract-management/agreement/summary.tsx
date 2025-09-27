@@ -41,7 +41,7 @@ export default function AgreementSummary() {
         if (!agreementData) return;
 
         try {
-            // Clean the data before sending
+            // Clean the data before sending - use correct API field names (without _id suffix)
             const cleanedData = {
                 service: agreementData.service,
                 type: agreementData.type,
@@ -49,11 +49,11 @@ export default function AgreementSummary() {
                 end_date: agreementData.end_date,
                 contract_cost: agreementData.contract_cost,
                 location: agreementData.location,
-                // Include the appropriate entity field based on type
-                ...(agreementData.consultant_id && { consultant_id: agreementData.consultant_id }),
-                ...(agreementData.facilitator_id && { facilitator_id: agreementData.facilitator_id }),
-                ...(agreementData.adhoc_staff_id && { adhoc_staff_id: agreementData.adhoc_staff_id }),
-                ...(agreementData.vendor_id && { vendor_id: agreementData.vendor_id }),
+                // Include the appropriate entity field based on type - API expects field names without _id suffix
+                consultant: agreementData.type === 'CONSULTANT' && agreementData.consultant_id ? agreementData.consultant_id : null,
+                facilitator: agreementData.type === 'FACILITATOR' && agreementData.facilitator_id ? agreementData.facilitator_id : null,
+                adhoc_staff: agreementData.type === 'ADHOC_STAFF' && agreementData.adhoc_staff_id ? agreementData.adhoc_staff_id : null,
+                vendor: ['SLA', 'SECURITY', 'INSURANCE', 'LEASE', 'HMO', 'TICKETING'].includes(agreementData.type) && agreementData.vendor_id ? agreementData.vendor_id : null,
             };
 
             await createAgreement(cleanedData);

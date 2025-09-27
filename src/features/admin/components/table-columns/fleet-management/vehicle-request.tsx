@@ -21,13 +21,59 @@ export const vehicleRequestColumns: ColumnDef<IVehicleRequestPaginatedData>[] =
     {
       header: "Requesting Staff",
       id: "requesting_staff",
-      accessorKey: "created_by",
+      accessorKey: "requesting_staff",
+      cell: ({ row }) => {
+        const requestingStaff = row.original.requesting_staff;
+        const createdBy = row.original.created_by;
+
+        // Handle both object and string values
+        if (typeof requestingStaff === 'object' && requestingStaff) {
+          return `${requestingStaff.first_name || ''} ${requestingStaff.last_name || ''}`.trim() || requestingStaff.full_name || requestingStaff.name || "N/A";
+        }
+
+        if (requestingStaff && typeof requestingStaff === 'string') {
+          return requestingStaff;
+        }
+
+        // Fallback to created_by if requesting_staff is not available
+        if (typeof createdBy === 'object' && createdBy) {
+          return `${createdBy.first_name || ''} ${createdBy.last_name || ''}`.trim() || createdBy.full_name || createdBy.name || "N/A";
+        }
+
+        return createdBy || "N/A";
+      },
+    },
+
+    {
+      header: "Supervisor",
+      id: "supervisor",
+      accessorKey: "supervisor",
+      cell: ({ row }) => {
+        const supervisor = row.original.supervisor;
+
+        // Handle both object and string values
+        if (typeof supervisor === 'object' && supervisor) {
+          return `${supervisor.first_name || ''} ${supervisor.last_name || ''}`.trim() || supervisor.full_name || supervisor.name || "N/A";
+        }
+
+        return supervisor || "N/A";
+      },
     },
 
     {
       header: "Location",
       id: "location",
       accessorKey: "location",
+      cell: ({ row }) => {
+        const location = row.original.location;
+
+        // Handle both object and string values
+        if (typeof location === 'object' && location) {
+          return location.name || location.title || "N/A";
+        }
+
+        return location || "N/A";
+      },
     },
 
     {

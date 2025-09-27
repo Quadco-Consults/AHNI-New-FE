@@ -58,14 +58,27 @@ export const useGetAllGoodReceiveNote = ({
     queryKey: ["goodReceiveNote", page, size, search, status],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(BASE_URL, {
-          params: {
-            page,
-            size,
-            ...(search && { search }),
-            ...(status && { status }),
-          },
-        });
+        const params: any = { page, size };
+
+        if (search) params.search = search;
+
+        // Handle status filtering
+        if (status === "pending") {
+          // For pending: no approved_datetime and no rejected_datetime
+          params.approved_datetime__isnull = true;
+          params.rejected_datetime__isnull = true;
+        } else if (status === "approved" || status === "accepted") {
+          // For approved/accepted: has approved_datetime
+          params.approved_datetime__isnull = false;
+        } else if (status === "rejected") {
+          // For rejected: has rejected_datetime
+          params.rejected_datetime__isnull = false;
+        } else if (status) {
+          // Fallback to direct status parameter if backend supports it
+          params.status = status;
+        }
+
+        const response = await AxiosWithToken.get(BASE_URL, { params });
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -113,19 +126,61 @@ export const useCreateGoodReceiveNote = () => {
     queryKey: ["goodReceiveNote"],
     isAuth: true,
     method: "POST",
-    contentType: null, // Let browser set content type for FormData
+    contentType: null, // Let browser set content type automatically
   });
 
   const createGoodReceiveNote = async (details: TGoodReceiveNoteFormValues | FormData) => {
     try {
+      // Debug: Log what we're sending
+      console.log("🚀 Creating GRN with data:", details);
+
+      if (details instanceof FormData) {
+        console.log("🚀 Sending FormData:");
+        for (let [key, value] of details.entries()) {
+          console.log(`  ${key}:`, value);
+        }
+      } else {
+        console.log("🚀 Sending JSON:", details);
+      }
+
       const res = await callApi(details);
       return res;
     } catch (error) {
       console.error("Good receive note create error:", error);
+      throw error; // Re-throw to maintain error handling flow
     }
   };
 
   return { createGoodReceiveNote, data, isLoading, isSuccess, error };
+};
+
+// Debug GRN Creation - Temporary endpoint for debugging
+export const useDebugCreateGoodReceiveNote = () => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    any,
+    Error,
+    TGoodReceiveNoteFormValues | FormData
+  >({
+    endpoint: `${BASE_URL}debug-data/`, // Temporary debug endpoint
+    queryKey: ["debugGoodReceiveNote"],
+    isAuth: true,
+    method: "POST",
+    contentType: null,
+  });
+
+  const debugCreateGoodReceiveNote = async (details: TGoodReceiveNoteFormValues | FormData) => {
+    try {
+      console.log("🔬 DEBUG: Sending data to debug endpoint");
+      const res = await callApi(details);
+      console.log("🔬 DEBUG: Backend response:", res);
+      return res;
+    } catch (error) {
+      console.error("Debug GRN create error:", error);
+      throw error;
+    }
+  };
+
+  return { debugCreateGoodReceiveNote, data, isLoading, isSuccess, error };
 };
 
 // Modify Good Receive Note (Full Update)
@@ -179,9 +234,99 @@ export const useDeleteGoodReceiveNote = (id: string) => {
   return { deleteGoodReceiveNote, data, isLoading, isSuccess, error };
 };
 
+// Mark Good Receive Note as Received
+export const useMarkGoodReceiveNoteAsReceived = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IGoodReceiveNoteSingleData,
+    Error,
+    { comments?: string }
+  >({
+    endpoint: `${BASE_URL}${id}/mark-received/`,
+    queryKey: ["goodReceiveNote"],
+    isAuth: true,
+    method: "PATCH",
+  });
+
+  const markGoodReceiveNoteAsReceived = async (comments?: string) => {
+    try {
+      const payload = {
+        ...(comments && { comments }),
+      };
+      const res = await callApi(payload);
+      return res;
+    } catch (error) {
+      console.error("Good receive note mark as received error:", error);
+      throw error;
+    }
+  };
+
+  return { markGoodReceiveNoteAsReceived, data, isLoading, isSuccess, error };
+};
+
+// Approve Good Receive Note
+export const useApproveGoodReceiveNote = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IGoodReceiveNoteSingleData,
+    Error,
+    { comments?: string }
+  >({
+    endpoint: `${BASE_URL}${id}/approve/`,
+    queryKey: ["goodReceiveNote"],
+    isAuth: true,
+    method: "PATCH", // Backend expects PATCH method
+  });
+
+  const approveGoodReceiveNote = async (comments?: string) => {
+    try {
+      const payload = {
+        ...(comments && { comments }),
+      };
+      const res = await callApi(payload);
+      return res;
+    } catch (error) {
+      console.error("Good receive note approve error:", error);
+      throw error;
+    }
+  };
+
+  return { approveGoodReceiveNote, data, isLoading, isSuccess, error };
+};
+
+// Reject Good Receive Note
+export const useRejectGoodReceiveNote = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IGoodReceiveNoteSingleData,
+    Error,
+    { rejection_reason?: string }
+  >({
+    endpoint: `${BASE_URL}${id}/reject/`,
+    queryKey: ["goodReceiveNote"],
+    isAuth: true,
+    method: "PATCH", // Backend expects PATCH method
+  });
+
+  const rejectGoodReceiveNote = async (reason?: string) => {
+    try {
+      const payload = {
+        ...(reason && { rejection_reason: reason }),
+      };
+      const res = await callApi(payload);
+      return res;
+    } catch (error) {
+      console.error("Good receive note reject error:", error);
+      throw error;
+    }
+  };
+
+  return { rejectGoodReceiveNote, data, isLoading, isSuccess, error };
+};
+
 // Legacy exports for backward compatibility
 export const useGetAllGoodReceiveNoteQuery = useGetAllGoodReceiveNote;
 export const useGetSingleGoodReceiveNoteQuery = useGetSingleGoodReceiveNote;
 export const useCreateGoodReceiveNoteMutation = useCreateGoodReceiveNote;
 export const useModifyGoodReceiveNoteMutation = useModifyGoodReceiveNote;
 export const useDeleteGoodReceiveNoteMutation = useDeleteGoodReceiveNote;
+export const useMarkGoodReceiveNoteAsReceivedMutation = useMarkGoodReceiveNoteAsReceived;
+export const useApproveGoodReceiveNoteMutation = useApproveGoodReceiveNote;
+export const useRejectGoodReceiveNoteMutation = useRejectGoodReceiveNote;

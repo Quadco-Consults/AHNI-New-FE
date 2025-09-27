@@ -32,9 +32,6 @@ export const PaymentRequestSchema = z.object({
     authorizer: z.string().min(1, "Please select authorizer"),
     approver: z.string().min(1, "Please select approver"),
     payment_items: z.array(PaymentItemSchema).min(1, "At least one payment item is required"),
-    
-    // Legacy fields for backward compatibility
-    number: z.string().optional(),
 }).refine((data) => {
     // If payment type is PURCHASE_ORDER, purchase_order is required
     if (data.payment_type === "PURCHASE_ORDER") {

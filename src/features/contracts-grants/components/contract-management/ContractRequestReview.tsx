@@ -44,8 +44,8 @@ export default function ContractRequestReview({
     { key: "complianceCheck", label: "Compliance and regulatory requirements met" },
   ];
 
-  const canReview = contractRequest.status === "SUBMITTED" &&
-    contractRequest.current_reviewer === currentUser?.id;
+  const canReview = (contractRequest.status === "SUBMITTED" || contractRequest.status === "UNDER_REVIEW") &&
+    contractRequest.current_reviewer?.id === currentUser?.id;
 
   const canAuthorize = contractRequest.status === "REVIEWED" &&
     contractRequest.authorizer === currentUser?.id;
@@ -216,18 +216,29 @@ export default function ContractRequestReview({
             <div className="grid grid-cols-3 gap-4 text-sm">
               <div>
                 <strong>Reviewer:</strong><br />
-                {contractRequest.current_reviewer_detail?.first_name} {contractRequest.current_reviewer_detail?.last_name}
+                {contractRequest.current_reviewer ?
+                  (contractRequest.current_reviewer.full_name ||
+                   [contractRequest.current_reviewer.first_name, contractRequest.current_reviewer.last_name]
+                     .filter(name => name && name.trim())
+                     .join(" ") || contractRequest.current_reviewer.email || "Reviewer") :
+                  "Not assigned"}
               </div>
               <div>
                 <strong>Authorizer:</strong><br />
-                {contractRequest.authorizer_detail ? 
-                  `${contractRequest.authorizer_detail.first_name} ${contractRequest.authorizer_detail.last_name}` : 
+                {contractRequest.authorizer_detail ?
+                  (contractRequest.authorizer_detail.full_name ||
+                   [contractRequest.authorizer_detail.first_name, contractRequest.authorizer_detail.last_name]
+                     .filter(name => name && name.trim())
+                     .join(" ") || contractRequest.authorizer_detail.email || "Authorizer") :
                   "Not assigned"}
               </div>
               <div>
                 <strong>Approver:</strong><br />
-                {contractRequest.approver_detail ? 
-                  `${contractRequest.approver_detail.first_name} ${contractRequest.approver_detail.last_name}` : 
+                {contractRequest.approver_detail ?
+                  (contractRequest.approver_detail.full_name ||
+                   [contractRequest.approver_detail.first_name, contractRequest.approver_detail.last_name]
+                     .filter(name => name && name.trim())
+                     .join(" ") || contractRequest.approver_detail.email || "Approver") :
                   "Not assigned"}
               </div>
             </div>

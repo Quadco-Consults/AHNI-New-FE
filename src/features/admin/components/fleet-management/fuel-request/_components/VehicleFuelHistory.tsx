@@ -6,7 +6,7 @@ import { Badge } from "components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
 import { cn } from "@/lib/utils";
 import DataTable from "@/components/Table/DataTable";
-import { useGetVehicleFuelHistory } from "@/features/admin/controllers/fuelConsumptionController";
+import { useGetVehicleFuelHistory, useGetAllFuelConsumptions } from "@/features/admin/controllers/fuelConsumptionController";
 import { IFuelRequestPaginatedData } from "@/features/admin/types/fleet-management/fuel-request";
 import { Button } from "components/ui/button";
 import Link from "next/link";
@@ -25,22 +25,31 @@ export default function VehicleFuelHistory({
   showTitle = true,
   maxHeight = "600px",
 }: VehicleFuelHistoryProps) {
-  const { data: vehicleHistory, isLoading } = useGetVehicleFuelHistory(
+  const { data: vehicleHistory, isLoading, error } = useGetVehicleFuelHistory(
     vehicleId,
     !!vehicleId
   );
 
-  // Calculate and log totals
-  const records = vehicleHistory?.data?.results || [];
-  const totalLiters = records.reduce((sum: number, record: any) => sum + (record.quantity || 0), 0);
-  const totalValue = records.reduce((sum: number, record: any) => sum + parseFloat(record.amount || '0'), 0);
-  
-  console.log({ 
-    vehicleHistory,
-    totalLiters: `${totalLiters.toLocaleString()} L`,
-    totalValue: `₦${totalValue.toLocaleString()}`,
-    recordCount: records.length
+  // Fallback: Use main fuel API with asset filter if vehicle history fails or returns empty
+  const shouldUseFallback = !!error || !vehicleHistory?.data?.results || vehicleHistory.data.results.length === 0;
+
+  const { data: fallbackHistory, isLoading: fallbackLoading } = useGetAllFuelConsumptions({
+    page: 1,
+    size: 1000,
+    asset: vehicleId || "", // Use vehicle ID instead of name
+    enabled: shouldUseFallback,
   });
+
+  // Use fallback data if main API fails or returns no results
+  const finalHistory = (vehicleHistory?.data?.results && vehicleHistory.data.results.length > 0)
+    ? vehicleHistory
+    : (fallbackHistory?.data?.results && fallbackHistory.data.results.length > 0)
+      ? { data: { results: fallbackHistory.data.results, paginator: fallbackHistory.data.paginator } }
+      : null;
+
+  const finalLoading = isLoading || (shouldUseFallback && fallbackLoading);
+
+
 
   const historyColumns: ColumnDef<IFuelRequestPaginatedData>[] = [
     {
@@ -130,7 +139,7 @@ export default function VehicleFuelHistory({
       id: "actions",
       cell: ({ row }) => (
         <Link
-          href={`/dashboard/admin/fleet-management/fuel-request/${row.original.id}/details`}
+          href={`/dashboard/admin/fleet-management/fuel-request/${row.original.id}`}
         >
           <Button variant='ghost' size='sm'>
             <Eye size={16} />
@@ -143,7 +152,7 @@ export default function VehicleFuelHistory({
 
   // Calculate fuel efficiency and cost metrics
   const calculateMetrics = () => {
-    const records = vehicleHistory?.data?.results || [];
+    const records = finalHistory?.data?.results || [];
     if (records.length === 0) return null;
 
     const totalQuantity = records.reduce(
@@ -182,7 +191,7 @@ export default function VehicleFuelHistory({
 
   const metrics = calculateMetrics();
 
-  if (isLoading) {
+  if (finalLoading) {
     return (
       <Card>
         <CardContent className='flex items-center justify-center h-32'>
@@ -285,13 +294,13 @@ export default function VehicleFuelHistory({
           <div style={{ maxHeight }} className='overflow-auto'>
             <DataTable
               columns={historyColumns}
-              data={vehicleHistory?.data?.results || []}
-              isLoading={isLoading}
+              data={finalHistory?.data?.results || []}
+              isLoading={!!finalLoading}
             />
           </div>
 
-          {(!vehicleHistory?.data?.results ||
-            vehicleHistory?.data?.results.length === 0) && (
+          {(!finalHistory?.data?.results ||
+            finalHistory?.data?.results.length === 0) && (
             <div className='text-center py-8'>
               <Fuel className='mx-auto text-gray-400 mb-4' size={48} />
               <p className='text-gray-500'>

@@ -59,13 +59,26 @@ export default function CreateInterview() {
     size: 2000000,
   });
 
-  console.log({ applicants: applicants?.data?.results });
+  // Filter only AHNI staff users
+  const ahniStaffUsers = users?.data?.results?.filter((user) =>
+    user?.organization?.toLowerCase()?.includes('ahni') ||
+    user?.company?.toLowerCase()?.includes('ahni') ||
+    user?.user_type === 'STAFF' ||
+    user?.is_staff === true
+  ) || [];
+
+  console.log({
+    applicants: applicants?.data?.results,
+    allUsers: users?.data?.results?.length,
+    ahniStaffUsers: ahniStaffUsers?.length,
+    ahniStaffSample: ahniStaffUsers?.slice(0, 3)
+  });
 
   const { createContractInterview, isLoading } = useCreateContractInterview();
 
   const form = useForm({
     defaultValues: {
-      consultancy: data?.data.title || "",
+      consultancy: "",
       interview_type: "",
       interview_date: "",
       committee_members: [],
@@ -73,16 +86,21 @@ export default function CreateInterview() {
   });
 
   useEffect(() => {
-    if (data?.data?.title) {
-      form.setValue('consultancy', data.data.title);
-      console.log('Setting consultancy title:', data.data.title);
+    if (data?.data) {
+      // Ensure consultancy title is always a string
+      const consultancyTitle = typeof data.data.title === 'object'
+        ? data.data.title?.name || data.data.title?.title || 'Unknown Consultancy'
+        : data.data.title || 'Unknown Consultancy';
+
+      form.setValue('consultancy', consultancyTitle);
+      console.log('Setting consultancy title:', consultancyTitle);
     }
   }, [data, form]);
 
   const { handleSubmit, watch } = form;
 
   const matchedUsers =
-    users?.data?.results?.filter((user) =>
+    ahniStaffUsers?.filter((user) =>
       // @ts-ignore
       form.watch("committee_members")?.includes(user?.id)
     ) || [];
@@ -160,14 +178,24 @@ export default function CreateInterview() {
             {watch("interview_type") === "COMMITTEE" && (
               <div className='flex items-center gap-2 flex-wrap'>
                 <div className='flex items-center gap-2 flex-wrap'>
-                  {matchedUsers?.map((user) => (
-                    <Badge
-                      key={user?.id}
-                      className='py-2 rounded-lg bg-[#EBE8E1] text-black'
-                    >
-                      {user?.first_name} {user?.last_name}
-                    </Badge>
-                  ))}
+                  {matchedUsers?.map((user) => {
+                    // Ensure user names are strings, not objects
+                    const firstName = typeof user?.first_name === 'object'
+                      ? user?.first_name?.name || 'Unknown'
+                      : user?.first_name || 'Unknown';
+                    const lastName = typeof user?.last_name === 'object'
+                      ? user?.last_name?.name || ''
+                      : user?.last_name || '';
+
+                    return (
+                      <Badge
+                        key={user?.id}
+                        className='py-2 rounded-lg bg-[#EBE8E1] text-black'
+                      >
+                        {firstName} {lastName}
+                      </Badge>
+                    );
+                  })}
                 </div>
                 <div>
                   <Dialog>
@@ -213,8 +241,8 @@ export default function CreateInterview() {
                             control={form.control}
                             name='committee_members'
                             render={() => (
-                              <FormItem className='grid grid-cols-2 gap-5 bg-gray-100 mt-10 p-5 rounded-lg shadow-inner md:grid-cols-4'>
-                                {users?.data?.results?.map((user) => (
+                              <FormItem className='grid grid-cols-1 gap-5 bg-gray-100 mt-10 p-5 rounded-lg shadow-inner md:grid-cols-2'>
+                                {ahniStaffUsers?.map((user) => (
                                   <FormField
                                     key={user?.id}
                                     control={form.control}
@@ -223,7 +251,7 @@ export default function CreateInterview() {
                                       return (
                                         <FormItem
                                           key={user.id}
-                                          className='space-y-3 bg-white rounded-lg text-xs p-5'
+                                          className='space-y-3 bg-white rounded-lg text-xs p-4 shadow-sm border'
                                         >
                                           <FormControl>
                                             <Checkbox
@@ -246,25 +274,53 @@ export default function CreateInterview() {
                                               }}
                                             />
                                           </FormControl>
-                                          <div className='space-y-4'>
-                                            <div className='flex items-center'>
-                                              <h6 className='w-24'>Name:</h6>
-                                              <h6>
-                                                {user?.first_name}{" "}
-                                                {user?.last_name}
+                                          <div className='space-y-3'>
+                                            <div className='flex items-start'>
+                                              <h6 className='w-20 text-gray-600 font-medium'>Name:</h6>
+                                              <h6 className='font-semibold'>
+                                                {typeof user?.first_name === 'object' ? user?.first_name?.name || 'Unknown' : user?.first_name || 'Unknown'}{" "}
+                                                {typeof user?.last_name === 'object' ? user?.last_name?.name || '' : user?.last_name || ''}
                                               </h6>
                                             </div>
-                                            <div className='flex items-center'>
-                                              <h6 className='w-24'>
-                                                Position:
-                                              </h6>
-                                              <h6>{user?.designation}</h6>
+                                            <div className='flex items-start'>
+                                              <h6 className='w-20 text-gray-600 font-medium'>Email:</h6>
+                                              <h6 className='break-all'>{user?.email || 'N/A'}</h6>
                                             </div>
-                                            <div className='flex items-center'>
-                                              <h6 className='w-24'>Tel:</h6>
-                                              {/* @ts-ignore */}
-                                              <h6>{user?.phone_number}</h6>
+                                            <div className='flex items-start'>
+                                              <h6 className='w-20 text-gray-600 font-medium'>Position:</h6>
+                                              <h6>{
+                                                typeof user?.designation === 'object'
+                                                  ? user?.designation?.name || user?.designation?.title || 'N/A'
+                                                  : user?.designation ||
+                                                    (typeof user?.position === 'object'
+                                                      ? user?.position?.name || user?.position?.title || 'N/A'
+                                                      : user?.position) || 'N/A'
+                                              }</h6>
                                             </div>
+                                            <div className='flex items-start'>
+                                              <h6 className='w-20 text-gray-600 font-medium'>Phone:</h6>
+                                              <h6>{user?.phone_number || 'N/A'}</h6>
+                                            </div>
+                                            <div className='flex items-start'>
+                                              <h6 className='w-20 text-gray-600 font-medium'>Department:</h6>
+                                              <h6>{
+                                                typeof user?.department === 'object'
+                                                  ? user?.department?.name || user?.department?.title || 'N/A'
+                                                  : user?.department || 'N/A'
+                                              }</h6>
+                                            </div>
+                                            <div className='flex items-start'>
+                                              <h6 className='w-20 text-gray-600 font-medium'>Organization:</h6>
+                                              <h6>{user?.organization || user?.company || 'AHNI'}</h6>
+                                            </div>
+                                            {user?.user_type && (
+                                              <div className='flex items-start'>
+                                                <h6 className='w-20 text-gray-600 font-medium'>Type:</h6>
+                                                <span className='px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs'>
+                                                  {user?.user_type}
+                                                </span>
+                                              </div>
+                                            )}
                                           </div>
                                         </FormItem>
                                       );

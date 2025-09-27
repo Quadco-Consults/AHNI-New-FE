@@ -19,13 +19,33 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 
 export default function ViewVehicleMaintenance() {
-  const { id } = useParams();
+  const { id } = useParams() as { id: string };
 
   const [comments, setComments] = useState("");
   const [showApprovalForm, setShowApprovalForm] = useState(false);
   const [approvalAction, setApprovalAction] = useState<
     "review" | "authorize" | "approve" | null
   >(null);
+
+  // Helper function to safely render user information
+  const renderUserInfo = (user: any): string => {
+    if (!user) return "N/A";
+    if (typeof user === 'string') return user;
+    if (typeof user === 'object') {
+      return `${user.first_name || ''} ${user.last_name || ''}`.trim()
+        || user.fullName || user.full_name || "N/A";
+    }
+    return "N/A";
+  };
+
+  // Helper function to safely render object or string values
+  const renderValue = (value: any, fallback: string = "N/A"): string => {
+    if (!value) return fallback;
+    if (typeof value === 'object') {
+      return value?.name || value?.title || fallback;
+    }
+    return String(value);
+  };
 
   const {
     data: vehicleMaintenance,
@@ -213,42 +233,213 @@ export default function ViewVehicleMaintenance() {
                 description={vehicleMaintenance?.data.description}
               />
 
-              {/* Approvals History */}
-              {vehicleMaintenance?.data.approvals &&
-                vehicleMaintenance.data.approvals.length > 0 && (
-                  <div className='mt-6'>
-                    <h3 className='text-lg font-semibold mb-3'>
-                      Approval History
-                    </h3>
-                    <div className='space-y-3'>
-                      {vehicleMaintenance.data.approvals.map((approval) => (
-                        <div
-                          key={approval.id}
-                          className='bg-gray-50 p-4 rounded-lg'
-                        >
-                          <div className='flex justify-between items-start'>
-                            <div>
-                              <span className='font-medium'>
-                                {approval.approval_level}
-                              </span>
-                              {approval.comments && (
-                                <p className='text-sm text-gray-600 mt-1'>
-                                  {approval.comments}
-                                </p>
-                              )}
-                            </div>
-                            <span className='text-xs text-gray-500'>
-                              {format(
-                                new Date(approval.created_datetime),
-                                "dd-MMM-yyyy HH:mm"
-                              )}
-                            </span>
+              {/* Enhanced Workflow Section */}
+              <div className='mt-6'>
+                <h3 className='text-lg font-bold text-blue-800 mb-4'>
+                  Approval Workflow
+                </h3>
+
+                {/* Reviewer Section */}
+                {vehicleMaintenance?.data.reviewer && (
+                  <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h4 className="text-md font-bold text-blue-800 mb-3">👤 Reviewer Details</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm font-semibold text-gray-600">Name</p>
+                        <p className="text-base">{renderUserInfo(vehicleMaintenance.data.reviewer)}</p>
+                      </div>
+                      {typeof vehicleMaintenance.data.reviewer === 'object' && (
+                        <>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-600">Email</p>
+                            <p className="text-base">{vehicleMaintenance.data.reviewer.email || "N/A"}</p>
                           </div>
-                        </div>
-                      ))}
+                          <div>
+                            <p className="text-sm font-semibold text-gray-600">Department</p>
+                            <p className="text-base">{renderValue(vehicleMaintenance.data.reviewer.department)}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-600">Position</p>
+                            <p className="text-base">{renderValue(vehicleMaintenance.data.reviewer.position) || renderValue(vehicleMaintenance.data.reviewer.designation)}</p>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 )}
+
+                {/* Authorizer Section */}
+                {vehicleMaintenance?.data.authorizer && (
+                  <div className="mb-6 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                    <h4 className="text-md font-bold text-purple-800 mb-3">🔐 Authorizer Details</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm font-semibold text-gray-600">Name</p>
+                        <p className="text-base">{renderUserInfo(vehicleMaintenance.data.authorizer)}</p>
+                      </div>
+                      {typeof vehicleMaintenance.data.authorizer === 'object' && (
+                        <>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-600">Email</p>
+                            <p className="text-base">{vehicleMaintenance.data.authorizer.email || "N/A"}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-600">Department</p>
+                            <p className="text-base">{renderValue(vehicleMaintenance.data.authorizer.department)}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-600">Position</p>
+                            <p className="text-base">{renderValue(vehicleMaintenance.data.authorizer.position) || renderValue(vehicleMaintenance.data.authorizer.designation)}</p>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Approver Section */}
+                {vehicleMaintenance?.data.approver && (
+                  <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <h4 className="text-md font-bold text-green-800 mb-3">✅ Approver Details</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm font-semibold text-gray-600">Name</p>
+                        <p className="text-base">{renderUserInfo(vehicleMaintenance.data.approver)}</p>
+                      </div>
+                      {typeof vehicleMaintenance.data.approver === 'object' && (
+                        <>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-600">Email</p>
+                            <p className="text-base">{vehicleMaintenance.data.approver.email || "N/A"}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-600">Department</p>
+                            <p className="text-base">{renderValue(vehicleMaintenance.data.approver.department)}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-600">Position</p>
+                            <p className="text-base">{renderValue(vehicleMaintenance.data.approver.position) || renderValue(vehicleMaintenance.data.approver.designation)}</p>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Enhanced Approval History */}
+                {vehicleMaintenance?.data.approvals &&
+                  vehicleMaintenance.data.approvals.length > 0 && (
+                    <div className='mt-6'>
+                      <h4 className='text-md font-bold text-gray-800 mb-3'>
+                        📋 Approval History
+                      </h4>
+                      <div className='space-y-4'>
+                        {vehicleMaintenance.data.approvals.map((approval) => {
+                          // Determine the background color based on approval level
+                          const getApprovalColor = (level: string) => {
+                            switch (level?.toUpperCase()) {
+                              case 'REVIEW':
+                                return 'bg-blue-50 border-blue-200';
+                              case 'AUTHORIZE':
+                                return 'bg-purple-50 border-purple-200';
+                              case 'APPROVE':
+                                return 'bg-green-50 border-green-200';
+                              default:
+                                return 'bg-gray-50 border-gray-200';
+                            }
+                          };
+
+                          const getApprovalTextColor = (level: string) => {
+                            switch (level?.toUpperCase()) {
+                              case 'REVIEW':
+                                return 'text-blue-800';
+                              case 'AUTHORIZE':
+                                return 'text-purple-800';
+                              case 'APPROVE':
+                                return 'text-green-800';
+                              default:
+                                return 'text-gray-800';
+                            }
+                          };
+
+                          // Get user details based on approval level
+                          const getUserForApproval = (level: string) => {
+                            switch (level?.toUpperCase()) {
+                              case 'REVIEW':
+                                return vehicleMaintenance?.data.reviewer;
+                              case 'AUTHORIZE':
+                                return vehicleMaintenance?.data.authorizer;
+                              case 'APPROVE':
+                                return vehicleMaintenance?.data.approver;
+                              default:
+                                return null;
+                            }
+                          };
+
+                          const approvalUser = getUserForApproval(approval.approval_level);
+
+                          return (
+                            <div
+                              key={approval.id}
+                              className={`p-4 rounded-lg border ${getApprovalColor(approval.approval_level)}`}
+                            >
+                              <div className='flex justify-between items-start mb-3'>
+                                <span className={`font-bold text-lg ${getApprovalTextColor(approval.approval_level)}`}>
+                                  {approval.approval_level}
+                                </span>
+                                <span className='text-xs text-gray-500 bg-white px-3 py-1 rounded-full border'>
+                                  {format(
+                                    new Date(approval.created_datetime),
+                                    "dd-MMM-yyyy HH:mm"
+                                  )}
+                                </span>
+                              </div>
+
+                              {/* User Details */}
+                              {approvalUser && (
+                                <div className="mb-3 p-3 bg-white rounded border">
+                                  <h5 className="text-sm font-semibold text-gray-700 mb-2">Approved By:</h5>
+                                  <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                      <p className="text-xs font-semibold text-gray-600">Name</p>
+                                      <p className="text-sm">{renderUserInfo(approvalUser)}</p>
+                                    </div>
+                                    {typeof approvalUser === 'object' && (
+                                      <>
+                                        <div>
+                                          <p className="text-xs font-semibold text-gray-600">Email</p>
+                                          <p className="text-sm">{approvalUser.email || "N/A"}</p>
+                                        </div>
+                                        <div>
+                                          <p className="text-xs font-semibold text-gray-600">Department</p>
+                                          <p className="text-sm">{renderValue(approvalUser.department)}</p>
+                                        </div>
+                                        <div>
+                                          <p className="text-xs font-semibold text-gray-600">Position</p>
+                                          <p className="text-sm">{renderValue(approvalUser.position) || renderValue(approvalUser.designation)}</p>
+                                        </div>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Comments */}
+                              {approval.comments && (
+                                <div className='mt-2'>
+                                  <p className='text-sm font-semibold text-gray-600 mb-1'>Comments:</p>
+                                  <p className='text-sm text-gray-700 bg-white p-3 rounded border'>
+                                    {approval.comments}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+              </div>
 
               {/* Approval Actions */}
               {nextAction && (

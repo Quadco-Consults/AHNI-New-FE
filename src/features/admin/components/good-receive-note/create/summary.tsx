@@ -74,25 +74,53 @@ export default function CreateGoodReceiveNote() {
 
   const onSubmit: SubmitHandler<TGoodReceiveNoteFormValues> = async (data) => {
     try {
+      console.log("📝 Form submission data:", data);
+      console.log("📝 Items from form:", data.items);
+
+      // Validate that items exist and have at least one item
+      if (!data.items || data.items.length === 0) {
+        toast.error("Please select a purchase order to load items before proceeding.");
+        return;
+      }
+
+      // Validate that at least one item has received quantity
+      const itemsWithQuantity = data.items.filter(item =>
+        item.quantity_received && parseFloat(item.quantity_received) > 0
+      );
+
+      if (itemsWithQuantity.length === 0) {
+        toast.error("Please enter received quantity for at least one item.");
+        return;
+      }
+
       // Transform the data to match backend expectations
+      const grn_items = itemsWithQuantity.map((item) => ({
+        purchase_order_item: String(item.item_id), // Convert to string as backend expects UUID string
+        received_quantity: parseFloat(item.quantity_received), // Convert to number
+        remark: item.comment || "", // Backend expects 'remark' instead of 'comment'
+      }));
+
       const transformedData = {
-        ...data,
-        grn_items: data.items?.map((item) => ({
-          ...item,
-          purchase_order_item: item.item_id, // Backend expects 'purchase_order_item' instead of 'item_id'
-          received_quantity: item.quantity_received, // Backend expects 'received_quantity' instead of 'quantity_received'
-          item_id: undefined, // Remove the original 'item_id' field
-          quantity_received: undefined, // Remove the original 'quantity_received' field
-        })),
-        items: undefined, // Remove the original 'items' field
+        purchase_order: data.purchase_order,
+        invoice_number: data.invoice_number,
+        waybill_number: data.waybill_number,
+        remark: data.remark,
+        grn_items: grn_items,
       };
 
+      console.log("💾 Saving to localStorage - transformedData:", transformedData);
+      console.log("💾 grn_items count:", grn_items.length);
+      console.log("💾 grn_items details:", grn_items);
+
       // Store data in localStorage for uploads page
-      localStorage.setItem('grnFormData', JSON.stringify({
+      const dataToStore = {
         formData: transformedData,
         isEdit: !!id,
         editId: id
-      }));
+      };
+
+      console.log("💾 Full data being stored:", dataToStore);
+      localStorage.setItem('grnFormData', JSON.stringify(dataToStore));
 
       // Navigate to uploads page
       router.push(AdminRoutes.GRN_CREATE_UPLOADS);
@@ -117,14 +145,22 @@ export default function CreateGoodReceiveNote() {
   // Populate items array when purchase order is selected
   useEffect(() => {
     if (singlePurchaseOrder?.data?.purchase_order_items) {
+      console.log("🛒 PO Data:", singlePurchaseOrder.data);
+      console.log("🛒 PO Items:", singlePurchaseOrder.data.purchase_order_items);
+
       const items = singlePurchaseOrder.data.purchase_order_items.map(
-        (item: any) => ({
-          item_id: item.id,
-          quantity_ordered: String(item.quantity),
-          quantity_received: "",
-          comment: "",
-        })
+        (item: any) => {
+          console.log("🛒 Processing PO item:", item);
+          return {
+            item_id: item.id, // This should be the UUID
+            quantity_ordered: String(item.quantity),
+            quantity_received: "",
+            comment: "",
+          };
+        }
       );
+
+      console.log("🛒 Mapped items for form:", items);
       replace(items);
     }
   }, [singlePurchaseOrder, replace]);

@@ -7,7 +7,7 @@ export interface FundRequestPaginatedData {
     activities: [];
     project: string;
     financial_year: string;
-    location: string;
+    location: string | { name: string; state?: string; [key: string]: any };
     location_name?: string;
     location_code?: string;
     location_display?: string;
@@ -23,6 +23,7 @@ export interface FundRequestPaginatedData {
     updated_by: string;
     reviewer: string;
     available_balance: string;
+    uuid_code?: string;
 }
 
 export type TFundRequestPaginatedResponse =

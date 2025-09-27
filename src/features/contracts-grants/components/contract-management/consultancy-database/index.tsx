@@ -14,6 +14,7 @@ export default function AdhocDatabase() {
         page,
         size: 10,
         type: "CONSULTANT",
+        status: "APPROVED",
     });
 
     const results = data?.data?.results || [];

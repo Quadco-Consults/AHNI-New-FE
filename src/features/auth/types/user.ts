@@ -38,6 +38,17 @@ export const UpdateUserSchema = z.object({
   user_type: z.string().min(1, "Please select user type").optional(),
   roles: z.array(z.string().min(1, "Please select user roles")).optional(),
   is_active: z.boolean().optional(),
+
+  // Bank Account Details (optional - for adhoc staff, consultants, etc.)
+  bank_name: z.string().optional(),
+  branch_name: z.string().optional(),
+  account_name: z.string().optional(),
+  account_number: z.string().optional(),
+  sort_code: z.string().optional(),
+
+  // Additional financial fields
+  proposed_salary: z.string().optional(),
+  payment_frequency: z.string().optional(),
 });
 
 export type TUpdateUserFormValues = z.infer<typeof UpdateUserSchema>;

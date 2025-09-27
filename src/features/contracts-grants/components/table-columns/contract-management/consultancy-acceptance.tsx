@@ -6,30 +6,33 @@ import Link from "next/link";
 import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
 import { IConsultancyReportPaginatedData } from "definations/c&g/contract-management/consultancy-report";
 import EyeIcon from "components/icons/EyeIcon";
-import { IConsultantPaginatedData } from "definations/c&g/contract-management/consultancy-management/consultancy-management";
+import { IConsultancyStaffPaginatedData } from "@/features/contracts-grants/types/contract-management/consultancy-management/consultancy-application";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
 import useJobAdvertType from "hooks/useJobAdvertType";
 
-export const consultancyAcceptanceColumns: ColumnDef<IConsultantPaginatedData>[] =
+export const consultancyAcceptanceColumns: ColumnDef<IConsultancyStaffPaginatedData>[] =
     [
         {
             header: "Consultant Name",
-            id: "name",
-            accessorKey: "name",
+            id: "consultant_name",
             size: 200,
+            cell: ({ row }) => {
+                const data = row.original;
+                return data.name || 'N/A';
+            },
         },
 
         {
-            header: "Title of Consultancy Call",
-            id: "title",
-            accessorKey: "title",
+            header: "Position Under Contract",
+            id: "position_under_contract",
+            accessorKey: "position_under_contract",
             size: 300,
         },
 
         {
             header: "Acceptance Status",
-            id: "status",
+            id: "acceptance_status",
             accessorKey: "status",
             size: 200,
             cell: ({ getValue }) => {
@@ -56,44 +59,26 @@ export const consultancyAcceptanceColumns: ColumnDef<IConsultantPaginatedData>[]
 
         {
             header: "Start Date",
-            id: "start_date",
-            accessorKey: "start_date",
-            size: 200,
-        },
-
-        {
-            header: "Effective End Date",
-            id: "end_date",
-            accessorKey: "end_date",
-            size: 200,
-        },
-
-        {
-            header: "Status",
-            id: "status",
-            accessorKey: "status",
+            id: "start_duration_date",
+            accessorKey: "start_duration_date",
             size: 200,
             cell: ({ getValue }) => {
-                return (
-                    <Badge
-                        variant="default"
-                        className={cn(
-                            "p-1 rounded-lg",
-                            getValue() === "IN_PROGRESS" &&
-                                "bg-green-200 text-green-500",
-                            getValue() === "CLOSED" &&
-                                "bg-red-200 text-red-500",
-                            getValue() === "PENDING" &&
-                                "bg-yellow-200 text-yellow-500",
-                            getValue() === "On Hold" &&
-                                "text-grey-200 bg-grey-500"
-                        )}
-                    >
-                        {getValue() as string}
-                    </Badge>
-                );
+                const date = getValue() as string;
+                return date ? new Date(date).toLocaleDateString() : 'N/A';
             },
         },
+
+        {
+            header: "End Date",
+            id: "end_duration_date",
+            accessorKey: "end_duration_date",
+            size: 200,
+            cell: ({ getValue }) => {
+                const date = getValue() as string;
+                return date ? new Date(date).toLocaleDateString() : 'N/A';
+            },
+        },
+
 
         {
             header: "",
@@ -103,7 +88,7 @@ export const consultancyAcceptanceColumns: ColumnDef<IConsultantPaginatedData>[]
         },
     ];
 
-const TableMenu = ({ id }: IConsultantPaginatedData) => {
+const TableMenu = ({ id }: IConsultancyStaffPaginatedData) => {
     const advertType = useJobAdvertType();
 
     // Debug logging

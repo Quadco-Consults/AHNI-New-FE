@@ -392,13 +392,20 @@ export const program = [
     ),
   },
 
+
   {
-    path: ProgramRoutes.ADHOC_ACCEPTANCE_DETAILS,
+    path: ProgramRoutes.ADHOC_CONTRACT_RECIPIENTS,
     element: lazy(
       () =>
-        import(
-          "pages/protectedPages/c&g/contract-management/consultant-acceptance/id"
-        )
+        import("@/app/dashboard/programs/adhoc/contract-recipients/page")
+    ),
+  },
+
+  {
+    path: ProgramRoutes.ADHOC_ACCEPTED_CONTRACTS,
+    element: lazy(
+      () =>
+        import("@/app/dashboard/programs/adhoc/accepted-contracts/page")
     ),
   },
 ];

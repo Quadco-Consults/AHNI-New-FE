@@ -20,15 +20,49 @@ export default function ContractRequestDetail() {
   
   const contractId = params.id as string;
   
-  // Mock current user - in real app this would come from auth context
-  const currentUser = {
-    id: "current-user-id",
-    name: "John Doe",
-    email: "john@example.com"
+  // Get current user from localStorage or auth context
+  const getCurrentUser = () => {
+    try {
+      const userData = localStorage.getItem('userData');
+      if (userData) {
+        return JSON.parse(userData);
+      }
+    } catch (error) {
+      console.error('Error parsing user data:', error);
+    }
+
+    // Fallback mock user for development
+    return {
+      id: "5ff6e971-4ccc-4fde-8249-cad64b78e304", // Using the admin user ID from the API data
+      name: "Johnnn Doex",
+      email: "admin@mail.com"
+    };
   };
 
+  const currentUser = getCurrentUser();
+
   const { data: response, isLoading, error, refetch } = useGetSingleContractRequest(contractId);
-  const contractRequest = response?.data;
+
+  // Debug logging to understand data structure
+  console.log("ContractRequestDetail - Full response:", response);
+  console.log("ContractRequestDetail - Response type:", typeof response);
+  console.log("ContractRequestDetail - Response keys:", response ? Object.keys(response) : 'No response');
+  console.log("ContractRequestDetail - Has data property:", response && 'data' in response);
+
+  // Handle both possible response structures
+  let contractRequest;
+  if (response && typeof response === 'object' && 'data' in response && 'status' in response) {
+    // Response is wrapped in ApiResponse format
+    contractRequest = (response as any).data;
+  } else {
+    // Response is direct contract data
+    contractRequest = response;
+  }
+
+  console.log("ContractRequestDetail - Final contract request:", contractRequest);
+  console.log("ContractRequestDetail - Authorizer detail:", contractRequest?.authorizer_detail);
+  console.log("ContractRequestDetail - Approver detail:", contractRequest?.approver_detail);
+  console.log("ContractRequestDetail - Reviewer detail:", contractRequest?.current_reviewer_detail);
 
   const handleWorkflowUpdate = () => {
     setRefreshKey(prev => prev + 1);
@@ -45,25 +79,83 @@ export default function ContractRequestDetail() {
 
   if (error) {
     const errorMessage = (error as any)?.message || 'Unknown error';
+    console.log("ContractRequestDetail error:", error);
+
     return (
       <div className="text-center py-12">
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">Unable to Load Contract Request</h2>
-        <p className="text-gray-600 mb-4">
-          {errorMessage.includes('Authentication') || errorMessage.includes('401') 
-            ? 'Please log in to view contract request details.'
-            : 'The requested contract could not be loaded.'}
-        </p>
-        <div className="space-x-2">
-          <Button onClick={() => router.back()}>Go Back</Button>
-          {errorMessage.includes('Authentication') || errorMessage.includes('401') ? (
-            <Button onClick={() => router.push('/auth/login')}>Login</Button>
-          ) : null}
+        <div className="max-w-md mx-auto">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
+            <div className="flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mx-auto mb-4">
+              <span className="text-red-600 text-xl">⚠️</span>
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              {errorMessage.includes('not found') || errorMessage.includes('404')
+                ? 'Contract Request Not Found'
+                : errorMessage.includes('Authentication') || errorMessage.includes('401')
+                ? 'Authentication Required'
+                : errorMessage.includes('permission') || errorMessage.includes('403')
+                ? 'Access Denied'
+                : 'Unable to Load Contract Request'}
+            </h2>
+            <p className="text-gray-600 mb-4">
+              {errorMessage}
+            </p>
+
+            {/* Helpful suggestions */}
+            <div className="text-sm text-gray-500 mb-4 text-left">
+              <p className="font-medium mb-2">Possible solutions:</p>
+              <ul className="list-disc list-inside space-y-1">
+                {errorMessage.includes('not found') && (
+                  <>
+                    <li>Check if the contract request ID is correct</li>
+                    <li>The contract request may have been deleted</li>
+                    <li>Go back to the contract requests list to find the correct one</li>
+                  </>
+                )}
+                {(errorMessage.includes('Authentication') || errorMessage.includes('401')) && (
+                  <>
+                    <li>Your session may have expired</li>
+                    <li>Please log in again</li>
+                  </>
+                )}
+                {(errorMessage.includes('permission') || errorMessage.includes('403')) && (
+                  <>
+                    <li>You don't have permission to view this contract request</li>
+                    <li>Contact your administrator for access</li>
+                  </>
+                )}
+              </ul>
+            </div>
+          </div>
+
+          <div className="space-x-2">
+            <Button onClick={() => router.push('/dashboard/c-and-g/contract-request')}>
+              View All Contract Requests
+            </Button>
+            <Button variant="outline" onClick={() => router.back()}>
+              Go Back
+            </Button>
+            {(errorMessage.includes('Authentication') || errorMessage.includes('401')) && (
+              <Button onClick={() => router.push('/auth/login')}>Login</Button>
+            )}
+          </div>
         </div>
-        <details className="mt-4 text-left max-w-md mx-auto">
-          <summary className="cursor-pointer text-sm text-gray-500">Error Details</summary>
-          <pre className="text-xs text-gray-400 mt-2 p-2 bg-gray-100 rounded">
-            {JSON.stringify(error, null, 2)}
-          </pre>
+
+        {/* Debug information for development */}
+        <details className="mt-6 text-left max-w-2xl mx-auto">
+          <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700">
+            Debug Information (Development Only)
+          </summary>
+          <div className="mt-2 p-4 bg-gray-100 rounded-lg">
+            <div className="text-sm space-y-2">
+              <div><strong>Contract ID:</strong> {contractId}</div>
+              <div><strong>API Endpoint:</strong> /contract-grants/contract-requests/{contractId}</div>
+              <div><strong>Error Message:</strong> {errorMessage}</div>
+            </div>
+            <pre className="text-xs text-gray-400 mt-2 p-2 bg-white border rounded overflow-auto">
+              {JSON.stringify(error, null, 2)}
+            </pre>
+          </div>
         </details>
       </div>
     );
@@ -172,20 +264,29 @@ export default function ContractRequestDetail() {
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <strong>Reviewer:</strong>
-                    <p>{contractRequest.current_reviewer_detail ? 
-                       `${contractRequest.current_reviewer_detail.first_name} ${contractRequest.current_reviewer_detail.last_name}` :
+                    <p>{contractRequest.current_reviewer ?
+                       (contractRequest.current_reviewer.full_name ||
+                        [contractRequest.current_reviewer.first_name, contractRequest.current_reviewer.last_name]
+                         .filter(name => name && name.trim())
+                         .join(" ")) || "Reviewer" :
                        "Not assigned"}</p>
                   </div>
                   <div>
                     <strong>Authorizer:</strong>
-                    <p>{contractRequest.authorizer_detail ? 
-                       `${contractRequest.authorizer_detail.first_name} ${contractRequest.authorizer_detail.last_name}` :
+                    <p>{contractRequest.authorizer_detail ?
+                       (contractRequest.authorizer_detail.full_name ||
+                        [contractRequest.authorizer_detail.first_name, contractRequest.authorizer_detail.last_name]
+                         .filter(name => name && name.trim())
+                         .join(" ")) || "Authorizer" :
                        "Not assigned"}</p>
                   </div>
                   <div>
                     <strong>Approver:</strong>
-                    <p>{contractRequest.approver_detail ? 
-                       `${contractRequest.approver_detail.first_name} ${contractRequest.approver_detail.last_name}` :
+                    <p>{contractRequest.approver_detail ?
+                       (contractRequest.approver_detail.full_name ||
+                        [contractRequest.approver_detail.first_name, contractRequest.approver_detail.last_name]
+                         .filter(name => name && name.trim())
+                         .join(" ")) || "Approver" :
                        "Not assigned"}</p>
                   </div>
                 </div>

@@ -18,7 +18,7 @@ import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelect";
 import FormTextArea from "components/atoms/FormTextArea";
 import FormButton from "@/components/FormButton";
-import { useGetAllPurchaseOrdersQuery } from "@/features/procurement/controllers/purchaseOrderController";
+import { useGetAllPurchaseOrdersQuery, useGetSinglePurchaseOrderQuery } from "@/features/procurement/controllers/purchaseOrderController";
 import { useEffect, useMemo } from "react";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -27,6 +27,10 @@ import { useGetAllUsersQuery } from "@/features/auth/controllers/userController"
 import { Button } from "components/ui/button";
 import { AdminRoutes } from "constants/RouterConstants";
 import { useGetSinglePaymentRequestQuery } from "@/features/admin/controllers/paymentRequestController";
+import { useGetAllConsultantManagements } from "@/features/contracts-grants/controllers/consultantManagementController";
+import { useGetAllFacilitators } from "@/features/contracts-grants/controllers/facilitatorManagementController";
+import { useGetVendor } from "@/features/procurement/controllers/vendorsController";
+import { numberToWords } from "@/utils/numberToWords";
 
 export default function CreatePaymentRequest() {
   const form = useForm<TPaymentRequestFormData>({
@@ -52,7 +56,6 @@ export default function CreatePaymentRequest() {
           address: "",
         },
       ],
-      number: "",
     },
   });
 
@@ -96,6 +99,93 @@ export default function CreatePaymentRequest() {
         value: userItem.id,
       })),
     [user]
+  );
+
+  const paymentType = form.watch("payment_type") || "";
+
+  // Get consultants, facilitators and staff data
+  const { data: consultants } = useGetAllConsultantManagements({
+    page: 1,
+    size: 1000,
+    search: "",
+    enabled: paymentType === "CONSULTANT",
+  });
+
+  const { data: facilitators } = useGetAllFacilitators({
+    page: 1,
+    size: 1000,
+    search: "",
+    enabled: paymentType === "FACILITATOR",
+  });
+
+  const consultantOptions = useMemo(
+    () =>
+      consultants?.data?.results?.map((item: any) => ({
+        label: item.title || item.name || `Consultant ${item.id}`,
+        value: item.id,
+        data: item, // Store full data for auto-population
+      })) || [],
+    [consultants]
+  );
+
+  const facilitatorOptions = useMemo(
+    () =>
+      facilitators?.data?.results?.map((item: any) => ({
+        label: item.title || item.name || `Facilitator ${item.id}`,
+        value: item.id,
+        data: item, // Store full data for auto-population
+      })) || [],
+    [facilitators]
+  );
+
+  const adhocOptions = useMemo(
+    () => {
+      // Debug logging (can be removed in production)
+      if (paymentType === "ADHOC_STAFF") {
+        console.log("Looking for adhoc staff, total users:", user?.data?.results?.length || 0);
+      }
+
+      const filtered = user?.data?.results
+        ?.filter((userItem: any) => {
+          // For now, show ALL users in adhoc staff dropdown to test functionality
+          // This can be refined later when proper adhoc staff categorization is implemented
+          return true; // Show all users
+
+          // Original filtering logic (commented out for testing):
+          // const userTypeCheck = userItem.user_type?.toLowerCase().includes("adhoc");
+          // const employeeTypeCheck = userItem.employee_type?.toLowerCase().includes("adhoc");
+          // const designationCheck = userItem.designation?.toLowerCase().includes("adhoc");
+          // const roleCheck = userItem.role?.toLowerCase().includes("adhoc");
+          // const staffTypeCheck = userItem.staff_type?.toLowerCase().includes("adhoc");
+          // return userTypeCheck || employeeTypeCheck || designationCheck || roleCheck || staffTypeCheck;
+        })
+        ?.map((userItem: any) => ({
+          label: `${userItem.first_name} ${userItem.last_name}${userItem.employee_id ? ` (${userItem.employee_id})` : ''}`,
+          value: userItem.id,
+          data: userItem, // Store full data for auto-population
+        })) || [];
+
+      if (paymentType === "ADHOC_STAFF") {
+        console.log("Found adhoc staff options:", filtered.length);
+      }
+
+      return filtered;
+    },
+    [user, paymentType]
+  );
+
+  // Get selected purchase order details
+  const selectedPOId = form.watch("purchase_order");
+  const { data: selectedPO } = useGetSinglePurchaseOrderQuery(
+    selectedPOId || "",
+    !!selectedPOId
+  );
+
+  // Get complete vendor details when PO is selected
+  const vendorId = selectedPO?.data?.vendor_detail?.id;
+  const { data: vendorDetails } = useGetVendor(
+    vendorId || "",
+    !!vendorId && paymentType === "PURCHASE_ORDER"
   );
 
   const onSubmit: SubmitHandler<TPaymentRequestFormData> = (data) => {
@@ -186,7 +276,147 @@ export default function CreatePaymentRequest() {
     }
   }, [paymentRequest, user, purchaseOrder, form]);
 
-  const paymentType = form.watch("payment_type") || "";
+  // Auto-populate PO details when purchase order is selected
+  useEffect(() => {
+    if (selectedPO?.data && paymentType === "PURCHASE_ORDER") {
+      const poData = selectedPO.data;
+
+      // Pre-populate payment reason with PO details
+      form.setValue("payment_reason", `Payment for Purchase Order: ${poData.purchase_order_number}${poData.comment ? ` - ${poData.comment}` : ''}`);
+
+      // Calculate total amount from purchase order items
+      if (poData.purchase_order_items && poData.purchase_order_items.length > 0) {
+        const totalAmount = poData.purchase_order_items.reduce(
+          (sum, item) => sum + parseFloat(item.total_price || '0'),
+          0
+        );
+        if (totalAmount > 0) {
+          const amountStr = totalAmount.toString();
+          form.setValue("payment_items.0.amount_in_figures", amountStr);
+          // Auto-convert to words
+          const wordsValue = numberToWords(amountStr);
+          form.setValue("payment_items.0.amount_in_words", wordsValue);
+        }
+      }
+    }
+  }, [selectedPO, paymentType, form]);
+
+  // Auto-populate vendor details when complete vendor data is available
+  useEffect(() => {
+    if (vendorDetails?.data && paymentType === "PURCHASE_ORDER" && form.getValues("payment_items").length > 0) {
+      const vendor = vendorDetails.data;
+
+      // Auto-populate all available vendor fields
+      form.setValue("payment_items.0.payment_to", vendor.company_name || "");
+
+      // Banking details
+      if (vendor.bank_name) {
+        form.setValue("payment_items.0.bank_name", vendor.bank_name);
+      }
+
+      // Contact details
+      if (vendor.email) {
+        form.setValue("payment_items.0.email", vendor.email);
+      }
+      if (vendor.phone_number) {
+        form.setValue("payment_items.0.phone_number", vendor.phone_number);
+      }
+
+      // Address details
+      if (vendor.company_address) {
+        form.setValue("payment_items.0.address", vendor.company_address);
+      }
+
+      // Tax identification
+      if (vendor.tin) {
+        form.setValue("payment_items.0.tax_identification_number", vendor.tin);
+      }
+    }
+  }, [vendorDetails, paymentType, form]);
+
+  // Helper function to convert amount to words
+  const handleAmountChange = (amount: string, index: number) => {
+    if (amount && !isNaN(parseFloat(amount))) {
+      const wordsValue = numberToWords(amount);
+      form.setValue(`payment_items.${index}.amount_in_words`, wordsValue);
+    } else {
+      form.setValue(`payment_items.${index}.amount_in_words`, '');
+    }
+  };
+
+  // Helper function to auto-populate payment item based on staff selection
+  const handleStaffSelection = (staffType: string, staffId: string, index: number) => {
+    let staffData: any = null;
+    let staffOptions: any[] = [];
+
+    switch (staffType) {
+      case "CONSULTANT":
+        staffOptions = consultantOptions;
+        break;
+      case "FACILITATOR":
+        staffOptions = facilitatorOptions;
+        break;
+      case "ADHOC_STAFF":
+        staffOptions = adhocOptions;
+        break;
+    }
+
+    staffData = staffOptions.find(option => option.value === staffId)?.data;
+
+    if (staffData) {
+      // Auto-populate based on staff type
+      if (staffType === "CONSULTANT" || staffType === "FACILITATOR") {
+        // For consultants/facilitators, use title as payment_to
+        form.setValue(`payment_items.${index}.payment_to`, staffData.title || `${staffType} Payment`);
+
+        // If supervisor info is available, use for contact details
+        if (staffData.supervisor?.email) {
+          form.setValue(`payment_items.${index}.email`, staffData.supervisor.email);
+        }
+        if (staffData.supervisor?.phone_number) {
+          form.setValue(`payment_items.${index}.phone_number`, staffData.supervisor.phone_number);
+        }
+
+        // Auto-populate location info if available
+        if (staffData.locations && staffData.locations.length > 0) {
+          const location = staffData.locations[0];
+          form.setValue(`payment_items.${index}.address`, `${location.name}, ${location.state}`);
+        }
+
+      } else if (staffType === "ADHOC_STAFF") {
+        // For adhoc staff, use full name as payment_to
+        const fullName = `${staffData.first_name} ${staffData.last_name}`;
+        form.setValue(`payment_items.${index}.payment_to`, fullName);
+
+        // Auto-populate contact details
+        if (staffData.email) {
+          form.setValue(`payment_items.${index}.email`, staffData.email);
+        }
+        if (staffData.phone_number) {
+          form.setValue(`payment_items.${index}.phone_number`, staffData.phone_number);
+        }
+
+        // Auto-populate bank details if available from adhoc staff record
+        // Note: These fields might not be in the user record, but we'll check anyway
+        if (staffData.bank_name) {
+          form.setValue(`payment_items.${index}.bank_name`, staffData.bank_name);
+        }
+        if (staffData.account_number) {
+          form.setValue(`payment_items.${index}.account_number`, staffData.account_number);
+        }
+
+        // Use account name if available, otherwise keep the full name
+        if (staffData.account_name) {
+          form.setValue(`payment_items.${index}.payment_to`, staffData.account_name);
+        }
+
+        // If user has address information, use it
+        if (staffData.address) {
+          form.setValue(`payment_items.${index}.address`, staffData.address);
+        }
+      }
+    }
+  };
 
   return (
     <PaymentRequestLayout>
@@ -229,34 +459,20 @@ export default function CreatePaymentRequest() {
                 />
 
                 {paymentType === "PURCHASE_ORDER" && (
-                  <FormSelect
-                    label='Purchase Order'
-                    name='purchase_order'
-                    placeholder='Select Purchase Order'
-                    required
-                    options={purchaseOrderOptions}
-                  />
+                  <div>
+                    <FormSelect
+                      label='Purchase Order'
+                      name='purchase_order'
+                      placeholder='Select Purchase Order'
+                      required
+                      options={purchaseOrderOptions}
+                    />
+                    <p className='text-xs text-gray-500 mt-1'>
+                      Selecting a PO will auto-populate vendor details, banking info, contact details, and payment reason
+                    </p>
+                  </div>
                 )}
 
-                {(paymentType === "CONSULTANT" ||
-                  paymentType === "FACILITATOR" ||
-                  paymentType === "ADHOC_STAFF") && (
-                  <FormSelect
-                    label='Number of Recipients'
-                    name='number'
-                    placeholder='Select Number'
-                    options={[
-                      {
-                        label: "SINGLE",
-                        value: "SINGLE",
-                      },
-                      {
-                        label: "MULTIPLE",
-                        value: "MULTIPLE",
-                      },
-                    ]}
-                  />
-                )}
               </div>
 
               <FormTextArea
@@ -269,7 +485,14 @@ export default function CreatePaymentRequest() {
 
               {/* Payment Items Section */}
               <div className='mt-8'>
-                <h3 className='text-lg font-semibold mb-4'>Payment Items</h3>
+                <div className='flex items-center justify-between mb-4'>
+                  <h3 className='text-lg font-semibold'>Payment Items</h3>
+                  {(paymentType === "CONSULTANT" || paymentType === "FACILITATOR" || paymentType === "ADHOC_STAFF" || paymentType === "PURCHASE_ORDER") && (
+                    <div className='text-sm text-blue-600 bg-blue-50 px-3 py-1 rounded-md'>
+                      💡 Select {paymentType === "PURCHASE_ORDER" ? "purchase order" : paymentType.toLowerCase().replace("_", " ")} to auto-fill details
+                    </div>
+                  )}
+                </div>
                 {fields.map((field, index) => (
                   <Card key={field.id} className='mb-4'>
                     <CardContent className='pt-6'>
@@ -303,21 +526,36 @@ export default function CreatePaymentRequest() {
                           placeholder='Enter Amount in Figures'
                           required
                           type='number'
+                          onChange={(e) => handleAmountChange(e.target.value, index)}
                         />
 
-                        <FormInput
-                          label='Amount In Words'
-                          name={`payment_items.${index}.amount_in_words`}
-                          placeholder='Enter Amount in Words'
-                          required
-                        />
+                        <div>
+                          <FormInput
+                            label='Amount In Words'
+                            name={`payment_items.${index}.amount_in_words`}
+                            placeholder='Auto-generated from amount in figures'
+                            required
+                            readOnly
+                            className='bg-gray-50'
+                          />
+                          <p className='text-xs text-green-600 mt-1'>
+                            ✓ Automatically converted from amount in figures
+                          </p>
+                        </div>
 
-                        <FormInput
-                          label='Account Number'
-                          name={`payment_items.${index}.account_number`}
-                          placeholder='Enter Account Number'
-                          required
-                        />
+                        <div>
+                          <FormInput
+                            label='Account Number'
+                            name={`payment_items.${index}.account_number`}
+                            placeholder='Enter Account Number'
+                            required
+                          />
+                          {paymentType === "PURCHASE_ORDER" && (
+                            <p className='text-xs text-gray-500 mt-1'>
+                              Account number must be entered manually
+                            </p>
+                          )}
+                        </div>
 
                         <FormInput
                           label='Bank Name'
@@ -357,7 +595,8 @@ export default function CreatePaymentRequest() {
                             label='Consultant'
                             name={`payment_items.${index}.consultant`}
                             placeholder='Select Consultant'
-                            options={userOptions}
+                            options={consultantOptions}
+                            onChange={(e) => handleStaffSelection("CONSULTANT", e.target.value, index)}
                           />
                         )}
 
@@ -366,17 +605,30 @@ export default function CreatePaymentRequest() {
                             label='Facilitator'
                             name={`payment_items.${index}.facilitator`}
                             placeholder='Select Facilitator'
-                            options={userOptions}
+                            options={facilitatorOptions}
+                            onChange={(e) => handleStaffSelection("FACILITATOR", e.target.value, index)}
                           />
                         )}
 
                         {paymentType === "ADHOC_STAFF" && (
-                          <FormSelect
-                            label='Adhoc Staff'
-                            name={`payment_items.${index}.adhoc_staff`}
-                            placeholder='Select Adhoc Staff'
-                            options={userOptions}
-                          />
+                          <div>
+                            <FormSelect
+                              label='Adhoc Staff'
+                              name={`payment_items.${index}.adhoc_staff`}
+                              placeholder='Select Adhoc Staff'
+                              options={adhocOptions}
+                              onChange={(e) => handleStaffSelection("ADHOC_STAFF", e.target.value, index)}
+                            />
+                            {adhocOptions.length === 0 ? (
+                              <p className='text-xs text-amber-600 mt-1'>
+                                ⚠️ No users found. Check if user data is loading properly.
+                              </p>
+                            ) : (
+                              <p className='text-xs text-blue-600 mt-1'>
+                                💡 Showing all users for testing. Select a user to auto-fill details.
+                              </p>
+                            )}
+                          </div>
                         )}
                       </div>
                     </CardContent>

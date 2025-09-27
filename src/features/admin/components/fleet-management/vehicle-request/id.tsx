@@ -11,7 +11,7 @@ import { Button } from "components/ui/button";
 import { Card } from "components/ui/card";
 import { format } from "date-fns";
 import { PlusIcon } from "lucide-react";
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { FormProvider, useForm, useFieldArray } from "react-hook-form";
 import { useParams, useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import {
   useGetSingleVehicleRequestQuery,
   useApproveVehicleRequestMutation,
+  useRejectVehicleRequestMutation,
 } from "@/features/admin/controllers/vehicleRequestController";
 import { useGetAllUsersQuery } from "@/features/auth/controllers/userController";
 import {
@@ -31,6 +32,16 @@ export default function VehicleRequestDetails() {
   const params = useParams();
   const id = params?.id as string;
   const router = useRouter();
+  const [rejectComment, setRejectComment] = useState("");
+
+  // Helper function to safely render object or string values
+  const renderValue = (value: any, fallback: string = "N/A"): string => {
+    if (!value) return fallback;
+    if (typeof value === 'object') {
+      return value?.name || value?.title || fallback;
+    }
+    return String(value);
+  };
 
   const { data, isLoading } = useGetSingleVehicleRequestQuery(
     id as string,
@@ -42,6 +53,12 @@ export default function VehicleRequestDetails() {
     isLoading: isApproving,
     isSuccess,
   } = useApproveVehicleRequestMutation(id as string);
+
+  const {
+    rejectVehicleRequest,
+    isLoading: isRejecting,
+    isSuccess: isRejectSuccess,
+  } = useRejectVehicleRequestMutation(id as string);
 
   const form = useForm<TVehicleRequestApprovalFormValues>({
     resolver: zodResolver(VehicleRequestApprovalSchema),
@@ -125,6 +142,15 @@ export default function VehicleRequestDetails() {
     }
   };
 
+  const onReject = async () => {
+    try {
+      await rejectVehicleRequest(rejectComment);
+    } catch (error) {
+      console.error("Rejection failed:", error);
+      toast.error("Failed to reject vehicle request. Please try again.");
+    }
+  };
+
   // Handle success
   useEffect(() => {
     if (isSuccess) {
@@ -132,6 +158,14 @@ export default function VehicleRequestDetails() {
       router.push("/dashboard/admin/fleet-management/vehicle-request");
     }
   }, [isSuccess, router]);
+
+  // Handle reject success
+  useEffect(() => {
+    if (isRejectSuccess) {
+      toast.success("Vehicle request rejected successfully!");
+      router.push("/dashboard/admin/fleet-management/vehicle-request");
+    }
+  }, [isRejectSuccess, router]);
 
   return (
     <div className='space-y-4'>
@@ -142,12 +176,67 @@ export default function VehicleRequestDetails() {
         ) : (
           data && (
             <>
-              <DescriptionCard
-                label='Requesting Staff'
-                description={`${
-                  data?.data?.requesting_staff?.first_name || ""
-                } ${data?.data?.requesting_staff?.last_name || ""}`}
-              />
+              {/* Enhanced Requesting Staff Details */}
+              <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h3 className="text-lg font-bold text-blue-800 mb-3">Requesting Staff Details</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-600">Name</p>
+                    <p className="text-base">{`${data?.data?.requesting_staff?.first_name || ""} ${data?.data?.requesting_staff?.last_name || ""}`}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-600">Email</p>
+                    <p className="text-base">{data?.data?.requesting_staff?.email || "N/A"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-600">Department</p>
+                    <p className="text-base">{renderValue(data?.data?.requesting_staff?.department)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-600">Position</p>
+                    <p className="text-base">{renderValue(data?.data?.requesting_staff?.position) || renderValue(data?.data?.requesting_staff?.designation)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-600">Mobile Number</p>
+                    <p className="text-base">{data?.data?.requesting_staff?.mobile_number || "N/A"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-600">Location</p>
+                    <p className="text-base">{renderValue(data?.data?.requesting_staff?.location)}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Enhanced Supervisor Details */}
+              <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <h3 className="text-lg font-bold text-green-800 mb-3">Supervisor Details</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-600">Name</p>
+                    <p className="text-base">{`${data?.data?.supervisor?.first_name || ""} ${data?.data?.supervisor?.last_name || ""}`}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-600">Email</p>
+                    <p className="text-base">{data?.data?.supervisor?.email || "N/A"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-600">Department</p>
+                    <p className="text-base">{renderValue(data?.data?.supervisor?.department)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-600">Position</p>
+                    <p className="text-base">{renderValue(data?.data?.supervisor?.position) || renderValue(data?.data?.supervisor?.designation)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-600">Mobile Number</p>
+                    <p className="text-base">{data?.data?.supervisor?.mobile_number || "N/A"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-600">Location</p>
+                    <p className="text-base">{renderValue(data?.data?.supervisor?.location)}</p>
+                  </div>
+                </div>
+              </div>
 
               <div className='grid grid-cols-3 gap-5 mb-6'>
                 <DescriptionCard
@@ -188,31 +277,54 @@ export default function VehicleRequestDetails() {
                   label='Point of Departure'
                   description={data?.data.departure_point}
                 />
+
+                <DescriptionCard
+                  label='Purpose of Travel'
+                  description={data?.data.purpose_of_travel || 'General travel'}
+                />
               </div>
 
-              <h3 className='mb-2 text-lg font-bold text-yellow-500'>
-                Travel Team Members ({data?.data.travel_team_members.length})
-              </h3>
-              <div className='grid grid-cols-4 gap-4 mb-6'>
-                {data?.data.travel_team_members.map(
-                  ({ id, full_name, mobile_number, email }) => (
-                    <Card key={id} className='p-2 space-y-3 bg-amber-50'>
-                      <p>
-                        <span className='font-bold'>Name:&nbsp;</span>
-                        {full_name}&nbsp;
-                      </p>
-                      <p>
-                        <span className='font-bold'>Email:</span>
-                        &nbsp;
-                        {email || "N/A"}
-                      </p>
-                      <p>
-                        <span className='font-bold'>Tel:&nbsp;</span>
-                        {mobile_number || "N/A"}
-                      </p>
-                    </Card>
-                  )
-                )}
+              {/* Enhanced Travel Team Members */}
+              <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                <h3 className="text-lg font-bold text-amber-800 mb-3">
+                  Travel Team Members ({data?.data.travel_team_members.length})
+                </h3>
+                <div className='grid grid-cols-2 gap-4'>
+                  {data?.data.travel_team_members.map(
+                    ({ id, full_name, mobile_number, email, department, position, designation, location }) => (
+                      <Card key={id} className='p-4 bg-white border border-amber-300 shadow-sm'>
+                        <div className="space-y-2">
+                          <div>
+                            <p className="text-sm font-semibold text-gray-600">Name</p>
+                            <p className="text-base font-medium text-gray-900">{full_name || "N/A"}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-600">Email</p>
+                            <p className="text-base text-gray-700">{email || "N/A"}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-600">Mobile Number</p>
+                            <p className="text-base text-gray-700">{mobile_number || "N/A"}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-600">Department</p>
+                            <p className="text-base text-gray-700">{renderValue(department)}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-600">Position</p>
+                            <p className="text-base text-gray-700">{renderValue(position) || renderValue(designation)}</p>
+                          </div>
+                          {location && (
+                            <div>
+                              <p className="text-sm font-semibold text-gray-600">Location</p>
+                              <p className="text-base text-gray-700">{renderValue(location)}</p>
+                            </div>
+                          )}
+                        </div>
+                      </Card>
+                    )
+                  )}
+                </div>
               </div>
 
               <FormProvider {...form}>
@@ -294,14 +406,49 @@ export default function VehicleRequestDetails() {
                     placeholder='Enter Comment (Optional)'
                   />
 
-                  <FormButton
-                    size='lg'
-                    className='bg-green-500'
-                    loading={isApproving}
-                    disabled={isApproving}
-                  >
-                    {isApproving ? "Approving..." : "Approve Request"}
-                  </FormButton>
+                  {/* Action Buttons Section */}
+                  <div className="space-y-4 pt-4 border-t">
+                    <h4 className="text-lg font-semibold text-gray-800">Request Actions</h4>
+
+                    <div className="flex gap-4">
+                      <FormButton
+                        size='lg'
+                        className='bg-green-500 hover:bg-green-600'
+                        loading={isApproving}
+                        disabled={isApproving || isRejecting}
+                      >
+                        {isApproving ? "Approving..." : "Approve Request"}
+                      </FormButton>
+
+                      <Button
+                        type="button"
+                        size='lg'
+                        className='bg-red-500 hover:bg-red-600 text-white'
+                        disabled={isApproving || isRejecting}
+                        onClick={onReject}
+                      >
+                        {isRejecting ? "Rejecting..." : "Reject Request"}
+                      </Button>
+                    </div>
+
+                    {/* Reject Comment Field */}
+                    <div className="bg-red-50 p-4 rounded-lg border border-red-200">
+                      <label htmlFor="rejectComment" className="block text-sm font-medium text-red-800 mb-2">
+                        Rejection Comment (Optional)
+                      </label>
+                      <textarea
+                        id="rejectComment"
+                        value={rejectComment}
+                        onChange={(e) => setRejectComment(e.target.value)}
+                        placeholder="Enter reason for rejection (optional)"
+                        className="w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                        rows={3}
+                      />
+                      <p className="text-xs text-red-600 mt-1">
+                        This comment will be visible to the requesting staff if provided.
+                      </p>
+                    </div>
+                  </div>
                 </form>
               </FormProvider>
             </>

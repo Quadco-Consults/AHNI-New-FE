@@ -17,8 +17,8 @@ interface FuelTrackerTableProps {
 
 export default function FuelTrackerTable({
   data,
-  vendorName = "EMADEB ENERGY SERVICES LIMITED",
-  location = "Abuja",
+  vendorName = "Unknown Vendor",
+  location = "Unknown Location",
   projectTitle = "AHNi HQ for Fuel Consumption Tracker for Project Vehicles",
   isLoading = false,
 }: FuelTrackerTableProps) {

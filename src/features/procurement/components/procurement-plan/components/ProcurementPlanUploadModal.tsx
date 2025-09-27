@@ -13,12 +13,13 @@ import { z } from "zod";
 // import * as XLSX from "xlsx";
 import { Input } from "components/ui/input";
 import Modal from "react-modal";
-import { useCreateProcurementPlan } from "@/features/procurement/controllers/procurementPlanController";
+import { useCreateProcurementPlan, useGetAllProcurementPlans, useUpdateProcurementPlan } from "@/features/procurement/controllers/procurementPlanController";
 import { toast } from "sonner";
 import { useGetAllFinancialYearsManager } from "@/features/modules/controllers/config/financialYearController";
 import { closeDialog } from "store/ui";
 import { useDispatch } from "react-redux";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
+import { useMemo } from "react";
 
 type PropsType = {
   isOpen: boolean;
@@ -47,9 +48,20 @@ const ProcurementPlanUploadModal = (props: PropsType) => {
   const dispatch = useDispatch();
 
   const [file, setFile] = useState<File | Blob | null>(null);
-
+  const [existingPlan, setExistingPlan] = useState<any>(null);
+  const [isUpdateMode, setIsUpdateMode] = useState(false);
 
   const { createProcurementPlan, isLoading: creatingPlan } = useCreateProcurementPlan();
+
+  // Hook for updating (only create when we have an existing plan)
+  const { updateProcurementPlan, isLoading: updatingPlan } = useUpdateProcurementPlan(existingPlan?.id || "");
+
+  // Fetch all procurement plans to check for duplicates
+  const { data: allPlans } = useGetAllProcurementPlans({
+    page: 1,
+    size: 1000, // Get all to check duplicates
+    enabled: props.isOpen, // Only fetch when modal is open
+  });
 
   const { data: financialYear } = useGetAllFinancialYearsManager({
     size: 1000,
@@ -83,7 +95,44 @@ const ProcurementPlanUploadModal = (props: PropsType) => {
     },
   });
 
-  const { handleSubmit } = form;
+  const { handleSubmit, watch } = form;
+
+  // Watch form values to check for existing plans
+  const watchedProject = watch("project");
+  const watchedFinancialYear = watch("financial_year");
+
+  // Function to check if a plan already exists for this project/year combination
+  const checkExistingPlan = useMemo(() => {
+    if (!allPlans?.data?.results || !watchedProject || !watchedFinancialYear) {
+      setExistingPlan(null);
+      setIsUpdateMode(false);
+      return null;
+    }
+
+    const existing = allPlans.data.results.find((plan: any) =>
+      plan.project === watchedProject && plan.financial_year === watchedFinancialYear
+    );
+
+    if (existing) {
+      setExistingPlan(existing);
+      setIsUpdateMode(true);
+      return existing;
+    } else {
+      setExistingPlan(null);
+      setIsUpdateMode(false);
+      return null;
+    }
+  }, [allPlans, watchedProject, watchedFinancialYear]);
+
+  // Reset state when modal closes
+  useEffect(() => {
+    if (!props.isOpen) {
+      setFile(null);
+      setExistingPlan(null);
+      setIsUpdateMode(false);
+      form.reset();
+    }
+  }, [props.isOpen, form]);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files && e.target.files[0];
@@ -111,19 +160,24 @@ const ProcurementPlanUploadModal = (props: PropsType) => {
       toast.error("Please select a file to upload");
       return;
     }
-    
+
     const formData = new FormData();
     formData.append("file", file as Blob);
     formData.append("financial_year", data?.financial_year as string);
     formData.append("project", data?.project as string);
-    
-    // Debug logging
-    for (let [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
-    
+
     try {
-      await createProcurementPlan(formData as any);
+      if (isUpdateMode && existingPlan) {
+        // Update existing procurement plan
+        toast.info(`Updating existing procurement plan for this project and financial year...`);
+        await updateProcurementPlan(formData as any);
+        toast.success("Procurement plan updated successfully!");
+      } else {
+        // Create new procurement plan
+        await createProcurementPlan(formData as any);
+        toast.success("Procurement plan created successfully!");
+      }
+
       props.onCancel();
       dispatch(closeDialog());
     } catch (error: any) {
@@ -243,8 +297,20 @@ const ProcurementPlanUploadModal = (props: PropsType) => {
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <h2 className='font-bold text-[18px] text-center'>
-            Upload Procurement Plan
+            {isUpdateMode ? "Update Procurement Plan" : "Upload Procurement Plan"}
           </h2>
+
+          {isUpdateMode && existingPlan && (
+            <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+              <p className="text-yellow-700 text-sm">
+                ⚠️ A procurement plan already exists for this project and financial year.
+                Uploading will <strong>update the existing plan</strong> instead of creating a new one.
+              </p>
+              <p className="text-yellow-600 text-xs mt-1">
+                Existing plan ID: {existingPlan.id}
+              </p>
+            </div>
+          )}
 
           <div className='mt-5 flex flex-col gap-5'>
             <div className='flex items-center gap-2'>
@@ -287,8 +353,14 @@ const ProcurementPlanUploadModal = (props: PropsType) => {
               >
                 Cancel
               </Button>
-              <FormButton className='bg-primary text-white border-none'>
-                Done
+              <FormButton
+                className='bg-primary text-white border-none'
+                disabled={creatingPlan || updatingPlan}
+              >
+                {creatingPlan || updatingPlan
+                  ? (isUpdateMode ? "Updating..." : "Uploading...")
+                  : (isUpdateMode ? "Update Plan" : "Upload Plan")
+                }
               </FormButton>
             </div>
           </div>
