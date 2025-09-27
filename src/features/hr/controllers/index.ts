@@ -25,6 +25,7 @@ export * from './hrPerformanceAssessmentController';
 export * from './hrWorkforceNeedAnalysisController';
 export * from './hrGradeController';
 export * from './hrPositionController';
+export * from './goalsController';
 
 // Default exports for convenience
 export { useGetLeaveRequests, useGetLeaveRequestsQuery } from './leaveRequestController';
@@ -53,3 +54,4 @@ export { useGetPerformanceAssesments, useGetPerformanceAssesmentsQuery } from '.
 export { useGetWorkforceNeedAnalysis, useGetWorkforceNeedAnalysisQuery } from './hrWorkforceNeedAnalysisController';
 export { useGetHrGrades, useGetHrGradesQuery } from './hrGradeController';
 export { useGetHrPositions, useGetHrPositionsQuery } from './hrPositionController';
+export { useGetEmployeeGoals, useGetGoals, useCreateGoal, useCreateMultipleGoals } from './goalsController';

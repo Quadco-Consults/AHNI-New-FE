@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import FormButton from "@/components/FormButton";
-import FormSelect from "components/atoms/FormSelectField";
+import FormSelect from "components/FormSelectField";
 import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";
 import { useForm } from "react-hook-form";
@@ -41,17 +41,17 @@ const FormSchema = z.object({
 });
 
 const PayGroupModal = (props: PropsType) => {
-  const { data: position } = useGetAllPositionsManager({
+  const { data: position, isLoading: positionsLoading, error: positionsError } = useGetAllPositionsManager({
     page: 1,
     size: 2000000,
   });
 
-  const { data: levels } = useGetAllLevelsManager({
+  const { data: levels, isLoading: levelsLoading, error: levelsError } = useGetAllLevelsManager({
     page: 1,
     size: 2000000,
   });
 
-  const { data: grades } = useGetAllGradesManager({
+  const { data: grades, isLoading: gradesLoading, error: gradesError } = useGetAllGradesManager({
     page: 1,
     size: 2000000,
   });
@@ -59,25 +59,48 @@ const PayGroupModal = (props: PropsType) => {
   const { createPayGroup, isLoading: isCreatingLoading } =
     useCreatePayGroup();
 
-  const positionOptions = position?.results?.map(({ name, id }) => ({
-    label: name,
-    value: id,
-  }));
+  // Debug: Log the raw data to see structure
+  console.log('Position data:', position);
+  console.log('Levels data:', levels);
+  console.log('Grades data:', grades);
+  console.log('Loading states:', { positionsLoading, levelsLoading, gradesLoading });
+  console.log('Errors:', { positionsError, levelsError, gradesError });
 
-  const levelOptions = levels?.results?.map(({ name, id }) => ({
+  const positionOptions = position?.data?.results?.map(({ name, id }: any) => ({
     label: name,
-    value: id,
-  }));
+    value: String(id), // Ensure value is a string
+  })) || [];
 
-  const gradeOptions = grades?.results?.map(({ name, id }) => ({
+  const levelOptions = levels?.data?.results?.map(({ name, id }: any) => ({
     label: name,
-    value: id,
-  }));
+    value: String(id), // Ensure value is a string
+  })) || [];
+
+  const gradeOptions = grades?.data?.results?.map(({ name, id }: any) => ({
+    label: name,
+    value: String(id), // Ensure value is a string
+  })) || [];
+
+  // Test with hardcoded options to see if FormSelect works
+  const testOptions = [
+    { label: "Test Option 1", value: "test1" },
+    { label: "Test Option 2", value: "test2" },
+    { label: "Test Option 3", value: "test3" }
+  ];
+
+  // Debug: Log the mapped options
+  console.log('Position options:', positionOptions);
+  console.log('Level options:', levelOptions);
+  console.log('Grade options:', gradeOptions);
+  console.log('Position options length:', positionOptions.length);
+  console.log('Level options length:', levelOptions.length);
+  console.log('Grade options length:', gradeOptions.length);
+  console.log('Test options:', testOptions);
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      position: "1",
-      grade: "1",
+      position: "",
+      grade: "",
       level: "",
     },
   });
@@ -85,9 +108,14 @@ const PayGroupModal = (props: PropsType) => {
   const { handleSubmit } = form;
 
   const onSubmit = async (data: any) => {
-    await createPayGroup(data)();
-    toast.success("Pay Group created successfully");
-    props.onCancel();
+    try {
+      await createPayGroup(data);
+      toast.success("Pay Group created successfully");
+      props.onCancel();
+    } catch (error) {
+      toast.error("Failed to create pay group");
+      console.error("Pay group creation error:", error);
+    }
   };
 
   return (
@@ -109,24 +137,27 @@ const PayGroupModal = (props: PropsType) => {
                 name='position'
                 required
                 placeholder='Select Position'
-                options={positionOptions}
+                options={positionOptions.length > 0 ? positionOptions : testOptions}
               />
+              {console.log('Rendering Position FormSelect with options:', positionOptions.length > 0 ? positionOptions : testOptions)}
 
               <FormSelect
                 label='Grade'
                 name='grade'
                 required
-                placeholder='Select Position'
-                options={gradeOptions}
+                placeholder='Select Grade'
+                options={gradeOptions.length > 0 ? gradeOptions : testOptions}
               />
+              {console.log('Rendering Grade FormSelect with options:', gradeOptions.length > 0 ? gradeOptions : testOptions)}
 
               <FormSelect
                 label='Level'
                 name='level'
                 required
-                placeholder='Select level'
-                options={levelOptions}
+                placeholder='Select Level'
+                options={levelOptions.length > 0 ? levelOptions : testOptions}
               />
+              {console.log('Rendering Level FormSelect with options:', levelOptions.length > 0 ? levelOptions : testOptions)}
             </div>
 
             <div className='flex items-center justify-between'>
