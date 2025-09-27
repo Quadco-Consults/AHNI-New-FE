@@ -12,15 +12,27 @@ import { Form } from "components/ui/form";
 import FormButton from "@/components/FormButton";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import GoalForm from "./GoalForm";
+import { useCreateGoal } from "../../controllers/goalsController";
 
 export const GoalSchema = z.object({
-  goal: z.array(
+  title: z.string().min(1, "Goal title is required"),
+  description: z.string().optional(),
+  start_date: z.string().optional(),
+  end_date: z.string().optional(),
+  status: z.enum(["not_started", "in_progress", "completed", "on_hold", "cancelled"]).optional(),
+  narratives: z.array(
     z.object({
-      goal: z.string().optional(),
-      goal_group: z.string().optional(),
-      weight: z.string().optional(),
+      description: z.string().min(1, "Narrative description is required"),
+      weight: z.union([z.number(), z.string()]).transform((val) => {
+        if (typeof val === 'string') {
+          const parsed = parseInt(val, 10);
+          return isNaN(parsed) ? 0 : parsed;
+        }
+        return val;
+      }),
+      completed: z.boolean().optional(),
     })
-  ),
+  ).min(1, "At least one narrative is required"),
 });
 
 export type TGoalFormValues = z.infer<typeof GoalSchema>;
@@ -28,6 +40,7 @@ export type TGoalFormValues = z.infer<typeof GoalSchema>;
 const CreateGoalsModal = () => {
   const { dialogProps } = useAppSelector(dailogSelector);
   const dispatch = useAppDispatch();
+  const { createGoal, isLoading, isSuccess, error } = useCreateGoal();
 
   const urlId = typeof dialogProps?.data === "string" ? dialogProps.data : "";
   console.log({ urlId });
@@ -35,7 +48,12 @@ const CreateGoalsModal = () => {
   const form = useForm<TGoalFormValues>({
     resolver: zodResolver(GoalSchema),
     defaultValues: {
-      goal: [{ goal: "", goal_group: "", weight: "" }],
+      title: "",
+      description: "",
+      start_date: "",
+      end_date: "",
+      status: "not_started",
+      narratives: [{ description: "", weight: "100" as any, completed: false }],
     },
   });
 
@@ -43,25 +61,57 @@ const CreateGoalsModal = () => {
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "goal",
+    name: "narratives",
   });
 
-  const handleAddGoal = () =>
+  const handleAddNarrative = () =>
     append({
-      goal: "",
-      goal_group: "",
-      weight: "",
+      description: "",
+      weight: "0" as any,
+      completed: false,
     });
 
   const onSubmit: SubmitHandler<TGoalFormValues> = async (data) => {
     console.log({ data });
 
+    if (!urlId) {
+      toast.error("Employee ID is required");
+      return;
+    }
+
     try {
-      toast.success("Goals added successfully");
+      // Transform narratives to ensure weights are numbers
+      const transformedNarratives = data.narratives.map(narrative => ({
+        description: narrative.description,
+        weight: typeof narrative.weight === 'string'
+          ? parseInt(narrative.weight as any, 10)
+          : narrative.weight,
+        completed: narrative.completed || false,
+      }));
+
+      // Validate total weight
+      const totalWeight = transformedNarratives.reduce((sum, n) => sum + n.weight, 0);
+      if (totalWeight !== 100) {
+        toast.error(`Narrative weights must sum to exactly 100. Current sum: ${totalWeight}`);
+        return;
+      }
+
+      await createGoal({
+        employee: urlId,
+        title: data.title,
+        description: data.description || "",
+        start_date: data.start_date,
+        end_date: data.end_date,
+        status: data.status || "not_started",
+        narratives: transformedNarratives,
+      });
+
+      toast.success("Goal created successfully");
       dispatch(closeDialog());
       form.reset();
     } catch (error: any) {
-      toast.error(error?.data?.message || "Something went wrong");
+      console.error("Goal creation error:", error);
+      toast.error(error?.message || "Something went wrong");
     }
   };
 
@@ -79,16 +129,18 @@ const CreateGoalsModal = () => {
           </div>
 
           <div className='flex justify-between gap-4'>
-            <FormButton>Save</FormButton>
+            <FormButton disabled={isLoading}>
+              {isLoading ? "Creating..." : "Save"}
+            </FormButton>
 
             <FormButton
               type='button'
-              onClick={handleAddGoal}
+              onClick={handleAddNarrative}
               variant='outline'
               className='flex items-center gap-2'
             >
               <AddSquareIcon />
-              Add goal
+              Add narrative
             </FormButton>
           </div>
         </form>

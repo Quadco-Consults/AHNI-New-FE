@@ -106,9 +106,11 @@ export const useCreateUser = () => {
 
   const createUser = async (details: TCreateUserFormValues) => {
     try {
-      await callApi(details);
+      const result = await callApi(details);
+      return result;
     } catch (error) {
       console.error("User create error:", error);
+      throw error;
     }
   };
 

@@ -9,6 +9,7 @@ import FilterIcon2 from "assets/svgs/FilterIcon2";
 import { Button } from "components/ui/button";
 import Link from "next/link"; import { useRouter } from "next/navigation";
 import { HrRoutes, RouteEnum } from "constants/RouterConstants";
+import { generatePath } from "utils/generatePath";
 import SearchBar from "components/atoms/SearchBar";
 import { Checkbox } from "components/ui/checkbox";
 import IconButton from "components/IconButton";
