@@ -39,7 +39,7 @@ const CreateGoalsModal = () => {
   const form = useForm<TGoalFormValues>({
     resolver: zodResolver(GoalSchema),
     defaultValues: {
-      goal: [{ goal: "", competency: "", weight: "" }],
+      goal: [{ goal: "", competency: "", weight: "100" }],
     },
   });
 
@@ -54,11 +54,11 @@ const CreateGoalsModal = () => {
     append({
       goal: "",
       competency: "",
-      weight: "",
+      weight: "100",
     });
 
   const onSubmit: SubmitHandler<TGoalFormValues> = async (data) => {
-    console.log({ data });
+    console.log("Form submitted with data:", data);
 
     if (!employeeId) {
       toast.error("Employee ID is required");
@@ -68,21 +68,33 @@ const CreateGoalsModal = () => {
     try {
       // Transform form data to API payload matching backend schema
       const goalsPayload: CreateGoalPayload[] = data.goal
-        .filter(goal => goal.goal?.trim()) // Only include goals with content
-        .map(goal => ({
-          employee: employeeId,
-          title: goal.goal || "",
-          description: goal.competency || "",
-          status: "not_started",
-          narratives: [{
-            description: goal.competency || goal.goal || "",
-            weight: parseFloat(goal.weight || "100"),
-            completed: false
-          }]
-        }));
+        .filter(goal => {
+          // Check if goal has any meaningful content
+          const hasContent = goal.goal?.trim() || goal.competency?.trim();
+          console.log("Filtering goal:", goal, "Has content:", hasContent);
+          return hasContent;
+        })
+        .map(goal => {
+          const weight = goal.weight ? parseFloat(goal.weight) : 100;
+          const payload = {
+            employee: employeeId,
+            title: goal.goal?.trim() || goal.competency?.trim() || "New Goal",
+            description: goal.competency || "",
+            status: "not_started" as const,
+            narratives: [{
+              description: goal.competency?.trim() || goal.goal?.trim() || "Goal narrative",
+              weight: isNaN(weight) ? 100 : weight,
+              completed: false
+            }]
+          };
+          console.log("Mapped goal to payload:", payload);
+          return payload;
+        });
+
+      console.log("Goals payload after transformation:", goalsPayload);
 
       if (goalsPayload.length === 0) {
-        toast.error("Please add at least one goal");
+        toast.error("Please fill in at least one goal title or competency");
         return;
       }
 
@@ -161,7 +173,7 @@ const CreateGoalsModal = () => {
           </div>
 
           <div className="flex justify-between gap-4">
-            <FormButton disabled={creatingGoals}>
+            <FormButton type="submit" disabled={creatingGoals}>
               {creatingGoals ? "Saving..." : "Save"}
             </FormButton>
 

@@ -13,6 +13,9 @@ let retryCount = 0;
 
 AxiosWithToken.interceptors.request.use(
   async (config) => {
+    // Debug: Log the full request URL
+    console.log('API Request:', config.method?.toUpperCase(), config.baseURL + config.url);
+
     const token = localStorage.getItem("token");
 
     if (!token && retryCount < 3) {

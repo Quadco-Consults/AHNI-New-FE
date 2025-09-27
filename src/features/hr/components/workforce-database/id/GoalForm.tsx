@@ -11,8 +11,8 @@ const GoalForm = ({ fields, remove }: { fields: any; remove: any }) => {
       {/* @ts-ignore */}
       {fields.map((field, index) => {
         return (
-          <div key={field.id}>
-            <div className='grid grid-cols-2 gap-5 mt-5'>
+          <div key={field.id} className='border rounded-lg p-4 mb-4'>
+            <div className='grid grid-cols-2 gap-5'>
               <FormInput
                 label='Goal'
                 name={`goal.${index}.goal`}
@@ -20,24 +20,27 @@ const GoalForm = ({ fields, remove }: { fields: any; remove: any }) => {
                 required
               />
               <FormInput
-                label='Weight'
-                name={`goal.${index}.weight`}
+                label='Competency'
+                name={`goal.${index}.competency`}
                 type='text'
               />
             </div>
             <div className='grid grid-cols-2 gap-5 mt-5 items-center'>
               <FormInput
-                label='Competency'
-                name={`goal.${index}.competency`}
-                type='text'
-                required
+                label='Weight (%)'
+                name={`goal.${index}.weight`}
+                type='number'
+                min="0"
+                max="100"
+                placeholder="100"
               />
               <Button
                 type='button'
                 className='rounded-full'
                 size={"icon"}
                 onClick={() => remove(index)}
-                variant={"custom"}
+                variant={"destructive"}
+                disabled={fields.length === 1}
               >
                 <MinusCircle size={20} />
               </Button>
