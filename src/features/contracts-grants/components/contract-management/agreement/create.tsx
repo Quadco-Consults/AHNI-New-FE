@@ -91,8 +91,8 @@ export default function CreateAgreement() {
             console.log('All consultant applicants:', allResponse.data);
 
             // Try different possible statuses for eligible consultants
-            // Based on the job application workflow: APPLIED → SHORTLISTED → INTERVIEWED → CONTRACT_ISSUED → CONTRACT_ACCEPTED → HIRED
-            const possibleStatuses = ['INTERVIEWED', 'CONTRACT_ISSUED', 'CONTRACT_ACCEPTED', 'HIRED'];
+            // Note: Based on API errors, some statuses may not be valid. Let's try common ones first.
+            const possibleStatuses = ['APPLIED', 'SHORTLISTED', 'INTERVIEWED', 'ACCEPTED', 'PREFERRED'];
             let eligibleConsultants: any[] = [];
 
             for (const status of possibleStatuses) {
@@ -129,17 +129,40 @@ export default function CreateAgreement() {
         } catch (error) {
             console.error('Failed to fetch consultants:', error);
 
-            // Fallback to original endpoint
+            // Try to get all applicants without status filter to see what's available
             try {
-                const response = await AxiosWithToken.get('/contract-grants/agreements/consultants_dropdown/');
-                const data = Array.isArray(response.data) ? response.data : [];
-                setEntityOptions(data.map((item: any) => ({
-                    label: item.name || item.label || item.title || item.id,
-                    value: item.id || item.value
-                })));
-            } catch (fallbackError) {
-                console.error('Fallback fetch also failed:', fallbackError);
-                setEntityOptions([]);
+                console.log('🔄 Trying to fetch all consultant applicants without status filter...');
+                const allApplicantsResponse = await AxiosWithToken.get('/contract-grants/consultancy/applicants/', {
+                    params: { page: 1, size: 100 }
+                });
+
+                if (allApplicantsResponse.data?.data?.results?.length > 0) {
+                    console.log('✅ Found all applicants without status filter:', allApplicantsResponse.data.data.results.length);
+                    console.log('📋 Available statuses:', [...new Set(allApplicantsResponse.data.data.results.map((r: any) => r.status))]);
+
+                    // Use all applicants as potential consultants for now
+                    setEntityOptions(allApplicantsResponse.data.data.results.map((item: any) => ({
+                        label: `${item.name || `${item.first_name || ''} ${item.last_name || ''}`.trim() || item.contractor_name || item.id} (${item.status})`,
+                        value: item.id
+                    })));
+                } else {
+                    throw new Error('No applicants found');
+                }
+            } catch (allApplicantsError) {
+                console.error('All applicants fetch failed, trying fallback endpoint:', allApplicantsError);
+
+                // Fallback to original endpoint
+                try {
+                    const response = await AxiosWithToken.get('/contract-grants/agreements/consultants_dropdown/');
+                    const data = Array.isArray(response.data) ? response.data : [];
+                    setEntityOptions(data.map((item: any) => ({
+                        label: item.name || item.label || item.title || item.id,
+                        value: item.id || item.value
+                    })));
+                } catch (fallbackError) {
+                    console.error('Fallback fetch also failed:', fallbackError);
+                    setEntityOptions([]);
+                }
             }
         } finally {
             setIsLoadingEntities(false);
@@ -182,8 +205,8 @@ export default function CreateAgreement() {
             }
 
             // Try different possible statuses for eligible adhoc staff
-            // Based on the job application workflow: APPLIED → SHORTLISTED → INTERVIEWED → CONTRACT_ISSUED → CONTRACT_ACCEPTED → HIRED
-            const possibleStatuses = ['INTERVIEWED', 'CONTRACT_ISSUED', 'CONTRACT_ACCEPTED', 'HIRED'];
+            // Note: Based on API errors, some statuses may not be valid. Let's try common ones first.
+            const possibleStatuses = ['APPLIED', 'SHORTLISTED', 'INTERVIEWED', 'ACCEPTED', 'PREFERRED'];
             let eligibleAdhocStaff: any[] = [];
 
             for (const status of possibleStatuses) {
@@ -227,17 +250,40 @@ export default function CreateAgreement() {
         } catch (error) {
             console.error('Failed to fetch adhoc staff:', error);
 
-            // Fallback to original endpoint
+            // Try to get all applicants without status filter to see what's available
             try {
-                const response = await AxiosWithToken.get('/contract-grants/agreements/adhoc_staff_dropdown/');
-                const data = Array.isArray(response.data) ? response.data : [];
-                setEntityOptions(data.map((item: any) => ({
-                    label: item.name || item.label || item.title || item.id,
-                    value: item.id || item.value
-                })));
-            } catch (fallbackError) {
-                console.error('Fallback fetch also failed:', fallbackError);
-                setEntityOptions([]);
+                console.log('🔄 Trying to fetch all adhoc applicants without status filter...');
+                const allApplicantsResponse = await AxiosWithToken.get('/contract-grants/consultancy/applicants/', {
+                    params: { page: 1, size: 100 }
+                });
+
+                if (allApplicantsResponse.data?.data?.results?.length > 0) {
+                    console.log('✅ Found all adhoc applicants without status filter:', allApplicantsResponse.data.data.results.length);
+                    console.log('📋 Available statuses:', [...new Set(allApplicantsResponse.data.data.results.map((r: any) => r.status))]);
+
+                    // Use all applicants as potential adhoc staff for now
+                    setEntityOptions(allApplicantsResponse.data.data.results.map((item: any) => ({
+                        label: `${item.name || `${item.first_name || ''} ${item.last_name || ''}`.trim() || item.contractor_name || item.id} (${item.status})`,
+                        value: item.id
+                    })));
+                } else {
+                    throw new Error('No applicants found');
+                }
+            } catch (allApplicantsError) {
+                console.error('All applicants fetch failed, trying fallback endpoint:', allApplicantsError);
+
+                // Fallback to original endpoint
+                try {
+                    const response = await AxiosWithToken.get('/contract-grants/agreements/adhoc_staff_dropdown/');
+                    const data = Array.isArray(response.data) ? response.data : [];
+                    setEntityOptions(data.map((item: any) => ({
+                        label: item.name || item.label || item.title || item.id,
+                        value: item.id || item.value
+                    })));
+                } catch (fallbackError) {
+                    console.error('Fallback fetch also failed:', fallbackError);
+                    setEntityOptions([]);
+                }
             }
         } finally {
             setIsLoadingEntities(false);
@@ -724,15 +770,16 @@ export default function CreateAgreement() {
 
             // Transform data to match backend API requirements
             const transformedData = {
-                ...data,
+                // Include core fields (excluding entity _id fields)
+                type: data.type,
+                start_date: data.start_date,
+                end_date: data.end_date,
+                contract_cost: data.contract_cost,
+                location: data.location,
                 // Backend requires 'service' field - provide meaningful defaults for staff contracts
                 service: isStaffContract
                     ? `${data.type.charAt(0) + data.type.slice(1).toLowerCase()} Services`  // e.g., "Consultant Services"
                     : data.service || "Service Agreement",
-                // Remove fields that are not expected by backend Agreement model
-                service_type: undefined,
-                // Remove any status field - let backend default to 'DRAFT' for new agreements
-                status: undefined,
                 // Clean up entity fields - use correct API field names (remove _id suffix)
                 // API expects: consultant, vendor, facilitator, adhoc_staff (NOT consultant_id, vendor_id, etc.)
                 consultant: data.type === 'CONSULTANT' && data.consultant_id ? data.consultant_id : null,
@@ -745,8 +792,6 @@ export default function CreateAgreement() {
             console.log('- Is Staff Contract:', isStaffContract);
             console.log('- Original Service:', data.service);
             console.log('- Transformed Service:', transformedData.service);
-            console.log('- Service Type (removed):', transformedData.service_type);
-            console.log('- Status (removed - defaults to DRAFT):', transformedData.status);
             console.log('- Location:', transformedData.location);
             console.log('- Agreement Type:', transformedData.type);
             console.log('- Full API Payload:', transformedData);
@@ -766,10 +811,10 @@ export default function CreateAgreement() {
 
             console.log('🔍 Entity Validation Debug:');
             console.log('- Agreement Type:', type);
-            console.log('- Cleaned Consultant ID:', transformedData.consultant_id);
-            console.log('- Cleaned Facilitator ID:', transformedData.facilitator_id);
-            console.log('- Cleaned Adhoc Staff ID:', transformedData.adhoc_staff_id);
-            console.log('- Cleaned Vendor ID:', transformedData.vendor_id);
+            console.log('- Consultant Field:', transformedData.consultant);
+            console.log('- Facilitator Field:', transformedData.facilitator);
+            console.log('- Adhoc Staff Field:', transformedData.adhoc_staff);
+            console.log('- Vendor Field:', transformedData.vendor);
             console.log('- Original Form Data:', {
                 consultant_id: data.consultant_id,
                 facilitator_id: data.facilitator_id,
@@ -780,20 +825,20 @@ export default function CreateAgreement() {
             console.log('- Entity Options Details:', entityOptions);
 
             if (type === "CONSULTANT") {
-                entitySelected = !!transformedData.consultant_id;
-                selectedEntityId = transformedData.consultant_id || '';
+                entitySelected = !!transformedData.consultant;
+                selectedEntityId = transformedData.consultant || '';
                 selectedEntityType = 'Consultant';
             } else if (type === "FACILITATOR") {
-                entitySelected = !!transformedData.facilitator_id;
-                selectedEntityId = transformedData.facilitator_id || '';
+                entitySelected = !!transformedData.facilitator;
+                selectedEntityId = transformedData.facilitator || '';
                 selectedEntityType = 'Facilitator';
             } else if (type === "ADHOC_STAFF") {
-                entitySelected = !!transformedData.adhoc_staff_id;
-                selectedEntityId = transformedData.adhoc_staff_id || '';
+                entitySelected = !!transformedData.adhoc_staff;
+                selectedEntityId = transformedData.adhoc_staff || '';
                 selectedEntityType = 'Adhoc Staff';
             } else if (["SLA", "SECURITY", "INSURANCE", "LEASE", "HMO", "TICKETING"].includes(type)) {
-                entitySelected = !!transformedData.vendor_id;
-                selectedEntityId = transformedData.vendor_id || '';
+                entitySelected = !!transformedData.vendor;
+                selectedEntityId = transformedData.vendor || '';
                 selectedEntityType = 'Vendor';
             }
 
