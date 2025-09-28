@@ -122,8 +122,8 @@ export const SampleMemoSchema = z.object({
   expenses: z.array(
     z.object({
       item: z.string().optional(),
+      uom: z.string().optional(),
       quantity: z.string().optional(),
-      num_of_days: z.string().optional(),
       unit_cost: z.string().optional(),
       total_cost: z.number().optional(),
     })
@@ -143,10 +143,12 @@ export const PurchaseRequestSchema = z.object({
         z.number().min(1, "Field is required"),
       ]),
       amount: z.union([
-        z.string().min(1, "Field is required"),
-        z.number().min(1, "Field is required"),
-      ]),
+        z.string().optional(),
+        z.number().optional(),
+      ]).default("0"),
+      uom: z.string().min(1, "Unit of Measure is required"),
       item: z.string().min(1, "Field is required"),
+      description: z.string().optional(),
       fco_number: z.array(z.string().min(1, "Field is required")),
     })
   ),
@@ -158,13 +160,13 @@ export const PurchaseRequestSchema = z.object({
   deliver_to: z.string().min(1, "Field is required"),
   special_instruction: z.string().min(1, "Field is required"),
   reviewed_by: z.string().min(1, "Field is required"),
-  role_reviewed_by: z.string().min(1, "Field is required"),
+  role_reviewed_by: z.string().optional(),
   requested_by: z.string().min(1, "Field is required"),
-  role_requested_by: z.string().min(1, "Field is required"),
+  role_requested_by: z.string().optional(),
   approved_by: z.string().min(1, "Field is required"),
-  role_approved_by: z.string().min(1, "Field is required"),
+  role_approved_by: z.string().optional(),
   authorised_by: z.string().min(1, "Field is required"),
-  role_authorised_by: z.string().min(1, "Field is required"),
+  role_authorised_by: z.string().optional(),
 });
 
 export const PurchaseOrderSchema = z.object({
