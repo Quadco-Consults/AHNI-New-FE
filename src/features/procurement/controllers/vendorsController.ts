@@ -150,9 +150,11 @@ export const useCreateVendor = () => {
 
   const createVendor = async (details: any) => {
     try {
-      await callApi(details);
+      const result = await callApi(details);
+      return result;
     } catch (error) {
       console.error("Vendor create error:", error);
+      throw error; // Re-throw error so it can be handled by the caller
     }
   };
 
@@ -174,9 +176,11 @@ export const useUpdateVendor = (id: string) => {
 
   const updateVendor = async (details: any) => {
     try {
-      await callApi(details);
+      const result = await callApi(details);
+      return result;
     } catch (error) {
       console.error("Vendor update error:", error);
+      throw error; // Re-throw error so it can be handled by the caller
     }
   };
 
