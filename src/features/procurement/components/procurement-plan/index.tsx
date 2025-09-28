@@ -21,11 +21,22 @@ import { Icon } from "@iconify/react";
 import { useLazyDownloadProcurementPlanTemplateQuery, useGetAllProcurementPlans } from "../../controllers/procurementPlanController";
 import { toast } from "sonner";
 import { DownloadIcon } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
+import { useGetAllFinancialYears } from "../../../modules/controllers/config/financialYearController";
 
 export default function ProcurementPlan() {
   const [isModalOpen, setModalOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedYear, setSelectedYear] = useState("");
+
+  // Fetch financial years
+  const { data: financialYearsData } = useGetAllFinancialYears({
+    page: 1,
+    size: 100, // Get all financial years
+    search: "",
+    enabled: true
+  });
 
   // TanStack Query hook for template download (disabled by default)
   const { refetch: downloadTemplate, isFetching: isDownloading } = useLazyDownloadProcurementPlanTemplateQuery(false);
@@ -38,6 +49,7 @@ export default function ProcurementPlan() {
     page,
     size: 20,
     search: searchQuery,
+    year: selectedYear,
     enabled: isAuthenticated, // Only fetch if authenticated
   });
 
@@ -55,6 +67,12 @@ export default function ProcurementPlan() {
     setSearchQuery(e.target.value);
     setPage(1); // Reset to first page when searching
   };
+
+  const handleYearChange = (year: string) => {
+    setSelectedYear(year === "all" ? "" : year);
+    setPage(1); // Reset to first page when filtering
+  };
+
 
   const breadcrumbs = [
     { name: "Procurement", icon: true },
@@ -97,17 +115,55 @@ export default function ProcurementPlan() {
         </Popover>
       </div>
       <Card className='space-y-5'>
-        <div className='flex items-center justify-between gap-2'>
-          <div className='flex items-center w-1/3 px-2 py-2 border rounded-lg'>
-            <SearchIcon />
-            <input
-              placeholder='Search procurement plans...'
-              type='text'
-              value={searchQuery}
-              onChange={handleSearchChange}
-              className='ml-2 h-full w-full border-none bg-none focus:outline-none outline-none'
-            />
+        <div className='flex items-center justify-between gap-4'>
+          <div className='flex items-center gap-4'>
+            {/* Search Input */}
+            <div className='flex items-center w-80 px-2 py-2 border rounded-lg'>
+              <SearchIcon />
+              <input
+                placeholder='Search procurement plans...'
+                type='text'
+                value={searchQuery}
+                onChange={handleSearchChange}
+                className='ml-2 h-full w-full border-none bg-none focus:outline-none outline-none'
+              />
+            </div>
+
+            {/* Year Filter */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-700">Financial Year:</span>
+              <Select value={selectedYear === "" ? "all" : selectedYear} onValueChange={handleYearChange}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="All Financial Years" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Financial Years</SelectItem>
+                  {financialYearsData?.results?.map((financialYear) => (
+                    <SelectItem key={financialYear.id} value={financialYear.id}>
+                      {financialYear.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
+
+          {/* Clear Filters Button */}
+          {(searchQuery || selectedYear) && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setSearchQuery("");
+                setSelectedYear("");
+                setPage(1);
+              }}
+              className="flex items-center gap-2"
+            >
+              <Icon icon="ph:x" />
+              Clear Filters
+            </Button>
+          )}
         </div>
 
         {!isAuthenticated && (
@@ -123,6 +179,45 @@ export default function ProcurementPlan() {
             <p className="text-red-600">
               Error loading procurement plans: {error?.message || "Unknown error"}
             </p>
+          </div>
+        )}
+
+        {/* Results Summary */}
+        {isAuthenticated && !isError && (
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-gray-600">
+              {isLoading ? (
+                "Loading..."
+              ) : (
+                <>
+                  Showing {procurementData?.data?.results?.length || 0} of{" "}
+                  {procurementData?.data?.pagination?.total || 0} procurement plans
+                  {selectedYear && (
+                    <span className="text-blue-600 font-medium"> for {selectedYear}</span>
+                  )}
+                  {searchQuery && (
+                    <span className="text-green-600 font-medium"> matching "{searchQuery}"</span>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Active Filters Indicator */}
+            {(searchQuery || selectedYear) && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500">Active filters:</span>
+                {selectedYear && (
+                  <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                    Year: {selectedYear}
+                  </span>
+                )}
+                {searchQuery && (
+                  <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                    Search: {searchQuery}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         )}
 
