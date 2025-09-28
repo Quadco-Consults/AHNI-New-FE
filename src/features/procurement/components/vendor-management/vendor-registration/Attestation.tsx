@@ -6,7 +6,10 @@ import { Checkbox } from "components/ui/checkbox";
 import FormButton from "@/components/FormButton";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "store/index";
+import useUrlQuery from "hooks/useQuery";
 import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";
 import { useForm } from "react-hook-form";
@@ -14,24 +17,45 @@ import FormInput from "components/atoms/FormInput";
 import { z } from "zod";
 import { VendorAttestationSchema } from "@/features/procurement/types/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
+import VendorsAPI from "@/features/procurement/controllers/vendorsController";
 
 const Attestation = () => {
   const [showSubmit, setShowSubmit] = useState(false);
 
   const router = useRouter();
   const pathname = usePathname();
+  const query = useUrlQuery();
+  const vendorId = query.get("id");
   // const dispatch = useDispatch();
+
+  const currentVendor = useSelector((state: RootState) => state.vendors.currentVendor);
+  const { updateVendor: updateVendorMutation } = VendorsAPI.useUpdateVendor(vendorId || "");
+
+  // Get current date formatted for display
+  const getCurrentDate = () => {
+    return new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
 
   const form = useForm<z.infer<typeof VendorAttestationSchema>>({
     resolver: zodResolver(VendorAttestationSchema),
     defaultValues: {
       name: "",
-      organisation_name: "",
+      organisation_name: currentVendor?.company_name || "",
       title: "",
-      date: "",
-      signature: "",
+      date: getCurrentDate(),
     },
   });
+
+  useEffect(() => {
+    // Auto-populate company name from current vendor data
+    if (currentVendor?.company_name) {
+      form.setValue("organisation_name", currentVendor.company_name);
+    }
+  }, [currentVendor, form]);
 
   const { handleSubmit } = form;
 
@@ -43,18 +67,38 @@ const Attestation = () => {
   //   return { ...acc, ...obj };
   // }, {});
 
-  const onSubmit = (data: z.infer<typeof VendorAttestationSchema>) => {
-    const values = {
-      attestation_statement: "string",
-      full_name: "string",
-      company_name: "string",
-      position_title: "string",
-      signature: "string",
-      date: "2019-08-24T14:15:22Z",
-    };
-    console.log(values, data);
+  const onSubmit = async (data: z.infer<typeof VendorAttestationSchema>) => {
+    try {
+      const attestationData = {
+        attestation_statement: "I hereby attest that, to the best of my knowledge and belief, all information provided in this form are true and correct.",
+        full_name: data.name,
+        company_name: data.organisation_name || currentVendor?.company_name,
+        position_title: data.title,
+        date: data.date,
+      };
+      console.log("Attestation data:", attestationData);
 
-    setShowSubmit(true);
+      // If we have a vendor ID, update the vendor via API
+      if (vendorId) {
+        console.log("Updating vendor with attestation data:", {
+          ...currentVendor,
+          ...attestationData
+        });
+
+        const updatedVendorData = {
+          ...currentVendor,
+          ...attestationData
+        };
+
+        await updateVendorMutation(updatedVendorData);
+        console.log("Vendor updated successfully with attestation data");
+      }
+
+      setShowSubmit(true);
+    } catch (error) {
+      console.error("Error updating vendor with attestation data:", error);
+      setShowSubmit(true); // Allow user to proceed even if update fails
+    }
   };
 
   const submitHandler = async () => {
@@ -104,10 +148,10 @@ const Attestation = () => {
                         required
                       />
                       <FormInput
-                        label='Company/Organization Name'
+                        label='Company/Organization Name (Auto-populated from Registration)'
                         name={`organisation_name`}
-                        // defaultValue={field.organisation_name}
-                        required
+                        disabled
+                        className="bg-gray-100"
                       />
                       <FormInput
                         label='Position/Title'
@@ -120,18 +164,12 @@ const Attestation = () => {
                 </div>
                 <div>
                   <div className='flex items-center justify-between gap-x-3 '>
-                    <div className='relative w-full grid grid-cols-2 mt-4 gap-4 '>
+                    <div className='relative w-full grid grid-cols-1 mt-4 gap-4 '>
                       <FormInput
-                        label='Signature'
-                        name={`signature`}
-                        // defaultValue={field.signature}
-                        required
-                      />
-                      <FormInput
-                        label='Date'
+                        label='Date (Auto-populated from Registration)'
                         name={`date`}
-                        // defaultValue={field.date}
-                        required
+                        disabled
+                        className="bg-gray-100"
                       />
                     </div>
                   </div>

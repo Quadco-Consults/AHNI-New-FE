@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Edit } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -49,6 +49,7 @@ import { Loading, LoadingSpinner } from "components/Loading";
 import {
   useGetAllEois,
   useCreateEoi,
+  useUpdateEoi,
 } from "@/features/procurement/controllers/eoiController";
 import { toast } from "sonner";
 import FormButton from "@/components/FormButton";
@@ -65,6 +66,8 @@ const EOI = () => {
   const [file, setFile] = useState<File | null>(null);
   const [open, setOpen] = useState(false);
   const [categorySearchParams, setCategorySearchParams] = useState("");
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingEoi, setEditingEoi] = useState<EOIResultsData | null>(null);
   const router = useRouter();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,8 +86,12 @@ const EOI = () => {
   const {
     createEoi,
     isLoading: createEoiLoading,
-    data: createEoiData,
   } = useCreateEoi();
+
+  const {
+    updateEoi,
+    isLoading: updateEoiLoading,
+  } = useUpdateEoi(editingEoi?.id || "");
 
   const { data: financialYear, isLoading: financialYearLoading } =
     useGetAllFinancialYearsManager({});
@@ -114,55 +121,160 @@ const EOI = () => {
       form.watch("categories").includes(category?.id)
     ) || [];
 
+  // Handle opening create dialog
+  const handleCreateNew = () => {
+    setIsEditMode(false);
+    setEditingEoi(null);
+    form.reset({
+      name: "",
+      description: "",
+      eoi_number: "",
+      type: "",
+      categories: [],
+      solicitation: "",
+      financial_year: "",
+    });
+    setStartDate(undefined);
+    setEndDate(undefined);
+    setFile(null);
+    setOpen(true);
+  };
+
+  // Handle opening edit dialog
+  const handleEdit = (eoi: EOIResultsData) => {
+    setIsEditMode(true);
+    setEditingEoi(eoi);
+
+    // Populate form with existing data
+    form.reset({
+      name: eoi.name || "",
+      description: eoi.description || "",
+      eoi_number: eoi.eoi_number || "",
+      type: eoi.type || "",
+      categories: eoi.categories || [],
+      solicitation: eoi.solicitation || "",
+      financial_year: typeof eoi.financial_year === 'string' ? eoi.financial_year : eoi.financial_year?.year || "",
+    });
+
+    // Parse and set dates
+    if (eoi.opening_date) {
+      setStartDate(new Date(eoi.opening_date));
+    }
+    if (eoi.closing_date) {
+      setEndDate(new Date(eoi.closing_date));
+    }
+
+    setFile(null); // Reset file as we don't store it in edit mode
+    setOpen(true);
+  };
+
+  // Handle Select All Categories
+  const handleSelectAllCategories = () => {
+    const allCategoryIds = categories?.map((category: CategoryResultsData) => category.id) || [];
+    form.setValue("categories", allCategoryIds);
+  };
+
+  // Handle Deselect All Categories
+  const handleDeselectAllCategories = () => {
+    form.setValue("categories", []);
+  };
+
+  // Check if all categories are selected
+  const areAllCategoriesSelected = () => {
+    if (!categories || categories.length === 0) return false;
+    const selectedCategories = form.watch("categories");
+    return categories.every((category: CategoryResultsData) =>
+      selectedCategories.includes(category.id)
+    );
+  };
+
   const onSubmit = async (data: z.infer<typeof EOISchema>) => {
     console.log("onSubmit called with data:", data);
     console.log("File state:", file);
+    console.log("Is edit mode:", isEditMode);
 
-    if (!file) {
-      console.log("No file selected, returning early");
+    // For create mode, file is required
+    if (!isEditMode && !file) {
+      console.log("No file selected for create mode, returning early");
       toast.error("No file selected");
       return;
     }
 
-    console.log("File selected:", file);
-    console.log("File name:", file.name);
-    console.log("File size:", file.size);
-    console.log("File type:", file.type);
-
     const opening_date = startDate ? format(startDate, "yyy-MM-dd") : "";
     const closing_date = endDate ? format(endDate, "yyy-MM-dd") : "";
 
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("description", data.description);
-    formData.append("financial_year", data.financial_year);
-    formData.append("status", "OPEN");
-    formData.append("opening_date", opening_date);
-    formData.append("closing_date", closing_date);
-    formData.append("document", file);
-    formData.append("eoi_number", data.eoi_number);
-    formData.append("type", data.type);
-    if (data.type === "OPEN_TENDER") {
-      formData.append("solicitation", data?.solicitation!);
-    }
-
-    data.categories.forEach((item) => formData.append("categories", item));
-
-    console.log("FormData entries:");
-    for (let [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
-
     try {
-      const response = await createEoi(formData);
+      if (isEditMode && editingEoi) {
+        // Update mode - use JSON format for updating
+        const updateData = {
+          name: data.name,
+          description: data.description,
+          financial_year: data.financial_year,
+          status: "OPEN",
+          opening_date,
+          closing_date,
+          eoi_number: data.eoi_number,
+          type: data.type,
+          categories: data.categories,
+          ...(data.type === "OPEN_TENDER" && { solicitation: data.solicitation }),
+        };
 
-      if (data?.type === "OPEN_TENDER") {
-        const id = response?.data?.id;
-        router.push(
-          `/dashboard/procurement/solicitation-management/rfq/create/quotation/${id}?type=${data?.type}`
-        );
+        console.log("Updating EOI with data:", updateData);
+        await updateEoi(updateData);
+        toast.success("EOI updated successfully!");
+      } else {
+        // Create mode - use FormData for file upload
+        console.log("File selected:", file);
+        console.log("File name:", file?.name);
+        console.log("File size:", file?.size);
+        console.log("File type:", file?.type);
+
+        const formData = new FormData();
+        formData.append("name", data.name);
+        formData.append("description", data.description);
+        formData.append("financial_year", data.financial_year);
+        formData.append("status", "OPEN");
+        formData.append("opening_date", opening_date);
+        formData.append("closing_date", closing_date);
+        formData.append("document", file!);
+        formData.append("eoi_number", data.eoi_number);
+        formData.append("type", data.type);
+        if (data.type === "OPEN_TENDER") {
+          formData.append("solicitation", data?.solicitation!);
+        }
+
+        data.categories.forEach((item) => formData.append("categories", item));
+
+        console.log("FormData entries:");
+        for (let [key, value] of formData.entries()) {
+          console.log(key, value);
+        }
+
+        await createEoi(formData);
+
+        if (data?.type === "OPEN_TENDER") {
+          // Pass comprehensive EOI details for full inheritance
+          const urlParams = new URLSearchParams({
+            type: data.type,
+            eoi_name: data.name,
+            eoi_description: data.description,
+            eoi_number: data.eoi_number,
+            solicitation_type: data.solicitation || "R_F_Q",
+            // Pass categories as comma-separated string
+            eoi_categories: data.categories.join(",")
+          });
+
+          router.push(
+            `/dashboard/procurement/solicitation-management/rfq/create/quotation?${urlParams.toString()}`
+          );
+        }
+        toast.success("EOI created successfully!");
       }
+
       setOpen(false);
+      // Reset state
+      setIsEditMode(false);
+      setEditingEoi(null);
     } catch (error) {
       console.log(error);
       toast.error("Something went wrong");
@@ -221,18 +333,16 @@ const EOI = () => {
         <div className="flex items-center justify-end">
           <div>
             <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger>
-                <div className="flex items-center px-4 py-3 text-sm font-medium rounded-md bg-primary text-primary-foreground h-11 hover:opacity-50">
-                  <span>
-                    <Plus size={15} />
-                  </span>
+              <DialogTrigger asChild>
+                <Button onClick={handleCreateNew}>
+                  <Plus size={15} />
                   Create New
-                </div>
+                </Button>
               </DialogTrigger>
               <DialogContent className="max-w-4xl max-h-[650px]">
                 <div className="pb-5 space-y-5">
                   <DialogTitle className="py-5 ">
-                    Initiate New Expression of Interest
+                    {isEditMode ? "Edit Expression of Interest" : "Initiate New Expression of Interest"}
                   </DialogTitle>
 
                   <hr />
@@ -416,6 +526,33 @@ const EOI = () => {
                                   </div>
                                 </div>
 
+                                {/* Select All / Deselect All buttons */}
+                                <div className="flex justify-between items-center px-5">
+                                  <div className="flex gap-2">
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={handleSelectAllCategories}
+                                      disabled={areAllCategoriesSelected()}
+                                    >
+                                      Select All
+                                    </Button>
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={handleDeselectAllCategories}
+                                      disabled={form.watch("categories").length === 0}
+                                    >
+                                      Deselect All
+                                    </Button>
+                                  </div>
+                                  <div className="text-sm text-gray-600">
+                                    {form.watch("categories").length} of {categories?.length || 0} selected
+                                  </div>
+                                </div>
+
                                 <div className="space-y-5 ">
                                   {categoryQueryResult?.isLoading ? (
                                     <LoadingSpinner />
@@ -508,6 +645,11 @@ const EOI = () => {
                             className="bg-inherit border-none cursor-pointer "
                           />
                         </div>
+                        {isEditMode && (
+                          <p className="absolute -bottom-6 left-0 text-xs text-gray-500">
+                            Leave empty to keep existing document
+                          </p>
+                        )}
                       </div>
 
                       <div className="flex justify-end gap-5">
@@ -516,11 +658,11 @@ const EOI = () => {
                         </DialogClose>
 
                         <FormButton
-                          loading={createEoiLoading}
-                          disabled={createEoiLoading}
+                          loading={isEditMode ? updateEoiLoading : createEoiLoading}
+                          disabled={isEditMode ? updateEoiLoading : createEoiLoading}
                           type="submit"
                         >
-                          Create
+                          {isEditMode ? "Update" : "Create"}
                         </FormButton>
                       </div>
                     </form>
@@ -542,7 +684,14 @@ const EOI = () => {
                 <div className="space-y-4">
                   <div className="flex justify-between">
                     <img src={eoiPng.src} alt="eoi" />
-                    <div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => handleEdit(eoi)}
+                      >
+                        <Edit size={16} />
+                      </Button>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button variant="outline" size="icon">

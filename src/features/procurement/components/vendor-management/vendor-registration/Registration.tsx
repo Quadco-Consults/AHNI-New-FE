@@ -28,7 +28,7 @@ import {
 } from "components/ui/dialog";
 import { useEffect, useState } from "react";
 import CategoryAPI from "@/features/modules/controllers/config/categoryController";
-import logoPng from "assets/imgs/logo.png";
+import logoPng from "@/assets/imgs/logo.png";
 import { Input } from "components/ui/input";
 import { Icon } from "@iconify/react";
 import { LoadingSpinner } from "components/Loading";
@@ -38,11 +38,13 @@ import { VendorsRegistrationSchema } from "@/features/procurement/types/procurem
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { vendorsActions } from "store/formData/procurement-vendors";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "store/index";
 import { SelectContent, SelectItem } from "components/ui/select";
 import { Badge } from "components/ui/badge";
 import useQuery from "hooks/useQuery";
 import VendorsAPI from "@/features/procurement/controllers/vendorsController";
+import { toast } from "sonner";
 // import { skipToken } from "@reduxjs/toolkit/query";
 
 const Registration = () => {
@@ -56,6 +58,11 @@ const Registration = () => {
     error,
     // @ts-ignore
   } = VendorsAPI.useGetVendor(vendorId);
+
+  // Add the create vendor mutation hook
+  const { createVendor: createVendorMutation, isLoading: isCreatingVendor } = VendorsAPI.useCreateVendor();
+
+  const currentVendor = useSelector((state: RootState) => state.vendors.currentVendor);
 
   if (isLoading) {
     console.log("Loading...");
@@ -84,7 +91,9 @@ const Registration = () => {
       company_registration_number: "",
       website: "",
       email: "",
-      phone_numbers: "",
+      mobile_number_1: "",
+      mobile_number_2: "",
+      mobile_number_3: "",
       nature_of_business: "",
       company_address: "",
       tin: "",
@@ -107,7 +116,9 @@ const Registration = () => {
           vendor?.data?.company_registration_number || "",
         website: vendor?.data?.website || "",
         email: vendor?.data?.email || "",
-        phone_numbers: vendor?.data?.phone_numbers || "",
+        mobile_number_1: vendor?.data?.mobile_number_1 || "",
+        mobile_number_2: vendor?.data?.mobile_number_2 || "",
+        mobile_number_3: vendor?.data?.mobile_number_3 || "",
         nature_of_business: vendor?.data?.nature_of_business || "",
         company_address: vendor?.data?.company_address || "",
         tin: vendor?.data?.tin || "",
@@ -140,24 +151,69 @@ const Registration = () => {
       watch("submitted_categories").includes(String(category?.id))
     ) || [];
 
-  const onSubmit = (data: z.infer<typeof VendorsRegistrationSchema>) => {
-    console.log({ fhgdf: "anm" });
+  const onSubmit = async (data: z.infer<typeof VendorsRegistrationSchema>) => {
+    console.log("Registration form submitted with data:", data);
 
-    dispatch(
-      vendorsActions.addVendors({
+    try {
+      const vendorData = {
         ...data,
-        approved_categories: vendor?.data.approved_categories_details, // Include approved_categories to trigger pending status
-      })
-    );
+        approved_categories: vendor?.data?.approved_categories_details, // Include approved_categories to trigger pending status
+      };
 
-    let path = pathname;
+      // Update current vendor data in Redux store for persistence
+      dispatch(vendorsActions.updateCurrentVendor(vendorData));
 
-    // Remove the last segment of the path
-    path = path.substring(0, path.lastIndexOf("/"));
+      // Also add to vendors array for backwards compatibility
+      dispatch(vendorsActions.addVendors(vendorData));
 
-    // Append the new segment to the path
-    path += `/the-company?id=${vendorId}`;
-    router.push(path);
+      let targetVendorId = vendorId;
+
+      // If this is a new vendor registration (no existing vendorId), create the vendor now
+      if (!vendorId) {
+        console.log("Creating new vendor with data:", vendorData);
+
+        try {
+          // Call the vendor creation API and get the response
+          const vendorResponse = await createVendorMutation(vendorData);
+          console.log("Vendor creation response:", vendorResponse);
+
+          // Get the created vendor ID - check multiple possible response structures
+          targetVendorId = vendorResponse?.data?.id || vendorResponse?.id;
+
+          if (!targetVendorId) {
+            console.error("Failed to create vendor - no ID returned from response:", vendorResponse);
+            toast.error("Failed to create vendor - no ID returned. Please try again.");
+            return;
+          }
+
+          // Store the vendor data with ID in Redux
+          dispatch(vendorsActions.updateCurrentVendor({
+            ...vendorData,
+            id: targetVendorId
+          }));
+
+          console.log("Vendor created successfully with ID:", targetVendorId);
+          toast.success("Vendor created successfully!");
+        } catch (createError) {
+          console.error("Error creating vendor:", createError);
+          toast.error(`Failed to create vendor: ${(createError as any).message || 'Unknown error'}`);
+          return;
+        }
+      }
+
+      let path = pathname;
+
+      // Remove the last segment of the path
+      path = path.substring(0, path.lastIndexOf("/"));
+
+      // Append the new segment to the path
+      path += `/the-company?id=${targetVendorId}`;
+      router.push(path);
+    } catch (error) {
+      console.error("Error in vendor registration:", error);
+      toast.error(`Registration failed: ${error.message || 'Unknown error'}`);
+      // Don't navigate if there's an error - let the user fix the issue
+    }
   };
 
   const onError = (errors: any) => {
@@ -218,10 +274,22 @@ const Registration = () => {
                 <div className='grid grid-cols-2 col-span-3 gap-x-6 '>
                   <FormInput name='email' label='Company Email' required />
                   <FormInput
-                    name='phone_numbers'
-                    label='Phone Number'
+                    name='mobile_number_1'
+                    label='Mobile Number 1'
                     required
-                    type='number'
+                    type='tel'
+                  />
+                </div>
+                <div className='grid grid-cols-2 col-span-3 gap-x-6 '>
+                  <FormInput
+                    name='mobile_number_2'
+                    label='Mobile Number 2'
+                    type='tel'
+                  />
+                  <FormInput
+                    name='mobile_number_3'
+                    label='Mobile Number 3'
+                    type='tel'
                   />
                 </div>
                 <div className='grid grid-cols-2 col-span-3 gap-x-6 '>
@@ -333,11 +401,30 @@ const Registration = () => {
                         {categoryQueryResult?.isLoading ? (
                           <LoadingSpinner />
                         ) : (
-                          <FormField
-                            control={form.control}
-                            name='submitted_categories'
-                            render={() => (
-                              <FormItem className='grid grid-cols-2 gap-5 bg-gray-100 mt-10 p-5 rounded-lg shadow-inner md:grid-cols-4'>
+                          <div>
+                            {/* Select All Checkbox */}
+                            <div className='flex items-center gap-2 mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200'>
+                              <Checkbox
+                                id='select-all'
+                                checked={
+                                  categories?.length > 0 &&
+                                  watch("submitted_categories")?.length === categories?.length
+                                }
+                                onCheckedChange={(checked) => {
+                                  const allCategoryIds = categories?.map((cat: CategoryResultsData) => String(cat.id)) || [];
+                                  form.setValue("submitted_categories", checked ? allCategoryIds : []);
+                                }}
+                              />
+                              <label htmlFor='select-all' className='text-sm font-medium text-blue-800 cursor-pointer'>
+                                Select All Categories ({categories?.length || 0})
+                              </label>
+                            </div>
+
+                            <FormField
+                              control={form.control}
+                              name='submitted_categories'
+                              render={() => (
+                                <FormItem className='grid grid-cols-2 gap-5 bg-gray-100 mt-10 p-5 rounded-lg shadow-inner md:grid-cols-4'>
                                 {categories?.map(
                                   (category: CategoryResultsData) => (
                                     <FormField
@@ -391,6 +478,7 @@ const Registration = () => {
                               </FormItem>
                             )}
                           />
+                          </div>
                         )}
 
                         <div className='flex justify-end'>

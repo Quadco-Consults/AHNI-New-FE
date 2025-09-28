@@ -3,7 +3,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { useParams } from "next/navigation";
 import ProcurementPlan from "./ProcurementPlan";
-import ProcurementMilestones from "./ProcurementMilestones";
+import ProcurementSummary from "./ProcurementSummary";
 import BreadcrumbCard from "components/Breadcrumb";
 import GoBack from "components/GoBack";
 import Card from "components/Card";
@@ -57,8 +57,8 @@ const ProcurementDetails = () => {
         <div className="relative pb-2 flex justify-between items-center">
           <TabsList>
             <TabsTrigger value="procurement_plan">Procurement Plan</TabsTrigger>
-            <TabsTrigger value="procurement_milestones">
-              Procurement Milestones
+            <TabsTrigger value="procurement_summary">
+              Procurement Summary
             </TabsTrigger>
           </TabsList>
 
@@ -78,9 +78,9 @@ const ProcurementDetails = () => {
             <ProcurementPlan {...(data?.data as ProcurementPlanResultsData)} />
           </Card>
         </TabsContent>
-        <TabsContent value="procurement_milestones">
+        <TabsContent value="procurement_summary">
           <Card>
-            <ProcurementMilestones {...(data?.data as ProcurementPlanResultsData)} />
+            <ProcurementSummary {...(data?.data as ProcurementPlanResultsData)} />
           </Card>
         </TabsContent>
       </Tabs>
