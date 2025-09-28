@@ -33,9 +33,9 @@ const ManualSubGrantStepWrapper = ({ children }: Children) => {
             ? JSON.parse(savedSteps)
             : new Array(steps.length).fill(false);
     });
-    const { pathname } = useLocation();
+    const pathname = usePathname();
 
-    const currentPath = pathname.split("/").at(-2);
+    const currentPath = pathname?.split("/").at(-2) || "";
     useEffect(() => {
         const currentStepIndex = steps.findIndex(
             (step) => step.route === currentPath

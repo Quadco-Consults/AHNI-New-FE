@@ -69,7 +69,7 @@ export default function SubgrantAdvertCard({
                         </CardTitle>
 
                         <div className="flex items-center">
-                            <Link href="/">
+                            <Link href={`/dashboard/c-and-g/sub-grant/create-sub-grant?editId=${id}`}>
                                 <Button variant="ghost">
                                     <PencilIcon />
                                 </Button>
@@ -111,18 +111,20 @@ export default function SubgrantAdvertCard({
                     </div>
                 </div>
 
-                {/* <div className="relative">
-                    <p className="text-sm">{evaluation_comments}</p>
-                    <div className="w-full flex flex-col items-center justify-center absolute bottom-0 left-0 py-[.75rem] bg-gradient-to-b from-white/50 via-white/60 to-white/90">
-                        <div className="bg-white w-fit">
-                            <Link href="/">
-                                <Button className="bg-white text-primary z-[99] border border-[#00000012]">
-                                    Tap to View
-                                </Button>
-                            </Link>
-                        </div>
+                <div className="flex justify-between items-center">
+                    <div className="flex gap-2">
+                        <Link href={`/dashboard/c-and-g/sub-grant/awards/${id}`}>
+                            <Button variant="outline" size="sm">
+                                View Details
+                            </Button>
+                        </Link>
+                        <Link href={`/dashboard/c-and-g/sub-grant/awards/${id}/submission/create`}>
+                            <Button size="sm">
+                                Add Submission
+                            </Button>
+                        </Link>
                     </div>
-                </div> */}
+                </div>
             </Card>
 
             <ConfirmationDialog

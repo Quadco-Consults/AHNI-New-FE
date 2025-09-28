@@ -71,7 +71,7 @@ export const SubGrantSubmissionSchema = z.object({
     partner: z.string().min(1, "Please select partner"),
     organisation_name: z.string().min(1, "Please enter organization name"),
     principal_one_name: z.string().min(1, "Please enter 1st principal name"),
-    principal_one_designaation: z
+    principal_one_designation: z
         .string()
         .min(1, "Please enter principal one designation"),
     principal_two_name: z

@@ -32,7 +32,7 @@ export default function CreateSubGrantSubDetails() {
             partner: "",
             organisation_name: "",
             principal_one_name: "",
-            principal_one_designaation: "",
+            principal_one_designation: "",
             principal_two_name: "",
             address: "",
             phone_number: "",
@@ -76,21 +76,23 @@ export default function CreateSubGrantSubDetails() {
         data
     ) => {
         try {
+            let responseData;
             if (subGrantId && submissionId) {
-                await modifySubGrantManualSub({
+                responseData = await modifySubGrantManualSub({
                     submissionId: submissionId ?? "",
                     body: { ...data, sub_grant: subGrantId },
                 })();
                 toast.success("Manual Submission Updated");
             } else {
-                await createSubGrantManualSub({
+                responseData = await createSubGrantManualSub({
                     ...data,
                     sub_grant: subGrantId ?? "",
                 })();
                 toast.success("Manual Submission Created");
             }
 
-            router.push(`/dashboard/c-and-g/sub-grant/awards/submission/create/upload?partnerSubId=${submissionId ?? ""}`);
+            const newSubmissionId = submissionId || responseData?.data?.id;
+            router.push(`/dashboard/c-and-g/sub-grant/awards/${subGrantId}/submission/create/upload?partnerSubId=${newSubmissionId}`);
         } catch (error: any) {
             toast.error(error.data.message ?? "Something went wrong");
         }
@@ -137,7 +139,7 @@ export default function CreateSubGrantSubDetails() {
                             />
                             <FormInput
                                 label="Designation"
-                                name="principal_one_designaation"
+                                name="principal_one_designation"
                                 placeholder="Enter 1st Principal Designation"
                                 required
                             />
