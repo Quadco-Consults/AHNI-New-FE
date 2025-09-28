@@ -60,6 +60,8 @@ const ApprovalDebugPanel = ({
         case 'approve':
           result = await PurchaseRequestApprovalAPI.approve(requestId);
           break;
+        default:
+          throw new Error(`Invalid action: ${action}. Expected 'review', 'authorize', or 'approve'.`);
       }
 
       const duration = Date.now() - startTime;

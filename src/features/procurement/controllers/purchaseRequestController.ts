@@ -7,7 +7,7 @@ import {
   PurchaseRequestResultsData,
 } from "../types/purchase-request";
 import { z } from "zod";
-import { PurchaseRequestSchema } from "definations/procurement-validator";
+import { PurchaseRequestSchema } from "../types/procurement-validator";
 
 // API Response interfaces
 interface ApiResponse<TData = unknown> {
@@ -193,9 +193,35 @@ export const useModifyPurchaseRequest = (id: string) => {
 
   const modifyPurchaseRequest = async (details: any) => {
     try {
+      // Debug logging to catch problematic action values
+      console.log(`🔧 ModifyPurchaseRequest called with:`, details);
+
+      // Check if there's an action field and validate it
+      if (details && typeof details === 'object' && 'action' in details) {
+        const action = details.action;
+        console.log(`🎯 Action field detected:`, action, `(type: ${typeof action})`);
+
+        // Validate action is not None or invalid
+        if (action === "None" || action === null || action === undefined || action === "") {
+          console.error(`❌ Invalid action detected in modifyPurchaseRequest:`, action);
+          throw new Error(`Invalid action value: "${action}". This would cause a backend error.`);
+        }
+
+        // If it's a workflow action, ensure it's one of the valid values
+        const validActions = ["review", "authorise", "approve"];
+        if (validActions.includes(action)) {
+          console.log(`✅ Valid workflow action: ${action}`);
+        } else {
+          console.warn(`⚠️ Non-workflow action: ${action} - this might be a field update`);
+        }
+      } else {
+        console.log(`📝 Non-action update (field modification):`, details);
+      }
+
       await callApi(details);
     } catch (error) {
       console.error("Purchase request modify error:", error);
+      throw error; // Re-throw to ensure errors are properly handled
     }
   };
 

@@ -99,7 +99,7 @@ const CreateActivityMemo = () => {
           console.log("✅ Updated Redux with memo ID:", memoId);
         }
 
-        // Navigate to final preview with the created ID
+        // Navigate directly to final preview
         console.log("🧭 Navigating to final preview with ID:", memoId);
         const finalUrl = `${RouteEnum.FINAL_PREVIEW}?id=${memoId}&created=true`;
         console.log("Final URL:", finalUrl);
@@ -108,7 +108,7 @@ const CreateActivityMemo = () => {
         console.warn("❌ No memo ID found in response, falling back to sample preview");
         console.log("Available response keys:", Object.keys(createResponse || {}));
         console.log("Available data keys:", Object.keys(createData || {}));
-        router.push(RouteEnum.SAMPLE_PREVIEW);
+        router.push(RouteEnum.FINAL_PREVIEW);
       }
     } else {
       console.log("❌ Navigation conditions not met:");
@@ -293,9 +293,53 @@ const CreateActivityMemo = () => {
     })
   ) || [];
 
+  // Form persistence key
+  const FORM_STORAGE_KEY = 'activity_memo_form_data';
+
+  // Load saved form data from localStorage
+  const loadSavedFormData = () => {
+    try {
+      const savedData = localStorage.getItem(FORM_STORAGE_KEY);
+      console.log('Raw saved data from localStorage:', savedData);
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        console.log('✅ Loaded saved form data:', parsedData);
+
+        // Validate the structure to ensure it's compatible
+        if (parsedData && typeof parsedData === 'object') {
+          // Ensure arrays are properly formatted
+          const validatedData = {
+            ...parsedData,
+            fconumber: Array.isArray(parsedData.fconumber) ? parsedData.fconumber : [],
+            intervention_areas: Array.isArray(parsedData.intervention_areas) ? parsedData.intervention_areas : [],
+            budget_line: Array.isArray(parsedData.budget_line) ? parsedData.budget_line : [],
+            cost_categories: Array.isArray(parsedData.cost_categories) ? parsedData.cost_categories : [],
+            cost_input: Array.isArray(parsedData.cost_input) ? parsedData.cost_input : [],
+            funding_source: Array.isArray(parsedData.funding_source) ? parsedData.funding_source : [],
+            copy: Array.isArray(parsedData.copy) ? parsedData.copy : [],
+            through: Array.isArray(parsedData.through) ? parsedData.through : [],
+            expenses: Array.isArray(parsedData.expenses) ? parsedData.expenses : [],
+          };
+          console.log('📋 Validated saved data:', validatedData);
+          return validatedData;
+        }
+      } else {
+        console.log('ℹ️ No saved form data found');
+      }
+    } catch (error) {
+      console.error('❌ Error loading saved form data:', error);
+      // Clear corrupted data
+      localStorage.removeItem(FORM_STORAGE_KEY);
+    }
+    return null;
+  };
+
+  const savedFormData = loadSavedFormData();
+  console.log('📋 Final savedFormData being used:', savedFormData);
+
   const form = useForm<z.infer<typeof SampleMemoSchema>>({
     resolver: zodResolver(SampleMemoSchema),
-    defaultValues: {
+    defaultValues: savedFormData || {
       activity: "",
       subject: "",
       requested_date: "",
@@ -325,6 +369,47 @@ const CreateActivityMemo = () => {
     watch,
   } = form;
 
+  // Watch all form values for auto-save
+  const watchedValues = watch();
+
+  // Save form data to localStorage
+  const saveFormData = (data: any) => {
+    try {
+      // Don't save if data is empty or just default values
+      const hasContent = Object.values(data).some(value => {
+        if (Array.isArray(value)) return value.length > 0;
+        if (typeof value === 'string') return value.trim().length > 0;
+        return false;
+      });
+
+      if (hasContent) {
+        localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(data));
+        console.log('Form data saved to localStorage');
+      }
+    } catch (error) {
+      console.error('Error saving form data:', error);
+    }
+  };
+
+  // Auto-save form data when values change
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      saveFormData(watchedValues);
+    }, 1000); // Debounce saves by 1 second
+
+    return () => clearTimeout(timeoutId);
+  }, [watchedValues]);
+
+  // Clear saved data on successful submission
+  const clearSavedData = () => {
+    try {
+      localStorage.removeItem(FORM_STORAGE_KEY);
+      console.log('Saved form data cleared');
+    } catch (error) {
+      console.error('Error clearing saved data:', error);
+    }
+  };
+
   // Debug form errors (only when there are errors)
   if (Object.keys(errors).length > 0) {
     console.log("📝 Form validation errors:", errors);
@@ -332,15 +417,15 @@ const CreateActivityMemo = () => {
 
   useEffect(() => {
     if (profile) {
-      form.reset({
-        created_by: profile?.data.id,
-        // @ts-ignore
-        approved_date: "11/11/11",
-      });
+      // Get current form values to preserve saved data
+      const currentValues = form.getValues();
 
-      // maintenance_type
+      // Only update the created_by field if it's not already set
+      if (!currentValues.created_by) {
+        form.setValue('created_by', profile?.data.id);
+      }
     }
-  }, [profile]);
+  }, [profile, form]);
   const { fields, append, remove } = useFieldArray({
     control,
     name: "expenses",
@@ -417,7 +502,7 @@ const CreateActivityMemo = () => {
         console.log("📝 Saving to Redux immediately:", dataToSave);
         dispatch(activityActions.addActivity(dataToSave));
 
-        // Navigate immediately
+        // Navigate directly to final preview
         console.log("🧭 Immediate navigation to:", `${RouteEnum.FINAL_PREVIEW}?id=${memoId}&created=true`);
         router.push(`${RouteEnum.FINAL_PREVIEW}?id=${memoId}&created=true`);
         return; // Exit early since we handled navigation
@@ -445,6 +530,9 @@ const CreateActivityMemo = () => {
       dispatch(activityActions.addActivity(dataToSave));
 
       toast.success("Activity memo created successfully!");
+
+      // Clear saved form data after successful submission
+      clearSavedData();
     } catch (error: any) {
       console.error("Failed to create activity memo:", error);
       toast.error(error?.message || "Failed to create activity memo. Please try again.");
@@ -785,8 +873,8 @@ const CreateActivityMemo = () => {
                 onClick={() =>
                   append({
                     item: "",
+                    uom: "",
                     quantity: "",
-                    num_of_days: "",
                     unit_cost: "",
                     total_cost: 0,
                   })
@@ -811,16 +899,32 @@ const CreateActivityMemo = () => {
               {/* </Link> */}
             </div>
           </div>
-          <FormButton
-            loading={isSubmitting || isCreating}
-            disabled={isSubmitting || isCreating}
-            type='submit'
-            className='flex items-center justify-center gap-2'
-            onClick={() => console.log("🖱️ Save button clicked!")}
-          >
-            <LongArrowRight />
-            {isSubmitting || isCreating ? "Creating..." : "Save"}
-          </FormButton>
+          <div className='flex gap-3 items-center justify-center'>
+            <Button
+              type='button'
+              variant='outline'
+              className='flex items-center justify-center gap-2'
+              onClick={() => {
+                if (confirm('Are you sure you want to clear the draft? This will remove all saved form data.')) {
+                  clearSavedData();
+                  form.reset();
+                  toast.success('Draft cleared successfully');
+                }
+              }}
+            >
+              Clear Draft
+            </Button>
+            <FormButton
+              loading={isSubmitting || isCreating}
+              disabled={isSubmitting || isCreating}
+              type='submit'
+              className='flex items-center justify-center gap-2'
+              onClick={() => console.log("🖱️ Save button clicked!")}
+            >
+              <LongArrowRight />
+              {isSubmitting || isCreating ? "Creating..." : "Save"}
+            </FormButton>
+          </div>
         </form>
       </Form>
     </div>

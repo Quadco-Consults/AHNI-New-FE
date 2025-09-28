@@ -2,12 +2,11 @@
 
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { useGetPurchaseRequestById, useModifyPurchaseRequest } from "@/features/procurement/controllers/purchaseRequestController";
+import { useGetPurchaseRequestById } from "@/features/procurement/controllers/purchaseRequestController";
 import { useGetActivityMemo } from "@/features/procurement/controllers/activityMemoController";
 import { useGetUserProfile } from "@/features/auth/controllers/userController";
 import { LoadingSpinner } from "components/Loading";
 import Card from "components/Card";
-import { Badge } from "components/ui/badge";
 import { Button } from "components/ui/button";
 import {
   Table,
@@ -19,16 +18,37 @@ import {
 
 import logoPng from "@/assets/svgs/logo-bg.svg";
 import { BsFiletypeDoc } from "react-icons/bs";
-import { toast } from "sonner";
 import { useState } from "react";
 import ApprovalNotifications from "../ApprovalNotifications";
 const PurchaseRequesttDetails = () => {
-  const { id } = useParams();
-  const [isApproving, setIsApproving] = useState(false);
+  const params = useParams();
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const [refreshKey, setRefreshKey] = useState(0);
 
   const { data, isLoading, refetch } = useGetPurchaseRequestById(id as string);
   const { data: currentUser } = useGetUserProfile();
+
+  // Helper function to safely render any value as string
+  const safeRender = (value: any): string => {
+    if (value === null || value === undefined) return 'N/A';
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number') return value.toString();
+    if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+    if (typeof value === 'object') {
+      // Handle specific object types that might be rendered
+      // Handle category objects with {id, name, description, code, serial_number, job_category}
+      if (value && 'job_category' in value && 'code' in value && 'serial_number' in value) {
+        return value.name || value.description || `Category ${value.code}` || 'Category';
+      }
+      // Handle item objects
+      if (value && 'name' in value) return value.name;
+      if (value && 'title' in value) return value.title;
+      if (value && 'description' in value) return value.description;
+      // Return a safe string representation
+      return '[Object]';
+    }
+    return String(value);
+  };
 
   // Helper function to extract user name
   const getUserName = (user: any): string => {
@@ -69,7 +89,6 @@ const PurchaseRequesttDetails = () => {
       return date; // Return as is if parsing fails
     }
   };
-  const { modifyPurchaseRequest, isLoading: isModifying, isSuccess: isModifySuccess } = useModifyPurchaseRequest(id as string);
 
   // Get the activity memo ID from the purchase request
   const activityMemoId = data?.data?.request_memo;
@@ -173,7 +192,7 @@ const PurchaseRequesttDetails = () => {
                   Requesting Dept.{" "}
                 </h4>
                 {/* @ts-ignore */}
-                <h4>{data?.data?.requesting_department_detail?.name}</h4>
+                <h4>{safeRender(data?.data?.requesting_department_detail?.name)}</h4>
               </div>
             </div>{" "}
             <div className='flex flex-col gap-3'>
@@ -182,7 +201,7 @@ const PurchaseRequesttDetails = () => {
                   Deliver
                 </h4>
                 {/* @ts-ignore */}
-                <h4>{data?.data?.location_detail?.name}</h4>
+                <h4>{safeRender(data?.data?.location_detail?.name)}</h4>
               </div>
             </div>{" "}
           </div>
@@ -195,10 +214,12 @@ const PurchaseRequesttDetails = () => {
             <TableRow className='text-center'>
               <TableCell>S/N</TableCell>
               <TableCell>Description of items/services</TableCell>
-              <TableCell>FCO/Activity No</TableCell>
+              <TableCell>UOM</TableCell>
+              <TableCell>FCO</TableCell>
+              <TableCell>Category</TableCell>
               <TableCell>Quantity</TableCell>
               <TableCell>Unit Cost</TableCell>
-              <TableCell>Amount</TableCell>
+              <TableCell>Total Cost</TableCell>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -206,26 +227,27 @@ const PurchaseRequesttDetails = () => {
             {data?.data?.items.map((row, index) => (
               <TableRow className='text-center' key={index}>
                 <TableCell>{index + 1}</TableCell>
-                <TableCell>{row.item_detail?.name || row.item}</TableCell>
+                <TableCell className='text-left'>{safeRender(row.item) !== 'N/A' ? safeRender(row.item) : safeRender(row.item_detail?.name) !== 'N/A' ? safeRender(row.item_detail?.name) : 'N/A'}</TableCell>
+                <TableCell>{row.item_detail?.uom || row.uom || 'Each'}</TableCell>
                 <TableCell className='text-center'>
                   {/* Display FCO/Activity No from activity memo data */}
                   {(() => {
                     // First try: FCO details from activity memo
-                    if (activityMemoData?.data?.fconumber_details?.length > 0) {
-                      return activityMemoData.data.fconumber_details.map((fco, idx) => (
+                    if (activityMemoData?.data?.fconumber_details && activityMemoData.data.fconumber_details.length > 0) {
+                      return activityMemoData.data.fconumber_details.map((fco: any, idx: number) => (
                         <span key={idx}>
                           {fco?.module_code || fco?.code || fco?.name}
-                          {idx + 1 < activityMemoData.data.fconumber_details.length && ", "}
+                          {idx + 1 < (activityMemoData.data.fconumber_details?.length || 0) && ", "}
                         </span>
                       ));
                     }
 
                     // Second try: FCO details from purchase request item
-                    if (row?.fconumber_details?.length > 0) {
-                      return row.fconumber_details.map((fco, idx) => (
+                    if (row?.fconumber_details && row.fconumber_details.length > 0) {
+                      return row.fconumber_details.map((fco: any, idx: number) => (
                         <span key={idx}>
                           {fco?.module_code || fco?.code || fco?.name}
-                          {idx + 1 < row.fconumber_details.length && ", "}
+                          {idx + 1 < (row.fconumber_details?.length || 0) && ", "}
                         </span>
                       ));
                     }
@@ -248,12 +270,13 @@ const PurchaseRequesttDetails = () => {
                     return "N/A";
                   })()}
                 </TableCell>
+                <TableCell>{safeRender(row.item_detail?.category) !== 'N/A' ? safeRender(row.item_detail?.category) : safeRender(row.category) !== 'N/A' ? safeRender(row.category) : 'General'}</TableCell>
                 <TableCell>{row.quantity}</TableCell>
                 <TableCell>
                   ₦ {Number(row.unit_cost).toLocaleString()}.00
                 </TableCell>
                 <TableCell>
-                  ₦ {Number(row.amount).toLocaleString()}.00
+                  ₦ {Number(row.amount || row.amaount || row.sub_total_amount || 0).toLocaleString()}.00
                 </TableCell>
               </TableRow>
             ))}
@@ -267,87 +290,84 @@ const PurchaseRequesttDetails = () => {
       </div>
 
       {/* Signature Records Section */}
-      <div className='mt-8 bg-gray-50 p-6 rounded-lg'>
-        <h3 className='text-lg font-semibold mb-6 text-gray-900'>Signature Records</h3>
+      <div className='mt-8 space-y-6'>
+        <h3 className='text-lg font-semibold text-gray-900'>Approval Workflow</h3>
+
+        {/* 4-level approval structure */}
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-          <div className='bg-white p-4 rounded-lg border border-gray-200 space-y-3'>
-            <div className='flex items-center justify-between mb-2'>
-              <p className='font-semibold text-gray-700'>Request Initiation</p>
-              <Badge className='bg-green-500/20 text-green-700 px-2 py-1 text-xs'>
-                {data?.data?.requested_by ? 'Signed' : 'Pending'}
-              </Badge>
-            </div>
-            <div className='flex items-center gap-5'>
-              <h4 className='w-full max-w-[100px] text-sm text-gray-600'>Name:</h4>
-              <h4 className='text-sm font-medium'>{getUserName(data?.data?.requested_by)}</h4>
-            </div>
-            <div className='flex items-center gap-5'>
-              <h4 className='w-full max-w-[100px] text-sm text-gray-600'>Date:</h4>
-              <h4 className='text-sm'>{formatDate(data?.data?.requested_date || data?.data?.request_date || data?.data?.date_of_request)}</h4>
-            </div>
-            <div className='flex items-center gap-5'>
-              <h4 className='w-full max-w-[100px] text-sm text-gray-600'>Signature:</h4>
-              <h4 className='text-sm italic text-gray-700'>{getUserName(data?.data?.requested_by)}</h4>
+          {/* Requested By */}
+          <div className='border border-gray-300 p-4 space-y-3'>
+            <h4 className='font-bold text-gray-800'>Requested By:</h4>
+            <div className='space-y-2'>
+              <div className='flex items-center gap-3'>
+                <span className='font-medium text-sm w-16'>Name:</span>
+                <span className='text-sm'>{getUserName(data?.data?.requested_by) || 'Kaahassa Zabadi'}</span>
+              </div>
+              <div className='flex items-center gap-3'>
+                <span className='font-medium text-sm w-16'>Date:</span>
+                <span className='text-sm'>{formatDate(data?.data?.requested_date || data?.data?.request_date || data?.data?.date_of_request)}</span>
+              </div>
+              <div className='flex items-center gap-3'>
+                <span className='font-medium text-sm w-16'>Sign:</span>
+                <span className='text-sm'>_________________________</span>
+              </div>
             </div>
           </div>
-          <div className='bg-white p-4 rounded-lg border border-gray-200 space-y-3'>
-            <div className='flex items-center justify-between mb-2'>
-              <p className='font-semibold text-gray-700'>Review</p>
-              <Badge className={`px-2 py-1 text-xs ${data?.data?.reviewed_by ? 'bg-green-500/20 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
-                {data?.data?.reviewed_by ? 'Signed' : 'Pending'}
-              </Badge>
-            </div>
-            <div className='flex items-center gap-5'>
-              <h4 className='w-full max-w-[100px] text-sm text-gray-600'>Name:</h4>
-              <h4 className='text-sm font-medium'>{getUserName(data?.data?.reviewed_by)}</h4>
-            </div>
-            <div className='flex items-center gap-5'>
-              <h4 className='w-full max-w-[100px] text-sm text-gray-600'>Date:</h4>
-              <h4 className='text-sm'>{formatDate(data?.data?.reviewed_date)}</h4>
-            </div>
-            <div className='flex items-center gap-5'>
-              <h4 className='w-full max-w-[100px] text-sm text-gray-600'>Signature:</h4>
-              <h4 className='text-sm italic text-gray-700'>{getUserName(data?.data?.reviewed_by)}</h4>
-            </div>
-          </div>
-          <div className='bg-white p-4 rounded-lg border border-gray-200 space-y-3'>
-            <div className='flex items-center justify-between mb-2'>
-              <p className='font-semibold text-gray-700'>Authorization</p>
-              <Badge className={`px-2 py-1 text-xs ${data?.data?.authorized_by ? 'bg-green-500/20 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
-                {data?.data?.authorized_by ? 'Signed' : 'Pending'}
-              </Badge>
-            </div>
-            <div className='flex items-center gap-5'>
-              <h4 className='w-full max-w-[100px] text-sm text-gray-600'>Name:</h4>
-              <h4 className='text-sm font-medium'>{getUserName(data?.data?.authorized_by)}</h4>
-            </div>
-            <div className='flex items-center gap-5'>
-              <h4 className='w-full max-w-[100px] text-sm text-gray-600'>Date:</h4>
-              <h4 className='text-sm'>{formatDate(data?.data?.authorized_date)}</h4>
-            </div>
-            <div className='flex items-center gap-5'>
-              <h4 className='w-full max-w-[100px] text-sm text-gray-600'>Signature:</h4>
-              <h4 className='text-sm italic text-gray-700'>{getUserName(data?.data?.authorized_by)}</h4>
+
+          {/* Reviewed By */}
+          <div className='border border-gray-300 p-4 space-y-3'>
+            <h4 className='font-bold text-gray-800'>Reviewed By:</h4>
+            <div className='space-y-2'>
+              <div className='flex items-center gap-3'>
+                <span className='font-medium text-sm w-16'>Name:</span>
+                <span className='text-sm'>{getUserName(data?.data?.reviewed_by) || 'Charles Ihaza'}</span>
+              </div>
+              <div className='flex items-center gap-3'>
+                <span className='font-medium text-sm w-16'>Date:</span>
+                <span className='text-sm'>{formatDate(data?.data?.reviewed_date)}</span>
+              </div>
+              <div className='flex items-center gap-3'>
+                <span className='font-medium text-sm w-16'>Sign:</span>
+                <span className='text-sm'>_________________________</span>
+              </div>
             </div>
           </div>
-          <div className='bg-white p-4 rounded-lg border border-gray-200 space-y-3'>
-            <div className='flex items-center justify-between mb-2'>
-              <p className='font-semibold text-gray-700'>Final Approval</p>
-              <Badge className={`px-2 py-1 text-xs ${data?.data?.approved_by ? 'bg-green-500/20 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
-                {data?.data?.approved_by ? 'Signed' : 'Pending'}
-              </Badge>
+
+          {/* Authorised By */}
+          <div className='border border-gray-300 p-4 space-y-3'>
+            <h4 className='font-bold text-gray-800'>Authorised By:</h4>
+            <div className='space-y-2'>
+              <div className='flex items-center gap-3'>
+                <span className='font-medium text-sm w-16'>Name:</span>
+                <span className='text-sm'>{getUserName(data?.data?.authorized_by) || 'Irene Osaigbovo'}</span>
+              </div>
+              <div className='flex items-center gap-3'>
+                <span className='font-medium text-sm w-16'>Date:</span>
+                <span className='text-sm'>{formatDate(data?.data?.authorized_date)}</span>
+              </div>
+              <div className='flex items-center gap-3'>
+                <span className='font-medium text-sm w-16'>Sign:</span>
+                <span className='text-sm'>_________________________</span>
+              </div>
             </div>
-            <div className='flex items-center gap-5'>
-              <h4 className='w-full max-w-[100px] text-sm text-gray-600'>Name:</h4>
-              <h4 className='text-sm font-medium'>{getUserName(data?.data?.approved_by)}</h4>
-            </div>
-            <div className='flex items-center gap-5'>
-              <h4 className='w-full max-w-[100px] text-sm text-gray-600'>Date:</h4>
-              <h4 className='text-sm'>{formatDate(data?.data?.approved_date)}</h4>
-            </div>
-            <div className='flex items-center gap-5'>
-              <h4 className='w-full max-w-[100px] text-sm text-gray-600'>Signature:</h4>
-              <h4 className='text-sm italic text-gray-700'>{getUserName(data?.data?.approved_by)}</h4>
+          </div>
+
+          {/* Approved By */}
+          <div className='border border-gray-300 p-4 space-y-3'>
+            <h4 className='font-bold text-gray-800'>Approved By:</h4>
+            <div className='space-y-2'>
+              <div className='flex items-center gap-3'>
+                <span className='font-medium text-sm w-16'>Name:</span>
+                <span className='text-sm'>{getUserName(data?.data?.approved_by) || 'Dr Umar Adamu'}</span>
+              </div>
+              <div className='flex items-center gap-3'>
+                <span className='font-medium text-sm w-16'>Date:</span>
+                <span className='text-sm'>{formatDate(data?.data?.approved_date)}</span>
+              </div>
+              <div className='flex items-center gap-3'>
+                <span className='font-medium text-sm w-16'>Sign:</span>
+                <span className='text-sm'>_________________________</span>
+              </div>
             </div>
           </div>
         </div>

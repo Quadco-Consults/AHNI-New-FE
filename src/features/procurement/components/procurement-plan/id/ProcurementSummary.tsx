@@ -1,5 +1,5 @@
 import React from "react";
-import { ProcurementPlanResultsData } from "definations/procurement-types/procurementPlan";
+import { ProcurementPlanResultsData } from "../../../types/procurementPlan";
 
 const ProcurementSummary = (data: ProcurementPlanResultsData) => {
   // Safety check: ensure data is not null/undefined
@@ -23,11 +23,21 @@ const ProcurementSummary = (data: ProcurementPlanResultsData) => {
     if (typeof value === 'number') return value.toString();
     if (typeof value === 'boolean') return value ? "Yes" : "No";
     if (typeof value === 'object') {
+      // Handle specific object types that might be rendered
+      // Handle category objects with {id, name, description, code, serial_number, job_category}
+      if (value && 'job_category' in value && 'code' in value && 'serial_number' in value) {
+        return value.name || value.description || `Category ${value.code}` || "Category";
+      }
+      // Handle asset type objects
+      if (value && ('asset_type' in value || 'asset_code' in value)) {
+        return value.name || value.description || 'Asset';
+      }
       // If it's an object, try to extract meaningful data
       if (value.name) return value.name;
       if (value.title) return value.title;
       if (value.description) return value.description;
-      return JSON.stringify(value);
+      // Return a safe string representation instead of JSON.stringify
+      return "[Object]";
     }
     return String(value);
   };

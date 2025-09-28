@@ -9,7 +9,7 @@ import { TPaginatedResponse } from "definations/index";
 import { ProcurementTrackerResults } from "../../types/procurementPlan";
 
 interface ProcurementProcessCardProps {
-  data: { data: TPaginatedResponse<ProcurementTrackerResults> } | undefined;
+  data: TPaginatedResponse<ProcurementTrackerResults> | undefined;
 }
 
 const ProcurementProcessCard = ({ data }: ProcurementProcessCardProps) => {
@@ -128,10 +128,8 @@ const ProcurementProcessCard = ({ data }: ProcurementProcessCardProps) => {
   return (
     <Card className='space-y-5'>
       <DataTable
-        //   @ts-ignore
-        data={data?.data?.results || []}
+        data={data?.results || []}
         columns={columns}
-        // isLoading={isLoading}
       />
     </Card>
   );
