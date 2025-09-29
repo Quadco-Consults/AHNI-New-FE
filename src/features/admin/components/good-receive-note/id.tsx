@@ -6,9 +6,9 @@ import { ColumnDef } from "@tanstack/react-table";
 import { useParams } from "next/navigation";
 import { Button } from "components/ui/button";
 import { BsFiletypeCsv, BsFiletypeDoc } from "react-icons/bs";
-import { useGetSingleGoodReceiveNoteQuery } from "@/features/admin/controllers/goodReceiveNoteController";
+import { useGetSingleGoodReceiveNoteQuery, useDownloadGoodReceiveNote } from "@/features/admin/controllers/goodReceiveNoteController";
 import { useGetSinglePurchaseOrder } from "@/features/procurement/controllers/purchaseOrderController";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 
 const tableColumns: ColumnDef<any>[] = [
@@ -52,8 +52,10 @@ const tableColumns: ColumnDef<any>[] = [
 
 export default function GoodReceiveNoteDetails() {
   const { id } = useParams();
+  const [downloading, setDownloading] = useState(false);
 
   const { data } = useGetSingleGoodReceiveNoteQuery(id as string || "", !!id);
+  const { downloadGoodReceiveNote } = useDownloadGoodReceiveNote(id as string || "");
 
   // Get purchase order details to fetch items
   const purchaseOrderId = data?.data?.purchase_order?.id;
@@ -104,6 +106,20 @@ export default function GoodReceiveNoteDetails() {
       status: grnData?.status,
     };
   }, [data, purchaseOrderData]);
+
+  const handleDownload = async (format: 'pdf' | 'csv' = 'pdf') => {
+    if (!id) return;
+
+    setDownloading(true);
+    try {
+      await downloadGoodReceiveNote(format);
+    } catch (error) {
+      console.error('Download failed:', error);
+      // You might want to show a toast notification here
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <div className='bg-white p-6 max-w-6xl mx-auto'>
@@ -370,9 +386,11 @@ export default function GoodReceiveNoteDetails() {
         <Button
           variant='default'
           className='flex items-center gap-2 text-sm'
+          onClick={() => handleDownload('pdf')}
+          disabled={downloading}
         >
           <BsFiletypeCsv size={16} />
-          Download GRN
+          {downloading ? 'Downloading...' : 'Download GRN'}
         </Button>
       </div>
     </div>
