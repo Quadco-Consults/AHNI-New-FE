@@ -1,6 +1,5 @@
 "use client";
 
-import logoPng from "@/assets/svgs/logo-bg.svg";
 import Card from "components/Card";
 import DataTable from "components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
@@ -8,17 +7,18 @@ import { useParams } from "next/navigation";
 import { Button } from "components/ui/button";
 import { BsFiletypeCsv, BsFiletypeDoc } from "react-icons/bs";
 import { useGetSingleGoodReceiveNoteQuery } from "@/features/admin/controllers/goodReceiveNoteController";
+import { useGetSinglePurchaseOrder } from "@/features/procurement/controllers/purchaseOrderController";
 import { useMemo } from "react";
 import Link from "next/link";
 
 const tableColumns: ColumnDef<any>[] = [
   {
     header: "Description of Items",
-    cell: ({ row }) => row.original?.item_detail?.name || "N/A",
+    cell: ({ row }) => row.original?.item_detail?.name || row.original?.description || "N/A",
   },
   {
     header: "Unit of Measurement",
-    cell: ({ row }) => row.original?.item_detail?.uom || "N/A",
+    cell: ({ row }) => row.original?.item_detail?.uom || row.original?.uom || "N/A",
   },
   {
     header: "Quantity Ordered",
@@ -53,14 +53,21 @@ const tableColumns: ColumnDef<any>[] = [
 export default function GoodReceiveNoteDetails() {
   const { id } = useParams();
 
-  const { data } = useGetSingleGoodReceiveNoteQuery(id || "", !!id);
+  const { data } = useGetSingleGoodReceiveNoteQuery(id as string || "", !!id);
+
+  // Get purchase order details to fetch items
+  const purchaseOrderId = data?.data?.purchase_order?.id;
+  const { data: purchaseOrderData } = useGetSinglePurchaseOrder(
+    purchaseOrderId || "",
+    !!purchaseOrderId
+  );
 
   const details = useMemo(() => {
     if (!data) return {};
 
     const grnData = data?.data;
     const purchaseOrder = grnData?.purchase_order;
-    const vendor = purchaseOrder?.vendor_detail;
+    const poData = purchaseOrderData?.data;
 
     return {
       // GRN specific fields
@@ -68,83 +75,106 @@ export default function GoodReceiveNoteDetails() {
       waybill_number: grnData?.waybill_number,
       remark: grnData?.remark,
       created_datetime: grnData?.created_datetime,
-      
+
       // Purchase Order fields
       purchase_order_number: purchaseOrder?.purchase_order_number,
-      purchase_date: purchaseOrder?.purchase_date,
-      status_level: purchaseOrder?.status_level,
-      
-      // Vendor details
-      vendor_name: vendor?.company_name,
-      vendor_email: vendor?.email,
-      vendor_registration: vendor?.company_registration_number,
-      vendor_business_type: vendor?.type_of_business,
-      
-      // Items
-      purchase_order_items: purchaseOrder?.purchase_order_items || [],
-      
+
+      // Vendor details from full PO data
+      vendor_name: poData?.vendor_detail?.company_name || purchaseOrder?.vendor_name,
+      vendor_email: poData?.vendor_detail?.email,
+      vendor_registration: poData?.vendor_detail?.company_registration_number,
+      vendor_business_type: poData?.vendor_detail?.type_of_business,
+
+      // Items from full PO data
+      purchase_order_items: poData?.purchase_order_items || [],
+
       // Approval/Signature fields
       created_by: grnData?.created_by,
-      accepted_by: grnData?.accepted_by,
+      approved_by: grnData?.approved_by,
       rejected_by: grnData?.rejected_by,
-      accepted_datetime: grnData?.accepted_datetime,
+      approved_datetime: grnData?.approved_datetime,
       rejected_datetime: grnData?.rejected_datetime,
-      
-      // Purchase Order approval fields
-      authorized_by: purchaseOrder?.authorized_by,
-      authorized_datetime: purchaseOrder?.authorized_datetime,
-      approved_date: purchaseOrder?.approved_date,
-      agreed_date: purchaseOrder?.agreed_date,
+
+      // Purchase Order approval fields from full PO data
+      authorized_datetime: poData?.authorized_datetime || purchaseOrder?.authorized_datetime,
+      purchase_date: poData?.purchase_date,
+      status_level: poData?.status_level,
+
+      // Status from GRN
+      status: grnData?.status,
     };
-  }, [data]);
+  }, [data, purchaseOrderData]);
 
   return (
-    <div className='bg-white p-8'>
-      <div className='flex justify-center items-center flex-col'>
-        <img src={logoPng} alt='logo' width={200} />
-        <h1>Achieving Health Nigeria Initiative (AHNI)</h1>
+    <div className='bg-white p-6 max-w-6xl mx-auto'>
+      {/* Compact Header Section */}
+      <div className='flex justify-center items-center flex-col mb-6 pb-4 border-b border-gray-200'>
+        <div className='mb-3'>
+          <img
+            src="/imgs/logo.png"
+            alt='AHNI Logo'
+            className='w-32 h-auto object-contain mx-auto'
+          />
+        </div>
+        <div className='text-center'>
+          <h1 className='text-xl font-semibold text-gray-800 mb-1'>
+            Achieving Health Nigeria Initiative (AHNI)
+          </h1>
+          <p className='text-gray-500 text-xs'>
+            Healthcare Excellence Through Innovation
+          </p>
+        </div>
       </div>
-      <div className='mt-5'>
-        <Card className='bg-alternate border-primary'>
-          <h3 className='text-primary text-[18px] text-center mb-4 font-semibold'>
-            Goods Receive Note
-          </h3>
+      {/* Main Content */}
+      <div className='mt-4'>
+        <Card className='bg-gray-50 border border-gray-200'>
+          <div className='text-center mb-4'>
+            <h3 className='text-gray-800 text-lg font-semibold'>
+              Goods Receive Note
+            </h3>
+          </div>
 
-          <div className='space-y-5'>
-            <div className='flex gap-2'>
-              <p className='font-semibold'>Goods Receive Note Number:</p>
-              <p>{details?.invoice_number || 'N/A'}</p>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            <div className='space-y-3'>
+              <div className='flex justify-between items-center py-2 border-b border-gray-200'>
+                <span className='text-sm font-medium text-gray-600'>GRN Number:</span>
+                <span className='text-sm font-semibold text-gray-800'>{details?.invoice_number || 'N/A'}</span>
+              </div>
+
+              <div className='flex justify-between items-center py-2 border-b border-gray-200'>
+                <span className='text-sm font-medium text-gray-600'>Receipt Date:</span>
+                <span className='text-sm font-semibold text-gray-800'>
+                  {details?.created_datetime ? new Date(details.created_datetime).toLocaleDateString("en-US") : 'N/A'}
+                </span>
+              </div>
+
+              <div className='flex justify-between items-center py-2 border-b border-gray-200'>
+                <span className='text-sm font-medium text-gray-600'>Invoice Number:</span>
+                <span className='text-sm font-semibold text-gray-800'>{details?.invoice_number || 'N/A'}</span>
+              </div>
+
+              <div className='flex justify-between items-center py-2 border-b border-gray-200'>
+                <span className='text-sm font-medium text-gray-600'>Waybill Number:</span>
+                <span className='text-sm font-semibold text-gray-800'>{details?.waybill_number || 'N/A'}</span>
+              </div>
             </div>
 
-            <div className='flex gap-2'>
-              <p className='font-semibold'>Receipt Date:</p>
-              <p>{details?.created_datetime ? new Date(details.created_datetime).toLocaleDateString("en-US") : 'N/A'}</p>
-            </div>
+            <div className='space-y-3'>
+              <div className='flex justify-between items-center py-2 border-b border-gray-200'>
+                <span className='text-sm font-medium text-gray-600'>PO Number:</span>
+                <span className='text-sm font-semibold text-gray-800'>{details?.purchase_order_number || 'N/A'}</span>
+              </div>
 
-            <div className='flex gap-2'>
-              <p className='font-semibold'>Invoice Number:</p>
-              <p>{details?.invoice_number || 'N/A'}</p>
-            </div>
+              <div className='flex justify-between items-center py-2 border-b border-gray-200'>
+                <span className='text-sm font-medium text-gray-600'>Purchase Date:</span>
+                <span className='text-sm font-semibold text-gray-800'>
+                  {details?.purchase_date ? new Date(details.purchase_date).toLocaleDateString("en-US") : 'N/A'}
+                </span>
+              </div>
 
-            <div className='flex gap-2'>
-              <p className='font-semibold'>Waybill Number:</p>
-              <p>{details?.waybill_number || 'N/A'}</p>
-            </div>
-
-            <div className='flex gap-2'>
-              <p className='font-semibold'>Purchase Order Number:</p>
-              <p>{details?.purchase_order_number || 'N/A'}</p>
-            </div>
-
-            <div className='flex gap-2'>
-              <p className='font-semibold'>Purchase Date:</p>
-              <p>{details?.purchase_date ? new Date(details.purchase_date).toLocaleDateString("en-US") : 'N/A'}</p>
-            </div>
-
-            <div className='flex gap-2'>
-              <p className='font-semibold'>Status:</p>
-              <p>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+              <div className='flex justify-between items-center py-2 border-b border-gray-200'>
+                <span className='text-sm font-medium text-gray-600'>PO Status:</span>
+                <span className={`px-2 py-1 rounded text-xs font-medium ${
                   details?.status_level === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
                   details?.status_level === 'APPROVED' ? 'bg-green-100 text-green-800' :
                   details?.status_level === 'REJECTED' ? 'bg-red-100 text-red-800' :
@@ -152,149 +182,197 @@ export default function GoodReceiveNoteDetails() {
                 }`}>
                   {details?.status_level || 'N/A'}
                 </span>
-              </p>
-            </div>
-
-            {details?.remark && (
-              <div className='flex gap-2'>
-                <p className='font-semibold'>Remarks:</p>
-                <p>{details.remark}</p>
               </div>
-            )}
+
+              <div className='flex justify-between items-center py-2 border-b border-gray-200'>
+                <span className='text-sm font-medium text-gray-600'>GRN Status:</span>
+                <span className={`px-2 py-1 rounded text-xs font-medium ${
+                  details?.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                  details?.status === 'approved' ? 'bg-green-100 text-green-800' :
+                  details?.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                  details?.status === 'received' ? 'bg-blue-100 text-blue-800' :
+                  'bg-gray-100 text-gray-800'
+                }`}>
+                  {details?.status?.toUpperCase() || 'N/A'}
+                </span>
+              </div>
+
+              {details?.remark && (
+                <div className='flex justify-between items-center py-2 border-b border-gray-200'>
+                  <span className='text-sm font-medium text-gray-600'>Remarks:</span>
+                  <span className='text-sm font-semibold text-gray-800'>{details.remark}</span>
+                </div>
+              )}
+            </div>
           </div>
         </Card>
       </div>
-      <div className='bg-[#BE8800] text-white font-semibold text-[20px] p-[10px] my-4'>
-        <div className='flex justify-between items-center flex-wrap'>
-          <span>Vendor: {details?.vendor_name || 'N/A'}</span>
+      {/* Vendor Section */}
+      <div className='bg-gray-100 border border-gray-300 rounded p-4 my-4'>
+        <div className='flex justify-between items-center mb-3'>
+          <h3 className='font-semibold text-gray-800'>Vendor Information</h3>
+        </div>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-3 text-sm'>
+          <div className='flex justify-between'>
+            <span className='text-gray-600'>Vendor Name:</span>
+            <span className='font-medium text-gray-800'>{details?.vendor_name || 'N/A'}</span>
+          </div>
           {details?.vendor_email && (
-            <span className='text-sm font-normal'>Email: {details.vendor_email}</span>
+            <div className='flex justify-between'>
+              <span className='text-gray-600'>Email:</span>
+              <span className='font-medium text-gray-800'>{details.vendor_email}</span>
+            </div>
+          )}
+          {details?.vendor_registration && (
+            <div className='flex justify-between'>
+              <span className='text-gray-600'>Registration:</span>
+              <span className='font-medium text-gray-800'>{details.vendor_registration}</span>
+            </div>
+          )}
+          {details?.vendor_business_type && (
+            <div className='flex justify-between'>
+              <span className='text-gray-600'>Business Type:</span>
+              <span className='font-medium text-gray-800'>{details.vendor_business_type}</span>
+            </div>
           )}
         </div>
-        {(details?.vendor_registration || details?.vendor_business_type) && (
-          <div className='text-sm font-normal mt-1'>
-            {details?.vendor_registration && <span>Reg: {details.vendor_registration}</span>}
-            {details?.vendor_business_type && details?.vendor_registration && <span> | </span>}
-            {details?.vendor_business_type && <span>Type: {details.vendor_business_type}</span>}
-          </div>
-        )}
       </div>
-      <div className='my-5'>
-        <DataTable 
-          columns={tableColumns} 
-          data={details?.purchase_order_items || []} 
-          headClass='p-0' 
-        />
+      {/* Items Table */}
+      <div className='my-4'>
+        <h3 className='font-semibold text-gray-800 mb-3'>Purchase Order Items</h3>
+        <div className='border border-gray-200 rounded overflow-hidden'>
+          <DataTable
+            columns={tableColumns}
+            data={details?.purchase_order_items || []}
+            headClass='bg-gray-50 font-medium text-sm'
+          />
+        </div>
       </div>
 
-      <div className=' w-full flex justify-between flex-wrap gap-8'>
-        <Card className='flex-1 border-primary'>
-          <p className='text-[16px] font-semibold mb-2'>Procurement Officer</p>
-          <div className='space-y-2'>
-            <div className='flex gap-2 text-[12px]'>
-              <p className=' w-[122px] font-semibold'>Signature:</p>
-              <p className=''>{details?.authorized_by ? '✓ Authorized' : 'Pending'}</p>
-            </div>
+      {/* Signatures Section */}
+      <div className='my-6'>
+        <h3 className='font-semibold text-gray-800 mb-4'>Approvals & Signatures</h3>
 
-            <div className='flex gap-2 text-[12px]'>
-              <p className=' w-[122px] font-semibold'>Date:</p>
-              <p className=''>
-                {details?.authorized_datetime 
-                  ? new Date(details.authorized_datetime).toLocaleDateString("en-US")
-                  : '-'
-                }
-              </p>
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+          <Card className='bg-white border border-gray-200 p-3'>
+            <h4 className='font-medium text-gray-800 text-sm mb-2'>PO Authorization</h4>
+            <div className='space-y-1 text-xs'>
+              <div className='flex justify-between'>
+                <span className='text-gray-600'>Status:</span>
+                <span className={`px-1 py-0.5 rounded text-xs ${
+                  details?.authorized_datetime ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+                }`}>
+                  {details?.authorized_datetime ? '✓ Authorized' : 'Pending'}
+                </span>
+              </div>
+              <div className='flex justify-between'>
+                <span className='text-gray-600'>Date:</span>
+                <span className='font-medium text-gray-800'>
+                  {details?.authorized_datetime
+                    ? new Date(details.authorized_datetime).toLocaleDateString("en-US")
+                    : '-'
+                  }
+                </span>
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
 
-        <Card className='flex-1 border-primary'>
-          <p className='text-[16px] font-semibold mb-2'>Purchase Order Approver</p>
-          <div className='space-y-2'>
-            <div className='flex gap-2 text-[12px]'>
-              <p className=' w-[122px] font-semibold'>Signature:</p>
-              <p className=''>{details?.approved_date ? '✓ Approved' : 'Pending'}</p>
+          <Card className='bg-white border border-gray-200 p-3'>
+            <h4 className='font-medium text-gray-800 text-sm mb-2'>GRN Approval</h4>
+            <div className='space-y-1 text-xs'>
+              <div className='flex justify-between'>
+                <span className='text-gray-600'>Status:</span>
+                <span className={`px-1 py-0.5 rounded text-xs ${
+                  details?.approved_datetime ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+                }`}>
+                  {details?.approved_datetime ? '✓ Approved' : 'Pending'}
+                </span>
+              </div>
+              <div className='flex justify-between'>
+                <span className='text-gray-600'>Date:</span>
+                <span className='font-medium text-gray-800'>
+                  {details?.approved_datetime
+                    ? new Date(details.approved_datetime).toLocaleDateString("en-US")
+                    : '-'
+                  }
+                </span>
+              </div>
             </div>
+          </Card>
 
-            <div className='flex gap-2 text-[12px]'>
-              <p className=' w-[122px] font-semibold'>Date:</p>
-              <p className=''>
-                {details?.approved_date 
-                  ? new Date(details.approved_date).toLocaleDateString("en-US")
-                  : '-'
-                }
-              </p>
+          <Card className='bg-white border border-gray-200 p-3'>
+            <h4 className='font-medium text-gray-800 text-sm mb-2'>GRN Creator</h4>
+            <div className='space-y-1 text-xs'>
+              <div className='flex justify-between'>
+                <span className='text-gray-600'>Status:</span>
+                <span className={`px-1 py-0.5 rounded text-xs ${
+                  details?.created_by ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+                }`}>
+                  {details?.created_by ? '✓ Created' : '-'}
+                </span>
+              </div>
+              <div className='flex justify-between'>
+                <span className='text-gray-600'>Date:</span>
+                <span className='font-medium text-gray-800'>
+                  {details?.created_datetime
+                    ? new Date(details.created_datetime).toLocaleDateString("en-US")
+                    : '-'
+                  }
+                </span>
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
 
-        <Card className='flex-1 border-primary'>
-          <p className='text-[16px] font-semibold mb-2'>
-            GRN Created By:
-          </p>
-          <div className='space-y-2'>
-            <div className='flex gap-2 text-[12px]'>
-              <p className=' w-[122px] font-semibold'>Signature:</p>
-              <p className=''>{details?.created_by ? '✓ Created' : '-'}</p>
+          <Card className='bg-white border border-gray-200 p-3'>
+            <h4 className='font-medium text-gray-800 text-sm mb-2'>GRN Status</h4>
+            <div className='space-y-1 text-xs'>
+              <div className='flex justify-between'>
+                <span className='text-gray-600'>Status:</span>
+                <span className={`px-1 py-0.5 rounded text-xs ${
+                  details?.approved_by ? 'bg-green-100 text-green-800' :
+                  details?.rejected_by ? 'bg-red-100 text-red-800' :
+                  'bg-yellow-100 text-yellow-800'
+                }`}>
+                  {details?.approved_by ? '✓ Approved' :
+                   details?.rejected_by ? '✗ Rejected' :
+                   '⏳ Pending'
+                  }
+                </span>
+              </div>
+              <div className='flex justify-between'>
+                <span className='text-gray-600'>Date:</span>
+                <span className='font-medium text-gray-800'>
+                  {details?.approved_datetime
+                    ? new Date(details.approved_datetime).toLocaleDateString("en-US")
+                    : details?.rejected_datetime
+                    ? new Date(details.rejected_datetime).toLocaleDateString("en-US")
+                    : '-'
+                  }
+                </span>
+              </div>
             </div>
-            <div className='flex gap-2 text-[12px]'>
-              <p className=' w-[122px] font-semibold'>Date:</p>
-              <p className=''>
-                {details?.created_datetime 
-                  ? new Date(details.created_datetime).toLocaleDateString("en-US")
-                  : '-'
-                }
-              </p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className='flex-1 border-primary'>
-          <p className='text-[16px] font-semibold mb-2'>Goods Acceptance Status:</p>
-          <div className='space-y-2'>
-            <div className='flex gap-2 text-[12px]'>
-              <p className=' w-[122px] font-semibold'>Status:</p>
-              <p className=''>
-                {details?.accepted_by ? (
-                  <span className='text-green-600 font-semibold'>✓ Accepted</span>
-                ) : details?.rejected_by ? (
-                  <span className='text-red-600 font-semibold'>✗ Rejected</span>  
-                ) : (
-                  <span className='text-yellow-600 font-semibold'>⏳ Pending</span>
-                )}
-              </p>
-            </div>
-            <div className='flex gap-2 text-[12px]'>
-              <p className=' w-[122px] font-semibold'>Date:</p>
-              <p className=''>
-                {details?.accepted_datetime 
-                  ? new Date(details.accepted_datetime).toLocaleDateString("en-US")
-                  : details?.rejected_datetime
-                  ? new Date(details.rejected_datetime).toLocaleDateString("en-US")
-                  : '-'
-                }
-              </p>
-            </div>
-          </div>
-        </Card>
+          </Card>
+        </div>
       </div>
 
-      <div className='flex justify-end my-8 gap-3'>
-        <Link href={"file"} target='_blank' title={"file"}>
+      {/* Action Buttons */}
+      <div className='flex justify-end gap-2 mt-6'>
+        <Link href={"file"} target='_blank' title={"Specification Document"}>
           <Button
-            variant='secondary'
-            className='bg-[#0000001A] py-2 px-4 w-fit  rounded-2xl flex items-center justify-center overflow-hidden'
+            variant='outline'
+            className='flex items-center gap-2 text-sm'
           >
-            <BsFiletypeDoc size={25} className='mr-2' />
+            <BsFiletypeDoc size={16} />
             Specification Document
           </Button>
         </Link>
 
-        <Button variant='custom'>
-          <span>
-            <BsFiletypeCsv size={25} />
-          </span>
-          Download
+        <Button
+          variant='default'
+          className='flex items-center gap-2 text-sm'
+        >
+          <BsFiletypeCsv size={16} />
+          Download GRN
         </Button>
       </div>
     </div>
