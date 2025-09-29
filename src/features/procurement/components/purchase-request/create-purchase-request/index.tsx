@@ -1,7 +1,6 @@
 "use client";
 
-import LongArrowLeft from "components/icons/LongArrowLeft";
-import { useRouter } from "next/navigation";
+import GoBack from "components/GoBack";
 import CreatePurchaseRequestForm from "./form";
 import BreadcrumbCard from "components/Breadcrumb";
 import { useSearchParams } from "next/navigation";
@@ -11,7 +10,6 @@ import { useGetPurchaseRequestById } from "@/features/procurement/controllers/pu
 function CreatePurchaseRequest() {
   const searchParams = useSearchParams();
   const id = searchParams.get("request");
-  const router = useRouter();
 
   // Only fetch purchase request data if the ID looks like a purchase request ID
   // Activity memo IDs are UUIDs (with dashes), purchase request IDs have different format
@@ -34,9 +32,6 @@ function CreatePurchaseRequest() {
     console.log("🔍 This appears to be a Purchase Request ID - will use API data");
   }
 
-  const goBack = () => {
-    router.back();
-  };
 
   const breadcrumbs = [
     { name: "Procurement", icon: true },
@@ -48,12 +43,7 @@ function CreatePurchaseRequest() {
     <section className='space-y-6'>
       <BreadcrumbCard list={breadcrumbs} />
 
-      <button
-        onClick={goBack}
-        className='w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center'
-      >
-        <LongArrowLeft />
-      </button>
+      <GoBack />
       <span className='block space-y-2'>
         <h3 className='font-semibold text-xl text-black text-[24px]'>
           Purchase Request Form

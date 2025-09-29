@@ -42,6 +42,18 @@ export const useGetAllProcurementTrackers = ({
           },
         });
 
+        // Transform the response to match expected structure
+        // API returns: { data: { results: [...], pagination: {...} } }
+        // Frontend expects: { results: [...], pagination: {...} }
+        const apiData = response.data;
+
+        if (apiData?.data) {
+          return {
+            results: apiData.data.results || [],
+            pagination: apiData.data.pagination || {}
+          };
+        }
+
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;

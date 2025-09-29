@@ -10,6 +10,7 @@ import { Loading } from "components/Loading";
 import SummaryCard from "./SummaryCard";
 import DeliveryStageCard from "./DeliveryStageCard";
 import ProcurementProcessCard from "./ProcurementProcessCard";
+import EnhancedViewCard from "./EnhancedViewCard";
 import FilterPanel from "./FilterPanel";
 import { usePathname } from "next/navigation";
 
@@ -48,6 +49,17 @@ function ProcurementTracker() {
     enabled: true,
   });
 
+  // Debug logging
+  console.log("🔍 Procurement Tracker Debug:", {
+    filters,
+    data,
+    isLoading,
+    error,
+    results: data?.results,
+    resultsLength: data?.results?.length,
+    apiEndpoint: "/procurements/procurement-tracker/"
+  });
+
   const tabDetails = [
     {
       id: 1,
@@ -66,6 +78,12 @@ function ProcurementTracker() {
       state: "delivery_stage",
       name: "Delivery & Performance",
       tabComponent: <DeliveryStageCard data={data} />,
+    },
+    {
+      id: 4,
+      state: "enhanced_view",
+      name: "Enhanced View",
+      tabComponent: <EnhancedViewCard data={data} />,
     },
   ];
 
@@ -109,6 +127,21 @@ function ProcurementTracker() {
             <p className='text-gray-500'>
               {error instanceof Error ? error.message : 'Failed to load procurement data.'}
             </p>
+          </div>
+        </div>
+      ) : !data?.results?.length ? (
+        <div className='flex items-center justify-center min-h-[400px]'>
+          <div className='text-center'>
+            <h3 className='text-lg font-semibold text-gray-600 mb-2'>
+              No Procurement Data Found
+            </h3>
+            <p className='text-gray-500 mb-4'>
+              There are no procurement tracker records available.
+            </p>
+            <div className='text-xs text-gray-400 space-y-1'>
+              <p>API Endpoint: /procurements/procurement-tracker/</p>
+              <p>Check browser console for detailed debugging information.</p>
+            </div>
           </div>
         </div>
       ) : (

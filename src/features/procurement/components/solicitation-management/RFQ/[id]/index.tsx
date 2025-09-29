@@ -86,8 +86,8 @@ const RFQDetails = () => {
 
   return (
     <div className="space-y-5">
-      <GoBack />
       <BreadcrumbCard list={breadcrumbs} />
+      <GoBack />
       <div className="flex justify-between items-center">
         <h4 className="text-lg font-bold">{data?.data?.title}</h4>
 
