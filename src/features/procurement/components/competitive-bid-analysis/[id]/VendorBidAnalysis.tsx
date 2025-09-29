@@ -7,6 +7,8 @@ import GoBack from "components/GoBack";
 import { Button } from "components/ui/button";
 import { Textarea } from "components/ui/textarea";
 import { Checkbox } from "components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
+import { Input } from "components/ui/input";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import { useGetSolicitationSubmission, useGetVendorBidSubmissions } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 import { toast } from "sonner";
@@ -61,14 +63,20 @@ const VendorBidAnalysis = () => {
   const cbaId = searchParams?.get('cba') || id;
   const solicitationId = searchParams?.get('id');
 
-  const [recommendationNotes, setRecommendationNotes] = useState("");
   const [vendorData, setVendorData] = useState<VendorData[]>([]);
   const [selectedItems, setSelectedItems] = useState<SelectedItem[]>([]);
 
-  // Temporarily disable CBA API call to prevent HTTP undefined error
-  const cbaData = null;
-  const cbaLoading = false;
-  // const { data: cbaData, isLoading: cbaLoading } = CbaAPI.useGetSingleCba(cbaId as string);
+  // Committee evaluation state
+  const [qualityScores, setQualityScores] = useState<{[vendorId: string]: string}>({});
+  const [approvedModels, setApprovedModels] = useState<{[vendorId: string]: string}>({});
+  const [priceResponsiveness, setPriceResponsiveness] = useState<{[vendorId: string]: string}>({});
+  const [technicalEligibility, setTechnicalEligibility] = useState<{[vendorId: string]: string}>({});
+  const [bankAccountEvaluation, setBankAccountEvaluation] = useState<{[vendorId: string]: string}>({});
+  const [experienceEvaluation, setExperienceEvaluation] = useState<{[vendorId: string]: string}>({});
+  const [awardRecommendation, setAwardRecommendation] = useState("");
+
+  // Get CBA data to show assignee information
+  const { data: cbaData, isLoading: cbaLoading } = CbaAPI.useGetSingleCba(cbaId as string);
 
   // Get vendor submission data for the current solicitation (temporarily disabled to prevent auth errors)
   const { data: submissionData, isLoading: submissionLoading, error: submissionError } = useGetSolicitationSubmission(
@@ -254,6 +262,50 @@ const VendorBidAnalysis = () => {
       setVendorData(processedSampleData);
     }
   }, [submissionData, allBidData, solicitationId, submissionLoading, allBidLoading]);
+
+  // Handle select all items from a vendor
+  const handleSelectAllVendorItems = (vendorId: string) => {
+    const vendor = vendorData.find(v => v.id === vendorId);
+    if (!vendor) return;
+
+    const allSelected = vendor.items.every(item => item.selected);
+    const newSelectionState = !allSelected;
+
+    if (newSelectionState) {
+      // Select all items from this vendor
+      const vendorSelectedItems = vendor.items.map(item => ({
+        vendorId: vendor.id,
+        vendorName: vendor.name,
+        itemId: item.id,
+        description: item.description,
+        qty: item.qty,
+        unitPrice: item.unitPrice,
+        total: item.total,
+        brand: item.brand
+      }));
+
+      // Remove any existing selections from this vendor, then add all items
+      setSelectedItems(prev => [
+        ...prev.filter(si => si.vendorId !== vendorId),
+        ...vendorSelectedItems
+      ]);
+    } else {
+      // Deselect all items from this vendor
+      setSelectedItems(prev => prev.filter(si => si.vendorId !== vendorId));
+    }
+
+    // Update vendor data to reflect selection state
+    setVendorData(prev => prev.map(v =>
+      v.id === vendorId
+        ? {
+            ...v,
+            items: v.items.map(item => ({ ...item, selected: newSelectionState }))
+          }
+        : v
+    ));
+
+    console.log(`${newSelectionState ? 'Selected' : 'Deselected'} all items from vendor: ${vendor.name}`);
+  };
 
   // Handle checkbox selection
   const handleItemSelection = (vendorId: string, itemId: string, checked: boolean) => {
@@ -558,7 +610,6 @@ const VendorBidAnalysis = () => {
       solicitationId,
       selectedItems,
       selectedTotal,
-      recommendationNotes,
       submittedAt: new Date().toISOString()
     };
 
@@ -581,11 +632,54 @@ const VendorBidAnalysis = () => {
     <div className="space-y-6 p-4">
       <GoBack />
 
-      <div className="bg-white rounded-lg shadow-sm border">
-        {/* Header */}
-        <div className="bg-blue-600 text-white p-4 rounded-t-lg">
-          <h1 className="text-xl font-bold">Check Approval</h1>
+      {/* AHNI Header Section */}
+      <div className="bg-white border border-gray-200 rounded-lg p-6 text-center">
+        <div className="flex items-center justify-center mb-4">
+          {/* AHNI Logo */}
+          <div className="mr-4">
+            <img
+              src="/imgs/logo.png"
+              alt="AHNI Logo"
+              className="w-20 h-16 object-contain"
+            />
+          </div>
+          <div className="text-left">
+            <h1 className="text-2xl font-bold text-blue-800">
+              ACHIEVING HEALTH INITIATIVE NIGERIA (AHNI)
+            </h1>
+            <p className="text-gray-600 text-sm">
+              Building Sustainable Health Systems Across Nigeria
+            </p>
+            <p className="text-gray-500 text-xs mt-2">
+              30 Anthony Enahoro St, Mabushi, Abuja 900108, Federal Capital Territory
+            </p>
+            <p className="text-gray-500 text-xs">
+              Phone: 94615555
+            </p>
+          </div>
         </div>
+
+        <div className="border-t border-gray-200 pt-4">
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">
+            COMPETITIVE BID ANALYSIS (CBA)
+          </h2>
+          <h3 className="text-lg text-gray-700 mb-1">
+            PROCUREMENT EVALUATION COMMITTEE
+          </h3>
+          <p className="text-sm text-gray-600">
+            RFQ ID: {solicitationId || 'N/A'} | CBA ID: {cbaId || 'N/A'}
+          </p>
+          <p className="text-xs text-gray-500 mt-2">
+            Date: {new Date().toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}
+          </p>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-sm border">
 
         {/* Main Table */}
         <div className="overflow-x-auto">
@@ -600,7 +694,14 @@ const VendorBidAnalysis = () => {
                   <th key={index} className="border border-gray-300 p-2 text-center bg-blue-50" style={{ minWidth: '240px' }}>
                     <div className="font-bold text-blue-800">{vendor.name}</div>
                     <div className="grid grid-cols-4 gap-1 mt-2 text-xs">
-                      <div className="bg-gray-200 p-1 rounded">Select</div>
+                      <Button
+                        onClick={() => handleSelectAllVendorItems(vendor.id)}
+                        size="sm"
+                        variant={vendor.items.every(item => item.selected) ? "default" : "outline"}
+                        className="text-xs h-6 px-1"
+                      >
+                        {vendor.items.every(item => item.selected) ? "Deselect All" : "Select All"}
+                      </Button>
                       <div className="bg-gray-200 p-1 rounded">Brand</div>
                       <div className="bg-gray-200 p-1 rounded">Unit price</div>
                       <div className="bg-gray-200 p-1 rounded">Total</div>
@@ -681,9 +782,26 @@ const VendorBidAnalysis = () => {
                   <div className="text-xs">(ii)Price Reasonableness=40%</div>
                 </td>
                 <td className="border border-gray-300 p-2"></td>
-                {vendorData.map((_, index) => (
-                  <td key={index} className="border border-gray-300 p-2 text-xs">
-                    Overall Score for this bidder was within range of 81-100%
+                {vendorData.map((vendor, index) => (
+                  <td key={index} className="border border-gray-300 p-2">
+                    <Select
+                      value={qualityScores[vendor.id] || ""}
+                      onValueChange={(value) => setQualityScores(prev => ({...prev, [vendor.id]: value}))}
+                    >
+                      <SelectTrigger className="w-full text-xs">
+                        <SelectValue placeholder="Select score range" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="20-30">20-30%</SelectItem>
+                        <SelectItem value="30-40">30-40%</SelectItem>
+                        <SelectItem value="40-50">40-50%</SelectItem>
+                        <SelectItem value="50-60">50-60%</SelectItem>
+                        <SelectItem value="60-70">60-70%</SelectItem>
+                        <SelectItem value="70-80">70-80%</SelectItem>
+                        <SelectItem value="81-90">81-90%</SelectItem>
+                        <SelectItem value="90-100">90-100%</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </td>
                 ))}
               </tr>
@@ -695,8 +813,15 @@ const VendorBidAnalysis = () => {
                   List of Approved Models and Brands(If Applicable)
                 </td>
                 <td className="border border-gray-300 p-2 text-center">N/A</td>
-                {vendorData.map((_, index) => (
-                  <td key={index} className="border border-gray-300 p-2 text-center">N/A</td>
+                {vendorData.map((vendor, index) => (
+                  <td key={index} className="border border-gray-300 p-2">
+                    <Input
+                      value={approvedModels[vendor.id] || ""}
+                      onChange={(e) => setApprovedModels(prev => ({...prev, [vendor.id]: e.target.value}))}
+                      placeholder="Enter approved models/brands"
+                      className="w-full text-xs"
+                    />
+                  </td>
                 ))}
               </tr>
 
@@ -704,19 +829,29 @@ const VendorBidAnalysis = () => {
               <tr className="bg-yellow-50">
                 <td className="border border-gray-300 p-2 font-bold text-center">C</td>
                 <td className="border border-gray-300 p-2">
-                  <div className="font-bold">Price Responsiveness Rating (1st-most responsive)</div>
+                  <div className="font-bold">Price Responsiveness Rating</div>
+                  <div className="text-xs">(1st-most responsive)</div>
                   <div className="text-xs">(2nd-most responsive)</div>
                   <div className="text-xs">(3rd-most responsive)</div>
                   <div className="text-xs">(4th-most responsive)</div>
                 </td>
                 <td className="border border-gray-300 p-2"></td>
-                {vendorData.map((_, index) => (
-                  <td key={index} className="border border-gray-300 p-2 text-center">
-                    <span className="text-red-600 font-bold text-xs">
-                      {index === 0 ? "1st- most responsive bid" :
-                       index === 1 ? "1st- most responsive bid" :
-                       index === 2 ? "2nd- most responsive bid" : "No Bid"}
-                    </span>
+                {vendorData.map((vendor, index) => (
+                  <td key={index} className="border border-gray-300 p-2">
+                    <Select
+                      value={priceResponsiveness[vendor.id] || ""}
+                      onValueChange={(value) => setPriceResponsiveness(prev => ({...prev, [vendor.id]: value}))}
+                    >
+                      <SelectTrigger className="w-full text-xs">
+                        <SelectValue placeholder="Select rating" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1st-most-responsive">1st-most responsive</SelectItem>
+                        <SelectItem value="2nd-most-responsive">2nd-most responsive</SelectItem>
+                        <SelectItem value="3rd-most-responsive">3rd-most responsive</SelectItem>
+                        <SelectItem value="4th-most-responsive">4th-most responsive</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </td>
                 ))}
               </tr>
@@ -743,10 +878,50 @@ const VendorBidAnalysis = () => {
                   <td className="border border-gray-300 p-2"></td>
                   {vendorData.map((vendor, vendorIndex) => (
                     <td key={vendorIndex} className="border border-gray-300 p-2 text-center">
-                      <div className="text-sm">
-                        {criteria.field === "technicalEvaluation" ? "YES" :
-                         vendor[criteria.field as keyof VendorData] as string}
-                      </div>
+                      {criteria.field === "technicalEvaluation" ? (
+                        <Select
+                          value={technicalEligibility[vendor.id] || ""}
+                          onValueChange={(value) => setTechnicalEligibility(prev => ({...prev, [vendor.id]: value}))}
+                        >
+                          <SelectTrigger className="w-full text-xs">
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="YES">YES</SelectItem>
+                            <SelectItem value="NO">NO</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      ) : criteria.field === "bankAccount" ? (
+                        <Select
+                          value={bankAccountEvaluation[vendor.id] || ""}
+                          onValueChange={(value) => setBankAccountEvaluation(prev => ({...prev, [vendor.id]: value}))}
+                        >
+                          <SelectTrigger className="w-full text-xs">
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="YES">YES</SelectItem>
+                            <SelectItem value="NO">NO</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      ) : criteria.field === "workExperience" ? (
+                        <Select
+                          value={experienceEvaluation[vendor.id] || ""}
+                          onValueChange={(value) => setExperienceEvaluation(prev => ({...prev, [vendor.id]: value}))}
+                        >
+                          <SelectTrigger className="w-full text-xs">
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="YES">YES</SelectItem>
+                            <SelectItem value="NO">NO</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <div className="text-sm bg-blue-50 p-2 rounded border">
+                          {vendor[criteria.field as keyof VendorData] as string}
+                        </div>
+                      )}
                     </td>
                   ))}
                 </tr>
@@ -759,53 +934,16 @@ const VendorBidAnalysis = () => {
         <div className="p-6 border-t bg-orange-50">
           <div className="border border-gray-300 p-4">
             <div className="font-bold mb-3 text-lg">M &nbsp;&nbsp; Award Recommendation:</div>
-            <p className="text-sm text-justify leading-relaxed">
-              Requests for Quotations (RFQs) were sent electronically to three (3) prequalified vendors for the supply of office & household consumables (i.e., <strong>AMUCHECHUKWU NIGERIA VENTURES, MICKY GLOBAL VENTURES NIGERIA & AMAKA DREAMS LTD</strong>) for the supply of office items. At the close of solicitations, quotations were received from two (2) vendors as listed above and process through a procurement committee of five(5) members as duly nominated and approved by the Project Lead. The competitive bid analysis (CBA) was duly computed with an emphasis on price responsibility, the ability to meet quality requirements, the scope of work that prelisted at the work requirements, and the provision of an acceptable delivery lead time. To this end, <strong>AMUCHECHUKWU NIGERIA VENTURES</strong> emerged successful in line with the award criteria. This vendor has met the requirements for bank payment and relevant taxes and is therefore considered eligible for this award.
-            </p>
+            <Textarea
+              value={awardRecommendation}
+              onChange={(e) => setAwardRecommendation(e.target.value)}
+              placeholder="Enter award recommendation based on the committee's evaluation of vendor submissions. Include details about the procurement process, evaluation criteria, vendor performance, and justification for the recommended award..."
+              className="w-full min-h-[120px] text-sm"
+              rows={6}
+            />
           </div>
         </div>
 
-        {/* Committee Signature Section */}
-        <div className="p-6 border-t bg-gray-50">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-4">
-              <div className="border border-gray-300 p-3">
-                <div className="font-medium mb-2">Prepared By Senior Program Officer:</div>
-                <div className="mt-8 text-sm">Date & Sign: ____________________</div>
-              </div>
-              <div className="border border-gray-300 p-3">
-                <div className="font-medium mb-2">Procurement Committee Member:</div>
-                <div className="mt-8 text-sm">Date & Sign: ____________________</div>
-              </div>
-              <div className="border border-gray-300 p-3">
-                <div className="font-medium mb-2">Procurement Committee Member:</div>
-                <div className="mt-8 text-sm">Date & Sign: ____________________</div>
-              </div>
-              <div className="border border-gray-300 p-3">
-                <div className="font-medium mb-2">Procurement Committee Member:</div>
-                <div className="mt-8 text-sm">Date & Sign: ____________________</div>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div className="border border-gray-300 p-3">
-                <div className="font-medium mb-2">Procurement Committee Member:</div>
-                <div className="mt-8 text-sm">Date & Sign: ____________________</div>
-              </div>
-              <div className="border border-gray-300 p-3">
-                <div className="font-medium mb-2">Reviewed by Senior Finance Officer:</div>
-                <div className="mt-8 text-sm">Date & Sign: ____________________</div>
-              </div>
-              <div className="border border-gray-300 p-3">
-                <div className="font-medium mb-2">Authorized by State Team Lead:</div>
-                <div className="mt-8 text-sm">Date & Sign: ____________________</div>
-              </div>
-              <div className="border border-gray-300 p-3">
-                <div className="font-medium mb-2">Approved by Project Lead:</div>
-                <div className="mt-8 text-sm">Date & Sign: ____________________</div>
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* Selected Items Summary */}
         {selectedItems.length > 0 && (
@@ -832,19 +970,8 @@ const VendorBidAnalysis = () => {
           </div>
         )}
 
-        {/* Recommendation Notes Section */}
+        {/* Submit Analysis Button */}
         <div className="p-6 border-t bg-gray-50">
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold mb-2">RECOMMENDATION NOTES</h3>
-            <Textarea
-              placeholder="Enter your recommendation notes here..."
-              value={recommendationNotes}
-              onChange={(e) => setRecommendationNotes(e.target.value)}
-              rows={4}
-              className="w-full"
-            />
-          </div>
-
           <div className="flex justify-center">
             <Button
               onClick={handleSubmitAnalysis}
