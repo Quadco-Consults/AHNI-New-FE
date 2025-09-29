@@ -129,13 +129,19 @@ const UnifiedApprovalDashboard = () => {
         case 'approve':
           result = await PurchaseRequestApprovalAPI.approve(requestId);
           break;
+        default:
+          throw new Error(`Invalid action: ${action}. Expected 'review', 'authorize', or 'approve'.`);
+      }
+
+      if (!result) {
+        throw new Error("No response received from API");
       }
 
       if (result.status) {
         toast.success(`Purchase request ${action}${action.endsWith('e') ? 'd' : 'ed'} successfully!`);
         refreshData();
       } else {
-        toast.error(`Error: ${result.message || result.detail}`);
+        toast.error(`Error: ${result.message || 'Approval failed'}`);
       }
     } catch (error: any) {
       console.error(`Error ${action}ing purchase request:`, error);

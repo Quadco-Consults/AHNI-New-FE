@@ -47,9 +47,65 @@ const CompetitiveBidAnalysisDetail = () => {
     const { id } = useParams();
     const [open, setOpen] = useState(false);
 
-    const { data, isLoading } = CbaAPI.useGetSingleCba(id as string);
+    const { data, isLoading, error } = CbaAPI.useGetSingleCba(id as string);
 
     const { approveCba, isLoading: createApprovalCbaIsLoading } = CbaAPI.useApproveCba(id as string);
+
+    // Debug: Log the CBA data to see what we're getting
+    console.log("🔍 CBA Detail Data FULL:", {
+        data,
+        isLoading,
+        cbaData: data?.data,
+        lot: data?.data?.lot,
+        remarks: data?.data?.remarks,
+        items: data?.data?.items,
+        itemsLength: data?.data?.items?.length,
+        itemsType: typeof data?.data?.items,
+        assignee: data?.data?.assignee,
+        committee_members: data?.data?.committee_members,
+        committeeMembersLength: data?.data?.committee_members?.length,
+        committeeMembersType: typeof data?.data?.committee_members,
+        solicitation: data?.data?.solicitation,
+        solicitationType: typeof data?.data?.solicitation,
+        fullDataStructure: JSON.stringify(data, null, 2)
+    });
+
+    console.log("🔍 CBA API Response Raw:", data);
+    console.log("🔍 CBA API Error:", error);
+    console.log("🔍 CBA API ID:", id);
+    console.log("🔍 CBA API Loading:", isLoading);
+
+    // Get current approval step and role
+    const getCurrentApprovalStep = () => {
+        const cbaData = data?.data;
+
+        // For now, we'll simulate the workflow based on status
+        // In production, this should be based on actual approval workflow data
+        const status = cbaData?.status;
+
+        if (status === 'PENDING') {
+            // Determine current step based on existing approvals (simulate workflow)
+            // This should be replaced with actual workflow data from API
+            const currentStepNumber = 1; // Default to first step for now
+
+            switch (currentStepNumber) {
+                case 1:
+                    return { step: 1, role: 'Reviewer', isComplete: false };
+                case 2:
+                    return { step: 2, role: 'Authoriser', isComplete: false };
+                case 3:
+                    return { step: 3, role: 'Approver', isComplete: false };
+                default:
+                    return { step: 1, role: 'Reviewer', isComplete: false };
+            }
+        } else if (status === 'APPROVED') {
+            return { step: 4, role: 'Completed', isComplete: true };
+        } else {
+            return { step: 1, role: 'Reviewer', isComplete: false };
+        }
+    };
+
+    const currentStep = getCurrentApprovalStep();
 
     const form = useForm<z.infer<typeof CbaApprovalSchema>>({
         resolver: zodResolver(CbaApprovalSchema),
@@ -61,10 +117,17 @@ const CompetitiveBidAnalysisDetail = () => {
 
     const { handleSubmit } = form;
 
-    const onSubmit = async (data: z.infer<typeof CbaApprovalSchema>) => {
+    const onSubmit = async (formData: z.infer<typeof CbaApprovalSchema>) => {
         try {
-            await approveCba(data);
-            toast.success("Successfully added.");
+            // Add the current approval step to the submission
+            const submissionData = {
+                ...formData,
+                approval_step: currentStep.role.toLowerCase(),
+                step_number: currentStep.step
+            };
+
+            await approveCba(submissionData);
+            toast.success(`${currentStep.role} approval submitted successfully.`);
             setOpen(false);
         } catch (error) {
             toast.error("Something went wrong");
@@ -86,6 +149,32 @@ const CompetitiveBidAnalysisDetail = () => {
 
             <GoBack />
 
+            {/* Debug Info */}
+            {process.env.NODE_ENV === 'development' && (
+                <Card className="border-2 border-orange-200 bg-orange-50 p-4 mb-4">
+                    <h4 className="font-semibold text-orange-800 mb-2">🐛 Debug Info</h4>
+                    <div className="text-xs text-orange-700 space-y-1">
+                        <p>CBA ID: {id}</p>
+                        <p>API Loading: {isLoading ? 'Yes' : 'No'}</p>
+                        <p>API Error: {error ? JSON.stringify(error) : 'None'}</p>
+                        <p>Data Available: {data ? 'Yes' : 'No'}</p>
+                        <p>CBA Data: {data?.data ? 'Yes' : 'No'}</p>
+                        <p>Lot: {data?.data?.lot || 'Empty'}</p>
+                        <p>Assignee: {data?.data?.assignee ? 'Available' : 'Empty'}</p>
+                        <p>Committee Members: {data?.data?.committee_members?.length || 0} (Type: {typeof data?.data?.committee_members})</p>
+                        <p>Items: {data?.data?.items?.length || 0} (Type: {typeof data?.data?.items})</p>
+                        <p>Status: {data?.data?.status || 'Unknown'}</p>
+                        <p>Solicitation: {typeof data?.data?.solicitation === 'object' ? 'Object' : data?.data?.solicitation || 'Empty'}</p>
+                        {data?.data?.committee_members && data.data.committee_members.length === 0 && (
+                            <p className="text-red-600">⚠️ Committee Members array is empty - check CBA creation process</p>
+                        )}
+                        {data?.data?.items && data.data.items.length === 0 && (
+                            <p className="text-red-600">⚠️ Items array is empty - check items assignment in CBA</p>
+                        )}
+                    </div>
+                </Card>
+            )}
+
             {/* CBA Header Section */}
             <Card className="space-y-6 p-8">
                 <div className="flex justify-between items-start">
@@ -94,7 +183,7 @@ const CompetitiveBidAnalysisDetail = () => {
                             {data?.data?.title || 'Competitive Bid Analysis'}
                         </h1>
                         <p className="text-gray-600 mt-2">
-                            RFQ ID: {typeof data?.data?.solicitation === 'object' ? data?.data?.solicitation?.rfq_id : 'N/A'} |
+                            RFQ ID: {typeof data?.data?.solicitation === 'object' ? (data?.data?.solicitation as any)?.rfq_id : data?.data?.solicitation || 'N/A'} |
                             CBA Type: {data?.data?.cba_type || 'Standard'}
                         </p>
                     </div>
@@ -117,39 +206,12 @@ const CompetitiveBidAnalysisDetail = () => {
             <Card className="p-6">
                 <h2 className="text-lg font-semibold mb-6 text-gray-900">CBA Process Workflow</h2>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Step 1: Technical Prequalification */}
-                    <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
-                        <div className="flex items-center mb-4">
-                            <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold mr-3">
-                                1
-                            </div>
-                            <h3 className="font-semibold text-gray-900">Technical Prequalification</h3>
-                        </div>
-                        <p className="text-gray-600 text-sm mb-4">
-                            Review vendor qualifications and technical capabilities
-                        </p>
-                        <Link
-                            href={generatePath(
-                                RouteEnum.PROCUREMENT_CBA_START,
-                                {
-                                    id: id as string,
-                                    appID: typeof data?.data?.solicitation === 'object' ? data?.data?.solicitation?.id : data?.data?.solicitation || '',
-                                }
-                            )}
-                        >
-                            <Button variant="outline" className="w-full">
-                                <Icon icon="heroicons:clipboard-document-check" className="mr-2" />
-                                Start Technical Review
-                            </Button>
-                        </Link>
-                    </div>
-
-                    {/* Step 2: Bid Analysis */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Step 1: Bid Analysis */}
                     <div className="bg-green-50 rounded-lg p-6 border border-green-200">
                         <div className="flex items-center mb-4">
                             <div className="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-semibold mr-3">
-                                2
+                                1
                             </div>
                             <h3 className="font-semibold text-gray-900">Bid Analysis & Selection</h3>
                         </div>
@@ -166,30 +228,81 @@ const CompetitiveBidAnalysisDetail = () => {
                         </Link>
                     </div>
 
-                    {/* Step 3: Final Approval */}
+                    {/* Step 2: Approval Workflow */}
                     <div className="bg-purple-50 rounded-lg p-6 border border-purple-200">
                         <div className="flex items-center mb-4">
                             <div className="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-semibold mr-3">
-                                3
+                                2
                             </div>
-                            <h3 className="font-semibold text-gray-900">Final Approval</h3>
+                            <h3 className="font-semibold text-gray-900">Approval Workflow</h3>
                         </div>
                         <p className="text-gray-600 text-sm mb-4">
-                            Approve analysis and generate purchase orders
+                            Complete approval flow through designated committee members and generate purchase orders
                         </p>
-                        {data?.data?.status === "PENDING" ? (
+
+                        {/* Approval Flow Steps */}
+                        <div className="space-y-3 mb-4">
+                            <div className="text-xs space-y-2">
+                                <div className="flex items-center">
+                                    <div className={cn(
+                                        "w-4 h-4 rounded-full mr-2 text-white text-xs flex items-center justify-center",
+                                        currentStep.step > 1 ? "bg-green-500" :
+                                        currentStep.step === 1 ? "bg-blue-500" : "bg-gray-300"
+                                    )}>1</div>
+                                    <span className={cn(
+                                        currentStep.step > 1 ? "text-green-600 font-semibold" :
+                                        currentStep.step === 1 ? "text-blue-600 font-semibold" : "text-gray-500"
+                                    )}>Reviewer</span>
+                                    {currentStep.step > 1 && (
+                                        <Icon icon="heroicons:check-circle" className="ml-2 text-green-500" fontSize={16} />
+                                    )}
+                                </div>
+                                <div className="flex items-center">
+                                    <div className={cn(
+                                        "w-4 h-4 rounded-full mr-2 text-white text-xs flex items-center justify-center",
+                                        currentStep.step > 2 ? "bg-green-500" :
+                                        currentStep.step === 2 ? "bg-blue-500" : "bg-gray-300"
+                                    )}>2</div>
+                                    <span className={cn(
+                                        currentStep.step > 2 ? "text-green-600 font-semibold" :
+                                        currentStep.step === 2 ? "text-blue-600 font-semibold" : "text-gray-500"
+                                    )}>Authoriser</span>
+                                    {currentStep.step > 2 && (
+                                        <Icon icon="heroicons:check-circle" className="ml-2 text-green-500" fontSize={16} />
+                                    )}
+                                </div>
+                                <div className="flex items-center">
+                                    <div className={cn(
+                                        "w-4 h-4 rounded-full mr-2 text-white text-xs flex items-center justify-center",
+                                        currentStep.step > 3 || currentStep.isComplete ? "bg-green-500" :
+                                        currentStep.step === 3 ? "bg-blue-500" : "bg-gray-300"
+                                    )}>3</div>
+                                    <span className={cn(
+                                        currentStep.step > 3 || currentStep.isComplete ? "text-green-600 font-semibold" :
+                                        currentStep.step === 3 ? "text-blue-600 font-semibold" : "text-gray-500"
+                                    )}>Approver</span>
+                                    {(currentStep.step > 3 || currentStep.isComplete) && (
+                                        <Icon icon="heroicons:check-circle" className="ml-2 text-green-500" fontSize={16} />
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                        {data?.data?.status === "PENDING" && !currentStep.isComplete ? (
                             <Dialog open={open} onOpenChange={setOpen}>
                                 <DialogTrigger asChild>
                                     <Button variant="default" className="w-full">
                                         <Icon icon="heroicons:check-circle" className="mr-2" />
-                                        Process Approval
+                                        {currentStep.role} Approval
                                     </Button>
                                 </DialogTrigger>
                                 <DialogContent className="max-w-xl">
                                     <DialogHeader>
                                         <DialogTitle className="text-2xl font-semibold mb-5">
-                                            CBA Final Approval
+                                            CBA {currentStep.role} Approval
                                         </DialogTitle>
+                                        <div className="text-sm text-gray-600 mb-4">
+                                            Step {currentStep.step} of 3: {currentStep.role} Review
+                                        </div>
                                     </DialogHeader>
                                     <Form {...form}>
                                         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -201,7 +314,7 @@ const CompetitiveBidAnalysisDetail = () => {
                                             >
                                                 <SelectContent>
                                                     <SelectItem value="APPROVED">
-                                                        ✅ Approve & Generate Purchase Orders
+                                                        ✅ {currentStep.step === 3 ? 'Approve & Generate Purchase Orders' : `Approve & Forward to ${currentStep.step === 1 ? 'Authoriser' : 'Approver'}`}
                                                     </SelectItem>
                                                     <SelectItem value="REJECTED">
                                                         ❌ Reject & Request CBA Redo
@@ -211,8 +324,8 @@ const CompetitiveBidAnalysisDetail = () => {
 
                                             <FormTextArea
                                                 name="remarks"
-                                                label="Approval Remarks"
-                                                placeholder="Enter approval comments and justification"
+                                                label={`${currentStep.role} Remarks`}
+                                                placeholder={`Enter ${currentStep.role.toLowerCase()} comments and justification`}
                                                 rows={4}
                                             />
 
@@ -222,7 +335,7 @@ const CompetitiveBidAnalysisDetail = () => {
                                                     disabled={createApprovalCbaIsLoading}
                                                     type="submit"
                                                 >
-                                                    Submit Final Decision
+                                                    Submit {currentStep.role} Decision
                                                 </FormButton>
                                             </div>
                                         </form>
@@ -232,7 +345,7 @@ const CompetitiveBidAnalysisDetail = () => {
                         ) : (
                             <Button variant="outline" disabled className="w-full">
                                 <Icon icon="heroicons:check-circle" className="mr-2" />
-                                {data?.data?.status === "APPROVED" ? "Approved ✅" : "Completed"}
+                                {currentStep.isComplete ? "All Approvals Complete ✅" : "Awaiting Next Approval"}
                             </Button>
                         )}
                     </div>
@@ -275,27 +388,27 @@ const CompetitiveBidAnalysisDetail = () => {
                 <div className="flex items-center gap-10">
                     <div className="flex gap-3 items-center">
                         <Icon icon="ooui:reference" fontSize={18} />
-                        <h6>{data?.data?.lot}</h6>
+                        <h6>{data?.data?.lot || 'No Lot Assigned'}</h6>
                     </div>
                     <div className="flex gap-3 items-center">
                         <Icon
                             icon="lets-icons:date-today-duotone"
                             fontSize={18}
                         />
-                        <h6>{data?.data?.cba_date}</h6>
+                        <h6>{data?.data?.cba_date || 'Date Not Set'}</h6>
                     </div>
                     <div className="flex gap-3 items-center">
                         <Icon
                             icon="solar:case-minimalistic-bold-duotone"
                             fontSize={18}
                         />
-                        <h6>{data?.data?.cba_type}</h6>
+                        <h6>{data?.data?.cba_type || 'Standard'}</h6>
                     </div>
                 </div>
 
                 <div className="space-y-4">
                     <h2 className="font-semibold text-base">Remarks:</h2>
-                    <h4 className=" text-gray-500">{data?.data?.remarks}</h4>
+                    <h4 className=" text-gray-500">{data?.data?.remarks || 'No remarks provided'}</h4>
                 </div>
 
                 <div className="space-y-4">
@@ -303,8 +416,13 @@ const CompetitiveBidAnalysisDetail = () => {
                         Items:
                     </h2>
 
-                    <div className="grid grid-cols-2 gap-5">
-                        {data?.data?.items?.map((item: SolicitationItems) => (
+                    {(!data?.data?.items || data?.data?.items?.length === 0) ? (
+                        <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <p className="text-yellow-800 text-sm">No items assigned to this CBA</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 gap-5">
+                            {data?.data?.items?.map((item: SolicitationItems) => (
                             <Card
                                 key={item?.id}
                                 className="border-yellow-darker space-y-3"
@@ -328,8 +446,9 @@ const CompetitiveBidAnalysisDetail = () => {
                                     <h4>{item?.lot}</h4>
                                 </div>
                             </Card>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 <div className="space-y-4">
@@ -337,22 +456,28 @@ const CompetitiveBidAnalysisDetail = () => {
                         Assignee:
                     </h2>
 
-                    <Card className="border-yellow-darker space-y-3 w-full md:w-1/2">
-                        <div className="flex items-center gap-5">
-                            <h4 className="w-1/3 font-semibold">First Name:</h4>
-                            <h4>{data?.data?.assignee?.first_name}</h4>
+                    {!data?.data?.assignee ? (
+                        <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                            <p className="text-gray-600 text-sm">No assignee assigned to this CBA</p>
                         </div>
-                        <div className="flex items-center gap-5">
-                            <h4 className="w-1/3 font-semibold">Last Name:</h4>
-                            <h4>{data?.data?.assignee?.last_name}</h4>
-                        </div>
-                        <div className="flex items-center gap-5">
-                            <h4 className="w-1/3 font-semibold">
-                                Designation:
-                            </h4>
-                            <h4>{data?.data?.assignee?.designation}</h4>
-                        </div>
-                    </Card>
+                    ) : (
+                        <Card className="border-yellow-darker space-y-3 w-full md:w-1/2">
+                            <div className="flex items-center gap-5">
+                                <h4 className="w-1/3 font-semibold">First Name:</h4>
+                                <h4>{data?.data?.assignee?.first_name || 'N/A'}</h4>
+                            </div>
+                            <div className="flex items-center gap-5">
+                                <h4 className="w-1/3 font-semibold">Last Name:</h4>
+                                <h4>{data?.data?.assignee?.last_name || 'N/A'}</h4>
+                            </div>
+                            <div className="flex items-center gap-5">
+                                <h4 className="w-1/3 font-semibold">
+                                    Designation:
+                                </h4>
+                                <h4>{data?.data?.assignee?.designation || 'N/A'}</h4>
+                            </div>
+                        </Card>
+                    )}
                 </div>
 
                 <div className="space-y-4">
@@ -360,9 +485,14 @@ const CompetitiveBidAnalysisDetail = () => {
                         Committee Members:
                     </h2>
 
-                    <div className="grid grid-cols-2 gap-5">
-                        {data?.data?.committee_members?.map(
-                            (member: CommitteeMemberData) => (
+                    {(!data?.data?.committee_members || data?.data?.committee_members?.length === 0) ? (
+                        <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                            <p className="text-gray-600 text-sm">No committee members assigned to this CBA</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 gap-5">
+                            {data?.data?.committee_members?.map(
+                                (member: CommitteeMemberData) => (
                                 <Card
                                     key={member?.id}
                                     className="border-yellow-darker space-y-3"
@@ -371,24 +501,25 @@ const CompetitiveBidAnalysisDetail = () => {
                                         <h4 className="w-1/3 font-semibold">
                                             First Name:
                                         </h4>
-                                        <h4>{member?.first_name}</h4>
+                                        <h4>{member?.first_name || 'N/A'}</h4>
                                     </div>
                                     <div className="flex items-center gap-5">
                                         <h4 className="w-1/3 font-semibold">
                                             Last Name:
                                         </h4>
-                                        <h4>{member?.last_name}</h4>
+                                        <h4>{member?.last_name || 'N/A'}</h4>
                                     </div>
                                     <div className="flex items-center gap-5">
                                         <h4 className="w-1/3 font-semibold">
                                             Designation:
                                         </h4>
-                                        <h4>{member?.designation}</h4>
+                                        <h4>{member?.designation || 'N/A'}</h4>
                                     </div>
                                 </Card>
-                            )
-                        )}
-                    </div>
+                                )
+                            )}
+                        </div>
+                    )}
                 </div>
             </Card>
         </div>

@@ -1,8 +1,7 @@
 "use client";
 
-import LongArrowLeft from "components/icons/LongArrowLeft";
+import GoBack from "components/GoBack";
 import { Label } from "components/ui/label";
-import { useRouter } from "next/navigation";
 import { Check, ChevronsUpDown, MinusCircle, PlusCircle } from "lucide-react";
 import { cn } from "lib/utils";
 import { Button } from "components/ui/button";
@@ -48,10 +47,6 @@ const PurchaseOrderNew = () => {
   const [requestValue, setRequestValue] = useState("");
   const [purchaseValue, setPurchaseValue] = useState("");
 
-  const router = useRouter();
-  const goBack = () => {
-    router.back();
-  };
 
   const { data: vendors, isLoading: vendorsIsLoading } = useGetVendors({
     page: 1,
@@ -190,12 +185,7 @@ const PurchaseOrderNew = () => {
     <div className="space-y-5">
       <BreadcrumbCard list={breadcrumbs} />
 
-      <button
-        onClick={goBack}
-        className="flex aspect-square w-[3rem] items-center justify-center rounded-full bg-white drop-shadow-md"
-      >
-        <LongArrowLeft />
-      </button>
+      <GoBack />
 
       <p className="text-[24px] font-semibold">Purchase Order Form</p>
 

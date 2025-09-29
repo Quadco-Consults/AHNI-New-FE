@@ -186,24 +186,4 @@ const columns: ColumnDef<any>[] = [
       </div>
     ),
   },
-  {
-    header: "Frequency",
-    size: 100,
-    accessorKey: "frequency",
-    cell: ({ row }) => (
-      <div className='text-center space-y-2'>
-        {row.original?.frequency || "1"}
-      </div>
-    ),
-  },
-  {
-    header: "Days",
-    size: 100,
-    accessorKey: "number_of_days",
-    cell: ({ row }) => (
-      <div className='text-center space-y-2'>
-        {row.original?.number_of_days || "1"}
-      </div>
-    ),
-  },
 ];

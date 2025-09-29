@@ -14,6 +14,7 @@ interface ApiResponse<TData = unknown> {
   status: boolean;
   message: string;
   data: TData;
+  error?: string;
 }
 
 interface ApiManagerOptions<TData, TError> {
@@ -97,9 +98,15 @@ const useApiManager = <TData = unknown, TError = Error, TVariables = unknown>({
         status: axiosError.response?.status,
         statusText: axiosError.response?.statusText,
         data: axiosError.response?.data,
-        headers: axiosError.response?.headers
+        headers: axiosError.response?.headers,
+        code: axiosError.code,
+        message: axiosError.message,
+        hasResponse: !!axiosError.response,
+        hasRequest: !!axiosError.request,
+        isNetworkError: !axiosError.response && axiosError.request
       });
       console.error("Full error response data:", JSON.stringify(axiosError.response?.data, null, 2));
+
       // Handle validation errors (field-specific errors)
       const data = axiosError.response?.data;
       if (data && typeof data === 'object' && !data.message && !data.error) {
@@ -114,13 +121,36 @@ const useApiManager = <TData = unknown, TError = Error, TVariables = unknown>({
           throw new Error(fieldErrors.join('\n')) as TError;
         }
       }
-      
-      throw new Error(
-        axiosError.response?.data?.message ||
-        axiosError.response?.data?.error ||
-        (axiosError.response ? `HTTP ${axiosError.response.status}: ${axiosError.response.statusText}` : axiosError.message) ||
-        "An unexpected error occurred"
-      ) as TError;
+
+      // Determine error message based on error type
+      let errorMessage: string;
+
+      if (axiosError.response) {
+        // Server responded with error status
+        console.log("Server error response detected");
+        errorMessage = axiosError.response.data?.message ||
+                      axiosError.response.data?.error ||
+                      `HTTP ${axiosError.response.status}: ${axiosError.response.statusText}`;
+      } else if (axiosError.request) {
+        // Network error - request was made but no response received
+        console.log("Network error detected, code:", axiosError.code);
+        if (axiosError.code === 'NETWORK_ERROR' || axiosError.code === 'ERR_NETWORK') {
+          errorMessage = "Unable to connect to the server. Please check your internet connection and try again.";
+        } else if (axiosError.code === 'ECONNABORTED' || axiosError.message?.includes('timeout')) {
+          errorMessage = "Request timed out. Please check your connection and try again.";
+        } else if (axiosError.code === 'ERR_NAME_NOT_RESOLVED') {
+          errorMessage = "Server not found. Please check if the server is running.";
+        } else {
+          errorMessage = "Network error occurred. Please check your connection and try again.";
+        }
+      } else {
+        // Something else happened
+        console.log("Unknown error type detected");
+        errorMessage = axiosError.message || "An unexpected error occurred";
+      }
+
+      console.log("Final error message:", errorMessage);
+      throw new Error(errorMessage) as TError;
     }
   };
 
