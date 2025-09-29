@@ -106,7 +106,13 @@ export const useGetPurchaseRequest = (id: string, enabled: boolean = true) => {
     queryKey: ["purchase-request", id],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`${BASE_URL}${id}/`);
+        const response = await AxiosWithToken.get(`${BASE_URL}${id}/`, {
+          params: {
+            expand: 'requested_by,reviewed_by,authorized_by,approved_by',
+            include_user_details: true,
+            populate: 'users'
+          }
+        });
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
