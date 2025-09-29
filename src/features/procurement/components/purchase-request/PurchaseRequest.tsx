@@ -207,6 +207,34 @@ function PurchaseRequest({
                 View Details
               </Button>
 
+              {/* View Activity Memo - Navigate to dedicated page */}
+              {data?.request_memo && (
+                <Link
+                  href={`/dashboard/procurement/purchase-request/final-preview?id=${data.request_memo}`}
+                >
+                  <Button
+                    className='flex w-full items-center justify-start gap-2'
+                    variant='ghost'
+                  >
+                    <EyeIcon />
+                    View Activity Memo
+                  </Button>
+                </Link>
+              )}
+
+              {/* View Purchase Request - Navigate to dedicated page */}
+              <Link
+                href={`/dashboard/procurement/purchase-request/${data?.id}/details`}
+              >
+                <Button
+                  className='flex w-full items-center justify-start gap-2'
+                  variant='ghost'
+                >
+                  <EyeIcon />
+                  View Purchase Request
+                </Button>
+              </Link>
+
               {/* For Pending PR Tab: Show Approval Flow */}
               {!isApproved && (
                 <Button
@@ -237,7 +265,7 @@ function PurchaseRequest({
                 </Button>
               )}
 
-              {/* Edit - Always third for both tabs */}
+              {/* Edit - Always available for both tabs */}
               <Link
                 href={`/dashboard/procurement/purchase-request/${data?.id}/edit`}
               >

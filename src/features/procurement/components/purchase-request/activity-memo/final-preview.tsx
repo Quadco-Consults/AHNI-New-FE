@@ -17,7 +17,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "store/index";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import logoPng from "@/assets/svgs/logo-bg.svg";
+import logoPng from "assets/imgs/logo.png";
+import GoBack from "components/GoBack";
 import { useGetActivityMemo } from "@/features/procurement/controllers/activityMemoController";
 import { useGetSingleBudgetLine } from "@/features/modules/controllers/finance/budgetLineController";
 import { useGetSingleCostCategory } from "@/features/modules/controllers/finance/costCategoryController";
@@ -163,14 +164,39 @@ const Preview = () => {
   console.log({ expense: expensesData });
 
   return (
-    <div className='bg-white p-8'>
+    <div className='bg-white p-6 max-w-7xl mx-auto'>
+      {/* Back Button */}
+      <div className='mb-6'>
+        <GoBack />
+      </div>
+
       <section className='min-h-screen space-y-8'>
         {/* Stage Navigation */}
-        <div className='flex w-full items-center justify-between gap-4'>
-          <div className='flex items-center gap-2'>
-            <span className='text-sm text-gray-600'>
-              Stage {currentStage} of 2: {currentStage === 1 ? 'Activity Memo' : 'Expense Breakdown'}
-            </span>
+        <div className='flex w-full items-center justify-between gap-6 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-200 shadow-sm'>
+          <div className='flex items-center gap-4'>
+            <div className='flex items-center gap-3'>
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-base font-semibold ${
+                currentStage === 1 ? 'bg-blue-500 text-white' : 'bg-blue-200 text-blue-700'
+              }`}>
+                1
+              </div>
+              <span className={`text-base font-medium ${currentStage === 1 ? 'text-blue-700' : 'text-gray-500'}`}>
+                Activity Memo
+              </span>
+            </div>
+
+            <div className='w-12 h-0.5 bg-gray-300'></div>
+
+            <div className='flex items-center gap-3'>
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-base font-semibold ${
+                currentStage === 2 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'
+              }`}>
+                2
+              </div>
+              <span className={`text-base font-medium ${currentStage === 2 ? 'text-blue-700' : 'text-gray-500'}`}>
+                Expense Breakdown
+              </span>
+            </div>
           </div>
 
           <div className='flex items-center gap-4'>
@@ -183,7 +209,7 @@ const Preview = () => {
                   search: `?request=${effectiveMemoId}`,
                 }}
               >
-                <Button className='flex gap-2 py-6'>
+                <Button className='flex gap-2 bg-green-600 hover:bg-green-700 px-4 py-2'>
                   <AddSquareIcon />
                   Create Purchase Request
                 </Button>
@@ -194,9 +220,9 @@ const Preview = () => {
             {currentStage === 1 && (
               <Button
                 onClick={() => setCurrentStage(2)}
-                className='flex gap-2 py-6'
+                className='flex gap-2 bg-blue-600 hover:bg-blue-700 px-4 py-2'
               >
-                Next: View Expenses
+                Next: View Expenses →
               </Button>
             )}
 
@@ -204,31 +230,12 @@ const Preview = () => {
               <Button
                 onClick={() => setCurrentStage(1)}
                 variant="outline"
-                className='flex gap-2 py-6'
+                className='flex gap-2 border-blue-300 text-blue-600 hover:bg-blue-50 px-4 py-2'
               >
-                Previous: View Memo
+                ← Previous: View Memo
               </Button>
             )}
 
-            {/* Debug info and legacy buttons */}
-            {created === "true" && (!effectiveMemoId || effectiveMemoId === "null") && (
-              <div className="text-red-500 text-sm">
-                Cannot create purchase request: Missing activity memo ID
-              </div>
-            )}
-            {!created || created !== "true" ? (
-              <div className="text-blue-500 text-sm">
-                Activity Memo Preview
-              </div>
-            ) : null}
-            {created !== "true" && (
-              <Link
-                className='w-fit'
-                href={RouteEnum.PURCHASE_REQUEST_DETAILS.replace(":id", request as string)}
-              >
-                <Button className='flex gap-2 py-6'>View Purchase Request</Button>
-              </Link>
-            )}
           </div>
         </div>
 
@@ -236,31 +243,32 @@ const Preview = () => {
         {currentStage === 1 && (
           <>
             {/* Memo Header */}
-            <div className='max-w-4xl mx-auto bg-white'>
+            <div className='bg-white border border-gray-200 rounded-lg p-8'>
               {/* Logo and Title */}
-              <div className='flex items-start justify-between mb-6'>
-                <img src={logoPng.src || logoPng} alt='logo' width={120} />
-                <div className='text-right'>
-                  <h2 className='text-lg font-bold border-b-2 border-black pb-1'>Internal Memo</h2>
+              <div className='flex items-center justify-between mb-8'>
+                <img src={(logoPng as any).src || logoPng} alt='logo' width={120} />
+                <div className='flex-1 text-center'>
+                  <h2 className='text-2xl font-bold text-gray-900 border-b-2 border-black pb-2 inline-block'>Internal Memo</h2>
                 </div>
+                <div className='w-30'></div> {/* Spacer for balance */}
               </div>
 
               {/* Memo Header Information */}
               <div className='space-y-3 mb-6'>
                 {/* To */}
                 <div className='flex'>
-                  <span className='font-bold w-20'>To:</span>
+                  <span className='font-bold w-20 text-base'>To:</span>
                   <div className='flex-1'>
                     {/* Display approved_by (primary recipient) */}
                     {requestsDetails?.approved_by_details?.name ? (
-                      <div>{requestsDetails.approved_by_details.name} (MD, AHNi) <span className='ml-20 text-sm'>{memoData?.requested_date || new Date().toLocaleDateString()}</span></div>
+                      <div className='text-base'>{requestsDetails.approved_by_details.name} (MD, AHNi) <span className='ml-20 text-sm text-gray-600'>{memoData?.requested_date || new Date().toLocaleDateString()}</span></div>
                     ) : (
-                      <div>Dr. Umar Adamu (MD, AHNi) <span className='ml-20 text-sm'>{memoData?.requested_date || new Date().toLocaleDateString()}</span></div>
+                      <div className='text-base'>Dr. Umar Adamu (MD, AHNi) <span className='ml-20 text-sm text-gray-600'>{memoData?.requested_date || new Date().toLocaleDateString()}</span></div>
                     )}
 
                     {/* Display any additional recipients */}
                     {requestsDetails?.copy_details?.map((user: any, index: number) => (
-                      <div key={index} className='text-sm text-gray-600'>
+                      <div key={index} className='text-sm text-gray-600 mt-1'>
                         {user.name || `${user.first_name} ${user.last_name}`} ({user.designation || 'Staff'}), {memoData?.requested_date || new Date().toLocaleDateString()}
                       </div>
                     ))}
@@ -269,25 +277,19 @@ const Preview = () => {
 
                 {/* Through */}
                 <div className='flex'>
-                  <span className='font-bold w-20'>Through:</span>
+                  <span className='font-bold w-20 text-base'>Through:</span>
                   <div className='flex-1'>
-                    {/* Display selected "through" users */}
+                    {/* Display selected "through" users (Authoriser) */}
                     {requestsDetails?.through_details?.length > 0 ? (
                       requestsDetails.through_details.map((user: any, index: number) => (
-                        <div key={index}>
-                          {user.first_name} {user.last_name} ({user.designation || 'Staff'}, AHNi, Abuja) <span className='ml-8 text-sm'>{memoData?.requested_date || new Date().toLocaleDateString()}</span>
-                        </div>
-                      ))
-                    ) : requestsDetails?.reviewed_by_details?.length > 0 ? (
-                      requestsDetails.reviewed_by_details.map((user: any, index: number) => (
-                        <div key={index}>
-                          {user.name || `${user.first_name} ${user.last_name}`} ({user.designation || 'Staff'}, AHNi, Abuja) <span className='ml-8 text-sm'>{memoData?.requested_date || new Date().toLocaleDateString()}</span>
+                        <div key={index} className='text-base'>
+                          {user.name || `${user.first_name} ${user.last_name}`} ({user.designation || 'Staff'}, AHNi, Abuja) <span className='ml-8 text-sm text-gray-600'>{memoData?.requested_date || new Date().toLocaleDateString()}</span>
                         </div>
                       ))
                     ) : (
                       <>
-                        <div>Charles Ibezim (Director of Finance, AHNi, Abuja) <span className='ml-8 text-sm'>{memoData?.requested_date || new Date().toLocaleDateString()}</span></div>
-                        <div>Tine Woji (Project Lead, Global Fund, Abuja) <span className='ml-16 text-sm'>{memoData?.requested_date || new Date().toLocaleDateString()}</span></div>
+                        <div className='text-base'>Charles Ibezim (Director of Finance, AHNi, Abuja) <span className='ml-8 text-sm text-gray-600'>{memoData?.requested_date || new Date().toLocaleDateString()}</span></div>
+                        <div className='text-base'>Tine Woji (Project Lead, Global Fund, Abuja) <span className='ml-16 text-sm text-gray-600'>{memoData?.requested_date || new Date().toLocaleDateString()}</span></div>
                       </>
                     )}
                   </div>
@@ -295,13 +297,13 @@ const Preview = () => {
 
                 {/* From */}
                 <div className='flex'>
-                  <span className='font-bold w-20'>From:</span>
+                  <span className='font-bold w-20 text-base'>From:</span>
                   <div className='flex-1'>
-                    <div>
+                    <div className='text-base'>
                       {requestsDetails?.created_by_details?.name ||
                        (memoData?.created_by?.first_name && memoData?.created_by?.last_name
                          ? `${memoData.created_by.first_name} ${memoData.created_by.last_name}`
-                         : 'Dr Onyeka Ugwu')} (STA, CCF, AHNI) <span className='ml-20 text-sm'>{memoData?.requested_date || new Date().toLocaleDateString()}</span>
+                         : 'Dr Onyeka Ugwu')} (STA, CCF, AHNI) <span className='ml-20 text-sm text-gray-600'>{memoData?.requested_date || new Date().toLocaleDateString()}</span>
                     </div>
                   </div>
                 </div>
@@ -309,30 +311,31 @@ const Preview = () => {
 
               {/* Budget Information */}
               <div className='grid grid-cols-2 gap-8 mb-6 text-sm'>
-                <div>
-                  <div><span className='font-bold'>Budget Line #:</span> {budgetLine?.data?.name || memoData?.budget_line?.[0] || "916"}</div>
-                  <div><span className='font-bold'>Module:</span> Program management</div>
-                  <div><span className='font-bold'>Intervention:</span> Grant management</div>
-                  <div><span className='font-bold'>Cost Grouping #:</span> {costCategory?.data?.code || memoData?.cost_categories?.[0] || "11.0"}</div>
+                <div className='space-y-2'>
+                  <div><span className='font-semibold'>Budget Line #:</span> {budgetLine?.data?.name || memoData?.budget_line?.[0] || "916"}</div>
+                  <div><span className='font-semibold'>Module:</span> {budgetLine?.data?.module_name || memoData?.module || "Program management"}</div>
+                  <div><span className='font-semibold'>Intervention:</span> {interventionArea?.data?.name || memoData?.intervention_area || "Grant management"}</div>
+                  <div><span className='font-semibold'>Cost Grouping #:</span> {costCategory?.data?.code || memoData?.cost_categories?.[0] || "11.0"}</div>
                 </div>
-                <div>
-                  <div><span className='font-bold'>FCO#:</span> {fcoNumber?.data?.module_code || memoData?.fconumber?.[0] || "N-THRIP"}</div>
-                  <div><span className='font-bold'>Cost Input #:</span> {costInput?.data?.name || memoData?.cost_input?.[0] || "11.1"}</div>
+                <div className='space-y-2'>
+                  <div><span className='font-semibold'>FCO#:</span> {fcoNumber?.data?.module_code || memoData?.fconumber?.[0] || "N-THRIP"}</div>
+                  <div><span className='font-semibold'>Cost Input #:</span> {costInput?.data?.name || memoData?.cost_input?.[0] || "11.1"}</div>
+                  <div><span className='font-semibold'>Funding Source:</span> {memoData?.funding_source || "Global Fund"}</div>
                 </div>
               </div>
 
               {/* Date */}
               <div className='mb-6'>
-                <span className='font-bold'>Date:</span> {memoData?.requested_date || "15/07/2024"}
+                <span className='font-semibold text-base'>Date:</span> <span className='text-base'>{memoData?.requested_date || "15/07/2024"}</span>
               </div>
 
               {/* Subject */}
               <div className='mb-6'>
-                <div className='font-bold'>Subject: {memoData?.subject || "Activity Memo Request"}</div>
+                <div className='font-semibold text-base'>Subject: <span className='font-normal'>{memoData?.subject || "Activity Memo Request"}</span></div>
               </div>
 
               {/* Memo Content */}
-              <div className='space-y-4 mb-8 text-justify leading-relaxed'>
+              <div className='space-y-4 mb-8 text-justify leading-relaxed text-base'>
                 {memoData?.comment ? (
                   <div dangerouslySetInnerHTML={{ __html: memoData.comment.replace(/\n/g, '<br />') }} />
                 ) : (
@@ -350,7 +353,7 @@ const Preview = () => {
                       Please find attached the activity budget for your review and approval.
                     </p>
 
-                    <p className='mt-4'>
+                    <p className='mt-3'>
                       Thank you.
                     </p>
                   </>
@@ -364,69 +367,69 @@ const Preview = () => {
         {currentStage === 2 && (
           <>
             {/* Complete Document Structure with borders */}
-            <div className='max-w-5xl mx-auto bg-white border-2 border-black'>
+            <div className='bg-white border-2 border-black rounded-lg overflow-hidden'>
               {/* Logo Header */}
-              <div className='border-b border-black p-2 bg-white'>
-                <img src={logoPng.src || logoPng} alt='logo' width={100} />
+              <div className='border-b border-black p-4 bg-white'>
+                <img src={(logoPng as any).src || logoPng} alt='logo' width={120} />
               </div>
 
               {/* Activity Header */}
-              <div className='border-b border-black p-2 bg-blue-200'>
-                <div className='font-bold text-sm'>
+              <div className='border-b border-black p-3 bg-blue-200'>
+                <div className='font-bold text-base'>
                   Activity: {memoData?.subject || "9.2.2 Anambra State Office Admin Cost Q3(July - September 2024)"}
                 </div>
               </div>
 
               {/* Request Details Table */}
-              <table className='w-full border-collapse text-xs'>
+              <table className='w-full border-collapse text-base'>
                 <tbody>
                   <tr className='border-b border-black'>
-                    <td className='border-r border-black p-2 bg-blue-100 font-semibold w-1/4'>Request Date:</td>
-                    <td className='p-2'>{memoData?.requested_date || "15/07/2024"}</td>
+                    <td className='border-r border-black p-4 bg-blue-100 font-semibold w-1/4'>Request Date:</td>
+                    <td className='p-4'>{memoData?.requested_date || "15/07/2024"}</td>
                   </tr>
                   <tr className='border-b border-black'>
-                    <td className='border-r border-black p-2 bg-blue-100 font-semibold'>Location:</td>
-                    <td className='p-2'>{memoData?.location || "Anambra"}</td>
+                    <td className='border-r border-black p-4 bg-blue-100 font-semibold'>Location:</td>
+                    <td className='p-4'>{memoData?.location || "Anambra"}</td>
                   </tr>
                   <tr className='border-b border-black'>
-                    <td className='border-r border-black p-2 bg-blue-100 font-semibold'>Duration:</td>
-                    <td className='p-2'>Q3 (July - September 2024)</td>
+                    <td className='border-r border-black p-4 bg-blue-100 font-semibold'>Duration:</td>
+                    <td className='p-4'>Q3 (July - September 2024)</td>
                   </tr>
                   <tr className='border-b border-black'>
-                    <td className='border-r border-black p-2 bg-blue-100 font-semibold'>FCO #:</td>
-                    <td className='p-2'>{memoData?.fconumber?.[0] || "N-THRIP"}</td>
+                    <td className='border-r border-black p-4 bg-blue-100 font-semibold'>FCO #:</td>
+                    <td className='p-4'>{memoData?.fconumber?.[0] || "N-THRIP"}</td>
                   </tr>
                 </tbody>
               </table>
 
               {/* Budget Information Grid */}
-              <table className='w-full border-collapse text-xs'>
+              <table className='w-full border-collapse text-base'>
                 <tbody>
                   <tr className='border-b border-black'>
-                    <td className='border-r border-black p-2 bg-blue-100 font-semibold w-1/2'>Module: Program management</td>
-                    <td className='p-2 bg-blue-100 font-semibold'>Intervention: Grant management</td>
+                    <td className='border-r border-black p-3 bg-blue-100 font-semibold w-1/2'>Module: {budgetLine?.data?.module_name || memoData?.module || "Program management"}</td>
+                    <td className='p-3 bg-blue-100 font-semibold'>Intervention: {interventionArea?.data?.name || memoData?.intervention_area || "Grant management"}</td>
                   </tr>
                   <tr className='border-b border-black'>
-                    <td className='border-r border-black p-2 bg-blue-100 font-semibold'>Budget Line #: {budgetLine?.data?.name || memoData?.budget_line?.[0] || "916"}</td>
-                    <td className='p-2 bg-blue-100 font-semibold'>Cost Grouping #: {costCategory?.data?.code || memoData?.cost_categories?.[0] || "11"}</td>
+                    <td className='border-r border-black p-3 bg-blue-100 font-semibold'>Budget Line #: {budgetLine?.data?.name || memoData?.budget_line?.[0] || "916"}</td>
+                    <td className='p-3 bg-blue-100 font-semibold'>Cost Grouping #: {costCategory?.data?.code || memoData?.cost_categories?.[0] || "11"}</td>
                   </tr>
                   <tr className='border-b border-black'>
-                    <td className='border-r border-black p-2 bg-blue-100 font-semibold'>Cost Input #: {costInput?.data?.name || memoData?.cost_input?.[0] || "11.1"}</td>
-                    <td className='p-2 bg-blue-100 font-semibold'>Funding Source: Global Fund</td>
+                    <td className='border-r border-black p-3 bg-blue-100 font-semibold'>Cost Input #: {costInput?.data?.name || memoData?.cost_input?.[0] || "11.1"}</td>
+                    <td className='p-3 bg-blue-100 font-semibold'>Funding Source: {memoData?.funding_source || "Global Fund"}</td>
                   </tr>
                 </tbody>
               </table>
 
               {/* Expense Table Header */}
               <div className='bg-orange-200 border-b border-black'>
-                <table className='w-full border-collapse text-xs'>
+                <table className='w-full border-collapse text-sm'>
                   <thead>
                     <tr>
-                      <th className='border-r border-black p-2 font-bold text-left' style={{width: '40%'}}>Description/Item Name</th>
-                      <th className='border-r border-black p-2 font-bold text-center' style={{width: '15%'}}>UOM</th>
-                      <th className='border-r border-black p-2 font-bold text-center' style={{width: '15%'}}>Quantity</th>
-                      <th className='border-r border-black p-2 font-bold text-center' style={{width: '15%'}}>Unit Cost</th>
-                      <th className='p-2 font-bold text-center' style={{width: '15%'}}>Total Cost</th>
+                      <th className='border-r border-black p-3 font-bold text-left' style={{width: '40%'}}>Description/Item Name</th>
+                      <th className='border-r border-black p-3 font-bold text-center' style={{width: '15%'}}>UOM</th>
+                      <th className='border-r border-black p-3 font-bold text-center' style={{width: '15%'}}>Quantity</th>
+                      <th className='border-r border-black p-3 font-bold text-center' style={{width: '15%'}}>Unit Cost</th>
+                      <th className='p-3 font-bold text-center' style={{width: '15%'}}>Total Cost</th>
                     </tr>
                   </thead>
                 </table>
@@ -434,31 +437,31 @@ const Preview = () => {
 
               {/* Currency Header Row */}
               <div className='border-b border-black'>
-                <table className='w-full border-collapse text-xs'>
+                <table className='w-full border-collapse text-sm'>
                   <tbody>
                     <tr>
-                      <td className='border-r border-black p-1' style={{width: '40%'}}></td>
-                      <td className='border-r border-black p-1' style={{width: '15%'}}></td>
-                      <td className='border-r border-black p-1' style={{width: '15%'}}></td>
-                      <td className='border-r border-black p-1 text-center font-bold' style={{width: '15%'}}>₦</td>
-                      <td className='p-1 text-center font-bold' style={{width: '15%'}}>₦</td>
+                      <td className='border-r border-black p-2' style={{width: '40%'}}></td>
+                      <td className='border-r border-black p-2' style={{width: '15%'}}></td>
+                      <td className='border-r border-black p-2' style={{width: '15%'}}></td>
+                      <td className='border-r border-black p-2 text-center font-bold' style={{width: '15%'}}>₦</td>
+                      <td className='p-2 text-center font-bold' style={{width: '15%'}}>₦</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
 
               {/* Expense Rows */}
-              <table className='w-full border-collapse text-xs'>
+              <table className='w-full border-collapse text-sm'>
                 <tbody>
                   {expensesData.map((row: any, index: number) => (
                     <tr key={index} className='border-b border-black'>
-                      <td className='border-r border-black p-2' style={{width: '40%'}}>{row?.item_detail?.name || row?.item || "N/A"}</td>
-                      <td className='border-r border-black p-2 text-center' style={{width: '15%'}}>{row?.item_detail?.uom || row?.uom || "Each"}</td>
-                      <td className='border-r border-black p-2 text-center' style={{width: '15%'}}>{row.quantity || "1"}</td>
-                      <td className='border-r border-black p-2 text-right' style={{width: '15%'}}>
+                      <td className='border-r border-black p-3' style={{width: '40%'}}>{row?.item_detail?.name || row?.item || "N/A"}</td>
+                      <td className='border-r border-black p-3 text-center' style={{width: '15%'}}>{row?.item_detail?.uom || row?.uom || "Each"}</td>
+                      <td className='border-r border-black p-3 text-center' style={{width: '15%'}}>{row.quantity || "1"}</td>
+                      <td className='border-r border-black p-3 text-right' style={{width: '15%'}}>
                         {Number(row.unit_cost || 0).toLocaleString()}
                       </td>
-                      <td className='p-2 text-right' style={{width: '15%'}}>
+                      <td className='p-3 text-right' style={{width: '15%'}}>
                         {Number(row.total_cost || 0).toLocaleString()}.00
                       </td>
                     </tr>
@@ -468,69 +471,69 @@ const Preview = () => {
 
               {/* Overall Total Row */}
               <div className='bg-green-200 border-b border-black'>
-                <table className='w-full border-collapse text-xs'>
+                <table className='w-full border-collapse text-base'>
                   <tbody>
                     <tr>
-                      <td className='p-2 text-center font-bold' style={{width: '85%'}}>OVERALL TOTAL</td>
-                      <td className='p-2 text-right font-bold' style={{width: '15%'}}>₦ {grandTotal?.toLocaleString()}.00</td>
+                      <td className='p-4 text-center font-bold' style={{width: '85%'}}>OVERALL TOTAL</td>
+                      <td className='p-4 text-right font-bold' style={{width: '15%'}}>₦ {grandTotal?.toLocaleString()}.00</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
 
               {/* Signature Section */}
-              <table className='w-full border-collapse text-xs'>
+              <table className='w-full border-collapse text-sm'>
                 <tbody>
                   <tr>
-                    <td className='border-r border-black p-4 align-top' style={{width: '33.33%'}}>
-                      <div className='mb-2'>
-                        <span className='font-bold'>Prepared by: {
+                    <td className='border-r border-black p-6 align-top' style={{width: '33.33%'}}>
+                      <div className='mb-3'>
+                        <span className='font-bold text-base'>Prepared by: {
                           requestsDetails?.created_by_details?.name ||
                           (memoData?.created_by?.first_name && memoData?.created_by?.last_name
                             ? `${memoData.created_by.first_name} ${memoData.created_by.last_name}`
                             : 'Request Creator')
                         }</span>
                       </div>
-                      <div className='mb-2'>
-                        <span className='font-bold'>Sign:</span>
-                        <div className='h-12 mt-2'></div>
+                      <div className='mb-3'>
+                        <span className='font-bold text-base'>Sign:</span>
+                        <div className='h-16 mt-3'></div>
                       </div>
                       <div>
-                        <span className='font-bold'>Date: {memoData?.requested_date || new Date().toLocaleDateString()}</span>
+                        <span className='font-bold text-base'>Date: {memoData?.requested_date || new Date().toLocaleDateString()}</span>
                       </div>
                     </td>
-                    <td className='border-r border-black p-4 align-top' style={{width: '33.33%'}}>
-                      <div className='mb-2'>
-                        <span className='font-bold'>Reviewed by: {
-                          requestsDetails?.through_details?.[0]?.name ||
-                          (requestsDetails?.through_details?.[0]?.first_name && requestsDetails?.through_details?.[0]?.last_name
-                            ? `${requestsDetails.through_details[0].first_name} ${requestsDetails.through_details[0].last_name}`
+                    <td className='border-r border-black p-6 align-top' style={{width: '33.33%'}}>
+                      <div className='mb-3'>
+                        <span className='font-bold text-base'>Reviewed by: {
+                          requestsDetails?.copy_details?.[0]?.name ||
+                          (requestsDetails?.copy_details?.[0]?.first_name && requestsDetails?.copy_details?.[0]?.last_name
+                            ? `${requestsDetails.copy_details[0].first_name} ${requestsDetails.copy_details[0].last_name}`
                             : 'Reviewer')
                         }</span>
                       </div>
-                      <div className='mb-2'>
-                        <span className='font-bold'>Sign:</span>
-                        <div className='h-12 mt-2'></div>
+                      <div className='mb-3'>
+                        <span className='font-bold text-base'>Sign:</span>
+                        <div className='h-16 mt-3'></div>
                       </div>
                       <div>
-                        <span className='font-bold'>Date: {new Date().toLocaleDateString()}</span>
+                        <span className='font-bold text-base'>Date: {new Date().toLocaleDateString()}</span>
                       </div>
                     </td>
-                    <td className='p-4 align-top' style={{width: '33.33%'}}>
-                      <div className='mb-2'>
-                        <span className='font-bold'>Approved by: {
+                    <td className='p-6 align-top' style={{width: '33.33%'}}>
+                      <div className='mb-3'>
+                        <span className='font-bold text-base'>Approved by: {
                           requestsDetails?.approved_by_details?.name ||
                           (memoData?.approved_by?.first_name && memoData?.approved_by?.last_name
                             ? `${memoData.approved_by.first_name} ${memoData.approved_by.last_name}`
                             : 'Approver')
                         }</span>
                       </div>
-                      <div className='mb-2'>
-                        <span className='font-bold'>Sign:</span>
-                        <div className='h-12 mt-2'></div>
+                      <div className='mb-3'>
+                        <span className='font-bold text-base'>Sign:</span>
+                        <div className='h-16 mt-3'></div>
                       </div>
                       <div>
-                        <span className='font-bold'>Date: {new Date().toLocaleDateString()}</span>
+                        <span className='font-bold text-base'>Date: {new Date().toLocaleDateString()}</span>
                       </div>
                     </td>
                   </tr>
