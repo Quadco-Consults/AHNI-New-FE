@@ -107,9 +107,12 @@ const RFQDetails = () => {
         <TabsList>
           <TabsTrigger value="rfq-details">RFQ Details</TabsTrigger>
           <TabsTrigger value="vendor-submission">Vendor Submission</TabsTrigger>
-          <TabsTrigger value="vendor-submission-evaluation">
-            Vendor Submission Evaluation
-          </TabsTrigger>
+          {/* Only show vendor submission evaluation tab for EOI national open tenders */}
+          {isFromEOI && (
+            <TabsTrigger value="vendor-submission-evaluation">
+              Vendor Submission Evaluation
+            </TabsTrigger>
+          )}
         </TabsList>
         <TabsContent value="rfq-details">
           {data && <DetailsContent {...data?.data} />}
@@ -119,9 +122,12 @@ const RFQDetails = () => {
           {data && <VendorSubmission {...data?.data} />}
         </TabsContent>
 
-        <TabsContent value="vendor-submission-evaluation">
-          <SummaryOfTechnicalPrequalification solicitationId={id as string} />
-        </TabsContent>
+        {/* Only render vendor submission evaluation content for EOI national open tenders */}
+        {isFromEOI && (
+          <TabsContent value="vendor-submission-evaluation">
+            <SummaryOfTechnicalPrequalification solicitationId={id as string} />
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );
