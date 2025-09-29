@@ -44,6 +44,17 @@ export interface ActivityMemo {
   budget_line: string[];
   cost_categories: string[];
   fconumber: string[];
+  fconumber_details?: Array<{
+    id: string;
+    module_code?: string;
+    code?: string;
+    name?: string;
+  }>;
+  activity_detail?: {
+    id: string;
+    code?: string;
+    name?: string;
+  };
   cost_input: string[];
   intervention_areas: string[];
   funding_source: string[];

@@ -212,7 +212,7 @@ export const RouteEnum = {
   CREATE_PURCHASE_REQUEST: "/dashboard/procurement/purchase-request/create",
   EDIT_PURCHASE_REQUEST: "/dashboard/procurement/purchase-request/:id/edit",
   CREATE_SAMPLE_MEMO: "/dashboard/procurement/purchase-request/activity-memo",
-  SAMPLE_PREVIEW: "/dashboard/procurement/purchase-request/sample-preview",
+  // SAMPLE_PREVIEW: "/dashboard/procurement/purchase-request/sample-preview", // Deprecated - use details page instead
   PREVIEW_LETTER: "/dashboard/procurement/purchase-request/preview-letter",
   FINAL_PREVIEW: "/dashboard/procurement/purchase-request/final-preview",
 
