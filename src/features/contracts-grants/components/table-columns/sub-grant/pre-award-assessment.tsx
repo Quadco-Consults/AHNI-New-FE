@@ -101,6 +101,18 @@ const TableMenu = ({
                         </Link>
 
                         <Link
+                            href={`/dashboard/c-and-g/sub-grant/awards/submission/${partnerSubId}/preaward-assessment`}
+                        >
+                            <Button
+                                className="w-full flex items-center justify-start gap-2"
+                                variant="ghost"
+                            >
+                                <PencilIcon />
+                                Conduct Assessment
+                            </Button>
+                        </Link>
+
+                        <Link
                             href={`/dashboard/c-and-g/sub-grant/awards/submission/create?partnerSubId=${partnerSubId}`}
                         >
                             <Button

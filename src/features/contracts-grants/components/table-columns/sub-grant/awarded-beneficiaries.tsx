@@ -16,6 +16,16 @@ import { useDeleteSubGrant } from "@/features/contracts-grants/controllers/subGr
 import ConfirmationDialog from "components/ConfirmationDialog";
 import { formatNumberCurrency } from "utils/utls";
 
+const generatePath = (route: string, params?: Record<string, any>): string => {
+  let path = route;
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      path = path.replace(`:${key}`, String(value));
+    });
+  }
+  return path;
+};
+
 export const awardedBeneficiariesColumn: ColumnDef<ISubGrantPaginatedData>[] = [
     {
         header: "Grant Name",
