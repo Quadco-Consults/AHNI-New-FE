@@ -54,6 +54,7 @@ const BASE_URL = "/contract-grants/sub-grants/assessments/";
 // ===== ASSESSMENT CRITERIA HOOKS =====
 
 // Get Assessment Criteria (using existing pre-award questions)
+// Note: Disabled because /contracts-grants/pre-award-questions/ endpoint doesn't exist
 export const useGetAssessmentCriteria = (enabled: boolean = true) => {
   return useQuery<{status: boolean; data: PreAwardQuestionData[]}>({
     queryKey: ["assessmentCriteria"],
@@ -66,7 +67,7 @@ export const useGetAssessmentCriteria = (enabled: boolean = true) => {
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
-    enabled: enabled,
+    enabled: false, // Disabled: endpoint doesn't exist
     refetchOnWindowFocus: false,
   });
 };

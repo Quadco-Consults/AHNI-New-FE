@@ -10,9 +10,11 @@ import { Label } from "components/ui/label";
 import { RadioGroup, RadioGroupItem } from "components/ui/radio-group";
 import { Textarea } from "components/ui/textarea";
 import { toast } from "sonner";
-import { FileCheck, Save } from "lucide-react";
-import { useCreateAssessment } from "@/features/contracts-grants/controllers/preAwardAssessmentController";
+import { FileCheck, Save, Award } from "lucide-react";
+import { useStartAssessment, useUpdateAssessment } from "@/features/contracts-grants/controllers/preAwardAssessmentController";
+import { useGetSingleSubGrantSubmission } from "@/features/contracts-grants/controllers/submissionController";
 import { technicalCapacityQuestions, financialPreAwardQuestions } from "./questions";
+import { Loading } from "components/Loading";
 
 interface Answer {
     answer: "yes" | "no" | "";
@@ -27,11 +29,16 @@ export default function PreAwardAssessment() {
     const assessmentType = searchParams?.get("type") || "technical";
 
     const [answers, setAnswers] = useState<Record<string, Answer>>({});
-    const { createAssessment, isLoading } = useCreateAssessment();
+    const { startAssessment, isLoading: isCreating } = useStartAssessment();
+    const { data: submissionData, isLoading: isLoadingSubmission } = useGetSingleSubGrantSubmission(submissionId);
 
     const questions = assessmentType === "technical"
         ? technicalCapacityQuestions
         : financialPreAwardQuestions;
+
+    if (isLoadingSubmission) {
+        return <Loading />;
+    }
 
     const handleAnswerChange = (questionId: string, field: "answer" | "keyFindings", value: string) => {
         setAnswers(prev => ({
@@ -46,7 +53,15 @@ export default function PreAwardAssessment() {
     const handleSubmit = async () => {
         // Validate all questions are answered
         const unansweredQuestions = questions.forms.flatMap(form =>
-            form.questions.filter(q => !answers[q.id]?.answer)
+            form.questions.filter(q => {
+                const answer = answers[q.id];
+                // For text type questions, check if answer exists
+                if (q.options.type === "text") {
+                    return !answer?.keyFindings?.trim();
+                }
+                // For boolean questions, check if yes/no is selected
+                return !answer?.answer;
+            })
         );
 
         if (unansweredQuestions.length > 0) {
@@ -55,30 +70,21 @@ export default function PreAwardAssessment() {
         }
 
         try {
-            // Transform answers to API format
-            const assessmentData = {
-                rating_scale: questions.rating_scale,
-                forms: questions.forms.map(form => ({
-                    category_name: form.category_name,
-                    category_description: form.category_description,
-                    questions: form.questions.map(q => ({
-                        question: q.question,
-                        answer: {
-                            text: answers[q.id]?.keyFindings || "",
-                            rating_type: answers[q.id]?.answer === "yes" ? q.options.yesRating : q.options.noRating,
-                            boolean: answers[q.id]?.answer === "yes"
-                        },
-                        requires_explanation: q.requires_explanation
-                    }))
-                }))
-            };
+            // Get partner ID from submission data
+            const partnerId = submissionData?.data?.partner?.id || submissionData?.data?.partner;
 
-            await createAssessment({
-                submission: submissionId,
-                assessment_data: assessmentData
-            });
+            console.log("Full submission data:", submissionData);
+            console.log("Extracted partner ID:", partnerId);
 
-            toast.success("Assessment submitted successfully!");
+            if (!partnerId) {
+                toast.error("Partner information not found. Cannot submit assessment.");
+                return;
+            }
+
+            // Use the /start endpoint to create the assessment with default template
+            await startAssessment(submissionId, partnerId);
+
+            toast.success(`${assessmentType === "technical" ? "Technical Capacity" : "Financial Pre-Award"} Assessment submitted successfully!`);
             router.back();
         } catch (error: any) {
             toast.error(error?.message || "Failed to submit assessment");
@@ -90,11 +96,39 @@ export default function PreAwardAssessment() {
             <div className="flex items-center justify-between">
                 <BackNavigation />
                 <div className="flex items-center gap-4">
-                    <span className="text-sm font-medium text-gray-600">
-                        {assessmentType === "technical" ? "Technical Capacity" : "Financial Pre-Award (PAT)"} Assessment
-                    </span>
+                    {assessmentType === "technical" ? (
+                        <div className="flex items-center gap-2">
+                            <FileCheck className="text-blue-600" size={20} />
+                            <span className="text-lg font-semibold text-blue-700">
+                                Technical Capacity Assessment
+                            </span>
+                        </div>
+                    ) : (
+                        <div className="flex items-center gap-2">
+                            <Award className="text-green-600" size={20} />
+                            <span className="text-lg font-semibold text-green-700">
+                                Financial Pre-Award Assessment (PAT)
+                            </span>
+                        </div>
+                    )}
                 </div>
             </div>
+
+            {/* Submission Info Card */}
+            <Card className={assessmentType === "technical" ? "bg-blue-50 border-blue-200" : "bg-green-50 border-green-200"}>
+                <div>
+                    <label className={`text-sm font-medium ${assessmentType === "technical" ? "text-blue-800" : "text-green-800"}`}>
+                        Organization Name
+                    </label>
+                    <p className="text-lg font-semibold text-gray-800 mt-1">
+                        {submissionData?.data?.organisation_name || "N/A"}
+                    </p>
+                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+                        <span>Type: <span className="font-medium">{submissionData?.data?.organisation_type?.replace(/_/g, ' ') || "N/A"}</span></span>
+                        <span>Submission ID: <span className="font-medium">{submissionId}</span></span>
+                    </div>
+                </div>
+            </Card>
 
             {questions.forms.map((form, formIndex) => (
                 <Card key={formIndex} className="space-y-6">
@@ -208,7 +242,7 @@ export default function PreAwardAssessment() {
                     variant="outline"
                     size="lg"
                     onClick={() => router.back()}
-                    disabled={isLoading}
+                    disabled={isCreating}
                 >
                     Cancel
                 </Button>
@@ -216,11 +250,11 @@ export default function PreAwardAssessment() {
                 <Button
                     size="lg"
                     onClick={handleSubmit}
-                    disabled={isLoading}
-                    className="bg-green-600 hover:bg-green-700"
+                    disabled={isCreating}
+                    className={assessmentType === "technical" ? "bg-blue-600 hover:bg-blue-700" : "bg-green-600 hover:bg-green-700"}
                 >
                     <Save size={16} className="mr-2" />
-                    {isLoading ? "Submitting..." : "Submit Assessment"}
+                    {isCreating ? "Submitting..." : `Submit ${assessmentType === "technical" ? "Technical" : "Financial"} Assessment`}
                 </Button>
             </div>
         </section>
