@@ -164,15 +164,15 @@ const Preview = () => {
   console.log({ expense: expensesData });
 
   return (
-    <div className='bg-white p-6 max-w-7xl mx-auto'>
+    <div className='bg-white p-6 max-w-7xl mx-auto print:p-0 print:max-w-full'>
       {/* Back Button */}
-      <div className='mb-6'>
+      <div className='mb-6 print:hidden'>
         <GoBack />
       </div>
 
-      <section className='min-h-screen space-y-8'>
+      <section className='min-h-screen space-y-8 print:space-y-6 print:min-h-0'>
         {/* Stage Navigation */}
-        <div className='flex w-full items-center justify-between gap-6 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-200 shadow-sm'>
+        <div className='flex w-full items-center justify-between gap-6 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-200 shadow-sm print:hidden'>
           <div className='flex items-center gap-4'>
             <div className='flex items-center gap-3'>
               <div className={`w-10 h-10 rounded-full flex items-center justify-center text-base font-semibold ${
@@ -243,74 +243,74 @@ const Preview = () => {
         {currentStage === 1 && (
           <>
             {/* Memo Header */}
-            <div className='bg-white border border-gray-200 rounded-lg p-8'>
+            <div className='bg-white border border-gray-200 rounded-lg p-12 page-break-avoid print:p-8 print:border-0'>
               {/* Logo and Title */}
-              <div className='flex items-center justify-between mb-8'>
-                <img src={(logoPng as any).src || logoPng} alt='logo' width={120} />
+              <div className='flex items-center justify-between mb-10 print:mb-6'>
+                <img src={(logoPng as any).src || logoPng} alt='logo' width={140} className='print:w-32' />
                 <div className='flex-1 text-center'>
-                  <h2 className='text-2xl font-bold text-gray-900 border-b-2 border-black pb-2 inline-block'>Internal Memo</h2>
+                  <h2 className='text-3xl font-bold text-gray-900 border-b-2 border-black pb-2 inline-block print:text-2xl'>Internal Memo</h2>
                 </div>
-                <div className='w-30'></div> {/* Spacer for balance */}
+                <div className='w-35'></div> {/* Spacer for balance */}
               </div>
 
               {/* Memo Header Information */}
-              <div className='space-y-3 mb-6'>
+              <div className='space-y-5 mb-8 print:space-y-4 print:mb-6'>
                 {/* To */}
-                <div className='flex'>
-                  <span className='font-bold w-20 text-base'>To:</span>
+                <div className='flex gap-2'>
+                  <span className='font-bold min-w-[100px] text-lg print:text-base'>To:</span>
                   <div className='flex-1'>
                     {/* Display approved_by (primary recipient) */}
                     {requestsDetails?.approved_by_details?.name ? (
-                      <div className='text-base'>{requestsDetails.approved_by_details.name} (MD, AHNi) <span className='ml-20 text-sm text-gray-600'>{memoData?.requested_date || new Date().toLocaleDateString()}</span></div>
+                      <div className='text-lg leading-relaxed print:text-base'>{requestsDetails.approved_by_details.name} (MD, AHNi)</div>
                     ) : (
-                      <div className='text-base'>Dr. Umar Adamu (MD, AHNi) <span className='ml-20 text-sm text-gray-600'>{memoData?.requested_date || new Date().toLocaleDateString()}</span></div>
+                      <div className='text-lg leading-relaxed print:text-base'>Dr. Umar Adamu (MD, AHNi)</div>
                     )}
 
                     {/* Display any additional recipients */}
                     {requestsDetails?.copy_details?.map((user: any, index: number) => (
-                      <div key={index} className='text-sm text-gray-600 mt-1'>
-                        {user.name || `${user.first_name} ${user.last_name}`} ({user.designation || 'Staff'}), {memoData?.requested_date || new Date().toLocaleDateString()}
+                      <div key={index} className='text-base text-gray-700 mt-2 print:text-sm'>
+                        {user.name || `${user.first_name} ${user.last_name}`} ({user.designation || 'Staff'})
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {/* Through */}
-                <div className='flex'>
-                  <span className='font-bold w-20 text-base'>Through:</span>
-                  <div className='flex-1'>
+                <div className='flex gap-2'>
+                  <span className='font-bold min-w-[100px] text-lg print:text-base'>Through:</span>
+                  <div className='flex-1 space-y-2'>
                     {/* Display selected "through" users (Authoriser) */}
                     {requestsDetails?.through_details?.length > 0 ? (
                       requestsDetails.through_details.map((user: any, index: number) => (
-                        <div key={index} className='text-base'>
-                          {user.name || `${user.first_name} ${user.last_name}`} ({user.designation || 'Staff'}, AHNi, Abuja) <span className='ml-8 text-sm text-gray-600'>{memoData?.requested_date || new Date().toLocaleDateString()}</span>
+                        <div key={index} className='text-lg leading-relaxed print:text-base'>
+                          {user.name || `${user.first_name} ${user.last_name}`} ({user.designation || 'Staff'}, AHNi, Abuja)
                         </div>
                       ))
                     ) : (
                       <>
-                        <div className='text-base'>Charles Ibezim (Director of Finance, AHNi, Abuja) <span className='ml-8 text-sm text-gray-600'>{memoData?.requested_date || new Date().toLocaleDateString()}</span></div>
-                        <div className='text-base'>Tine Woji (Project Lead, Global Fund, Abuja) <span className='ml-16 text-sm text-gray-600'>{memoData?.requested_date || new Date().toLocaleDateString()}</span></div>
+                        <div className='text-lg leading-relaxed print:text-base'>Charles Ibezim (Director of Finance, AHNi, Abuja)</div>
+                        <div className='text-lg leading-relaxed print:text-base'>Tine Woji (Project Lead, Global Fund, Abuja)</div>
                       </>
                     )}
                   </div>
                 </div>
 
                 {/* From */}
-                <div className='flex'>
-                  <span className='font-bold w-20 text-base'>From:</span>
+                <div className='flex gap-2'>
+                  <span className='font-bold min-w-[100px] text-lg print:text-base'>From:</span>
                   <div className='flex-1'>
-                    <div className='text-base'>
+                    <div className='text-lg leading-relaxed print:text-base'>
                       {requestsDetails?.created_by_details?.name ||
                        (memoData?.created_by?.first_name && memoData?.created_by?.last_name
                          ? `${memoData.created_by.first_name} ${memoData.created_by.last_name}`
-                         : 'Dr Onyeka Ugwu')} (STA, CCF, AHNI) <span className='ml-20 text-sm text-gray-600'>{memoData?.requested_date || new Date().toLocaleDateString()}</span>
+                         : 'Dr Onyeka Ugwu')} (STA, CCF, AHNI)
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Budget Information */}
-              <div className='grid grid-cols-2 gap-8 mb-6 text-sm'>
+              <div className='grid grid-cols-2 gap-10 mb-8 mt-8 text-base print:gap-8 print:mb-6 print:mt-6 print:text-sm'>
                 <div className='space-y-2'>
                   <div><span className='font-semibold'>Budget Line #:</span> {budgetLine?.data?.name || memoData?.budget_line?.[0] || "916"}</div>
                   <div><span className='font-semibold'>Module:</span> {budgetLine?.data?.module_name || memoData?.module || "Program management"}</div>
@@ -325,17 +325,17 @@ const Preview = () => {
               </div>
 
               {/* Date */}
-              <div className='mb-6'>
-                <span className='font-semibold text-base'>Date:</span> <span className='text-base'>{memoData?.requested_date || "15/07/2024"}</span>
+              <div className='mb-6 print:mb-4'>
+                <span className='font-semibold text-lg print:text-base'>Date:</span> <span className='text-lg print:text-base ml-2'>{memoData?.requested_date || "15/07/2024"}</span>
               </div>
 
               {/* Subject */}
-              <div className='mb-6'>
-                <div className='font-semibold text-base'>Subject: <span className='font-normal'>{memoData?.subject || "Activity Memo Request"}</span></div>
+              <div className='mb-8 print:mb-6'>
+                <div className='font-semibold text-lg print:text-base'>Subject: <span className='font-normal'>{memoData?.subject || "Activity Memo Request"}</span></div>
               </div>
 
               {/* Memo Content */}
-              <div className='space-y-4 mb-8 text-justify leading-relaxed text-base'>
+              <div className='space-y-6 mb-10 text-justify leading-loose text-lg print:space-y-4 print:mb-8 print:leading-relaxed print:text-base'>
                 {memoData?.comment ? (
                   <div dangerouslySetInnerHTML={{ __html: memoData.comment.replace(/\n/g, '<br />') }} />
                 ) : (
@@ -367,69 +367,69 @@ const Preview = () => {
         {currentStage === 2 && (
           <>
             {/* Complete Document Structure with borders */}
-            <div className='bg-white border-2 border-black rounded-lg overflow-hidden'>
+            <div className='bg-white border-2 border-black rounded-lg overflow-hidden print:border print:rounded-none'>
               {/* Logo Header */}
-              <div className='border-b border-black p-4 bg-white'>
-                <img src={(logoPng as any).src || logoPng} alt='logo' width={120} />
+              <div className='border-b border-black p-6 bg-white print:p-4'>
+                <img src={(logoPng as any).src || logoPng} alt='logo' width={140} className='print:w-32' />
               </div>
 
               {/* Activity Header */}
-              <div className='border-b border-black p-3 bg-blue-200'>
-                <div className='font-bold text-base'>
+              <div className='border-b border-black p-4 bg-blue-200 print:p-3'>
+                <div className='font-bold text-lg print:text-base'>
                   Activity: {memoData?.subject || "9.2.2 Anambra State Office Admin Cost Q3(July - September 2024)"}
                 </div>
               </div>
 
               {/* Request Details Table */}
-              <table className='w-full border-collapse text-base'>
+              <table className='w-full border-collapse text-lg print:text-base'>
                 <tbody>
                   <tr className='border-b border-black'>
-                    <td className='border-r border-black p-4 bg-blue-100 font-semibold w-1/4'>Request Date:</td>
-                    <td className='p-4'>{memoData?.requested_date || "15/07/2024"}</td>
+                    <td className='border-r border-black p-5 bg-blue-100 font-semibold w-1/4 print:p-3'>Request Date:</td>
+                    <td className='p-5 print:p-3'>{memoData?.requested_date || "15/07/2024"}</td>
                   </tr>
                   <tr className='border-b border-black'>
-                    <td className='border-r border-black p-4 bg-blue-100 font-semibold'>Location:</td>
-                    <td className='p-4'>{memoData?.location || "Anambra"}</td>
+                    <td className='border-r border-black p-5 bg-blue-100 font-semibold print:p-3'>Location:</td>
+                    <td className='p-5 print:p-3'>{memoData?.location || "Anambra"}</td>
                   </tr>
                   <tr className='border-b border-black'>
-                    <td className='border-r border-black p-4 bg-blue-100 font-semibold'>Duration:</td>
-                    <td className='p-4'>Q3 (July - September 2024)</td>
+                    <td className='border-r border-black p-5 bg-blue-100 font-semibold print:p-3'>Duration:</td>
+                    <td className='p-5 print:p-3'>Q3 (July - September 2024)</td>
                   </tr>
                   <tr className='border-b border-black'>
-                    <td className='border-r border-black p-4 bg-blue-100 font-semibold'>FCO #:</td>
-                    <td className='p-4'>{memoData?.fconumber?.[0] || "N-THRIP"}</td>
+                    <td className='border-r border-black p-5 bg-blue-100 font-semibold print:p-3'>FCO #:</td>
+                    <td className='p-5 print:p-3'>{memoData?.fconumber?.[0] || "N-THRIP"}</td>
                   </tr>
                 </tbody>
               </table>
 
               {/* Budget Information Grid */}
-              <table className='w-full border-collapse text-base'>
+              <table className='w-full border-collapse text-base print:text-sm'>
                 <tbody>
                   <tr className='border-b border-black'>
-                    <td className='border-r border-black p-3 bg-blue-100 font-semibold w-1/2'>Module: {budgetLine?.data?.module_name || memoData?.module || "Program management"}</td>
-                    <td className='p-3 bg-blue-100 font-semibold'>Intervention: {interventionArea?.data?.name || memoData?.intervention_area || "Grant management"}</td>
+                    <td className='border-r border-black p-4 bg-blue-100 font-semibold w-1/2 print:p-3'>Module: {budgetLine?.data?.module_name || memoData?.module || "Program management"}</td>
+                    <td className='p-4 bg-blue-100 font-semibold print:p-3'>Intervention: {interventionArea?.data?.name || memoData?.intervention_area || "Grant management"}</td>
                   </tr>
                   <tr className='border-b border-black'>
-                    <td className='border-r border-black p-3 bg-blue-100 font-semibold'>Budget Line #: {budgetLine?.data?.name || memoData?.budget_line?.[0] || "916"}</td>
-                    <td className='p-3 bg-blue-100 font-semibold'>Cost Grouping #: {costCategory?.data?.code || memoData?.cost_categories?.[0] || "11"}</td>
+                    <td className='border-r border-black p-4 bg-blue-100 font-semibold print:p-3'>Budget Line #: {budgetLine?.data?.name || memoData?.budget_line?.[0] || "916"}</td>
+                    <td className='p-4 bg-blue-100 font-semibold print:p-3'>Cost Grouping #: {costCategory?.data?.code || memoData?.cost_categories?.[0] || "11"}</td>
                   </tr>
                   <tr className='border-b border-black'>
-                    <td className='border-r border-black p-3 bg-blue-100 font-semibold'>Cost Input #: {costInput?.data?.name || memoData?.cost_input?.[0] || "11.1"}</td>
-                    <td className='p-3 bg-blue-100 font-semibold'>Funding Source: {memoData?.funding_source || "Global Fund"}</td>
+                    <td className='border-r border-black p-4 bg-blue-100 font-semibold print:p-3'>Cost Input #: {costInput?.data?.name || memoData?.cost_input?.[0] || "11.1"}</td>
+                    <td className='p-4 bg-blue-100 font-semibold print:p-3'>Funding Source: {memoData?.funding_source || "Global Fund"}</td>
                   </tr>
                 </tbody>
               </table>
 
               {/* Expense Table Header */}
               <div className='bg-orange-200 border-b border-black'>
-                <table className='w-full border-collapse text-sm'>
+                <table className='w-full border-collapse text-base print:text-sm'>
                   <thead>
                     <tr>
-                      <th className='border-r border-black p-3 font-bold text-left' style={{width: '40%'}}>Description/Item Name</th>
-                      <th className='border-r border-black p-3 font-bold text-center' style={{width: '15%'}}>UOM</th>
-                      <th className='border-r border-black p-3 font-bold text-center' style={{width: '15%'}}>Quantity</th>
-                      <th className='border-r border-black p-3 font-bold text-center' style={{width: '15%'}}>Unit Cost</th>
-                      <th className='p-3 font-bold text-center' style={{width: '15%'}}>Total Cost</th>
+                      <th className='border-r border-black p-4 font-bold text-left print:p-3' style={{width: '40%'}}>Description/Item Name</th>
+                      <th className='border-r border-black p-4 font-bold text-center print:p-3' style={{width: '15%'}}>UOM</th>
+                      <th className='border-r border-black p-4 font-bold text-center print:p-3' style={{width: '15%'}}>Quantity</th>
+                      <th className='border-r border-black p-4 font-bold text-center print:p-3' style={{width: '15%'}}>Unit Cost</th>
+                      <th className='p-4 font-bold text-center print:p-3' style={{width: '15%'}}>Total Cost</th>
                     </tr>
                   </thead>
                 </table>
@@ -437,31 +437,31 @@ const Preview = () => {
 
               {/* Currency Header Row */}
               <div className='border-b border-black'>
-                <table className='w-full border-collapse text-sm'>
+                <table className='w-full border-collapse text-base print:text-sm'>
                   <tbody>
                     <tr>
-                      <td className='border-r border-black p-2' style={{width: '40%'}}></td>
-                      <td className='border-r border-black p-2' style={{width: '15%'}}></td>
-                      <td className='border-r border-black p-2' style={{width: '15%'}}></td>
-                      <td className='border-r border-black p-2 text-center font-bold' style={{width: '15%'}}>₦</td>
-                      <td className='p-2 text-center font-bold' style={{width: '15%'}}>₦</td>
+                      <td className='border-r border-black p-3 print:p-2' style={{width: '40%'}}></td>
+                      <td className='border-r border-black p-3 print:p-2' style={{width: '15%'}}></td>
+                      <td className='border-r border-black p-3 print:p-2' style={{width: '15%'}}></td>
+                      <td className='border-r border-black p-3 text-center font-bold print:p-2' style={{width: '15%'}}>₦</td>
+                      <td className='p-3 text-center font-bold print:p-2' style={{width: '15%'}}>₦</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
 
               {/* Expense Rows */}
-              <table className='w-full border-collapse text-sm'>
+              <table className='w-full border-collapse text-base print:text-sm'>
                 <tbody>
                   {expensesData.map((row: any, index: number) => (
                     <tr key={index} className='border-b border-black'>
-                      <td className='border-r border-black p-3' style={{width: '40%'}}>{row?.item_detail?.name || row?.item || "N/A"}</td>
-                      <td className='border-r border-black p-3 text-center' style={{width: '15%'}}>{row?.item_detail?.uom || row?.uom || "Each"}</td>
-                      <td className='border-r border-black p-3 text-center' style={{width: '15%'}}>{row.quantity || "1"}</td>
-                      <td className='border-r border-black p-3 text-right' style={{width: '15%'}}>
+                      <td className='border-r border-black p-4 print:p-2' style={{width: '40%'}}>{row?.item_detail?.name || row?.item || "N/A"}</td>
+                      <td className='border-r border-black p-4 text-center print:p-2' style={{width: '15%'}}>{row?.item_detail?.uom || row?.uom || "Each"}</td>
+                      <td className='border-r border-black p-4 text-center print:p-2' style={{width: '15%'}}>{row.quantity || "1"}</td>
+                      <td className='border-r border-black p-4 text-right print:p-2' style={{width: '15%'}}>
                         {Number(row.unit_cost || 0).toLocaleString()}
                       </td>
-                      <td className='p-3 text-right' style={{width: '15%'}}>
+                      <td className='p-4 text-right print:p-2' style={{width: '15%'}}>
                         {Number(row.total_cost || 0).toLocaleString()}.00
                       </td>
                     </tr>
@@ -471,11 +471,11 @@ const Preview = () => {
 
               {/* Overall Total Row */}
               <div className='bg-green-200 border-b border-black'>
-                <table className='w-full border-collapse text-base'>
+                <table className='w-full border-collapse text-lg print:text-base'>
                   <tbody>
                     <tr>
-                      <td className='p-4 text-center font-bold' style={{width: '85%'}}>OVERALL TOTAL</td>
-                      <td className='p-4 text-right font-bold' style={{width: '15%'}}>₦ {grandTotal?.toLocaleString()}.00</td>
+                      <td className='p-5 text-center font-bold print:p-3' style={{width: '85%'}}>OVERALL TOTAL</td>
+                      <td className='p-5 text-right font-bold print:p-3' style={{width: '15%'}}>₦ {grandTotal?.toLocaleString()}.00</td>
                     </tr>
                   </tbody>
                 </table>

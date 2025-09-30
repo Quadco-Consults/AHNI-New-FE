@@ -106,3 +106,145 @@ input {
 input:checked {
   border: 6px solid hsl(var(--primary));
 }
+
+/* Print styles for PDF generation */
+@media print {
+  /* Page setup */
+  @page {
+    size: A4 portrait;
+    margin: 1cm;
+  }
+
+  * {
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  html, body {
+    width: 210mm;
+    height: 297mm;
+    margin: 0;
+    padding: 0;
+    font-size: 12pt;
+  }
+
+  body {
+    background: white;
+  }
+
+  /* Hide non-printable elements */
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Main container adjustments */
+  section {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* Remove shadows and backgrounds from cards */
+  div {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  /* Page breaks */
+  .page-break {
+    page-break-after: always;
+    break-after: always;
+  }
+
+  /* Prevent page breaks inside elements */
+  .page-break-avoid {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Table styles for expense breakdown */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    page-break-inside: auto;
+    font-size: 10pt;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  table td,
+  table th {
+    border: 1px solid #000 !important;
+    padding: 4pt 6pt !important;
+  }
+
+  /* Preserve background colors */
+  .bg-blue-50,
+  .bg-blue-100,
+  .bg-blue-200,
+  .bg-orange-200,
+  .bg-green-200,
+  .bg-gray-50 {
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+
+  /* Adjust font sizes for print */
+  h1 {
+    font-size: 18pt;
+  }
+
+  h2 {
+    font-size: 16pt;
+  }
+
+  h3 {
+    font-size: 14pt;
+  }
+
+  h4 {
+    font-size: 12pt;
+  }
+
+  p, div, span {
+    font-size: 11pt;
+  }
+
+  /* Ensure images fit properly */
+  img {
+    max-width: 100%;
+    page-break-inside: avoid;
+  }
+
+  /* Remove padding from printable containers */
+  .bg-white.p-6 {
+    padding: 0 !important;
+  }
+
+  /* Optimize spacing for print */
+  .space-y-8 > * + * {
+    margin-top: 1rem !important;
+  }
+
+  .space-y-6 > * + * {
+    margin-top: 0.75rem !important;
+  }
+
+  /* Border adjustments */
+  .border-2 {
+    border-width: 1pt !important;
+  }
+
+  .border {
+    border-width: 0.5pt !important;
+  }
+}

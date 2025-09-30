@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Loading } from "components/Loading";
 import GoBack from "components/GoBack";
@@ -12,6 +12,7 @@ import { Input } from "components/ui/input";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import { useGetSolicitationSubmission, useGetVendorBidSubmissions } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface VendorItem {
   id: string;
@@ -60,6 +61,8 @@ interface SelectedItem {
 const VendorBidAnalysis = () => {
   const { id } = useParams() as { id: string };
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const cbaId = searchParams?.get('cba') || id;
   const solicitationId = searchParams?.get('id');
 
@@ -78,32 +81,31 @@ const VendorBidAnalysis = () => {
   // Get CBA data to show assignee information
   const { data: cbaData, isLoading: cbaLoading } = CbaAPI.useGetSingleCba(cbaId as string);
 
-  // Get vendor submission data for the current solicitation (temporarily disabled to prevent auth errors)
+  // Get vendor submission data for the current solicitation
   const { data: submissionData, isLoading: submissionLoading, error: submissionError } = useGetSolicitationSubmission(
     solicitationId || "",
-    false // Disabled to prevent HTTP undefined error
+    !!solicitationId // Enable when solicitation ID is available
   );
 
-  // Also try to get all vendor bid submissions as fallback (temporarily disabled)
+  // Also try to get all vendor bid submissions as fallback
   const { data: allBidData, isLoading: allBidLoading, error: allBidError } = useGetVendorBidSubmissions({
     page: 1,
     size: 100,
-    enabled: false // Disabled to prevent HTTP undefined error
+    enabled: !!solicitationId // Enable when solicitation ID is available
   });
 
   // Additional debug logging with error handling
   useEffect(() => {
-    console.log("🔧 CBA Analysis Debug Info (APIs temporarily disabled):", {
+    console.log("🔧 CBA Analysis Debug Info:", {
       cbaId,
       solicitationId,
-      cbaData: "DISABLED",
-      submissionData: "DISABLED",
-      submissionResults: "DISABLED",
-      submissionCount: 0,
+      cbaData: cbaData?.data,
+      submissionData,
+      submissionResults: (submissionData as any)?.data?.data?.results || (submissionData as any)?.data?.results,
+      submissionCount: ((submissionData as any)?.data?.data?.results || (submissionData as any)?.data?.results || []).length,
       apiEndpoint: `/api/v1/procurements/manaul-bid/by-solicitation/${solicitationId}/`,
-      submissionError: submissionError?.message || "DISABLED",
-      allBidError: allBidError?.message || "DISABLED",
-      note: "Using sample data to prevent HTTP undefined errors"
+      submissionError: submissionError?.message,
+      allBidError: allBidError?.message,
     });
 
     // Log individual submissions for API structure analysis
@@ -153,13 +155,16 @@ const VendorBidAnalysis = () => {
     console.log("🔍 Submission Data Structure Analysis:");
     console.log("🔍 - submissionData exists:", !!submissionData);
     console.log("🔍 - submissionData.data exists:", !!(submissionData as any)?.data);
+    console.log("🔍 - submissionData.data structure:", (submissionData as any)?.data);
+    console.log("🔍 - submissionData.data keys:", (submissionData as any)?.data ? Object.keys((submissionData as any).data) : null);
     console.log("🔍 - submissionData.data.results exists:", !!(submissionData as any)?.data?.results);
-    console.log("🔍 - submissionData.data.results type:", typeof (submissionData as any)?.data?.results);
-    console.log("🔍 - submissionData.data.results length:", (submissionData as any)?.data?.results?.length);
+    console.log("🔍 - submissionData.data.data exists:", !!(submissionData as any)?.data?.data);
+    console.log("🔍 - submissionData.data.data structure:", (submissionData as any)?.data?.data);
 
-    const apiResults = (submissionData as any)?.data?.results;
-    const fallbackResults = (allBidData as any)?.data?.results;
-    console.log("🔍 API Results (primary):", apiResults);
+    // Check if data.data.results exists (nested structure)
+    const apiResults = (submissionData as any)?.data?.data?.results || (submissionData as any)?.data?.results;
+    const fallbackResults = (allBidData as any)?.results;
+    console.log("🔍 API Results (primary - checking both paths):", apiResults);
     console.log("🔍 API Results (fallback):", fallbackResults);
 
     // Try primary API results first, then fallback
@@ -599,27 +604,64 @@ const VendorBidAnalysis = () => {
     }
   ];
 
-  const handleSubmitAnalysis = () => {
+  const { modifyCba, isLoading: submittingAnalysis } = CbaAPI.useModifyCba(cbaId as string);
+
+  const handleSubmitAnalysis = async () => {
     if (selectedItems.length === 0) {
       toast.error("Please select at least one item from vendors before submitting");
       return;
     }
 
-    const analysisData = {
-      cbaId,
-      solicitationId,
-      selectedItems,
-      selectedTotal,
-      submittedAt: new Date().toISOString()
+    // Group selected items by vendor
+    const itemsByVendor = selectedItems.reduce((acc, item) => {
+      if (!acc[item.vendorId]) {
+        acc[item.vendorId] = {
+          vendorName: item.vendorName,
+          items: []
+        };
+      }
+      acc[item.vendorId].items.push(item);
+      return acc;
+    }, {} as Record<string, { vendorName: string; items: SelectedItem[] }>);
+
+    console.log("📊 Analysis Data - Items grouped by vendor:", itemsByVendor);
+
+    // If multiple vendors are selected, show a warning
+    const vendorIds = Object.keys(itemsByVendor);
+    if (vendorIds.length > 1) {
+      toast.error("Currently, the system only supports selecting items from a single vendor. Please select items from only one vendor.");
+      return;
+    }
+
+    const selectedVendorId = vendorIds[0];
+    const selectedVendorItems = itemsByVendor[selectedVendorId];
+
+    // Prepare the payload to update CBA with analysis results
+    const analysisPayload = {
+      selected_vendor_id: selectedVendorId,
+      selected_items: selectedItems.map(item => item.itemId),
+      recommendation_note: awardRecommendation || `Award recommended to ${selectedVendorItems.vendorName} for ${selectedItems.length} items with total value of ₦${selectedTotal.toLocaleString()}`,
+      selected_total: selectedTotal
     };
 
-    console.log("Analysis Data:", analysisData);
+    console.log("📤 Submitting CBA Analysis:", analysisPayload);
 
-    // Here you would call your API to submit the analysis
-    toast.success(`Analysis submitted successfully! Selected ${selectedItems.length} items with total: ₦${selectedTotal.toLocaleString()}`);
+    try {
+      await modifyCba(analysisPayload);
+      toast.success(`Analysis submitted successfully! Selected ${selectedItems.length} items from ${selectedVendorItems.vendorName} with total: ₦${selectedTotal.toLocaleString()}`);
 
-    // You can add API call here like:
-    // await submitCbaAnalysis(analysisData);
+      // Invalidate queries to refresh CBA data
+      await queryClient.invalidateQueries({ queryKey: ["cba", cbaId] });
+      await queryClient.invalidateQueries({ queryKey: ["cbas"] });
+
+      // Redirect to analysis results page after successful submission
+      setTimeout(() => {
+        router.push(`/dashboard/procurement/competitive-bid-analysis/${cbaId}/analysis-results?id=${solicitationId}&cba=${cbaId}`);
+      }, 1500);
+    } catch (error) {
+      console.error("❌ CBA Analysis submission error:", error);
+      toast.error("Failed to submit analysis. Please try again.");
+    }
   };
 
   if (cbaLoading || submissionLoading) {

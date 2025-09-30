@@ -9,14 +9,22 @@ import DataTable from "components/Table/DataTable";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import IconButton from "components/IconButton";
+import { useGetAllActivityMemos } from "@/features/procurement/controllers/activityMemoController";
+import { useState } from "react";
+import { format } from "date-fns";
 
 type ActivityMemoData = {
   id: string;
-  memo_title: string;
-  project: string;
-  total_amount: number;
-  status: string;
-  created_date: string;
+  subject: string;
+  activity?: string;
+  requested_date: string;
+  status?: string;
+  created_by?: string;
+  approved_by?: string;
+  expenses?: Array<{
+    total_cost?: number;
+  }>;
+  created_at?: string;
 };
 
 interface ActivityMemoListProps {
@@ -25,72 +33,80 @@ interface ActivityMemoListProps {
 
 const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
   const router = useRouter();
+  const [page, setPage] = useState(1);
 
-  // Mock data - replace with actual API call
-  const mockData: ActivityMemoData[] = [
-    {
-      id: "1",
-      memo_title: "Field Visit to Kano State",
-      project: "Project LifeGuard: HIV/AIDS Intervention",
-      total_amount: 2500000,
-      status: status === 'pending' ? "Pending" : "Approved",
-      created_date: "2024-01-15",
-    },
-    {
-      id: "2",
-      memo_title: "Training Workshop Materials",
-      project: "BeatTheBite: Malaria Eradication",
-      total_amount: 1800000,
-      status: status === 'pending' ? "Pending" : "Approved",
-      created_date: "2024-01-20",
-    },
-    {
-      id: "3",
-      memo_title: "Community Outreach Program",
-      project: "VitalVision: Child Nutrition Study",
-      total_amount: 3200000,
-      status: status === 'pending' ? "Pending" : "Approved",
-      created_date: "2024-01-25",
-    },
-  ];
+  // Fetch activity memos from API
+  const { data, isLoading, error } = useGetAllActivityMemos({
+    page,
+    size: 20,
+    status: status === 'approved' ? 'approved' : '',
+  });
+
+  console.log("Activity Memos API Response:", data);
+  console.log("Activity Memos Loading:", isLoading);
+  console.log("Activity Memos Error:", error);
+
+  const activityMemos = data?.data?.results || [];
 
   const columns: ColumnDef<ActivityMemoData>[] = [
     {
-      header: "Memo Title",
-      accessorKey: "memo_title",
+      header: "Subject",
+      accessorKey: "subject",
       size: 300,
-    },
-    {
-      header: "Project",
-      accessorKey: "project",
-      size: 300,
-    },
-    {
-      header: "Total Amount",
-      accessorKey: "total_amount",
       cell: ({ getValue }) => {
-        const amount = getValue() as number;
-        return `₦${amount.toLocaleString()}`;
+        const subject = getValue() as string;
+        return subject || "No subject";
       },
     },
     {
-      header: "Created Date",
-      accessorKey: "created_date",
+      header: "Activity",
+      accessorKey: "activity",
+      size: 250,
+      cell: ({ getValue }) => {
+        const activity = getValue() as string;
+        return activity || "N/A";
+      },
+    },
+    {
+      header: "Total Amount",
+      id: "total_amount",
+      cell: ({ row }) => {
+        // Calculate total from expenses array
+        const expenses = row.original.expenses || [];
+        const total = expenses.reduce((sum, expense) => {
+          return sum + (expense.total_cost || 0);
+        }, 0);
+        return `₦${total.toLocaleString()}`;
+      },
+    },
+    {
+      header: "Requested Date",
+      accessorKey: "requested_date",
+      cell: ({ getValue }) => {
+        const date = getValue() as string;
+        try {
+          return date ? format(new Date(date), "PP") : "N/A";
+        } catch {
+          return date || "N/A";
+        }
+      },
     },
     {
       header: "Status",
       accessorKey: "status",
-      cell: ({ getValue }) => {
-        const statusValue = getValue() as string;
+      cell: ({ row }) => {
+        const statusValue = row.original.status || (status === 'approved' ? 'Approved' : 'Pending');
+        const displayStatus = statusValue.charAt(0).toUpperCase() + statusValue.slice(1);
+
         return (
           <Badge
             className={
-              statusValue === "Approved"
-                ? "bg-green-100 text-green-700"
-                : "bg-yellow-100 text-yellow-700"
+              statusValue.toLowerCase() === "approved"
+                ? "bg-green-100 text-green-700 border-green-300"
+                : "bg-yellow-100 text-yellow-700 border-yellow-300"
             }
           >
-            {statusValue}
+            {displayStatus}
           </Badge>
         );
       },
@@ -146,9 +162,62 @@ const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
         </Button>
       </div>
 
-      <Card>
-        <DataTable data={mockData} columns={columns} isLoading={false} />
-      </Card>
+      {/* Error State */}
+      {error && (
+        <Card>
+          <div className="p-6 text-center">
+            <div className="text-red-600 mb-2">
+              <Icon icon="mdi:alert-circle" fontSize={48} className="mx-auto" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Error Loading Activity Memos</h3>
+            <p className="text-gray-600">{error.message || "Failed to load activity memos"}</p>
+          </div>
+        </Card>
+      )}
+
+      {/* Data Table */}
+      {!error && (
+        <Card>
+          <DataTable
+            data={activityMemos}
+            columns={columns}
+            isLoading={isLoading}
+            pagination={{
+              total: data?.data?.pagination?.count || 0,
+              pageSize: 20,
+              onChange: setPage,
+            }}
+          />
+        </Card>
+      )}
+
+      {/* Empty State */}
+      {!isLoading && !error && activityMemos.length === 0 && (
+        <Card>
+          <div className="p-12 text-center">
+            <div className="text-gray-400 mb-4">
+              <Icon icon="mdi:file-document-outline" fontSize={64} className="mx-auto" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">
+              No Activity Memos Found
+            </h3>
+            <p className="text-gray-600 mb-4">
+              {status === 'pending'
+                ? 'No pending activity memos. Create one to get started.'
+                : 'No approved activity memos yet.'}
+            </p>
+            {status === 'pending' && (
+              <Button
+                onClick={() => router.push("/dashboard/procurement/activity-memo/create")}
+                className="flex items-center gap-2 mx-auto"
+              >
+                <Plus size={20} />
+                Create Activity Memo
+              </Button>
+            )}
+          </div>
+        </Card>
+      )}
     </div>
   );
 };
