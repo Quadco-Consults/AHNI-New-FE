@@ -70,7 +70,25 @@ const CreateCBA = () => {
   const { data: rfqData, isLoading } = useGetAllSolicitations({
     // page,
     size: 2000000,
+    // Don't filter by status - get all RFQs regardless of status
+    status: "",
+    search: "",
   });
+
+  // Debug: Log all RFQ data to see what's available
+  console.log("🔍 DEBUG: All RFQ Data:", rfqData);
+  console.log("🔍 DEBUG: RFQ Results:", rfqData?.data?.results);
+  console.log("🔍 DEBUG: Looking for RFQ ID:", rfqId || solicitationId);
+  console.log("🔍 DEBUG: RFQ Results Count:", rfqData?.data?.results?.length);
+
+  // Debug: Check if our specific RFQ exists
+  const targetId = rfqId || solicitationId;
+  const foundRFQ = rfqData?.data?.results?.find(rfq => rfq.id === targetId);
+  console.log("🔍 DEBUG: Found Target RFQ:", foundRFQ);
+
+  // Debug: List all available RFQ IDs
+  const allIds = rfqData?.data?.results?.map(rfq => ({ id: rfq.id, rfq_id: rfq.rfq_id, title: rfq.title }));
+  console.log("🔍 DEBUG: All Available RFQ IDs:", allIds);
 
   // const query = useQuery();
   // const rfqId = query.get("id");
@@ -153,6 +171,10 @@ const CreateCBA = () => {
       status: "PENDING",
       solicitation: data?.solicitation,
       ...(data.lot && data.lot.trim() !== "" && { lot: data.lot }),
+      // Add items from the selected RFQ/solicitation
+      ...(selectedRFQ?.solicitation_items && {
+        items: selectedRFQ.solicitation_items
+      }),
       // Add approval workflow
       approval_workflow: {
         reviewer: data?.reviewer || null,
@@ -160,6 +182,9 @@ const CreateCBA = () => {
         approver: data?.approver || null,
       },
     };
+
+    console.log("🔍 DEBUG: CBA Payload being sent:", payload);
+    console.log("🔍 DEBUG: Items in payload:", payload.items?.length || 0);
 
     try {
       await createCba(payload);
@@ -305,12 +330,17 @@ const CreateCBA = () => {
           <FormSelect name="solicitation" label="RFQ">
             <SelectContent>
               {isLoading && <LoadingSpinner />}
-              {rfqData?.data?.results?.map((rfq) => (
-                <SelectItem key={rfq?.id} value={rfq?.id}>
-                  {/* {rfq?.first_name} {rfq?.last_name} */}
-                  {rfq?.rfq_id}
-                </SelectItem>
-              ))}
+              {!isLoading && (!rfqData?.data?.results || rfqData?.data?.results?.length === 0) && (
+                <div className="p-2 text-gray-500">No RFQs available</div>
+              )}
+              {rfqData?.data?.results?.map((rfq) => {
+                console.log("🔍 DEBUG: Rendering RFQ in dropdown:", { id: rfq.id, rfq_id: rfq.rfq_id, title: rfq.title });
+                return (
+                  <SelectItem key={rfq?.id} value={rfq?.id}>
+                    {rfq?.rfq_id} - {rfq?.title}
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </FormSelect>
           <div className="grid grid-cols-1 gap-4 w-full md:grid-cols-3">

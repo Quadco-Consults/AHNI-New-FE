@@ -5,6 +5,7 @@ export const GoodReceiveNoteSchema = z.object({
   invoice_number: z.string().min(1, "Please enter an invoice number"),
   waybill_number: z.string().min(1, "Please enter a waybill number"),
   remark: z.string().min(1, "Please enter a remark"),
+  received_by: z.string().optional(), // Optional field for who receives the GRN
   items: z
     .array(
       z.object({
