@@ -9,6 +9,8 @@ export const SubGrantSchema = z.object({
     award_type: z.string().min(1, "Please select award type"),
     amount_usd: z.string().min(1, "Please enter amount in USD"),
     amount_ngn: z.string().min(1, "Please enter amount in NGN"),
+    start_date: z.string().min(1, "Please select sub-grant start date"),
+    end_date: z.string().min(1, "Please select sub-grant end date"),
     submission_start_date: z.string().min(1, "Please select submission start date"),
     submission_end_date: z.string().min(1, "Please select submission end date"),
     sub_grant_administrator: z.string().min(1, "Please select administrator"),
@@ -38,6 +40,7 @@ export interface ISubGrantPaginatedData {
     submission_end_date: string;
     tender_type: string;
     assessment_date: string;
+    status: string;
     created_by: string | null;
     updated_by: string | null;
     grant: string;
@@ -63,6 +66,7 @@ export interface ISubGrantSingleData {
     submission_end_date: string;
     tender_type: string;
     assessment_date: string;
+    status: string;
     created_by: string | null;
     updated_by: string | null;
 }
