@@ -79,9 +79,9 @@ const AnalysisResultsView = () => {
     solicitationId,
     cbaData,
     analysisData,
-    hasSelectedVendor: !!analysisData?.selected_vendor_id,
+    hasSelectedVendor: !!analysisData?.selected_bid_submission,
     hasSelectedItems: !!analysisData?.selected_items,
-    selectedVendorId: analysisData?.selected_vendor_id,
+    selectedVendorId: analysisData?.selected_bid_submission,
     selectedItems: analysisData?.selected_items,
     recommendationNote: analysisData?.recommendation_note,
     selectedTotal: analysisData?.selected_total
@@ -154,7 +154,7 @@ const AnalysisResultsView = () => {
     const submissions = (submissionData as any)?.data?.data?.results || (submissionData as any)?.data?.results || [];
 
     // Find the selected vendor submission
-    const selectedVendor = submissions.find((sub: any) => sub.id === analysisData.selected_vendor_id);
+    const selectedVendor = submissions.find((sub: any) => sub.id === analysisData.selected_bid_submission);
 
     if (!selectedVendor) return null;
 
@@ -276,7 +276,7 @@ const AnalysisResultsView = () => {
     return <Loading />;
   }
 
-  if (!analysisData?.selected_vendor_id || !vendorData) {
+  if (!analysisData?.selected_bid_submission || !vendorData) {
     return (
       <div className="p-8 text-center">
         <Icon icon="solar:document-bold-duotone" fontSize={56} className="mx-auto mb-4 text-yellow-500" />
