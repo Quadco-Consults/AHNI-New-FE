@@ -47,7 +47,7 @@ interface TSubGrantSubmissionCreateUpdateFormData extends TSubGrantSubmissionFor
   sub_grant: string;
 }
 
-const BASE_URL = "/contract-grants/sub-grants/submissions/"; // From original service
+const BASE_URL = "/contract-grants/sub-grants/submissions/";
 
 // ===== SUB GRANT SUBMISSION HOOKS =====
 
@@ -188,27 +188,7 @@ export const useGetSingleSubGrantManualSub = useGetSingleSubGrantSubmission;
 export const useGetAllSubGrantManualSub = useGetAllSubGrantSubmissions;
 export const useDeleteSubGrantManualSub = useDeleteSubGrantSubmission;
 
-// Shortlist Sub Grant Submission
-export const useShortlistSubGrantSubmission = (submissionId: string) => {
-  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
-    ISubGrantSubmissionSingleData,
-    Error,
-    Record<string, never>
-  >({
-    endpoint: `${BASE_URL}${submissionId}/shortlist/`,
-    queryKey: ["subGrantSubmissions"],
-    isAuth: true,
-    method: "POST",
-  });
-
-  const shortlistSubmission = async () => {
-    try {
-      return await callApi({} as Record<string, never>);
-    } catch (error) {
-      console.error("Sub grant submission shortlist error:", error);
-      throw error;
-    }
-  };
-
-  return { shortlistSubmission, data, isLoading, isSuccess, error };
-};
+// Note: Shortlisting is handled via the sub-grant workflow controller
+// using useShortlistSubmissions hook with the endpoint:
+// POST /contract-grants/sub-grants/workflow/{subGrantId}/shortlist/
+// with payload: { submission_ids: string[] }

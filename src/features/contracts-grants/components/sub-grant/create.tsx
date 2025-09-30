@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import BackNavigation from "components/atoms/BackNavigation";
 import Card from "components/Card";
 import FormButton from "components/FormButton";
@@ -12,14 +12,17 @@ import FormInput from "components/FormInput";
 import FormSelect from "components/FormSelect";
 import { Form } from "components/ui/form";
 import { SubGrantSchema, TSubGrantFormData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
-import { useCreateSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
+import { useCreateSubGrant, useUpdateSubGrant, useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
 import { useGetAllGrants } from "@/features/contracts-grants/controllers/grantController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { useGetAllDepartments } from "@/features/modules/controllers/config/departmentController";
 import { CG_ROUTES } from "constants/RouterConstants";
+import { Loading } from "@/components/Loading";
 
 const CreateSubGrant: React.FC = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const editId = searchParams?.get("editId") || "";
   
   const form = useForm<TSubGrantFormData>({
     resolver: zodResolver(SubGrantSchema),
@@ -29,6 +32,8 @@ const CreateSubGrant: React.FC = () => {
       award_type: "",
       amount_usd: "",
       amount_ngn: "",
+      start_date: "",
+      end_date: "",
       submission_start_date: "",
       submission_end_date: "",
       sub_grant_administrator: "",
@@ -37,9 +42,13 @@ const CreateSubGrant: React.FC = () => {
     },
   });
 
-  const { createSubGrant, isLoading, isSuccess } = useCreateSubGrant();
-  
-  
+  const { createSubGrant, isLoading: isCreating } = useCreateSubGrant();
+  const { updateSubGrant, isLoading: isUpdating } = useUpdateSubGrant(editId);
+  const { data: subGrantData, isLoading: isLoadingSubGrant } = useGetSingleSubGrant(editId, !!editId);
+
+  const isLoading = isCreating || isUpdating;
+  const isEditMode = !!editId;
+
   // Fetch data for dropdowns
   const { data: grantsData, isLoading: grantsLoading, error: grantsError } = useGetAllGrants({ size: 100, enabled: true });
   const { data: usersData, isLoading: usersLoading, error: usersError } = useGetAllUsers({ size: 100, enabled: true });
@@ -77,30 +86,61 @@ const CreateSubGrant: React.FC = () => {
   console.log("- Department Options:", departmentOptions, `(${departmentOptions.length} items)`);
   console.log("=== END DEBUG ===");
 
+  // Populate form when editing
+  useEffect(() => {
+    if (isEditMode && subGrantData?.data) {
+      const data = subGrantData.data;
+      form.reset({
+        project: typeof data.project === 'string' ? data.project : data.project?.id || "",
+        title: data.title || "",
+        award_type: data.award_type || "",
+        amount_usd: data.amount_usd || "",
+        amount_ngn: data.amount_ngn || "",
+        start_date: data.start_date || "",
+        end_date: data.end_date || "",
+        submission_start_date: data.submission_start_date || "",
+        submission_end_date: data.submission_end_date || "",
+        sub_grant_administrator: typeof data.sub_grant_administrator === 'string' ? data.sub_grant_administrator : data.sub_grant_administrator?.id || "",
+        technical_staff: typeof data.technical_staff === 'string' ? data.technical_staff : data.technical_staff?.id || "",
+        business_unit: typeof data.business_unit === 'string' ? data.business_unit : data.business_unit?.id || "",
+      });
+    }
+  }, [isEditMode, subGrantData, form]);
+
   // Currency conversion rate (USD to NGN) - you might want to fetch this from an API
   const USD_TO_NGN_RATE = 1600; // Example rate
 
   // Watch for changes in USD amount and convert to NGN
   const usdAmount = form.watch("amount_usd");
-  
+
   useEffect(() => {
-    if (usdAmount && !isNaN(parseFloat(usdAmount))) {
+    if (usdAmount && !isNaN(parseFloat(usdAmount)) && !isEditMode) {
       const ngnAmount = (parseFloat(usdAmount) * USD_TO_NGN_RATE).toString();
       form.setValue("amount_ngn", ngnAmount, { shouldValidate: false });
     }
-  }, [usdAmount, form]);
+  }, [usdAmount, form, isEditMode]);
 
   const onSubmit: SubmitHandler<TSubGrantFormData> = async (data) => {
     try {
-      await createSubGrant(data);
-      toast.success("Sub-Grant created successfully");
+      if (isEditMode) {
+        await updateSubGrant(data);
+        toast.success("Sub-Grant updated successfully");
+      } else {
+        await createSubGrant(data);
+        toast.success("Sub-Grant created successfully");
+      }
       form.reset();
       router.push(CG_ROUTES.SUBGRANT_ADVERT || "/dashboard/c-and-g/sub-grant/adverts");
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.data?.message || error?.message || "Failed to create sub-grant";
+      const errorMessage = error?.response?.data?.message || error?.data?.message || error?.message ||
+        `Failed to ${isEditMode ? 'update' : 'create'} sub-grant`;
       toast.error(errorMessage);
     }
   };
+
+  if (isLoadingSubGrant && isEditMode) {
+    return <Loading />;
+  }
 
   return (
     <section className="space-y-5">
@@ -110,7 +150,9 @@ const CreateSubGrant: React.FC = () => {
 
       <Card>
         <div className="p-6">
-          <h2 className="text-2xl font-bold mb-6">Create Sub-Grant</h2>
+          <h2 className="text-2xl font-bold mb-6">
+            {isEditMode ? "Edit Sub-Grant" : "Create Sub-Grant"}
+          </h2>
 
           {/* Display API errors */}
           {(grantsError || usersError || departmentsError) && (
@@ -225,6 +267,23 @@ const CreateSubGrant: React.FC = () => {
                 />
               </div>
 
+              {/* Sub-Grant Period */}
+              <div className="grid grid-cols-2 gap-4">
+                <FormInput
+                  label="Sub-Grant Start Date"
+                  name="start_date"
+                  required
+                  type="date"
+                  placeholder="Select sub-grant start date"
+                />
+                <FormInput
+                  label="Sub-Grant End Date"
+                  name="end_date"
+                  required
+                  type="date"
+                  placeholder="Select sub-grant end date"
+                />
+              </div>
 
               {/* Submission Dates */}
               <div className="grid grid-cols-2 gap-4">
@@ -247,15 +306,15 @@ const CreateSubGrant: React.FC = () => {
               {/* Submit Buttons */}
               <div className="flex gap-4 pt-6">
                 <FormButton loading={isLoading} disabled={isLoading}>
-                  Create Sub-Grant
+                  {isEditMode ? "Update Sub-Grant" : "Create Sub-Grant"}
                 </FormButton>
                 <FormButton
                   type="button"
                   variant="outline"
-                  onClick={() => form.reset()}
+                  onClick={() => router.back()}
                   disabled={isLoading}
                 >
-                  Reset Form
+                  Cancel
                 </FormButton>
               </div>
             </form>
