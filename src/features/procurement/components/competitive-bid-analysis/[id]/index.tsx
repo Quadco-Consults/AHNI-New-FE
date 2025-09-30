@@ -571,14 +571,14 @@ const CompetitiveBidAnalysisDetail = () => {
                             <div className="flex items-center gap-4 mb-4">
                                 <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-md">
                                     <span className="text-2xl font-bold text-white">
-                                        {data.data.assignee.first_name?.[0]}{data.data.assignee.last_name?.[0]}
+                                        {data.data.assignee.name?.split(' ')[0]?.[0]}{data.data.assignee.name?.split(' ')[1]?.[0] || ''}
                                     </span>
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-bold text-gray-900">
-                                        {data.data.assignee.first_name} {data.data.assignee.last_name}
+                                        {data.data.assignee.name || 'N/A'}
                                     </h3>
-                                    <p className="text-sm text-gray-600">{data.data.assignee.designation || 'N/A'}</p>
+                                    <p className="text-sm text-gray-600">Assignee</p>
                                 </div>
                             </div>
                         </div>

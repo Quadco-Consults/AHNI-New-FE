@@ -131,6 +131,9 @@ const CreateActivityMemoForm = () => {
   const FORM_STORAGE_KEY = 'standalone_activity_memo_form';
 
   const loadSavedFormData = () => {
+    // Check if we're on the client side
+    if (typeof window === 'undefined') return null;
+
     try {
       const savedData = localStorage.getItem(FORM_STORAGE_KEY);
       if (savedData) {
@@ -152,7 +155,9 @@ const CreateActivityMemoForm = () => {
       }
     } catch (error) {
       console.error('Error loading saved form data:', error);
-      localStorage.removeItem(FORM_STORAGE_KEY);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(FORM_STORAGE_KEY);
+      }
     }
     return null;
   };
@@ -186,6 +191,9 @@ const CreateActivityMemoForm = () => {
   // Auto-save
   useEffect(() => {
     const timeoutId = setTimeout(() => {
+      // Only run on client side
+      if (typeof window === 'undefined') return;
+
       try {
         const hasContent = Object.values(watchedValues).some(value => {
           if (Array.isArray(value)) return value.length > 0;
@@ -257,7 +265,9 @@ const CreateActivityMemoForm = () => {
       await createActivityMemo(activityMemoData);
 
       toast.success("Activity Memo created successfully!");
-      localStorage.removeItem(FORM_STORAGE_KEY);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(FORM_STORAGE_KEY);
+      }
       router.push("/dashboard/procurement/activity-memo");
     } catch (error) {
       console.error("Error creating activity memo:", error);

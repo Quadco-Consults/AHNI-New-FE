@@ -6,6 +6,11 @@ export type CommitteeMemberData = {
   last_name: string;
   designation: string;
 };
+
+export type AssigneeData = {
+  user_id: string;
+  name: string;
+};
 export type SubmissionData = {
   unit_price: number;
   sub_total: number;
@@ -37,7 +42,7 @@ export type CbaResultsData = {
   lot?: string; // UUID reference
   cba_date: string;
   committee_members: CommitteeMemberData[];
-  assignee?: CommitteeMemberData;
+  assignee?: AssigneeData; // Changed to AssigneeData to match backend response
   remarks?: string;
   status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'COMPLETED';
   title?: string;
@@ -45,7 +50,7 @@ export type CbaResultsData = {
   vendor_responses?: {};
   items?: SolicitationItems[];
   // Analysis results fields
-  selected_vendor_id?: string;
+  selected_bid_submission?: string; // Changed from selected_vendor_id to match backend
   selected_items?: string[];
   recommendation_note?: string;
   selected_total?: number;

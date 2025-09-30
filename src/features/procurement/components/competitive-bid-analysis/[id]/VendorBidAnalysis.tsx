@@ -27,6 +27,7 @@ interface VendorItem {
 
 interface VendorData {
   id: string;
+  vendorId?: string; // Actual vendor ID from vendor table
   name: string;
   items: VendorItem[];
   grandTotal: number;
@@ -219,6 +220,7 @@ const VendorBidAnalysis = () => {
 
         return {
           id: submission.id,
+          vendorId: submission.vendor?.id, // Store actual vendor ID
           name: submission.vendor?.company_name || `Vendor ${submission.id?.slice(0, 8)}`,
           items,
           grandTotal: parseFloat(submission.bid_details?.total_amount || items.reduce((sum: number, item: VendorItem) => sum + item.total, 0)),
@@ -633,18 +635,32 @@ const VendorBidAnalysis = () => {
       return;
     }
 
-    const selectedVendorId = vendorIds[0];
-    const selectedVendorItems = itemsByVendor[selectedVendorId];
+    const selectedSubmissionId = vendorIds[0];
+    const selectedVendorItems = itemsByVendor[selectedSubmissionId];
+
+    // Get the vendor data for display purposes
+    const selectedVendor = vendorData.find(v => v.id === selectedSubmissionId);
+
+    console.log("🔍 Submission Debug:", {
+      selectedSubmissionId,
+      selectedVendor: selectedVendor?.name,
+      itemCount: selectedItems.length,
+      total: selectedTotal
+    });
 
     // Prepare the payload to update CBA with analysis results
+    // Backend now expects selected_bid_submission (submission ID) instead of selected_vendor_id
     const analysisPayload = {
-      selected_vendor_id: selectedVendorId,
+      selected_bid_submission: selectedSubmissionId, // Send submission ID directly
       selected_items: selectedItems.map(item => item.itemId),
       recommendation_note: awardRecommendation || `Award recommended to ${selectedVendorItems.vendorName} for ${selectedItems.length} items with total value of ₦${selectedTotal.toLocaleString()}`,
       selected_total: selectedTotal
     };
 
-    console.log("📤 Submitting CBA Analysis:", analysisPayload);
+    console.log("📤 Submitting CBA Analysis:", {
+      ...analysisPayload,
+      vendorName: selectedVendor?.name
+    });
 
     try {
       await modifyCba(analysisPayload);
