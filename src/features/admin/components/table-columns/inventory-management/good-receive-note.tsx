@@ -194,19 +194,19 @@ const TableMenu = ({ id, status, approved_datetime, rejected_datetime, received_
   };
 
   // Check GRN status and determine available actions
+  // Backend workflow: created → received → approved/rejected
   const isApproved = !!approved_datetime || status === "approved";
   const isRejected = !!rejected_datetime || status === "rejected";
   const isReceived = !!received_datetime || status === "received";
-  const isConfirmed = status === "confirmed";
-  const isPending = status === "pending" || (!status && !isApproved && !isRejected);
+  const isCreated = status === "created" || status === "pending" || (!status && !isApproved && !isRejected);
+  const isConfirmed = status === "confirmed"; // Legacy status, not in backend workflow
 
-  // Available actions based on backend validation:
-  // - pending: can mark as "received" OR can "accept"/"reject" directly
-  // - confirmed: must be marked as "received" first before accept/reject
-  // - received: can "accept" or "reject"
-  // - approved/rejected: no actions
-  const canMarkReceived = isPending || isConfirmed; // Both pending and confirmed can be marked as received
-  const canApproveOrReject = (isPending || isReceived) && !isApproved && !isRejected; // Only pending or received can be accepted/rejected
+  // Available actions based on actual backend implementation:
+  // - created/pending: can use "mark-received" endpoint
+  // - received: can use "approve" or "reject" endpoints
+  // - approved/rejected: final states, no actions
+  const canMarkReceived = isCreated && !isReceived && !isApproved && !isRejected;
+  const canApproveOrReject = isReceived && !isApproved && !isRejected;
 
   return (
     <>
@@ -281,6 +281,19 @@ const TableMenu = ({ id, status, approved_datetime, rejected_datetime, received_
                   Reject
                 </Button>
               </>
+            )}
+
+            {/* Show message for GRNs with no available actions */}
+            {isConfirmed && (
+              <div className='w-full p-2 text-xs text-amber-600 bg-amber-50 rounded border border-amber-200'>
+                ⚠️ Status "confirmed" is not supported. Expected workflow: created → received → approved/rejected
+              </div>
+            )}
+
+            {!canMarkReceived && !canApproveOrReject && !isApproved && !isRejected && !isConfirmed && (
+              <div className='w-full p-2 text-xs text-gray-600 bg-gray-50 rounded border border-gray-200'>
+                ℹ️ No actions available for current status: {status || 'unknown'}
+              </div>
             )}
 
             <Button
