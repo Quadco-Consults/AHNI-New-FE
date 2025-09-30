@@ -1,9 +1,7 @@
 "use client";
 
 import { useDebounce } from "ahooks";
-import AddSquareIcon from "components/icons/AddSquareIcon";
 import Card from "components/Card";
-import { LoadingSpinner } from "components/Loading";
 import { subGrantAwardColumns } from "@/features/contracts-grants/components/table-columns/sub-grant/awards";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
@@ -12,12 +10,10 @@ import { CG_ROUTES } from "constants/RouterConstants";
 import { useState } from "react";
 import Link from "next/link";
 import { useGetAllSubGrants } from "@/features/contracts-grants/controllers/subGrantController";
-import ConsultantCard from "../../contract-management/consultant-management/ConsultantCard";
-import SubgrantAdvertCard from "./SubGrantAdvertCard";
+import { Plus } from "lucide-react";
 
-export default function SubGrant() {
+export default function SubGrantAwards() {
     const [page, setPage] = useState(1);
-
     const [searchQuery, setSearchQuery] = useState("");
 
     const debouncedSearchQuery = useDebounce(searchQuery, {
@@ -32,29 +28,35 @@ export default function SubGrant() {
 
     return (
         <section className="space-y-5">
-            <div className="flex justify-end">
-                <Link href={CG_ROUTES.CREATE_SUBGRANT_ADVERT}>
+            <div className="flex justify-between items-center">
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-800">Sub-Grant Awards Management</h1>
+                    <p className="text-gray-600 mt-1">
+                        Manage and track awarded sub-grants
+                    </p>
+                </div>
+                <Link href={CG_ROUTES.CREATE_SUBGRANT_AWARD}>
                     <Button>
-                        <AddSquareIcon />
-                        New Sub Grant
+                        <Plus size={20} className="mr-2" />
+                        New Sub-Grant Award
                     </Button>
                 </Link>
             </div>
 
-            {isFetching ? (
-                <LoadingSpinner />
-            ) : (
-                data && (
-                    <div className="w-full flex flex-wrap justify-between items-start gap-y-[1rem]">
-                        {data.data.results.map((subGrant) => (
-                            <SubgrantAdvertCard
-                                key={subGrant.id}
-                                {...subGrant}
-                            />
-                        ))}
-                    </div>
-                )
-            )}
+            <Card>
+                <TableFilters onSearchChange={(e) => setSearchQuery(e.target.value)}>
+                    <DataTable
+                        columns={subGrantAwardColumns}
+                        data={data?.data?.results || []}
+                        isLoading={isFetching}
+                        pagination={{
+                            total: data?.data?.pagination?.count ?? 0,
+                            pageSize: data?.data?.pagination?.page_size ?? 10,
+                            onChange: (page: number) => setPage(page),
+                        }}
+                    />
+                </TableFilters>
+            </Card>
         </section>
     );
 }
