@@ -8,7 +8,8 @@ import { useParams } from "next/navigation";
 import { useGetSingleSubGrantManualSub } from "@/features/contracts-grants/controllers/submissionController";
 
 export default function PartnerSubmissionDetails() {
-    const { subGrantId, partnerSubId: submissionId } = useParams();
+    const params = useParams();
+    const submissionId = params?.id as string;
 
     const { data, isLoading } = useGetSingleSubGrantManualSub(
         submissionId ?? skipToken

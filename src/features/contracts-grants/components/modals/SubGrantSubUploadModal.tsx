@@ -56,11 +56,11 @@ export default function SubGrantSubUploadModal() {
         formData.append("sub_grant_submission", submissionId);
 
         try {
-            await createSubGrantUpload(formData as any)();
+            await createSubGrantUpload(formData);
             toast.success("Document Uploaded");
             dispatch(closeDialog());
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error?.data?.message ?? error?.message ?? "Something went wrong");
         }
     };
 

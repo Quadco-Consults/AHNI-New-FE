@@ -71,7 +71,7 @@ export const SubGrantSubmissionSchema = z.object({
     partner: z.string().min(1, "Please select partner"),
     organisation_name: z.string().min(1, "Please enter organization name"),
     principal_one_name: z.string().min(1, "Please enter 1st principal name"),
-    principal_one_designation: z
+    principal_one_designaation: z
         .string()
         .min(1, "Please enter principal one designation"),
     principal_two_name: z
@@ -93,7 +93,10 @@ export const SubGrantSubmissionSchema = z.object({
         .url("Please enter a valid web address"),
     duns_number: z.string().min(1, "Please enter duns completed"),
     has_conflict_of_interest: z.string().min(1, "Please select an option"),
-    organisation_type: z.string().min(1, "Please select organization type"),
+    organisation_type: z.enum(["FOR_PROFIT", "NON_PROFIT", "GOVERNMENT", "UNIVERSITY", "OTHER"], {
+        required_error: "Please select organization type",
+        invalid_type_error: "Please select a valid organization type",
+    }),
 });
 
 export type TSubGrantSubmissionFormData = z.infer<

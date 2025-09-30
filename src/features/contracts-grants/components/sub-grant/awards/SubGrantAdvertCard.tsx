@@ -25,21 +25,20 @@ export default function SubgrantAdvertCard({
     id,
     title,
     created_datetime,
-    start_date,
     end_date,
 }: ISubGrantPaginatedData) {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const { deleteSubGrant, isLoading: isDeleteLoading } =
-        useDeleteSubGrant();
+        useDeleteSubGrant(id);
 
     const handleDelete = async () => {
         try {
-            await deleteSubGrant(id)();
+            await deleteSubGrant();
             toast.success("Sub Grant Deleted");
             setIsModalOpen(false);
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error?.data?.message ?? error?.message ?? "Something went wrong");
         }
     };
 
@@ -111,19 +110,12 @@ export default function SubgrantAdvertCard({
                     </div>
                 </div>
 
-                <div className="flex justify-between items-center">
-                    <div className="flex gap-2">
-                        <Link href={`/dashboard/c-and-g/sub-grant/awards/${id}`}>
-                            <Button variant="outline" size="sm">
-                                View Details
-                            </Button>
-                        </Link>
-                        <Link href={`/dashboard/c-and-g/sub-grant/awards/${id}/submission/create`}>
-                            <Button size="sm">
-                                Add Submission
-                            </Button>
-                        </Link>
-                    </div>
+                <div className="flex justify-center items-center">
+                    <Link href={`/dashboard/c-and-g/sub-grant/awards/${id}`}>
+                        <Button variant="outline" size="sm" className="w-full">
+                            Tap to view
+                        </Button>
+                    </Link>
                 </div>
             </Card>
 
