@@ -310,12 +310,20 @@ function PurchaseRequest({
             {currentTabCount} item{currentTabCount !== 1 ? 's' : ''}
           </span>
         </div>
-        <Link className='w-fit' href="/dashboard/procurement/purchase-request/activity-memo">
-          <Button className='flex gap-2 py-6'>
-            <AddSquareIcon />
-            Activity Memo
-          </Button>
-        </Link>
+        <div className='flex gap-3'>
+          <Link className='w-fit' href="/dashboard/procurement/purchase-request/create">
+            <Button className='flex gap-2 py-6' variant='outline'>
+              <AddSquareIcon />
+              Create Purchase Request
+            </Button>
+          </Link>
+          <Link className='w-fit' href="/dashboard/procurement/purchase-request/activity-memo">
+            <Button className='flex gap-2 py-6'>
+              <AddSquareIcon />
+              Create with Activity Memo
+            </Button>
+          </Link>
+        </div>
       </div>
       <Card className='space-y-5'>
         <div className='flex items-center justify-start gap-2'>

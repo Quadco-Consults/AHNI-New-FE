@@ -12,14 +12,17 @@ export default function AcceptedContracts() {
 
     const { data, isFetching, error } = useGetAllConsultancyApplicants({
         page,
-        size: 10,
-        status: "ACCEPTED", // Show applicants who have accepted contracts
+        size: 100, // Get more to filter on frontend
+        status: "CONTRACT_ISSUED", // Show applicants who were issued contracts
+        offer_accepted: true, // Filter only those who have accepted the offer (backend may not support this yet)
     });
 
     console.log("AcceptedContracts List - Data:", data);
     console.log("AcceptedContracts List - Error:", error);
 
-    const results = data?.data?.results || [];
+    const allResults = data?.data?.results || [];
+    // Frontend filter to ensure only accepted contracts show
+    const results = allResults.filter(applicant => applicant.offer_accepted === true);
     const paginator = data?.data?.pagination;
 
     // Debug: Show status values in console

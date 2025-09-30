@@ -87,6 +87,7 @@ export interface IConsultantPaginatedData {
 
 export interface IConsultantSingleData {
   id: string;
+  type?: "CONSULTANT" | "ADHOC" | "FACILITATOR";
   scope_of_work: IScopeOfWorkData;
   advertisement_document: string;
   supervisor: IUser;
@@ -104,4 +105,16 @@ export interface IConsultantSingleData {
   evaluation_comments: string;
   created_by: string;
   updated_by: null;
+  requisition?: {
+    id: string;
+    requisition_number: string;
+    position_title: string;
+    status: string;
+    priority: string;
+    created_datetime: string;
+    proposed_salary?: string;
+    currency?: string;
+    start_date?: string;
+    end_date?: string;
+  };
 }
