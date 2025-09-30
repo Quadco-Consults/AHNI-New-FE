@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
 
-const BASE_URL = "/contract-grants/sub-grants/pre-award-assessments/";
+const BASE_URL = "/contract-grants/award/assessments/";
 
 // ===== TYPES =====
 
@@ -51,7 +51,8 @@ interface AssessedSubmission {
 }
 
 interface CreateAssessmentPayload {
-  submission: string;
+  assessment_submission: string;
+  partner: string;
   assessment_data: AssessmentData;
 }
 
@@ -136,6 +137,35 @@ export const useGetSingleAssessment = (id: string, enabled: boolean = true) => {
     enabled: enabled && !!id,
     refetchOnWindowFocus: false,
   });
+};
+
+// ===== START ASSESSMENT (Recommended) =====
+
+export const useStartAssessment = () => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    Assessment,
+    Error,
+    { submission: string; partner?: string }
+  >({
+    endpoint: `${BASE_URL}start/`,
+    queryKey: ["preAwardAssessments"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const startAssessment = async (submissionId: string, partnerId?: string) => {
+    try {
+      return await callApi({
+        submission: submissionId,
+        ...(partnerId && { partner: partnerId })
+      });
+    } catch (error) {
+      console.error("Start assessment error:", error);
+      throw error;
+    }
+  };
+
+  return { startAssessment, data, isLoading, isSuccess, error };
 };
 
 // ===== CREATE ASSESSMENT =====
@@ -252,6 +282,7 @@ export const useCreateAssessmentMutation = useCreateAssessment;
 const PreAwardAssessmentAPI = {
   useGetAllAssessments,
   useGetSingleAssessment,
+  useStartAssessment,
   useCreateAssessment,
   useUpdateAssessment,
   useDeleteAssessment,
