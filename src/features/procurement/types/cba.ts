@@ -44,6 +44,11 @@ export type CbaResultsData = {
   vendor_submissions?: VendorSubmissionData[];
   vendor_responses?: {};
   items?: SolicitationItems[];
+  // Analysis results fields
+  selected_vendor_id?: string;
+  selected_items?: string[];
+  recommendation_note?: string;
+  selected_total?: number;
 };
 
 export interface CbaData {

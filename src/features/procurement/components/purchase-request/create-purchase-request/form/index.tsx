@@ -21,7 +21,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import ProcurementErrorBoundary from "../../../procurement-plan/ErrorBoundary";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useGetAllUsers } from "@/features/auth/controllers/userController";
+import { useGetAllUsers, useGetUserProfile } from "@/features/auth/controllers/userController";
 import { useGetDepartmentPaginate } from "@/features/modules/controllers/config/departmentController";
 import { useGetAllItems } from "@/features/modules/controllers/config/itemController";
 import { useGetLocationList } from "@/features/modules/controllers/config/locationController";
@@ -118,6 +118,8 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
     size: 2000000,
   });
 
+  const { data: currentUserProfile } = useGetUserProfile();
+
   const { data: locations } = useGetLocationList({});
 
   const [, setFile] = useState<File | null>(null);
@@ -161,6 +163,14 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
   const router = useRouter();
 
   const { control, handleSubmit, setValue, watch } = form;
+
+  // Auto-populate requested_by with current user (only for standalone PR without memo)
+  useEffect(() => {
+    if (currentUserProfile?.data?.id && !finalMemoId) {
+      console.log("🔐 Auto-populating requested_by with current user:", currentUserProfile.data.id);
+      setValue('requested_by', String(currentUserProfile.data.id));
+    }
+  }, [currentUserProfile, finalMemoId, setValue]);
 
   // Debug: Watch form values to see what's actually in the form
   const formValues = watch();
@@ -706,94 +716,135 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
     <div className='pt-5'>
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-6'>
-          <div className='grid  gap-5'>
-            <FormInput
-              label='Ref'
-              name='ref_number'
-              type='text'
-              placeholder=''
-            />
-          </div>
-          <div className='grid grid-cols-2 gap-5'>
-            <FormInput
-              label='Date of Request'
-              name='date_of_request'
-              type='date'
-              placeholder='01/01/2024'
-            />
-            <FormInput
-              label='Required Date'
-              name='date_required'
-              type='date'
-              placeholder='01/01/2024'
-            />
-          </div>
-          <div className='grid grid-cols-2 gap-5'>
-            <FormSelect
-              label='Requesting Dept.'
-              name='requesting_department'
-              required
-            >
-              <SelectContent>
-                {departmentsIsLoading ? (
-                  <LoadingSpinner />
-                ) : (
-                  (departments as any)?.data?.results?.map(
-                    (department: any) => (
-                      <SelectItem key={department?.id} value={String(department?.id)}>
-                        {String(department?.name || department?.id || 'Unknown Department')}
-                      </SelectItem>
-                    )
-                  )
-                )}
-              </SelectContent>
-            </FormSelect>
-            <FormSelect label='Deliver to' name='deliver_to' required>
-              <SelectContent>
-                {partnersIsLoading ? (
-                  <LoadingSpinner />
-                ) : (
-                  (locations as any)?.data?.results?.map((location: any) => (
-                    <SelectItem key={location?.id} value={String(location?.id)}>
-                      {String(location?.name || location?.id || 'Unknown Location')}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </FormSelect>
-          </div>
-          <div>
-            <label htmlFor=''>Specification/ Instructions</label>
-            <div className='w-full px-4 relative gap-x-3 h-[52px] rounded-[16.2px] border flex justify-center items-center'>
-              <UploadFile size={20} />
-              <Input
-                type='file'
-                onChange={handleFileChange}
-                className='bg-inherit border-none cursor-pointer '
-              />
+
+          {/* Header Info Banner */}
+          {!finalMemoId && (
+            <div className='p-4 bg-blue-50 border-2 border-blue-200 rounded-lg'>
+              <div className='flex items-start gap-3'>
+                <div className='bg-blue-500 text-white p-2 rounded-lg'>
+                  <svg className='h-5 w-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className='font-semibold text-blue-900 mb-1'>Standalone Purchase Request</h3>
+                  <p className='text-sm text-blue-800'>
+                    You are creating a purchase request without an activity memo. Please fill in all required fields including approval workflow.
+                  </p>
+                </div>
+              </div>
             </div>
+          )}
 
+          {/* Basic Information Section */}
+          <div className='p-6 bg-white border-2 border-gray-200 rounded-lg shadow-sm'>
+            <h3 className='text-xl font-semibold text-gray-800 mb-4 pb-2 border-b-2 border-gray-200'>
+              Basic Information
+            </h3>
+
+            <div className='space-y-5'>
+              <div className='grid gap-5'>
+                <FormInput
+                  label='Reference Number'
+                  name='ref_number'
+                  type='text'
+                  placeholder='Enter reference number'
+                  required
+                />
+              </div>
+
+              <div className='grid grid-cols-2 gap-5'>
+                <FormInput
+                  label='Date of Request'
+                  name='date_of_request'
+                  type='date'
+                  placeholder='01/01/2024'
+                  required
+                />
+                <FormInput
+                  label='Required Date'
+                  name='date_required'
+                  type='date'
+                  placeholder='01/01/2024'
+                  required
+                />
+              </div>
+
+              <div className='grid grid-cols-2 gap-5'>
+                <FormSelect
+                  label='Requesting Department'
+                  name='requesting_department'
+                  required
+                >
+                  <SelectContent>
+                    {departmentsIsLoading ? (
+                      <LoadingSpinner />
+                    ) : (
+                      (departments as any)?.data?.results?.map(
+                        (department: any) => (
+                          <SelectItem key={department?.id} value={String(department?.id)}>
+                            {String(department?.name || department?.id || 'Unknown Department')}
+                          </SelectItem>
+                        )
+                      )
+                    )}
+                  </SelectContent>
+                </FormSelect>
+                <FormSelect label='Deliver To' name='deliver_to' required>
+                  <SelectContent>
+                    {partnersIsLoading ? (
+                      <LoadingSpinner />
+                    ) : (
+                      (locations as any)?.data?.results?.map((location: any) => (
+                        <SelectItem key={location?.id} value={String(location?.id)}>
+                          {String(location?.name || location?.id || 'Unknown Location')}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </FormSelect>
+              </div>
+
+              <div>
+                <label className='font-semibold text-gray-700 mb-2 block'>
+                  Specification/Instructions Document
+                </label>
+                <div className='w-full px-4 relative gap-x-3 h-[52px] rounded-lg border-2 border-dashed border-gray-300 flex justify-center items-center hover:border-primary transition-colors'>
+                  <UploadFile size={20} className='text-gray-500' />
+                  <Input
+                    type='file'
+                    onChange={handleFileChange}
+                    className='bg-inherit border-none cursor-pointer'
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div>
+          {/* Items/Services Section */}
+          <div className='p-6 bg-white border-2 border-gray-200 rounded-lg shadow-sm'>
+            <h3 className='text-xl font-semibold text-gray-800 mb-4 pb-2 border-b-2 border-gray-200'>
+              Items & Services
+            </h3>
+
             <ProcurementErrorBoundary fallback={
               <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                 <p className="text-red-800">Error in items table. Object rendering issue detected.</p>
                 <p className="text-sm text-red-600 mt-2">Check browser console for details</p>
               </div>
             }>
-            <table className='w-full border'>
-              <thead>
-                <tr className='text-amber-500 whitespace-nowrap border-b-2 text-xs font-semibold'>
-                  <th className='px-2 py-5'>S/N</th>
-                  <th className='px-2 py-5'>Description of items/services</th>
-                  {/* <th className='px-2 py-5'>NO of Persons/Unit</th> */}
-                  {/* <th className="px-2 py-5">No of Days</th> */}
-                  <th className='px-2 py-5'>FCO</th>
-                  <th className='px-2 py-5'>Quantity</th>
-                  <th className='px-2 py-5'>UOM</th>
-                  <th className='px-2 py-5'>Unit Cost</th>
-                  <th className='px-2 py-5'>Total</th>
+            <div className='overflow-x-auto'>
+            <table className='w-full border border-gray-300 rounded-lg overflow-hidden'>
+              <thead className='bg-gray-100'>
+                <tr className='text-gray-700 whitespace-nowrap border-b-2 border-gray-300 text-sm font-semibold'>
+                  <th className='px-4 py-4 text-left'>S/N</th>
+                  <th className='px-4 py-4 text-left'>Description of Items/Services</th>
+                  <th className='px-4 py-4 text-left'>FCO</th>
+                  <th className='px-4 py-4 text-left'>Quantity</th>
+                  <th className='px-4 py-4 text-left'>UOM</th>
+                  <th className='px-4 py-4 text-left'>Unit Cost (₦)</th>
+                  <th className='px-4 py-4 text-left'>Total (₦)</th>
+                  <th className='px-4 py-4 text-center'>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -994,11 +1045,13 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                 })}
               </tbody>
             </table>
+            </div>
             </ProcurementErrorBoundary>
-            <div className='flex justify-end mt-2'>
+
+            <div className='flex justify-between items-center mt-4 pt-4 border-t-2 border-gray-200'>
               <Button
                 type='button'
-                className='text-primary bg-[#FFF2F2] flex gap-2 items-center justify-center'
+                className='text-primary bg-[#FFF2F2] hover:bg-[#FFE5E5] flex gap-2 items-center justify-center px-6 py-3'
                 onClick={() =>
                   append({
                     item: "",
@@ -1006,15 +1059,26 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                     amount: 0,
                     uom: "",
                     description: "",
-                    // number_of_days: 0,
                     unit_cost: 0,
                     quantity: 1,
                   })
                 }
               >
                 <AddSquareIcon />
-                Add
+                Add Item
               </Button>
+
+              {/* Grand Total (optional - calculate from items) */}
+              <div className='text-right'>
+                <p className='text-sm text-gray-600 mb-1'>Total Items: {fields.length}</p>
+                <div className='text-lg font-bold text-gray-800'>
+                  Total: ₦{fields.reduce((sum, _, index) => {
+                    const quantity = parseFloat(watch(`items.${index}.quantity`) || '0');
+                    const unitCost = parseFloat(watch(`items.${index}.unit_cost`) || '0');
+                    return sum + (quantity * unitCost);
+                  }, 0).toLocaleString()}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1025,179 +1089,242 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
             </div>
           </div> */}
 
-          {/* Approval section - auto-populated from activity memo */}
-          <div className='my-6 p-4 bg-gray-50 rounded-lg'>
-            <h3 className='mb-4 text-lg font-semibold'>Approval Workflow (From Activity Memo)</h3>
+          {/* Approval section - Conditional based on whether there's an activity memo */}
+          <div className='my-6 p-4 bg-gray-50 rounded-lg border-2 border-gray-200'>
+            <h3 className='mb-4 text-lg font-semibold text-gray-800'>
+              {finalMemoId ? 'Approval Workflow (From Activity Memo)' : 'Approval Workflow'}
+            </h3>
+
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 
+              {/* Requested By - Always Current User */}
               <div className='space-y-2'>
-                <h4 className='font-medium text-gray-700'>Requested By</h4>
-                <div className='p-2 bg-white border rounded'>
+                <h4 className='font-medium text-gray-700 flex items-center gap-2'>
+                  Requested By
+                  <span className='text-xs text-gray-500 font-normal'>(Current User)</span>
+                </h4>
+                <div className='p-3 bg-blue-50 border-2 border-blue-200 rounded'>
                   <FormField
                     control={control}
                     name="requested_by"
                     render={({ field }) => {
-                      console.log(`🔍 Display field value:`, {
-                        fieldValue: field.value,
-                        fieldValueType: typeof field.value,
-                        usersOptionsLength: usersOptions.length
-                      });
-
-                      // Ensure we're working with a string ID
                       const fieldValueStr = typeof field.value === 'string' ? field.value :
                                           (typeof field.value === 'object' && field.value?.id) ? field.value.id :
                                           String(field.value || '');
 
-                      const selectedUser = usersOptions.find((user: any) => user.value === fieldValueStr);
-                      console.log(`🔍 Selected user:`, selectedUser);
+                      // Get current user info
+                      const currentUser = currentUserProfile?.data;
+                      const currentUserName = currentUser
+                        ? `${currentUser.first_name || ''} ${currentUser.last_name || ''}`.trim()
+                        : 'Loading...';
+
+                      // If from memo, show memo user, else show current user
+                      const selectedUser = finalMemoId
+                        ? usersOptions.find((user: any) => user.value === fieldValueStr)
+                        : null;
 
                       return (
-                        <div className='text-sm'>
-                          {selectedUser?.label || (fieldValueStr ? `User ID: ${fieldValueStr}` : (users ? 'Not Selected' : 'Loading...'))}
+                        <div className='flex items-center gap-2'>
+                          <svg className='h-5 w-5 text-blue-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' />
+                          </svg>
+                          <div className='text-sm font-semibold text-gray-800'>
+                            {finalMemoId
+                              ? (selectedUser?.label || 'Not Selected')
+                              : currentUserName
+                            }
+                          </div>
                         </div>
                       );
                     }}
                   />
+                  <FormInput type='hidden' name='requested_by' />
+                  <FormInput type='hidden' name='role_requested_by' />
                 </div>
-                <FormInput type='hidden' name='requested_by' />
-                <FormInput type='hidden' name='role_requested_by' />
+                <p className='text-xs text-gray-600 italic'>
+                  {finalMemoId
+                    ? 'Automatically set from activity memo'
+                    : 'Automatically set to your user account'
+                  }
+                </p>
               </div>
 
+              {/* Reviewed By */}
               <div className='space-y-2'>
-                <h4 className='font-medium text-gray-700'>Reviewed By</h4>
-                <div className='p-2 bg-white border rounded'>
-                  <FormField
-                    control={control}
-                    name="reviewed_by"
-                    render={({ field }) => {
-                      console.log(`🔍 Display field value:`, {
-                        fieldValue: field.value,
-                        fieldValueType: typeof field.value,
-                        usersOptionsLength: usersOptions.length
-                      });
-
-                      // Ensure we're working with a string ID
-                      const fieldValueStr = typeof field.value === 'string' ? field.value :
-                                          (typeof field.value === 'object' && field.value?.id) ? field.value.id :
-                                          String(field.value || '');
-
-                      const selectedUser = usersOptions.find((user: any) => user.value === fieldValueStr);
-                      console.log(`🔍 Selected user:`, selectedUser);
-
-                      return (
-                        <div className='text-sm'>
-                          {selectedUser?.label || (fieldValueStr ? `User ID: ${fieldValueStr}` : (users ? 'Not Selected' : 'Loading...'))}
-                        </div>
-                      );
-                    }}
-                  />
-                </div>
-                <FormInput type='hidden' name='reviewed_by' />
-                <FormInput type='hidden' name='role_reviewed_by' />
+                <h4 className='font-medium text-gray-700 flex items-center gap-2'>
+                  Reviewed By
+                  {!finalMemoId && <span className='text-red-500'>*</span>}
+                </h4>
+                {finalMemoId ? (
+                  // Read-only display for Activity Memo flow
+                  <div className='p-3 bg-white border rounded'>
+                    <FormField
+                      control={control}
+                      name="reviewed_by"
+                      render={({ field }) => {
+                        const fieldValueStr = typeof field.value === 'string' ? field.value :
+                                            (typeof field.value === 'object' && field.value?.id) ? field.value.id :
+                                            String(field.value || '');
+                        const selectedUser = usersOptions.find((user: any) => user.value === fieldValueStr);
+                        return (
+                          <div className='text-sm font-medium'>
+                            {selectedUser?.label || (fieldValueStr ? `User ID: ${fieldValueStr}` : 'Not Selected')}
+                          </div>
+                        );
+                      }}
+                    />
+                    <FormInput type='hidden' name='reviewed_by' />
+                    <FormInput type='hidden' name='role_reviewed_by' />
+                  </div>
+                ) : (
+                  // Editable dropdown for standalone flow
+                  <FormSelect label='' name='reviewed_by' required>
+                    <SelectContent>
+                      {(users as any)?.data?.results?.map((user: any) => (
+                        <SelectItem key={user.id} value={String(user.id)}>
+                          {`${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unnamed User'}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </FormSelect>
+                )}
               </div>
 
+              {/* Authorized By */}
               <div className='space-y-2'>
-                <h4 className='font-medium text-gray-700'>Authorized By</h4>
-                <div className='p-2 bg-white border rounded'>
-                  <FormField
-                    control={control}
-                    name="authorised_by"
-                    render={({ field }) => {
-                      console.log(`🔍 Display field value:`, {
-                        fieldValue: field.value,
-                        fieldValueType: typeof field.value,
-                        usersOptionsLength: usersOptions.length
-                      });
-
-                      // Ensure we're working with a string ID
-                      const fieldValueStr = typeof field.value === 'string' ? field.value :
-                                          (typeof field.value === 'object' && field.value?.id) ? field.value.id :
-                                          String(field.value || '');
-
-                      const selectedUser = usersOptions.find((user: any) => user.value === fieldValueStr);
-                      console.log(`🔍 Selected user:`, selectedUser);
-
-                      return (
-                        <div className='text-sm'>
-                          {selectedUser?.label || (fieldValueStr ? `User ID: ${fieldValueStr}` : (users ? 'Not Selected' : 'Loading...'))}
-                        </div>
-                      );
-                    }}
-                  />
-                </div>
-                <FormInput type='hidden' name='authorised_by' />
-                <FormInput type='hidden' name='role_authorised_by' />
+                <h4 className='font-medium text-gray-700 flex items-center gap-2'>
+                  Authorized By
+                  {!finalMemoId && <span className='text-red-500'>*</span>}
+                </h4>
+                {finalMemoId ? (
+                  // Read-only display for Activity Memo flow
+                  <div className='p-3 bg-white border rounded'>
+                    <FormField
+                      control={control}
+                      name="authorised_by"
+                      render={({ field }) => {
+                        const fieldValueStr = typeof field.value === 'string' ? field.value :
+                                            (typeof field.value === 'object' && field.value?.id) ? field.value.id :
+                                            String(field.value || '');
+                        const selectedUser = usersOptions.find((user: any) => user.value === fieldValueStr);
+                        return (
+                          <div className='text-sm font-medium'>
+                            {selectedUser?.label || (fieldValueStr ? `User ID: ${fieldValueStr}` : 'Not Selected')}
+                          </div>
+                        );
+                      }}
+                    />
+                    <FormInput type='hidden' name='authorised_by' />
+                    <FormInput type='hidden' name='role_authorised_by' />
+                  </div>
+                ) : (
+                  // Editable dropdown for standalone flow
+                  <FormSelect label='' name='authorised_by' required>
+                    <SelectContent>
+                      {(users as any)?.data?.results?.map((user: any) => (
+                        <SelectItem key={user.id} value={String(user.id)}>
+                          {`${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unnamed User'}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </FormSelect>
+                )}
               </div>
 
+              {/* Approved By */}
               <div className='space-y-2'>
-                <h4 className='font-medium text-gray-700'>Approved By</h4>
-                <div className='p-2 bg-white border rounded'>
-                  <FormField
-                    control={control}
-                    name="approved_by"
-                    render={({ field }) => {
-                      console.log(`🔍 Display field value:`, {
-                        fieldValue: field.value,
-                        fieldValueType: typeof field.value,
-                        usersOptionsLength: usersOptions.length
-                      });
-
-                      // Ensure we're working with a string ID
-                      const fieldValueStr = typeof field.value === 'string' ? field.value :
-                                          (typeof field.value === 'object' && field.value?.id) ? field.value.id :
-                                          String(field.value || '');
-
-                      const selectedUser = usersOptions.find((user: any) => user.value === fieldValueStr);
-                      console.log(`🔍 Selected user:`, selectedUser);
-
-                      return (
-                        <div className='text-sm'>
-                          {selectedUser?.label || (fieldValueStr ? `User ID: ${fieldValueStr}` : (users ? 'Not Selected' : 'Loading...'))}
-                        </div>
-                      );
-                    }}
-                  />
-                </div>
-                <FormInput type='hidden' name='approved_by' />
-                <FormInput type='hidden' name='role_approved_by' />
+                <h4 className='font-medium text-gray-700 flex items-center gap-2'>
+                  Approved By
+                  {!finalMemoId && <span className='text-red-500'>*</span>}
+                </h4>
+                {finalMemoId ? (
+                  // Read-only display for Activity Memo flow
+                  <div className='p-3 bg-white border rounded'>
+                    <FormField
+                      control={control}
+                      name="approved_by"
+                      render={({ field }) => {
+                        const fieldValueStr = typeof field.value === 'string' ? field.value :
+                                            (typeof field.value === 'object' && field.value?.id) ? field.value.id :
+                                            String(field.value || '');
+                        const selectedUser = usersOptions.find((user: any) => user.value === fieldValueStr);
+                        return (
+                          <div className='text-sm font-medium'>
+                            {selectedUser?.label || (fieldValueStr ? `User ID: ${fieldValueStr}` : 'Not Selected')}
+                          </div>
+                        );
+                      }}
+                    />
+                    <FormInput type='hidden' name='approved_by' />
+                    <FormInput type='hidden' name='role_approved_by' />
+                  </div>
+                ) : (
+                  // Editable dropdown for standalone flow
+                  <FormSelect label='' name='approved_by' required>
+                    <SelectContent>
+                      {(users as any)?.data?.results?.map((user: any) => (
+                        <SelectItem key={user.id} value={String(user.id)}>
+                          {`${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unnamed User'}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </FormSelect>
+                )}
               </div>
 
             </div>
-            <p className='text-xs text-gray-500 mt-2'>
-              ℹ️ Approval workflow is automatically set from the activity memo and cannot be modified.
-            </p>
+
+            <div className='mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg'>
+              <p className='text-xs text-blue-800'>
+                {finalMemoId ? (
+                  <>
+                    <strong>ℹ️ Note:</strong> Approval workflow is automatically set from the activity memo and cannot be modified.
+                  </>
+                ) : (
+                  <>
+                    <strong>ℹ️ Note:</strong> Select the appropriate users for each approval stage. This determines the approval workflow for this purchase request.
+                  </>
+                )}
+              </p>
+            </div>
           </div>
-          <div className='flex items-center justify-end gap-4'>
+
+          {/* Action Buttons */}
+          <div className='flex items-center justify-between gap-4 pt-6 border-t-2 border-gray-200'>
             <Button
               type='button'
-              variant='outline'
-              onClick={() => {
-                const currentValues = watch();
-                console.log("🔍 Current form state for debugging:", currentValues);
-                toast.info("Form state logged to console - check developer tools");
-              }}
-            >
-              Debug Form
-            </Button>
-            <FormButton
-              loading={isLoading}
+              variant='ghost'
+              onClick={() => router.back()}
               disabled={isLoading}
-              type='submit'
-              className='flex items-center justify-center gap-2'
+              className='px-6'
             >
-              Submit
-              <LongArrowRight />
-            </FormButton>
-            {/* <Link
-              className='w-fit'
-              href={generatePath(RouteEnum.PURCHASE_REQUEST_FORM)}
-            > */}
-            {/* <Button className='flex gap-2 py-6'>
-              Submit
-              <LongArrowRight />
-            </Button> */}
-            {/* </Link> */}
+              Cancel
+            </Button>
+
+            <div className='flex gap-4'>
+              <Button
+                type='button'
+                variant='outline'
+                onClick={() => {
+                  const currentValues = watch();
+                  console.log("🔍 Current form state for debugging:", currentValues);
+                  toast.info("Form state logged to console - check developer tools");
+                }}
+              >
+                Debug Form
+              </Button>
+              <FormButton
+                loading={isLoading}
+                disabled={isLoading}
+                type='submit'
+                className='flex items-center justify-center gap-2 px-8 py-3'
+              >
+                {finalMemoId ? 'Submit Purchase Request' : 'Create Purchase Request'}
+                <LongArrowRight />
+              </FormButton>
+            </div>
           </div>
+
         </form>
       </Form>
     </div>

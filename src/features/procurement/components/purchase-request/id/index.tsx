@@ -17,12 +17,23 @@ import {
 
 import logoPng from "assets/imgs/logo.png";
 import { BsFiletypeDoc } from "react-icons/bs";
+import { Button } from "components/ui/button";
+import { Icon } from "@iconify/react";
+import { useRef } from "react";
 
 const PurchaseRequesttDetails = () => {
   const params = useParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const printRef = useRef<HTMLDivElement>(null);
 
   const { data, isLoading } = useGetPurchaseRequestById(id as string);
+
+  // Download as PDF function
+  const handleDownloadPDF = () => {
+    if (printRef.current) {
+      window.print();
+    }
+  };
 
   // Helper function to safely render any value as string
   const safeRender = (value: any): string => {
@@ -122,14 +133,21 @@ const PurchaseRequesttDetails = () => {
   );
 
   return (
-    <section className='min-h-screen bg-white p-4 max-w-6xl mx-auto'>
-      {/* Back Button */}
-      <div className='mb-4'>
+    <section className='min-h-screen bg-white p-4 max-w-6xl mx-auto print:p-0 print:max-w-full print:min-h-0'>
+      {/* Back Button and Download Button - Hidden on Print */}
+      <div className='mb-4 flex items-center justify-between print:hidden'>
         <GoBack />
+        <Button
+          onClick={handleDownloadPDF}
+          className='flex items-center gap-2 bg-green-600 hover:bg-green-700'
+        >
+          <Icon icon="solar:download-bold" fontSize={20} />
+          Download PDF
+        </Button>
       </div>
 
-      {/* Header */}
-      <div className='bg-white border border-gray-200 rounded-lg p-4 mb-6'>
+      {/* Header - Hidden on Print */}
+      <div className='bg-white border border-gray-200 rounded-lg p-4 mb-6 print:hidden'>
         <div className='text-center'>
           <h1 className='text-2xl font-bold text-gray-900'>
             Purchase Request Details
@@ -138,27 +156,30 @@ const PurchaseRequesttDetails = () => {
         </div>
       </div>
 
+      {/* Printable Content */}
+      <div ref={printRef}>
+
       {/* Logo and Title Section */}
-      <div className='bg-white border border-gray-200 rounded-lg p-6 mb-6'>
+      <div className='bg-white border border-gray-200 rounded-lg p-6 mb-6 page-break-avoid print:p-3 print:mb-3 print:border-0'>
         <div className='flex justify-center items-center flex-col'>
           <img
             src={(logoPng as any).src || logoPng}
             alt='AHNI Logo'
             width={80}
-            className='mb-4'
+            className='mb-4 print:mb-2'
           />
-          <h1 className='text-lg font-bold text-gray-800 mb-2'>Achieving Health Nigeria Initiative (AHNI)</h1>
+          <h1 className='text-lg font-bold text-gray-800 mb-2 print:text-base print:mb-1'>Achieving Health Nigeria Initiative (AHNI)</h1>
           <p className='text-gray-600 text-xs text-center'>23 Celina Ayom Crescent, Cadastral Zone B09, behind NAF Conference Center, Jabi, Abuja</p>
           <p className='text-gray-600 text-xs'>Tel: +234-09-4615555 / +234-09-461500 | Fax: +234-09-4615511</p>
         </div>
-        <div className='mt-6 text-center'>
-          <h2 className='text-lg font-bold text-gray-800 py-2 px-4 border border-gray-300 rounded inline-block'>
+        <div className='mt-6 text-center print:mt-3'>
+          <h2 className='text-lg font-bold text-gray-800 py-2 px-4 border border-gray-300 rounded inline-block print:text-base print:py-1 print:px-2'>
             PURCHASE REQUEST FORM
           </h2>
         </div>
       </div>
       {/* Request Information Section */}
-      <div className='bg-white border border-gray-200 rounded-lg p-4 mb-6'>
+      <div className='bg-white border border-gray-200 rounded-lg p-4 mb-6 page-break-avoid print:p-2 print:mb-3 print:border-gray-400'>
         <div className='flex items-center justify-between mb-4'>
           <h3 className='text-base font-semibold text-gray-800'>Request Information</h3>
           <div className='bg-gray-100 text-gray-800 px-3 py-1 rounded border border-gray-300'>
@@ -440,6 +461,7 @@ const PurchaseRequesttDetails = () => {
           </div>
         )}
       </div>
+      </div> {/* End of printable content */}
 
     </section>
   );
