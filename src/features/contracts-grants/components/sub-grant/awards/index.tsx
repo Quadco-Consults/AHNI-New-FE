@@ -28,19 +28,11 @@ export default function SubGrantAwards() {
 
     return (
         <section className="space-y-5">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-800">Sub-Grant Awards Management</h1>
-                    <p className="text-gray-600 mt-1">
-                        Manage and track awarded sub-grants
-                    </p>
-                </div>
-                <Link href={CG_ROUTES.CREATE_SUBGRANT_AWARD}>
-                    <Button>
-                        <Plus size={20} className="mr-2" />
-                        New Sub-Grant Award
-                    </Button>
-                </Link>
+            <div>
+                <h1 className="text-2xl font-bold text-gray-800">Sub-Grant Awards Management</h1>
+                <p className="text-gray-600 mt-1">
+                    Manage and track awarded sub-grants and sub-grantees
+                </p>
             </div>
 
             <Card>
