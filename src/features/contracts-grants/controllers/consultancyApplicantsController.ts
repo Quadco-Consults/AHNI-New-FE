@@ -42,6 +42,7 @@ interface ConsultancyApplicantsFilterParams {
   consultants?: string;
   consultant_id?: string;
   status?: string;
+  offer_accepted?: boolean;
   enabled?: boolean;
 }
 
@@ -68,6 +69,7 @@ export const useGetAllConsultancyApplicants = ({
   consultant_id = "",
   enabled = true,
   status,
+  offer_accepted,
 }: ConsultancyApplicantsFilterParams) => {
   return useQuery<PaginatedResponse<IConsultancyStaffPaginatedData>>({
     queryKey: [
@@ -78,6 +80,7 @@ export const useGetAllConsultancyApplicants = ({
       consultants,
       consultant_id,
       status,
+      offer_accepted,
     ],
     queryFn: async () => {
       try {
@@ -89,6 +92,7 @@ export const useGetAllConsultancyApplicants = ({
             ...(consultants && { consultants }),
             ...(consultant_id && { consultant_id }),
             status,
+            ...(offer_accepted !== undefined && { offer_accepted }),
           },
         });
         return response.data;

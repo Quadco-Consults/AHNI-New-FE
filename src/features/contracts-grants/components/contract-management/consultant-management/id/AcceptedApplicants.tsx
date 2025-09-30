@@ -4,17 +4,17 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import DataTable from "components/Table/DataTable";
 import { LoadingSpinner } from "components/Loading";
-import { useGetAllConsultancyApplicants, useUpdateConsultancyApplicant } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
+import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "components/ui/button";
 import Link from "next/link";
 import { Badge } from "components/ui/badge";
 import { format, isValid } from "date-fns";
-import { Eye, CheckCircle, FileCheck } from "lucide-react";
+import { Eye, FileCheck } from "lucide-react";
 import { toast } from "sonner";
 
-interface InterviewedApplicant {
+interface AcceptedApplicant {
   id: string;
   first_name: string;
   last_name: string;
@@ -26,9 +26,9 @@ interface InterviewedApplicant {
   updated_datetime: string;
 }
 
-export default function InterviewedApplicants() {
+export default function AcceptedApplicants() {
   const [page, setPage] = useState(1);
-  const [acceptingApplicant, setAcceptingApplicant] = useState<string | null>(null);
+  const [issuingContract, setIssuingContract] = useState<string | null>(null);
   const params = useParams();
   const consultancyId = params?.id as string;
 
@@ -39,11 +39,10 @@ export default function InterviewedApplicants() {
     enabled: !!consultancyId,
   });
 
-  // Map API response to expected format for interviewed applicants
+  // Map API response to expected format for accepted applicants
   const mappedApplicants = data?.data?.results
     ?.filter(applicant => {
       // Filter out applicants that don't belong to this consultant management
-      // If consultants field is undefined, trust the backend filtering (backward compatibility)
       const belongsToThisConsultant =
         applicant.consultants === undefined || // Backend filtered already, trust it
         applicant.consultants?.includes(consultancyId) ||
@@ -75,22 +74,22 @@ export default function InterviewedApplicants() {
       : applicant.contract_request || 'N/A',
   })) || [];
 
-  // Filter for interviewed applicants only
-  const interviewedApplicants = mappedApplicants.filter(
-    (applicant) => applicant.status === "INTERVIEWED"
+  // Filter for accepted applicants only
+  const acceptedApplicants = mappedApplicants.filter(
+    (applicant) => applicant.status === "ACCEPTED"
   );
 
-  console.log("🔍 InterviewedApplicants Debug:");
+  console.log("🔍 AcceptedApplicants Debug:");
   console.log("- Current Consultancy ID:", consultancyId);
   console.log("- Original Results Count:", data?.data?.results?.length || 0);
   console.log("- Mapped Results Count:", mappedApplicants.length);
-  console.log("- Interviewed Count:", interviewedApplicants.length);
+  console.log("- Accepted Count:", acceptedApplicants.length);
   console.log("- Is Fetching:", isFetching);
 
-  if (interviewedApplicants.length > 0) {
-    console.log("✅ INTERVIEWED APPLICANT DATA:");
-    interviewedApplicants.forEach((applicant, index) => {
-      console.log(`  Interviewed ${index + 1}:`, {
+  if (acceptedApplicants.length > 0) {
+    console.log("✅ ACCEPTED APPLICANT DATA:");
+    acceptedApplicants.forEach((applicant, index) => {
+      console.log(`  Accepted ${index + 1}:`, {
         name: `${applicant.first_name} ${applicant.last_name}`,
         email: applicant.email,
         status: applicant.status,
@@ -99,32 +98,32 @@ export default function InterviewedApplicants() {
     });
   }
 
-  // Accept applicant handler
-  const handleAcceptApplicant = async (applicantId: string, applicantName: string) => {
-    const confirmAccept = window.confirm(
-      `Are you sure you want to accept ${applicantName} as a candidate?`
+  // Contract issuance handler
+  const handleIssueContract = async (applicantId: string, applicantName: string) => {
+    const confirmIssue = window.confirm(
+      `Are you sure you want to issue a contract to ${applicantName}?`
     );
 
-    if (!confirmAccept) return;
+    if (!confirmIssue) return;
 
-    setAcceptingApplicant(applicantId);
+    setIssuingContract(applicantId);
 
     try {
-      // Make API call to update applicant status to ACCEPTED
-      console.log("Accepting applicant:", applicantId);
+      // Make API call to update applicant status to CONTRACT_ISSUED
+      console.log("Issuing contract to applicant:", applicantId);
       const response = await AxiosWithToken.patch(`/contract-grants/consultancy/applicants/${applicantId}/`, {
-        status: 'ACCEPTED'
+        status: 'CONTRACT_ISSUED'
       });
-      console.log("Accept response:", response);
+      console.log("Contract issuance response:", response);
 
-      toast.success(`${applicantName} has been accepted successfully!`);
-      toast.info(`You can now issue a contract to ${applicantName} from the Accepted Candidates tab.`);
+      toast.success(`Contract issued to ${applicantName} successfully!`);
+      toast.info(`${applicantName} can now access the contract acceptance form.`);
 
       // Refresh the data to update the UI
       window.location.reload();
 
     } catch (error: any) {
-      console.error("Accept applicant error:", error);
+      console.error("Contract issuance error:", error);
       console.error("Error response:", error.response);
       console.error("Error data:", error.response?.data);
 
@@ -132,15 +131,15 @@ export default function InterviewedApplicants() {
         || error.response?.data?.error
         || error.response?.data?.detail
         || error.message
-        || "Failed to accept applicant. Please try again.";
+        || "Failed to issue contract. Please try again.";
 
-      toast.error(`Failed to accept applicant: ${errorMessage}`);
+      toast.error(`Failed to issue contract: ${errorMessage}`);
     } finally {
-      setAcceptingApplicant(null);
+      setIssuingContract(null);
     }
   };
 
-  const columns: ColumnDef<InterviewedApplicant>[] = [
+  const columns: ColumnDef<AcceptedApplicant>[] = [
     {
       header: "S/N",
       accessorFn: (_, index) => index + 1,
@@ -178,13 +177,13 @@ export default function InterviewedApplicants() {
       header: "Status",
       accessorKey: "status",
       cell: ({ getValue }) => (
-        <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+        <Badge variant="secondary" className="bg-green-100 text-green-800">
           {getValue() as string}
         </Badge>
       ),
     },
     {
-      header: "Interview Date",
+      header: "Accepted Date",
       accessorKey: "updated_datetime",
       cell: ({ getValue }) => {
         const date = getValue() as string;
@@ -215,7 +214,7 @@ export default function InterviewedApplicants() {
       cell: ({ row }) => {
         const applicant = row.original;
         const applicantName = `${applicant.first_name} ${applicant.last_name}`;
-        const isAccepting = acceptingApplicant === applicant.id;
+        const isIssuing = issuingContract === applicant.id;
 
         return (
           <div className="flex gap-2">
@@ -230,11 +229,11 @@ export default function InterviewedApplicants() {
             <Button
               size="sm"
               className="flex items-center gap-1 bg-green-600 hover:bg-green-700"
-              disabled={isAccepting}
-              onClick={() => handleAcceptApplicant(applicant.id, applicantName)}
+              disabled={isIssuing}
+              onClick={() => handleIssueContract(applicant.id, applicantName)}
             >
-              <CheckCircle className="h-3 w-3" />
-              {isAccepting ? "Accepting..." : "Accept Candidate"}
+              <FileCheck className="h-3 w-3" />
+              {isIssuing ? "Issuing..." : "Issue Contract"}
             </Button>
           </div>
         );
@@ -245,7 +244,7 @@ export default function InterviewedApplicants() {
   if (error) {
     return (
       <div className="text-center py-8 text-red-500">
-        <p>Error loading interviewed applicants: {error.message}</p>
+        <p>Error loading accepted applicants: {error.message}</p>
       </div>
     );
   }
@@ -254,27 +253,27 @@ export default function InterviewedApplicants() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-lg font-semibold text-gray-800">Interviewed Applicants</h3>
+          <h3 className="text-lg font-semibold text-gray-800">Accepted Candidates</h3>
           <p className="text-sm text-gray-600">
-            Applicants who have completed their interviews and are ready for contract issuance
+            Candidates who have been accepted after interview review and are ready for contract issuance
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="bg-blue-50 text-blue-700">
-            {interviewedApplicants.length} Interviewed
+          <Badge variant="outline" className="bg-green-50 text-green-700">
+            {acceptedApplicants.length} Accepted
           </Badge>
         </div>
       </div>
 
       {isFetching ? (
         <LoadingSpinner />
-      ) : interviewedApplicants.length > 0 ? (
+      ) : acceptedApplicants.length > 0 ? (
         <DataTable
           columns={columns}
-          data={interviewedApplicants}
+          data={acceptedApplicants}
           isLoading={isFetching}
           pagination={{
-            total: interviewedApplicants.length,
+            total: acceptedApplicants.length,
             pageSize: 20,
             onChange: setPage,
           }}
@@ -286,9 +285,9 @@ export default function InterviewedApplicants() {
               <FileCheck className="w-6 h-6 text-gray-400" />
             </div>
             <div>
-              <h4 className="font-medium text-gray-700">No Interviewed Applicants</h4>
+              <h4 className="font-medium text-gray-700">No Accepted Candidates</h4>
               <p className="text-sm text-gray-500 mt-1">
-                Applicants will appear here after completing their interviews. Accept candidates to move them to the Accepted Candidates tab.
+                Candidates will appear here after you accept them from the Interviewed Applicants tab
               </p>
             </div>
           </div>

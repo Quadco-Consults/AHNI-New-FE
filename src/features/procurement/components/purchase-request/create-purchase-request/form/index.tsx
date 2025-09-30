@@ -210,13 +210,14 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
 
       // Check for items
       if (!data.items || data.items.length === 0) {
-        validationErrors.push("No items found - please ensure the activity memo contains expense items");
+        validationErrors.push("No items found - please add at least one item");
       }
 
-      // Check for memo reference
-      if (!data.request_memo || data.request_memo === "null" || data.request_memo.trim() === "") {
-        validationErrors.push("Missing activity memo reference");
-      }
+      // Check for memo reference (OPTIONAL - only validate if items are from memo)
+      // If creating standalone PR, request_memo can be null
+      // if (!data.request_memo || data.request_memo === "null" || data.request_memo.trim() === "") {
+      //   validationErrors.push("Missing activity memo reference");
+      // }
 
       // Check for required fields
       if (!data.ref_number?.trim()) validationErrors.push("Reference number is required");

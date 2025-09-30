@@ -19,12 +19,22 @@ export default function ConsultancyStaffList() {
   const { data, isFetching, error } = useGetAllConsultancyStaffs({
     page: currentPage,
     size: 10,
-    consultant_id: id,
+    consultants: id,
     status: "APPLIED",
   });
 
   // Map API response to expected format
-  const mappedApplicants = data?.data?.results?.map(applicant => ({
+  const mappedApplicants = data?.data?.results
+    ?.filter(applicant => {
+      // Filter out applicants that don't belong to this consultant management
+      const belongsToThisConsultant =
+        applicant.consultants === undefined ||
+        applicant.consultants?.includes(id as string) ||
+        applicant.consultancy === id ||
+        applicant.consultant_id === id;
+      return belongsToThisConsultant;
+    })
+    ?.map(applicant => ({
     ...applicant,
     // Map name fields
     first_name: applicant.first_name || applicant.name || 'Unknown',

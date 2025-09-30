@@ -1,44 +1,46 @@
 "use client";
 
 import BreadcrumbCard from "components/Breadcrumb";
-import PurchaseRequest from "./PurchaseRequest";
 import TabState from "components/ui/TabState";
 import { useState } from "react";
+import ActivityMemoList from "./ActivityMemoList";
 
-function PurchaseRequestTabs() {
+function ActivityMemoTabs() {
   const breadcrumbs = [
     { name: "Procurement", icon: true },
-    { name: "Purchase Request", icon: false },
+    { name: "Activity Memo", icon: false },
   ];
+
   const tabDetails = [
     {
       id: 1,
       state: "created",
-      name: "Created Purchase Requests",
-      tabComponent: <PurchaseRequest status='pending' />,
+      name: "Created Activity Memos",
+      tabComponent: <ActivityMemoList status="pending" />,
     },
     {
       id: 2,
       state: "approved",
-      name: "Approved Purchase Requests",
-      tabComponent: <PurchaseRequest status='approved' />,
+      name: "Approved Activity Memos",
+      tabComponent: <ActivityMemoList status="approved" />,
     },
   ];
+
   const [tabState, setTabState] = useState<string | number>(
     tabDetails[0].state
   );
 
   return (
-    <main className='min-h-screen space-y-8'>
+    <main className="min-h-screen space-y-8">
       <BreadcrumbCard list={breadcrumbs} />
-      <div className='flex w-full items-center gap-4'>
+      <div className="flex w-full items-center gap-4">
         <TabState
           tabArray={tabDetails}
           setState={setTabState}
           tabState={tabState}
         />
       </div>
-      <section className='w-full'>
+      <section className="w-full">
         {tabDetails.map((item, index) => {
           return (
             tabState === item.state && (
@@ -51,4 +53,4 @@ function PurchaseRequestTabs() {
   );
 }
 
-export default PurchaseRequestTabs;
+export default ActivityMemoTabs;

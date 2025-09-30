@@ -603,4 +603,11 @@ export enum ProgramRoutes {
   ADHOC_ACCEPTANCE_DETAILS = "/dashboard/programs/adhoc/adhoc-acceptance/details",
   ADHOC_CONTRACT_RECIPIENTS = "/dashboard/programs/adhoc/contract-recipients",
   ADHOC_ACCEPTED_CONTRACTS = "/dashboard/programs/adhoc/accepted-contracts",
+
+  // ADHOC STAFF REQUISITION (Global Hub)
+  ADHOC_REQUISITION = "/dashboard/adhoc-requisition",
+  ADHOC_REQUISITION_CREATE = "/dashboard/adhoc-requisition/create",
+  ADHOC_REQUISITION_DETAIL = "/dashboard/adhoc-requisition/:id",
+  MY_ADHOC_REQUISITIONS = "/dashboard/adhoc-requisition/my-requisitions",
+  ADHOC_REQUISITION_APPROVALS = "/dashboard/adhoc-requisition/approvals",
 }
