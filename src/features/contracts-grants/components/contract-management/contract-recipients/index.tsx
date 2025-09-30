@@ -10,21 +10,26 @@ import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/cont
 export default function ContractRecipients() {
     const [page, setPage] = useState(1);
 
-    // Filter to show only CONTRACT_ISSUED applicants (those who have been issued contracts)
+    // Fetch all applicants and filter client-side for contract-related statuses
     const { data, isFetching, error } = useGetAllConsultancyApplicants({
         page,
         size: 50,
-        status: "CONTRACT_ISSUED",
     });
 
-    const contractRecipients = data?.data?.results || [];
+    // Filter to show applicants who are approved for contracts or have been issued contracts
+    const allApplicants = data?.data?.results || [];
+    const contractRecipients = allApplicants.filter((applicant: any) =>
+        ["APPROVED", "CONTRACT_ISSUED", "ACCEPTED", "REJECTED"].includes(applicant.status)
+    );
     const paginator = data?.data?.pagination;
 
     console.log("🔍 Contract Recipients Debug:");
-    console.log("- Data:", data);
-    console.log("- Results Count:", contractRecipients.length);
+    console.log("- Total Applicants Fetched:", allApplicants.length);
+    console.log("- Contract Recipients (Filtered):", contractRecipients.length);
     console.log("- Is Fetching:", isFetching);
     console.log("- Error:", error);
+    console.log("- All Applicant Statuses:", allApplicants.map((a: any) => ({ name: a.name, status: a.status })));
+    console.log("- Unique Statuses:", [...new Set(allApplicants.map((a: any) => a.status))]);
     if (contractRecipients.length > 0) {
         console.log("- First Applicant:", contractRecipients[0]);
         console.log("- Sample applicant data:", {
