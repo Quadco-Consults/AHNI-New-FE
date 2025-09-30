@@ -115,9 +115,10 @@ export const useCreateSubGrantSubmission = () => {
 
   const createSubGrantSubmission = async (details: TSubGrantSubmissionCreateUpdateFormData) => {
     try {
-      await callApi(details);
+      return await callApi(details);
     } catch (error) {
       console.error("Sub grant submission create error:", error);
+      throw error;
     }
   };
 
@@ -139,9 +140,10 @@ export const useUpdateSubGrantSubmission = (submissionId: string) => {
 
   const updateSubGrantSubmission = async (details: TSubGrantSubmissionCreateUpdateFormData) => {
     try {
-      await callApi(details);
+      return await callApi(details);
     } catch (error) {
       console.error("Sub grant submission update error:", error);
+      throw error;
     }
   };
 
@@ -185,3 +187,28 @@ export const useModifySubGrantManualSub = useUpdateSubGrantSubmission;
 export const useGetSingleSubGrantManualSub = useGetSingleSubGrantSubmission;
 export const useGetAllSubGrantManualSub = useGetAllSubGrantSubmissions;
 export const useDeleteSubGrantManualSub = useDeleteSubGrantSubmission;
+
+// Shortlist Sub Grant Submission
+export const useShortlistSubGrantSubmission = (submissionId: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    ISubGrantSubmissionSingleData,
+    Error,
+    Record<string, never>
+  >({
+    endpoint: `${BASE_URL}${submissionId}/shortlist/`,
+    queryKey: ["subGrantSubmissions"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const shortlistSubmission = async () => {
+    try {
+      return await callApi({} as Record<string, never>);
+    } catch (error) {
+      console.error("Sub grant submission shortlist error:", error);
+      throw error;
+    }
+  };
+
+  return { shortlistSubmission, data, isLoading, isSuccess, error };
+};

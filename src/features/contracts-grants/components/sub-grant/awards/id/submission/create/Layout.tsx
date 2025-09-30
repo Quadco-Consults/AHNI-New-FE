@@ -28,10 +28,13 @@ const ManualSubGrantStepWrapper = ({ children }: Children) => {
     const MANUAL_SUB_GRANT_SS = "newManualSubgrantSteps";
     const [completedSteps, setCompletedSteps] = useState<boolean[]>(() => {
         // Retrieve the completion state from local storage or initialize if not present
-        const savedSteps = sessionStorage.getItem(MANUAL_SUB_GRANT_SS);
-        return savedSteps
-            ? JSON.parse(savedSteps)
-            : new Array(steps.length).fill(false);
+        if (typeof window !== 'undefined') {
+            const savedSteps = sessionStorage.getItem(MANUAL_SUB_GRANT_SS);
+            return savedSteps
+                ? JSON.parse(savedSteps)
+                : new Array(steps.length).fill(false);
+        }
+        return new Array(steps.length).fill(false);
     });
     const pathname = usePathname();
 
@@ -45,10 +48,12 @@ const ManualSubGrantStepWrapper = ({ children }: Children) => {
             setCompletedSteps((prev) => {
                 const updatedSteps = [...prev];
                 updatedSteps[currentStepIndex - 1] = true; // Mark the previous step as completed
-                sessionStorage.setItem(
-                    MANUAL_SUB_GRANT_SS,
-                    JSON.stringify(updatedSteps)
-                );
+                if (typeof window !== 'undefined') {
+                    sessionStorage.setItem(
+                        MANUAL_SUB_GRANT_SS,
+                        JSON.stringify(updatedSteps)
+                    );
+                }
                 return updatedSteps;
             });
         }

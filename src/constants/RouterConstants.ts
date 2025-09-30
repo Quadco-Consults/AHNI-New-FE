@@ -436,11 +436,19 @@ export const CG_ROUTES = {
   SUBGRANT_CREATE_PRE_AWARD_ASSESSMENT:
     "/dashboard/c-and-g/sub-grant/:id/create-pre-award-assessment",
   CREATE_SUBGRANT_SUBMISSION_DETAILS:
-    "/dashboard/c-and-g/sub-grant/manual-submission/organization-details/:id",
+    "/dashboard/c-and-g/sub-grant/awards/:id/submission/create",
   CREATE_SUBGRANT_SUBMISSION_UPLOADS:
-    "/dashboard/c-and-g/sub-grant/manual-submission/document-upload/:id",
+    "/dashboard/c-and-g/sub-grant/awards/:id/submission/create/upload",
   SUBGRANT_SUBMISSION_DETAILS:
     "/dashboard/c-and-g/sub-grant/:subGrantId/submission/:partnerSubId",
+
+  // Assessment routes
+  SUBGRANT_SUBMISSION_ASSESSMENT:
+    "/dashboard/c-and-g/sub-grant/awards/submission/:id/assessment",
+  SUBGRANT_ASSESSMENT_DETAILS:
+    "/dashboard/c-and-g/sub-grant/awards/submission/:id/assessment/:assessmentId",
+  SUBGRANT_ASSESSMENTS_LIST:
+    "/dashboard/c-and-g/sub-grant/awards/submission/:id/assessments",
 
   PRE_AWARD_ASSESSMENT: "/dashboard/c-and-g/sub-grant/preaward-assessment",
 

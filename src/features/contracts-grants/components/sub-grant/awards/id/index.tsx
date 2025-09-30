@@ -6,7 +6,8 @@ import { Button } from "components/ui/button";
 import { CG_ROUTES } from "constants/RouterConstants";
 import SubGrantAwardDetails from "./SubGrantAwardDetails";
 import SubGrantSubmissionDetails from "./submission";
-import { generatePath, Link, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
+import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
 import { skipToken } from "@reduxjs/toolkit/query";
@@ -16,7 +17,8 @@ import { useState } from "react";
 const SubGrantDetails = () => {
     const [tabValue, setTabValue] = useState("details");
 
-    const { id } = useParams();
+    const params = useParams();
+    const id = params?.id as string;
 
     const { data, isLoading } = useGetSingleSubGrant(id ?? skipToken);
 
@@ -50,12 +52,7 @@ const SubGrantDetails = () => {
                     <div>
                         <Link
                             className="w-full"
-                            href={generatePath(
-                                CG_ROUTES.CREATE_SUBGRANT_SUBMISSION_DETAILS,
-                                {
-                                    id,
-                                }
-                            )}
+                            href={CG_ROUTES.CREATE_SUBGRANT_SUBMISSION_DETAILS.replace(':id', id || '')}
                         >
                             <Button className="flex gap-2 py-6" type="button">
                                 <AddSquareIcon />
@@ -68,10 +65,7 @@ const SubGrantDetails = () => {
                 {tabValue === "shortlisted" && (
                     <div>
                         <Link
-                            href={generatePath(
-                                CG_ROUTES.SUBGRANT_CREATE_PRE_AWARD_ASSESSMENT,
-                                { id }
-                            )}
+                            href={CG_ROUTES.SUBGRANT_CREATE_PRE_AWARD_ASSESSMENT.replace(':id', id || '')}
                             className="w-full"
                         >
                             <Button className="flex gap-2 py-6" type="button">
