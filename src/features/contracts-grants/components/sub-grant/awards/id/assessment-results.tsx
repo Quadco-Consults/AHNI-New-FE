@@ -1,49 +1,40 @@
 "use client";
 
-import { skipToken } from "@reduxjs/toolkit/query";
 import Card from "components/Card";
 import { Badge } from "components/ui/badge";
 import { Button } from "components/ui/button";
 import { Award, FileText, TrendingUp } from "lucide-react";
 import { useParams } from "next/navigation";
-import { useGetAllSubGrantManualSub } from "@/features/contracts-grants/controllers/submissionController";
+import { useGetAssessedSubmissions } from "@/features/contracts-grants/controllers/preAwardAssessmentController";
 import Link from "next/link";
 import { Loading } from "components/Loading";
 
 export default function AssessmentResults() {
-    const { id: subGrantId } = useParams();
+    const params = useParams();
+    const subGrantId = params?.id as string;
 
-    const { data, isFetching } = useGetAllSubGrantManualSub(
-        subGrantId
-            ? {
-                  sub_grant: subGrantId as string,
-                  page: 1,
-                  size: 100,
-              }
-            : skipToken
-    );
+    const { data, isFetching } = useGetAssessedSubmissions(subGrantId);
 
     if (isFetching) {
         return <Loading />;
     }
 
-    // Filter assessed submissions and sort by score
-    const assessedSubmissions = (data?.data.results || [])
-        .filter((submission: any) =>
-            (submission.status === "SHORTLISTED" || submission.is_shortlisted) &&
-            submission.has_assessment
-        )
-        .sort((a: any, b: any) => (b.assessment_score || 0) - (a.assessment_score || 0))
-        .map((submission: any, index: number) => ({
-            ...submission,
-            rank: index + 1,
-        }));
+    // Get assessed submissions from the dedicated endpoint (already ranked by backend)
+    const assessedSubmissions = data?.data || [];
 
-    const getRiskLevel = (score: number) => {
-        if (score <= 29) return { label: "Low Risk", color: "bg-green-100 text-green-700" };
-        if (score <= 59) return { label: "Medium Risk", color: "bg-yellow-100 text-yellow-700" };
-        if (score <= 89) return { label: "High Risk", color: "bg-orange-100 text-orange-700" };
-        return { label: "Extremely High Risk", color: "bg-red-100 text-red-700" };
+    const getRiskLevel = (riskLevel: string) => {
+        switch(riskLevel) {
+            case "LOW":
+                return { label: "Low Risk", color: "bg-green-100 text-green-700" };
+            case "MEDIUM":
+                return { label: "Medium Risk", color: "bg-yellow-100 text-yellow-700" };
+            case "HIGH":
+                return { label: "High Risk", color: "bg-orange-100 text-orange-700" };
+            case "EXTREMELY_HIGH":
+                return { label: "Extremely High Risk", color: "bg-red-100 text-red-700" };
+            default:
+                return { label: "Unknown", color: "bg-gray-100 text-gray-700" };
+        }
     };
 
     if (assessedSubmissions.length === 0) {
@@ -75,19 +66,19 @@ export default function AssessmentResults() {
                     <div className="flex items-center gap-2">
                         <TrendingUp className="text-green-600" size={20} />
                         <span className="text-sm font-medium text-gray-600">
-                            Sorted by Score
+                            Sorted by Score (Lower is Better)
                         </span>
                     </div>
                 </div>
 
                 <div className="space-y-4">
-                    {assessedSubmissions.map((submission: any) => {
-                        const riskLevel = getRiskLevel(submission.assessment_score || 0);
-                        const isTopRanked = submission.rank === 1;
+                    {assessedSubmissions.map((item: any) => {
+                        const riskLevel = getRiskLevel(item.risk_level);
+                        const isTopRanked = item.rank === 1;
 
                         return (
                             <Card
-                                key={submission.id}
+                                key={item.submission.id}
                                 className={`p-6 ${
                                     isTopRanked
                                         ? "border-2 border-green-500 bg-green-50"
@@ -105,7 +96,7 @@ export default function AssessmentResults() {
                                                         : "bg-gray-600 text-white"
                                                 }`}
                                             >
-                                                Rank #{submission.rank}
+                                                Rank #{item.rank}
                                             </Badge>
                                             {isTopRanked && (
                                                 <Badge className="bg-yellow-500 text-white px-3 py-1">
@@ -116,26 +107,26 @@ export default function AssessmentResults() {
                                         </div>
 
                                         <h3 className="text-lg font-bold text-gray-800 mb-2">
-                                            {submission.organisation_name}
+                                            {item.submission.organisation_name}
                                         </h3>
 
                                         <div className="grid grid-cols-2 gap-4 text-sm">
                                             <div>
                                                 <span className="text-gray-600">Email:</span>
-                                                <span className="ml-2 font-medium">{submission.email}</span>
+                                                <span className="ml-2 font-medium">{item.submission.email}</span>
                                             </div>
                                             <div>
                                                 <span className="text-gray-600">Phone:</span>
-                                                <span className="ml-2 font-medium">{submission.phone_number}</span>
+                                                <span className="ml-2 font-medium">{item.submission.phone_number}</span>
                                             </div>
                                             <div>
                                                 <span className="text-gray-600">Address:</span>
-                                                <span className="ml-2 font-medium">{submission.address}</span>
+                                                <span className="ml-2 font-medium">{item.submission.address}</span>
                                             </div>
                                             <div>
                                                 <span className="text-gray-600">Organization Type:</span>
                                                 <span className="ml-2 font-medium">
-                                                    {submission.organisation_type || "N/A"}
+                                                    {item.submission.organisation_type || "N/A"}
                                                 </span>
                                             </div>
                                         </div>
@@ -144,9 +135,9 @@ export default function AssessmentResults() {
                                     <div className="flex flex-col items-end gap-3 ml-6">
                                         <div className="text-center">
                                             <div className="text-4xl font-bold text-gray-800">
-                                                {submission.assessment_score || 0}
+                                                {item.score || 0}
                                             </div>
-                                            <div className="text-sm text-gray-600">/ 100</div>
+                                            <div className="text-sm text-gray-600">Risk Score</div>
                                         </div>
 
                                         <Badge variant="default" className={riskLevel.color}>
@@ -155,7 +146,7 @@ export default function AssessmentResults() {
 
                                         <div className="flex gap-2 mt-2">
                                             <Link
-                                                href={`/dashboard/c-and-g/sub-grant/awards/submission/${submission.id}/assessment`}
+                                                href={`/dashboard/c-and-g/sub-grant/awards/submission/${item.submission.id}/assessment/${item.assessment.id}`}
                                             >
                                                 <Button variant="outline" size="sm">
                                                     <FileText size={14} className="mr-1" />
@@ -164,7 +155,7 @@ export default function AssessmentResults() {
                                             </Link>
 
                                             <Link
-                                                href={`/dashboard/c-and-g/sub-grant/awards/${subGrantId}/award-selection/${submission.id}`}
+                                                href={`/dashboard/c-and-g/sub-grant/awards/${subGrantId}/award-selection/${item.submission.id}`}
                                             >
                                                 <Button
                                                     size="sm"
