@@ -168,7 +168,7 @@ export const financialPreAwardQuestions = {
                 {
                     id: "gen-2",
                     question: "City and country of incorporation or legal registration:",
-                    requires_explanation: true,
+                    requires_explanation: false,
                     options: {
                         type: "text",
                         yesRating: "",
@@ -321,6 +321,732 @@ export const financialPreAwardQuestions = {
                         type: "text",
                         yesRating: "",
                         noRating: "",
+                    },
+                },
+            ],
+        },
+        {
+            category_name: "C. Financial Management - Accounting Staff",
+            category_description: "",
+            questions: [
+                {
+                    id: "acc-staff-1",
+                    question: "How many employees are in the Accounting Department and what are their names and key responsibilities?",
+                    requires_explanation: true,
+                    options: {
+                        type: "text",
+                        yesRating: "",
+                        noRating: "",
+                    },
+                },
+                {
+                    id: "acc-staff-2",
+                    question: "What is the background (work and education qualifications) of the Accountant for the project?",
+                    requires_explanation: true,
+                    options: {
+                        type: "text",
+                        yesRating: "",
+                        noRating: "",
+                    },
+                },
+                {
+                    id: "acc-staff-3",
+                    question: "Is it necessary to train the accountant prior to the implementation of the project?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "high",
+                        noRating: "low",
+                    },
+                },
+            ],
+        },
+        {
+            category_name: "C. Financial Management - Accounting System",
+            category_description: "",
+            questions: [
+                {
+                    id: "acc-sys-1",
+                    question: "Is the accounting system manual or automated? If automated, what is the accounting software program used?",
+                    requires_explanation: true,
+                    options: {
+                        type: "text",
+                        yesRating: "",
+                        noRating: "",
+                    },
+                },
+                {
+                    id: "acc-sys-2",
+                    question: "Is the accounting system capable of tracking and documenting the receipts of awarded funds by source (funder/award)?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "acc-sys-3",
+                    question: "Is the accounting system capable of tracking and documenting the utilization of awarded funds by source (funder/award)?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "acc-sys-4",
+                    question: "Does the organization use a written chart of accounts containing a description of each account?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "acc-sys-5",
+                    question: "Does the organization have written accounting policies and procedures?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "acc-sys-6",
+                    question: "What accounting records are kept? (General ledger, Cash receipts ledger, Cash disbursements ledger, Bank book, Petty cash book, Payroll register, Fixed Asset register, Advance Ledger - Indicate date of last entry)",
+                    requires_explanation: true,
+                    options: {
+                        type: "text",
+                        yesRating: "",
+                        noRating: "",
+                    },
+                },
+            ],
+        },
+        {
+            category_name: "C. Financial Management - Segregation of Duties",
+            category_description: "",
+            questions: [
+                {
+                    id: "seg-1",
+                    question: "Are there adequate segregation of duties between preparer, reviewer and approver for payments?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "seg-2",
+                    question: "Is it the policy and practice that different persons: prepare checks/EFT/internet banking, authorize the payments, reconcile bank accounts, and have access to receipts?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+            ],
+        },
+        {
+            category_name: "C. Financial Management - Documentation",
+            category_description: "",
+            questions: [
+                {
+                    id: "doc-1",
+                    question: "Are pre-numbered forms used to record all of the financial transactions and account for the sequence of all numbers used?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "doc-2",
+                    question: "Are key records matched before a transaction is approved (i.e., matching purchase order, receiving report, and vendor invoice before the invoice is approved for payment)?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "doc-3",
+                    question: "Are copies of proof of payment (e.g. checks, EFTs, internet banking) attached to the payment voucher?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "doc-4",
+                    question: "Are the source documents canceled (e.g. stamped \"PAID\") after processing to provide assurance that the same documents will not be reused?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "doc-5",
+                    question: "Will the supporting documentation related to the AHNI project be maintained separately, marked, or coded so that the cost therein are clearly distinguishable from non-AHNI projects?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+            ],
+        },
+        {
+            category_name: "C. Financial Management - Payroll",
+            category_description: "",
+            questions: [
+                {
+                    id: "pay-1",
+                    question: "Is each employee's salary documented in an employment letter or contract?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "pay-2",
+                    question: "Is a personnel action (or similar) form used to document salary revisions?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "pay-3",
+                    question: "For new hires, does the organization have written policies and a salary scale to guide them in establishing new hires salaries?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "pay-4",
+                    question: "Provide an example of an employee's completed time sheet. If not provided, explain how organization will comply with US Gov't 2 CFR 200.430 (i) Standards for Documentation of Personnel Expenses.",
+                    requires_explanation: true,
+                    options: {
+                        type: "text",
+                        yesRating: "",
+                        noRating: "",
+                    },
+                },
+                {
+                    id: "pay-5",
+                    question: "Does the time sheet detail the employee's hours worked each day by project (i.e., AHNI hours worked and non AHNI hours)?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "pay-6",
+                    question: "Does the organization use the employee's approved time sheets to allocate payroll?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "pay-7",
+                    question: "Is the organization complying with government payroll tax withholding regulations? If not, explain.",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "pay-8",
+                    question: "Does the organization have a written policy to support fringe benefits (leave, medical, pension and other benefits)?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "pay-9",
+                    question: "Does the organization have written policies and procedures that govern the conduct of ethics and conflicts of interest?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+            ],
+        },
+        {
+            category_name: "C. Financial Management - Petty Cash",
+            category_description: "",
+            questions: [
+                {
+                    id: "petty-1",
+                    question: "Does the organization maintain petty cash on the imprest system? What is the imprest petty cash amount?",
+                    requires_explanation: true,
+                    options: {
+                        type: "text",
+                        yesRating: "",
+                        noRating: "",
+                    },
+                },
+                {
+                    id: "petty-2",
+                    question: "Does the organization have a written petty cash policy that addresses petty cash management and segregation of such duties?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+            ],
+        },
+        {
+            category_name: "C. Financial Management - Financial Reports and Budgets",
+            category_description: "",
+            questions: [
+                {
+                    id: "fin-rep-1",
+                    question: "Are the financial statements/reports prepared by authorized personnel having sufficient experience and expertise to ensure compliance with applicable accounting principles?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "fin-rep-2",
+                    question: "How frequent does the organization prepare financial statements/reports?",
+                    requires_explanation: true,
+                    options: {
+                        type: "text",
+                        yesRating: "",
+                        noRating: "",
+                    },
+                },
+                {
+                    id: "fin-rep-3",
+                    question: "Are financial monitoring systems in place to ensure that budgets are not exceeded (i.e. costs compared with approved budgets and variances explained)?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "fin-rep-4",
+                    question: "Does the organization input funders' budgets into the accounting systems by line item amounts, by total budget or neither?",
+                    requires_explanation: true,
+                    options: {
+                        type: "text",
+                        yesRating: "",
+                        noRating: "",
+                    },
+                },
+            ],
+        },
+        {
+            category_name: "C. Financial Management - Travel and Workshops",
+            category_description: "",
+            questions: [
+                {
+                    id: "travel-1",
+                    question: "Does the organization have a written travel policy that addresses meals, accommodations, fuel, mileage, and other related travel cost?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "travel-2",
+                    question: "For meetings and workshops is there a written policy that describes adequate supporting documentation for participant's expenses and attendance records?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "travel-3",
+                    question: "Does the organization have a system to track advances (e.g. travel, workshops) they issue to ensure that they are appropriately accounted for and documented?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+            ],
+        },
+        {
+            category_name: "D. Procurement, Property and Commodities Management Systems",
+            category_description: "",
+            questions: [
+                {
+                    id: "proc-1",
+                    question: "Does the organization have a written procurement policy?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "proc-2",
+                    question: "Does the organization always solicit quotations from vendors before making a purchase over the local currency equivalent of $3,000?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "proc-3",
+                    question: "When dealing with US government funded projects, are terrorism and debarment searches performed of potential vendors, employees, consultants and subrecipients?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "proc-4",
+                    question: "Are secured facilities used when appropriate, and access to equipment and commodities limited to authorized personnel?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "proc-5",
+                    question: "Are the commodities maintained in a secure storage facility that meet the temperature and humidity requirements and are free from rodents, insects, oil and water damage?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "proc-6",
+                    question: "Does the organization use inventory stock cards to manage commodities and supplies?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "proc-7",
+                    question: "Does the organization have adequate controls to ensure that obsolete commodities are not distributed?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "proc-8",
+                    question: "Are different individuals responsible for purchasing goods, receiving goods, and approving vouchers?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "proc-9",
+                    question: "Are incoming and outgoing assets counted, inspected, and received or released on the basis of proper authorization?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "proc-10",
+                    question: "Does the organization maintain a fixed asset listing of non-expendable property containing description, serial number, acquisition cost, acquisition date, unique fixed asset number, location, current condition, and funding source?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "proc-11",
+                    question: "Are assets on hand periodically (at least yearly) inspected and counted, and the results compared with the asset records?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+            ],
+        },
+        {
+            category_name: "E. Reports and Records",
+            category_description: "",
+            questions: [
+                {
+                    id: "rep-1",
+                    question: "Are secured facilities used when appropriate, and access to critical forms and equipment limited to authorized personnel?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "rep-2",
+                    question: "Is access to computer programs and data files restricted to authorized personnel only?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "rep-3",
+                    question: "Are procedures in place to provide reasonable assurance that current files can be recovered in the event of a computer failure?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "rep-4",
+                    question: "Does the organization retain accounting records, including invoices, vouchers and time sheets, for at least three years after the final invoice is submitted to the funder?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+            ],
+        },
+        {
+            category_name: "F. Insurance",
+            category_description: "",
+            questions: [
+                {
+                    id: "ins-1",
+                    question: "Does the organization maintain Property/Vehicle Insurance?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "ins-2",
+                    question: "Does the organization maintain General Liability Insurance?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+            ],
+        },
+        {
+            category_name: "G. Indirect Rate",
+            category_description: "",
+            questions: [
+                {
+                    id: "ind-1",
+                    question: "Does the organization have an established, overhead, or administrative rate, such as an approved US Government negotiated indirect cost rate (NICRA)?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+            ],
+        },
+        {
+            category_name: "H. Shared Cost Allocation Plan",
+            category_description: "",
+            questions: [
+                {
+                    id: "cost-alloc-1",
+                    question: "If the organization has multiple funder's – will the organization use a shared cost allocation plan, to allocate direct cost such as; rent, utilities, administrative supplies, consistently and equitably between all funders?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+            ],
+        },
+        {
+            category_name: "I. 2nd Tier Subawardees",
+            category_description: "",
+            questions: [
+                {
+                    id: "sub-1",
+                    question: "Does the organization have a financial pre-award questionnaire/process in which it administers to 2nd Tier-subawardees?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "sub-2",
+                    question: "Does the organization have written policies and procedures for monitoring 2nd tier subawardees?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "sub-3",
+                    question: "Will each 2nd tier sub-awardee's expenses be easily identifiable in the organization's financial accounting reports?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "sub-4",
+                    question: "Will funds advanced to the 2nd tier sub-awardees be recorded as expenses?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "high",
+                        noRating: "low",
+                    },
+                },
+                {
+                    id: "sub-5",
+                    question: "How often will the 2nd tier sub-awardee's financial information be submitted to the organization?",
+                    requires_explanation: true,
+                    options: {
+                        type: "text",
+                        yesRating: "",
+                        noRating: "",
+                    },
+                },
+                {
+                    id: "sub-6",
+                    question: "What information will the 2nd tier sub-awardee be required to submit to the organization for payment?",
+                    requires_explanation: true,
+                    options: {
+                        type: "text",
+                        yesRating: "",
+                        noRating: "",
+                    },
+                },
+            ],
+        },
+        {
+            category_name: "J. Cost Share",
+            category_description: "",
+            questions: [
+                {
+                    id: "cost-share-1",
+                    question: "Does the organization have policies and procedures for documenting and monitoring cost share?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+            ],
+        },
+        {
+            category_name: "K. Satellite Offices",
+            category_description: "",
+            questions: [
+                {
+                    id: "sat-1",
+                    question: "Will accounting transactions related to the AHNI funded project be recorded at the organization's satellite offices?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "high",
+                        noRating: "low",
+                    },
+                },
+                {
+                    id: "sat-2",
+                    question: "Does the organization perform a monthly financial review of the satellite offices' supporting documentation?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
+                    },
+                },
+                {
+                    id: "sat-3",
+                    question: "Are financial duties in the satellite offices separated so that no one individual has complete control over an entire financial transaction?",
+                    requires_explanation: true,
+                    options: {
+                        type: "boolean",
+                        yesRating: "low",
+                        noRating: "high",
                     },
                 },
             ],
