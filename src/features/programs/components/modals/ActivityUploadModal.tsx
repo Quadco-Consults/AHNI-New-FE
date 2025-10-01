@@ -65,10 +65,16 @@ const ActivityUploadModal = () => {
 
         try {
             await uploadActivityPlan(formData as any);
-
+            toast.success("Activity plan uploaded successfully");
             dispatch(closeDialog());
         } catch (error: any) {
-            toast.error(error?.message || "Something went wrong");
+            const errorMessage = error?.response?.data?.message
+                || error?.response?.data?.error
+                || error?.message
+                || "Upload failed. Please check your file format and try again.";
+
+            console.error("Upload error:", error);
+            toast.error(errorMessage);
         }
     };
 
