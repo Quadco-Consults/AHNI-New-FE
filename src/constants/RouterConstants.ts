@@ -474,17 +474,20 @@ export const CG_ROUTES = {
   // CONSULTANCY
   CONSULTANCY: "/dashboard/c-and-g/consultancy",
   CREATE_CONSULTANCY_DETAILS:
-    "/dashboard/c-and-g/consultancy/application-details",
+    "/dashboard/c-and-g/consultancy/create-consultancy-details",
   CREATE_CONSULTANCY_WORK_SCOPE:
-    "/dashboard/c-and-g/consultancy/create/scope-of-work",
+    "/dashboard/c-and-g/consultancy/create-scope-of-work",
   CONSULTANCY_DETAILS: "/dashboard/c-and-g/consultancy/:id/details",
   CREATE_CONSULTANCY_APPLICANT:
     "/dashboard/c-and-g/consultancy/:id/applicant/create",
   CREATE_CONSULTANCY_INTERVIEW:
     "/dashboard/c-and-g/consultancy/:id/create-interview",
-
-  CONSULTANCY_APPLICATION_DETAILS:
+  CONSULTANCY_APPLICANT_DETAILS:
     "/dashboard/c-and-g/consultancy/:id/applicant/:applicantId/details",
+  CONSULTANCY_APPLICANT_INTERVIEW:
+    "/dashboard/c-and-g/consultancy/:id/applicant/:applicantId/interview",
+  CONSULTANCY_CONTRACT_ACCEPTANCE:
+    "/dashboard/c-and-g/consultancy/:id/applicant/:applicantId/contract-acceptance",
   CONSULTANCY_SHORTLIST_METRIC:
     "/api/v1/consultancy/shortlisted-applications-metrics/:id",
   CONSULTANCY_SLA: "/dashboard/c-and-g/consultancy/sla",

@@ -10,14 +10,10 @@ import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/cont
 export default function ConsultancyAcceptance() {
     const [page, setPage] = useState(1);
 
-    const { data, isFetching, error } = useGetAllConsultancyApplicants({
+    const { data, isFetching } = useGetAllConsultancyApplicants({
         page,
         size: 10,
-        // Remove status filter to see all applicants first
     });
-
-    console.log("ConsultancyAcceptance List - Data:", data);
-    console.log("ConsultancyAcceptance List - Error:", error);
 
     const results = data?.data?.results || [];
     const paginator = data?.data?.pagination;
