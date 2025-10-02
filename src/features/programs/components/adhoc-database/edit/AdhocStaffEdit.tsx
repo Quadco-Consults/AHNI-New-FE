@@ -14,7 +14,9 @@ import FormButton from "@/components/FormButton";
 import { toast } from "sonner";
 import { AdhocStaffSchema, TAdhocStaffFormData } from "@/features/programs/types/adhoc-staff";
 import { useGetSingleConsultancyApplicant, useUpdateConsultancyApplicant } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
-import { useEffect } from "react";
+import { useGetAllProjects } from "@/features/projects/controllers/projectController";
+import { useGetAllFacilities } from "@/features/modules/controllers/program/facilityController";
+import { useEffect, useMemo } from "react";
 
 // Gender options
 const genderOptions = [
@@ -32,7 +34,45 @@ export default function AdhocStaffEdit() {
   const { data: applicantResponse, isLoading: isFetchLoading, error } = useGetSingleConsultancyApplicant(staffId);
   const { updateConsultancyApplicant, isLoading: isUpdateLoading } = useUpdateConsultancyApplicant(staffId);
 
+  // Fetch all projects for dropdown
+  const { data: projectsData } = useGetAllProjects({ page: 1, size: 1000 });
+
+  // Fetch all facilities for dropdown
+  const { data: facilitiesData } = useGetAllFacilities({ page: 1, size: 1000 });
+
   const applicant = applicantResponse?.data;
+
+  // Transform projects for dropdown
+  const projectOptions = useMemo(() => {
+    const projects = projectsData?.data?.results || [];
+    return projects.map(project => ({
+      label: `${project.title} (${project.project_id})`,
+      value: project.id
+    }));
+  }, [projectsData]);
+
+  // Transform facilities for dropdown
+  const facilityOptions = useMemo(() => {
+    const facilities = facilitiesData?.data?.results || [];
+    return facilities.map(facility => ({
+      label: facility.name,
+      value: facility.name // Using name as value since health_facility is stored as text
+    }));
+  }, [facilitiesData]);
+
+  // Extract unique LGAs from facilities for dropdown
+  const lgaOptions = useMemo(() => {
+    const facilities = facilitiesData?.data?.results || [];
+    const uniqueLgas = new Set(
+      facilities
+        .map(f => f.state)
+        .filter(Boolean)
+    );
+    return Array.from(uniqueLgas).map(lga => ({
+      label: lga!,
+      value: lga!
+    }));
+  }, [facilitiesData]);
 
   // Transform applicant data to form structure
   const nameParts = applicant?.name?.split(' ') || [];
@@ -69,6 +109,7 @@ export default function AdhocStaffEdit() {
       bank_name: "",
       account_number: "",
       sort_code: "",
+      project: "",
     },
   });
 
@@ -98,6 +139,7 @@ export default function AdhocStaffEdit() {
         bank_name: applicant.bank_name || "",
         account_number: applicant.account_number || "",
         sort_code: applicant.sort_code || "",
+        project: applicant.project || "",
       });
     }
   }, [applicant, form]);
@@ -129,6 +171,7 @@ export default function AdhocStaffEdit() {
         bank_name: data.bank_name,
         account_number: data.account_number,
         sort_code: data.sort_code,
+        project: data.project,
       };
 
       console.log("Updating adhoc staff with payload:", updatePayload);
@@ -239,28 +282,84 @@ export default function AdhocStaffEdit() {
                     required
                     placeholder="Enter qualifications"
                   />
-                  <FormInput
+                  <FormSelect
                     label="Health Facility/Assignment Location"
                     name="health_facility"
                     required
-                    placeholder="Enter health facility or assignment location"
+                    placeholder="Select health facility"
+                    options={facilityOptions}
                   />
                   <FormInput
                     label="Spoke Site Name"
                     name="spoke_site_name"
                     placeholder="Enter spoke site name"
                   />
-                  <FormInput
+                  <FormSelect
                     label="LGA"
                     name="lga"
                     required
-                    placeholder="Enter LGA"
+                    placeholder="Select LGA"
+                    options={lgaOptions}
                   />
                   <FormInput
                     label="Status of Adhoc Staff"
                     name="status_of_adhoc_staff"
                     placeholder="Enter status"
                   />
+                </div>
+              </div>
+            </Card>
+
+            {/* Project Assignment */}
+            <Card>
+              <div className="p-6">
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">Project Assignment</h2>
+                <div className="grid grid-cols-1 gap-6">
+                  <FormSelect
+                    label="Assigned Project"
+                    name="project"
+                    placeholder="Select project"
+                    options={projectOptions}
+                  />
+                  {applicant?.project && projectsData?.data?.results && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <h3 className="font-semibold text-blue-900 mb-2">Project Details</h3>
+                      {(() => {
+                        const selectedProject = projectsData.data.results.find(p => p.id === applicant.project);
+                        if (selectedProject) {
+                          return (
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <p className="text-gray-600">Project Title:</p>
+                                <p className="font-medium text-gray-900">{selectedProject.title}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-600">Project ID:</p>
+                                <p className="font-medium text-gray-900">{selectedProject.project_id}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-600">Budget:</p>
+                                <p className="font-medium text-gray-900">{selectedProject.currency} {selectedProject.budget}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-600">Duration:</p>
+                                <p className="font-medium text-gray-900">
+                                  {new Date(selectedProject.start_date).toLocaleDateString()} - {new Date(selectedProject.end_date).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <div className="col-span-2">
+                                <p className="text-gray-600">Funding Sources:</p>
+                                <p className="font-medium text-gray-900">
+                                  {selectedProject.funding_sources.map(fs => fs.name).join(', ')}
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
+                    </div>
+                  )}
                 </div>
               </div>
             </Card>

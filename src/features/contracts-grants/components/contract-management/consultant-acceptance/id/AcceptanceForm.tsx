@@ -24,17 +24,6 @@ interface AcceptanceFormData {
 }
 
 export default function AcceptanceForm() {
-    const form = useForm<AcceptanceFormData>({
-        defaultValues: {
-            date: new Date().toISOString().split('T')[0],
-        }
-    });
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [acceptTerms, setAcceptTerms] = useState(false);
-    const [acceptSafeguarding, setAcceptSafeguarding] = useState(false);
-    const [acceptConfidentiality, setAcceptConfidentiality] = useState(false);
-    const [ipAddress, setIpAddress] = useState<string>('');
-
     const params = useParams();
     const router = useRouter();
     const applicantId = params?.id as string;
@@ -42,6 +31,24 @@ export default function AcceptanceForm() {
     // Get applicant data to show contract details
     const { data: applicantData } = useGetSingleConsultancyApplicant(applicantId);
     const applicant = applicantData?.data;
+
+    const form = useForm<AcceptanceFormData>({
+        defaultValues: {
+            date: applicant?.acceptance_date || new Date().toISOString().split('T')[0],
+            country: applicant?.acceptance_country || '',
+            city: applicant?.acceptance_city || '',
+            full_name_confirmation: applicant?.acceptance_confirmed_name || '',
+        }
+    });
+
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [acceptTerms, setAcceptTerms] = useState(applicant?.offer_accepted || false);
+    const [acceptSafeguarding, setAcceptSafeguarding] = useState(applicant?.offer_accepted || false);
+    const [acceptConfidentiality, setAcceptConfidentiality] = useState(applicant?.offer_accepted || false);
+    const [ipAddress, setIpAddress] = useState<string>('');
+    const [isEditMode, setIsEditMode] = useState(!applicant?.offer_accepted);
+
+    const isAccepted = applicant?.offer_accepted;
 
     // Get the applicant update function
     const { updateConsultancyApplicant, isLoading: isUpdateLoading } = useUpdateConsultancyApplicant(applicantId);
@@ -185,6 +192,30 @@ export default function AcceptanceForm() {
 
     return (
         <div className="space-y-6">
+            {/* Edit Mode Button (only show when accepted) */}
+            {isAccepted && (
+                <div className="flex justify-end">
+                    <Button
+                        type="button"
+                        onClick={() => setIsEditMode(!isEditMode)}
+                        variant={isEditMode ? "outline" : "default"}
+                        className="flex items-center gap-2"
+                    >
+                        {isEditMode ? (
+                            <>
+                                <Eye className="h-4 w-4" />
+                                View Mode
+                            </>
+                        ) : (
+                            <>
+                                <FileText className="h-4 w-4" />
+                                Edit Details
+                            </>
+                        )}
+                    </Button>
+                </div>
+            )}
+
             {/* Contract Information Header */}
             <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200">
                 <div className="space-y-4">
@@ -193,8 +224,14 @@ export default function AcceptanceForm() {
                             <FileText className="h-6 w-6" />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-bold text-gray-900">Contract Acceptance</h2>
-                            <p className="text-gray-600 mt-1">Review and accept your adhoc staff contract</p>
+                            <h2 className="text-2xl font-bold text-gray-900">
+                                {isAccepted ? 'Contract Acceptance Details' : 'Contract Acceptance'}
+                            </h2>
+                            <p className="text-gray-600 mt-1">
+                                {isAccepted
+                                    ? 'View your accepted contract details'
+                                    : 'Review and accept your adhoc staff contract'}
+                            </p>
                         </div>
                     </div>
 
@@ -260,12 +297,14 @@ export default function AcceptanceForm() {
                                 name="country"
                                 placeholder="Enter Country"
                                 required
+                                disabled={isAccepted && !isEditMode}
                             />
                             <FormInput
                                 label="City"
                                 name="city"
                                 placeholder="Enter City"
                                 required
+                                disabled={isAccepted && !isEditMode}
                             />
                         </div>
                     </Card>
@@ -298,6 +337,7 @@ export default function AcceptanceForm() {
                                     placeholder="Enter your full name exactly as shown above"
                                     required
                                     className="text-lg font-medium"
+                                    disabled={isAccepted && !isEditMode}
                                 />
 
                                 <div className="flex items-start gap-2 text-xs text-gray-600 bg-gray-50 p-3 rounded">
@@ -309,7 +349,7 @@ export default function AcceptanceForm() {
                                 </div>
                             </div>
 
-                            <FormInput type="date" label="Acceptance Date" name="date" required />
+                            <FormInput type="date" label="Acceptance Date" name="date" required disabled={isAccepted && !isEditMode} />
 
                             {ipAddress && (
                                 <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
@@ -348,6 +388,7 @@ export default function AcceptanceForm() {
                                     checked={acceptSafeguarding}
                                     onCheckedChange={(checked) => setAcceptSafeguarding(checked as boolean)}
                                     className="mt-1"
+                                    disabled={isAccepted && !isEditMode}
                                 />
                                 <label
                                     htmlFor="accept-safeguarding"
@@ -380,6 +421,7 @@ export default function AcceptanceForm() {
                                     checked={acceptConfidentiality}
                                     onCheckedChange={(checked) => setAcceptConfidentiality(checked as boolean)}
                                     className="mt-1"
+                                    disabled={isAccepted && !isEditMode}
                                 />
                                 <label
                                     htmlFor="accept-confidentiality"
@@ -399,6 +441,7 @@ export default function AcceptanceForm() {
                                 checked={acceptTerms}
                                 onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
                                 className="mt-1"
+                                disabled={isAccepted && !isEditMode}
                             />
                             <label
                                 htmlFor="accept-terms"
@@ -409,38 +452,55 @@ export default function AcceptanceForm() {
                         </div>
                     </Card>
 
-                    {/* Action Buttons */}
-                    <div className="flex gap-4 pt-6">
-                        <FormButton
-                            type="submit"
-                            size="lg"
-                            disabled={isSubmitting || isUpdateLoading}
-                            className="flex-1 bg-green-600 hover:bg-green-700 text-lg py-6"
-                        >
-                            <CheckCircle className="h-5 w-5 mr-2" />
-                            {(isSubmitting || isUpdateLoading) ? "Processing..." : "Accept Contract & Join AHNi Team"}
-                        </FormButton>
+                    {/* Action Buttons - Only show if not accepted OR in edit mode */}
+                    {(!isAccepted || isEditMode) && (
+                        <div className="flex gap-4 pt-6">
+                            <FormButton
+                                type="submit"
+                                size="lg"
+                                disabled={isSubmitting || isUpdateLoading}
+                                className="flex-1 bg-green-600 hover:bg-green-700 text-lg py-6"
+                            >
+                                <CheckCircle className="h-5 w-5 mr-2" />
+                                {(isSubmitting || isUpdateLoading)
+                                    ? "Processing..."
+                                    : isAccepted
+                                        ? "Update Contract Details"
+                                        : "Accept Contract & Join AHNi Team"}
+                            </FormButton>
 
-                        <FormButton
-                            type="button"
-                            size="lg"
-                            variant="outline"
-                            disabled={isSubmitting || isUpdateLoading}
-                            className="flex-1 border-2 border-red-300 text-red-600 hover:bg-red-50 text-lg py-6"
-                            onClick={handleRejectContract}
-                        >
-                            <XCircle className="h-5 w-5 mr-2" />
-                            {(isSubmitting || isUpdateLoading) ? "Processing..." : "Reject Contract"}
-                        </FormButton>
-                    </div>
+                            {!isAccepted && (
+                                <FormButton
+                                    type="button"
+                                    size="lg"
+                                    variant="outline"
+                                    disabled={isSubmitting || isUpdateLoading}
+                                    className="flex-1 border-2 border-red-300 text-red-600 hover:bg-red-50 text-lg py-6"
+                                    onClick={handleRejectContract}
+                                >
+                                    <XCircle className="h-5 w-5 mr-2" />
+                                    {(isSubmitting || isUpdateLoading) ? "Processing..." : "Reject Contract"}
+                                </FormButton>
+                            )}
+                        </div>
+                    )}
 
                     {/* Helper Text */}
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <p className="text-sm text-blue-800">
-                            <strong>What happens next?</strong> Once you accept this contract, your details will be added to the AHNi Adhoc Staff Database.
-                            You can then complete any additional information required for payroll and administrative purposes.
-                        </p>
-                    </div>
+                    {!isAccepted ? (
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <p className="text-sm text-blue-800">
+                                <strong>What happens next?</strong> Once you accept this contract, your details will be added to the AHNi Adhoc Staff Database.
+                                You can then complete any additional information required for payroll and administrative purposes.
+                            </p>
+                        </div>
+                    ) : !isEditMode ? (
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                            <p className="text-sm text-green-800">
+                                <strong>Contract Accepted:</strong> Your contract has been accepted and you are now part of the AHNi Adhoc Staff Database.
+                                Click "Edit Details" above if you need to update any information.
+                            </p>
+                        </div>
+                    ) : null}
                 </form>
             </Form>
         </div>

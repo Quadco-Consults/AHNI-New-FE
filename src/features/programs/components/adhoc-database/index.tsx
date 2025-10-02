@@ -19,6 +19,11 @@ export default function AdhocDatabase() {
 
     const allResults = data?.data?.results || [];
 
+    // Debug: Log first applicant to see what fields are available
+    if (allResults.length > 0) {
+        console.log("Sample applicant data:", allResults[0]);
+    }
+
     // Filter for adhoc staff who have accepted their contracts
     // Handle backward compatibility: some old records may not have type field set correctly
     const acceptedApplicants = allResults.filter(applicant => {
