@@ -61,14 +61,14 @@ const TableAction = ({ id }: TWorkPlanTrackerData) => {
             <div className='flex flex-col items-start justify-between gap-1'>
               <Link
                 className='w-full'
-                href={`/dashboard/programs/plan/activity-tracker/${id}`}
+                href={`/dashboard/programs/plan/activity/${id}`}
               >
                 <Button
                   className='w-full flex items-center justify-start gap-2'
                   variant='ghost'
                 >
                   <EyeIcon />
-                  View
+                  View Activities
                 </Button>
               </Link>
               <Button

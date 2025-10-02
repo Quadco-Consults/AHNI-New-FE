@@ -10,12 +10,10 @@ export const ConsultancyStaffSchema = z.object({
         })
     ),
     name: z.string().min(1, "Field Required"),
-    contractor_name: z.string().min(1, "Field Required"),
+    contractor_name: z.string().optional(),
     email: z.string().min(1, "Field Required"),
     phone_number: z.string().min(1, "Field Required"),
-    contract_number: z.string().min(1, "Field Required"),
     position_under_contract: z.string().min(1, "Field Required"),
-    proposed_salary: z.string().min(1, "Field Required"),
     place_of_birth: z.string().min(1, "Field Required"),
     citizenship: z.string().min(1, "Field Required"),
     start_duration_date: z.string().min(1, "Field Required"),
@@ -83,6 +81,23 @@ export interface IConsultancyStaffPaginatedData {
     citizenship: string;
     start_duration_date: string;
     end_duration_date: string;
+    consultants?: string[]; // ManyToMany relationship - array of consultant IDs
+    consultancy?: string; // Backward compatibility
+    consultant_id?: string; // Backward compatibility
+    interview_scores?: {
+        relevant_experience?: number;
+        project_management?: number;
+        recent_experience?: number;
+        comparable_projects?: number;
+        communication_skills?: number;
+        technical_skill?: number;
+        relevant_qualification?: number;
+        academic_credentials?: number;
+        timeline_management?: number;
+        toolset_framework?: number;
+        total_score?: number;
+        interview_date?: string;
+    };
     education: {
         date: string;
         name: string;
@@ -184,6 +199,20 @@ export interface IConsultancyStaffSingleData {
         employer_telephone: string;
         services_performed: string;
     }[];
+    interview_scores?: {
+        relevant_experience?: number;
+        project_management?: number;
+        recent_experience?: number;
+        comparable_projects?: number;
+        communication_skills?: number;
+        technical_skill?: number;
+        relevant_qualification?: number;
+        academic_credentials?: number;
+        timeline_management?: number;
+        toolset_framework?: number;
+        total_score?: number;
+        interview_date?: string;
+    };
     created_by: string;
     updated_by: null;
 }

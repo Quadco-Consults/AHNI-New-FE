@@ -81,29 +81,56 @@ export const supportiveSupervisionPlanColumns: ColumnDef<TSupervisionPlanPaginat
       },
     },
     {
-      header: "Approval Status",
-      id: "approval_status",
-      accessorKey: "approval_status",
-      size: 150,
-      cell: ({ getValue, row }) => {
-        const approvalStatus = getValue() as string;
-        const rowData = row.original;
+      header: "Approval Progress",
+      id: "approval_progress",
+      size: 200,
+      cell: ({ row }) => {
+        const rowData = row.original as any;
+        const currentLevel = rowData.current_approval_level || 1;
+        const approvals = rowData.approvals || [];
 
-        // Mock approval data - replace with actual data from your API
-        const approvalInfo = {
-          name: "John Doe", // Replace with actual approver name
-          position: "Manager", // Replace with actual approver position
-          status: approvalStatus?.toUpperCase() as any || 'PENDING',
-          approvalDate: rowData.updated_datetime || rowData.created_datetime,
-          creationDate: rowData.created_datetime,
-          level: "Level 1", // Replace with actual approval level
+        // Count approved levels
+        const approvedCount = approvals.filter(
+          (a: any) => a.status === "APPROVED"
+        ).length;
+
+        // Check if any level is rejected
+        const isRejected = approvals.some((a: any) => a.status === "REJECTED");
+
+        const getProgressColor = () => {
+          if (isRejected) return "bg-red-500";
+          if (approvedCount === 3) return "bg-green-500";
+          if (approvedCount > 0) return "bg-blue-500";
+          return "bg-gray-300";
+        };
+
+        const getStatusText = () => {
+          if (isRejected) return "Rejected";
+          if (approvedCount === 3) return "Fully Approved";
+          if (approvedCount > 0) return `Level ${currentLevel} Pending`;
+          return "Pending Approval";
         };
 
         return (
-          <ApprovalSummary
-            approval={approvalInfo}
-            variant="badge"
-          />
+          <div className="space-y-2">
+            {/* Progress bar */}
+            <div className="flex items-center gap-2">
+              <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
+                <div
+                  className={cn(
+                    "h-full transition-all duration-300",
+                    getProgressColor()
+                  )}
+                  style={{ width: `${(approvedCount / 3) * 100}%` }}
+                />
+              </div>
+              <span className="text-xs font-medium text-gray-600">
+                {approvedCount}/3
+              </span>
+            </div>
+            {/* Status text */}
+            <p className="text-xs text-gray-600">{getStatusText()}</p>
+          </div>
         );
       },
     },
@@ -189,6 +216,7 @@ const TableMenu = ({ id }: TSupervisionPlanPaginatedData) => {
                       dialogProps: {
                         header: "Approve Supportive Supervision Plan",
                         width: "max-w-2xl",
+                        id: id,
                       },
                     })
                   );
@@ -206,6 +234,17 @@ const TableMenu = ({ id }: TSupervisionPlanPaginatedData) => {
                 >
                   <ApprovalStatusIcon />
                   Approval Status
+                </Button>
+              </Link>
+              <Link
+                href={`${RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_REPORT.replace(":id", id)}`}
+              >
+                <Button
+                  className='w-full flex items-center justify-start gap-2'
+                  variant='ghost'
+                >
+                  <EyeIcon />
+                  View Report
                 </Button>
               </Link>
               <Button

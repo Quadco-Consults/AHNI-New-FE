@@ -10,6 +10,9 @@ export const SSPCompositionSchema = z.object({
     visit_date: z.string().min(1, "This field is required"),
     facility: z.string().min(1, "This field is required"),
     team_members: z.array(z.string().min(1, "This field is required")),
+    level1_approver: z.string().min(1, "Level 1 approver is required"),
+    level2_approver: z.string().min(1, "Level 2 approver is required"),
+    level3_approver: z.string().min(1, "Level 3 approver is required"),
 });
 
 export type TSSPCompositionFormValues = z.infer<typeof SSPCompositionSchema>;
@@ -46,6 +49,16 @@ export interface IObjective {
     };
 }
 
+export interface IApprovalLevel {
+    id: string;
+    level: number;
+    approver: IUser;
+    status: "PENDING" | "APPROVED" | "REJECTED";
+    comments?: string;
+    approval_date?: string;
+    created_datetime: string;
+}
+
 export interface TSupervisionPlanSingleData {
     id: string;
     facility: TFacilityData;
@@ -55,4 +68,9 @@ export interface TSupervisionPlanSingleData {
     year: string;
     visit_date: string;
     status: string;
+    level1_approver?: IUser;
+    level2_approver?: IUser;
+    level3_approver?: IUser;
+    approvals?: IApprovalLevel[];
+    current_approval_level?: number;
 }

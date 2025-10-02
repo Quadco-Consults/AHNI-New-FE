@@ -1,18 +1,12 @@
 "use client";
 
-import LongArrowLeft from "components/icons/LongArrowLeft";
-import { useRouter } from "next/navigation";
+import GoBack from "components/GoBack";
 import CreateActivityMemo from "./form";
 import BreadcrumbCard from "components/Breadcrumb";
 
 // type Props = {};
 
 function CreatePurchaseRequest() {
-  const router = useRouter();
-
-  const goBack = () => {
-    router.back();
-  };
 
   const breadcrumbs = [
     { name: "Procurement", icon: true },
@@ -24,12 +18,7 @@ function CreatePurchaseRequest() {
     <section className='space-y-6'>
       <BreadcrumbCard list={breadcrumbs} />
 
-      <button
-        onClick={goBack}
-        className='w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center'
-      >
-        <LongArrowLeft />
-      </button>
+      <GoBack />
 
       <CreateActivityMemo />
     </section>

@@ -135,10 +135,7 @@ const Preview = () => {
           {created !== "true" && (
             <Link
               className='w-fit'
-              href={{
-                pathname: RouteEnum.SAMPLE_PREVIEW,
-                search: `?id=${id}&request=${request}`,
-              }}
+              href={`/dashboard/procurement/purchase-request/${request}/details`}
             >
               <Button
                 type='submit'

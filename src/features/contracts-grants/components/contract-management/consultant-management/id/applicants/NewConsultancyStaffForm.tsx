@@ -18,6 +18,7 @@ import {
   IConsultancyStaffSingleData,
   TConsultancyStaffFormData,
 } from "@/features/contracts-grants/types/contract-management/consultancy-management/consultancy-application";
+import { IConsultantSingleData } from "@/features/contracts-grants/types/contract-management/consultancy-management/consultancy-management";
 import { useEffect, useMemo, useState } from "react";
 import {
   FormProvider,
@@ -36,8 +37,10 @@ import { fileToBase64 } from "utils/fileToBase64";
 
 export default function NewConsultancyStaffForm({
   consultancyStaffData,
+  consultancyManagementData,
 }: {
   consultancyStaffData: IConsultancyStaffSingleData | undefined;
+  consultancyManagementData: IConsultantSingleData | undefined;
 }) {
   const router = useRouter();
   const params = useParams();
@@ -55,9 +58,7 @@ export default function NewConsultancyStaffForm({
       contractor_name: "",
       email: "",
       phone_number: "",
-      contract_number: "",
       position_under_contract: "",
-      proposed_salary: "",
       place_of_birth: "",
       citizenship: "",
       start_duration_date: "",
@@ -167,6 +168,32 @@ export default function NewConsultancyStaffForm({
     control: form.control,
   });
 
+  // Auto-populate fields from requisition data if available
+  useEffect(() => {
+    console.log("🔍 Consultancy Management Data:", consultancyManagementData);
+    console.log("🔍 Requisition Data:", consultancyManagementData?.requisition);
+
+    const requisition = consultancyManagementData?.requisition;
+    if (requisition && !consultancyStaffData) {
+      console.log("✅ Auto-populating form fields from requisition:", requisition);
+      // Only auto-populate when creating new applicant, not when editing
+      form.setValue("position_under_contract", requisition.position_title);
+
+      // Only set these if they exist in the response
+      if (requisition.start_date) {
+        form.setValue("start_duration_date", requisition.start_date);
+      }
+      if (requisition.end_date) {
+        form.setValue("end_duration_date", requisition.end_date);
+      }
+    } else {
+      console.log("❌ Not auto-populating:", {
+        hasRequisition: !!requisition,
+        isEditing: !!consultancyStaffData
+      });
+    }
+  }, [consultancyManagementData, consultancyStaffData, form]);
+
   const { createConsultancyApplicant, isLoading: isCreateLoading } =
     useCreateConsultancyStaffMutation();
 
@@ -213,16 +240,20 @@ export default function NewConsultancyStaffForm({
 
   console.log(form.formState.errors);
 
+  const isAdhocStaff = consultancyManagementData?.type === "ADHOC";
+
   return (
     <FormProvider {...form}>
       <form className='space-y-10' onSubmit={form.handleSubmit(onSubmit)}>
-        <div className='grid grid-cols-3 gap-10'>
+        <div className={`grid ${isAdhocStaff ? 'grid-cols-2' : 'grid-cols-3'} gap-10`}>
           <FormInput label='Name (Last, First, Middle)' name='name' required />
-          <FormInput
-            label="Contractor's Name"
-            name='contractor_name'
-            required
-          />
+          {!isAdhocStaff && (
+            <FormInput
+              label="Contractor's Name"
+              name='contractor_name'
+              required
+            />
+          )}
           <FormInput label='Email' name='email' required />
         </div>
 
@@ -232,24 +263,10 @@ export default function NewConsultancyStaffForm({
           required
         />
 
-        <div className='grid grid-cols-3 gap-10'>
-          <FormInput
-            type='number'
-            label='Contract Number'
-            name='contract_number'
-            required
-          />
-
+        <div className='grid grid-cols-2 gap-10'>
           <FormInput
             label='Position Under Contract'
             name='position_under_contract'
-            required
-          />
-
-          <FormInput
-            type='number'
-            label='Proposed Amount / Rate'
-            name='proposed_salary'
             required
           />
 

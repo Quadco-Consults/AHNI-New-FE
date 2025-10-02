@@ -12,14 +12,33 @@ export default function AcceptedContracts() {
 
     const { data, isFetching, error } = useGetAllConsultancyApplicants({
         page,
-        size: 10,
-        status: "ACCEPTED", // Show applicants who have accepted contracts
+        size: 1000, // Get all to filter on frontend
     });
 
     console.log("AcceptedContracts List - Data:", data);
     console.log("AcceptedContracts List - Error:", error);
 
-    const results = data?.data?.results || [];
+    const allResults = data?.data?.results || [];
+
+    // Frontend filter to ensure only accepted adhoc contracts show
+    const results = allResults.filter(applicant => {
+        // Must have accepted the offer
+        if (!applicant.offer_accepted) return false;
+
+        // Must have CONTRACT_ISSUED or APPROVED status
+        if (!['CONTRACT_ISSUED', 'APPROVED'].includes(applicant.status)) return false;
+
+        // Check if applicant has consultants array (indicates adhoc staff)
+        const hasConsultantsArray = applicant.consultants && applicant.consultants.length > 0;
+        const hasConsultancyData = applicant.consultancy || applicant.consultant_id;
+        const isAdhocIndicator = hasConsultantsArray || hasConsultancyData;
+
+        // Include if has adhoc indicators (regardless of type field)
+        if (isAdhocIndicator) return true;
+
+        // Or if type is explicitly ADHOC
+        return applicant.type === "ADHOC";
+    });
     const paginator = data?.data?.pagination;
 
     // Debug: Show status values in console

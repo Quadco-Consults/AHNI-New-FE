@@ -71,16 +71,18 @@ export const contractRecipientsColumns: ColumnDef<IConsultancyStaffPaginatedData
                         variant="default"
                         className={cn(
                             "p-1 rounded-lg flex items-center gap-1",
+                            status === "APPROVED" && "bg-blue-100 text-blue-700",
                             status === "CONTRACT_ISSUED" && "bg-orange-100 text-orange-700",
                             status === "ACCEPTED" && "bg-green-100 text-green-700",
                             status === "REJECTED" && "bg-red-100 text-red-700"
                         )}
                     >
                         <FileText className="h-3 w-3" />
+                        {status === "APPROVED" && "Approved for Contract"}
                         {status === "CONTRACT_ISSUED" && "Contract Issued"}
                         {status === "ACCEPTED" && "Accepted"}
                         {status === "REJECTED" && "Rejected"}
-                        {!["CONTRACT_ISSUED", "ACCEPTED", "REJECTED"].includes(status) && status}
+                        {!["APPROVED", "CONTRACT_ISSUED", "ACCEPTED", "REJECTED"].includes(status) && status}
                     </Badge>
                 );
             },

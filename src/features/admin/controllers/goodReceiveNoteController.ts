@@ -280,6 +280,35 @@ export const useRejectGoodReceiveNote = (id: string) => {
   return { rejectGoodReceiveNote, data, isLoading, isSuccess, error };
 };
 
+// Download Good Receive Note
+export const useDownloadGoodReceiveNote = (id: string) => {
+  const downloadGoodReceiveNote = async (format: 'pdf' | 'csv' = 'pdf') => {
+    try {
+      const response = await AxiosWithToken.get(`${BASE_URL}${id}/download/`, {
+        params: { format },
+        responseType: "blob",
+      });
+
+      // Create download link
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `GRN_${id}.${format}`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      return response.data;
+    } catch (error) {
+      console.error("Good receive note download error:", error);
+      throw error;
+    }
+  };
+
+  return { downloadGoodReceiveNote };
+};
+
 // Legacy exports for backward compatibility
 export const useGetAllGoodReceiveNoteQuery = useGetAllGoodReceiveNote;
 export const useGetSingleGoodReceiveNoteQuery = useGetSingleGoodReceiveNote;
@@ -289,3 +318,4 @@ export const useDeleteGoodReceiveNoteMutation = useDeleteGoodReceiveNote;
 export const useMarkGoodReceiveNoteAsReceivedMutation = useMarkGoodReceiveNoteAsReceived;
 export const useApproveGoodReceiveNoteMutation = useApproveGoodReceiveNote;
 export const useRejectGoodReceiveNoteMutation = useRejectGoodReceiveNote;
+export const useDownloadGoodReceiveNoteMutation = useDownloadGoodReceiveNote;

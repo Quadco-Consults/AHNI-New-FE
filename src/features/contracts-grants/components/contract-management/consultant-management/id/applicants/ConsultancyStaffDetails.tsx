@@ -155,6 +155,7 @@ export default function ConsultancyStaffDetails() {
           <Card>
             <SingleConsultancyStaffDetails
               {...(consultancyStaff?.data as any)}
+              id={applicantId}
             />
           </Card>
         )
