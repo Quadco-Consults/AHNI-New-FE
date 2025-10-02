@@ -9,18 +9,36 @@ export type PurchaseRequestItems = {
     uom: string;
     category: string;
   };
+  item_detail?: {
+    id: string;
+    name: string;
+    description: string;
+    uom: string;
+    category: string;
+  };
   created_at: string;
   updated_at: string;
   category: string;
   fco: string;
+  fco_number?: string;
+  activity_number?: string;
+  fconumber?: string;
+  fconumber_details?: Array<{
+    id: string;
+    module_code?: string;
+    code?: string;
+    name?: string;
+  }>;
   units: number;
   number_of_days: number;
   unit_cost: number;
   quantity: number;
   sub_total_amount: number;
+  amount?: number | string;
+  amaount?: number | string;
+  uom?: string;
   purchase_request: string;
   created_datetime: string;
-  amaount?: number | string;
 };
 
 export type PurchaseRequestResultsData = {
@@ -30,6 +48,9 @@ export type PurchaseRequestResultsData = {
   updated_at: string;
   request_date: string;
   required_date: string;
+  date_of_request?: string;
+  date_required?: string;
+  requested_date?: string;
   created_datetime: string;
   total_amount: number;
   request_id: string;
@@ -56,6 +77,31 @@ export type PurchaseRequestResultsData = {
     designation: string;
     email: string;
   };
+  reviewed_by?: any;
+  authorized_by?: any;
+  approved_by?: any;
+  reviewed_by_detail?: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+  authorized_by_detail?: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+  approved_by_detail?: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+  reviewed_date?: string;
+  authorized_date?: string;
+  approved_date?: string;
+  specification_document?: string;
 };
 
 export interface PurchaseRequestData {
@@ -75,10 +121,8 @@ export interface PurchaseRequestResponse {
 // TypeScript Type Definition
 export interface Expense {
   item: string;
+  uom: string;
   quantity: number;
-  num_of_days: number;
-  num_of_facility: number;
-  frequency: number;
   unit_cost: string;
   total_cost: string;
   purchase_request_memo: string;

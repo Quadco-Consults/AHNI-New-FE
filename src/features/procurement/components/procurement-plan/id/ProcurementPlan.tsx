@@ -1,13 +1,37 @@
-import { ProcurementPlanResultsData } from "../../../definations/procurement-types/procurementPlan";
+import { ProcurementPlanResultsData } from "../../../types/procurementPlan";
 
 const ProcurementPlan = (data: ProcurementPlanResultsData) => {
+  // Safely render any value - convert objects to readable strings
+  const safeRender = (value: any): string => {
+    if (value === null || value === undefined) return "N/A";
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number') return value.toString();
+    if (typeof value === 'boolean') return value ? "Yes" : "No";
+    if (typeof value === 'object') {
+      // Handle specific object types that might be rendered
+      // Handle category objects with {id, name, description, code, serial_number, job_category}
+      if (value && 'job_category' in value && 'code' in value && 'serial_number' in value) {
+        return value.name || value.description || `Category ${value.code}` || "Category";
+      }
+      // Handle asset type objects
+      if (value && ('asset_type' in value || 'asset_code' in value)) {
+        return value.name || value.description || 'Asset';
+      }
+      // If it's an object, try to extract meaningful data
+      if (value && value.name) return value.name;
+      if (value && value.title) return value.title;
+      if (value && value.description) return value.description;
+      return "[Object]";
+    }
+    return String(value);
+  };
   return (
     <div className="w-[95%] mx-auto space-y-6">
       <h3 className="text-primary text-xl font-semibold py-5">
         Procurement Plan Details
       </h3>
 
-      <div className="flex data?s-start gap-8 overflow-x-auto pb-6">
+      <div className="flex items-start gap-8 overflow-x-auto pb-6">
         <div className="flex flex-row gap-6 min-w-[400px] flex-shrink-0">
           {/* Details Table */}
           <div className="overflow-x-auto">
@@ -19,7 +43,7 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
                     colSpan={31}
                     className="px-4 py-2 border text-center text-base font-semibold"
                   >
-                    Procurement Plan- <span>{}</span>
+                    Procurement Plan- <span>{safeRender(data?.project) || "Project Details"}</span>
                   </th>
                 </tr>
 
@@ -29,7 +53,7 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
                     colSpan={31}
                     className="text-red-500 px-4 py-2 border text-center text-sm font-semibold whitespace-nowrap"
                   >
-                    FY25 (<span>{}</span>)
+                    FY25 (<span>{safeRender(data?.financial_year) || "Current Year"}</span>)
                   </th>
                 </tr>
 
@@ -123,7 +147,7 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
                 {/* Row 4: Sub-Headers */}
                 <tr className="bg-gray-50">
                   <th colSpan={7}></th>
-                  <th className="px-4 py-2 border text-sm font-semibold">{}</th>
+                  <th className="px-4 py-2 border text-sm font-semibold">{safeRender(data?.budget_line) || "Budget Reference"}</th>
 
                   <th className="px-4 py-2 border text-sm font-semibold bg-blue-300">
                     {"₦"}
@@ -131,8 +155,8 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
                   <th className="px-4 py-2 border text-sm font-semibold bg-cyan-300">
                     {"$"}
                   </th>
-                  <th className="px-4 py-2 border text-sm font-semibold">{}</th>
-                  <th className="px-4 py-2 border text-sm font-semibold">{}</th>
+                  <th className="px-4 py-2 border text-sm font-semibold">PPM Status</th>
+                  <th className="px-4 py-2 border text-sm font-semibold">Non-PPM Status</th>
                   <th colSpan={6}></th>
                   <th className="px-4 py-2 border text-sm font-semibold bg-[#c4bd97]">
                     Procurement Method (ICB, ILCB, NCB, NLCB, National Shopping,
@@ -163,19 +187,19 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
               <tbody>
                 <tr>
                   <td className="px-4 py-2 border text-sm text-gray-500">
-                    {data?.budget_line}
+                    {safeRender(data?.budget_line)}
                   </td>
                   <td className="px-4 py-2 border text-sm text-gray-500">
-                    {data?.implementer}
+                    {safeRender(data?.implementer)}
                   </td>
                   <td className="px-4 py-2 border text-sm text-gray-500">
-                    {data?.implementation_location}
+                    {safeRender(data?.implementation_location)}
                   </td>
                   <td className="px-4 py-2 border text-sm text-gray-500">
-                    {data?.workplan_activity_reference}
+                    {safeRender(data?.workplan_activity_reference)}
                   </td>
                   <td className="px-4 py-2 border text-sm text-gray-500">
-                    {data?.description}
+                    {safeRender(data?.description)}
                   </td>
                   {/* Budget Allocation */}
                   <td className="px-4 py-2 border text-sm text-gray-500">
@@ -260,7 +284,7 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
                     }
                   </td>{" "}
                   <td className="px-4 py-2 border text-sm text-gray-500">
-                    {data?.implenter_remarks}
+                    {safeRender(data?.implenter_remarks)}
                   </td>{" "}
                 </tr>
               </tbody>

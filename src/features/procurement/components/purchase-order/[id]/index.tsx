@@ -13,18 +13,18 @@ import { formatDate } from "date-fns";
 import { Button } from "components/ui/button";
 import { useEffect, useState } from "react";
 import { BsFiletypeCsv, BsFiletypeDoc } from "react-icons/bs";
-import { useGetSinglePurchaseOrder, useModifyPurchaseOrder } from "@/features/procurement/controllers";
+import { useGetSinglePurchaseOrder } from "@/features/procurement/controllers";
 import Image from "next/image";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import PurchaseOrderWorkflowStatus from "../components/PurchaseOrderWorkflowStatus";
 
 const Order = () => {
   const params = useParams();
   const [grandTotal, setGrandTotal] = useState("");
   const purchaseOrderId = params?.id as string;
   const { data } = useGetSinglePurchaseOrder(purchaseOrderId);
-  const { modifyPurchaseOrder, isLoading: isModifying } = useModifyPurchaseOrder(purchaseOrderId);
 
   // Download PDF function - Client-side generation
   const handleDownloadPDF = async () => {
@@ -144,17 +144,6 @@ const Order = () => {
     }
   };
 
-  // Approval workflow handlers
-  const handleApprovalAction = async (action: 'authorize' | 'approve' | 'agree') => {
-    try {
-      await modifyPurchaseOrder({ action });
-      toast.success(`Purchase Order ${action}d successfully`);
-      // Optionally refresh data or redirect
-    } catch (error) {
-      console.error(`${action} error:`, error);
-      toast.error(`Failed to ${action} Purchase Order. Please try again.`);
-    }
-  };
 
   // Convert number to words
   const tableColumns: ColumnDef<any>[] = [
@@ -458,33 +447,20 @@ const Order = () => {
       
       {/* Action buttons - outside of PDF content */}
       <div className='action-buttons'>
-        {/* Approval Actions */}
-        {data?.data?.status_level === 'PENDING' && (
-          <div className='w-full flex justify-center my-6 gap-3'>
-            <Button 
-              onClick={() => handleApprovalAction('authorize')} 
-              disabled={isModifying}
-              variant="outline"
-              className='border-yellow-500 text-yellow-600 hover:bg-yellow-50'
-            >
-              {isModifying ? 'Processing...' : 'Authorize'}
-            </Button>
-            <Button 
-              onClick={() => handleApprovalAction('approve')} 
-              disabled={isModifying}
-              variant="outline"
-              className='border-blue-500 text-blue-600 hover:bg-blue-50'
-            >
-              {isModifying ? 'Processing...' : 'Approve'}
-            </Button>
-            <Button 
-              onClick={() => handleApprovalAction('agree')} 
-              disabled={isModifying}
-              variant="outline"
-              className='border-green-500 text-green-600 hover:bg-green-50'
-            >
-              {isModifying ? 'Processing...' : 'Agree'}
-            </Button>
+        {/* Purchase Order Workflow Status */}
+        {data?.data && (
+          <div className='my-6'>
+            <PurchaseOrderWorkflowStatus
+              purchaseOrderId={purchaseOrderId}
+              currentStatus={data.data.status_level || 'PENDING'}
+              canAuthorize={true} // TODO: Replace with actual permission logic
+              canApprove={true}   // TODO: Replace with actual permission logic
+              canAgree={true}     // TODO: Replace with actual permission logic
+              canReject={true}    // TODO: Replace with actual permission logic
+              authorizedBy={data.data.authorized_by || undefined}
+              approvedBy={data.data.approved_by_detail || undefined}
+              agreedBy={data.data.agreed_by_detail || undefined}
+            />
           </div>
         )}
 

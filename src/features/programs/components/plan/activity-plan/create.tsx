@@ -16,7 +16,7 @@ import {
     useEditActivityPlan,
     useGetSingleActivityPlan,
 } from "@/features/programs/controllers/activityPlanController";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import {
     ActivityPlanSchema,
     TActivityPlanFormValues,
@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { RouteEnum } from "constants/RouterConstants";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
+import { useGetSingleWorkPlan } from "@/features/programs/controllers/workPlanController";
 
 const booleanOptions = [
     { label: "YES", value: "true" },
@@ -54,9 +55,17 @@ export default function CreateActivityPlan() {
 
     const query = useQuery();
     const id = query.get("id");
+    const planId = query.get("plan");
 
     const { data: activityPlan } = useGetSingleActivityPlan(
         id || "", { enabled: !!id }
+    );
+
+    // Get the work plan ID from either the URL parameter or the activity plan's work_plan field
+    const workPlanId = planId || activityPlan?.data?.work_plan;
+
+    const { data: workPlan } = useGetSingleWorkPlan(
+        workPlanId || "", { enabled: !!workPlanId }
     );
 
     const { createActivityPlan, isLoading: isCreateLoading } =
@@ -86,22 +95,63 @@ export default function CreateActivityPlan() {
         },
     });
 
+    // Get expected result from work plan activity
+    const expectedResult = useMemo(() => {
+        if (!workPlan?.data?.activities) return "";
+
+        // If editing, find the activity by the activity plan's work_plan_activity
+        if (activityPlan?.data?.work_plan_activity) {
+            const activity = workPlan.data.activities.find(
+                a => a.id === activityPlan.data.work_plan_activity
+            );
+            return activity?.expected_result || "";
+        }
+
+        return "";
+    }, [workPlan, activityPlan]);
+
     const { handleSubmit, reset } = form;
 
     useEffect(() => {
-        if (activityPlan) {
+        if (activityPlan && workPlan) {
             const prevFields = activityPlan.data;
 
             reset({
-                ...prevFields,
-                project: prevFields.project?.id || "",
-                is_resources_requied: String(prevFields.is_resources_requied),
-                is_memo_required: String(prevFields.is_memo_required),
-                is_ea_required: String(prevFields.is_ea_required),
-                is_results_achieved: String(prevFields.is_resources_requied),
+                project: workPlan.data.project?.id || prevFields.project || "",
+                ir: prevFields.ir || "",
+                activity_code: prevFields.activity_code || "",
+                activity_description: prevFields.activity_description || "",
+                start_date: prevFields.start_date || "",
+                end_date: prevFields.end_date || "",
+                responsible_person: prevFields.responsible_person || "",
+                is_resources_requied: prevFields.resources_required ? "true" : "false",
+                is_memo_required: String(prevFields.memo_approved),
+                is_ea_required: String(prevFields.ea_required),
+                is_results_achieved: prevFields.achieved_results || "",
+                follow_up_action: prevFields.follow_up_actions || "",
+                comments: prevFields.comments || "",
+            });
+        } else if (workPlan && !id) {
+            // Pre-populate from work plan when creating new activity
+            const workPlanData = workPlan.data;
+
+            reset({
+                project: workPlanData.project?.id || "",
+                ir: "",
+                activity_code: "",
+                activity_description: "",
+                start_date: "",
+                end_date: "",
+                responsible_person: "",
+                is_resources_requied: "false",
+                is_memo_required: "false",
+                is_ea_required: "false",
+                is_results_achieved: "false",
+                follow_up_action: "",
+                comments: "",
             });
         }
-    }, [activityPlan]);
+    }, [activityPlan, workPlan, id, reset]);
 
     const goBack = () => {
         router.back();
@@ -109,15 +159,42 @@ export default function CreateActivityPlan() {
 
     const onSubmit: SubmitHandler<TActivityPlanFormValues> = async (data) => {
         try {
+            // Convert old field names to new API field names
+            const submitData: any = {
+                ...data,
+                resources_required: data.is_resources_requied === "true" ? "YES" : data.is_resources_requied === "false" ? "NO" : data.resources_required,
+                memo_approved: data.is_memo_required === "true" || data.memo_approved === true,
+                ea_required: data.is_ea_required === "true" || data.ea_required === true,
+                achieved_results: data.is_results_achieved || data.achieved_results,
+                follow_up_actions: data.follow_up_action || data.follow_up_actions,
+            };
+
+            // Add work plan ID if creating from work plan
+            if (workPlanId) {
+                submitData.work_plan = workPlanId;
+            }
+
+            // Remove old field names before submitting
+            delete submitData.is_resources_requied;
+            delete submitData.is_memo_required;
+            delete submitData.is_ea_required;
+            delete submitData.is_results_achieved;
+            delete submitData.follow_up_action;
+
             if (id) {
-                await editActivityPlan(data);
+                await editActivityPlan(submitData);
                 toast.success("Activity Plan Updated");
             } else {
-                await createActivityPlan(data);
+                await createActivityPlan(submitData);
                 toast.success("Activity Plan Created");
             }
 
-            router.push(RouteEnum.PROGRAM_ACTIVITY);
+            // Navigate back to the work plan activities if came from there
+            if (workPlanId) {
+                router.push(`/dashboard/programs/plan/activity/${workPlanId}`);
+            } else {
+                router.push(RouteEnum.PROGRAM_ACTIVITY);
+            }
         } catch (error: any) {
             toast.error(error?.data?.message ?? "Something went wrong");
         }
@@ -143,6 +220,7 @@ export default function CreateActivityPlan() {
                             placeholder="Select Project"
                             required
                             options={projectOptions}
+                            disabled={!!workPlanId}
                         />
 
                         <FormInput
@@ -228,12 +306,14 @@ export default function CreateActivityPlan() {
                             required
                         />
 
-                        <FormTextArea
-                            label="Expected Result"
-                            name="_"
-                            placeholder="Enter Expected Result"
-                            required
-                        />
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">
+                                Expected Result (from Work Plan)
+                            </label>
+                            <div className="min-h-[100px] p-3 border rounded-md bg-gray-50 text-gray-700">
+                                {expectedResult || "No expected result defined in work plan"}
+                            </div>
+                        </div>
 
                         <FormTextArea
                             label="Comments"

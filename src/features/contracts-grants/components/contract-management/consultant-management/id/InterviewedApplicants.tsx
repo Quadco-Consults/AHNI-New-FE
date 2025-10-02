@@ -11,7 +11,7 @@ import { Button } from "components/ui/button";
 import Link from "next/link";
 import { Badge } from "components/ui/badge";
 import { format, isValid } from "date-fns";
-import { Eye, FileCheck } from "lucide-react";
+import { Eye, CheckCircle, FileCheck } from "lucide-react";
 import { toast } from "sonner";
 
 interface InterviewedApplicant {
@@ -28,19 +28,31 @@ interface InterviewedApplicant {
 
 export default function InterviewedApplicants() {
   const [page, setPage] = useState(1);
-  const [issuingContract, setIssuingContract] = useState<string | null>(null);
+  const [acceptingApplicant, setAcceptingApplicant] = useState<string | null>(null);
   const params = useParams();
   const consultancyId = params?.id as string;
 
   const { data, isFetching, error } = useGetAllConsultancyApplicants({
     page,
     size: 20,
-    consultancy: consultancyId,
+    consultants: consultancyId,
     enabled: !!consultancyId,
   });
 
   // Map API response to expected format for interviewed applicants
-  const mappedApplicants = data?.data?.results?.map(applicant => ({
+  const mappedApplicants = data?.data?.results
+    ?.filter(applicant => {
+      // Filter out applicants that don't belong to this consultant management
+      // If consultants field is undefined, trust the backend filtering (backward compatibility)
+      const belongsToThisConsultant =
+        applicant.consultants === undefined || // Backend filtered already, trust it
+        applicant.consultants?.includes(consultancyId) ||
+        applicant.consultancy === consultancyId ||
+        applicant.consultant_id === consultancyId;
+
+      return belongsToThisConsultant;
+    })
+    ?.map(applicant => ({
     ...applicant,
     // Map name fields
     first_name: applicant.first_name || applicant.name || 'Unknown',
@@ -87,38 +99,44 @@ export default function InterviewedApplicants() {
     });
   }
 
-  // Contract issuance handler
-  const handleIssueContract = async (applicantId: string, applicantName: string) => {
-    const confirmIssue = window.confirm(
-      `Are you sure you want to issue a contract to ${applicantName}?`
+  // Accept applicant handler
+  const handleAcceptApplicant = async (applicantId: string, applicantName: string) => {
+    const confirmAccept = window.confirm(
+      `Are you sure you want to accept ${applicantName} as a candidate?`
     );
 
-    if (!confirmIssue) return;
+    if (!confirmAccept) return;
 
-    setIssuingContract(applicantId);
+    setAcceptingApplicant(applicantId);
 
     try {
-      // Make API call to update applicant status to CONTRACT_ISSUED
-      await AxiosWithToken.patch(`/contract-grants/consultancy/applicants/${applicantId}/`, {
-        status: 'CONTRACT_ISSUED'
+      // Make API call to update applicant status to ACCEPTED
+      console.log("Accepting applicant:", applicantId);
+      const response = await AxiosWithToken.patch(`/contract-grants/consultancy/applicants/${applicantId}/`, {
+        status: 'ACCEPTED'
       });
+      console.log("Accept response:", response);
 
-      toast.success(`Contract issued to ${applicantName} successfully!`);
-      toast.info(`${applicantName} can now access the contract acceptance form.`);
+      toast.success(`${applicantName} has been accepted successfully!`);
+      toast.info(`You can now issue a contract to ${applicantName} from the Accepted Candidates tab.`);
 
       // Refresh the data to update the UI
       window.location.reload();
 
-    } catch (error) {
-      console.error("Contract issuance error:", error);
+    } catch (error: any) {
+      console.error("Accept applicant error:", error);
+      console.error("Error response:", error.response);
+      console.error("Error data:", error.response?.data);
 
-      if (error instanceof Error) {
-        toast.error(`Failed to issue contract: ${error.message}`);
-      } else {
-        toast.error("Failed to issue contract. Please try again.");
-      }
+      const errorMessage = error.response?.data?.message
+        || error.response?.data?.error
+        || error.response?.data?.detail
+        || error.message
+        || "Failed to accept applicant. Please try again.";
+
+      toast.error(`Failed to accept applicant: ${errorMessage}`);
     } finally {
-      setIssuingContract(null);
+      setAcceptingApplicant(null);
     }
   };
 
@@ -175,12 +193,29 @@ export default function InterviewedApplicants() {
       },
     },
     {
+      header: "Interview Score",
+      id: "interview_score",
+      size: 150,
+      cell: ({ row }) => {
+        const interviewScores = (row.original as any).interview_scores;
+        if (!interviewScores || !interviewScores.total_score) {
+          return <span className="text-gray-400 text-sm">Not scored</span>;
+        }
+        return (
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-gray-900">{interviewScores.total_score}</span>
+            <span className="text-gray-500 text-sm">/ 50</span>
+          </div>
+        );
+      },
+    },
+    {
       header: "Actions",
       id: "actions",
       cell: ({ row }) => {
         const applicant = row.original;
         const applicantName = `${applicant.first_name} ${applicant.last_name}`;
-        const isIssuing = issuingContract === applicant.id;
+        const isAccepting = acceptingApplicant === applicant.id;
 
         return (
           <div className="flex gap-2">
@@ -195,11 +230,11 @@ export default function InterviewedApplicants() {
             <Button
               size="sm"
               className="flex items-center gap-1 bg-green-600 hover:bg-green-700"
-              disabled={isIssuing}
-              onClick={() => handleIssueContract(applicant.id, applicantName)}
+              disabled={isAccepting}
+              onClick={() => handleAcceptApplicant(applicant.id, applicantName)}
             >
-              <FileCheck className="h-3 w-3" />
-              {isIssuing ? "Issuing..." : "Issue Contract"}
+              <CheckCircle className="h-3 w-3" />
+              {isAccepting ? "Accepting..." : "Accept Candidate"}
             </Button>
           </div>
         );
@@ -253,7 +288,7 @@ export default function InterviewedApplicants() {
             <div>
               <h4 className="font-medium text-gray-700">No Interviewed Applicants</h4>
               <p className="text-sm text-gray-500 mt-1">
-                Applicants will appear here after completing their interviews
+                Applicants will appear here after completing their interviews. Accept candidates to move them to the Accepted Candidates tab.
               </p>
             </div>
           </div>

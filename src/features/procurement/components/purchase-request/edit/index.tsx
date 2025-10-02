@@ -1,7 +1,7 @@
 "use client";
 
-import LongArrowLeft from "components/icons/LongArrowLeft";
-import { useRouter, useParams } from "next/navigation";
+import GoBack from "components/GoBack";
+import { useParams } from "next/navigation";
 import EditPurchaseRequestForm from "./form";
 import BreadcrumbCard from "components/Breadcrumb";
 import { useGetPurchaseRequestById } from "@/features/procurement/controllers/purchaseRequestController";
@@ -9,7 +9,6 @@ import { useGetActivityMemo } from "@/features/procurement/controllers/activityM
 import { LoadingSpinner } from "components/Loading";
 
 function PurchaseRequestEdit() {
-  const router = useRouter();
   const { id } = useParams();
 
   // Get purchase request data
@@ -25,9 +24,6 @@ function PurchaseRequestEdit() {
   console.log("Activity Memo ID:", activityMemoId);
   console.log("Activity Memo Data:", activityMemo);
 
-  const goBack = () => {
-    router.back();
-  };
 
   const breadcrumbs = [
     { name: "Procurement", icon: true },
@@ -43,12 +39,7 @@ function PurchaseRequestEdit() {
     <section className='space-y-6'>
       <BreadcrumbCard list={breadcrumbs} />
 
-      <button
-        onClick={goBack}
-        className='w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center'
-      >
-        <LongArrowLeft />
-      </button>
+      <GoBack />
 
       <span className='block space-y-2'>
         <h3 className='font-semibold text-xl text-black text-[24px]'>

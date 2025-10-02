@@ -6,12 +6,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { useEffect, useState } from "react";
 import NewApplicantStaffForm from "./NewConsultancyStaffForm";
 import CreateExistingApplicantStaff from "./CreateExistingConsultancyStaff";
-import { useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useGetSingleConsultancyStaff } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
+import { useGetSingleConsultantManagement } from "@/features/contracts-grants/controllers/consultantManagementController";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { LoadingSpinner } from "components/Loading";
 
 export default function CreateApplicantStaff() {
+    const params = useParams();
+    const consultancyId = params?.id as string;
     const searchParams = useSearchParams();
     const consultancyStaffId = searchParams?.get("id");
 
@@ -25,6 +28,11 @@ export default function CreateApplicantStaff() {
 
         setTabValue("existing");
     }, [consultancyStaffId]);
+
+    // Fetch the consultant management to get requisition data
+    const { data: consultancyManagementData } = useGetSingleConsultantManagement(
+        consultancyId || ""
+    );
 
     const { data, isLoading } = useGetSingleConsultancyStaff(
         consultancyStaffId || skipToken
@@ -64,6 +72,7 @@ export default function CreateApplicantStaff() {
                         ) : (
                             <NewApplicantStaffForm
                                 consultancyStaffData={data?.data}
+                                consultancyManagementData={consultancyManagementData?.data}
                             />
                         )}
                     </Card>

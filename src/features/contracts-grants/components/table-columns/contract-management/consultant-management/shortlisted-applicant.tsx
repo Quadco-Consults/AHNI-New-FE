@@ -53,9 +53,20 @@ export const shortlistedApplicantColumn: ColumnDef<IConsultancyStaffPaginatedDat
 
     {
       header: "Interview Score",
-      id: "score",
-      accessorKey: "score",
-      size: 200,
+      id: "interview_score",
+      size: 150,
+      cell: ({ row }) => {
+        const interviewScores = row.original.interview_scores;
+        if (!interviewScores || !interviewScores.total_score) {
+          return <span className="text-gray-400 text-sm">Not interviewed</span>;
+        }
+        return (
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-gray-900">{interviewScores.total_score}</span>
+            <span className="text-gray-500 text-sm">/ 50</span>
+          </div>
+        );
+      },
     },
 
     {

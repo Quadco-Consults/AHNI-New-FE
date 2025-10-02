@@ -1,8 +1,8 @@
 "use client";
 
-import LongArrowLeft from "components/icons/LongArrowLeft";
+import GoBack from "components/GoBack";
 import { Label } from "components/ui/label";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Check, ChevronsUpDown, MinusCircle, PlusCircle } from "lucide-react";
 import { cn } from "lib/utils";
 import { Button } from "components/ui/button";
@@ -50,13 +50,8 @@ const EditPurchaseOrder = () => {
   const [requestValue, setRequestValue] = useState("");
   const [purchaseValue, setPurchaseValue] = useState("");
 
-  const router = useRouter();
   const params = useParams();
   const purchaseOrderId = params.id as string;
-
-  const goBack = () => {
-    router.back();
-  };
 
   // Fetch existing purchase order data
   const { data: existingPO, isLoading: loadingPO } = useGetSinglePurchaseOrder(purchaseOrderId);
@@ -187,12 +182,7 @@ const EditPurchaseOrder = () => {
     <div className="space-y-5">
       <BreadcrumbCard list={breadcrumbs} />
 
-      <button
-        onClick={goBack}
-        className="flex aspect-square w-[3rem] items-center justify-center rounded-full bg-white drop-shadow-md"
-      >
-        <LongArrowLeft />
-      </button>
+      <GoBack />
 
       <p className="text-[24px] font-semibold">Edit Purchase Order</p>
 

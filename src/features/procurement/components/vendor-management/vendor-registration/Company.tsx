@@ -4,19 +4,19 @@ import { Form } from "components/ui/form";
 import VendorRegistationLayout from "./VendorRegistationLayout";
 import { useFieldArray, useForm } from "react-hook-form";
 import FormInput from "components/atoms/FormInput";
-import { Separator } from "components/ui/separator";
+import FormSelect from "components/atoms/FormSelectField";
 import { Label } from "components/ui/label";
+import { SelectContent, SelectItem } from "components/ui/select";
 import { ArrowLeft, ArrowRight, MinusCircle, PlusCircle } from "lucide-react";
 import FormButton from "@/components/FormButton";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
-import FormSelect from "components/atoms/FormSelectField";
 import { VendorsCompanySchema } from "@/features/procurement/types/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { SelectContent, SelectItem } from "components/ui/select";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { vendorsActions } from "store/formData/procurement-vendors";
+import { RootState } from "store/index";
 import { useEffect } from "react";
 import useQuery from "hooks/useQuery";
 import VendorsAPI from "@/features/procurement/controllers/vendorsController";
@@ -29,41 +29,36 @@ const Company = () => {
   const vendorId = query.get("id");
 
   const { data: vendor, isLoading, error } = VendorsAPI.useGetVendor(vendorId);
+  const { updateVendor: updateVendorMutation } = VendorsAPI.useUpdateVendor(vendorId || "");
+  const currentVendor = useSelector((state: RootState) => state.vendors.currentVendor);
 
   const form = useForm<z.infer<typeof VendorsCompanySchema>>({
     resolver: zodResolver(VendorsCompanySchema),
     defaultValues: {
-      branches: [{ name: "", address: "", phone_number: "" }],
-      share_holders: [{ name: "", address: "", phone_number: "" }],
-      key_staff: [
-        { name: "", address: "", qualification: "", phone_number: "" },
-      ],
-      associated_entities: [
-        { name: "", address: "", phone_number: "", entity_type: "" },
-      ],
+      branches: [{ address: "", state: "", person_heading_branch: "", phone_number: "" }],
     },
   });
 
   const { control, handleSubmit } = form;
 
   useEffect(() => {
-    if (vendorId && vendor?.data && !isLoading) {
-      form.reset({
-        branches: vendor?.data?.branches || [
-          { name: "", address: "", phone_number: "" },
-        ],
-        share_holders: vendor?.data?.share_holders || [
-          { name: "", address: "", phone_number: "" },
-        ],
-        key_staff: vendor?.data?.key_staff || [
-          { name: "", address: "", qualification: "", phone_number: "" },
-        ],
-        associated_entities: vendor?.data?.associated_entities || [
-          { name: "", address: "", phone_number: "", entity_type: "" },
-        ],
-      });
+    // Priority: Redux currentVendor data > API vendor data > default values
+    let branchData = [{ address: "", state: "", person_heading_branch: "", phone_number: "" }];
+
+    if (currentVendor?.branches?.length > 0) {
+      // Use Redux data if available (user has been entering data)
+      branchData = currentVendor.branches;
+    } else if (vendorId && vendor?.data && !isLoading) {
+      // Use API data if editing existing vendor
+      branchData = vendor.data.branches || branchData;
+      // Also set the vendor data in Redux for persistence
+      dispatch(vendorsActions.setCurrentVendor(vendor.data));
     }
-  }, [vendorId, vendor, isLoading, form]);
+
+    form.reset({
+      branches: branchData,
+    });
+  }, [vendorId, vendor, isLoading, currentVendor, form, dispatch]);
   console.log({ vendor, vendorId });
 
   const { fields, append, remove } = useFieldArray({
@@ -71,49 +66,58 @@ const Company = () => {
     name: "branches",
   });
 
-  const {
-    fields: key_staff,
-    append: appendKeystaff,
-    remove: removeKeystaff,
-  } = useFieldArray({
-    control,
-    name: "key_staff",
-  });
-  const {
-    fields: share_holders,
-    append: appendStakeholder,
-    remove: removeStakeholder,
-  } = useFieldArray({
-    control,
-    name: "share_holders",
-  });
 
-  const {
-    fields: associated_entities,
-    append: appendSubsidiary,
-    remove: removeSubsidiary,
-  } = useFieldArray({
-    control,
-    name: "associated_entities",
-  });
+  const onSubmit = async (data: z.infer<typeof VendorsCompanySchema>) => {
+    console.log("Company form submitted with data:", data);
 
-  const onSubmit = (data: z.infer<typeof VendorsCompanySchema>) => {
-    dispatch(vendorsActions.addVendors(data));
-    let path = pathname;
+    try {
+      // Update current vendor data in Redux store for persistence
+      dispatch(vendorsActions.updateCurrentVendor(data));
 
-    path = path.substring(0, path.lastIndexOf("/"));
+      // Also add to vendors array for backwards compatibility
+      dispatch(vendorsActions.addVendors(data));
 
-    path += `/technical-capacity?id=${vendorId}`;
-    router.push(path);
+      // If we have a vendor ID, update the vendor via API
+      if (vendorId) {
+        console.log("Updating vendor with company data:", {
+          ...currentVendor,
+          ...data
+        });
+
+        const updatedVendorData = {
+          ...currentVendor,
+          ...data
+        };
+
+        await updateVendorMutation(updatedVendorData);
+        console.log("Vendor updated successfully with company data");
+      }
+
+      let path = pathname;
+      path = path.substring(0, path.lastIndexOf("/"));
+      path += `/reference?id=${vendorId}`;
+      router.push(path);
+    } catch (error) {
+      console.error("Error updating vendor with company data:", error);
+      // Continue with navigation even if update fails
+      let path = pathname;
+      path = path.substring(0, path.lastIndexOf("/"));
+      path += `/reference?id=${vendorId}`;
+      router.push(path);
+    }
+  };
+
+  const onError = (errors: any) => {
+    console.log("Form validation errors:", errors);
   };
 
   return (
     <VendorRegistationLayout>
       <div className='space-y-4'>
-        <h2 className='text-lg font-bold'>The Company</h2>
+        <h2 className='text-lg font-bold'>Branch Offices</h2>
         <div>
           <Form {...form}>
-            <form onSubmit={handleSubmit(onSubmit)} className='space-y-5'>
+            <form onSubmit={handleSubmit(onSubmit, onError)} className='space-y-5'>
               {/* <Separator className="mt-8" /> */}
               <div>
                 <Label className='text-red-500'>Branch Office(s) Address</Label>
@@ -127,20 +131,38 @@ const Company = () => {
                         className='flex items-center justify-between gap-x-3 '
                         key={index}
                       >
-                        <div className='relative w-[97%] grid grid-cols-3 pl-8 mt-4 gap-x-4 '>
+                        <div className='relative w-[97%] grid grid-cols-2 pl-8 mt-4 gap-x-4 gap-y-4'>
                           <p className='absolute top-0 left-0 font-semibold '>
                             ({label})
                           </p>
                           <FormInput
-                            label='Name'
-                            name={`branches[${index}].name`}
-                            defaultValue={field.name}
-                            required
-                          />
-                          <FormInput
                             label='Address'
                             name={`branches[${index}].address`}
                             defaultValue={field.address}
+                            required
+                          />
+                          <FormSelect
+                            label='State'
+                            name={`branches[${index}].state`}
+                            required
+                          >
+                            <SelectContent>
+                              {statesOfNigeria.map(
+                                (
+                                  { label, value }: { label: string; value: string },
+                                  stateIndex: number
+                                ) => (
+                                  <SelectItem key={stateIndex} value={value}>
+                                    {label}
+                                  </SelectItem>
+                                )
+                              )}
+                            </SelectContent>
+                          </FormSelect>
+                          <FormInput
+                            label='Name Of Person Heading Branch'
+                            name={`branches[${index}].person_heading_branch`}
+                            defaultValue={field.person_heading_branch}
                             required
                           />
                           <FormInput
@@ -162,217 +184,7 @@ const Company = () => {
                   <div className='flex justify-end mt-2'>
                     <PlusCircle
                       onClick={() =>
-                        append({ name: "", address: "", phone_number: "" })
-                      }
-                      className='cursor-pointer text-primary'
-                    />
-                  </div>
-                </div>
-              </div>
-              <Separator className='mt-8' />
-              <div>
-                <Label className='text-red-500'>
-                  Majority Shareholders & Directors{" "}
-                </Label>
-                <div>
-                  {share_holders.map((field, index) => {
-                    const label = String.fromCharCode(
-                      "a".charCodeAt(0) + index
-                    );
-                    return (
-                      <div
-                        className='flex items-center justify-between gap-x-3 '
-                        key={index}
-                      >
-                        <div className='relative w-[97%] grid grid-cols-3 pl-8 mt-4 gap-x-4 '>
-                          <p className='absolute top-0 left-0 font-semibold '>
-                            ({label})
-                          </p>
-                          <FormInput
-                            label='Name'
-                            name={`share_holders[${index}].name`}
-                            defaultValue={field.name}
-                            required
-                          />
-                          <FormInput
-                            label='Address'
-                            name={`share_holders[${index}].address`}
-                            defaultValue={field.address}
-                            required
-                          />
-                          <FormInput
-                            label='Phone Number'
-                            name={`share_holders[${index}].phone_number`}
-                            defaultValue={field.phone_number}
-                            required
-                          />
-                        </div>
-                        <div className='flex items-center h-full '>
-                          <MinusCircle
-                            onClick={() => removeStakeholder(index)}
-                            className='cursor-pointer text-primary'
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                  <div className='flex justify-end mt-2'>
-                    <PlusCircle
-                      onClick={() =>
-                        appendStakeholder({
-                          name: "",
-                          address: "",
-                          phone_number: "",
-                        })
-                      }
-                      className='cursor-pointer text-primary'
-                    />
-                  </div>
-                </div>
-              </div>
-              <Separator className='mt-8' />
-              <div>
-                <Label className='text-red-500'>
-                  Names & Qualifications of Key Staff
-                </Label>
-                <div>
-                  {key_staff.map((field, index) => {
-                    const label = String.fromCharCode(
-                      "a".charCodeAt(0) + index
-                    );
-                    return (
-                      <div
-                        className='flex items-center justify-between gap-x-3 '
-                        key={index}
-                      >
-                        <div className='relative w-[97%] grid grid-cols-2 pl-8 mt-4 gap-4 '>
-                          <p className='absolute top-0 left-0 font-semibold '>
-                            ({label})
-                          </p>
-                          <FormInput
-                            label='Name'
-                            name={`key_staff[${index}].name`}
-                            defaultValue={field.name}
-                            required
-                          />
-                          <FormInput
-                            label='Qualification'
-                            name={`key_staff[${index}].qualification`}
-                            defaultValue={field.qualification}
-                            required
-                          />
-                          <FormInput
-                            label='Phone Number'
-                            name={`key_staff[${index}].address`}
-                            defaultValue={field.address}
-                            required
-                          />
-                          <FormInput
-                            label='Address'
-                            name={`key_staff[${index}].phone_number`}
-                            defaultValue={field.phone_number}
-                            required
-                          />
-                        </div>
-                        <div className='flex items-center h-full '>
-                          <MinusCircle
-                            onClick={() => removeKeystaff(index)}
-                            className='cursor-pointer text-primary'
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                  <div className='flex justify-end mt-2'>
-                    <PlusCircle
-                      onClick={() =>
-                        appendKeystaff({
-                          name: "",
-                          qualification: "",
-                          phone_number: "",
-                          address: "",
-                        })
-                      }
-                      className='cursor-pointer text-primary'
-                    />
-                  </div>
-                </div>
-              </div>
-              <Separator className='mt-8' />
-              <div>
-                <Label className='text-red-500'>
-                  Subsidiaries, Associates, Affiliates or Technical Partners
-                </Label>
-                <div>
-                  {associated_entities.map((field, index) => {
-                    const label = String.fromCharCode(
-                      "a".charCodeAt(0) + index
-                    );
-                    return (
-                      <div
-                        className='flex items-center justify-between gap-x-3 '
-                        key={index}
-                      >
-                        <div className='relative w-[97%] grid grid-cols-2 pl-8 mt-4 gap-4 '>
-                          <p className='absolute top-0 left-0 font-semibold '>
-                            ({label})
-                          </p>
-                          <FormInput
-                            label='Name'
-                            name={`associated_entities[${index}].name`}
-                            defaultValue={field.name}
-                            required
-                          />
-                          <FormInput
-                            label='Address'
-                            name={`associated_entities[${index}].address`}
-                            defaultValue={field.address}
-                            required
-                          />
-                          <FormInput
-                            label='Phone Number'
-                            name={`associated_entities[${index}].phone_number`}
-                            defaultValue={field.phone_number}
-                            required
-                          />
-                          <FormSelect
-                            label='Association Type'
-                            name={`associated_entities[${index}].entity_type`}
-                            defaultValue={field.entity_type}
-                            required
-                          >
-                            <SelectContent>
-                              {[
-                                "Subsidiary",
-                                "Associate",
-                                "Affiliate",
-                                "Technical Partner",
-                              ].map((value: string, index: number) => (
-                                <SelectItem key={index} value={value}>
-                                  {value}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </FormSelect>
-                        </div>
-                        <div className='flex items-center h-full '>
-                          <MinusCircle
-                            onClick={() => removeSubsidiary(index)}
-                            className='cursor-pointer text-primary'
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                  <div className='flex justify-end mt-2'>
-                    <PlusCircle
-                      onClick={() =>
-                        appendSubsidiary({
-                          name: "",
-                          address: "",
-                          phone_number: "",
-                          entity_type: "",
-                        })
+                        append({ address: "", state: "", person_heading_branch: "", phone_number: "" })
                       }
                       className='cursor-pointer text-primary'
                     />
@@ -402,3 +214,43 @@ const Company = () => {
 };
 
 export default Company;
+
+const statesOfNigeria = [
+  { value: "Abia", label: "Abia" },
+  { value: "Adamawa", label: "Adamawa" },
+  { value: "Akwa Ibom", label: "Akwa Ibom" },
+  { value: "Anambra", label: "Anambra" },
+  { value: "Bauchi", label: "Bauchi" },
+  { value: "Bayelsa", label: "Bayelsa" },
+  { value: "Benue", label: "Benue" },
+  { value: "Borno", label: "Borno" },
+  { value: "Cross River", label: "Cross River" },
+  { value: "Delta", label: "Delta" },
+  { value: "Ebonyi", label: "Ebonyi" },
+  { value: "Edo", label: "Edo" },
+  { value: "Ekiti", label: "Ekiti" },
+  { value: "Enugu", label: "Enugu" },
+  { value: "Federal Capital Territory", label: "FCT (Abuja)" },
+  { value: "Gombe", label: "Gombe" },
+  { value: "Imo", label: "Imo" },
+  { value: "Jigawa", label: "Jigawa" },
+  { value: "Kaduna", label: "Kaduna" },
+  { value: "Kano", label: "Kano" },
+  { value: "Katsina", label: "Katsina" },
+  { value: "Kebbi", label: "Kebbi" },
+  { value: "Kogi", label: "Kogi" },
+  { value: "Kwara", label: "Kwara" },
+  { value: "Lagos", label: "Lagos" },
+  { value: "Nasarawa", label: "Nasarawa" },
+  { value: "Niger", label: "Niger" },
+  { value: "Ogun", label: "Ogun" },
+  { value: "Ondo", label: "Ondo" },
+  { value: "Osun", label: "Osun" },
+  { value: "Oyo", label: "Oyo" },
+  { value: "Plateau", label: "Plateau" },
+  { value: "Rivers", label: "Rivers" },
+  { value: "Sokoto", label: "Sokoto" },
+  { value: "Taraba", label: "Taraba" },
+  { value: "Yobe", label: "Yobe" },
+  { value: "Zamfara", label: "Zamfara" },
+];
