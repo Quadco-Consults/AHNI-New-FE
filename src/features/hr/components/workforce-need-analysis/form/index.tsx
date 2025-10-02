@@ -4,14 +4,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 // import { skipToken } from "@reduxjs/toolkit/query/react";
-import FormSelect from "components/atoms/FormSelectField";
+import FormSelect from "@/components/atoms/FormSelectField";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import Card from "components/Card";
+import FormInput from "@/components/atoms/FormInput";
+import Card from "@/components/Card";
 // import AddSquareIcon from "components/icons/AddSquareIcon";
-import GoBack from "components/GoBack";
+import GoBack from "@/components/GoBack";
 import { useRouter } from "next/navigation";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 
 // import { Button } from "components/ui/button";
 import { Form } from "components/ui/form";
@@ -66,6 +66,11 @@ const CreateActivityMemo = () => {
     useGetLocationList({});
   const { data: positions, isLoading: positionIsLoading } =
     useGetPositionPaginate({});
+
+  console.log("Locations data:", locations);
+  console.log("Positions data:", positions);
+  console.log("Locations results:", locations?.data?.results || locations?.results);
+  console.log("Positions results:", positions?.data?.results || positions?.results);
 
   const { handleSubmit } = form;
 
@@ -131,7 +136,7 @@ const CreateActivityMemo = () => {
                     {positionIsLoading ? (
                       <LoadingSpinner />
                     ) : (
-                      positions?.data?.results?.map(
+                      (positions?.data?.results || positions?.results)?.map(
                         (position: PositionsResultsData) => (
                           <SelectItem key={position?.id} value={position.name}>
                             {position?.name}
@@ -154,7 +159,7 @@ const CreateActivityMemo = () => {
                     {locationIsLoading ? (
                       <LoadingSpinner />
                     ) : (
-                      locations?.data?.results?.map(
+                      (locations?.data?.results || locations?.results)?.map(
                         (location: LocationResultsData) => (
                           <SelectItem key={location?.id} value={location.name}>
                             {location?.name}
