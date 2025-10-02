@@ -20,62 +20,37 @@ export default function GoodReceiveNoteHomePage() {
     const [approvedPage, setApprovedPage] = useState(1);
     const [activeTab, setActiveTab] = useState("pending");
 
-    // Fetch all GRNs and filter on frontend to ensure proper separation
-    const { data: allGRNData, isFetching: isAllGRNLoading } = useGetAllGoodReceiveNoteQuery({
-        page: 1,
-        size: 100, // Get more records to ensure we have all data
-    });
-
-    // Also fetch with specific status filters as backup
-    const { data: pendingData, isFetching: isPendingLoading } = useGetAllGoodReceiveNoteQuery({
+    // Fetch pending GRNs with proper server-side filtering
+    const { data: pendingData, isFetching: isPendingLoading, refetch: refetchPending } = useGetAllGoodReceiveNoteQuery({
         page: pendingPage,
         size: 20,
-        status: "pending",
+        enabled: activeTab === "pending",
     });
 
-    const { data: approvedData, isFetching: isApprovedLoading } = useGetAllGoodReceiveNoteQuery({
+    // Fetch approved GRNs with proper server-side filtering
+    const { data: approvedData, isFetching: isApprovedLoading, refetch: refetchApproved } = useGetAllGoodReceiveNoteQuery({
         page: approvedPage,
         size: 20,
         status: "approved",
+        enabled: activeTab === "approved",
     });
 
-    // Use all GRNs data for reliable filtering, fallback to specific queries
-    const allGRNs = allGRNData?.data.results || [];
+    // Filter GRNs based on status
+    const pendingGRNs = (pendingData?.data.results || []).filter(grn => {
+        if (grn.status) {
+          return ['pending', 'confirmed'].includes(grn.status);
+        }
+        return !grn.approved_datetime && !grn.rejected_datetime;
+    });
 
-    // Filter pending GRNs: pending, confirmed, or no status (fallback to datetime logic)
-    const pendingGRNs = allGRNs.length > 0
-        ? allGRNs.filter(grn => {
-            if (grn.status) {
-              return ['pending', 'confirmed'].includes(grn.status);
-            }
-            // Fallback to datetime logic
-            return !grn.approved_datetime && !grn.rejected_datetime;
-          })
-        : (pendingData?.data.results || []).filter(grn => {
-            if (grn.status) {
-              return ['pending', 'confirmed'].includes(grn.status);
-            }
-            return !grn.approved_datetime && !grn.rejected_datetime;
-          });
+    const approvedGRNs = (approvedData?.data.results || []).filter(grn => {
+        if (grn.status) {
+          return ['received', 'approved', 'rejected'].includes(grn.status);
+        }
+        return grn.approved_datetime || grn.rejected_datetime;
+    });
 
-    // Filter approved GRNs: received, approved status or has approved_datetime
-    const approvedGRNs = allGRNs.length > 0
-        ? allGRNs.filter(grn => {
-            if (grn.status) {
-              return ['received', 'approved', 'rejected'].includes(grn.status);
-            }
-            // Fallback to datetime logic
-            return grn.approved_datetime || grn.rejected_datetime;
-          })
-        : (approvedData?.data.results || []).filter(grn => {
-            if (grn.status) {
-              return ['received', 'approved', 'rejected'].includes(grn.status);
-            }
-            return grn.approved_datetime || grn.rejected_datetime;
-          });
-
-    // Loading state combines all queries
-    const isLoading = isAllGRNLoading || isPendingLoading || isApprovedLoading;
+    const isLoading = isPendingLoading || isApprovedLoading;
 
     return (
         <div className="space-y-10">
@@ -104,9 +79,9 @@ export default function GoodReceiveNoteHomePage() {
                             <DataTable
                                 columns={getPendingGRNColumns()}
                                 data={pendingGRNs}
-                                isLoading={isLoading}
+                                isLoading={isPendingLoading}
                                 pagination={{
-                                    total: pendingGRNs.length,
+                                    total: pendingData?.data.paginator.count ?? 0,
                                     pageSize: 20,
                                     onChange: (page: number) => setPendingPage(page),
                                 }}
@@ -121,9 +96,9 @@ export default function GoodReceiveNoteHomePage() {
                             <DataTable
                                 columns={getApprovedGRNColumns()}
                                 data={approvedGRNs}
-                                isLoading={isLoading}
+                                isLoading={isApprovedLoading}
                                 pagination={{
-                                    total: approvedGRNs.length,
+                                    total: approvedData?.data.paginator.count ?? 0,
                                     pageSize: 20,
                                     onChange: (page: number) => setApprovedPage(page),
                                 }}

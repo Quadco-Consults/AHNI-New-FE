@@ -109,11 +109,7 @@ export const useCreateCloseoutPlan = () => {
   });
 
   const createCloseoutPlan = async (details: TCloseOutPlanFormData) => {
-    try {
-      await callApi(details);
-    } catch (error) {
-      console.error("Closeout plan create error:", error);
-    }
+    await callApi(details);
   };
 
   return { createCloseoutPlan, data, isLoading, isSuccess, error };
@@ -133,11 +129,7 @@ export const useUpdateCloseoutPlan = (id: string) => {
   });
 
   const updateCloseoutPlan = async (details: TCloseOutPlanFormData) => {
-    try {
-      await callApi(details);
-    } catch (error) {
-      console.error("Closeout plan update error:", error);
-    }
+    await callApi(details);
   };
 
   return { updateCloseoutPlan, data, isLoading, isSuccess, error };
@@ -157,11 +149,7 @@ export const useDeleteCloseoutPlan = (id: string) => {
   });
 
   const deleteCloseoutPlan = async () => {
-    try {
-      await callApi({} as Record<string, never>);
-    } catch (error) {
-      console.error("Closeout plan delete error:", error);
-    }
+    await callApi({} as Record<string, never>);
   };
 
   return { deleteCloseoutPlan, data, isLoading, isSuccess, error };

@@ -7,16 +7,6 @@ export const CloseOutPlanSchema = z.object({
     project: z.string().min(1, "Please select project"),
     department: z.string().min(1, "Please select department"),
     location: z.string().min(1, "Please select location"),
-    // key_task: z.string().min(1, "Please enter key task"),
-    // tasks: z.array(
-    //     z.object({
-    //         designation: z.string().min(1, "Please enter designation"),
-    //         remarks: z.string().min(1, "Please enter remarks"),
-    //         start_date: z.string().min(1, "Please select start date"),
-    //         end_date: z.string().min(1, "Please select end date"),
-    //     })
-    // ),
-
     tasks: z.array(
         z.object({
             key_task: z.string().min(1, "Please enter key task"),
@@ -24,25 +14,38 @@ export const CloseOutPlanSchema = z.object({
                 z.object({
                     description: z.string().min(1, "Please enter description"),
                     designation: z.string().min(1, "Please enter designation"),
-                    remarks: z.string().min(1, "Please enter remarks"),
+                    remarks: z.string().optional(),
                     start_date: z.string().min(1, "Please select start date"),
                     end_date: z.string().min(1, "Please select end date"),
+                    status: z.string().optional(),
                 })
-            ),
+            ).min(1, "At least one activity is required"),
         })
-    ),
+    ).min(1, "At least one task is required"),
 });
 
 export type TCloseOutPlanFormData = z.infer<typeof CloseOutPlanSchema>;
 
-export interface ICloseOutPlanTask {
+// Activity within a key task
+export interface ICloseOutPlanActivity {
     id: string;
-    created_datetime: string;
-    updated_datetime: string;
+    description: string;
     designation: string;
     remarks: string;
     start_date: string;
     end_date: string;
+    status: string;
+    created_datetime: string;
+    updated_datetime: string;
+}
+
+// Key Task with its activities
+export interface ICloseOutPlanTask {
+    id: string;
+    key_task: string;
+    activities: ICloseOutPlanActivity[];
+    created_datetime: string;
+    updated_datetime: string;
 }
 
 export interface ICloseOutPlanPaginatedData {
@@ -52,10 +55,8 @@ export interface ICloseOutPlanPaginatedData {
     location: string;
     created_datetime: string;
     updated_datetime: string;
-    status: string;
-    key_task: string;
     created_by: string;
-    updated_by: null;
+    updated_by: string | null;
 }
 
 export interface ICloseOutPlanSingleData {
@@ -64,10 +65,8 @@ export interface ICloseOutPlanSingleData {
     department: TDepartmentData;
     location: TLocationData;
     tasks: ICloseOutPlanTask[];
-    key_task: string;
     created_datetime: string;
     updated_datetime: string;
-    status: string;
     created_by: string;
-    updated_by: null;
+    updated_by: string | null;
 }
