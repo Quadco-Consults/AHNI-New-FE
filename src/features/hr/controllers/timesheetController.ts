@@ -144,16 +144,16 @@ export const useUpdateTimesheet = (id: string) => {
 
 // Submit Timesheet for Approval
 export const useSubmitTimesheet = (id: string) => {
-  const { callApi, isLoading, isSuccess, error, data } = useApiManager<any, Error, Record<string, never>>({
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<any, Error, any>({
     endpoint: `${BASE_URL}${id}/submit/`,
     queryKey: ["timesheets", id],
     isAuth: true,
     method: "POST",
   });
 
-  const submitTimesheet = async () => {
+  const submitTimesheet = async (approver_id?: string) => {
     try {
-      await callApi({} as Record<string, never>);
+      await callApi(approver_id ? { approver_id } : {});
     } catch (error) {
       console.error("Timesheet submit error:", error);
       throw error;
