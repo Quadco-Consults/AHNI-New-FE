@@ -2,7 +2,7 @@ import useApiManager from "@/constants/mainController";
 import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
-import { Compensation } from "../types/compensation";
+import { CompensationSpreadItem } from "../types/compensation-spread";
 
 // API Response interface
 interface ApiResponse<TData = unknown> {
@@ -48,7 +48,7 @@ export const useGetCompensationsSpread = ({
   size = 20,
   enabled = true,
 }: CompensationSpreadFilterParams = {}) => {
-  return useQuery<ApiResponse<TPaginatedResponse<Compensation>>>({
+  return useQuery<ApiResponse<TPaginatedResponse<CompensationSpreadItem>>>({
     queryKey: ["compensations-spread", page, size, search],
     queryFn: async () => {
       try {
@@ -73,9 +73,9 @@ export const useGetCompensationsSpread = ({
 // Create Compensation Spread
 export const useCreateCompensationSpread = () => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
-    Compensation,
+    CompensationSpreadItem,
     Error,
-    Partial<Compensation>
+    Partial<CompensationSpreadItem>
   >({
     endpoint: BASE_URL,
     queryKey: ["compensations-spread"],
@@ -83,7 +83,7 @@ export const useCreateCompensationSpread = () => {
     method: "POST",
   });
 
-  const createCompensationSpread = async (details: Partial<Compensation>) => {
+  const createCompensationSpread = async (details: Partial<CompensationSpreadItem>) => {
     try {
       await callApi(details);
     } catch (error) {
@@ -92,6 +92,54 @@ export const useCreateCompensationSpread = () => {
   };
 
   return { createCompensationSpread, data, isLoading, isSuccess, error };
+};
+
+// Update Compensation Spread
+export const useUpdateCompensationSpread = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    CompensationSpreadItem,
+    Error,
+    Partial<CompensationSpreadItem>
+  >({
+    endpoint: `${BASE_URL}${id}/`,
+    queryKey: ["compensations-spread"],
+    isAuth: true,
+    method: "PATCH",
+  });
+
+  const updateCompensationSpread = async (details: Partial<CompensationSpreadItem>) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("Compensation spread update error:", error);
+    }
+  };
+
+  return { updateCompensationSpread, data, isLoading, isSuccess, error };
+};
+
+// Delete Compensation Spread
+export const useDeleteCompensationSpread = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    ApiResponse<TPaginatedResponse<CompensationSpreadItem>>,
+    Error,
+    Record<string, never>
+  >({
+    endpoint: `${BASE_URL}${id}/`,
+    queryKey: ["compensations-spread"],
+    isAuth: true,
+    method: "DELETE",
+  });
+
+  const deleteCompensationSpread = async () => {
+    try {
+      await callApi({} as Record<string, never>);
+    } catch (error) {
+      console.error("Compensation spread delete error:", error);
+    }
+  };
+
+  return { deleteCompensationSpread, data, isLoading, isSuccess, error };
 };
 
 // Legacy exports for backward compatibility
