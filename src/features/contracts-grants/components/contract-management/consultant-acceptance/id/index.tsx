@@ -116,8 +116,40 @@ export default function ApplicantAcceptance() {
         );
     }
 
+    const isAccepted = applicantData?.offer_accepted;
+
     return (
         <div className="p-6">
+            {/* Acceptance Status Banner */}
+            {isAccepted && applicantData && (
+                <div className="mb-5 bg-green-50 border-2 border-green-200 rounded-lg p-4">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-green-500 text-white p-2 rounded-lg">
+                            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <div className="flex-1">
+                            <h3 className="font-semibold text-green-900 text-lg">Contract Accepted</h3>
+                            <p className="text-sm text-green-700">
+                                This contract was accepted on {applicantData.offer_acceptance_date
+                                    ? new Date(applicantData.offer_acceptance_date).toLocaleDateString('en-US', {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    })
+                                    : 'N/A'}
+                            </p>
+                        </div>
+                        <div className="bg-green-100 text-green-800 px-4 py-2 rounded-lg font-semibold">
+                            ✓ ACCEPTED
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <Tabs defaultValue="applicant-details">
                 <div className="flex items-center gap-2">
                     <BackNavigation />
@@ -127,7 +159,7 @@ export default function ApplicantAcceptance() {
                         </TabsTrigger>
 
                         <TabsTrigger value="acceptance-form">
-                            Contract Acceptance
+                            {isAccepted ? 'Acceptance Details' : 'Contract Acceptance'}
                         </TabsTrigger>
                     </TabsList>
                 </div>
