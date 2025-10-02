@@ -131,18 +131,6 @@ export const useCreateGoodReceiveNote = () => {
 
   const createGoodReceiveNote = async (details: TGoodReceiveNoteFormValues | FormData) => {
     try {
-      // Debug: Log what we're sending
-      console.log("🚀 Creating GRN with data:", details);
-
-      if (details instanceof FormData) {
-        console.log("🚀 Sending FormData:");
-        for (let [key, value] of details.entries()) {
-          console.log(`  ${key}:`, value);
-        }
-      } else {
-        console.log("🚀 Sending JSON:", details);
-      }
-
       const res = await callApi(details);
       return res;
     } catch (error) {
@@ -152,35 +140,6 @@ export const useCreateGoodReceiveNote = () => {
   };
 
   return { createGoodReceiveNote, data, isLoading, isSuccess, error };
-};
-
-// Debug GRN Creation - Temporary endpoint for debugging
-export const useDebugCreateGoodReceiveNote = () => {
-  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
-    any,
-    Error,
-    TGoodReceiveNoteFormValues | FormData
-  >({
-    endpoint: `${BASE_URL}debug-data/`, // Temporary debug endpoint
-    queryKey: ["debugGoodReceiveNote"],
-    isAuth: true,
-    method: "POST",
-    contentType: null,
-  });
-
-  const debugCreateGoodReceiveNote = async (details: TGoodReceiveNoteFormValues | FormData) => {
-    try {
-      console.log("🔬 DEBUG: Sending data to debug endpoint");
-      const res = await callApi(details);
-      console.log("🔬 DEBUG: Backend response:", res);
-      return res;
-    } catch (error) {
-      console.error("Debug GRN create error:", error);
-      throw error;
-    }
-  };
-
-  return { debugCreateGoodReceiveNote, data, isLoading, isSuccess, error };
 };
 
 // Modify Good Receive Note (Full Update)
