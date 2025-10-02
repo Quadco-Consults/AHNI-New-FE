@@ -2,15 +2,17 @@
 import { useState } from "react";
 import Card from "@/components/Card";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Upload } from "lucide-react";
 import Link from "next/link";
 import DataTable from "@/components/Table/DataTable";
 import { consumableColums } from "@/features/admin/components/table-columns/inventory-management/consumables";
 import TableFilters from "@/components/Table/TableFilters";
 import { useGetAllItemsQuery } from "@/features/modules/controllers/config/itemController";
+import BulkUploadDialog from "./BulkUploadDialog";
 
 export default function ConsumablesHomePage() {
   const [page, setPage] = useState(1);
+  const [bulkUploadOpen, setBulkUploadOpen] = useState(false);
 
   const { data: item, isFetching } = useGetAllItemsQuery({
     page,
@@ -22,7 +24,14 @@ export default function ConsumablesHomePage() {
     <div className="space-y-10">
       <Card className="space-y-10">
         <div className="space-y-5">
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setBulkUploadOpen(true)}
+            >
+              <Upload size={20} />
+              Bulk Upload
+            </Button>
             <Link href="/dashboard/admin/inventory-management/consumable/create">
               <Button>
                 <Plus size={20} />
@@ -45,6 +54,12 @@ export default function ConsumablesHomePage() {
           />
         </TableFilters>
       </Card>
+
+      <BulkUploadDialog
+        open={bulkUploadOpen}
+        onOpenChange={setBulkUploadOpen}
+        categoryId="fadb6228-23de-4b04-9eac-b75940cf622f"
+      />
     </div>
   );
 }

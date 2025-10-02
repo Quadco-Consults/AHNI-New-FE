@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -97,10 +97,33 @@ const CreateSubGrant: React.FC = () => {
 
   // Populate form when editing
   useEffect(() => {
-    if (isEditMode && subGrantData?.data) {
+    if (isEditMode && subGrantData?.data && !isLoadingSubGrant && !grantsLoading && !usersLoading && !departmentsLoading && !locationsLoading) {
       const data = subGrantData.data;
-      form.reset({
-        project: typeof data.project === 'string' ? data.project : data.project?.id || "",
+
+      console.log("=== EDIT MODE DEBUG ===");
+      console.log("Edit ID:", editId);
+      console.log("SubGrant Data (full):", data);
+      console.log("Project:", data.grant);
+      console.log("Sub Grant Admin:", data.sub_grant_administrator);
+      console.log("Technical Staff:", data.technical_staff);
+      console.log("Business Unit:", data.business_unit);
+      console.log("Locations from API:", data.locations);
+
+      const projectId = typeof data.grant === 'string' ? data.grant : data.grant?.id || "";
+      const adminId = typeof data.sub_grant_administrator === 'string' ? data.sub_grant_administrator : data.sub_grant_administrator?.id || "";
+      const techStaffId = typeof data.technical_staff === 'string' ? data.technical_staff : data.technical_staff?.id || "";
+      const businessUnitId = typeof data.business_unit === 'string' ? data.business_unit : data.business_unit?.id || "";
+      const locationIds = Array.isArray(data.locations) ? data.locations.map((loc: any) => typeof loc === 'string' ? loc : loc.id) : [];
+
+      console.log("Extracted IDs:");
+      console.log("- Project ID:", projectId);
+      console.log("- Admin ID:", adminId);
+      console.log("- Tech Staff ID:", techStaffId);
+      console.log("- Business Unit ID:", businessUnitId);
+      console.log("- Location IDs:", locationIds);
+
+      const formData = {
+        project: projectId,
         title: data.title || "",
         award_type: data.award_type || "",
         amount_usd: data.amount_usd || "",
@@ -109,13 +132,23 @@ const CreateSubGrant: React.FC = () => {
         end_date: data.end_date || "",
         submission_start_date: data.submission_start_date || "",
         submission_end_date: data.submission_end_date || "",
-        sub_grant_administrator: typeof data.sub_grant_administrator === 'string' ? data.sub_grant_administrator : data.sub_grant_administrator?.id || "",
-        technical_staff: typeof data.technical_staff === 'string' ? data.technical_staff : data.technical_staff?.id || "",
-        business_unit: typeof data.business_unit === 'string' ? data.business_unit : data.business_unit?.id || "",
-        locations: Array.isArray(data.locations) ? data.locations.map((loc: any) => typeof loc === 'string' ? loc : loc.id) : [],
-      });
+        sub_grant_administrator: adminId,
+        technical_staff: techStaffId,
+        business_unit: businessUnitId,
+        locations: locationIds,
+      };
+
+      console.log("Form Data to be reset:", formData);
+      form.reset(formData);
+
+      // Force update after a short delay to ensure dropdowns re-render
+      setTimeout(() => {
+        console.log("Form values after reset:", form.getValues());
+      }, 100);
+
+      console.log("=== END EDIT MODE DEBUG ===");
     }
-  }, [isEditMode, subGrantData, form]);
+  }, [isEditMode, subGrantData, isLoadingSubGrant, grantsLoading, usersLoading, departmentsLoading, locationsLoading, editId]);
 
   // Currency conversion rate (USD to NGN) - you might want to fetch this from an API
   const USD_TO_NGN_RATE = 1600; // Example rate
@@ -131,6 +164,12 @@ const CreateSubGrant: React.FC = () => {
   }, [usdAmount, form, isEditMode]);
 
   const onSubmit: SubmitHandler<TSubGrantFormData> = async (data) => {
+    console.log("=== FORM SUBMIT DEBUG ===");
+    console.log("Is Edit Mode:", isEditMode);
+    console.log("Form Data Being Submitted:", data);
+    console.log("Locations in submit:", data.locations);
+    console.log("=== END FORM SUBMIT DEBUG ===");
+
     try {
       if (isEditMode) {
         await updateSubGrant(data);
@@ -142,6 +181,7 @@ const CreateSubGrant: React.FC = () => {
       form.reset();
       router.push(CG_ROUTES.SUBGRANT_ADVERT || "/dashboard/c-and-g/sub-grant/adverts");
     } catch (error: any) {
+      console.error("Submit Error:", error);
       const errorMessage = error?.response?.data?.message || error?.data?.message || error?.message ||
         `Failed to ${isEditMode ? 'update' : 'create'} sub-grant`;
       toast.error(errorMessage);
