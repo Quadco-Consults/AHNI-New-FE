@@ -51,6 +51,24 @@ export const useGetCompensations = (enabled: boolean = true) => {
   });
 };
 
+// Get Compensation by ID
+export const useGetCompensationById = (id: string, enabled: boolean = true) => {
+  return useQuery<ApiResponse<Compensation>>({
+    queryKey: ["compensation", id],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${BASE_URL}${id}/`);
+        return response.data as ApiResponse<Compensation>;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled && !!id,
+    refetchOnWindowFocus: false,
+  });
+};
+
 // Create Compensation
 export const useCreateCompensation = () => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
@@ -75,6 +93,30 @@ export const useCreateCompensation = () => {
   return { createCompensation, data, isLoading, isSuccess, error };
 };
 
+// Update Compensation
+export const useUpdateCompensation = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    Compensation,
+    Error,
+    Partial<Compensation>
+  >({
+    endpoint: `${BASE_URL}${id}/`,
+    queryKey: ["compensations", "compensation", id],
+    isAuth: true,
+    method: "PATCH",
+  });
+
+  const updateCompensation = async (details: Partial<Compensation>) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("Compensation update error:", error);
+    }
+  };
+
+  return { updateCompensation, data, isLoading, isSuccess, error };
+};
+
 // Delete Compensation
 export const useDeleteCompensation = (id: string) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
@@ -82,7 +124,7 @@ export const useDeleteCompensation = (id: string) => {
     Error,
     Record<string, never>
   >({
-    endpoint: `${BASE_URL}${id}`,
+    endpoint: `${BASE_URL}${id}/`,
     queryKey: ["compensations"],
     isAuth: true,
     method: "DELETE",

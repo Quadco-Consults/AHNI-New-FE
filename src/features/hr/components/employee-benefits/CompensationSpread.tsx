@@ -18,41 +18,34 @@ import { useAppDispatch } from "hooks/useStore";
 import { DialogType, mediumDailogScreen } from "constants/dailogs";
 import { openDialog } from "store/ui";
 import { useGetCompensationsSpread } from "@/features/hr/controllers/hrCompensationSpreadController";
-
-interface CompensationItem {
-  id: string;
-  employeeNumber: string;
-  surname: string;
-  firstname: string;
-  position: string;
-  grade: string;
-  location: string;
-  project: string;
-  hireDate: string;
-  basic: number;
-  housing: number;
-  transport: number;
-  meal: number;
-  miscellaneous: number;
-  totalAllowance: number;
-  thirteenthMonth: number;
-  grossTotal: number;
-}
+import { CompensationSpreadItem } from "@/features/hr/types/compensation-spread";
+import AddCompensationSpreadModal from "./components/AddCompensationSpreadModal";
+import BulkUploadCompensationSpreadModal from "./components/BulkUploadCompensationSpreadModal";
+import EditCompensationSpreadModal from "./components/EditCompensationSpreadModal";
+import { toast } from "sonner";
+import { useDeleteCompensationSpread } from "@/features/hr/controllers/hrCompensationSpreadController";
 
 const Compensation: React.FC = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [isModalOpen, setModalOpen] = React.useState(false);
+  const [isAddModalOpen, setAddModalOpen] = React.useState(false);
+  const [isBulkUploadModalOpen, setBulkUploadModalOpen] = React.useState(false);
+  const [isEditModalOpen, setEditModalOpen] = React.useState(false);
+  const [selectedCompensationSpread, setSelectedCompensationSpread] = React.useState<CompensationSpreadItem | null>(null);
+  const [itemToDelete, setItemToDelete] = React.useState<string | null>(null);
 
-  const { data: compensationsData, isLoading: isLoadingCompensations } =
+  const { data: compensationsData, isLoading: isLoadingCompensations, refetch } =
     useGetCompensationsSpread();
+
+  const { deleteCompensationSpread } = useDeleteCompensationSpread(itemToDelete || "");
 
   console.log({
     compensationsData,
     isLoadingCompensations,
   });
 
-  const columns: ColumnDef<CompensationItem>[] = [
+  const columns: ColumnDef<CompensationSpreadItem>[] = [
     {
       id: "select",
       size: 50,
@@ -75,28 +68,114 @@ const Compensation: React.FC = () => {
       cell: ({ row }) => <p>{row.index + 1}</p>,
       size: 50,
     },
-    { header: "Employee Number", accessorKey: "employeeNumber", size: 150 },
-    { header: "Surname", accessorKey: "surname", size: 150 },
-    { header: "Firstname", accessorKey: "firstname", size: 150 },
-    { header: "Position", accessorKey: "position", size: 150 },
-    { header: "Grade", accessorKey: "grade", size: 100 },
-    { header: "Location", accessorKey: "location", size: 150 },
-    { header: "Project", accessorKey: "project", size: 150 },
-    { header: "Hire Date", accessorKey: "hireDate", size: 130 },
-    { header: "Basic", accessorKey: "basic", size: 100 },
-    { header: "Housing", accessorKey: "housing", size: 100 },
-    { header: "Transport", accessorKey: "transport", size: 100 },
-    { header: "Meal", accessorKey: "meal", size: 100 },
-    { header: "Miscellaneous", accessorKey: "miscellaneous", size: 130 },
-    { header: "Total Allowance", accessorKey: "total_allowance", size: 150 },
-    { header: "13th Month", accessorKey: "thirteenth_month", size: 120 },
-    { header: "Gross Total", accessorKey: "gross_total", size: 150 },
-    // {
-    //   header: "Action",
-    //   id: "actions",
-    //   size: 100,
-    //   cell: ({ row }) => <ActionListAction id={row.original.id} />,
-    // },
+    {
+      header: "Employee Number",
+      accessorKey: "employeeNumber",
+      cell: ({ row }) => <p>{row?.original?.employeeNumber || "N/A"}</p>,
+      size: 150
+    },
+    {
+      header: "Surname",
+      accessorKey: "surname",
+      cell: ({ row }) => <p>{row?.original?.surname || "N/A"}</p>,
+      size: 150
+    },
+    {
+      header: "Firstname",
+      accessorKey: "firstname",
+      cell: ({ row }) => <p>{row?.original?.firstname || "N/A"}</p>,
+      size: 150
+    },
+    {
+      header: "Position",
+      accessorKey: "position",
+      cell: ({ row }) => <p>{row?.original?.position || "N/A"}</p>,
+      size: 150
+    },
+    {
+      header: "Grade",
+      accessorKey: "grade",
+      cell: ({ row }) => <p>{row?.original?.grade || "N/A"}</p>,
+      size: 100
+    },
+    {
+      header: "Level",
+      accessorKey: "level",
+      cell: ({ row }) => <p>{row?.original?.level || "N/A"}</p>,
+      size: 100
+    },
+    {
+      header: "Location",
+      accessorKey: "location",
+      cell: ({ row }) => <p>{row?.original?.location || "N/A"}</p>,
+      size: 150
+    },
+    {
+      header: "Project",
+      accessorKey: "project",
+      cell: ({ row }) => <p>{row?.original?.project || "N/A"}</p>,
+      size: 150
+    },
+    {
+      header: "Hire Date",
+      accessorKey: "hireDate",
+      cell: ({ row }) => <p>{row?.original?.hireDate || "N/A"}</p>,
+      size: 130
+    },
+    {
+      header: "Basic",
+      accessorKey: "basic",
+      cell: ({ row }) => <p>{parseFloat(String(row?.original?.basic || "0")).toLocaleString()}</p>,
+      size: 100
+    },
+    {
+      header: "Housing",
+      accessorKey: "housing",
+      cell: ({ row }) => <p>{parseFloat(String(row?.original?.housing || "0")).toLocaleString()}</p>,
+      size: 100
+    },
+    {
+      header: "Transport",
+      accessorKey: "transport",
+      cell: ({ row }) => <p>{parseFloat(String(row?.original?.transport || "0")).toLocaleString()}</p>,
+      size: 100
+    },
+    {
+      header: "Meal",
+      accessorKey: "meal",
+      cell: ({ row }) => <p>{parseFloat(String(row?.original?.meal || "0")).toLocaleString()}</p>,
+      size: 100
+    },
+    {
+      header: "Miscellaneous",
+      accessorKey: "miscellaneous",
+      cell: ({ row }) => <p>{parseFloat(String(row?.original?.miscellaneous || "0")).toLocaleString()}</p>,
+      size: 130
+    },
+    {
+      header: "Total Allowance",
+      accessorKey: "totalAllowance",
+      cell: ({ row }) => <p>{parseFloat(String(row?.original?.totalAllowance || "0")).toLocaleString()}</p>,
+      size: 150
+    },
+    {
+      header: "13th Month",
+      accessorKey: "thirteenthMonth",
+      cell: ({ row }) => <p>{parseFloat(String(row?.original?.thirteenthMonth || "0")).toLocaleString()}</p>,
+      size: 120
+    },
+    {
+      header: "Gross Total",
+      accessorKey: "grossTotal",
+      cell: ({ row }) => <p>{parseFloat(String(row?.original?.grossTotal || "0")).toLocaleString()}</p>,
+      size: 150
+    },
+    {
+      header: "Action",
+      id: "actions",
+      size: 100,
+      cell: ({ row }) => <ActionListAction item={row.original} />,
+    },
   ];
 
   const handleOpenDialog = () => {
@@ -112,15 +191,46 @@ const Compensation: React.FC = () => {
     );
   };
 
-  const ActionListAction = ({ id }: { id: string }) => (
+  const handleEdit = (item: CompensationSpreadItem) => {
+    setSelectedCompensationSpread(item);
+    setEditModalOpen(true);
+  };
+
+  const handleDelete = async (item: CompensationSpreadItem) => {
+    if (window.confirm(`Are you sure you want to delete compensation spread for ${item.firstname} ${item.surname}?`)) {
+      setItemToDelete(item.id);
+    }
+  };
+
+  React.useEffect(() => {
+    if (itemToDelete && deleteCompensationSpread) {
+      const performDelete = async () => {
+        try {
+          await deleteCompensationSpread();
+          toast.success("Compensation spread deleted successfully");
+          refetch();
+        } catch (error) {
+          toast.error("Failed to delete compensation spread");
+        } finally {
+          setItemToDelete(null);
+        }
+      };
+      performDelete();
+    }
+  }, [itemToDelete, deleteCompensationSpread, refetch]);
+
+  const ActionListAction = ({ item }: { item: CompensationSpreadItem }) => (
     <div className='flex gap-2'>
       <IconButton
         className='bg-[#F9F9F9] hover:text-primary'
-        onClick={handleOpenDialog}
+        onClick={() => handleEdit(item)}
       >
-        <Icon icon='ph:eye-duotone' fontSize={15} />
+        <Icon icon='ph:pencil-duotone' fontSize={15} />
       </IconButton>
-      <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+      <IconButton
+        className='bg-[#F9F9F9] hover:text-primary'
+        onClick={() => handleDelete(item)}
+      >
         <Icon icon='ant-design:delete-twotone' fontSize={15} />
       </IconButton>
     </div>
@@ -133,6 +243,20 @@ const Compensation: React.FC = () => {
           <SearchBar onchange={() => ""} />
           <Button variant='ghost'>
             <FilterIcon2 />
+          </Button>
+        </div>
+        <div className='flex items-center gap-2'>
+          <Button
+            onClick={() => setBulkUploadModalOpen(true)}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <Icon icon='ph:upload-duotone' fontSize={20} />
+            <p>Bulk Upload</p>
+          </Button>
+          <Button onClick={() => setAddModalOpen(true)}>
+            <AddSquareIcon />
+            <p>Add Employee Compensation</p>
           </Button>
         </div>
       </div>
@@ -156,68 +280,36 @@ const Compensation: React.FC = () => {
           onCancel={() => setModalOpen(false)}
           onOk={() => {}}
         />
+        <AddCompensationSpreadModal
+          isOpen={isAddModalOpen}
+          onCancel={() => setAddModalOpen(false)}
+          onSuccess={() => {
+            refetch();
+          }}
+        />
+        <BulkUploadCompensationSpreadModal
+          isOpen={isBulkUploadModalOpen}
+          onCancel={() => setBulkUploadModalOpen(false)}
+          onSuccess={() => {
+            refetch();
+          }}
+        />
+        <EditCompensationSpreadModal
+          isOpen={isEditModalOpen}
+          onCancel={() => {
+            setEditModalOpen(false);
+            setSelectedCompensationSpread(null);
+          }}
+          onSuccess={() => {
+            refetch();
+            setEditModalOpen(false);
+            setSelectedCompensationSpread(null);
+          }}
+          compensationSpread={selectedCompensationSpread}
+        />
       </div>
     </div>
   );
 };
 
 export default Compensation;
-const dummyData: CompensationItem[] = [
-  {
-    id: "1",
-    employeeNumber: "EMP001",
-    surname: "Johnson",
-    firstname: "Alice",
-    position: "Software Engineer",
-    grade: "5A",
-    location: "Lagos",
-    project: "Palm Estate ERP",
-    hireDate: "2020-03-15",
-    basic: 150000,
-    housing: 50000,
-    transport: 20000,
-    meal: 10000,
-    miscellaneous: 5000,
-    totalAllowance: 85000,
-    thirteenthMonth: 12000,
-    grossTotal: 247000,
-  },
-  {
-    id: "2",
-    employeeNumber: "EMP002",
-    surname: "Oladipo",
-    firstname: "Tunde",
-    position: "Field Supervisor",
-    grade: "4B",
-    location: "Ogun",
-    project: "Palm Estate Field Ops",
-    hireDate: "2019-07-20",
-    basic: 120000,
-    housing: 40000,
-    transport: 15000,
-    meal: 8000,
-    miscellaneous: 3000,
-    totalAllowance: 66000,
-    thirteenthMonth: 10000,
-    grossTotal: 196000,
-  },
-  {
-    id: "3",
-    employeeNumber: "EMP003",
-    surname: "Ahmed",
-    firstname: "Zainab",
-    position: "Accountant",
-    grade: "6C",
-    location: "Abuja",
-    project: "Finance & Reporting",
-    hireDate: "2021-01-10",
-    basic: 170000,
-    housing: 60000,
-    transport: 25000,
-    meal: 15000,
-    miscellaneous: 8000,
-    totalAllowance: 108000,
-    thirteenthMonth: 14000,
-    grossTotal: 292000,
-  },
-];
