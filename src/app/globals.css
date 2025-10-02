@@ -247,4 +247,36 @@ input:checked {
   .border {
     border-width: 0.5pt !important;
   }
+
+  /* Print-specific styles for SSP Report */
+  .print\:hidden {
+    display: none !important;
+  }
+
+  .print\:p-12 {
+    padding: 3rem !important;
+  }
+
+  .print\:shadow-none {
+    box-shadow: none !important;
+  }
+
+  /* Ensure proper page breaks */
+  .print\:break-after-page {
+    page-break-after: always !important;
+  }
+
+  .print\:break-before-page {
+    page-break-before: always !important;
+  }
+
+  .print\:break-inside-avoid {
+    page-break-inside: avoid !important;
+  }
+
+  /* Print page setup */
+  @page {
+    size: A4;
+    margin: 1.5cm;
+  }
 }
