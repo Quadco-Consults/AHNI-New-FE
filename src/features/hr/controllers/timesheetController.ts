@@ -2,8 +2,20 @@ import useApiManager from "@/constants/mainController";
 import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
+import type {
+  Timesheet,
+  CreateTimesheetRequest,
+  UpdateTimesheetRequest,
+  SubmitTimesheetRequest,
+  ApproveTimesheetRequest,
+  RejectTimesheetRequest,
+  TimesheetValidationResponse,
+  BlockedDatesResponse,
+  TimesheetDashboardResponse,
+} from "@/features/hr/types/timesheet";
 
-const BASE_URL = "/hr/timesheets/";
+// Backend API base URL (matches backend documentation)
+const BASE_URL = "/hr/time-sheet/time-sheet/";
 
 // API Response interface
 interface ApiResponse<TData = unknown> {
@@ -31,15 +43,18 @@ interface PaginatedResponse<T> {
   };
 }
 
-// Filter parameters interface
+// Filter parameters interface (matches backend query params)
 interface TimesheetFilterParams {
   page?: number;
-  size?: number;
-  employee_id?: string;
-  status?: string;
-  start_date?: string;
-  end_date?: string;
-  view_type?: string;
+  page_size?: number;
+  employee?: string; // UUID filter
+  status?: "draft" | "submitted" | "approved" | "rejected";
+  start_date?: string; // YYYY-MM-DD
+  end_date?: string; // YYYY-MM-DD
+  is_submitted?: boolean;
+  is_approved?: boolean;
+  approver?: string; // UUID filter
+  search?: string; // Search by employee name
   enabled?: boolean;
 }
 
@@ -48,27 +63,33 @@ interface TimesheetFilterParams {
 // Get All Timesheets
 export const useGetTimesheets = ({
   page = 1,
-  size = 20,
-  employee_id,
+  page_size = 20,
+  employee,
   status,
   start_date,
   end_date,
-  view_type = "weekly",
+  is_submitted,
+  is_approved,
+  approver,
+  search,
   enabled = true,
 }: TimesheetFilterParams = {}) => {
-  return useQuery<PaginatedResponse<any>>({
-    queryKey: ["timesheets", page, size, employee_id, status, start_date, end_date, view_type],
+  return useQuery<PaginatedResponse<Timesheet>>({
+    queryKey: ["timesheets", page, page_size, employee, status, start_date, end_date, is_submitted, is_approved, approver, search],
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(BASE_URL, {
           params: {
             page,
-            size,
-            ...(employee_id && { employee_id }),
+            page_size,
+            ...(employee && { employee }),
             ...(status && { status }),
             ...(start_date && { start_date }),
             ...(end_date && { end_date }),
-            view_type,
+            ...(is_submitted !== undefined && { is_submitted }),
+            ...(is_approved !== undefined && { is_approved }),
+            ...(approver && { approver }),
+            ...(search && { search }),
           },
         });
         return response.data;
@@ -84,7 +105,7 @@ export const useGetTimesheets = ({
 
 // Get Single Timesheet
 export const useGetTimesheetById = (id: string, enabled: boolean = true) => {
-  return useQuery<ApiResponse<any>>({
+  return useQuery<ApiResponse<Timesheet>>({
     queryKey: ["timesheet", id],
     queryFn: async () => {
       try {
@@ -102,14 +123,18 @@ export const useGetTimesheetById = (id: string, enabled: boolean = true) => {
 
 // Create Timesheet
 export const useCreateTimesheet = () => {
-  const { callApi, isLoading, isSuccess, error, data } = useApiManager<any, Error, any>({
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    ApiResponse<Timesheet>,
+    Error,
+    CreateTimesheetRequest
+  >({
     endpoint: BASE_URL,
     queryKey: ["timesheets"],
     isAuth: true,
     method: "POST",
   });
 
-  const createTimesheet = async (details: any) => {
+  const createTimesheet = async (details: CreateTimesheetRequest) => {
     try {
       await callApi(details);
     } catch (error) {
@@ -123,14 +148,18 @@ export const useCreateTimesheet = () => {
 
 // Update Timesheet
 export const useUpdateTimesheet = (id: string) => {
-  const { callApi, isLoading, isSuccess, error, data } = useApiManager<any, Error, any>({
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    ApiResponse<Timesheet>,
+    Error,
+    UpdateTimesheetRequest
+  >({
     endpoint: `${BASE_URL}${id}/`,
     queryKey: ["timesheets", id],
     isAuth: true,
     method: "PATCH",
   });
 
-  const updateTimesheet = async (details: any) => {
+  const updateTimesheet = async (details: UpdateTimesheetRequest) => {
     try {
       await callApi(details);
     } catch (error) {
@@ -144,7 +173,11 @@ export const useUpdateTimesheet = (id: string) => {
 
 // Submit Timesheet for Approval
 export const useSubmitTimesheet = (id: string) => {
-  const { callApi, isLoading, isSuccess, error, data } = useApiManager<any, Error, any>({
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    ApiResponse<Timesheet>,
+    Error,
+    SubmitTimesheetRequest
+  >({
     endpoint: `${BASE_URL}${id}/submit/`,
     queryKey: ["timesheets", id],
     isAuth: true,
@@ -165,16 +198,20 @@ export const useSubmitTimesheet = (id: string) => {
 
 // Approve Timesheet
 export const useApproveTimesheet = (id: string) => {
-  const { callApi, isLoading, isSuccess, error, data } = useApiManager<any, Error, any>({
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    ApiResponse<Timesheet>,
+    Error,
+    ApproveTimesheetRequest
+  >({
     endpoint: `${BASE_URL}${id}/approve/`,
     queryKey: ["timesheets", id],
     isAuth: true,
     method: "POST",
   });
 
-  const approveTimesheet = async (approverData?: any) => {
+  const approveTimesheet = async (comments?: string) => {
     try {
-      await callApi(approverData || {});
+      await callApi(comments ? { comments } : {});
     } catch (error) {
       console.error("Timesheet approve error:", error);
       throw error;
@@ -186,16 +223,20 @@ export const useApproveTimesheet = (id: string) => {
 
 // Reject Timesheet
 export const useRejectTimesheet = (id: string) => {
-  const { callApi, isLoading, isSuccess, error, data } = useApiManager<any, Error, any>({
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    ApiResponse<Timesheet>,
+    Error,
+    RejectTimesheetRequest
+  >({
     endpoint: `${BASE_URL}${id}/reject/`,
     queryKey: ["timesheets", id],
     isAuth: true,
     method: "POST",
   });
 
-  const rejectTimesheet = async (reason: string) => {
+  const rejectTimesheet = async (reason: string, comments?: string) => {
     try {
-      await callApi({ rejection_reason: reason });
+      await callApi({ reason, ...(comments && { comments }) });
     } catch (error) {
       console.error("Timesheet reject error:", error);
       throw error;
@@ -228,6 +269,68 @@ export const useDeleteTimesheet = (id: string) => {
   };
 
   return { deleteTimesheet, data, isLoading, isSuccess, error };
+};
+
+// Validate Timesheet (before submit)
+export const useValidateTimesheet = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    TimesheetValidationResponse,
+    Error,
+    Record<string, never>
+  >({
+    endpoint: `${BASE_URL}${id}/validate/`,
+    queryKey: ["timesheet-validate", id],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const validateTimesheet = async () => {
+    try {
+      await callApi({} as Record<string, never>);
+      return data;
+    } catch (error) {
+      console.error("Timesheet validation error:", error);
+      throw error;
+    }
+  };
+
+  return { validateTimesheet, data, isLoading, isSuccess, error };
+};
+
+// Get Blocked Dates for a Timesheet
+export const useGetBlockedDates = (id: string, enabled: boolean = true) => {
+  return useQuery<ApiResponse<BlockedDatesResponse>>({
+    queryKey: ["timesheet-blocked-dates", id],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${BASE_URL}${id}/blocked_dates/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled && !!id,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get Timesheet Dashboard
+export const useGetTimesheetDashboard = (enabled: boolean = true) => {
+  return useQuery<TimesheetDashboardResponse>({
+    queryKey: ["timesheet-dashboard"],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${BASE_URL}dashboard/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled,
+    refetchOnWindowFocus: false,
+  });
 };
 
 // Legacy exports for backward compatibility
