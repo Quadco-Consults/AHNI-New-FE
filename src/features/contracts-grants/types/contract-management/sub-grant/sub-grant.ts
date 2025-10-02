@@ -2,6 +2,7 @@ import { z } from "zod";
 import { IGrantSingleData } from "../../grants";
 import { TPartnerData } from "definations/modules/project/partners";
 import { IUser } from "definations/auth/user";
+import { TLocationData } from "definations/modules/config/location";
 
 export const SubGrantSchema = z.object({
     project: z.string().min(1, "Please select project"),
@@ -16,6 +17,7 @@ export const SubGrantSchema = z.object({
     sub_grant_administrator: z.string().min(1, "Please select administrator"),
     technical_staff: z.string().min(1, "Please select technical staff"),
     business_unit: z.string().min(1, "Please select department"),
+    locations: z.array(z.string()).nonempty("Please select at least one location"),
 });
 
 export type TSubGrantFormData = z.infer<typeof SubGrantSchema>;
@@ -44,6 +46,7 @@ export interface ISubGrantPaginatedData {
     created_by: string | null;
     updated_by: string | null;
     grant: string;
+    locations: TLocationData[];
 }
 
 export interface ISubGrantSingleData {
@@ -69,6 +72,7 @@ export interface ISubGrantSingleData {
     status: string;
     created_by: string | null;
     updated_by: string | null;
+    locations: TLocationData[];
 }
 
 export const SubGrantSubmissionSchema = z.object({

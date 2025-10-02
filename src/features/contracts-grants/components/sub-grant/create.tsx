@@ -10,12 +10,15 @@ import Card from "components/Card";
 import FormButton from "components/FormButton";
 import FormInput from "components/FormInput";
 import FormSelect from "components/FormSelect";
-import { Form } from "components/ui/form";
+import { Form, FormField, FormItem, FormControl } from "components/ui/form";
+import { Label } from "components/ui/label";
+import MultiSelectFormField from "components/ui/multiselect";
 import { SubGrantSchema, TSubGrantFormData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
 import { useCreateSubGrant, useUpdateSubGrant, useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
 import { useGetAllGrants } from "@/features/contracts-grants/controllers/grantController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { useGetAllDepartments } from "@/features/modules/controllers/config/departmentController";
+import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
 import { CG_ROUTES } from "constants/RouterConstants";
 import { Loading } from "@/components/Loading";
 
@@ -39,6 +42,7 @@ const CreateSubGrant: React.FC = () => {
       sub_grant_administrator: "",
       technical_staff: "",
       business_unit: "",
+      locations: [],
     },
   });
 
@@ -53,6 +57,7 @@ const CreateSubGrant: React.FC = () => {
   const { data: grantsData, isLoading: grantsLoading, error: grantsError } = useGetAllGrants({ size: 100, enabled: true });
   const { data: usersData, isLoading: usersLoading, error: usersError } = useGetAllUsers({ size: 100, enabled: true });
   const { data: departmentsData, isLoading: departmentsLoading, error: departmentsError } = useGetAllDepartments({ size: 100, enabled: true });
+  const { data: locationsData, isLoading: locationsLoading, error: locationsError } = useGetAllLocations({ page: 1, size: 2000, enabled: true });
 
 
   // Transform data for select options
@@ -73,17 +78,21 @@ const CreateSubGrant: React.FC = () => {
     label: department.name
   })) || [];
 
+  const locationOptions = locationsData?.data?.results || [];
+
   // Temporary debugging to see API responses
   console.log("=== TEMP DEBUG ===");
   console.log("Grants API Response:", grantsData);
   console.log("Users API Response:", usersData);
   console.log("Departments API Response:", departmentsData);
-  console.log("API Loading States:", { grantsLoading, usersLoading, departmentsLoading });
-  console.log("API Errors:", { grantsError, usersError, departmentsError });
+  console.log("Locations API Response:", locationsData);
+  console.log("API Loading States:", { grantsLoading, usersLoading, departmentsLoading, locationsLoading });
+  console.log("API Errors:", { grantsError, usersError, departmentsError, locationsError });
   console.log("Processed Options:");
   console.log("- Grant Options:", grantOptions, `(${grantOptions.length} items)`);
   console.log("- User Options:", userOptions, `(${userOptions.length} items)`);
   console.log("- Department Options:", departmentOptions, `(${departmentOptions.length} items)`);
+  console.log("- Location Options:", locationOptions, `(${locationOptions?.length || 0} items)`);
   console.log("=== END DEBUG ===");
 
   // Populate form when editing
@@ -103,6 +112,7 @@ const CreateSubGrant: React.FC = () => {
         sub_grant_administrator: typeof data.sub_grant_administrator === 'string' ? data.sub_grant_administrator : data.sub_grant_administrator?.id || "",
         technical_staff: typeof data.technical_staff === 'string' ? data.technical_staff : data.technical_staff?.id || "",
         business_unit: typeof data.business_unit === 'string' ? data.business_unit : data.business_unit?.id || "",
+        locations: Array.isArray(data.locations) ? data.locations.map((loc: any) => typeof loc === 'string' ? loc : loc.id) : [],
       });
     }
   }, [isEditMode, subGrantData, form]);
@@ -155,7 +165,7 @@ const CreateSubGrant: React.FC = () => {
           </h2>
 
           {/* Display API errors */}
-          {(grantsError || usersError || departmentsError) && (
+          {(grantsError || usersError || departmentsError || locationsError) && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
               <h3 className="font-medium text-red-800 mb-2">API Connection Issues:</h3>
               {grantsError && (
@@ -167,18 +177,22 @@ const CreateSubGrant: React.FC = () => {
               {departmentsError && (
                 <p className="text-red-600 text-sm">• Departments: {departmentsError.message}</p>
               )}
+              {locationsError && (
+                <p className="text-red-600 text-sm">• Locations: {locationsError.message}</p>
+              )}
               <p className="text-red-600 text-sm mt-2">Please check your authentication or contact support.</p>
             </div>
           )}
 
           {/* Display loading status */}
-          {(grantsLoading || usersLoading || departmentsLoading) && (
+          {(grantsLoading || usersLoading || departmentsLoading || locationsLoading) && (
             <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-blue-800">
                 Loading form data...
                 {grantsLoading && " • Grants"}
                 {usersLoading && " • Users"}
                 {departmentsLoading && " • Departments"}
+                {locationsLoading && " • Locations"}
               </p>
             </div>
           )}
@@ -245,6 +259,34 @@ const CreateSubGrant: React.FC = () => {
                   options={departmentOptions}
                   disabled={departmentsLoading}
                 />
+              </div>
+
+              {/* Project Locations */}
+              <div>
+                <Label className="font-semibold">Project Locations <span className="text-red-500">*</span></Label>
+                <FormField
+                  control={form.control}
+                  name="locations"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <MultiSelectFormField
+                          options={locationOptions || []}
+                          defaultValue={field.value}
+                          onValueChange={field.onChange}
+                          placeholder={locationsLoading ? "Loading locations..." : "Select project locations"}
+                          variant="inverted"
+                          disabled={locationsLoading}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                {form.formState.errors.locations && (
+                  <span className="text-sm text-red-500 font-medium">
+                    {form.formState.errors.locations.message as string}
+                  </span>
+                )}
               </div>
 
               {/* Amounts */}

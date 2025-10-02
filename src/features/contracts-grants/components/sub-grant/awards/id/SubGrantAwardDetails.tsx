@@ -29,6 +29,7 @@ const SubGrantAwardDetails = ({
   submission_end_date,
   evaluation_applicants,
   status: initialStatus,
+  locations,
 }: ISubGrantSingleData) => {
   const [status, setStatus] = useState<string>(initialStatus || "DRAFT");
 
@@ -122,40 +123,47 @@ const SubGrantAwardDetails = ({
       },
       {
         id: 9,
+        label: "Project Locations",
+        value: locations && locations.length > 0
+          ? locations.map(loc => loc.name || loc.city).join(", ")
+          : "N/A",
+      },
+      {
+        id: 10,
         label: "Subaward Life of Project Value (USD)",
         value: formatNumberCurrency(amount_usd, "USD"),
       },
       {
-        id: 10,
+        id: 11,
         label: "Subaward Life of Project Value (Local Currency)",
         value: formatNumberCurrency(amount_ngn, "NGN"),
       },
 
-      { id: 11, label: "Start Date", value: start_date },
+      { id: 12, label: "Start Date", value: start_date },
 
-      { id: 12, label: "End Date", value: end_date },
+      { id: 13, label: "End Date", value: end_date },
 
       {
-        id: 3,
+        id: 14,
         label: "Submission Start Date",
         value: submission_start_date,
       },
 
       {
-        id: 14,
+        id: 15,
         label: "Submission End Date",
         value: submission_end_date,
       },
 
       {
-        id: 15,
+        id: 16,
         label: "Commitees",
         value: evaluation_applicants
           .map((member) => `${member.first_name} ${member.last_name}`)
           .join(", "),
       },
     ];
-  }, []);
+  }, [title, sub_grant_administrator, award_type, technical_staff, business_unit, locations, amount_usd, amount_ngn, start_date, end_date, submission_start_date, submission_end_date, evaluation_applicants]);
 
   return (
     <div className="bg-white rounded-2xl flex flex-col gap-y-[1.25rem] py-5 px-10">
