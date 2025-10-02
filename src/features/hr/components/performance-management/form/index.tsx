@@ -49,6 +49,29 @@ const NewPerformance = () => {
     []
   );
 
+  const evaluationCategoryOptions = useMemo(
+    () =>
+      ["Performance Indicators", "Introductory Period Result"].map((title) => ({
+        label: title,
+        value: title,
+      })),
+    []
+  );
+
+  const competencyOptions = useMemo(
+    () =>
+      [
+        "Job Knowledge",
+        "Interpersonal Skills/Teamwork",
+        "Accountability",
+        "Leadership",
+      ].map((title) => ({
+        label: title,
+        value: title,
+      })),
+    []
+  );
+
   const { data: user } = useGetAllUsers({
     page: 1,
     size: 2000000,
@@ -90,17 +113,26 @@ const NewPerformance = () => {
   console.log({ employees, user, employeeOptions });
 
   const onSubmit = async (data: any) => {
-    console.log({ data });
+    console.log("=== CREATING PERFORMANCE ASSESSMENT ===");
+    console.log("Form data being submitted:", data);
+    console.log("Evaluators data:", JSON.stringify(data.evaluators, null, 2));
     try {
-      // Create new advertisement
-      await createPerformanceAssesment(data);
-      toast.success("Job advertisement created successfully");
+      const response = await createPerformanceAssesment(data);
+      console.log("✅ CREATE SUCCESS - Full response:", response);
+      console.log("✅ Response structure:", {
+        status: response?.status,
+        message: response?.message,
+        data: response?.data,
+        id: response?.data?.id || response?.data?.data?.id
+      });
+      toast.success("Performance appraisal created successfully");
+
+      // Redirect to list page - cache should auto-invalidate
+      router.push(HrRoutes.PERFORMANCE_MANAGEMENT);
     } catch (e) {
+      console.error("❌ Error creating assessment:", e);
       toast.error("Something went wrong");
     }
-
-    //
-    // router.push(HrRoutes.PERFORMANCE_MANAGEMENT);
   };
 
   return (
@@ -156,30 +188,54 @@ const NewPerformance = () => {
 
             <div className='grid gap-5'>
               {fields.map((field, index) => (
-                <div key={field.id} className='flex gap-4 items-center'>
-                  {/* AHNI STAFF for evaluators */}
+                <div key={field.id} className='grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-lg'>
                   <FormSelect
-                    label={`Select Evaluator ${index + 1}`}
+                    label={`Evaluator ${index + 1}`}
                     name={`evaluators.${index}.evaluator`}
                     required
                     options={userOptions}
+                    placeholder="Select evaluator"
                   >
                     <SelectContent></SelectContent>
                   </FormSelect>
-                  <FormButton
-                    type='button'
-                    className='text-red-500 bg-transparent'
-                    onClick={() => remove(index)}
+
+                  <FormSelect
+                    label='Evaluation Category'
+                    name={`evaluators.${index}.evaluation_category`}
+                    required
+                    options={evaluationCategoryOptions}
+                    placeholder="Select category"
                   >
-                    <MinusCircle />
-                  </FormButton>
+                    <SelectContent></SelectContent>
+                  </FormSelect>
+
+                  <FormSelect
+                    label='Competency'
+                    name={`evaluators.${index}.competency`}
+                    required
+                    options={competencyOptions}
+                    placeholder="Select competency"
+                  >
+                    <SelectContent></SelectContent>
+                  </FormSelect>
+
+                  <div className='col-span-full flex justify-end'>
+                    <FormButton
+                      type='button'
+                      className='text-red-500 bg-transparent'
+                      onClick={() => remove(index)}
+                    >
+                      <MinusCircle />
+                      Remove Evaluator
+                    </FormButton>
+                  </div>
                 </div>
               ))}{" "}
               <FormButton
                 type='button'
                 className='text-primary bg-alternate'
                 onClick={
-                  () => append({ evaluator: "" }) // Add a new empty evaluator
+                  () => append({ evaluator: "", evaluation_category: "", competency: "" })
                 }
               >
                 Add Evaluator

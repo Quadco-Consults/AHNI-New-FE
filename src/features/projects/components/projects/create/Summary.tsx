@@ -296,7 +296,7 @@ export default function ProjectSummaryPage() {
         id = projectId;
       } else {
         const res = await addProject(formData as any);
-
+        toast.success("Project Created Successfully.");
         id = res?.data?.id;
       }
 
@@ -311,6 +311,7 @@ export default function ProjectSummaryPage() {
       dispatch(clearPartners());
     } catch (error: any) {
       console.log({ error });
+      toast.error("Failed to save project. Please try again.");
     }
   };
 

@@ -25,14 +25,39 @@ const PerformanceManagement: React.FC = () => {
   const debouncedAdvertSearch = useDebounce("advertSearchTerm", 1000);
 
   // Fetch advertisements for dropdown
-  const { data: performanceAssesmentData, isLoading: isLoading } =
+  const { data: performanceAssesmentData, isLoading: isLoading, refetch } =
     useGetPerformanceAssesments({
       search: debouncedAdvertSearch,
       page: 1,
       size: 20,
     });
 
-  console.log({ performanceAssesmentData });
+  // Refetch data when component mounts or becomes visible
+  React.useEffect(() => {
+    refetch();
+  }, [refetch]);
+
+  React.useEffect(() => {
+    console.log("=== PERFORMANCE ASSESSMENT DEBUG ===");
+    console.log("Full response:", performanceAssesmentData);
+    console.log("Data array:", performanceAssesmentData?.data);
+    console.log("Data array length:", performanceAssesmentData?.data?.length);
+    console.log("Is Loading:", isLoading);
+    console.log("Data type:", typeof performanceAssesmentData?.data);
+    console.log("Is array:", Array.isArray(performanceAssesmentData?.data));
+
+    if (performanceAssesmentData && !isLoading) {
+      if (!performanceAssesmentData?.data) {
+        console.error("❌ No data property in response!");
+      } else if (performanceAssesmentData?.data?.length === 0) {
+        console.warn("⚠️ BACKEND ISSUE: List endpoint returns empty array even after successful creation.");
+        console.warn("📋 This is a backend problem - the GET list endpoint is not returning created assessments.");
+        console.warn("💡 Contact backend team to check the list endpoint filtering/permissions.");
+      } else {
+        console.log("✅ Successfully loaded", performanceAssesmentData?.data?.length, "assessments");
+      }
+    }
+  }, [performanceAssesmentData, isLoading]);
 
   const columns: ColumnDef<any>[] = [
     {
@@ -155,12 +180,14 @@ const PerformanceManagement: React.FC = () => {
           //   onRowClick={(row) => {
           //     router.push("/c-and-g/grant-details/" + row?.original?.id);
           //   }}
-          data={dummyData}
-          // isLoading={true}
+          data={performanceAssesmentData?.data || []}
+          isLoading={isLoading}
           pagination={{
-            total: 10,
-            pageSize: 10,
-            onChange: (page: number) => {},
+            total: performanceAssesmentData?.data?.length || 0,
+            pageSize: 20,
+            onChange: (page: number) => {
+              console.log("Page changed to:", page);
+            },
           }}
         />
       </div>
