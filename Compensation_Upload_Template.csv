@@ -1,0 +1,13 @@
+Compensation Name,Type (Deduction/Earning),Amount or Percentage,Amount,Percentage,Position,Grade,Level,Period (Daily/Weekly/Monthly/Annually/One-Off)
+Housing,Earning,Amount,200000,,Driver,grade 8,step 1,Monthly
+Housing,Earning,Amount,200000,,Technical Officer,grade 8,step 1,Monthly
+WARDROBE,Earning,Amount,200000,,Technical Officer,grade 9,step 1,Monthly
+Newspaper,Earning,Amount,100000,,Technical Officer,grade 9,step 1,Monthly
+Housing allowance,Earning,Amount,100000,,Admin manager,grade 9,step 2,Weekly
+Transport,Earning,Amount,120000,,Technical Officer,grade 8,step 1,Monthly
+Meal Allowance,Earning,Amount,58000,,Technical Officer,grade 8,step 1,Monthly
+13th Month,Earning,Amount,820000,,Technical Officer,grade 10,step 1,Annually
+Basic Salary,Earning,Amount,2550000,,Technical Officer,grade 10,step 1,Monthly
+Tax Deduction,Deduction,Percentage,,10,All Positions,All Grades,All Levels,Monthly
+Pension,Deduction,Percentage,,8,All Positions,All Grades,All Levels,Monthly
+Health Insurance,Deduction,Amount,15000,,All Positions,All Grades,All Levels,Monthly

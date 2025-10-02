@@ -12,6 +12,10 @@ import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { useGetAllWorkPlan, useGetSingleWorkPlan } from "@/features/programs/controllers/workPlanController";
+import { useSubmitTimesheet, useApproveTimesheet, useRejectTimesheet } from "@/features/hr/controllers/timesheetController";
+import { useGetEmployeeOnboardings } from "@/features/hr/controllers/employeeOnboardingController";
+import { toast } from "sonner";
+import Modal from "react-modal";
 
 type TTimesheetDetail = {
   projectId: string;
@@ -55,6 +59,25 @@ const TimesheetManagementFull = () => {
     initialRow,
   ]);
 
+  // Approval flow state
+  const [timesheetStatus, setTimesheetStatus] = useState<"draft" | "submitted" | "approved" | "rejected">("draft");
+  const [timesheetId] = useState<string>("ts-001"); // TODO: Get from URL params
+  const [rejectionReason, setRejectionReason] = useState<string>("");
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState<boolean>(false);
+  const [selectedApprover, setSelectedApprover] = useState<string>("");
+
+  // Approval flow hooks
+  const { submitTimesheet, isLoading: isSubmitting } = useSubmitTimesheet(timesheetId);
+  const { approveTimesheet, isLoading: isApproving } = useApproveTimesheet(timesheetId);
+  const { rejectTimesheet, isLoading: isRejecting } = useRejectTimesheet(timesheetId);
+
+  // Fetch employees for approver selection
+  const { data: employeesData, isLoading: isLoadingEmployees } = useGetEmployeeOnboardings({
+    page: 1,
+    size: 100,
+    enabled: true,
+  });
+
   const addRow = () => setTimesheetData((prev) => [...prev, { ...initialRow }]);
 
   const removeRow = (index: number) => {
@@ -72,6 +95,47 @@ const TimesheetManagementFull = () => {
   const handleSubmit = () => {
     console.log("Submitted Timesheet:", timesheetData);
     setSavedTimesheet(timesheetData);
+  };
+
+  // Approval flow handlers
+  const handleSubmitForApproval = async () => {
+    if (!selectedApprover) {
+      toast.error("Please select an approver");
+      return;
+    }
+    try {
+      await submitTimesheet(selectedApprover);
+      setTimesheetStatus("submitted");
+      toast.success("Timesheet submitted for approval");
+    } catch (error) {
+      toast.error("Failed to submit timesheet");
+    }
+  };
+
+  const handleApprove = async () => {
+    try {
+      await approveTimesheet();
+      setTimesheetStatus("approved");
+      toast.success("Timesheet approved successfully");
+    } catch (error) {
+      toast.error("Failed to approve timesheet");
+    }
+  };
+
+  const handleReject = async () => {
+    if (!rejectionReason.trim()) {
+      toast.error("Please provide a rejection reason");
+      return;
+    }
+    try {
+      await rejectTimesheet(rejectionReason);
+      setTimesheetStatus("rejected");
+      setIsRejectModalOpen(false);
+      setRejectionReason("");
+      toast.success("Timesheet rejected");
+    } catch (error) {
+      toast.error("Failed to reject timesheet");
+    }
   };
 
   const updateCell = (
@@ -337,27 +401,141 @@ const TimesheetManagementFull = () => {
       <h2 className='text-2xl font-bold'>Timesheet Management</h2>
 
       <div className='flex gap-2'>
-        <Button onClick={addRow}>Add Row</Button>
-        <Button variant='outline' onClick={resetTimesheet}>
+        <Button onClick={addRow} disabled={timesheetStatus !== "draft"}>Add Row</Button>
+        <Button variant='outline' onClick={resetTimesheet} disabled={timesheetStatus !== "draft"}>
           Reset
         </Button>
-        <Button variant='outline' onClick={cancelChanges}>
+        <Button variant='outline' onClick={cancelChanges} disabled={timesheetStatus !== "draft"}>
           Cancel
         </Button>
-        <Button variant='default' onClick={handleSubmit}>
-          Submit
+        <Button variant='default' onClick={handleSubmit} disabled={timesheetStatus !== "draft"}>
+          Save
         </Button>
-        <Button onClick={handleOpenDialog}>Copy Activities</Button>
+        <Button onClick={handleOpenDialog} disabled={timesheetStatus !== "draft"}>Copy Activities</Button>
       </div>
 
       <Card>
         <DataTable columns={columns} data={timesheetData} />
       </Card>
 
-      <Card className='space-y-2'>
-        <h4 className='font-semibold'>Status</h4>
-        <Badge variant='secondary'>Draft</Badge>
+      <Card className='space-y-4'>
+        <div className='flex items-center justify-between'>
+          <div className='space-y-2'>
+            <h4 className='font-semibold'>Status</h4>
+            <Badge variant={
+              timesheetStatus === "approved" ? "default" :
+              timesheetStatus === "rejected" ? "destructive" :
+              timesheetStatus === "submitted" ? "secondary" :
+              "outline"
+            }>
+              {timesheetStatus.charAt(0).toUpperCase() + timesheetStatus.slice(1)}
+            </Badge>
+          </div>
+
+          <div className='flex gap-2'>
+            {/* Draft: Show Submit for Approval */}
+            {timesheetStatus === "draft" && (
+              <Button onClick={handleSubmitForApproval} disabled={isSubmitting}>
+                {isSubmitting ? "Submitting..." : "Submit for Approval"}
+              </Button>
+            )}
+
+            {/* Submitted: Show Approve and Reject (for managers) */}
+            {timesheetStatus === "submitted" && (
+              <>
+                <Button
+                  onClick={handleApprove}
+                  disabled={isApproving}
+                  variant="default"
+                >
+                  {isApproving ? "Approving..." : "Approve"}
+                </Button>
+                <Button
+                  onClick={() => setIsRejectModalOpen(true)}
+                  disabled={isRejecting}
+                  variant="destructive"
+                >
+                  Reject
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Approver Selection (only show in draft status) */}
+        {timesheetStatus === "draft" && (
+          <div className='space-y-2'>
+            <label className='text-sm font-medium'>Select Approver *</label>
+            <Select value={selectedApprover} onValueChange={setSelectedApprover}>
+              <SelectTrigger className='w-full'>
+                <SelectValue placeholder="Select an approver" />
+              </SelectTrigger>
+              <SelectContent>
+                {isLoadingEmployees ? (
+                  <SelectItem value="loading" disabled>
+                    Loading employees...
+                  </SelectItem>
+                ) : !employeesData?.data?.results || employeesData.data.results.length === 0 ? (
+                  <SelectItem value="no-employees" disabled>
+                    No employees found
+                  </SelectItem>
+                ) : (
+                  employeesData.data.results.map((employee: any) => (
+                    <SelectItem key={employee.id} value={employee.id}>
+                      {employee.legal_firstname} {employee.legal_lastname} {employee.position?.name ? `(${employee.position.name})` : ''}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        {/* Show rejection reason if rejected */}
+        {timesheetStatus === "rejected" && (
+          <div className='p-4 bg-red-50 border border-red-200 rounded'>
+            <p className='text-sm font-semibold text-red-800'>Rejection Reason:</p>
+            <p className='text-sm text-red-700'>{rejectionReason || "No reason provided"}</p>
+          </div>
+        )}
       </Card>
+
+      {/* Reject Modal */}
+      <Modal
+        isOpen={isRejectModalOpen}
+        onRequestClose={() => setIsRejectModalOpen(false)}
+        className="fixed inset-0 flex items-center justify-center p-4"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50"
+      >
+        <div className="bg-white rounded-lg p-6 max-w-md w-full space-y-4">
+          <h3 className="text-lg font-semibold">Reject Timesheet</h3>
+          <p className="text-sm text-gray-600">Please provide a reason for rejecting this timesheet:</p>
+          <textarea
+            className="w-full border border-gray-300 rounded p-2 min-h-[100px]"
+            placeholder="Enter rejection reason..."
+            value={rejectionReason}
+            onChange={(e) => setRejectionReason(e.target.value)}
+          />
+          <div className="flex gap-2 justify-end">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsRejectModalOpen(false);
+                setRejectionReason("");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleReject}
+              disabled={isRejecting || !rejectionReason.trim()}
+            >
+              {isRejecting ? "Rejecting..." : "Reject Timesheet"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

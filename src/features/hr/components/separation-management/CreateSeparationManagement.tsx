@@ -16,6 +16,11 @@ import { SelectContent, SelectItem } from "components/ui/select";
 import { EmployeeOnboarding } from "definations/hr-types/employee-onboarding";
 import { useGetEmployeeOnboardings } from "@/features/hr/controllers/employeeOnboardingController";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
+import { useCreateSeparationManagement } from "@/features/hr/controllers/separationManagementController";
+import { SeparationManagementCreate } from "@/features/hr/types/separation-management";
+import { toast } from "sonner";
+import { HrRoutes } from "constants/RouterConstants";
+import { useEffect } from "react";
 
 const CreateSeparationManagement = () => {
   const { data: employeeData, isLoading: fetchingEmployeeData } =
@@ -23,13 +28,9 @@ const CreateSeparationManagement = () => {
   const { data: projectData, isLoading: fetchingProjectData } =
     useGetAllProjects({ page: 1, size: 1000 });
   const router = useRouter();
-  const form = useForm();
+  const form = useForm<SeparationManagementCreate>();
 
-  console.log("=== SEPARATION MANAGEMENT - PROJECTS DEBUG ===");
-  console.log("Project data:", projectData);
-  console.log("Projects results:", projectData?.data?.results);
-  console.log("Projects count:", projectData?.data?.results?.length);
-  console.log("Is loading projects:", fetchingProjectData);
+  const { createSeparationManagement, isLoading, isSuccess } = useCreateSeparationManagement();
 
   const options = ["Voluntary Separation", "End Of Project", "Dismissal"].map(
     (option) => ({
@@ -38,12 +39,37 @@ const CreateSeparationManagement = () => {
     })
   );
 
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("Separation record created successfully");
+      router.push(HrRoutes.SEPARATION_MANAGEMENT);
+    }
+  }, [isSuccess, router]);
+
+  const onSubmit = async (data: any) => {
+    try {
+      const payload: SeparationManagementCreate = {
+        employee: data.employee,
+        exit_method: data.exit_method,
+        project: data.project || undefined,
+        submit_date: data.submit_date,
+        exit_date: data.exit_date,
+        reason_for_leaving: data.reason_for_leaving,
+        notice_period: data.notice_period ? parseInt(data.notice_period) : undefined,
+      };
+
+      await createSeparationManagement(payload);
+    } catch (error) {
+      toast.error("Failed to create separation record");
+    }
+  };
+
   return (
     <div className='space-y-4'>
       <GoBack />
       <Card>
         <Form {...form}>
-          <form className='space-y-8'>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
             <h4 className='font-semibold text-xl'>New Exit Submission</h4>
 
             <div className='grid grid-cols-2 gap-5'>
@@ -66,7 +92,7 @@ const CreateSeparationManagement = () => {
               </div>
 
               <div className='col-span-1'>
-                <FormSelect label='Exit Method' name='exit' required>
+                <FormSelect label='Exit Method' name='exit_method' required>
                   <SelectContent>
                     {options?.map((method) => (
                       <SelectItem key={method.label} value={method.value}>
@@ -81,13 +107,12 @@ const CreateSeparationManagement = () => {
                 <FormSelect
                   name='project'
                   label='Project'
-                  required
                 >
                   <SelectContent>
                     {fetchingProjectData ? (
                       <LoadingSpinner />
                     ) : (
-                      projectData?.data?.results?.map((project) => (
+                      (projectData as any)?.data?.results?.map((project: any) => (
                         <SelectItem key={project?.id} value={project?.id}>
                           {project?.project_name || project?.title}
                         </SelectItem>
@@ -99,11 +124,39 @@ const CreateSeparationManagement = () => {
 
               <div className='col-span-1'>
                 <FormInput
-                  name='date'
-                  label='Date'
+                  name='submit_date'
+                  label='Submit Date'
                   type='date'
                   className='max-w-sm'
                   required
+                />
+              </div>
+
+              <div className='col-span-1'>
+                <FormInput
+                  name='exit_date'
+                  label='Exit Date'
+                  type='date'
+                  className='max-w-sm'
+                  required
+                />
+              </div>
+
+              <div className='col-span-1'>
+                <FormInput
+                  name='notice_period'
+                  label='Notice Period (days)'
+                  type='number'
+                  className='max-w-sm'
+                />
+              </div>
+
+              <div className='col-span-2'>
+                <FormInput
+                  name='reason_for_leaving'
+                  label='Reason for Leaving'
+                  type='text'
+                  className='w-full'
                 />
               </div>
             </div>
@@ -117,8 +170,8 @@ const CreateSeparationManagement = () => {
                 Cancel
               </Button>
               <FormButton
-              // loading={isLoading}
-              // disabled={isLoading}
+                loading={isLoading}
+                disabled={isLoading}
               >
                 Create
               </FormButton>

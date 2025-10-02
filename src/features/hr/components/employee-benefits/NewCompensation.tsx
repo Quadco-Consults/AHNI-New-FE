@@ -16,9 +16,19 @@ import { useCreateCompensation } from "@/features/hr/controllers/compensationCon
 import { toast } from "sonner";
 import { Grade } from "@/features/hr/types/pay-group";
 
+const COMPENSATION_TYPES = [
+  "Housing",
+  "Transport",
+  "Meal",
+  "Miscellaneous",
+  "13th Month",
+  "Basic Salary",
+];
+
 const NewCompensation = () => {
   const { data: payGroupsData } = useGetPayGroups();
   const { createCompensation } = useCreateCompensation();
+
   // @ts-ignore
   const form = useForm({
     // resolver: zodResolver(VendorsRegistrationSchema),
@@ -107,11 +117,17 @@ const NewCompensation = () => {
           <Form {...form}>
             <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
               <div className='grid grid-cols-2 gap-6'>
-                <FormInput
-                  label='Compensation Name'
-                  name='compensation_name'
-                  type='text'
-                />
+                <FormSelect name='compensation_name' label='Compensation Name' required>
+                  <SelectContent>
+                    {COMPENSATION_TYPES.map(
+                      (value: string, index: number) => (
+                        <SelectItem key={index} value={value}>
+                          {value}
+                        </SelectItem>
+                      )
+                    )}
+                  </SelectContent>
+                </FormSelect>
                 <FormSelect name='type' label='Type'>
                   <SelectContent>
                     {["Deduction", "Earning"].map(

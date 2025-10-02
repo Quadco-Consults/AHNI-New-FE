@@ -21,13 +21,16 @@ import {
 } from "@/features/hr/controllers/compensationController";
 import ConfirmationDialog from "components/ConfirmationDialog";
 import { toast } from "sonner";
+import EditCompensationModal from "./components/EditCompensationModal";
+import BulkUploadCompensationModal from "./components/BulkUploadCompensationModal";
 
 const Compensation: React.FC = () => {
   const router = useRouter();
 
   const [isModalOpen, setModalOpen] = React.useState(false);
+  const [isBulkUploadModalOpen, setBulkUploadModalOpen] = React.useState(false);
 
-  const { data: compensationsData, isLoading: isLoadingCompensations } =
+  const { data: compensationsData, isLoading: isLoadingCompensations, refetch } =
     useGetCompensations();
 
   const columns: ColumnDef<any>[] = [
@@ -111,12 +114,16 @@ const Compensation: React.FC = () => {
 
   const ActionListAction = ({ data }: any) => {
     const [dialogOpen, setDialogOpen] = useState(false);
+    const [editModalOpen, setEditModalOpen] = useState(false);
 
-    const { deleteCompensation, isLoading } = useDeleteCompensation();
+    const { deleteCompensation, isLoading } = useDeleteCompensation(
+      data?.original?.id
+    );
 
     const handleDelete = async () => {
       try {
-        await deleteCompensation(data?.id)();
+        await deleteCompensation();
+        toast.success("Compensation deleted successfully");
       } catch (error: any) {
         toast.error(error.data.message ?? "Something went wrong");
       }
@@ -125,18 +132,33 @@ const Compensation: React.FC = () => {
     return (
       <div className='flex gap-2'>
         <Link
-          href={generatePath(RouteEnum.VENDOR_MANAGEMENT_DETAILS, { id: "1" })}
+          href={`/dashboard/hr/employee-benefit/compensation/${data?.original?.id}`}
         >
           <IconButton className='bg-[#F9F9F9] hover:text-primary'>
             <Icon icon='ph:eye-duotone' fontSize={15} />
           </IconButton>
         </Link>
-        <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+        <IconButton
+          className='bg-[#F9F9F9] hover:text-primary'
+          onClick={() => setEditModalOpen(true)}
+        >
+          <Icon icon='ph:pencil-duotone' fontSize={15} />
+        </IconButton>
+        <IconButton
+          className='bg-[#F9F9F9] hover:text-primary'
+          onClick={() => setDialogOpen(true)}
+        >
           <Icon icon='ant-design:delete-twotone' fontSize={15} />
         </IconButton>
+        <EditCompensationModal
+          isOpen={editModalOpen}
+          onCancel={() => setEditModalOpen(false)}
+          onSuccess={() => {}}
+          compensation={data?.original || null}
+        />
         <ConfirmationDialog
           open={dialogOpen}
-          title='Are you sure you want to delete this tr'
+          title='Are you sure you want to delete this compensation?'
           loading={isLoading}
           onCancel={() => setDialogOpen(false)}
           onOk={handleDelete}
@@ -155,7 +177,15 @@ const Compensation: React.FC = () => {
             <FilterIcon2 />
           </Button>
         </div>
-        <div className='flex items-center'>
+        <div className='flex items-center gap-2'>
+          <Button
+            onClick={() => setBulkUploadModalOpen(true)}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <Icon icon='ph:upload-duotone' fontSize={20} />
+            <p>Bulk Upload</p>
+          </Button>
           <Link
             className='w-full'
             href="/dashboard/hr/employee-benefit/new-compensation"
@@ -185,6 +215,13 @@ const Compensation: React.FC = () => {
           isOpen={isModalOpen}
           onCancel={() => setModalOpen(false)}
           onOk={() => {}}
+        />
+        <BulkUploadCompensationModal
+          isOpen={isBulkUploadModalOpen}
+          onCancel={() => setBulkUploadModalOpen(false)}
+          onSuccess={() => {
+            refetch();
+          }}
         />
       </div>
     </div>
