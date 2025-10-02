@@ -59,46 +59,37 @@ const GrievanceManagementForm = () => {
     data
   ) => {
     try {
-      const formData = new FormData();
-      formData.append("type", data.title); // Map title selection to type field
-      formData.append("title", data.title); // Also keep title for display
-      formData.append("description", data.description);
-      formData.append("whistle_blower", "Anonymous"); // Set default whistle_blower
-      if (data.date) formData.append("date", data.date);
-      
-      // Handle document upload - only if a file is actually selected
-      console.log("Document data:", {
-        document: data.document,
-        documentLength: data.document?.length,
-        documentName: data.document_name,
-        isFile: data.document?.[0] instanceof File
-      });
-      
-      if (data.document && data.document.length > 0 && data.document[0] instanceof File) {
-        // File is selected, include both document and document_name
-        formData.append("document", data.document[0]);
-        formData.append("document_name", data.document_name || data.document[0].name);
-        console.log("Document attached:", data.document[0].name, data.document[0].type);
-      } else {
-        // No file selected, don't send document fields at all
-        console.log("No document selected - skipping document fields");
+      // Create complaint without document first
+      const complaintData: any = {
+        type: data.title,
+        title: data.title,
+        description: data.description,
+        whistle_blower: "Anonymous",
+      };
+
+      if (data.date) {
+        complaintData.date = data.date;
       }
-      
-      console.log("Submitting form data:", Object.fromEntries(formData));
-      console.log("Raw FormData entries:");
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
-      }
-      const result = await createGrievance(formData);
+
+      console.log("Submitting complaint data:", complaintData);
+      const result = await createGrievance(complaintData);
       console.log("API Response:", result);
+
+      // TODO: If document exists, upload it separately to the uploads endpoint
+      if (data.document && data.document.length > 0 && data.document[0] instanceof File) {
+        console.log("Document will need to be uploaded separately:", data.document[0].name);
+        // For now, just log - we'll need to create a separate upload endpoint call
+      }
+
       toast.success("Complaint Submitted Successfully!");
-      
+
       // Add small delay before redirect to ensure data is saved
       setTimeout(() => {
         router.push(HrRoutes.GRIEVANCE_MANAGEMENT);
       }, 1000);
     } catch (error: any) {
       console.error("Submission error:", error);
+      console.error("Full error object:", error);
       toast.error(error?.response?.data?.message ?? error?.message ?? "Something went wrong");
     }
   };
