@@ -1,18 +1,16 @@
-import { WorkforceResults } from "./workforce";
-
 export interface CompensationSpreadItem {
   id: string;
-  employeeId?: string;
-  employee?: WorkforceResults; // For nested structure if needed
+  employee: string; // Employee UUID
   employeeNumber: string;
   surname: string;
   firstname: string;
   position: string;
   grade: string;
   level: string;
-  location: string;
-  project: string;
-  hireDate: string;
+  location?: string;
+  project: string | null;
+  projectName?: string | null;
+  hireDate?: string;
   basic: string | number;
   housing: string | number;
   transport: string | number;
@@ -21,6 +19,9 @@ export interface CompensationSpreadItem {
   totalAllowance: string | number;
   thirteenthMonth: string | number;
   grossTotal: string | number;
+  is_active?: boolean;
+  effective_date?: string | null;
+  notes?: string | null;
   created_at?: string;
   updated_at?: string;
 }
