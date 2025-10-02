@@ -5,18 +5,18 @@ import { z } from "zod";
 
 export const CloseOutPlanSchema = z.object({
     project: z.string().min(1, "Please select project"),
-    department: z.string().min(1, "Please select department"),
+    department: z.string().min(1, "Please enter main plan title"),
     location: z.string().min(1, "Please select location"),
     tasks: z.array(
         z.object({
-            key_task: z.string().min(1, "Please enter key task"),
+            key_task: z.string().optional(), // Section heading is optional
             activities: z.array(
                 z.object({
                     description: z.string().min(1, "Please enter description"),
-                    designation: z.string().min(1, "Please enter designation"),
+                    designation: z.string().optional(), // Can be empty for section headers
                     remarks: z.string().optional(),
-                    start_date: z.string().min(1, "Please select start date"),
-                    end_date: z.string().min(1, "Please select end date"),
+                    start_date: z.string().optional(), // Can be empty for section headers
+                    end_date: z.string().optional(), // Can be empty for section headers
                     status: z.string().optional(),
                 })
             ).min(1, "At least one activity is required"),
@@ -50,9 +50,10 @@ export interface ICloseOutPlanTask {
 
 export interface ICloseOutPlanPaginatedData {
     id: string;
-    project: string;
+    project: string | IProjectSingleData; // Can be string ID or expanded project object
     department: string;
     location: string;
+    status?: string;
     created_datetime: string;
     updated_datetime: string;
     created_by: string;

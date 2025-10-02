@@ -62,6 +62,7 @@ export const useGetAllCloseoutPlans = ({
           params: {
             page,
             size,
+            expand: "project", // Request expanded project data with funding sources
             ...(search && { search }),
             ...(status && { status }),
           },
