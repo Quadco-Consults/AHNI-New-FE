@@ -1,7 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
-import LongArrowLeft from "components/icons/LongArrowLeft";
+import GoBack from "components/GoBack";
 import Card from "components/Card";
 import Summary from "./Summary";
 import Uploads from "./Upload";
@@ -23,7 +22,6 @@ import ObligationHistory from "features/contracts-grants/components/grant/_compo
 // import { useGetSingleSubGrant } from "@/features/c&g/subgrant/sub-grant";
 
 export default function ProjectDetail() {
-  const router = useRouter();
   const { id } = useParams();
 
   localStorage.setItem("projectDetailID", id as string);
@@ -39,10 +37,6 @@ export default function ProjectDetail() {
 
   // const { data } = useGetSingleGrant(2);
   // project?.data?.grant.grant_id ?? skipToken
-
-  const goBack = () => {
-    router.back();
-  };
 
   if (isLoading) {
     return <Loading />;
@@ -63,12 +57,7 @@ export default function ProjectDetail() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <button
-        onClick={goBack}
-        className='w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center'
-      >
-        <LongArrowLeft />
-      </button>
+      <GoBack />
 
       <Tabs defaultValue='summary' className='space-y-5'>
         <TabsList className='ml-10'>

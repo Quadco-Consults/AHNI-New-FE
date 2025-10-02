@@ -47,6 +47,7 @@ const CompetitiveAnalysis = () => {
     return <Loading />;
   }
   // return;
+
   return (
     <div className='space-y-10'>
       <div>

@@ -16,6 +16,9 @@ dist-ssr
 .next/
 out/
 
+# TypeScript
+*.tsbuildinfo
+
 # Build directories
 build/
 
@@ -31,3 +34,4 @@ build/
 *.sw?
 .env
 *.env
+.vercel

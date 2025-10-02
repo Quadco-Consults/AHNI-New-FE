@@ -25,37 +25,38 @@ const generatePath = (route: string, params?: Record<string, any>): string => {
 const RFP = () => {
   const [page, setPage] = useState(1);
 
+  // First, get all solicitations to see what request_types exist
+  const { data: allData } = useGetAllSolicitations({
+    page: 1,
+    size: 50,
+    // No filter to see all
+  });
+
   const { data, isLoading } = useGetAllSolicitations({
     page,
     size: 10,
-    // request_type: "REQUEST FOR PROPOSAL", // Temporarily disabled to see all solicitations
+    request_type: "REQUEST FOR PROPOSAL",
   });
 
   // Enhanced Debug logging
   console.log("🔍 RFP Listing Debug:", {
     isLoading,
-    rawData: data,
-    results: data?.results,
-    resultCount: data?.results?.length,
-    totalCount: data?.pagination?.count,
+    filteredData: data,
+    filteredResults: data?.results,
+    filteredResultCount: data?.results?.length,
+    allData: allData,
+    allResults: allData?.results,
+    allResultCount: allData?.results?.length,
+    uniqueRequestTypes: [...new Set(allData?.results?.map(item => item.request_type) || [])],
     filterApplied: "REQUEST FOR PROPOSAL",
-    allRequestTypes: data?.results?.map(item => ({
+    hasResults: !!data?.results?.length,
+    sampleItems: allData?.results?.slice(0, 3)?.map(item => ({
       id: item.id,
       title: item.title,
-      request_type: item.request_type
-    })),
-    rfpItems: data?.results?.filter(item => item.request_type === "REQUEST FOR PROPOSAL"),
-    serverUrl: window.location.origin,
-    currentPath: window.location.pathname
+      request_type: item.request_type,
+      tender_type: item.tender_type
+    }))
   });
-
-  // Show alert if no RFP items found but there are results
-  if (!isLoading && data?.results && data.results.length > 0) {
-    const rfpItems = data.results.filter(item => item.request_type === "REQUEST FOR PROPOSAL");
-    if (rfpItems.length === 0) {
-      console.warn("⚠️ No RFP items found in results! All items:", data.results.map(item => item.request_type));
-    }
-  }
 
   if (isLoading) {
     return <Loading />;
@@ -135,21 +136,27 @@ const RFP = () => {
             </p>
 
             {/* Debug info for troubleshooting */}
-            {data?.results && data.results.length > 0 && (
+            {allData?.results && allData.results.length > 0 && (
               <div className='mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-left'>
                 <p className='text-yellow-800 text-sm font-medium mb-2'>
-                  🔧 Debug Info: Found {data.results.length} total solicitations, but none are RFPs
+                  🔧 Debug Info: Found {allData.results.length} total solicitations
                 </p>
                 <div className='text-xs text-yellow-700 space-y-1'>
-                  {data.results.slice(0, 3).map((item, index) => (
-                    <div key={index}>
+                  <div><strong>Available request types:</strong></div>
+                  {[...new Set(allData.results.map(item => item.request_type))].map((type, index) => (
+                    <div key={index} className="ml-2">• {type || 'No request_type'}</div>
+                  ))}
+                </div>
+                <div className='text-xs text-yellow-700 mt-3 space-y-1'>
+                  <div><strong>Sample solicitations:</strong></div>
+                  {allData.results.slice(0, 3).map((item, index) => (
+                    <div key={index} className="ml-2">
                       <strong>{item.title || 'Untitled'}</strong>: {item.request_type || 'No request_type'}
                     </div>
                   ))}
-                  {data.results.length > 3 && <div>... and {data.results.length - 3} more</div>}
                 </div>
                 <p className='text-xs text-yellow-600 mt-2'>
-                  Check the browser console for detailed API response.
+                  Looking for solicitations with request_type: "REQUEST FOR PROPOSAL"
                 </p>
               </div>
             )}

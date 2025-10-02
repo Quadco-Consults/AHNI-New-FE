@@ -13,15 +13,14 @@ function PurchaseRequestTabs() {
   const tabDetails = [
     {
       id: 1,
-      state: "request",
-      name: "Purchase Request",
-
+      state: "created",
+      name: "Created Purchase Requests",
       tabComponent: <PurchaseRequest status='pending' />,
     },
     {
       id: 2,
-      state: "approved_request",
-      name: "Approved Purchase Request",
+      state: "approved",
+      name: "Approved Purchase Requests",
       tabComponent: <PurchaseRequest status='approved' />,
     },
   ];

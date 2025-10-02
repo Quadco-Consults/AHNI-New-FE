@@ -51,6 +51,9 @@ const Composition = () => {
       visit_date: "",
       facility: "",
       team_members: [],
+      level1_approver: "",
+      level2_approver: "",
+      level3_approver: "",
     },
   });
 
@@ -66,7 +69,10 @@ const Composition = () => {
   const onSubmit: SubmitHandler<TSSPCompositionFormValues> = async (
     data: any
   ) => {
-    sessionStorage.setItem("compositionData", JSON.stringify(data));
+    // Only access sessionStorage on client side
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("compositionData", JSON.stringify(data));
+    }
 
     const checklistPath = `${
       RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_CHECKLIST
@@ -89,6 +95,9 @@ const Composition = () => {
         team_members: supervisionPlan.data.team_members.map(
           (member) => member.id
         ),
+        level1_approver: supervisionPlan?.data.level1_approver?.id || "",
+        level2_approver: supervisionPlan?.data.level2_approver?.id || "",
+        level3_approver: supervisionPlan?.data.level3_approver?.id || "",
       });
     }
   }, [supervisionPlan, facility, form]);
@@ -194,6 +203,58 @@ const Composition = () => {
                 <hr />
 
                 <DateInput name='visit_date' label='Visit Date' required />
+
+                <hr />
+
+                <h2 className='text-yellow-600'>Approval Workflow</h2>
+                <p className='text-sm text-gray-600'>
+                  Select approvers for each level. Approvals must be completed in order (Level 1 → Level 2 → Level 3).
+                </p>
+
+                <FormSelect
+                  name='level1_approver'
+                  label='Level 1 Approver'
+                  placeholder='Select Level 1 Approver'
+                  required
+                >
+                  <SelectContent>
+                    {user?.data?.results?.map((value: any) => (
+                      <SelectItem key={value?.id} value={value?.id}>
+                        {value?.first_name} {value?.last_name} ({value?.email})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </FormSelect>
+
+                <FormSelect
+                  name='level2_approver'
+                  label='Level 2 Approver'
+                  placeholder='Select Level 2 Approver'
+                  required
+                >
+                  <SelectContent>
+                    {user?.data?.results?.map((value: any) => (
+                      <SelectItem key={value?.id} value={value?.id}>
+                        {value?.first_name} {value?.last_name} ({value?.email})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </FormSelect>
+
+                <FormSelect
+                  name='level3_approver'
+                  label='Level 3 Approver'
+                  placeholder='Select Level 3 Approver'
+                  required
+                >
+                  <SelectContent>
+                    {user?.data?.results?.map((value: any) => (
+                      <SelectItem key={value?.id} value={value?.id}>
+                        {value?.first_name} {value?.last_name} ({value?.email})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </FormSelect>
               </div>
 
               <div className='flex justify-end gap-5 mt-16'>

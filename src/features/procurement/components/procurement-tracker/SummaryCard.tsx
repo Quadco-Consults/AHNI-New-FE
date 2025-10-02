@@ -6,23 +6,20 @@ import { TPaginatedResponse } from "definations/index";
 import { ProcurementTrackerResults } from "../../types/procurementPlan";
 
 interface SummaryCardProps {
-  data: { data: TPaginatedResponse<ProcurementTrackerResults> } | undefined;
+  data: TPaginatedResponse<ProcurementTrackerResults> | undefined;
 }
 
 const SummaryCard = ({ data }: SummaryCardProps) => {
-
   const pathname = usePathname();
-
-  const isAdminTracker = pathname.includes("admin-tracker");
-
+  const isAdminTracker = pathname?.includes("admin-tracker") || false;
 
   const columns: ColumnDef<any>[] = [
     {
       header: "Donor Name",
-      accessorKey: "donor",
-      size: 150,
+      accessorKey: "donor_name",
+      size: 120,
       cell: ({ row }) => {
-        return <div>{row.original?.purchase_request?.donor || row.original?.donor || row.original?.donor_name || "Not specified"}</div>;
+        return <div className="text-sm">{row.original.donor_name || row.original.donor || "N/A"}</div>;
       },
     },
     {
@@ -30,134 +27,123 @@ const SummaryCard = ({ data }: SummaryCardProps) => {
       accessorKey: "project",
       size: 150,
       cell: ({ row }) => {
-        return <div>{row.original?.purchase_request?.project || row.original?.project || row.original?.project_name || "Not specified"}</div>;
+        return <div className="text-sm">{row.original.project || row.original.project_name || "N/A"}</div>;
       },
     },
-
     {
       header: "Programme Requesting",
-      accessorKey: "program_requesting",
+      accessorKey: "programme_requesting",
       size: 150,
       cell: ({ row }) => {
-        return <div>{row.original?.purchase_request?.programme_requesting || row.original?.program_requesting || row.original?.programme_requesting || "Not specified"}</div>;
+        return <div className="text-sm">{row.original.programme_requesting || row.original.programme || "N/A"}</div>;
       },
     },
-
     {
       header: "Office Requesting",
-      accessorKey: "location",
-      size: 200,
+      accessorKey: "office_requesting",
+      size: 130,
       cell: ({ row }) => {
-        return <div>{row.original?.location || row.original?.deparment || row.original?.department || row.original?.office || "Not specified"}</div>;
+        return <div className="text-sm">{row.original.office_requesting || row.original.department || row.original.location || "N/A"}</div>;
       },
     },
-
     {
-      header: `${
-        isAdminTracker
-          ? "Admin Officer Responsible"
-          : "Procurement Officer Responsible"
-      }`,
-      accessorKey: "procurement_officer",
+      header: "Procurement Officer Responsible",
+      accessorKey: "procurement_officer_responsible",
+      size: 180,
       cell: ({ row }) => {
-        return <div>{row.original?.procurement_officer || row.original?.officer_name || "Not assigned"}</div>;
+        return <div className="text-sm">{row.original.procurement_officer_responsible || row.original.procurement_officer || "Not assigned"}</div>;
       },
-      size: 195,
     },
-
     {
       header: "PR No.",
-      accessorKey: "pr_reference",
-      size: 150,
+      accessorKey: "pr_no",
+      size: 120,
       cell: ({ row }) => {
-        return <div className="font-medium">{row.original?.pr_reference || row.original?.pr_id || "N/A"}</div>;
+        return <div className="font-medium text-sm">{row.original.pr_no || row.original.pr_reference || row.original.pr_id || "N/A"}</div>;
       },
     },
-
     {
       header: "Date PR Received",
-      accessorKey: "request_date",
-      size: 200,
+      accessorKey: "date_pr_received",
+      size: 130,
       cell: ({ row }) => {
-        const date = row.original?.request_date || row.original?.date_received || row.original?.created_at;
-        return <div>{date ? new Date(date).toLocaleDateString("en-US") : "N/A"}</div>;
+        const date = row.original.date_pr_received || row.original.created_at || row.original.date_created;
+        return <div className="text-sm">{date ? new Date(date).toLocaleDateString("en-US") : "N/A"}</div>;
       },
     },
-
     {
       header: "Item Category",
       accessorKey: "item_category",
-      size: 150,
+      size: 120,
       cell: ({ row }) => {
-        return <div>{row.original?.item_category || row.original?.category || "Not categorized"}</div>;
+        const category = row.original.item_category ||
+                        row.original.category ||
+                        (row.original.is_service ? "SERVICE" : "GOODS") ||
+                        "Unknown";
+        return <div className="text-sm">{category}</div>;
       },
     },
-
     {
       header: "Date Goods Required",
-      accessorKey: "required_date",
-      size: 150,
+      accessorKey: "date_goods_required",
+      size: 140,
       cell: ({ row }) => {
-        const date = row.original?.required_date || row.original?.date_goods_required || row.original?.date_required;
-        return <div>{date ? new Date(date).toLocaleDateString("en-US") : "N/A"}</div>;
+        const date = row.original.date_goods_required;
+        return <div className="text-sm">{date ? new Date(date).toLocaleDateString("en-US") : "N/A"}</div>;
       },
     },
-
     {
       header: "Procurement Process Date",
-      accessorKey: "solicitation.date_procurement_initiated",
+      accessorKey: "procurement_process_date",
       size: 160,
       cell: ({ row }) => {
-        const date = row.original?.solicitation?.date_procurement_initiated;
-        return <div>{date ? new Date(date).toLocaleDateString("en-US") : "Not initiated"}</div>;
+        const date = row.original.procurement_process_date ||
+                    row.original.solicitation?.created_at ||
+                    row.original.process_start_date;
+        return <div className="text-sm">{date ? new Date(date).toLocaleDateString("en-US") : "N/A"}</div>;
       },
     },
-
     {
       header: "FCO",
-      accessorKey: "purchase_order.fco_number",
-      size: 150,
+      accessorKey: "fco",
+      size: 100,
       cell: ({ row }) => {
-        return <div>{row.original?.purchase_order?.fco_number || "Pending"}</div>;
+        return <div className="text-sm">{row.original.fco || row.original.financial_control_officer || "N/A"}</div>;
       },
     },
     {
       header: "Description",
-      accessorKey: "item_name",
-      size: 350,
+      accessorKey: "description",
+      size: 200,
       cell: ({ row }) => {
-        const description = row.original?.item_name || row.original?.description || row.original?.item_description || row.original?.name;
         return (
-          <div className="truncate max-w-xs" title={description}>
-            {description || "No description"}
+          <div className="text-sm truncate" title={row.original.description || row.original.item_name}>
+            {row.original.description || row.original.item_name || "N/A"}
           </div>
         );
       },
     },
     {
       header: "Unit",
-      accessorKey: "uom",
-      size: 150,
+      accessorKey: "unit",
+      size: 80,
       cell: ({ row }) => {
-        return <div>{row.original?.purchase_order?.uom || row.original?.uom || row.original?.unit_of_measurement || "N/A"}</div>;
+        return <div className="text-sm">{row.original.unit || row.original.unit_of_measure || "N/A"}</div>;
       },
     },
     {
       header: "Quantity",
       accessorKey: "quantity",
-      size: 150,
+      size: 100,
       cell: ({ row }) => {
-        const qty = row.original?.quantity || row.original?.qty || 0;
-        return (
-          <div className="text-right font-medium">{Number(qty).toLocaleString()}</div>
-        );
+        return <div className="text-sm">{row.original.quantity || row.original.qty || "N/A"}</div>;
       },
     },
   ];
 
   return (
     <Card className='space-y-5'>
-      <DataTable data={data?.data?.results || []} columns={columns} />
+      <DataTable data={data?.results || []} columns={columns} />
     </Card>
   );
 };

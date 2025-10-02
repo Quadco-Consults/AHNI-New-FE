@@ -212,7 +212,7 @@ export const RouteEnum = {
   CREATE_PURCHASE_REQUEST: "/dashboard/procurement/purchase-request/create",
   EDIT_PURCHASE_REQUEST: "/dashboard/procurement/purchase-request/:id/edit",
   CREATE_SAMPLE_MEMO: "/dashboard/procurement/purchase-request/activity-memo",
-  SAMPLE_PREVIEW: "/dashboard/procurement/purchase-request/sample-preview",
+  // SAMPLE_PREVIEW: "/dashboard/procurement/purchase-request/sample-preview", // Deprecated - use details page instead
   PREVIEW_LETTER: "/dashboard/procurement/purchase-request/preview-letter",
   FINAL_PREVIEW: "/dashboard/procurement/purchase-request/final-preview",
 
@@ -351,6 +351,8 @@ export const RouteEnum = {
     "/dashboard/programs/plan/supportive-supervision-plan/:id",
   PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS_APPROVAL:
     "/dashboard/programs/plan/supportive-supervision-plan/:id/approval-status",
+  PROGRAM_SUPPORTIVE_SUPERVISION_REPORT:
+    "/dashboard/programs/plan/supportive-supervision-plan/:id/report",
   // PROGRAM_SUPPORTIVE_SUPERVISION_MANAGEMENT:
   //   "/dashboard/programs/plan/supportive-supervision-plan/:id/evaluation-criteria-process",
   PROGRAM_SUPPORTIVE_SUPERVISION_MANAGEMENT:
@@ -603,4 +605,11 @@ export enum ProgramRoutes {
   ADHOC_ACCEPTANCE_DETAILS = "/dashboard/programs/adhoc/adhoc-acceptance/details",
   ADHOC_CONTRACT_RECIPIENTS = "/dashboard/programs/adhoc/contract-recipients",
   ADHOC_ACCEPTED_CONTRACTS = "/dashboard/programs/adhoc/accepted-contracts",
+
+  // ADHOC STAFF REQUISITION (Global Hub)
+  ADHOC_REQUISITION = "/dashboard/adhoc-requisition",
+  ADHOC_REQUISITION_CREATE = "/dashboard/adhoc-requisition/create",
+  ADHOC_REQUISITION_DETAIL = "/dashboard/adhoc-requisition/:id",
+  MY_ADHOC_REQUISITIONS = "/dashboard/adhoc-requisition/my-requisitions",
+  ADHOC_REQUISITION_APPROVALS = "/dashboard/adhoc-requisition/approvals",
 }

@@ -17,10 +17,12 @@ import {
   useGetSolicitationSubmission,
 } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 import IconButton from "components/IconButton";
+import CbaAPI from "@/features/procurement/controllers/cbaController";
 
 const VendorSubmission = (props?: any) => {
   const params = useParams();
   const id = params?.id as string;
+
 
   console.log("🚀 VendorSubmission Component Loaded!", {
     componentProps: props,
@@ -30,12 +32,19 @@ const VendorSubmission = (props?: any) => {
 
   const { data, isLoading, error } = useGetSolicitationSubmission(id, !!id);
 
+  // Get CBA data to find the CBA associated with this solicitation
+  const { data: cbaData } = CbaAPI.useGetAllCbas({});
+  const cbaForThisSolicitation = cbaData?.results?.find(
+    (cba: any) => cba.solicitation?.id === id
+  );
+
   // Enhanced Debug logging
   console.log("🔍 Vendor Submission Debug:", {
     solicitationId: id,
     fullData: data,
     isLoading: isLoading,
     error: error,
+    cbaForThisSolicitation: cbaForThisSolicitation?.id,
     // Check multiple possible data paths
     results_path1: data?.data?.data?.results,
     results_path2: data?.data?.results,
@@ -103,6 +112,7 @@ const VendorSubmission = (props?: any) => {
           </div>
         )}
 
+
         {/* Try to find data in multiple possible paths */}
         {(() => {
           const possibleResults =
@@ -131,7 +141,7 @@ const VendorSubmission = (props?: any) => {
 
               <DataTable
                 data={possibleResults || []}
-                columns={columns}
+                columns={getColumns(cbaForThisSolicitation)}
                 isLoading={isLoading}
               />
             </>
@@ -144,7 +154,7 @@ const VendorSubmission = (props?: any) => {
 
 export default VendorSubmission;
 
-const columns: ColumnDef<SolicitationSubmissionResultsData>[] = [
+const getColumns = (cbaData?: any): ColumnDef<SolicitationSubmissionResultsData>[] => [
   {
     id: "select",
     size: 50,
@@ -259,12 +269,26 @@ const columns: ColumnDef<SolicitationSubmissionResultsData>[] = [
   {
     header: "Actions",
     id: "actions",
-    cell: ({ row }) => <ActionListAction data={row.original} />,
+    cell: ({ row }) => <ActionListAction data={row.original} cbaData={cbaData} />,
   },
 ];
 
-const ActionListAction = ({ data }: any) => {
-  console.log({ datads: data?.solicitation?.id });
+const ActionListAction = ({ data, cbaData }: any) => {
+  console.log({
+    vendorSubmissionId: data?.id,
+    solicitationId: data?.solicitation?.id,
+    cbaData: cbaData?.id,
+    cbaData
+  });
+
+  // Build the correct evaluation URL:
+  // :id should be the vendor submission ID (the vendor being evaluated)
+  // :appID should be the solicitation ID
+  const evaluationUrl = RouteEnum.PROCUREMENT_CBA_START
+    .replace(":id", data?.id as string)           // vendor submission ID
+    .replace(":appID", data?.solicitation?.id);   // solicitation ID
+
+  console.log("🔗 Evaluation URL:", evaluationUrl);
 
   return (
     <div className="flex gap-2">
@@ -273,12 +297,7 @@ const ActionListAction = ({ data }: any) => {
           <Icon icon="ph:eye-duotone" fontSize={15} />
         </IconButton>
       </Link>
-      <Link
-        href={RouteEnum.COMPETITIVE_BID_ANALYSIS_DETAILS_START.replace(
-          ":id",
-          data?.id as string
-        ).replace(":appID", data?.solicitation?.id)}
-      >
+      <Link href={evaluationUrl}>
         <IconButton className="bg-[#F9F9F9] hover:text-primary">
           Evaluate
         </IconButton>

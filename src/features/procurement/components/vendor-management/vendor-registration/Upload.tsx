@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { Plus, Minus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation"; 
@@ -16,6 +17,9 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import VendorsDocumentAPI from "@/features/procurement/controllers/vendorDocumentsController";
+import VendorsAPI from "@/features/procurement/controllers/vendorsController";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "store/index";
 
 import { Badge } from "components/ui/badge";
 
@@ -30,16 +34,6 @@ const UploadSchema = z.object({
       })
     )
     .length(8),
-  references: z
-    .array(
-      z.object({
-        file: z.array(z.instanceof(File)).nullable().optional(), // Optional array of File objects
-        description: z.string().optional(), // Optional description
-        document_type: z.string().optional(), // Optional document_type
-        title: z.string().optional(), // Optional title
-      })
-    )
-    .length(5),
   supportingDocument: z
     .object({
       file: z.array(z.instanceof(File)).nullable().optional(), // Optional array of File objects
@@ -52,21 +46,19 @@ const UploadSchema = z.object({
 
 const Upload = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const pathname = usePathname();
   const { createVendorDocument: createVendorDocumentMutation } =
     VendorsDocumentAPI.useCreateVendorDocument();
+  const { createVendor: createVendorMutation } = VendorsAPI.useCreateVendor();
+
+  const currentVendor = useSelector((state: RootState) => state.vendors.currentVendor);
 
   const form = useForm({
     resolver: zodResolver(UploadSchema),
     defaultValues: {
       files: Array(8).fill({
-        file: null,
-        description: "",
-        document_type: "",
-        title: "",
-      }),
-      references: Array(5).fill({
         file: null,
         description: "",
         document_type: "",
@@ -158,6 +150,11 @@ const Upload = () => {
     Record<string, Record<number, boolean>>
   >({});
 
+  // State for dynamic Professional Organizations fields
+  const [professionalOrgFields, setProfessionalOrgFields] = useState([
+    { id: 0, file: null, description: "", title: "" }
+  ]);
+
   const setLoader = (field: string, index: number, status: boolean) => {
     setFileStatuses((prev) => ({
       ...prev,
@@ -180,29 +177,90 @@ const Upload = () => {
 
   const vendor = typeof window !== 'undefined' ? localStorage.getItem("vendorID") as string : "";
 
+  // Functions for handling Professional Organizations dynamic fields
+  const addProfessionalOrgField = () => {
+    const newId = professionalOrgFields.length;
+    setProfessionalOrgFields([
+      ...professionalOrgFields,
+      { id: newId, file: null, description: "", title: "" }
+    ]);
+  };
+
+  const removeProfessionalOrgField = (idToRemove: number) => {
+    if (professionalOrgFields.length > 1) {
+      setProfessionalOrgFields(professionalOrgFields.filter(field => field.id !== idToRemove));
+    }
+  };
+
+  const handleProfessionalOrgFileChange = (id: number, files: FileList | null) => {
+    if (files && files.length > 0) {
+      const file = files[0];
+      setProfessionalOrgFields(prev =>
+        prev.map(field =>
+          field.id === id
+            ? { ...field, file: Array.from(files), title: file.name }
+            : field
+        )
+      );
+    }
+  };
+
+  const handleProfessionalOrgDescriptionChange = (id: number, description: string) => {
+    setProfessionalOrgFields(prev =>
+      prev.map(field =>
+        field.id === id
+          ? { ...field, description }
+          : field
+      )
+    );
+  };
+
   const onSubmit = async (data: {
     files: any[];
-    references: any[];
     supportingDocument: { file: any };
   }) => {
-    // Prepare all files and add them to FormData
-    const allFiles = [
-      ...data.files.map((file, index) => ({ field: "files", index, file })),
-      ...data.references.map((file, index) => ({
-        field: "references",
-        index,
-        file: file,
-      })),
-      ...(data.supportingDocument?.file
-        ? [
-            {
-              field: "supportingDocument",
-              index: 0,
-              file: data.supportingDocument,
-            },
-          ]
-        : []),
-    ];
+    try {
+      // Get vendor ID from URL params (vendor was created in Registration step)
+      const query = new URLSearchParams(window.location.search);
+      const urlVendorId = query.get("id") || vendor;
+
+      if (!urlVendorId) {
+        toast.error("No vendor ID found. Please start registration from the beginning.");
+        return;
+      }
+
+      console.log("Uploading documents for vendor ID:", urlVendorId);
+
+      // Use the vendor ID from URL
+      const createdVendorId = String(urlVendorId);
+
+      // Upload documents for the existing vendor
+      // Prepare all files and add them to FormData
+      const allFiles = [
+        ...data.files.map((file, index) => ({ field: "files", index, file })),
+        // Add professional organizations files
+        ...professionalOrgFields
+          .filter(field => field.file && field.file.length > 0)
+          .map((field, index) => ({
+            field: "professional_organizations",
+            index,
+            file: {
+              file: field.file,
+              description: field.description,
+              title: field.title,
+              document_type: "Professional Membership"
+            }
+          })),
+        ...(data.supportingDocument?.file
+          ? [
+              {
+                field: "supportingDocument",
+                index: 0,
+                file: data.supportingDocument,
+              },
+            ]
+          : []),
+      ];
 
     // For each file, append it to FormData and handle loading/error states
     for (let { field, index, file } of allFiles) {
@@ -229,7 +287,7 @@ const Upload = () => {
         formData.append(`document_type`, file?.document_type || "");
         formData.append(`title`, file?.title || "");
         formData.append(`description`, file.description || "");
-        formData.append(`vendor`, vendor || "");
+        formData.append(`vendor`, createdVendorId || "");
 
         // Send the request
         await createVendorDocumentMutation(formData);
@@ -243,19 +301,25 @@ const Upload = () => {
         setLoader(field, index, false); // Clear loader for the current file
       }
     }
+
+    // Navigate to prequalification with success message
+    toast.success("Vendor registration completed successfully!");
     let path = pathname;
-
     path = path.substring(0, path.lastIndexOf("/"));
-
     path += "/prequalification";
     router.push(path);
+
+    } catch (error) {
+      console.error("Error creating vendor:", error);
+      toast.error("Failed to complete vendor registration");
+    }
   };
 
   const documentFields = [
     {
-      doc_type: "Cover Page",
+      doc_type: "Cover Letter",
       label:
-        "Cover Page (indicating category(s) of interest and related LOT Number(s))",
+        "Cover Letter (indicating category(s) of interest and related LOT Number(s))",
     },
     {
       doc_type: "Company Profile",
@@ -265,7 +329,7 @@ const Upload = () => {
     {
       doc_type: "CAC Registration Certificate",
       label:
-        "Evidence of legal registration document of the company (CAC, FORM CO7 and FORM CO2)",
+        "Evidence of legal registration document of the company (CAC,Memorandum and Article of Association or Business Name Registration Documentation)",
     },
     {
       doc_type: "Tax Clearance Certificate",
@@ -279,11 +343,6 @@ const Upload = () => {
       doc_type: "Reference Letter",
       label:
         "Bank Reference Letter duly addressed to AHNi Procurement Committee",
-    },
-    {
-      doc_type: "Professional Membership",
-      label:
-        "Evidence of Registration with Professional Organizations, Regulatory Bodies, Manufacturers and/or Certificate of Authorized Dealership and Distributorship with Makes, Brands, Equipment, Machine and/or accessories as it relates to field of business endevour",
     },
     {
       doc_type: "Authorized Dealership",
@@ -430,31 +489,78 @@ const Upload = () => {
 
               <Separator />
 
-              {/* Reference Letters Section */}
+              {/* Professional Organizations Section */}
               <h5 className='font-bold text-[12px] mb-2'>
-                Where possible, provide reference Letters from at least 5
-                reputable organizations, preferably NGOs attesting to active or
-                past business relationship and level of performance (the letters
-                or lists must have relevant addresses, contact persons,
-                telephone numbers and emails); for due diligence confirmation
+                Evidence of Registration with Professional Organizations, Regulatory Bodies, Manufacturers and/or Certificate of Authorized Dealership and Distributorship with Makes, Brands, Equipment, Machine and/or accessories as it relates to field of business endevour
               </h5>
-              {[...Array(5)].map((_, i) => {
-                return (
-                  <div className='flex items-center gap-2 w-full' key={i}>
-                    {i + 1}.
-                    {renderFileUploadRow(
-                      // fileName,
-                      "references",
-                      ``,
-                      i,
 
-                      `Reference Letter ${i + 1}`,
-                      "label",
-                      "Reference Letter"
+              {professionalOrgFields.map((field, index) => (
+                <div key={field.id} className='mb-4 w-full'>
+                  <div className='flex items-center w-full gap-2 h-[50px]'>
+                    <div className='w-full max-w-[142px] h-[52px] rounded-[8px] border flex justify-center items-center text-gray-800'>
+                      <input
+                        id={`professional-org-${field.id}`}
+                        type='file'
+                        onChange={(e) => handleProfessionalOrgFileChange(field.id, e.target.files)}
+                        className='hidden'
+                        accept='.pdf,.doc,.docx,.jpg,.jpeg,.png'
+                      />
+                      <motion.label
+                        htmlFor={`professional-org-${field.id}`}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        className='cursor-pointer flex gap-4 text-sm px-1 py-2 rounded'
+                      >
+                        {field.title ? (
+                          <div className='overflow-hidden max-w-[120px] w-full'>
+                            <span className='ml-2 text-sm text-gray-500 whitespace-nowrap'>
+                              {field.title}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className='px-3 flex gap-4 w-full'>
+                            <UploadFile size={20} />
+                            Select File
+                          </div>
+                        )}
+                      </motion.label>
+                    </div>
+
+                    <Input
+                      type='text'
+                      placeholder='Enter description (if any)'
+                      className='h-[52px] rounded-[8px] bg-white relative top-[1px]'
+                      value={field.description}
+                      onChange={(e) => handleProfessionalOrgDescriptionChange(field.id, e.target.value)}
+                    />
+
+                    {professionalOrgFields.length > 1 && (
+                      <Button
+                        type='button'
+                        variant='outline'
+                        size='sm'
+                        onClick={() => removeProfessionalOrgField(field.id)}
+                        className='h-[52px] px-3 border-red-300 text-red-600 hover:bg-red-50'
+                      >
+                        <Minus size={16} />
+                      </Button>
                     )}
                   </div>
-                );
-              })}
+                </div>
+              ))}
+
+              <div className='flex justify-end mb-4'>
+                <Button
+                  type='button'
+                  variant='outline'
+                  size='sm'
+                  onClick={addProfessionalOrgField}
+                  className='flex items-center gap-2 text-blue-600 border-blue-300 hover:bg-blue-50'
+                >
+                  <Plus size={16} />
+                  Add More Professional Organizations
+                </Button>
+              </div>
 
               <Separator />
 

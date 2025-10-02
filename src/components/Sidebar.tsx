@@ -72,6 +72,10 @@ const globalHubMenu = [
     label: "Contract Request",
     path: "/dashboard/c-and-g/contract-request",
   },
+  {
+    label: "Adhoc Staff Requisition",
+    path: "/dashboard/adhoc-requisition",
+  },
 ];
 
 const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
@@ -735,6 +739,10 @@ const getDeparmentalLinks = () => {
         {
           name: "Purchase Request",
           path: "/dashboard/procurement/purchase-request",
+        },
+        {
+          name: "Activity Memo",
+          path: "/dashboard/procurement/activity-memo",
         },
         {
           name: "Solicitation Management",

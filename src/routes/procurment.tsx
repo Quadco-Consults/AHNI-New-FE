@@ -149,15 +149,15 @@ export const procurment = [
         )
     ),
   },
-  {
-    path: RouteEnum.SAMPLE_PREVIEW,
-    element: lazy(
-      () =>
-        import(
-          "pages/protectedPages/procurement-management/purchase-request/activity-memo/preview"
-        )
-    ),
-  },
+  // {
+  //   path: RouteEnum.SAMPLE_PREVIEW,
+  //   element: lazy(
+  //     () =>
+  //       import(
+  //         "pages/protectedPages/procurement-management/purchase-request/activity-memo/preview"
+  //       )
+  //   ),
+  // }, // Deprecated - replaced with redirect page
   {
     path: RouteEnum.PREVIEW_LETTER,
     element: lazy(
