@@ -482,24 +482,6 @@ const BasicInformation = ({
       const { data } = info;
       const isExistingEmployee = !!(data.legal_firstname || data.legal_lastname);
 
-      console.log("🚀 Starting dropdown field population:", {
-        isExistingEmployee,
-        hasPositions: !!positions,
-        designation: data?.designation,
-        position_applied: data?.position_applied,
-        advertisement: advertisement?.data,
-        advertisementLocations: advertisement?.data?.locations,
-        advertisementJobType: advertisement?.data?.job_type,
-        hasAdvertisement: !!advertisement?.data,
-        infoData: data,
-        availableLocations: locationsArray.map(l => ({ id: l.id, name: l.name })),
-        jobTypeOptions: [
-          { value: "INTERNAL", label: "Internal" },
-          { value: "EXTERNAL", label: "External" },
-          { value: "BOTH", label: "Both" },
-        ]
-      });
-
       // Helper function to find matching dropdown option
       const findMatchingOption = (options: any[], searchValue: string | number, searchField = 'name') => {
         if (!searchValue || !options?.length) {
@@ -536,6 +518,24 @@ const BasicInformation = ({
       const locationsArray = locations?.data?.results || [];
       const departmentsArray = departments?.data?.results || [];
       const projectsArray = projects?.results || projects?.data?.results || [];
+
+      console.log("🚀 Starting dropdown field population:", {
+        isExistingEmployee,
+        hasPositions: !!positions,
+        designation: data?.designation,
+        position_applied: data?.position_applied,
+        advertisement: advertisement?.data,
+        advertisementLocations: advertisement?.data?.locations,
+        advertisementJobType: advertisement?.data?.job_type,
+        hasAdvertisement: !!advertisement?.data,
+        infoData: data,
+        availableLocations: locationsArray.map(l => ({ id: l.id, name: l.name })),
+        jobTypeOptions: [
+          { value: "INTERNAL", label: "Internal" },
+          { value: "EXTERNAL", label: "External" },
+          { value: "BOTH", label: "Both" },
+        ]
+      });
 
       let designationValue = '';
       let locationValue = '';
