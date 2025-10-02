@@ -11,38 +11,31 @@ import { Badge } from "components/ui/badge";
 export default function AdhocDatabase() {
     const [page, setPage] = useState(1);
 
-    // Fetch consultancy applicants who have accepted their contracts and are ADHOC type
+    // Fetch all applicants (not filtering by status to get all adhoc staff)
     const { data, isLoading } = useGetAllConsultancyApplicants({
         page,
-        size: 100,
-        status: "CONTRACT_ISSUED",
-        offer_accepted: true, // Only accepted contracts
+        size: 1000,
     });
 
     const allResults = data?.data?.results || [];
 
-    // Debug logging
-    console.log("📊 Adhoc Database - All applicants:", allResults);
-    console.log("📊 Adhoc Database - Total fetched:", allResults.length);
+    // Filter for adhoc staff who have accepted their contracts
+    // Handle backward compatibility: some old records may not have type field set correctly
+    const acceptedApplicants = allResults.filter(applicant => {
+        // Must have accepted the offer
+        if (!applicant.offer_accepted) return false;
 
-    // Detailed logging for each applicant
-    allResults.forEach((applicant, index) => {
-        console.log(`📊 Applicant ${index + 1}:`, {
-            name: applicant.name,
-            type: applicant.type,
-            typeOf: typeof applicant.type,
-            offer_accepted: applicant.offer_accepted,
-            offerAcceptedType: typeof applicant.offer_accepted,
-            status: applicant.status,
-            raw: applicant
-        });
+        // Check if applicant has consultants array (indicates adhoc staff)
+        const hasConsultantsArray = applicant.consultants && applicant.consultants.length > 0;
+        const hasConsultancyData = applicant.consultancy || applicant.consultant_id;
+        const isAdhocIndicator = hasConsultantsArray || hasConsultancyData;
+
+        // If has consultants array or consultancy data (regardless of type field)
+        if (isAdhocIndicator) return true;
+
+        // Or if type is explicitly ADHOC
+        return applicant.type === "ADHOC";
     });
-
-    // Filter for accepted offers only (include all types since they're all adhoc staff)
-    // Note: The 'type' field defaults to 'CONSULTANT' but these are adhoc staff
-    const acceptedApplicants = allResults.filter(
-        applicant => applicant.offer_accepted === true
-    );
 
     // Transform consultancy applicant data to match adhoc database structure
     const results = acceptedApplicants.map(applicant => {
@@ -86,9 +79,6 @@ export default function AdhocDatabase() {
             _originalData: applicant
         };
     });
-
-    console.log("📊 Adhoc Database - Filtered ADHOC accepted:", results.length);
-    console.log("📊 Adhoc Database - Transformed results:", results);
 
     const paginator = data?.data?.pagination;
 
