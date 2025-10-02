@@ -11,6 +11,21 @@ interface ApiResponse<TData = unknown> {
   data: TData;
 }
 
+// Paginated Response interface
+interface TPaginatedResponse<T> {
+  pagination: {
+    count: number;
+    page: number;
+    page_size: number;
+    total_pages: number;
+    next: string | null;
+    next_page_number: number | null;
+    previous: string | null;
+    previous_page_number: number | null;
+  };
+  results: T[];
+}
+
 // Filter parameters interface
 interface PerformanceAssessmentFilterParams {
   search?: string;
@@ -30,7 +45,7 @@ export const useGetPerformanceAssesments = ({
   size = 20,
   enabled = true,
 }: PerformanceAssessmentFilterParams = {}) => {
-  return useQuery<ApiResponse<PerformanceAssesment[]>>({
+  return useQuery<ApiResponse<TPaginatedResponse<PerformanceAssesment>>>({
     queryKey: ["performance-assessments", search, page, size],
     queryFn: async () => {
       try {
@@ -41,30 +56,7 @@ export const useGetPerformanceAssesments = ({
             ...(search && { search }),
           },
         });
-        console.log("Raw API Response:", response.data);
-
-        // Handle multiple possible response structures
-        let results: PerformanceAssesment[] = [];
-
-        if (Array.isArray(response.data?.data?.results)) {
-          // Backend returns nested structure: data.data.results
-          results = response.data.data.results;
-        } else if (Array.isArray(response.data?.data)) {
-          // Backend returns: data.data as array
-          results = response.data.data;
-        } else if (Array.isArray(response.data)) {
-          // Backend returns array directly
-          results = response.data;
-        }
-
-        console.log("Extracted results:", results);
-        console.log("Results count:", results.length);
-
-        return {
-          status: response.data?.status ?? true,
-          message: response.data?.message ?? "Success",
-          data: results,
-        };
+        return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
         console.error("Performance assessments fetch error:", axiosError);
@@ -102,7 +94,7 @@ export const useCreatePerformanceAssesment = () => {
     Partial<PerformanceAssesment>
   >({
     endpoint: BASE_URL,
-    queryKey: "performance-assessments",
+    queryKey: ["performance-assessments"],
     isAuth: true,
     method: "POST",
   });
