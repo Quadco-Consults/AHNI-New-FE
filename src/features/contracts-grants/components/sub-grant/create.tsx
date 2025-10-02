@@ -15,6 +15,7 @@ import { Label } from "components/ui/label";
 import MultiSelectFormField from "components/ui/multiselect";
 import { SubGrantSchema, TSubGrantFormData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
 import { useCreateSubGrant, useUpdateSubGrant, useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
+import { usePublishSubGrant } from "@/features/contracts-grants/controllers/subGrantWorkflowController";
 import { useGetAllGrants } from "@/features/contracts-grants/controllers/grantController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { useGetAllDepartments } from "@/features/modules/controllers/config/departmentController";
@@ -46,11 +47,15 @@ const CreateSubGrant: React.FC = () => {
     },
   });
 
-  const { createSubGrant, isLoading: isCreating } = useCreateSubGrant();
+  const { createSubGrant, isLoading: isCreating, data: createResponse } = useCreateSubGrant();
   const { updateSubGrant, isLoading: isUpdating } = useUpdateSubGrant(editId);
   const { data: subGrantData, isLoading: isLoadingSubGrant } = useGetSingleSubGrant(editId, !!editId);
 
-  const isLoading = isCreating || isUpdating;
+  // We'll use this for auto-publishing, but we need the ID first
+  const [newSubGrantId, setNewSubGrantId] = React.useState<string>("");
+  const { publishSubGrant, isLoading: isPublishing } = usePublishSubGrant(newSubGrantId);
+
+  const isLoading = isCreating || isUpdating || isPublishing;
   const isEditMode = !!editId;
 
   // Fetch data for dropdowns
@@ -163,6 +168,31 @@ const CreateSubGrant: React.FC = () => {
     }
   }, [usdAmount, form, isEditMode]);
 
+  // Auto-publish effect when a new sub-grant is created
+  useEffect(() => {
+    const handleAutoPublish = async () => {
+      if (newSubGrantId && !isEditMode) {
+        try {
+          await publishSubGrant();
+          toast.success("Sub-Grant created and published successfully! Submissions will automatically open/close based on scheduled dates.");
+
+          // Navigate after successful auto-publish
+          form.reset();
+          router.push(CG_ROUTES.SUBGRANT_ADVERT || "/dashboard/c-and-g/sub-grant");
+        } catch (publishError) {
+          console.error("Failed to auto-publish:", publishError);
+          toast.error("Sub-Grant created successfully, but auto-publish failed. Please publish manually.");
+
+          // Still navigate even if publish fails
+          form.reset();
+          router.push(CG_ROUTES.SUBGRANT_ADVERT || "/dashboard/c-and-g/sub-grant");
+        }
+      }
+    };
+
+    handleAutoPublish();
+  }, [newSubGrantId, publishSubGrant, isEditMode, form, router]);
+
   const onSubmit: SubmitHandler<TSubGrantFormData> = async (data) => {
     console.log("=== FORM SUBMIT DEBUG ===");
     console.log("Is Edit Mode:", isEditMode);
@@ -174,12 +204,21 @@ const CreateSubGrant: React.FC = () => {
       if (isEditMode) {
         await updateSubGrant(data);
         toast.success("Sub-Grant updated successfully");
+        form.reset();
+        router.push(CG_ROUTES.SUBGRANT_ADVERT || "/dashboard/c-and-g/sub-grant");
       } else {
         await createSubGrant(data);
-        toast.success("Sub-Grant created successfully");
+
+        // Check if we got the response with ID
+        if (createResponse?.id) {
+          setNewSubGrantId(createResponse.id);
+          // Auto-publish will be handled in the useEffect above
+        } else {
+          toast.success("Sub-Grant created successfully");
+          form.reset();
+          router.push(CG_ROUTES.SUBGRANT_ADVERT || "/dashboard/c-and-g/sub-grant");
+        }
       }
-      form.reset();
-      router.push(CG_ROUTES.SUBGRANT_ADVERT || "/dashboard/c-and-g/sub-grant/adverts");
     } catch (error: any) {
       console.error("Submit Error:", error);
       const errorMessage = error?.response?.data?.message || error?.data?.message || error?.message ||

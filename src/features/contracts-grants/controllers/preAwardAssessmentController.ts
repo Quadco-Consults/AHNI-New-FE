@@ -273,6 +273,92 @@ export const useGetAssessedSubmissions = (
   });
 };
 
+// ===== SUBMIT ASSESSMENT =====
+
+export const useSubmitAssessment = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    Assessment,
+    Error,
+    {
+      assessment_submission: any;
+      risk_rating?: string;
+      special_award_conditions?: string;
+    }
+  >({
+    endpoint: `${BASE_URL}${id}/submit/`,
+    queryKey: ["preAwardAssessments", "preAwardAssessment", id],
+    isAuth: true,
+    method: "PATCH",
+  });
+
+  const submitAssessment = async (payload: {
+    assessment_submission: any;
+    risk_rating?: string;
+    special_award_conditions?: string;
+  }) => {
+    try {
+      return await callApi(payload);
+    } catch (error) {
+      console.error("Submit assessment error:", error);
+      throw error;
+    }
+  };
+
+  return { submitAssessment, data, isLoading, isSuccess, error };
+};
+
+// ===== APPROVE ASSESSMENT =====
+
+export const useApproveAssessment = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    Assessment,
+    Error,
+    { approval_comments: string }
+  >({
+    endpoint: `${BASE_URL}${id}/approve/`,
+    queryKey: ["preAwardAssessments", "preAwardAssessment", id],
+    isAuth: true,
+    method: "PATCH",
+  });
+
+  const approveAssessment = async (approval_comments: string) => {
+    try {
+      return await callApi({ approval_comments });
+    } catch (error) {
+      console.error("Approve assessment error:", error);
+      throw error;
+    }
+  };
+
+  return { approveAssessment, data, isLoading, isSuccess, error };
+};
+
+// ===== REJECT ASSESSMENT =====
+
+export const useRejectAssessment = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    Assessment,
+    Error,
+    { rejection_reason: string }
+  >({
+    endpoint: `${BASE_URL}${id}/reject/`,
+    queryKey: ["preAwardAssessments", "preAwardAssessment", id],
+    isAuth: true,
+    method: "PATCH",
+  });
+
+  const rejectAssessment = async (rejection_reason: string) => {
+    try {
+      return await callApi({ rejection_reason });
+    } catch (error) {
+      console.error("Reject assessment error:", error);
+      throw error;
+    }
+  };
+
+  return { rejectAssessment, data, isLoading, isSuccess, error };
+};
+
 // Legacy exports for backward compatibility
 export const useGetAssessmentsListQuery = useGetAllAssessments;
 export const useGetAssessmentQuery = useGetSingleAssessment;
