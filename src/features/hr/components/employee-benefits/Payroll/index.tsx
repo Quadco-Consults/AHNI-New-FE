@@ -25,6 +25,24 @@ const Payroll: React.FC = () => {
   console.log({ payRollsData, isLoadingPayGroups });
 
   const [isModalOpen, setModalOpen] = React.useState(false);
+  const [payrolls, setPayrolls] = React.useState<any[]>([]);
+
+  // Load payrolls from localStorage
+  React.useEffect(() => {
+    const savedPayrolls = JSON.parse(localStorage.getItem("payrolls") || "[]");
+    setPayrolls(savedPayrolls);
+  }, []);
+
+  const handleDeletePayroll = (id: string) => {
+    const updatedPayrolls = payrolls.filter((p) => p.payroll_id !== id);
+    setPayrolls(updatedPayrolls);
+    localStorage.setItem("payrolls", JSON.stringify(updatedPayrolls));
+  };
+
+  const formatMonth = (month: string) => {
+    const date = new Date(month + "-01");
+    return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  };
 
   const columns: ColumnDef<any>[] = [
     {
@@ -55,27 +73,32 @@ const Payroll: React.FC = () => {
       header: "Month",
       accessorKey: "month",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.project?.title}</p>,
+      cell: ({ row }) => <p>{formatMonth(row?.original?.month)}</p>,
     },
     {
-      header: "Total Payment",
-      accessorKey: "total_payment",
-      size: 200,
-      cell: ({ row }) => <p>{row?.original?.location?.name}</p>,
-    },
-    {
-      header: "Total Deduction",
-      accessorKey: "total_deduction",
-      size: 200,
-      cell: ({ row }) => <p>{row?.original?.location?.name}</p>,
+      header: "Total Employees",
+      accessorKey: "total_employees",
+      size: 150,
+      cell: ({ row }) => <p>{row?.original?.total_employees || 0}</p>,
     },
     {
       header: "Gross Payment",
-      accessorKey: "gross_payment",
+      accessorKey: "total_gross_payment",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.project?.title}</p>,
+      cell: ({ row }) => <p>₦{row?.original?.total_gross_payment?.toLocaleString() || '0.00'}</p>,
     },
-
+    {
+      header: "Total Deduction",
+      accessorKey: "total_deductions",
+      size: 200,
+      cell: ({ row }) => <p>₦{row?.original?.total_deductions?.toLocaleString() || '0.00'}</p>,
+    },
+    {
+      header: "Net Payment",
+      accessorKey: "total_net_payment",
+      size: 200,
+      cell: ({ row }) => <p>₦{row?.original?.total_net_payment?.toLocaleString() || '0.00'}</p>,
+    },
     {
       header: "",
       id: "actions",
@@ -85,17 +108,23 @@ const Payroll: React.FC = () => {
   ];
 
   const ActionListAction = ({ data }: any) => {
-    console.log(data);
+    const payrollId = data?.original?.payroll_id;
+
     return (
       <div className='flex gap-2'>
-        <Link
-          href="/dashboard/hr/employee-benefit/pay-roll/1"
-        >
+        <Link href={`/dashboard/hr/employee-benefit/pay-roll/${payrollId}`}>
           <IconButton className='bg-[#F9F9F9] hover:text-primary'>
             <Icon icon='ph:eye-duotone' fontSize={15} />
           </IconButton>
         </Link>
-        <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+        <IconButton
+          className='bg-[#F9F9F9] hover:text-primary'
+          onClick={() => {
+            if (confirm('Are you sure you want to delete this payroll?')) {
+              handleDeletePayroll(payrollId);
+            }
+          }}
+        >
           <Icon icon='ant-design:delete-twotone' fontSize={15} />
         </IconButton>
       </div>
@@ -127,13 +156,10 @@ const Payroll: React.FC = () => {
       <div className='w-full'>
         <DataTable
           columns={columns}
-          //   onRowClick={(row) => {
-          //     router.push("/c-and-g/grant-details/" + row?.original?.id);
-          //   }}
-          data={[]}
-          // isLoading={true}
+          data={payrolls}
+          isLoading={false}
           pagination={{
-            total: 10,
+            total: payrolls.length,
             pageSize: 10,
             onChange: (page: number) => {},
           }}
