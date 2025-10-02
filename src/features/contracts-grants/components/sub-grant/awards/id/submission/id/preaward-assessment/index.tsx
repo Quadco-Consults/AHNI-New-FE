@@ -11,7 +11,11 @@ import { RadioGroup, RadioGroupItem } from "components/ui/radio-group";
 import { Textarea } from "components/ui/textarea";
 import { toast } from "sonner";
 import { FileCheck, Save, Award } from "lucide-react";
+<<<<<<< HEAD
 import { useStartAssessment } from "@/features/contracts-grants/controllers/preAwardAssessmentController";
+=======
+import { useStartAssessment, useGetAllAssessments, useSubmitAssessment } from "@/features/contracts-grants/controllers/preAwardAssessmentController";
+>>>>>>> 6895d90f (subgrant-ongoing)
 import { useGetSingleSubGrantSubmission } from "@/features/contracts-grants/controllers/submissionController";
 import { technicalCapacityQuestions, financialPreAwardQuestions } from "./questions";
 import { Loading } from "components/Loading";
@@ -30,14 +34,72 @@ export default function PreAwardAssessment() {
     const assessmentType = searchParams?.get("type") || "technical";
 
     const [answers, setAnswers] = useState<Record<string, Answer>>({});
+<<<<<<< HEAD
     const { startAssessment, isLoading: isStarting } = useStartAssessment();
     const { data: submissionData, isLoading: isLoadingSubmission } = useGetSingleSubGrantSubmission(submissionId);
 
     const isCreating = isStarting;
+=======
+    const [assessmentId, setAssessmentId] = useState<string | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const { startAssessment, isLoading: isStarting } = useStartAssessment();
+    const { data: submissionData, isLoading: isLoadingSubmission } = useGetSingleSubGrantSubmission(submissionId);
+
+    // Reset assessment ID when assessment type changes
+    useEffect(() => {
+        setAssessmentId(null);
+        setAnswers({});
+    }, [assessmentType]);
+
+    // Get existing assessments for this submission
+    const { data: assessmentsData } = useGetAllAssessments({
+        submission: submissionId,
+        page: 1,
+        size: 10,
+        enabled: true,
+    });
+>>>>>>> 6895d90f (subgrant-ongoing)
 
     const questions = assessmentType === "technical"
         ? technicalCapacityQuestions
         : financialPreAwardQuestions;
+
+    // Find existing PENDING/IN_PROGRESS assessment for this type
+    const existingAssessment = assessmentsData?.data?.results?.find((assessment: any) => {
+        console.log("Checking assessment:", {
+            id: assessment.id,
+            status: assessment.status,
+            forms: assessment.assessment_submission?.forms,
+            firstCategory: assessment.assessment_submission?.forms?.[0]?.category_name
+        });
+
+        // Only use assessment if it's still editable (not completed)
+        if (assessment.status !== 'PENDING' && assessment.status !== 'IN_PROGRESS') {
+            console.log("Skipping assessment - status is:", assessment.status);
+            return false;
+        }
+
+        // Skip assessments with no forms (newly created, not yet submitted)
+        const forms = assessment.assessment_submission?.forms || [];
+        if (forms.length === 0) {
+            console.log("Skipping assessment - no forms yet");
+            return false;
+        }
+
+        const firstCategory = assessment.assessment_submission?.forms?.[0]?.category_name || '';
+        if (assessmentType === "technical") {
+            const match = firstCategory.includes('PROGRAMMING') || firstCategory.includes('MONITORING');
+            console.log("Technical check:", match);
+            return match;
+        } else {
+            const match = firstCategory.includes('General Organization') || firstCategory.includes('Internal Audits');
+            console.log("Financial check:", match);
+            return match;
+        }
+    });
+
+    console.log("Existing assessment found:", existingAssessment?.id);
 
     if (isLoadingSubmission) {
         return <Loading />;
@@ -74,8 +136,9 @@ export default function PreAwardAssessment() {
         const unansweredQuestions = questions.forms.flatMap(form =>
             form.questions.filter(q => {
                 const answer = answers[q.id];
-                // For text type questions, check if answer exists
+                // For text type questions, check if answer exists in either answer or keyFindings field
                 if (q.options.type === "text") {
+<<<<<<< HEAD
                     // Check if the main answer is provided
                     if (!answer?.answer?.trim()) {
                         return true;
@@ -85,6 +148,9 @@ export default function PreAwardAssessment() {
                         return true;
                     }
                     return false;
+=======
+                    return !answer?.answer?.trim() && !answer?.keyFindings?.trim();
+>>>>>>> 6895d90f (subgrant-ongoing)
                 }
                 // For boolean questions, check if yes/no is selected
                 if (!answer?.answer) {
@@ -103,18 +169,18 @@ export default function PreAwardAssessment() {
             return;
         }
 
+        setIsSubmitting(true);
         try {
             // Get partner ID from submission data
             const partnerId = submissionData?.data?.partner?.id || submissionData?.data?.partner;
 
-            console.log("Full submission data:", submissionData);
-            console.log("Extracted partner ID:", partnerId);
-
             if (!partnerId) {
                 toast.error("Partner information not found. Cannot submit assessment.");
+                setIsSubmitting(false);
                 return;
             }
 
+<<<<<<< HEAD
             // Step 1: Start/create the assessment
             console.log("Starting assessment for submission:", submissionId, "partner:", partnerId);
             const response = await startAssessment(submissionId, partnerId);
@@ -167,9 +233,162 @@ export default function PreAwardAssessment() {
                 // After financial assessment (final stage), redirect to submission details or assessment results
                 // Navigate back twice to get out of the assessment flow
                 router.push(`/dashboard/c-and-g/sub-grant/awards/submission/${submissionId}`);
+=======
+            let currentAssessmentId = assessmentId || existingAssessment?.id;
+
+            // Step 1: Create assessment if it doesn't exist
+            if (!currentAssessmentId) {
+                console.log("Creating new assessment...");
+                console.log("Submission ID:", submissionId);
+                console.log("Partner ID:", partnerId);
+
+                try {
+                    const startResult = await startAssessment(submissionId, partnerId);
+                    console.log("Start assessment result:", startResult);
+
+                    // The result has the assessment data inside 'data' property
+                    currentAssessmentId = startResult?.data?.id || startResult?.id;
+                    setAssessmentId(currentAssessmentId);
+
+                    if (!currentAssessmentId) {
+                        console.error("No assessment ID found in result:", startResult);
+                        toast.error("Failed to create assessment - no ID returned");
+                        setIsSubmitting(false);
+                        return;
+                    }
+
+                    console.log("Assessment created with ID:", currentAssessmentId);
+                } catch (startError: any) {
+                    console.error("Failed to start assessment:", startError);
+                    toast.error(`Failed to create assessment: ${startError?.message || "Unknown error"}`);
+                    setIsSubmitting(false);
+                    return;
+                }
+            }
+
+            // Step 2: Transform answers to match backend structure
+            const formsWithAnswers = questions.forms.map(form => {
+                const maxScore = form.questions.length * 2; // Assuming max 2 points per question
+
+                return {
+                    category_name: form.category_name,
+                    category: assessmentType === "technical" ? "technical" : "financial",
+                    max_score: maxScore,
+                    questions: form.questions.map(question => {
+                        const answer = answers[question.id];
+                        const isYes = answer?.answer === "yes";
+                        const isNo = answer?.answer === "no";
+
+                        // Determine rating based on yes/no answer
+                        let ratingType = "low"; // Default for text questions
+                        let score = 0;
+
+                        if (question.options.type === "boolean") {
+                            if (isYes) {
+                                ratingType = question.options.yesRating;
+                            } else if (isNo) {
+                                ratingType = question.options.noRating;
+                            }
+
+                            // Calculate score based on rating
+                            if (ratingType === "low") score = 0;
+                            else if (ratingType.includes("med")) score = 1;
+                            else if (ratingType === "high") score = 2;
+                        }
+                        // For text questions, rating_type should be "low" by default
+
+                        return {
+                            id: question.id,
+                            question: question.question,
+                            requires_explanation: question.requires_explanation,
+                            answer: {
+                                text: answer?.keyFindings || answer?.answer || "",
+                                rating_type: ratingType,
+                                boolean: isYes,
+                                score: score,
+                            },
+                            options: {
+                                type: question.options.type === "boolean" ? "yes_no_rating" : "text",
+                                no_rating: false, // Always false, not null
+                                text: question.question,
+                                choices: question.options.type === "boolean"
+                                    ? [{ yes: true, rating: [question.options.yesRating, question.options.noRating] }]
+                                    : [],
+                            },
+                        };
+                    }),
+                };
+            });
+
+            const assessmentSubmission = {
+                final_rating: {
+                    low_risk: { min: 0, max: 29, description: "Low Risk" },
+                    medium_risk: { min: 30, max: 59, description: "Medium Risk" },
+                    high_risk: { min: 60, max: 89, description: "High Risk" },
+                    extremely_high_risk: { min: 90, max: 100, description: "Extremely High Risk" },
+                },
+                rating_scale: {
+                    na: 0,
+                    low: 0,
+                    med: 1,
+                    high: 2,
+                },
+                forms: formsWithAnswers,
+            };
+
+            console.log("Submitting assessment:", currentAssessmentId);
+            console.log("Assessment submission data:", JSON.stringify(assessmentSubmission, null, 2));
+
+            // Step 3: Submit the assessment data using the API directly
+            const AxiosWithToken = (await import("@/constants/api_management/MyHttpHelperWithToken")).default;
+
+            try {
+                const response = await AxiosWithToken.patch(
+                    `/contract-grants/award/assessments/${currentAssessmentId}/submit/`,
+                    {
+                        assessment_submission: assessmentSubmission,
+                    }
+                );
+
+                console.log("Submit response:", response.data);
+                console.log("Assessment status after submit:", response.data?.data?.status);
+                console.log("Assessment total_score after submit:", response.data?.data?.total_score);
+            } catch (submitError: any) {
+                console.error("Submit API error:", submitError);
+                console.error("Error response:", submitError?.response?.data);
+                throw submitError;
+            }
+
+            toast.success(`${assessmentType === "technical" ? "Technical Capacity" : "Financial Pre-Award"} Assessment submitted successfully!`);
+
+            // Wait a bit for backend to finish processing
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // Get the sub-grant ID from submission data
+            const subGrantId = submissionData?.data?.sub_grant_id
+                || (typeof submissionData?.data?.sub_grant === 'string'
+                    ? submissionData?.data?.sub_grant
+                    : submissionData?.data?.sub_grant?.id);
+
+            // If technical assessment was completed, redirect to financial assessment
+            if (assessmentType === "technical") {
+                router.push(`/dashboard/c-and-g/sub-grant/awards/submission/${submissionId}/preaward-assessment?type=financial`);
+            } else {
+                // If financial assessment was completed, redirect to sub-grant awards page
+                if (subGrantId) {
+                    // Force a refresh of the page data
+                    router.refresh();
+                    router.push(`/dashboard/c-and-g/sub-grant/awards/${subGrantId}`);
+                } else {
+                    router.back();
+                }
+>>>>>>> 6895d90f (subgrant-ongoing)
             }
         } catch (error: any) {
+            console.error("Assessment submission error:", error);
             toast.error(error?.message || "Failed to submit assessment");
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -196,18 +415,104 @@ export default function PreAwardAssessment() {
                 </div>
             </div>
 
-            {/* Submission Info Card */}
-            <Card className={assessmentType === "technical" ? "bg-blue-50 border-blue-200" : "bg-green-50 border-green-200"}>
-                <div>
-                    <label className={`text-sm font-medium ${assessmentType === "technical" ? "text-blue-800" : "text-green-800"}`}>
-                        Organization Name
-                    </label>
-                    <p className="text-lg font-semibold text-gray-800 mt-1">
-                        {submissionData?.data?.organisation_name || "N/A"}
-                    </p>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
-                        <span>Type: <span className="font-medium">{submissionData?.data?.organisation_type?.replace(/_/g, ' ') || "N/A"}</span></span>
-                        <span>Submission ID: <span className="font-medium">{submissionId}</span></span>
+            {/* Organization Details Card */}
+            <Card className="bg-blue-50 border-blue-200">
+                <div className="space-y-4">
+                    <h2 className="text-lg font-bold text-blue-900">Organization's Details</h2>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">Legal Name of the Organization</label>
+                            <p className="text-base font-semibold text-gray-900 mt-1">{submissionData?.data?.organisation_name || "N/A"}</p>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">Organization Type</label>
+                            <p className="text-base font-semibold text-gray-900 mt-1">{submissionData?.data?.organisation_type?.replace(/_/g, ' ') || "N/A"}</p>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">1st Principal's Name & Title</label>
+                            <p className="text-base font-semibold text-gray-900 mt-1">{submissionData?.data?.principal_one_name || "N/A"} - {submissionData?.data?.principal_one_designaation || "N/A"}</p>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">2nd Principal's Name & Title</label>
+                            <p className="text-base font-semibold text-gray-900 mt-1">{submissionData?.data?.principal_two_name || "N/A"} - {submissionData?.data?.principal_two_designation || "N/A"}</p>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">Address</label>
+                            <p className="text-base font-semibold text-gray-900 mt-1">{submissionData?.data?.address || "N/A"}</p>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">Telephone</label>
+                            <p className="text-base font-semibold text-gray-900 mt-1">{submissionData?.data?.phone_number || "N/A"}</p>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">Email Address</label>
+                            <p className="text-base font-semibold text-gray-900 mt-1">{submissionData?.data?.email || "N/A"}</p>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">Web Address</label>
+                            <p className="text-base font-semibold text-gray-900 mt-1">{submissionData?.data?.web_address || "N/A"}</p>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">DUNS Number</label>
+                            <p className="text-base font-semibold text-gray-900 mt-1">{submissionData?.data?.duns_number || "N/A"}</p>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">Has Financial Conflict of Interest Policy</label>
+                            <p className="text-base font-semibold text-gray-900 mt-1">{submissionData?.data?.has_conflict_of_interest ? "Yes" : "No"}</p>
+                        </div>
+                    </div>
+                </div>
+            </Card>
+
+            {/* Proposed Subaward Details Card */}
+            <Card className="bg-green-50 border-green-200">
+                <div className="space-y-4">
+                    <h2 className="text-lg font-bold text-green-900">Proposed Subaward Details</h2>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">Project Title</label>
+                            <p className="text-base font-semibold text-gray-900 mt-1">{submissionData?.data?.sub_grant?.project?.title || submissionData?.data?.sub_grant?.title || "N/A"}</p>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">AHNI Project Number</label>
+                            <p className="text-base font-semibold text-gray-900 mt-1">{submissionData?.data?.sub_grant?.project?.project_id || "N/A"}</p>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">Country of Performance</label>
+                            <p className="text-base font-semibold text-gray-900 mt-1">Nigeria</p>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">AHNI Originating Funder / Funding Source</label>
+                            <p className="text-base font-semibold text-gray-900 mt-1">{submissionData?.data?.sub_grant?.project?.funding_sources?.[0]?.name || submissionData?.data?.sub_grant?.project?.funding_source || "N/A"}</p>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">AHNI Grant Administrator</label>
+                            <p className="text-base font-semibold text-gray-900 mt-1">{submissionData?.data?.sub_grant?.sub_grant_administrator?.full_name || "N/A"}</p>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">AHNI Program/Technical Staff Contact</label>
+                            <p className="text-base font-semibold text-gray-900 mt-1">{submissionData?.data?.sub_grant?.technical_staff?.full_name || "N/A"}</p>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">Subaward Period of Performance</label>
+                            <p className="text-base font-semibold text-gray-900 mt-1">
+                                {submissionData?.data?.sub_grant?.start_date || "N/A"} to {submissionData?.data?.sub_grant?.end_date || "N/A"}
+                            </p>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">Subaward Life of Project Value</label>
+                            <p className="text-base font-semibold text-gray-900 mt-1">
+                                USD {submissionData?.data?.sub_grant?.amount_usd || "N/A"} / NGN {submissionData?.data?.sub_grant?.amount_ngn || "N/A"}
+                            </p>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">Subaward Type (Proposed)</label>
+                            <p className="text-base font-semibold text-gray-900 mt-1">{submissionData?.data?.sub_grant?.award_type?.replace(/_/g, ' ') || "N/A"}</p>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">Business Unit</label>
+                            <p className="text-base font-semibold text-gray-900 mt-1">{submissionData?.data?.sub_grant?.business_unit || "Nigeria"}</p>
+                        </div>
                     </div>
                 </div>
             </Card>
@@ -324,7 +629,7 @@ export default function PreAwardAssessment() {
                     variant="outline"
                     size="lg"
                     onClick={() => router.back()}
-                    disabled={isCreating}
+                    disabled={isStarting || isSubmitting}
                 >
                     Cancel
                 </Button>
@@ -332,11 +637,11 @@ export default function PreAwardAssessment() {
                 <Button
                     size="lg"
                     onClick={handleSubmit}
-                    disabled={isCreating}
+                    disabled={isStarting || isSubmitting}
                     className={assessmentType === "technical" ? "bg-blue-600 hover:bg-blue-700" : "bg-green-600 hover:bg-green-700"}
                 >
                     <Save size={16} className="mr-2" />
-                    {isCreating ? "Submitting..." : `Submit ${assessmentType === "technical" ? "Technical" : "Financial"} Assessment`}
+                    {(isStarting || isSubmitting) ? "Submitting..." : `Submit ${assessmentType === "technical" ? "Technical" : "Financial"} Assessment`}
                 </Button>
             </div>
         </section>
