@@ -76,6 +76,15 @@ const SspDetails = () => {
         </Button>
 
         <div className='space-x-3'>
+          {id && (
+            <Link
+              href={RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION_REPORT.replace(":id", id as string)}
+            >
+              <FadedButton className='text-primary'>
+                View Full Report
+              </FadedButton>
+            </Link>
+          )}
           {doesReviewExist && id && (
             <Link href={evaluationDetailsHref}>
               <FadedButton className='text-primary'>

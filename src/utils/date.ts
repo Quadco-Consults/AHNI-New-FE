@@ -1,5 +1,13 @@
 export const formatDate = (dateString: string) => {
+  if (!dateString) return "";
+
   const dateObject = new Date(dateString);
+
+  // Check if date is valid
+  if (isNaN(dateObject.getTime())) {
+    return "";
+  }
+
   const YYYYMMDD = dateObject.toISOString().split("T")[0];
   return YYYYMMDD;
 };

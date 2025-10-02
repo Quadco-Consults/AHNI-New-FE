@@ -351,6 +351,8 @@ export const RouteEnum = {
     "/dashboard/programs/plan/supportive-supervision-plan/:id",
   PROGRAM_SUPPORTIVE_SUPERVISION_DETAILS_APPROVAL:
     "/dashboard/programs/plan/supportive-supervision-plan/:id/approval-status",
+  PROGRAM_SUPPORTIVE_SUPERVISION_REPORT:
+    "/dashboard/programs/plan/supportive-supervision-plan/:id/report",
   // PROGRAM_SUPPORTIVE_SUPERVISION_MANAGEMENT:
   //   "/dashboard/programs/plan/supportive-supervision-plan/:id/evaluation-criteria-process",
   PROGRAM_SUPPORTIVE_SUPERVISION_MANAGEMENT:

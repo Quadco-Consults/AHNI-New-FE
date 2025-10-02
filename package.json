@@ -61,6 +61,7 @@
     "react-pdf": "^9.1.0",
     "react-rating-stars-component": "^2.2.0",
     "react-redux": "^9.1.0",
+    "react-to-print": "^3.1.1",
     "reactjs-otp-input": "^2.0.10",
     "recharts": "^2.12.1",
     "redux": "^4.0.0",
