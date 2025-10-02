@@ -2,23 +2,47 @@
 
 import Card from "components/Card";
 import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
 import { Award, FileText, TrendingUp } from "lucide-react";
 import { useParams } from "next/navigation";
+<<<<<<< HEAD
 import { useGetAssessedSubmissions } from "@/features/contracts-grants/controllers/preAwardAssessmentController";
 import Link from "next/link";
+=======
+import { useGetAllSubGrantManualSub } from "@/features/contracts-grants/controllers/submissionController";
+>>>>>>> 6895d90f (subgrant-ongoing)
 import { Loading } from "components/Loading";
+import {
+    Table,
+    TableBody,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "components/ui/table";
+import { AssessmentRow } from "./AssessmentRow";
 
 export default function AssessmentResults() {
     const params = useParams();
     const subGrantId = params?.id as string;
 
+<<<<<<< HEAD
     const { data, isFetching } = useGetAssessedSubmissions(subGrantId);
+=======
+    const { data: submissionsData, isFetching: isLoadingSubmissions } = useGetAllSubGrantManualSub(
+        subGrantId
+            ? {
+                  sub_grant: subGrantId as string,
+                  page: 1,
+                  size: 100,
+              }
+            : skipToken
+    );
+>>>>>>> 6895d90f (subgrant-ongoing)
 
-    if (isFetching) {
+    if (isLoadingSubmissions) {
         return <Loading />;
     }
 
+<<<<<<< HEAD
     // Get assessed submissions from the dedicated endpoint (already ranked by backend)
     const assessedSubmissions = data?.data || [];
 
@@ -38,6 +62,15 @@ export default function AssessmentResults() {
     };
 
     if (assessedSubmissions.length === 0) {
+=======
+    // Get all shortlisted submissions
+    const shortlistedSubmissions = (submissionsData?.data.results || [])
+        .filter((submission: any) =>
+            submission.status === "SHORTLISTED" || submission.is_shortlisted
+        );
+
+    if (shortlistedSubmissions.length === 0) {
+>>>>>>> 6895d90f (subgrant-ongoing)
         return (
             <Card>
                 <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -54,8 +87,10 @@ export default function AssessmentResults() {
     }
 
     return (
-        <div className="space-y-5">
+        <div className="space-y-6">
+            {/* Technical Capacity Assessment Results */}
             <Card>
+<<<<<<< HEAD
                 <div className="flex items-center justify-between mb-6">
                     <div>
                         <h2 className="text-xl font-bold text-gray-800">Assessment Results & Rankings</h2>
@@ -175,6 +210,81 @@ export default function AssessmentResults() {
                             </Card>
                         );
                     })}
+=======
+                <div className="mb-4">
+                    <h2 className="text-xl font-bold text-blue-800 flex items-center gap-2">
+                        <FileText size={24} />
+                        Technical Capacity Assessment Results
+                    </h2>
+                    <p className="text-sm text-gray-600 mt-1">
+                        {shortlistedSubmissions.length} organization(s) assessed
+                    </p>
+                </div>
+
+                <div className="overflow-x-auto">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-[50px]">#</TableHead>
+                                <TableHead>Organization Name</TableHead>
+                                <TableHead>Organization Type</TableHead>
+                                <TableHead className="text-center">Status</TableHead>
+                                <TableHead className="text-center">Score</TableHead>
+                                <TableHead className="text-center">Risk Level</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {shortlistedSubmissions.map((submission: any, index: number) => (
+                                <AssessmentRow
+                                    key={submission.id}
+                                    submission={submission}
+                                    index={index}
+                                    assessmentType="technical"
+                                />
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+            </Card>
+
+            {/* Financial Pre-Award Assessment Results */}
+            <Card>
+                <div className="mb-4">
+                    <h2 className="text-xl font-bold text-green-800 flex items-center gap-2">
+                        <Award size={24} />
+                        Financial Pre-Award Assessment (PAT) Results
+                    </h2>
+                    <p className="text-sm text-gray-600 mt-1">
+                        {shortlistedSubmissions.length} organization(s) assessed
+                    </p>
+                </div>
+
+                <div className="overflow-x-auto">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-[50px]">#</TableHead>
+                                <TableHead>Organization Name</TableHead>
+                                <TableHead>Organization Type</TableHead>
+                                <TableHead className="text-center">Status</TableHead>
+                                <TableHead className="text-center">Score</TableHead>
+                                <TableHead className="text-center">Risk Level</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {shortlistedSubmissions.map((submission: any, index: number) => (
+                                <AssessmentRow
+                                    key={submission.id}
+                                    submission={submission}
+                                    index={index}
+                                    assessmentType="financial"
+                                />
+                            ))}
+                        </TableBody>
+                    </Table>
+>>>>>>> 6895d90f (subgrant-ongoing)
                 </div>
             </Card>
 
