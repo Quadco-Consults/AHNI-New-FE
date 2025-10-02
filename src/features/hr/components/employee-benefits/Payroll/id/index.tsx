@@ -1,27 +1,32 @@
 "use client";
 
+import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-
 import { useParams } from "next/navigation";
 import { useGetSinglePayroll } from "@/features/hr/controllers/hrPayRollController";
-// import { LoadingSpinner } from "components/Loading";
-
 import GoBack from "components/GoBack";
-
 import Summary from "./Summary";
 import BreakDown from "./DetailedBreakdown";
 
 const PayRollDetails = () => {
   const { id } = useParams();
+  const [payrollData, setPayrollData] = React.useState<any>(null);
 
-  const { data: grData } = useGetSinglePayroll(id as string);
+  // Load from localStorage
+  React.useEffect(() => {
+    const savedPayrolls = JSON.parse(localStorage.getItem("payrolls") || "[]");
+    const payroll = savedPayrolls.find((p: any) => p.payroll_id === id);
+    setPayrollData(payroll);
+  }, [id]);
 
-  console.log({ grData });
+  if (!payrollData) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-gray-500">Loading payroll data...</p>
+      </div>
+    );
+  }
 
-  //   if (isLoading) {
-  //     return <LoadingSpinner />;
-  //   }
-  const data: any = [];
   return (
     <div className='space-y-5'>
       <Tabs defaultValue='payroll-summary'>
@@ -35,10 +40,10 @@ const PayRollDetails = () => {
           </TabsList>
         </div>
         <TabsContent value='payroll-summary'>
-          <Summary {...(data as any)} />
+          <Summary {...payrollData} />
         </TabsContent>
         <TabsContent value='detailed-breakdown'>
-          <BreakDown {...(data as any)} />
+          <BreakDown {...payrollData} />
         </TabsContent>
       </Tabs>
     </div>

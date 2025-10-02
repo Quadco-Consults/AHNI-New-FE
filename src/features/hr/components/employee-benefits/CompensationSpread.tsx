@@ -14,6 +14,7 @@ import { Button } from "components/ui/button";
 import { Checkbox } from "components/ui/checkbox";
 import IconButton from "components/IconButton";
 import PayGroupModal from "./components/PayGroupModal";
+import CompensationSpreadModal from "./components/CompensationSpreadModal";
 import { useAppDispatch } from "hooks/useStore";
 import { DialogType, mediumDailogScreen } from "constants/dailogs";
 import { openDialog } from "store/ui";
@@ -43,8 +44,9 @@ const Compensation: React.FC = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [isModalOpen, setModalOpen] = React.useState(false);
+  const [isCreateModalOpen, setCreateModalOpen] = React.useState(false);
 
-  const { data: compensationsData, isLoading: isLoadingCompensations } =
+  const { data: compensationsData, isLoading: isLoadingCompensations, refetch } =
     useGetCompensationsSpread();
 
   console.log({
@@ -135,6 +137,13 @@ const Compensation: React.FC = () => {
             <FilterIcon2 />
           </Button>
         </div>
+        <Button
+          onClick={() => setCreateModalOpen(true)}
+          className='flex items-center gap-2'
+        >
+          <AddSquareIcon />
+          Create Compensation Spread
+        </Button>
       </div>
 
       <div className='w-full'>
@@ -155,6 +164,12 @@ const Compensation: React.FC = () => {
           isOpen={isModalOpen}
           onCancel={() => setModalOpen(false)}
           onOk={() => {}}
+        />
+
+        <CompensationSpreadModal
+          isOpen={isCreateModalOpen}
+          onCancel={() => setCreateModalOpen(false)}
+          onSuccess={() => refetch()}
         />
       </div>
     </div>
