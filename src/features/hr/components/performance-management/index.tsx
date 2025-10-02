@@ -25,14 +25,25 @@ const PerformanceManagement: React.FC = () => {
   const debouncedAdvertSearch = useDebounce("advertSearchTerm", 1000);
 
   // Fetch advertisements for dropdown
-  const { data: performanceAssesmentData, isLoading: isLoading } =
+  const { data: performanceAssesmentData, isLoading: isLoading, refetch } =
     useGetPerformanceAssesments({
       search: debouncedAdvertSearch,
       page: 1,
       size: 20,
     });
 
-  console.log({ performanceAssesmentData });
+  console.log("Performance Assessment Data:", performanceAssesmentData);
+  console.log("Data array:", performanceAssesmentData?.data);
+  console.log("Is Loading:", isLoading);
+
+  // Try fetching specific ID to test
+  React.useEffect(() => {
+    if (performanceAssesmentData?.data?.length === 0) {
+      console.warn("⚠️ BACKEND ISSUE: List endpoint returns empty results even after successful creation.");
+      console.warn("📋 This is a backend problem - the GET list endpoint is not returning created assessments.");
+      console.warn("💡 Contact backend team to check the list endpoint filtering/permissions.");
+    }
+  }, [performanceAssesmentData]);
 
   const columns: ColumnDef<any>[] = [
     {
@@ -155,11 +166,11 @@ const PerformanceManagement: React.FC = () => {
           //   onRowClick={(row) => {
           //     router.push("/c-and-g/grant-details/" + row?.original?.id);
           //   }}
-          data={dummyData}
-          // isLoading={true}
+          data={performanceAssesmentData?.data || []}
+          isLoading={isLoading}
           pagination={{
-            total: 10,
-            pageSize: 10,
+            total: performanceAssesmentData?.data?.length || 0,
+            pageSize: 20,
             onChange: (page: number) => {},
           }}
         />
