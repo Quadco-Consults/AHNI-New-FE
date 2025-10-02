@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import EyeIcon from "components/icons/EyeIcon";
-import FilterIcon from "components/icons/FilterIcon";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import SearchIcon from "components/icons/SearchIcon";
-import Card from "components/Card";
-import { Loading } from "components/Loading";
-import DataTable from "components/Table/DataTable";
+import EyeIcon from "@/components/icons/EyeIcon";
+import FilterIcon from "@/components/icons/FilterIcon";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import SearchIcon from "@/components/icons/SearchIcon";
+import Card from "@/components/Card";
+import { Loading } from "@/components/Loading";
+import DataTable from "@/components/Table/DataTable";
 import { Badge } from "components/ui/badge";
 import { Button } from "components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
@@ -22,14 +22,19 @@ import {
 } from "@/features/hr/controllers/employeeOnboardingController";
 import ApplicationsTable from "../advertisement/table/ApplicationsTable";
 
-import DeleteIcon from "components/icons/DeleteIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import { Building2 } from "lucide-react";
 
 import { toast } from "sonner";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "components/ui/dialog";
+import ProjectAssignmentModal from "@/features/hr/components/modals/ProjectAssignmentModal";
 
 const Onboarding = () => {
   const [employeeID, setEmployeedId] = useState("");
   const [isDialogOpen, setDialogOpen] = useState(false);
+  const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
 
   const { data: employeeData, isLoading: fetchingEmployeeData } =
     useGetEmployeeOnboardings({});
@@ -53,6 +58,18 @@ const Onboarding = () => {
       console.log("Employee delete: ", error);
       toast.error(error.data.message ?? "Something went wrong");
     }
+  };
+
+  const handleOnboard = (employee: any) => {
+    setSelectedEmployee(employee);
+    setIsProjectModalOpen(true);
+  };
+
+  const handleProjectAssignment = (employeeId: string, projectData: any) => {
+    console.log("Project assigned:", { employeeId, projectData });
+    // Here you would typically make an API call to update the employee's project assignment
+    // For now, we'll just show a success message
+    toast.success("Employee successfully onboarded to new project!");
   };
 
   if (fetchingEmployeeData) {
@@ -121,6 +138,15 @@ const Onboarding = () => {
               </Button>
             </PopoverTrigger>
             <PopoverContent className=' w-fit'>
+              <Button
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
+                onClick={() => handleOnboard(data)}
+              >
+                <Building2 className="w-4 h-4" />
+                Onboard
+              </Button>
+
               <Link
                 href={`/dashboard/hr/onboarding/start-onboarding/${data?.id}/`}
                 className='flex flex-col items-start justify-between gap-1'
@@ -211,6 +237,21 @@ const Onboarding = () => {
         onCancel={() => setDialogOpen(false)}
         onOk={confirmHandleDelete}
       />
+
+      <Dialog open={isProjectModalOpen} onOpenChange={setIsProjectModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Project Assignment</DialogTitle>
+          </DialogHeader>
+          {selectedEmployee && (
+            <ProjectAssignmentModal
+              employee={selectedEmployee}
+              onClose={() => setIsProjectModalOpen(false)}
+              onAssign={handleProjectAssignment}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

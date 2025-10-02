@@ -1,18 +1,19 @@
 import { useState } from "react";
 
 import { ColumnDef, Row } from "@tanstack/react-table";
-import AddSquareIcon from "components/icons/AddSquareIcon";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
 
-import DeleteIcon from "components/icons/DeleteIcon";
-import EyeIcon from "components/icons/EyeIcon";
-import EditIcon from "components/icons/EditIcon";
-import FilterIcon from "components/icons/FilterIcon";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import SearchIcon from "components/icons/SearchIcon";
-import Card from "components/Card";
-import DataTable from "components/Table/DataTable";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import EyeIcon from "@/components/icons/EyeIcon";
+import EditIcon from "@/components/icons/EditIcon";
+import FilterIcon from "@/components/icons/FilterIcon";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import SearchIcon from "@/components/icons/SearchIcon";
+import Card from "@/components/Card";
+import DataTable from "@/components/Table/DataTable";
 import { Button } from "components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "components/ui/dialog";
 import { HrRoutes } from "constants/RouterConstants";
 import { EmployeeOnboarding } from "definations/hr-types/employee-onboarding";
 // import { WorkforceResults } from "definations/hr-types/workforce";
@@ -24,11 +25,13 @@ import {
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 
 import { toast } from "sonner";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
+import EmployeeUploadModal from "@/features/hr/components/modals/EmployeeUploadModal";
 
 const WorkforceDatabase = () => {
   const [employeeID, setEmployeedId] = useState("");
   const [isDialogOpen, setDialogOpen] = useState(false);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
   const { data: employeeData, isLoading: getEmployeeLoading } = useGetEmployeeOnboardings({ page: 1, size: 200 });
   const { data: userData, isLoading: getUserLoading } = useGetAllUsers({ page: 1, size: 200 });
@@ -80,6 +83,12 @@ const WorkforceDatabase = () => {
       console.log("Employee delete: ", error);
       toast.error(error.data.message ?? "Something went wrong");
     }
+  };
+
+  const handleUploadComplete = (file: File, data: any) => {
+    console.log("Upload completed:", { file: file.name, data });
+    // Refresh the employee data after upload
+    // In a real implementation, you would refetch the data here
   };
 
   const columns: ColumnDef<EmployeeOnboarding>[] = [
@@ -177,11 +186,9 @@ const WorkforceDatabase = () => {
   return (
     <div className='space-y-6'>
       <div className='flex justify-end'>
-        <Link href={HrRoutes.WORKFORCE_DATABASE_CREATE}>
-          <Button>
-            <AddSquareIcon /> Add New Employee
-          </Button>
-        </Link>
+        <Button onClick={() => setIsUploadModalOpen(true)}>
+          <AddSquareIcon /> Upload Employees Data
+        </Button>
       </div>
 
       <Card className='space-y-4'>
@@ -214,6 +221,18 @@ const WorkforceDatabase = () => {
         onCancel={() => setDialogOpen(false)}
         onOk={confirmHandleDelete}
       />
+
+      <Dialog open={isUploadModalOpen} onOpenChange={setIsUploadModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Upload Employee Data</DialogTitle>
+          </DialogHeader>
+          <EmployeeUploadModal
+            onClose={() => setIsUploadModalOpen(false)}
+            onUpload={handleUploadComplete}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

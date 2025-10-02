@@ -3,39 +3,39 @@
 /* eslint-disable no-unused-vars */
 import { ColumnDef } from "@tanstack/react-table";
 import FormButton from "@/components/FormButton";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import DataTable from "components/Table/DataTable";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import DataTable from "@/components/Table/DataTable";
 import React from "react";
 import { cn } from "lib/utils";
 import { Icon } from "@iconify/react";
 
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import Link from "next/link"; import { useRouter } from "next/navigation";
 import { HrRoutes } from "constants/RouterConstants";
-import { Checkbox } from "components/ui/checkbox";
-import PencilIcon from "components/icons/PencilIcon";
-import IconButton from "components/IconButton";
-import FilterIcon from "components/icons/FilterIcon";
+import { Checkbox } from "@/components/ui/checkbox";
+import PencilIcon from "@/components/icons/PencilIcon";
+import IconButton from "@/components/IconButton";
+import FilterIcon from "@/components/icons/FilterIcon";
 import { useGetWorkforceNeedAnalysis } from "@/features/hr/controllers/hrWorkforceNeedAnalysisController";
 
-import Card from "components/Card";
+import Card from "@/components/Card";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "components/ui/accordion";
-import { SelectContent, SelectItem } from "components/ui/select";
-import { useGetAllLocationsManager } from "@/features/modules/controllers/config/locationController";
-import { useGetAllPositionsManager } from "@/features/modules/controllers/config/positionController";
+} from "@/components/ui/accordion";
+import { SelectContent, SelectItem } from "@/components/ui/select";
+import { useGetLocationList } from "@/features/modules/controllers/config/locationController";
+import { useGetPositionPaginate } from "@/features/modules/controllers/config/positionController";
 import { LocationResultsData } from "definations/configs/location";
 import { PositionsResultsData } from "definations/configs/positions";
 import { SubmitHandler, useForm } from "react-hook-form";
-import FormSelect from "components/atoms/FormSelectField";
-import { Form } from "components/ui/form";
+import FormSelect from "@/components/FormSelectField";
+import { Form } from "@/components/ui/form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 
 export const filterSchema = z.object({
   position: z.string(),
@@ -65,6 +65,12 @@ const WFNA: React.FC = () => {
   const { handleSubmit, reset, getValues } = form;
   const { location: selectedLocation, position: selectedPosition } = getValues();
 
+  // Use the same controllers as the form component for consistency
+  const { data: locations, isLoading: locationIsLoading } =
+    useGetLocationList({});
+  const { data: positions, isLoading: positionIsLoading } =
+    useGetPositionPaginate({});
+
   const { data, isLoading: loadingWorkforce, error } =
     useGetWorkforceNeedAnalysis({
       ...(selectedLocation && { location: selectedLocation }),
@@ -76,13 +82,9 @@ const WFNA: React.FC = () => {
     console.log('Workforce data:', data);
     console.log('Loading:', loadingWorkforce);
     console.log('Error:', error);
-  }, [data, loadingWorkforce, error]);
-  // const { deleteWorkforceNeedAnalysis, isLoading: deleting } =
-  //     useWorkforceNeedAnalysis({});
-  const { data: locations, isLoading: locationIsLoading } =
-    useGetAllLocationsManager({});
-  const { data: positions, isLoading: positionIsLoading } =
-    useGetAllPositionsManager({});
+    console.log('Locations data structure:', locations);
+    console.log('Positions data structure:', positions);
+  }, [data, loadingWorkforce, error, locations, positions]);
 
   const onSubmit: SubmitHandler<TFormValues> = (values) => {
     // Filter values are automatically applied through getValues() in the query
@@ -125,22 +127,28 @@ const WFNA: React.FC = () => {
       header: "Position",
       accessorKey: "position",
       size: 200,
-      cell: ({ getValue }) => {
+      cell: ({ getValue, row }) => {
         const position = getValue();
-        return typeof position === 'object' && position !== null && 'name' in position 
-          ? String((position as any).name) 
-          : String(position || '');
+        console.log('Position cell data:', position, 'Row:', row.original);
+
+        if (typeof position === 'object' && position !== null) {
+          return String((position as any).name || (position as any).title || 'Unknown Position');
+        }
+        return String(position || 'N/A');
       },
     },
     {
       header: "Location",
       accessorKey: "location",
       size: 200,
-      cell: ({ getValue }) => {
+      cell: ({ getValue, row }) => {
         const location = getValue();
-        return typeof location === 'object' && location !== null && 'name' in location 
-          ? String((location as any).name) 
-          : String(location || '');
+        console.log('Location cell data:', location, 'Row:', row.original);
+
+        if (typeof location === 'object' && location !== null) {
+          return String((location as any).name || (location as any).state || (location as any).city || 'Unknown Location');
+        }
+        return String(location || 'N/A');
       },
     },
     {
@@ -277,11 +285,11 @@ const WFNA: React.FC = () => {
                               Loading...
                             </p>
                           </div>
-                        ) : (locations?.results || []).length > 0 ? (
-                          (locations?.results || []).map(
+                        ) : (locations?.data?.results || []).length > 0 ? (
+                          (locations?.data?.results || []).map(
                             (location: LocationResultsData) => (
                               <SelectItem key={location.id} value={String(location.id)}>
-                                {String(location.name)}
+                                {String(location.state || location.name || 'Unknown Location')}
                               </SelectItem>
                             )
                           )
@@ -309,8 +317,8 @@ const WFNA: React.FC = () => {
                               Loading...
                             </p>
                           </div>
-                        ) : (positions?.results || []).length > 0 ? (
-                          (positions?.results || []).map(
+                        ) : (positions?.data?.results || []).length > 0 ? (
+                          (positions?.data?.results || []).map(
                             (position: PositionsResultsData) => (
                               <SelectItem key={position.id} value={String(position.id)}>
                                 {String(position.name)}

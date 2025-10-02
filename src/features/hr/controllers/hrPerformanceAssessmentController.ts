@@ -41,9 +41,33 @@ export const useGetPerformanceAssesments = ({
             ...(search && { search }),
           },
         });
-        return response.data;
+        console.log("Raw API Response:", response.data);
+
+        // Handle multiple possible response structures
+        let results: PerformanceAssesment[] = [];
+
+        if (Array.isArray(response.data?.data?.results)) {
+          // Backend returns nested structure: data.data.results
+          results = response.data.data.results;
+        } else if (Array.isArray(response.data?.data)) {
+          // Backend returns: data.data as array
+          results = response.data.data;
+        } else if (Array.isArray(response.data)) {
+          // Backend returns array directly
+          results = response.data;
+        }
+
+        console.log("Extracted results:", results);
+        console.log("Results count:", results.length);
+
+        return {
+          status: response.data?.status ?? true,
+          message: response.data?.message ?? "Success",
+          data: results,
+        };
       } catch (error) {
         const axiosError = error as AxiosError;
+        console.error("Performance assessments fetch error:", axiosError);
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
@@ -78,16 +102,19 @@ export const useCreatePerformanceAssesment = () => {
     Partial<PerformanceAssesment>
   >({
     endpoint: BASE_URL,
-    queryKey: ["performance-assessments"],
+    queryKey: "performance-assessments",
     isAuth: true,
     method: "POST",
   });
 
   const createPerformanceAssesment = async (details: Partial<PerformanceAssesment>) => {
     try {
-      await callApi(details);
+      const response = await callApi(details);
+      console.log("Create response:", response);
+      return response;
     } catch (error) {
       console.error("Performance assessment create error:", error);
+      throw error;
     }
   };
 
