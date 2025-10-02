@@ -17,8 +17,147 @@ import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { HrRoutes } from "constants/RouterConstants";
 import { cn } from "lib/utils";
 import Link from "next/link";
+import React, { useState } from "react";
+import { toast } from "sonner";
+import { useGetSeparationManagement, useDeleteSeparationManagement } from "@/features/hr/controllers/separationManagementController";
+import { SeparationManagement as SeparationManagementType } from "@/features/hr/types/separation-management";
+import useDebounce from "utils/useDebounce";
 
 const SeparationManagement = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+
+  const debouncedSearch = useDebounce(searchQuery, 500);
+
+  const { data: separationData, isLoading, refetch } = useGetSeparationManagement({
+    search: debouncedSearch,
+    status: selectedStatus,
+    page: 1,
+    size: 20,
+  });
+
+  const { deleteSeparationManagement } = useDeleteSeparationManagement(itemToDelete || "");
+
+  const handleDelete = (id: string) => {
+    setItemToDelete(id);
+  };
+
+  // Handle delete effect
+  React.useEffect(() => {
+    if (itemToDelete && deleteSeparationManagement) {
+      const performDelete = async () => {
+        try {
+          await deleteSeparationManagement();
+          toast.success("Separation record deleted successfully");
+          refetch();
+        } catch (error) {
+          toast.error("Failed to delete separation record");
+        } finally {
+          setItemToDelete(null);
+        }
+      };
+      performDelete();
+    }
+  }, [itemToDelete, deleteSeparationManagement, refetch]);
+
+  const columns: ColumnDef<SeparationManagementType>[] = [
+    {
+      id: "select",
+      size: 80,
+      header: ({ table }) => {
+        return (
+          <Checkbox
+            checked={table.getIsAllPageRowsSelected()}
+            onCheckedChange={(value) => {
+              table.toggleAllPageRowsSelected(!!value);
+            }}
+          />
+        );
+      },
+      cell: ({ row }) => {
+        return (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => {
+              row.toggleSelected(!!value);
+            }}
+          />
+        );
+      },
+    },
+    {
+      header: "Name",
+      accessorKey: "employee",
+      size: 250,
+      cell: ({ row }) => (
+        <p>{row.original.employee?.legal_firstname} {row.original.employee?.legal_lastname}</p>
+      ),
+    },
+    {
+      header: "Position",
+      accessorKey: "employee.position",
+      size: 250,
+      cell: ({ row }) => <p>{row.original.employee?.position?.name || "N/A"}</p>,
+    },
+    {
+      header: "Method",
+      accessorKey: "exit_method",
+      cell: ({ row }) => <p>{row.original.exit_method}</p>,
+    },
+    {
+      header: "Location",
+      accessorKey: "employee.location",
+      cell: ({ row }) => <p>{row.original.employee?.location?.name || "N/A"}</p>,
+    },
+    {
+      header: "Project",
+      accessorKey: "project",
+      cell: ({ row }) => <p>{row.original.project?.title || row.original.project?.project_name || "N/A"}</p>,
+    },
+    {
+      header: "Grade",
+      accessorKey: "employee.grade",
+      cell: ({ row }) => <p>{row.original.employee?.grade || "N/A"}</p>,
+    },
+    {
+      header: "Submit Date",
+      accessorKey: "submit_date",
+      cell: ({ row }) => <p>{new Date(row.original.submit_date).toLocaleDateString()}</p>,
+    },
+    {
+      header: "Exit Date",
+      accessorKey: "exit_date",
+      cell: ({ row }) => <p>{new Date(row.original.exit_date).toLocaleDateString()}</p>,
+    },
+    {
+      header: "Status",
+      accessorKey: "status",
+      size: 100,
+      cell: ({ getValue }) => {
+        return (
+          <Badge
+            variant='default'
+            className={cn(
+              "p-1 rounded-lg",
+              getValue() === "Completed"
+                ? "bg-green-200 text-green-500"
+                : "bg-red-200 text-red-500"
+            )}
+          >
+            {getValue() as string}
+          </Badge>
+        );
+      },
+    },
+    {
+      header: "Actions",
+      id: "actions",
+      size: 50,
+      cell: ({ row }) => <ActionList id={row.original.id} onDelete={handleDelete} />,
+    },
+  ];
+
   return (
     <div className='space-y-6'>
       <div className='flex-items'>
@@ -39,8 +178,10 @@ const SeparationManagement = () => {
           <span className='flex items-center w-1/3 px-2 py-2 border rounded-lg'>
             <SearchIcon />
             <input
-              placeholder='Search'
+              placeholder='Search by name'
               type='text'
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className='ml-2 h-6 border-none bg-none focus:outline-none outline-none'
             />
           </span>
@@ -48,7 +189,16 @@ const SeparationManagement = () => {
             <FilterIcon />
           </Button>
         </div>
-        <DataTable data={data} columns={columns} isLoading={false} />
+        <DataTable
+          data={separationData?.data?.results || []}
+          columns={columns}
+          isLoading={isLoading}
+          pagination={{
+            total: separationData?.data?.pagination?.count || 0,
+            pageSize: 20,
+            onChange: (page: number) => {},
+          }}
+        />
       </Card>
     </div>
   );
@@ -56,118 +206,18 @@ const SeparationManagement = () => {
 
 export default SeparationManagement;
 
-type SeparationManagementResults = {
-  name: string;
-  position: string;
-  method: string;
-  location: string;
-  project: string;
-  grade: string;
-  submit_date: string;
-  exit_date: string;
-  status: string;
-};
+interface ActionListProps {
+  id: string;
+  onDelete: (id: string) => void;
+}
 
-const data = Array(5).fill({
-  name: "ISAAC OLUGBENLE",
-  position: "Technical Assistant-COMM ART",
-  method: "End of Project",
-  location: "Akwa Ibom",
-  project: "ACEBAY",
-  grade: "5",
-  submit_date: "14-03-2022",
-  exit_date: "14-03-2022",
-  status: "Completed",
-});
+const ActionList: React.FC<ActionListProps> = ({ id, onDelete }) => {
+  const handleDeleteClick = () => {
+    if (window.confirm("Are you sure you want to delete this separation record?")) {
+      onDelete(id);
+    }
+  };
 
-const columns: ColumnDef<SeparationManagementResults>[] = [
-  {
-    id: "select",
-    size: 80,
-    header: ({ table }) => {
-      return (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => {
-            table.toggleAllPageRowsSelected(!!value);
-          }}
-        />
-      );
-    },
-    cell: ({ row }) => {
-      return (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => {
-            row.toggleSelected(!!value);
-          }}
-        />
-      );
-    },
-  },
-  {
-    header: "Name",
-    accessorKey: "name",
-    size: 250,
-  },
-  {
-    header: "Position",
-    accessorKey: "position",
-    size: 250,
-  },
-  {
-    header: "Method",
-    accessorKey: "method",
-  },
-  {
-    header: "Location",
-    accessorKey: "location",
-  },
-  {
-    header: "Project",
-    accessorKey: "project",
-  },
-  {
-    header: "Grade",
-    accessorKey: "grade",
-  },
-  {
-    header: "Submit Date",
-    accessorKey: "submit_date",
-  },
-  {
-    header: "Exit Date",
-    accessorKey: "exit_date",
-  },
-  {
-    header: "Status",
-    accessorKey: "status",
-    size: 100,
-    cell: ({ getValue }) => {
-      return (
-        <Badge
-          variant='default'
-          className={cn(
-            "p-1 rounded-lg",
-            getValue() === "Completed"
-              ? "bg-green-200 text-green-500"
-              : "bg-red-200 text-red-500"
-          )}
-        >
-          {getValue() as string}
-        </Badge>
-      );
-    },
-  },
-  {
-    header: "Actions",
-    id: "actions",
-    size: 50,
-    cell: () => <ActionList />,
-  },
-];
-
-const ActionList = () => {
   return (
     <div className='flex items-center gap-2'>
       <>
@@ -180,7 +230,7 @@ const ActionList = () => {
           <PopoverContent className=' w-fit'>
             <div className='flex flex-col items-start justify-between gap-1'>
               <Link
-                href="/dashboard/hr/separation-management/1"
+                href={`/dashboard/hr/separation-management/${id}`}
               >
                 <Button
                   className='w-full flex items-center justify-start gap-2'
@@ -192,11 +242,12 @@ const ActionList = () => {
               </Link>
 
               <Button
+                onClick={handleDeleteClick}
                 className='w-full flex items-center justify-start gap-2'
                 variant='ghost'
               >
                 <DeleteIcon />
-                delete
+                Delete
               </Button>
             </div>
           </PopoverContent>

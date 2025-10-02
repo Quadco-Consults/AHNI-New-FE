@@ -1,17 +1,27 @@
 import PencilIcon from "components/icons/PencilIcon";
 import Card from "components/Card";
+import DescriptionCard from "components/DescriptionCard";
 import { Button } from "components/ui/button";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
+import { SeparationManagement } from "@/features/hr/types/separation-management";
 
-const Feedback = () => {
+interface FeedbackProps {
+  data?: SeparationManagement;
+}
+
+const Feedback = ({ data }: FeedbackProps) => {
   const dispatch = useAppDispatch();
+
+  if (!data) return null;
+
+  const employeeName = `${data.employee?.legal_firstname || ""} ${data.employee?.legal_lastname || ""}`.toUpperCase();
 
   return (
     <div className="space-y-8">
       <div className="flex-items">
-        <h4 className="font-semibold text-xl">ISAAC OLUGBENLE</h4>
+        <h4 className="font-semibold text-xl">{employeeName}</h4>
         <Button
           onClick={() =>
             dispatch(
@@ -30,41 +40,38 @@ const Feedback = () => {
       </div>
 
       <Card className="space-y-6">
-        <div className="flex-items">
-          <p className="font-semibold">Amos Jeniffer</p>
-          <p className="font-light">2:00.pm, 20-10-2024 </p>
+        <p className="font-semibold text-yellow-600">Performance & Evaluation</p>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <DescriptionCard
+            label="Performance Rating"
+            description={data.performance_rating || "N/A"}
+          />
+          <DescriptionCard
+            label="Rehire Eligible"
+            description={data.rehire_eligible ? "Yes" : "No"}
+          />
         </div>
-        <p className="text-sm">
-          Alex Johnson has consistently demonstrated exceptional performance as
-          a team member at our organization. With a keen eye for detail and a
-          proactive approach, Alex excels in managing tasks efficiently and
-          effectively. Their positive attitude and willingness to go the extra
-          mile have greatly contributed to the success of our projects.
-          Alex&apos;s ability to communicate clearly and collaborate with
-          colleagues has fostered a supportive and productive work environment.
-          They are reliable, dedicated, and always ready to take on new
-          challenges. We are fortunate to have Alex as part of our team and look
-          forward to their continued contributions to our success.
-        </p>
       </Card>
-      <Card className="space-y-6">
-        <div className="flex-items">
-          <p className="font-semibold">Gabriel Mary</p>
-          <p className="font-light">2:00.pm, 20-10-2024 </p>
-        </div>
-        <p className="text-sm">
-          Sarah Thompson has been an invaluable asset to our team. Her
-          exceptional organizational skills and attention to detail have
-          significantly improved our workflow and project management. Sarah
-          consistently meets deadlines and delivers high-quality work,
-          showcasing her dedication and professionalism. Her strong
-          communication abilities and collaborative spirit make her a pleasure
-          to work with. Sarah is always eager to assist colleagues and takes
-          initiative to solve problems efficiently. We are grateful for her
-          contributions and are confident she will continue to excel and drive
-          our team’s success
-        </p>
-      </Card>
+
+      {data.evaluation_notes && (
+        <Card className="space-y-6">
+          <p className="font-semibold">Evaluation Notes</p>
+          <p className="text-sm">{data.evaluation_notes}</p>
+        </Card>
+      )}
+
+      {data.exit_feedback && (
+        <Card className="space-y-6">
+          <p className="font-semibold">Exit Feedback</p>
+          <p className="text-sm">{data.exit_feedback}</p>
+        </Card>
+      )}
+
+      {!data.evaluation_notes && !data.exit_feedback && (
+        <Card className="p-6 text-center text-gray-500">
+          No evaluation or feedback has been provided yet.
+        </Card>
+      )}
     </div>
   );
 };
