@@ -8,7 +8,7 @@ import { IConsultancyStaffPaginatedData } from "@/features/contracts-grants/type
 import EyeIcon from "components/icons/EyeIcon";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
-import { FileText, CheckCircle, Download } from "lucide-react";
+import { FileText, CheckCircle, Download, Clock } from "lucide-react";
 
 export const acceptedContractsColumns: ColumnDef<IConsultancyStaffPaginatedData>[] =
     [
@@ -61,17 +61,26 @@ export const acceptedContractsColumns: ColumnDef<IConsultancyStaffPaginatedData>
 
         {
             header: "Contract Status",
-            id: "status",
-            accessorKey: "status",
+            id: "offer_accepted",
+            accessorKey: "offer_accepted",
             size: 120,
-            cell: ({ getValue }) => {
-                return (
+            cell: ({ row }) => {
+                const offerAccepted = row.original.offer_accepted;
+                return offerAccepted ? (
                     <Badge
                         variant="default"
                         className="p-1 rounded-lg flex items-center gap-1 bg-green-100 text-green-700"
                     >
                         <CheckCircle className="h-3 w-3" />
                         Accepted
+                    </Badge>
+                ) : (
+                    <Badge
+                        variant="default"
+                        className="p-1 rounded-lg flex items-center gap-1 bg-amber-100 text-amber-700"
+                    >
+                        <Clock className="h-3 w-3" />
+                        Pending
                     </Badge>
                 );
             },

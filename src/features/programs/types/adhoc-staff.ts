@@ -23,6 +23,8 @@ export const AdhocStaffSchema = z.object({
   bank_name: z.string().optional(),
   account_number: z.string().optional(),
   sort_code: z.string().optional(),
+  // Project assignment
+  project: z.string().optional(),
 });
 
 export type TAdhocStaffFormData = z.infer<typeof AdhocStaffSchema>;

@@ -175,9 +175,13 @@ export const useModifyCba = (id: string) => {
 
   const modifyCba = async (details: any) => {
     try {
-      await callApi(details);
+      console.log("📤 PATCH CBA Request:", details);
+      const result = await callApi(details);
+      console.log("✅ PATCH CBA Response:", result);
+      return result;
     } catch (error) {
-      console.error("CBA modify error:", error);
+      console.error("❌ CBA modify error:", error);
+      throw error;
     }
   };
 
@@ -300,7 +304,7 @@ export const useCalculateCbaScores = (cbaId: string) => {
 
 // Get Price Responsiveness Ranking
 export const usePriceResponsivenessRanking = (cbaId: string) => {
-  return useQuery<TResponse<{ 
+  return useQuery<TResponse<{
     first_most_responsive: string;
     second_most_responsive: string;
     third_most_responsive: string;
@@ -318,6 +322,34 @@ export const usePriceResponsivenessRanking = (cbaId: string) => {
     },
     enabled: !!cbaId,
     refetchOnWindowFocus: false,
+  });
+};
+
+// Get CBA Analysis Results
+export const useGetCbaAnalysisResults = (cbaId: string, enabled: boolean = true) => {
+  return useQuery<TResponse<any>>({
+    queryKey: ["cba-analysis-results", cbaId],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`/procurements/cba-analysis-submission/?cba_id=${cbaId}`);
+        console.log("📊 CBA Analysis Results API Response:", response.data);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        console.error("❌ CBA Analysis Results API Error:", axiosError);
+
+        // If it's a 404 or no results, return null instead of throwing
+        if (axiosError.response?.status === 404 ||
+            (axiosError.response?.data as any)?.message?.includes("not found")) {
+          return { data: null };
+        }
+
+        throw new Error("Sorry: " + ((axiosError.response?.data as any)?.message || "Failed to fetch analysis results"));
+      }
+    },
+    enabled: enabled && !!cbaId,
+    refetchOnWindowFocus: false,
+    retry: false, // Don't retry if analysis doesn't exist yet
   });
 };
 
@@ -346,6 +378,7 @@ const CbaAPI = {
   useCbaEvaluation,
   useCalculateCbaScores,
   usePriceResponsivenessRanking,
+  useGetCbaAnalysisResults,
   useGetCbaListQuery,
   useGetCbaQuery,
   useCreateCbaMutation,

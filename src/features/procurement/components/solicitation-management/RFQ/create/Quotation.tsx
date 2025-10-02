@@ -75,9 +75,15 @@ const Quotation = () => {
   });
 
   const eoiType = searchParams.get("type");
+  const eoiId = searchParams.get("eoi_id") || (id !== "create" ? id : null);
+  const eoiName = searchParams.get("eoi_name");
+  const eoiDescription = searchParams.get("eoi_description");
+  const eoiNumber = searchParams.get("eoi_number");
+  const solicitationType = searchParams.get("solicitation_type");
+  const eoiCategories = searchParams.get("eoi_categories");
 
   const { data: eoiData } = useGetAllEois(
-    useMemo(() => ({ type: "OPEN_TENDER" }), [])
+    useMemo(() => ({ type: eoiType || "OPEN_TENDER" }), [eoiType])
   );
 
   const categoryQueryResult = useGetAllCategories(
@@ -106,7 +112,6 @@ const Quotation = () => {
       request_type: "",
       tender_type: "",
       purchase_request: "",
-      procurement_type: "",
       eoi_tender: "",
       categories: [],
       documents: [],
@@ -118,26 +123,93 @@ const Quotation = () => {
     control: form.control,
   });
 
-  // Auto-set tender type when coming from EOI
+  // Auto-set tender type and inherit all EOI details when coming from EOI
   useEffect(() => {
     if (eoiType === "OPEN_TENDER") {
-      form.setValue("tender_type", "National Tender");
-      form.setValue("request_type", "Request For Quotation");
-    }
-  }, [eoiType, form]);
+      console.log("🔍 Inheriting EOI Details:", {
+        eoiName,
+        eoiDescription,
+        eoiNumber,
+        solicitationType,
+        eoiCategories
+      });
 
-  // After eoiOptions
+      // Set basic tender configuration
+      form.setValue("tender_type", "NATIONAL OPEN TENDER");
+
+      // Set request type based on EOI solicitation type
+      if (solicitationType === "R_F_Q") {
+        form.setValue("request_type", "REQUEST FOR QUOTATION");
+      } else if (solicitationType === "R_F_P") {
+        form.setValue("request_type", "REQUEST FOR PROPOSAL");
+      } else {
+        form.setValue("request_type", "REQUEST FOR QUOTATION"); // default
+      }
+
+      // Inherit EOI details
+      if (eoiName) {
+        form.setValue("title", decodeURIComponent(eoiName));
+        console.log("✅ EOI Title inherited:", decodeURIComponent(eoiName));
+      }
+
+      if (eoiDescription) {
+        form.setValue("background", decodeURIComponent(eoiDescription));
+        console.log("✅ EOI Background inherited:", decodeURIComponent(eoiDescription));
+      }
+
+      if (eoiNumber) {
+        // Generate RFQ ID based on EOI number
+        const rfqId = `RFQ-${eoiNumber}-${new Date().getFullYear()}`;
+        form.setValue("rfq_id", rfqId);
+        console.log("✅ RFQ ID generated from EOI:", rfqId);
+      }
+
+      // Inherit categories if provided
+      if (eoiCategories) {
+        const categoryIds = eoiCategories.split(",").filter(Boolean);
+        form.setValue("categories", categoryIds);
+        console.log("✅ EOI Categories inherited:", categoryIds);
+      }
+
+      // Set the EOI field if we have an ID (for form submission purposes)
+      if (eoiId) {
+        form.setValue("eoi_tender", eoiId);
+        console.log("✅ EOI field set for form submission:", eoiId);
+      }
+    }
+  }, [eoiType, eoiName, eoiDescription, eoiNumber, solicitationType, eoiCategories, form]);
+
+  // After eoiOptions - for cases where EOI ID is available (not needed when URL params provide all details)
   useEffect(() => {
-    if (!id || !eoiOptions?.length) return;
+    // @ts-ignore - accessing eoiData structure
+    if (!eoiId || !eoiOptions?.length || !eoiData?.data?.results) return;
+
+    console.log("🔍 EOI ID-based Inheritance Debug:", {
+      eoiId,
+      eoiOptions,
+      // @ts-ignore - accessing eoiData structure
+      eoiDataResults: eoiData?.data?.results,
+      searchParams: searchParams ? Object.fromEntries(searchParams.entries()) : null
+    });
 
     // @ts-ignore
-    const matchedEoi = eoiOptions?.find((option) => option?.value === id);
+    const matchedEoi = eoiOptions?.find((option) => option?.value === eoiId);
+    // @ts-ignore - accessing eoiData structure
+    const matchedEoiData = eoiData?.data?.results?.find((eoi) => eoi?.id === eoiId);
 
-    if (matchedEoi) {
+    console.log("🎯 EOI Match Results:", {
+      matchedEoi,
+      matchedEoiData,
+      willInheritTitle: !!(matchedEoi && matchedEoiData)
+    });
+
+    if (matchedEoi && matchedEoiData) {
       form.setValue("eoi_tender", matchedEoi.value); // set EOI
       form.setValue("tender_type", "NATIONAL OPEN TENDER"); // set Tender Type
+      form.setValue("title", matchedEoiData.name); // inherit EOI title
+      console.log("✅ EOI Title Inherited:", matchedEoiData.name);
     }
-  }, [id, eoiOptions, form]);
+  }, [eoiId, eoiOptions, eoiData, form, searchParams]);
 
   const { data: purchaseRequest, isLoading: isPurchaseRequestLoading } =
     useGetPurchaseRequests({});
@@ -156,25 +228,28 @@ const Quotation = () => {
 
   const matchedCategories =
     categories?.filter((category: CategoryResultsData) =>
-      form.watch("categories").includes(category?.id)
+      form.watch("categories")?.includes(category?.id)
     ) || [];
 
   const onSubmit: SubmitHandler<TSolicitationQuotationFormData> = (data) => {
     // Add EOI ID to the data if it exists (coming from EOI flow)
-    const dataWithEoi = id ? { ...data, eoi_id: id } : data;
+    const dataWithEoi = eoiId ? { ...data, eoi_id: eoiId } : data;
     sessionStorage.setItem("rfqQuotationFormData", JSON.stringify(dataWithEoi));
+
+    console.log("📝 RFQ Quotation Data Saved:", dataWithEoi);
 
     // Navigate to items page - replace quotation with items in the path
     let path = pathname?.replace("/quotation", "/items") || "";
-    if (id) {
+    if (eoiId && id !== "create") {
       // Remove the ID from the end if present
       path = path.substring(0, path.lastIndexOf("/"));
     }
 
     // Preserve search parameters (like type=OPEN_TENDER) in the redirect
-    const currentParams = searchParams.toString();
+    const currentParams = searchParams?.toString() || "";
     const finalPath = currentParams ? `${path}?${currentParams}` : path;
 
+    console.log("🔗 Navigating to:", finalPath);
     router.push(finalPath);
   };
 
@@ -190,26 +265,17 @@ const Quotation = () => {
     const fileArray = Array.from(e?.target.files || []);
     const file = e?.target.files?.[0]!;
 
-    // @ts-ignore
-    if (Array.isArray(currentValues[field])) {
-      const updatedFiles = [...currentValues[field]];
+    if (field === "documents" && Array.isArray(currentValues.documents)) {
+      const updatedFiles = [...currentValues.documents];
       updatedFiles[index] = {
         ...updatedFiles[index],
+        // @ts-ignore - extending the document type for file handling
         file: fileArray,
         document_type,
         title: file?.name || "",
       };
 
-      // @ts-ignore
-      form.setValue(field, updatedFiles);
-    } else {
-      // @ts-ignore
-      form.setValue(field, {
-        ...currentValues[field],
-        file: fileArray,
-        document_type,
-        title: file?.name || "",
-      });
+      form.setValue("documents", updatedFiles);
     }
   };
 
@@ -218,14 +284,13 @@ const Quotation = () => {
     label: string,
     index: number,
     placeholder?: string,
-    title?: string,
+    _title?: string,
     document_type?: string,
     multiple?: boolean
   ) => {
-    // @ts-ignore
-    const files = form.watch(field);
-    // @ts-ignore
-    const fileName = files?.[index]?.title || files?.title || "";
+    const files = form.watch("documents");
+    // @ts-ignore - accessing extended document properties
+    const fileName = files?.[index]?.title || "";
 
     return (
       <div key={index} className="mb-4 w-full">
@@ -269,13 +334,14 @@ const Quotation = () => {
           {/* ✅ Hook Form Controlled Input for Description */}
           <Controller
             control={form.control}
-            name={`documents.${index}.description`}
+            name={`documents.${index}.description` as any}
             render={({ field }) => (
               <Input
                 {...field}
                 type="text"
                 placeholder={placeholder || "Enter description (if any)"}
                 className="h-[52px] rounded-[8px] bg-white relative top-[1px]"
+                value={field.value || ""}
               />
             )}
           />
@@ -303,7 +369,11 @@ const Quotation = () => {
             <FormTextArea name="background" label="Background" required />
 
             <div className="grid grid-cols-2 gap-6">
-              <FormSelect name="tender_type" label="Tender Type">
+              <FormSelect
+                name="tender_type"
+                label="Tender Type"
+                disabled={eoiType === "OPEN_TENDER"}
+              >
                 <SelectContent>
                   {[
                     "SINGLE SOURCE",
@@ -319,12 +389,30 @@ const Quotation = () => {
                 </SelectContent>
               </FormSelect>
 
-              <FormSelect
-                label="EOI"
-                name="eoi_tender"
-                placeholder="Select EOI"
-                options={eoiOptions}
-              />
+              {/* Only show EOI selection if NOT coming from an EOI */}
+              {eoiType !== "OPEN_TENDER" && (
+                <FormSelect
+                  label="EOI"
+                  name="eoi_tender"
+                  placeholder="Select EOI"
+                  options={eoiOptions}
+                />
+              )}
+
+              {/* Show EOI info when coming from EOI */}
+              {eoiType === "OPEN_TENDER" && eoiName && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Source EOI</label>
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                    <p className="text-sm font-medium text-blue-800">
+                      {decodeURIComponent(eoiName)}
+                    </p>
+                    <p className="text-xs text-blue-600">
+                      RFQ inherited from this EOI
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-6">
@@ -344,7 +432,11 @@ const Quotation = () => {
                 </FormSelect>
               )}
 
-              <FormSelect name="request_type" label="Request type">
+              <FormSelect
+                name="request_type"
+                label="Request type"
+                disabled={eoiType === "OPEN_TENDER"}
+              >
                 <SelectContent>
                   {[
                     "REQUEST FOR QUOTATION",
@@ -370,11 +462,6 @@ const Quotation = () => {
               </FormSelect>
             </div>
 
-            <FormInput
-              label="Procurement Type"
-              name="procurement_type"
-              required
-            />
 
             {["LIMITED SOLICITATION"].includes(tender_type) && (
               <div className="space-y-2">
