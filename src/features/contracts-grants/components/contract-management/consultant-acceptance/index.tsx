@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { usePathname } from "next/navigation";
 import Card from "components/Card";
 import { Button } from "components/ui/button";
 import { useGetAllContractRequests } from "@/features/contracts-grants/controllers/contractController";
@@ -11,6 +12,11 @@ import { FileText, Users, Calendar, Briefcase, Eye, CheckCircle, Clock } from "l
 export default function ConsultancyAcceptance() {
     const [page, setPage] = useState(1);
     const router = useRouter();
+    const pathname = usePathname();
+
+    // Determine type based on pathname
+    const applicantType = pathname?.includes("adhoc") ? "ADHOC" : "CONSULTANT";
+    const staffLabel = applicantType === "ADHOC" ? "adhoc staff" : "consultants";
 
     // Fetch all contract requests (job adverts)
     const { data: contractRequestsData, isFetching: isLoadingRequests } = useGetAllContractRequests({
@@ -18,15 +24,43 @@ export default function ConsultancyAcceptance() {
         size: 100, // Get all to group properly
     });
 
-    // Fetch all applicants with CONTRACT_ISSUED status
+    // Fetch all applicants (CONTRACT_ISSUED or APPROVED status)
     const { data: applicantsData, isFetching: isLoadingApplicants } = useGetAllConsultancyApplicants({
         page: 1,
         size: 1000,
-        status: "CONTRACT_ISSUED",
     });
 
     const contractRequests = contractRequestsData?.data?.results || [];
-    const allApplicants = applicantsData?.data?.results || [];
+    const allApplicantsRaw = applicantsData?.data?.results || [];
+
+    // Filter applicants by type with backward compatibility
+    const allApplicants = useMemo(() => {
+        return allApplicantsRaw.filter(applicant => {
+            // Only show applicants with contracts issued or approved
+            if (!['CONTRACT_ISSUED', 'APPROVED'].includes(applicant.status)) {
+                return false;
+            }
+
+            // Check if applicant has consultants array (indicates adhoc staff)
+            const hasConsultantsArray = applicant.consultants && applicant.consultants.length > 0;
+            const hasConsultancyData = applicant.consultancy || applicant.consultant_id;
+            const isAdhocIndicator = hasConsultantsArray || hasConsultancyData;
+
+            // For adhoc route
+            if (applicantType === "ADHOC") {
+                // Include if has consultants array or consultancy data (regardless of type field)
+                if (isAdhocIndicator) return true;
+                // Or if type is explicitly ADHOC
+                return applicant.type === "ADHOC";
+            }
+
+            // For consultant route
+            // Exclude if has adhoc indicators
+            if (isAdhocIndicator) return false;
+            // Include if type is CONSULTANT or null/undefined
+            return !applicant.type || applicant.type === "CONSULTANT";
+        });
+    }, [allApplicantsRaw, applicantType]);
 
     // Group applicants by contract_request
     const groupedByContractRequest = contractRequests.map(request => {
@@ -67,7 +101,7 @@ export default function ConsultancyAcceptance() {
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900">Contract Acceptance Portal</h1>
                     <p className="text-gray-600 mt-2">
-                        Job adverts with issued contracts awaiting acceptance from adhoc staff
+                        Job adverts with issued contracts awaiting acceptance from {staffLabel}
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -334,7 +368,10 @@ export default function ConsultancyAcceptance() {
                                                                 : 'bg-[#DEA004] hover:bg-[#c48f04]'
                                                         }`}
                                                         onClick={() => {
-                                                            router.push(`/dashboard/programs/adhoc/adhoc-acceptance/applicant/${applicant.id}`);
+                                                            const basePath = pathname?.includes("adhoc")
+                                                                ? "/dashboard/programs/adhoc/adhoc-acceptance"
+                                                                : "/dashboard/c-and-g/consultant/consultance-acceptance";
+                                                            router.push(`${basePath}/applicant/${applicant.id}`);
                                                         }}
                                                     >
                                                         <Eye className="h-3 w-3" />
