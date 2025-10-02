@@ -44,7 +44,7 @@ export default function CreateCloseOutPlan() {
     resolver: zodResolver(CloseOutPlanSchema),
     defaultValues: {
       project: "",
-      department: "",
+      department: "PRE-CLOSEOUT & CLOSE-OUT ACTIVITIES",
       location: "",
       tasks: [
         {
@@ -124,11 +124,29 @@ export default function CreateCloseOutPlan() {
 
   const onSubmit: SubmitHandler<TCloseOutPlanFormData> = async (data) => {
     try {
+      // Transform nested structure to flat structure for backend
+      // Backend expects tasks array with activity fields directly, not nested activities
+      const transformedData = {
+        project: data.project,
+        department: data.department,
+        location: data.location,
+        key_task: data.tasks[0]?.key_task || null, // Use first task's key_task
+        tasks: data.tasks.flatMap(task =>
+          task.activities.map(activity => ({
+            designation: activity.designation,
+            remarks: activity.remarks,
+            status: activity.status,
+            start_date: activity.start_date,
+            end_date: activity.end_date,
+          }))
+        )
+      };
+
       if (id) {
-        await modifyCloseOutPlan(data);
+        await modifyCloseOutPlan(transformedData as any);
         toast.success("Close Out Plan Updated");
       } else {
-        await createCloseOutPlan(data);
+        await createCloseOutPlan(transformedData as any);
         toast.success("Close Out Plan Created");
       }
 
@@ -142,20 +160,22 @@ export default function CreateCloseOutPlan() {
 
   useEffect(() => {
     if (closeoutPlanData?.data && id) {
-      const { project: proj, department: dept, location: loc, tasks } = closeoutPlanData.data;
+      const { project: proj, department: dept, location: loc, tasks, key_task } = closeoutPlanData.data;
 
-      // Transform tasks to match form structure
-      const formTasks = tasks.map(task => ({
-        key_task: task.key_task,
-        activities: task.activities.map(activity => ({
-          description: activity.description,
-          designation: activity.designation,
-          remarks: activity.remarks || "",
-          start_date: activity.start_date,
-          end_date: activity.end_date,
-          status: activity.status || "Pending",
+      // Transform flat backend structure to nested form structure
+      // Backend returns tasks array with activity fields directly
+      // Form expects tasks with nested activities arrays
+      const formTasks = [{
+        key_task: key_task || "",
+        activities: tasks.map((task: any) => ({
+          description: task.description || "",
+          designation: task.designation || "",
+          remarks: task.remarks || "",
+          start_date: task.start_date || "",
+          end_date: task.end_date || "",
+          status: task.status || "Pending",
         }))
-      }));
+      }];
 
       form.reset({
         project: proj.id,
@@ -181,12 +201,12 @@ export default function CreateCloseOutPlan() {
               options={projectOptions}
             />
 
-            <FormSelect
-              label='Department'
+            <FormInput
+              label='Main Plan Title'
               name='department'
-              placeholder='Select Department'
-              required
-              options={departmentOptions}
+              value='PRE-CLOSEOUT & CLOSE-OUT ACTIVITIES'
+              disabled
+              className='bg-gray-100'
             />
 
             <FormSelect
@@ -274,16 +294,30 @@ function TaskItem({
     name: `tasks.${taskIndex}.activities`,
   });
 
+  // Section heading options
+  const sectionHeadingOptions = [
+    { label: "FILES, DATA AND RECORDS", value: "FILES, DATA AND RECORDS" },
+    { label: "PROGRAM/TECHNICAL", value: "PROGRAM/TECHNICAL" },
+    { label: "Final Project Report", value: "Final Project Report:" },
+    { label: "HUMAN RESOURCES", value: "HUMAN RESOURCES" },
+    { label: "ADMIN/INVENTORY", value: "ADMIN/INVENTORY" },
+    { label: "FINANCE/ACCOUNTING", value: "FINANCE/ACCOUNTING" },
+    { label: "IT", value: "IT" },
+  ];
+
   return (
     <Card className='space-y-5'>
       <div className='flex justify-between items-start gap-4'>
         <div className='flex-1'>
-          <FormTextArea
-            label='Key Task'
+          <FormSelect
+            label='Section Heading (Optional)'
             name={`tasks.${taskIndex}.key_task`}
-            placeholder='Enter Key Task (e.g., FILES, DATA AND RECORDS, PROGRAM/TECHNICAL)'
-            required
+            placeholder='Select section heading'
+            options={sectionHeadingOptions}
           />
+          <p className='text-xs text-gray-500 mt-1'>
+            Select a section heading to group activities, or leave blank if not needed
+          </p>
         </div>
         {canDelete && (
           <Button
@@ -321,15 +355,17 @@ function TaskItem({
             <FormTextArea
               label='Description'
               name={`tasks.${taskIndex}.activities.${activityIndex}.description`}
-              placeholder='Enter Activity Description'
+              placeholder='Enter Activity Description (or Section Heading like "FILES, DATA AND RECORDS")'
               required
             />
+            <p className='text-xs text-gray-500 -mt-3'>
+              💡 Tip: To create a section header, just fill in the description and leave dates/designation empty
+            </p>
             <div className='grid grid-cols-2 gap-5'>
               <FormInput
                 label='Designation / Responsible'
                 name={`tasks.${taskIndex}.activities.${activityIndex}.designation`}
-                placeholder='Enter Designation (e.g., STO, Program Manager)'
-                required
+                placeholder='Enter Designation (e.g., STO, Program Manager) - Optional for headers'
               />
 
               <FormSelect
@@ -348,14 +384,12 @@ function TaskItem({
                 type='date'
                 label='Start Date'
                 name={`tasks.${taskIndex}.activities.${activityIndex}.start_date`}
-                required
               />
 
               <FormInput
                 type='date'
                 label='End Date'
                 name={`tasks.${taskIndex}.activities.${activityIndex}.end_date`}
-                required
               />
 
               <FormTextArea
