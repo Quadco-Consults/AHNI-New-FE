@@ -13,13 +13,16 @@ import SearchBar from "components/atoms/SearchBar";
 import { Checkbox } from "components/ui/checkbox";
 
 import PayGroupModal from "./components/PayGroupModal";
+import BulkUploadPayGroupModal from "./components/BulkUploadPayGroupModal";
 import { useGetPayGroups } from "@/features/hr/controllers/payGroupController";
 import useDebounce from "utils/useDebounce";
+import { Icon } from "@iconify/react";
 
 const PayGroup: React.FC = () => {
-  const { data: payGroupsData, isLoading: isLoadingPayGroups } =
+  const { data: payGroupsData, isLoading: isLoadingPayGroups, refetch } =
     useGetPayGroups();
   const [isModalOpen, setModalOpen] = useState(false);
+  const [isBulkUploadModalOpen, setBulkUploadModalOpen] = useState(false);
 
   const columns: ColumnDef<any>[] = [
     {
@@ -84,7 +87,15 @@ const PayGroup: React.FC = () => {
             <FilterIcon2 />
           </Button>
         </div>
-        <div className='flex items-center'>
+        <div className='flex items-center gap-2'>
+          <Button
+            onClick={() => setBulkUploadModalOpen(true)}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <Icon icon='ph:upload-duotone' fontSize={20} />
+            <p>Bulk Upload</p>
+          </Button>
           <FormButton onClick={() => setModalOpen(true)}>
             <AddSquareIcon />
             <p>Add New</p>
@@ -105,7 +116,17 @@ const PayGroup: React.FC = () => {
         <PayGroupModal
           isOpen={isModalOpen}
           onCancel={() => setModalOpen(false)}
-          onOk={() => {}}
+          onOk={() => {
+            refetch();
+            setModalOpen(false);
+          }}
+        />
+        <BulkUploadPayGroupModal
+          isOpen={isBulkUploadModalOpen}
+          onCancel={() => setBulkUploadModalOpen(false)}
+          onSuccess={() => {
+            refetch();
+          }}
         />
       </div>
     </div>
