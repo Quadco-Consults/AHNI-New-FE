@@ -13,6 +13,7 @@ import { useAppDispatch } from "hooks/useStore";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { useGetAllWorkPlan, useGetSingleWorkPlan } from "@/features/programs/controllers/workPlanController";
 import { useSubmitTimesheet, useApproveTimesheet, useRejectTimesheet } from "@/features/hr/controllers/timesheetController";
+import { useGetEmployeeOnboardings } from "@/features/hr/controllers/employeeOnboardingController";
 import { toast } from "sonner";
 import Modal from "react-modal";
 
@@ -63,11 +64,19 @@ const TimesheetManagementFull = () => {
   const [timesheetId] = useState<string>("ts-001"); // TODO: Get from URL params
   const [rejectionReason, setRejectionReason] = useState<string>("");
   const [isRejectModalOpen, setIsRejectModalOpen] = useState<boolean>(false);
+  const [selectedApprover, setSelectedApprover] = useState<string>("");
 
   // Approval flow hooks
   const { submitTimesheet, isLoading: isSubmitting } = useSubmitTimesheet(timesheetId);
   const { approveTimesheet, isLoading: isApproving } = useApproveTimesheet(timesheetId);
   const { rejectTimesheet, isLoading: isRejecting } = useRejectTimesheet(timesheetId);
+
+  // Fetch employees for approver selection
+  const { data: employeesData, isLoading: isLoadingEmployees } = useGetEmployeeOnboardings({
+    page: 1,
+    size: 100,
+    enabled: true,
+  });
 
   const addRow = () => setTimesheetData((prev) => [...prev, { ...initialRow }]);
 
@@ -90,8 +99,12 @@ const TimesheetManagementFull = () => {
 
   // Approval flow handlers
   const handleSubmitForApproval = async () => {
+    if (!selectedApprover) {
+      toast.error("Please select an approver");
+      return;
+    }
     try {
-      await submitTimesheet();
+      await submitTimesheet(selectedApprover);
       setTimesheetStatus("submitted");
       toast.success("Timesheet submitted for approval");
     } catch (error) {
@@ -448,6 +461,35 @@ const TimesheetManagementFull = () => {
             )}
           </div>
         </div>
+
+        {/* Approver Selection (only show in draft status) */}
+        {timesheetStatus === "draft" && (
+          <div className='space-y-2'>
+            <label className='text-sm font-medium'>Select Approver *</label>
+            <Select value={selectedApprover} onValueChange={setSelectedApprover}>
+              <SelectTrigger className='w-full'>
+                <SelectValue placeholder="Select an approver" />
+              </SelectTrigger>
+              <SelectContent>
+                {isLoadingEmployees ? (
+                  <SelectItem value="loading" disabled>
+                    Loading employees...
+                  </SelectItem>
+                ) : !employeesData?.data?.results || employeesData.data.results.length === 0 ? (
+                  <SelectItem value="no-employees" disabled>
+                    No employees found
+                  </SelectItem>
+                ) : (
+                  employeesData.data.results.map((employee: any) => (
+                    <SelectItem key={employee.id} value={employee.id}>
+                      {employee.legal_firstname} {employee.legal_lastname} {employee.position?.name ? `(${employee.position.name})` : ''}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         {/* Show rejection reason if rejected */}
         {timesheetStatus === "rejected" && (

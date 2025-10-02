@@ -26,6 +26,11 @@ export type TimesheetSummary = {
     name: string;
     department: string;
   };
+  approver?: {
+    id: string;
+    name: string;
+    position?: string;
+  };
   weekPeriod: {
     startDate: string;
     endDate: string;
