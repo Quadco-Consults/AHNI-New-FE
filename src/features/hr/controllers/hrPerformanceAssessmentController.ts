@@ -41,7 +41,16 @@ export const useGetPerformanceAssesments = ({
             ...(search && { search }),
           },
         });
-        return response.data;
+        console.log("Raw API Response:", response.data);
+
+        // Backend returns nested structure: data.data.results
+        const results = response.data?.data?.results || [];
+        console.log("Extracted results:", results);
+
+        return {
+          ...response.data,
+          data: results,
+        };
       } catch (error) {
         const axiosError = error as AxiosError;
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
@@ -85,9 +94,12 @@ export const useCreatePerformanceAssesment = () => {
 
   const createPerformanceAssesment = async (details: Partial<PerformanceAssesment>) => {
     try {
-      await callApi(details);
+      const response = await callApi(details);
+      console.log("Create response:", response);
+      return response;
     } catch (error) {
       console.error("Performance assessment create error:", error);
+      throw error;
     }
   };
 

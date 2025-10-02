@@ -9,8 +9,10 @@ import Card from "components/Card";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { HrRoutes } from "constants/RouterConstants";
+import { useUpdatePerformanceAssesment } from "@/features/hr/controllers/hrPerformanceAssessmentController";
+import { toast } from "sonner";
 
 const performanceCategories = [
   {
@@ -76,6 +78,8 @@ const performanceCategories = [
 
 const PerformanceEvaluationForm = () => {
   const router = useRouter();
+  const params = useParams();
+  const assessmentId = params?.id as string;
 
   const {
     control,
@@ -84,19 +88,36 @@ const PerformanceEvaluationForm = () => {
   } = useForm();
 
   const dispatch = useAppDispatch();
+  const { updatePerformanceAssesment, isLoading } = useUpdatePerformanceAssesment(assessmentId);
 
-  const onSubmit = (data: any) => {
+  const onSubmit = async (data: any) => {
     console.log({ data });
-    dispatch(
-      openDialog({
-        type: DialogType.HrSuccessModal,
-        dialogProps: {
-          label:
-            "You have submitted the Performance Assessment, It will now be reviewed and approved accordingly",
-        },
-      })
-    );
-    router.push(HrRoutes.PERFORMANCE_MANAGEMENT);
+
+    // Transform the data to match backend API structure
+    const payload = {
+      goals: data.goals ? Object.values(data.goals) : [],
+      performance: data.performance || {},
+      introductory: data.introductory || {},
+      status: "Completed",
+    };
+
+    try {
+      await updatePerformanceAssesment(payload);
+      toast.success("Performance assessment submitted successfully");
+      dispatch(
+        openDialog({
+          type: DialogType.HrSuccessModal,
+          dialogProps: {
+            label:
+              "You have submitted the Performance Assessment, It will now be reviewed and approved accordingly",
+          },
+        })
+      );
+      router.push(HrRoutes.PERFORMANCE_MANAGEMENT);
+    } catch (error) {
+      toast.error("Failed to submit performance assessment");
+      console.error("Submission error:", error);
+    }
   };
 
   const renderFields = (categoryData: any) => {
